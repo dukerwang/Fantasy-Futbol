@@ -1,0 +1,465 @@
+/* ============================================================
+   Draft Room — 3-panel layout
+   ============================================================ */
+
+.draftRoot {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 64px); /* leave room for nav */
+  min-height: 600px;
+  gap: 0;
+}
+
+/* ---- Banner ---- */
+.banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-3) var(--space-6);
+  background: var(--color-bg-card);
+  border-bottom: 1px solid var(--color-border);
+  flex-shrink: 0;
+}
+
+.bannerMyTurn {
+  background: rgba(99, 135, 255, 0.08);
+  border-bottom-color: rgba(99, 135, 255, 0.3);
+}
+
+.bannerComplete {
+  background: rgba(16, 185, 129, 0.08);
+  border-bottom-color: rgba(16, 185, 129, 0.3);
+}
+
+.bannerLeft {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.bannerOnClock {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.bannerTeam {
+  font-size: var(--text-lg);
+  font-weight: var(--font-bold);
+  color: var(--color-text-primary);
+}
+
+.bannerTitle {
+  font-size: var(--text-lg);
+  font-weight: var(--font-bold);
+  color: var(--color-accent-green);
+}
+
+.bannerRight {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.bannerRound {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.goToTeamBtn {
+  padding: var(--space-2) var(--space-4);
+  background: var(--color-accent-blue);
+  color: #fff;
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  transition: background var(--transition-fast);
+}
+
+.goToTeamBtn:hover {
+  background: var(--color-accent-blue-hover);
+}
+
+/* ---- Timer ---- */
+.timerBar {
+  position: relative;
+  height: 6px;
+  background: var(--color-bg-secondary);
+  flex-shrink: 0;
+  overflow: visible;
+}
+
+.timerFill {
+  height: 100%;
+  transition: width 1s linear, background 0.5s;
+}
+
+.timerLabel {
+  position: absolute;
+  right: var(--space-4);
+  top: 6px;
+  font-size: var(--text-xs);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-muted);
+  pointer-events: none;
+}
+
+/* ---- 3-panel layout ---- */
+.panels {
+  display: grid;
+  grid-template-columns: 260px 1fr 220px;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+@media (max-width: 1024px) {
+  .panels {
+    grid-template-columns: 1fr;
+    overflow: auto;
+  }
+}
+
+.pickerPanel,
+.boardPanel,
+.rosterPanel {
+  overflow-y: auto;
+  padding: var(--space-4);
+  border-right: 1px solid var(--color-border);
+}
+
+.rosterPanel {
+  border-right: none;
+}
+
+.panelTitle {
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: var(--space-3);
+}
+
+/* ---- Player Picker ---- */
+.searchInput {
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-text-primary);
+  font-size: var(--text-sm);
+  margin-bottom: var(--space-2);
+  box-sizing: border-box;
+}
+
+.searchInput:focus {
+  outline: none;
+  border-color: var(--color-accent-blue);
+}
+
+.posFilters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: var(--space-3);
+}
+
+.posBtn {
+  padding: 2px var(--space-2);
+  font-size: var(--text-xs);
+  font-weight: var(--font-medium);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.posBtn:hover {
+  background: var(--color-bg-card-hover);
+  color: var(--color-text-primary);
+}
+
+.posBtnActive {
+  background: var(--color-accent-blue);
+  color: #fff;
+  border-color: var(--color-accent-blue);
+}
+
+.pickError {
+  font-size: var(--text-xs);
+  color: var(--color-accent-red);
+  margin-bottom: var(--space-2);
+}
+
+.playerList {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.playerRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-2) var(--space-2);
+  border-radius: var(--radius-sm);
+  gap: var(--space-2);
+}
+
+.playerRow:hover {
+  background: var(--color-bg-card-hover);
+}
+
+.playerInfo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.playerName {
+  display: block;
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 130px;
+}
+
+.playerClub {
+  display: block;
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+.pickBtn {
+  flex-shrink: 0;
+  padding: 3px var(--space-3);
+  font-size: var(--text-xs);
+  font-weight: var(--font-semibold);
+  background: var(--color-accent-blue);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background var(--transition-fast), opacity var(--transition-fast);
+}
+
+.pickBtn:hover:not(:disabled) {
+  background: var(--color-accent-blue-hover);
+}
+
+.pickBtn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.emptyPicker,
+.pickerMore {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  text-align: center;
+  padding: var(--space-4) 0;
+}
+
+/* ---- Position badges ---- */
+.posBadge {
+  display: inline-block;
+  padding: 1px 5px;
+  border-radius: var(--radius-sm);
+  font-size: var(--text-xs);
+  font-weight: var(--font-semibold);
+  flex-shrink: 0;
+}
+
+.posBadgeSm {
+  display: inline-block;
+  padding: 0 4px;
+  border-radius: 3px;
+  font-size: 10px;
+  font-weight: var(--font-semibold);
+  flex-shrink: 0;
+  line-height: 16px;
+}
+
+.posGK  { background: rgba(245, 158, 11, 0.2); color: #f59e0b; }
+.posCB  { background: rgba(16, 185, 129, 0.2); color: #10b981; }
+.posLB  { background: rgba(16, 185, 129, 0.15); color: #34d399; }
+.posRB  { background: rgba(16, 185, 129, 0.15); color: #34d399; }
+.posDM  { background: rgba(99, 135, 255, 0.2); color: #6387ff; }
+.posCM  { background: rgba(99, 135, 255, 0.2); color: #6387ff; }
+.posAM  { background: rgba(168, 85, 247, 0.2); color: #a855f7; }
+.posLW  { background: rgba(239, 68, 68, 0.15); color: #f87171; }
+.posRW  { background: rgba(239, 68, 68, 0.15); color: #f87171; }
+.posST  { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+
+/* ---- Draft Board ---- */
+.boardPanel {
+  overflow: auto;
+}
+
+.boardScroll {
+  overflow: auto;
+  max-height: 100%;
+}
+
+.boardTable {
+  border-collapse: collapse;
+  font-size: var(--text-xs);
+  min-width: max-content;
+}
+
+.boardTable th,
+.boardTable td {
+  border: 1px solid var(--color-border-subtle);
+  text-align: left;
+}
+
+.roundCell {
+  padding: var(--space-1) var(--space-2);
+  font-weight: var(--font-semibold);
+  color: var(--color-text-muted);
+  background: var(--color-bg-secondary);
+  white-space: nowrap;
+  min-width: 28px;
+}
+
+.teamHeaderCell {
+  padding: var(--space-1) var(--space-2);
+  font-weight: var(--font-medium);
+  color: var(--color-text-secondary);
+  background: var(--color-bg-secondary);
+  white-space: nowrap;
+  min-width: 90px;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.myTeamCol {
+  background: rgba(99, 135, 255, 0.05) !important;
+}
+
+.pickCell {
+  padding: var(--space-1) var(--space-2);
+  vertical-align: middle;
+  min-width: 90px;
+  max-width: 120px;
+  height: 32px;
+}
+
+.pickCellFilled {
+  background: var(--color-bg-card);
+}
+
+.pickCellCurrent {
+  outline: 2px solid var(--color-accent-blue);
+  outline-offset: -2px;
+  animation: pulse 1.2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { outline-color: var(--color-accent-blue); }
+  50% { outline-color: transparent; }
+}
+
+.pickedPlayer {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  overflow: hidden;
+}
+
+.pickedName {
+  font-size: 11px;
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.onClockDot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-accent-blue);
+  animation: blink 1s infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.2; }
+}
+
+/* ---- Roster Panel ---- */
+.rosterList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.rosterTeam {
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.rosterMyTeam {
+  border-color: rgba(99, 135, 255, 0.3);
+}
+
+.rosterTeamHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-bg-secondary);
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.rosterTeamName {
+  font-size: var(--text-xs);
+  font-weight: var(--font-semibold);
+  color: var(--color-text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rosterCount {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+}
+
+.rosterPickList {
+  list-style: none;
+  padding: var(--space-2) var(--space-3);
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.rosterPickItem {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.rosterPickName {
+  font-size: 11px;
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

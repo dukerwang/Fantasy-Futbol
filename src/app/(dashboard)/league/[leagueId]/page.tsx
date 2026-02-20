@@ -3,6 +3,7 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { redirect, notFound } from 'next/navigation';
 import Link from 'next/link';
 import styles from './league.module.css';
+import DraftOrderManager from './DraftOrderManager';
 
 interface Props {
   params: Promise<{ leagueId: string }>;
@@ -70,13 +71,32 @@ export default async function LeaguePage({ params }: Props) {
           <Link href={`/league/${leagueId}/fixtures`} className={styles.actionBtn}>
             Fixtures
           </Link>
-          {league.status === 'setup' && (
-            <Link href={`/draft/${leagueId}`} className={styles.primaryBtn}>
+          {league.status === 'drafting' && (
+            <Link href={`/league/${leagueId}/draft`} className={styles.primaryBtn}>
               Go to Draft
             </Link>
           )}
         </div>
       </header>
+
+      {league.status === 'setup' && (
+        <div className={styles.draftSetupBanner}>
+          {league.commissioner_id === user.id ? (
+            <DraftOrderManager
+              leagueId={leagueId}
+              initialTeams={(teams ?? []).map((t: any) => ({
+                id: t.id,
+                team_name: t.team_name,
+                draft_order: t.draft_order ?? null,
+              }))}
+            />
+          ) : (
+            <p className={styles.waitingBanner}>
+              Waiting for the commissioner to set the draft order and start the draft…
+            </p>
+          )}
+        </div>
+      )}
 
       <div className={styles.grid}>
         <section className={styles.card}>

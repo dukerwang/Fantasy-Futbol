@@ -148,6 +148,7 @@ export interface Team {
   team_name: string;
   faab_budget: number;
   total_points: number;
+  draft_order: number | null;
   created_at: string;
   updated_at: string;
   // Joined fields
@@ -258,6 +259,19 @@ export interface Transaction {
   notes: string | null;
   processed_at: string;
   created_at: string;
+  // Joined fields
+  player?: Player;
+  team?: Team;
+}
+
+export interface DraftPick {
+  id: string;
+  league_id: string;
+  team_id: string;
+  player_id: string;
+  round: number;
+  pick: number; // overall pick number (1-indexed)
+  picked_at: string;
   // Joined fields
   player?: Player;
   team?: Team;
