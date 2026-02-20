@@ -1,0 +1,213 @@
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: var(--space-10);
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.greeting {
+  font-size: var(--text-3xl);
+  font-weight: var(--font-bold);
+  color: var(--color-text-primary);
+  letter-spacing: -0.02em;
+  margin-bottom: var(--space-1);
+}
+
+.username {
+  color: var(--color-accent-blue);
+}
+
+.subtitle {
+  font-size: var(--text-base);
+  color: var(--color-text-secondary);
+}
+
+.createBtn {
+  padding: var(--space-3) var(--space-5);
+  background: var(--color-accent-blue);
+  color: #fff;
+  font-weight: var(--font-semibold);
+  font-size: var(--text-sm);
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.createBtn:hover {
+  background: var(--color-accent-blue-hover);
+  color: #fff;
+}
+
+.sectionTitle {
+  font-size: var(--text-lg);
+  font-weight: var(--font-semibold);
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: var(--text-xs);
+  margin-bottom: var(--space-4);
+}
+
+.leagueGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--space-4);
+}
+
+.leagueCard {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5) var(--space-6);
+  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  transition: border-color var(--transition-fast), background var(--transition-fast),
+    box-shadow var(--transition-fast);
+}
+
+.leagueCard:hover {
+  border-color: var(--color-border-accent);
+  background: var(--color-bg-card-hover);
+  box-shadow: var(--shadow-glow-blue);
+}
+
+.leagueCardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.leagueName {
+  font-size: var(--text-base);
+  font-weight: var(--font-semibold);
+  color: var(--color-text-primary);
+}
+
+.status {
+  font-size: var(--text-xs);
+  font-weight: var(--font-medium);
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-full);
+  text-transform: capitalize;
+}
+
+.status_setup {
+  background: var(--color-accent-yellow-dim);
+  color: var(--color-accent-yellow);
+}
+
+.status_drafting {
+  background: var(--color-accent-blue) / 0.15;
+  color: var(--color-accent-blue);
+}
+
+.status_active {
+  background: var(--color-accent-green-dim);
+  color: var(--color-accent-green);
+}
+
+.status_completed {
+  background: var(--color-bg-secondary);
+  color: var(--color-text-muted);
+}
+
+.teamName {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+.leagueStats {
+  display: flex;
+  gap: var(--space-6);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-border-subtle);
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.statValue {
+  font-size: var(--text-lg);
+  font-weight: var(--font-bold);
+  color: var(--color-text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.statLabel {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* --- Empty State --- */
+.empty {
+  text-align: center;
+  padding: var(--space-16) var(--space-6);
+}
+
+.emptyIcon {
+  font-size: 3rem;
+  margin-bottom: var(--space-4);
+}
+
+.emptyTitle {
+  font-size: var(--text-2xl);
+  font-weight: var(--font-bold);
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-3);
+}
+
+.emptyText {
+  font-size: var(--text-base);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-8);
+}
+
+.emptyActions {
+  display: flex;
+  gap: var(--space-3);
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.primaryBtn {
+  padding: var(--space-3) var(--space-6);
+  background: var(--color-accent-blue);
+  color: #fff;
+  font-weight: var(--font-semibold);
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  transition: background var(--transition-fast);
+}
+
+.primaryBtn:hover {
+  background: var(--color-accent-blue-hover);
+  color: #fff;
+}
+
+.secondaryBtn {
+  padding: var(--space-3) var(--space-6);
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-weight: var(--font-semibold);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  text-decoration: none;
+  transition: color var(--transition-fast), border-color var(--transition-fast);
+}
+
+.secondaryBtn:hover {
+  color: var(--color-text-primary);
+  border-color: var(--color-text-muted);
+}

@@ -1,0 +1,59 @@
+.page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(ellipse at top, #0d1117 0%, var(--color-bg-primary) 60%);
+  padding: var(--space-6);
+}
+
+.card {
+  width: 100%;
+  max-width: 420px;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-10) var(--space-8);
+  box-shadow: var(--shadow-xl);
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-8);
+  justify-content: center;
+}
+
+.logoIcon {
+  font-size: var(--text-2xl);
+}
+
+.logoText {
+  font-size: var(--text-xl);
+  font-weight: var(--font-bold);
+  color: var(--color-text-primary);
+  letter-spacing: -0.02em;
+}
+
+.heading {
+  font-size: var(--text-2xl);
+  font-weight: var(--font-bold);
+  color: var(--color-text-primary);
+  text-align: center;
+  margin-bottom: var(--space-2);
+}
+
+.subheading {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  text-align: center;
+  margin-bottom: var(--space-8);
+}
+
+.switch {
+  margin-top: var(--space-6);
+  text-align: center;
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}

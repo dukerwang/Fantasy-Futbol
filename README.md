@@ -1,36 +1,117 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Fantasy Futbol ⚽
 
-## Getting Started
+A dynasty-style Fantasy Premier League application with **granular positions** (CB vs FB), **real transfer market values** (Transfermarkt), and a **transparent, value-based scoring model**.
 
-First, run the development server:
+## Tech Stack
+- **Next.js 16** (App Router, TypeScript)
+- **Supabase** (PostgreSQL + Auth)
+- **Vanilla CSS** (CSS Modules, dark premium theme)
+- **API-Football** (free tier, 100 req/day)
 
+---
+
+## Setup
+
+### 1. Prerequisites
+- Node.js ≥ 20 (installed via Homebrew: `brew install node`)
+- A Supabase project ([supabase.com](https://supabase.com))
+- An API-Football free account ([api-football.com](https://www.api-football.com))
+
+### 2. Install Dependencies
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 3. Configure Environment
+Copy `.env.local` and fill in your values:
+```
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+API_FOOTBALL_KEY=your-api-football-key
+CRON_SECRET=your-secret-for-cron-routes
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 4. Run Database Migrations
+In your Supabase dashboard → SQL Editor, paste and run:
+```
+supabase/migrations/001_initial_schema.sql
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 5. Sync Premier League Players
+```bash
+curl -X POST http://localhost:3000/api/sync/players \
+  -H "x-cron-secret: your-secret"
+```
 
-## Learn More
+### 6. Start Development Server
+```bash
+npm run dev
+```
+Open [http://localhost:3000](http://localhost:3000)
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Key Features
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Granular Position System
+Instead of the standard DEF/MID/FWD, positions are:
 
-## Deploy on Vercel
+| Code | Position |
+|------|----------|
+| GK | Goalkeeper |
+| CB | Centre-Back |
+| FB | Fullback / Wingback |
+| DM | Defensive Midfielder |
+| CM | Central Midfielder |
+| AM | Attacking Midfielder |
+| W | Winger |
+| ST | Striker / Centre-Forward |
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Scoring Engine (`src/lib/scoring/engine.ts`)
+Points are awarded for football actions, not just G/A:
+- **Defensive**: Tackle Won (+1), Interception (+1), Clean Sheet (CB: +5, FB: +4, GK: +6)
+- **Possession**: Key Pass (+2), Big Chance Created (+3), Pass Completion 90%+ (+2)
+- **Attacking**: Goal (+6), Assist (+4), Shot on Target (+1)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Transfer Compensation (`src/lib/transfers/compensation.ts`)
+When a player transfers out of the Premier League:
+1. Player marked `is_active = false`
+2. `Compensation = market_value × 0.8`
+3. Team's FAAB budget credited
+4. Player dropped from all rosters
+5. Transaction recorded
+
+### Data Sources
+- **Player Stats**: API-Football free tier (100 req/day — sufficient for 1 GW/week)
+- **Market Values**: Transfermarkt via self-hosted `transfermarkt-api` wrapper
+- See `specs/research_data_sources.md` for detailed availability notes
+
+---
+
+## Project Structure
+```
+src/
+├── app/
+│   ├── (auth)/         # Login, Signup pages
+│   ├── (dashboard)/    # Protected pages (Dashboard, My Team, League, Transfers)
+│   └── api/            # API routes (sync/players, sync/stats, transfers/compensate)
+├── components/
+│   ├── auth/           # LoginForm, SignupForm
+│   ├── layout/         # Navbar
+│   └── players/        # PlayerCard, PositionBadge
+├── lib/
+│   ├── api-football/   # API-Football client
+│   ├── scoring/        # Scoring engine
+│   ├── supabase/       # Client + server Supabase clients
+│   └── transfers/      # Transfer compensation logic
+└── types/              # TypeScript types (Player, League, Team, etc.)
+
+supabase/
+└── migrations/         # SQL schema files
+```
+
+## Deployment (Vercel)
+1. Push to GitHub
+2. Import in Vercel, add env vars
+3. Set up Vercel Cron Jobs to hit `/api/sync/players` and `/api/sync/stats`
