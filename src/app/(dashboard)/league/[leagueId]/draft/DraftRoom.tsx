@@ -382,7 +382,7 @@ export default function DraftRoom({
       if (search.trim()) {
         const q = search.toLowerCase();
         if (
-          !(p.web_name ?? p.name).toLowerCase().includes(q) &&
+          !formatPlayerName(p).toLowerCase().includes(q) &&
           !p.pl_team.toLowerCase().includes(q)
         ) {
           return false;

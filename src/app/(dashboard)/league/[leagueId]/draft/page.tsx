@@ -56,17 +56,16 @@ export default async function DraftPage({ params }: Props) {
 
   const picks = (picksData ?? []) as DraftPick[];
 
-  // Fetch all active players for the picker
+  // Fetch all active players for the picker (expanding the select to include rich data for PlayerCards)
   const { data: playersData } = await admin
     .from('players')
-    .select('id, web_name, name, primary_position, pl_team, is_active, market_value')
+    .select(
+      'id, web_name, name, primary_position, secondary_positions, pl_team, is_active, market_value, date_of_birth, nationality, height_cm, fpl_status, fpl_news, fpl_total_points, fpl_form, adp, projected_points, photo_url'
+    )
     .eq('is_active', true)
     .order('market_value', { ascending: false });
 
-  const players = (playersData ?? []) as Pick<
-    Player,
-    'id' | 'web_name' | 'name' | 'primary_position' | 'pl_team' | 'is_active' | 'market_value'
-  >[];
+  const players = (playersData ?? []) as Player[];
 
   // Determine the current user's team in this league
   const myTeam = teams.find((t) => t.user_id === user.id) ?? null;

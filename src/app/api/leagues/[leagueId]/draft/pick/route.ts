@@ -35,13 +35,13 @@ export async function POST(req: NextRequest, { params }: Props) {
   if (!league) return NextResponse.json({ error: 'League not found' }, { status: 404 });
   if (league.status !== 'drafting') return NextResponse.json({ error: 'Draft is not active' }, { status: 400 });
 
-  const { playerId } = await req.json();
+  const { playerId, draftQueue } = await req.json();
   if (!playerId) return NextResponse.json({ error: 'playerId required' }, { status: 400 });
 
   // Get all teams sorted by draft_order
   const { data: teams } = await admin
     .from('teams')
-    .select('id, user_id, draft_order')
+    .select('id, user_id, draft_order, team_name')
     .eq('league_id', leagueId)
     .order('draft_order', { ascending: true });
 
@@ -83,7 +83,7 @@ export async function POST(req: NextRequest, { params }: Props) {
   // Validate player is active
   const { data: player } = await admin
     .from('players')
-    .select('id, is_active')
+    .select('id, is_active, name, web_name, primary_position, pl_team, market_value')
     .eq('id', playerId)
     .single();
 
@@ -130,10 +130,28 @@ export async function POST(req: NextRequest, { params }: Props) {
 
   if (rosterErr) return NextResponse.json({ error: rosterErr.message }, { status: 500 });
 
+  // Broadcast the pick to all connected clients via Supabase Broadcast
+  const broadcastChannel = admin.channel(`draft:${leagueId}`);
+  await broadcastChannel.send({
+    type: 'broadcast',
+    event: 'new_pick',
+    payload: newPick,
+  });
+  admin.removeChannel(broadcastChannel);
+
   // If this was the last pick, close the draft
-  if (picks.length + 1 >= totalPicks) {
+  const isComplete = picks.length + 1 >= totalPicks;
+  if (isComplete) {
     await admin.from('leagues').update({ status: 'active' }).eq('id', leagueId);
+    // Broadcast draft completion
+    const completeChannel = admin.channel(`draft:${leagueId}`);
+    await completeChannel.send({
+      type: 'broadcast',
+      event: 'draft_complete',
+      payload: { leagueId },
+    });
+    admin.removeChannel(completeChannel);
   }
 
-  return NextResponse.json(newPick);
+  return NextResponse.json({ ...newPick, status: isComplete ? 'active' : 'drafting', draftQueue });
 }
