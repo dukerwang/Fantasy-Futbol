@@ -41,9 +41,14 @@ export default async function DashboardPage() {
           </h1>
           <p className={styles.subtitle}>Your fantasy football command centre</p>
         </div>
-        <Link href="/league/create" className={styles.createBtn}>
-          + Create League
-        </Link>
+        <div className={styles.headerBtnGroup}>
+          <Link href="/league/join" className={styles.secondaryBtnHeader}>
+            Join League
+          </Link>
+          <Link href="/league/create" className={styles.createBtn}>
+            + Create League
+          </Link>
+        </div>
       </header>
 
       {teams && teams.length > 0 ? (
