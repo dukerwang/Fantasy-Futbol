@@ -43,6 +43,8 @@ export interface ApiPlayer {
     lastname: string;
     birth: { date: string | null };
     nationality: string | null;
+    height: string | null;
+    weight: string | null;
     photo: string;
   };
   statistics: {

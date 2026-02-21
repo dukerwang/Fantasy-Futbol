@@ -23,12 +23,12 @@ export const POSITION_FLEX_MAP: Record<GranularPosition, GranularPosition[]> = {
 export type Formation = '4-4-2' | '4-3-3' | '3-5-2' | '4-2-3-1' | '3-4-3' | '5-3-2';
 
 export const FORMATION_SLOTS: Record<Formation, GranularPosition[]> = {
-  '4-4-2':   ['GK', 'CB', 'CB', 'LB', 'RB', 'CM', 'CM', 'DM', 'LW', 'ST', 'ST'],
-  '4-3-3':   ['GK', 'CB', 'CB', 'LB', 'RB', 'CM', 'CM', 'DM', 'LW', 'RW', 'ST'],
-  '3-5-2':   ['GK', 'CB', 'CB', 'CB', 'LB', 'DM', 'DM', 'CM', 'AM', 'ST', 'ST'],
+  '4-4-2': ['GK', 'CB', 'CB', 'LB', 'RB', 'CM', 'CM', 'DM', 'LW', 'ST', 'ST'],
+  '4-3-3': ['GK', 'CB', 'CB', 'LB', 'RB', 'CM', 'CM', 'DM', 'LW', 'RW', 'ST'],
+  '3-5-2': ['GK', 'CB', 'CB', 'CB', 'LB', 'DM', 'DM', 'CM', 'AM', 'ST', 'ST'],
   '4-2-3-1': ['GK', 'CB', 'CB', 'LB', 'RB', 'DM', 'DM', 'AM', 'LW', 'RW', 'ST'],
-  '3-4-3':   ['GK', 'CB', 'CB', 'CB', 'LB', 'DM', 'CM', 'RB', 'LW', 'ST', 'RW'],
-  '5-3-2':   ['GK', 'CB', 'CB', 'CB', 'LB', 'RB', 'CM', 'CM', 'DM', 'ST', 'ST'],
+  '3-4-3': ['GK', 'CB', 'CB', 'CB', 'LB', 'DM', 'CM', 'RB', 'LW', 'ST', 'RW'],
+  '5-3-2': ['GK', 'CB', 'CB', 'CB', 'LB', 'RB', 'CM', 'CM', 'DM', 'ST', 'ST'],
 };
 
 // --- Database Types ---
@@ -134,7 +134,14 @@ export interface Player {
   secondary_positions: GranularPosition[];
   market_value: number; // in millions EUR (from Transfermarkt)
   market_value_updated_at: string | null;
+  adp: number | null;
+  projected_points: number | null;
   photo_url: string | null;
+  height_cm: number | null;
+  fpl_status: string | null; // 'a'=available, 'i'=injured, 'd'=doubtful, 's'=suspended, 'u'=unavailable
+  fpl_news: string | null;
+  fpl_total_points: number | null;
+  fpl_form: number | null; // avg FPL pts over last 30 days
   is_active: boolean; // still in the PL
   transfermarkt_id: string | null;
   created_at: string;
@@ -189,7 +196,7 @@ export interface Matchup {
 export interface MatchupLineup {
   formation: Formation;
   starters: { player_id: string; slot: GranularPosition }[];
-  bench: string[]; // player_ids in priority order
+  bench: { player_id: string; slot: BenchSlot }[]; // player_ids in priority order
 }
 
 export interface PlayerStats {
@@ -341,4 +348,33 @@ export interface LeagueStanding {
   points_for: number;
   points_against: number;
   total_points: number;
+}
+
+export type BenchSlot = 'B1' | 'B2' | 'B3' | 'B4' | 'B5' | 'B6' | 'B7' | 'B8';
+
+export const BENCH_FLEX_MAP: Record<BenchSlot, GranularPosition[]> = {
+  B1: ['GK', 'CB', 'LB', 'RB', 'DM', 'CM', 'AM', 'LW', 'RW', 'ST'],
+  B2: ['CB', 'LB', 'RB', 'DM', 'CM', 'AM', 'LW', 'RW', 'ST', 'GK'],
+  B3: ['CB', 'LB', 'RB', 'DM', 'CM', 'AM', 'LW', 'RW', 'ST', 'GK'],
+  B4: ['CB', 'LB', 'RB', 'DM', 'CM', 'AM', 'LW', 'RW', 'ST', 'GK'],
+  B5: ['CB', 'LB', 'RB', 'DM', 'CM', 'AM', 'LW', 'RW', 'ST', 'GK'],
+  B6: ['CB', 'LB', 'RB', 'DM', 'CM', 'AM', 'LW', 'RW', 'ST', 'GK'],
+  B7: ['CB', 'LB', 'RB', 'DM', 'CM', 'AM', 'LW', 'RW', 'ST', 'GK'],
+  B8: ['CB', 'LB', 'RB', 'DM', 'CM', 'AM', 'LW', 'RW', 'ST', 'GK'],
+};
+
+export function getExpectedBenchSlots(benchSize: number): BenchSlot[] {
+  const all: BenchSlot[] = ['B1', 'B2', 'B3', 'B4', 'B5', 'B6', 'B7', 'B8'];
+  return all.slice(0, benchSize);
+}
+
+export interface AuctionListing {
+  player: Player;
+  expires_at: string;
+  highest_bid: number;
+  highest_bidder_team_name: string;
+  highest_bidder_team_id: string | null;
+  my_bid: number | null;
+  my_drop_player_id: string | null;
+  bid_count: number;
 }

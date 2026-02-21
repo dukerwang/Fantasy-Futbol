@@ -38,7 +38,7 @@ export default async function TransfersPage({
 
   const { data: players } = await query;
 
-  const positions = ['GK', 'CB', 'LB', 'RB', 'DM', 'CM', 'AM', 'LW', 'RW', 'ST'];
+  const positions = ['GK', 'CB', 'FB', 'DM', 'CM', 'AM', 'W', 'ST'];
 
   return (
     <div>

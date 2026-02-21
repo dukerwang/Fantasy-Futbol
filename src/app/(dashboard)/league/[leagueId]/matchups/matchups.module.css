@@ -1,0 +1,85 @@
+.container {
+    padding: 1rem;
+}
+
+.header {
+    margin-bottom: 2rem;
+}
+
+.title {
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.gameweekNav {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.gwBtn {
+    padding: 0.5rem 1rem;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.gwBtnActive {
+    background: var(--primary-accent);
+    color: white;
+}
+
+.matchupsGrid {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.matchupCard {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.teamSide {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.teamSideRight {
+    align-items: flex-end;
+}
+
+.teamName {
+    font-weight: 600;
+    font-size: 1.125rem;
+}
+
+.ownerName {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.scoreCenter {
+    padding: 0 2rem;
+    text-align: center;
+}
+
+.scoreText {
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+}
+
+.status {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    margin-top: 0.5rem;
+}

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import type { League, Team, Player, DraftPick } from '@/types';
+import PlayerDetailsModal from '@/components/players/PlayerDetailsModal';
 import styles from './draft.module.css';
 
 const TIMER_SECONDS = 90;
@@ -45,6 +46,7 @@ export default function DraftRoom({
   const [pickError, setPickError] = useState<string | null>(null);
   const [timerKey, setTimerKey] = useState(0);
   const [secondsLeft, setSecondsLeft] = useState(TIMER_SECONDS);
+  const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null);
   const currentCellRef = useRef<HTMLTableCellElement>(null);
 
   const numTeams = teams.length;
@@ -262,7 +264,12 @@ export default function DraftRoom({
 
           <div className={styles.playerList}>
             {availablePlayers.slice(0, 100).map((player) => (
-              <div key={player.id} className={styles.playerRow}>
+              <div
+                key={player.id}
+                className={styles.playerRow}
+                onClick={() => setSelectedPlayer(player)}
+                style={{ cursor: 'pointer' }}
+              >
                 <div className={styles.playerInfo}>
                   <span className={`${styles.posBadge} ${styles[`pos${player.primary_position}`]}`}>
                     {player.primary_position}
@@ -274,7 +281,10 @@ export default function DraftRoom({
                 </div>
                 <button
                   type="button"
-                  onClick={() => makePick(player.id)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    makePick(player.id);
+                  }}
                   disabled={!isMyTurn || loadingPick || isDraftComplete}
                   className={styles.pickBtn}
                 >
@@ -329,11 +339,9 @@ export default function DraftRoom({
                           <td
                             key={team.id}
                             ref={isCurrentSlot ? currentCellRef : undefined}
-                            className={`${styles.pickCell} ${
-                              pick ? styles.pickCellFilled : ''
-                            } ${isCurrentSlot ? styles.pickCellCurrent : ''} ${
-                              team.user_id === myUserId ? styles.myTeamCol : ''
-                            }`}
+                            className={`${styles.pickCell} ${pick ? styles.pickCellFilled : ''
+                              } ${isCurrentSlot ? styles.pickCellCurrent : ''} ${team.user_id === myUserId ? styles.myTeamCol : ''
+                              }`}
                           >
                             {pick ? (
                               <div className={styles.pickedPlayer}>
@@ -396,6 +404,19 @@ export default function DraftRoom({
           </div>
         </aside>
       </div>
+
+      {/* Global Player Details Modal */}
+      {selectedPlayer && (
+        <PlayerDetailsModal
+          player={selectedPlayer}
+          onClose={() => setSelectedPlayer(null)}
+          onPick={
+            isMyTurn && !loadingPick && !isDraftComplete
+              ? (p) => makePick(p.id)
+              : undefined
+          }
+        />
+      )}
     </div>
   );
 }

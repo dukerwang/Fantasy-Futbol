@@ -66,12 +66,20 @@ export async function POST(req: NextRequest) {
         secondary_positions: [] as string[],
         market_value: parseFloat((el.now_cost / 10).toFixed(1)), // FPL price in £m
         photo_url: photoUrl,
+        fpl_status: el.status,
+        fpl_news: el.news || null,
+        fpl_total_points: el.total_points ?? null,
+        fpl_form: el.form ? parseFloat(el.form) : null,
         is_active: el.status !== 'u', // 'u' = unavailable (left club)
         updated_at: new Date().toISOString(),
       };
     });
 
   const admin = createAdminClient();
+
+  // Find existing fpl_ids to detect new arrivals
+  const { data: existingPlayers } = await admin.from('players').select('fpl_id');
+  const existingFplIds = new Set((existingPlayers ?? []).map((p) => p.fpl_id));
 
   const { error } = await admin
     .from('players')
@@ -81,7 +89,43 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  return NextResponse.json({ ok: true, synced: rows.length });
+  // --- System Auctions for High-Value Players ---
+  const newHighValuePlayers = rows.filter(
+    (row) => !existingFplIds.has(row.fpl_id) && row.market_value >= 50.0
+  );
+
+  if (newHighValuePlayers.length > 0) {
+    const { data: insertedPlayers } = await admin
+      .from('players')
+      .select('id, fpl_id')
+      .in('fpl_id', newHighValuePlayers.map(p => p.fpl_id));
+
+    if (insertedPlayers && insertedPlayers.length > 0) {
+      const { data: leagues } = await admin.from('leagues').select('id');
+      const systemBids = [];
+      const expiresAt = new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString();
+
+      for (const player of insertedPlayers) {
+        for (const league of (leagues ?? [])) {
+          systemBids.push({
+            league_id: league.id,
+            team_id: null,
+            player_id: player.id,
+            faab_bid: 0,
+            status: 'pending',
+            is_auction: true,
+            expires_at: expiresAt,
+          });
+        }
+      }
+
+      if (systemBids.length > 0) {
+        await admin.from('waiver_claims').insert(systemBids);
+      }
+    }
+  }
+
+  return NextResponse.json({ ok: true, synced: rows.length, systemBidsSeeded: newHighValuePlayers.length });
 }
 
 // ─── FPL API types ────────────────────────────────────────────────────────────
@@ -95,5 +139,8 @@ interface FplElement {
   team: number;
   now_cost: number;     // tenths of £m
   status: string;       // 'a'=available 'd'=doubtful 'u'=unavailable 's'=suspended 'i'=injured
+  news: string;
+  form: string;
+  total_points: number;
   photo: string;        // "{code}.jpg"
 }

@@ -25,6 +25,5 @@
 .pos_DM { background: var(--color-pos-dm); color: #fff; }
 .pos_CM { background: var(--color-pos-cm); color: var(--color-text-inverse); }
 .pos_AM { background: var(--color-pos-am); color: var(--color-text-inverse); }
-.pos_LW { background: var(--color-pos-lw); color: var(--color-text-inverse); }
-.pos_RW { background: var(--color-pos-rw); color: var(--color-text-inverse); }
+.pos_W  { background: var(--color-pos-w);  color: var(--color-text-inverse); }
 .pos_ST { background: var(--color-pos-st); color: #fff; }
