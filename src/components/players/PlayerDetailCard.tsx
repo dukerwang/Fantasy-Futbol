@@ -52,7 +52,7 @@ export default function PlayerDetailCard({ player, totalPoints, recentForm }: Pr
                     <p className={styles.club}>{player.pl_team}</p>
                     <div className={styles.positions}>
                         <PositionBadge position={player.primary_position} size="md" />
-                        {player.secondary_positions.map((pos) => (
+                        {player.secondary_positions?.map((pos) => (
                             <PositionBadge key={pos} position={pos} size="sm" />
                         ))}
                     </div>

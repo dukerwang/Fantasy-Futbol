@@ -42,7 +42,7 @@ export default function PlayerCard({ player, rosterEntry, fantasyPoints, onDrop,
           </div>
           <div className={styles.meta}>
             <PositionBadge position={player.primary_position} size="sm" />
-            {player.secondary_positions.map((pos) => (
+            {player.secondary_positions?.map((pos) => (
               <PositionBadge key={pos} position={pos} size="sm" />
             ))}
             <span className={styles.plTeam}>{player.pl_team}</span>
