@@ -4,6 +4,7 @@ import { redirect, notFound } from 'next/navigation';
 import Link from 'next/link';
 import styles from './league.module.css';
 import DraftOrderManager from './DraftOrderManager';
+import LeaveLeagueButton from './LeaveLeagueButton';
 
 interface Props {
   params: Promise<{ leagueId: string }>;
@@ -76,6 +77,7 @@ export default async function LeaguePage({ params }: Props) {
               Go to Draft
             </Link>
           )}
+          <LeaveLeagueButton leagueId={leagueId} isCommissioner={league.commissioner_id === user.id} />
         </div>
       </header>
 

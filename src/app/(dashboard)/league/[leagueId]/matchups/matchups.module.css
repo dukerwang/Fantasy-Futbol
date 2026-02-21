@@ -1,38 +1,64 @@
 .container {
-    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
 }
 
 .header {
-    margin-bottom: 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border-color);
 }
 
 .title {
     font-size: 1.5rem;
-    font-weight: 600;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
 }
 
-.gameweekNav {
+.gwSelector {
     display: flex;
-    gap: 1rem;
-    margin-top: 1rem;
+    align-items: center;
+    gap: 0.75rem;
 }
 
-.gwBtn {
+.gwLabel {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.gwSelect {
     padding: 0.5rem 1rem;
-    background: var(--bg-surface);
+    background: var(--bg-surface-light);
     border: 1px solid var(--border-color);
     border-radius: 8px;
+    color: var(--text-primary);
+    font-size: 0.875rem;
+    font-weight: 600;
     cursor: pointer;
+    outline: none;
 }
 
-.gwBtnActive {
-    background: var(--primary-accent);
-    color: white;
+.gwSelect:focus {
+    border-color: var(--primary-accent);
 }
 
-.matchupsGrid {
-    display: flex;
-    flex-direction: column;
+.emptyCard {
+    padding: 3rem;
+    text-align: center;
+    background: var(--bg-surface);
+    border: 1px dashed var(--border-color);
+    border-radius: 12px;
+    color: var(--text-secondary);
+}
+
+.matchupGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
     gap: 1.5rem;
 }
 
@@ -41,45 +67,120 @@
     border: 1px solid var(--border-color);
     border-radius: 12px;
     padding: 1.5rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
 }
 
-.teamSide {
+.matchupCard:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.matchupCard.live::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--color-accent-green);
+}
+
+.matchupCard.completed::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--color-accent-blue);
+}
+
+.statusBadge {
+    position: absolute;
+    top: 1rem;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.65rem;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    padding: 0.15rem 0.5rem;
+    border-radius: 4px;
+    background: var(--bg-surface-light);
+    color: var(--text-secondary);
+}
+
+.matchupCard.live .statusBadge {
+    background: rgba(16, 185, 129, 0.1);
+    color: var(--color-accent-green);
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.6;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
+
+.matchupCard.completed .statusBadge {
+    background: rgba(59, 130, 246, 0.1);
+    color: var(--color-accent-blue);
+}
+
+.matchupTeams {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 1rem;
+}
+
+.team {
     display: flex;
     flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
     flex: 1;
 }
 
-.teamSideRight {
-    align-items: flex-end;
-}
-
 .teamName {
+    font-size: 1rem;
     font-weight: 600;
-    font-size: 1.125rem;
-}
-
-.ownerName {
-    font-size: 0.875rem;
     color: var(--text-secondary);
-}
-
-.scoreCenter {
-    padding: 0 2rem;
     text-align: center;
+    max-width: 140px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-.scoreText {
-    font-size: 2rem;
+.winner .teamName {
+    color: var(--text-primary);
     font-weight: 700;
-    letter-spacing: 2px;
 }
 
-.status {
+.score {
+    font-size: 2.25rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    line-height: 1;
+}
+
+.winner .score {
+    color: var(--primary-accent);
+}
+
+.vs {
     font-size: 0.875rem;
-    color: var(--text-secondary);
-    text-transform: uppercase;
-    margin-top: 0.5rem;
+    font-weight: 800;
+    color: var(--text-muted);
+    padding: 0 1.5rem;
 }
