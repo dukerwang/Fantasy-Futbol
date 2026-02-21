@@ -41,6 +41,12 @@ export default function DraftRoom({
 }: Props) {
   const router = useRouter();
   const [picks, setPicks] = useState<DraftPick[]>(initialPicks);
+
+  // Sync server props to client state when polling via router.refresh() fetches new data
+  useEffect(() => {
+    setPicks(initialPicks);
+  }, [initialPicks]);
+
   const [search, setSearch] = useState('');
   const [posFilter, setPosFilter] = useState<string>('ALL');
   const [loadingPick, setLoadingPick] = useState(false);
