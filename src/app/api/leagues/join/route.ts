@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
   const { data: league } = await admin
     .from('leagues')
     .select('id, name, max_teams, faab_budget, status')
-    .eq('invite_code', inviteCode.trim().toUpperCase())
+    .eq('invite_code', inviteCode.trim().toLowerCase())
     .single();
 
   if (!league) {
