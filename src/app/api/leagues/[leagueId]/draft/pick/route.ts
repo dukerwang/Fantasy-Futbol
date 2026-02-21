@@ -54,7 +54,7 @@ export async function POST(req: NextRequest, { params }: Props) {
   // Get existing picks
   const { data: existingPicks } = await admin
     .from('draft_picks')
-    .select('id, team_id, player_id')
+    .select('id, team_id, player_id, picked_at')
     .eq('league_id', leagueId)
     .order('pick', { ascending: true });
 

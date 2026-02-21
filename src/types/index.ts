@@ -378,3 +378,26 @@ export interface AuctionListing {
   my_drop_player_id: string | null;
   bid_count: number;
 }
+
+/**
+ * Formats a player's name into a clean, concise string for display.
+ * - Single word/nickname (e.g. "Alisson", "Estêvão") -> remains exactly as is.
+ * - Full name (e.g. "Bukayo Saka") -> "B. Saka".
+ */
+export function formatPlayerName(player?: { name?: string | null; web_name?: string | null } | null): string {
+  if (!player) return '—';
+  const targetName = player.web_name || player.name;
+
+  if (!targetName) return '—';
+
+  const parts = targetName.trim().split(' ');
+  // If it's a single word (e.g., Alisson, Gabriel) or a known nickname without spaces
+  if (parts.length === 1) {
+    return parts[0];
+  }
+
+  // Format as "F. Lastname"
+  const firstInitial = parts[0].charAt(0).toUpperCase();
+  const lastName = parts.slice(1).join(' ');
+  return `${firstInitial}. ${lastName}`;
+}

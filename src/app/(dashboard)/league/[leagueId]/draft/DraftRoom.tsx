@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
+import { formatPlayerName } from '@/types';
 import type { League, Team, Player, DraftPick } from '@/types';
 import PlayerDetailsModal from '@/components/players/PlayerDetailsModal';
 import styles from './draft.module.css';
@@ -44,7 +45,6 @@ export default function DraftRoom({
   const [posFilter, setPosFilter] = useState<string>('ALL');
   const [loadingPick, setLoadingPick] = useState(false);
   const [pickError, setPickError] = useState<string | null>(null);
-  const [timerKey, setTimerKey] = useState(0);
   const [secondsLeft, setSecondsLeft] = useState(TIMER_SECONDS);
   const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null);
   const currentCellRef = useRef<HTMLTableCellElement>(null);
@@ -85,9 +85,7 @@ export default function DraftRoom({
             if (prev.some((p) => p.id === newPick.id)) return prev;
             return [...prev, newPick];
           });
-          // Reset timer on each new pick
-          setTimerKey((k) => k + 1);
-          setSecondsLeft(TIMER_SECONDS);
+          // We don't need timerKey anymore, the global difference will auto-calc
           setPickError(null);
         },
       )
@@ -98,21 +96,46 @@ export default function DraftRoom({
     };
   }, [leagueId]);
 
-  // Countdown timer
+  // SWR Fallback (poll every 4s to catch missed websockets)
   useEffect(() => {
     if (isDraftComplete) return;
-    setSecondsLeft(TIMER_SECONDS);
-    const interval = setInterval(() => {
-      setSecondsLeft((s) => {
-        if (s <= 1) {
-          clearInterval(interval);
-          return 0;
-        }
-        return s - 1;
-      });
-    }, 1000);
+    const interval = setInterval(async () => {
+      // Just hard-refreshing router is the safest and easiest way to ensure Data syncs in NextJS apps without building an entire SWR fetching pipeline from scratch. Since layout is mostly client, a soft-refresh is fine.
+      router.refresh();
+    }, 5000);
     return () => clearInterval(interval);
-  }, [timerKey, isDraftComplete]);
+  }, [isDraftComplete, router]);
+
+  // Global Countdown timer
+  useEffect(() => {
+    if (isDraftComplete) return;
+
+    // Find the latest pick's DB timestamp, fallback to league.updated_at
+    const latestPickTimeStr = picks.length > 0
+      ? picks[picks.length - 1].picked_at
+      : league.updated_at;
+
+    const latestPickDate = new Date(latestPickTimeStr ?? Date.now());
+
+    const updateTimer = () => {
+      const now = new Date();
+      // time passed since the pick happened, in seconds
+      const elapsed = Math.floor((now.getTime() - latestPickDate.getTime()) / 1000);
+      const remain = Math.max(0, TIMER_SECONDS - elapsed);
+      setSecondsLeft(remain);
+
+      // Auto-refresh the page if our turn expired to let the backend auto-pick engine kick in
+      if (remain === 0 && isMyTurn) {
+        setPickError('Time expired! Auto-picking...');
+        // Force the layout to resync which triggers page.tsx (and thereby the auto-pick)
+        setTimeout(() => router.refresh(), 1000);
+      }
+    };
+
+    updateTimer(); // initial eval
+    const interval = setInterval(updateTimer, 1000);
+    return () => clearInterval(interval);
+  }, [picks, isDraftComplete, league.updated_at, isMyTurn, router]);
 
   // Scroll current pick cell into view
   useEffect(() => {
@@ -275,7 +298,7 @@ export default function DraftRoom({
                     {player.primary_position}
                   </span>
                   <div>
-                    <span className={styles.playerName}>{player.web_name ?? player.name}</span>
+                    <span className={styles.playerName}>{formatPlayerName(player)}</span>
                     <span className={styles.playerClub}>{player.pl_team}</span>
                   </div>
                 </div>
@@ -351,7 +374,7 @@ export default function DraftRoom({
                                   {pick.player?.primary_position}
                                 </span>
                                 <span className={styles.pickedName}>
-                                  {pick.player?.web_name ?? pick.player?.name ?? '—'}
+                                  {formatPlayerName(pick.player)}
                                 </span>
                               </div>
                             ) : isCurrentSlot ? (
@@ -392,7 +415,7 @@ export default function DraftRoom({
                             {pick.player?.primary_position}
                           </span>
                           <span className={styles.rosterPickName}>
-                            {pick.player?.web_name ?? pick.player?.name ?? '—'}
+                            {formatPlayerName(pick.player)}
                           </span>
                         </li>
                       ))}
