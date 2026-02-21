@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { motion, AnimatePresence } from 'framer-motion';
+import { List } from 'react-window';
 import { createClient } from '@/lib/supabase/client';
 import { formatPlayerName } from '@/types';
 import type { League, Team, Player, DraftPick } from '@/types';
@@ -10,6 +12,8 @@ import PlayerDetailsModal from '@/components/players/PlayerDetailsModal';
 import styles from './draft.module.css';
 
 const TIMER_SECONDS = 90;
+const QUEUE_STORAGE_KEY = (leagueId: string, teamId: string) =>
+  `draft-queue:${leagueId}:${teamId}`;
 
 /** Returns the draft_order slot (1-indexed) on the clock for a given pick. */
 function snakeDraftOrder(pickNumber: number, numTeams: number): number {
@@ -30,6 +34,88 @@ interface Props {
 
 const POSITION_ORDER = ['GK', 'CB', 'LB', 'RB', 'DM', 'CM', 'AM', 'LW', 'RW', 'ST'] as const;
 
+// PlayerRow props passed via rowProps (react-window v2)
+interface PlayerRowCustomProps {
+  players: Player[];
+  queue: string[];
+  myTurn: boolean;
+  picking: boolean;
+  draftDone: boolean;
+  onToggleQueue: (id: string) => void;
+  onMakePick: (id: string) => void;
+  onSelectPlayer: (p: Player) => void;
+}
+
+function PlayerRow({
+  index,
+  style,
+  players,
+  queue,
+  myTurn,
+  picking,
+  draftDone,
+  onToggleQueue,
+  onMakePick,
+  onSelectPlayer,
+}: { index: number; style: React.CSSProperties; ariaAttributes: Record<string, unknown> } & PlayerRowCustomProps) {
+  const player = players[index];
+  if (!player) return null;
+  const isQueued = queue.includes(player.id);
+
+  return (
+    <div
+      style={style}
+      className={styles.playerRow}
+      onClick={() => onSelectPlayer(player)}
+    >
+      <div className={styles.playerInfo}>
+        <span className={`${styles.posBadge} ${styles[`pos${player.primary_position}`]}`}>
+          {player.primary_position}
+        </span>
+        <div>
+          <span className={styles.playerName}>{formatPlayerName(player)}</span>
+          <span className={styles.playerClub}>{player.pl_team}</span>
+        </div>
+      </div>
+      <div className={styles.playerActions}>
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            onToggleQueue(player.id);
+          }}
+          className={`${styles.queueBtn} ${isQueued ? styles.queueBtnActive : ''}`}
+          title={isQueued ? 'Remove from queue' : 'Add to queue'}
+        >
+          {isQueued ? '\u2605' : '\u2606'}
+        </button>
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            onMakePick(player.id);
+          }}
+          disabled={!myTurn || picking || draftDone}
+          className={styles.pickBtn}
+        >
+          Pick
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// Animation variants for draft board picks
+const pickVariants = {
+  hidden: { opacity: 0, scale: 0.5 },
+  visible: { opacity: 1, scale: 1, transition: { type: 'spring' as const, stiffness: 300, damping: 24 } },
+};
+
+const rosterItemVariants = {
+  hidden: { opacity: 0, x: 20 },
+  visible: { opacity: 1, x: 0, transition: { type: 'spring' as const, stiffness: 250, damping: 20 } },
+};
+
 export default function DraftRoom({
   leagueId,
   league,
@@ -41,11 +127,25 @@ export default function DraftRoom({
 }: Props) {
   const router = useRouter();
   const [picks, setPicks] = useState<DraftPick[]>(initialPicks);
+  const [animatedPickIds, setAnimatedPickIds] = useState<Set<string>>(
+    () => new Set(initialPicks.map((p) => p.id))
+  );
+  const [optimisticPick, setOptimisticPick] = useState<DraftPick | null>(null);
 
   // Sync server props to client state when polling via router.refresh() fetches new data
   useEffect(() => {
-    setPicks(initialPicks);
-  }, [initialPicks]);
+    setPicks((prev) => {
+      // Merge: keep any picks not yet in server data (optimistic), add new server picks
+      const serverIds = new Set(initialPicks.map((p) => p.id));
+      // If server has caught up to our optimistic pick, drop the optimistic
+      if (optimisticPick && serverIds.has(optimisticPick.id)) {
+        setOptimisticPick(null);
+      }
+      // Prefer server data as the source of truth
+      if (initialPicks.length >= prev.length) return initialPicks;
+      return prev;
+    });
+  }, [initialPicks, optimisticPick]);
 
   const [search, setSearch] = useState('');
   const [posFilter, setPosFilter] = useState<string>('ALL');
@@ -53,14 +153,65 @@ export default function DraftRoom({
   const [pickError, setPickError] = useState<string | null>(null);
   const [secondsLeft, setSecondsLeft] = useState(TIMER_SECONDS);
   const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null);
+  const [mobileView, setMobileView] = useState<'board' | 'picks'>('picks');
+  const [showQueue, setShowQueue] = useState(false);
   const currentCellRef = useRef<HTMLTableCellElement>(null);
+  const playerListRef = useRef<HTMLDivElement>(null);
+  const autoPickTriggeredRef = useRef(false);
+
+  // Draft Queue (persisted in localStorage)
+  const [draftQueue, setDraftQueue] = useState<string[]>([]);
+  useEffect(() => {
+    if (!myTeam) return;
+    try {
+      const stored = localStorage.getItem(QUEUE_STORAGE_KEY(leagueId, myTeam.id));
+      if (stored) setDraftQueue(JSON.parse(stored));
+    } catch { /* ignore */ }
+  }, [leagueId, myTeam]);
+
+  const saveDraftQueue = useCallback(
+    (queue: string[]) => {
+      setDraftQueue(queue);
+      if (myTeam) {
+        localStorage.setItem(QUEUE_STORAGE_KEY(leagueId, myTeam.id), JSON.stringify(queue));
+      }
+    },
+    [leagueId, myTeam],
+  );
+
+  const toggleQueue = useCallback(
+    (playerId: string) => {
+      saveDraftQueue(
+        draftQueue.includes(playerId)
+          ? draftQueue.filter((id) => id !== playerId)
+          : [...draftQueue, playerId],
+      );
+    },
+    [draftQueue, saveDraftQueue],
+  );
+
+  const moveQueueItem = useCallback(
+    (playerId: string, direction: 'up' | 'down') => {
+      const idx = draftQueue.indexOf(playerId);
+      if (idx === -1) return;
+      const newQueue = [...draftQueue];
+      const swapIdx = direction === 'up' ? idx - 1 : idx + 1;
+      if (swapIdx < 0 || swapIdx >= newQueue.length) return;
+      [newQueue[idx], newQueue[swapIdx]] = [newQueue[swapIdx], newQueue[idx]];
+      saveDraftQueue(newQueue);
+    },
+    [draftQueue, saveDraftQueue],
+  );
 
   const numTeams = teams.length;
   const totalPicks = numTeams * league.roster_size;
-  const isDraftComplete = picks.length >= totalPicks || league.status === 'active';
+  const effectivePicks = optimisticPick
+    ? [...picks.filter((p) => p.id !== optimisticPick.id), optimisticPick]
+    : picks;
+  const isDraftComplete = effectivePicks.length >= totalPicks || league.status === 'active';
 
   // Derived: which team is on the clock
-  const currentPickNumber = picks.length + 1;
+  const currentPickNumber = effectivePicks.length + 1;
   const currentDraftOrderSlot = isDraftComplete
     ? null
     : snakeDraftOrder(currentPickNumber, numTeams);
@@ -72,11 +223,25 @@ export default function DraftRoom({
     ? league.roster_size
     : Math.ceil(currentPickNumber / numTeams);
 
-  // Realtime subscription
+  // Supabase Broadcast subscription (replaces postgres_changes)
   useEffect(() => {
     const supabase = createClient();
     const channel = supabase
       .channel(`draft:${leagueId}`)
+      // Primary: listen for broadcast events (instant, no RLS issues)
+      .on('broadcast', { event: 'new_pick' }, (payload) => {
+        const newPick = payload.payload as DraftPick;
+        setPicks((prev) => {
+          if (prev.some((p) => p.id === newPick.id)) return prev;
+          return [...prev, newPick].sort((a, b) => a.pick - b.pick);
+        });
+        // Track that this pick was added via broadcast (already shown, no need to animate again)
+        setAnimatedPickIds((prev) => new Set(prev).add(newPick.id));
+        // Clear optimistic pick if broadcast confirms it
+        setOptimisticPick((prev) => (prev?.player_id === newPick.player_id ? null : prev));
+        setPickError(null);
+      })
+      // Fallback: postgres_changes still active as safety net
       .on(
         'postgres_changes',
         {
@@ -89,87 +254,125 @@ export default function DraftRoom({
           const newPick = payload.new as DraftPick;
           setPicks((prev) => {
             if (prev.some((p) => p.id === newPick.id)) return prev;
-            return [...prev, newPick];
+            return [...prev, newPick].sort((a, b) => a.pick - b.pick);
           });
-          // We don't need timerKey anymore, the global difference will auto-calc
+          setAnimatedPickIds((prev) => new Set(prev).add(newPick.id));
+          setOptimisticPick((prev) => (prev?.player_id === newPick.player_id ? null : prev));
           setPickError(null);
         },
       )
+      // Draft completion broadcast
+      .on('broadcast', { event: 'draft_complete' }, () => {
+        router.refresh();
+      })
       .subscribe();
 
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [leagueId]);
+  }, [leagueId, router]);
 
-  // SWR Fallback (poll every 4s to catch missed websockets)
+  // Reduced polling frequency since we now have reliable broadcast (15s instead of 5s)
   useEffect(() => {
     if (isDraftComplete) return;
-    const interval = setInterval(async () => {
-      // Just hard-refreshing router is the safest and easiest way to ensure Data syncs in NextJS apps without building an entire SWR fetching pipeline from scratch. Since layout is mostly client, a soft-refresh is fine.
+    const interval = setInterval(() => {
       router.refresh();
-    }, 5000);
+    }, 15000);
     return () => clearInterval(interval);
   }, [isDraftComplete, router]);
+
+  // Sound effects
+  const tickAudioRef = useRef<HTMLAudioElement | null>(null);
+  const pickAudioRef = useRef<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    // Preload audio (gracefully fail if files don't exist)
+    tickAudioRef.current = new Audio('/sounds/tick.mp3');
+    tickAudioRef.current.volume = 0.3;
+    pickAudioRef.current = new Audio('/sounds/pick.mp3');
+    pickAudioRef.current.volume = 0.5;
+  }, []);
+
+  // Play tick sound at 10 seconds
+  useEffect(() => {
+    if (secondsLeft === 10 && !isDraftComplete) {
+      tickAudioRef.current?.play().catch(() => { });
+    }
+  }, [secondsLeft, isDraftComplete]);
+
+  // Play pick sound on new picks
+  const prevPickCountRef = useRef(picks.length);
+  useEffect(() => {
+    if (picks.length > prevPickCountRef.current) {
+      pickAudioRef.current?.play().catch(() => { });
+    }
+    prevPickCountRef.current = picks.length;
+  }, [picks.length]);
 
   // Global Countdown timer
   useEffect(() => {
     if (isDraftComplete) return;
 
-    // Find the latest pick's DB timestamp, fallback to league.updated_at
-    const latestPickTimeStr = picks.length > 0
-      ? picks[picks.length - 1].picked_at
+    // Reset lock when a new pick lands
+    autoPickTriggeredRef.current = false;
+
+    const latestPickTimeStr = effectivePicks.length > 0
+      ? effectivePicks[effectivePicks.length - 1].picked_at
       : league.updated_at;
 
     const latestPickDate = new Date(latestPickTimeStr ?? Date.now());
 
     const updateTimer = () => {
       const now = new Date();
-      // time passed since the pick happened, in seconds
       const elapsed = Math.floor((now.getTime() - latestPickDate.getTime()) / 1000);
       const remain = Math.max(0, TIMER_SECONDS - elapsed);
       setSecondsLeft(remain);
 
-      // Auto-refresh the page if our turn expired to let the backend auto-pick engine kick in
-      if (remain === 0 && isMyTurn) {
+      // Client Fallback: Execute auto-pick
+      if (remain === 0 && isMyTurn && !autoPickTriggeredRef.current) {
+        autoPickTriggeredRef.current = true;
         setPickError('Time expired! Auto-picking...');
-        // Force the layout to resync which triggers page.tsx (and thereby the auto-pick)
-        setTimeout(() => router.refresh(), 1000);
+        fetch(`/api/leagues/${leagueId}/draft/auto-pick`, { method: 'POST' })
+          .then(() => router.refresh())
+          .catch(console.error);
       }
     };
 
-    updateTimer(); // initial eval
+    updateTimer();
     const interval = setInterval(updateTimer, 1000);
     return () => clearInterval(interval);
-  }, [picks, isDraftComplete, league.updated_at, isMyTurn, router]);
+  }, [effectivePicks, isDraftComplete, league.updated_at]);
 
   // Scroll current pick cell into view
   useEffect(() => {
     currentCellRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
-  }, [picks.length]);
+  }, [effectivePicks.length]);
 
   // Build a lookup: player_id → pick
-  const pickedPlayerIds = useMemo(() => new Set(picks.map((p) => p.player_id)), [picks]);
+  const pickedPlayerIds = useMemo(
+    () => new Set(effectivePicks.map((p) => p.player_id)),
+    [effectivePicks],
+  );
 
   // Build picks lookup: [round][teamId] → DraftPick
   const pickGrid = useMemo(() => {
     const grid: Record<number, Record<string, DraftPick>> = {};
-    for (const pick of picks) {
+    for (const pick of effectivePicks) {
       if (!grid[pick.round]) grid[pick.round] = {};
       grid[pick.round][pick.team_id] = pick;
     }
     return grid;
-  }, [picks]);
+  }, [effectivePicks]);
 
   // Build per-team pick lists for the roster panel
   const teamPicks = useMemo(() => {
     const map: Record<string, DraftPick[]> = {};
     for (const team of teams) map[team.id] = [];
-    for (const pick of picks) {
+    for (const pick of effectivePicks) {
       if (map[pick.team_id]) map[pick.team_id].push(pick);
     }
     return map;
-  }, [picks, teams]);
+  }, [effectivePicks, teams]);
 
   // Filtered available players
   const availablePlayers = useMemo(() => {
@@ -189,30 +392,71 @@ export default function DraftRoom({
     });
   }, [allPlayers, pickedPlayerIds, posFilter, search]);
 
+  // Player lookup for queue display
+  const playerMap = useMemo(() => {
+    const map = new Map<string, Player>();
+    for (const p of allPlayers) map.set(p.id, p);
+    return map;
+  }, [allPlayers]);
+
+  // Queue players that are still available
+  const activeQueuePlayers = useMemo(
+    () => draftQueue.filter((id) => !pickedPlayerIds.has(id)),
+    [draftQueue, pickedPlayerIds],
+  );
+
   const makePick = useCallback(
     async (playerId: string) => {
-      if (!isMyTurn || loadingPick) return;
+      if (!isMyTurn || loadingPick || !currentTeam || !myTeam) return;
       setLoadingPick(true);
       setPickError(null);
 
-      const res = await fetch(`/api/leagues/${leagueId}/draft/pick`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ playerId }),
-      });
+      // Optimistic UI: immediately show the pick
+      const player = playerMap.get(playerId);
+      const optimistic: DraftPick = {
+        id: `optimistic-${Date.now()}`,
+        league_id: leagueId,
+        team_id: currentTeam.id,
+        player_id: playerId,
+        round: currentRound,
+        pick: currentPickNumber,
+        picked_at: new Date().toISOString(),
+        player: player ?? undefined,
+        team: currentTeam,
+      };
+      setOptimisticPick(optimistic);
 
-      const json = await res.json();
-      if (!res.ok) {
-        setPickError(json.error ?? 'Pick failed');
+      try {
+        const res = await fetch(`/api/leagues/${leagueId}/draft/pick`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ playerId, draftQueue: activeQueuePlayers }),
+        });
+
+        const json = await res.json();
+        if (!res.ok) {
+          // Revert optimistic pick
+          setOptimisticPick(null);
+          setPickError(json.error ?? 'Pick failed');
+          setLoadingPick(false);
+          return;
+        }
+
+        // Remove picked player from queue
+        if (draftQueue.includes(playerId)) {
+          saveDraftQueue(draftQueue.filter((id) => id !== playerId));
+        }
+
+        // Broadcast will handle adding to picks state; just reset UI
         setLoadingPick(false);
-        return;
+        if (json.status === 'active') router.refresh();
+      } catch {
+        setOptimisticPick(null);
+        setPickError('Network error. Please try again.');
+        setLoadingPick(false);
       }
-
-      // Realtime will handle adding to picks state; just reset UI
-      setLoadingPick(false);
-      if (json.status === 'active') router.refresh();
     },
-    [isMyTurn, loadingPick, leagueId, router],
+    [isMyTurn, loadingPick, currentTeam, myTeam, playerMap, leagueId, currentRound, currentPickNumber, activeQueuePlayers, draftQueue, saveDraftQueue, router],
   );
 
   const timerPct = (secondsLeft / TIMER_SECONDS) * 100;
@@ -221,6 +465,40 @@ export default function DraftRoom({
 
   // Teams sorted by draft_order for the board columns
   const sortedTeams = [...teams].sort((a, b) => (a.draft_order ?? 0) - (b.draft_order ?? 0));
+
+  // Recent picks for mobile list view
+  const recentPicks = useMemo(
+    () => [...effectivePicks].reverse().slice(0, 20),
+    [effectivePicks],
+  );
+
+  const rowProps: PlayerRowCustomProps = useMemo(
+    () => ({
+      players: availablePlayers,
+      queue: draftQueue,
+      myTurn: isMyTurn,
+      picking: loadingPick,
+      draftDone: isDraftComplete,
+      onToggleQueue: toggleQueue,
+      onMakePick: makePick,
+      onSelectPlayer: setSelectedPlayer,
+    }),
+    [availablePlayers, draftQueue, isMyTurn, loadingPick, isDraftComplete, toggleQueue, makePick],
+  );
+
+  // Measure player list height for react-window
+  const [listHeight, setListHeight] = useState(500);
+  useEffect(() => {
+    const el = playerListRef.current;
+    if (!el) return;
+    const observer = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        setListHeight(entry.contentRect.height);
+      }
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   return (
     <div className={styles.draftRoot}>
@@ -232,7 +510,7 @@ export default function DraftRoom({
           ) : (
             <>
               <span className={styles.bannerOnClock}>On the clock:</span>
-              <span className={styles.bannerTeam}>{currentTeam?.team_name ?? '—'}</span>
+              <span className={styles.bannerTeam}>{currentTeam?.team_name ?? '\u2014'}</span>
             </>
           )}
         </div>
@@ -264,14 +542,103 @@ export default function DraftRoom({
         </div>
       )}
 
+      {/* Mobile view toggle */}
+      <div className={styles.mobileToggle}>
+        <button
+          type="button"
+          className={`${styles.mobileToggleBtn} ${mobileView === 'picks' ? styles.mobileToggleBtnActive : ''}`}
+          onClick={() => setMobileView('picks')}
+        >
+          Recent Picks
+        </button>
+        <button
+          type="button"
+          className={`${styles.mobileToggleBtn} ${mobileView === 'board' ? styles.mobileToggleBtnActive : ''}`}
+          onClick={() => setMobileView('board')}
+        >
+          Draft Board
+        </button>
+      </div>
+
       {/* 3-panel layout */}
       <div className={styles.panels}>
         {/* Left: Player Picker */}
         <aside className={styles.pickerPanel}>
-          <h2 className={styles.panelTitle}>Players</h2>
+          <div className={styles.panelTitleRow}>
+            <h2 className={styles.panelTitle}>Players</h2>
+            {myTeam && (
+              <button
+                type="button"
+                onClick={() => setShowQueue(!showQueue)}
+                className={`${styles.queueToggle} ${showQueue ? styles.queueToggleActive : ''}`}
+              >
+                Queue ({activeQueuePlayers.length})
+              </button>
+            )}
+          </div>
+
+          {/* Draft Queue Panel */}
+          <AnimatePresence>
+            {showQueue && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                className={styles.queuePanel}
+              >
+                {activeQueuePlayers.length === 0 ? (
+                  <p className={styles.queueEmpty}>
+                    No players queued. Click the star on any player to add them.
+                  </p>
+                ) : (
+                  <ul className={styles.queueList}>
+                    {activeQueuePlayers.map((playerId, idx) => {
+                      const player = playerMap.get(playerId);
+                      if (!player) return null;
+                      return (
+                        <li key={playerId} className={styles.queueItem}>
+                          <span className={styles.queueRank}>{idx + 1}</span>
+                          <span className={`${styles.posBadgeSm} ${styles[`pos${player.primary_position}`]}`}>
+                            {player.primary_position}
+                          </span>
+                          <span className={styles.queuePlayerName}>{formatPlayerName(player)}</span>
+                          <div className={styles.queueControls}>
+                            <button
+                              type="button"
+                              onClick={() => moveQueueItem(playerId, 'up')}
+                              disabled={idx === 0}
+                              className={styles.queueMoveBtn}
+                            >
+                              ↑
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => moveQueueItem(playerId, 'down')}
+                              disabled={idx === activeQueuePlayers.length - 1}
+                              className={styles.queueMoveBtn}
+                            >
+                              ↓
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => toggleQueue(playerId)}
+                              className={styles.queueRemoveBtn}
+                            >
+                              ×
+                            </button>
+                          </div>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
+
           <input
             type="text"
-            placeholder="Search name or club…"
+            placeholder="Search name or club\u2026"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className={styles.searchInput}
@@ -291,49 +658,24 @@ export default function DraftRoom({
 
           {pickError && <p className={styles.pickError}>{pickError}</p>}
 
-          <div className={styles.playerList}>
-            {availablePlayers.slice(0, 100).map((player) => (
-              <div
-                key={player.id}
-                className={styles.playerRow}
-                onClick={() => setSelectedPlayer(player)}
-                style={{ cursor: 'pointer' }}
-              >
-                <div className={styles.playerInfo}>
-                  <span className={`${styles.posBadge} ${styles[`pos${player.primary_position}`]}`}>
-                    {player.primary_position}
-                  </span>
-                  <div>
-                    <span className={styles.playerName}>{formatPlayerName(player)}</span>
-                    <span className={styles.playerClub}>{player.pl_team}</span>
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    makePick(player.id);
-                  }}
-                  disabled={!isMyTurn || loadingPick || isDraftComplete}
-                  className={styles.pickBtn}
-                >
-                  Pick
-                </button>
-              </div>
-            ))}
-            {availablePlayers.length === 0 && (
+          <div className={styles.playerList} ref={playerListRef}>
+            {availablePlayers.length > 0 ? (
+              <List<PlayerRowCustomProps>
+                rowComponent={PlayerRow}
+                rowCount={availablePlayers.length}
+                rowHeight={64}
+                rowProps={rowProps}
+                overscanCount={10}
+                style={{ height: listHeight }}
+              />
+            ) : (
               <p className={styles.emptyPicker}>No players match your search.</p>
-            )}
-            {availablePlayers.length > 100 && (
-              <p className={styles.pickerMore}>
-                Showing 100 of {availablePlayers.length}. Narrow your search.
-              </p>
             )}
           </div>
         </aside>
 
         {/* Middle: Draft Board */}
-        <main className={styles.boardPanel}>
+        <main className={`${styles.boardPanel} ${styles.boardDesktop}`}>
           <h2 className={styles.panelTitle}>Draft Board</h2>
           <div className={styles.boardScroll}>
             <table className={styles.boardTable}>
@@ -343,7 +685,8 @@ export default function DraftRoom({
                   {sortedTeams.map((team) => (
                     <th
                       key={team.id}
-                      className={`${styles.teamHeaderCell} ${team.user_id === myUserId ? styles.myTeamCol : ''}`}
+                      className={`${styles.teamHeaderCell} ${team.user_id === myUserId ? styles.myTeamCol : ''} ${currentTeam?.id === team.id ? styles.teamHeaderOnClock : ''
+                        }`}
                     >
                       {team.team_name}
                     </th>
@@ -360,20 +703,32 @@ export default function DraftRoom({
                         const pick = pickGrid[roundNum]?.[team.id];
                         const isCurrentSlot =
                           !isDraftComplete &&
-                          currentPickNumber === picks.length + 1 &&
+                          currentPickNumber === effectivePicks.length + 1 &&
                           roundNum === currentRound &&
                           team.draft_order === currentDraftOrderSlot;
+                        const isOptimistic = pick?.id?.startsWith('optimistic-');
+                        const shouldAnimate = pick && !animatedPickIds.has(pick.id);
 
                         return (
                           <td
                             key={team.id}
                             ref={isCurrentSlot ? currentCellRef : undefined}
-                            className={`${styles.pickCell} ${pick ? styles.pickCellFilled : ''
-                              } ${isCurrentSlot ? styles.pickCellCurrent : ''} ${team.user_id === myUserId ? styles.myTeamCol : ''
+                            className={`${styles.pickCell} ${pick ? styles.pickCellFilled : ''} ${isCurrentSlot ? styles.pickCellCurrent : ''
+                              } ${team.user_id === myUserId ? styles.myTeamCol : ''} ${isOptimistic ? styles.pickCellOptimistic : ''
                               }`}
                           >
                             {pick ? (
-                              <div className={styles.pickedPlayer}>
+                              <motion.div
+                                className={styles.pickedPlayer}
+                                variants={pickVariants}
+                                initial={shouldAnimate ? 'hidden' : 'visible'}
+                                animate="visible"
+                                onAnimationComplete={() => {
+                                  if (shouldAnimate) {
+                                    setAnimatedPickIds((prev) => new Set(prev).add(pick.id));
+                                  }
+                                }}
+                              >
                                 <span
                                   className={`${styles.posBadgeSm} ${styles[`pos${pick.player?.primary_position}`]}`}
                                 >
@@ -382,7 +737,10 @@ export default function DraftRoom({
                                 <span className={styles.pickedName}>
                                   {formatPlayerName(pick.player)}
                                 </span>
-                              </div>
+                                {isOptimistic && (
+                                  <span className={styles.confirmingLabel}>confirming\u2026</span>
+                                )}
+                              </motion.div>
                             ) : isCurrentSlot ? (
                               <span className={styles.onClockDot} />
                             ) : null}
@@ -396,6 +754,83 @@ export default function DraftRoom({
             </table>
           </div>
         </main>
+
+        {/* Mobile: Recent Picks List View */}
+        <div className={`${styles.boardMobile} ${mobileView === 'picks' ? styles.boardMobileVisible : ''}`}>
+          <h2 className={styles.panelTitle}>Recent Picks</h2>
+          <div className={styles.recentPicksList}>
+            <AnimatePresence>
+              {recentPicks.map((pick) => {
+                const isOptimistic = pick.id?.startsWith('optimistic-');
+                return (
+                  <motion.div
+                    key={pick.id}
+                    className={`${styles.recentPickItem} ${isOptimistic ? styles.recentPickOptimistic : ''}`}
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0 }}
+                  >
+                    <span className={styles.recentPickNumber}>#{pick.pick}</span>
+                    <span className={`${styles.posBadgeSm} ${styles[`pos${pick.player?.primary_position}`]}`}>
+                      {pick.player?.primary_position}
+                    </span>
+                    <div className={styles.recentPickDetails}>
+                      <span className={styles.recentPickName}>{formatPlayerName(pick.player)}</span>
+                      <span className={styles.recentPickTeam}>{pick.team?.team_name ?? '\u2014'}</span>
+                    </div>
+                    {isOptimistic && <span className={styles.confirmingLabel}>confirming\u2026</span>}
+                  </motion.div>
+                );
+              })}
+            </AnimatePresence>
+            {recentPicks.length === 0 && (
+              <p className={styles.emptyPicker}>No picks yet. Draft will begin soon.</p>
+            )}
+          </div>
+        </div>
+
+        {/* Mobile: Draft Board (hidden by default on mobile) */}
+        <div className={`${styles.boardMobile} ${mobileView === 'board' ? styles.boardMobileVisible : ''}`}>
+          <h2 className={styles.panelTitle}>Draft Board</h2>
+          <div className={styles.boardScroll}>
+            <table className={styles.boardTable}>
+              <thead>
+                <tr>
+                  <th className={styles.roundCell}>Rd</th>
+                  {sortedTeams.map((team) => (
+                    <th key={team.id} className={styles.teamHeaderCell}>
+                      {team.team_name}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {Array.from({ length: league.roster_size }, (_, ri) => {
+                  const roundNum = ri + 1;
+                  return (
+                    <tr key={roundNum}>
+                      <td className={styles.roundCell}>{roundNum}</td>
+                      {sortedTeams.map((team) => {
+                        const pick = pickGrid[roundNum]?.[team.id];
+                        return (
+                          <td key={team.id} className={`${styles.pickCell} ${pick ? styles.pickCellFilled : ''}`}>
+                            {pick ? (
+                              <div className={styles.pickedPlayer}>
+                                <span className={styles.pickedName}>
+                                  {formatPlayerName(pick.player)}
+                                </span>
+                              </div>
+                            ) : null}
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
 
         {/* Right: Team Rosters */}
         <aside className={styles.rosterPanel}>
@@ -413,18 +848,30 @@ export default function DraftRoom({
                   </div>
                   {tp.length > 0 && (
                     <ul className={styles.rosterPickList}>
-                      {tp.map((pick) => (
-                        <li key={pick.id} className={styles.rosterPickItem}>
-                          <span
-                            className={`${styles.posBadgeSm} ${styles[`pos${pick.player?.primary_position}`]}`}
-                          >
-                            {pick.player?.primary_position}
-                          </span>
-                          <span className={styles.rosterPickName}>
-                            {formatPlayerName(pick.player)}
-                          </span>
-                        </li>
-                      ))}
+                      <AnimatePresence>
+                        {tp.map((pick) => {
+                          const isOptimistic = pick.id?.startsWith('optimistic-');
+                          return (
+                            <motion.li
+                              key={pick.id}
+                              className={`${styles.rosterPickItem} ${isOptimistic ? styles.rosterPickOptimistic : ''}`}
+                              variants={rosterItemVariants}
+                              initial="hidden"
+                              animate="visible"
+                              layout
+                            >
+                              <span
+                                className={`${styles.posBadgeSm} ${styles[`pos${pick.player?.primary_position}`]}`}
+                              >
+                                {pick.player?.primary_position}
+                              </span>
+                              <span className={styles.rosterPickName}>
+                                {formatPlayerName(pick.player)}
+                              </span>
+                            </motion.li>
+                          );
+                        })}
+                      </AnimatePresence>
                     </ul>
                   )}
                 </div>
