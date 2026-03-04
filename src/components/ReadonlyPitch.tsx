@@ -1,6 +1,10 @@
+'use client';
+
+import { useState } from 'react';
 import type { GranularPosition, MatchupLineup, Player, BenchSlot } from '@/types';
 import { FORMATION_SLOTS } from '@/types';
-import pitchStyles from '../app/(dashboard)/league/[leagueId]/team/pitch.module.css';
+import pitchStyles from '@/app/(dashboard)/league/[leagueId]/team/pitch.module.css';
+import PlayerDetailsModal from './players/PlayerDetailsModal';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -49,6 +53,8 @@ interface Props {
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export default function ReadonlyPitch({ lineup, playerMap, teamName }: Props) {
+    const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null);
+
     const { formation, starters, bench } = lineup;
     const slots = FORMATION_SLOTS[formation];
 
@@ -124,8 +130,9 @@ export default function ReadonlyPitch({ lineup, playerMap, teamName }: Props) {
                                     return (
                                         <div
                                             key={slotIndex}
-                                            className={pitchStyles.pitchNode}
-                                            style={{ alignSelf: align, cursor: 'default' }}
+                                            className={`${pitchStyles.pitchNode} ${player ? pitchStyles.clickable : ''}`}
+                                            style={{ alignSelf: align, cursor: player ? 'pointer' : 'default' }}
+                                            onClick={() => player && setSelectedPlayer(player as Player)}
                                         >
                                             <span
                                                 className={pitchStyles.nodePosBadge}
@@ -168,8 +175,9 @@ export default function ReadonlyPitch({ lineup, playerMap, teamName }: Props) {
                         return (
                             <div
                                 key={slot}
-                                className={pitchStyles.benchSlot}
-                                style={{ cursor: 'default' }}
+                                className={`${pitchStyles.benchSlot} ${player ? pitchStyles.clickable : ''}`}
+                                style={{ cursor: player ? 'pointer' : 'default' }}
+                                onClick={() => player && setSelectedPlayer(player as Player)}
                             >
                                 <span className={pitchStyles.benchSlotType}>{slot}</span>
                                 {player ? (
@@ -197,6 +205,14 @@ export default function ReadonlyPitch({ lineup, playerMap, teamName }: Props) {
                     })}
                 </div>
             </div>
+
+            {/* Player Details Modal */}
+            {selectedPlayer && (
+                <PlayerDetailsModal
+                    player={selectedPlayer}
+                    onClose={() => setSelectedPlayer(null)}
+                />
+            )}
         </div>
     );
 }
