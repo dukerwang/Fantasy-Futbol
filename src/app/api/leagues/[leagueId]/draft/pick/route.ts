@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { insertMatchups } from '@/lib/schedule/insertMatchups';
 
 interface Props {
   params: Promise<{ leagueId: string }>;
@@ -83,7 +84,7 @@ export async function POST(req: NextRequest, { params }: Props) {
   // Validate player is active
   const { data: player } = await admin
     .from('players')
-    .select('id, is_active, name, web_name, primary_position, pl_team, market_value')
+    .select('id, is_active, name, web_name, primary_position, secondary_positions, pl_team, market_value')
     .eq('id', playerId)
     .single();
 
@@ -151,6 +152,7 @@ export async function POST(req: NextRequest, { params }: Props) {
       payload: { leagueId },
     });
     admin.removeChannel(completeChannel);
+    await insertMatchups(admin, leagueId).catch(console.error);
   }
 
   return NextResponse.json({ ...newPick, status: isComplete ? 'active' : 'drafting', draftQueue });

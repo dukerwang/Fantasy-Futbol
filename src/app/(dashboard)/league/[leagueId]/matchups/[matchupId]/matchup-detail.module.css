@@ -1,0 +1,147 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.backLink {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: color 0.15s;
+    width: fit-content;
+}
+
+.backLink:hover {
+    color: var(--text-primary);
+}
+
+/* ── Score Banner ── */
+.scoreBanner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.5rem 2rem;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    gap: 1rem;
+}
+
+.scoreBanner.live {
+    border-color: var(--color-accent-green);
+    box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.2);
+}
+
+.scoreBanner.completed {
+    border-color: var(--color-accent-blue);
+}
+
+.bannerTeam {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    flex: 1;
+}
+
+.bannerTeam.right {
+    align-items: flex-end;
+    text-align: right;
+}
+
+.bannerTeamName {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.bannerScore {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    line-height: 1;
+}
+
+.bannerScore.winner {
+    color: var(--primary-accent);
+}
+
+.bannerMiddle {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    flex-shrink: 0;
+}
+
+.statusBadge {
+    font-size: 0.65rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.2rem 0.6rem;
+    border-radius: 4px;
+    background: var(--bg-surface-light);
+    color: var(--text-secondary);
+}
+
+.statusBadge.live {
+    background: rgba(16, 185, 129, 0.12);
+    color: var(--color-accent-green);
+}
+
+.statusBadge.completed {
+    background: rgba(59, 130, 246, 0.12);
+    color: var(--color-accent-blue);
+}
+
+.gwLabel {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-muted);
+}
+
+.vsText {
+    font-size: 1rem;
+    font-weight: 800;
+    color: var(--text-muted);
+}
+
+/* ── Pitch Grid ── */
+.pitchGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    align-items: start;
+}
+
+@media (max-width: 960px) {
+    .pitchGrid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.pitchPanel {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.noLineup {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-height: 200px;
+    padding: 2rem;
+    text-align: center;
+    background: var(--bg-surface);
+    border: 1px dashed var(--border-color);
+    border-radius: 12px;
+    color: var(--text-secondary);
+    font-size: 0.9375rem;
+}

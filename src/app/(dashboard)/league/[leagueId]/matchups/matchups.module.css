@@ -62,6 +62,12 @@
     gap: 1.5rem;
 }
 
+.matchupCardLink {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+}
+
 .matchupCard {
     background: var(--bg-surface);
     border: 1px solid var(--border-color);
@@ -183,4 +189,34 @@
     font-weight: 800;
     color: var(--text-muted);
     padding: 0 1.5rem;
+}
+
+/* My team highlight */
+.myMatchup {
+    border-color: var(--color-accent-blue);
+}
+
+.myTeam .teamName {
+    color: var(--color-accent-blue);
+}
+
+/* Live pulse indicator */
+.livePulse {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--color-accent-green);
+    margin-right: 4px;
+    animation: pulse 1.5s infinite;
+    vertical-align: middle;
+}
+
+/* Live note */
+.liveNote {
+    margin-top: 0.75rem;
+    font-size: 0.7rem;
+    color: var(--color-accent-green);
+    text-align: center;
+    opacity: 0.75;
 }

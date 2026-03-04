@@ -1,7 +1,9 @@
 import { createAdminClient } from '@/lib/supabase/admin';
 import { createClient } from '@/lib/supabase/server';
 import { notFound, redirect } from 'next/navigation';
-import type { Matchup, Team } from '@/types';
+import type { Matchup } from '@/types';
+import LiveMatchupCard from './LiveMatchupCard';
+import GameweekSelector from './GameweekSelector';
 import styles from './matchups.module.css';
 
 interface Props {
@@ -22,7 +24,7 @@ export default async function MatchupsPage({ params, searchParams }: Props) {
     // Validate league
     const { data: league } = await admin
         .from('leagues')
-        .select('id, name')
+        .select('id, name, commissioner_id')
         .eq('id', leagueId)
         .single();
 
@@ -30,13 +32,13 @@ export default async function MatchupsPage({ params, searchParams }: Props) {
 
     // Validate membership
     const { data: member } = await admin
-        .from('league_members')
+        .from('teams')
         .select('id')
         .eq('league_id', leagueId)
         .eq('user_id', user.id)
         .single();
 
-    if (!member) redirect('/dashboard');
+    if (!member && league.commissioner_id !== user.id) redirect('/dashboard');
 
     // Determine which gameweek to show (default to latest non-completed if none specified)
     let targetGw = parseInt(gw ?? '0', 10);
@@ -89,30 +91,20 @@ export default async function MatchupsPage({ params, searchParams }: Props) {
 
     const gameweeks = Array.from(new Set((allGws ?? []).map((row) => row.gameweek)));
 
+    // Get user's team ID in this league (for highlighting)
+    const { data: myTeam } = await admin
+        .from('teams')
+        .select('id')
+        .eq('league_id', leagueId)
+        .eq('user_id', user.id)
+        .single();
+
     return (
         <div className={styles.container}>
             <header className={styles.header}>
                 <h1 className={styles.title}>Matchups – Gameweek {targetGw}</h1>
                 {gameweeks.length > 0 && (
-                    <form className={styles.gwSelector}>
-                        <label htmlFor="gw" className={styles.gwLabel}>Jump to Gameweek:</label>
-                        <select
-                            id="gw"
-                            name="gw"
-                            className={styles.gwSelect}
-                            defaultValue={targetGw}
-                            onChange={(e) => {
-                                // Client-side form submission using JS works well for a basic selector
-                                const url = new URL(window.location.href);
-                                url.searchParams.set('gw', e.target.value);
-                                window.location.href = url.toString();
-                            }}
-                        >
-                            {gameweeks.map((wk) => (
-                                <option key={wk} value={wk}>GW {wk}</option>
-                            ))}
-                        </select>
-                    </form>
+                    <GameweekSelector targetGw={targetGw} gameweeks={gameweeks} />
                 )}
             </header>
 
@@ -120,32 +112,13 @@ export default async function MatchupsPage({ params, searchParams }: Props) {
                 <div className={styles.emptyCard}>No matchups found for Gameweek {targetGw}.</div>
             ) : (
                 <div className={styles.matchupGrid}>
-                    {matchups.map((m) => {
-                        const isLive = m.status === 'live';
-                        const isCompleted = m.status === 'completed';
-
-                        return (
-                            <div key={m.id} className={`${styles.matchupCard} ${isLive ? styles.live : ''} ${isCompleted ? styles.completed : ''}`}>
-                                <div className={styles.statusBadge}>
-                                    {m.status.toUpperCase()}
-                                </div>
-
-                                <div className={styles.matchupTeams}>
-                                    <div className={`${styles.team} ${m.score_a > m.score_b && isCompleted ? styles.winner : ''}`}>
-                                        <span className={styles.teamName}>{(m as any).team_a?.team_name ?? 'TBD'}</span>
-                                        <span className={styles.score}>{m.score_a.toFixed(1)}</span>
-                                    </div>
-
-                                    <div className={styles.vs}>VS</div>
-
-                                    <div className={`${styles.team} ${m.score_b > m.score_a && isCompleted ? styles.winner : ''}`}>
-                                        <span className={styles.score}>{m.score_b.toFixed(1)}</span>
-                                        <span className={styles.teamName}>{(m as any).team_b?.team_name ?? 'TBD'}</span>
-                                    </div>
-                                </div>
-                            </div>
-                        );
-                    })}
+                    {matchups.map((m) => (
+                        <LiveMatchupCard
+                            key={m.id}
+                            matchup={m}
+                            myTeamId={myTeam?.id}
+                        />
+                    ))}
                 </div>
             )}
         </div>
