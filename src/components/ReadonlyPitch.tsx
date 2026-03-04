@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import type { GranularPosition, MatchupLineup, Player, BenchSlot } from '@/types';
 import { FORMATION_SLOTS } from '@/types';
-import pitchStyles from '@/app/(dashboard)/league/[leagueId]/team/pitch.module.css';
+import pitchStyles from './pitch.module.css';
 import PlayerDetailsModal from './players/PlayerDetailsModal';
 
 // ─── Constants ────────────────────────────────────────────────────────────────

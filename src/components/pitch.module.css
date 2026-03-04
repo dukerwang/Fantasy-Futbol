@@ -1,0 +1,529 @@
+/* ============================================================
+   PitchUI — Visual Football Pitch Lineup Editor
+   ============================================================ */
+
+.pitchUI {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5, 1.25rem);
+}
+
+/* ── Formation bar ── */
+.formationBar {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4, 1rem);
+    flex-wrap: wrap;
+}
+
+.formationLabel {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--color-text-secondary, #9ca3af);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    white-space: nowrap;
+}
+
+.formationPills {
+    display: flex;
+    gap: 0.375rem;
+    flex-wrap: wrap;
+}
+
+.formationPill {
+    padding: 0.375rem 0.75rem;
+    background: var(--color-bg-card, #1f2937);
+    border: 1px solid var(--color-border, #374151);
+    border-radius: 6px;
+    color: var(--color-text-secondary, #9ca3af);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+}
+
+.formationPill:hover {
+    border-color: var(--color-text-muted, #6b7280);
+    background: var(--color-bg-elevated, #252d3a);
+}
+
+.formationPillActive {
+    background: var(--color-accent-blue, #3b82f6);
+    color: #fff;
+    border-color: var(--color-accent-blue, #3b82f6);
+}
+
+/* ── Selection hint banner ── */
+.selectionHint {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.625rem 1rem;
+    background: rgba(59, 130, 246, 0.08);
+    border: 1px solid rgba(59, 130, 246, 0.25);
+    border-radius: 8px;
+    font-size: 0.8125rem;
+    color: var(--color-text-primary, #f3f4f6);
+}
+
+.cancelBtn {
+    padding: 0.25rem 0.75rem;
+    background: transparent;
+    border: 1px solid var(--color-border, #374151);
+    border-radius: 5px;
+    color: var(--color-text-secondary, #9ca3af);
+    font-size: 0.75rem;
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.cancelBtn:hover {
+    border-color: var(--color-text-muted, #6b7280);
+}
+
+/* ── Football Pitch ── */
+.pitchContainer {
+    position: relative;
+    width: 100%;
+    border-radius: 12px;
+    overflow: hidden;
+    /* Green pitch gradient with horizontal stripe effect */
+    background:
+        repeating-linear-gradient(to bottom,
+            rgba(255, 255, 255, 0.03) 0px,
+            rgba(255, 255, 255, 0.03) 50px,
+            transparent 50px,
+            transparent 100px),
+        linear-gradient(180deg, #1a4d2e 0%, #1e5c35 50%, #1a4d2e 100%);
+    border: 2px solid rgba(255, 255, 255, 0.08);
+    padding: 1rem 0.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    min-height: 600px;
+}
+
+/* Center line across pitch */
+.pitchCenterLine {
+    position: absolute;
+    left: 5%;
+    right: 5%;
+    top: 50%;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.12);
+    pointer-events: none;
+}
+
+/* Center circle */
+.pitchCenterCircle {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 80px;
+    height: 80px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+/* Zone rows */
+.pitchZone {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    flex: 1;
+    padding: 0.5rem 0;
+}
+
+.zoneGK {
+    flex: 0.5;
+}
+
+.zoneDEF {
+    flex: 0.8;
+}
+
+.zoneMID {
+    flex: 2.0;
+}
+
+.zoneATT {
+    flex: 0.8;
+}
+
+.zoneLabel {
+    position: absolute;
+    left: 6px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.6rem;
+    font-weight: 800;
+    color: rgba(255, 255, 255, 0.25);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    writing-mode: vertical-rl;
+    user-select: none;
+    pointer-events: none;
+}
+
+.pitchRow {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    align-items: center;
+    flex: 1;
+    /* let row consume the entire flexible height of the zone */
+    width: 100%;
+    padding: 0 2rem;
+}
+
+/* ── Pitch Node (player slot on pitch) ── */
+.pitchNode {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    width: 76px;
+    min-height: 80px;
+    padding: 0.5rem 0.25rem;
+    background: rgba(0, 0, 0, 0.45);
+    border: 2px solid rgba(255, 255, 255, 0.15);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s, transform 0.1s;
+    text-align: center;
+    position: relative;
+    backdrop-filter: blur(4px);
+}
+
+.pitchNode:hover {
+    background: rgba(0, 0, 0, 0.6);
+    border-color: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+}
+
+.nodeSelected {
+    border-color: var(--color-accent-blue, #3b82f6) !important;
+    background: rgba(59, 130, 246, 0.25) !important;
+}
+
+.nodeValidTarget {
+    border-color: var(--color-accent-green, #10b981) !important;
+    background: rgba(16, 185, 129, 0.15) !important;
+}
+
+.nodeValidTarget:hover {
+    background: rgba(16, 185, 129, 0.25) !important;
+}
+
+.nodeEmpty {
+    border-style: dashed;
+    background: rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Position badge on node */
+.nodePosBadge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 32px;
+    height: 20px;
+    padding: 0 4px;
+    font-size: 0.65rem;
+    font-weight: 800;
+    color: #fff;
+    border-radius: 4px;
+    flex-shrink: 0;
+    letter-spacing: 0.04em;
+}
+
+.nodePlayerName {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #fff;
+    text-align: center;
+    line-height: 1.2;
+    max-width: 68px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.nodePlayerClub {
+    font-size: 0.6rem;
+    color: rgba(255, 255, 255, 0.55);
+    text-align: center;
+    max-width: 68px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.nodeEmptyLabel {
+    font-size: 0.65rem;
+    color: rgba(255, 255, 255, 0.3);
+    font-style: italic;
+}
+
+.nodeStatusDot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    position: absolute;
+    top: 4px;
+    right: 4px;
+}
+
+.nodeStatusDot[data-status='i'] {
+    background: #ef4444;
+}
+
+.nodeStatusDot[data-status='d'] {
+    background: #f59e0b;
+}
+
+.nodeStatusDot[data-status='s'] {
+    background: #8b5cf6;
+}
+
+/* ── Bench Section ── */
+.benchSection {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.benchLabel {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--color-text-secondary, #9ca3af);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.benchRow {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.5rem;
+}
+
+@media (max-width: 480px) {
+    .benchRow {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+.benchSlot {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    padding: 0.625rem 0.75rem;
+    background: var(--color-bg-card, #1f2937);
+    border: 2px solid var(--color-border, #374151);
+    border-radius: 10px;
+    cursor: pointer;
+    text-align: left;
+    transition: border-color 0.15s, background 0.15s;
+}
+
+.benchSlot:hover {
+    border-color: var(--color-text-muted, #6b7280);
+}
+
+.benchSlotType {
+    font-size: 0.6rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-text-muted, #6b7280);
+    border: 1px solid var(--color-border, #374151);
+    border-radius: 3px;
+    padding: 1px 5px;
+}
+
+.benchSlotDesc {
+    font-size: 0.7rem;
+    color: var(--color-text-muted, #6b7280);
+    font-style: italic;
+}
+
+.benchPlayerName {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--color-text-primary, #f3f4f6);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+}
+
+.benchPlayerClub {
+    font-size: 0.7rem;
+    color: var(--color-text-muted, #6b7280);
+}
+
+/* ── Player Pool ── */
+.poolSection {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.poolLabel {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--color-text-secondary, #9ca3af);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.poolCount {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    background: var(--color-bg-elevated, #252d3a);
+    border: 1px solid var(--color-border, #374151);
+    border-radius: 50%;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--color-text-secondary, #9ca3af);
+}
+
+.poolEmpty {
+    font-size: 0.8125rem;
+    color: var(--color-text-muted, #6b7280);
+    padding: 0.75rem 1rem;
+    border: 1px dashed var(--color-border, #374151);
+    border-radius: 8px;
+    text-align: center;
+}
+
+.poolGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 0.375rem;
+}
+
+.poolPlayer {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    background: var(--color-bg-card, #1f2937);
+    border: 2px solid var(--color-border, #374151);
+    border-radius: 8px;
+    cursor: pointer;
+    text-align: left;
+    transition: border-color 0.15s, background 0.15s;
+    min-width: 0;
+}
+
+.poolPlayer:hover {
+    border-color: var(--color-text-muted, #6b7280);
+}
+
+.poolPlayerName {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--color-text-primary, #f3f4f6);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1;
+    min-width: 0;
+}
+
+.poolPlayerClub {
+    font-size: 0.7rem;
+    color: var(--color-text-muted, #6b7280);
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.poolPlayerAlt {
+    font-size: 0.65rem;
+    color: var(--color-text-muted, #6b7280);
+    font-style: italic;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+/* ── IR Section ── */
+.irSection {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.irLabel {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--color-accent-red, #ef4444);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.irBadge {
+    font-size: 0.6rem;
+    font-weight: 800;
+    background: var(--color-accent-red, #ef4444);
+    color: #fff;
+    border-radius: 3px;
+    padding: 1px 5px;
+    flex-shrink: 0;
+}
+
+/* ── Save Row ── */
+.saveRow {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--color-border, #374151);
+}
+
+.errorText {
+    font-size: 0.8125rem;
+    color: var(--color-accent-red, #ef4444);
+}
+
+.successText {
+    font-size: 0.8125rem;
+    color: var(--color-accent-green, #10b981);
+}
+
+.saveBtn {
+    padding: 0.625rem 1.5rem;
+    background: var(--color-accent-green, #10b981);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.15s;
+}
+
+.saveBtn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.saveBtn:not(:disabled):hover {
+    opacity: 0.9;
+}
