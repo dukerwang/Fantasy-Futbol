@@ -156,6 +156,7 @@ export default function DraftRoom({
   const [mobileView, setMobileView] = useState<'board' | 'picks'>('picks');
   const [showQueue, setShowQueue] = useState(false);
   const currentCellRef = useRef<HTMLTableCellElement>(null);
+  const boardScrollRef = useRef<HTMLDivElement>(null);
   const playerListRef = useRef<HTMLDivElement>(null);
   const autoPickTriggeredRef = useRef(false);
 
@@ -343,9 +344,20 @@ export default function DraftRoom({
     return () => clearInterval(interval);
   }, [effectivePicks, isDraftComplete, league.updated_at]);
 
-  // Scroll current pick cell into view
+  // Scroll current pick column into view (horizontal only, inside boardScroll container)
   useEffect(() => {
-    currentCellRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+    const container = boardScrollRef.current;
+    const cell = currentCellRef.current;
+    if (!container || !cell) return;
+    const cellLeft = cell.offsetLeft;
+    const cellRight = cellLeft + cell.offsetWidth;
+    const scrollLeft = container.scrollLeft;
+    const scrollRight = scrollLeft + container.clientWidth;
+    if (cellLeft < scrollLeft) {
+      container.scrollTo({ left: cellLeft - 40, behavior: 'smooth' });
+    } else if (cellRight > scrollRight) {
+      container.scrollTo({ left: cellRight - container.clientWidth + 40, behavior: 'smooth' });
+    }
   }, [effectivePicks.length]);
 
   // Build a lookup: player_id → pick
@@ -521,8 +533,8 @@ export default function DraftRoom({
             </span>
           )}
           {isDraftComplete && (
-            <Link href="/my-team" className={styles.goToTeamBtn}>
-              View My Team →
+            <Link href={`/league/${leagueId}/team`} className={styles.goToTeamBtn}>
+              Go to My Team &rarr;
             </Link>
           )}
         </div>
@@ -677,7 +689,7 @@ export default function DraftRoom({
         {/* Middle: Draft Board */}
         <main className={`${styles.boardPanel} ${styles.boardDesktop}`}>
           <h2 className={styles.panelTitle}>Draft Board</h2>
-          <div className={styles.boardScroll}>
+          <div className={styles.boardScroll} ref={boardScrollRef}>
             <table className={styles.boardTable}>
               <thead>
                 <tr>
@@ -723,6 +735,8 @@ export default function DraftRoom({
                                 variants={pickVariants}
                                 initial={shouldAnimate ? 'hidden' : 'visible'}
                                 animate="visible"
+                                style={{ cursor: 'pointer' }}
+                                onClick={() => pick.player && setSelectedPlayer(pick.player)}
                                 onAnimationComplete={() => {
                                   if (shouldAnimate) {
                                     setAnimatedPickIds((prev) => new Set(prev).add(pick.id));
@@ -815,7 +829,11 @@ export default function DraftRoom({
                         return (
                           <td key={team.id} className={`${styles.pickCell} ${pick ? styles.pickCellFilled : ''}`}>
                             {pick ? (
-                              <div className={styles.pickedPlayer}>
+                              <div
+                                className={styles.pickedPlayer}
+                                style={{ cursor: 'pointer' }}
+                                onClick={() => pick.player && setSelectedPlayer(pick.player)}
+                              >
                                 <span className={styles.pickedName}>
                                   {formatPlayerName(pick.player)}
                                 </span>

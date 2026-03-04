@@ -68,14 +68,17 @@ export default function RosterManager({ teamId, rosterEntries }: Props) {
                 <div className={styles.rosterList}>
                     {sortedEntries.map((entry) => (
                         <div key={entry.id} className={styles.rosterItem}>
-                            <div className={styles.rosterItemInfo}>
+                            <div
+                                className={styles.rosterItemInfo}
+                                onClick={() => setViewingPlayer(entry.player)}
+                                style={{ cursor: 'pointer' }}
+                            >
                                 <span className={styles.posBadge} style={{ background: 'var(--color-bg-secondary)', border: '1px solid var(--color-border)', color: 'var(--color-text-muted)' }}>
                                     {entry.player.primary_position}
                                 </span>
                                 <button
                                     type="button"
                                     className={styles.rosterItemNameBtn}
-                                    onClick={() => setViewingPlayer(entry.player)}
                                     title="View player details"
                                 >
                                     {entry.player.web_name ?? entry.player.name}

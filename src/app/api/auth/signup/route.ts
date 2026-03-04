@@ -29,11 +29,13 @@ export async function POST(req: NextRequest) {
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   );
 
-  const { error: profileError } = await adminClient.from('users').insert({
-    id: authData.user.id,
-    email,
-    username,
-  });
+  const { error: profileError } = await adminClient
+    .from('users')
+    .update({
+      email,
+      username,
+    })
+    .eq('id', authData.user.id);
 
   if (profileError) {
     // Roll back the auth user so the account isn't half-created

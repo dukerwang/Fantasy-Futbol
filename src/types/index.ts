@@ -3,32 +3,39 @@
 // ============================================================
 
 // --- Granular Position System ---
-export type GranularPosition = 'GK' | 'CB' | 'LB' | 'RB' | 'DM' | 'CM' | 'AM' | 'LW' | 'RW' | 'ST';
+export type GranularPosition = 'GK' | 'CB' | 'LB' | 'RB' | 'DM' | 'CM' | 'LM' | 'RM' | 'AM' | 'LW' | 'RW' | 'ST';
 
-// Positions that can fill each slot (flex rules)
+// Maps each formation slot to which player positions can fill it.
+// Flexibility is intentionally strict — a slot only accepts its own position type.
+// A player's ability to fill alternate slots comes from their secondary_positions (from SoFIFA),
+// not from static inference rules.
 export const POSITION_FLEX_MAP: Record<GranularPosition, GranularPosition[]> = {
   GK: ['GK'],
   CB: ['CB'],
-  LB: ['LB', 'RB', 'CB'],
-  RB: ['RB', 'LB', 'CB'],
-  DM: ['DM', 'CM'],
-  CM: ['CM', 'DM', 'AM'],
-  AM: ['AM', 'CM', 'LW', 'RW'],
-  LW: ['LW', 'RW', 'AM', 'ST'],
-  RW: ['RW', 'LW', 'AM', 'ST'],
-  ST: ['ST', 'LW', 'RW'],
+  LB: ['LB'],
+  RB: ['RB'],
+  DM: ['DM'],
+  CM: ['CM'],
+  LM: ['LM'],
+  RM: ['RM'],
+  AM: ['AM'],
+  LW: ['LW'],
+  RW: ['RW'],
+  ST: ['ST'],
 };
 
 // Supported formations (slot lists)
-export type Formation = '4-4-2' | '4-3-3' | '3-5-2' | '4-2-3-1' | '3-4-3' | '5-3-2';
+// Slots are ordered left-to-right within each zone row for direct visual rendering.
+export type Formation = '4-4-2' | '4-3-3' | '4-2-3-1' | '4-1-4-1' | '3-4-3' | '4-2-1-3';
 
 export const FORMATION_SLOTS: Record<Formation, GranularPosition[]> = {
-  '4-4-2': ['GK', 'CB', 'CB', 'LB', 'RB', 'CM', 'CM', 'DM', 'LW', 'ST', 'ST'],
-  '4-3-3': ['GK', 'CB', 'CB', 'LB', 'RB', 'CM', 'CM', 'DM', 'LW', 'RW', 'ST'],
-  '3-5-2': ['GK', 'CB', 'CB', 'CB', 'LB', 'DM', 'DM', 'CM', 'AM', 'ST', 'ST'],
-  '4-2-3-1': ['GK', 'CB', 'CB', 'LB', 'RB', 'DM', 'DM', 'AM', 'LW', 'RW', 'ST'],
-  '3-4-3': ['GK', 'CB', 'CB', 'CB', 'LB', 'DM', 'CM', 'RB', 'LW', 'ST', 'RW'],
-  '5-3-2': ['GK', 'CB', 'CB', 'CB', 'LB', 'RB', 'CM', 'CM', 'DM', 'ST', 'ST'],
+  // Slots ordered left-to-right within each zone so PitchUI renders them correctly without re-sorting.
+  '4-4-2':   ['GK', 'LB', 'CB', 'CB', 'RB', 'LM', 'CM', 'CM', 'RM', 'ST', 'ST'],
+  '4-3-3':   ['GK', 'LB', 'CB', 'CB', 'RB', 'CM', 'DM', 'CM', 'LW', 'ST', 'RW'],
+  '4-2-3-1': ['GK', 'LB', 'CB', 'CB', 'RB', 'LM', 'DM', 'AM', 'DM', 'RM', 'ST'],
+  '4-1-4-1': ['GK', 'LB', 'CB', 'CB', 'RB', 'LM', 'CM', 'DM', 'CM', 'RM', 'ST'],
+  '3-4-3':   ['GK', 'CB', 'CB', 'CB', 'LM', 'CM', 'CM', 'RM', 'LW', 'ST', 'RW'],
+  '4-2-1-3': ['GK', 'LB', 'CB', 'CB', 'RB', 'DM', 'AM', 'DM', 'LW', 'ST', 'RW'],
 };
 
 // --- Database Types ---
@@ -207,6 +214,7 @@ export interface PlayerStats {
   season: string;
   stats: RawStats;
   fantasy_points: number;
+  match_rating?: number; // 1.0 – 10.0 (from match rating engine)
   created_at: string;
   // Joined fields
   player?: Player;
@@ -245,6 +253,18 @@ export interface RawStats {
   penalties_missed: number;
   // Computed/derived
   clean_sheet: boolean;
+  // FPL live metrics (for match rating system)
+  bps?: number;
+  influence?: number;
+  creativity?: number;
+  threat?: number;
+  ict_index?: number;
+  expected_goals?: number;
+  expected_assists?: number;
+  expected_goals_conceded?: number;
+  fpl_tackles?: number;
+  fpl_cbi?: number;
+  fpl_recoveries?: number;
 }
 
 export type TransactionType =
@@ -337,6 +357,27 @@ export interface PlayerCardProps {
   showStats?: boolean;
   onAdd?: (player: Player) => void;
   onDrop?: (player: Player) => void;
+  onBid?: (player: Player) => void;
+}
+
+export type TradeProposalStatus = 'pending' | 'accepted' | 'rejected' | 'cancelled';
+
+export interface TradeProposal {
+  id: string;
+  league_id: string;
+  team_a_id: string;   // proposer
+  team_b_id: string;   // receiver
+  offered_players: string[];    // player IDs from team A
+  requested_players: string[];  // player IDs from team B
+  offered_faab: number;
+  requested_faab: number;
+  status: TradeProposalStatus;
+  message: string | null;
+  created_at: string;
+  updated_at: string;
+  // Joined fields
+  team_a?: Team;
+  team_b?: Team;
 }
 
 export interface LeagueStanding {
@@ -350,22 +391,26 @@ export interface LeagueStanding {
   total_points: number;
 }
 
-export type BenchSlot = 'B1' | 'B2' | 'B3' | 'B4' | 'B5' | 'B6' | 'B7' | 'B8';
+export type BenchSlot = 'DEF' | 'MID' | 'ATT' | 'FLEX';
 
-export const BENCH_FLEX_MAP: Record<BenchSlot, GranularPosition[]> = {
-  B1: ['GK', 'CB', 'LB', 'RB', 'DM', 'CM', 'AM', 'LW', 'RW', 'ST'],
-  B2: ['CB', 'LB', 'RB', 'DM', 'CM', 'AM', 'LW', 'RW', 'ST', 'GK'],
-  B3: ['CB', 'LB', 'RB', 'DM', 'CM', 'AM', 'LW', 'RW', 'ST', 'GK'],
-  B4: ['CB', 'LB', 'RB', 'DM', 'CM', 'AM', 'LW', 'RW', 'ST', 'GK'],
-  B5: ['CB', 'LB', 'RB', 'DM', 'CM', 'AM', 'LW', 'RW', 'ST', 'GK'],
-  B6: ['CB', 'LB', 'RB', 'DM', 'CM', 'AM', 'LW', 'RW', 'ST', 'GK'],
-  B7: ['CB', 'LB', 'RB', 'DM', 'CM', 'AM', 'LW', 'RW', 'ST', 'GK'],
-  B8: ['CB', 'LB', 'RB', 'DM', 'CM', 'AM', 'LW', 'RW', 'ST', 'GK'],
+export const BENCH_SLOT_LABELS: Record<BenchSlot, string> = {
+  DEF: 'Defender',
+  MID: 'Midfielder',
+  ATT: 'Attacker',
+  FLEX: 'Flex',
 };
 
-export function getExpectedBenchSlots(benchSize: number): BenchSlot[] {
-  const all: BenchSlot[] = ['B1', 'B2', 'B3', 'B4', 'B5', 'B6', 'B7', 'B8'];
-  return all.slice(0, benchSize);
+export const BENCH_FLEX_MAP: Record<BenchSlot, GranularPosition[]> = {
+  DEF: ['CB', 'LB', 'RB'],
+  MID: ['DM', 'CM', 'LM', 'RM', 'AM'],
+  ATT: ['ST', 'LW', 'RW'],
+  FLEX: ['CB', 'LB', 'RB', 'DM', 'CM', 'LM', 'RM', 'AM', 'LW', 'RW', 'ST'],
+};
+
+// Always returns the 4 semantic bench slots regardless of league bench_size setting
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export function getExpectedBenchSlots(_benchSize?: number): BenchSlot[] {
+  return ['DEF', 'MID', 'ATT', 'FLEX'];
 }
 
 export interface AuctionListing {
@@ -400,4 +445,86 @@ export function formatPlayerName(player?: { name?: string | null; web_name?: str
   const firstInitial = parts[0].charAt(0).toUpperCase();
   const lastName = parts.slice(1).join(' ');
   return `${firstInitial}. ${lastName}`;
+}
+
+// ============================================================
+// Match Rating System Types
+// ============================================================
+
+export type RatingComponent =
+  | 'match_impact'
+  | 'influence'
+  | 'creativity'
+  | 'threat'
+  | 'defensive'
+  | 'goal_involvement'
+  | 'finishing'
+  | 'save_score';
+
+export const RATING_COMPONENTS: RatingComponent[] = [
+  'match_impact', 'influence', 'creativity', 'threat',
+  'defensive', 'goal_involvement', 'finishing', 'save_score',
+];
+
+export type PositionGroup = 'GK' | 'DEF' | 'MID' | 'ATT';
+
+export interface RatingBreakdownItem {
+  component: string;       // Display name
+  key: RatingComponent;    // Machine key
+  score: number;           // 0.0 – 1.0 (sigmoid-normalized)
+  weight: number;          // 0.0 – 1.0 (position weight)
+  weighted: number;        // score × weight
+  detail: string;          // Human-readable detail string
+}
+
+export interface MatchRating {
+  rating: number;          // 1.0 – 10.0
+  fantasyPoints: number;
+  position: GranularPosition;
+  breakdown: RatingBreakdownItem[];
+}
+
+export interface ComponentRefStats {
+  median: number;
+  stddev: number;
+}
+
+/** Per-component median/stddev for sigmoid normalization. */
+export type ReferenceStats = Record<RatingComponent, ComponentRefStats>;
+
+export interface RatingCurveConfig {
+  base: number;      // Points at exactly 6.0 rating
+  scale: number;     // Multiplier for above-average
+  penalty: number;   // Multiplier for below-average
+  exponent: number;  // Convexity (higher = steeper reward curve)
+}
+
+/**
+ * Shape of a single player element from FPL event/{gw}/live/ endpoint.
+ * ICT metrics arrive as strings; callers must parseFloat.
+ */
+export interface FplLivePlayerStats {
+  id: number;
+  stats: {
+    minutes: number;
+    goals_scored: number;
+    assists: number;
+    clean_sheets: number;
+    goals_conceded: number;
+    own_goals: number;
+    penalties_saved: number;
+    penalties_missed: number;
+    yellow_cards: number;
+    red_cards: number;
+    saves: number;
+    bonus: number;
+    bps: number;
+    influence: string;
+    creativity: string;
+    threat: string;
+    ict_index: string;
+    expected_goals: string;
+    expected_assists: string;
+    expected_goals_conceded: string;
+  };
 }

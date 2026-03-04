@@ -31,8 +31,8 @@ export default async function FixturesPage({ params }: Props) {
 
   // Membership check
   const { data: membership } = await admin
-    .from('league_members')
-    .select('user_id')
+    .from('teams')
+    .select('id')
     .eq('league_id', leagueId)
     .eq('user_id', user.id)
     .single();

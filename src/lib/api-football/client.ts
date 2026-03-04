@@ -7,7 +7,7 @@
 
 const BASE_URL = 'https://v3.football.api-sports.io';
 const PL_LEAGUE_ID = 39; // Premier League
-const CURRENT_SEASON = 2025;
+const CURRENT_SEASON = 2024;
 
 async function apiFetch<T>(
   path: string,
@@ -88,12 +88,21 @@ export interface ApiPlayerFixtureStats {
 }
 
 /**
- * Fetch all Premier League players for the current season.
- * NOTE: On free tier, this is paginated. You'll need multiple calls.
+ * Fetch all Premier League teams for the current season.
  */
-export async function fetchPLPlayers(page = 1): Promise<ApiPlayer[]> {
-  return apiFetch<ApiPlayer[]>('/players', {
+export async function fetchPLTeams(): Promise<{ team: { id: number; name: string } }[]> {
+  return apiFetch<{ team: { id: number; name: string } }[]>('/teams', {
     league: PL_LEAGUE_ID,
+    season: CURRENT_SEASON,
+  });
+}
+
+/**
+ * Fetch all players for a specific team.
+ */
+export async function fetchPlayersByTeam(teamId: number, page = 1): Promise<ApiPlayer[]> {
+  return apiFetch<ApiPlayer[]>('/players', {
+    team: teamId,
     season: CURRENT_SEASON,
     page,
   });

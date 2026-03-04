@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import type { AuctionListing, Player, GranularPosition } from '@/types';
 import styles from './transfers.module.css';
 import PosBadge from '@/components/players/PositionBadge';
@@ -30,6 +31,8 @@ interface Props {
   initialMyTeam: MyTeamInfo;
   initialMyRoster: RosterPlayer[];
   initialRosterFull: boolean;
+  initialQ: string;
+  initialPos: string;
 }
 
 // ─── Modal state ─────────────────────────────────────────────────────────────
@@ -78,6 +81,8 @@ export default function TransferMarketClient({
   initialMyTeam,
   initialMyRoster,
   initialRosterFull,
+  initialQ,
+  initialPos,
 }: Props) {
   const [auctions, setAuctions] = useState<AuctionListing[]>(initialAuctions);
   const [freeAgents, setFreeAgents] = useState<(Player & { web_name?: string })[]>(initialFreeAgents);
@@ -85,16 +90,14 @@ export default function TransferMarketClient({
   const [myRoster, setMyRoster] = useState<RosterPlayer[]>(initialMyRoster);
   const [rosterFull, setRosterFull] = useState(initialRosterFull);
 
+  const router = useRouter();
+
   // Tick every second for countdown timers
   const [now, setNow] = useState(Date.now());
   useEffect(() => {
     const id = setInterval(() => setNow(Date.now()), 1_000);
     return () => clearInterval(id);
   }, []);
-
-  // Search / filter state
-  const [searchQuery, setSearchQuery] = useState('');
-  const [posFilter, setPosFilter] = useState('');
 
   // Loading state for refresh
   const [refreshing, setRefreshing] = useState(false);
@@ -119,7 +122,7 @@ export default function TransferMarketClient({
   const refresh = useCallback(async () => {
     setRefreshing(true);
     try {
-      const res = await fetch(`/ api / leagues / ${leagueId}/auctions`);
+      const res = await fetch(`/api/leagues/${leagueId}/auctions`);
       if (!res.ok) return;
       const data = await res.json();
       setAuctions(data.auctions ?? []);
@@ -198,16 +201,15 @@ export default function TransferMarketClient({
     await refresh();
   }
 
-  // ── Derived: filtered free agents ───────────────────────────────────────
-
-  const filteredAgents = freeAgents.filter((p) => {
-    const matchesPos = !posFilter || p.primary_position === posFilter;
-    const matchesQ =
-      !searchQuery ||
-      p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (p.web_name ?? '').toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesPos && matchesQ;
-  });
+  function handleSearch(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const q = formData.get('q') as string;
+    const params = new URLSearchParams();
+    if (q) params.set('q', q);
+    if (initialPos) params.set('pos', initialPos);
+    router.push(`/league/${leagueId}/players?${params.toString()}`);
+  }
 
   const positions = ['GK', 'CB', 'LB', 'RB', 'DM', 'CM', 'AM', 'LW', 'RW', 'ST'];
 
@@ -346,40 +348,46 @@ export default function TransferMarketClient({
 
           {/* Filters */}
           <div className={styles.filters}>
-            <input
-              className={styles.searchInput}
-              placeholder="Search player…"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
+            <form onSubmit={handleSearch} className={styles.filterForm} style={{ display: 'flex', gap: 'var(--space-2)', alignItems: 'center', width: '100%' }}>
+              <input
+                name="q"
+                defaultValue={initialQ}
+                className={styles.searchInput}
+                placeholder="Search player…"
+                style={{ flex: 1 }}
+              />
+              <button type="submit" className={styles.searchBtn} style={{ height: '36px', padding: '0 var(--space-4)', borderRadius: 'var(--radius-md)', background: 'var(--color-bg-card)', border: '1px solid var(--color-border)', cursor: 'pointer', color: 'var(--color-text-secondary)', fontWeight: 'var(--font-medium)' }}>
+                Search
+              </button>
+            </form>
             <div className={styles.posFilters}>
-              <button
-                className={`${styles.posFilter} ${!posFilter ? styles.posFilterActive : ''}`}
-                onClick={() => setPosFilter('')}
+              <a
+                href={`/league/${leagueId}/players`}
+                className={`${styles.posFilter} ${!initialPos ? styles.posFilterActive : ''}`}
               >
                 All
-              </button>
+              </a>
               {positions.map((p) => (
-                <button
+                <a
                   key={p}
-                  className={`${styles.posFilter} ${posFilter === p ? styles.posFilterActive : ''}`}
-                  onClick={() => setPosFilter(posFilter === p ? '' : p)}
+                  href={`/league/${leagueId}/players?pos=${p}${initialQ ? `&q=${initialQ}` : ''}`}
+                  className={`${styles.posFilter} ${initialPos === p ? styles.posFilterActive : ''}`}
                 >
                   {p}
-                </button>
+                </a>
               ))}
             </div>
           </div>
 
           <p className={styles.resultCount}>
-            {filteredAgents.length} player{filteredAgents.length !== 1 ? 's' : ''} available
+            {freeAgents.length} player{freeAgents.length !== 1 ? 's' : ''} available
           </p>
 
           <div className={styles.agentList}>
-            {filteredAgents.length === 0 ? (
+            {freeAgents.length === 0 ? (
               <p className={styles.emptyState}>No players match your search.</p>
             ) : (
-              filteredAgents.map((player) => (
+              freeAgents.map((player) => (
                 <div key={player.id} className={styles.agentRow}>
                   <PosBadge position={player.primary_position} />
                   <div className={styles.agentInfoTop}>

@@ -18,8 +18,6 @@ export default function Navbar() {
 
   const links = [
     { href: '/dashboard', label: 'Dashboard' },
-    { href: '/my-team', label: 'My Team' },
-    { href: '/transfers', label: 'Transfers' },
   ];
 
   return (

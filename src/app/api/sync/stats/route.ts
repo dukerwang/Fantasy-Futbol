@@ -1,15 +1,21 @@
 /**
- * POST /api/sync/stats?fixture_id=<id>&home_goals=<n>&away_goals=<n>
+ * POST /api/sync/stats
  *
- * Fetches player statistics for a completed PL fixture
- * and stores scored fantasy points in the database.
+ * Modes:
+ *   ?mode=fpl_form       — Bulk-sync FPL form / status / points (lightweight)
+ *   ?mode=fpl_live&gw=N  — Sync per-match ratings for gameweek N via FPL live data
+ *   ?mode=trigger_ratings&gw=N — Invoke the Edge Function for full rating sync
+ *
+ * The legacy fixture-based API-Football path has been removed in favour of
+ * the FPL live rating system.
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { fetchFixturePlayerStats } from '@/lib/api-football/client';
-import { calculateFantasyPoints, mapApiStatsToRawStats } from '@/lib/scoring/engine';
-import type { GranularPosition } from '@/types';
+import { calculateMatchRating, mapFplLiveToRawStats } from '@/lib/scoring/engine';
+import type { GranularPosition, FplLivePlayerStats } from '@/types';
+
+const FPL_BASE = 'https://fantasy.premierleague.com/api';
 
 export async function POST(req: NextRequest) {
   const secret = req.headers.get('x-cron-secret');
@@ -18,81 +24,135 @@ export async function POST(req: NextRequest) {
   }
 
   const { searchParams } = new URL(req.url);
-  const fixtureId = parseInt(searchParams.get('fixture_id') ?? '0', 10);
-  const gameweek = parseInt(searchParams.get('gameweek') ?? '0', 10);
-  const homeGoals = parseInt(searchParams.get('home_goals') ?? '0', 10);
-  const awayGoals = parseInt(searchParams.get('away_goals') ?? '0', 10);
   const mode = searchParams.get('mode');
 
   if (mode === 'fpl_form') {
     return syncFplForm();
   }
 
-  if (!gameweek && mode !== 'fpl_form') {
-    return NextResponse.json({ error: 'gameweek is required when fixture_id is provided' }, { status: 400 });
+  if (mode === 'fpl_live') {
+    const gw = parseInt(searchParams.get('gw') ?? '0', 10);
+    if (!gw) return NextResponse.json({ error: 'gw is required' }, { status: 400 });
+    return syncFplLiveRatings(gw);
   }
+
+  if (mode === 'trigger_ratings') {
+    const gw = parseInt(searchParams.get('gw') ?? '0', 10);
+    if (!gw) return NextResponse.json({ error: 'gw is required' }, { status: 400 });
+    return triggerEdgeFunctionRatings(gw);
+  }
+
+  return NextResponse.json(
+    { error: 'Invalid mode. Use fpl_form, fpl_live, or trigger_ratings.' },
+    { status: 400 },
+  );
+}
+
+// ── FPL Live Ratings Sync ─────────────────────────────────────────────────
+
+async function syncFplLiveRatings(gameweek: number): Promise<NextResponse> {
+  // 1. Fetch live data from FPL
+  const fplRes = await fetch(`${FPL_BASE}/event/${gameweek}/live/`, {
+    headers: { 'User-Agent': 'FantasyFutbol/1.0' },
+    next: { revalidate: 0 },
+  });
+
+  if (!fplRes.ok) {
+    return NextResponse.json({ error: `FPL live error: ${fplRes.status}` }, { status: 502 });
+  }
+
+  const fplData = await fplRes.json();
+  const elements = (fplData.elements ?? []) as FplLivePlayerStats[];
 
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
   );
 
-  const teamStats = await fetchFixturePlayerStats(fixtureId);
   let saved = 0;
 
-  for (const teamData of teamStats) {
-    for (const playerStat of (teamData as any).players ?? []) {
-      const apiPlayer = playerStat.player;
-      const stats = playerStat.statistics?.[0];
+  // 2. Process in batches of 50
+  for (let i = 0; i < elements.length; i += 50) {
+    const chunk = elements.slice(i, i + 50);
 
-      if (!stats) continue;
+    await Promise.all(
+      chunk.map(async (el) => {
+        if (el.stats.minutes === 0) return;
 
-      // Determine which team's goals are "against" this player
-      // (simplified — in production, track home/away team IDs)
-      const opponentGoals = awayGoals; // approximation
+        // Look up player by fpl_id
+        const { data: dbPlayer } = await supabase
+          .from('players')
+          .select('id, primary_position')
+          .eq('fpl_id', el.id)
+          .single();
 
-      // Look up player in our DB
-      const { data: dbPlayer } = await supabase
-        .from('players')
-        .select('id, primary_position')
-        .eq('api_football_id', apiPlayer.id)
-        .single();
+        if (!dbPlayer) return;
 
-      if (!dbPlayer) continue;
+        const rawStats = mapFplLiveToRawStats(el.stats);
+        const { rating, fantasyPoints } = calculateMatchRating(
+          rawStats,
+          dbPlayer.primary_position as GranularPosition,
+        );
 
-      const rawStats = mapApiStatsToRawStats(stats, opponentGoals);
-      if (!rawStats) continue;
+        const { error } = await supabase.from('player_stats').upsert(
+          {
+            player_id: dbPlayer.id,
+            match_id: gameweek * 1000 + el.id, // composite key: gw + fpl_id
+            gameweek,
+            season: '2025-26',
+            stats: rawStats,
+            fantasy_points: fantasyPoints,
+            match_rating: rating,
+          },
+          { onConflict: 'player_id,match_id' },
+        );
 
-      const { total: fantasyPoints } = calculateFantasyPoints(
-        rawStats,
-        dbPlayer.primary_position as GranularPosition
-      );
-
-      const { error } = await supabase.from('player_stats').upsert(
-        {
-          player_id: dbPlayer.id,
-          match_id: fixtureId,
-          gameweek,
-          season: '2025-26',
-          stats: rawStats,
-          fantasy_points: fantasyPoints,
-        },
-        { onConflict: 'player_id,match_id' }
-      );
-
-      if (!error) saved++;
-    }
+        if (!error) saved++;
+      }),
+    );
   }
 
-  return NextResponse.json({ ok: true, fixtureId, gameweek, saved });
+  return NextResponse.json({ ok: true, mode: 'fpl_live', gameweek, saved });
 }
 
-// ── Bulk FPL form sync ────────────────────────────────────────────────────────
+// ── Trigger Edge Function ─────────────────────────────────────────────────
 
-const FPL_URL = 'https://fantasy.premierleague.com/api/bootstrap-static/';
+async function triggerEdgeFunctionRatings(gameweek: number): Promise<NextResponse> {
+  const edgeFnUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/sync-ratings`;
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+
+  try {
+    const res = await fetch(edgeFnUrl, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${serviceKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ gameweek }),
+    });
+
+    if (!res.ok) {
+      const text = await res.text();
+      return NextResponse.json(
+        { error: `Edge function error: ${res.status}`, detail: text },
+        { status: 502 },
+      );
+    }
+
+    const result = await res.json();
+    return NextResponse.json({ ok: true, mode: 'trigger_ratings', gameweek, result });
+  } catch (err) {
+    return NextResponse.json(
+      { error: 'Failed to invoke Edge Function', detail: String(err) },
+      { status: 500 },
+    );
+  }
+}
+
+// ── Bulk FPL Form Sync (unchanged) ────────────────────────────────────────
 
 async function syncFplForm(): Promise<NextResponse> {
-  const fplRes = await fetch(FPL_URL, {
+  const fplRes = await fetch(`${FPL_BASE}/bootstrap-static/`, {
     headers: { 'User-Agent': 'FantasyFutbol/1.0' },
     next: { revalidate: 0 },
   });
@@ -104,13 +164,12 @@ async function syncFplForm(): Promise<NextResponse> {
   const fplData = await fplRes.json();
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
   );
 
   const elements = fplData.elements as FplFormElement[];
   let updated = 0;
 
-  // Batch in chunks of 50 to stay within Supabase query limits
   for (let i = 0; i < elements.length; i += 50) {
     const chunk = elements.slice(i, i + 50);
     await Promise.all(
@@ -124,8 +183,8 @@ async function syncFplForm(): Promise<NextResponse> {
             fpl_news: el.news || null,
           })
           .eq('fpl_id', el.id)
-          .then(({ error }) => { if (!error) updated++; })
-      )
+          .then(({ error }) => { if (!error) updated++; }),
+      ),
     );
   }
 
@@ -137,5 +196,5 @@ interface FplFormElement {
   status: string;
   news: string;
   total_points: number;
-  form: string; // e.g. "5.3"
+  form: string;
 }

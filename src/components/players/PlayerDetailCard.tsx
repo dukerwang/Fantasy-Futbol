@@ -1,4 +1,7 @@
-import type { Player } from '@/types';
+'use client';
+
+import { useState } from 'react';
+import type { Player, RatingBreakdownItem } from '@/types';
 import PositionBadge from './PositionBadge';
 import styles from './PlayerDetailCard.module.css';
 
@@ -18,13 +21,24 @@ const FPL_STATUS_INFO: Record<string, { label: string; cssVar: string }> = {
     u: { label: 'Unavailable', cssVar: 'var(--color-text-muted)' },
 };
 
+function getRatingColor(rating: number): string {
+    if (rating >= 8.0) return '#22c55e';  // bright green
+    if (rating >= 7.0) return '#4ade80';  // green
+    if (rating >= 6.0) return '#facc15';  // yellow
+    if (rating >= 5.0) return '#f97316';  // orange
+    return '#ef4444';                     // red
+}
+
 interface Props {
     player: Player;
     totalPoints?: number;
     recentForm?: number;
+    matchRating?: number | null;
+    ratingBreakdown?: RatingBreakdownItem[] | null;
 }
 
-export default function PlayerDetailCard({ player, totalPoints, recentForm }: Props) {
+export default function PlayerDetailCard({ player, totalPoints, recentForm, matchRating, ratingBreakdown }: Props) {
+    const [showBreakdown, setShowBreakdown] = useState(false);
     const age = player.date_of_birth ? calculateAge(player.date_of_birth) : null;
     const statusInfo = player.fpl_status ? FPL_STATUS_INFO[player.fpl_status] : null;
     const showBiometrics = age !== null || player.height_cm || player.nationality;
@@ -46,17 +60,31 @@ export default function PlayerDetailCard({ player, totalPoints, recentForm }: Pr
 
                 <div className={styles.identity}>
                     <h2 className={styles.playerName}>{player.name}</h2>
-                    {player.web_name && player.web_name !== player.name && (
-                        <p className={styles.webName}>&ldquo;{player.web_name}&rdquo;</p>
-                    )}
                     <p className={styles.club}>{player.pl_team}</p>
                     <div className={styles.positions}>
                         <PositionBadge position={player.primary_position} size="md" />
-                        {player.secondary_positions?.map((pos) => (
-                            <PositionBadge key={pos} position={pos} size="sm" />
-                        ))}
+                        {player.secondary_positions && player.secondary_positions.length > 0 && (
+                            <div className={styles.altPositions}>
+                                <span className={styles.altLabel}>Alt:</span>
+                                {player.secondary_positions.map((pos) => (
+                                    <PositionBadge key={pos} position={pos} size="sm" />
+                                ))}
+                            </div>
+                        )}
                     </div>
                 </div>
+
+                {/* ── Rating Badge ── */}
+                {matchRating != null && matchRating > 0 && (
+                    <div
+                        className={styles.ratingBadge}
+                        style={{ background: getRatingColor(matchRating) }}
+                        title={`Match Rating: ${matchRating.toFixed(1)}`}
+                    >
+                        <span className={styles.ratingNumber}>{matchRating.toFixed(1)}</span>
+                        <span className={styles.ratingLabel}>Rating</span>
+                    </div>
+                )}
             </div>
 
             {/* ── Biometrics ── */}
@@ -106,16 +134,20 @@ export default function PlayerDetailCard({ player, totalPoints, recentForm }: Pr
                     </div>
                 )}
 
-                {totalPoints !== undefined && (
+                {(totalPoints != null || player.fpl_total_points != null) && (
                     <div className={styles.statItem}>
-                        <span className={styles.statValue}>{totalPoints.toFixed(1)}</span>
+                        <span className={styles.statValue}>
+                            {(totalPoints != null ? totalPoints : player.fpl_total_points)?.toFixed(1)}
+                        </span>
                         <span className={styles.statLabel}>Total Pts</span>
                     </div>
                 )}
 
-                {recentForm !== undefined && (
+                {(recentForm != null || player.fpl_form != null) && (
                     <div className={styles.statItem}>
-                        <span className={styles.statValue}>{recentForm.toFixed(1)}</span>
+                        <span className={styles.statValue}>
+                            {(recentForm != null ? recentForm : player.fpl_form)?.toFixed(1)}
+                        </span>
                         <span className={styles.statLabel}>Form (3 GW)</span>
                     </div>
                 )}
@@ -133,6 +165,42 @@ export default function PlayerDetailCard({ player, totalPoints, recentForm }: Pr
                             <p className={styles.statusNews}>{player.fpl_news}</p>
                         )}
                     </div>
+                </div>
+            )}
+
+            {/* ── Rating Breakdown ── */}
+            {ratingBreakdown && ratingBreakdown.length > 0 && (
+                <div className={styles.breakdownSection}>
+                    <button
+                        className={styles.breakdownToggle}
+                        onClick={() => setShowBreakdown(!showBreakdown)}
+                    >
+                        <span>Rating Breakdown</span>
+                        <span className={styles.chevron} data-open={showBreakdown}>▾</span>
+                    </button>
+
+                    {showBreakdown && (
+                        <div className={styles.breakdownList}>
+                            {ratingBreakdown.map((item) => (
+                                <div key={item.key} className={styles.breakdownItem}>
+                                    <div className={styles.breakdownHeader}>
+                                        <span className={styles.breakdownName}>{item.component}</span>
+                                        <span className={styles.breakdownWeight}>{(item.weight * 100).toFixed(0)}%</span>
+                                    </div>
+                                    <div className={styles.barTrack}>
+                                        <div
+                                            className={styles.barFill}
+                                            style={{
+                                                width: `${Math.round(item.score * 100)}%`,
+                                                background: getRatingColor(1 + 9 * item.score),
+                                            }}
+                                        />
+                                    </div>
+                                    <span className={styles.breakdownDetail}>{item.detail}</span>
+                                </div>
+                            ))}
+                        </div>
+                    )}
                 </div>
             )}
         </div>

@@ -1,0 +1,198 @@
+import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
+import { redirect } from 'next/navigation';
+import InteractivePlayerCard from '@/components/players/InteractivePlayerCard';
+import type { Player, RosterEntry, Formation, GranularPosition, MatchupLineup, BenchSlot } from '@/types';
+import { FORMATION_SLOTS, POSITION_FLEX_MAP } from '@/types';
+import PitchUI from './PitchUI';
+import RosterManager from './RosterManager';
+import styles from './my-team.module.css';
+
+interface Props {
+  params: Promise<{ leagueId: string }>;
+  searchParams: Promise<{ mode?: string }>;
+}
+
+export default async function MyTeamPage({ params, searchParams }: Props) {
+  const { leagueId } = await params;
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) redirect('/login');
+
+  const admin = createAdminClient();
+
+  // Fetch full team data
+  const { data: team } = await admin
+    .from('teams')
+    .select(
+      `
+      id, team_name, faab_budget, total_points, league_id,
+      league:leagues(id, name, season, status, scoring_rules, bench_size)
+    `
+    )
+    .eq('league_id', leagueId)
+    .eq('user_id', user.id)
+    .single();
+
+  if (!team) {
+    return (
+      <div className={styles.empty}>
+        <p className={styles.emptyIcon}>&#128085;</p>
+        <h2 className={styles.emptyTitle}>No team found</h2>
+        <p className={styles.emptyText}>You do not have a team in this league.</p>
+        <a href="/dashboard" className={styles.backLink}>
+          &larr; Back to Dashboard
+        </a>
+      </div>
+    );
+  }
+
+
+  // Fetch roster entries with player data
+  const { data: rosterData } = await admin
+    .from('roster_entries')
+    .select(
+      `
+      id, team_id, player_id, status, acquisition_type, acquisition_value, acquired_at,
+      player:players(*)
+    `
+    )
+    .eq('team_id', team.id)
+    .order('status', { ascending: true });
+
+  const rosterEntries = (rosterData ?? []) as unknown as (RosterEntry & { player: Player })[];
+  const starters = rosterEntries.filter((e) => e.status === 'active');
+  const bench = rosterEntries.filter((e) => e.status === 'bench');
+  const ir = rosterEntries.filter((e) => e.status === 'ir');
+  const nonIrEntries = rosterEntries.filter((e) => e.status !== 'ir');
+
+  // Determine initial formation and assignments from upcoming matchup lineup
+  let initialFormation: Formation = '4-3-3';
+  let initialAssignments: Record<number, string> = {};
+  let initialBench: Record<string, string | null> = {
+    DEF: null,
+    MID: null,
+    ATT: null,
+    FLEX: null,
+  };
+
+  // Try to load existing lineup from next scheduled matchup
+  const { data: matchup } = await admin
+    .from('matchups')
+    .select('id, team_a_id, team_b_id, lineup_a, lineup_b')
+    .eq('status', 'scheduled')
+    .or(`team_a_id.eq.${team.id},team_b_id.eq.${team.id}`)
+    .order('gameweek', { ascending: true })
+    .limit(1)
+    .single();
+
+  if (matchup) {
+    const isTeamA = (matchup as any).team_a_id === team.id;
+    const existingLineup = (isTeamA ? matchup.lineup_a : matchup.lineup_b) as MatchupLineup | null;
+
+    if (existingLineup) {
+      initialFormation = existingLineup.formation;
+      const slots = FORMATION_SLOTS[existingLineup.formation];
+      for (let i = 0; i < slots.length; i++) {
+        const starter = existingLineup.starters[i];
+        if (starter) {
+          initialAssignments[i] = starter.player_id;
+        }
+      }
+      for (const b of existingLineup.bench || []) {
+        if (b.slot && b.player_id) {
+          initialBench[b.slot] = b.player_id;
+        }
+      }
+    }
+  }
+
+  // If no existing lineup, auto-assign starters based on current roster statuses
+  if (Object.keys(initialAssignments).length === 0 && starters.length > 0) {
+    const slots = FORMATION_SLOTS[initialFormation];
+    const used = new Set<string>();
+
+    for (let i = 0; i < slots.length; i++) {
+      const slotPos = slots[i];
+      const allowed = POSITION_FLEX_MAP[slotPos];
+      const candidate = starters.find((e) => {
+        if (used.has(e.player.id)) return false;
+        const positions: GranularPosition[] = [
+          e.player.primary_position,
+          ...(e.player.secondary_positions ?? []),
+        ];
+        return positions.some((p) => allowed.includes(p));
+      });
+      if (candidate) {
+        initialAssignments[i] = candidate.player.id;
+        used.add(candidate.player.id);
+      }
+    }
+
+    // Auto-assign bench slots
+    const benchUsed = new Set<string>();
+    const benchPool = bench; // Roster entries with status 'bench'
+    for (const slot of ['DEF', 'MID', 'ATT', 'FLEX']) {
+      const candidate = benchPool.find(e => !benchUsed.has(e.player.id));
+      if (candidate) {
+        initialBench[slot] = candidate.player.id;
+        benchUsed.add(candidate.player.id);
+      }
+    }
+  }
+
+  // Now, anyone who isn't a starter and isn't on the 4-man bench is a reserve.
+  const assignedStarterIds = new Set(Object.values(initialAssignments));
+  const assignedBenchIds = new Set(Object.values(initialBench).filter(Boolean));
+  const reserves = nonIrEntries.filter(
+    (e) => !assignedStarterIds.has(e.player.id) && !assignedBenchIds.has(e.player.id)
+  );
+
+  return (
+    <div>
+      <header className={styles.header}>
+        <div>
+          <div className={styles.headerTop}>
+            <p className={styles.leagueName}>{(team.league as any).name}</p>
+          </div>
+          <h1 className={styles.teamName}>{team.team_name}</h1>
+        </div>
+        <div className={styles.headerRight}>
+          <div className={styles.headerStats}>
+            <div className={styles.stat}>
+              <span className={styles.statValue}>{Number(team.total_points).toFixed(1)}</span>
+              <span className={styles.statLabel}>Total Pts</span>
+            </div>
+            <div className={styles.statDivider} />
+            <div className={styles.stat}>
+              <span className={styles.statValue}>&pound;{team.faab_budget}m</span>
+              <span className={styles.statLabel}>FAAB Budget</span>
+            </div>
+            <div className={styles.statDivider} />
+            <div className={styles.stat}>
+              <span className={styles.statValue}>{rosterEntries.length}</span>
+              <span className={styles.statLabel}>Players</span>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <PitchUI
+        teamId={team.id}
+        allEntries={nonIrEntries}
+        irEntries={ir}
+        initialFormation={initialFormation}
+        initialAssignments={initialAssignments}
+        initialBench={initialBench as Record<BenchSlot, string | null>}
+      />
+
+      <div className={styles.sections}>
+        <RosterManager teamId={team.id} rosterEntries={rosterEntries} />
+      </div>
+    </div>
+  );
+}

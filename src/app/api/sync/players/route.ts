@@ -49,11 +49,10 @@ export async function POST(req: NextRequest) {
         el.web_name,
         el.element_type
       );
-
       // FPL photo: "{code}.jpg" → use with premierleague CDN
       const photoCode = el.photo?.replace('.jpg', '') ?? null;
       const photoUrl = photoCode
-        ? `https://resources.premierleague.com/premierleague/photos/players/110x140/p${photoCode}.png`
+        ? `https://resources.premierleague.com/premierleague25/photos/players/110x140/${photoCode}.png`
         : null;
 
       return {
@@ -63,7 +62,7 @@ export async function POST(req: NextRequest) {
         pl_team: teamMap.get(el.team) ?? 'Unknown',
         pl_team_id: el.team,
         primary_position: position,
-        secondary_positions: [] as string[],
+        secondary_positions: [],
         market_value: parseFloat((el.now_cost / 10).toFixed(1)), // FPL price in £m
         photo_url: photoUrl,
         fpl_status: el.status,

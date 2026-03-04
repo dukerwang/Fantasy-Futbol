@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
-import { FORMATION_SLOTS, POSITION_FLEX_MAP, BENCH_FLEX_MAP } from '@/types';
+import { FORMATION_SLOTS, POSITION_FLEX_MAP, BENCH_FLEX_MAP, getExpectedBenchSlots } from '@/types';
 import type { Formation, GranularPosition, MatchupLineup, BenchSlot } from '@/types';
 
 interface Props {
@@ -63,8 +63,8 @@ export async function POST(req: NextRequest, { params }: Props) {
 
   const benchSize = (teamWithLeague.league as any).bench_size;
 
-  if (!Array.isArray(bench) || bench.length !== benchSize) {
-    return NextResponse.json({ error: `Must have exactly ${benchSize} bench players` }, { status: 400 });
+  if (!Array.isArray(bench) || bench.length !== 4) {
+    return NextResponse.json({ error: 'Must have exactly 4 bench players (DEF, MID, ATT, FLEX)' }, { status: 400 });
   }
 
   // Validate slots match formation (same multiset)
@@ -75,8 +75,7 @@ export async function POST(req: NextRequest, { params }: Props) {
   }
 
   // Validate bench slots match expected bench configuration
-  const { getExpectedBenchSlots, BENCH_FLEX_MAP } = await import('@/types');
-  const expectedBenchSlots = getExpectedBenchSlots(benchSize).sort();
+  const expectedBenchSlots = getExpectedBenchSlots().sort();
   const givenBenchSlots = bench.map((b) => b.slot).sort();
   if (JSON.stringify(expectedBenchSlots) !== JSON.stringify(givenBenchSlots)) {
     return NextResponse.json({ error: 'Bench slots do not match league rules' }, { status: 400 });

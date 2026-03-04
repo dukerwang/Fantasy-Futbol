@@ -6,10 +6,12 @@ import type { AuctionListing, Player } from '@/types';
 
 interface Props {
   params: Promise<{ leagueId: string }>;
+  searchParams: Promise<{ q?: string; pos?: string }>;
 }
 
-export default async function TransferMarketPage({ params }: Props) {
+export default async function TransferMarketPage({ params, searchParams }: Props) {
   const { leagueId } = await params;
+  const { q, pos } = await searchParams;
 
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -46,7 +48,7 @@ export default async function TransferMarketPage({ params }: Props) {
     .from('waiver_claims')
     .select(`
       *,
-      player:players(*),
+      player:players!waiver_claims_player_id_fkey(*),
       team:teams(id, team_name)
     `)
     .eq('league_id', leagueId)
@@ -97,7 +99,7 @@ export default async function TransferMarketPage({ params }: Props) {
   // My roster (for the "drop player" dropdown in the bid modal)
   const { data: myRosterEntries } = await admin
     .from('roster_entries')
-    .select('player_id, player:players(id, name, primary_position, pl_team)')
+    .select('player_id, player:players(id, name, primary_position, secondary_positions, pl_team)')
     .eq('team_id', myTeam.id);
   const myRoster = (myRosterEntries ?? []).map((e) => e.player as any);
   const rosterFull = myRoster.length >= (league.roster_size ?? 20);
@@ -107,7 +109,7 @@ export default async function TransferMarketPage({ params }: Props) {
 
   let freeAgentQuery = admin
     .from('players')
-    .select('id, name, web_name, primary_position, pl_team, market_value, photo_url, projected_points')
+    .select('id, name, web_name, primary_position, secondary_positions, pl_team, market_value, photo_url, projected_points')
     .eq('is_active', true)
     .order('market_value', { ascending: false })
     .limit(60);
@@ -115,6 +117,14 @@ export default async function TransferMarketPage({ params }: Props) {
   if (excludedIds.length > 0) {
     freeAgentQuery = freeAgentQuery.not('id', 'in', `(${excludedIds.join(',')})`);
   }
+
+  if (q) {
+    freeAgentQuery = freeAgentQuery.ilike('name', `%${q}%`);
+  }
+  if (pos) {
+    freeAgentQuery = freeAgentQuery.or(`primary_position.eq.${pos},secondary_positions.cs.{${pos}}`);
+  }
+
   const { data: freeAgents } = await freeAgentQuery;
 
   return (
@@ -126,6 +136,8 @@ export default async function TransferMarketPage({ params }: Props) {
       initialMyTeam={{ id: myTeam.id, faab_budget: myTeam.faab_budget, team_name: myTeam.team_name }}
       initialMyRoster={myRoster}
       initialRosterFull={rosterFull}
+      initialQ={q ?? ''}
+      initialPos={pos ?? ''}
     />
   );
 }

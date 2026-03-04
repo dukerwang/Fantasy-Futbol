@@ -1,6 +1,6 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import styles from './my-team.module.css';
 
 interface Props {
@@ -10,15 +10,16 @@ interface Props {
 
 export default function MyTeamClient({ teamId, isEditMode }: Props) {
   const router = useRouter();
+  const pathname = usePathname();
 
   return (
     <button
       className={styles.editToggleBtn}
       onClick={() => {
         if (isEditMode) {
-          router.push(`/my-team?teamId=${teamId}`);
+          router.push(pathname);
         } else {
-          router.push(`/my-team?teamId=${teamId}&mode=edit`);
+          router.push(`${pathname}?mode=edit`);
         }
       }}
     >
