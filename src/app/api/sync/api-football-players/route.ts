@@ -212,31 +212,20 @@ export async function POST(req: NextRequest) {
             if (bestMatchObj) {
                 matchedCount++;
 
-                // Clean up biometrics
                 const dob = apiPlayer.birth.date;
                 const heightCm = apiPlayer.height ? parseInt(apiPlayer.height.replace('cm', '').trim(), 10) : null;
 
-                // Calculate positions — only use API-derived secondary when the API
-                // actually found multiple broad positions (very rare on free tier).
-                // Otherwise leave secondary_positions alone so the FPL sync's
-                // natural mapping is preserved.
-                const { primary, secondary } = parsePositionsFromApi(apiData.statistics, bestMatchObj.primary_position as GranularPosition);
-
+                // NOTE: We intentionally do NOT update secondary_positions here.
+                // API Football only reports 4 broad categories (GK/DEF/MID/FWD), which
+                // is too coarse to infer granular secondary positions reliably.
+                // FPL sync + manual overrides handle positions with much higher precision.
                 const update: Record<string, unknown> = {
                     id: bestMatchObj.id,
                     api_football_id: apiPlayer.id,
                     date_of_birth: dob,
                     nationality: apiPlayer.nationality,
                     height_cm: heightCm || null,
-                    // primary_position is not overwritten here — the FPL sync sets it
-                    // with granular positions (LW/RW/CB/DM/etc.) via the overrides map,
-                    // which is more precise than API-Football's 4 broad categories.
                 };
-                // Only set secondary_positions when the API cross-category comparison
-                // found a genuine signal (e.g., FPL-MID player API sees as Attacker).
-                if (secondary.length > 0) {
-                    update.secondary_positions = secondary;
-                }
 
                 updates.push(update);
             }
