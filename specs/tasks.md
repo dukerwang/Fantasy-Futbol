@@ -43,6 +43,12 @@
     - [ ] Conduct end-to-end testing of draft and scoring
     - [ ] Verify scoring accuracy against real match data
 
+# Phase 10: End-to-End Testing
+- [ ] Create mock accounts in Supabase Auth
+- [ ] Set up a dummy league and fill it with bots/test users
+- [ ] Test the Draft Room functionality
+- [ ] Test the Waiver Wire bidding and 48-hour auction resolution
+
 - [ ] **Deployment**
     - [ ] Deploy to Vercel
     - [ ] Set up scheduled jobs for data syncing (cron)
