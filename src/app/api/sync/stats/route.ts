@@ -15,7 +15,7 @@ import { createClient } from '@supabase/supabase-js';
 import { calculateMatchRating, mapFplLiveToRawStats } from '@/lib/scoring/engine';
 import type { GranularPosition, FplLivePlayerStats } from '@/types';
 
-export const maxDuration = 300; // 5 minutes max for Vercel
+export const maxDuration = 60; // 1 minute max for Vercel Hobby tier
 
 const FPL_BASE = 'https://fantasy.premierleague.com/api';
 
@@ -114,6 +114,9 @@ async function syncFplLiveRatings(gameweek: number): Promise<NextResponse> {
     );
   }
 
+  // Recalculate total_points and form for all players from player_stats
+  await supabase.rpc('update_player_fantasy_scores');
+
   return NextResponse.json({ ok: true, mode: 'fpl_live', gameweek, saved });
 }
 
@@ -179,8 +182,6 @@ async function syncFplForm(): Promise<NextResponse> {
         supabase
           .from('players')
           .update({
-            fpl_total_points: el.total_points ?? null,
-            fpl_form: el.form ? parseFloat(el.form) : null,
             fpl_status: el.status,
             fpl_news: el.news || null,
           })
@@ -197,6 +198,4 @@ interface FplFormElement {
   id: number;
   status: string;
   news: string;
-  total_points: number;
-  form: string;
 }

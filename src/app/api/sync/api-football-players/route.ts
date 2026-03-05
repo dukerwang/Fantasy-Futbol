@@ -4,7 +4,7 @@ import { fetchPLTeams, fetchPlayersByTeam, ApiPlayer } from '@/lib/api-football/
 import { GranularPosition } from '@/types';
 import stringSimilarity from 'string-similarity';
 
-export const maxDuration = 300; // 5 minutes max since API fetching takes time
+export const maxDuration = 60; // 1 minute max for Vercel Hobby tier
 
 /**
  * Normalizes player names to help with matching between FPL and API-Football.

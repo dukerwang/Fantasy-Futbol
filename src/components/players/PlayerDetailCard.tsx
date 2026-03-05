@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { Player, RatingBreakdownItem } from '@/types';
 import PositionBadge from './PositionBadge';
 import styles from './PlayerDetailCard.module.css';
@@ -14,6 +14,13 @@ function calculateAge(dateOfBirth: string): number {
     return age;
 }
 
+function cmToFeetInches(cm: number): string {
+    const totalInches = cm / 2.54;
+    const feet = Math.floor(totalInches / 12);
+    const inches = Math.round(totalInches % 12);
+    return `${feet}'${inches}"`;
+}
+
 const FPL_STATUS_INFO: Record<string, { label: string; cssVar: string }> = {
     i: { label: 'Injured', cssVar: 'var(--color-accent-red)' },
     d: { label: 'Doubtful', cssVar: 'var(--color-accent-yellow)' },
@@ -22,11 +29,18 @@ const FPL_STATUS_INFO: Record<string, { label: string; cssVar: string }> = {
 };
 
 function getRatingColor(rating: number): string {
-    if (rating >= 8.0) return '#22c55e';  // bright green
-    if (rating >= 7.0) return '#4ade80';  // green
-    if (rating >= 6.0) return '#facc15';  // yellow
-    if (rating >= 5.0) return '#f97316';  // orange
-    return '#ef4444';                     // red
+    if (rating >= 8.0) return '#22c55e';
+    if (rating >= 7.0) return '#4ade80';
+    if (rating >= 6.0) return '#facc15';
+    if (rating >= 5.0) return '#f97316';
+    return '#ef4444';
+}
+
+interface GamelogEntry {
+    gameweek: number;
+    fantasy_points: number;
+    match_rating: number | null;
+    stats: { minutes_played?: number; goals?: number; assists?: number } | null;
 }
 
 interface Props {
@@ -39,9 +53,22 @@ interface Props {
 
 export default function PlayerDetailCard({ player, totalPoints, recentForm, matchRating, ratingBreakdown }: Props) {
     const [showBreakdown, setShowBreakdown] = useState(false);
+    const [gamelog, setGamelog] = useState<GamelogEntry[]>([]);
+
     const age = player.date_of_birth ? calculateAge(player.date_of_birth) : null;
     const statusInfo = player.fpl_status ? FPL_STATUS_INFO[player.fpl_status] : null;
     const showBiometrics = age !== null || player.height_cm || player.nationality;
+
+    useEffect(() => {
+        setGamelog([]);
+        fetch(`/api/players/${player.id}`)
+            .then((r) => r.json())
+            .then((d) => setGamelog(d.gamelog ?? []))
+            .catch(() => { /* silently fail — no game data yet */ });
+    }, [player.id]);
+
+    const displayTotalPoints = totalPoints ?? player.total_points;
+    const displayForm = recentForm ?? player.form;
 
     return (
         <div className={styles.card}>
@@ -99,7 +126,7 @@ export default function PlayerDetailCard({ player, totalPoints, recentForm, matc
                     {player.height_cm && (
                         <div className={styles.bioItem}>
                             <span className={styles.bioLabel}>Height</span>
-                            <span className={styles.bioValue}>{player.height_cm} cm</span>
+                            <span className={styles.bioValue}>{cmToFeetInches(player.height_cm)}</span>
                         </div>
                     )}
                     {player.nationality && (
@@ -134,19 +161,19 @@ export default function PlayerDetailCard({ player, totalPoints, recentForm, matc
                     </div>
                 )}
 
-                {(totalPoints != null || player.fpl_total_points != null) && (
+                {displayTotalPoints != null && (
                     <div className={styles.statItem}>
                         <span className={styles.statValue}>
-                            {(totalPoints != null ? totalPoints : player.fpl_total_points)?.toFixed(1)}
+                            {displayTotalPoints.toFixed(1)}
                         </span>
                         <span className={styles.statLabel}>Total Pts</span>
                     </div>
                 )}
 
-                {(recentForm != null || player.fpl_form != null) && (
+                {displayForm != null && (
                     <div className={styles.statItem}>
                         <span className={styles.statValue}>
-                            {(recentForm != null ? recentForm : player.fpl_form)?.toFixed(1)}
+                            {displayForm.toFixed(1)}
                         </span>
                         <span className={styles.statLabel}>Form (3 GW)</span>
                     </div>
@@ -165,6 +192,45 @@ export default function PlayerDetailCard({ player, totalPoints, recentForm, matc
                             <p className={styles.statusNews}>{player.fpl_news}</p>
                         )}
                     </div>
+                </div>
+            )}
+
+            {/* ── Game Log ── */}
+            {gamelog.length > 0 && (
+                <div className={styles.gameLog}>
+                    <p className={styles.gameLogTitle}>Game Log</p>
+                    <table className={styles.gameLogTable}>
+                        <thead>
+                            <tr>
+                                <th>GW</th>
+                                <th>Min</th>
+                                <th>G</th>
+                                <th>A</th>
+                                <th>Pts</th>
+                                <th>Rtg</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {gamelog.map((entry) => (
+                                <tr key={entry.gameweek}>
+                                    <td>{entry.gameweek}</td>
+                                    <td>{entry.stats?.minutes_played ?? '—'}</td>
+                                    <td>{entry.stats?.goals ?? 0}</td>
+                                    <td>{entry.stats?.assists ?? 0}</td>
+                                    <td className={styles.gameLogPts}>
+                                        {entry.fantasy_points.toFixed(1)}
+                                    </td>
+                                    <td>
+                                        {entry.match_rating != null ? (
+                                            <span style={{ color: getRatingColor(entry.match_rating) }}>
+                                                {entry.match_rating.toFixed(1)}
+                                            </span>
+                                        ) : '—'}
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
                 </div>
             )}
 

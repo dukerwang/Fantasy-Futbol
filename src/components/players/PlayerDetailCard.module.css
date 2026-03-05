@@ -338,3 +338,59 @@
   color: var(--color-text-muted);
   font-variant-numeric: tabular-nums;
 }
+
+/* ── Game Log ───────────────────────────────────────────── */
+
+.gameLog {
+  border-top: 1px solid var(--color-border);
+  padding: var(--space-5) var(--space-6);
+}
+
+.gameLogTitle {
+  font-size: var(--text-xs);
+  font-weight: var(--font-semibold);
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin: 0 0 var(--space-3);
+}
+
+.gameLogTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-xs);
+}
+
+.gameLogTable th {
+  color: var(--color-text-muted);
+  font-weight: var(--font-medium);
+  text-align: right;
+  padding: var(--space-1) var(--space-2);
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.gameLogTable th:first-child {
+  text-align: left;
+}
+
+.gameLogTable td {
+  color: var(--color-text-secondary);
+  text-align: right;
+  padding: var(--space-2) var(--space-2);
+  border-bottom: 1px solid var(--color-border-subtle);
+  font-variant-numeric: tabular-nums;
+}
+
+.gameLogTable td:first-child {
+  text-align: left;
+  color: var(--color-text-muted);
+}
+
+.gameLogTable tr:last-child td {
+  border-bottom: none;
+}
+
+.gameLogPts {
+  color: var(--color-text-primary);
+  font-weight: var(--font-semibold);
+}

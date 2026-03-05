@@ -11,7 +11,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { resolvePosition } from '@/lib/fpl/positionMap';
 
-export const maxDuration = 300; // 5 minutes max for Vercel
+export const maxDuration = 60; // 1 minute max for Vercel Hobby tier
 
 const FPL_URL = 'https://fantasy.premierleague.com/api/bootstrap-static/';
 
@@ -69,8 +69,6 @@ export async function POST(req: NextRequest) {
         photo_url: photoUrl,
         fpl_status: el.status,
         fpl_news: el.news || null,
-        fpl_total_points: el.total_points ?? null,
-        fpl_form: el.form ? parseFloat(el.form) : null,
         is_active: el.status !== 'u', // 'u' = unavailable (left club)
         updated_at: new Date().toISOString(),
       };

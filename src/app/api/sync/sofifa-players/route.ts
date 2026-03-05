@@ -17,7 +17,7 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import type { GranularPosition } from '@/types';
 import stringSimilarity from 'string-similarity';
 
-export const maxDuration = 300;
+export const maxDuration = 60; // 1 minute max for Vercel Hobby tier
 
 const BASE_URL = 'https://api.sofifa.net';
 const PL_LEAGUE_ID = 13;

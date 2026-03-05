@@ -147,8 +147,8 @@ export interface Player {
   height_cm: number | null;
   fpl_status: string | null; // 'a'=available, 'i'=injured, 'd'=doubtful, 's'=suspended, 'u'=unavailable
   fpl_news: string | null;
-  fpl_total_points: number | null;
-  fpl_form: number | null; // avg FPL pts over last 30 days
+  total_points: number | null; // custom scoring engine: SUM fantasy_points this season
+  form: number | null;         // custom scoring engine: avg fantasy_points over last 3 GWs
   is_active: boolean; // still in the PL
   transfermarkt_id: string | null;
   created_at: string;

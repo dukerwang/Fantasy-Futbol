@@ -17,7 +17,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 
-export const maxDuration = 300; // 5 minutes max for Vercel
+export const maxDuration = 60; // 1 minute max for Vercel Hobby tier
 
 
 export async function POST(req: NextRequest) {
