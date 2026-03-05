@@ -11,6 +11,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { resolvePosition } from '@/lib/fpl/positionMap';
 
+export const maxDuration = 300; // 5 minutes max for Vercel
+
 const FPL_URL = 'https://fantasy.premierleague.com/api/bootstrap-static/';
 
 export async function POST(req: NextRequest) {

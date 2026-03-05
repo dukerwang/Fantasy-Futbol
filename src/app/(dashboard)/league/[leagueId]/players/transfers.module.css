@@ -152,6 +152,24 @@
   background: rgba(239, 68, 68, 0.04);
 }
 
+.auctionCardWaiver {
+  border-color: rgba(245, 158, 11, 0.35);
+  background: rgba(245, 158, 11, 0.03);
+}
+
+.waiverBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 6px;
+  border-radius: var(--radius-sm);
+  background: rgba(245, 158, 11, 0.15);
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  color: #f59e0b;
+  font-size: var(--text-xs);
+  font-weight: var(--font-semibold);
+  letter-spacing: 0.03em;
+}
+
 .auctionCardTop {
   display: flex;
   align-items: center;
@@ -590,6 +608,15 @@
 
 .modalHint strong {
   color: var(--color-text-secondary);
+}
+
+.tmMinOk {
+  color: var(--color-text-muted);
+}
+
+.tmMinWarn {
+  color: #ef4444;
+  font-weight: var(--font-semibold);
 }
 
 .modalError {

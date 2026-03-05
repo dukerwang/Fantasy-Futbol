@@ -15,6 +15,8 @@ import { createClient } from '@supabase/supabase-js';
 import { calculateMatchRating, mapFplLiveToRawStats } from '@/lib/scoring/engine';
 import type { GranularPosition, FplLivePlayerStats } from '@/types';
 
+export const maxDuration = 300; // 5 minutes max for Vercel
+
 const FPL_BASE = 'https://fantasy.premierleague.com/api';
 
 export async function POST(req: NextRequest) {

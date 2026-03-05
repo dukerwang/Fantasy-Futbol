@@ -10,6 +10,8 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { calculateMatchRating, DEFAULT_REFERENCE_STATS } from '@/lib/scoring/engine';
 import type { GranularPosition, ReferenceStats, RatingComponent } from '@/types';
 
+export const maxDuration = 300; // 5 minutes max for Vercel
+
 type RefStatsMap = Record<string, ReferenceStats>;
 
 /** Load per-position reference stats from Supabase, falling back to hardcoded defaults. */

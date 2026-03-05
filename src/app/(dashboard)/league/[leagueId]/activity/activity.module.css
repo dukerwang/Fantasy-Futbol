@@ -1,0 +1,166 @@
+/* ============================================================
+   League Activity Feed — Styles
+   ============================================================ */
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  max-width: 760px;
+}
+
+/* ── Header ── */
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.breadcrumb {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.breadcrumb a {
+  color: var(--color-accent-blue);
+  text-decoration: none;
+}
+
+.breadcrumb a:hover {
+  text-decoration: underline;
+}
+
+.title {
+  font-size: var(--text-3xl);
+  font-weight: var(--font-bold);
+  color: var(--color-text-primary);
+  letter-spacing: -0.02em;
+  margin: 0 0 var(--space-1);
+}
+
+.subtitle {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+/* ── Timeline ── */
+.timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  position: relative;
+}
+
+/* Vertical connector line */
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 11px;
+  top: 16px;
+  bottom: 16px;
+  width: 2px;
+  background: var(--color-border);
+  pointer-events: none;
+}
+
+/* ── Transaction row ── */
+.txRow {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-4);
+  padding: var(--space-4) 0;
+  position: relative;
+}
+
+.txDot {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid var(--color-border);
+  background: var(--color-bg-card);
+  flex-shrink: 0;
+  margin-top: 2px;
+  position: relative;
+  z-index: 1;
+}
+
+/* Dot colours by transaction type */
+.color_green .txDot  { border-color: #10b981; background: rgba(16, 185, 129, 0.15); }
+.color_red .txDot    { border-color: #ef4444; background: rgba(239, 68, 68, 0.15); }
+.color_blue .txDot   { border-color: #6387ff; background: rgba(99, 135, 255, 0.15); }
+.color_purple .txDot { border-color: #a855f7; background: rgba(168, 85, 247, 0.15); }
+.color_amber .txDot  { border-color: #f59e0b; background: rgba(245, 158, 11, 0.15); }
+.color_gray .txDot   { border-color: var(--color-text-muted); background: var(--color-bg-elevated); }
+
+.txBody {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.txTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+/* Badge */
+.txBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-xs);
+  font-weight: var(--font-semibold);
+  letter-spacing: 0.03em;
+  border: 1px solid transparent;
+}
+
+.badge_green  { color: #10b981; background: rgba(16, 185, 129, 0.12); border-color: rgba(16, 185, 129, 0.3); }
+.badge_red    { color: #ef4444; background: rgba(239, 68, 68, 0.12);  border-color: rgba(239, 68, 68, 0.3); }
+.badge_blue   { color: #6387ff; background: rgba(99, 135, 255, 0.12); border-color: rgba(99, 135, 255, 0.3); }
+.badge_purple { color: #a855f7; background: rgba(168, 85, 247, 0.12); border-color: rgba(168, 85, 247, 0.3); }
+.badge_amber  { color: #f59e0b; background: rgba(245, 158, 11, 0.12); border-color: rgba(245, 158, 11, 0.3); }
+.badge_gray   { color: var(--color-text-muted); background: var(--color-bg-elevated); border-color: var(--color-border); }
+
+.txDate {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.txDesc {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.txDesc strong {
+  color: var(--color-text-primary);
+  font-weight: var(--font-semibold);
+}
+
+.txFaab {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  font-weight: var(--font-semibold);
+}
+
+/* ── Empty state ── */
+.emptyState {
+  text-align: center;
+  padding: var(--space-12) var(--space-4);
+  color: var(--color-text-secondary);
+  font-size: var(--text-sm);
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}

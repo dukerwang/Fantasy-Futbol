@@ -18,6 +18,7 @@ export default function LeagueNav({ leagueId, leagueStatus }: Props) {
         { href: `/league/${leagueId}/matchups`, label: 'Matchups' },
         { href: `/league/${leagueId}/players`, label: 'Players' },
         { href: `/league/${leagueId}/trades`, label: 'Trades' },
+        { href: `/league/${leagueId}/activity`, label: 'Activity' },
     ];
 
     if (leagueStatus === 'setup' || leagueStatus === 'drafting') {

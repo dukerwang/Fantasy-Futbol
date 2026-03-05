@@ -47,6 +47,21 @@ export async function POST(req: NextRequest, { params }: Props) {
     return NextResponse.json({ error: 'Insufficient FAAB budget' }, { status: 400 });
   }
 
+  // Transfermarkt minimum bid: 20% of the player's current market value
+  const { data: playerData } = await admin
+    .from('players')
+    .select('market_value')
+    .eq('id', playerId)
+    .single();
+
+  const minimumBid = playerData ? Math.floor(Number(playerData.market_value || 0) * 0.2) : 0;
+  if (minimumBid > 0 && bidAmount < minimumBid) {
+    return NextResponse.json(
+      { error: `Minimum bid for this player is £${minimumBid}m (20% of Transfermarkt value)` },
+      { status: 400 },
+    );
+  }
+
   // Current state of this auction (all pending bids for this player, highest first)
   const { data: existingClaims } = await admin
     .from('waiver_claims')

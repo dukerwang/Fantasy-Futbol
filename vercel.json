@@ -1,0 +1,20 @@
+{
+    "crons": [
+        {
+            "path": "/api/cron/process-auctions",
+            "schedule": "0 5 * * *"
+        },
+        {
+            "path": "/api/sync/matchups",
+            "schedule": "0 3 * * *"
+        },
+        {
+            "path": "/api/sync/players",
+            "schedule": "30 3 * * *"
+        },
+        {
+            "path": "/api/transfers/compensate",
+            "schedule": "0 4 * * *"
+        }
+    ]
+}

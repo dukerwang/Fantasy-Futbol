@@ -17,13 +17,26 @@ export default function RosterManager({ teamId, rosterEntries }: Props) {
     const [error, setError] = useState<string | null>(null);
     const [viewingPlayer, setViewingPlayer] = useState<Player | null>(null);
 
-    async function handleAction(playerId: string, actionType: 'drop' | 'transfer_out') {
+    async function handleAction(
+        playerId: string,
+        actionType: 'drop' | 'transfer_out',
+        playerName: string,
+        marketValue: number,
+    ) {
         if (actionType === 'transfer_out') {
-            const confirm = window.confirm("Are you sure? This should only be used if the player has genuinely left the Premier League in real life. You will be refunded their market value in FAAB.");
-            if (!confirm) return;
+            const ok = window.confirm(
+                "Are you sure? This should only be used if the player has genuinely left the Premier League in real life. You will be refunded their market value in FAAB.",
+            );
+            if (!ok) return;
         } else {
-            const confirm = window.confirm("Are you sure you want to drop this player? They will become a free agent and you will receive £0 FAAB.");
-            if (!confirm) return;
+            const severanceFee = Math.floor(marketValue * 0.1);
+            const feeMsg = severanceFee > 0
+                ? `This will cost £${severanceFee}m FAAB in contract buyout fees.`
+                : 'No severance fee applies (market value too low).';
+            const ok = window.confirm(
+                `Are you sure you want to drop ${playerName}? ${feeMsg}`,
+            );
+            if (!ok) return;
         }
 
         setLoadingId(playerId);
@@ -89,14 +102,24 @@ export default function RosterManager({ teamId, rosterEntries }: Props) {
                             <div className={styles.rosterItemActions}>
                                 <button
                                     className={styles.dropBtn}
-                                    onClick={() => handleAction(entry.player.id, 'drop')}
+                                    onClick={() => handleAction(
+                                        entry.player.id,
+                                        'drop',
+                                        entry.player.web_name ?? entry.player.name,
+                                        Number(entry.player.market_value || 0),
+                                    )}
                                     disabled={loadingId !== null}
                                 >
                                     {loadingId === entry.player.id ? '...' : 'Drop'}
                                 </button>
                                 <button
                                     className={styles.transferOutBtn}
-                                    onClick={() => handleAction(entry.player.id, 'transfer_out')}
+                                    onClick={() => handleAction(
+                                        entry.player.id,
+                                        'transfer_out',
+                                        entry.player.web_name ?? entry.player.name,
+                                        Number(entry.player.market_value || 0),
+                                    )}
                                     disabled={loadingId !== null}
                                     title="Only use if player transferred out of the Premier League"
                                 >

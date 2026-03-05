@@ -99,7 +99,7 @@ export async function GET(_req: NextRequest, { params }: Props) {
   // My current roster (for the "drop player" selector in the bid modal)
   const { data: myRosterEntries } = await admin
     .from('roster_entries')
-    .select('player_id, player:players(id, name, primary_position, secondary_positions, pl_team)')
+    .select('player_id, player:players(id, name, primary_position, secondary_positions, pl_team, market_value)')
     .eq('team_id', myTeam.id);
 
   const myRoster = (myRosterEntries ?? []).map((e) => e.player as any);

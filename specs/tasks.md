@@ -21,22 +21,22 @@
     - [ ] Implement player position mapping logic (Granular roles: CB, FB, CDM, CM, CAM, Winger, ST)
     - [ ] Implement transfer value fetching/estimation logic (Transfermarkt)
 
-- [ ] **Core Features: League & Team Management**
-    - [ ] Implement League Creation/Joining flow
-    - [ ] **DESIGN**: Define valid formations (4-4-2, 4-3-3, etc.) and validation logic for granular positions.
-    - [ ] Implement Team Creation & Roster Management UI
-    - [ ] Develop Draft System (Snake draft logic)
-    - [ ] Build "My Team" view with detailed player cards
+- [x] **Core Features: League & Team Management**
+    - [x] Implement League Creation/Joining flow
+    - [x] **DESIGN**: Define valid formations (4-4-2, 4-3-3, etc.) and validation logic for granular positions.
+    - [x] Implement Team Creation & Roster Management UI
+    - [x] Develop Draft System (Snake draft logic)
+    - [x] Build "My Team" view with detailed player cards
 
-- [ ] **Core Features: Scoring & Gameplay**
-    - [ ] Implement Scoring Engine (converting detailed stats to points)
-    - [ ] Build Matchup calculation logic
-    - [ ] Create League Standings and Fixtures view
+- [x] **Core Features: Scoring & Gameplay**
+    - [x] Implement Scoring Engine (converting detailed stats to points)
+    - [x] Build Matchup calculation logic
+    - [x] Create League Standings and Fixtures view
 
-- [ ] **Core Features: Transfers & Economy**
-    - [ ] Implement Waiver Wire / Free Agency logic
-    - [ ] Build Transfer Market UI
-    - [ ] Implement "Transfer Out" compensation logic (FAAB reimbursement)
+- [x] **Core Features: Transfers & Economy**
+    - [x] Implement Waiver Wire / Free Agency logic
+    - [x] Build Transfer Market UI
+    - [x] Implement "Transfer Out" compensation logic (FAAB reimbursement)
 
 - [ ] **UI Polish & Verification**
     - [ ] Review all pages for responsive design

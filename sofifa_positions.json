@@ -1,0 +1,5962 @@
+[
+  {
+    "sofifa_id": 192123,
+    "slug": "chris-wood",
+    "short_name": "C. Wood",
+    "href": "/player/192123/chris-wood/260022/",
+    "full_name": "Christopher Grant Wood",
+    "positions": [
+      "ST"
+    ]
+  },
+  {
+    "sofifa_id": 246669,
+    "slug": "bukayo-saka",
+    "short_name": "B. Saka",
+    "href": "/player/246669/bukayo-saka/260022/",
+    "full_name": "Bukayo Saka",
+    "positions": [
+      "RW",
+      "RM"
+    ]
+  },
+  {
+    "sofifa_id": 278773,
+    "slug": "myles-lewis-skelly",
+    "short_name": "M. Lewis-Skelly",
+    "href": "/player/278773/myles-lewis-skelly/260022/",
+    "full_name": "Myles Anthony Lewis-Skelly",
+    "positions": [
+      "LB",
+      "CM"
+    ]
+  },
+  {
+    "sofifa_id": 270608,
+    "slug": "yehor-yarmoliuk",
+    "short_name": "Y. Yarmoliuk",
+    "href": "/player/270608/yehor-yarmoliuk/260022/",
+    "full_name": "Yehor Yarmoliuk\n\u042f\u0440\u043c\u043e\u043b\u044e\u043a \u0404\u0433\u043e\u0440 \u0420\u043e\u043c\u0430\u043d\u043e\u0432\u0438\u0447",
+    "positions": [
+      "CDM",
+      "CM"
+    ]
+  },
+  {
+    "sofifa_id": 262937,
+    "slug": "jackson-tchatchoua",
+    "short_name": "J. Tchatchoua",
+    "href": "/player/262937/jackson-tchatchoua/260022/",
+    "full_name": "Jackson Tchatchoua",
+    "positions": [
+      "RB",
+      "RM"
+    ]
+  },
+  {
+    "sofifa_id": 77593,
+    "slug": "mateus-bula-dami-mane",
+    "short_name": "Mateus Man\u00e9",
+    "href": "/player/77593/mateus-bula-dami-mane/260022/",
+    "full_name": "Mateus Bula Dami Man\u00e9",
+    "positions": [
+      "CAM",
+      "CM",
+      "RW",
+      "ST"
+    ]
+  },
+  {
+    "sofifa_id": 256079,
+    "slug": "moises-caicedo",
+    "short_name": "M. Caicedo",
+    "href": "/player/256079/moises-caicedo/260022/",
+    "full_name": "Mois\u00e9s Isaac Caicedo Corozo",
+    "positions": [
+      "CDM",
+      "CM"
+    ]
+  },
+  {
+    "sofifa_id": 236015,
+    "slug": "morgan-gibbs-white",
+    "short_name": "M. Gibbs-White",
+    "href": "/player/236015/morgan-gibbs-white/260022/",
+    "full_name": "Morgan Anthony Gibbs-White",
+    "positions": [
+      "CAM",
+      "CM"
+    ]
+  },
+  {
+    "sofifa_id": 200110,
+    "slug": "marco-bizot",
+    "short_name": "M. Bizot",
+    "href": "/player/200110/marco-bizot/260022/",
+    "full_name": "Marco Bizot",
+    "positions": [
+      "GK"
+    ]
+  },
+  {
+    "sofifa_id": 223197,
+    "slug": "enes-unal",
+    "short_name": "E. \u00dcnal",
+    "href": "/player/223197/enes-unal/260022/",
+    "full_name": "Enes \u00dcnal",
+    "positions": [
+      "ST"
+    ]
+  },
+  {
+    "sofifa_id": 70786,
+    "slug": "josh-king",
+    "short_name": "J. King",
+    "href": "/player/70786/josh-king/260022/",
+    "full_name": "Joshua David Steven King",
+    "positions": [
+      "CAM",
+      "CM"
+    ]
+  },
+  {
+    "sofifa_id": 70448,
+    "slug": "adam-aznou",
+    "short_name": "A. Aznou",
+    "href": "/player/70448/adam-aznou/260022/",
+    "full_name": "Adam Aznou Ben Cheikh\n\u0622\u062f\u0645 \u0623\u0632\u0646\u0648",
+    "positions": [
+      "LB"
+    ]
+  },
+  {
+    "sofifa_id": 256630,
+    "slug": "florian-wirtz",
+    "short_name": "F. Wirtz",
+    "href": "/player/256630/florian-wirtz/260022/",
+    "full_name": "Florian Richard Wirtz",
+    "positions": [
+      "CAM",
+      "LM",
+      "CM"
+    ]
+  },
+  {
+    "sofifa_id": 212419,
+    "slug": "tyrone-mings",
+    "short_name": "T. Mings",
+    "href": "/player/212419/tyrone-mings/260022/",
+    "full_name": "Tyrone Deon Mings",
+    "positions": [
+      "CB"
+    ]
+  },
+  {
+    "sofifa_id": 245155,
+    "slug": "mohammed-kudus",
+    "short_name": "M. Kudus",
+    "href": "/player/245155/mohammed-kudus/260022/",
+    "full_name": "Mohammed Kudus",
+    "positions": [
+      "RW",
+      "RM",
+      "ST"
+    ]
+  },
+  {
+    "sofifa_id": 255223,
+    "slug": "amine-adli",
+    "short_name": "A. Adli",
+    "href": "/player/255223/amine-adli/260022/",
+    "full_name": "Amine Adli\n\u0623\u0645\u064a\u0646 \u0639\u062f\u0644\u064a",
+    "positions": [
+      "ST",
+      "LM",
+      "CAM"
+    ]
+  },
+  {
+    "sofifa_id": 194150,
+    "slug": "simon-moore",
+    "short_name": "S. Moore",
+    "href": "/player/194150/simon-moore/260022/",
+    "full_name": "Simon William Moore",
+    "positions": [
+      "GK"
+    ]
+  },
+  {
+    "sofifa_id": 195202,
+    "slug": "tom-cairney",
+    "short_name": "T. Cairney",
+    "href": "/player/195202/tom-cairney/260022/",
+    "full_name": "Thomas Cairney",
+    "positions": [
+      "CM",
+      "CDM",
+      "CAM"
+    ]
+  },
+  {
+    "sofifa_id": 244067,
+    "slug": "maxence-lacroix",
+    "short_name": "M. Lacroix",
+    "href": "/player/244067/maxence-lacroix/260022/",
+    "full_name": "Guy Maxence Lacroix",
+    "positions": [
+      "CB"
+    ]
+  },
+  {
+    "sofifa_id": 220901,
+    "slug": "david-raya-martin",
+    "short_name": "David Raya",
+    "href": "/player/220901/david-raya-martin/260022/",
+    "full_name": "David Raya Mart\u00edn",
+    "positions": [
+      "GK"
+    ]
+  },
+  {
+    "sofifa_id": 226162,
+    "slug": "emiliano-buendia",
+    "short_name": "E. Buend\u00eda",
+    "href": "/player/226162/emiliano-buendia/260022/",
+    "full_name": "Emiliano Buend\u00eda Stati",
+    "positions": [
+      "LM",
+      "CAM",
+      "LW"
+    ]
+  },
+  {
+    "sofifa_id": 242660,
+    "slug": "jordan-beyer",
+    "short_name": "J. Beyer",
+    "href": "/player/242660/jordan-beyer/260022/",
+    "full_name": "Louis Jordan Beyer",
+    "positions": [
+      "CB"
+    ]
+  },
+  {
+    "sofifa_id": 242578,
+    "slug": "benoit-badiashile",
+    "short_name": "B. Badiashile",
+    "href": "/player/242578/benoit-badiashile/260022/",
+    "full_name": "Beno\u00eet Ntambue Badiashile Mukinayi",
+    "positions": [
+      "CB"
+    ]
+  },
+  {
+    "sofifa_id": 252897,
+    "slug": "calvin-ramsay",
+    "short_name": "C. Ramsay",
+    "href": "/player/252897/calvin-ramsay/260022/",
+    "full_name": "Calvin William Ramsay",
+    "positions": [
+      "RB",
+      "RM"
+    ]
+  },
+  {
+    "sofifa_id": 241651,
+    "slug": "viktor-gyokeres",
+    "short_name": "V. Gy\u00f6keres",
+    "href": "/player/241651/viktor-gyokeres/260022/",
+    "full_name": "Viktor Einar Gy\u00f6keres",
+    "positions": [
+      "ST"
+    ]
+  },
+  {
+    "sofifa_id": 269233,
+    "slug": "tyler-fredricson",
+    "short_name": "T. Fredricson",
+    "href": "/player/269233/tyler-fredricson/260022/",
+    "full_name": "Tyler Fredricson",
+    "positions": [
+      "CB"
+    ]
+  },
+  {
+    "sofifa_id": 253510,
+    "slug": "jake-obrien",
+    "short_name": "J. O'Brien",
+    "href": "/player/253510/jake-obrien/260022/",
+    "full_name": "Jake Patrick O'Brien",
+    "positions": [
+      "RB",
+      "CB",
+      "RM"
+    ]
+  },
+  {
+    "sofifa_id": 241464,
+    "slug": "pau-francisco-torres",
+    "short_name": "Pau Torres",
+    "href": "/player/241464/pau-francisco-torres/260022/",
+    "full_name": "Pau Francisco Torres",
+    "positions": [
+      "CB"
+    ]
+  },
+  {
+    "sofifa_id": 256725,
+    "slug": "fabio-leandro-carvalho",
+    "short_name": "F\u00e1bio Carvalho",
+    "href": "/player/256725/fabio-leandro-carvalho/260022/",
+    "full_name": "F\u00e1bio Leandro Freitas Gouveia Carvalho",
+    "positions": [
+      "CAM",
+      "CM"
+    ]
+  },
+  {
+    "sofifa_id": 278032,
+    "slug": "christos-mandas",
+    "short_name": "C. Mandas",
+    "href": "/player/278032/christos-mandas/260022/",
+    "full_name": "Christos Mandas\n\u03a7\u03c1\u03ae\u03c3\u03c4\u03bf\u03c2 \u039c\u03b1\u03bd\u03b4\u03ac\u03c2",
+    "positions": [
+      "GK"
+    ]
+  },
+  {
+    "sofifa_id": 230084,
+    "slug": "lukas-nmecha",
+    "short_name": "L. Nmecha",
+    "href": "/player/230084/lukas-nmecha/260022/",
+    "full_name": "Lukas Okechukwu Nmecha",
+    "positions": [
+      "ST"
+    ]
+  },
+  {
+    "sofifa_id": 239818,
+    "slug": "ruben-santos-gato-alves-dias",
+    "short_name": "R\u00faben Dias",
+    "href": "/player/239818/ruben-santos-gato-alves-dias/260022/",
+    "full_name": "R\u00faben dos Santos Gato Alves Dias",
+    "positions": [
+      "CB"
+    ]
+  },
+  {
+    "sofifa_id": 257126,
+    "slug": "teddy-sharman-lowe",
+    "short_name": "T. Sharman-Lowe",
+    "href": "/player/257126/teddy-sharman-lowe/260022/",
+    "full_name": "Teddy Samuel Sharman-Lowe",
+    "positions": [
+      "GK"
+    ]
+  },
+  {
+    "sofifa_id": 193331,
+    "slug": "karl-darlow",
+    "short_name": "K. Darlow",
+    "href": "/player/193331/karl-darlow/260022/",
+    "full_name": "Karl Darlow",
+    "positions": [
+      "GK"
+    ]
+  },
+  {
+    "sofifa_id": 202695,
+    "slug": "james-tarkowski",
+    "short_name": "J. Tarkowski",
+    "href": "/player/202695/james-tarkowski/260022/",
+    "full_name": "James Alan Tarkowski",
+    "positions": [
+      "CB"
+    ]
+  },
+  {
+    "sofifa_id": 202811,
+    "slug": "emiliano-martinez",
+    "short_name": "E. Mart\u00ednez",
+    "href": "/player/202811/emiliano-martinez/260022/",
+    "full_name": "Dami\u00e1n Emiliano Mart\u00ednez Romero",
+    "positions": [
+      "GK"
+    ]
+  },
+  {
+    "sofifa_id": 75087,
+    "slug": "ayden-heaven",
+    "short_name": "A. Heaven",
+    "href": "/player/75087/ayden-heaven/260022/",
+    "full_name": "Ayden Edford Heaven",
+    "positions": [
+      "CB"
+    ]
+  },
+  {
+    "sofifa_id": 279128,
+    "slug": "trey-nyoni",
+    "short_name": "T. Nyoni",
+    "href": "/player/279128/trey-nyoni/260022/",
+    "full_name": "Treymaurice Nyoni",
+    "positions": [
+      "CM",
+      "CAM",
+      "CDM"
+    ]
+  },
+  {
+    "sofifa_id": 234574,
+    "slug": "jose-diogo-dalot-teixeira",
+    "short_name": "Diogo Dalot",
+    "href": "/player/234574/jose-diogo-dalot-teixeira/260022/",
+    "full_name": "Jos\u00e9 Diogo Dalot Teixeira",
+    "positions": [
+      "RB",
+      "LB",
+      "CM"
+    ]
+  },
+  {
+    "sofifa_id": 242434,
+    "slug": "curtis-jones",
+    "short_name": "C. Jones",
+    "href": "/player/242434/curtis-jones/260022/",
+    "full_name": "Curtis Jones",
+    "positions": [
+      "CM",
+      "CDM",
+      "CAM"
+    ]
+  },
+  {
+    "sofifa_id": 253306,
+    "slug": "manuel-ugarte",
+    "short_name": "M. Ugarte",
+    "href": "/player/253306/manuel-ugarte/260022/",
+    "full_name": "Manuel Ugarte Ribeiro",
+    "positions": [
+      "CDM",
+      "CM"
+    ]
+  },
+  {
+    "sofifa_id": 237678,
+    "slug": "ibrahima-konate",
+    "short_name": "I. Konat\u00e9",
+    "href": "/player/237678/ibrahima-konate/260022/",
+    "full_name": "Ibrahima Konat\u00e9",
+    "positions": [
+      "CB"
+    ]
+  },
+  {
+    "sofifa_id": 264290,
+    "slug": "pablo-felipe-pereira-de-jesus",
+    "short_name": "Pablo Felipe",
+    "href": "/player/264290/pablo-felipe-pereira-de-jesus/260022/",
+    "full_name": "Pablo Felipe Pereira de Jesus",
+    "positions": [
+      "ST"
+    ]
+  },
+  {
+    "sofifa_id": 235173,
+    "slug": "ibrahim-sangare",
+    "short_name": "I. Sangar\u00e9",
+    "href": "/player/235173/ibrahim-sangare/260022/",
+    "full_name": "Ibrahim Sangar\u00e9",
+    "positions": [
+      "CDM",
+      "CM"
+    ]
+  },
+  {
+    "sofifa_id": 237692,
+    "slug": "phil-foden",
+    "short_name": "P. Foden",
+    "href": "/player/237692/phil-foden/260022/",
+    "full_name": "Philip Walter Foden",
+    "positions": [
+      "CAM",
+      "CM",
+      "RW"
+    ]
+  },
+  {
+    "sofifa_id": 275102,
+    "slug": "soungoutou-magassa",
+    "short_name": "S. Magassa",
+    "href": "/player/275102/soungoutou-magassa/260022/",
+    "full_name": "Soungoutou Magassa",
+    "positions": [
+      "CDM",
+      "CM",
+      "CB"
+    ]
+  },
+  {
+    "sofifa_id": 260592,
+    "slug": "benjamin-sesko",
+    "short_name": "B. \u0160e\u0161ko",
+    "href": "/player/260592/benjamin-sesko/260022/",
+    "full_name": "Benjamin \u0160e\u0161ko",
+    "positions": [
+      "ST"
+    ]
+  },
+  {
+    "sofifa_id": 75439,
+    "slug": "jack-fletcher",
+    "short_name": "J. Fletcher",
+    "href": "/player/75439/jack-fletcher/260022/",
+    "full_name": "Jack Davidson Fletcher",
+    "positions": [
+      "CM",
+      "CDM",
+      "CAM"
+    ]
+  },
+  {
+    "sofifa_id": 259170,
+    "slug": "rodrigo-martins-gomes",
+    "short_name": "Rodrigo Gomes",
+    "href": "/player/259170/rodrigo-martins-gomes/260022/",
+    "full_name": "Rodrigo Martins Gomes",
+    "positions": [
+      "LW",
+      "LM",
+      "RM"
+    ]
+  },
+  {
+    "sofifa_id": 243014,
+    "slug": "bryan-mbeumo",
+    "short_name": "B. Mbeumo",
+    "href": "/player/243014/bryan-mbeumo/260022/",
+    "full_name": "Bryan Tetsadong Marceau Mbeumo",
+    "positions": [
+      "RW",
+      "RM",
+      "ST"
+    ]
+  },
+  {
+    "sofifa_id": 241096,
+    "slug": "sandro-tonali",
+    "short_name": "S. Tonali",
+    "href": "/player/241096/sandro-tonali/260022/",
+    "full_name": "Sandro Tonali",
+    "positions": [
+      "CDM",
+      "CM"
+    ]
+  },
+  {
+    "sofifa_id": 217826,
+    "slug": "josh-laurent",
+    "short_name": "J. Laurent",
+    "href": "/player/217826/josh-laurent/260022/",
+    "full_name": "Joshua Ishaele Jacob-Heron Hunt-Laurent",
+    "positions": [
+      "CDM",
+      "CM",
+      "CB"
+    ]
+  },
+  {
+    "sofifa_id": 227927,
+    "slug": "kyle-walker-peters",
+    "short_name": "K. Walker-Peters",
+    "href": "/player/227927/kyle-walker-peters/260022/",
+    "full_name": "Kyle Leonardus Walker-Peters",
+    "positions": [
+      "RB",
+      "LB",
+      "RM"
+    ]
+  },
+  {
+    "sofifa_id": 254022,
+    "slug": "nick-woltemade",
+    "short_name": "N. Woltemade",
+    "href": "/player/254022/nick-woltemade/260022/",
+    "full_name": "Nick Woltemade",
+    "positions": [
+      "ST"
+    ]
+  },
+  {
+    "sofifa_id": 235794,
+    "slug": "eberechi-eze",
+    "short_name": "E. Eze",
+    "href": "/player/235794/eberechi-eze/260022/",
+    "full_name": "Eberechi Oluchi Eze",
+    "positions": [
+      "CAM",
+      "CM",
+      "LW"
+    ]
+  },
+  {
+    "sofifa_id": 242000,
+    "slug": "konstantinos-mavropanos",
+    "short_name": "K. Mavropanos",
+    "href": "/player/242000/konstantinos-mavropanos/260022/",
+    "full_name": "Konstantinos Mavropanos\n\u039a\u03c9\u03bd\u03c3\u03c4\u03b1\u03bd\u03c4\u03af\u03bd\u03bf\u03c2 \u039c\u03b1\u03c5\u03c1\u03bf\u03c0\u03ac\u03bd\u03bf\u03c2",
+    "positions": [
+      "CB"
+    ]
+  },
+  {
+    "sofifa_id": 231485,
+    "slug": "axel-tuanzebe",
+    "short_name": "A. Tuanzebe",
+    "href": "/player/231485/axel-tuanzebe/260022/",
+    "full_name": "Axel Tuanzebe",
+    "positions": [
+      "CB",
+      "RB"
+    ]
+  },
+  {
+    "sofifa_id": 82853,
+    "slug": "bendito-mantato",
+    "short_name": "B. Mantato",
+    "href": "/player/82853/bendito-mantato/260022/",
+    "full_name": "Bendito Boanova Mantato",
+    "positions": [
+      "RM",
+      "LB",
+      "RW"
+    ]
+  },
+  {
+    "sofifa_id": 245336,
+    "slug": "maximilian-kilman",
+    "short_name": "M. Kilman",
+    "href": "/player/245336/maximilian-kilman/260022/",
+    "full_name": "Maximilian William Kilman",
+    "positions": [
+      "CB"
+    ]
+  },
+  {
+    "sofifa_id": 82899,
+    "slug": "tyler-fletcher",
+    "short_name": "T. Fletcher",
+    "href": "/player/82899/tyler-fletcher/260022/",
+    "full_name": "Tyler Robert Fletcher",
+    "positions": [
+      "CM",
+      "CDM"
+    ]
+  },
+  {
+    "sofifa_id": 225539,
+    "slug": "dominic-solanke",
+    "short_name": "D. Solanke",
+    "href": "/player/225539/dominic-solanke/260022/",
+    "full_name": "Dominic Ayodele Solanke-Mitchell",
+    "positions": [
+      "ST"
+    ]
+  },
+  {
+    "sofifa_id": 273463,
+    "slug": "joao-victor-gomes-da-silva",
+    "short_name": "Jo\u00e3o Gomes",
+    "href": "/player/273463/joao-victor-gomes-da-silva/260022/",
+    "full_name": "Jo\u00e3o Victor Gomes da Silva",
+    "positions": [
+      "CDM",
+      "CM"
+    ]
+  },
+  {
+    "sofifa_id": 216266,
+    "slug": "kenny-tete",
+    "short_name": "K. Tete",
+    "href": "/player/216266/kenny-tete/260022/",
+    "full_name": "Kenny Joelle Tete",
+    "positions": [
+      "RB"
+    ]
+  },
+  {
+    "sofifa_id": 212442,
+    "slug": "jose-pedro-malheiro-de-sa",
+    "short_name": "Jos\u00e9 S\u00e1",
+    "href": "/player/212442/jose-pedro-malheiro-de-sa/260022/",
+    "full_name": "Jos\u00e9 Pedro Malheiro de S\u00e1",
+    "positions": [
+      "GK"
+    ]
+  },
+  {
+    "sofifa_id": 138412,
+    "slug": "james-milner",
+    "short_name": "J. Milner",
+    "href": "/player/138412/james-milner/260022/",
+    "full_name": "James Philip Milner",
+    "positions": [
+      "CDM",
+      "CM",
+      "RB"
+    ]
+  },
+  {
+    "sofifa_id": 259868,
+    "slug": "pape-matar-sarr",
+    "short_name": "P. Sarr",
+    "href": "/player/259868/pape-matar-sarr/260022/",
+    "full_name": "Pape Matar Sarr",
+    "positions": [
+      "CM",
+      "CDM"
+    ]
+  },
+  {
+    "sofifa_id": 231936,
+    "slug": "benjamin-white",
+    "short_name": "B. White",
+    "href": "/player/231936/benjamin-white/260022/",
+    "full_name": "Benjamin William White",
+    "positions": [
+      "RB",
+      "CM"
+    ]
+  },
+  {
+    "sofifa_id": 258911,
+    "slug": "tolu-arokodare",
+    "short_name": "T. Arokodare",
+    "href": "/player/258911/tolu-arokodare/260022/",
+    "full_name": "Toluwalase Emmanuel Arokodare",
+    "positions": [
+      "ST"
+    ]
+  },
+  {
+    "sofifa_id": 263640,
+    "slug": "antoni-milambo",
+    "short_name": "A. Milambo",
+    "href": "/player/263640/antoni-milambo/260022/",
+    "full_name": "Antoni-Djibu Milambo",
+    "positions": [
+      "CM",
+      "CAM"
+    ]
+  },
+  {
+    "sofifa_id": 260247,
+    "slug": "morgan-rogers",
+    "short_name": "M. Rogers",
+    "href": "/player/260247/morgan-rogers/260022/",
+    "full_name": "Morgan Elliot Rogers",
+    "positions": [
+      "CAM",
+      "LM",
+      "CM"
+    ]
+  },
+  {
+    "sofifa_id": 231633,
+    "slug": "issa-diop",
+    "short_name": "I. Diop",
+    "href": "/player/231633/issa-diop/260022/",
+    "full_name": "Issa Laye Lucas Jean Diop",
+    "positions": [
+      "CB"
+    ]
+  },
+  {
+    "sofifa_id": 248492,
+    "slug": "james-hill",
+    "short_name": "J. Hill",
+    "href": "/player/248492/james-hill/260022/",
+    "full_name": "James Clayton Hill",
+    "positions": [
+      "CB",
+      "RB"
+    ]
+  },
+  {
+    "sofifa_id": 271235,
+    "slug": "owen-bevan",
+    "short_name": "O. Bevan",
+    "href": "/player/271235/owen-bevan/260022/",
+    "full_name": "Owen Lucas Bevan",
+    "positions": [
+      "CB"
+    ]
+  },
+  {
+    "sofifa_id": 192563,
+    "slug": "bernd-leno",
+    "short_name": "B. Leno",
+    "href": "/player/192563/bernd-leno/260022/",
+    "full_name": "Bernd Leno",
+    "positions": [
+      "GK"
+    ]
+  },
+  {
+    "sofifa_id": 253149,
+    "slug": "jeremie-frimpong",
+    "short_name": "J. Frimpong",
+    "href": "/player/253149/jeremie-frimpong/260022/",
+    "full_name": "Jeremie Agyekum Frimpong",
+    "positions": [
+      "RB",
+      "RM",
+      "RW"
+    ]
+  },
+  {
+    "sofifa_id": 208892,
+    "slug": "sam-byram",
+    "short_name": "S. Byram",
+    "href": "/player/208892/sam-byram/260022/",
+    "full_name": "Samuel Mark Byram",
+    "positions": [
+      "LB",
+      "RB",
+      "LM"
+    ]
+  },
+  {
+    "sofifa_id": 208004,
+    "slug": "joel-veltman",
+    "short_name": "J. Veltman",
+    "href": "/player/208004/joel-veltman/260022/",
+    "full_name": "Jo\u00ebl Ivo Veltman",
+    "positions": [
+      "RB",
+      "RM"
+    ]
+  },
+  {
+    "sofifa_id": 235353,
+    "slug": "ismaila-sarr",
+    "short_name": "I. Sarr",
+    "href": "/player/235353/ismaila-sarr/260022/",
+    "full_name": "Isma\u00efla Sarr",
+    "positions": [
+      "RW",
+      "CAM",
+      "RM"
+    ]
+  },
+  {
+    "sofifa_id": 207650,
+    "slug": "emil-krafth",
+    "short_name": "E. Krafth",
+    "href": "/player/207650/emil-krafth/260022/",
+    "full_name": "Emil Henry \u00adKristoffer Krafth",
+    "positions": [
+      "RB",
+      "CB"
+    ]
+  },
+  {
+    "sofifa_id": 258498,
+    "slug": "bart-verbruggen",
+    "short_name": "B. Verbruggen",
+    "href": "/player/258498/bart-verbruggen/260022/",
+    "full_name": "Bart Verbruggen",
+    "positions": [
+      "GK"
+    ]
+  },
+  {
+    "sofifa_id": 258908,
+    "slug": "jan-paul-van-hecke",
+    "short_name": "J. van Hecke",
+    "href": "/player/258908/jan-paul-van-hecke/260022/",
+    "full_name": "Jan Paul van Hecke",
+    "positions": [
+      "CB"
+    ]
+  },
+  {
+    "sofifa_id": 229723,
+    "slug": "mathias-jensen",
+    "short_name": "M. Jensen",
+    "href": "/player/229723/mathias-jensen/260022/",
+    "full_name": "Mathias Jensen",
+    "positions": [
+      "CM",
+      "CDM",
+      "CAM"
+    ]
+  },
+  {
+    "sofifa_id": 271800,
+    "slug": "yankuba-minteh",
+    "short_name": "Y. Minteh",
+    "href": "/player/271800/yankuba-minteh/260022/",
+    "full_name": "Yankuba Minteh",
+    "positions": [
+      "RM",
+      "RW"
+    ]
+  },
+  {
+    "sofifa_id": 251570,
+    "slug": "rayan-cherki",
+    "short_name": "R. Cherki",
+    "href": "/player/251570/rayan-cherki/260022/",
+    "full_name": "Mathis Rayan Cherki",
+    "positions": [
+      "RW",
+      "RM",
+      "CAM"
+    ]
+  },
+  {
+    "sofifa_id": 260926,
+    "slug": "kevin-schade",
+    "short_name": "K. Schade",
+    "href": "/player/260926/kevin-schade/260022/",
+    "full_name": "Kevin Schade",
+    "positions": [
+      "LM",
+      "LW",
+      "ST"
+    ]
+  },
+  {
+    "sofifa_id": 215700,
+    "slug": "luke-onien",
+    "short_name": "L. O'Nien",
+    "href": "/player/215700/luke-onien/260022/",
+    "full_name": "Luke Terry O'Nien",
+    "positions": [
+      "CB"
+    ]
+  },
+  {
+    "sofifa_id": 269278,
+    "slug": "diego-gomez",
+    "short_name": "D. G\u00f3mez",
+    "href": "/player/269278/diego-gomez/260022/",
+    "full_name": "Diego Alexander G\u00f3mez Amarilla",
+    "positions": [
+      "CDM",
+      "CAM",
+      "LM",
+      "CM"
+    ]
+  },
+  {
+    "sofifa_id": 241236,
+    "slug": "antoine-semenyo",
+    "short_name": "A. Semenyo",
+    "href": "/player/241236/antoine-semenyo/260022/",
+    "full_name": "Antoine Serlom Semenyo",
+    "positions": [
+      "RW",
+      "LW",
+      "RM"
+    ]
+  },
+  {
+    "sofifa_id": 256831,
+    "slug": "dennis-cirkin",
+    "short_name": "D. Cirkin",
+    "href": "/player/256831/dennis-cirkin/260022/",
+    "full_name": "Dennis Cirkin",
+    "positions": [
+      "LB"
+    ]
+  },
+  {
+    "sofifa_id": 277283,
+    "slug": "jack-hinshelwood",
+    "short_name": "J. Hinshelwood",
+    "href": "/player/277283/jack-hinshelwood/260022/",
+    "full_name": "Jack Luca Hinshelwood",
+    "positions": [
+      "CDM",
+      "RB",
+      "CM"
+    ]
+  },
+  {
+    "sofifa_id": 256675,
+    "slug": "omar-marmoush",
+    "short_name": "O. Marmoush",
+    "href": "/player/256675/omar-marmoush/260022/",
+    "full_name": "Omar Khaled Mohamed Marmoush\n\u0639\u0645\u0631 \u0645\u0631\u0645\u0648\u0634",
+    "positions": [
+      "LW",
+      "ST",
+      "LM"
+    ]
+  },
+  {
+    "sofifa_id": 241508,
+    "slug": "mikkel-damsgaard",
+    "short_name": "M. Damsgaard",
+    "href": "/player/241508/mikkel-damsgaard/260022/",
+    "full_name": "Mikkel Krogh Damsgaard",
+    "positions": [
+      "CAM",
+      "CM",
+      "LW"
+    ]
+  },
+  {
+    "sofifa_id": 224258,
+    "slug": "kristoffer-ajer",
+    "short_name": "K. Ajer",
+    "href": "/player/224258/kristoffer-ajer/260022/",
+    "full_name": "Kristoffer Vassbakk K\u00f6pp Ajer",
+    "positions": [
+      "CB",
+      "RB",
+      "LB"
+    ]
+  },
+  {
+    "sofifa_id": 271248,
+    "slug": "eliezer-mayenda",
+    "short_name": "E. Mayenda",
+    "href": "/player/271248/eliezer-mayenda/260022/",
+    "full_name": "Eliezer Mayenda Dossou",
+    "positions": [
+      "ST",
+      "RM",
+      "LM",
+      "RW"
+    ]
+  },
+  {
+    "sofifa_id": 275771,
+    "slug": "igor-thiago-rodrigues",
+    "short_name": "Igor Thiago",
+    "href": "/player/275771/igor-thiago-rodrigues/260022/",
+    "full_name": "Igor Thiago Nascimento Rodrigues",
+    "positions": [
+      "ST"
+    ]
+  },
+  {
+    "sofifa_id": 240243,
+    "slug": "matheus-santos-carneiro-da-cunha",
+    "short_name": "Matheus Cunha",
+    "href": "/player/240243/matheus-santos-carneiro-da-cunha/260022/",
+    "full_name": "Matheus Santos Carneiro da Cunha",
+    "positions": [
+      "CAM",
+      "LM",
+      "ST"
+    ]
+  },
+  {
+    "sofifa_id": 224494,
+    "slug": "rico-henry",
+    "short_name": "R. Henry",
+    "href": "/player/224494/rico-henry/260022/",
+    "full_name": "Rico Antonio Henry",
+    "positions": [
+      "LB",
+      "LM"
+    ]
+  },
+  {
+    "sofifa_id": 273459,
+    "slug": "chris-rigg",
+    "short_name": "C. Rigg",
+    "href": "/player/273459/chris-rigg/260022/",
+    "full_name": "Christopher John Rigg",
+    "positions": [
+      "CAM",
+      "CM",
+      "RM"
+    ]
+  },
+  {
+    "sofifa_id": 238717,
+    "slug": "ethan-pinnock",
+    "short_name": "E. Pinnock",
+    "href": "/player/238717/ethan-pinnock/260022/",
+    "full_name": "Ethan Rupert Pinnock",
+    "positions": [
+      "CB"
+    ]
+  },
+  {
+    "sofifa_id": 72281,
+    "slug": "leo-shahar",
+    "short_name": "L. Shahar",
+    "href": "/player/72281/leo-shahar/260022/",
+    "full_name": "Leo Shahar",
+    "positions": [
+      "RB"
+    ]
+  },
+  {
+    "sofifa_id": 256612,
+    "slug": "f-evanilson-de-lima-barbosa",
+    "short_name": "Evanilson",
+    "href": "/player/256612/f-evanilson-de-lima-barbosa/260022/",
+    "full_name": "Francisco Evanilson de Lima Barbosa",
+    "positions": [
+      "ST"
+    ]
+  },
+  {
+    "sofifa_id": 261299,
+    "slug": "alex-scott",
+    "short_name": "A. Scott",
+    "href": "/player/261299/alex-scott/260022/",
+    "full_name": "Alex Jay Scott",
+    "positions": [
+      "CDM",
+      "CM",
+      "CAM"
+    ]
+  },
+  {
+    "sofifa_id": 205990,
+    "slug": "harrison-reed",
+    "short_name": "H. Reed",
+    "href": "/player/205990/harrison-reed/260022/",
+    "full_name": "Harrison James Reed",
+    "positions": [
+      "CDM",
+      "CM"
+    ]
+  },
+  {
+    "sofifa_id": 83494,
+    "slug": "rayan-vitor-simplicio-rocha",
+    "short_name": "Rayan",
+    "href": "/player/83494/rayan-vitor-simplicio-rocha/260022/",
+    "full_name": "Rayan Vitor Simpl\u00edcio Rocha",
+    "positions": [
+      "RM",
+      "ST",
+      "RW"
+    ]
+  },
+  {
+    "sofifa_id": 73253,
+    "slug": "julian-eyestone",
+    "short_name": "J. Eyestone",
+    "href": "/player/73253/julian-eyestone/260022/",
+    "full_name": "Julian Eyestone",
+    "positions": [
+      "GK"
+    ]
+  },
+  {
+    "sofifa_id": 233049,
+    "slug": "jadon-sancho",
+    "short_name": "J. Sancho",
+    "href": "/player/233049/jadon-sancho/260022/",
+    "full_name": "Jadon Malik Sancho",
+    "positions": [
+      "LM",
+      "RM",
+      "LW"
+    ]
+  },
+  {
+    "sofifa_id": 220196,
+    "slug": "david-brooks",
+    "short_name": "D. Brooks",
+    "href": "/player/220196/david-brooks/260022/",
+    "full_name": "David Robert Brooks",
+    "positions": [
+      "RM",
+      "RW"
+    ]
+  },
+  {
+    "sofifa_id": 256268,
+    "slug": "armando-broja",
+    "short_name": "A. Broja",
+    "href": "/player/256268/armando-broja/260022/",
+    "full_name": "Armando Broja",
+    "positions": [
+      "ST"
+    ]
+  },
+  {
+    "sofifa_id": 224371,
+    "slug": "jarrod-bowen",
+    "short_name": "J. Bowen",
+    "href": "/player/224371/jarrod-bowen/260022/",
+    "full_name": "Jarrod Bowen",
+    "positions": [
+      "RM",
+      "ST",
+      "RW"
+    ]
+  },
+  {
+    "sofifa_id": 278928,
+    "slug": "alejandro-jimenez-sanchez",
+    "short_name": "\u00c1lex Jim\u00e9nez",
+    "href": "/player/278928/alejandro-jimenez-sanchez/260022/",
+    "full_name": "Alejandro Jim\u00e9nez S\u00e1nchez",
+    "positions": [
+      "RB",
+      "RM"
+    ]
+  },
+  {
+    "sofifa_id": 248465,
+    "slug": "ian-maatsen",
+    "short_name": "I. Maatsen",
+    "href": "/player/248465/ian-maatsen/260022/",
+    "full_name": "Ian Ethan Maatsen",
+    "positions": [
+      "LB",
+      "LM"
+    ]
+  },
+  {
+    "sofifa_id": 258485,
+    "slug": "filip-jorgensen",
+    "short_name": "F. J\u00f6rgensen",
+    "href": "/player/258485/filip-jorgensen/260022/",
+    "full_name": "Filip J\u00f8rgensen",
+    "positions": [
+      "GK"
+    ]
+  },
+  {
+    "sofifa_id": 74133,
+    "slug": "jaydee-canvot",
+    "short_name": "J. Canvot",
+    "href": "/player/74133/jaydee-canvot/260022/",
+    "full_name": "Jaydee Canvot",
+    "positions": [
+      "CB",
+      "CDM",
+      "CM"
+    ]
+  },
+  {
+    "sofifa_id": 238616,
+    "slug": "pedro-lomba-neto",
+    "short_name": "Pedro Neto",
+    "href": "/player/238616/pedro-lomba-neto/260022/",
+    "full_name": "Pedro Lomba Neto",
+    "positions": [
+      "RM",
+      "LM",
+      "RW"
+    ]
+  },
+  {
+    "sofifa_id": 231554,
+    "slug": "james-justin",
+    "short_name": "J. Justin",
+    "href": "/player/231554/james-justin/260022/",
+    "full_name": "James Michael Justin",
+    "positions": [
+      "RB",
+      "LB",
+      "CM"
+    ]
+  },
+  {
+    "sofifa_id": 274699,
+    "slug": "stefanos-tzimas",
+    "short_name": "S. Tzimas",
+    "href": "/player/274699/stefanos-tzimas/260022/",
+    "full_name": "Stefanos Tzimas\n\u03a3\u03c4\u03ad\u03c6\u03b1\u03bd\u03bf\u03c2 \u03a4\u03b6\u03af\u03bc\u03b1\u03c2",
+    "positions": [
+      "ST"
+    ]
+  },
+  {
+    "sofifa_id": 193474,
+    "slug": "idrissa-gueye",
+    "short_name": "I. Gueye",
+    "href": "/player/193474/idrissa-gueye/260022/",
+    "full_name": "Idrissa Gana Gueye",
+    "positions": [
+      "CDM",
+      "CM"
+    ]
+  },
+  {
+    "sofifa_id": 221479,
+    "slug": "dominic-calvert-lewin",
+    "short_name": "D. Calvert-Lewin",
+    "href": "/player/221479/dominic-calvert-lewin/260022/",
+    "full_name": "Dominic Nathaniel Calvert-Lewin",
+    "positions": [
+      "ST"
+    ]
+  },
+  {
+    "sofifa_id": 231445,
+    "slug": "josh-dasilva",
+    "short_name": "J. Dasilva",
+    "href": "/player/231445/josh-dasilva/260022/",
+    "full_name": "Pelenda Joshua Tunga Dasilva",
+    "positions": [
+      "CM",
+      "CDM"
+    ]
+  },
+  {
+    "sofifa_id": 247649,
+    "slug": "jarrad-branthwaite",
+    "short_name": "J. Branthwaite",
+    "href": "/player/247649/jarrad-branthwaite/260022/",
+    "full_name": "Jarrad Paul Branthwaite",
+    "positions": [
+      "CB"
+    ]
+  },
+  {
+    "sofifa_id": 70903,
+    "slug": "alex-toth",
+    "short_name": "A. T\u00f3th",
+    "href": "/player/70903/alex-toth/260022/",
+    "full_name": "T\u00f3th Alex L\u00e1szl\u00f3",
+    "positions": [
+      "CM",
+      "CDM"
+    ]
+  },
+  {
+    "sofifa_id": 236822,
+    "slug": "gabriel-gudmundsson",
+    "short_name": "G. Gudmundsson",
+    "href": "/player/236822/gabriel-gudmundsson/260022/",
+    "full_name": "Gabriel Johan Gudmundsson",
+    "positions": [
+      "LB",
+      "CB",
+      "LM"
+    ]
+  },
+  {
+    "sofifa_id": 269495,
+    "slug": "facundo-buonanotte",
+    "short_name": "F. Buonanotte",
+    "href": "/player/269495/facundo-buonanotte/260022/",
+    "full_name": "Facundo Valent\u00edn Buonanotte",
+    "positions": [
+      "CAM",
+      "RM",
+      "CM"
+    ]
+  },
+  {
+    "sofifa_id": 208920,
+    "slug": "nathan-ake",
+    "short_name": "N. Ak\u00e9",
+    "href": "/player/208920/nathan-ake/260022/",
+    "full_name": "Nathan Benjamin Ak\u00e9",
+    "positions": [
+      "CB",
+      "LB",
+      "CDM"
+    ]
+  },
+  {
+    "sofifa_id": 244238,
+    "slug": "jaka-bijol",
+    "short_name": "J. Bijol",
+    "href": "/player/244238/jaka-bijol/260022/",
+    "full_name": "Jaka Bijol",
+    "positions": [
+      "CB"
+    ]
+  },
+  {
+    "sofifa_id": 238041,
+    "slug": "tyrell-malacia",
+    "short_name": "T. Malacia",
+    "href": "/player/238041/tyrell-malacia/260022/",
+    "full_name": "Tyrell Johannes Chicco Malacia",
+    "positions": [
+      "LB",
+      "LM"
+    ]
+  },
+  {
+    "sofifa_id": 235243,
+    "slug": "matthijs-de-ligt",
+    "short_name": "M. de Ligt",
+    "href": "/player/235243/matthijs-de-ligt/260022/",
+    "full_name": "Matthijs de Ligt",
+    "positions": [
+      "CB"
+    ]
+  },
+  {
+    "sofifa_id": 271574,
+    "slug": "rico-lewis",
+    "short_name": "R. Lewis",
+    "href": "/player/271574/rico-lewis/260022/",
+    "full_name": "Rico Henry Mark Lewis",
+    "positions": [
+      "RB",
+      "LB",
+      "CM"
+    ]
+  },
+  {
+    "sofifa_id": 277031,
+    "slug": "abdukodir-khusanov",
+    "short_name": "A. Khusanov",
+    "href": "/player/277031/abdukodir-khusanov/260022/",
+    "full_name": "Abdukodir Khikmatovich Khusanov\n\u0410\u0431\u0434\u0443\u043a\u043e\u0434\u0438\u0440 \u0425\u0438\u043a\u043c\u0430\u0442\u043e\u0432\u0438\u0447 \u0425\u0443\u0441\u0430\u043d\u043e\u0432",
+    "positions": [
+      "CB"
+    ]
+  },
+  {
+    "sofifa_id": 210047,
+    "slug": "fabian-schar",
+    "short_name": "F. Sch\u00e4r",
+    "href": "/player/210047/fabian-schar/260022/",
+    "full_name": "Fabian Lukas Sch\u00e4r",
+    "positions": [
+      "CB"
+    ]
+  },
+  {
+    "sofifa_id": 250961,
+    "slug": "joshua-zirkzee",
+    "short_name": "J. Zirkzee",
+    "href": "/player/250961/joshua-zirkzee/260022/",
+    "full_name": "Joshua Orobosa Zirkzee",
+    "positions": [
+      "ST",
+      "CAM"
+    ]
+  },
+  {
+    "sofifa_id": 74310,
+    "slug": "nicolo-savona",
+    "short_name": "N. Savona",
+    "href": "/player/74310/nicolo-savona/260022/",
+    "full_name": "Nicol\u00f2 Savona",
+    "positions": [
+      "RB",
+      "LB",
+      "RM"
+    ]
+  },
+  {
+    "sofifa_id": 205988,
+    "slug": "luke-shaw",
+    "short_name": "L. Shaw",
+    "href": "/player/205988/luke-shaw/260022/",
+    "full_name": "Luke Paul Hoare Shaw",
+    "positions": [
+      "LB",
+      "CB",
+      "LM"
+    ]
+  },
+  {
+    "sofifa_id": 222514,
+    "slug": "freddie-woodman",
+    "short_name": "F. Woodman",
+    "href": "/player/222514/freddie-woodman/260022/",
+    "full_name": "Frederick John Woodman",
+    "positions": [
+      "GK"
+    ]
+  },
+  {
+    "sofifa_id": 251809,
+    "slug": "sven-botman",
+    "short_name": "S. Botman",
+    "href": "/player/251809/sven-botman/260022/",
+    "full_name": "Sven Adriaan Botman",
+    "positions": [
+      "CB"
+    ]
+  },
+  {
+    "sofifa_id": 186345,
+    "slug": "kieran-trippier",
+    "short_name": "K. Trippier",
+    "href": "/player/186345/kieran-trippier/260022/",
+    "full_name": "Kieran John Trippier",
+    "positions": [
+      "RB",
+      "RM"
+    ]
+  },
+  {
+    "sofifa_id": 205923,
+    "slug": "ben-davies",
+    "short_name": "B. Davies",
+    "href": "/player/205923/ben-davies/260022/",
+    "full_name": "Benjamin Thomas Davies",
+    "positions": [
+      "CB"
+    ]
+  },
+  {
+    "sofifa_id": 257470,
+    "slug": "anthony-elanga",
+    "short_name": "A. Elanga",
+    "href": "/player/257470/anthony-elanga/260022/",
+    "full_name": "Anthony David Junior Elanga",
+    "positions": [
+      "RW",
+      "RM"
+    ]
+  },
+  {
+    "sofifa_id": 250789,
+    "slug": "dilane-bakwa",
+    "short_name": "D. Bakwa",
+    "href": "/player/250789/dilane-bakwa/260022/",
+    "full_name": "Dilane Bakwa",
+    "positions": [
+      "RM",
+      "RW"
+    ]
+  },
+  {
+    "sofifa_id": 254243,
+    "slug": "elliot-anderson",
+    "short_name": "E. Anderson",
+    "href": "/player/254243/elliot-anderson/260022/",
+    "full_name": "Elliot Junior Anderson",
+    "positions": [
+      "CDM",
+      "CM"
+    ]
+  },
+  {
+    "sofifa_id": 237819,
+    "slug": "nicolas-dominguez",
+    "short_name": "N. Dom\u00ednguez",
+    "href": "/player/237819/nicolas-dominguez/260022/",
+    "full_name": "Nicol\u00e1s Mart\u00edn Dom\u00ednguez",
+    "positions": [
+      "CDM",
+      "CM"
+    ]
+  },
+  {
+    "sofifa_id": 198350,
+    "slug": "daniel-bentley",
+    "short_name": "D. Bentley",
+    "href": "/player/198350/daniel-bentley/260022/",
+    "full_name": "Daniel Ian Bentley",
+    "positions": [
+      "GK"
+    ]
+  },
+  {
+    "sofifa_id": 207948,
+    "slug": "bertrand-traore",
+    "short_name": "B. Traor\u00e9",
+    "href": "/player/207948/bertrand-traore/260022/",
+    "full_name": "Bertrand Isidore Traor\u00e9",
+    "positions": [
+      "RW",
+      "RM"
+    ]
+  },
+  {
+    "sofifa_id": 231943,
+    "slug": "richarlison-de-andrade",
+    "short_name": "Richarlison",
+    "href": "/player/231943/richarlison-de-andrade/260022/",
+    "full_name": "Richarlison de Andrade",
+    "positions": [
+      "ST",
+      "LW",
+      "LM"
+    ]
+  },
+  {
+    "sofifa_id": 270579,
+    "slug": "wilson-odobert",
+    "short_name": "W. Odobert",
+    "href": "/player/270579/wilson-odobert/260022/",
+    "full_name": "Wilson Serge Eric Odobert",
+    "positions": [
+      "LW",
+      "LM",
+      "RM"
+    ]
+  },
+  {
+    "sofifa_id": 73895,
+    "slug": "justin-devenny",
+    "short_name": "J. Devenny",
+    "href": "/player/73895/justin-devenny/260022/",
+    "full_name": "Justin Devenny",
+    "positions": [
+      "CM",
+      "RW",
+      "LM",
+      "CAM"
+    ]
+  },
+  {
+    "sofifa_id": 258607,
+    "slug": "tote-antonio-gomes",
+    "short_name": "Toti",
+    "href": "/player/258607/tote-antonio-gomes/260022/",
+    "full_name": "Tote Ant\u00f3nio Gomes",
+    "positions": [
+      "CB"
+    ]
+  },
+  {
+    "sofifa_id": 229348,
+    "slug": "antonee-robinson",
+    "short_name": "A. Robinson",
+    "href": "/player/229348/antonee-robinson/260022/",
+    "full_name": "Antonee Robinson",
+    "positions": [
+      "LB",
+      "LM"
+    ]
+  },
+  {
+    "sofifa_id": 205569,
+    "slug": "james-ward-prowse",
+    "short_name": "J. Ward-Prowse",
+    "href": "/player/205569/james-ward-prowse/260022/",
+    "full_name": "James Michael Edward Ward-Prowse",
+    "positions": [
+      "CM",
+      "CDM",
+      "CAM"
+    ]
+  },
+  {
+    "sofifa_id": 233306,
+    "slug": "dean-henderson",
+    "short_name": "D. Henderson",
+    "href": "/player/233306/dean-henderson/260022/",
+    "full_name": "Dean Bradley Henderson",
+    "positions": [
+      "GK"
+    ]
+  },
+  {
+    "sofifa_id": 229880,
+    "slug": "aaron-wan-bissaka",
+    "short_name": "A. Wan-Bissaka",
+    "href": "/player/229880/aaron-wan-bissaka/260022/",
+    "full_name": "Aaron Wan-Bissaka",
+    "positions": [
+      "RB",
+      "RM"
+    ]
+  },
+  {
+    "sofifa_id": 274915,
+    "slug": "el-hadji-malick-diouf",
+    "short_name": "E. Diouf",
+    "href": "/player/274915/el-hadji-malick-diouf/260022/",
+    "full_name": "El Hadji Malick Diouf",
+    "positions": [
+      "LB",
+      "LM"
+    ]
+  },
+  {
+    "sofifa_id": 204246,
+    "slug": "marcus-bettinelli",
+    "short_name": "M. Bettinelli",
+    "href": "/player/204246/marcus-bettinelli/260022/",
+    "full_name": "Marcus Bettinelli",
+    "positions": [
+      "GK"
+    ]
+  },
+  {
+    "sofifa_id": 263798,
+    "slug": "robin-roefs",
+    "short_name": "R. Roefs",
+    "href": "/player/263798/robin-roefs/260022/",
+    "full_name": "Robin Roefs",
+    "positions": [
+      "GK"
+    ]
+  },
+  {
+    "sofifa_id": 243908,
+    "slug": "daniel-ballard",
+    "short_name": "D. Ballard",
+    "href": "/player/243908/daniel-ballard/260022/",
+    "full_name": "Daniel George Ballard",
+    "positions": [
+      "CB"
+    ]
+  },
+  {
+    "sofifa_id": 268737,
+    "slug": "sverre-nypan",
+    "short_name": "S. Nypan",
+    "href": "/player/268737/sverre-nypan/260022/",
+    "full_name": "Sverre Halseth Nypan",
+    "positions": [
+      "CM",
+      "CAM",
+      "ST"
+    ]
+  },
+  {
+    "sofifa_id": 251810,
+    "slug": "brian-brobbey",
+    "short_name": "B. Brobbey",
+    "href": "/player/251810/brian-brobbey/260022/",
+    "full_name": "Brian Ebenezer Adjei Brobbey",
+    "positions": [
+      "ST"
+    ]
+  },
+  {
+    "sofifa_id": 268564,
+    "slug": "keiber-lamadrid",
+    "short_name": "K. Lamadrid",
+    "href": "/player/268564/keiber-lamadrid/260022/",
+    "full_name": "Keiber Alberto Lamadrid Brice\u00f1o",
+    "positions": [
+      "LM",
+      "LW",
+      "CM"
+    ]
+  },
+  {
+    "sofifa_id": 251566,
+    "slug": "gabriel-teodoro-martinelli-silva",
+    "short_name": "Gabriel Martinelli",
+    "href": "/player/251566/gabriel-teodoro-martinelli-silva/260022/",
+    "full_name": "Gabriel Teodoro Martinelli Silva",
+    "positions": [
+      "LW",
+      "LM"
+    ]
+  },
+  {
+    "sofifa_id": 264293,
+    "slug": "habib-diarra",
+    "short_name": "H. Diarra",
+    "href": "/player/264293/habib-diarra/260022/",
+    "full_name": "Mouhamadou Habib Diarra",
+    "positions": [
+      "CM",
+      "CAM",
+      "CDM"
+    ]
+  },
+  {
+    "sofifa_id": 190456,
+    "slug": "nathaniel-clyne",
+    "short_name": "N. Clyne",
+    "href": "/player/190456/nathaniel-clyne/260022/",
+    "full_name": "Nathaniel Edwin Clyne",
+    "positions": [
+      "RB",
+      "CB",
+      "RM"
+    ]
+  },
+  {
+    "sofifa_id": 204838,
+    "slug": "raul-jimenez",
+    "short_name": "R. Jim\u00e9nez",
+    "href": "/player/204838/raul-jimenez/260022/",
+    "full_name": "Ra\u00fal Alonso Jim\u00e9nez Rodr\u00edguez",
+    "positions": [
+      "ST"
+    ]
+  },
+  {
+    "sofifa_id": 241585,
+    "slug": "igor-julio-dos-santos-de-paulo",
+    "short_name": "Igor Julio",
+    "href": "/player/241585/igor-julio-dos-santos-de-paulo/260022/",
+    "full_name": "Igor Julio dos Santos de Paulo",
+    "positions": [
+      "CB",
+      "LB"
+    ]
+  },
+  {
+    "sofifa_id": 227174,
+    "slug": "matty-cash",
+    "short_name": "M. Cash",
+    "href": "/player/227174/matty-cash/260022/",
+    "full_name": "Matthew Stuart Cash",
+    "positions": [
+      "RB",
+      "RM"
+    ]
+  },
+  {
+    "sofifa_id": 251421,
+    "slug": "brennan-johnson",
+    "short_name": "B. Johnson",
+    "href": "/player/251421/brennan-johnson/260022/",
+    "full_name": "Brennan Price Johnson",
+    "positions": [
+      "RW",
+      "RM",
+      "LM"
+    ]
+  },
+  {
+    "sofifa_id": 231448,
+    "slug": "reiss-nelson",
+    "short_name": "R. Nelson",
+    "href": "/player/231448/reiss-nelson/260022/",
+    "full_name": "Reiss Luke Nelson",
+    "positions": [
+      "RM",
+      "LM",
+      "RW"
+    ]
+  },
+  {
+    "sofifa_id": 243390,
+    "slug": "ian-poveda",
+    "short_name": "I. Poveda",
+    "href": "/player/243390/ian-poveda/260022/",
+    "full_name": "Ian Carlo Poveda-Ocampo",
+    "positions": [
+      "RW",
+      "RM",
+      "CM"
+    ]
+  },
+  {
+    "sofifa_id": 259377,
+    "slug": "yeremy-jesus-pino-santos",
+    "short_name": "Yeremy Pino",
+    "href": "/player/259377/yeremy-jesus-pino-santos/260022/",
+    "full_name": "Y\u00e9remy Jes\u00fas Pino Santos",
+    "positions": [
+      "LW",
+      "RW",
+      "CAM",
+      "LM"
+    ]
+  },
+  {
+    "sofifa_id": 186146,
+    "slug": "danny-welbeck",
+    "short_name": "D. Welbeck",
+    "href": "/player/186146/danny-welbeck/260022/",
+    "full_name": "Daniel Nii Tackie Mensah Welbeck",
+    "positions": [
+      "ST"
+    ]
+  },
+  {
+    "sofifa_id": 264209,
+    "slug": "lamare-bogarde",
+    "short_name": "L. Bogarde",
+    "href": "/player/264209/lamare-bogarde/260022/",
+    "full_name": "Lamare Trenton Chansey Bogarde",
+    "positions": [
+      "CDM",
+      "CM",
+      "RB"
+    ]
+  },
+  {
+    "sofifa_id": 269096,
+    "slug": "max-weiss",
+    "short_name": "M. Wei\u00df",
+    "href": "/player/269096/max-weiss/260022/",
+    "full_name": "Max Wei\u00df",
+    "positions": [
+      "GK"
+    ]
+  },
+  {
+    "sofifa_id": 235152,
+    "slug": "ferdi-kadioglu",
+    "short_name": "F. Kad\u0131o\u011flu",
+    "href": "/player/235152/ferdi-kadioglu/260022/",
+    "full_name": "Ferdi Erenay Kad\u0131o\u011flu",
+    "positions": [
+      "LB",
+      "RB",
+      "LM"
+    ]
+  },
+  {
+    "sofifa_id": 264133,
+    "slug": "hakon-valdimarsson",
+    "short_name": "H. Valdimarsson",
+    "href": "/player/264133/hakon-valdimarsson/260022/",
+    "full_name": "H\u00e1kon Rafn Valdimarsson",
+    "positions": [
+      "GK"
+    ]
+  },
+  {
+    "sofifa_id": 206516,
+    "slug": "will-hughes",
+    "short_name": "W. Hughes",
+    "href": "/player/206516/will-hughes/260022/",
+    "full_name": "William James Hughes",
+    "positions": [
+      "CDM",
+      "CM"
+    ]
+  },
+  {
+    "sofifa_id": 279497,
+    "slug": "tyler-dibling",
+    "short_name": "T. Dibling",
+    "href": "/player/279497/tyler-dibling/260022/",
+    "full_name": "Tyler-Jay Robert Dibling",
+    "positions": [
+      "RM",
+      "CAM",
+      "RB"
+    ]
+  },
+  {
+    "sofifa_id": 248158,
+    "slug": "gabriel-slonina",
+    "short_name": "G. Slonina",
+    "href": "/player/248158/gabriel-slonina/260022/",
+    "full_name": "Gabriel Pawe\u0142 S\u0142onina",
+    "positions": [
+      "GK"
+    ]
+  },
+  {
+    "sofifa_id": 239085,
+    "slug": "erling-haaland",
+    "short_name": "E. Haaland",
+    "href": "/player/239085/erling-haaland/260022/",
+    "full_name": "Erling Braut H\u00e5land",
+    "positions": [
+      "ST"
+    ]
+  },
+  {
+    "sofifa_id": 242641,
+    "slug": "rayan-ait-nouri",
+    "short_name": "R. A\u00eft-Nouri",
+    "href": "/player/242641/rayan-ait-nouri/260022/",
+    "full_name": "Rayan A\u00eft Nouri\n\u0631\u064a\u0627\u0646 \u0622\u064a\u062a \u0646\u0648\u0631\u064a",
+    "positions": [
+      "LB",
+      "LM"
+    ]
+  },
+  {
+    "sofifa_id": 257400,
+    "slug": "yasin-ayari",
+    "short_name": "Y. Ayari",
+    "href": "/player/257400/yasin-ayari/260022/",
+    "full_name": "Yasin Abbas Ayari",
+    "positions": [
+      "CDM",
+      "CM"
+    ]
+  },
+  {
+    "sofifa_id": 80376,
+    "slug": "rio-ngumoha",
+    "short_name": "R. Ngumoha",
+    "href": "/player/80376/rio-ngumoha/260022/",
+    "full_name": "Rio Bass Ray Ngumoha Adigun",
+    "positions": [
+      "LM",
+      "LW"
+    ]
+  },
+  {
+    "sofifa_id": 209331,
+    "slug": "mohamed-salah",
+    "short_name": "M. Salah",
+    "href": "/player/209331/mohamed-salah/260022/",
+    "full_name": "Mohamed Salah Hamed Ghaly\n\u0645\u062d\u0645\u062f \u0635\u0644\u0627\u062d",
+    "positions": [
+      "RM",
+      "RW"
+    ]
+  },
+  {
+    "sofifa_id": 183711,
+    "slug": "jordan-henderson",
+    "short_name": "J. Henderson",
+    "href": "/player/183711/jordan-henderson/260022/",
+    "full_name": "Jordan Brian Henderson",
+    "positions": [
+      "CDM",
+      "CM"
+    ]
+  },
+  {
+    "sofifa_id": 232580,
+    "slug": "gabriel-dos-s-magalhaes",
+    "short_name": "Gabriel",
+    "href": "/player/232580/gabriel-dos-s-magalhaes/260022/",
+    "full_name": "Gabriel dos Santos Magalh\u00e3es",
+    "positions": [
+      "CB"
+    ]
+  },
+  {
+    "sofifa_id": 255069,
+    "slug": "nicolas-gonzalez-iglesias",
+    "short_name": "Nico Gonz\u00e1lez",
+    "href": "/player/255069/nicolas-gonzalez-iglesias/260022/",
+    "full_name": "Nicol\u00e1s Gonz\u00e1lez Iglesias",
+    "positions": [
+      "CDM",
+      "CM"
+    ]
+  },
+  {
+    "sofifa_id": 76250,
+    "slug": "max-alleyne",
+    "short_name": "M. Alleyne",
+    "href": "/player/76250/max-alleyne/260022/",
+    "full_name": "Max Lewis Rowe Alleyne",
+    "positions": [
+      "CB"
+    ]
+  },
+  {
+    "sofifa_id": 258906,
+    "slug": "wilfried-gnonto",
+    "short_name": "W. Gnonto",
+    "href": "/player/258906/wilfried-gnonto/260022/",
+    "full_name": "Degnand Wilfried Gnonto",
+    "positions": [
+      "LW",
+      "LM",
+      "RW"
+    ]
+  },
+  {
+    "sofifa_id": 242619,
+    "slug": "cheick-doucoure",
+    "short_name": "C. Doucour\u00e9",
+    "href": "/player/242619/cheick-doucoure/260022/",
+    "full_name": "Cheick Oumar Doucour\u00e9",
+    "positions": [
+      "CDM",
+      "CM",
+      "CB"
+    ]
+  },
+  {
+    "sofifa_id": 203376,
+    "slug": "virgil-van-dijk",
+    "short_name": "V. van Dijk",
+    "href": "/player/203376/virgil-van-dijk/260022/",
+    "full_name": "Virgil van Dijk",
+    "positions": [
+      "CB"
+    ]
+  },
+  {
+    "sofifa_id": 248484,
+    "slug": "nathan-collins",
+    "short_name": "N. Collins",
+    "href": "/player/248484/nathan-collins/260022/",
+    "full_name": "Nathan Michael Collins",
+    "positions": [
+      "CB"
+    ]
+  },
+  {
+    "sofifa_id": 270409,
+    "slug": "savio-moreira-de-oliveira",
+    "short_name": "Savinho",
+    "href": "/player/270409/savio-moreira-de-oliveira/260022/",
+    "full_name": "S\u00e1vio Moreira de Oliveira",
+    "positions": [
+      "RW",
+      "LW",
+      "RM"
+    ]
+  },
+  {
+    "sofifa_id": 212831,
+    "slug": "alisson-ramses-becker",
+    "short_name": "Alisson",
+    "href": "/player/212831/alisson-ramses-becker/260022/",
+    "full_name": "Alisson Rams\u00e9s Becker",
+    "positions": [
+      "GK"
+    ]
+  },
+  {
+    "sofifa_id": 200145,
+    "slug": "carlos-henrique-venancio-casimiro",
+    "short_name": "Casemiro",
+    "href": "/player/200145/carlos-henrique-venancio-casimiro/260022/",
+    "full_name": "Carlos Henrique Casimiro",
+    "positions": [
+      "CDM",
+      "CM"
+    ]
+  },
+  {
+    "sofifa_id": 230978,
+    "slug": "taiwo-awoniyi",
+    "short_name": "T. Awoniyi",
+    "href": "/player/230978/taiwo-awoniyi/260022/",
+    "full_name": "Taiwo Michael Awoniyi",
+    "positions": [
+      "ST"
+    ]
+  },
+  {
+    "sofifa_id": 83236,
+    "slug": "jocelin-ta-bi",
+    "short_name": "J. Ta Bi",
+    "href": "/player/83236/jocelin-ta-bi/260022/",
+    "full_name": "Djiamgone Jocelin Ta Bi",
+    "positions": [
+      "RM",
+      "RW"
+    ]
+  },
+  {
+    "sofifa_id": 239301,
+    "slug": "lisandro-martinez",
+    "short_name": "L. Mart\u00ednez",
+    "href": "/player/239301/lisandro-martinez/260022/",
+    "full_name": "Lisandro Mart\u00ednez",
+    "positions": [
+      "CB"
+    ]
+  },
+  {
+    "sofifa_id": 164835,
+    "slug": "lukasz-fabianski",
+    "short_name": "\u0141. Fabia\u0144ski",
+    "href": "/player/164835/lukasz-fabianski/260022/",
+    "full_name": "\u0141ukasz Marek Fabia\u0144ski",
+    "positions": [
+      "GK"
+    ]
+  },
+  {
+    "sofifa_id": 73049,
+    "slug": "pedro-henrique-cardoso-de-lima",
+    "short_name": "Pedro Lima",
+    "href": "/player/73049/pedro-henrique-cardoso-de-lima/260022/",
+    "full_name": "Pedro Henrique Cardoso de Lima",
+    "positions": [
+      "RB",
+      "RM"
+    ]
+  },
+  {
+    "sofifa_id": 223334,
+    "slug": "joelinton-apolinario-de-lira",
+    "short_name": "Joelinton",
+    "href": "/player/223334/joelinton-apolinario-de-lira/260022/",
+    "full_name": "Joelinton Cassio Apolin\u00e1rio de Lira",
+    "positions": [
+      "CM",
+      "CDM"
+    ]
+  },
+  {
+    "sofifa_id": 236920,
+    "slug": "justin-kluivert",
+    "short_name": "J. Kluivert",
+    "href": "/player/236920/justin-kluivert/260022/",
+    "full_name": "Justin Dean Kluivert",
+    "positions": [
+      "CAM",
+      "LM",
+      "CM"
+    ]
+  },
+  {
+    "sofifa_id": 201417,
+    "slug": "matt-doherty",
+    "short_name": "M. Doherty",
+    "href": "/player/201417/matt-doherty/260022/",
+    "full_name": "Matthew James Doherty",
+    "positions": [
+      "CB",
+      "RB",
+      "RM"
+    ]
+  },
+  {
+    "sofifa_id": 269796,
+    "slug": "julio-soler",
+    "short_name": "J. Soler",
+    "href": "/player/269796/julio-soler/260022/",
+    "full_name": "Julio C\u00e9sar Soler Barreto",
+    "positions": [
+      "LB",
+      "LM"
+    ]
+  },
+  {
+    "sofifa_id": 256261,
+    "slug": "malick-thiaw",
+    "short_name": "M. Thiaw",
+    "href": "/player/256261/malick-thiaw/260022/",
+    "full_name": "Malick Laye Thiaw",
+    "positions": [
+      "CB"
+    ]
+  },
+  {
+    "sofifa_id": 246565,
+    "slug": "bafode-diakite",
+    "short_name": "B. Diakit\u00e9",
+    "href": "/player/246565/bafode-diakite/260022/",
+    "full_name": "Bafod\u00e9 Diakit\u00e9",
+    "positions": [
+      "CB"
+    ]
+  },
+  {
+    "sofifa_id": 242453,
+    "slug": "sepp-van-den-berg",
+    "short_name": "S. van den Berg",
+    "href": "/player/242453/sepp-van-den-berg/260022/",
+    "full_name": "Sepp van den Berg",
+    "positions": [
+      "CB"
+    ]
+  },
+  {
+    "sofifa_id": 163264,
+    "slug": "tom-heaton",
+    "short_name": "T. Heaton",
+    "href": "/player/163264/tom-heaton/260022/",
+    "full_name": "Thomas David Heaton",
+    "positions": [
+      "GK"
+    ]
+  },
+  {
+    "sofifa_id": 226380,
+    "slug": "hee-chan-hwang",
+    "short_name": "Hwang Hee Chan",
+    "href": "/player/226380/hee-chan-hwang/260022/",
+    "full_name": "Hee-chan Hwang\n\ud669\ud76c\ucc2c \u9ec4\u559c\u707f",
+    "positions": [
+      "ST",
+      "LW",
+      "RW",
+      "LM"
+    ]
+  },
+  {
+    "sofifa_id": 269626,
+    "slug": "dorde-petrovic",
+    "short_name": "\u0110. Petrovi\u0107",
+    "href": "/player/269626/dorde-petrovic/260022/",
+    "full_name": "\u0110or\u0111e Petrovi\u0107\n\u0402\u043e\u0440\u0452\u0435 \u041f\u0435\u0442\u0440\u043e\u0432\u0438\u045b",
+    "positions": [
+      "GK"
+    ]
+  },
+  {
+    "sofifa_id": 236568,
+    "slug": "brandon-austin",
+    "short_name": "B. Austin",
+    "href": "/player/236568/brandon-austin/260022/",
+    "full_name": "Brandon Anthony Austin",
+    "positions": [
+      "GK"
+    ]
+  },
+  {
+    "sofifa_id": 230621,
+    "slug": "gianluigi-donnarumma",
+    "short_name": "G. Donnarumma",
+    "href": "/player/230621/gianluigi-donnarumma/260022/",
+    "full_name": "Gianluigi Donnarumma",
+    "positions": [
+      "GK"
+    ]
+  },
+  {
+    "sofifa_id": 231866,
+    "slug": "rodrigo-hernandez-cascante",
+    "short_name": "Rodri",
+    "href": "/player/231866/rodrigo-hernandez-cascante/260022/",
+    "full_name": "Rodrigo Hern\u00e1ndez Cascante",
+    "positions": [
+      "CDM",
+      "CM"
+    ]
+  },
+  {
+    "sofifa_id": 234378,
+    "slug": "declan-rice",
+    "short_name": "D. Rice",
+    "href": "/player/234378/declan-rice/260022/",
+    "full_name": "Declan Rice",
+    "positions": [
+      "CDM",
+      "CM"
+    ]
+  },
+  {
+    "sofifa_id": 243715,
+    "slug": "william-saliba",
+    "short_name": "W. Saliba",
+    "href": "/player/243715/william-saliba/260022/",
+    "full_name": "William Alain Andr\u00e9 Gabriel Saliba",
+    "positions": [
+      "CB"
+    ]
+  },
+  {
+    "sofifa_id": 233731,
+    "slug": "alexander-isak",
+    "short_name": "A. Isak",
+    "href": "/player/233731/alexander-isak/260022/",
+    "full_name": "Alexander Isak",
+    "positions": [
+      "ST"
+    ]
+  },
+  {
+    "sofifa_id": 212198,
+    "slug": "bruno-miguel-borges-fernandes",
+    "short_name": "Bruno Fernandes",
+    "href": "/player/212198/bruno-miguel-borges-fernandes/260022/",
+    "full_name": "Bruno Miguel Borges Fernandes",
+    "positions": [
+      "CAM",
+      "CM"
+    ]
+  },
+  {
+    "sofifa_id": 222665,
+    "slug": "martin-odegaard",
+    "short_name": "M. \u00d8degaard",
+    "href": "/player/222665/martin-odegaard/260022/",
+    "full_name": "Martin \u00d8degaard",
+    "positions": [
+      "CM",
+      "CAM"
+    ]
+  },
+  {
+    "sofifa_id": 257534,
+    "slug": "cole-palmer",
+    "short_name": "C. Palmer",
+    "href": "/player/257534/cole-palmer/260022/",
+    "full_name": "Cole Jermaine Palmer",
+    "positions": [
+      "CAM",
+      "RM",
+      "CM"
+    ]
+  },
+  {
+    "sofifa_id": 239837,
+    "slug": "alexis-mac-allister",
+    "short_name": "A. Mac Allister",
+    "href": "/player/239837/alexis-mac-allister/260022/",
+    "full_name": "Alexis Mac Allister",
+    "positions": [
+      "CM",
+      "CDM"
+    ]
+  },
+  {
+    "sofifa_id": 246104,
+    "slug": "ryan-gravenberch",
+    "short_name": "R. Gravenberch",
+    "href": "/player/246104/ryan-gravenberch/260022/",
+    "full_name": "Ryan Jiro Gravenberch",
+    "positions": [
+      "CDM",
+      "CM"
+    ]
+  },
+  {
+    "sofifa_id": 236772,
+    "slug": "dominik-szoboszlai",
+    "short_name": "D. Szoboszlai",
+    "href": "/player/236772/dominik-szoboszlai/260022/",
+    "full_name": "Dominik Szoboszlai",
+    "positions": [
+      "CAM",
+      "RB",
+      "CM"
+    ]
+  },
+  {
+    "sofifa_id": 247851,
+    "slug": "bruno-guimaraes-moura",
+    "short_name": "Bruno Guimar\u00e3es",
+    "href": "/player/247851/bruno-guimaraes-moura/260022/",
+    "full_name": "Bruno Guimar\u00e3es Rodrigues Moura",
+    "positions": [
+      "CM",
+      "CDM"
+    ]
+  },
+  {
+    "sofifa_id": 248148,
+    "slug": "martin-zubimendi-ibanez",
+    "short_name": "Zubimendi",
+    "href": "/player/248148/martin-zubimendi-ibanez/260022/",
+    "full_name": "Mart\u00edn Zubimendi Ib\u00e1\u00f1ez",
+    "positions": [
+      "CDM",
+      "CM"
+    ]
+  },
+  {
+    "sofifa_id": 216393,
+    "slug": "youri-tielemans",
+    "short_name": "Y. Tielemans",
+    "href": "/player/216393/youri-tielemans/260022/",
+    "full_name": "Youri Tielemans",
+    "positions": [
+      "CM",
+      "CDM",
+      "CAM"
+    ]
+  },
+  {
+    "sofifa_id": 239231,
+    "slug": "marc-cucurella-saseta",
+    "short_name": "Marc Cucurella",
+    "href": "/player/239231/marc-cucurella-saseta/260022/",
+    "full_name": "Marc Cucurella Saseta",
+    "positions": [
+      "LB",
+      "CM"
+    ]
+  },
+  {
+    "sofifa_id": 247090,
+    "slug": "enzo-fernandez",
+    "short_name": "E. Fern\u00e1ndez",
+    "href": "/player/247090/enzo-fernandez/260022/",
+    "full_name": "Enzo Jerem\u00edas Fern\u00e1ndez",
+    "positions": [
+      "CM",
+      "CDM",
+      "CAM"
+    ]
+  },
+  {
+    "sofifa_id": 257289,
+    "slug": "hugo-ekitike",
+    "short_name": "H. Ekitik\u00e9",
+    "href": "/player/257289/hugo-ekitike/260022/",
+    "full_name": "Hugo Ekitik\u00e9",
+    "positions": [
+      "ST",
+      "CAM"
+    ]
+  },
+  {
+    "sofifa_id": 240638,
+    "slug": "tijjani-reijnders",
+    "short_name": "T. Reijnders",
+    "href": "/player/240638/tijjani-reijnders/260022/",
+    "full_name": "Tijjani Martinus Jan Reijnders Lekatompessy",
+    "positions": [
+      "CM",
+      "CDM",
+      "CAM"
+    ]
+  },
+  {
+    "sofifa_id": 251517,
+    "slug": "josko-gvardiol",
+    "short_name": "J. Gvardiol",
+    "href": "/player/251517/josko-gvardiol/260022/",
+    "full_name": "Jo\u0161ko Gvardiol",
+    "positions": [
+      "CB",
+      "LB",
+      "LM"
+    ]
+  },
+  {
+    "sofifa_id": 199503,
+    "slug": "granit-xhaka",
+    "short_name": "G. Xhaka",
+    "href": "/player/199503/granit-xhaka/260022/",
+    "full_name": "Granit Xhaka",
+    "positions": [
+      "CDM",
+      "CM"
+    ]
+  },
+  {
+    "sofifa_id": 251805,
+    "slug": "jurrien-timber",
+    "short_name": "J. Timber",
+    "href": "/player/251805/jurrien-timber/260022/",
+    "full_name": "Jurri\u00ebn David Norman Timber",
+    "positions": [
+      "RB",
+      "LB",
+      "CB",
+      "RM"
+    ]
+  },
+  {
+    "sofifa_id": 227678,
+    "slug": "ezri-konsa",
+    "short_name": "E. Konsa",
+    "href": "/player/227678/ezri-konsa/260022/",
+    "full_name": "Ezri Konsa Ngoyo",
+    "positions": [
+      "CB"
+    ]
+  },
+  {
+    "sofifa_id": 236987,
+    "slug": "boubacar-kamara",
+    "short_name": "B. Kamara",
+    "href": "/player/236987/boubacar-kamara/260022/",
+    "full_name": "Boubacar Bernard Kamara",
+    "positions": [
+      "CDM",
+      "CM"
+    ]
+  },
+  {
+    "sofifa_id": 204935,
+    "slug": "jordan-pickford",
+    "short_name": "J. Pickford",
+    "href": "/player/204935/jordan-pickford/260022/",
+    "full_name": "Jordan Lee Pickford",
+    "positions": [
+      "GK"
+    ]
+  },
+  {
+    "sofifa_id": 220697,
+    "slug": "james-maddison",
+    "short_name": "J. Maddison",
+    "href": "/player/220697/james-maddison/260022/",
+    "full_name": "James Daniel Maddison",
+    "positions": [
+      "CM",
+      "CAM"
+    ]
+  },
+  {
+    "sofifa_id": 207421,
+    "slug": "leandro-trossard",
+    "short_name": "L. Trossard",
+    "href": "/player/207421/leandro-trossard/260022/",
+    "full_name": "Leandro Trossard",
+    "positions": [
+      "LW",
+      "ST",
+      "LM"
+    ]
+  },
+  {
+    "sofifa_id": 225193,
+    "slug": "mikel-merino-zazon",
+    "short_name": "Mikel Merino",
+    "href": "/player/225193/mikel-merino-zazon/260022/",
+    "full_name": "Mikel Merino Zaz\u00f3n",
+    "positions": [
+      "CM",
+      "ST",
+      "CDM"
+    ]
+  },
+  {
+    "sofifa_id": 256197,
+    "slug": "piero-hincapie",
+    "short_name": "P. Hincapi\u00e9",
+    "href": "/player/256197/piero-hincapie/260022/",
+    "full_name": "Piero Mart\u00edn Hincapi\u00e9 Reyna",
+    "positions": [
+      "CB",
+      "LB"
+    ]
+  },
+  {
+    "sofifa_id": 238074,
+    "slug": "reece-james",
+    "short_name": "R. James",
+    "href": "/player/238074/reece-james/260022/",
+    "full_name": "Reece James",
+    "positions": [
+      "RB",
+      "CDM"
+    ]
+  },
+  {
+    "sofifa_id": 242516,
+    "slug": "cody-gakpo",
+    "short_name": "C. Gakpo",
+    "href": "/player/242516/cody-gakpo/260022/",
+    "full_name": "Cody Math\u00e8s Gakpo",
+    "positions": [
+      "LM",
+      "LW"
+    ]
+  },
+  {
+    "sofifa_id": 262621,
+    "slug": "giorgi-mamardashvili",
+    "short_name": "G. Mamardashvili",
+    "href": "/player/262621/giorgi-mamardashvili/260022/",
+    "full_name": "Giorgi Mamardashvili\n\u10d2\u10d8\u10dd\u10e0\u10d2\u10d8 \u10db\u10d0\u10db\u10d0\u10e0\u10d3\u10d0\u10e8\u10d5\u10d8\u10da\u10d8",
+    "positions": [
+      "GK"
+    ]
+  },
+  {
+    "sofifa_id": 218667,
+    "slug": "bernardo-mota-carvalho-e-silva",
+    "short_name": "Bernardo Silva",
+    "href": "/player/218667/bernardo-mota-carvalho-e-silva/260022/",
+    "full_name": "Bernardo Mota Veiga de Carvalho e Silva",
+    "positions": [
+      "CM",
+      "RW",
+      "CDM"
+    ]
+  },
+  {
+    "sofifa_id": 241159,
+    "slug": "marc-guehi",
+    "short_name": "M. Gu\u00e9hi",
+    "href": "/player/241159/marc-guehi/260022/",
+    "full_name": "Addji Keaninkin Marc-Israel Gu\u00e9hi",
+    "positions": [
+      "CB"
+    ]
+  },
+  {
+    "sofifa_id": 246420,
+    "slug": "jeremy-doku",
+    "short_name": "J. Doku",
+    "href": "/player/246420/jeremy-doku/260022/",
+    "full_name": "J\u00e9r\u00e9my Doku",
+    "positions": [
+      "LW",
+      "RW",
+      "LM"
+    ]
+  },
+  {
+    "sofifa_id": 229391,
+    "slug": "joao-maria-palhinha-goncalves",
+    "short_name": "Palhinha",
+    "href": "/player/229391/joao-maria-palhinha-goncalves/260022/",
+    "full_name": "Jo\u00e3o Maria Lobo Alves Palhinha Gon\u00e7alves",
+    "positions": [
+      "CDM",
+      "CM"
+    ]
+  },
+  {
+    "sofifa_id": 232488,
+    "slug": "cristian-romero",
+    "short_name": "C. Romero",
+    "href": "/player/232488/cristian-romero/260022/",
+    "full_name": "Cristian Gabriel Romero",
+    "positions": [
+      "CB"
+    ]
+  },
+  {
+    "sofifa_id": 247394,
+    "slug": "dejan-kulusevski",
+    "short_name": "D. Kulusevski",
+    "href": "/player/247394/dejan-kulusevski/260022/",
+    "full_name": "Dejan Kulusevski\n\u0414\u0435\u0458\u0430\u043d \u041a\u0443\u043b\u0443\u0448\u0435\u0432\u0441\u043a\u0438",
+    "positions": [
+      "CM",
+      "RW",
+      "CAM"
+    ]
+  },
+  {
+    "sofifa_id": 264453,
+    "slug": "micky-van-de-ven",
+    "short_name": "M. van de Ven",
+    "href": "/player/264453/micky-van-de-ven/260022/",
+    "full_name": "Micky van de Ven",
+    "positions": [
+      "CB",
+      "LB"
+    ]
+  },
+  {
+    "sofifa_id": 235790,
+    "slug": "kai-havertz",
+    "short_name": "K. Havertz",
+    "href": "/player/235790/kai-havertz/260022/",
+    "full_name": "Kai Lukas Havertz",
+    "positions": [
+      "ST",
+      "CM",
+      "CAM"
+    ]
+  },
+  {
+    "sofifa_id": 221697,
+    "slug": "ollie-watkins",
+    "short_name": "O. Watkins",
+    "href": "/player/221697/ollie-watkins/260022/",
+    "full_name": "Oliver George Arthur Watkins",
+    "positions": [
+      "ST"
+    ]
+  },
+  {
+    "sofifa_id": 206517,
+    "slug": "jack-grealish",
+    "short_name": "J. Grealish",
+    "href": "/player/206517/jack-grealish/260022/",
+    "full_name": "Jack Peter Grealish",
+    "positions": [
+      "LM",
+      "LW"
+    ]
+  },
+  {
+    "sofifa_id": 261188,
+    "slug": "iliman-ndiaye",
+    "short_name": "I. Ndiaye",
+    "href": "/player/261188/iliman-ndiaye/260022/",
+    "full_name": "Iliman Cheikh Baroy Ndiaye",
+    "positions": [
+      "RM",
+      "LM",
+      "RW"
+    ]
+  },
+  {
+    "sofifa_id": 203574,
+    "slug": "john-stones",
+    "short_name": "J. Stones",
+    "href": "/player/203574/john-stones/260022/",
+    "full_name": "John Stones",
+    "positions": [
+      "CB",
+      "RB",
+      "CDM"
+    ]
+  },
+  {
+    "sofifa_id": 207410,
+    "slug": "mateo-kovacic",
+    "short_name": "M. Kova\u010di\u0107",
+    "href": "/player/207410/mateo-kovacic/260022/",
+    "full_name": "Mateo Kova\u010di\u0107",
+    "positions": [
+      "CM",
+      "CDM",
+      "CAM"
+    ]
+  },
+  {
+    "sofifa_id": 234824,
+    "slug": "yoane-wissa",
+    "short_name": "Y. Wissa",
+    "href": "/player/234824/yoane-wissa/260022/",
+    "full_name": "Yoane Wissa",
+    "positions": [
+      "ST"
+    ]
+  },
+  {
+    "sofifa_id": 242964,
+    "slug": "anthony-gordon",
+    "short_name": "A. Gordon",
+    "href": "/player/242964/anthony-gordon/260022/",
+    "full_name": "Anthony Michael Gordon",
+    "positions": [
+      "LW",
+      "RW",
+      "LM"
+    ]
+  },
+  {
+    "sofifa_id": 199641,
+    "slug": "matz-sels",
+    "short_name": "M. Sels",
+    "href": "/player/199641/matz-sels/260022/",
+    "full_name": "Matz Willy Els Sels",
+    "positions": [
+      "GK"
+    ]
+  },
+  {
+    "sofifa_id": 238095,
+    "slug": "nikola-milenkovic",
+    "short_name": "N. Milenkovi\u0107",
+    "href": "/player/238095/nikola-milenkovic/260022/",
+    "full_name": "Nikola Milenkovi\u0107\n\u041d\u0438\u043a\u043e\u043b\u0430 \u041c\u0438\u043b\u0435\u043d\u043a\u043e\u0432\u0438\u045b",
+    "positions": [
+      "CB"
+    ]
+  },
+  {
+    "sofifa_id": 278016,
+    "slug": "murillo-costa-dos-santos",
+    "short_name": "Murillo",
+    "href": "/player/278016/murillo-costa-dos-santos/260022/",
+    "full_name": "Murillo Santiago Costa dos Santos",
+    "positions": [
+      "CB"
+    ]
+  },
+  {
+    "sofifa_id": 240091,
+    "slug": "guglielmo-vicario",
+    "short_name": "G. Vicario",
+    "href": "/player/240091/guglielmo-vicario/260022/",
+    "full_name": "Guglielmo Vicario",
+    "positions": [
+      "GK"
+    ]
+  },
+  {
+    "sofifa_id": 243576,
+    "slug": "pedro-antonio-porro-sauceda",
+    "short_name": "Pedro Porro",
+    "href": "/player/243576/pedro-antonio-porro-sauceda/260022/",
+    "full_name": "Pedro Antonio Porro Sauceda",
+    "positions": [
+      "RB",
+      "RM"
+    ]
+  },
+  {
+    "sofifa_id": 245367,
+    "slug": "xavi-simons",
+    "short_name": "X. Simons",
+    "href": "/player/245367/xavi-simons/260022/",
+    "full_name": "Xavier Quentin Shay Simons",
+    "positions": [
+      "CAM",
+      "LM",
+      "LW",
+      "ST"
+    ]
+  },
+  {
+    "sofifa_id": 236461,
+    "slug": "jean-philippe-mateta",
+    "short_name": "J. Mateta",
+    "href": "/player/236461/jean-philippe-mateta/260022/",
+    "full_name": "Jean-Philippe Mateta",
+    "positions": [
+      "ST"
+    ]
+  },
+  {
+    "sofifa_id": 237646,
+    "slug": "daniel-munoz",
+    "short_name": "D. Mu\u00f1oz",
+    "href": "/player/237646/daniel-munoz/260022/",
+    "full_name": "Daniel Mu\u00f1oz Mej\u00eda",
+    "positions": [
+      "RB",
+      "RM"
+    ]
+  },
+  {
+    "sofifa_id": 255565,
+    "slug": "kaoru-mitoma",
+    "short_name": "K. Mitoma",
+    "href": "/player/255565/kaoru-mitoma/260022/",
+    "full_name": "Kaoru Mitoma\n\u4e09\u7b18 \u85ab",
+    "positions": [
+      "LM",
+      "LW"
+    ]
+  },
+  {
+    "sofifa_id": 257711,
+    "slug": "riccardo-calafiori",
+    "short_name": "R. Calafiori",
+    "href": "/player/257711/riccardo-calafiori/260022/",
+    "full_name": "Riccardo Calafiori",
+    "positions": [
+      "LB",
+      "CB",
+      "CM"
+    ]
+  },
+  {
+    "sofifa_id": 210881,
+    "slug": "john-mcginn",
+    "short_name": "J. McGinn",
+    "href": "/player/210881/john-mcginn/260022/",
+    "full_name": "John McGinn",
+    "positions": [
+      "RM",
+      "LM",
+      "CAM",
+      "RB"
+    ]
+  },
+  {
+    "sofifa_id": 257057,
+    "slug": "amadou-onana",
+    "short_name": "A. Onana",
+    "href": "/player/257057/amadou-onana/260022/",
+    "full_name": "Amadou Zeund Georges Ba Mvom Onana",
+    "positions": [
+      "CDM",
+      "CM"
+    ]
+  },
+  {
+    "sofifa_id": 228789,
+    "slug": "robert-lynch-sanchez",
+    "short_name": "Robert S\u00e1nchez",
+    "href": "/player/228789/robert-lynch-sanchez/260022/",
+    "full_name": "Robert Lynch S\u00e1nchez",
+    "positions": [
+      "GK"
+    ]
+  },
+  {
+    "sofifa_id": 216267,
+    "slug": "andrew-robertson",
+    "short_name": "A. Robertson",
+    "href": "/player/216267/andrew-robertson/260022/",
+    "full_name": "Andrew Henry Robertson",
+    "positions": [
+      "LB",
+      "LM"
+    ]
+  },
+  {
+    "sofifa_id": 260908,
+    "slug": "milos-kerkez",
+    "short_name": "M. Kerkez",
+    "href": "/player/260908/milos-kerkez/260022/",
+    "full_name": "Milos Kerkez\n\u041c\u0438\u043b\u043e\u0448 \u041a\u0435\u0440\u043a\u0435\u0437",
+    "positions": [
+      "LB",
+      "LM"
+    ]
+  },
+  {
+    "sofifa_id": 253124,
+    "slug": "matheus-luiz-nunes",
+    "short_name": "Matheus Nunes",
+    "href": "/player/253124/matheus-luiz-nunes/260022/",
+    "full_name": "Matheus Luiz Nunes",
+    "positions": [
+      "RB",
+      "CM",
+      "RM"
+    ]
+  },
+  {
+    "sofifa_id": 266127,
+    "slug": "lewis-hall",
+    "short_name": "L. Hall",
+    "href": "/player/266127/lewis-hall/260022/",
+    "full_name": "Lewis Kieran Hall",
+    "positions": [
+      "LB",
+      "LM"
+    ]
+  },
+  {
+    "sofifa_id": 259240,
+    "slug": "adam-wharton",
+    "short_name": "A. Wharton",
+    "href": "/player/259240/adam-wharton/260022/",
+    "full_name": "Adam James Wharton",
+    "positions": [
+      "CDM",
+      "CM"
+    ]
+  },
+  {
+    "sofifa_id": 210697,
+    "slug": "christian-norgaard",
+    "short_name": "C. N\u00f8rgaard",
+    "href": "/player/210697/christian-norgaard/260022/",
+    "full_name": "Christian Thers Bars\u00f8e N\u00f8rgaard",
+    "positions": [
+      "CDM",
+      "CM"
+    ]
+  },
+  {
+    "sofifa_id": 230666,
+    "slug": "gabriel-fernando-de-jesus",
+    "short_name": "Gabriel Jesus",
+    "href": "/player/230666/gabriel-fernando-de-jesus/260022/",
+    "full_name": "Gabriel Fernando de Jesus",
+    "positions": [
+      "ST",
+      "CAM"
+    ]
+  },
+  {
+    "sofifa_id": 254796,
+    "slug": "noni-madueke",
+    "short_name": "N. Madueke",
+    "href": "/player/254796/noni-madueke/260022/",
+    "full_name": "Chukwunonso Azuka Tristan Madueke",
+    "positions": [
+      "RW",
+      "RM"
+    ]
+  },
+  {
+    "sofifa_id": 200458,
+    "slug": "lucas-digne",
+    "short_name": "L. Digne",
+    "href": "/player/200458/lucas-digne/260022/",
+    "full_name": "Lucas Digne",
+    "positions": [
+      "LB",
+      "LM"
+    ]
+  },
+  {
+    "sofifa_id": 230918,
+    "slug": "trevoh-chalobah",
+    "short_name": "T. Chalobah",
+    "href": "/player/230918/trevoh-chalobah/260022/",
+    "full_name": "Trevoh Thomas Chalobah",
+    "positions": [
+      "CB",
+      "RB"
+    ]
+  },
+  {
+    "sofifa_id": 252042,
+    "slug": "joao-pedro-junqueira-de-jesus",
+    "short_name": "Jo\u00e3o Pedro",
+    "href": "/player/252042/joao-pedro-junqueira-de-jesus/260022/",
+    "full_name": "Jo\u00e3o Pedro Junqueira de Jesus",
+    "positions": [
+      "ST",
+      "CAM"
+    ]
+  },
+  {
+    "sofifa_id": 262859,
+    "slug": "levi-colwill",
+    "short_name": "L. Colwill",
+    "href": "/player/262859/levi-colwill/260022/",
+    "full_name": "Levi Lemar Samuel Colwill",
+    "positions": [
+      "CB"
+    ]
+  },
+  {
+    "sofifa_id": 273018,
+    "slug": "andrey-n-dos-santos",
+    "short_name": "Andrey Santos",
+    "href": "/player/273018/andrey-n-dos-santos/260022/",
+    "full_name": "Andrey Nascimento dos Santos",
+    "positions": [
+      "CM",
+      "CDM"
+    ]
+  },
+  {
+    "sofifa_id": 243657,
+    "slug": "james-garner",
+    "short_name": "J. Garner",
+    "href": "/player/243657/james-garner/260022/",
+    "full_name": "James David Garner",
+    "positions": [
+      "CDM",
+      "CM"
+    ]
+  },
+  {
+    "sofifa_id": 235805,
+    "slug": "federico-chiesa",
+    "short_name": "F. Chiesa",
+    "href": "/player/235805/federico-chiesa/260022/",
+    "full_name": "Federico Chiesa",
+    "positions": [
+      "RM",
+      "ST",
+      "RW"
+    ]
+  },
+  {
+    "sofifa_id": 277427,
+    "slug": "nico-oreilly",
+    "short_name": "N. O'Reilly",
+    "href": "/player/277427/nico-oreilly/260022/",
+    "full_name": "Nico O'Reilly",
+    "positions": [
+      "LB",
+      "CM",
+      "LM"
+    ]
+  },
+  {
+    "sofifa_id": 203263,
+    "slug": "harry-maguire",
+    "short_name": "H. Maguire",
+    "href": "/player/203263/harry-maguire/260022/",
+    "full_name": "Jacob Harry Maguire",
+    "positions": [
+      "CB"
+    ]
+  },
+  {
+    "sofifa_id": 236401,
+    "slug": "noussair-mazraoui",
+    "short_name": "N. Mazraoui",
+    "href": "/player/236401/noussair-mazraoui/260022/",
+    "full_name": "Noussair Mazraoui\n\u0646\u0635\u064a\u0631 \u0645\u0632\u0631\u0627\u0648\u064a",
+    "positions": [
+      "RB",
+      "CB",
+      "RM"
+    ]
+  },
+  {
+    "sofifa_id": 254088,
+    "slug": "amad-diallo",
+    "short_name": "Amad",
+    "href": "/player/254088/amad-diallo/260022/",
+    "full_name": "Amad Diallo Traor\u00e9",
+    "positions": [
+      "RM",
+      "RB",
+      "RW"
+    ]
+  },
+  {
+    "sofifa_id": 198032,
+    "slug": "dan-burn",
+    "short_name": "D. Burn",
+    "href": "/player/198032/dan-burn/260022/",
+    "full_name": "Daniel Johnson Burn",
+    "positions": [
+      "CB",
+      "LB"
+    ]
+  },
+  {
+    "sofifa_id": 203841,
+    "slug": "nick-pope",
+    "short_name": "N. Pope",
+    "href": "/player/203841/nick-pope/260022/",
+    "full_name": "Nicholas David Pope",
+    "positions": [
+      "GK"
+    ]
+  },
+  {
+    "sofifa_id": 206085,
+    "slug": "jacob-murphy",
+    "short_name": "J. Murphy",
+    "href": "/player/206085/jacob-murphy/260022/",
+    "full_name": "Jacob Kai Murphy",
+    "positions": [
+      "RW",
+      "RM"
+    ]
+  },
+  {
+    "sofifa_id": 234742,
+    "slug": "harvey-barnes",
+    "short_name": "H. Barnes",
+    "href": "/player/234742/harvey-barnes/260022/",
+    "full_name": "Harvey Lewis Barnes",
+    "positions": [
+      "LW",
+      "RW",
+      "LM"
+    ]
+  },
+  {
+    "sofifa_id": 262118,
+    "slug": "tino-livramento",
+    "short_name": "T. Livramento",
+    "href": "/player/262118/tino-livramento/260022/",
+    "full_name": "Valentino Francisco Livramento",
+    "positions": [
+      "RB",
+      "LB",
+      "RM"
+    ]
+  },
+  {
+    "sofifa_id": 224656,
+    "slug": "ola-aina",
+    "short_name": "O. Aina",
+    "href": "/player/224656/ola-aina/260022/",
+    "full_name": "Temitayo Olufisayo Olaoluwa Aina",
+    "positions": [
+      "RB",
+      "LB",
+      "RM"
+    ]
+  },
+  {
+    "sofifa_id": 243057,
+    "slug": "neco-williams",
+    "short_name": "N. Williams",
+    "href": "/player/243057/neco-williams/260022/",
+    "full_name": "Neco Shay Williams",
+    "positions": [
+      "LB",
+      "RB"
+    ]
+  },
+  {
+    "sofifa_id": 227535,
+    "slug": "rodrigo-bentancur",
+    "short_name": "R. Bentancur",
+    "href": "/player/227535/rodrigo-bentancur/260022/",
+    "full_name": "Rodrigo Bentancur Colm\u00e1n",
+    "positions": [
+      "CDM",
+      "CM"
+    ]
+  },
+  {
+    "sofifa_id": 238216,
+    "slug": "conor-gallagher",
+    "short_name": "C. Gallagher",
+    "href": "/player/238216/conor-gallagher/260022/",
+    "full_name": "Conor Gallagher",
+    "positions": [
+      "CM",
+      "LM",
+      "CDM"
+    ]
+  },
+  {
+    "sofifa_id": 237712,
+    "slug": "valentin-castellanos",
+    "short_name": "V. Castellanos",
+    "href": "/player/237712/valentin-castellanos/260022/",
+    "full_name": "Valent\u00edn Mariano Jos\u00e9 Castellanos Gim\u00e9nez",
+    "positions": [
+      "ST"
+    ]
+  },
+  {
+    "sofifa_id": 226166,
+    "slug": "nordi-mukiele",
+    "short_name": "N. Mukiele",
+    "href": "/player/226166/nordi-mukiele/260022/",
+    "full_name": "Nordi Mukiele Mulere",
+    "positions": [
+      "CB",
+      "RB"
+    ]
+  },
+  {
+    "sofifa_id": 236045,
+    "slug": "reinildo-isnard-mandava",
+    "short_name": "Reinildo",
+    "href": "/player/236045/reinildo-isnard-mandava/260022/",
+    "full_name": "Reinildo Isnard Mandava",
+    "positions": [
+      "LB"
+    ]
+  },
+  {
+    "sofifa_id": 240359,
+    "slug": "omar-alderete",
+    "short_name": "O. Alderete",
+    "href": "/player/240359/omar-alderete/260022/",
+    "full_name": "Omar Federico Alderete Fern\u00e1ndez",
+    "positions": [
+      "CB"
+    ]
+  },
+  {
+    "sofifa_id": 213655,
+    "slug": "alex-iwobi",
+    "short_name": "A. Iwobi",
+    "href": "/player/213655/alex-iwobi/260022/",
+    "full_name": "Alexander Chuka Iwobi",
+    "positions": [
+      "LM",
+      "RM",
+      "LW"
+    ]
+  },
+  {
+    "sofifa_id": 246172,
+    "slug": "samuel-chukwueze",
+    "short_name": "S. Chukwueze",
+    "href": "/player/246172/samuel-chukwueze/260022/",
+    "full_name": "Samuel Chimerenka Chukwueze",
+    "positions": [
+      "RM",
+      "RW"
+    ]
+  },
+  {
+    "sofifa_id": 272500,
+    "slug": "carlos-baleba",
+    "short_name": "C. Baleba",
+    "href": "/player/272500/carlos-baleba/260022/",
+    "full_name": "Carlos Noom Quomah Baleba",
+    "positions": [
+      "CDM",
+      "CM"
+    ]
+  },
+  {
+    "sofifa_id": 236506,
+    "slug": "marcos-senesi",
+    "short_name": "M. Senesi",
+    "href": "/player/236506/marcos-senesi/260022/",
+    "full_name": "Marcos Nicol\u00e1s Senesi Bar\u00f3n",
+    "positions": [
+      "CB"
+    ]
+  },
+  {
+    "sofifa_id": 206585,
+    "slug": "kepa-arrizabalaga",
+    "short_name": "Kepa",
+    "href": "/player/206585/kepa-arrizabalaga/260022/",
+    "full_name": "Kepa Arrizabalaga Revuelta",
+    "positions": [
+      "GK"
+    ]
+  },
+  {
+    "sofifa_id": 236499,
+    "slug": "douglas-luiz-soares-de-paulo",
+    "short_name": "Douglas Luiz",
+    "href": "/player/236499/douglas-luiz-soares-de-paulo/260022/",
+    "full_name": "Douglas Luiz Soares de Paulo",
+    "positions": [
+      "CDM",
+      "CM"
+    ]
+  },
+  {
+    "sofifa_id": 76687,
+    "slug": "estevao-willian-almeida",
+    "short_name": "Est\u00eav\u00e3o",
+    "href": "/player/76687/estevao-willian-almeida/260022/",
+    "full_name": "Est\u00eav\u00e3o Willian Almeida de Oliveira Gon\u00e7alves",
+    "positions": [
+      "RM",
+      "RW"
+    ]
+  },
+  {
+    "sofifa_id": 248695,
+    "slug": "wesley-fofana",
+    "short_name": "W. Fofana",
+    "href": "/player/248695/wesley-fofana/260022/",
+    "full_name": "Wesley Fofana",
+    "positions": [
+      "CB"
+    ]
+  },
+  {
+    "sofifa_id": 259307,
+    "slug": "malo-gusto",
+    "short_name": "M. Gusto",
+    "href": "/player/259307/malo-gusto/260022/",
+    "full_name": "Malo Arthur Gusto",
+    "positions": [
+      "RB",
+      "RM"
+    ]
+  },
+  {
+    "sofifa_id": 225100,
+    "slug": "joe-gomez",
+    "short_name": "J. Gomez",
+    "href": "/player/225100/joe-gomez/260022/",
+    "full_name": "Joseph Dave Gomez",
+    "positions": [
+      "CB",
+      "RB",
+      "LB",
+      "RM"
+    ]
+  },
+  {
+    "sofifa_id": 232487,
+    "slug": "wataru-endo",
+    "short_name": "W. Endo",
+    "href": "/player/232487/wataru-endo/260022/",
+    "full_name": "Wataru Endo\n\u9060\u85e4 \u822a",
+    "positions": [
+      "CDM",
+      "CM"
+    ]
+  },
+  {
+    "sofifa_id": 264298,
+    "slug": "conor-bradley",
+    "short_name": "C. Bradley",
+    "href": "/player/264298/conor-bradley/260022/",
+    "full_name": "Conor Bradley",
+    "positions": [
+      "RB",
+      "RM"
+    ]
+  },
+  {
+    "sofifa_id": 254803,
+    "slug": "senne-lammens",
+    "short_name": "S. Lammens",
+    "href": "/player/254803/senne-lammens/260022/",
+    "full_name": "Senne Lammens",
+    "positions": [
+      "GK"
+    ]
+  },
+  {
+    "sofifa_id": 200159,
+    "slug": "stefan-ortega",
+    "short_name": "S. Ortega",
+    "href": "/player/200159/stefan-ortega/260022/",
+    "full_name": "Stefan Ortega Moreno",
+    "positions": [
+      "GK"
+    ]
+  },
+  {
+    "sofifa_id": 237679,
+    "slug": "randal-kolo-muani",
+    "short_name": "R. Kolo Muani",
+    "href": "/player/237679/randal-kolo-muani/260022/",
+    "full_name": "Randal Kolo Muani",
+    "positions": [
+      "ST",
+      "RM",
+      "CAM"
+    ]
+  },
+  {
+    "sofifa_id": 237985,
+    "slug": "kevin-danso",
+    "short_name": "K. Danso",
+    "href": "/player/237985/kevin-danso/260022/",
+    "full_name": "Kevin Danso",
+    "positions": [
+      "CB"
+    ]
+  },
+  {
+    "sofifa_id": 243702,
+    "slug": "djed-spence",
+    "short_name": "D. Spence",
+    "href": "/player/243702/djed-spence/260022/",
+    "full_name": "Diop Tehuti Djed-Hotep Spence",
+    "positions": [
+      "LB",
+      "RB",
+      "LM"
+    ]
+  },
+  {
+    "sofifa_id": 259583,
+    "slug": "destiny-udogie",
+    "short_name": "D. Udogie",
+    "href": "/player/259583/destiny-udogie/260022/",
+    "full_name": "Iyenoma Destiny Udogie",
+    "positions": [
+      "LB",
+      "LM"
+    ]
+  },
+  {
+    "sofifa_id": 224221,
+    "slug": "joachim-andersen",
+    "short_name": "J. Andersen",
+    "href": "/player/224221/joachim-andersen/260022/",
+    "full_name": "Joachim Christian Andersen",
+    "positions": [
+      "CB"
+    ]
+  },
+  {
+    "sofifa_id": 228092,
+    "slug": "sander-berge",
+    "short_name": "S. Berge",
+    "href": "/player/228092/sander-berge/260022/",
+    "full_name": "Sander Gard Bolin Berge",
+    "positions": [
+      "CDM",
+      "CM",
+      "CB"
+    ]
+  },
+  {
+    "sofifa_id": 215223,
+    "slug": "walter-benitez",
+    "short_name": "W. Ben\u00edtez",
+    "href": "/player/215223/walter-benitez/260022/",
+    "full_name": "Walter Daniel Ben\u00edtez",
+    "positions": [
+      "GK"
+    ]
+  },
+  {
+    "sofifa_id": 240947,
+    "slug": "tyrick-mitchell",
+    "short_name": "T. Mitchell",
+    "href": "/player/240947/tyrick-mitchell/260022/",
+    "full_name": "Tyrick Kwon Mitchell",
+    "positions": [
+      "LB",
+      "LM"
+    ]
+  },
+  {
+    "sofifa_id": 250954,
+    "slug": "chris-richards",
+    "short_name": "C. Richards",
+    "href": "/player/250954/chris-richards/260022/",
+    "full_name": "Christopher Jeffrey Richards",
+    "positions": [
+      "CB"
+    ]
+  },
+  {
+    "sofifa_id": 251479,
+    "slug": "maxim-de-cuyper",
+    "short_name": "M. De Cuyper",
+    "href": "/player/251479/maxim-de-cuyper/260022/",
+    "full_name": "Maxim De Cuyper",
+    "positions": [
+      "LB",
+      "LM"
+    ]
+  },
+  {
+    "sofifa_id": 240913,
+    "slug": "caoimhin-kelleher",
+    "short_name": "C. Kelleher",
+    "href": "/player/240913/caoimhin-kelleher/260022/",
+    "full_name": "Caoimh\u00edn Odhr\u00e1n Kelleher",
+    "positions": [
+      "GK"
+    ]
+  },
+  {
+    "sofifa_id": 277869,
+    "slug": "michael-kayode",
+    "short_name": "M. Kayode",
+    "href": "/player/277869/michael-kayode/260022/",
+    "full_name": "Michael Olabode Kayode",
+    "positions": [
+      "RB",
+      "RM"
+    ]
+  },
+  {
+    "sofifa_id": 232999,
+    "slug": "tyler-adams",
+    "short_name": "T. Adams",
+    "href": "/player/232999/tyler-adams/260022/",
+    "full_name": "Tyler Shaan Adams",
+    "positions": [
+      "CDM",
+      "CM"
+    ]
+  },
+  {
+    "sofifa_id": 229906,
+    "slug": "leon-bailey",
+    "short_name": "L. Bailey",
+    "href": "/player/229906/leon-bailey/260022/",
+    "full_name": "Leon Patrick Bailey Butler",
+    "positions": [
+      "RM",
+      "RW"
+    ]
+  },
+  {
+    "sofifa_id": 246174,
+    "slug": "harvey-elliott",
+    "short_name": "H. Elliott",
+    "href": "/player/246174/harvey-elliott/260022/",
+    "full_name": "Harvey Scott Elliott",
+    "positions": [
+      "CAM",
+      "CM",
+      "RW"
+    ]
+  },
+  {
+    "sofifa_id": 222104,
+    "slug": "tosin-adarabioyo",
+    "short_name": "T. Adarabioyo",
+    "href": "/player/222104/tosin-adarabioyo/260022/",
+    "full_name": "Abdul-Nasir Oluwatosin Oluwadoyinsolami Adarabioyo",
+    "positions": [
+      "CB"
+    ]
+  },
+  {
+    "sofifa_id": 259031,
+    "slug": "liam-delap",
+    "short_name": "L. Delap",
+    "href": "/player/259031/liam-delap/260022/",
+    "full_name": "Liam Rory Delap",
+    "positions": [
+      "ST"
+    ]
+  },
+  {
+    "sofifa_id": 263620,
+    "slug": "romeo-lavia",
+    "short_name": "R. Lavia",
+    "href": "/player/263620/romeo-lavia/260022/",
+    "full_name": "Rom\u00e9o Lavia",
+    "positions": [
+      "CDM",
+      "CM"
+    ]
+  },
+  {
+    "sofifa_id": 266032,
+    "slug": "jamie-gittens",
+    "short_name": "J. Gittens",
+    "href": "/player/266032/jamie-gittens/260022/",
+    "full_name": "Jamie Jermaine Bynoe-Gittens",
+    "positions": [
+      "LM",
+      "LW"
+    ]
+  },
+  {
+    "sofifa_id": 268438,
+    "slug": "alejandro-garnacho",
+    "short_name": "A. Garnacho",
+    "href": "/player/268438/alejandro-garnacho/260022/",
+    "full_name": "Alejandro Garnacho Ferreyra",
+    "positions": [
+      "LM",
+      "LW"
+    ]
+  },
+  {
+    "sofifa_id": 272978,
+    "slug": "jorrel-hato",
+    "short_name": "J. Hato",
+    "href": "/player/272978/jorrel-hato/260022/",
+    "full_name": "Jorrel Hato",
+    "positions": [
+      "LB",
+      "CB",
+      "CDM"
+    ]
+  },
+  {
+    "sofifa_id": 237386,
+    "slug": "kiernan-dewsbury-hall",
+    "short_name": "K. Dewsbury-Hall",
+    "href": "/player/237386/kiernan-dewsbury-hall/260022/",
+    "full_name": "Kiernan Frank Dewsbury-Hall",
+    "positions": [
+      "CAM",
+      "CM"
+    ]
+  },
+  {
+    "sofifa_id": 230670,
+    "slug": "lucas-estella-perri",
+    "short_name": "Lucas Perri",
+    "href": "/player/230670/lucas-estella-perri/260022/",
+    "full_name": "Lucas Estella Perri",
+    "positions": [
+      "GK"
+    ]
+  },
+  {
+    "sofifa_id": 235735,
+    "slug": "ethan-ampadu",
+    "short_name": "E. Ampadu",
+    "href": "/player/235735/ethan-ampadu/260022/",
+    "full_name": "Ethan Kwame Colm Raymond Ampadu",
+    "positions": [
+      "CDM",
+      "CB",
+      "CM"
+    ]
+  },
+  {
+    "sofifa_id": 257191,
+    "slug": "anton-stach",
+    "short_name": "A. Stach",
+    "href": "/player/257191/anton-stach/260022/",
+    "full_name": "Anton Levi Stach",
+    "positions": [
+      "CM",
+      "CDM"
+    ]
+  },
+  {
+    "sofifa_id": 233064,
+    "slug": "mason-mount",
+    "short_name": "M. Mount",
+    "href": "/player/233064/mason-mount/260022/",
+    "full_name": "Mason Tony Mount",
+    "positions": [
+      "CAM",
+      "LM",
+      "CM"
+    ]
+  },
+  {
+    "sofifa_id": 269087,
+    "slug": "leny-yoro",
+    "short_name": "L. Yoro",
+    "href": "/player/269087/leny-yoro/260022/",
+    "full_name": "Leny Yoro",
+    "positions": [
+      "CB"
+    ]
+  },
+  {
+    "sofifa_id": 240740,
+    "slug": "callum-hudson-odoi",
+    "short_name": "C. Hudson-Odoi",
+    "href": "/player/240740/callum-hudson-odoi/260022/",
+    "full_name": "Callum James Hudson-Odoi",
+    "positions": [
+      "LM",
+      "LW"
+    ]
+  },
+  {
+    "sofifa_id": 257980,
+    "slug": "dan-ndoye",
+    "short_name": "D. Ndoye",
+    "href": "/player/257980/dan-ndoye/260022/",
+    "full_name": "Dan Assane Ndoye",
+    "positions": [
+      "LM",
+      "RM",
+      "LW"
+    ]
+  },
+  {
+    "sofifa_id": 236480,
+    "slug": "yves-bissouma",
+    "short_name": "Y. Bissouma",
+    "href": "/player/236480/yves-bissouma/260022/",
+    "full_name": "Yves Bissouma",
+    "positions": [
+      "CDM",
+      "CM"
+    ]
+  },
+  {
+    "sofifa_id": 272926,
+    "slug": "lucas-bergvall",
+    "short_name": "L. Bergvall",
+    "href": "/player/272926/lucas-bergvall/260022/",
+    "full_name": "Lucas Erik Holger Bergvall",
+    "positions": [
+      "CM",
+      "CAM",
+      "RM",
+      "CDM"
+    ]
+  },
+  {
+    "sofifa_id": 245388,
+    "slug": "jean-clair-todibo",
+    "short_name": "J. Todibo",
+    "href": "/player/245388/jean-clair-todibo/260022/",
+    "full_name": "Jean-Clair Dimitri Roger Todibo",
+    "positions": [
+      "CB"
+    ]
+  },
+  {
+    "sofifa_id": 270857,
+    "slug": "mateus-goncalo-espanha-fernandes",
+    "short_name": "Mateus Fernandes",
+    "href": "/player/270857/mateus-goncalo-espanha-fernandes/260022/",
+    "full_name": "Mateus Gon\u00e7alo Espanha Fernandes",
+    "positions": [
+      "CM",
+      "CAM",
+      "CDM"
+    ]
+  },
+  {
+    "sofifa_id": 241187,
+    "slug": "lutsharel-geertruida",
+    "short_name": "L. Geertruida",
+    "href": "/player/241187/lutsharel-geertruida/260022/",
+    "full_name": "Lutsharel Emiliano Geertruida",
+    "positions": [
+      "CB",
+      "RB",
+      "CDM",
+      "RM"
+    ]
+  },
+  {
+    "sofifa_id": 266400,
+    "slug": "trai-hume",
+    "short_name": "T. Hume",
+    "href": "/player/266400/trai-hume/260022/",
+    "full_name": "Trai Hume",
+    "positions": [
+      "RB",
+      "LB",
+      "CB",
+      "CM"
+    ]
+  },
+  {
+    "sofifa_id": 74866,
+    "slug": "andre-trindade",
+    "short_name": "Andr\u00e9",
+    "href": "/player/74866/andre-trindade/260022/",
+    "full_name": "Andr\u00e9 Trindade da Costa Neto",
+    "positions": [
+      "CDM",
+      "CM"
+    ]
+  },
+  {
+    "sofifa_id": 252064,
+    "slug": "ladislav-krejci",
+    "short_name": "L. Krej\u010d\u00ed",
+    "href": "/player/252064/ladislav-krejci/260022/",
+    "full_name": "Ladislav Krej\u010d\u00ed",
+    "positions": [
+      "CB",
+      "CM",
+      "CDM"
+    ]
+  },
+  {
+    "sofifa_id": 220710,
+    "slug": "harry-wilson",
+    "short_name": "H. Wilson",
+    "href": "/player/220710/harry-wilson/260022/",
+    "full_name": "Harry Wilson",
+    "positions": [
+      "RM",
+      "CAM",
+      "RW"
+    ]
+  },
+  {
+    "sofifa_id": 236699,
+    "slug": "sasa-lukic",
+    "short_name": "S. Luki\u0107",
+    "href": "/player/236699/sasa-lukic/260022/",
+    "full_name": "Sa\u0161a Luki\u0107\n\u0421\u0430\u0448\u0430 \u041b\u0443\u043a\u0438\u045b",
+    "positions": [
+      "CDM",
+      "CM"
+    ]
+  },
+  {
+    "sofifa_id": 241436,
+    "slug": "calvin-bassey",
+    "short_name": "C. Bassey",
+    "href": "/player/241436/calvin-bassey/260022/",
+    "full_name": "Calvin Bassey Ughelumba",
+    "positions": [
+      "CB"
+    ]
+  },
+  {
+    "sofifa_id": 220407,
+    "slug": "martin-dubravka",
+    "short_name": "M. D\u00fabravka",
+    "href": "/player/220407/martin-dubravka/260022/",
+    "full_name": "Martin D\u00fabravka",
+    "positions": [
+      "GK"
+    ]
+  },
+  {
+    "sofifa_id": 234569,
+    "slug": "florentino-morris-luis",
+    "short_name": "Florentino",
+    "href": "/player/234569/florentino-morris-luis/260022/",
+    "full_name": "Florentino Ibrain Morris Lu\u00eds",
+    "positions": [
+      "CDM",
+      "CM"
+    ]
+  },
+  {
+    "sofifa_id": 232730,
+    "slug": "daichi-kamada",
+    "short_name": "D. Kamada",
+    "href": "/player/232730/daichi-kamada/260022/",
+    "full_name": "Daichi Kamada\n\u938c\u7530 \u5927\u5730",
+    "positions": [
+      "CM",
+      "CAM",
+      "CDM"
+    ]
+  },
+  {
+    "sofifa_id": 258444,
+    "slug": "evann-guessand",
+    "short_name": "E. Guessand",
+    "href": "/player/258444/evann-guessand/260022/",
+    "full_name": "Evann Guessand",
+    "positions": [
+      "RW",
+      "RM",
+      "ST"
+    ]
+  },
+  {
+    "sofifa_id": 190765,
+    "slug": "pascal-gross",
+    "short_name": "P. Gro\u00df",
+    "href": "/player/190765/pascal-gross/260022/",
+    "full_name": "Pascal Alexander Gro\u00df",
+    "positions": [
+      "CDM",
+      "CM"
+    ]
+  },
+  {
+    "sofifa_id": 225863,
+    "slug": "olivier-boscagli",
+    "short_name": "O. Boscagli",
+    "href": "/player/225863/olivier-boscagli/260022/",
+    "full_name": "Olivier Maxime Boscagli",
+    "positions": [
+      "CB"
+    ]
+  },
+  {
+    "sofifa_id": 248793,
+    "slug": "mats-wieffer",
+    "short_name": "M. Wieffer",
+    "href": "/player/248793/mats-wieffer/260022/",
+    "full_name": "Mats Wieffer",
+    "positions": [
+      "CDM",
+      "RB",
+      "CM"
+    ]
+  },
+  {
+    "sofifa_id": 213884,
+    "slug": "ryan-christie",
+    "short_name": "R. Christie",
+    "href": "/player/213884/ryan-christie/260022/",
+    "full_name": "Ryan Christie",
+    "positions": [
+      "CDM",
+      "CM"
+    ]
+  },
+  {
+    "sofifa_id": 224294,
+    "slug": "lewis-cook",
+    "short_name": "L. Cook",
+    "href": "/player/224294/lewis-cook/260022/",
+    "full_name": "Lewis John Cook",
+    "positions": [
+      "CDM",
+      "RB",
+      "CM"
+    ]
+  },
+  {
+    "sofifa_id": 237477,
+    "slug": "marcus-tavernier",
+    "short_name": "M. Tavernier",
+    "href": "/player/237477/marcus-tavernier/260022/",
+    "full_name": "Marcus Joseph Tavernier",
+    "positions": [
+      "LM",
+      "RM",
+      "CAM",
+      "LW"
+    ]
+  },
+  {
+    "sofifa_id": 256769,
+    "slug": "adrien-truffert",
+    "short_name": "A. Truffert",
+    "href": "/player/256769/adrien-truffert/260022/",
+    "full_name": "Adrien Truffert",
+    "positions": [
+      "LB",
+      "LM"
+    ]
+  },
+  {
+    "sofifa_id": 264846,
+    "slug": "cristhian-mosquera-ibarguen",
+    "short_name": "Cristhian Mosquera",
+    "href": "/player/264846/cristhian-mosquera-ibarguen/260022/",
+    "full_name": "Cristhian Andrey Mosquera Ibarguen",
+    "positions": [
+      "CB"
+    ]
+  },
+  {
+    "sofifa_id": 199189,
+    "slug": "ross-barkley",
+    "short_name": "R. Barkley",
+    "href": "/player/199189/ross-barkley/260022/",
+    "full_name": "Ross Barkley",
+    "positions": [
+      "CM",
+      "CAM",
+      "CDM"
+    ]
+  },
+  {
+    "sofifa_id": 231352,
+    "slug": "tammy-abraham",
+    "short_name": "T. Abraham",
+    "href": "/player/231352/tammy-abraham/260022/",
+    "full_name": "Kevin Oghenetega Tamaraebi Bakumo-Abraham",
+    "positions": [
+      "ST"
+    ]
+  },
+  {
+    "sofifa_id": 275507,
+    "slug": "mamadou-sarr",
+    "short_name": "M. Sarr",
+    "href": "/player/275507/mamadou-sarr/260022/",
+    "full_name": "Mamadou Sarr",
+    "positions": [
+      "CB"
+    ]
+  },
+  {
+    "sofifa_id": 243282,
+    "slug": "dwight-mcneil",
+    "short_name": "D. McNeil",
+    "href": "/player/243282/dwight-mcneil/260022/",
+    "full_name": "Dwight James Matthew McNeil",
+    "positions": [
+      "LM",
+      "CAM",
+      "RM",
+      "LW"
+    ]
+  },
+  {
+    "sofifa_id": 244380,
+    "slug": "vitaliy-mykolenko",
+    "short_name": "V. Mykolenko",
+    "href": "/player/244380/vitaliy-mykolenko/260022/",
+    "full_name": "Vitalii Mykolenko\n\u041c\u0438\u043a\u043e\u043b\u0435\u043d\u043a\u043e \u0412\u0456\u0442\u0430\u043b\u0456\u0439 \u0421\u0435\u0440\u0433\u0456\u0439\u043e\u0432\u0438\u0447",
+    "positions": [
+      "LB",
+      "LM"
+    ]
+  },
+  {
+    "sofifa_id": 229266,
+    "slug": "joe-rodon",
+    "short_name": "J. Rodon",
+    "href": "/player/229266/joe-rodon/260022/",
+    "full_name": "Joseph Peter Rodon",
+    "positions": [
+      "CB"
+    ]
+  },
+  {
+    "sofifa_id": 269136,
+    "slug": "kobbie-mainoo",
+    "short_name": "K. Mainoo",
+    "href": "/player/269136/kobbie-mainoo/260022/",
+    "full_name": "Kobbie Mainoo",
+    "positions": [
+      "CDM",
+      "CM"
+    ]
+  },
+  {
+    "sofifa_id": 233934,
+    "slug": "aaron-ramsdale",
+    "short_name": "A. Ramsdale",
+    "href": "/player/233934/aaron-ramsdale/260022/",
+    "full_name": "Aaron Christopher Ramsdale",
+    "positions": [
+      "GK"
+    ]
+  },
+  {
+    "sofifa_id": 246923,
+    "slug": "jacob-ramsey",
+    "short_name": "J. Ramsey",
+    "href": "/player/246923/jacob-ramsey/260022/",
+    "full_name": "Jacob Matthew Ramsey",
+    "positions": [
+      "CM",
+      "LW",
+      "CAM"
+    ]
+  },
+  {
+    "sofifa_id": 79402,
+    "slug": "igor-jesus-maciel-da-cruz",
+    "short_name": "Igor Jesus",
+    "href": "/player/79402/igor-jesus-maciel-da-cruz/260022/",
+    "full_name": "Igor Jesus Maciel da Cruz",
+    "positions": [
+      "ST"
+    ]
+  },
+  {
+    "sofifa_id": 268421,
+    "slug": "mathys-tel",
+    "short_name": "M. Tel",
+    "href": "/player/268421/mathys-tel/260022/",
+    "full_name": "Mathys Henri Tel",
+    "positions": [
+      "ST",
+      "LW",
+      "LM",
+      "CAM"
+    ]
+  },
+  {
+    "sofifa_id": 193105,
+    "slug": "alphonse-areola",
+    "short_name": "A. Areola",
+    "href": "/player/193105/alphonse-areola/260022/",
+    "full_name": "Alphonse Francis Ar\u00e9ola",
+    "positions": [
+      "GK"
+    ]
+  },
+  {
+    "sofifa_id": 196978,
+    "slug": "callum-wilson",
+    "short_name": "C. Wilson",
+    "href": "/player/196978/callum-wilson/260022/",
+    "full_name": "Callum Eddie Graham Wilson",
+    "positions": [
+      "ST"
+    ]
+  },
+  {
+    "sofifa_id": 229942,
+    "slug": "axel-disasi",
+    "short_name": "A. Disasi",
+    "href": "/player/229942/axel-disasi/260022/",
+    "full_name": "Axel Arthur Disasi",
+    "positions": [
+      "CB",
+      "RB"
+    ]
+  },
+  {
+    "sofifa_id": 251954,
+    "slug": "crysencio-summerville",
+    "short_name": "C. Summerville",
+    "href": "/player/251954/crysencio-summerville/260022/",
+    "full_name": "Crysencio Jilbert Sylverio Summerville",
+    "positions": [
+      "LM",
+      "LW"
+    ]
+  },
+  {
+    "sofifa_id": 246350,
+    "slug": "enzo-le-fee",
+    "short_name": "E. Le F\u00e9e",
+    "href": "/player/246350/enzo-le-fee/260022/",
+    "full_name": "Enzo J\u00e9r\u00e9my Le F\u00e9e",
+    "positions": [
+      "CM",
+      "LM",
+      "CAM"
+    ]
+  },
+  {
+    "sofifa_id": 269230,
+    "slug": "noah-sadiki",
+    "short_name": "N. Sadiki",
+    "href": "/player/269230/noah-sadiki/260022/",
+    "full_name": "Noah Junior Sadiki",
+    "positions": [
+      "CM",
+      "CDM",
+      "CAM"
+    ]
+  },
+  {
+    "sofifa_id": 235883,
+    "slug": "ryan-sessegnon",
+    "short_name": "R. Sessegnon",
+    "href": "/player/235883/ryan-sessegnon/260022/",
+    "full_name": "Kouassi Ryan Sessegnon",
+    "positions": [
+      "LB",
+      "LM"
+    ]
+  },
+  {
+    "sofifa_id": 240273,
+    "slug": "emile-smith-rowe",
+    "short_name": "E. Smith Rowe",
+    "href": "/player/240273/emile-smith-rowe/260022/",
+    "full_name": "Emile Smith Rowe",
+    "positions": [
+      "CAM",
+      "CM",
+      "LM"
+    ]
+  },
+  {
+    "sofifa_id": 188377,
+    "slug": "kyle-walker",
+    "short_name": "K. Walker",
+    "href": "/player/188377/kyle-walker/260022/",
+    "full_name": "Kyle Andrew Walker",
+    "positions": [
+      "RB",
+      "CM"
+    ]
+  },
+  {
+    "sofifa_id": 228151,
+    "slug": "josh-cullen",
+    "short_name": "J. Cullen",
+    "href": "/player/228151/josh-cullen/260022/",
+    "full_name": "Joshua Jon Cullen",
+    "positions": [
+      "CDM",
+      "CM"
+    ]
+  },
+  {
+    "sofifa_id": 213991,
+    "slug": "jefferson-lerma",
+    "short_name": "J. Lerma",
+    "href": "/player/213991/jefferson-lerma/260022/",
+    "full_name": "Jefferson Andr\u00e9s Lerma Sol\u00eds",
+    "positions": [
+      "CDM",
+      "CM",
+      "CB"
+    ]
+  },
+  {
+    "sofifa_id": 238756,
+    "slug": "jorgen-strand-larsen",
+    "short_name": "J. Larsen",
+    "href": "/player/238756/jorgen-strand-larsen/260022/",
+    "full_name": "J\u00f8rgen Strand Larsen",
+    "positions": [
+      "ST"
+    ]
+  },
+  {
+    "sofifa_id": 199915,
+    "slug": "lewis-dunk",
+    "short_name": "L. Dunk",
+    "href": "/player/199915/lewis-dunk/260022/",
+    "full_name": "Lewis Carl Dunk",
+    "positions": [
+      "CB"
+    ]
+  },
+  {
+    "sofifa_id": 240734,
+    "slug": "matt-oriley",
+    "short_name": "M. O'Riley",
+    "href": "/player/240734/matt-oriley/260022/",
+    "full_name": "Matthew Sean O'Riley",
+    "positions": [
+      "CAM",
+      "CM",
+      "CDM"
+    ]
+  },
+  {
+    "sofifa_id": 245637,
+    "slug": "georginio-rutter",
+    "short_name": "G. Rutter",
+    "href": "/player/245637/georginio-rutter/260022/",
+    "full_name": "Georginio Rutter",
+    "positions": [
+      "CAM",
+      "ST"
+    ]
+  },
+  {
+    "sofifa_id": 235167,
+    "slug": "vitaly-janelt",
+    "short_name": "V. Janelt",
+    "href": "/player/235167/vitaly-janelt/260022/",
+    "full_name": "Vitaly Janelt",
+    "positions": [
+      "CDM",
+      "CM"
+    ]
+  },
+  {
+    "sofifa_id": 265552,
+    "slug": "dango-ouattara",
+    "short_name": "D. Ouattara",
+    "href": "/player/265552/dango-ouattara/260022/",
+    "full_name": "Dango Aboubacar Faissal Ouattara",
+    "positions": [
+      "RM",
+      "LM",
+      "ST",
+      "RW"
+    ]
+  },
+  {
+    "sofifa_id": 277909,
+    "slug": "eli-junior-kroupi",
+    "short_name": "E. Kroupi",
+    "href": "/player/277909/eli-junior-kroupi/260022/",
+    "full_name": "Eli Junior Eric Anat Kroupi",
+    "positions": [
+      "ST",
+      "CAM"
+    ]
+  },
+  {
+    "sofifa_id": 221660,
+    "slug": "victor-lindelof",
+    "short_name": "V. Lindel\u00f6f",
+    "href": "/player/221660/victor-lindelof/260022/",
+    "full_name": "Victor J\u00f6rgen Nilsson Lindel\u00f6f",
+    "positions": [
+      "CB"
+    ]
+  },
+  {
+    "sofifa_id": 207599,
+    "slug": "michael-keane",
+    "short_name": "M. Keane",
+    "href": "/player/207599/michael-keane/260022/",
+    "full_name": "Michael Vincent Keane",
+    "positions": [
+      "CB"
+    ]
+  },
+  {
+    "sofifa_id": 251892,
+    "slug": "norberto-gomes-betuncal",
+    "short_name": "Beto",
+    "href": "/player/251892/norberto-gomes-betuncal/260022/",
+    "full_name": "Norberto Bercique Gomes Betuncal",
+    "positions": [
+      "ST"
+    ]
+  },
+  {
+    "sofifa_id": 266609,
+    "slug": "tim-iroegbunam",
+    "short_name": "T. Iroegbunam",
+    "href": "/player/266609/tim-iroegbunam/260022/",
+    "full_name": "Timothy Emeka Iroegbunam",
+    "positions": [
+      "CDM",
+      "CM"
+    ]
+  },
+  {
+    "sofifa_id": 276295,
+    "slug": "thierno-barry",
+    "short_name": "T. Barry",
+    "href": "/player/276295/thierno-barry/260022/",
+    "full_name": "Thierno Mamadou Barry",
+    "positions": [
+      "ST"
+    ]
+  },
+  {
+    "sofifa_id": 232104,
+    "slug": "daniel-james",
+    "short_name": "D. James",
+    "href": "/player/232104/daniel-james/260022/",
+    "full_name": "Daniel Owen James",
+    "positions": [
+      "RW",
+      "RM"
+    ]
+  },
+  {
+    "sofifa_id": 236764,
+    "slug": "ao-tanaka",
+    "short_name": "A. Tanaka",
+    "href": "/player/236764/ao-tanaka/260022/",
+    "full_name": "Ao Tanaka\n\u7530\u4e2d \u78a7",
+    "positions": [
+      "CDM",
+      "CM"
+    ]
+  },
+  {
+    "sofifa_id": 237161,
+    "slug": "sean-longstaff",
+    "short_name": "S. Longstaff",
+    "href": "/player/237161/sean-longstaff/260022/",
+    "full_name": "Sean David Longstaff",
+    "positions": [
+      "CM",
+      "CDM"
+    ]
+  },
+  {
+    "sofifa_id": 239360,
+    "slug": "pascal-struijk",
+    "short_name": "P. Struijk",
+    "href": "/player/239360/pascal-struijk/260022/",
+    "full_name": "Pascal Augustus Struijk",
+    "positions": [
+      "CB"
+    ]
+  },
+  {
+    "sofifa_id": 242530,
+    "slug": "noah-okafor",
+    "short_name": "N. Okafor",
+    "href": "/player/242530/noah-okafor/260022/",
+    "full_name": "Noah Arinzechukwu Okafor",
+    "positions": [
+      "ST",
+      "LW",
+      "CAM"
+    ]
+  },
+  {
+    "sofifa_id": 263063,
+    "slug": "james-trafford",
+    "short_name": "J. Trafford",
+    "href": "/player/263063/james-trafford/260022/",
+    "full_name": "James Harrington Trafford",
+    "positions": [
+      "GK"
+    ]
+  },
+  {
+    "sofifa_id": 277432,
+    "slug": "patrick-dorgu",
+    "short_name": "P. Dorgu",
+    "href": "/player/277432/patrick-dorgu/260022/",
+    "full_name": "Patrick Chinazaekpere Dorgu",
+    "positions": [
+      "LM",
+      "LB",
+      "RM",
+      "LW"
+    ]
+  },
+  {
+    "sofifa_id": 237329,
+    "slug": "joe-willock",
+    "short_name": "J. Willock",
+    "href": "/player/237329/joe-willock/260022/",
+    "full_name": "Joseph George Willock",
+    "positions": [
+      "CM",
+      "CAM"
+    ]
+  },
+  {
+    "sofifa_id": 274246,
+    "slug": "lewis-miley",
+    "short_name": "L. Miley",
+    "href": "/player/274246/lewis-miley/260022/",
+    "full_name": "Lewis Miley",
+    "positions": [
+      "CM",
+      "RB",
+      "CDM"
+    ]
+  },
+  {
+    "sofifa_id": 235642,
+    "slug": "ryan-yates",
+    "short_name": "R. Yates",
+    "href": "/player/235642/ryan-yates/260022/",
+    "full_name": "Ryan James Yates",
+    "positions": [
+      "CDM",
+      "CM"
+    ]
+  },
+  {
+    "sofifa_id": 256008,
+    "slug": "felipe-rodrigues-da-silva",
+    "short_name": "Morato",
+    "href": "/player/256008/felipe-rodrigues-da-silva/260022/",
+    "full_name": "Felipe Rodrigues da Silva",
+    "positions": [
+      "CB",
+      "LB",
+      "CDM"
+    ]
+  },
+  {
+    "sofifa_id": 260145,
+    "slug": "omari-hutchinson",
+    "short_name": "O. Hutchinson",
+    "href": "/player/260145/omari-hutchinson/260022/",
+    "full_name": "Omari Elijah Giraud-Hutchinson",
+    "positions": [
+      "RM",
+      "CAM",
+      "RW"
+    ]
+  },
+  {
+    "sofifa_id": 270208,
+    "slug": "archie-gray",
+    "short_name": "A. Gray",
+    "href": "/player/270208/archie-gray/260022/",
+    "full_name": "Archie Gray",
+    "positions": [
+      "CDM",
+      "CB",
+      "RB",
+      "CM"
+    ]
+  },
+  {
+    "sofifa_id": 213956,
+    "slug": "adama-traore-diarra",
+    "short_name": "Adama Traor\u00e9",
+    "href": "/player/213956/adama-traore-diarra/260022/",
+    "full_name": "Adama Traor\u00e9 Diarra",
+    "positions": [
+      "RM",
+      "RW"
+    ]
+  },
+  {
+    "sofifa_id": 236792,
+    "slug": "tomas-soucek",
+    "short_name": "T. Sou\u010dek",
+    "href": "/player/236792/tomas-soucek/260022/",
+    "full_name": "Tom\u00e1\u0161 Sou\u010dek",
+    "positions": [
+      "CDM",
+      "CM"
+    ]
+  },
+  {
+    "sofifa_id": 275048,
+    "slug": "chemsdine-talbi",
+    "short_name": "C. Talbi",
+    "href": "/player/275048/chemsdine-talbi/260022/",
+    "full_name": "Chemsdine Talbi\n\u0634\u0645\u0633 \u0627\u0644\u062f\u064a\u0646 \u0637\u0627\u0644\u0628\u064a",
+    "positions": [
+      "RW",
+      "RM",
+      "LM"
+    ]
+  },
+  {
+    "sofifa_id": 206075,
+    "slug": "sam-johnstone",
+    "short_name": "S. Johnstone",
+    "href": "/player/206075/sam-johnstone/260022/",
+    "full_name": "Samuel Luke Johnstone",
+    "positions": [
+      "GK"
+    ]
+  },
+  {
+    "sofifa_id": 237658,
+    "slug": "santiago-bueno",
+    "short_name": "S. Bueno",
+    "href": "/player/237658/santiago-bueno/260022/",
+    "full_name": "Santiago Ignacio Bueno Sciutto",
+    "positions": [
+      "CB"
+    ]
+  },
+  {
+    "sofifa_id": 240507,
+    "slug": "angel-gomes",
+    "short_name": "A. Gomes",
+    "href": "/player/240507/angel-gomes/260022/",
+    "full_name": "Adilson Angel Abreu de Almeida Gom\u00e9s",
+    "positions": [
+      "CAM",
+      "CDM",
+      "CM"
+    ]
+  },
+  {
+    "sofifa_id": 70571,
+    "slug": "kevin-santos",
+    "short_name": "Kevin",
+    "href": "/player/70571/kevin-santos/260022/",
+    "full_name": "Kevin Santos Lopes de Macedo",
+    "positions": [
+      "LM",
+      "LW",
+      "RW"
+    ]
+  },
+  {
+    "sofifa_id": 237522,
+    "slug": "jorge-cuenca-barreno",
+    "short_name": "Jorge Cuenca",
+    "href": "/player/237522/jorge-cuenca-barreno/260022/",
+    "full_name": "Jorge Cuenca Barreno",
+    "positions": [
+      "CB"
+    ]
+  },
+  {
+    "sofifa_id": 264337,
+    "slug": "rodrigo-muniz-carvalho",
+    "short_name": "Rodrigo Muniz",
+    "href": "/player/264337/rodrigo-muniz-carvalho/260022/",
+    "full_name": "Rodrigo Muniz Carvalho",
+    "positions": [
+      "ST"
+    ]
+  },
+  {
+    "sofifa_id": 277295,
+    "slug": "oscar-bobb",
+    "short_name": "O. Bobb",
+    "href": "/player/277295/oscar-bobb/260022/",
+    "full_name": "Oscar Bobb",
+    "positions": [
+      "RM",
+      "LM",
+      "RW"
+    ]
+  },
+  {
+    "sofifa_id": 262042,
+    "slug": "maxime-esteve",
+    "short_name": "M. Est\u00e8ve",
+    "href": "/player/262042/maxime-esteve/260022/",
+    "full_name": "Maxime Fernand Christian Est\u00e8ve",
+    "positions": [
+      "CB"
+    ]
+  },
+  {
+    "sofifa_id": 257084,
+    "slug": "lesley-ugochukwu",
+    "short_name": "L. Ugochukwu",
+    "href": "/player/257084/lesley-ugochukwu/260022/",
+    "full_name": "Lesley Chimuanya Ugochukwu",
+    "positions": [
+      "CDM",
+      "CM",
+      "CAM"
+    ]
+  },
+  {
+    "sofifa_id": 271121,
+    "slug": "quilindschy-hartman",
+    "short_name": "Q. Hartman",
+    "href": "/player/271121/quilindschy-hartman/260022/",
+    "full_name": "Quilindschy Hartman",
+    "positions": [
+      "LB",
+      "LM"
+    ]
+  },
+  {
+    "sofifa_id": 73374,
+    "slug": "christantus-uche",
+    "short_name": "C. Uche",
+    "href": "/player/73374/christantus-uche/260022/",
+    "full_name": "Christantus Ugonna Uche",
+    "positions": [
+      "ST",
+      "CAM",
+      "CM"
+    ]
+  },
+  {
+    "sofifa_id": 243606,
+    "slug": "keane-lewis-potter",
+    "short_name": "K. Lewis-Potter",
+    "href": "/player/243606/keane-lewis-potter/260022/",
+    "full_name": "Keane William Lewis-Potter",
+    "positions": [
+      "LB",
+      "LM",
+      "RM"
+    ]
+  },
+  {
+    "sofifa_id": 261530,
+    "slug": "dario-cassia-luis-essugo",
+    "short_name": "D\u00e1rio Essugo",
+    "href": "/player/261530/dario-cassia-luis-essugo/260022/",
+    "full_name": "D\u00e1rio Cassia Lu\u00eds Essugo",
+    "positions": [
+      "CDM",
+      "CM"
+    ]
+  },
+  {
+    "sofifa_id": 256402,
+    "slug": "carlos-alcaraz",
+    "short_name": "C. Alcaraz",
+    "href": "/player/256402/carlos-alcaraz/260022/",
+    "full_name": "Carlos Jon\u00e1s Alcaraz",
+    "positions": [
+      "CAM",
+      "CM"
+    ]
+  },
+  {
+    "sofifa_id": 244591,
+    "slug": "jayden-bogle",
+    "short_name": "J. Bogle",
+    "href": "/player/244591/jayden-bogle/260022/",
+    "full_name": "Jayden Ian Bogle",
+    "positions": [
+      "RB",
+      "RM"
+    ]
+  },
+  {
+    "sofifa_id": 247249,
+    "slug": "joel-piroe",
+    "short_name": "J. Piroe",
+    "href": "/player/247249/joel-piroe/260022/",
+    "full_name": "Jo\u00ebl Mohammed Ramzan Piroe",
+    "positions": [
+      "ST"
+    ]
+  },
+  {
+    "sofifa_id": 247361,
+    "slug": "brenden-aaronson",
+    "short_name": "B. Aaronson",
+    "href": "/player/247361/brenden-aaronson/260022/",
+    "full_name": "Brenden Russell Aaronson",
+    "positions": [
+      "RW",
+      "CAM",
+      "CM",
+      "RM"
+    ]
+  },
+  {
+    "sofifa_id": 243647,
+    "slug": "altay-bayindir",
+    "short_name": "A. Bay\u0131nd\u0131r",
+    "href": "/player/243647/altay-bayindir/260022/",
+    "full_name": "Altay Bay\u0131nd\u0131r",
+    "positions": [
+      "GK"
+    ]
+  },
+  {
+    "sofifa_id": 268474,
+    "slug": "lorenzo-lucca",
+    "short_name": "L. Lucca",
+    "href": "/player/268474/lorenzo-lucca/260022/",
+    "full_name": "Lorenzo Lucca",
+    "positions": [
+      "ST"
+    ]
+  },
+  {
+    "sofifa_id": 73580,
+    "slug": "antonin-kinsky",
+    "short_name": "A. Kinsk\u00fd",
+    "href": "/player/73580/antonin-kinsky/260022/",
+    "full_name": "Anton\u00edn Kinsk\u00fd",
+    "positions": [
+      "GK"
+    ]
+  },
+  {
+    "sofifa_id": 260105,
+    "slug": "radu-dragusin",
+    "short_name": "R. Dr\u0103gu\u0219in",
+    "href": "/player/260105/radu-dragusin/260022/",
+    "full_name": "Radu Matei Dr\u0103gu\u0219in",
+    "positions": [
+      "CB"
+    ]
+  },
+  {
+    "sofifa_id": 246158,
+    "slug": "mads-hermansen",
+    "short_name": "M. Hermansen",
+    "href": "/player/246158/mads-hermansen/260022/",
+    "full_name": "Mads Hermansen",
+    "positions": [
+      "GK"
+    ]
+  },
+  {
+    "sofifa_id": 247335,
+    "slug": "wilson-isidor",
+    "short_name": "W. Isidor",
+    "href": "/player/247335/wilson-isidor/260022/",
+    "full_name": "Wilson Isidor",
+    "positions": [
+      "ST"
+    ]
+  },
+  {
+    "sofifa_id": 235456,
+    "slug": "jean-ricner-bellegarde",
+    "short_name": "J. Bellegarde",
+    "href": "/player/235456/jean-ricner-bellegarde/260022/",
+    "full_name": "Jean-Ricner Bellegarde",
+    "positions": [
+      "CAM",
+      "CM",
+      "LW"
+    ]
+  },
+  {
+    "sofifa_id": 222501,
+    "slug": "timothy-castagne",
+    "short_name": "T. Castagne",
+    "href": "/player/222501/timothy-castagne/260022/",
+    "full_name": "Timothy Castagne",
+    "positions": [
+      "RB",
+      "RM"
+    ]
+  },
+  {
+    "sofifa_id": 225147,
+    "slug": "connor-roberts",
+    "short_name": "C. Roberts",
+    "href": "/player/225147/connor-roberts/260022/",
+    "full_name": "Connor Richard John Roberts",
+    "positions": [
+      "RB",
+      "CM"
+    ]
+  },
+  {
+    "sofifa_id": 235619,
+    "slug": "marcus-edwards",
+    "short_name": "M. Edwards",
+    "href": "/player/235619/marcus-edwards/260022/",
+    "full_name": "Marcus Edwards",
+    "positions": [
+      "RM",
+      "RW"
+    ]
+  },
+  {
+    "sofifa_id": 243669,
+    "slug": "jaidon-anthony",
+    "short_name": "J. Anthony",
+    "href": "/player/243669/jaidon-anthony/260022/",
+    "full_name": "Jaidon Kya Denley Anthony",
+    "positions": [
+      "LM",
+      "RM",
+      "LW"
+    ]
+  },
+  {
+    "sofifa_id": 262642,
+    "slug": "zeki-amdouni",
+    "short_name": "Z. Amdouni",
+    "href": "/player/262642/zeki-amdouni/260022/",
+    "full_name": "Mohamed Zeki Amdouni",
+    "positions": [
+      "ST",
+      "CAM"
+    ]
+  },
+  {
+    "sofifa_id": 236988,
+    "slug": "eddie-nketiah",
+    "short_name": "E. Nketiah",
+    "href": "/player/236988/eddie-nketiah/260022/",
+    "full_name": "Edward Keddar Nketiah",
+    "positions": [
+      "ST"
+    ]
+  },
+  {
+    "sofifa_id": 207616,
+    "slug": "adam-webster",
+    "short_name": "A. Webster",
+    "href": "/player/207616/adam-webster/260022/",
+    "full_name": "Adam Harry Webster",
+    "positions": [
+      "CB"
+    ]
+  },
+  {
+    "sofifa_id": 248808,
+    "slug": "aaron-hickey",
+    "short_name": "A. Hickey",
+    "href": "/player/248808/aaron-hickey/260022/",
+    "full_name": "Aaron Buchanan Hickey",
+    "positions": [
+      "RB",
+      "LB",
+      "RM"
+    ]
+  },
+  {
+    "sofifa_id": 259714,
+    "slug": "merlin-rohl",
+    "short_name": "M. R\u00f6hl",
+    "href": "/player/259714/merlin-rohl/260022/",
+    "full_name": "Merlin R\u00f6hl",
+    "positions": [
+      "CAM",
+      "CM",
+      "CDM"
+    ]
+  },
+  {
+    "sofifa_id": 242663,
+    "slug": "sebastiaan-bornauw",
+    "short_name": "S. Bornauw",
+    "href": "/player/242663/sebastiaan-bornauw/260022/",
+    "full_name": "Sebastiaan Bornauw",
+    "positions": [
+      "CB"
+    ]
+  },
+  {
+    "sofifa_id": 248384,
+    "slug": "ilia-gruev",
+    "short_name": "I. Gruev",
+    "href": "/player/248384/ilia-gruev/260022/",
+    "full_name": "Ilia Iliev Gruev\n\u0418\u043b\u0438\u044f \u0418\u043b\u0438\u0435\u0432 \u0413\u0440\u0443\u0435\u0432",
+    "positions": [
+      "CDM",
+      "CM"
+    ]
+  },
+  {
+    "sofifa_id": 79629,
+    "slug": "jair-paula-da-cunha-filho",
+    "short_name": "Jair Cunha",
+    "href": "/player/79629/jair-paula-da-cunha-filho/260022/",
+    "full_name": "Jair Paula da Cunha Filho",
+    "positions": [
+      "CB"
+    ]
+  },
+  {
+    "sofifa_id": 261224,
+    "slug": "hugo-bueno-lopez",
+    "short_name": "Hugo Bueno",
+    "href": "/player/261224/hugo-bueno-lopez/260022/",
+    "full_name": "Hugo Bueno L\u00f3pez",
+    "positions": [
+      "LB",
+      "LM"
+    ]
+  },
+  {
+    "sofifa_id": 200726,
+    "slug": "benjamin-lecomte",
+    "short_name": "B. Lecomte",
+    "href": "/player/200726/benjamin-lecomte/260022/",
+    "full_name": "Benjamin Lecomte",
+    "positions": [
+      "GK"
+    ]
+  },
+  {
+    "sofifa_id": 239373,
+    "slug": "zian-flemming",
+    "short_name": "Z. Flemming",
+    "href": "/player/239373/zian-flemming/260022/",
+    "full_name": "Zian Flemming",
+    "positions": [
+      "ST"
+    ]
+  },
+  {
+    "sofifa_id": 258171,
+    "slug": "hannibal-mejbri",
+    "short_name": "Hannibal",
+    "href": "/player/258171/hannibal-mejbri/260022/",
+    "full_name": "Hannibal Mejbri\n\u062d\u0646\u0628\u0639\u0644 \u0627\u0644\u0645\u062c\u0628\u0631\u064a",
+    "positions": [
+      "CM",
+      "CAM"
+    ]
+  },
+  {
+    "sofifa_id": 277068,
+    "slug": "lucas-pires-silva",
+    "short_name": "Lucas Pires",
+    "href": "/player/277068/lucas-pires-silva/260022/",
+    "full_name": "Lucas Pires Silva",
+    "positions": [
+      "LB",
+      "LM"
+    ]
+  },
+  {
+    "sofifa_id": 206594,
+    "slug": "solly-march",
+    "short_name": "S. March",
+    "href": "/player/206594/solly-march/260022/",
+    "full_name": "Solomon Benjamin March",
+    "positions": [
+      "RM",
+      "RB"
+    ]
+  },
+  {
+    "sofifa_id": 275468,
+    "slug": "andres-garcia-robledo",
+    "short_name": "Andr\u00e9s Garc\u00eda",
+    "href": "/player/275468/andres-garcia-robledo/260022/",
+    "full_name": "Andr\u00e9s Garc\u00eda Robledo",
+    "positions": [
+      "RB",
+      "RM"
+    ]
+  },
+  {
+    "sofifa_id": 71651,
+    "slug": "josh-acheampong",
+    "short_name": "J. Acheampong",
+    "href": "/player/71651/josh-acheampong/260022/",
+    "full_name": "Joshua Kofi Acheampong",
+    "positions": [
+      "CB",
+      "RB",
+      "CDM"
+    ]
+  },
+  {
+    "sofifa_id": 271975,
+    "slug": "stefan-bajcetic-maquieira",
+    "short_name": "Stefan Bajcetic",
+    "href": "/player/271975/stefan-bajcetic-maquieira/260022/",
+    "full_name": "Stefan Baj\u010deti\u0107 Maquieira",
+    "positions": [
+      "CDM",
+      "CM",
+      "CB"
+    ]
+  },
+  {
+    "sofifa_id": 202750,
+    "slug": "willy-boly",
+    "short_name": "W. Boly",
+    "href": "/player/202750/willy-boly/260022/",
+    "full_name": "Willy-Arnaud Zobo Boly",
+    "positions": [
+      "CB"
+    ]
+  },
+  {
+    "sofifa_id": 256781,
+    "slug": "luca-netz",
+    "short_name": "L. Netz",
+    "href": "/player/256781/luca-netz/260022/",
+    "full_name": "Luca Netz",
+    "positions": [
+      "LB",
+      "LM"
+    ]
+  },
+  {
+    "sofifa_id": 264349,
+    "slug": "james-mcatee",
+    "short_name": "J. McAtee",
+    "href": "/player/264349/james-mcatee/260022/",
+    "full_name": "James John McAtee",
+    "positions": [
+      "RM",
+      "RW"
+    ]
+  },
+  {
+    "sofifa_id": 264579,
+    "slug": "freddie-potts",
+    "short_name": "F. Potts",
+    "href": "/player/264579/freddie-potts/260022/",
+    "full_name": "Freddie Potts",
+    "positions": [
+      "CDM",
+      "CM"
+    ]
+  },
+  {
+    "sofifa_id": 221841,
+    "slug": "adam-armstrong",
+    "short_name": "A. Armstrong",
+    "href": "/player/221841/adam-armstrong/260022/",
+    "full_name": "Adam James Armstrong",
+    "positions": [
+      "ST",
+      "CAM"
+    ]
+  },
+  {
+    "sofifa_id": 262135,
+    "slug": "david-moller-wolfe",
+    "short_name": "D. Wolfe",
+    "href": "/player/262135/david-moller-wolfe/260022/",
+    "full_name": "David M\u00f8ller Wolfe",
+    "positions": [
+      "LB",
+      "LM"
+    ]
+  },
+  {
+    "sofifa_id": 227503,
+    "slug": "jacob-bruun-larsen",
+    "short_name": "J. Bruun Larsen",
+    "href": "/player/227503/jacob-bruun-larsen/260022/",
+    "full_name": "Jacob Bruun Larsen",
+    "positions": [
+      "LM",
+      "RM",
+      "LW"
+    ]
+  },
+  {
+    "sofifa_id": 230708,
+    "slug": "joe-worrall",
+    "short_name": "J. Worrall",
+    "href": "/player/230708/joe-worrall/260022/",
+    "full_name": "Joseph Adrian Worrall",
+    "positions": [
+      "CB"
+    ]
+  },
+  {
+    "sofifa_id": 241173,
+    "slug": "lyle-foster",
+    "short_name": "L. Foster",
+    "href": "/player/241173/lyle-foster/260022/",
+    "full_name": "Lyle Brent Foster",
+    "positions": [
+      "ST",
+      "LM",
+      "LW"
+    ]
+  },
+  {
+    "sofifa_id": 253150,
+    "slug": "mike-tresor",
+    "short_name": "M. Tr\u00e9sor",
+    "href": "/player/253150/mike-tresor/260022/",
+    "full_name": "Mike Tr\u00e9sor Ndayishimiye",
+    "positions": [
+      "LM",
+      "LW"
+    ]
+  },
+  {
+    "sofifa_id": 272777,
+    "slug": "bashir-humphreys",
+    "short_name": "B. Humphreys",
+    "href": "/player/272777/bashir-humphreys/260022/",
+    "full_name": "Bashir Humphreys",
+    "positions": [
+      "LB",
+      "CB",
+      "RB"
+    ]
+  },
+  {
+    "sofifa_id": 73885,
+    "slug": "charalampos-kostoulas",
+    "short_name": "C. Kostoulas",
+    "href": "/player/73885/charalampos-kostoulas/260022/",
+    "full_name": "Charalampos Kostoulas\n\u03a7\u03b1\u03c1\u03ac\u03bb\u03b1\u03bc\u03c0\u03bf\u03c2 \u039a\u03c9\u03c3\u03c4\u03bf\u03cd\u03bb\u03b1\u03c2",
+    "positions": [
+      "ST",
+      "CAM",
+      "RM"
+    ]
+  },
+  {
+    "sofifa_id": 188836,
+    "slug": "jason-steele",
+    "short_name": "J. Steele",
+    "href": "/player/188836/jason-steele/260022/",
+    "full_name": "Jason Sean Steele",
+    "positions": [
+      "GK"
+    ]
+  },
+  {
+    "sofifa_id": 190885,
+    "slug": "adam-smith",
+    "short_name": "A. Smith",
+    "href": "/player/190885/adam-smith/260022/",
+    "full_name": "Adam James Smith",
+    "positions": [
+      "RB",
+      "RM"
+    ]
+  },
+  {
+    "sofifa_id": 74413,
+    "slug": "harrison-armstrong",
+    "short_name": "H. Armstrong",
+    "href": "/player/74413/harrison-armstrong/260022/",
+    "full_name": "Harrison David Armstrong",
+    "positions": [
+      "CM",
+      "CDM"
+    ]
+  },
+  {
+    "sofifa_id": 232284,
+    "slug": "mark-travers",
+    "short_name": "M. Travers",
+    "href": "/player/232284/mark-travers/260022/",
+    "full_name": "Mark Travers",
+    "positions": [
+      "GK"
+    ]
+  },
+  {
+    "sofifa_id": 242656,
+    "slug": "illan-meslier",
+    "short_name": "I. Meslier",
+    "href": "/player/242656/illan-meslier/260022/",
+    "full_name": "Illan St\u00e9phane Meslier",
+    "positions": [
+      "GK"
+    ]
+  },
+  {
+    "sofifa_id": 216325,
+    "slug": "angus-gunn",
+    "short_name": "A. Gunn",
+    "href": "/player/216325/angus-gunn/260022/",
+    "full_name": "Angus Fraser James Gunn",
+    "positions": [
+      "GK"
+    ]
+  },
+  {
+    "sofifa_id": 274102,
+    "slug": "oliver-scarles",
+    "short_name": "O. Scarles",
+    "href": "/player/274102/oliver-scarles/260022/",
+    "full_name": "Oliver James Scarles",
+    "positions": [
+      "LB"
+    ]
+  },
+  {
+    "sofifa_id": 256666,
+    "slug": "yerson-mosquera",
+    "short_name": "Y. Mosquera",
+    "href": "/player/256666/yerson-mosquera/260022/",
+    "full_name": "Yerson Mosquera Valdelamar",
+    "positions": [
+      "CB"
+    ]
+  },
+  {
+    "sofifa_id": 252316,
+    "slug": "hjalmar-ekdal",
+    "short_name": "H. Ekdal",
+    "href": "/player/252316/hjalmar-ekdal/260022/",
+    "full_name": "Hjalmar Ekdal",
+    "positions": [
+      "CB"
+    ]
+  },
+  {
+    "sofifa_id": 264880,
+    "slug": "loum-tchaouna",
+    "short_name": "L. Tchaouna",
+    "href": "/player/264880/loum-tchaouna/260022/",
+    "full_name": "Loum Tchaouna",
+    "positions": [
+      "RM",
+      "ST",
+      "RW"
+    ]
+  },
+  {
+    "sofifa_id": 243388,
+    "slug": "borna-sosa",
+    "short_name": "B. Sosa",
+    "href": "/player/243388/borna-sosa/260022/",
+    "full_name": "Borna Sosa",
+    "positions": [
+      "LB",
+      "LM"
+    ]
+  },
+  {
+    "sofifa_id": 258490,
+    "slug": "chadi-riad",
+    "short_name": "C. Riad",
+    "href": "/player/258490/chadi-riad/260022/",
+    "full_name": "Chadi Riad Dnanou\n\u0634\u0627\u062f\u064a \u0631\u064a\u0627\u0636 \u062f\u0646\u0627\u0646\u0648",
+    "positions": [
+      "CB"
+    ]
+  },
+  {
+    "sofifa_id": 172203,
+    "slug": "fraser-forster",
+    "short_name": "F. Forster",
+    "href": "/player/172203/fraser-forster/260022/",
+    "full_name": "Fraser Gerard Forster",
+    "positions": [
+      "GK"
+    ]
+  },
+  {
+    "sofifa_id": 278813,
+    "slug": "marc-guiu-paz",
+    "short_name": "Marc Guiu",
+    "href": "/player/278813/marc-guiu-paz/260022/",
+    "full_name": "Marc Guiu Paz",
+    "positions": [
+      "ST"
+    ]
+  },
+  {
+    "sofifa_id": 71998,
+    "slug": "tyrique-george",
+    "short_name": "T. George",
+    "href": "/player/71998/tyrique-george/260022/",
+    "full_name": "Tyrique Aaron Delali Yusuff George",
+    "positions": [
+      "LM",
+      "RM",
+      "ST",
+      "LW"
+    ]
+  },
+  {
+    "sofifa_id": 257896,
+    "slug": "nathan-patterson",
+    "short_name": "N. Patterson",
+    "href": "/player/257896/nathan-patterson/260022/",
+    "full_name": "Nathan Kenneth Patterson",
+    "positions": [
+      "RB",
+      "RM"
+    ]
+  },
+  {
+    "sofifa_id": 270519,
+    "slug": "william-osula",
+    "short_name": "W. Osula",
+    "href": "/player/270519/william-osula/260022/",
+    "full_name": "William Idamudia Daugaard Osula",
+    "positions": [
+      "ST"
+    ]
+  },
+  {
+    "sofifa_id": 234724,
+    "slug": "john-victor-maciel-furtado",
+    "short_name": "John Victor",
+    "href": "/player/234724/john-victor-maciel-furtado/260022/",
+    "full_name": "John Victor Maciel Furtado",
+    "positions": [
+      "GK"
+    ]
+  },
+  {
+    "sofifa_id": 264205,
+    "slug": "nilson-angulo",
+    "short_name": "N. Angulo",
+    "href": "/player/264205/nilson-angulo/260022/",
+    "full_name": "Nilson David Angulo Ram\u00edrez",
+    "positions": [
+      "LM",
+      "RM",
+      "LW"
+    ]
+  },
+  {
+    "sofifa_id": 268903,
+    "slug": "romaine-mundle",
+    "short_name": "R. Mundle",
+    "href": "/player/268903/romaine-mundle/260022/",
+    "full_name": "Romaine Lee Mundle",
+    "positions": [
+      "LW",
+      "LM",
+      "RW"
+    ]
+  },
+  {
+    "sofifa_id": 81319,
+    "slug": "veljko-milosavljevic",
+    "short_name": "V. Milosavljevi\u0107",
+    "href": "/player/81319/veljko-milosavljevic/260022/",
+    "full_name": "Veljko Milosavljevic\n\u0412\u0435\u0459\u043a\u043e \u041c\u0438\u043b\u043e\u0441\u0430\u0432\u0459\u0435\u0432\u0438\u045b",
+    "positions": [
+      "CB"
+    ]
+  },
+  {
+    "sofifa_id": 266815,
+    "slug": "ben-gannon-doak",
+    "short_name": "B. Gannon-Doak",
+    "href": "/player/266815/ben-gannon-doak/260022/",
+    "full_name": "Ben Gannon-Doak",
+    "positions": [
+      "RM",
+      "RW"
+    ]
+  },
+  {
+    "sofifa_id": 82968,
+    "slug": "alysson-edward-f-da-r-dos-santos",
+    "short_name": "Alysson",
+    "href": "/player/82968/alysson-edward-f-da-r-dos-santos/260022/",
+    "full_name": "Alysson Edward Franco da Rocha dos Santos",
+    "positions": [
+      "RM",
+      "RW"
+    ]
+  },
+  {
+    "sofifa_id": 180216,
+    "slug": "seamus-coleman",
+    "short_name": "S. Coleman",
+    "href": "/player/180216/seamus-coleman/260022/",
+    "full_name": "S\u00e9amus Coleman",
+    "positions": [
+      "RB",
+      "RM"
+    ]
+  },
+  {
+    "sofifa_id": 83381,
+    "slug": "joao-victor-de-souza-menezes",
+    "short_name": "Souza",
+    "href": "/player/83381/joao-victor-de-souza-menezes/260022/",
+    "full_name": "Jo\u00e3o Victor de Souza Menezes",
+    "positions": [
+      "LB",
+      "LM"
+    ]
+  },
+  {
+    "sofifa_id": 186905,
+    "slug": "ashley-barnes",
+    "short_name": "A. Barnes",
+    "href": "/player/186905/ashley-barnes/260022/",
+    "full_name": "Ashley Luke Barnes",
+    "positions": [
+      "ST",
+      "CAM"
+    ]
+  },
+  {
+    "sofifa_id": 70824,
+    "slug": "giovanni-leoni",
+    "short_name": "G. Leoni",
+    "href": "/player/70824/giovanni-leoni/260022/",
+    "full_name": "Giovanni Leoni",
+    "positions": [
+      "CB"
+    ]
+  },
+  {
+    "sofifa_id": 202617,
+    "slug": "vaclav-hladky",
+    "short_name": "V. Hladk\u00fd",
+    "href": "/player/202617/vaclav-hladky/260022/",
+    "full_name": "V\u00e1clav Hladk\u00fd",
+    "positions": [
+      "GK"
+    ]
+  },
+  {
+    "sofifa_id": 278292,
+    "slug": "james-mcconnell",
+    "short_name": "J. McConnell",
+    "href": "/player/278292/james-mcconnell/260022/",
+    "full_name": "James William McConnell",
+    "positions": [
+      "CDM",
+      "CM"
+    ]
+  },
+  {
+    "sofifa_id": 163600,
+    "slug": "john-ruddy",
+    "short_name": "J. Ruddy",
+    "href": "/player/163600/john-ruddy/260022/",
+    "full_name": "John Thomas Gordon Ruddy",
+    "positions": [
+      "GK"
+    ]
+  },
+  {
+    "sofifa_id": 80816,
+    "slug": "bradley-burrowes",
+    "short_name": "B. Burrowes",
+    "href": "/player/80816/bradley-burrowes/260022/",
+    "full_name": "Bradley-Paul Burrowes",
+    "positions": [
+      "RM",
+      "ST",
+      "RW"
+    ]
+  },
+  {
+    "sofifa_id": 82350,
+    "slug": "george-hemmings",
+    "short_name": "G. Hemmings",
+    "href": "/player/82350/george-hemmings/260022/",
+    "full_name": "George Lawrence Hemmings",
+    "positions": [
+      "CDM",
+      "CM",
+      "CAM"
+    ]
+  },
+  {
+    "sofifa_id": 77354,
+    "slug": "chido-obi",
+    "short_name": "C. Obi",
+    "href": "/player/77354/chido-obi/260022/",
+    "full_name": "Chidozie Obi-Martin",
+    "positions": [
+      "ST"
+    ]
+  },
+  {
+    "sofifa_id": 278124,
+    "slug": "shea-lacey",
+    "short_name": "S. Lacey",
+    "href": "/player/278124/shea-lacey/260022/",
+    "full_name": "Shea Lacey",
+    "positions": [
+      "RM",
+      "RW"
+    ]
+  },
+  {
+    "sofifa_id": 262149,
+    "slug": "abdoullah-ba",
+    "short_name": "A. Ba",
+    "href": "/player/262149/abdoullah-ba/260022/",
+    "full_name": "Abdoullah Ba",
+    "positions": [
+      "RW",
+      "LW",
+      "RM"
+    ]
+  },
+  {
+    "sofifa_id": 278919,
+    "slug": "romelle-donovan",
+    "short_name": "R. Donovan",
+    "href": "/player/278919/romelle-donovan/260022/",
+    "full_name": "Romelle Donovan",
+    "positions": [
+      "RM",
+      "CAM",
+      "RW"
+    ]
+  },
+  {
+    "sofifa_id": 80652,
+    "slug": "brian-madjo",
+    "short_name": "B. Madjo",
+    "href": "/player/80652/brian-madjo/260022/",
+    "full_name": "Brian Djomeni Madjo",
+    "positions": [
+      "ST"
+    ]
+  },
+  {
+    "sofifa_id": 225650,
+    "slug": "tom-king",
+    "short_name": "T. King",
+    "href": "/player/225650/tom-king/260022/",
+    "full_name": "Thomas Lloyd King",
+    "positions": [
+      "GK"
+    ]
+  },
+  {
+    "sofifa_id": 79922,
+    "slug": "armin-pecsi",
+    "short_name": "\u00c1. P\u00e9csi",
+    "href": "/player/79922/armin-pecsi/260022/",
+    "full_name": "\u00c1rmin P\u00e9csi",
+    "positions": [
+      "GK"
+    ]
+  },
+  {
+    "sofifa_id": 74142,
+    "slug": "diego-leon",
+    "short_name": "D. Le\u00f3n",
+    "href": "/player/74142/diego-leon/260022/",
+    "full_name": "Diego Basilio Le\u00f3n Blanco",
+    "positions": [
+      "LB",
+      "LM"
+    ]
+  },
+  {
+    "sofifa_id": 270617,
+    "slug": "alex-murphy",
+    "short_name": "A. Murphy",
+    "href": "/player/270617/alex-murphy/260022/",
+    "full_name": "Alex Murphy",
+    "positions": [
+      "LB",
+      "CB",
+      "LM"
+    ]
+  },
+  {
+    "sofifa_id": 259987,
+    "slug": "melker-ellborg",
+    "short_name": "M. Ellborg",
+    "href": "/player/259987/melker-ellborg/260022/",
+    "full_name": "Melker \u00c5ke Ellborg",
+    "positions": [
+      "GK"
+    ]
+  },
+  {
+    "sofifa_id": 78227,
+    "slug": "harry-howell",
+    "short_name": "H. Howell",
+    "href": "/player/78227/harry-howell/260022/",
+    "full_name": "Harry Howell",
+    "positions": [
+      "RM",
+      "CAM",
+      "RW"
+    ]
+  },
+  {
+    "sofifa_id": 74145,
+    "slug": "sam-chambers",
+    "short_name": "S. Chambers",
+    "href": "/player/74145/sam-chambers/260022/",
+    "full_name": "Samuel Nicholas Chambers",
+    "positions": [
+      "CAM",
+      "RM",
+      "CM"
+    ]
+  },
+  {
+    "sofifa_id": 203215,
+    "slug": "alex-cairns",
+    "short_name": "A. Cairns",
+    "href": "/player/203215/alex-cairns/260022/",
+    "full_name": "Alexander Thomas Cairns",
+    "positions": [
+      "GK"
+    ]
+  },
+  {
+    "sofifa_id": 274377,
+    "slug": "enso-gonzalez",
+    "short_name": "E. Gonz\u00e1lez",
+    "href": "/player/274377/enso-gonzalez/260022/",
+    "full_name": "Enso David Gonz\u00e1lez Medina",
+    "positions": [
+      "LW",
+      "RW",
+      "CAM",
+      "LM"
+    ]
+  },
+  {
+    "sofifa_id": 273927,
+    "slug": "enock-agyei",
+    "short_name": "E. Agyei",
+    "href": "/player/273927/enock-agyei/260022/",
+    "full_name": "Enock Atta Agyei",
+    "positions": [
+      "RM",
+      "RW"
+    ]
+  },
+  {
+    "sofifa_id": 203824,
+    "slug": "remi-matthews",
+    "short_name": "R. Matthews",
+    "href": "/player/203824/remi-matthews/260022/",
+    "full_name": "Remi Luke Matthews",
+    "positions": [
+      "GK"
+    ]
+  },
+  {
+    "sofifa_id": 75452,
+    "slug": "kaye-furo",
+    "short_name": "K. Furo",
+    "href": "/player/75452/kaye-furo/260022/",
+    "full_name": "Kaye Furo Tamuno Iyowuna",
+    "positions": [
+      "ST"
+    ]
+  },
+  {
+    "sofifa_id": 236663,
+    "slug": "ellery-balcombe",
+    "short_name": "E. Balcombe",
+    "href": "/player/236663/ellery-balcombe/260022/",
+    "full_name": "Ellery Ronald Balcombe",
+    "positions": [
+      "GK"
+    ]
+  },
+  {
+    "sofifa_id": 198039,
+    "slug": "mark-gillespie",
+    "short_name": "M. Gillespie",
+    "href": "/player/198039/mark-gillespie/260022/",
+    "full_name": "Mark Joseph Gillespie",
+    "positions": [
+      "GK"
+    ]
+  },
+  {
+    "sofifa_id": 81899,
+    "slug": "junai-byfield",
+    "short_name": "J. Byfield",
+    "href": "/player/81899/junai-byfield/260022/",
+    "full_name": "Jun'ai De'Andre Ashlee Byfield",
+    "positions": [
+      "CB"
+    ]
+  },
+  {
+    "sofifa_id": 278284,
+    "slug": "mohamadou-kante",
+    "short_name": "M. Kant\u00e9",
+    "href": "/player/278284/mohamadou-kante/260022/",
+    "full_name": "Mohamadou Kant\u00e9",
+    "positions": [
+      "CDM",
+      "CM"
+    ]
+  },
+  {
+    "sofifa_id": 278578,
+    "slug": "jonah-kusi-asare",
+    "short_name": "J. Kusi-Asare",
+    "href": "/player/278578/jonah-kusi-asare/260022/",
+    "full_name": "Jonah Daniel Kusi-Asare",
+    "positions": [
+      "ST"
+    ]
+  },
+  {
+    "sofifa_id": 73896,
+    "slug": "caleb-kporha",
+    "short_name": "C. Kporha",
+    "href": "/player/73896/caleb-kporha/260022/",
+    "full_name": "Caleb Billy Mawuko Kporha",
+    "positions": [
+      "RB",
+      "RM"
+    ]
+  },
+  {
+    "sofifa_id": 80711,
+    "slug": "rio-cardines",
+    "short_name": "R. Cardines",
+    "href": "/player/80711/rio-cardines/260022/",
+    "full_name": "Rio Solomon Cardines",
+    "positions": [
+      "RB",
+      "RM",
+      "LB"
+    ]
+  },
+  {
+    "sofifa_id": 243588,
+    "slug": "tom-mcgill",
+    "short_name": "T. McGill",
+    "href": "/player/243588/tom-mcgill/260022/",
+    "full_name": "Thomas Peter Wayne McGill",
+    "positions": [
+      "GK"
+    ]
+  },
+  {
+    "sofifa_id": 247601,
+    "slug": "rhys-williams",
+    "short_name": "R. Williams",
+    "href": "/player/247601/rhys-williams/260022/",
+    "full_name": "Rhys Williams",
+    "positions": [
+      "CB"
+    ]
+  },
+  {
+    "sofifa_id": 271977,
+    "slug": "harvey-davies",
+    "short_name": "H. Davies",
+    "href": "/player/271977/harvey-davies/260022/",
+    "full_name": "Harvey Peter Davies",
+    "positions": [
+      "GK"
+    ]
+  },
+  {
+    "sofifa_id": 74242,
+    "slug": "zach-abbott",
+    "short_name": "Z. Abbott",
+    "href": "/player/74242/zach-abbott/260022/",
+    "full_name": "Zach MacFarlane Abbott",
+    "positions": [
+      "CB"
+    ]
+  },
+  {
+    "sofifa_id": 70230,
+    "slug": "lewis-orford",
+    "short_name": "L. Orford",
+    "href": "/player/70230/lewis-orford/260022/",
+    "full_name": "Lewis William Orford",
+    "positions": [
+      "CDM",
+      "CM"
+    ]
+  },
+  {
+    "sofifa_id": 74917,
+    "slug": "milan-aleksic",
+    "short_name": "M. Aleksi\u0107",
+    "href": "/player/74917/milan-aleksic/260022/",
+    "full_name": "Milan Aleksi\u0107\n\u041c\u0438\u043b\u0430\u043d \u0410\u043b\u0435\u043a\u0441\u0438\u045b",
+    "positions": [
+      "CM",
+      "CAM",
+      "CDM"
+    ]
+  },
+  {
+    "sofifa_id": 75842,
+    "slug": "ezra-mayers",
+    "short_name": "E. Mayers",
+    "href": "/player/75842/ezra-mayers/260022/",
+    "full_name": "Ezra Mayers",
+    "positions": [
+      "CB"
+    ]
+  },
+  {
+    "sofifa_id": 71493,
+    "slug": "harrison-jones",
+    "short_name": "H. Jones",
+    "href": "/player/71493/harrison-jones/260022/",
+    "full_name": "Harrison Jones",
+    "positions": [
+      "CAM",
+      "CM"
+    ]
+  },
+  {
+    "sofifa_id": 76254,
+    "slug": "remy-rees-dottin",
+    "short_name": "R. Rees-Dottin",
+    "href": "/player/76254/remy-rees-dottin/260022/",
+    "full_name": "Remy William James Rees-Dottin",
+    "positions": [
+      "ST"
+    ]
+  },
+  {
+    "sofifa_id": 77791,
+    "slug": "sean-neave",
+    "short_name": "S. Neave",
+    "href": "/player/77791/sean-neave/260022/",
+    "full_name": "Sean Thoms Neave",
+    "positions": [
+      "ST",
+      "CAM"
+    ]
+  },
+  {
+    "sofifa_id": 276718,
+    "slug": "kaden-rodney",
+    "short_name": "K. Rodney",
+    "href": "/player/276718/kaden-rodney/260022/",
+    "full_name": "Kaden Kai Rodney",
+    "positions": [
+      "CDM",
+      "RB",
+      "CM"
+    ]
+  },
+  {
+    "sofifa_id": 81895,
+    "slug": "nehemiah-oriola",
+    "short_name": "N. Oriola",
+    "href": "/player/81895/nehemiah-oriola/260022/",
+    "full_name": "Nehemiah Oriola II",
+    "positions": [
+      "LM",
+      "RM",
+      "LW"
+    ]
+  },
+  {
+    "sofifa_id": 274219,
+    "slug": "ahmed-abdullahi",
+    "short_name": "A. Abdullahi",
+    "href": "/player/274219/ahmed-abdullahi/260022/",
+    "full_name": "Ahmed Abdullahi",
+    "positions": [
+      "ST"
+    ]
+  },
+  {
+    "sofifa_id": 271756,
+    "slug": "matai-akinmboni",
+    "short_name": "M. Akinmboni",
+    "href": "/player/271756/matai-akinmboni/260022/",
+    "full_name": "Matai Akinmboni",
+    "positions": [
+      "CB"
+    ]
+  }
+]

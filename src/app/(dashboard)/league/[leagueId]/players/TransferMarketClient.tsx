@@ -21,6 +21,7 @@ interface RosterPlayer {
   name: string;
   primary_position: GranularPosition;
   pl_team: string;
+  market_value?: number | null;
 }
 
 interface Props {
@@ -145,7 +146,9 @@ export default function TransferMarketClient({
     myCurrentDropId: string | null,
   ) {
     setModal({ open: true, player, currentHighest, currentExpiry, myCurrentBid, myCurrentDropId });
-    setBidAmount(String(Math.max(currentHighest + 1, myCurrentBid !== null ? myCurrentBid + 1 : 0)));
+    const tmMin = Math.floor(Number(player.market_value || 0) * 0.2);
+    const auctionMin = myCurrentBid !== null ? Math.max(currentHighest, myCurrentBid) + 1 : currentHighest;
+    setBidAmount(String(Math.max(auctionMin, tmMin)));
     setDropPlayerId(myCurrentDropId ?? '');
     setSubmitError('');
   }
@@ -169,6 +172,11 @@ export default function TransferMarketClient({
     }
     if (amount > myTeam.faab_budget) {
       setSubmitError(`You only have £${myTeam.faab_budget}m FAAB remaining.`);
+      return;
+    }
+    const tmMin = Math.floor(Number(modal.player.market_value || 0) * 0.2);
+    if (tmMin > 0 && amount < tmMin) {
+      setSubmitError(`Minimum bid for this player is £${tmMin}m (Transfermarkt floor).`);
       return;
     }
     if (rosterFull && !dropPlayerId) {
@@ -261,10 +269,12 @@ export default function TransferMarketClient({
                 const isLeading = auction.highest_bidder_team_id === myTeam.id;
                 const isBidding = auction.my_bid !== null && !isLeading;
 
-                return (
+                const isSystemAuction = auction.highest_bidder_team_id === null;
+
+              return (
                   <div
                     key={auction.player.id}
-                    className={`${styles.auctionCard} ${isUrgent ? styles.auctionCardUrgent : ''}`}
+                    className={`${styles.auctionCard} ${isUrgent ? styles.auctionCardUrgent : ''} ${isSystemAuction ? styles.auctionCardWaiver : ''}`}
                   >
                     {/* Player info */}
                     <div className={styles.auctionCardTop}>
@@ -293,7 +303,9 @@ export default function TransferMarketClient({
                     {/* Bid status */}
                     <div className={styles.auctionCardMid}>
                       <div className={styles.bidBlock}>
-                        <span className={styles.bidBlockLabel}>Leading bid</span>
+                        <span className={styles.bidBlockLabel}>
+                          {isSystemAuction ? 'Waiver Minimum' : 'Leading bid'}
+                        </span>
                         <span className={styles.bidBlockValue}>
                           £{auction.highest_bid}m
                           {isLeading && (
@@ -301,13 +313,18 @@ export default function TransferMarketClient({
                           )}
                         </span>
                         <span className={styles.bidBlockTeam}>
-                          {isLeading ? myTeam.team_name : auction.highest_bidder_team_name}
+                          {isSystemAuction
+                            ? <span className={styles.waiverBadge}>On Waivers</span>
+                            : isLeading ? myTeam.team_name : auction.highest_bidder_team_name
+                          }
                         </span>
                       </div>
 
                       <div className={styles.bidBlock}>
                         <span className={styles.bidBlockLabel}>
-                          {auction.bid_count === 1 ? '1 bid' : `${auction.bid_count} bids`}
+                          {isSystemAuction
+                            ? '0 bids'
+                            : auction.bid_count === 1 ? '1 bid' : `${auction.bid_count} bids`}
                         </span>
                         {auction.my_bid !== null && !isLeading && (
                           <>
@@ -477,14 +494,26 @@ export default function TransferMarketClient({
                 autoFocus
               />
             </label>
-            <p className={styles.modalHint}>
-              Minimum:{' '}
-              <strong>
-                £{modal.myCurrentBid !== null
-                  ? Math.max(modal.currentHighest, modal.myCurrentBid) + 1
-                  : modal.currentHighest}m
-              </strong>
-            </p>
+            {(() => {
+              const tmMin = Math.floor(Number(modal.player?.market_value || 0) * 0.2);
+              const auctionMin = modal.myCurrentBid !== null
+                ? Math.max(modal.currentHighest, modal.myCurrentBid) + 1
+                : modal.currentHighest;
+              const enteredAmount = parseInt(bidAmount, 10);
+              const belowTmMin = tmMin > 0 && !isNaN(enteredAmount) && enteredAmount < tmMin;
+              return (
+                <>
+                  <p className={styles.modalHint}>
+                    Auction minimum: <strong>£{auctionMin}m</strong>
+                    {tmMin > 0 && (
+                      <span className={belowTmMin ? styles.tmMinWarn : styles.tmMinOk}>
+                        {' · '}Transfermarkt floor: £{tmMin}m
+                      </span>
+                    )}
+                  </p>
+                </>
+              );
+            })()}
 
             {/* Drop player selector */}
             {rosterFull && (
@@ -496,11 +525,14 @@ export default function TransferMarketClient({
                   onChange={(e) => setDropPlayerId(e.target.value)}
                 >
                   <option value="">— Select player to drop —</option>
-                  {myRoster.map((p) => (
-                    <option key={p.id} value={p.id}>
-                      {p.name} ({p.primary_position} · {p.pl_team})
-                    </option>
-                  ))}
+                  {myRoster.map((p) => {
+                    const fee = Math.floor(Number(p.market_value || 0) * 0.1);
+                    return (
+                      <option key={p.id} value={p.id}>
+                        {p.name} ({p.primary_position} · {p.pl_team}){fee > 0 ? ` — −£${fee}m Severance` : ''}
+                      </option>
+                    );
+                  })}
                 </select>
               </label>
             )}
