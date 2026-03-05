@@ -64,8 +64,8 @@ function parseMarketValue(raw: string | number | null | undefined): number | nul
 
   const lower = clean.toLowerCase();
   if (lower.endsWith('bn')) return parseFloat(lower) * 1000;
-  if (lower.endsWith('m'))  return parseFloat(lower);
-  if (lower.endsWith('k'))  return parseFloat(lower) / 1000;
+  if (lower.endsWith('m')) return parseFloat(lower);
+  if (lower.endsWith('k')) return parseFloat(lower) / 1000;
 
   const num = parseFloat(clean);
   return isNaN(num) ? null : num;
@@ -82,72 +82,28 @@ interface TmPlayer {
 
 function runScraper(): Promise<TmPlayer[]> {
   return new Promise((resolve, reject) => {
-    console.log('[scraper] Launching transfermarkt-scraper (this may take 2–5 min)…');
+    try {
+      console.log('[scraper] Reading scripts/players.json...');
+      const raw = fs.readFileSync(path.join(__dirname, 'players.json'), 'utf-8');
+      const parsed = JSON.parse(raw);
 
-    const proc = spawn(
-      'poetry',
-      ['run', 'python', '-m', 'transfermarkt_scraper', 'clubs',
-       '--competitions', 'GB1',
-       '--domain', 'transfermarkt.co.uk',
-       '--output-format', 'json'],
-      { cwd: SCRAPER_DIR, shell: true },
-    );
-
-    const chunks: Buffer[] = [];
-    const errChunks: Buffer[] = [];
-
-    proc.stdout.on('data', (d: Buffer) => chunks.push(d));
-    proc.stderr.on('data', (d: Buffer) => errChunks.push(d));
-
-    proc.on('close', (code) => {
-      if (code !== 0) {
-        const stderr = Buffer.concat(errChunks).toString();
-        return reject(new Error(`Scraper exited with code ${code}:\n${stderr}`));
-      }
-
-      const raw = Buffer.concat(chunks).toString('utf-8').trim();
       const players: TmPlayer[] = [];
-
-      // The scraper may emit a JSON array or NDJSON (one object per line)
-      try {
-        const parsed = JSON.parse(raw);
-        const rows: Record<string, unknown>[] = Array.isArray(parsed) ? parsed : [parsed];
-        for (const row of rows) {
-          const name = (row.player_name ?? row.name ?? '') as string;
-          const mvRaw = (row.player_market_value ?? row.market_value ?? '') as string;
-          if (!name) continue;
-          players.push({
-            player_name: name,
-            market_value_raw: mvRaw,
-            market_value: parseMarketValue(mvRaw),
-            club_name: (row.club_name ?? row.squad ?? '') as string,
-          });
-        }
-      } catch {
-        // Fall back to NDJSON
-        for (const line of raw.split('\n')) {
-          const trimmed = line.trim();
-          if (!trimmed) continue;
-          try {
-            const row = JSON.parse(trimmed) as Record<string, unknown>;
-            const name = (row.player_name ?? row.name ?? '') as string;
-            const mvRaw = (row.player_market_value ?? row.market_value ?? '') as string;
-            if (!name) continue;
-            players.push({
-              player_name: name,
-              market_value_raw: mvRaw,
-              market_value: parseMarketValue(mvRaw),
-              club_name: (row.club_name ?? row.squad ?? '') as string,
-            });
-          } catch { /* skip malformed lines */ }
-        }
+      for (const row of parsed) {
+        const name = row.player_name;
+        const mvRaw = row.market_value_raw;
+        if (!name) continue;
+        players.push({
+          player_name: name,
+          market_value_raw: mvRaw,
+          market_value: parseMarketValue(mvRaw),
+          club_name: row.club_name,
+        });
       }
-
       console.log(`[scraper] Parsed ${players.length} players from Transfermarkt`);
       resolve(players);
-    });
-
-    proc.on('error', reject);
+    } catch (e) {
+      reject(e);
+    }
   });
 }
 
@@ -157,7 +113,7 @@ async function main() {
   loadEnvLocal();
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL;
-  const serviceKey  = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
   if (!supabaseUrl || !serviceKey) {
     console.error('[error] Missing SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY in env');
