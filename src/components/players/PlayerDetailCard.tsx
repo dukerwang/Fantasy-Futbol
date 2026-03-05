@@ -119,7 +119,23 @@ export default function PlayerDetailCard({ player, totalPoints, recentForm, matc
                 )}
             </div>
 
-            {/* ── Biometrics ── */}
+            {/* ── Tabs ── */}
+            <div className={styles.tabsHeader}>
+                <button
+                    className={`${styles.tabBtn} ${activeTab === 'overview' ? styles.tabActive : ''}`}
+                    onClick={() => setActiveTab('overview')}
+                >
+                    Overview
+                </button>
+                <button
+                    className={`${styles.tabBtn} ${activeTab === 'gamelog' ? styles.tabActive : ''}`}
+                    onClick={() => setActiveTab('gamelog')}
+                >
+                    Game Log
+                </button>
+            </div>
+
+            {/* ── Biometrics (always visible below tabs header) ── */}
             {showBiometrics && (
                 <div className={styles.biometrics}>
                     <div className={styles.bioItem}>
@@ -137,23 +153,8 @@ export default function PlayerDetailCard({ player, totalPoints, recentForm, matc
                 </div>
             )}
 
-            {/* ── Tabs Content ── */}
+            {/* ── Tab Content Panels ── */}
             <div className={styles.tabsContainer}>
-                <div className={styles.tabsHeader}>
-                    <button
-                        className={`${styles.tabBtn} ${activeTab === 'overview' ? styles.tabActive : ''}`}
-                        onClick={() => setActiveTab('overview')}
-                    >
-                        Overview
-                    </button>
-                    <button
-                        className={`${styles.tabBtn} ${activeTab === 'gamelog' ? styles.tabActive : ''}`}
-                        onClick={() => setActiveTab('gamelog')}
-                    >
-                        Game Log
-                    </button>
-                </div>
-
                 {activeTab === 'overview' && (
                     <div className={styles.tabContent}>
                         {/* ── Stats Grid ── */}
