@@ -145,6 +145,18 @@ async function main() {
     process.exit(1);
   }
 
+  // ── Subset Word Matching helper ───────────────────────────────────────────────
+  function normalizeMatchName(name: string) {
+    return name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+  }
+
+  function wordsMatch(tmName: string, dbName: string) {
+    const normTM = normalizeMatchName(tmName);
+    const normDB = normalizeMatchName(dbName);
+    const tmParts = normTM.split(/\s+/);
+    return tmParts.every((part) => normDB.includes(part));
+  }
+
   // 3. Build fuzzy-match index from DB player names
   const dbNames = dbPlayers.map((p) => p.name);
 
@@ -159,23 +171,42 @@ async function main() {
       continue;
     }
 
-    const { bestMatch } = stringSimilarity.findBestMatch(tmPlayer.player_name, dbNames);
+    let matchTarget = null;
+    let matchScore = 0;
 
-    if (bestMatch.rating < FUZZY_THRESHOLD) {
+    // 1. Try Subset Words Match (solves Brazilian short names vs FPL long names)
+    // Avoid very short name false positives by checking subset only if >1 part or long enough
+    const isShortTM = tmPlayer.player_name.split(' ').length === 1 && tmPlayer.player_name.length <= 5;
+    const subsetMatch = !isShortTM ? dbNames.find(dbName => wordsMatch(tmPlayer.player_name, dbName)) : null;
+
+    if (subsetMatch) {
+      matchTarget = subsetMatch;
+      matchScore = 1.0;
+    } else {
+      // 2. Fall back to mathematical fuzzy Match Score
+      const { bestMatch } = stringSimilarity.findBestMatch(tmPlayer.player_name, dbNames);
+      if (bestMatch.rating >= FUZZY_THRESHOLD) {
+        matchTarget = bestMatch.target;
+        matchScore = bestMatch.rating;
+      }
+    }
+
+    if (!matchTarget) {
       skipped++;
       if (process.argv.includes('--verbose')) {
+        const { bestMatch } = stringSimilarity.findBestMatch(tmPlayer.player_name, dbNames);
         console.log(`[skip] "${tmPlayer.player_name}" — best match "${bestMatch.target}" (${bestMatch.rating.toFixed(2)})`);
       }
       continue;
     }
 
-    const dbPlayer = dbPlayers.find((p) => p.name === bestMatch.target)!;
+    const dbPlayer = dbPlayers.find((p) => p.name === matchTarget)!;
     updates.push({
       id: dbPlayer.id,
       market_value: tmPlayer.market_value,
       name: dbPlayer.name,
       tm_name: tmPlayer.player_name,
-      score: bestMatch.rating,
+      score: matchScore,
     });
     matched++;
   }

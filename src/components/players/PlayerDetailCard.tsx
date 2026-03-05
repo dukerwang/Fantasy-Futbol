@@ -41,6 +41,10 @@ interface GamelogEntry {
     fantasy_points: number;
     match_rating: number | null;
     stats: { minutes_played?: number; goals?: number; assists?: number } | null;
+    opponent?: string;
+    result?: string;
+    date?: string;
+    isDNP?: boolean;
 }
 
 interface Props {
@@ -53,6 +57,7 @@ interface Props {
 
 export default function PlayerDetailCard({ player, totalPoints, recentForm, matchRating, ratingBreakdown }: Props) {
     const [showBreakdown, setShowBreakdown] = useState(false);
+    const [activeTab, setActiveTab] = useState<'overview' | 'gamelog'>('overview');
     const [gamelog, setGamelog] = useState<GamelogEntry[]>([]);
 
     const age = player.date_of_birth ? calculateAge(player.date_of_birth) : null;
@@ -117,158 +122,190 @@ export default function PlayerDetailCard({ player, totalPoints, recentForm, matc
             {/* ── Biometrics ── */}
             {showBiometrics && (
                 <div className={styles.biometrics}>
-                    {age !== null && (
-                        <div className={styles.bioItem}>
-                            <span className={styles.bioLabel}>Age</span>
-                            <span className={styles.bioValue}>{age}</span>
-                        </div>
-                    )}
-                    {player.height_cm && (
-                        <div className={styles.bioItem}>
-                            <span className={styles.bioLabel}>Height</span>
-                            <span className={styles.bioValue}>{cmToFeetInches(player.height_cm)}</span>
-                        </div>
-                    )}
-                    {player.nationality && (
-                        <div className={styles.bioItem}>
-                            <span className={styles.bioLabel}>Nation</span>
-                            <span className={styles.bioValue}>{player.nationality}</span>
-                        </div>
-                    )}
+                    <div className={styles.bioItem}>
+                        <span className={styles.bioLabel}>Age</span>
+                        <span className={styles.bioValue}>{age ?? '—'}</span>
+                    </div>
+                    <div className={styles.bioItem}>
+                        <span className={styles.bioLabel}>Height</span>
+                        <span className={styles.bioValue}>{player.height_cm ? cmToFeetInches(player.height_cm) : '—'}</span>
+                    </div>
+                    <div className={styles.bioItem}>
+                        <span className={styles.bioLabel}>Nation</span>
+                        <span className={styles.bioValue}>{player.nationality ?? '—'}</span>
+                    </div>
                 </div>
             )}
 
-            {/* ── Stats Grid ── */}
-            <div className={styles.statsGrid}>
-                <div className={styles.statItem}>
-                    <span className={styles.statValue} data-gold="true">
-                        £{player.market_value}m
-                    </span>
-                    <span className={styles.statLabel}>Value</span>
+            {/* ── Tabs Content ── */}
+            <div className={styles.tabsContainer}>
+                <div className={styles.tabsHeader}>
+                    <button
+                        className={`${styles.tabBtn} ${activeTab === 'overview' ? styles.tabActive : ''}`}
+                        onClick={() => setActiveTab('overview')}
+                    >
+                        Overview
+                    </button>
+                    <button
+                        className={`${styles.tabBtn} ${activeTab === 'gamelog' ? styles.tabActive : ''}`}
+                        onClick={() => setActiveTab('gamelog')}
+                    >
+                        Game Log
+                    </button>
                 </div>
 
-                {player.adp !== null && player.adp !== undefined && (
-                    <div className={styles.statItem}>
-                        <span className={styles.statValue}>{player.adp}</span>
-                        <span className={styles.statLabel}>ADP</span>
-                    </div>
-                )}
+                {activeTab === 'overview' && (
+                    <div className={styles.tabContent}>
+                        {/* ── Stats Grid ── */}
+                        <div className={styles.statsGrid}>
+                            <div className={styles.statItem}>
+                                <span className={styles.statValue} data-gold="true">
+                                    £{player.market_value}m
+                                </span>
+                                <span className={styles.statLabel}>Value</span>
+                            </div>
 
-                {player.projected_points !== null && player.projected_points !== undefined && (
-                    <div className={styles.statItem}>
-                        <span className={styles.statValue}>{player.projected_points.toFixed(1)}</span>
-                        <span className={styles.statLabel}>Proj Pts</span>
-                    </div>
-                )}
+                            {player.adp !== null && player.adp !== undefined && (
+                                <div className={styles.statItem}>
+                                    <span className={styles.statValue}>{player.adp}</span>
+                                    <span className={styles.statLabel}>ADP</span>
+                                </div>
+                            )}
 
-                {displayTotalPoints != null && (
-                    <div className={styles.statItem}>
-                        <span className={styles.statValue}>
-                            {displayTotalPoints.toFixed(1)}
-                        </span>
-                        <span className={styles.statLabel}>Total Pts</span>
-                    </div>
-                )}
+                            {player.projected_points !== null && player.projected_points !== undefined && (
+                                <div className={styles.statItem}>
+                                    <span className={styles.statValue}>{player.projected_points.toFixed(1)}</span>
+                                    <span className={styles.statLabel}>Proj Pts</span>
+                                </div>
+                            )}
 
-                {displayForm != null && (
-                    <div className={styles.statItem}>
-                        <span className={styles.statValue}>
-                            {displayForm.toFixed(1)}
-                        </span>
-                        <span className={styles.statLabel}>Form (3 GW)</span>
-                    </div>
-                )}
-            </div>
+                            {displayTotalPoints != null && (
+                                <div className={styles.statItem}>
+                                    <span className={styles.statValue}>
+                                        {displayTotalPoints.toFixed(1)}
+                                    </span>
+                                    <span className={styles.statLabel}>Total Pts</span>
+                                </div>
+                            )}
 
-            {/* ── Status / Injury News ── */}
-            {statusInfo && (
-                <div className={styles.statusBanner} style={{ borderColor: statusInfo.cssVar }}>
-                    <span className={styles.statusDot} style={{ background: statusInfo.cssVar }} />
-                    <div className={styles.statusBody}>
-                        <span className={styles.statusLabel} style={{ color: statusInfo.cssVar }}>
-                            {statusInfo.label}
-                        </span>
-                        {player.fpl_news && (
-                            <p className={styles.statusNews}>{player.fpl_news}</p>
+                            {displayForm != null && (
+                                <div className={styles.statItem}>
+                                    <span className={styles.statValue}>
+                                        {displayForm.toFixed(1)}
+                                    </span>
+                                    <span className={styles.statLabel}>Form (3 GW)</span>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* ── Status / Injury News ── */}
+                        {statusInfo && (
+                            <div className={styles.statusBanner} style={{ borderColor: statusInfo.cssVar }}>
+                                <span className={styles.statusDot} style={{ background: statusInfo.cssVar }} />
+                                <div className={styles.statusBody}>
+                                    <span className={styles.statusLabel} style={{ color: statusInfo.cssVar }}>
+                                        {statusInfo.label}
+                                    </span>
+                                    {player.fpl_news && (
+                                        <p className={styles.statusNews}>{player.fpl_news}</p>
+                                    )}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* ── Rating Breakdown ── */}
+                        {ratingBreakdown && ratingBreakdown.length > 0 && (
+                            <div className={styles.breakdownSection}>
+                                <button
+                                    className={styles.breakdownToggle}
+                                    onClick={() => setShowBreakdown(!showBreakdown)}
+                                >
+                                    <span>Rating Breakdown</span>
+                                    <span className={styles.chevron} data-open={showBreakdown}>▾</span>
+                                </button>
+
+                                {showBreakdown && (
+                                    <div className={styles.breakdownList}>
+                                        {ratingBreakdown.map((item) => (
+                                            <div key={item.key} className={styles.breakdownItem}>
+                                                <div className={styles.breakdownHeader}>
+                                                    <span className={styles.breakdownName}>{item.component}</span>
+                                                    <span className={styles.breakdownWeight}>{(item.weight * 100).toFixed(0)}%</span>
+                                                </div>
+                                                <div className={styles.barTrack}>
+                                                    <div
+                                                        className={styles.barFill}
+                                                        style={{
+                                                            width: `${Math.round(item.score * 100)}%`,
+                                                            background: getRatingColor(1 + 9 * item.score),
+                                                        }}
+                                                    />
+                                                </div>
+                                                <span className={styles.breakdownDetail}>{item.detail}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
                         )}
                     </div>
-                </div>
-            )}
+                )} {/* End Overview Tab */}
 
-            {/* ── Game Log ── */}
-            {gamelog.length > 0 && (
-                <div className={styles.gameLog}>
-                    <p className={styles.gameLogTitle}>Game Log</p>
-                    <table className={styles.gameLogTable}>
-                        <thead>
-                            <tr>
-                                <th>GW</th>
-                                <th>Min</th>
-                                <th>G</th>
-                                <th>A</th>
-                                <th>Pts</th>
-                                <th>Rtg</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {gamelog.map((entry) => (
-                                <tr key={entry.gameweek}>
-                                    <td>{entry.gameweek}</td>
-                                    <td>{entry.stats?.minutes_played ?? '—'}</td>
-                                    <td>{entry.stats?.goals ?? 0}</td>
-                                    <td>{entry.stats?.assists ?? 0}</td>
-                                    <td className={styles.gameLogPts}>
-                                        {entry.fantasy_points.toFixed(1)}
-                                    </td>
-                                    <td>
-                                        {entry.match_rating != null ? (
-                                            <span style={{ color: getRatingColor(entry.match_rating) }}>
-                                                {entry.match_rating.toFixed(1)}
-                                            </span>
-                                        ) : '—'}
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-            )}
-
-            {/* ── Rating Breakdown ── */}
-            {ratingBreakdown && ratingBreakdown.length > 0 && (
-                <div className={styles.breakdownSection}>
-                    <button
-                        className={styles.breakdownToggle}
-                        onClick={() => setShowBreakdown(!showBreakdown)}
-                    >
-                        <span>Rating Breakdown</span>
-                        <span className={styles.chevron} data-open={showBreakdown}>▾</span>
-                    </button>
-
-                    {showBreakdown && (
-                        <div className={styles.breakdownList}>
-                            {ratingBreakdown.map((item) => (
-                                <div key={item.key} className={styles.breakdownItem}>
-                                    <div className={styles.breakdownHeader}>
-                                        <span className={styles.breakdownName}>{item.component}</span>
-                                        <span className={styles.breakdownWeight}>{(item.weight * 100).toFixed(0)}%</span>
-                                    </div>
-                                    <div className={styles.barTrack}>
-                                        <div
-                                            className={styles.barFill}
-                                            style={{
-                                                width: `${Math.round(item.score * 100)}%`,
-                                                background: getRatingColor(1 + 9 * item.score),
-                                            }}
-                                        />
-                                    </div>
-                                    <span className={styles.breakdownDetail}>{item.detail}</span>
-                                </div>
-                            ))}
-                        </div>
-                    )}
-                </div>
-            )}
+                {activeTab === 'gamelog' && (
+                    <div className={`${styles.tabContent} ${styles.scrollableTab}`}>
+                        {/* ── Game Log ── */}
+                        {gamelog.length > 0 ? (
+                            <table className={styles.gameLogTable}>
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>GW</th>
+                                        <th>Opp</th>
+                                        <th>Min</th>
+                                        <th>Pts</th>
+                                        <th>Rtg</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {gamelog.map((entry) => {
+                                        const dShort = entry.date ? new Date(entry.date).toLocaleDateString(undefined, { month: 'numeric', day: 'numeric' }) : '—';
+                                        if (entry.isDNP) {
+                                            return (
+                                                <tr key={entry.gameweek} className={styles.dnpRow}>
+                                                    <td>{dShort}</td>
+                                                    <td>{entry.gameweek}</td>
+                                                    <td className={styles.opponentCol}>{entry.opponent}</td>
+                                                    <td colSpan={3} className={styles.dnpText}>DNP</td>
+                                                </tr>
+                                            );
+                                        }
+                                        return (
+                                            <tr key={entry.gameweek}>
+                                                <td>{dShort}</td>
+                                                <td>{entry.gameweek}</td>
+                                                <td className={styles.opponentCol}>{entry.opponent}</td>
+                                                <td>{entry.stats?.minutes_played ?? '—'}</td>
+                                                <td className={styles.gameLogPts}>
+                                                    {entry.fantasy_points.toFixed(1)}
+                                                </td>
+                                                <td>
+                                                    {entry.match_rating != null ? (
+                                                        <span style={{ color: getRatingColor(entry.match_rating) }}>
+                                                            {entry.match_rating.toFixed(1)}
+                                                        </span>
+                                                    ) : '—'}
+                                                </td>
+                                            </tr>
+                                        );
+                                    })}
+                                </tbody>
+                            </table>
+                        ) : (
+                            <div className={styles.emptyState}>No game log records found for this season.</div>
+                        )}
+                    </div>
+                )} {/* End Gamelog Tab */}
+            </div>
         </div>
     );
 }
