@@ -52,6 +52,10 @@ BEGIN
         ) last3
       ),
       0
-    );
+    )
+  WHERE p.id IS NOT NULL;
 END;
 $$;
+
+-- 4. Initial execution
+SELECT update_player_fantasy_scores();
