@@ -218,7 +218,8 @@ export async function POST(req: NextRequest) {
                 // NOTE: We intentionally do NOT update secondary_positions here.
                 // API Football only reports 4 broad categories (GK/DEF/MID/FWD), which
                 // is too coarse to infer granular secondary positions reliably.
-                // FPL sync + manual overrides handle positions with much higher precision.
+                // Granular positions (LW/RW/CM/DM/CB etc.) come from SoFIFA and should
+                // not be overwritten by this coarse API data.
                 const update: Record<string, unknown> = {
                     id: bestMatchObj.id,
                     api_football_id: apiPlayer.id,
