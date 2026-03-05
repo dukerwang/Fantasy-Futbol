@@ -136,29 +136,30 @@ export default function PlayerDetailCard({ player, totalPoints, recentForm, matc
                 </button>
             </div>
 
-            {/* ── Biometrics (always visible below tabs header) ── */}
-            {showBiometrics && (
-                <div className={styles.biometrics}>
-                    <div className={styles.bioItem}>
-                        <span className={styles.bioLabel}>Age</span>
-                        <span className={styles.bioValue}>{age ?? '—'}</span>
-                    </div>
-                    <div className={styles.bioItem}>
-                        <span className={styles.bioLabel}>Height</span>
-                        <span className={styles.bioValue}>{player.height_cm ? cmToFeetInches(player.height_cm) : '—'}</span>
-                    </div>
-                    <div className={styles.bioItem}>
-                        <span className={styles.bioLabel}>Nation</span>
-                        <span className={styles.bioValue}>{player.nationality ?? '—'}</span>
-                    </div>
-                </div>
-            )}
-
             {/* ── Tab Content Panels ── */}
             <div className={styles.tabsContainer}>
                 {activeTab === 'overview' && (
                     <div className={styles.tabContent}>
+                        {/* ── Biometrics ── */}
+                        {showBiometrics && (
+                            <div className={styles.biometrics}>
+                                <div className={styles.bioItem}>
+                                    <span className={styles.bioLabel}>Age</span>
+                                    <span className={styles.bioValue}>{age ?? '—'}</span>
+                                </div>
+                                <div className={styles.bioItem}>
+                                    <span className={styles.bioLabel}>Height</span>
+                                    <span className={styles.bioValue}>{player.height_cm ? cmToFeetInches(player.height_cm) : '—'}</span>
+                                </div>
+                                <div className={styles.bioItem}>
+                                    <span className={styles.bioLabel}>Nation</span>
+                                    <span className={styles.bioValue}>{player.nationality ?? '—'}</span>
+                                </div>
+                            </div>
+                        )}
+
                         {/* ── Stats Grid ── */}
+
                         <div className={styles.statsGrid}>
                             <div className={styles.statItem}>
                                 <span className={styles.statValue} data-gold="true">
