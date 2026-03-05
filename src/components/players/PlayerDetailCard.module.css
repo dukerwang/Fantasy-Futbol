@@ -364,26 +364,27 @@
 .gameLogTable th {
   color: var(--color-text-muted);
   font-weight: var(--font-medium);
-  text-align: right;
   padding: var(--space-1) var(--space-2);
   border-bottom: 1px solid var(--color-border-subtle);
 }
 
-.gameLogTable th:first-child {
-  text-align: left;
-}
-
 .gameLogTable td {
   color: var(--color-text-secondary);
-  text-align: right;
   padding: var(--space-2) var(--space-2);
   border-bottom: 1px solid var(--color-border-subtle);
   font-variant-numeric: tabular-nums;
 }
 
-.gameLogTable td:first-child {
-  text-align: left;
-  color: var(--color-text-muted);
+.alignLeft {
+  text-align: left !important;
+}
+
+.alignCenter {
+  text-align: center !important;
+}
+
+.alignRight {
+  text-align: right !important;
 }
 
 .gameLogTable tr:last-child td {

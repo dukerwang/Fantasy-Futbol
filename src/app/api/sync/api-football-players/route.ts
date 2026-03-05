@@ -187,11 +187,25 @@ export async function POST(req: NextRequest) {
             else if (dbNormalizedNamesMap.has(normApiLast)) {
                 bestMatchObj = dbNormalizedNamesMap.get(normApiLast);
             }
-            // Fuzzy match if no exact hits
+            // Try Subset Word Match for Brazilian names (solves Cunha, Bruno G, etc)
             else {
-                const { bestMatch } = stringSimilarity.findBestMatch(normApiFull, dbNameList);
-                if (bestMatch.rating > 0.8) {
-                    bestMatchObj = dbNormalizedNamesMap.get(bestMatch.target);
+                const isShortApi = apiPlayer.name.split(' ').length === 1 && apiPlayer.name.length <= 5;
+                if (!isShortApi) {
+                    const subsetMatchDbName = dbNameList.find(dbName => {
+                        const apiParts = normApiFull.split(/\s+/);
+                        return apiParts.every(part => dbName.includes(part));
+                    });
+                    if (subsetMatchDbName) {
+                        bestMatchObj = dbNormalizedNamesMap.get(subsetMatchDbName);
+                    }
+                }
+
+                // Fuzzy match fallback
+                if (!bestMatchObj) {
+                    const { bestMatch } = stringSimilarity.findBestMatch(normApiFull, dbNameList);
+                    if (bestMatch.rating > 0.8) {
+                        bestMatchObj = dbNormalizedNamesMap.get(bestMatch.target);
+                    }
                 }
             }
 

@@ -258,12 +258,14 @@ export default function PlayerDetailCard({ player, totalPoints, recentForm, matc
                             <table className={styles.gameLogTable}>
                                 <thead>
                                     <tr>
-                                        <th>Date</th>
-                                        <th>GW</th>
-                                        <th>Opp</th>
-                                        <th>Min</th>
-                                        <th>Pts</th>
-                                        <th>Rtg</th>
+                                        <th className={styles.alignLeft}>Date</th>
+                                        <th className={styles.alignCenter}>GW</th>
+                                        <th className={styles.opponentCol}>Opp</th>
+                                        <th className={styles.alignRight}>Min</th>
+                                        <th className={styles.alignRight}>G</th>
+                                        <th className={styles.alignRight}>A</th>
+                                        <th className={styles.alignRight}>Pts</th>
+                                        <th className={styles.alignRight}>Rtg</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -272,23 +274,25 @@ export default function PlayerDetailCard({ player, totalPoints, recentForm, matc
                                         if (entry.isDNP) {
                                             return (
                                                 <tr key={entry.gameweek} className={styles.dnpRow}>
-                                                    <td>{dShort}</td>
-                                                    <td>{entry.gameweek}</td>
+                                                    <td className={styles.alignLeft}>{dShort}</td>
+                                                    <td className={styles.alignCenter}>{entry.gameweek}</td>
                                                     <td className={styles.opponentCol}>{entry.opponent}</td>
-                                                    <td colSpan={3} className={styles.dnpText}>DNP</td>
+                                                    <td colSpan={5} className={styles.dnpText}>DNP</td>
                                                 </tr>
                                             );
                                         }
                                         return (
                                             <tr key={entry.gameweek}>
-                                                <td>{dShort}</td>
-                                                <td>{entry.gameweek}</td>
+                                                <td className={styles.alignLeft}>{dShort}</td>
+                                                <td className={styles.alignCenter}>{entry.gameweek}</td>
                                                 <td className={styles.opponentCol}>{entry.opponent}</td>
-                                                <td>{entry.stats?.minutes_played ?? '—'}</td>
-                                                <td className={styles.gameLogPts}>
+                                                <td className={styles.alignRight}>{entry.stats?.minutes_played ?? '—'}</td>
+                                                <td className={styles.alignRight}>{entry.stats?.goals ?? 0}</td>
+                                                <td className={styles.alignRight}>{entry.stats?.assists ?? 0}</td>
+                                                <td className={`${styles.gameLogPts} ${styles.alignRight}`}>
                                                     {entry.fantasy_points.toFixed(1)}
                                                 </td>
-                                                <td>
+                                                <td className={styles.alignRight}>
                                                     {entry.match_rating != null ? (
                                                         <span style={{ color: getRatingColor(entry.match_rating) }}>
                                                             {entry.match_rating.toFixed(1)}
