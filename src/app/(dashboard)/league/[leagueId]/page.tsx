@@ -134,16 +134,20 @@ export default async function LeaguePage({ params }: Props) {
         <section className={styles.card}>
           <h2 className={styles.cardTitle}>Standings</h2>
           <div className={styles.standingsTable}>
-            <div className={styles.tableHeader}>
+            <div className={styles.tableHeader} style={{ gridTemplateColumns: '32px 1fr 70px 44px' }}>
               <span className={styles.rankCol}>#</span>
               <span className={styles.teamCol}>Team</span>
-              <span className={styles.numCol} style={{ fontSize: '0.65rem' }}>W-D-L</span>
-              <span className={styles.numCol} style={{ fontWeight: 800 }}>Pts</span>
+              <span className={styles.numCol}>W-D-L</span>
+              <span className={styles.numCol} style={{ fontWeight: 800, color: 'var(--color-text-primary)' }}>Pts</span>
             </div>
             {sortedTeams.map((team: any, i: number) => {
               const tp = tpMap[team.id] ?? { pts: 0, w: 0, d: 0, l: 0 };
               return (
-                <div key={team.id} className={`${styles.tableRow} ${team.user_id === user.id ? styles.ownRow : ''}`}>
+                <div
+                  key={team.id}
+                  className={`${styles.tableRow} ${team.user_id === user.id ? styles.ownRow : ''}`}
+                  style={{ gridTemplateColumns: '32px 1fr 70px 44px' }}
+                >
                   <span className={styles.rankCol}>
                     {i + 1 === 1 ? '🥇' : i + 1 === 2 ? '🥈' : i + 1 === 3 ? '🥉' : i + 1}
                   </span>
@@ -151,10 +155,10 @@ export default async function LeaguePage({ params }: Props) {
                     <span className={styles.teamRowName}>{team.team_name}</span>
                     <span className={styles.teamRowUser}>{team.user?.username}</span>
                   </div>
-                  <span className={styles.numCol} style={{ fontSize: '0.72rem', color: 'var(--color-text-muted, #6b7280)' }}>
+                  <span className={styles.numCol} style={{ fontSize: '0.72rem', color: 'var(--color-text-muted)' }}>
                     {tp.w}-{tp.d}-{tp.l}
                   </span>
-                  <span className={`${styles.numCol} ${styles.pointsNum}`} style={{ fontWeight: 800 }}>
+                  <span className={`${styles.numCol} ${styles.pointsNum}`}>
                     {tp.pts}
                   </span>
                 </div>
