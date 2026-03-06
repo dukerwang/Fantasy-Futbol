@@ -248,13 +248,16 @@ export async function POST(req: NextRequest) {
     }
 
     // 5. Resolve matchups
+    const DRAW_THRESHOLD = 10;
     for (const m of matchups) {
         const scoreA = calculateTeamScore(m.lineup_a);
         const scoreB = calculateTeamScore(m.lineup_b);
+        const gap = Math.abs(scoreA - scoreB);
 
         const newStatus = finished ? 'completed' : 'live';
-        const winnerId = finished
-            ? (scoreA >= scoreB ? m.team_a_id : m.team_b_id)
+        // Draw if gap ≤ 10 pts — winner_team_id = null for draws
+        const winnerId = (finished && gap > DRAW_THRESHOLD)
+            ? (scoreA > scoreB ? m.team_a_id : m.team_b_id)
             : null;
 
         const { error } = await admin
@@ -263,19 +266,11 @@ export async function POST(req: NextRequest) {
                 score_a: scoreA,
                 score_b: scoreB,
                 status: newStatus,
-                ...(winnerId ? { winner_team_id: winnerId } : {}),
+                winner_team_id: winnerId ?? null,
             })
             .eq('id', m.id);
 
-        if (!error) {
-            updated++;
-
-            // When gameweek is finished, accumulate total_points on both teams
-            if (finished) {
-                await admin.rpc('increment_team_points', { team_id: m.team_a_id, pts: scoreA });
-                await admin.rpc('increment_team_points', { team_id: m.team_b_id, pts: scoreB });
-            }
-        }
+        if (!error) updated++;
     }
 
     return NextResponse.json({ ok: true, updated, gameweek, finished });

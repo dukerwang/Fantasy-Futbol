@@ -44,8 +44,35 @@ export default async function LeaguePage({ params }: Props) {
   const { data: teams } = await admin
     .from('teams')
     .select('*, user:users(username)')
+    .eq('league_id', leagueId);
+
+  // Compute football-style table points from completed matchups
+  const DRAW_GAP = 10;
+  const { data: allMatchups } = await admin
+    .from('matchups')
+    .select('team_a_id, team_b_id, score_a, score_b')
     .eq('league_id', leagueId)
-    .order('total_points', { ascending: false });
+    .in('status', ['live', 'completed']);
+
+  // Build table points map
+  const tpMap: Record<string, { pts: number; played: number; w: number; d: number; l: number }> = {};
+  for (const t of teams ?? []) {
+    tpMap[t.id] = { pts: 0, played: 0, w: 0, d: 0, l: 0 };
+  }
+  for (const m of allMatchups ?? []) {
+    const a = tpMap[m.team_a_id]; const b = tpMap[m.team_b_id];
+    if (!a || !b) continue;
+    const gap = Math.abs((m.score_a ?? 0) - (m.score_b ?? 0));
+    a.played++; b.played++;
+    if (gap <= DRAW_GAP) { a.pts += 1; a.d++; b.pts += 1; b.d++; }
+    else if ((m.score_a ?? 0) > (m.score_b ?? 0)) { a.pts += 3; a.w++; b.l++; }
+    else { b.pts += 3; b.w++; a.l++; }
+  }
+
+  // Sort teams by table points
+  const sortedTeams = [...(teams ?? [])].sort((x, y) =>
+    (tpMap[y.id]?.pts ?? 0) - (tpMap[x.id]?.pts ?? 0)
+  );
 
   const { data: recentMatchups } = await admin
     .from('matchups')
@@ -110,23 +137,33 @@ export default async function LeaguePage({ params }: Props) {
             <div className={styles.tableHeader}>
               <span className={styles.rankCol}>#</span>
               <span className={styles.teamCol}>Team</span>
-              <span className={styles.numCol}>Pts</span>
+              <span className={styles.numCol} style={{ fontSize: '0.65rem' }}>W-D-L</span>
+              <span className={styles.numCol} style={{ fontWeight: 800 }}>Pts</span>
             </div>
-            {(teams ?? []).map((team: any, i: number) => (
-              <div key={team.id} className={`${styles.tableRow} ${team.user_id === user.id ? styles.ownRow : ''}`}>
-                <span className={styles.rankCol}>
-                  {i + 1 === 1 ? '🥇' : i + 1 === 2 ? '🥈' : i + 1 === 3 ? '🥉' : i + 1}
-                </span>
-                <div className={styles.teamCol}>
-                  <span className={styles.teamRowName}>{team.team_name}</span>
-                  <span className={styles.teamRowUser}>{team.user?.username}</span>
+            {sortedTeams.map((team: any, i: number) => {
+              const tp = tpMap[team.id] ?? { pts: 0, w: 0, d: 0, l: 0 };
+              return (
+                <div key={team.id} className={`${styles.tableRow} ${team.user_id === user.id ? styles.ownRow : ''}`}>
+                  <span className={styles.rankCol}>
+                    {i + 1 === 1 ? '🥇' : i + 1 === 2 ? '🥈' : i + 1 === 3 ? '🥉' : i + 1}
+                  </span>
+                  <div className={styles.teamCol}>
+                    <span className={styles.teamRowName}>{team.team_name}</span>
+                    <span className={styles.teamRowUser}>{team.user?.username}</span>
+                  </div>
+                  <span className={styles.numCol} style={{ fontSize: '0.72rem', color: 'var(--color-text-muted, #6b7280)' }}>
+                    {tp.w}-{tp.d}-{tp.l}
+                  </span>
+                  <span className={`${styles.numCol} ${styles.pointsNum}`} style={{ fontWeight: 800 }}>
+                    {tp.pts}
+                  </span>
                 </div>
-                <span className={`${styles.numCol} ${styles.pointsNum}`}>
-                  {team.total_points.toFixed(1)}
-                </span>
-              </div>
-            ))}
+              );
+            })}
           </div>
+          <Link href={`/league/${leagueId}/standings`} style={{ display: 'block', textAlign: 'center', marginTop: '0.75rem', fontSize: '0.8125rem', color: 'var(--color-accent-blue, #3b82f6)' }}>
+            Full Standings →
+          </Link>
         </section>
 
         <section className={styles.card}>
