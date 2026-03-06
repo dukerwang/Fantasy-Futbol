@@ -151,9 +151,31 @@ export async function POST(req: NextRequest) {
             rostersToInsert.push({
                 team_id: teamObj.id,
                 player_id: pId,
-                status: 'bench',
+                primary_position: availablePlayers[draftedPlayerIndex].primary_position,
+                pos: availablePlayers[draftedPlayerIndex].primary_position,
+                status: 'bench', // will update below after all picks
                 acquisition_type: 'draft'
             });
+        }
+    }
+
+    // Auto-set starting 11 for each team using a 1GK-4DEF-3MID-3FWD shape
+    const startingSlots = { GK: 1, CB: 2, LB: 1, RB: 1, DM: 1, CM: 1, AM: 1, LW: 1, RW: 1, ST: 1 };
+    const teamRosters: Record<string, typeof rostersToInsert> = {};
+    for (const r of rostersToInsert) {
+        if (!teamRosters[r.team_id]) teamRosters[r.team_id] = [];
+        teamRosters[r.team_id].push(r);
+    }
+    for (const teamId in teamRosters) {
+        const used: Record<string, number> = {};
+        for (const r of teamRosters[teamId]) {
+            const pos = r.primary_position || r.pos;
+            const cap = startingSlots[pos as keyof typeof startingSlots] ?? 0;
+            used[pos] = used[pos] ?? 0;
+            if (used[pos] < cap) {
+                r.status = 'active';
+                used[pos]++;
+            }
         }
     }
 

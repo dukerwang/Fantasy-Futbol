@@ -77,6 +77,7 @@ interface Props {
     initialFormation: Formation;
     initialAssignments: Record<number, string>;
     initialBench: Record<BenchSlot, string | null>;
+    scoreMap?: Record<string, number>;
 }
 
 type Selection =
@@ -95,9 +96,10 @@ interface PitchNodeProps {
     isValidTarget: boolean;
     isEmpty: boolean;
     onClick: () => void;
+    points?: number;
 }
 
-function PitchNode({ slotPos, player, formation, isSelected, isValidTarget, isEmpty, onClick }: PitchNodeProps) {
+function PitchNode({ slotPos, player, formation, isSelected, isValidTarget, isEmpty, onClick, points }: PitchNodeProps) {
     const cls = [
         styles.pitchNode,
         isSelected ? styles.nodeSelected : '',
@@ -128,6 +130,20 @@ function PitchNode({ slotPos, player, formation, isSelected, isValidTarget, isEm
                     {player.fpl_status && player.fpl_status !== 'a' && (
                         <span className={styles.nodeStatusDot} data-status={player.fpl_status} />
                     )}
+                    {points !== undefined && (
+                        <span style={{
+                            fontSize: '0.68rem',
+                            fontWeight: 700,
+                            color: '#10b981',
+                            background: 'rgba(16,185,129,0.12)',
+                            border: '1px solid rgba(16,185,129,0.28)',
+                            borderRadius: '4px',
+                            padding: '1px 5px',
+                            marginTop: '2px',
+                        }}>
+                            {points.toFixed(1)} pts
+                        </span>
+                    )}
                 </>
             ) : (
                 <span className={styles.nodeEmptyLabel}>Empty</span>
@@ -145,6 +161,7 @@ export default function PitchUI({
     initialFormation,
     initialAssignments,
     initialBench,
+    scoreMap,
 }: Props) {
     const router = useRouter();
 
@@ -579,6 +596,7 @@ export default function PitchUI({
                                             isValidTarget={isValidTarget}
                                             isEmpty={!playerId}
                                             onClick={() => handleStarterClick(slotIndex)}
+                                            points={playerId && scoreMap ? scoreMap[playerId] : undefined}
                                         />
                                     );
                                 })}
@@ -614,6 +632,20 @@ export default function PitchUI({
                                         </span>
                                         <span className={styles.benchPlayerName}>{displayName(entry.player)}</span>
                                         <span className={styles.benchPlayerClub}>{entry.player.pl_team}</span>
+                                        {scoreMap && pid && scoreMap[pid] !== undefined && (
+                                            <span style={{
+                                                fontSize: '0.68rem',
+                                                fontWeight: 700,
+                                                color: '#6366f1',
+                                                background: 'rgba(99,102,241,0.1)',
+                                                border: '1px solid rgba(99,102,241,0.25)',
+                                                borderRadius: '4px',
+                                                padding: '1px 5px',
+                                                marginTop: '2px',
+                                            }}>
+                                                {scoreMap[pid].toFixed(1)} pts
+                                            </span>
+                                        )}
                                     </>
                                 ) : (
                                     <span className={styles.nodeEmptyLabel}>Empty</span>

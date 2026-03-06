@@ -8,6 +8,8 @@ import PitchUI from './PitchUI';
 import RosterManager from './RosterManager';
 import styles from './my-team.module.css';
 
+export const dynamic = 'force-dynamic';
+
 interface Props {
   params: Promise<{ leagueId: string }>;
   searchParams: Promise<{ mode?: string }>;
@@ -69,6 +71,27 @@ export default async function MyTeamPage({ params, searchParams }: Props) {
   const bench = rosterEntries.filter((e) => e.status === 'bench');
   const ir = rosterEntries.filter((e) => e.status === 'ir');
   const nonIrEntries = rosterEntries.filter((e) => e.status !== 'ir');
+
+  // Fetch current GW player points for score overlay
+  let scoreMap: Record<string, number> = {};
+  try {
+    const fplRes = await fetch('https://fantasy.premierleague.com/api/bootstrap-static/', { next: { revalidate: 300 } });
+    if (fplRes.ok) {
+      const fplData = await fplRes.json();
+      const currentGw = (fplData.events as any[])?.find((e: any) => e.is_current)?.id;
+      if (currentGw) {
+        const playerIds = rosterEntries.map((e) => e.player.id);
+        const { data: statsRows } = await admin
+          .from('player_stats')
+          .select('player_id, fantasy_points')
+          .eq('gameweek', currentGw)
+          .in('player_id', playerIds);
+        for (const s of statsRows ?? []) {
+          scoreMap[s.player_id] = (scoreMap[s.player_id] ?? 0) + Number(s.fantasy_points);
+        }
+      }
+    }
+  } catch { /* non-critical — silently skip */ }
 
   // Determine initial formation and assignments from upcoming matchup lineup
   let initialFormation: Formation = '4-3-3';
@@ -188,6 +211,7 @@ export default async function MyTeamPage({ params, searchParams }: Props) {
         initialFormation={initialFormation}
         initialAssignments={initialAssignments}
         initialBench={initialBench as Record<BenchSlot, string | null>}
+        scoreMap={scoreMap}
       />
 
       <div className={styles.sections}>

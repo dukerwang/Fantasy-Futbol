@@ -252,16 +252,14 @@ export async function POST(req: NextRequest) {
         const scoreA = calculateTeamScore(m.lineup_a);
         const scoreB = calculateTeamScore(m.lineup_b);
 
-        const { data: resolved } = await admin.rpc('resolve_matchup', {
-            p_matchup_id: m.id,
-            p_score_a: scoreA,
-            p_score_b: scoreB,
-            p_team_a_id: m.team_a_id,
-            p_team_b_id: m.team_b_id,
-            p_finished: finished,
-        });
+        const newStatus = finished ? 'completed' : 'live';
 
-        if (resolved) updated++;
+        const { error } = await admin
+            .from('matchups')
+            .update({ score_a: scoreA, score_b: scoreB, status: newStatus })
+            .eq('id', m.id);
+
+        if (!error) updated++;
     }
 
     return NextResponse.json({ ok: true, updated, gameweek, finished });

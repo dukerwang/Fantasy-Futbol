@@ -92,7 +92,7 @@ export async function POST(req: NextRequest, { params }: Props) {
   // Fetch all non-IR roster entries with player positions
   const { data: entries } = await admin
     .from('roster_entries')
-    .select('id, player_id, status, player:players(id, primary_position, secondary_positions)')
+    .select('id, player_id, status, player:players(id, primary_position, secondary_positions, pl_team_id, web_name, full_name)')
     .eq('team_id', teamId)
     .neq('status', 'ir');
 
@@ -163,6 +163,67 @@ export async function POST(req: NextRequest, { params }: Props) {
 
   const starterSet = new Set(starterIds);
   const benchSet = new Set(benchIds);
+
+  // --- Kickoff lock: block moves if a player's club has already kicked off this GW ---
+  {
+    const currentStatusMap = new Map<string, string>(
+      entries.map((e: any) => [e.player_id as string, e.status as string]),
+    );
+
+    // A player is "moved" if their active/bench status is changing
+    const movedPlayerIds = allPlayerIds.filter((pid) => {
+      const currentStatus = currentStatusMap.get(pid);
+      const newStatus = starterSet.has(pid) ? 'active' : 'bench';
+      return currentStatus !== newStatus;
+    });
+
+    if (movedPlayerIds.length > 0) {
+      const movedTeamIds = [
+        ...new Set(
+          movedPlayerIds
+            .map((pid) => (playerMap.get(pid) as any)?.pl_team_id)
+            .filter((id): id is number => id != null),
+        ),
+      ];
+
+      if (movedTeamIds.length > 0) {
+        const now = new Date().toISOString();
+        const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+
+        const { data: startedFixtures } = await admin
+          .from('daily_fixtures')
+          .select('home_team_id, away_team_id')
+          .or(`home_team_id.in.(${movedTeamIds.join(',')}),away_team_id.in.(${movedTeamIds.join(',')})`)
+          .lte('start_time', now)
+          .gte('start_time', sevenDaysAgo);
+
+        if (startedFixtures && startedFixtures.length > 0) {
+          const startedTeamIds = new Set(
+            startedFixtures.flatMap((f: any) => [f.home_team_id, f.away_team_id]),
+          );
+
+          const lockedNames = movedPlayerIds
+            .filter((pid) => {
+              const pl = playerMap.get(pid) as any;
+              return pl && startedTeamIds.has(pl.pl_team_id);
+            })
+            .map((pid) => {
+              const pl = playerMap.get(pid) as any;
+              return pl.web_name || pl.full_name || pid;
+            });
+
+          if (lockedNames.length > 0) {
+            return NextResponse.json(
+              {
+                error: `Cannot move players whose club has already kicked off: ${lockedNames.join(', ')}`,
+              },
+              { status: 400 },
+            );
+          }
+        }
+      }
+    }
+  }
 
   // Bulk update roster_entries status (IR entries untouched since we only fetched non-IR)
   const starterEntryIds = entries

@@ -63,8 +63,9 @@ export async function insertMatchups(
  * Fetches FPL bootstrap to determine which GW the schedule should start from.
  *
  * Rules:
- *  - current GW in progress (finished: false) → startGw = currentGw
  *  - current GW finished → startGw = currentGw + 1
+ *  - current GW in progress AND any fixture has already kicked off → startGw = currentGw + 1
+ *  - current GW in progress AND zero fixtures started → startGw = currentGw
  *  - pre-season (no current event) → startGw = 1
  *  - fallback on error → startGw = 1
  */
@@ -83,8 +84,24 @@ async function getStartGw(): Promise<number> {
     const current = events.find((e) => e.is_current);
     if (!current) return 1; // pre-season
 
-    if (!current.finished) return current.id; // GW in progress — include it
-    return Math.min(current.id + 1, 39); // GW finished — start next (39 → caller skips)
+    // GW fully finished → start next
+    if (current.finished) return Math.min(current.id + 1, 39);
+
+    // GW in progress — check if any fixtures have already kicked off
+    const fixturesRes = await fetch(
+      `https://fantasy.premierleague.com/api/fixtures/?event=${current.id}`,
+      { next: { revalidate: 300 } },
+    );
+    if (fixturesRes.ok) {
+      const fixtures: Array<{ started: boolean; kickoff_time: string | null }> =
+        await fixturesRes.json();
+      const anyStarted = fixtures.some(
+        (f) => f.started || (f.kickoff_time != null && new Date(f.kickoff_time) <= new Date()),
+      );
+      if (anyStarted) return Math.min(current.id + 1, 39);
+    }
+
+    return current.id; // GW in progress, no fixtures started yet — include it
   } catch {
     return 1;
   }

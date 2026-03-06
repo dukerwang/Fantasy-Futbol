@@ -47,20 +47,37 @@ function getZone(pos: GranularPosition): 'GK' | 'DEF' | 'MID' | 'ATT' {
 interface Props {
     lineup: MatchupLineup;
     playerMap: Record<string, Partial<Player>>;
+    scoreMap?: Record<string, number>;
     teamName: string;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export default function ReadonlyPitch({ lineup, playerMap, teamName }: Props) {
+export default function ReadonlyPitch({ lineup, playerMap, scoreMap, teamName }: Props) {
     const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null);
 
     const { formation, starters, bench } = lineup;
     const slots = FORMATION_SLOTS[formation];
 
-    // Starters are stored in FORMATION_SLOTS index order — reconstruct the index→playerId map.
+    // Map starters by slot name → player_id, handling duplicate slots (e.g., 2× CB)
+    // by consuming them left-to-right in the order they appear in the lineup array.
+    const slotQueues: Record<string, string[]> = {};
+    for (const s of starters) {
+        if (!slotQueues[s.slot]) slotQueues[s.slot] = [];
+        slotQueues[s.slot].push(s.player_id);
+    }
+    // Build slotIndex → playerId by walking FORMATION_SLOTS in order
+    const slotPointers: Record<string, number> = {};
     const assignments: Record<number, string> = {};
-    starters.forEach((s, i) => { assignments[i] = s.player_id; });
+    slots.forEach((pos, i) => {
+        const q = slotQueues[pos] ?? [];
+        const ptr = slotPointers[pos] ?? 0;
+        if (q[ptr]) {
+            assignments[i] = q[ptr];
+            slotPointers[pos] = ptr + 1;
+        }
+    });
+
 
     // Bench slot → playerId
     const benchMap: Record<BenchSlot, string | null> = { DEF: null, MID: null, ATT: null, FLEX: null };
@@ -150,6 +167,21 @@ export default function ReadonlyPitch({ lineup, playerMap, teamName }: Props) {
                                                             {player.pl_team}
                                                         </span>
                                                     )}
+                                                    {scoreMap && playerId && scoreMap[playerId] !== undefined && (
+                                                        <span style={{
+                                                            fontSize: '0.7rem',
+                                                            fontWeight: 700,
+                                                            color: '#10b981',
+                                                            background: 'rgba(16,185,129,0.12)',
+                                                            border: '1px solid rgba(16,185,129,0.3)',
+                                                            borderRadius: '4px',
+                                                            padding: '1px 5px',
+                                                            marginTop: '2px',
+                                                            letterSpacing: '0.02em',
+                                                        }}>
+                                                            {scoreMap[playerId].toFixed(1)} pts
+                                                        </span>
+                                                    )}
                                                 </>
                                             ) : (
                                                 <span className={pitchStyles.nodeEmptyLabel}>—</span>
@@ -196,6 +228,20 @@ export default function ReadonlyPitch({ lineup, playerMap, teamName }: Props) {
                                         {player.pl_team && (
                                             <span className={pitchStyles.benchPlayerClub}>{player.pl_team}</span>
                                         )}
+                                        {scoreMap && pid && scoreMap[pid] !== undefined && (
+                                            <span style={{
+                                                fontSize: '0.68rem',
+                                                fontWeight: 700,
+                                                color: '#6366f1',
+                                                background: 'rgba(99,102,241,0.1)',
+                                                border: '1px solid rgba(99,102,241,0.25)',
+                                                borderRadius: '4px',
+                                                padding: '1px 5px',
+                                                marginTop: '2px',
+                                            }}>
+                                                {scoreMap[pid].toFixed(1)} pts
+                                            </span>
+                                        )}
                                     </>
                                 ) : (
                                     <span className={pitchStyles.nodeEmptyLabel}>—</span>
@@ -212,6 +258,67 @@ export default function ReadonlyPitch({ lineup, playerMap, teamName }: Props) {
                     player={selectedPlayer}
                     onClose={() => setSelectedPlayer(null)}
                 />
+            )}
+
+            {/* GW Points Breakdown — bypasses zone matching, reads directly from lineup */}
+            {scoreMap && (
+                <div style={{
+                    background: 'var(--bg-surface, #1a2235)',
+                    border: '1px solid var(--border-color, #374151)',
+                    borderRadius: '10px',
+                    padding: '0.75rem 1rem',
+                }}>
+                    <div style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--text-secondary, #9ca3af)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.5rem' }}>
+                        GW{''} Points
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.25rem 1.5rem' }}>
+                        {starters.map((s) => {
+                            const p = playerMap[s.player_id];
+                            const pts = scoreMap[s.player_id];
+                            return (
+                                <div key={s.player_id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem', padding: '0.2rem 0' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', minWidth: 0 }}>
+                                        <span style={{ fontSize: '0.6rem', fontWeight: 700, background: POS_COLOR[s.slot as GranularPosition] ?? '#374151', color: '#fff', borderRadius: '3px', padding: '1px 4px', flexShrink: 0 }}>
+                                            {s.slot}
+                                        </span>
+                                        <span style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--text-primary, #f3f4f6)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                            {p?.web_name ?? p?.name ?? '—'}
+                                        </span>
+                                    </div>
+                                    <span style={{
+                                        fontSize: '0.78rem',
+                                        fontWeight: 700,
+                                        color: pts !== undefined ? '#10b981' : 'var(--text-muted, #6b7280)',
+                                        flexShrink: 0,
+                                    }}>
+                                        {pts !== undefined ? pts.toFixed(1) : '—'}
+                                    </span>
+                                </div>
+                            );
+                        })}
+                    </div>
+                    {bench.filter(b => scoreMap[b.player_id] !== undefined).length > 0 && (
+                        <div style={{ marginTop: '0.5rem', paddingTop: '0.5rem', borderTop: '1px solid var(--border-color, #374151)' }}>
+                            <div style={{ fontSize: '0.65rem', color: 'var(--text-muted, #6b7280)', marginBottom: '0.25rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Bench</div>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.2rem 1.5rem' }}>
+                                {bench.map((b) => {
+                                    const p = playerMap[b.player_id];
+                                    const pts = scoreMap[b.player_id];
+                                    return (
+                                        <div key={b.player_id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem', opacity: 0.7 }}>
+                                            <span style={{ fontSize: '0.75rem', fontWeight: 500, color: 'var(--text-secondary, #9ca3af)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                                {p?.web_name ?? p?.name ?? '—'}
+                                            </span>
+                                            <span style={{ fontSize: '0.75rem', fontWeight: 600, color: pts !== undefined ? '#6366f1' : 'var(--text-muted, #6b7280)', flexShrink: 0 }}>
+                                                {pts !== undefined ? pts.toFixed(1) : '—'}
+                                            </span>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    )}
+                </div>
             )}
         </div>
     );

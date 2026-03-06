@@ -6,6 +6,8 @@ import type { Matchup, MatchupLineup, Player } from '@/types';
 import ReadonlyPitch from '@/components/ReadonlyPitch';
 import styles from './matchup-detail.module.css';
 
+export const dynamic = 'force-dynamic';
+
 interface Props {
     params: Promise<{ leagueId: string; matchupId: string }>;
 }
@@ -79,6 +81,26 @@ export default async function MatchupDetailPage({ params }: Props) {
         }
     }
 
+    // Fetch per-player GW fantasy points for score overlay on pitch cards
+    let scoreMap: Record<string, number> = {};
+    if (playerIds.size > 0 && matchupData.gameweek) {
+        const { data: statsRows, error: statsError } = await admin
+            .from('player_stats')
+            .select('player_id, fantasy_points')
+            .eq('gameweek', matchupData.gameweek)
+            .in('player_id', Array.from(playerIds));
+
+        console.log(`[matchup-detail] GW${matchupData.gameweek}, playerIds=${playerIds.size}, statsRows=${statsRows?.length ?? 0}, error=${statsError?.message ?? 'none'}`);
+
+        for (const s of statsRows ?? []) {
+            scoreMap[s.player_id] = (scoreMap[s.player_id] ?? 0) + Number(s.fantasy_points);
+        }
+        console.log(`[matchup-detail] scoreMap has ${Object.keys(scoreMap).length} entries. Sample:`, Object.entries(scoreMap).slice(0, 3));
+    } else {
+        console.log(`[matchup-detail] Skipping stats fetch: playerIds.size=${playerIds.size}, gameweek=${matchupData.gameweek}`);
+    }
+
+
     // Score comparison helpers
     const isCompleted = matchup.status === 'completed';
     const isLive = matchup.status === 'live';
@@ -131,6 +153,7 @@ export default async function MatchupDetailPage({ params }: Props) {
                         <ReadonlyPitch
                             lineup={lineupA}
                             playerMap={playerMap}
+                            scoreMap={scoreMap}
                             teamName={teamAName}
                         />
                     ) : (
@@ -146,6 +169,7 @@ export default async function MatchupDetailPage({ params }: Props) {
                         <ReadonlyPitch
                             lineup={lineupB}
                             playerMap={playerMap}
+                            scoreMap={scoreMap}
                             teamName={teamBName}
                         />
                     ) : (
