@@ -63,12 +63,12 @@ export default async function StandingsPage({ params }: Props) {
     .select('id, team_name, user:users(username)')
     .eq('league_id', leagueId);
 
-  // Fetch all completed matchups
+  // Fetch all live + completed matchups
   const { data: matchups } = await admin
     .from('matchups')
     .select('team_a_id, team_b_id, score_a, score_b, status')
     .eq('league_id', leagueId)
-    .eq('status', 'completed');
+    .in('status', ['live', 'completed']);
 
   // Build standings map
   const standingsMap = new Map<string, StandingRow>();
