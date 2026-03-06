@@ -78,6 +78,21 @@ export default function ReadonlyPitch({ lineup, playerMap, scoreMap, teamName }:
         }
     });
 
+    // Fallback: any starter whose slot name doesn't exist in this formation
+    // (e.g. AM in a 4-3-3) gets placed into the first empty formation slot.
+    const placedIds = new Set(Object.values(assignments));
+    const unplaced = starters.filter(s => !placedIds.has(s.player_id));
+    if (unplaced.length > 0) {
+        let upIdx = 0;
+        slots.forEach((_, i) => {
+            if (!assignments[i] && upIdx < unplaced.length) {
+                assignments[i] = unplaced[upIdx].player_id;
+                upIdx++;
+            }
+        });
+    }
+
+
 
     // Bench slot → playerId
     const benchMap: Record<BenchSlot, string | null> = { DEF: null, MID: null, ATT: null, FLEX: null };
