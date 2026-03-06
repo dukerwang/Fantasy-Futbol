@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
     name: name.trim(),
     commissioner_id: user.id,
     max_teams: maxTeams ?? 12,
-    roster_size: rosterSize ?? 15,
+    roster_size: rosterSize ?? 20,
     bench_size: 4,
     faab_budget: faabBudget ?? 100,
     draft_type: draftType ?? 'snake',
