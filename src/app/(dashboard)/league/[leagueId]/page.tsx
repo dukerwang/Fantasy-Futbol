@@ -6,6 +6,8 @@ import styles from './league.module.css';
 import DraftOrderManager from './DraftOrderManager';
 import LeaveLeagueButton from './LeaveLeagueButton';
 
+export const dynamic = 'force-dynamic';
+
 interface Props {
   params: Promise<{ leagueId: string }>;
 }
@@ -49,6 +51,7 @@ export default async function LeaguePage({ params }: Props) {
     .from('matchups')
     .select('*, team_a:teams!team_a_id(team_name), team_b:teams!team_b_id(team_name)')
     .eq('league_id', leagueId)
+    .in('status', ['live', 'completed'])
     .order('gameweek', { ascending: false })
     .limit(5);
 
