@@ -253,13 +253,29 @@ export async function POST(req: NextRequest) {
         const scoreB = calculateTeamScore(m.lineup_b);
 
         const newStatus = finished ? 'completed' : 'live';
+        const winnerId = finished
+            ? (scoreA >= scoreB ? m.team_a_id : m.team_b_id)
+            : null;
 
         const { error } = await admin
             .from('matchups')
-            .update({ score_a: scoreA, score_b: scoreB, status: newStatus })
+            .update({
+                score_a: scoreA,
+                score_b: scoreB,
+                status: newStatus,
+                ...(winnerId ? { winner_team_id: winnerId } : {}),
+            })
             .eq('id', m.id);
 
-        if (!error) updated++;
+        if (!error) {
+            updated++;
+
+            // When gameweek is finished, accumulate total_points on both teams
+            if (finished) {
+                await admin.rpc('increment_team_points', { team_id: m.team_a_id, pts: scoreA });
+                await admin.rpc('increment_team_points', { team_id: m.team_b_id, pts: scoreB });
+            }
+        }
     }
 
     return NextResponse.json({ ok: true, updated, gameweek, finished });
