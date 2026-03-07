@@ -16,7 +16,8 @@ export default function LeagueNav({ leagueId, leagueStatus }: Props) {
         { href: `/league/${leagueId}`, label: 'League', exact: true },
         { href: `/league/${leagueId}/team`, label: 'My Team' },
         { href: `/league/${leagueId}/matchups`, label: 'Matchups' },
-        { href: `/league/${leagueId}/players`, label: 'Players' },
+        { href: `/league/${leagueId}/players`, label: 'Free Agency' },
+        { href: `/league/${leagueId}/stats`, label: 'Stats' },
         { href: `/league/${leagueId}/trades`, label: 'Trades' },
         { href: `/league/${leagueId}/activity`, label: 'Activity' },
     ];

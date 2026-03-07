@@ -199,8 +199,9 @@
 
 .countdown {
   display: flex;
-  align-items: center;
-  gap: var(--space-1);
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
   font-size: var(--text-sm);
   font-variant-numeric: tabular-nums;
   color: var(--color-text-secondary);
@@ -215,6 +216,14 @@
 
 .countdownIcon {
   font-size: var(--text-sm);
+}
+
+.countdownEndTime {
+  display: block;
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  font-weight: var(--font-normal);
+  white-space: nowrap;
 }
 
 .auctionCardMid {
