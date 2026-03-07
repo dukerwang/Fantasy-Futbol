@@ -3,21 +3,25 @@ export function formatPlayerName(
     format: 'initial_last' | 'full' | 'web_name'
 ): string {
     const webName = player.web_name?.trim() || "";
-    // If a player is universally known by a single word (e.g. Rodri, Casemiro, Alisson)
-    // we should just use that word override for all standard formats.
-    const isOneWordWebName = webName.length > 0 && webName.split(/\s+/).length === 1;
+    const parts = player.name.trim().split(/\s+/);
+    const lastWord = parts[parts.length - 1].toLowerCase();
+
+    // A player is mononymous if their FPL web_name is exactly 1 word, does not contain initial dots, 
+    // and does NOT match the last word of their legal full name. (e.g. Alisson, Rodri, Casemiro, Savinho).
+    const isMononym = webName.length > 0 &&
+        webName.split(/\s+/).length === 1 &&
+        !webName.includes('.') &&
+        webName.toLowerCase() !== lastWord;
 
     if (format === 'full') {
-        if (isOneWordWebName) return webName;
+        if (isMononym) return webName;
         return player.name;
     }
 
     if (format === 'initial_last') {
-        if (isOneWordWebName) return webName;
+        if (isMononym) return webName;
 
-        const parts = player.name.trim().split(/\s+/);
-
-        // If the player only has one name (e.g., Brazilian players like "Alisson" or "Savinho")
+        // If the player only has one name (e.g., Casemiro might just be stored as "Casemiro")
         if (parts.length === 1) {
             return player.name;
         }
