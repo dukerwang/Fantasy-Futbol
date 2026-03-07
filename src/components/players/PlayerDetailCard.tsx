@@ -64,7 +64,6 @@ export default function PlayerDetailCard({ player, totalPoints, recentForm, matc
 
     const age = player.date_of_birth ? calculateAge(player.date_of_birth) : null;
     const statusInfo = player.fpl_status ? FPL_STATUS_INFO[player.fpl_status] : null;
-    const showBiometrics = age !== null || player.height_cm || player.nationality;
 
     useEffect(() => {
         setGamelog([]);
@@ -160,22 +159,22 @@ export default function PlayerDetailCard({ player, totalPoints, recentForm, matc
                 {activeTab === 'overview' && (
                     <div className={styles.tabContent}>
                         {/* ── Biometrics ── */}
-                        {showBiometrics && (
-                            <div className={styles.biometrics}>
-                                <div className={styles.bioItem}>
-                                    <span className={styles.bioLabel}>Age</span>
-                                    <span className={styles.bioValue}>{age ?? '—'}</span>
-                                </div>
-                                <div className={styles.bioItem}>
-                                    <span className={styles.bioLabel}>Height</span>
-                                    <span className={styles.bioValue}>{player.height_cm ? cmToFeetInches(player.height_cm) : '—'}</span>
-                                </div>
-                                <div className={styles.bioItem}>
-                                    <span className={styles.bioLabel}>Nation</span>
-                                    <span className={styles.bioValue}>{player.nationality ?? '—'}</span>
-                                </div>
+                        <div className={styles.biometrics}>
+                            <div className={styles.bioItem}>
+                                <span className={styles.bioLabel}>Age</span>
+                                <span className={styles.bioValue}>{age ?? '—'}</span>
                             </div>
-                        )}
+                            <div className={styles.bioItem}>
+                                <span className={styles.bioLabel}>Height</span>
+                                <span className={styles.bioValue}>{player.height_cm ? cmToFeetInches(player.height_cm) : '—'}</span>
+                            </div>
+                            <div className={styles.bioItem}>
+                                <span className={styles.bioLabel}>Nation</span>
+                                <span className={styles.bioValue}>{player.nationality ?? '—'}</span>
+                            </div>
+                        </div>
+
+
 
                         {/* ── Stats Grid ── */}
 
