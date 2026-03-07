@@ -60,6 +60,7 @@ export default function PlayerDetailCard({ player, totalPoints, recentForm, matc
     const [showBreakdown, setShowBreakdown] = useState(false);
     const [activeTab, setActiveTab] = useState<'overview' | 'gamelog'>('overview');
     const [gamelog, setGamelog] = useState<GamelogEntry[]>([]);
+    const [recentCalcForm, setRecentCalcForm] = useState<number | null>(null);
 
     const age = player.date_of_birth ? calculateAge(player.date_of_birth) : null;
     const statusInfo = player.fpl_status ? FPL_STATUS_INFO[player.fpl_status] : null;
@@ -67,14 +68,32 @@ export default function PlayerDetailCard({ player, totalPoints, recentForm, matc
 
     useEffect(() => {
         setGamelog([]);
+        setRecentCalcForm(null);
         fetch(`/api/players/${player.id}`)
             .then((r) => r.json())
-            .then((d) => setGamelog(d.gamelog ?? []))
+            .then((d) => {
+                const logs: GamelogEntry[] = d.gamelog ?? [];
+                setGamelog(logs);
+
+                // Calculate custom 3-game Match Rating form locally
+                let validGames = 0;
+                let sumRating = 0;
+                for (const log of logs) {
+                    if (!log.isDNP && log.match_rating != null) {
+                        sumRating += log.match_rating;
+                        validGames++;
+                        if (validGames === 3) break;
+                    }
+                }
+                if (validGames > 0) {
+                    setRecentCalcForm(sumRating / validGames);
+                }
+            })
             .catch(() => { /* silently fail — no game data yet */ });
     }, [player.id]);
 
     const displayTotalPoints = totalPoints ?? player.total_points;
-    const displayForm = recentForm ?? player.form;
+    const displayForm = recentForm ?? recentCalcForm ?? player.form;
 
     return (
         <div className={styles.card}>
