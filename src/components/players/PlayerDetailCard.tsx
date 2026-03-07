@@ -93,7 +93,7 @@ export default function PlayerDetailCard({ player, totalPoints, recentForm, matc
     }, [player.id]);
 
     const displayTotalPoints = totalPoints ?? player.total_points;
-    const displayForm = recentForm ?? recentCalcForm ?? player.form;
+    const displayForm = recentForm ?? recentCalcForm;
 
     return (
         <div className={styles.card}>
