@@ -77,8 +77,8 @@ export async function POST(req: NextRequest) {
 
   const admin = createAdminClient();
 
-  // Snapshot existing players before upsert for transfer-out detection and to preserve secondary positions
-  const { data: existingPlayers } = await admin.from('players').select('id, fpl_id, is_active, secondary_positions');
+  // Snapshot existing players before upsert for transfer-out detection and to preserve secondary positions & market values
+  const { data: existingPlayers } = await admin.from('players').select('id, fpl_id, is_active, secondary_positions, market_value');
   const existingFplIds = new Set((existingPlayers ?? []).map((p) => p.fpl_id));
 
   // Map fpl_id → player.id for currently-active players
@@ -95,10 +95,20 @@ export async function POST(req: NextRequest) {
       .map((p) => [p.fpl_id as number, p.secondary_positions ?? []]),
   );
 
-  // Re-map rows to inject the preserved secondary positions now that we have them
+  // Map fpl_id → market_value
+  const marketValueMap = new Map<number, number | null>(
+    (existingPlayers ?? [])
+      .filter((p) => p.fpl_id != null)
+      .map((p) => [p.fpl_id as number, p.market_value]),
+  );
+
+  // Re-map rows to inject the preserved secondary positions and market values
   const finalRows = rows.map((row) => ({
     ...row,
-    secondary_positions: secondaryPositionsMap.get(row.fpl_id) ?? []
+    secondary_positions: secondaryPositionsMap.get(row.fpl_id) ?? [],
+    market_value: marketValueMap.has(row.fpl_id) && marketValueMap.get(row.fpl_id) !== null
+      ? marketValueMap.get(row.fpl_id)
+      : row.market_value
   }));
 
   const { error } = await admin
