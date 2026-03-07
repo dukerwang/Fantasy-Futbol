@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { List } from 'react-window';
 import { createClient } from '@/lib/supabase/client';
-import { formatPlayerName } from '@/types';
+import { formatPlayerName } from '@/lib/formatName';
 import type { League, Team, Player, DraftPick } from '@/types';
 import PlayerDetailsModal from '@/components/players/PlayerDetailsModal';
 import styles from './draft.module.css';
@@ -73,7 +73,7 @@ function PlayerRow({
           {player.primary_position}
         </span>
         <div>
-          <span className={styles.playerName}>{formatPlayerName(player)}</span>
+          <span className={styles.playerName}>{formatPlayerName(player, 'initial_last')}</span>
           <span className={styles.playerClub}>{player.pl_team}</span>
         </div>
       </div>
@@ -394,7 +394,7 @@ export default function DraftRoom({
       if (search.trim()) {
         const q = search.toLowerCase();
         if (
-          !formatPlayerName(p).toLowerCase().includes(q) &&
+          !formatPlayerName(p, 'initial_last').toLowerCase().includes(q) &&
           !p.pl_team.toLowerCase().includes(q)
         ) {
           return false;
@@ -613,7 +613,7 @@ export default function DraftRoom({
                           <span className={`${styles.posBadgeSm} ${styles[`pos${player.primary_position}`]}`}>
                             {player.primary_position}
                           </span>
-                          <span className={styles.queuePlayerName}>{formatPlayerName(player)}</span>
+                          <span className={styles.queuePlayerName}>{formatPlayerName(player, 'initial_last')}</span>
                           <div className={styles.queueControls}>
                             <button
                               type="button"
@@ -749,7 +749,7 @@ export default function DraftRoom({
                                   {pick.player?.primary_position}
                                 </span>
                                 <span className={styles.pickedName}>
-                                  {formatPlayerName(pick.player)}
+                                  {formatPlayerName(pick.player, 'initial_last')}
                                 </span>
                                 {isOptimistic && (
                                   <span className={styles.confirmingLabel}>confirming\u2026</span>
@@ -789,7 +789,7 @@ export default function DraftRoom({
                       {pick.player?.primary_position}
                     </span>
                     <div className={styles.recentPickDetails}>
-                      <span className={styles.recentPickName}>{formatPlayerName(pick.player)}</span>
+                      <span className={styles.recentPickName}>{formatPlayerName(pick.player, 'initial_last')}</span>
                       <span className={styles.recentPickTeam}>{pick.team?.team_name ?? '\u2014'}</span>
                     </div>
                     {isOptimistic && <span className={styles.confirmingLabel}>confirming\u2026</span>}
@@ -835,7 +835,7 @@ export default function DraftRoom({
                                 onClick={() => pick.player && setSelectedPlayer(pick.player)}
                               >
                                 <span className={styles.pickedName}>
-                                  {formatPlayerName(pick.player)}
+                                  {formatPlayerName(pick.player, 'initial_last')}
                                 </span>
                               </div>
                             ) : null}
@@ -884,7 +884,7 @@ export default function DraftRoom({
                                 {pick.player?.primary_position}
                               </span>
                               <span className={styles.rosterPickName}>
-                                {formatPlayerName(pick.player)}
+                                {formatPlayerName(pick.player, 'initial_last')}
                               </span>
                             </motion.li>
                           );

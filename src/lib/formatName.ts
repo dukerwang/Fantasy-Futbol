@@ -1,7 +1,8 @@
 export function formatPlayerName(
-    player: { name: string; web_name?: string | null },
-    format: 'initial_last' | 'full' | 'web_name'
+    player?: { name?: string | null; web_name?: string | null } | null,
+    format: 'initial_last' | 'full' | 'web_name' = 'initial_last'
 ): string {
+    if (!player || !player.name) return '—';
     const KNOWN_MONONYMS: Record<string, string> = {
         "Rodrigo 'Rodri' Hernandez Cascante": "Rodri",
         "Carlos Henrique Casimiro": "Casemiro",

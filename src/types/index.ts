@@ -30,11 +30,11 @@ export type Formation = '4-4-2' | '4-3-3' | '4-2-3-1' | '4-1-4-1' | '3-4-3' | '4
 
 export const FORMATION_SLOTS: Record<Formation, GranularPosition[]> = {
   // Slots ordered left-to-right within each zone so PitchUI renders them correctly without re-sorting.
-  '4-4-2':   ['GK', 'LB', 'CB', 'CB', 'RB', 'LM', 'CM', 'CM', 'RM', 'ST', 'ST'],
-  '4-3-3':   ['GK', 'LB', 'CB', 'CB', 'RB', 'CM', 'DM', 'CM', 'LW', 'ST', 'RW'],
+  '4-4-2': ['GK', 'LB', 'CB', 'CB', 'RB', 'LM', 'CM', 'CM', 'RM', 'ST', 'ST'],
+  '4-3-3': ['GK', 'LB', 'CB', 'CB', 'RB', 'CM', 'DM', 'CM', 'LW', 'ST', 'RW'],
   '4-2-3-1': ['GK', 'LB', 'CB', 'CB', 'RB', 'LM', 'DM', 'AM', 'DM', 'RM', 'ST'],
   '4-1-4-1': ['GK', 'LB', 'CB', 'CB', 'RB', 'LM', 'CM', 'DM', 'CM', 'RM', 'ST'],
-  '3-4-3':   ['GK', 'CB', 'CB', 'CB', 'LM', 'CM', 'CM', 'RM', 'LW', 'ST', 'RW'],
+  '3-4-3': ['GK', 'CB', 'CB', 'CB', 'LM', 'CM', 'CM', 'RM', 'LW', 'ST', 'RW'],
   '4-2-1-3': ['GK', 'LB', 'CB', 'CB', 'RB', 'DM', 'AM', 'DM', 'LW', 'ST', 'RW'],
 };
 
@@ -424,28 +424,7 @@ export interface AuctionListing {
   bid_count: number;
 }
 
-/**
- * Formats a player's name into a clean, concise string for display.
- * - Single word/nickname (e.g. "Alisson", "Estêvão") -> remains exactly as is.
- * - Full name (e.g. "Bukayo Saka") -> "B. Saka".
- */
-export function formatPlayerName(player?: { name?: string | null; web_name?: string | null } | null): string {
-  if (!player) return '—';
-  const targetName = player.web_name || player.name;
 
-  if (!targetName) return '—';
-
-  const parts = targetName.trim().split(' ');
-  // If it's a single word (e.g., Alisson, Gabriel) or a known nickname without spaces
-  if (parts.length === 1) {
-    return parts[0];
-  }
-
-  // Format as "F. Lastname"
-  const firstInitial = parts[0].charAt(0).toUpperCase();
-  const lastName = parts.slice(1).join(' ');
-  return `${firstInitial}. ${lastName}`;
-}
 
 // ============================================================
 // Match Rating System Types
