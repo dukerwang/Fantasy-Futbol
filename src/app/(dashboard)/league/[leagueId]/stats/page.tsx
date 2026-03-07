@@ -68,22 +68,61 @@ export default async function StatsPage({ params }: Props) {
     }
   }
 
-  // Games played per player this season from player_stats
-  const { data: statRows } = await admin
-    .from('player_stats')
-    .select('player_id')
-    .eq('season', '2025-26');
+  // Fetch ALL player_stats for the season to calculate games_played and form locally
+  // We must paginate because Supabase limits queries to 1000 rows by default
+  const allStats: any[] = [];
+  let page = 0;
+  const PAGE_SIZE = 1000;
+  while (true) {
+    const { data } = await admin
+      .from('player_stats')
+      .select('player_id, gameweek, match_rating')
+      .eq('season', '2025-26')
+      .range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1);
+
+    if (!data || data.length === 0) break;
+    allStats.push(...data);
+    if (data.length < PAGE_SIZE) break;
+    page++;
+  }
 
   const gamesPlayedMap = new Map<string, number>();
-  for (const row of statRows ?? []) {
+  const playerLogs = new Map<string, any[]>();
+
+  for (const row of allStats) {
     gamesPlayedMap.set(row.player_id, (gamesPlayedMap.get(row.player_id) ?? 0) + 1);
+
+    if (!playerLogs.has(row.player_id)) {
+      playerLogs.set(row.player_id, []);
+    }
+    playerLogs.get(row.player_id)!.push(row);
   }
 
   // Merge
   const statPlayers: StatPlayer[] = (players ?? []).map((p: any) => {
     const owner = ownerMap.get(p.id) ?? null;
+    const logs = playerLogs.get(p.id) ?? [];
+    logs.sort((a, b) => b.gameweek - a.gameweek); // sort descending gameweek
+    const last3 = logs.slice(0, 3);
+
+    let form = 0;
+    if (last3.length > 0) {
+      let sum = 0;
+      let count = 0;
+      for (const l of last3) {
+        if (l.match_rating != null) {
+          sum += l.match_rating;
+          count++;
+        }
+      }
+      form = count > 0 ? Number((sum / count).toFixed(1)) : 0;
+    } else {
+      form = p.form; // fallback to FPL form if no logs
+    }
+
     return {
       ...p,
+      form, // Override native FPL form with custom match_rating form
       owner_team_id: owner?.teamId ?? null,
       owner_team_name: owner?.teamName ?? null,
       games_played: gamesPlayedMap.get(p.id) ?? 0,
