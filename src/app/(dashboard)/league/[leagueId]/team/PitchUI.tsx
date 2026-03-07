@@ -23,6 +23,8 @@ import {
     BENCH_SLOT_LABELS,
 } from '@/types';
 import type { Formation, GranularPosition, Player, BenchSlot, RosterEntry } from '@/types';
+import PlayerDetailsModal from '@/components/players/PlayerDetailsModal';
+import { formatPlayerName } from '@/lib/formatName';
 import styles from './pitch.module.css';
 
 // ─── Constants ──────────────────────────────────────────────────────────────
@@ -65,7 +67,7 @@ function canPlayBenchSlot(player: Player, slot: BenchSlot): boolean {
 }
 
 function displayName(player: Player): string {
-    return player.web_name ?? player.name;
+    return formatPlayerName(player, 'initial_last');
 }
 
 // ─── Types ────────────────────────────────────────────────────────────────────

@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import type { AuctionListing, Player, GranularPosition } from '@/types';
+import { formatPlayerName } from '@/lib/formatName';
 import styles from './transfers.module.css';
 import PosBadge from '@/components/players/PositionBadge';
 import PlayerDetailsModal from '@/components/players/PlayerDetailsModal';
@@ -304,7 +305,7 @@ export default function TransferMarketClient({
                             onClick={() => setViewingPlayer(auction.player)}
                             title="View Player Details"
                           >
-                            {auction.player.web_name ?? auction.player.name}
+                            {formatPlayerName(auction.player, 'initial_last')}
                           </button>
                           <span className={styles.playerClub}>{auction.player.pl_team}</span>
                         </div>
@@ -436,7 +437,7 @@ export default function TransferMarketClient({
                       onClick={() => setViewingPlayer(player)}
                       title="View Player Details"
                     >
-                      {player.web_name ?? player.name}
+                      {formatPlayerName(player, 'initial_last')}
                     </button>
                     <span className={styles.agentValue}>£{Number(player.market_value ?? 0).toFixed(1)}m</span>
                   </div>
@@ -464,7 +465,7 @@ export default function TransferMarketClient({
               <PosBadge position={modal.player.primary_position} />
               <div>
                 <h2 className={styles.modalPlayerName}>
-                  {modal.player.web_name ?? modal.player.name}
+                  {formatPlayerName(modal.player, 'initial_last')}
                 </h2>
                 <p className={styles.modalPlayerClub}>{modal.player.pl_team}</p>
               </div>

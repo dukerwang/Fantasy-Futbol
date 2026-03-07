@@ -6,6 +6,7 @@ import type { GranularPosition } from '@/types';
 import type { StatPlayer } from './page';
 import PlayerDetailsModal from '@/components/players/PlayerDetailsModal';
 import PosBadge from '@/components/players/PositionBadge';
+import { formatPlayerName } from '@/lib/formatName';
 import styles from './stats.module.css';
 
 interface Props {
@@ -63,7 +64,7 @@ export default function GlobalStatsTable({ leagueId, leagueName, players }: Prop
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
     return players.filter((p) => {
-      if (q && !(p.web_name ?? p.name).toLowerCase().includes(q) && !p.name.toLowerCase().includes(q)) return false;
+      if (q && !formatPlayerName(p, 'full').toLowerCase().includes(q) && !p.name.toLowerCase().includes(q)) return false;
       if (!matchesPos(p, posFilter)) return false;
       return true;
     });
@@ -172,7 +173,7 @@ export default function GlobalStatsTable({ leagueId, leagueName, players }: Prop
                     <PosBadge position={player.primary_position} />
                     <div className={styles.playerInfo}>
                       <span className={styles.playerName}>
-                        {player.web_name ?? player.name}
+                        {formatPlayerName(player, 'full')}
                       </span>
                       <span className={styles.playerClub}>{player.pl_team}</span>
                     </div>
