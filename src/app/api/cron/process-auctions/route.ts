@@ -93,15 +93,17 @@ export async function POST(req: NextRequest) {
 
         // Severance fee = 10% of dropped player's market value (rounded down)
         let severanceFee = 0;
+        let dropPlayerName = '';
         if (candidate.drop_player_id) {
           const { data: dropPlayer } = await admin
             .from('players')
-            .select('market_value')
+            .select('market_value, name')
             .eq('id', candidate.drop_player_id)
             .single();
-          severanceFee = dropPlayer
-            ? Math.floor(Number(dropPlayer.market_value || 0) * 0.1)
-            : 0;
+          if (dropPlayer) {
+            severanceFee = Math.floor(Number(dropPlayer.market_value || 0) * 0.1);
+            dropPlayerName = dropPlayer.name;
+          }
         }
 
         const totalRequired = candidate.faab_bid + severanceFee;
@@ -117,6 +119,8 @@ export async function POST(req: NextRequest) {
         winner = candidate;
         winnerSeveranceFee = severanceFee;
         winnerFreshFaab = freshTeam.faab_budget;
+        // Attach the fetched drop player name to the candidate object so we can use it below
+        (winner as any).drop_player_name = dropPlayerName;
         break;
       }
 
@@ -138,19 +142,21 @@ export async function POST(req: NextRequest) {
         await admin
           .from('roster_entries')
           .delete()
+          .eq('league_id', league_id)
           .eq('team_id', winner.team_id!)
           .eq('player_id', winner.drop_player_id);
 
         const severanceNote = winnerSeveranceFee > 0
           ? ` (£${winnerSeveranceFee}m severance paid)`
           : '';
+        const dropName = (winner as any).drop_player_name || winner.drop_player_id;
         await admin.from('transactions').insert({
           league_id,
           team_id: winner.team_id,
           player_id: winner.drop_player_id,
           type: 'drop',
           compensation_amount: winnerSeveranceFee,
-          notes: `Dropped to make room for auction winner: ${(winner.player as any)?.name ?? player_id}${severanceNote}`,
+          notes: `Dropped to make room for auction winner: ${(winner.player as any)?.name ?? player_id} (dropped ${dropName})${severanceNote}`,
         });
       }
 

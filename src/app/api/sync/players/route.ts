@@ -10,6 +10,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { resolvePosition } from '@/lib/fpl/positionMap';
+import { processPlayerTransferOut } from '@/lib/transfers/compensation';
 
 export const maxDuration = 60; // 1 minute max for Vercel Hobby tier
 
@@ -76,21 +77,66 @@ export async function POST(req: NextRequest) {
 
   const admin = createAdminClient();
 
-  // Find existing fpl_ids to detect new arrivals
-  const { data: existingPlayers } = await admin.from('players').select('fpl_id');
+  // Snapshot existing players before upsert for transfer-out detection and to preserve secondary positions
+  const { data: existingPlayers } = await admin.from('players').select('id, fpl_id, is_active, secondary_positions');
   const existingFplIds = new Set((existingPlayers ?? []).map((p) => p.fpl_id));
+
+  // Map fpl_id → player.id for currently-active players
+  const activeByFplId = new Map<number, string>(
+    (existingPlayers ?? [])
+      .filter((p) => p.is_active && p.fpl_id != null)
+      .map((p) => [p.fpl_id as number, p.id as string]),
+  );
+
+  // Map fpl_id → secondary_positions
+  const secondaryPositionsMap = new Map<number, string[]>(
+    (existingPlayers ?? [])
+      .filter((p) => p.fpl_id != null)
+      .map((p) => [p.fpl_id as number, p.secondary_positions ?? []]),
+  );
+
+  // Re-map rows to inject the preserved secondary positions now that we have them
+  const finalRows = rows.map((row) => ({
+    ...row,
+    secondary_positions: secondaryPositionsMap.get(row.fpl_id) ?? []
+  }));
 
   const { error } = await admin
     .from('players')
-    .upsert(rows, { onConflict: 'fpl_id', ignoreDuplicates: false });
+    .upsert(finalRows, { onConflict: 'fpl_id', ignoreDuplicates: false });
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
+  // --- Auto Transfer-Out: detect permanent PL departures and trigger compensation ---
+  const permanentDepartures = (fplData.elements as FplElement[]).filter((el) => {
+    if (el.status !== 'u') return false;                     // must be unavailable
+    if (!activeByFplId.has(el.id)) return false;             // must have been active before
+    const news = (el.news ?? '').toLowerCase();
+    const isLoan = news.includes('loan');
+    const isPermanentTransfer = news.includes('transfer') || news.includes('joined');
+    return isPermanentTransfer && !isLoan;
+  });
+
+  const autoTransferResults: { playerId: string; result: string }[] = [];
+  for (const el of permanentDepartures) {
+    const playerId = activeByFplId.get(el.id)!;
+    try {
+      const result = await processPlayerTransferOut(admin, playerId);
+      autoTransferResults.push({
+        playerId,
+        result: `${result.playerName} transferred out — ${result.affectedTeams.length} team(s) compensated`,
+      });
+    } catch (err) {
+      console.error(`[sync/players] Failed to process transfer out for player ${playerId}:`, err);
+      autoTransferResults.push({ playerId, result: `error: ${String(err)}` });
+    }
+  }
+
   // --- System Auctions for High-Value Players ---
   const newHighValuePlayers = rows.filter(
-    (row) => !existingFplIds.has(row.fpl_id) && row.market_value >= 50.0
+    (row) => !existingFplIds.has(row.fpl_id) && row.market_value >= 40.0
   );
 
   if (newHighValuePlayers.length > 0) {
@@ -124,7 +170,12 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  return NextResponse.json({ ok: true, synced: rows.length, systemBidsSeeded: newHighValuePlayers.length });
+  return NextResponse.json({
+    ok: true,
+    synced: rows.length,
+    systemBidsSeeded: newHighValuePlayers.length,
+    autoTransferOuts: autoTransferResults,
+  });
 }
 
 // ─── FPL API types ────────────────────────────────────────────────────────────
