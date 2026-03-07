@@ -98,10 +98,11 @@ interface PitchNodeProps {
     isValidTarget: boolean;
     isEmpty: boolean;
     onClick: () => void;
+    onViewDetails?: () => void;
     points?: number;
 }
 
-function PitchNode({ slotPos, player, formation, isSelected, isValidTarget, isEmpty, onClick, points }: PitchNodeProps) {
+function PitchNode({ slotPos, player, formation, isSelected, isValidTarget, isEmpty, onClick, onViewDetails, points }: PitchNodeProps) {
     const cls = [
         styles.pitchNode,
         isSelected ? styles.nodeSelected : '',
@@ -127,7 +128,21 @@ function PitchNode({ slotPos, player, formation, isSelected, isValidTarget, isEm
             </span>
             {player ? (
                 <>
-                    <span className={styles.nodePlayerName}>{displayName(player)}</span>
+                    <span
+                        className={styles.nodePlayerName}
+                        onClick={(e) => {
+                            if (onViewDetails) {
+                                e.stopPropagation();
+                                onViewDetails();
+                            }
+                        }}
+                        style={{ cursor: 'pointer' }}
+                        title="View Player Details"
+                        onMouseEnter={(e) => { e.currentTarget.style.textDecoration = 'underline'; }}
+                        onMouseLeave={(e) => { e.currentTarget.style.textDecoration = 'none'; }}
+                    >
+                        {displayName(player)}
+                    </span>
                     <span className={styles.nodePlayerClub}>{player.pl_team}</span>
                     {player.fpl_status && player.fpl_status !== 'a' && (
                         <span className={styles.nodeStatusDot} data-status={player.fpl_status} />
@@ -187,6 +202,7 @@ export default function PitchUI({
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState(false);
+    const [viewingPlayer, setViewingPlayer] = useState<Player | null>(null);
 
     const slots = FORMATION_SLOTS[formation];
 
@@ -598,6 +614,7 @@ export default function PitchUI({
                                             isValidTarget={isValidTarget}
                                             isEmpty={!playerId}
                                             onClick={() => handleStarterClick(slotIndex)}
+                                            onViewDetails={entry ? () => setViewingPlayer(entry.player) : undefined}
                                             points={playerId && scoreMap ? scoreMap[playerId] : undefined}
                                         />
                                     );
@@ -632,7 +649,19 @@ export default function PitchUI({
                                         <span className={styles.nodePosBadge} style={{ background: POS_COLOR[entry.player.primary_position] }}>
                                             {entry.player.primary_position}
                                         </span>
-                                        <span className={styles.benchPlayerName}>{displayName(entry.player)}</span>
+                                        <span
+                                            className={styles.benchPlayerName}
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setViewingPlayer(entry.player);
+                                            }}
+                                            style={{ cursor: 'pointer' }}
+                                            title="View Player Details"
+                                            onMouseEnter={(e) => { e.currentTarget.style.textDecoration = 'underline'; }}
+                                            onMouseLeave={(e) => { e.currentTarget.style.textDecoration = 'none'; }}
+                                        >
+                                            {displayName(entry.player)}
+                                        </span>
                                         <span className={styles.benchPlayerClub}>{entry.player.pl_team}</span>
                                         {scoreMap && pid && scoreMap[pid] !== undefined && (
                                             <span style={{
@@ -681,7 +710,19 @@ export default function PitchUI({
                                     <span className={styles.nodePosBadge} style={{ background: POS_COLOR[entry.player.primary_position] }}>
                                         {entry.player.primary_position}
                                     </span>
-                                    <span className={styles.poolPlayerName}>{displayName(entry.player)}</span>
+                                    <span
+                                        className={styles.poolPlayerName}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setViewingPlayer(entry.player);
+                                        }}
+                                        style={{ cursor: 'pointer' }}
+                                        title="View Player Details"
+                                        onMouseEnter={(e) => { e.currentTarget.style.textDecoration = 'underline'; }}
+                                        onMouseLeave={(e) => { e.currentTarget.style.textDecoration = 'none'; }}
+                                    >
+                                        {displayName(entry.player)}
+                                    </span>
                                     <span className={styles.poolPlayerClub}>{entry.player.pl_team}</span>
                                     {entry.player.secondary_positions && entry.player.secondary_positions.length > 0 && (
                                         <span className={styles.poolPlayerAlt}>
@@ -708,7 +749,19 @@ export default function PitchUI({
                                 <span className={styles.nodePosBadge} style={{ background: POS_COLOR[entry.player.primary_position] }}>
                                     {entry.player.primary_position}
                                 </span>
-                                <span className={styles.poolPlayerName}>{displayName(entry.player)}</span>
+                                <span
+                                    className={styles.poolPlayerName}
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setViewingPlayer(entry.player);
+                                    }}
+                                    style={{ cursor: 'pointer' }}
+                                    title="View Player Details"
+                                    onMouseEnter={(e) => { e.currentTarget.style.textDecoration = 'underline'; }}
+                                    onMouseLeave={(e) => { e.currentTarget.style.textDecoration = 'none'; }}
+                                >
+                                    {displayName(entry.player)}
+                                </span>
                                 <span className={styles.poolPlayerClub}>{entry.player.pl_team}</span>
                                 <span className={styles.irBadge}>IR</span>
                             </div>
@@ -717,7 +770,6 @@ export default function PitchUI({
                 </div>
             )}
 
-            {/* ── Save Row ── */}
             <div className={styles.saveRow}>
                 {error && <span className={styles.errorText}>{error}</span>}
                 {success && !error && <span className={styles.successText}>Lineup saved!</span>}
@@ -725,6 +777,11 @@ export default function PitchUI({
                     {saving ? 'Saving\u2026' : 'Save Lineup'}
                 </button>
             </div>
+
+            <PlayerDetailsModal
+                player={viewingPlayer}
+                onClose={() => setViewingPlayer(null)}
+            />
         </div>
     );
 }

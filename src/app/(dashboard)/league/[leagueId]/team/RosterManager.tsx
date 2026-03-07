@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import type { Player, RosterEntry } from '@/types';
 import PlayerDetailsModal from '@/components/players/PlayerDetailsModal';
+import { formatPlayerName } from '@/lib/formatName';
 import styles from './my-team.module.css';
 
 interface Props {
@@ -62,9 +63,8 @@ export default function RosterManager({ teamId, rosterEntries }: Props) {
         }
     }
 
-    // Sort by name
     const sortedEntries = [...rosterEntries].sort((a, b) => {
-        return (a.player.web_name || a.player.name).localeCompare(b.player.web_name || b.player.name);
+        return formatPlayerName(a.player, 'full').localeCompare(formatPlayerName(b.player, 'full'));
     });
 
     if (rosterEntries.length === 0) return null;
@@ -94,7 +94,7 @@ export default function RosterManager({ teamId, rosterEntries }: Props) {
                                     className={styles.rosterItemNameBtn}
                                     title="View player details"
                                 >
-                                    {entry.player.web_name ?? entry.player.name}
+                                    {formatPlayerName(entry.player, 'full')}
                                 </button>
                                 <span className={styles.rosterItemClub}>{entry.player.pl_team}</span>
                                 <span className={styles.rosterItemValue}>£{Number(entry.player.market_value || 0).toFixed(1)}m</span>
@@ -105,7 +105,7 @@ export default function RosterManager({ teamId, rosterEntries }: Props) {
                                     onClick={() => handleAction(
                                         entry.player.id,
                                         'drop',
-                                        entry.player.web_name ?? entry.player.name,
+                                        formatPlayerName(entry.player, 'full'),
                                         Number(entry.player.market_value || 0),
                                     )}
                                     disabled={loadingId !== null}
@@ -117,7 +117,7 @@ export default function RosterManager({ teamId, rosterEntries }: Props) {
                                     onClick={() => handleAction(
                                         entry.player.id,
                                         'transfer_out',
-                                        entry.player.web_name ?? entry.player.name,
+                                        formatPlayerName(entry.player, 'full'),
                                         Number(entry.player.market_value || 0),
                                     )}
                                     disabled={loadingId !== null}
