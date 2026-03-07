@@ -2,16 +2,34 @@ export function formatPlayerName(
     player: { name: string; web_name?: string | null },
     format: 'initial_last' | 'full' | 'web_name'
 ): string {
-    const webName = player.web_name?.trim() || "";
+    const KNOWN_MONONYMS: Record<string, string> = {
+        "Rodrigo 'Rodri' Hernandez Cascante": "Rodri",
+        "Carlos Henrique Casimiro": "Casemiro",
+        "Alisson": "Alisson", // Alisson's name in DB is 'Alisson'
+        "Ederson Santana de Moraes": "Ederson",
+        "Sávio Moreira de Oliveira": "Savinho",
+        "Gabriel Magalhães": "Gabriel",
+        "Antony Matheus dos Santos": "Antony",
+        "Richarlison de Andrade": "Richarlison",
+        "Diogo Jota": "Jota",
+        "Luiz Díaz": "Díaz",
+        "Pedro Porro": "Porro"
+    };
+
+    // A player is mononymous if they are explicitly registered in our known overrides map
+    let isMononym = false;
+    let webName = player.web_name?.trim() || "";
+
+    for (const [fullName, mononym] of Object.entries(KNOWN_MONONYMS)) {
+        if (player.name.includes(fullName) || player.name === fullName) {
+            isMononym = true;
+            webName = mononym;
+            break;
+        }
+    }
+
     const parts = player.name.trim().split(/\s+/);
     const lastWord = parts[parts.length - 1].toLowerCase();
-
-    // A player is mononymous if their FPL web_name is exactly 1 word, does not contain initial dots, 
-    // and does NOT match the last word of their legal full name. (e.g. Alisson, Rodri, Casemiro, Savinho).
-    const isMononym = webName.length > 0 &&
-        webName.split(/\s+/).length === 1 &&
-        !webName.includes('.') &&
-        webName.toLowerCase() !== lastWord;
 
     if (format === 'full') {
         if (isMononym) return webName;
