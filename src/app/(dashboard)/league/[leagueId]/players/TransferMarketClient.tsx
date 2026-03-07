@@ -72,6 +72,22 @@ function formatCountdown(expiresAt: string, now: number): string {
   return `${h}h ${m.toString().padStart(2, '0')}m ${s.toString().padStart(2, '0')} s`;
 }
 
+// ─── Absolute end-time helper ─────────────────────────────────────────────
+
+function formatEndTime(expiresAt: string): string {
+  const date = new Date(expiresAt);
+  const now = new Date();
+  const timeStr = date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+
+  const todayStr = now.toDateString();
+  const tomorrowStr = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1).toDateString();
+
+  if (date.toDateString() === todayStr) return `Ends today at ${timeStr}`;
+  if (date.toDateString() === tomorrowStr) return `Ends tomorrow at ${timeStr}`;
+  const dayStr = date.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' });
+  return `Ends ${dayStr} at ${timeStr}`;
+}
+
 // ─── Main component ───────────────────────────────────────────────────────
 
 export default function TransferMarketClient({
@@ -246,7 +262,7 @@ export default function TransferMarketClient({
         {/* ── Left: Active Auctions ── */}
         <section className={styles.auctionsPanel}>
           <div className={styles.panelHeader}>
-            <h2 className={styles.panelTitle}>Active Auctions</h2>
+            <h2 className={styles.panelTitle}>Active Negotiations</h2>
             <button
               className={styles.refreshBtn}
               onClick={refresh}
@@ -259,8 +275,8 @@ export default function TransferMarketClient({
 
           {auctions.length === 0 ? (
             <div className={styles.emptyState}>
-              <p>No active auctions.</p>
-              <p className={styles.emptyHint}>Nominate a free agent below to kick one off.</p>
+              <p>No active negotiations.</p>
+              <p className={styles.emptyHint}>Make an offer to a free agent below to kick off negotiations.</p>
             </div>
           ) : (
             <div className={styles.auctionList}>
@@ -271,7 +287,7 @@ export default function TransferMarketClient({
 
                 const isSystemAuction = auction.highest_bidder_team_id === null;
 
-              return (
+                return (
                   <div
                     key={auction.player.id}
                     className={`${styles.auctionCard} ${isUrgent ? styles.auctionCardUrgent : ''} ${isSystemAuction ? styles.auctionCardWaiver : ''}`}
@@ -295,8 +311,13 @@ export default function TransferMarketClient({
                       </div>
                       {/* Countdown */}
                       <div className={`${styles.countdown} ${isUrgent ? styles.countdownUrgent : ''}`}>
-                        <span className={styles.countdownIcon}>{isUrgent ? '🔥' : '⏱'}</span>
-                        {formatCountdown(auction.expires_at, now)}
+                        <span>
+                          <span className={styles.countdownIcon}>{isUrgent ? '🔥' : '⏱'}</span>
+                          {' '}{formatCountdown(auction.expires_at, now)}
+                        </span>
+                        <span className={styles.countdownEndTime}>
+                          {formatEndTime(auction.expires_at)}
+                        </span>
                       </div>
                     </div>
 
@@ -360,7 +381,7 @@ export default function TransferMarketClient({
         {/* ── Right: Free Agents ── */}
         <section className={styles.freeAgentsPanel}>
           <div className={styles.panelHeader}>
-            <h2 className={styles.panelTitle}>Available Players</h2>
+            <h2 className={styles.panelTitle}>Free Agents</h2>
           </div>
 
           {/* Filters */}
@@ -423,7 +444,7 @@ export default function TransferMarketClient({
                     className={styles.nominateBtn}
                     onClick={() => openBidModal(player, 0, null, null, null)}
                   >
-                    Nominate
+                    Offer
                   </button>
                 </div>
               ))
@@ -464,7 +485,9 @@ export default function TransferMarketClient({
                 )}
                 <div className={styles.modalInfoRow}>
                   <span>Auction closes</span>
-                  <strong>{formatCountdown(modal.currentExpiry, now)}</strong>
+                  <strong title={formatCountdown(modal.currentExpiry, now)}>
+                    {formatEndTime(modal.currentExpiry)}
+                  </strong>
                 </div>
               </div>
             ) : (
