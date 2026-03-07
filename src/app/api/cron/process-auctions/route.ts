@@ -156,7 +156,7 @@ export async function POST(req: NextRequest) {
           player_id: winner.drop_player_id,
           type: 'drop',
           compensation_amount: winnerSeveranceFee,
-          notes: `Dropped to make room for auction winner: ${(winner.player as any)?.name ?? player_id} (dropped ${dropName})${severanceNote}`,
+          notes: `Dropped ${dropName} to make room for auction winner: ${(winner.player as any)?.name ?? player_id}${severanceNote}`,
         });
       }
 

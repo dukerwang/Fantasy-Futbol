@@ -11,15 +11,32 @@ interface Props {
 type TxColor = 'green' | 'red' | 'blue' | 'purple' | 'amber' | 'gray';
 
 const TYPE_CONFIG: Record<string, { label: string; color: TxColor; icon: string }> = {
-  waiver_claim:            { label: 'Auction Win',            color: 'green',  icon: '🏆' },
-  free_agent_pickup:       { label: 'Free Agent Pickup',      color: 'blue',   icon: '✋' },
-  drop:                    { label: 'Drop',                   color: 'red',    icon: '❌' },
-  transfer_out:            { label: 'Transferred Out',        color: 'red',    icon: '✈️' },
-  trade:                   { label: 'Trade',                  color: 'blue',   icon: '🔄' },
-  transfer_compensation:   { label: 'Transfer Compensation',  color: 'purple', icon: '💰' },
-  draft_pick:              { label: 'Draft Pick',             color: 'gray',   icon: '📋' },
-  rebate:                  { label: "Scout's Rebate",         color: 'amber',  icon: '💸' },
+  waiver_claim: { label: 'Auction Win', color: 'green', icon: '🏆' },
+  free_agent_pickup: { label: 'Free Agent Pickup', color: 'blue', icon: '✋' },
+  drop: { label: 'Drop', color: 'red', icon: '❌' },
+  transfer_out: { label: 'Transferred Out', color: 'red', icon: '✈️' },
+  trade: { label: 'Trade', color: 'blue', icon: '🔄' },
+  transfer_compensation: { label: 'Transfer Compensation', color: 'purple', icon: '💰' },
+  draft_pick: { label: 'Draft Pick', color: 'gray', icon: '📋' },
+  rebate: { label: "Scout's Rebate", color: 'amber', icon: '💸' },
 };
+
+function formatTxNotes(notes: string | null, fallbackName?: string) {
+  if (!notes) return fallbackName ? ` — ${fallbackName}` : '';
+
+  let html = notes;
+
+  // "Won auction for Nick Pope with £1m bid"
+  html = html.replace(/Won auction for (.+?) with/, 'Won auction for <strong>$1</strong> with');
+
+  // "Dropped Josh King to make room for auction winner: Nick Pope"
+  html = html.replace(/Dropped (.+?) to make room for auction winner: ([^(]+)(\s*\(.*)?$/, 'Dropped <strong>$1</strong> to make room for auction winner: <strong>$2</strong>$3');
+
+  // "Bid of £5m rejected (lost to Duke's Destroyers)"
+  html = html.replace(/\(lost to ([^)]+)\)/, '(lost to <strong>$1</strong>)');
+
+  return <span dangerouslySetInnerHTML={{ __html: ` — ${html}` }} />;
+}
 
 export default async function ActivityPage({ params }: Props) {
   const { leagueId } = await params;
@@ -103,7 +120,7 @@ export default async function ActivityPage({ params }: Props) {
                   </div>
                   <p className={styles.txDesc}>
                     {team?.team_name && <strong>{team.team_name}</strong>}
-                    {tx.notes ? ` — ${tx.notes}` : player ? ` — ${player.web_name ?? player.name}` : ''}
+                    {formatTxNotes(tx.notes, player ? (player.web_name ?? player.name) : undefined)}
                   </p>
                   {tx.faab_bid != null && (
                     <span className={styles.txFaab}>FAAB: £{tx.faab_bid}m</span>
