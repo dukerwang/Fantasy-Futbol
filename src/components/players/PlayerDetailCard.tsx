@@ -73,7 +73,7 @@ export default function PlayerDetailCard({ player, totalPoints, recentForm, matc
     }, [player.id]);
 
     const displayTotalPoints = totalPoints ?? player.total_points;
-    const displayForm = recentForm ?? player.form_rating ?? player.form;
+    const displayForm = recentForm ?? player.form_rating;
 
     return (
         <div className={styles.card}>
@@ -82,7 +82,14 @@ export default function PlayerDetailCard({ player, totalPoints, recentForm, matc
                 <div className={styles.photoWrap}>
                     {player.photo_url ? (
                         // eslint-disable-next-line @next/next/no-img-element
-                        <img src={player.photo_url} alt={player.name} className={styles.photo} />
+                        <img
+                            src={player.photo_url}
+                            alt={player.name}
+                            className={styles.photo}
+                            loading="eager"
+                            // @ts-ignore
+                            fetchPriority="high"
+                        />
                     ) : (
                         <span className={styles.photoPlaceholder}>
                             {player.name.charAt(0).toUpperCase()}
