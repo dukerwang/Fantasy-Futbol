@@ -46,7 +46,7 @@ export default async function StatsPage({ params }: Props) {
     .select(
       'id, fpl_id, api_football_id, web_name, name, full_name, date_of_birth, nationality, ' +
       'pl_team, pl_team_id, primary_position, secondary_positions, market_value, market_value_updated_at, ' +
-      'adp, projected_points, photo_url, height_cm, fpl_status, fpl_news, total_points, form, ' +
+      'adp, projected_points, photo_url, height_cm, fpl_status, fpl_news, total_points, form, form_rating, ' +
       'is_active, transfermarkt_id, created_at, updated_at',
     )
     .eq('is_active', true)
@@ -68,15 +68,14 @@ export default async function StatsPage({ params }: Props) {
     }
   }
 
-  // Fetch ALL player_stats for the season to calculate games_played and form locally
-  // We must paginate because Supabase limits queries to 1000 rows by default
-  const allStats: any[] = [];
+  // Fetch games_played counts from player_stats (paginated — Supabase row limit 1000)
+  const allStats: { player_id: string }[] = [];
   let page = 0;
   const PAGE_SIZE = 1000;
   while (true) {
     const { data } = await admin
       .from('player_stats')
-      .select('player_id, gameweek, match_rating')
+      .select('player_id')
       .eq('season', '2025-26')
       .range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1);
 
@@ -87,42 +86,16 @@ export default async function StatsPage({ params }: Props) {
   }
 
   const gamesPlayedMap = new Map<string, number>();
-  const playerLogs = new Map<string, any[]>();
-
   for (const row of allStats) {
     gamesPlayedMap.set(row.player_id, (gamesPlayedMap.get(row.player_id) ?? 0) + 1);
-
-    if (!playerLogs.has(row.player_id)) {
-      playerLogs.set(row.player_id, []);
-    }
-    playerLogs.get(row.player_id)!.push(row);
   }
 
-  // Merge
+  // Merge — use pre-computed form_rating from players table for form display
   const statPlayers: StatPlayer[] = (players ?? []).map((p: any) => {
     const owner = ownerMap.get(p.id) ?? null;
-    const logs = playerLogs.get(p.id) ?? [];
-    logs.sort((a, b) => b.gameweek - a.gameweek); // sort descending gameweek
-    const last3 = logs.slice(0, 3);
-
-    let form = 0;
-    if (last3.length > 0) {
-      let sum = 0;
-      let count = 0;
-      for (const l of last3) {
-        if (l.match_rating != null) {
-          sum += l.match_rating;
-          count++;
-        }
-      }
-      form = count > 0 ? Number((sum / count).toFixed(1)) : 0;
-    } else {
-      form = p.form; // fallback to FPL form if no logs
-    }
-
     return {
       ...p,
-      form, // Override native FPL form with custom match_rating form
+      form: p.form_rating ?? p.form, // prefer pre-computed rating average; fallback to FPL form
       owner_team_id: owner?.teamId ?? null,
       owner_team_name: owner?.teamName ?? null,
       games_played: gamesPlayedMap.get(p.id) ?? 0,

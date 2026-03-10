@@ -137,6 +137,30 @@ async function main() {
       if (dbMatch) break;
     }
 
+    const MANUAL_OVERRIDES = {
+      'Louis Jordan Beyer': 'Jordan Beyer',
+      'Toluwalase Emmanuel Arokodare': 'Tolu Arokodare',
+      'Alejandro Jiménez Sánchez': 'Álex Jiménez Sánchez',
+      'Tóth Alex László': 'Alex Tóth',
+      'Xavier Quentin Shay Simons': 'Xavi Simons',
+      'Valentín Mariano José Castellanos Giménez': 'Valentín Castellanos',
+      'Abdul-Nasir Oluwatosin Oluwadoyinsolami Adarabioyo': 'Tosin Adarabioyo',
+      'Eli Junior Eric Anat Kroupi': 'Junior Kroupi',
+      'Adilson Angel Abreu de Almeida Gomés': 'Angel Gomes',
+      'James William McConnell': 'James McConnell',
+      'Lewis William Orford': 'Lewis Orford'
+    };
+
+    if (!dbMatch && MANUAL_OVERRIDES[sp.full_name]) {
+      const overrideName = normalizeName(MANUAL_OVERRIDES[sp.full_name]);
+      dbMatch = nameMap.get(overrideName) ?? null;
+    }
+
+    if (!dbMatch && MANUAL_OVERRIDES[sp.short_name]) {
+      const overrideName = normalizeName(MANUAL_OVERRIDES[sp.short_name]);
+      dbMatch = nameMap.get(overrideName) ?? null;
+    }
+
     if (!dbMatch) {
       // Fuzzy fallback
       for (const candidate of candidates) {

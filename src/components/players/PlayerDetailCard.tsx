@@ -60,39 +60,20 @@ export default function PlayerDetailCard({ player, totalPoints, recentForm, matc
     const [showBreakdown, setShowBreakdown] = useState(false);
     const [activeTab, setActiveTab] = useState<'overview' | 'gamelog'>('overview');
     const [gamelog, setGamelog] = useState<GamelogEntry[]>([]);
-    const [recentCalcForm, setRecentCalcForm] = useState<number | null>(null);
 
     const age = player.date_of_birth ? calculateAge(player.date_of_birth) : null;
     const statusInfo = player.fpl_status ? FPL_STATUS_INFO[player.fpl_status] : null;
 
     useEffect(() => {
-        setGamelog([]);
-        setRecentCalcForm(null);
         fetch(`/api/players/${player.id}`)
             .then((r) => r.json())
-            .then((d) => {
-                const logs: GamelogEntry[] = d.gamelog ?? [];
-                setGamelog(logs);
-
-                // Calculate custom 3-game Match Rating form locally
-                let validGames = 0;
-                let sumRating = 0;
-                for (const log of logs) {
-                    if (!log.isDNP && log.match_rating != null) {
-                        sumRating += log.match_rating;
-                        validGames++;
-                        if (validGames === 3) break;
-                    }
-                }
-                if (validGames > 0) {
-                    setRecentCalcForm(sumRating / validGames);
-                }
-            })
+            .then((d) => setGamelog(d.gamelog ?? []))
             .catch(() => { /* silently fail — no game data yet */ });
+        return () => setGamelog([]);
     }, [player.id]);
 
     const displayTotalPoints = totalPoints ?? player.total_points;
-    const displayForm = recentForm ?? recentCalcForm;
+    const displayForm = recentForm ?? player.form_rating ?? player.form;
 
     return (
         <div className={styles.card}>
@@ -181,42 +162,38 @@ export default function PlayerDetailCard({ player, totalPoints, recentForm, matc
                         <div className={styles.statsGrid}>
                             <div className={styles.statItem}>
                                 <span className={styles.statValue} data-gold="true">
-                                    £{player.market_value}m
+                                    {player.market_value != null ? `£${player.market_value}m` : '—'}
                                 </span>
                                 <span className={styles.statLabel}>Value</span>
                             </div>
 
-                            {player.adp !== null && player.adp !== undefined && (
-                                <div className={styles.statItem}>
-                                    <span className={styles.statValue}>{player.adp}</span>
-                                    <span className={styles.statLabel}>ADP</span>
-                                </div>
-                            )}
+                            <div className={styles.statItem}>
+                                <span className={styles.statValue}>
+                                    {player.adp != null ? player.adp : '—'}
+                                </span>
+                                <span className={styles.statLabel}>ADP</span>
+                            </div>
 
-                            {player.projected_points !== null && player.projected_points !== undefined && (
-                                <div className={styles.statItem}>
-                                    <span className={styles.statValue}>{player.projected_points.toFixed(1)}</span>
-                                    <span className={styles.statLabel}>Proj Pts</span>
-                                </div>
-                            )}
+                            <div className={styles.statItem}>
+                                <span className={styles.statValue}>
+                                    {player.projected_points != null ? player.projected_points.toFixed(1) : '—'}
+                                </span>
+                                <span className={styles.statLabel}>Proj Pts</span>
+                            </div>
 
-                            {displayTotalPoints != null && (
-                                <div className={styles.statItem}>
-                                    <span className={styles.statValue}>
-                                        {displayTotalPoints.toFixed(1)}
-                                    </span>
-                                    <span className={styles.statLabel}>Total Pts</span>
-                                </div>
-                            )}
+                            <div className={styles.statItem}>
+                                <span className={styles.statValue}>
+                                    {displayTotalPoints != null ? displayTotalPoints.toFixed(1) : '—'}
+                                </span>
+                                <span className={styles.statLabel}>Total Pts</span>
+                            </div>
 
-                            {displayForm != null && (
-                                <div className={styles.statItem}>
-                                    <span className={styles.statValue}>
-                                        {displayForm.toFixed(1)}
-                                    </span>
-                                    <span className={styles.statLabel}>Form (3 GW)</span>
-                                </div>
-                            )}
+                            <div className={styles.statItem}>
+                                <span className={styles.statValue}>
+                                    {displayForm != null ? displayForm.toFixed(1) : '—'}
+                                </span>
+                                <span className={styles.statLabel}>Form (3 GW)</span>
+                            </div>
                         </div>
 
                         {/* ── Status / Injury News ── */}

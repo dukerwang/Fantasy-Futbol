@@ -117,6 +117,9 @@ async function syncFplLiveRatings(gameweek: number): Promise<NextResponse> {
   // Recalculate total_points and form for all players from player_stats
   await supabase.rpc('update_player_fantasy_scores');
 
+  // Recompute pre-computed form_rating (avg match_rating over last 3 appearances)
+  await supabase.rpc('update_player_form_ratings');
+
   return NextResponse.json({ ok: true, mode: 'fpl_live', gameweek, saved });
 }
 

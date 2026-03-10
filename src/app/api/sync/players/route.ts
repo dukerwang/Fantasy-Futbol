@@ -71,6 +71,7 @@ export async function POST(req: NextRequest) {
         fpl_status: el.status,
         fpl_news: el.news || null,
         is_active: el.status !== 'u', // 'u' = unavailable (left club)
+        date_of_birth: el.birth_date ?? null,
         updated_at: new Date().toISOString(),
       };
     });
@@ -78,7 +79,7 @@ export async function POST(req: NextRequest) {
   const admin = createAdminClient();
 
   // Snapshot existing players before upsert for transfer-out detection and to preserve secondary positions, market values, and names
-  const { data: existingPlayers } = await admin.from('players').select('id, fpl_id, is_active, secondary_positions, market_value, name');
+  const { data: existingPlayers } = await admin.from('players').select('id, fpl_id, is_active, secondary_positions, market_value, name, date_of_birth');
   const existingFplIds = new Set((existingPlayers ?? []).map((p) => p.fpl_id));
 
   // Map fpl_id → player.id for currently-active players
@@ -211,4 +212,5 @@ interface FplElement {
   form: string;
   total_points: number;
   photo: string;        // "{code}.jpg"
+  birth_date?: string;  // "YYYY-MM-DD"
 }

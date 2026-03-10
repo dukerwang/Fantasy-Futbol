@@ -73,7 +73,7 @@ export default async function MatchupDetailPage({ params }: Props) {
     if (playerIds.size > 0) {
         const { data: players } = await admin
             .from('players')
-            .select('*')
+            .select('id, fpl_id, api_football_id, web_name, name, full_name, date_of_birth, nationality, pl_team, pl_team_id, primary_position, secondary_positions, market_value, market_value_updated_at, adp, projected_points, photo_url, height_cm, fpl_status, fpl_news, total_points, form, form_rating, is_active, transfermarkt_id, created_at, updated_at')
             .in('id', Array.from(playerIds));
 
         for (const p of players ?? []) {

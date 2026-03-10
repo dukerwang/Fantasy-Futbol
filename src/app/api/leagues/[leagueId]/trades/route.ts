@@ -51,7 +51,7 @@ export async function GET(_req: NextRequest, { params }: Props) {
   if (allTeamIds.length > 0) {
     const { data: rosterEntries } = await admin
       .from('roster_entries')
-      .select('team_id, player:players(id, name, web_name, primary_position, secondary_positions, pl_team, market_value)')
+      .select('team_id, player:players(id, fpl_id, api_football_id, web_name, name, full_name, date_of_birth, nationality, pl_team, pl_team_id, primary_position, secondary_positions, market_value, market_value_updated_at, adp, projected_points, photo_url, height_cm, fpl_status, fpl_news, total_points, form, form_rating, is_active, transfermarkt_id, created_at, updated_at)')
       .in('team_id', allTeamIds);
 
     for (const entry of rosterEntries ?? []) {
@@ -63,7 +63,7 @@ export async function GET(_req: NextRequest, { params }: Props) {
   // My roster
   const { data: myRosterEntries } = await admin
     .from('roster_entries')
-    .select('player:players(id, name, web_name, primary_position, secondary_positions, pl_team, market_value)')
+    .select('player:players(id, fpl_id, api_football_id, web_name, name, full_name, date_of_birth, nationality, pl_team, pl_team_id, primary_position, secondary_positions, market_value, market_value_updated_at, adp, projected_points, photo_url, height_cm, fpl_status, fpl_news, total_points, form, form_rating, is_active, transfermarkt_id, created_at, updated_at)')
     .eq('team_id', myTeam.id);
 
   const myRoster = (myRosterEntries ?? []).map((e) => e.player as any);
@@ -79,7 +79,7 @@ export async function GET(_req: NextRequest, { params }: Props) {
   if (allPlayerIds.size > 0) {
     const { data: players } = await admin
       .from('players')
-      .select('id, name, web_name, primary_position, secondary_positions, pl_team')
+      .select('id, fpl_id, api_football_id, web_name, name, full_name, date_of_birth, nationality, pl_team, pl_team_id, primary_position, secondary_positions, market_value, market_value_updated_at, adp, projected_points, photo_url, height_cm, fpl_status, fpl_news, total_points, form, form_rating, is_active, transfermarkt_id, created_at, updated_at')
       .in('id', Array.from(allPlayerIds));
 
     for (const p of players ?? []) {
