@@ -60,7 +60,7 @@ export default async function MyTeamPage({ params, searchParams }: Props) {
     .select(
       `
       id, team_id, player_id, status, acquisition_type, acquisition_value, acquired_at,
-      player:players(id, fpl_id, api_football_id, web_name, name, full_name, date_of_birth, nationality, pl_team, pl_team_id, primary_position, secondary_positions, market_value, market_value_updated_at, adp, projected_points, photo_url, height_cm, fpl_status, fpl_news, total_points, form, form_rating, is_active, transfermarkt_id, created_at, updated_at)
+      player:players(id, fpl_id, api_football_id, web_name, name, full_name, date_of_birth, nationality, pl_team, pl_team_id, primary_position, secondary_positions, market_value, market_value_updated_at, projected_points, photo_url, height_cm, fpl_status, fpl_news, total_points, form_rating, ppg, is_active, transfermarkt_id, created_at, updated_at)
     `
     )
     .eq('team_id', team.id)

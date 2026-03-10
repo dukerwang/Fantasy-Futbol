@@ -60,7 +60,7 @@ export default async function DraftPage({ params }: Props) {
   const { data: playersData } = await admin
     .from('players')
     .select(
-      'id, web_name, name, primary_position, secondary_positions, pl_team, is_active, market_value, date_of_birth, nationality, height_cm, fpl_status, fpl_news, total_points, form_rating, adp, projected_points, photo_url'
+      'id, web_name, name, primary_position, secondary_positions, pl_team, is_active, market_value, date_of_birth, nationality, height_cm, fpl_status, fpl_news, total_points, form_rating, ppg, projected_points, photo_url'
     )
     .eq('is_active', true)
     .order('market_value', { ascending: false });

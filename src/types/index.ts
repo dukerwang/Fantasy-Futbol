@@ -150,6 +150,7 @@ export interface Player {
   total_points: number | null; // custom scoring engine: SUM fantasy_points this season
   form: number | null;         // custom scoring engine: avg fantasy_points over last 3 GWs
   form_rating: number | null;  // custom match rating: avg match_rating over last 3 appearances
+  ppg: number | null;          // custom scoring engine: total_points / matches_played
   is_active: boolean; // still in the PL
   transfermarkt_id: string | null;
   created_at: string;

@@ -176,9 +176,9 @@ export default function PlayerDetailCard({ player, totalPoints, recentForm, matc
 
                             <div className={styles.statItem}>
                                 <span className={styles.statValue}>
-                                    {player.adp != null ? player.adp : '—'}
+                                    {player.ppg != null ? player.ppg.toFixed(1) : '—'}
                                 </span>
-                                <span className={styles.statLabel}>ADP</span>
+                                <span className={styles.statLabel}>PPG</span>
                             </div>
 
                             <div className={styles.statItem}>

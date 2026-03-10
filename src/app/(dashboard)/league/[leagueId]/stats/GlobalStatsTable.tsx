@@ -156,10 +156,7 @@ export default function GlobalStatsTable({ leagueId, leagueName, players }: Prop
           </thead>
           <tbody>
             {sorted.map((player) => {
-              const ppg =
-                player.games_played > 0
-                  ? ((player.total_points ?? 0) / player.games_played).toFixed(1)
-                  : '—';
+              const ppg = player.ppg != null ? player.ppg.toFixed(1) : '—';
               const isOwned = player.owner_team_name !== null;
 
               return (

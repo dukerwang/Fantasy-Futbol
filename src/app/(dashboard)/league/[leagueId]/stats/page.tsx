@@ -46,7 +46,7 @@ export default async function StatsPage({ params }: Props) {
     .select(
       'id, fpl_id, api_football_id, web_name, name, full_name, date_of_birth, nationality, ' +
       'pl_team, pl_team_id, primary_position, secondary_positions, market_value, market_value_updated_at, ' +
-      'adp, projected_points, photo_url, height_cm, fpl_status, fpl_news, total_points, form, form_rating, ' +
+      'projected_points, photo_url, height_cm, fpl_status, fpl_news, total_points, form_rating, ppg, ' +
       'is_active, transfermarkt_id, created_at, updated_at',
     )
     .eq('is_active', true)
@@ -95,7 +95,8 @@ export default async function StatsPage({ params }: Props) {
     const owner = ownerMap.get(p.id) ?? null;
     return {
       ...p,
-      form: p.form_rating ?? p.form, // prefer pre-computed rating average; fallback to FPL form
+      form: p.form_rating, // use pre-computed rating average
+      ppg: p.ppg,
       owner_team_id: owner?.teamId ?? null,
       owner_team_name: owner?.teamName ?? null,
       games_played: gamesPlayedMap.get(p.id) ?? 0,
