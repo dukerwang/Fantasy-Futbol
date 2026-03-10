@@ -6,6 +6,7 @@ interface Props {
   player: Player;
   rosterEntry?: RosterEntry;
   fantasyPoints?: number;
+  projectedPoints?: number;
   onDrop?: (playerId: string) => void;
   onBid?: (player: Player) => void;
   onClick?: (player: Player) => void;
@@ -13,7 +14,7 @@ interface Props {
   bidPending?: string; // team name if a bid is already pending for this player
 }
 
-export default function PlayerCard({ player, rosterEntry, fantasyPoints, onDrop, onBid, onClick, compact, bidPending }: Props) {
+export default function PlayerCard({ player, rosterEntry, fantasyPoints, projectedPoints, onDrop, onBid, onClick, compact, bidPending }: Props) {
   const statusLabel: Record<string, string> = {
     active: 'Starting',
     bench: 'Bench',
@@ -60,10 +61,20 @@ export default function PlayerCard({ player, rosterEntry, fantasyPoints, onDrop,
       </div>
 
       <div className={styles.right}>
-        {fantasyPoints !== undefined && (
-          <div className={styles.points}>
-            <span className={styles.pointsValue}>{fantasyPoints.toFixed(1)}</span>
-            <span className={styles.pointsLabel}>pts</span>
+        {(fantasyPoints !== undefined || projectedPoints !== undefined) && (
+          <div className={styles.pointsContainer}>
+            {fantasyPoints !== undefined && (
+              <div className={styles.points}>
+                <span className={styles.pointsValue}>{fantasyPoints.toFixed(1)}</span>
+                <span className={styles.pointsLabel}>pts</span>
+              </div>
+            )}
+            {projectedPoints !== undefined && (
+              <div className={styles.projectedPoints}>
+                <span className={styles.pointsLabel}>Proj: </span>
+                <span className={styles.projectedValue}>{projectedPoints.toFixed(1)}</span>
+              </div>
+            )}
           </div>
         )}
         <div className={styles.value}>

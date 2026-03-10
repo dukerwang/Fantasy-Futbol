@@ -97,6 +97,9 @@ export default function RosterManager({ teamId, rosterEntries }: Props) {
                                     {formatPlayerName(entry.player, 'full')}
                                 </button>
                                 <span className={styles.rosterItemClub}>{entry.player.pl_team}</span>
+                                {entry.player.projected_points !== undefined && entry.player.projected_points !== null && (
+                                    <span className={styles.rosterItemValue} style={{ color: 'var(--color-text-secondary)', marginRight: 'var(--space-2)' }}>Proj: {Number(entry.player.projected_points).toFixed(1)}</span>
+                                )}
                                 <span className={styles.rosterItemValue}>£{Number(entry.player.market_value || 0).toFixed(1)}m</span>
                             </div>
                             <div className={styles.rosterItemActions}>

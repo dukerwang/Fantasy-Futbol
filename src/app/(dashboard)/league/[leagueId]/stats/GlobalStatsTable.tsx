@@ -15,7 +15,7 @@ interface Props {
   players: StatPlayer[];
 }
 
-type SortKey = 'total_points' | 'ppg' | 'market_value' | 'form';
+type SortKey = 'total_points' | 'ppg' | 'projected_points' | 'market_value' | 'form';
 type SortDir = 'desc' | 'asc';
 
 const DEF_POSITIONS: GranularPosition[] = ['CB', 'LB', 'RB'];
@@ -80,6 +80,9 @@ export default function GlobalStatsTable({ leagueId, leagueName, players }: Prop
       } else if (sortKey === 'ppg') {
         av = a.games_played > 0 ? (a.total_points ?? 0) / a.games_played : 0;
         bv = b.games_played > 0 ? (b.total_points ?? 0) / b.games_played : 0;
+      } else if (sortKey === 'projected_points') {
+        av = a.projected_points ?? 0;
+        bv = b.projected_points ?? 0;
       } else if (sortKey === 'market_value') {
         av = a.market_value ?? 0;
         bv = b.market_value ?? 0;
@@ -146,6 +149,9 @@ export default function GlobalStatsTable({ leagueId, leagueName, players }: Prop
               <th className={`${styles.th} ${styles.sortable}`} onClick={() => handleSort('ppg')}>
                 PPG {sortIndicator('ppg')}
               </th>
+              <th className={`${styles.th} ${styles.sortable}`} onClick={() => handleSort('projected_points')}>
+                Proj {sortIndicator('projected_points')}
+              </th>
               <th className={`${styles.th} ${styles.sortable}`} onClick={() => handleSort('form')}>
                 Form {sortIndicator('form')}
               </th>
@@ -186,6 +192,9 @@ export default function GlobalStatsTable({ leagueId, leagueName, players }: Prop
                     {player.total_points != null ? Number(player.total_points).toFixed(1) : '—'}
                   </td>
                   <td className={`${styles.td} ${styles.tdNum}`}>{ppg}</td>
+                  <td className={`${styles.td} ${styles.tdNum}`} style={{ color: 'var(--color-text-secondary)', fontWeight: 'var(--font-medium)' }}>
+                    {player.projected_points != null ? Number(player.projected_points).toFixed(1) : '—'}
+                  </td>
                   <td className={`${styles.td} ${styles.tdNum}`}>
                     {player.form != null ? Number(player.form).toFixed(1) : '—'}
                   </td>

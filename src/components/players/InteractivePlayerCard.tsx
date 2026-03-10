@@ -8,10 +8,12 @@ import PlayerDetailsModal from './PlayerDetailsModal';
 interface Props {
     player: Player;
     rosterEntry?: RosterEntry;
+    fantasyPoints?: number;
+    projectedPoints?: number;
     compact?: boolean;
 }
 
-export default function InteractivePlayerCard({ player, rosterEntry, compact }: Props) {
+export default function InteractivePlayerCard({ player, rosterEntry, fantasyPoints, projectedPoints, compact }: Props) {
     const [isOpen, setIsOpen] = useState(false);
 
     return (
@@ -19,6 +21,8 @@ export default function InteractivePlayerCard({ player, rosterEntry, compact }: 
             <PlayerCard
                 player={player}
                 rosterEntry={rosterEntry}
+                fantasyPoints={fantasyPoints}
+                projectedPoints={projectedPoints}
                 compact={compact}
                 onClick={() => setIsOpen(true)}
             />

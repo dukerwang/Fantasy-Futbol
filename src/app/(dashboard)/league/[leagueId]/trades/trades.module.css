@@ -235,6 +235,12 @@
   gap: var(--space-4);
 }
 
+@media (max-width: 768px) {
+  .tradeDeal {
+    grid-template-columns: 1fr;
+  }
+}
+
 .tradeSide {
   display: flex;
   flex-direction: column;
@@ -375,6 +381,12 @@
   gap: var(--space-4);
 }
 
+@media (max-width: 768px) {
+  .splitScreen {
+    grid-template-columns: 1fr;
+  }
+}
+
 .rosterPanel {
   background: var(--color-bg-card);
   border: 1px solid var(--color-border);
@@ -486,6 +498,16 @@
   grid-template-columns: 1fr auto 1fr;
   gap: var(--space-4);
   align-items: start;
+}
+
+@media (max-width: 768px) {
+  .dockSides {
+    grid-template-columns: 1fr;
+  }
+  .dockArrow {
+    text-align: center;
+    transform: rotate(90deg);
+  }
 }
 
 .dockSide {

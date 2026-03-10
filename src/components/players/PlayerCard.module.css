@@ -166,6 +166,24 @@
   color: var(--color-text-muted);
 }
 
+.pointsContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.projectedPoints {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+.projectedValue {
+  font-weight: var(--font-medium);
+  color: var(--color-text-secondary);
+}
+
 .value {
   text-align: right;
 }

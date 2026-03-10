@@ -439,6 +439,9 @@ export default function TransferMarketClient({
                     >
                       {formatPlayerName(player, 'initial_last')}
                     </button>
+                    {player.projected_points !== undefined && player.projected_points !== null ? (
+                      <span className={styles.agentValue} style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-secondary)', marginRight: 'var(--space-2)' }}>Proj: {Number(player.projected_points).toFixed(1)}</span>
+                    ) : null}
                     <span className={styles.agentValue}>£{Number(player.market_value ?? 0).toFixed(1)}m</span>
                   </div>
                   <button

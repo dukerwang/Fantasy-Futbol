@@ -12,6 +12,7 @@ interface SimplePlayer {
   primary_position: string;
   pl_team: string;
   market_value?: number;
+  projected_points?: number;
 }
 
 interface SimpleTeam {
@@ -348,7 +349,12 @@ export default function TradesClient({
                         >
                           <PositionBadge position={p.primary_position as any} size="sm" />
                           <span className={styles.rosterPlayerName}>{playerDisplayName(p)}</span>
-                          <span className={styles.rosterPlayerClub}>{p.pl_team}</span>
+                          <span className={styles.rosterPlayerClub}>
+                            {p.pl_team}
+                            {p.projected_points !== undefined && p.projected_points !== null && (
+                              <span style={{ color: 'var(--color-text-secondary)', marginLeft: '8px' }}>Proj: {Number(p.projected_points).toFixed(1)}</span>
+                            )}
+                          </span>
                           {offeredPlayerIds.has(p.id) && <span className={styles.checkmark}>✓</span>}
                         </button>
                       ))
@@ -374,7 +380,12 @@ export default function TradesClient({
                         >
                           <PositionBadge position={p.primary_position as any} size="sm" />
                           <span className={styles.rosterPlayerName}>{playerDisplayName(p)}</span>
-                          <span className={styles.rosterPlayerClub}>{p.pl_team}</span>
+                          <span className={styles.rosterPlayerClub}>
+                            {p.pl_team}
+                            {p.projected_points !== undefined && p.projected_points !== null && (
+                              <span style={{ color: 'var(--color-text-secondary)', marginLeft: '8px' }}>Proj: {Number(p.projected_points).toFixed(1)}</span>
+                            )}
+                          </span>
                           {requestedPlayerIds.has(p.id) && <span className={styles.checkmark}>✓</span>}
                         </button>
                       ))
