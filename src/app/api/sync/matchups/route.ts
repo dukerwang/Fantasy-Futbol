@@ -266,7 +266,6 @@ export async function POST(req: NextRequest) {
                 score_a: scoreA,
                 score_b: scoreB,
                 status: newStatus,
-                winner_team_id: winnerId ?? null,
             })
             .eq('id', m.id);
 
