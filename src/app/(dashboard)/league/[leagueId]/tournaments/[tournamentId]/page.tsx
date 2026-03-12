@@ -81,10 +81,7 @@ export default async function TournamentDetailPage({ params }: Props) {
                     &larr; All Cups
                 </Link>
                 <div className={styles.headerContent}>
-                    <h1 className={styles.title}>
-                        {(tournament as Tournament).name}
-                        <span style={{ fontSize: '0.4em', opacity: 0.5, marginLeft: '8px' }}>(Claude Verified)</span>
-                    </h1>
+                    <h1 className={styles.title}>{(tournament as Tournament).name}</h1>
                     <span className={`${styles.statusBadge} ${
                         tournament.status === 'active' ? styles.badgeActive
                             : tournament.status === 'completed' ? styles.badgeCompleted
