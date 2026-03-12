@@ -484,6 +484,69 @@ export interface RatingCurveConfig {
  * Shape of a single player element from FPL event/{gw}/live/ endpoint.
  * ICT metrics arrive as strings; callers must parseFloat.
  */
+// ============================================================
+// Tournament Types (Phase 15)
+// ============================================================
+
+export type TournamentType = 'primary_cup' | 'secondary_cup' | 'consolation_cup';
+export type TournamentStatus = 'pending' | 'active' | 'completed';
+export type TournamentMatchupStatus = 'pending' | 'active' | 'completed';
+
+export interface Tournament {
+  id: string;
+  league_id: string;
+  name: string;
+  type: TournamentType;
+  status: TournamentStatus;
+  season: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface TournamentRound {
+  id: string;
+  tournament_id: string;
+  name: string;
+  round_number: number;
+  start_gameweek: number;
+  end_gameweek: number;
+  is_two_leg: boolean;
+  created_at: string;
+  // Joined fields
+  matchups?: TournamentMatchup[];
+}
+
+export interface TournamentMatchup {
+  id: string;
+  round_id: string;
+  team_a_id: string | null;
+  team_b_id: string | null;
+  team_a_score_leg1: number;
+  team_b_score_leg1: number;
+  team_a_score_leg2: number;
+  team_b_score_leg2: number;
+  winner_id: string | null;
+  next_matchup_id: string | null;
+  bracket_position: number;
+  status: TournamentMatchupStatus;
+  created_at: string;
+  // Joined fields
+  team_a?: Team;
+  team_b?: Team;
+  winner?: Team;
+}
+
+/** Full tournament with rounds and matchups loaded for bracket rendering. */
+export interface TournamentWithBracket extends Tournament {
+  rounds: (TournamentRound & { matchups: TournamentMatchup[] })[];
+}
+
+export const TOURNAMENT_LABELS: Record<TournamentType, { name: string; short: string }> = {
+  primary_cup: { name: 'Champions League', short: 'UCL' },
+  secondary_cup: { name: 'League Cup', short: 'Cup' },
+  consolation_cup: { name: 'Conference League', short: 'UECL' },
+};
+
 export interface FplLivePlayerStats {
   id: number;
   stats: {
