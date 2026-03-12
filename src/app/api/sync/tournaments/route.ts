@@ -88,11 +88,11 @@ async function handleCreate(_req: NextRequest, params: URLSearchParams) {
   // Fetch league teams with total_points for fallback seeding
   const { data: allTeams, error: teamsErr } = await admin
     .from('teams')
-    .select('id, name, total_points')
+    .select('id, team_name, total_points')
     .eq('league_id', leagueId);
 
   if (teamsErr || !allTeams || allTeams.length < 4) {
-    return NextResponse.json({ error: 'Need at least 4 teams in the league' }, { status: 400 });
+    return NextResponse.json({ error: 'Need at least 4 teams in the league', detail: teamsErr }, { status: 400 });
   }
 
   // Fetch previous season stats for seeding
