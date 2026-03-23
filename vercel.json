@@ -5,6 +5,10 @@
             "schedule": "0 5 * * *"
         },
         {
+            "path": "/api/sync/stats?mode=fpl_live",
+            "schedule": "0 2 * * *"
+        },
+        {
             "path": "/api/sync/matchups",
             "schedule": "0 3 * * *"
         },

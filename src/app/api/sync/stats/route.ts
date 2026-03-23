@@ -19,6 +19,18 @@ export const maxDuration = 60; // 1 minute max for Vercel Hobby tier
 
 const FPL_BASE = 'https://fantasy.premierleague.com/api';
 
+
+async function getCurrentGameweek(): Promise<number> {
+    const res = await fetch('https://fantasy.premierleague.com/api/bootstrap-static/', {
+        next: { revalidate: 3600 }
+    });
+    const data = await res.json();
+    const curr = data.events.find((e: any) => e.is_current);
+    return curr ? curr.id : 0;
+}
+
+export async function GET(req: NextRequest) { return POST(req); }
+
 export async function POST(req: NextRequest) {
   const secret = req.headers.get('x-cron-secret');
   if (secret !== process.env.CRON_SECRET) {
@@ -33,8 +45,9 @@ export async function POST(req: NextRequest) {
   }
 
   if (mode === 'fpl_live') {
-    const gw = parseInt(searchParams.get('gw') ?? '0', 10);
-    if (!gw) return NextResponse.json({ error: 'gw is required' }, { status: 400 });
+    let gw = parseInt(searchParams.get('gw') ?? '0', 10);
+    if (!gw) gw = await getCurrentGameweek();
+    if (!gw) return NextResponse.json({ error: 'gw could not be determined' }, { status: 400 });
     return syncFplLiveRatings(gw);
   }
 

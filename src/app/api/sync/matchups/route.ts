@@ -37,6 +37,18 @@ async function loadReferenceStats(admin: ReturnType<typeof createAdminClient>, s
     return ref;
 }
 
+
+async function getCurrentGameweek(): Promise<number> {
+    const res = await fetch('https://fantasy.premierleague.com/api/bootstrap-static/', {
+        next: { revalidate: 3600 }
+    });
+    const data = await res.json();
+    const curr = data.events.find((e: any) => e.is_current);
+    return curr ? curr.id : 0;
+}
+
+export async function GET(req: NextRequest) { return POST(req); }
+
 export async function POST(req: NextRequest) {
     const secret = req.headers.get('x-cron-secret');
     if (!secret || !process.env.CRON_SECRET || secret !== process.env.CRON_SECRET) {
@@ -44,7 +56,10 @@ export async function POST(req: NextRequest) {
     }
 
     const { searchParams } = new URL(req.url);
-    const gameweek = parseInt(searchParams.get('gameweek') ?? '0', 10);
+    let gameweek = parseInt(searchParams.get('gameweek') ?? '0', 10);
+    if (!gameweek) {
+        gameweek = await getCurrentGameweek();
+    }
     const finished = searchParams.get('finished') === 'true';
 
     if (!gameweek || gameweek < 1) {

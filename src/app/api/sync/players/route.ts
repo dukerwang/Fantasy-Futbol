@@ -16,6 +16,8 @@ export const maxDuration = 60; // 1 minute max for Vercel Hobby tier
 
 const FPL_URL = 'https://fantasy.premierleague.com/api/bootstrap-static/';
 
+export async function GET(req: NextRequest) { return POST(req); }
+
 export async function POST(req: NextRequest) {
   const secret = req.headers.get('x-cron-secret');
   if (secret !== process.env.CRON_SECRET) {
