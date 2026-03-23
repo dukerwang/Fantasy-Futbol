@@ -80,6 +80,7 @@ interface Props {
     initialAssignments: Record<number, string>;
     initialBench: Record<BenchSlot, string | null>;
     scoreMap?: Record<string, number>;
+    lockedTeamIds?: Set<number>;
 }
 
 type Selection =
@@ -98,12 +99,13 @@ interface PitchNodeProps {
     isValidTarget: boolean;
     isEmpty: boolean;
     isInvalid?: boolean;
+    isLocked?: boolean;
     onClick: () => void;
     onViewDetails?: () => void;
     points?: number;
 }
 
-function PitchNode({ slotPos, player, formation, isSelected, isValidTarget, isEmpty, isInvalid, onClick, onViewDetails, points }: PitchNodeProps) {
+function PitchNode({ slotPos, player, formation, isSelected, isValidTarget, isEmpty, isInvalid, isLocked, onClick, onViewDetails, points }: PitchNodeProps) {
     const cls = [
         styles.pitchNode,
         isSelected ? styles.nodeSelected : '',
@@ -122,9 +124,14 @@ function PitchNode({ slotPos, player, formation, isSelected, isValidTarget, isEm
         <button
             type="button"
             className={cls}
-            onClick={onClick}
-            style={{ alignSelf: align, ...(isInvalid ? { border: '2px solid #ef4444', backgroundColor: 'rgba(239, 68, 68, 0.1)' } : {}) }}
-            title={isInvalid ? "Player is not eligible for this position!" : undefined}
+            onClick={isLocked ? undefined : onClick}
+            style={{ 
+                alignSelf: align, 
+                ...(isInvalid ? { border: '2px solid #ef4444', backgroundColor: 'rgba(239, 68, 68, 0.1)' } : {}),
+                ...(isLocked ? { opacity: 0.6, cursor: 'not-allowed', filter: 'grayscale(0.6)' } : {})
+            }}
+            title={isLocked ? "Player's match has already started (Locked)" : isInvalid ? "Player is not eligible for this position!" : undefined}
+            disabled={isLocked}
         >
             <span className={styles.nodePosBadge} style={{ background: POS_COLOR[slotPos] }}>
                 {slotPos}
@@ -146,7 +153,10 @@ function PitchNode({ slotPos, player, formation, isSelected, isValidTarget, isEm
                     >
                         {displayName(player)}
                     </span>
-                    <span className={styles.nodePlayerClub}>{player.pl_team}</span>
+                    <span className={styles.nodePlayerClub}>
+                        {player.pl_team}
+                        {isLocked && <span style={{ marginLeft: '4px' }}>🔒</span>}
+                    </span>
                     {player.fpl_status && player.fpl_status !== 'a' && (
                         <span className={styles.nodeStatusDot} data-status={player.fpl_status} />
                     )}
@@ -182,6 +192,7 @@ export default function PitchUI({
     initialAssignments,
     initialBench,
     scoreMap,
+    lockedTeamIds,
 }: Props) {
     const router = useRouter();
 
@@ -608,6 +619,7 @@ export default function PitchUI({
                                     const isSelected = selection?.type === 'starter' && selection.slotIndex === slotIndex;
                                     const isValidTarget = validSwapTargets.has(`starter-${slotIndex}`);
                                     const isInvalid = !!playerId && !!entry && !canPlaySlot(entry.player, pos);
+                                    const isLocked = !!playerId && !!entry && entry.player.pl_team_id !== null && lockedTeamIds?.has(entry.player.pl_team_id);
 
                                     return (
                                         <PitchNode
@@ -619,6 +631,7 @@ export default function PitchUI({
                                             isValidTarget={isValidTarget}
                                             isEmpty={!playerId}
                                             isInvalid={isInvalid}
+                                            isLocked={isLocked}
                                             onClick={() => handleStarterClick(slotIndex)}
                                             onViewDetails={entry ? () => setViewingPlayer(entry.player) : undefined}
                                             points={playerId && scoreMap ? scoreMap[playerId] : undefined}
@@ -637,16 +650,21 @@ export default function PitchUI({
                 <div className={styles.benchLabel}>Bench Substitutes</div>
                 <div className={styles.benchRow}>
                     {BENCH_SLOT_NAMES.map((slot) => {
-                        const pid = benchAssignments[slot];
+                                const pid = benchAssignments[slot];
                         const entry = pid ? playerMap.get(pid) : undefined;
                         const isSelected = selection?.type === 'bench-slot' && selection.slot === slot;
                         const isValidTarget = validSwapTargets.has(`bench-${slot}`);
+                        const isLocked = !!pid && !!entry && entry.player.pl_team_id !== null && lockedTeamIds?.has(entry.player.pl_team_id);
+
                         return (
                             <button
                                 key={slot}
                                 type="button"
                                 className={`${styles.benchSlot} ${isSelected ? styles.nodeSelected : ''} ${isValidTarget ? styles.nodeValidTarget : ''} ${!pid ? styles.nodeEmpty : ''}`}
-                                onClick={() => handleBenchSlotClick(slot)}
+                                onClick={isLocked ? undefined : () => handleBenchSlotClick(slot)}
+                                style={isLocked ? { opacity: 0.6, cursor: 'not-allowed', filter: 'grayscale(0.6)' } : {}}
+                                title={isLocked ? "Player's match has already started (Locked)" : undefined}
+                                disabled={isLocked}
                             >
                                 <span className={styles.benchSlotType}>{slot}</span>
                                 <span className={styles.benchSlotDesc}>{BENCH_SLOT_LABELS[slot]}</span>
@@ -658,17 +676,21 @@ export default function PitchUI({
                                         <span
                                             className={styles.benchPlayerName}
                                             onClick={(e) => {
+                                                if (isLocked) return;
                                                 e.stopPropagation();
                                                 setViewingPlayer(entry.player);
                                             }}
-                                            style={{ cursor: 'pointer' }}
-                                            title="View Player Details"
-                                            onMouseEnter={(e) => { e.currentTarget.style.textDecoration = 'underline'; }}
-                                            onMouseLeave={(e) => { e.currentTarget.style.textDecoration = 'none'; }}
+                                            style={{ cursor: isLocked ? 'not-allowed' : 'pointer' }}
+                                            title={isLocked ? undefined : "View Player Details"}
+                                            onMouseEnter={(e) => { if (!isLocked) e.currentTarget.style.textDecoration = 'underline'; }}
+                                            onMouseLeave={(e) => { if (!isLocked) e.currentTarget.style.textDecoration = 'none'; }}
                                         >
                                             {displayName(entry.player)}
                                         </span>
-                                        <span className={styles.benchPlayerClub}>{entry.player.pl_team}</span>
+                                        <span className={styles.benchPlayerClub}>
+                                            {entry.player.pl_team}
+                                            {isLocked && <span style={{ marginLeft: '4px' }}>🔒</span>}
+                                        </span>
                                         {scoreMap && pid && scoreMap[pid] !== undefined && (
                                             <span style={{
                                                 fontSize: '0.68rem',
@@ -706,12 +728,17 @@ export default function PitchUI({
                         {poolEntries.map((entry) => {
                             const isSelected = selection?.type === 'pool' && selection.playerId === entry.player.id;
                             const isValidTarget = validSwapTargets.has(`pool-${entry.player.id}`);
+                            const isLocked = entry.player.pl_team_id !== null && lockedTeamIds?.has(entry.player.pl_team_id);
+
                             return (
                                 <button
                                     key={entry.id}
                                     type="button"
                                     className={`${styles.poolPlayer} ${isSelected ? styles.nodeSelected : ''} ${isValidTarget ? styles.nodeValidTarget : ''}`}
-                                    onClick={() => handlePoolClick(entry.player.id)}
+                                    onClick={isLocked ? undefined : () => handlePoolClick(entry.player.id)}
+                                    style={isLocked ? { opacity: 0.6, cursor: 'not-allowed', filter: 'grayscale(0.6)' } : {}}
+                                    title={isLocked ? "Player's match has already started (Locked)" : undefined}
+                                    disabled={isLocked}
                                 >
                                     <span className={styles.nodePosBadge} style={{ background: POS_COLOR[entry.player.primary_position] }}>
                                         {entry.player.primary_position}
@@ -719,17 +746,21 @@ export default function PitchUI({
                                     <span
                                         className={styles.poolPlayerName}
                                         onClick={(e) => {
+                                            if (isLocked) return;
                                             e.stopPropagation();
                                             setViewingPlayer(entry.player);
                                         }}
-                                        style={{ cursor: 'pointer' }}
-                                        title="View Player Details"
-                                        onMouseEnter={(e) => { e.currentTarget.style.textDecoration = 'underline'; }}
-                                        onMouseLeave={(e) => { e.currentTarget.style.textDecoration = 'none'; }}
+                                        style={{ cursor: isLocked ? 'not-allowed' : 'pointer' }}
+                                        title={isLocked ? undefined : "View Player Details"}
+                                        onMouseEnter={(e) => { if (!isLocked) e.currentTarget.style.textDecoration = 'underline'; }}
+                                        onMouseLeave={(e) => { if (!isLocked) e.currentTarget.style.textDecoration = 'none'; }}
                                     >
                                         {displayName(entry.player)}
                                     </span>
-                                    <span className={styles.poolPlayerClub}>{entry.player.pl_team}</span>
+                                    <span className={styles.poolPlayerClub}>
+                                        {entry.player.pl_team}
+                                        {isLocked && <span style={{ marginLeft: '4px' }}>🔒</span>}
+                                    </span>
                                     {entry.player.secondary_positions && entry.player.secondary_positions.length > 0 && (
                                         <span className={styles.poolPlayerAlt}>
                                             +{entry.player.secondary_positions.join('/')}

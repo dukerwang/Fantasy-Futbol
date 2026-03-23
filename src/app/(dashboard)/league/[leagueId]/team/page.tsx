@@ -106,12 +106,14 @@ export default async function MyTeamPage({ params, searchParams }: Props) {
   // Try to load existing lineup from next scheduled matchup
   const { data: matchup } = await admin
     .from('matchups')
-    .select('id, team_a_id, team_b_id, lineup_a, lineup_b')
+    .select('id, team_a_id, team_b_id, lineup_a, lineup_b, gameweek')
     .eq('status', 'scheduled')
     .or(`team_a_id.eq.${team.id},team_b_id.eq.${team.id}`)
     .order('gameweek', { ascending: true })
     .limit(1)
     .single();
+
+  let lockedTeamIds = new Set<number>();
 
   if (matchup) {
     const isTeamA = (matchup as any).team_a_id === team.id;
@@ -132,6 +134,23 @@ export default async function MyTeamPage({ params, searchParams }: Props) {
         }
       }
     }
+
+    // Identify which teams have locked for this matchup's gameweek
+    try {
+      const res = await fetch(`https://fantasy.premierleague.com/api/fixtures/?event=${(matchup as any).gameweek}`, {
+        next: { revalidate: 60 }
+      });
+      if (res.ok) {
+        const fixtures = await res.json();
+        const now = new Date();
+        for (const f of fixtures) {
+          if (f.kickoff_time && new Date(f.kickoff_time) <= now) {
+            lockedTeamIds.add(f.team_h);
+            lockedTeamIds.add(f.team_a);
+          }
+        }
+      }
+    } catch { /* Fail open */ }
   }
 
   // If no existing lineup, auto-assign starters based on current roster statuses
@@ -212,6 +231,7 @@ export default async function MyTeamPage({ params, searchParams }: Props) {
         initialAssignments={initialAssignments}
         initialBench={initialBench as Record<BenchSlot, string | null>}
         scoreMap={scoreMap}
+        lockedTeamIds={lockedTeamIds}
       />
 
       <div className={styles.sections}>
