@@ -97,17 +97,19 @@ interface PitchNodeProps {
     isSelected: boolean;
     isValidTarget: boolean;
     isEmpty: boolean;
+    isInvalid?: boolean;
     onClick: () => void;
     onViewDetails?: () => void;
     points?: number;
 }
 
-function PitchNode({ slotPos, player, formation, isSelected, isValidTarget, isEmpty, onClick, onViewDetails, points }: PitchNodeProps) {
+function PitchNode({ slotPos, player, formation, isSelected, isValidTarget, isEmpty, isInvalid, onClick, onViewDetails, points }: PitchNodeProps) {
     const cls = [
         styles.pitchNode,
         isSelected ? styles.nodeSelected : '',
         isValidTarget ? styles.nodeValidTarget : '',
         isEmpty ? styles.nodeEmpty : '',
+        isInvalid ? styles.nodeInvalid : '',
     ].filter(Boolean).join(' ');
 
     // Only elevate LM/RMs if they are acting as wingers in a 3-attacker formation (like 4-3-3 if it used LM/RMs, or 4-2-3-1 which acts like LAM/RAM)
@@ -121,7 +123,8 @@ function PitchNode({ slotPos, player, formation, isSelected, isValidTarget, isEm
             type="button"
             className={cls}
             onClick={onClick}
-            style={{ alignSelf: align }}
+            style={{ alignSelf: align, ...(isInvalid ? { border: '2px solid #ef4444', backgroundColor: 'rgba(239, 68, 68, 0.1)' } : {}) }}
+            title={isInvalid ? "Player is not eligible for this position!" : undefined}
         >
             <span className={styles.nodePosBadge} style={{ background: POS_COLOR[slotPos] }}>
                 {slotPos}
@@ -136,7 +139,7 @@ function PitchNode({ slotPos, player, formation, isSelected, isValidTarget, isEm
                                 onViewDetails();
                             }
                         }}
-                        style={{ cursor: 'pointer' }}
+                        style={{ cursor: 'pointer', ...(isInvalid ? { color: '#ef4444', fontWeight: 'bold' } : {}) }}
                         title="View Player Details"
                         onMouseEnter={(e) => { e.currentTarget.style.textDecoration = 'underline'; }}
                         onMouseLeave={(e) => { e.currentTarget.style.textDecoration = 'none'; }}
@@ -604,6 +607,8 @@ export default function PitchUI({
                                     const entry = playerId ? playerMap.get(playerId) : undefined;
                                     const isSelected = selection?.type === 'starter' && selection.slotIndex === slotIndex;
                                     const isValidTarget = validSwapTargets.has(`starter-${slotIndex}`);
+                                    const isInvalid = !!playerId && !!entry && !canPlaySlot(entry.player, pos);
+
                                     return (
                                         <PitchNode
                                             key={slotIndex}
@@ -613,6 +618,7 @@ export default function PitchUI({
                                             isSelected={isSelected}
                                             isValidTarget={isValidTarget}
                                             isEmpty={!playerId}
+                                            isInvalid={isInvalid}
                                             onClick={() => handleStarterClick(slotIndex)}
                                             onViewDetails={entry ? () => setViewingPlayer(entry.player) : undefined}
                                             points={playerId && scoreMap ? scoreMap[playerId] : undefined}

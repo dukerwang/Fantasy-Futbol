@@ -164,8 +164,19 @@ export async function POST(req: NextRequest, { params }: Props) {
   const starterSet = new Set(starterIds);
   const benchSet = new Set(benchIds);
 
+  // Find next scheduled matchup for this team to determine the target gameweek
+  const { data: matchup } = await admin
+    .from('matchups')
+    .select('id, team_a_id, team_b_id, gameweek')
+    .eq('status', 'scheduled')
+    .or(`team_a_id.eq.${teamId},team_b_id.eq.${teamId}`)
+    .order('gameweek', { ascending: true })
+    .limit(1)
+    .single();
+
   // --- Kickoff lock: block moves if a player's club has already kicked off this GW ---
-  {
+  if (matchup) {
+    const targetGameweek = (matchup as any).gameweek;
     const currentStatusMap = new Map<string, string>(
       entries.map((e: any) => [e.player_id as string, e.status as string]),
     );
@@ -187,39 +198,46 @@ export async function POST(req: NextRequest, { params }: Props) {
       ];
 
       if (movedTeamIds.length > 0) {
-        const now = new Date().toISOString();
-        const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+        // Fetch FPL fixtures for the target gameweek to check kickoff times
+        try {
+          const res = await fetch(`https://fantasy.premierleague.com/api/fixtures/?event=${targetGameweek}`, {
+            next: { revalidate: 60 } // cache for 1 minute
+          });
+          
+          if (res.ok) {
+            const fixtures = await res.json();
+            const now = new Date();
+            
+            const startedTeamIds = new Set<number>();
+            for (const f of fixtures) {
+              if (f.kickoff_time && new Date(f.kickoff_time) <= now) {
+                startedTeamIds.add(f.team_h);
+                startedTeamIds.add(f.team_a);
+              }
+            }
 
-        const { data: startedFixtures } = await admin
-          .from('daily_fixtures')
-          .select('home_team_id, away_team_id')
-          .or(`home_team_id.in.(${movedTeamIds.join(',')}),away_team_id.in.(${movedTeamIds.join(',')})`)
-          .lte('start_time', now)
-          .gte('start_time', sevenDaysAgo);
+            const lockedNames = movedPlayerIds
+              .filter((pid) => {
+                const pl = playerMap.get(pid) as any;
+                return pl && startedTeamIds.has(pl.pl_team_id);
+              })
+              .map((pid) => {
+                const pl = playerMap.get(pid) as any;
+                return pl.web_name || pl.full_name || pid;
+              });
 
-        if (startedFixtures && startedFixtures.length > 0) {
-          const startedTeamIds = new Set(
-            startedFixtures.flatMap((f: any) => [f.home_team_id, f.away_team_id]),
-          );
-
-          const lockedNames = movedPlayerIds
-            .filter((pid) => {
-              const pl = playerMap.get(pid) as any;
-              return pl && startedTeamIds.has(pl.pl_team_id);
-            })
-            .map((pid) => {
-              const pl = playerMap.get(pid) as any;
-              return pl.web_name || pl.full_name || pid;
-            });
-
-          if (lockedNames.length > 0) {
-            return NextResponse.json(
-              {
-                error: `Cannot move players whose club has already kicked off: ${lockedNames.join(', ')}`,
-              },
-              { status: 400 },
-            );
+            if (lockedNames.length > 0) {
+              return NextResponse.json(
+                {
+                  error: `Cannot move players whose club has already kicked off: ${lockedNames.join(', ')}`,
+                },
+                { status: 400 },
+              );
+            }
           }
+        } catch (err) {
+          console.error('[lineup] Failed to fetch FPL fixtures for lock check:', err);
+          // Fail open to allow lineup submission if FPL API is down
         }
       }
     }
@@ -243,20 +261,8 @@ export async function POST(req: NextRequest, { params }: Props) {
     await admin.from('roster_entries').update({ status: 'bench' }).in('id', benchEntryIds);
   }
   if (unassignedEntryIds.length > 0) {
-    // Currently we don't have an "unassigned" status, so we could just leave them as 'bench'
-    // but since they aren't explicitly submitted in the matchup lineup logic, they won't score anyway.
     await admin.from('roster_entries').update({ status: 'bench' }).in('id', unassignedEntryIds);
   }
-
-  // Find next scheduled matchup for this team
-  const { data: matchup } = await admin
-    .from('matchups')
-    .select('id, team_a_id, team_b_id')
-    .eq('status', 'scheduled')
-    .or(`team_a_id.eq.${teamId},team_b_id.eq.${teamId}`)
-    .order('gameweek', { ascending: true })
-    .limit(1)
-    .single();
 
   if (matchup) {
     const lineup: MatchupLineup = { formation, starters, bench };
