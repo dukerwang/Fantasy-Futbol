@@ -20,6 +20,10 @@ import { createAdminClient } from '@/lib/supabase/admin';
 export const maxDuration = 60; // 1 minute max for Vercel Hobby tier
 
 
+export async function GET(req: NextRequest) {
+  return POST(req);
+}
+
 export async function POST(req: NextRequest) {
   const cronSecret = req.headers.get('x-cron-secret');
   if (!cronSecret || cronSecret !== process.env.CRON_SECRET) {
