@@ -80,6 +80,39 @@ export default async function MatchupsPage({ params, searchParams }: Props) {
 
     const gameweeks = Array.from(new Set((allGws ?? []).map((row) => row.gameweek)));
 
+    // Identify which teams are playing in a Cup fixture this gameweek
+    const { data: activeRounds } = await admin
+        .from('tournament_rounds')
+        .select('id')
+        .eq('tournament_id', leagueId) // filter by league could be done via join, but we can just fetch all rounds overlapping the gameweek
+        .lte('start_gameweek', targetGw)
+        .gte('end_gameweek', targetGw);
+
+    // Filter by league tournaments
+    const { data: leagueTourneys } = await admin.from('tournaments').select('id').eq('league_id', leagueId);
+    const tourneyIds = new Set((leagueTourneys || []).map(t => t.id));
+
+    const { data: validRounds } = await admin
+        .from('tournament_rounds')
+        .select('id, tournament_id')
+        .lte('start_gameweek', targetGw)
+        .gte('end_gameweek', targetGw);
+        
+    const roundIds = (validRounds || []).filter(r => tourneyIds.has(r.tournament_id)).map(r => r.id);
+
+    const cupTeamIds = new Set<string>();
+    if (roundIds.length > 0) {
+        const { data: cupMatchups } = await admin
+            .from('tournament_matchups')
+            .select('team_a_id, team_b_id')
+            .in('round_id', roundIds);
+
+        cupMatchups?.forEach(cm => {
+            if (cm.team_a_id) cupTeamIds.add(cm.team_a_id);
+            if (cm.team_b_id) cupTeamIds.add(cm.team_b_id);
+        });
+    }
+
     // Get user's team ID in this league (for highlighting)
     const { data: myTeam } = await admin
         .from('teams')
@@ -107,6 +140,8 @@ export default async function MatchupsPage({ params, searchParams }: Props) {
                             matchup={m}
                             myTeamId={myTeam?.id}
                             currentFplGw={currentFplGw}
+                            aHasCup={cupTeamIds.has(m.team_a_id)}
+                            bHasCup={cupTeamIds.has(m.team_b_id)}
                         />
                     ))}
                 </div>

@@ -9,9 +9,11 @@ interface Props {
   matchup: Matchup;
   myTeamId?: string;
   currentFplGw: number;
+  aHasCup?: boolean;
+  bHasCup?: boolean;
 }
 
-export default function LiveMatchupCard({ matchup, myTeamId, currentFplGw }: Props) {
+export default function LiveMatchupCard({ matchup, myTeamId, currentFplGw, aHasCup, bHasCup }: Props) {
   const [liveScore, setLiveScore] = useState({
     score_a: matchup.score_a,
     score_b: matchup.score_b,
@@ -94,7 +96,10 @@ export default function LiveMatchupCard({ matchup, myTeamId, currentFplGw }: Pro
             .filter(Boolean)
             .join(' ')}
         >
-          <span className={styles.teamName}>{teamAName}</span>
+          <span className={styles.teamName}>
+            {aHasCup && <span title="Also playing a Cup fixture this week" style={{ marginRight: '6px' }}>🏆</span>}
+            {teamAName}
+          </span>
           <span className={styles.score}>{scoreA.toFixed(1)}</span>
         </div>
 
@@ -111,7 +116,10 @@ export default function LiveMatchupCard({ matchup, myTeamId, currentFplGw }: Pro
             .join(' ')}
         >
           <span className={styles.score}>{scoreB.toFixed(1)}</span>
-          <span className={styles.teamName}>{teamBName}</span>
+          <span className={styles.teamName}>
+            {teamBName}
+            {bHasCup && <span title="Also playing a Cup fixture this week" style={{ marginLeft: '6px' }}>🏆</span>}
+          </span>
         </div>
       </div>
 
