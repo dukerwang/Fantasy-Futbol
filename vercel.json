@@ -17,8 +17,8 @@
             "schedule": "30 3 * * *"
         },
         {
-            "path": "/api/transfers/compensate",
-            "schedule": "0 4 * * *"
+            "path": "/api/cron/set-bot-lineups",
+            "schedule": "0 10 * * *"
         }
     ]
 }
