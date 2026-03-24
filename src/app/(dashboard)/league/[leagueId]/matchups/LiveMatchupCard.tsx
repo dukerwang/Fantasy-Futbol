@@ -8,16 +8,25 @@ import styles from './matchups.module.css';
 interface Props {
   matchup: Matchup;
   myTeamId?: string;
+  currentFplGw: number;
 }
 
-export default function LiveMatchupCard({ matchup, myTeamId }: Props) {
+export default function LiveMatchupCard({ matchup, myTeamId, currentFplGw }: Props) {
   const [liveScore, setLiveScore] = useState({
     score_a: matchup.score_a,
     score_b: matchup.score_b,
   });
 
-  const isLive = matchup.status === 'live';
-  const isCompleted = matchup.status === 'completed';
+  // Compare with the true FPL Gameweek to override stalled DB statuses
+  let effectiveStatus = matchup.status;
+  if (currentFplGw > matchup.gameweek) {
+    effectiveStatus = 'completed';
+  } else if (currentFplGw === matchup.gameweek && matchup.status === 'scheduled') {
+    effectiveStatus = 'live';
+  }
+
+  const isLive = effectiveStatus === 'live';
+  const isCompleted = effectiveStatus === 'completed';
 
   const teamAName = (matchup as any).team_a?.team_name ?? 'TBD';
   const teamBName = (matchup as any).team_b?.team_name ?? 'TBD';
@@ -71,7 +80,7 @@ export default function LiveMatchupCard({ matchup, myTeamId }: Props) {
     >
       <div className={styles.statusBadge}>
         {isLive && <span className={styles.livePulse} />}
-        {matchup.status.toUpperCase()}
+        {effectiveStatus.toUpperCase()}
       </div>
 
       <div className={styles.matchupTeams}>

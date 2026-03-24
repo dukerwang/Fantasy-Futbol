@@ -40,32 +40,21 @@ export default async function MatchupsPage({ params, searchParams }: Props) {
 
     if (!member && league.commissioner_id !== user.id) redirect('/dashboard');
 
-    // Determine which gameweek to show (default to latest non-completed if none specified)
+    // Fetch true current gameweek from FPL API
+    let currentFplGw = 1;
+    try {
+        const fplRes = await fetch('https://fantasy.premierleague.com/api/bootstrap-static/', { next: { revalidate: 300 } });
+        if (fplRes.ok) {
+            const fplData = await fplRes.json();
+            const currentEvent = fplData.events.find((e: any) => e.is_current) || fplData.events.find((e: any) => e.is_next);
+            if (currentEvent) currentFplGw = currentEvent.id;
+        }
+    } catch { /* ignore */ }
+
+    // Determine which gameweek to show (default to FPL current if none specified)
     let targetGw = parseInt(gw ?? '0', 10);
     if (!targetGw) {
-        const { data: latest } = await admin
-            .from('matchups')
-            .select('gameweek')
-            .eq('league_id', leagueId)
-            .neq('status', 'completed')
-            .order('gameweek', { ascending: true })
-            .limit(1)
-            .single();
-
-        // If all completed, get the absolute max
-        if (latest) {
-            targetGw = latest.gameweek;
-        } else {
-            const { data: absoluteLatest } = await admin
-                .from('matchups')
-                .select('gameweek')
-                .eq('league_id', leagueId)
-                .order('gameweek', { ascending: false })
-                .limit(1)
-                .single();
-
-            targetGw = absoluteLatest?.gameweek ?? 1;
-        }
+        targetGw = currentFplGw;
     }
 
     // Fetch matchups for target gameweek
@@ -117,6 +106,7 @@ export default async function MatchupsPage({ params, searchParams }: Props) {
                             key={m.id}
                             matchup={m}
                             myTeamId={myTeam?.id}
+                            currentFplGw={currentFplGw}
                         />
                     ))}
                 </div>
