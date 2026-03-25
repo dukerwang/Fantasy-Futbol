@@ -122,7 +122,7 @@ export default async function MatchupDetailPage({ params }: Props) {
                 <div className={styles.bannerTeam}>
                     <span className={styles.bannerTeamName}>{teamAName}</span>
                     <span className={`${styles.bannerScore} ${aWins ? styles.winner : ''}`}>
-                        {matchup.score_a.toFixed(1)}
+                        {(lineupA?.starters.reduce((acc, s) => acc + (detailMap[s.player_id]?.points ?? 0), 0) ?? matchup.score_a).toFixed(1)}
                     </span>
                 </div>
 
@@ -139,7 +139,7 @@ export default async function MatchupDetailPage({ params }: Props) {
                 <div className={`${styles.bannerTeam} ${styles.right}`}>
                     <span className={styles.bannerTeamName}>{teamBName}</span>
                     <span className={`${styles.bannerScore} ${bWins ? styles.winner : ''}`}>
-                        {matchup.score_b.toFixed(1)}
+                        {(lineupB?.starters.reduce((acc, s) => acc + (detailMap[s.player_id]?.points ?? 0), 0) ?? matchup.score_b).toFixed(1)}
                     </span>
                 </div>
             </div>

@@ -11,8 +11,6 @@ interface SimplePlayer {
   name: string;
   web_name: string | null;
   full_name?: string | null;
-  first_name?: string | null;
-  second_name?: string | null;
   pl_team?: string | null;
   projected_points?: number | null;
   market_value?: number | null;
