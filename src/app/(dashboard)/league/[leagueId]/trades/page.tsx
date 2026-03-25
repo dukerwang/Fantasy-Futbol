@@ -59,21 +59,21 @@ export default async function TradesPage({ params }: Props) {
   if (allTeamIds.length > 0) {
     const { data: entries } = await admin
       .from('roster_entries')
-      .select('team_id, player:players(id, fpl_id, api_football_id, web_name, name, full_name, date_of_birth, nationality, pl_team, pl_team_id, primary_position, secondary_positions, market_value, market_value_updated_at, projected_points, photo_url, height_cm, fpl_status, fpl_news, total_points, form_rating, ppg, is_active, transfermarkt_id, created_at, updated_at)')
+      .select('team_id, on_trade_block, player:players(id, fpl_id, api_football_id, web_name, name, full_name, date_of_birth, nationality, pl_team, pl_team_id, primary_position, secondary_positions, market_value, market_value_updated_at, projected_points, photo_url, height_cm, fpl_status, fpl_news, total_points, form_rating, ppg, is_active, transfermarkt_id, created_at, updated_at)')
       .in('team_id', allTeamIds);
 
     for (const e of entries ?? []) {
       if (!allRosters[e.team_id]) allRosters[e.team_id] = [];
-      allRosters[e.team_id].push(e.player as any);
+      allRosters[e.team_id].push({ ...(e.player as any), on_trade_block: e.on_trade_block });
     }
   }
 
   const { data: myRosterEntries } = await admin
     .from('roster_entries')
-    .select('player:players(id, fpl_id, api_football_id, web_name, name, full_name, date_of_birth, nationality, pl_team, pl_team_id, primary_position, secondary_positions, market_value, market_value_updated_at, projected_points, photo_url, height_cm, fpl_status, fpl_news, total_points, form_rating, ppg, is_active, transfermarkt_id, created_at, updated_at)')
+    .select('on_trade_block, player:players(id, fpl_id, api_football_id, web_name, name, full_name, date_of_birth, nationality, pl_team, pl_team_id, primary_position, secondary_positions, market_value, market_value_updated_at, projected_points, photo_url, height_cm, fpl_status, fpl_news, total_points, form_rating, ppg, is_active, transfermarkt_id, created_at, updated_at)')
     .eq('team_id', myTeam.id);
 
-  const myRoster = (myRosterEntries ?? []).map((e) => e.player as any);
+  const myRoster = (myRosterEntries ?? []).map((e) => ({ ...(e.player as any), on_trade_block: e.on_trade_block }));
 
   // Build playerMap from all players in all trade proposals
   const allPlayerIds = new Set<string>();

@@ -47,13 +47,25 @@ function getZone(pos: GranularPosition): 'GK' | 'DEF' | 'MID' | 'ATT' {
 interface Props {
     lineup: MatchupLineup;
     playerMap: Record<string, Partial<Player>>;
-    scoreMap?: Record<string, number>;
+    detailMap?: Record<string, { points: number, stats?: any }>;
     teamName: string;
+}
+
+function formatStats(stats?: any) {
+    if (!stats) return '';
+    const parts = [];
+    if (stats.goals_scored) parts.push(`G: ${stats.goals_scored}`);
+    if (stats.assists) parts.push(`A: ${stats.assists}`);
+    if (stats.clean_sheets) parts.push(`CS: ${stats.clean_sheets}`);
+    if (stats.saves && stats.saves >= 3) parts.push(`Sv: ${stats.saves}`);
+    if (stats.yellow_cards) parts.push(`YC`);
+    if (stats.red_cards) parts.push(`RC`);
+    return parts.join(' • ');
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export default function ReadonlyPitch({ lineup, playerMap, scoreMap, teamName }: Props) {
+export default function ReadonlyPitch({ lineup, playerMap, detailMap, teamName }: Props) {
     const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null);
 
     const { formation, starters, bench } = lineup;
@@ -182,7 +194,7 @@ export default function ReadonlyPitch({ lineup, playerMap, scoreMap, teamName }:
                                                             {player.pl_team}
                                                         </span>
                                                     )}
-                                                    {scoreMap && playerId && scoreMap[playerId] !== undefined && (
+                                                    {detailMap && playerId && detailMap[playerId] !== undefined && (
                                                         <span style={{
                                                             fontSize: '0.7rem',
                                                             fontWeight: 700,
@@ -194,7 +206,7 @@ export default function ReadonlyPitch({ lineup, playerMap, scoreMap, teamName }:
                                                             marginTop: '2px',
                                                             letterSpacing: '0.02em',
                                                         }}>
-                                                            {scoreMap[playerId].toFixed(1)} pts
+                                                            {detailMap[playerId].points.toFixed(1)} pts
                                                         </span>
                                                     )}
                                                 </>
@@ -243,7 +255,7 @@ export default function ReadonlyPitch({ lineup, playerMap, scoreMap, teamName }:
                                         {player.pl_team && (
                                             <span className={pitchStyles.benchPlayerClub}>{player.pl_team}</span>
                                         )}
-                                        {scoreMap && pid && scoreMap[pid] !== undefined && (
+                                        {detailMap && pid && detailMap[pid] !== undefined && (
                                             <span style={{
                                                 fontSize: '0.68rem',
                                                 fontWeight: 700,
@@ -254,7 +266,7 @@ export default function ReadonlyPitch({ lineup, playerMap, scoreMap, teamName }:
                                                 padding: '1px 5px',
                                                 marginTop: '2px',
                                             }}>
-                                                {scoreMap[pid].toFixed(1)} pts
+                                                {detailMap[pid].points.toFixed(1)} pts
                                             </span>
                                         )}
                                     </>
@@ -276,7 +288,7 @@ export default function ReadonlyPitch({ lineup, playerMap, scoreMap, teamName }:
             )}
 
             {/* GW Points Breakdown — bypasses zone matching, reads directly from lineup */}
-            {scoreMap && (
+            {detailMap && (
                 <div style={{
                     background: 'var(--bg-surface, #1a2235)',
                     border: '1px solid var(--border-color, #374151)',
@@ -289,16 +301,24 @@ export default function ReadonlyPitch({ lineup, playerMap, scoreMap, teamName }:
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.25rem 1.5rem' }}>
                         {starters.map((s) => {
                             const p = playerMap[s.player_id];
-                            const pts = scoreMap[s.player_id];
+                            const detail = detailMap ? detailMap[s.player_id] : null;
+                            const pts = detail?.points;
                             return (
                                 <div key={s.player_id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem', padding: '0.2rem 0' }}>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', minWidth: 0 }}>
                                         <span style={{ fontSize: '0.6rem', fontWeight: 700, background: POS_COLOR[s.slot as GranularPosition] ?? '#374151', color: '#fff', borderRadius: '3px', padding: '1px 4px', flexShrink: 0 }}>
                                             {s.slot}
                                         </span>
-                                        <span style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--text-primary, #f3f4f6)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                                            {p?.web_name ?? p?.name ?? '—'}
-                                        </span>
+                                        <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                            <span style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--text-primary, #f3f4f6)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                                {p?.web_name ?? p?.name ?? '—'}
+                                            </span>
+                                            {detail?.stats && formatStats(detail.stats) && (
+                                                <span style={{ fontSize: '0.65rem', color: '#9ca3af', marginTop: '-2px' }}>
+                                                    {formatStats(detail.stats)}
+                                                </span>
+                                            )}
+                                        </div>
                                     </div>
                                     <span style={{
                                         fontSize: '0.78rem',
@@ -312,18 +332,21 @@ export default function ReadonlyPitch({ lineup, playerMap, scoreMap, teamName }:
                             );
                         })}
                     </div>
-                    {bench.filter(b => scoreMap[b.player_id] !== undefined).length > 0 && (
+                    {bench.filter(b => detailMap && detailMap[b.player_id] !== undefined).length > 0 && (
                         <div style={{ marginTop: '0.5rem', paddingTop: '0.5rem', borderTop: '1px solid var(--border-color, #374151)' }}>
                             <div style={{ fontSize: '0.65rem', color: 'var(--text-muted, #6b7280)', marginBottom: '0.25rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Bench</div>
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.2rem 1.5rem' }}>
                                 {bench.map((b) => {
                                     const p = playerMap[b.player_id];
-                                    const pts = scoreMap[b.player_id];
+                                    const detail = detailMap ? detailMap[b.player_id] : null;
+                                    const pts = detail?.points;
                                     return (
                                         <div key={b.player_id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem', opacity: 0.7 }}>
-                                            <span style={{ fontSize: '0.75rem', fontWeight: 500, color: 'var(--text-secondary, #9ca3af)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                                                {p?.web_name ?? p?.name ?? '—'}
-                                            </span>
+                                            <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                                <span style={{ fontSize: '0.75rem', fontWeight: 500, color: 'var(--text-secondary, #9ca3af)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                                    {p?.web_name ?? p?.name ?? '—'}
+                                                </span>
+                                            </div>
                                             <span style={{ fontSize: '0.75rem', fontWeight: 600, color: pts !== undefined ? '#6366f1' : 'var(--text-muted, #6b7280)', flexShrink: 0 }}>
                                                 {pts !== undefined ? pts.toFixed(1) : '—'}
                                             </span>

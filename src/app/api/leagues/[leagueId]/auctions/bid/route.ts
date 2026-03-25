@@ -47,6 +47,17 @@ export async function POST(req: NextRequest, { params }: Props) {
     return NextResponse.json({ error: 'Insufficient FAAB budget' }, { status: 400 });
   }
 
+  // Enforce IR legality
+  const { data: illegalIr } = await admin
+    .from('roster_entries')
+    .select('id, player:players(fpl_status)')
+    .eq('team_id', myTeam.id)
+    .eq('status', 'ir');
+
+  if (illegalIr?.some(e => (e.player as any)?.fpl_status === 'a')) {
+    return NextResponse.json({ error: 'Cannot place a bid while you have a healthy player occupying an IR slot. Please activate them first.' }, { status: 400 });
+  }
+
   // Transfermarkt minimum bid: 20% of the player's current market value
   const { data: playerData } = await admin
     .from('players')

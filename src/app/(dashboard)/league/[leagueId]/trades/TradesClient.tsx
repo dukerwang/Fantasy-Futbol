@@ -3,16 +3,19 @@
 import { useState, useCallback } from 'react';
 import Link from 'next/link';
 import PositionBadge from '@/components/players/PositionBadge';
+import PlayerDetailsModal from '@/components/players/PlayerDetailsModal';
 import styles from './trades.module.css';
 
 interface SimplePlayer {
   id: string;
   name: string;
   web_name: string | null;
+  full_name?: string | null;
   primary_position: string;
   pl_team: string;
   market_value?: number;
   projected_points?: number;
+  on_trade_block?: boolean;
 }
 
 interface SimpleTeam {
@@ -47,10 +50,10 @@ interface Props {
   initialPlayerMap: Record<string, SimplePlayer>;
 }
 
-type Tab = 'my-trades' | 'propose';
+type Tab = 'my-trades' | 'propose' | 'trade-block';
 
 function playerDisplayName(p: SimplePlayer) {
-  return p.web_name ?? p.name;
+  return p.full_name ?? p.web_name ?? p.name;
 }
 
 export default function TradesClient({
@@ -66,6 +69,7 @@ export default function TradesClient({
   const [tab, setTab] = useState<Tab>('my-trades');
   const [trades, setTrades] = useState<TradeRecord[]>(initialTrades);
   const [playerMap, setPlayerMap] = useState<Record<string, SimplePlayer>>(initialPlayerMap);
+  const [viewingPlayer, setViewingPlayer] = useState<SimplePlayer | null>(null);
 
   // Propose Trade state
   const [selectedTeamId, setSelectedTeamId] = useState('');
@@ -74,6 +78,7 @@ export default function TradesClient({
   const [offeredFaab, setOfferedFaab] = useState('0');
   const [requestedFaab, setRequestedFaab] = useState('0');
   const [tradeMessage, setTradeMessage] = useState('');
+  const [parentTradeId, setParentTradeId] = useState<string | null>(null);
   const [proposeError, setProposeError] = useState('');
   const [proposeSuccess, setProposeSuccess] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -115,6 +120,30 @@ export default function TradesClient({
     setActionLoading((prev) => ({ ...prev, [tradeId]: false }));
   }, [leagueId]);
 
+  // ── Counter Offer ────────────────────────────────────────────────────────
+
+  const handleCounter = useCallback((trade: TradeRecord) => {
+    const isProposer = trade.team_a_id === myTeam.id;
+    const targetTeamId = isProposer ? trade.team_b_id : trade.team_a_id;
+
+    // Invert the players and faab if we are team B
+    const myOfferPlayers = isProposer ? trade.offered_players : trade.requested_players;
+    const myRequestPlayers = isProposer ? trade.requested_players : trade.offered_players;
+
+    const myOfferFaab = isProposer ? trade.offered_faab : trade.requested_faab;
+    const myRequestFaab = isProposer ? trade.requested_faab : trade.offered_faab;
+
+    setSelectedTeamId(targetTeamId);
+    setOfferedPlayerIds(new Set(myOfferPlayers));
+    setRequestedPlayerIds(new Set(myRequestPlayers));
+    setOfferedFaab(String(myOfferFaab));
+    setRequestedFaab(String(myRequestFaab));
+    setTradeMessage('');
+    setParentTradeId(trade.id);
+    setTab('propose');
+    setProposeSuccess('');
+  }, [myTeam.id]);
+
   // ── Propose trade submission ─────────────────────────────────────────────
 
   const handlePropose = useCallback(async () => {
@@ -148,6 +177,7 @@ export default function TradesClient({
         offeredFaab: offFaab,
         requestedFaab: reqFaab,
         message: tradeMessage || undefined,
+        parentTradeId: parentTradeId || undefined,
       }),
     });
 
@@ -166,6 +196,7 @@ export default function TradesClient({
     setRequestedFaab('0');
     setTradeMessage('');
     setSelectedTeamId('');
+    setParentTradeId(null);
     setProposeSuccess('Trade proposal sent!');
 
     // Refresh trades
@@ -178,7 +209,7 @@ export default function TradesClient({
 
     setSubmitting(false);
     setTab('my-trades');
-  }, [leagueId, selectedTeamId, offeredPlayerIds, requestedPlayerIds, offeredFaab, requestedFaab, tradeMessage, myTeam, targetTeam]);
+  }, [leagueId, selectedTeamId, offeredPlayerIds, requestedPlayerIds, offeredFaab, requestedFaab, tradeMessage, parentTradeId, myTeam, targetTeam]);
 
   // ── Toggle player selection ──────────────────────────────────────────────
 
@@ -242,12 +273,71 @@ export default function TradesClient({
           )}
         </button>
         <button
+          className={`${styles.tab} ${tab === 'trade-block' ? styles.tabActive : ''}`}
+          onClick={() => { setTab('trade-block'); setProposeSuccess(''); }}
+        >
+          Trade Block
+        </button>
+        <button
           className={`${styles.tab} ${tab === 'propose' ? styles.tabActive : ''}`}
           onClick={() => { setTab('propose'); setProposeSuccess(''); }}
         >
           Propose Trade
         </button>
       </div>
+
+      {/* Trade Block */}
+      {tab === 'trade-block' && (
+        <div className={styles.tradesSection}>
+          <h2 className={styles.tradeGroupTitle}>League Trade Block</h2>
+          <p style={{ color: 'var(--color-text-muted)', marginBottom: '1rem', fontSize: '0.9rem' }}>
+            Players whose managers have marked them as actively available for trades.
+          </p>
+          <div className={styles.tradeGroup}>
+            {(() => {
+              const blockPlayers = Object.entries(allRosters).flatMap(([teamId, roster]) => 
+                roster.filter(p => p.on_trade_block).map(p => ({ ...p, team_id: teamId }))
+              );
+              
+              if (blockPlayers.length === 0) {
+                return <p className={styles.emptyState}>No players are currently on the trade block.</p>;
+              }
+
+              return blockPlayers.map(p => {
+                const teamName = allTeams.find(t => t.id === p.team_id)?.team_name ?? 'Unknown Team';
+                return (
+                  <div key={p.id} className={styles.tradePlayerRow} style={{ padding: '0.75rem', background: 'var(--color-bg-secondary)', borderRadius: '8px', marginBottom: '0.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                      <PositionBadge position={p.primary_position as any} size="sm" />
+                      <div style={{ display: 'flex', flexDirection: 'column' }}>
+                        <span style={{ fontWeight: 600, color: 'var(--color-text)' }}>{playerDisplayName(p)}</span>
+                        <span style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>
+                          {p.pl_team} • £{p.market_value?.toFixed(1) ?? '0.0'}m
+                        </span>
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                      <span style={{ fontSize: '0.85rem', color: 'var(--color-text-secondary)' }}>Owned by: <strong style={{ color: 'var(--color-text)' }}>{teamName}</strong></span>
+                      <button 
+                        className={styles.proposeBtn} 
+                        style={{ padding: '0.4rem 0.8rem', fontSize: '0.85rem' }}
+                        onClick={() => {
+                          setSelectedTeamId(p.team_id);
+                          setOfferedPlayerIds(new Set());
+                          setRequestedPlayerIds(new Set([p.id]));
+                          setTab('propose');
+                        }}
+                      >
+                        Propose Trade
+                      </button>
+                    </div>
+                  </div>
+                );
+              });
+            })()}
+          </div>
+        </div>
+      )}
 
       {/* My Trades */}
       {tab === 'my-trades' && (
@@ -275,6 +365,8 @@ export default function TradesClient({
                       myTeamId={myTeam.id}
                       playerMap={playerMap}
                       onAction={handleTradeAction}
+                      onCounter={handleCounter}
+                      onViewPlayer={setViewingPlayer}
                       error={actionError[trade.id] ?? ''}
                       loading={!!actionLoading[trade.id]}
                     />
@@ -292,6 +384,8 @@ export default function TradesClient({
                       myTeamId={myTeam.id}
                       playerMap={playerMap}
                       onAction={handleTradeAction}
+                      onCounter={handleCounter}
+                      onViewPlayer={setViewingPlayer}
                       error={actionError[trade.id] ?? ''}
                       loading={!!actionLoading[trade.id]}
                     />
@@ -483,21 +577,22 @@ export default function TradesClient({
 
                 {proposeError && <p className={styles.errorBanner}>{proposeError}</p>}
 
-                <div className={styles.dockActions}>
-                  <button
-                    className={styles.resetBtn}
-                    onClick={() => {
-                      setOfferedPlayerIds(new Set());
-                      setRequestedPlayerIds(new Set());
-                      setOfferedFaab('0');
-                      setRequestedFaab('0');
-                      setTradeMessage('');
-                      setProposeError('');
-                    }}
-                  >
-                    Reset
-                  </button>
-                  <button
+                    <div className={styles.dockActions}>
+                      <button
+                        className={styles.resetBtn}
+                        onClick={() => {
+                          setOfferedPlayerIds(new Set());
+                          setRequestedPlayerIds(new Set());
+                          setOfferedFaab('0');
+                          setRequestedFaab('0');
+                          setTradeMessage('');
+                          setProposeError('');
+                          setParentTradeId(null);
+                        }}
+                      >
+                        Reset
+                      </button>
+                      <button
                     className={styles.submitTradeBtn}
                     onClick={handlePropose}
                     disabled={submitting}
@@ -521,11 +616,13 @@ interface TradeCardProps {
   myTeamId: string;
   playerMap: Record<string, SimplePlayer>;
   onAction: (tradeId: string, action: 'accept' | 'reject' | 'cancel') => Promise<void>;
+  onCounter: (trade: TradeRecord) => void;
+  onViewPlayer?: (player: SimplePlayer) => void;
   error: string;
   loading: boolean;
 }
 
-function TradeCard({ trade, myTeamId, playerMap, onAction, error, loading }: TradeCardProps) {
+function TradeCard({ trade, myTeamId, playerMap, onAction, onCounter, onViewPlayer, error, loading }: TradeCardProps) {
   const isProposer = trade.team_a_id === myTeamId;
   const teamAName = (trade.team_a as any)?.team_name ?? 'Team A';
   const teamBName = (trade.team_b as any)?.team_name ?? 'Team B';
@@ -547,7 +644,22 @@ function TradeCard({ trade, myTeamId, playerMap, onAction, error, loading }: Tra
           return p ? (
             <div key={id} className={styles.tradePlayerRow}>
               <PositionBadge position={p.primary_position as any} size="sm" />
-              <span>{p.web_name ?? p.name}</span>
+              <button 
+                className={styles.tradePlayerNameBtn} 
+                onClick={() => onViewPlayer?.(p)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: 'var(--color-text)',
+                  fontWeight: 500,
+                  fontSize: '0.9rem',
+                  cursor: 'pointer',
+                  padding: 0,
+                  textAlign: 'left'
+                }}
+              >
+                {p.full_name ?? p.web_name ?? p.name}
+              </button>
               <span className={styles.tradePlayerClub}>{p.pl_team}</span>
             </div>
           ) : (
@@ -601,22 +713,19 @@ function TradeCard({ trade, myTeamId, playerMap, onAction, error, loading }: Tra
         <p className={styles.tradeMessage}>"{trade.message}"</p>
       )}
 
-      {error && <p className={styles.errorBanner}>{error}</p>}
-
       {trade.status === 'pending' && (
-        <div className={styles.tradeActions}>
+        <div className={styles.tradeCardActions}>
           {isProposer ? (
             <button
               className={styles.cancelBtn}
               onClick={() => onAction(trade.id, 'cancel')}
               disabled={loading}
             >
-              {loading ? '…' : 'Cancel Offer'}
+              Cancel Proposal
             </button>
           ) : (
             <>
               <button
-                className={styles.rejectBtn}
                 onClick={() => onAction(trade.id, 'reject')}
                 disabled={loading}
               >

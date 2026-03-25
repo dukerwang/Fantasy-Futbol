@@ -99,11 +99,12 @@ export async function GET(_req: NextRequest, { params }: Props) {
   // My current roster (for the "drop player" selector in the bid modal)
   const { data: myRosterEntries } = await admin
     .from('roster_entries')
-    .select('player_id, player:players(id, fpl_id, api_football_id, web_name, name, full_name, date_of_birth, nationality, pl_team, pl_team_id, primary_position, secondary_positions, market_value, market_value_updated_at, projected_points, photo_url, height_cm, fpl_status, fpl_news, total_points, form_rating, ppg, is_active, transfermarkt_id, created_at, updated_at)')
+    .select('player_id, status, player:players(id, fpl_id, api_football_id, web_name, name, full_name, date_of_birth, nationality, pl_team, pl_team_id, primary_position, secondary_positions, market_value, market_value_updated_at, projected_points, photo_url, height_cm, fpl_status, fpl_news, total_points, form_rating, ppg, is_active, transfermarkt_id, created_at, updated_at)')
     .eq('team_id', myTeam.id);
 
-  const myRoster = (myRosterEntries ?? []).map((e) => e.player as any);
-  const rosterFull = myRoster.length >= (league?.roster_size ?? 20);
+  const myRoster = (myRosterEntries ?? []).map((e) => ({ ...e.player as any, status: e.status })); // Check if team has space
+  const activeRosterCount = myRoster.filter(r => r.status !== 'ir').length;
+  const rosterFull = activeRosterCount >= (league?.roster_size ?? 20);
 
   // Free agents: active players not rostered and not in active auctions
   const excludedIds = [...new Set([...rosteredPlayerIds, ...auctionedPlayerIds])];

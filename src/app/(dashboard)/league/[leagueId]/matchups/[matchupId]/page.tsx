@@ -82,22 +82,21 @@ export default async function MatchupDetailPage({ params }: Props) {
     }
 
     // Fetch per-player GW fantasy points for score overlay on pitch cards
-    let scoreMap: Record<string, number> = {};
+    let detailMap: Record<string, { points: number, stats?: any }> = {};
     if (playerIds.size > 0 && matchupData.gameweek) {
         const { data: statsRows, error: statsError } = await admin
             .from('player_stats')
-            .select('player_id, fantasy_points')
+            .select('player_id, fantasy_points, stats')
             .eq('gameweek', matchupData.gameweek)
             .in('player_id', Array.from(playerIds));
 
-        console.log(`[matchup-detail] GW${matchupData.gameweek}, playerIds=${playerIds.size}, statsRows=${statsRows?.length ?? 0}, error=${statsError?.message ?? 'none'}`);
-
         for (const s of statsRows ?? []) {
-            scoreMap[s.player_id] = (scoreMap[s.player_id] ?? 0) + Number(s.fantasy_points);
+            const currentPoints = detailMap[s.player_id]?.points ?? 0;
+            detailMap[s.player_id] = {
+                points: currentPoints + Number(s.fantasy_points),
+                stats: s.stats || detailMap[s.player_id]?.stats || {}
+            };
         }
-        console.log(`[matchup-detail] scoreMap has ${Object.keys(scoreMap).length} entries. Sample:`, Object.entries(scoreMap).slice(0, 3));
-    } else {
-        console.log(`[matchup-detail] Skipping stats fetch: playerIds.size=${playerIds.size}, gameweek=${matchupData.gameweek}`);
     }
 
 
@@ -153,7 +152,7 @@ export default async function MatchupDetailPage({ params }: Props) {
                         <ReadonlyPitch
                             lineup={lineupA}
                             playerMap={playerMap}
-                            scoreMap={scoreMap}
+                            detailMap={detailMap}
                             teamName={teamAName}
                         />
                     ) : (
@@ -169,7 +168,7 @@ export default async function MatchupDetailPage({ params }: Props) {
                         <ReadonlyPitch
                             lineup={lineupB}
                             playerMap={playerMap}
-                            scoreMap={scoreMap}
+                            detailMap={detailMap}
                             teamName={teamBName}
                         />
                     ) : (

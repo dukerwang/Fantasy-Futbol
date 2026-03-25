@@ -106,13 +106,14 @@ export async function POST(req: NextRequest, { params }: Props) {
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const body = await req.json();
-  const { targetTeamId, offeredPlayerIds, requestedPlayerIds, offeredFaab, requestedFaab, message } = body as {
+  const { targetTeamId, offeredPlayerIds, requestedPlayerIds, offeredFaab, requestedFaab, message, parentTradeId } = body as {
     targetTeamId: string;
     offeredPlayerIds: string[];
     requestedPlayerIds: string[];
     offeredFaab: number;
     requestedFaab: number;
     message?: string;
+    parentTradeId?: string;
   };
 
   if (!targetTeamId) return NextResponse.json({ error: 'targetTeamId is required' }, { status: 400 });
@@ -141,6 +142,17 @@ export async function POST(req: NextRequest, { params }: Props) {
 
   if (!myTeam) return NextResponse.json({ error: 'No team in this league' }, { status: 403 });
   if (myTeam.id === targetTeamId) return NextResponse.json({ error: 'Cannot trade with yourself' }, { status: 400 });
+
+  // Enforce IR legality
+  const { data: illegalIr } = await admin
+    .from('roster_entries')
+    .select('id, player:players(fpl_status)')
+    .eq('team_id', myTeam.id)
+    .eq('status', 'ir');
+
+  if (illegalIr?.some(e => (e.player as any)?.fpl_status === 'a')) {
+    return NextResponse.json({ error: 'Cannot propose trades while you have a healthy player occupying an IR slot. Please activate them first.' }, { status: 400 });
+  }
 
   // Verify target team is in this league
   const { data: targetTeam } = await admin
@@ -186,6 +198,17 @@ export async function POST(req: NextRequest, { params }: Props) {
     }
   }
 
+  if (parentTradeId) {
+    const { data: parentTrade } = await admin
+      .from('trade_proposals')
+      .select('id, status')
+      .eq('id', parentTradeId)
+      .single();
+    if (parentTrade && parentTrade.status === 'pending') {
+      await admin.from('trade_proposals').update({ status: 'rejected' }).eq('id', parentTradeId);
+    }
+  }
+
   const { data: trade, error } = await admin
     .from('trade_proposals')
     .insert({
@@ -198,6 +221,7 @@ export async function POST(req: NextRequest, { params }: Props) {
       requested_faab: requestedFaab,
       status: 'pending',
       message: message ?? null,
+      parent_trade_id: parentTradeId ?? null,
     })
     .select()
     .single();
