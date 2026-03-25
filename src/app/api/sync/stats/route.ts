@@ -25,8 +25,14 @@ async function getCurrentGameweek(): Promise<number> {
         next: { revalidate: 3600 }
     });
     const data = await res.json();
-    const curr = data.events.find((e: any) => e.is_current);
-    return curr ? curr.id : 0;
+    const now = new Date();
+    let gw = 0;
+    for (const ev of data.events as any[]) {
+        if (ev.deadline_time && new Date(ev.deadline_time) <= now) {
+            gw = Math.max(gw, ev.id);
+        }
+    }
+    return gw;
 }
 
 export async function GET(req: NextRequest) { return POST(req); }

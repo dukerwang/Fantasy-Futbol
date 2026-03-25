@@ -48,7 +48,7 @@ export async function POST(req: NextRequest, { params }: Props) {
         if (entry.status === 'ir') {
             return NextResponse.json({ error: 'Player is already on IR' }, { status: 400 });
         }
-        
+
         // Validation: must be strictly injured ('i') or unavailable/missing ('u' / 'n'). Doubtful ('d') doesn't typically qualify.
         // Actually, let's allow 'i', 'u', 'd', 's', 'n' to be flexible, but user specifically said 'i' or 'u'.
         // "Validate FPL status ('i' or 'u') before allowing IR placement"
@@ -56,11 +56,54 @@ export async function POST(req: NextRequest, { params }: Props) {
             return NextResponse.json({ error: 'Player is not eligible for IR. They must be officially Injured (i) or Unavailable (u).' }, { status: 400 });
         }
 
+        // Lock check: block if player is in active lineup/bench and their match has kicked off
+        if (entry.status === 'active' || entry.status === 'bench') {
+            const { data: playerData } = await admin
+                .from('players')
+                .select('pl_team_id, web_name')
+                .eq('id', playerId)
+                .single();
+
+            if (playerData?.pl_team_id) {
+                // Find the current gameweek matchup for this team
+                const { data: matchup } = await admin
+                    .from('matchups')
+                    .select('gameweek')
+                    .or(`team_a_id.eq.${teamId},team_b_id.eq.${teamId}`)
+                    .in('status', ['scheduled', 'live'])
+                    .order('gameweek', { ascending: true })
+                    .limit(1)
+                    .single();
+
+                if (matchup) {
+                    try {
+                        const res = await fetch(`https://fantasy.premierleague.com/api/fixtures/?event=${matchup.gameweek}`, {
+                            next: { revalidate: 60 },
+                        });
+                        if (res.ok) {
+                            const fixtures = await res.json();
+                            const now = new Date();
+                            for (const f of fixtures) {
+                                if (f.kickoff_time && new Date(f.kickoff_time) <= now) {
+                                    if (f.team_h === playerData.pl_team_id || f.team_a === playerData.pl_team_id) {
+                                        return NextResponse.json(
+                                            { error: `Cannot move ${playerData.web_name ?? 'this player'} to IR — their match has already kicked off.` },
+                                            { status: 400 },
+                                        );
+                                    }
+                                }
+                            }
+                        }
+                    } catch { /* Fail open if FPL API is down */ }
+                }
+            }
+        }
+
         const { error } = await admin
             .from('roster_entries')
             .update({ status: 'ir' })
             .eq('id', entry.id);
-            
+
         if (error) return NextResponse.json({ error: error.message }, { status: 500 });
         return NextResponse.json({ ok: true });
     } 

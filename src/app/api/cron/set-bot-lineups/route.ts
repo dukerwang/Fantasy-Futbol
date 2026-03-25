@@ -19,8 +19,12 @@ export async function GET(req: NextRequest) {
         const fplRes = await fetch('https://fantasy.premierleague.com/api/bootstrap-static/');
         if (!fplRes.ok) throw new Error('Failed to fetch FPL data');
         const fplData = await fplRes.json();
-        const currentEvent = fplData.events.find((e: any) => e.is_current) || fplData.events.find((e: any) => e.is_next);
-        if (currentEvent) currentGw = currentEvent.id;
+        const now = new Date();
+        for (const ev of fplData.events as any[]) {
+            if (ev.deadline_time && new Date(ev.deadline_time) <= now) {
+                currentGw = Math.max(currentGw, ev.id);
+            }
+        }
     } catch (err: any) {
         return NextResponse.json({ error: 'Failed to find current FPL gameweek', details: err.message }, { status: 500 });
     }
@@ -58,8 +62,9 @@ export async function GET(req: NextRequest) {
     let updatedCount = 0;
 
     for (const matchup of matchups) {
-        // Evaluate Team A
-        if (botTeamIds.has(matchup.team_a_id) && !matchup.lineup_a) {
+        // Evaluate Team A — generate if missing or has fewer than 11 starters
+        const lineupAIncomplete = !matchup.lineup_a || (matchup.lineup_a as any)?.starters?.length < 11;
+        if (botTeamIds.has(matchup.team_a_id) && lineupAIncomplete) {
             const lineup = await generateValidLineup(admin, matchup.team_a_id);
             if (lineup) {
                 await admin.from('matchups').update({ lineup_a: lineup }).eq('id', matchup.id);
@@ -67,7 +72,8 @@ export async function GET(req: NextRequest) {
             }
         }
         // Evaluate Team B
-        if (botTeamIds.has(matchup.team_b_id) && !matchup.lineup_b) {
+        const lineupBIncomplete = !matchup.lineup_b || (matchup.lineup_b as any)?.starters?.length < 11;
+        if (botTeamIds.has(matchup.team_b_id) && lineupBIncomplete) {
             const lineup = await generateValidLineup(admin, matchup.team_b_id);
             if (lineup) {
                 await admin.from('matchups').update({ lineup_b: lineup }).eq('id', matchup.id);

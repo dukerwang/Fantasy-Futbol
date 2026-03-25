@@ -48,6 +48,8 @@ async function loadReferenceStats(admin: ReturnType<typeof createAdminClient>, s
   return ref;
 }
 
+export async function GET(req: NextRequest) { return POST(req); }
+
 export async function POST(req: NextRequest) {
   const secret = req.headers.get('x-cron-secret');
   if (!secret || !process.env.CRON_SECRET || secret !== process.env.CRON_SECRET) {
@@ -59,8 +61,9 @@ export async function POST(req: NextRequest) {
 
   if (action === 'create') return handleCreate(req, searchParams);
   if (action === 'advance') return handleAdvance(req, searchParams);
+  if (action === 'resolve_stalled') return handleResolveStalled(req);
 
-  return NextResponse.json({ error: 'Invalid action. Use ?action=create or ?action=advance' }, { status: 400 });
+  return NextResponse.json({ error: 'Invalid action. Use ?action=create, ?action=advance, or ?action=resolve_stalled' }, { status: 400 });
 }
 
 // ─── CREATE TOURNAMENT ────────────────────────────────────────
@@ -434,6 +437,110 @@ async function handleAdvance(_req: NextRequest, params: URLSearchParams) {
   }
 
   return NextResponse.json({ ok: true, advanced, gameweek });
+}
+
+// ─── RESOLVE STALLED GAMEWEEKS ───────────────────────────────
+
+/**
+ * Detects and force-resolves stalled gameweeks.
+ * If >48 hours have passed since the last non-postponed fixture's kickoff,
+ * the gameweek is force-finished. Postponed players score 0, autosubs fire.
+ */
+async function handleResolveStalled(_req: NextRequest) {
+  const admin = createAdminClient();
+
+  // Derive current GW natively from FPL events
+  let currentGw = 0;
+  let gwDeadline: Date | null = null;
+  try {
+    const fplRes = await fetch('https://fantasy.premierleague.com/api/bootstrap-static/', { next: { revalidate: 60 } });
+    if (!fplRes.ok) return NextResponse.json({ error: 'Failed to fetch FPL data' }, { status: 502 });
+
+    const fplData = await fplRes.json();
+    const now = new Date();
+    for (const ev of fplData.events as any[]) {
+      if (ev.deadline_time && new Date(ev.deadline_time) <= now) {
+        if (ev.id > currentGw) {
+          currentGw = ev.id;
+          gwDeadline = new Date(ev.deadline_time);
+        }
+      }
+    }
+  } catch (err) {
+    return NextResponse.json({ error: 'FPL API error', detail: String(err) }, { status: 502 });
+  }
+
+  if (!currentGw) return NextResponse.json({ ok: true, message: 'No active gameweek found' });
+
+  // Check if this GW has any non-completed matchups in our system
+  const { data: liveMatchups } = await admin
+    .from('matchups')
+    .select('id')
+    .eq('gameweek', currentGw)
+    .neq('status', 'completed')
+    .limit(1);
+
+  if (!liveMatchups || liveMatchups.length === 0) {
+    return NextResponse.json({ ok: true, message: `GW${currentGw} already resolved` });
+  }
+
+  // Check FPL fixtures: find the latest non-postponed fixture kickoff
+  try {
+    const fixRes = await fetch(`https://fantasy.premierleague.com/api/fixtures/?event=${currentGw}`, { next: { revalidate: 60 } });
+    if (!fixRes.ok) return NextResponse.json({ error: 'Failed to fetch fixtures' }, { status: 502 });
+
+    const fixtures = await fixRes.json();
+    const now = new Date();
+    let allNonPostponedFinished = true;
+    let latestKickoff: Date | null = null;
+
+    for (const f of fixtures) {
+      const isPostponed = f.event === null || f.postponed === true;
+      if (isPostponed) continue;
+
+      if (!f.finished && !f.finished_provisional) {
+        allNonPostponedFinished = false;
+      }
+
+      if (f.kickoff_time) {
+        const ko = new Date(f.kickoff_time);
+        if (!latestKickoff || ko > latestKickoff) latestKickoff = ko;
+      }
+    }
+
+    // Force-resolve if all non-postponed fixtures are finished OR
+    // >48 hours since the latest non-postponed kickoff
+    const hoursElapsed = latestKickoff ? (now.getTime() - latestKickoff.getTime()) / (1000 * 60 * 60) : 0;
+    const shouldForceResolve = allNonPostponedFinished || hoursElapsed > 48;
+
+    if (!shouldForceResolve) {
+      return NextResponse.json({
+        ok: true,
+        message: `GW${currentGw} still in progress. ${hoursElapsed.toFixed(1)}h since last kickoff.`,
+      });
+    }
+
+    // Force-resolve: trigger matchup sync with finished=true
+    const syncUrl = new URL('/api/sync/matchups', _req.url);
+    syncUrl.searchParams.set('gameweek', String(currentGw));
+    syncUrl.searchParams.set('finished', 'true');
+    const syncRes = await fetch(syncUrl.toString(), {
+      method: 'POST',
+      headers: { 'x-cron-secret': process.env.CRON_SECRET! },
+    });
+
+    const syncResult = syncRes.ok ? await syncRes.json() : { error: 'sync failed' };
+
+    return NextResponse.json({
+      ok: true,
+      action: 'force_resolved',
+      gameweek: currentGw,
+      reason: allNonPostponedFinished ? 'all_non_postponed_finished' : `stalled_${hoursElapsed.toFixed(0)}h`,
+      syncResult,
+    });
+  } catch (err) {
+    return NextResponse.json({ error: 'Failed to check fixtures', detail: String(err) }, { status: 500 });
+  }
 }
 
 // ─── Helpers ──────────────────────────────────────────────────

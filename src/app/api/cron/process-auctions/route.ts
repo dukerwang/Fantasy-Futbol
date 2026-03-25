@@ -60,6 +60,36 @@ export async function POST(req: NextRequest) {
     groups.get(key)!.push(claim);
   }
 
+  // Fetch current FPL gameweek fixtures for lock checks
+  let lockedPlTeamIds = new Set<number>();
+  let currentFplGw = 0;
+  try {
+    const fplRes = await fetch('https://fantasy.premierleague.com/api/bootstrap-static/');
+    if (fplRes.ok) {
+      const fplData = await fplRes.json();
+      const events = fplData.events as any[];
+      const now = new Date();
+      // Derive current GW: highest GW whose deadline has passed
+      for (const ev of events) {
+        if (ev.deadline_time && new Date(ev.deadline_time) <= now) {
+          currentFplGw = Math.max(currentFplGw, ev.id);
+        }
+      }
+      if (currentFplGw) {
+        const fixRes = await fetch(`https://fantasy.premierleague.com/api/fixtures/?event=${currentFplGw}`);
+        if (fixRes.ok) {
+          const fixtures = await fixRes.json();
+          for (const f of fixtures) {
+            if (f.kickoff_time && new Date(f.kickoff_time) <= now) {
+              lockedPlTeamIds.add(f.team_h);
+              lockedPlTeamIds.add(f.team_a);
+            }
+          }
+        }
+      }
+    }
+  } catch { /* Fail open */ }
+
   let processed = 0;
 
   for (const [, claims] of groups) {
@@ -137,6 +167,45 @@ export async function POST(req: NextRequest) {
         console.warn(`[process-auctions] No valid winner for player ${player_id} in league ${league_id}. All claims rejected.`);
         processed++;
         continue;
+      }
+
+      // Lock check: defer if the FA's match has kicked off, or the drop player is locked
+      if (lockedPlTeamIds.size > 0) {
+        let isLocked = false;
+
+        // Check if the free agent's match has kicked off
+        const { data: faPlayer } = await admin
+          .from('players')
+          .select('pl_team_id')
+          .eq('id', player_id)
+          .single();
+        if (faPlayer && lockedPlTeamIds.has(faPlayer.pl_team_id)) {
+          isLocked = true;
+        }
+
+        // Check if the drop player is locked (in active lineup/bench and match kicked off)
+        if (!isLocked && winner.drop_player_id) {
+          const { data: dropEntry } = await admin
+            .from('roster_entries')
+            .select('status, player:players(pl_team_id)')
+            .eq('team_id', winner.team_id!)
+            .eq('player_id', winner.drop_player_id)
+            .single();
+
+          if (dropEntry && (dropEntry.status === 'active' || dropEntry.status === 'bench')) {
+            const dropPlTeamId = (dropEntry.player as any)?.pl_team_id;
+            if (dropPlTeamId && lockedPlTeamIds.has(dropPlTeamId)) {
+              isLocked = true;
+            }
+          }
+        }
+
+        if (isLocked) {
+          // Defer: don't process now, leave as pending for post-GW processing
+          console.log(`[process-auctions] Deferring auction for player ${player_id} — locked players involved.`);
+          processed++;
+          continue;
+        }
       }
 
       const losers = claims.filter((c) => c.id !== winner!.id);

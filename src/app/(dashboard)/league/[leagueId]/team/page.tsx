@@ -78,7 +78,13 @@ export default async function MyTeamPage({ params, searchParams }: Props) {
     const fplRes = await fetch('https://fantasy.premierleague.com/api/bootstrap-static/', { next: { revalidate: 300 } });
     if (fplRes.ok) {
       const fplData = await fplRes.json();
-      const currentGw = (fplData.events as any[])?.find((e: any) => e.is_current)?.id;
+      const now = new Date();
+      let currentGw = 0;
+      for (const ev of fplData.events as any[]) {
+        if (ev.deadline_time && new Date(ev.deadline_time) <= now) {
+          currentGw = Math.max(currentGw, ev.id);
+        }
+      }
       if (currentGw) {
         const playerIds = rosterEntries.map((e) => e.player.id);
         const { data: statsRows } = await admin
@@ -115,6 +121,9 @@ export default async function MyTeamPage({ params, searchParams }: Props) {
 
   let lockedTeamIds = new Set<number>();
 
+  // Build a set of active (non-IR) player IDs for sanitization
+  const nonIrPlayerIds = new Set(nonIrEntries.map((e) => e.player.id));
+
   if (matchup) {
     const isTeamA = (matchup as any).team_a_id === team.id;
     const existingLineup = (isTeamA ? matchup.lineup_a : matchup.lineup_b) as MatchupLineup | null;
@@ -124,12 +133,14 @@ export default async function MyTeamPage({ params, searchParams }: Props) {
       const slots = FORMATION_SLOTS[existingLineup.formation];
       for (let i = 0; i < slots.length; i++) {
         const starter = existingLineup.starters[i];
-        if (starter) {
+        // Skip players who have since been moved to IR
+        if (starter && nonIrPlayerIds.has(starter.player_id)) {
           initialAssignments[i] = starter.player_id;
         }
       }
       for (const b of existingLineup.bench || []) {
-        if (b.slot && b.player_id) {
+        // Skip players who have since been moved to IR
+        if (b.slot && b.player_id && nonIrPlayerIds.has(b.player_id)) {
           initialBench[b.slot] = b.player_id;
         }
       }

@@ -40,14 +40,19 @@ export default async function MatchupsPage({ params, searchParams }: Props) {
 
     if (!member && league.commissioner_id !== user.id) redirect('/dashboard');
 
-    // Fetch true current gameweek from FPL API
+    // Derive current gameweek natively: highest GW whose deadline has already passed.
+    // This avoids relying on FPL's is_current flag which can be stale/cached.
     let currentFplGw = 1;
     try {
         const fplRes = await fetch('https://fantasy.premierleague.com/api/bootstrap-static/', { next: { revalidate: 300 } });
         if (fplRes.ok) {
             const fplData = await fplRes.json();
-            const currentEvent = fplData.events.find((e: any) => e.is_current) || fplData.events.find((e: any) => e.is_next);
-            if (currentEvent) currentFplGw = currentEvent.id;
+            const now = new Date();
+            for (const ev of fplData.events as any[]) {
+                if (ev.deadline_time && new Date(ev.deadline_time) <= now) {
+                    currentFplGw = Math.max(currentFplGw, ev.id);
+                }
+            }
         }
     } catch { /* ignore */ }
 

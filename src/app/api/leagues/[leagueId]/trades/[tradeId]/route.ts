@@ -162,6 +162,64 @@ export async function POST(req: NextRequest, { params }: Props) {
     );
   }
 
+  // ── Lock check: defer trade if any involved player's match has kicked off ──
+  let anyPlayerLocked = false;
+  try {
+    // Derive current GW natively
+    const fplRes = await fetch('https://fantasy.premierleague.com/api/bootstrap-static/', { next: { revalidate: 60 } });
+    if (fplRes.ok) {
+      const fplData = await fplRes.json();
+      const now = new Date();
+      let currentGw = 0;
+      for (const ev of fplData.events as any[]) {
+        if (ev.deadline_time && new Date(ev.deadline_time) <= now) {
+          currentGw = Math.max(currentGw, ev.id);
+        }
+      }
+
+      if (currentGw) {
+        const fixRes = await fetch(`https://fantasy.premierleague.com/api/fixtures/?event=${currentGw}`, { next: { revalidate: 60 } });
+        if (fixRes.ok) {
+          const fixtures = await fixRes.json();
+          const lockedPlTeamIds = new Set<number>();
+          for (const f of fixtures) {
+            if (f.kickoff_time && new Date(f.kickoff_time) <= now) {
+              lockedPlTeamIds.add(f.team_h);
+              lockedPlTeamIds.add(f.team_a);
+            }
+          }
+
+          if (lockedPlTeamIds.size > 0) {
+            // Check all players involved in the trade
+            const allTradePlayerIds = [...trade.offered_players, ...trade.requested_players];
+            if (allTradePlayerIds.length > 0) {
+              const { data: tradePlayers } = await admin
+                .from('roster_entries')
+                .select('player_id, status, player:players(pl_team_id, web_name)')
+                .in('player_id', allTradePlayerIds);
+
+              for (const entry of tradePlayers ?? []) {
+                if (entry.status === 'active' || entry.status === 'bench') {
+                  const plTeamId = (entry.player as any)?.pl_team_id;
+                  if (plTeamId && lockedPlTeamIds.has(plTeamId)) {
+                    anyPlayerLocked = true;
+                    break;
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  } catch { /* Fail open */ }
+
+  if (anyPlayerLocked) {
+    // Mark as accepted but deferred — will execute after GW ends
+    await admin.from('trade_proposals').update({ status: 'accepted_deferred' }).eq('id', tradeId);
+    return NextResponse.json({ ok: true, deferred: true, message: 'Trade accepted but deferred until gameweek ends — one or more players are locked.' });
+  }
+
   // ── Execute the trade ──────────────────────────────────────────────────────
 
   const errors: string[] = [];

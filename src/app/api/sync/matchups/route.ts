@@ -43,8 +43,14 @@ async function getCurrentGameweek(): Promise<number> {
         next: { revalidate: 3600 }
     });
     const data = await res.json();
-    const curr = data.events.find((e: any) => e.is_current);
-    return curr ? curr.id : 0;
+    const now = new Date();
+    let gw = 0;
+    for (const ev of data.events as any[]) {
+        if (ev.deadline_time && new Date(ev.deadline_time) <= now) {
+            gw = Math.max(gw, ev.id);
+        }
+    }
+    return gw;
 }
 
 export async function GET(req: NextRequest) { return POST(req); }
@@ -78,6 +84,23 @@ export async function POST(req: NextRequest) {
     if (!matchups || matchups.length === 0) {
         return NextResponse.json({ ok: true, message: 'No matchups to process' });
     }
+
+    // Fetch FPL fixture data to know which PL teams' matches are finished
+    const finishedPlTeamIds = new Set<number>();
+    try {
+        const fixRes = await fetch(`https://fantasy.premierleague.com/api/fixtures/?event=${gameweek}`, {
+            next: { revalidate: 60 },
+        });
+        if (fixRes.ok) {
+            const fixtures = await fixRes.json();
+            for (const f of fixtures) {
+                if (f.finished || f.finished_provisional) {
+                    finishedPlTeamIds.add(f.team_h);
+                    finishedPlTeamIds.add(f.team_a);
+                }
+            }
+        }
+    } catch { /* Fail open */ }
 
     // Collect all player IDs (starters + bench) across all matchups
     const playerIds = new Set<string>();
@@ -165,15 +188,17 @@ export async function POST(req: NextRequest) {
         }
     }
 
-    // 4. Fetch player positions for auto-sub eligibility checks
+    // 4. Fetch player positions and PL team IDs for auto-sub eligibility checks
     const { data: playersData } = await admin
         .from('players')
-        .select('id, primary_position, secondary_positions')
+        .select('id, primary_position, secondary_positions, pl_team_id')
         .in('id', Array.from(playerIds));
 
     const playerPositions = new Map<string, string[]>();
+    const playerPlTeamId = new Map<string, number>();
     for (const p of playersData ?? []) {
         playerPositions.set(p.id, [p.primary_position, ...(p.secondary_positions || [])]);
+        if (p.pl_team_id) playerPlTeamId.set(p.id, p.pl_team_id);
     }
 
     // Strict flex map: each slot only accepts its own position type
@@ -211,7 +236,7 @@ export async function POST(req: NextRequest) {
 
         const usedBenchIds = new Set<string>();
 
-        // 1. Starters & Auto-Subs
+        // 1. Starters & Auto-Subs (strict: only sub out if fixture is finished or GW is finished)
         for (const starter of starters) {
             const record = playerRecord.get(starter.player_id);
             const minutes = record?.minutes ?? 0;
@@ -220,27 +245,32 @@ export async function POST(req: NextRequest) {
                 // Starter played — score using their actual lineup slot
                 score += scorePlayerInSlot(starter.player_id, starter.slot);
             } else {
-                // Starter didn't play — find an eligible bench sub
-                const slotAllowedPos = POSITION_FLEX_MAP[starter.slot] ?? [];
+                // Only trigger autosub if the player's fixture is confirmed finished
+                // (prevents subbing out Sunday players on Saturday)
+                const plTeamId = playerPlTeamId.get(starter.player_id);
+                const fixtureFinished = finished || (plTeamId != null && finishedPlTeamIds.has(plTeamId));
 
-                let subFound = false;
-                for (const benchId of benchIds) {
-                    if (usedBenchIds.has(benchId)) continue;
+                if (fixtureFinished) {
+                    // Starter didn't play and their fixture is done — find an eligible bench sub
+                    const slotAllowedPos = POSITION_FLEX_MAP[starter.slot] ?? [];
 
-                    const benchRecord = playerRecord.get(benchId);
-                    if ((benchRecord?.minutes ?? 0) === 0) continue;
+                    for (const benchId of benchIds) {
+                        if (usedBenchIds.has(benchId)) continue;
 
-                    const subPositions = playerPositions.get(benchId) ?? [];
-                    const canPlaySlot = subPositions.some((pos) => slotAllowedPos.includes(pos));
+                        const benchRecord = playerRecord.get(benchId);
+                        if ((benchRecord?.minutes ?? 0) === 0) continue;
 
-                    if (canPlaySlot) {
-                        // Sub played in the slot — score them in the starter's slot position
-                        score += scorePlayerInSlot(benchId, starter.slot);
-                        usedBenchIds.add(benchId);
-                        subFound = true;
-                        break;
+                        const subPositions = playerPositions.get(benchId) ?? [];
+                        const canPlaySlot = subPositions.some((pos) => slotAllowedPos.includes(pos));
+
+                        if (canPlaySlot) {
+                            score += scorePlayerInSlot(benchId, starter.slot);
+                            usedBenchIds.add(benchId);
+                            break;
+                        }
                     }
                 }
+                // If fixture not finished yet, starter scores 0 but no autosub fires
             }
         }
 
@@ -275,13 +305,18 @@ export async function POST(req: NextRequest) {
             ? (scoreA > scoreB ? m.team_a_id : m.team_b_id)
             : null;
 
+        const updatePayload: Record<string, any> = {
+            score_a: scoreA,
+            score_b: scoreB,
+            status: newStatus,
+        };
+        if (finished) {
+            updatePayload.winner_team_id = winnerId;
+        }
+
         const { error } = await admin
             .from('matchups')
-            .update({
-                score_a: scoreA,
-                score_b: scoreB,
-                status: newStatus,
-            })
+            .update(updatePayload)
             .eq('id', m.id);
 
         if (!error) updated++;

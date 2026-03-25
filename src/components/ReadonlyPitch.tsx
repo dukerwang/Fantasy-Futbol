@@ -195,19 +195,32 @@ export default function ReadonlyPitch({ lineup, playerMap, detailMap, teamName }
                                                         </span>
                                                     )}
                                                     {detailMap && playerId && detailMap[playerId] !== undefined && (
-                                                        <span style={{
-                                                            fontSize: '0.7rem',
-                                                            fontWeight: 700,
-                                                            color: '#10b981',
-                                                            background: 'rgba(16,185,129,0.12)',
-                                                            border: '1px solid rgba(16,185,129,0.3)',
-                                                            borderRadius: '4px',
-                                                            padding: '1px 5px',
-                                                            marginTop: '2px',
-                                                            letterSpacing: '0.02em',
-                                                        }}>
-                                                            {detailMap[playerId].points.toFixed(1)} pts
-                                                        </span>
+                                                        <>
+                                                            <span style={{
+                                                                fontSize: '0.7rem',
+                                                                fontWeight: 700,
+                                                                color: '#10b981',
+                                                                background: 'rgba(16,185,129,0.12)',
+                                                                border: '1px solid rgba(16,185,129,0.3)',
+                                                                borderRadius: '4px',
+                                                                padding: '1px 5px',
+                                                                marginTop: '2px',
+                                                                letterSpacing: '0.02em',
+                                                            }}>
+                                                                {detailMap[playerId].points.toFixed(1)} pts
+                                                            </span>
+                                                            {detailMap[playerId].stats && formatStats(detailMap[playerId].stats) && (
+                                                                <span style={{
+                                                                    fontSize: '0.6rem',
+                                                                    color: '#9ca3af',
+                                                                    marginTop: '1px',
+                                                                    textAlign: 'center',
+                                                                    lineHeight: 1.2,
+                                                                }}>
+                                                                    {formatStats(detailMap[playerId].stats)}
+                                                                </span>
+                                                            )}
+                                                        </>
                                                     )}
                                                 </>
                                             ) : (
@@ -256,18 +269,29 @@ export default function ReadonlyPitch({ lineup, playerMap, detailMap, teamName }
                                             <span className={pitchStyles.benchPlayerClub}>{player.pl_team}</span>
                                         )}
                                         {detailMap && pid && detailMap[pid] !== undefined && (
-                                            <span style={{
-                                                fontSize: '0.68rem',
-                                                fontWeight: 700,
-                                                color: '#6366f1',
-                                                background: 'rgba(99,102,241,0.1)',
-                                                border: '1px solid rgba(99,102,241,0.25)',
-                                                borderRadius: '4px',
-                                                padding: '1px 5px',
-                                                marginTop: '2px',
-                                            }}>
-                                                {detailMap[pid].points.toFixed(1)} pts
-                                            </span>
+                                            <>
+                                                <span style={{
+                                                    fontSize: '0.68rem',
+                                                    fontWeight: 700,
+                                                    color: '#6366f1',
+                                                    background: 'rgba(99,102,241,0.1)',
+                                                    border: '1px solid rgba(99,102,241,0.25)',
+                                                    borderRadius: '4px',
+                                                    padding: '1px 5px',
+                                                    marginTop: '2px',
+                                                }}>
+                                                    {detailMap[pid].points.toFixed(1)} pts
+                                                </span>
+                                                {detailMap[pid].stats && formatStats(detailMap[pid].stats) && (
+                                                    <span style={{
+                                                        fontSize: '0.58rem',
+                                                        color: '#9ca3af',
+                                                        marginTop: '1px',
+                                                    }}>
+                                                        {formatStats(detailMap[pid].stats)}
+                                                    </span>
+                                                )}
+                                            </>
                                         )}
                                     </>
                                 ) : (
