@@ -53,7 +53,8 @@ interface Props {
 type Tab = 'my-trades' | 'propose' | 'trade-block';
 
 function playerDisplayName(p: SimplePlayer) {
-  return p.full_name ?? p.web_name ?? p.name;
+  // Use 'name' if available as it usually contains First + Last from sync.
+  return p.name ?? p.full_name ?? p.web_name;
 }
 
 export default function TradesClient({
@@ -443,24 +444,12 @@ export default function TradesClient({
                           style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}
                         >
                           <PositionBadge position={p.primary_position as any} size="sm" />
-                          <button
-                            type="button"
+                          <span
                             onClick={(e) => { e.stopPropagation(); setViewingPlayer(p); }}
-                            className={styles.tradePlayerNameBtn}
-                            style={{
-                                background: 'none',
-                                border: 'none',
-                                color: 'var(--color-text)',
-                                fontWeight: 500,
-                                fontSize: '0.9rem',
-                                cursor: 'pointer',
-                                padding: 0,
-                                textAlign: 'left',
-                                flex: 1,
-                            }}
+                            className={styles.tradePlayerNameLink}
                           >
                             {playerDisplayName(p)}
-                          </button>
+                          </span>
                           <span className={styles.rosterPlayerClub}>
                             {p.pl_team}
                             {p.projected_points !== undefined && p.projected_points !== null && (
@@ -492,24 +481,12 @@ export default function TradesClient({
                           style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}
                         >
                           <PositionBadge position={p.primary_position as any} size="sm" />
-                          <button
-                            type="button"
+                          <span
                             onClick={(e) => { e.stopPropagation(); setViewingPlayer(p); }}
-                            className={styles.tradePlayerNameBtn}
-                            style={{
-                                background: 'none',
-                                border: 'none',
-                                color: 'var(--color-text)',
-                                fontWeight: 500,
-                                fontSize: '0.9rem',
-                                cursor: 'pointer',
-                                padding: 0,
-                                textAlign: 'left',
-                                flex: 1,
-                            }}
+                            className={styles.tradePlayerNameLink}
                           >
                             {playerDisplayName(p)}
-                          </button>
+                          </span>
                           <span className={styles.rosterPlayerClub}>
                             {p.pl_team}
                             {p.projected_points !== undefined && p.projected_points !== null && (

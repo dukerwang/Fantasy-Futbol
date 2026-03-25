@@ -457,6 +457,20 @@
   background: rgba(99, 135, 255, 0.18);
 }
 
+.tradePlayerNameLink {
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  color: var(--color-text-primary);
+  cursor: pointer;
+  transition: color var(--transition-fast);
+/*  margin-right: auto; remove auto so it does not push things to the very ends if not needed */
+}
+
+.tradePlayerNameLink:hover {
+  text-decoration: underline;
+  color: var(--color-accent-blue);
+}
+
 .rosterPlayerName {
   flex: 1;
   font-size: var(--text-sm);

@@ -45,7 +45,11 @@ export async function GET(req: NextRequest) {
     }
 
     // 4. Find all "bot" teams
-    const { data: botUsers } = await admin.from('users').select('id, full_name').ilike('full_name', 'Bot %');
+    const { data: botUsers } = await admin
+        .from('users')
+        .select('id, full_name, username')
+        .or('full_name.ilike.Bot %,username.ilike.Bot %');
+
     const botUserIds = new Set((botUsers || []).map((u: any) => u.id));
 
     const teamIdsInMatchups = new Set<string>();
@@ -59,13 +63,31 @@ export async function GET(req: NextRequest) {
         (teamsData || []).filter((t: any) => botUserIds.has(t.user_id)).map((t: any) => t.id)
     );
 
+    // CARRY-OVER LOGIC: Fetch previous gameweek lineups for these bots
+    const prevGw = currentGw - 1;
+    const { data: prevMatchups } = await admin
+        .from('matchups')
+        .select('team_a_id, team_b_id, lineup_a, lineup_b')
+        .eq('gameweek', prevGw);
+
+    const prevLineupByTeam = new Map<string, any>();
+    if (prevMatchups) {
+        for (const m of prevMatchups) {
+            if (m.lineup_a) prevLineupByTeam.set(m.team_a_id, m.lineup_a);
+            if (m.lineup_b) prevLineupByTeam.set(m.team_b_id, m.lineup_b);
+        }
+    }
+
     let updatedCount = 0;
 
     for (const matchup of matchups) {
-        // Evaluate Team A — generate if missing or has fewer than 11 starters
+        // Evaluate Team A — carry over if missing or incomplete
         const lineupAIncomplete = !matchup.lineup_a || (matchup.lineup_a as any)?.starters?.length < 11;
         if (botTeamIds.has(matchup.team_a_id) && lineupAIncomplete) {
-            const lineup = await generateValidLineup(admin, matchup.team_a_id);
+            let lineup = prevLineupByTeam.get(matchup.team_a_id);
+            if (!lineup) {
+              lineup = await generateValidLineup(admin, matchup.team_a_id);
+            }
             if (lineup) {
                 await admin.from('matchups').update({ lineup_a: lineup }).eq('id', matchup.id);
                 updatedCount++;
@@ -74,7 +96,10 @@ export async function GET(req: NextRequest) {
         // Evaluate Team B
         const lineupBIncomplete = !matchup.lineup_b || (matchup.lineup_b as any)?.starters?.length < 11;
         if (botTeamIds.has(matchup.team_b_id) && lineupBIncomplete) {
-            const lineup = await generateValidLineup(admin, matchup.team_b_id);
+            let lineup = prevLineupByTeam.get(matchup.team_b_id);
+            if (!lineup) {
+              lineup = await generateValidLineup(admin, matchup.team_b_id);
+            }
             if (lineup) {
                 await admin.from('matchups').update({ lineup_b: lineup }).eq('id', matchup.id);
                 updatedCount++;
