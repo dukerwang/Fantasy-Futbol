@@ -32,9 +32,9 @@ export async function GET(req: NextRequest) {
     // 3. Find all "scheduled" matchups for this gameweek
     const { data: matchups, error: matchupsErr } = await admin
         .from('matchups')
-        .select('id, team_a_id, team_b_id, lineup_a, lineup_b')
+        .select('id, team_a_id, team_b_id, lineup_a, lineup_b, status')
         .eq('gameweek', currentGw)
-        .eq('status', 'scheduled');
+        .in('status', ['scheduled', 'live']);
 
     if (matchupsErr || !matchups) {
         return NextResponse.json({ error: 'Failed to fetch matchups' }, { status: 500 });

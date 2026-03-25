@@ -7,25 +7,6 @@ interface Props {
   params: Promise<{ leagueId: string; matchupId: string }>;
 }
 
-async function getCurrentFplGw(): Promise<number> {
-  try {
-    const res = await fetch('https://fantasy.premierleague.com/api/bootstrap-static/', {
-      next: { revalidate: 3600 }
-    });
-    const data = await res.json();
-    const now = new Date();
-    let gw = 1;
-    for (const ev of data.events as any[]) {
-      if (ev.deadline_time && new Date(ev.deadline_time) <= now) {
-        gw = Math.max(gw, ev.id);
-      }
-    }
-    return gw;
-  } catch {
-    return 1;
-  }
-}
-
 export async function GET(_req: NextRequest, { params }: Props) {
   const { leagueId, matchupId } = await params;
 
@@ -57,12 +38,14 @@ export async function GET(_req: NextRequest, { params }: Props) {
     .select('id, league_id, gameweek, score_a, score_b, lineup_a, lineup_b, status')
     .eq('id', matchupId)
     .eq('league_id', leagueId)
+    .in('status', ['scheduled', 'live', 'completed']) // Include 'completed' to allow fetching scores for past matchups
     .single();
 
   if (!matchup) return NextResponse.json({ error: 'Matchup not found' }, { status: 404 });
 
-  // If not live, return the stored scores immediately
-  if (matchup.status !== 'live') {
+  // If not live OR scheduled, return the stored scores immediately
+  // We allow 'scheduled' here to handle the window where the match has started but sync hasn't flipped the DB status yet.
+  if (matchup.status !== 'live' && matchup.status !== 'scheduled') {
     return NextResponse.json({
       score_a: matchup.score_a,
       score_b: matchup.score_b,
@@ -82,8 +65,9 @@ export async function GET(_req: NextRequest, { params }: Props) {
     return NextResponse.json({ score_a: matchup.score_a, score_b: matchup.score_b, live: true });
   }
 
-  // Fetch player_stats for the active FPL gameweek (not the league week index)
-  const currentFplGw = await getCurrentFplGw();
+  // REVERT: Use the matchup's own gameweek instead of fetching it from FPL every time.
+  // We confirmed matchup.gameweek stores the correct FPL Gameweek ID.
+  const currentFplGw = matchup.gameweek;
   
   const { data: statsRows } = await admin
     .from('player_stats')

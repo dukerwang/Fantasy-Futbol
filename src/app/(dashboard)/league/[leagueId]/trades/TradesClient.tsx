@@ -11,10 +11,12 @@ interface SimplePlayer {
   name: string;
   web_name: string | null;
   full_name?: string | null;
+  first_name?: string | null;
+  second_name?: string | null;
+  pl_team?: string | null;
+  projected_points?: number | null;
+  market_value?: number | null;
   primary_position: string;
-  pl_team: string;
-  market_value?: number;
-  projected_points?: number;
   on_trade_block?: boolean;
 }
 
@@ -641,6 +643,10 @@ export default function TradesClient({
           )}
         </div>
       )}
+      <PlayerDetailsModal
+        player={viewingPlayer as any}
+        onClose={() => setViewingPlayer(null)}
+      />
     </div>
   );
 }
