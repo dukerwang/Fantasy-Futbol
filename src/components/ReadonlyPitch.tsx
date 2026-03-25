@@ -54,13 +54,13 @@ interface Props {
 function formatStats(stats?: any) {
     if (!stats) return '';
     const parts = [];
-    if (stats.goals_scored) parts.push(`G: ${stats.goals_scored}`);
+    if (stats.goals) parts.push(`G: ${stats.goals}`);
     if (stats.assists) parts.push(`A: ${stats.assists}`);
-    if (stats.clean_sheets) parts.push(`CS: ${stats.clean_sheets}`);
-    if (stats.saves && stats.saves >= 3) parts.push(`Sv: ${stats.saves}`);
-    if (stats.yellow_cards) parts.push(`YC`);
-    if (stats.red_cards) parts.push(`RC`);
-    return parts.join(' • ');
+    if (stats.clean_sheet) parts.push(`CS: ${stats.clean_sheet ? 1 : 0}`);
+    if (stats.saves) parts.push(`Sv: ${stats.saves}`);
+    if (stats.yellow_cards) parts.push(`YC: ${stats.yellow_cards}`);
+    if (stats.red_cards) parts.push(`RC: ${stats.red_cards}`);
+    return parts.join(' | ');
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────

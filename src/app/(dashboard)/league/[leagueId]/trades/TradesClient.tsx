@@ -436,13 +436,31 @@ export default function TradesClient({
                       <p className={styles.emptyRoster}>No players on your roster.</p>
                     ) : (
                       myRoster.map((p) => (
-                        <button
+                        <div
                           key={p.id}
                           className={`${styles.rosterPlayer} ${offeredPlayerIds.has(p.id) ? styles.rosterPlayerSelected : ''}`}
                           onClick={() => toggleOffered(p.id)}
+                          style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}
                         >
                           <PositionBadge position={p.primary_position as any} size="sm" />
-                          <span className={styles.rosterPlayerName}>{playerDisplayName(p)}</span>
+                          <button
+                            type="button"
+                            onClick={(e) => { e.stopPropagation(); setViewingPlayer(p); }}
+                            className={styles.tradePlayerNameBtn}
+                            style={{
+                                background: 'none',
+                                border: 'none',
+                                color: 'var(--color-text)',
+                                fontWeight: 500,
+                                fontSize: '0.9rem',
+                                cursor: 'pointer',
+                                padding: 0,
+                                textAlign: 'left',
+                                flex: 1,
+                            }}
+                          >
+                            {playerDisplayName(p)}
+                          </button>
                           <span className={styles.rosterPlayerClub}>
                             {p.pl_team}
                             {p.projected_points !== undefined && p.projected_points !== null && (
@@ -450,7 +468,7 @@ export default function TradesClient({
                             )}
                           </span>
                           {offeredPlayerIds.has(p.id) && <span className={styles.checkmark}>✓</span>}
-                        </button>
+                        </div>
                       ))
                     )}
                   </div>
@@ -467,13 +485,31 @@ export default function TradesClient({
                       <p className={styles.emptyRoster}>No players on this roster.</p>
                     ) : (
                       targetRoster.map((p) => (
-                        <button
+                        <div
                           key={p.id}
                           className={`${styles.rosterPlayer} ${requestedPlayerIds.has(p.id) ? styles.rosterPlayerSelected : ''}`}
                           onClick={() => toggleRequested(p.id)}
+                          style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}
                         >
                           <PositionBadge position={p.primary_position as any} size="sm" />
-                          <span className={styles.rosterPlayerName}>{playerDisplayName(p)}</span>
+                          <button
+                            type="button"
+                            onClick={(e) => { e.stopPropagation(); setViewingPlayer(p); }}
+                            className={styles.tradePlayerNameBtn}
+                            style={{
+                                background: 'none',
+                                border: 'none',
+                                color: 'var(--color-text)',
+                                fontWeight: 500,
+                                fontSize: '0.9rem',
+                                cursor: 'pointer',
+                                padding: 0,
+                                textAlign: 'left',
+                                flex: 1,
+                            }}
+                          >
+                            {playerDisplayName(p)}
+                          </button>
                           <span className={styles.rosterPlayerClub}>
                             {p.pl_team}
                             {p.projected_points !== undefined && p.projected_points !== null && (
@@ -481,7 +517,7 @@ export default function TradesClient({
                             )}
                           </span>
                           {requestedPlayerIds.has(p.id) && <span className={styles.checkmark}>✓</span>}
-                        </button>
+                        </div>
                       ))
                     )}
                   </div>
