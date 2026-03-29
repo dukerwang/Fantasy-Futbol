@@ -44,13 +44,16 @@ export async function GET(req: NextRequest) {
         return NextResponse.json({ message: `No matchups found for GW ${currentGw}`, ok: true, gameweek: currentGw });
     }
 
-    // 4. Find all "bot" teams
-    const { data: botUsers } = await admin
-        .from('users')
-        .select('id, full_name, username')
-        .or('full_name.ilike.Bot %,username.ilike.Bot %');
+    // 4. Find all "bot" users — search both full_name and username fields
+    const [{ data: botByName }, { data: botByUsername }] = await Promise.all([
+        admin.from('users').select('id, full_name, username').ilike('full_name', 'Bot %'),
+        admin.from('users').select('id, full_name, username').ilike('username', 'Bot %'),
+    ]);
+    const botUsers = [...(botByName ?? []), ...(botByUsername ?? [])].filter(
+        (u, i, arr) => arr.findIndex(x => x.id === u.id) === i // dedupe
+    );
 
-    const botUserIds = new Set((botUsers || []).map((u: any) => u.id));
+    const botUserIds = new Set((botUsers).map((u: any) => u.id));
 
     const teamIdsInMatchups = new Set<string>();
     matchups.forEach(m => {
