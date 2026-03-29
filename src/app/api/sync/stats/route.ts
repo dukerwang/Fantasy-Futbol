@@ -10,10 +10,11 @@
  * the FPL live rating system.
  */
 
-import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
 import { calculateMatchRating, mapFplLiveToRawStats } from '@/lib/scoring/engine';
+import { loadReferenceStats } from '@/lib/scoring/matchups';
 import type { GranularPosition, FplLivePlayerStats } from '@/types';
+import { createClient } from '@supabase/supabase-js';
+import { NextRequest, NextResponse } from 'next/server';
 
 export const maxDuration = 60; // 1 minute max for Vercel Hobby tier
 
@@ -73,6 +74,11 @@ export async function POST(req: NextRequest) {
 // ── FPL Live Ratings Sync ─────────────────────────────────────────────────
 
 async function syncFplLiveRatings(gameweek: number): Promise<NextResponse> {
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+  );
+
   // 1. Fetch live data from FPL
   const fplRes = await fetch(`${FPL_BASE}/event/${gameweek}/live/`, {
     headers: { 'User-Agent': 'FantasyFutbol/1.0' },
@@ -86,14 +92,12 @@ async function syncFplLiveRatings(gameweek: number): Promise<NextResponse> {
   const fplData = await fplRes.json();
   const elements = (fplData.elements ?? []) as FplLivePlayerStats[];
 
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  );
+  // 2. Load Reference Stats once for the entire batch
+  const refStats = await loadReferenceStats(supabase as any, '2025-26');
 
   let saved = 0;
 
-  // 2. Process in batches of 50
+  // 3. Process in batches of 50
   for (let i = 0; i < elements.length; i += 50) {
     const chunk = elements.slice(i, i + 50);
 
@@ -111,9 +115,12 @@ async function syncFplLiveRatings(gameweek: number): Promise<NextResponse> {
         if (!dbPlayer) return;
 
         const rawStats = mapFplLiveToRawStats(el.stats);
+        
+        // Use the same refStats loaded from the DB
         const { rating, fantasyPoints } = calculateMatchRating(
           rawStats,
           dbPlayer.primary_position as GranularPosition,
+          refStats as any
         );
 
         const { error } = await supabase.from('player_stats').upsert(

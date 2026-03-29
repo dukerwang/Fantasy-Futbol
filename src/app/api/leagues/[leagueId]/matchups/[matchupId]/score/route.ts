@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
-import type { GranularPosition, MatchupLineup } from '@/types';
+import type { GranularPosition } from '@/types';
+import { calculateTeamScore, loadReferenceStats, type PlayerScoreRecord } from '@/lib/scoring/matchups';
 
 interface Props {
   params: Promise<{ leagueId: string; matchupId: string }>;
@@ -38,13 +39,11 @@ export async function GET(_req: NextRequest, { params }: Props) {
     .select('id, league_id, gameweek, score_a, score_b, lineup_a, lineup_b, status')
     .eq('id', matchupId)
     .eq('league_id', leagueId)
-    .in('status', ['scheduled', 'live', 'completed']) // Include 'completed' to allow fetching scores for past matchups
     .single();
 
   if (!matchup) return NextResponse.json({ error: 'Matchup not found' }, { status: 404 });
 
   // If not live OR scheduled, return the stored scores immediately
-  // We allow 'scheduled' here to handle the window where the match has started but sync hasn't flipped the DB status yet.
   if (matchup.status !== 'live' && matchup.status !== 'scheduled') {
     return NextResponse.json({
       score_a: matchup.score_a,
@@ -53,37 +52,66 @@ export async function GET(_req: NextRequest, { params }: Props) {
     });
   }
 
-  // Extract starter player IDs from both lineups
-  const lineupA = matchup.lineup_a as MatchupLineup | null;
-  const lineupB = matchup.lineup_b as MatchupLineup | null;
-  const starterIdsA = (lineupA?.starters ?? []).map((s) => s.player_id);
-  const starterIdsB = (lineupB?.starters ?? []).map((s) => s.player_id);
-  const allStarterIds = [...new Set([...starterIdsA, ...starterIdsB])];
+  // Extract all player IDs from both lineups
+  const lineupA = matchup.lineup_a as any | null;
+  const lineupB = matchup.lineup_b as any | null;
+  const playerIds = new Set<string>();
+  lineupA?.starters?.forEach((s: any) => playerIds.add(s.player_id));
+  lineupA?.bench?.forEach((b: any) => playerIds.add(b.player_id));
+  lineupB?.starters?.forEach((s: any) => playerIds.add(s.player_id));
+  lineupB?.bench?.forEach((b: any) => playerIds.add(b.player_id));
 
-  // No lineups saved yet — return stored scores
-  if (allStarterIds.length === 0) {
+  if (playerIds.size === 0) {
     return NextResponse.json({ score_a: matchup.score_a, score_b: matchup.score_b, live: true });
   }
 
-  // REVERT: Use the matchup's own gameweek instead of fetching it from FPL every time.
-  // We confirmed matchup.gameweek stores the correct FPL Gameweek ID.
-  const currentFplGw = matchup.gameweek;
-  
+  // 1. Load reference stats
+  const season = '2025-26';
+  const refStats = await loadReferenceStats(admin, season);
+
+  // 2. Fetch player stats for this GW
   const { data: statsRows } = await admin
     .from('player_stats')
-    .select('player_id, fantasy_points')
-    .in('player_id', allStarterIds)
-    .eq('gameweek', currentFplGw);
+    .select('player_id, fantasy_points, stats')
+    .in('player_id', Array.from(playerIds))
+    .eq('gameweek', matchup.gameweek);
 
-  const statsMap = new Map<string, number>(
-    (statsRows ?? []).map((s: any) => [s.player_id, Number(s.fantasy_points)]),
-  );
+  const playerRecord = new Map<string, PlayerScoreRecord>();
+  for (const row of statsRows ?? []) {
+    const fixtureMins: number = (row.stats as any)?.minutes_played ?? 0;
+    const existing = playerRecord.get(row.player_id);
+    if (!existing) {
+      playerRecord.set(row.player_id, { minutes: fixtureMins, statsJson: row.stats });
+    } else {
+      // Accumulate for double gameweek
+      const merged = { ...existing.statsJson };
+      merged.goals = (merged.goals ?? 0) + ((row.stats as any)?.goals ?? 0);
+      merged.assists = (merged.assists ?? 0) + ((row.stats as any)?.assists ?? 0);
+      merged.minutes_played = (merged.minutes_played ?? 0) + fixtureMins;
+      playerRecord.set(row.player_id, { minutes: Math.max(existing.minutes, fixtureMins), statsJson: merged });
+    }
+  }
 
-  // Sum points for each team's starters
-  const scoreA = starterIdsA.reduce((sum, id) => sum + (statsMap.get(id) ?? 0), 0);
-  const scoreB = starterIdsB.reduce((sum, id) => sum + (statsMap.get(id) ?? 0), 0);
+  // 3. Fetch player positions & PL Team IDs
+  const { data: playersData } = await admin
+    .from('players')
+    .select('id, primary_position, secondary_positions, pl_team_id')
+    .in('id', Array.from(playerIds));
 
-  // Persist the updated live scores back to the matchup row
+  const playerPositions = new Map<string, string[]>();
+  const playerPlTeamId = new Map<string, number>();
+  for (const p of playersData ?? []) {
+    playerPositions.set(p.id, [p.primary_position, ...(p.secondary_positions || [])]);
+    if (p.pl_team_id) playerPlTeamId.set(p.id, p.pl_team_id);
+  }
+
+  // 4. Calculate total scores using the central engine
+  // Note: We'll assume the entire gameweek isn't 'finished' for live polling unless statuses indicate otherwise.
+  // Actually, for 'live' matches, we want to see subs fire if their player finished.
+  const scoreA = calculateTeamScore(lineupA, playerRecord, playerPositions, playerPlTeamId, refStats as any, false, new Set());
+  const scoreB = calculateTeamScore(lineupB, playerRecord, playerPositions, playerPlTeamId, refStats as any, false, new Set());
+
+  // Persist back to DB so they stay in sync
   await admin
     .from('matchups')
     .update({ score_a: scoreA, score_b: scoreB })
