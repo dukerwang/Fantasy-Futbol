@@ -307,9 +307,10 @@ export default function TradesClient({
               }
 
               return blockPlayers.map(p => {
-                const teamName = allTeams.find(t => t.id === p.team_id)?.team_name ?? 'Unknown Team';
+                const isMe = p.team_id === myTeam.id;
+                const teamName = isMe ? myTeam.team_name : (allTeams.find(t => t.id === p.team_id)?.team_name ?? 'Unknown Team');
                 return (
-                  <div key={p.id} className={styles.tradePlayerRow} style={{ padding: '0.75rem', background: 'var(--color-bg-secondary)', borderRadius: '8px', marginBottom: '0.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div key={p.id} className={styles.tradePlayerRow} style={{ padding: '0.75rem', background: 'var(--color-bg-secondary)', border: isMe ? '1px solid #10b981' : 'none', borderRadius: '8px', marginBottom: '0.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                       <PositionBadge position={p.primary_position as any} size="sm" />
                       <div style={{ display: 'flex', flexDirection: 'column' }}>
@@ -320,19 +321,21 @@ export default function TradesClient({
                       </div>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                      <span style={{ fontSize: '0.85rem', color: 'var(--color-text-secondary)' }}>Owned by: <strong style={{ color: 'var(--color-text)' }}>{teamName}</strong></span>
-                      <button 
-                        className={styles.proposeBtn} 
-                        style={{ padding: '0.4rem 0.8rem', fontSize: '0.85rem' }}
-                        onClick={() => {
-                          setSelectedTeamId(p.team_id);
-                          setOfferedPlayerIds(new Set());
-                          setRequestedPlayerIds(new Set([p.id]));
-                          setTab('propose');
-                        }}
-                      >
-                        Propose Trade
-                      </button>
+                      <span style={{ fontSize: '0.85rem', color: 'var(--color-text-secondary)' }}>Owned by: <strong style={{ color: isMe ? '#10b981' : 'var(--color-text)' }}>{isMe ? 'YOU' : teamName}</strong></span>
+                      {!isMe && (
+                        <button 
+                          className={styles.proposeBtn} 
+                          style={{ padding: '0.4rem 0.8rem', fontSize: '0.85rem' }}
+                          onClick={() => {
+                            setSelectedTeamId(p.team_id);
+                            setOfferedPlayerIds(new Set());
+                            setRequestedPlayerIds(new Set([p.id]));
+                            setTab('propose');
+                          }}
+                        >
+                          Propose Trade
+                        </button>
+                      )}
                     </div>
                   </div>
                 );
