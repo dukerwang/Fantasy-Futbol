@@ -133,8 +133,10 @@ async function generateValidLineup(admin: any, teamId: string): Promise<MatchupL
     
     if (!rosterData) return null;
 
-    const availableEntries = rosterData.filter((e: any) => e.status !== 'ir' && e.player?.is_active);
+    // Include any player not on IR that has a valid position — bot accounts may not have is_active=true
+    const availableEntries = rosterData.filter((e: any) => e.status !== 'ir' && e.player?.primary_position);
     if (availableEntries.length === 0) return null;
+
 
     const allFormations: Formation[] = ['4-3-3', '4-4-2', '4-2-3-1', '4-1-4-1', '3-4-3', '4-2-1-3'];
 
