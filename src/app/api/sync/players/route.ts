@@ -19,7 +19,8 @@ const FPL_URL = 'https://fantasy.premierleague.com/api/bootstrap-static/';
 export async function GET(req: NextRequest) { return POST(req); }
 
 export async function POST(req: NextRequest) {
-  const secret = req.headers.get('x-cron-secret');
+  const secret = req.headers.get('x-cron-secret') ??
+    req.headers.get('authorization')?.replace('Bearer ', '');
   if (secret !== process.env.CRON_SECRET) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
