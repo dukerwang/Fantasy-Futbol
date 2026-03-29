@@ -32,8 +32,7 @@ export default async function MyTeamPage({ params, searchParams }: Props) {
     .from('teams')
     .select(`
       id, team_name, faab_budget, league_id,
-      league:leagues(id, name, season, status, scoring_rules, bench_size),
-      standings:league_standings(rank)
+      league:leagues(id, name, season, status, scoring_rules, bench_size)
     `)
     .eq('league_id', leagueId)
     .eq('user_id', user.id)
@@ -51,6 +50,15 @@ export default async function MyTeamPage({ params, searchParams }: Props) {
       </div>
     );
   }
+
+  // Fetch rank separately from view
+  const { data: standingData } = await admin
+    .from('league_standings')
+    .select('rank')
+    .eq('team_id', team.id)
+    .single();
+
+  const teamRank = standingData?.rank;
 
 
   // Fetch roster entries with player data
@@ -217,7 +225,7 @@ export default async function MyTeamPage({ params, searchParams }: Props) {
           <div className={styles.headerStats}>
             <div className={styles.stat}>
               <span className={styles.statValue}>
-                {((team.standings as any)?.[0]?.rank) ? (((team.standings as any)[0].rank === 1 ? '🥇 1st' : (team.standings as any)[0].rank === 2 ? '🥈 2nd' : (team.standings as any)[0].rank === 3 ? '🥉 3rd' : `${(team.standings as any)[0].rank}th`)) : '—'}
+                {teamRank ? (teamRank === 1 ? '🥇 1st' : teamRank === 2 ? '🥈 2nd' : teamRank === 3 ? '🥉 3rd' : `${teamRank}th`) : '—'}
               </span>
               <span className={styles.statLabel}>League Rank</span>
             </div>

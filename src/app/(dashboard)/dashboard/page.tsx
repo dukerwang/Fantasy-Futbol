@@ -20,21 +20,27 @@ export default async function DashboardPage() {
     .eq('id', user.id)
     .single();
 
-  // Fetch user's teams with league AND rank info
+  // Fetch user's teams with league info
   const { data: teams } = await admin
     .from('teams')
     .select(`
       id, team_name, faab_budget,
-      league:leagues(id, name, status, season),
-      standings:league_standings(rank)
+      league:leagues(id, name, status, season)
     `)
     .eq('user_id', user.id)
     .order('created_at', { ascending: false });
 
-  // Map the nested join data to a flatter structure
+  // Fetch ranks for these teams separately from the view
+  const teamIds = (teams ?? []).map(t => t.id);
+  const { data: standings } = teamIds.length > 0 
+    ? await admin.from('league_standings').select('team_id, rank').in('team_id', teamIds)
+    : { data: [] };
+
+  const rankMap = new Map((standings ?? []).map(s => [s.team_id, s.rank]));
+
   const formattedTeams = (teams ?? []).map((t: any) => ({
     ...t,
-    rank: t.standings?.[0]?.rank
+    rank: rankMap.get(t.id)
   }));
 
   return (
