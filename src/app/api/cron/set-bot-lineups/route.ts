@@ -44,27 +44,15 @@ export async function GET(req: NextRequest) {
         return NextResponse.json({ message: `No matchups found for GW ${currentGw}`, ok: true, gameweek: currentGw });
     }
 
-    // 4. Find all "bot" users — search both full_name and username fields
-    const [{ data: botByName }, { data: botByUsername }] = await Promise.all([
-        admin.from('users').select('id, full_name, username').ilike('full_name', 'Bot %'),
-        admin.from('users').select('id, full_name, username').ilike('username', 'Bot %'),
-    ]);
-    const botUsers = [...(botByName ?? []), ...(botByUsername ?? [])].filter(
-        (u, i, arr) => arr.findIndex(x => x.id === u.id) === i // dedupe
-    );
+    // 4. Find all "bot" teams by team_name — covers "FC Bot 1", "Bot FC 2", etc.
+    const { data: botTeamsData } = await admin
+        .from('teams')
+        .select('id, team_name')
+        .ilike('team_name', '%Bot%');
 
-    const botUserIds = new Set((botUsers).map((u: any) => u.id));
+    const botUsers = botTeamsData ?? [];  // For count reporting
+    const botTeamIds = new Set((botTeamsData ?? []).map((t: any) => t.id));
 
-    const teamIdsInMatchups = new Set<string>();
-    matchups.forEach(m => {
-        teamIdsInMatchups.add(m.team_a_id);
-        teamIdsInMatchups.add(m.team_b_id);
-    });
-
-    const { data: teamsData } = await admin.from('teams').select('id, user_id, team_name').in('id', Array.from(teamIdsInMatchups));
-    const botTeamIds = new Set(
-        (teamsData || []).filter((t: any) => botUserIds.has(t.user_id)).map((t: any) => t.id)
-    );
 
     // CARRY-OVER LOGIC: Fetch previous gameweek lineups for these bots
     const prevGw = currentGw - 1;
