@@ -41,38 +41,13 @@ export default async function LeaguePage({ params }: Props) {
 
   if (!membership && league.commissioner_id !== user.id) redirect('/dashboard');
 
-  const { data: teams } = await admin
-    .from('teams')
-    .select('*, user:users(username)')
-    .eq('league_id', leagueId);
-
-  // Compute football-style table points from completed matchups
-  const DRAW_GAP = 10;
-  const { data: allMatchups } = await admin
-    .from('matchups')
-    .select('team_a_id, team_b_id, score_a, score_b')
+  // Fetch standings for this league from our centralized view
+  const { data: standings } = await admin
+    .from('league_standings')
+    .select('*')
     .eq('league_id', leagueId)
-    .in('status', ['live', 'completed']);
-
-  // Build table points map
-  const tpMap: Record<string, { pts: number; played: number; w: number; d: number; l: number }> = {};
-  for (const t of teams ?? []) {
-    tpMap[t.id] = { pts: 0, played: 0, w: 0, d: 0, l: 0 };
-  }
-  for (const m of allMatchups ?? []) {
-    const a = tpMap[m.team_a_id]; const b = tpMap[m.team_b_id];
-    if (!a || !b) continue;
-    const gap = Math.abs((m.score_a ?? 0) - (m.score_b ?? 0));
-    a.played++; b.played++;
-    if (gap <= DRAW_GAP) { a.pts += 1; a.d++; b.pts += 1; b.d++; }
-    else if ((m.score_a ?? 0) > (m.score_b ?? 0)) { a.pts += 3; a.w++; b.l++; }
-    else { b.pts += 3; b.w++; a.l++; }
-  }
-
-  // Sort teams by table points
-  const sortedTeams = [...(teams ?? [])].sort((x, y) =>
-    (tpMap[y.id]?.pts ?? 0) - (tpMap[x.id]?.pts ?? 0)
-  );
+    .order('rank', { ascending: true })
+    .limit(6); // Limit to top 6 for the summary card
 
   const { data: recentMatchups } = await admin
     .from('matchups')
@@ -116,10 +91,10 @@ export default async function LeaguePage({ params }: Props) {
           {league.commissioner_id === user.id ? (
             <DraftOrderManager
               leagueId={leagueId}
-              initialTeams={(teams ?? []).map((t: any) => ({
-                id: t.id,
-                team_name: t.team_name,
-                draft_order: t.draft_order ?? null,
+              initialTeams={(standings ?? []).map((s: any) => ({
+                id: s.team_id,
+                team_name: s.team_name,
+                draft_order: null, // Draft order should be fetched if needed, but for now we focus on standings
               }))}
             />
           ) : (
@@ -140,30 +115,27 @@ export default async function LeaguePage({ params }: Props) {
               <span className={styles.numCol}>W-D-L</span>
               <span className={styles.numCol} style={{ fontWeight: 800, color: 'var(--color-text-primary)' }}>Pts</span>
             </div>
-            {sortedTeams.map((team: any, i: number) => {
-              const tp = tpMap[team.id] ?? { pts: 0, w: 0, d: 0, l: 0 };
-              return (
-                <div
-                  key={team.id}
-                  className={`${styles.tableRow} ${team.user_id === user.id ? styles.ownRow : ''}`}
-                  style={{ gridTemplateColumns: '32px 1fr 70px 44px' }}
-                >
-                  <span className={styles.rankCol}>
-                    {i + 1 === 1 ? '🥇' : i + 1 === 2 ? '🥈' : i + 1 === 3 ? '🥉' : i + 1}
-                  </span>
-                  <div className={styles.teamCol}>
-                    <span className={styles.teamRowName}>{team.team_name}</span>
-                    <span className={styles.teamRowUser}>{team.user?.username}</span>
-                  </div>
-                  <span className={styles.numCol} style={{ fontSize: '0.72rem', color: 'var(--color-text-muted)' }}>
-                    {tp.w}-{tp.d}-{tp.l}
-                  </span>
-                  <span className={`${styles.numCol} ${styles.pointsNum}`}>
-                    {tp.pts}
-                  </span>
+            {standings?.map((row: any) => (
+              <div
+                key={row.team_id}
+                className={`${styles.tableRow} ${row.team_id === membership?.id ? styles.ownRow : ''}`}
+                style={{ gridTemplateColumns: '32px 1fr 70px 44px' }}
+              >
+                <span className={styles.rankCol}>
+                  {row.rank === 1 ? '🥇' : row.rank === 2 ? '🥈' : row.rank === 3 ? '🥉' : row.rank}
+                </span>
+                <div className={styles.teamCol}>
+                  <span className={styles.teamRowName}>{row.team_name}</span>
+                  <span className={styles.teamRowUser}>{row.username}</span>
                 </div>
-              );
-            })}
+                <span className={styles.numCol} style={{ fontSize: '0.72rem', color: 'var(--color-text-muted)' }}>
+                  {row.wins}-{row.draws}-{row.losses}
+                </span>
+                <span className={`${styles.numCol} ${styles.pointsNum}`}>
+                  {row.league_points}
+                </span>
+              </div>
+            ))}
           </div>
           <Link href={`/league/${leagueId}/standings`} style={{ display: 'block', textAlign: 'center', marginTop: '0.75rem', fontSize: '0.8125rem', color: 'var(--color-accent-blue, #3b82f6)' }}>
             Full Standings →
