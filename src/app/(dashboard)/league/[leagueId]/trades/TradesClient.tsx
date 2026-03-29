@@ -296,9 +296,11 @@ export default function TradesClient({
           </p>
           <div className={styles.tradeGroup}>
             {(() => {
-              const blockPlayers = Object.entries(allRosters).flatMap(([teamId, roster]) => 
+              const othersOnBlock = Object.entries(allRosters).flatMap(([teamId, roster]) => 
                 roster.filter(p => p.on_trade_block).map(p => ({ ...p, team_id: teamId }))
               );
+              const myOnBlock = myRoster.filter(p => p.on_trade_block).map(p => ({ ...p, team_id: myTeam.id }));
+              const blockPlayers = [...myOnBlock, ...othersOnBlock];
               
               if (blockPlayers.length === 0) {
                 return <p className={styles.emptyState}>No players are currently on the trade block.</p>;
