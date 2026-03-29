@@ -134,6 +134,16 @@ async function generateValidLineup(admin: any, teamId: string): Promise<{ lineup
 
     // Accept any player not on IR that has a position — don't require is_active for bot test teams
     const availableEntries = rosterData.filter((e: any) => e.status !== 'ir' && e.player?.primary_position);
+    
+    // Position breakdown for debugging
+    const posCounts: Record<string, number> = {};
+    availableEntries.forEach((e: any) => {
+        const p = e.player.primary_position;
+        posCounts[p] = (posCounts[p] || 0) + 1;
+    });
+    const posSummary = Object.entries(posCounts).map(([p, c]) => `${p}:${c}`).join(',');
+
+
     if (availableEntries.length === 0) {
         return { lineup: null, debug: `${rosterData.length} entries but 0 have primary_position (check player FK)` };
     }
@@ -141,12 +151,21 @@ async function generateValidLineup(admin: any, teamId: string): Promise<{ lineup
     const allFormations: Formation[] = ['4-3-3', '4-4-2', '4-2-3-1', '4-1-4-1', '3-4-3', '4-2-1-3'];
     let bestLineup: MatchupLineup | null = null;
 
+    // Helper to get category
+    const getCat = (p: string) => {
+        if (p === 'GK') return 'GK';
+        if (['CB', 'LB', 'RB'].includes(p)) return 'DEF';
+        if (['DM', 'CM', 'LM', 'RM', 'AM'].includes(p)) return 'MID';
+        return 'ATT';
+    };
+
     for (const formation of allFormations) {
         const slots = FORMATION_SLOTS[formation];
         const starters: { player_id: string; slot: GranularPosition }[] = [];
         const usedIds = new Set<string>();
         let success = true;
 
+        // Pass 1: Ideal matches
         for (const slotPos of slots) {
             const allowed = POSITION_FLEX_MAP[slotPos];
             const candidate = availableEntries.find((e: any) => {
@@ -155,12 +174,46 @@ async function generateValidLineup(admin: any, teamId: string): Promise<{ lineup
                 return positions.some((p: any) => allowed.includes(p));
             });
 
-            if (!candidate) { success = false; break; }
-            starters.push({ player_id: candidate.player.id, slot: slotPos });
-            usedIds.add(candidate.player.id);
+            if (candidate) {
+                starters.push({ player_id: candidate.player.id, slot: slotPos });
+                usedIds.add(candidate.player.id);
+            } else {
+                // To maintain slot order, we push a null and try to fill it in pass 2
+                starters.push({ player_id: '', slot: slotPos });
+            }
         }
 
-        if (success) {
+        // Pass 2: Category matches (e.g. any DEF in any DEF slot)
+        for (let i = 0; i < starters.length; i++) {
+            if (starters[i].player_id !== '') continue;
+            const slotPos = starters[i].slot;
+            const slotCat = getCat(slotPos);
+            
+            const candidate = availableEntries.find((e: any) => {
+                if (usedIds.has(e.player.id)) return false;
+                return getCat(e.player.primary_position) === slotCat;
+            });
+
+            if (candidate) {
+                starters[i].player_id = candidate.player.id;
+                usedIds.add(candidate.player.id);
+            }
+        }
+
+        // Pass 3: Total desperation (any available player for ANY remaining slot)
+        for (let i = 0; i < starters.length; i++) {
+            if (starters[i].player_id !== '') continue;
+            
+            const candidate = availableEntries.find((e: any) => !usedIds.has(e.player.id));
+            if (candidate) {
+                starters[i].player_id = candidate.player.id;
+                usedIds.add(candidate.player.id);
+            }
+        }
+
+
+        // Check if we filled all slots
+        if (starters.every(s => s.player_id !== '')) {
             const benchPool = availableEntries.filter((e: any) => !usedIds.has(e.player.id));
             const bench: { player_id: string; slot: BenchSlot }[] = [];
             const benchSlots: BenchSlot[] = ['DEF', 'MID', 'ATT', 'FLEX'];
@@ -176,7 +229,8 @@ async function generateValidLineup(admin: any, teamId: string): Promise<{ lineup
     return {
         lineup: bestLineup,
         debug: bestLineup
-            ? `generated ${bestLineup.formation} with ${bestLineup.starters.length} starters`
-            : `${availableEntries.length} available players but no formation fit`,
+            ? `generated ${bestLineup.formation} [${posSummary}]`
+            : `${availableEntries.length} players [${posSummary}] - no full XI possible`,
     };
 }
+
