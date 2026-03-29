@@ -82,21 +82,38 @@ export default async function MatchupDetailPage({ params }: Props) {
     }
 
     // Fetch per-player GW fantasy points for score overlay on pitch cards
+    const { loadReferenceStats, calculateTeamScore } = await import('@/lib/scoring/matchups');
+    const { calculateMatchRating } = await import('@/lib/scoring/engine');
+    const refStats = await loadReferenceStats(admin, '2025-26');
+
     let detailMap: Record<string, { points: number, stats?: any }> = {};
     if (playerIds.size > 0 && matchupData.gameweek) {
-        const { data: statsRows, error: statsError } = await admin
+        const { data: statsRows } = await admin
             .from('player_stats')
             .select('player_id, fantasy_points, stats')
             .eq('gameweek', matchupData.gameweek)
             .in('player_id', Array.from(playerIds));
 
+        // Initial map from DB
         for (const s of statsRows ?? []) {
-            const currentPoints = detailMap[s.player_id]?.points ?? 0;
             detailMap[s.player_id] = {
-                points: currentPoints + Number(s.fantasy_points),
-                stats: s.stats || detailMap[s.player_id]?.stats || {}
+                points: Number(s.fantasy_points),
+                stats: s.stats || {}
             };
         }
+
+        // RE-CALCULATE slot-aware points for starters to ensure UI parity with the banner
+        const applySlotWeights = (lineup: MatchupLineup | null) => {
+            lineup?.starters.forEach(s => {
+                const detail = detailMap[s.player_id];
+                if (detail?.stats && detail.stats.minutes_played > 0) {
+                    const { fantasyPoints } = calculateMatchRating(detail.stats, s.slot, refStats as any);
+                    detailMap[s.player_id].points = fantasyPoints;
+                }
+            });
+        };
+        applySlotWeights(lineupA);
+        applySlotWeights(lineupB);
     }
 
 
