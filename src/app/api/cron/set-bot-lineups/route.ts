@@ -7,7 +7,8 @@ export const maxDuration = 60; // 60 seconds
 export async function GET(req: NextRequest) {
     // 1. Authenticate cron
     const authHeader = req.headers.get('authorization');
-    if (authHeader !== `Bearer ${process.env.CRON_SECRET}` && process.env.NODE_ENV !== 'development') {
+    const secret = authHeader?.replace('Bearer ', '') ?? req.headers.get('x-cron-secret');
+    if (secret !== process.env.CRON_SECRET && process.env.NODE_ENV !== 'development') {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -29,19 +30,18 @@ export async function GET(req: NextRequest) {
         return NextResponse.json({ error: 'Failed to find current FPL gameweek', details: err.message }, { status: 500 });
     }
 
-    // 3. Find all "scheduled" matchups for this gameweek
+    // 3. Find matchups for this gameweek in ANY status (bot lineups should be set regardless)
     const { data: matchups, error: matchupsErr } = await admin
         .from('matchups')
         .select('id, team_a_id, team_b_id, lineup_a, lineup_b, status')
-        .eq('gameweek', currentGw)
-        .in('status', ['scheduled', 'live']);
+        .eq('gameweek', currentGw);
 
     if (matchupsErr || !matchups) {
         return NextResponse.json({ error: 'Failed to fetch matchups' }, { status: 500 });
     }
 
     if (matchups.length === 0) {
-        return NextResponse.json({ message: 'No scheduled matchups found for current gameweek', ok: true });
+        return NextResponse.json({ message: `No matchups found for GW ${currentGw}`, ok: true, gameweek: currentGw });
     }
 
     // 4. Find all "bot" teams
@@ -58,7 +58,7 @@ export async function GET(req: NextRequest) {
         teamIdsInMatchups.add(m.team_b_id);
     });
 
-    const { data: teamsData } = await admin.from('teams').select('id, user_id').in('id', Array.from(teamIdsInMatchups));
+    const { data: teamsData } = await admin.from('teams').select('id, user_id, team_name').in('id', Array.from(teamIdsInMatchups));
     const botTeamIds = new Set(
         (teamsData || []).filter((t: any) => botUserIds.has(t.user_id)).map((t: any) => t.id)
     );
@@ -79,6 +79,7 @@ export async function GET(req: NextRequest) {
     }
 
     let updatedCount = 0;
+    const debugLog: string[] = [];
 
     for (const matchup of matchups) {
         // Evaluate Team A — carry over if missing or incomplete
@@ -87,10 +88,15 @@ export async function GET(req: NextRequest) {
             let lineup = prevLineupByTeam.get(matchup.team_a_id);
             if (!lineup) {
               lineup = await generateValidLineup(admin, matchup.team_a_id);
+              debugLog.push(`Generated fresh lineup for team_a ${matchup.team_a_id}`);
+            } else {
+              debugLog.push(`Carried over lineup for team_a ${matchup.team_a_id} from GW${prevGw}`);
             }
             if (lineup) {
                 await admin.from('matchups').update({ lineup_a: lineup }).eq('id', matchup.id);
                 updatedCount++;
+            } else {
+              debugLog.push(`Failed to generate lineup for team_a ${matchup.team_a_id}`);
             }
         }
         // Evaluate Team B
@@ -99,16 +105,31 @@ export async function GET(req: NextRequest) {
             let lineup = prevLineupByTeam.get(matchup.team_b_id);
             if (!lineup) {
               lineup = await generateValidLineup(admin, matchup.team_b_id);
+              debugLog.push(`Generated fresh lineup for team_b ${matchup.team_b_id}`);
+            } else {
+              debugLog.push(`Carried over lineup for team_b ${matchup.team_b_id} from GW${prevGw}`);
             }
             if (lineup) {
                 await admin.from('matchups').update({ lineup_b: lineup }).eq('id', matchup.id);
                 updatedCount++;
+            } else {
+              debugLog.push(`Failed to generate lineup for team_b ${matchup.team_b_id}`);
             }
         }
     }
 
-    return NextResponse.json({ ok: true, updatedCount, gameweek: currentGw });
+    return NextResponse.json({
+        ok: true,
+        updatedCount,
+        gameweek: currentGw,
+        matchupCount: matchups.length,
+        botUserCount: botUsers?.length ?? 0,
+        botTeamCount: botTeamIds.size,
+        prevGwLineupCount: prevLineupByTeam.size,
+        debug: debugLog,
+    });
 }
+
 
 async function generateValidLineup(admin: any, teamId: string): Promise<MatchupLineup | null> {
     const { data: rosterData } = await admin
