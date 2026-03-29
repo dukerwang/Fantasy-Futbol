@@ -104,6 +104,20 @@ export async function GET(req: NextRequest) {
         }
     }
 
+    if (updatedCount > 0) {
+        try {
+            const syncUrl = new URL('/api/sync/matchups', req.url);
+            syncUrl.searchParams.set('gameweek', String(currentGw));
+            await fetch(syncUrl.toString(), {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${process.env.CRON_SECRET}` }
+            });
+            debugLog.push(`Triggered matchup re-score sync for GW ${currentGw}`);
+        } catch (err: any) {
+            debugLog.push(`Failed to trigger re-score sync: ${err.message}`);
+        }
+    }
+
     return NextResponse.json({
         ok: true,
         gameweek: currentGw,

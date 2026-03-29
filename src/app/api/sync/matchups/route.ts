@@ -76,15 +76,20 @@ export async function POST(req: NextRequest) {
     const admin = createAdminClient();
 
     // 1. Fetch incomplete matchups for this GW
-    const { data: matchups } = await admin
+    const { data: matchups, error: fetchErr } = await admin
         .from('matchups')
         .select('*, team_a:teams!matchups_team_a_id_fkey(*), team_b:teams!matchups_team_b_id_fkey(*)')
         .eq('gameweek', gameweek)
         .neq('status', 'completed');
 
-    if (!matchups || matchups.length === 0) {
-        return NextResponse.json({ ok: true, message: 'No matchups to process' });
+    if (fetchErr) {
+        return NextResponse.json({ error: 'Failed to fetch matchups', details: fetchErr.message }, { status: 500 });
     }
+
+    if (!matchups || matchups.length === 0) {
+        return NextResponse.json({ ok: true, message: `No incomplete matchups found for GW ${gameweek}`, gameweek });
+    }
+
 
     // Fetch FPL fixture data to know which PL teams' matches are finished
     const finishedPlTeamIds = new Set<number>();
@@ -209,7 +214,8 @@ export async function POST(req: NextRequest) {
         AM: ['AM'], LW: ['LW'], RW: ['RW'], ST: ['ST'],
     };
 
-    let updated = 0;
+
+
 
     /**
      * Score a single player in a specific lineup slot using the match rating engine.
@@ -295,13 +301,15 @@ export async function POST(req: NextRequest) {
 
     // 5. Resolve matchups
     const DRAW_THRESHOLD = 10;
+    let updated = 0;
+    const updateErrors: string[] = [];
+
     for (const m of matchups) {
         const scoreA = calculateTeamScore(m.lineup_a);
         const scoreB = calculateTeamScore(m.lineup_b);
         const gap = Math.abs(scoreA - scoreB);
 
         const newStatus = finished ? 'completed' : 'live';
-        // Draw if gap ≤ 10 pts — winner_team_id = null for draws
         const winnerId = (finished && gap > DRAW_THRESHOLD)
             ? (scoreA > scoreB ? m.team_a_id : m.team_b_id)
             : null;
@@ -320,8 +328,20 @@ export async function POST(req: NextRequest) {
             .update(updatePayload)
             .eq('id', m.id);
 
-        if (!error) updated++;
+        if (!error) {
+            updated++;
+        } else {
+            updateErrors.push(`Matchup ${m.id} error: ${error.message}`);
+        }
     }
 
-    return NextResponse.json({ ok: true, updated, gameweek, finished });
+    return NextResponse.json({ 
+        ok: true, 
+        updated, 
+        gameweek, 
+        finished, 
+        errors: updateErrors.length > 0 ? updateErrors : undefined 
+    });
 }
+
+
