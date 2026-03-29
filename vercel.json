@@ -6,23 +6,23 @@
         },
         {
             "path": "/api/sync/stats?mode=fpl_live",
-            "schedule": "0 2 * * *"
+            "schedule": "*/10 * * * *"
         },
         {
             "path": "/api/sync/matchups",
-            "schedule": "0 3 * * *"
+            "schedule": "*/10 * * * *"
         },
         {
             "path": "/api/sync/players",
-            "schedule": "30 3 * * *"
+            "schedule": "0 4 * * *"
         },
         {
             "path": "/api/cron/set-bot-lineups",
             "schedule": "0 10 * * *"
         },
         {
-            "path": "/api/sync/tournaments?action=resolve_stalled",
-            "schedule": "0 11 * * *"
+          "path": "/api/sync/tournaments?action=resolve_stalled",
+          "schedule": "0 11 * * *"
         }
     ]
 }
