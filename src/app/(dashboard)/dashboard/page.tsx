@@ -20,17 +20,22 @@ export default async function DashboardPage() {
     .eq('id', user.id)
     .single();
 
-  // Fetch user's teams with league info
+  // Fetch user's teams with league AND rank info
   const { data: teams } = await admin
     .from('teams')
-    .select(
-      `
-      id, team_name, faab_budget, total_points,
-      league:leagues(id, name, status, season)
-    `
-    )
+    .select(`
+      id, team_name, faab_budget,
+      league:leagues(id, name, status, season),
+      standings:league_standings(rank)
+    `)
     .eq('user_id', user.id)
     .order('created_at', { ascending: false });
+
+  // Map the nested join data to a flatter structure
+  const formattedTeams = (teams ?? []).map((t: any) => ({
+    ...t,
+    rank: t.standings?.[0]?.rank
+  }));
 
   return (
     <div>
@@ -51,11 +56,11 @@ export default async function DashboardPage() {
         </div>
       </header>
 
-      {teams && teams.length > 0 ? (
+      {formattedTeams.length > 0 ? (
         <section>
           <h2 className={styles.sectionTitle}>Your Leagues</h2>
           <div className={styles.leagueGrid}>
-            {teams.map((team: any) => (
+            {formattedTeams.map((team: any) => (
               <Link
                 key={team.id}
                 href={`/league/${team.league.id}`}
@@ -72,8 +77,13 @@ export default async function DashboardPage() {
                 <p className={styles.teamName}>{team.team_name}</p>
                 <div className={styles.leagueStats}>
                   <div className={styles.stat}>
-                    <span className={styles.statValue}>{team.total_points.toFixed(1)}</span>
-                    <span className={styles.statLabel}>Pts</span>
+                    <span 
+                      className={styles.statValue} 
+                      style={{ color: team.rank === 1 ? '#f59e0b' : 'var(--text-primary)' }}
+                    >
+                      {team.rank ? (team.rank === 1 ? '🥇 1st' : team.rank === 2 ? '🥈 2nd' : team.rank === 3 ? '🥉 3rd' : `${team.rank}th`) : '—'}
+                    </span>
+                    <span className={styles.statLabel}>Rank</span>
                   </div>
                   <div className={styles.stat}>
                     <span className={styles.statValue}>£{team.faab_budget}m</span>

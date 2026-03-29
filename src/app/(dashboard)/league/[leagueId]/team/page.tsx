@@ -30,12 +30,11 @@ export default async function MyTeamPage({ params, searchParams }: Props) {
   // Fetch full team data
   const { data: team } = await admin
     .from('teams')
-    .select(
-      `
-      id, team_name, faab_budget, total_points, league_id,
-      league:leagues(id, name, season, status, scoring_rules, bench_size)
-    `
-    )
+    .select(`
+      id, team_name, faab_budget, league_id,
+      league:leagues(id, name, season, status, scoring_rules, bench_size),
+      standings:league_standings(rank)
+    `)
     .eq('league_id', leagueId)
     .eq('user_id', user.id)
     .single();
@@ -217,8 +216,10 @@ export default async function MyTeamPage({ params, searchParams }: Props) {
         <div className={styles.headerRight}>
           <div className={styles.headerStats}>
             <div className={styles.stat}>
-              <span className={styles.statValue}>{Number(team.total_points).toFixed(1)}</span>
-              <span className={styles.statLabel}>Total Pts</span>
+              <span className={styles.statValue}>
+                {((team.standings as any)?.[0]?.rank) ? (((team.standings as any)[0].rank === 1 ? '🥇 1st' : (team.standings as any)[0].rank === 2 ? '🥈 2nd' : (team.standings as any)[0].rank === 3 ? '🥉 3rd' : `${(team.standings as any)[0].rank}th`)) : '—'}
+              </span>
+              <span className={styles.statLabel}>League Rank</span>
             </div>
             <div className={styles.statDivider} />
             <div className={styles.stat}>

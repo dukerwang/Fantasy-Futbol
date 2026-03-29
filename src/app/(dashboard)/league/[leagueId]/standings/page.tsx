@@ -57,70 +57,32 @@ export default async function StandingsPage({ params }: Props) {
 
   if (!membership && league.commissioner_id !== user.id) redirect('/dashboard');
 
-  // Fetch all teams
-  const { data: teams } = await admin
-    .from('teams')
-    .select('id, team_name, user:users(username)')
-    .eq('league_id', leagueId);
-
-  // Fetch all live + completed matchups
-  const { data: matchups } = await admin
-    .from('matchups')
-    .select('team_a_id, team_b_id, score_a, score_b, status')
+  // Fetch all teams with their standings from the view
+  const { data: standingsRaw } = await admin
+    .from('league_standings')
+    .select(`
+      *,
+      team:teams(
+        team_name,
+        user:users(username)
+      )
+    `)
     .eq('league_id', leagueId)
-    .in('status', ['live', 'completed']);
+    .order('rank', { ascending: true });
 
-  // Build standings map
-  const standingsMap = new Map<string, StandingRow>();
-  for (const team of teams ?? []) {
-    standingsMap.set(team.id, {
-      teamId: team.id,
-      teamName: team.team_name,
-      username: (team.user as any)?.username ?? '',
-      wins: 0,
-      losses: 0,
-      draws: 0,
-      pts: 0,
-      pf: 0,
-      pa: 0,
-      gd: 0,
-      played: 0,
-    });
-  }
-
-  // Tally results from completed matchups using football-style 3/1/0 system
-  // Draw rule: gap of ≤ 10 fantasy points = draw
-  for (const m of matchups ?? []) {
-    const a = standingsMap.get(m.team_a_id);
-    const b = standingsMap.get(m.team_b_id);
-    if (!a || !b) continue;
-
-    const scoreA = m.score_a ?? 0;
-    const scoreB = m.score_b ?? 0;
-    const gap = Math.abs(scoreA - scoreB);
-
-    a.pf += scoreA; a.pa += scoreB; a.gd += (scoreA - scoreB); a.played++;
-    b.pf += scoreB; b.pa += scoreA; b.gd += (scoreB - scoreA); b.played++;
-
-    if (gap <= DRAW_THRESHOLD) {
-      // Draw — 1 pt each
-      a.draws++; a.pts += 1;
-      b.draws++; b.pts += 1;
-    } else if (scoreA > scoreB) {
-      a.wins++; a.pts += 3;
-      b.losses++;
-    } else {
-      b.wins++; b.pts += 3;
-      a.losses++;
-    }
-  }
-
-  // Sort: table pts → GD → PF (real football tiebreaker order)
-  const standings = [...standingsMap.values()].sort((x, y) => {
-    if (y.pts !== x.pts) return y.pts - x.pts;
-    if (y.gd !== x.gd) return y.gd - x.gd;
-    return y.pf - x.pf;
-  });
+  const standings: StandingRow[] = (standingsRaw ?? []).map((row: any) => ({
+    teamId: row.team_id,
+    teamName: row.team?.team_name ?? 'Unknown',
+    username: row.team?.user?.username ?? 'Unknown',
+    played: row.played,
+    wins: row.wins,
+    draws: row.draws,
+    losses: row.losses,
+    pf: row.points_for,
+    pa: row.points_against,
+    gd: row.goal_difference,
+    pts: row.league_points,
+  }));
 
   return (
     <div>
