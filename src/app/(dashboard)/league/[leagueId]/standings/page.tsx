@@ -58,22 +58,17 @@ export default async function StandingsPage({ params }: Props) {
   if (!membership && league.commissioner_id !== user.id) redirect('/dashboard');
 
   // Fetch all teams with their standings from the view
+  // Note: we included team_name and username in the view to avoid join issues
   const { data: standingsRaw } = await admin
     .from('league_standings')
-    .select(`
-      *,
-      team:teams(
-        team_name,
-        user:users(username)
-      )
-    `)
+    .select('*')
     .eq('league_id', leagueId)
     .order('rank', { ascending: true });
 
   const standings: StandingRow[] = (standingsRaw ?? []).map((row: any) => ({
     teamId: row.team_id,
-    teamName: row.team?.team_name ?? 'Unknown',
-    username: row.team?.user?.username ?? 'Unknown',
+    teamName: row.team_name,
+    username: row.username,
     played: row.played,
     wins: row.wins,
     draws: row.draws,
