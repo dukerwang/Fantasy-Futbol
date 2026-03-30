@@ -81,8 +81,8 @@ export async function POST(req: NextRequest) {
 
   const admin = createAdminClient();
 
-  // Snapshot existing players before upsert for transfer-out detection and to preserve secondary positions, market values, and names
-  const { data: existingPlayers } = await admin.from('players').select('id, fpl_id, is_active, secondary_positions, market_value, name, date_of_birth');
+  // Snapshot existing players before upsert for transfer-out detection and to preserve primary/secondary positions, market values, and names
+  const { data: existingPlayers } = await admin.from('players').select('id, fpl_id, is_active, primary_position, secondary_positions, market_value, name, date_of_birth');
   const existingFplIds = new Set((existingPlayers ?? []).map((p) => p.fpl_id));
 
   // Map fpl_id → player.id for currently-active players
@@ -90,6 +90,13 @@ export async function POST(req: NextRequest) {
     (existingPlayers ?? [])
       .filter((p) => p.is_active && p.fpl_id != null)
       .map((p) => [p.fpl_id as number, p.id as string]),
+  );
+
+  // Map fpl_id → primary_position
+  const primaryPositionMap = new Map<number, string>(
+    (existingPlayers ?? [])
+      .filter((p) => p.fpl_id != null && p.primary_position != null)
+      .map((p) => [p.fpl_id as number, p.primary_position]),
   );
 
   // Map fpl_id → secondary_positions
@@ -113,10 +120,11 @@ export async function POST(req: NextRequest) {
       .map((p) => [p.fpl_id as number, p.name]),
   );
 
-  // Re-map rows to inject the preserved secondary positions, market values, and simplified names
+  // Re-map rows to inject the preserved positions, market values, and simplified names
   const finalRows = rows.map((row) => ({
     ...row,
     name: nameMap.get(row.fpl_id) ?? row.name,
+    primary_position: primaryPositionMap.get(row.fpl_id) ?? row.primary_position,
     secondary_positions: secondaryPositionsMap.get(row.fpl_id) ?? [],
     market_value: marketValueMap.has(row.fpl_id) && marketValueMap.get(row.fpl_id) !== null
       ? marketValueMap.get(row.fpl_id)
