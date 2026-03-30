@@ -2,27 +2,27 @@
     "crons": [
         {
             "path": "/api/sync/stats?mode=fpl_live",
-            "schedule": "0 21 * * *"
-        },
-        {
-            "path": "/api/sync/matchups",
-            "schedule": "0 22 * * *"
-        },
-        {
-            "path": "/api/sync/tournaments?action=resolve_stalled",
             "schedule": "0 23 * * *"
         },
         {
-            "path": "/api/sync/players",
+            "path": "/api/sync/matchups",
             "schedule": "0 0 * * *"
         },
         {
-            "path": "/api/sync/auctions/check",
+            "path": "/api/sync/tournaments?action=resolve_stalled",
             "schedule": "0 1 * * *"
         },
         {
+            "path": "/api/sync/players",
+            "schedule": "0 2 * * *"
+        },
+        {
+            "path": "/api/sync/auctions/check",
+            "schedule": "0 3 * * *"
+        },
+        {
             "path": "/api/cron/set-bot-lineups",
-            "schedule": "0 16 * * *"
+            "schedule": "0 12 * * *"
         }
     ]
 }
