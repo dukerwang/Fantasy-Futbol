@@ -18,11 +18,11 @@
         },
         {
             "path": "/api/api/cron/set-bot-lineups",
-            "schedule": "0 10 * * *"
+            "schedule": "0 16 * * *"
         },
         {
             "path": "/api/sync/tournaments?action=resolve_stalled",
-            "schedule": "0 11 * * *"
+            "schedule": "0 17 * * *"
         }
     ]
 }
