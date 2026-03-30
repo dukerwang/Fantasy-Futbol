@@ -57,8 +57,8 @@ function formatStats(stats: any, pos?: GranularPosition) {
     if (stats.goals) parts.push(`G: ${stats.goals}`);
     if (stats.assists) parts.push(`A: ${stats.assists}`);
     
-    // Only show CS if NOT an attacker
-    const isAttacker = pos && getZone(pos) === 'ATT';
+    // Only show CS if NOT an attacker (including AM)
+    const isAttacker = pos && (getZone(pos) === 'ATT' || pos === 'AM');
     if (stats.clean_sheet && !isAttacker) {
         parts.push(`CS: ${stats.clean_sheet ? 1 : 0}`);
     }

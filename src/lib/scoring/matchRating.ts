@@ -176,8 +176,15 @@ function computeComponentScores(
     const gc = stats.goals_conceded;
     const xgc = stats.expected_goals_conceded ?? 0;
     const posGroup = getPositionGroup(position);
-    const canGetCS = posGroup !== 'ATT';
-    const csBonus = (stats.clean_sheet && stats.minutes_played >= 60 && canGetCS) ? 12 : 0;
+    let csBonus = 0;
+    if (stats.clean_sheet && stats.minutes_played >= 60) {
+        if (posGroup === 'GK' || posGroup === 'DEF') {
+            csBonus = 12;
+        } else if (posGroup === 'MID' && position !== 'AM') {
+            csBonus = 4; // Reduced bonus for CM/DM/LM/RM
+        }
+    }
+    const canGetCS = csBonus > 0;
     const xgcOutperf = Math.max(0, xgc - gc) * 5;
     const gcPenalty = Math.max(0, gc - xgc) * 5;
     const tackleCurve = Math.pow(Math.max(0, stats.fpl_tackles ?? 0), 0.8) * 1.5;
