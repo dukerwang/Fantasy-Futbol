@@ -51,12 +51,18 @@ interface Props {
     teamName: string;
 }
 
-function formatStats(stats?: any) {
+function formatStats(stats: any, pos?: GranularPosition) {
     if (!stats) return '';
     const parts = [];
     if (stats.goals) parts.push(`G: ${stats.goals}`);
     if (stats.assists) parts.push(`A: ${stats.assists}`);
-    if (stats.clean_sheet) parts.push(`CS: ${stats.clean_sheet ? 1 : 0}`);
+    
+    // Only show CS if NOT an attacker
+    const isAttacker = pos && getZone(pos) === 'ATT';
+    if (stats.clean_sheet && !isAttacker) {
+        parts.push(`CS: ${stats.clean_sheet ? 1 : 0}`);
+    }
+    
     if (stats.saves) parts.push(`Sv: ${stats.saves}`);
     if (stats.yellow_cards) parts.push(`YC: ${stats.yellow_cards}`);
     if (stats.red_cards) parts.push(`RC: ${stats.red_cards}`);
@@ -209,17 +215,17 @@ export default function ReadonlyPitch({ lineup, playerMap, detailMap, teamName }
                                                             }}>
                                                                 {detailMap[playerId].points.toFixed(1)} pts
                                                             </span>
-                                                            {detailMap[playerId].stats && formatStats(detailMap[playerId].stats) && (
-                                                                <span style={{
-                                                                    fontSize: '0.6rem',
-                                                                    color: '#9ca3af',
-                                                                    marginTop: '1px',
-                                                                    textAlign: 'center',
-                                                                    lineHeight: 1.2,
-                                                                }}>
-                                                                    {formatStats(detailMap[playerId].stats)}
-                                                                </span>
-                                                            )}
+                                    {detailMap[playerId].stats && formatStats(detailMap[playerId].stats, pos) && (
+                                        <span style={{
+                                            fontSize: '0.6rem',
+                                            color: '#9ca3af',
+                                            marginTop: '1px',
+                                            textAlign: 'center',
+                                            lineHeight: 1.2,
+                                        }}>
+                                            {formatStats(detailMap[playerId].stats, pos)}
+                                        </span>
+                                    )}
                                                         </>
                                                     )}
                                                 </>
@@ -282,13 +288,13 @@ export default function ReadonlyPitch({ lineup, playerMap, detailMap, teamName }
                                                 }}>
                                                     {detailMap[pid].points.toFixed(1)} pts
                                                 </span>
-                                                {detailMap[pid].stats && formatStats(detailMap[pid].stats) && (
+                                                {detailMap[pid].stats && formatStats(detailMap[pid].stats, player.primary_position) && (
                                                     <span style={{
                                                         fontSize: '0.58rem',
                                                         color: '#9ca3af',
                                                         marginTop: '1px',
                                                     }}>
-                                                        {formatStats(detailMap[pid].stats)}
+                                                        {formatStats(detailMap[pid].stats, player.primary_position)}
                                                     </span>
                                                 )}
                                             </>
@@ -337,9 +343,9 @@ export default function ReadonlyPitch({ lineup, playerMap, detailMap, teamName }
                                             <span style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--text-primary, #f3f4f6)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                                                 {p?.web_name ?? p?.name ?? '—'}
                                             </span>
-                                            {detail?.stats && formatStats(detail.stats) && (
+                                            {detail?.stats && formatStats(detail.stats, s.slot as GranularPosition) && (
                                                 <span style={{ fontSize: '0.65rem', color: '#9ca3af', marginTop: '-2px' }}>
-                                                    {formatStats(detail.stats)}
+                                                    {formatStats(detail.stats, s.slot as GranularPosition)}
                                                 </span>
                                             )}
                                         </div>

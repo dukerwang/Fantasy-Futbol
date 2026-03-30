@@ -175,7 +175,9 @@ function computeComponentScores(
     //      - CB CBI Nerf: clearance-spammers get half credit (stops Tarkowski exploiting volume)
     const gc = stats.goals_conceded;
     const xgc = stats.expected_goals_conceded ?? 0;
-    const csBonus = (stats.clean_sheet && stats.minutes_played >= 60) ? 12 : 0;
+    const posGroup = getPositionGroup(position);
+    const canGetCS = posGroup !== 'ATT';
+    const csBonus = (stats.clean_sheet && stats.minutes_played >= 60 && canGetCS) ? 12 : 0;
     const xgcOutperf = Math.max(0, xgc - gc) * 5;
     const gcPenalty = Math.max(0, gc - xgc) * 5;
     const tackleCurve = Math.pow(Math.max(0, stats.fpl_tackles ?? 0), 0.8) * 1.5;
@@ -189,7 +191,7 @@ function computeComponentScores(
 
     const defensive: ComponentResult = {
         score: sigmoidNormalize(defensiveRaw, ref.defensive.median, ref.defensive.stddev),
-        detail: stats.clean_sheet
+        detail: (stats.clean_sheet && canGetCS)
             ? `CS, ${gc} conceded vs ${xgc.toFixed(1)} xGC`
             : `${gc} conceded vs ${xgc.toFixed(1)} xGC`,
     };
