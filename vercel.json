@@ -22,7 +22,7 @@
         },
         {
             "path": "/api/cron/set-bot-lineups",
-            "schedule": "0 12 * * *"
+            "schedule": "0 9 * * *"
         }
     ]
 }

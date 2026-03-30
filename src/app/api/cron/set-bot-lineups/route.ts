@@ -22,8 +22,10 @@ export async function GET(req: NextRequest) {
         const fplData = await fplRes.json();
         const now = new Date();
         for (const ev of fplData.events as any[]) {
-            if (ev.deadline_time && new Date(ev.deadline_time) <= now) {
-                currentGw = Math.max(currentGw, ev.id);
+            // Target the active gameweek, or if between gameweeks, target the upcoming one.
+            if (ev.is_current || ev.is_next) {
+                currentGw = ev.id;
+                break;
             }
         }
     } catch (err: any) {
