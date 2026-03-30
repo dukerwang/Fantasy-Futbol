@@ -178,11 +178,12 @@ function computeComponentScores(
     const posGroup = getPositionGroup(position);
     let csBonus = 0;
     if (stats.clean_sheet && stats.minutes_played >= 60) {
-        if (posGroup === 'GK' || posGroup === 'DEF') {
-            csBonus = 12;
-        } else if (posGroup === 'MID' && position !== 'AM') {
-            csBonus = 4; // Reduced bonus for CM/DM/LM/RM
+        if (posGroup === 'GK' || posGroup === 'DEF' || position === 'DM') {
+            csBonus = 12; // Full bonus for GK, DEF, and DM
+        } else if (position === 'CM') {
+            csBonus = 4; // Reduced bonus for CM
         }
+        // LM, RM, AM, and ATT receive 0
     }
     const canGetCS = csBonus > 0;
     const xgcOutperf = Math.max(0, xgc - gc) * 5;
