@@ -116,6 +116,11 @@ async function syncFplLiveRatings(gameweek: number): Promise<NextResponse> {
 
         const rawStats = mapFplLiveToRawStats(el.stats);
         
+        const refStats = await loadReferenceStats(supabase as any, '2025-26');
+    console.log("=== DEBUG: loadReferenceStats Output for ST match_impact ===");
+    console.log(refStats.ST?.match_impact);
+    console.log("====================================================");
+        
         // Use the same refStats loaded from the DB
         const { rating, fantasyPoints } = calculateMatchRating(
           rawStats,

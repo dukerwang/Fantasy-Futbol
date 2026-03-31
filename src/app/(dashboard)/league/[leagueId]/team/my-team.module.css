@@ -45,7 +45,8 @@
 .headerStats {
   display: flex;
   align-items: center;
-  flex-wrap: wrap; /* allow wrapping on small screens */
+  flex-wrap: wrap;
+  /* allow wrapping on small screens */
   gap: var(--space-5);
   background: var(--color-bg-card);
   border: 1px solid var(--color-border);
