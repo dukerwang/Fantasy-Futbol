@@ -102,13 +102,30 @@ export default function PlayerDetailCard({ player, totalPoints, recentForm, matc
                     <p className={styles.club}>{player.pl_team}</p>
                     <div className={styles.positions}>
                         <PositionBadge position={player.primary_position} size="md" />
-                        {player.secondary_positions && player.secondary_positions.length > 0 && (
+                        
+                        {/* ── Premium Rank Display ── */}
+                        {player.position_ranks && player.position_ranks.length > 0 ? (
                             <div className={styles.altPositions}>
-                                <span className={styles.altLabel}>Alt:</span>
-                                {player.secondary_positions.map((pos) => (
-                                    <PositionBadge key={pos} position={pos} size="sm" />
+                                <span className={styles.altLabel} style={{ fontWeight: 600, color: 'var(--color-text)' }}>
+                                    OVR #{player.overall_rank}
+                                </span>
+                                <span className={styles.altLabel}>| Pos:</span>
+                                {player.position_ranks.sort((a,b)=>a.rank-b.rank).map((pr) => (
+                                    <span key={pr.position} className={styles.posRankItem}>
+                                        #{pr.rank} {pr.position}
+                                    </span>
                                 ))}
                             </div>
+                        ) : (
+                            /* Fallback if view not joined yet */
+                            player.secondary_positions && player.secondary_positions.length > 0 && (
+                                <div className={styles.altPositions}>
+                                    <span className={styles.altLabel}>Alt:</span>
+                                    {player.secondary_positions.map((pos) => (
+                                        <PositionBadge key={pos} position={pos} size="sm" />
+                                    ))}
+                                </div>
+                            )
                         )}
                     </div>
                 </div>
@@ -183,9 +200,9 @@ export default function PlayerDetailCard({ player, totalPoints, recentForm, matc
 
                             <div className={styles.statItem}>
                                 <span className={styles.statValue}>
-                                    {player.projected_points != null ? player.projected_points.toFixed(1) : '—'}
+                                    {player.overall_rank != null ? `#${player.overall_rank}` : '—'}
                                 </span>
-                                <span className={styles.statLabel}>Proj Pts</span>
+                                <span className={styles.statLabel}>OVR Rank</span>
                             </div>
 
                             <div className={styles.statItem}>

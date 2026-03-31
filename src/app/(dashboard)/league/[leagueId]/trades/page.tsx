@@ -93,6 +93,39 @@ export default async function TradesPage({ params }: Props) {
     }
   }
 
+  // Fetch all player rankings and map globally
+  const { data: rankings } = await admin.from('player_rankings').select('*');
+  const rankMap = new Map((rankings ?? []).map((r: any) => [r.player_id, r]));
+
+  // Inject rank into myRoster
+  for (const player of myRoster) {
+    const r = rankMap.get(player.id);
+    if (r) {
+      player.overall_rank = r.overall_rank;
+      player.position_ranks = r.position_ranks;
+    }
+  }
+
+  // Inject rank into allRosters
+  for (const teamId in allRosters) {
+    for (const player of allRosters[teamId]) {
+      const r = rankMap.get(player.id);
+      if (r) {
+        player.overall_rank = r.overall_rank;
+        player.position_ranks = r.position_ranks;
+      }
+    }
+  }
+
+  // Inject rank into playerMap
+  for (const pid in playerMap) {
+    const r = rankMap.get(pid);
+    if (r) {
+      playerMap[pid].overall_rank = r.overall_rank;
+      playerMap[pid].position_ranks = r.position_ranks;
+    }
+  }
+
   return (
     <TradesClient
       leagueId={leagueId}

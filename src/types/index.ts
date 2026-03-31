@@ -153,6 +153,8 @@ export interface Player {
   ppg: number | null;          // custom scoring engine: total_points / matches_played
   is_active: boolean; // still in the PL
   transfermarkt_id: string | null;
+  overall_rank?: number | null; // From player_rankings view
+  position_ranks?: { position: string; rank: number }[] | null; // From player_rankings view
   created_at: string;
   updated_at: string;
 }

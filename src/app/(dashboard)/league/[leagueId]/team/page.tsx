@@ -74,6 +74,17 @@ export default async function MyTeamPage({ params, searchParams }: Props) {
     .order('status', { ascending: true });
 
   const rosterEntries = (rosterData ?? []) as unknown as (RosterEntry & { player: Player })[];
+
+  // Map player rankings
+  const { data: rankings } = await admin.from('player_rankings').select('*');
+  const rankMap = new Map((rankings ?? []).map((r: any) => [r.player_id, r]));
+  for (const e of rosterEntries) {
+    const r = rankMap.get(e.player.id);
+    if (r) {
+      e.player.overall_rank = r.overall_rank;
+      e.player.position_ranks = r.position_ranks;
+    }
+  }
   const starters = rosterEntries.filter((e) => e.status === 'active');
   const bench = rosterEntries.filter((e) => e.status === 'bench');
   const ir = rosterEntries.filter((e) => e.status === 'ir');

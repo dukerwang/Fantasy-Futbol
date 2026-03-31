@@ -101,6 +101,18 @@
   text-transform: uppercase;
 }
 
+.posRankItem {
+  font-size: 0.65rem;
+  color: var(--color-text-primary);
+  background: var(--color-bg-secondary);
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  font-weight: var(--font-semibold);
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--color-border-subtle);
+}
+
 /* ── Biometrics ──────────────────────────────────────────── */
 
 .biometrics {

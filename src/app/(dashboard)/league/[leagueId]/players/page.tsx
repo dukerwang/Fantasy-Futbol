@@ -111,7 +111,7 @@ export default async function TransferMarketPage({ params, searchParams }: Props
     .from('players')
     .select('id, fpl_id, api_football_id, web_name, name, full_name, date_of_birth, nationality, pl_team, pl_team_id, primary_position, secondary_positions, market_value, market_value_updated_at, projected_points, photo_url, height_cm, fpl_status, fpl_news, total_points, form_rating, ppg, is_active, transfermarkt_id, created_at, updated_at')
     .eq('is_active', true)
-    .order('market_value', { ascending: false })
+    .order('total_points', { ascending: false, nullsFirst: false })
     .limit(60);
 
   if (excludedIds.length > 0) {
@@ -126,6 +126,32 @@ export default async function TransferMarketPage({ params, searchParams }: Props
   }
 
   const { data: freeAgents } = await freeAgentQuery;
+
+  // Bulk fetch player rankings and map them to players
+  const { data: rankings } = await admin.from('player_rankings').select('*');
+  const rankMap = new Map((rankings ?? []).map((r: any) => [r.player_id, r]));
+
+  if (myRoster) {
+    for (const p of myRoster) {
+      const player = p as Player;
+      const r = rankMap.get(player.id);
+      if (r) {
+        player.overall_rank = r.overall_rank;
+        player.position_ranks = r.position_ranks;
+      }
+    }
+  }
+
+  if (freeAgents) {
+    for (const p of freeAgents) {
+      const player = p as Player;
+      const r = rankMap.get(player.id);
+      if (r) {
+        player.overall_rank = r.overall_rank;
+        player.position_ranks = r.position_ranks;
+      }
+    }
+  }
 
   return (
     <TransferMarketClient
