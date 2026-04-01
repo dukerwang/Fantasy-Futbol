@@ -42,11 +42,21 @@ export default async function StatsPage({ params }: Props) {
   const teamIds = (allTeams ?? []).map((t: { id: string }) => t.id);
 
   // Fetch all active players ordered by total_points desc
-  const { data: players } = await admin
-    .from('players')
-    .select(FULL_PLAYER_SELECT)
-    .eq('is_active', true)
-    .order('total_points', { ascending: false, nullsFirst: false });
+  // Fetch all active players and rankings separately
+  const [{ data: playersData }, { data: rankings }] = await Promise.all([
+    admin.from('players').select(FULL_PLAYER_SELECT).eq('is_active', true).order('total_points', { ascending: false, nullsFirst: false }) as any,
+    admin.from('player_rankings').select('*')
+  ]);
+
+  const rankMap = new Map((rankings ?? []).map((r: any) => [r.player_id, r]));
+  const players = (playersData ?? []).map((p: any) => {
+    const ranks = rankMap.get(p.id);
+    return {
+      ...p,
+      overall_rank: ranks?.overall_rank,
+      position_ranks: ranks?.position_ranks
+    };
+  });
 
   // Roster entries for this league → owner map
   const ownerMap = new Map<string, { teamId: string; teamName: string }>();

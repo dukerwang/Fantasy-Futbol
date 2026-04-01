@@ -1,7 +1,9 @@
 /**
  * Centralized select string for player queries to ensure 
  * consistent Rank and Stat data across the entire application.
- * Joining the 'player_rankings' view provides overall_rank and position_ranks.
+ * Note: player_rankings is a view and cannot be joined nested 
+ * via standard Postgrest relationships. We fetch rankings separately 
+ * and map them in the page logic.
  */
 export const FULL_PLAYER_SELECT = `
   id,
@@ -29,6 +31,5 @@ export const FULL_PLAYER_SELECT = `
   is_active,
   transfermarkt_id,
   created_at,
-  updated_at,
-  player_rankings(overall_rank, position_ranks)
+  updated_at
 `.replace(/\s+/g, ' ').trim();

@@ -53,6 +53,7 @@ export default async function MyTeamPage({ params, searchParams }: Props) {
   }
 
   // Fetch rank separately from view
+  // Fetch rank separately from view
   const { data: standingData } = await admin
     .from('league_standings')
     .select('rank')
@@ -60,6 +61,10 @@ export default async function MyTeamPage({ params, searchParams }: Props) {
     .single();
 
   const teamRank = standingData?.rank;
+
+  // Fetch all player rankings for mapping
+  const { data: rankings } = await admin.from('player_rankings').select('*');
+  const rankMap = new Map((rankings ?? []).map((r: any) => [r.player_id, r]));
 
 
   // Fetch roster entries with full player data (including rankings)
@@ -74,7 +79,15 @@ export default async function MyTeamPage({ params, searchParams }: Props) {
     .eq('team_id', team.id)
     .order('status', { ascending: true });
 
-  const rosterEntries = (rosterData ?? []) as any[];
+  const rosterEntries = (rosterData ?? []).map((e: any) => {
+    const player = e.player as any;
+    if (player) {
+      const ranks = rankMap.get(player.id);
+      player.overall_rank = ranks?.overall_rank;
+      player.position_ranks = ranks?.position_ranks;
+    }
+    return e;
+  });
   const starters = rosterEntries.filter((e) => e.status === 'active');
   const bench = rosterEntries.filter((e) => e.status === 'bench');
   const ir = rosterEntries.filter((e) => e.status === 'ir');

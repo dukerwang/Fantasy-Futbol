@@ -2,8 +2,10 @@ import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { redirect, notFound } from 'next/navigation';
 import TransferMarketClient from './TransferMarketClient';
-import type { AuctionListing, Player } from '@/types';
 import { FULL_PLAYER_SELECT } from '@/lib/constants/queries';
+import type { Player } from '@/types';
+
+export const dynamic = 'force-dynamic';
 
 interface Props {
   params: Promise<{ leagueId: string }>;
@@ -20,72 +22,36 @@ export default async function TransferMarketPage({ params, searchParams }: Props
 
   const admin = createAdminClient();
 
-  // Validate league
+  // Validate league membership
   const { data: league } = await admin
     .from('leagues')
-    .select('id, name, roster_size, faab_budget')
+    .select('id, name, roster_size')
     .eq('id', leagueId)
     .single();
   if (!league) notFound();
 
-  // Caller must have a team in this league
   const { data: myTeam } = await admin
     .from('teams')
-    .select('id, faab_budget, team_name')
+    .select('id, team_name, faab_budget')
     .eq('league_id', leagueId)
     .eq('user_id', user.id)
     .single();
   if (!myTeam) redirect('/dashboard');
 
-  // All teams in the league (needed to determine rostered players)
+  // All teams in this league
   const { data: allTeams } = await admin
     .from('teams')
     .select('id')
     .eq('league_id', leagueId);
-  const teamIds = (allTeams ?? []).map((t) => t.id);
+  const teamIds = (allTeams ?? []).map((t: { id: string }) => t.id);
 
-  // Active auction claims (highest bid first)
-  const { data: claims } = await admin
-    .from('waiver_claims')
-    .select(`
-      *,
-      player:players!waiver_claims_player_id_fkey(*),
-      team:teams(id, team_name)
-    `)
+  // Active auctions for this league
+  const { data: auctions } = await admin
+    .from('auctions')
+    .select('*, player:players(*)')
     .eq('league_id', leagueId)
-    .eq('status', 'pending')
-    .eq('is_auction', true)
-    .order('faab_bid', { ascending: false });
-
-  // Build one AuctionListing per player
-  const auctionMap = new Map<string, AuctionListing>();
-  for (const claim of claims ?? []) {
-    const existing = auctionMap.get(claim.player_id);
-    if (!existing) {
-      auctionMap.set(claim.player_id, {
-        player: claim.player as Player,
-        expires_at: claim.expires_at,
-        highest_bid: claim.faab_bid,
-        highest_bidder_team_name: (claim.team as any).team_name,
-        highest_bidder_team_id: claim.team_id,
-        my_bid: claim.team_id === myTeam.id ? claim.faab_bid : null,
-        my_drop_player_id: claim.team_id === myTeam.id ? claim.drop_player_id : null,
-        bid_count: 1,
-      });
-    } else {
-      existing.bid_count++;
-      if (claim.team_id === myTeam.id) {
-        existing.my_bid = claim.faab_bid;
-        existing.my_drop_player_id = claim.drop_player_id;
-      }
-    }
-  }
-
-  const auctions = Array.from(auctionMap.values()).sort(
-    (a, b) => new Date(a.expires_at).getTime() - new Date(b.expires_at).getTime(),
-  );
-
-  const auctionedPlayerIds = Array.from(auctionMap.keys());
+    .eq('status', 'active');
+  const auctionedPlayerIds = (auctions ?? []).map((a: any) => a.player_id);
 
   // Rostered player IDs (any team in this league)
   let rosteredPlayerIds: string[] = [];
@@ -97,44 +63,63 @@ export default async function TransferMarketPage({ params, searchParams }: Props
     rosteredPlayerIds = (rostered ?? []).map((r) => r.player_id);
   }
 
+  // Fetch all active players and rankings separately for merging
+  const [{ data: playersData }, { data: rankingsData }] = await Promise.all([
+    admin.from('players').select(FULL_PLAYER_SELECT).eq('is_active', true).order('total_points', { ascending: false, nullsFirst: false }),
+    admin.from('player_rankings').select('*')
+  ]);
+
+  const rankMap = new Map((rankingsData ?? []).map((r: any) => [r.player_id, r]));
+
+  // Merge rankings into the master player list
+  const allActivePlayersWithRanks: Player[] = (playersData ?? []).map((p: any) => {
+    const ranks = rankMap.get(p.id);
+    return {
+      ...p,
+      overall_rank: ranks?.overall_rank,
+      position_ranks: ranks?.position_ranks
+    } as Player;
+  });
+
+  // Filter for Free Agents (not rostered, not auctioned)
+  const excludedIds = new Set([...rosteredPlayerIds, ...auctionedPlayerIds]);
+  let freeAgents = allActivePlayersWithRanks.filter(p => !excludedIds.has(p.id));
+
+  // Handle Search and Position filters
+  if (q) {
+    const queryLower = q.toLowerCase();
+    freeAgents = freeAgents.filter(p => p.name.toLowerCase().includes(queryLower) || p.web_name?.toLowerCase().includes(queryLower));
+  }
+  if (pos) {
+    freeAgents = freeAgents.filter(p => p.primary_position === pos || p.secondary_positions?.includes(pos as any));
+  }
+
+  // My roster for the drop dropdown
   const { data: myRosterEntries } = await (admin
     .from('roster_entries')
     .select(`player_id, player:players(${FULL_PLAYER_SELECT})`) as any)
     .eq('team_id', myTeam.id);
-  const myRoster = (myRosterEntries ?? []).map((e: any) => e.player as any);
+
+  const myRoster = (myRosterEntries ?? []).map((e: any) => {
+    const p = e.player;
+    const ranks = rankMap.get(p.id);
+    return {
+      ...p,
+      overall_rank: ranks?.overall_rank,
+      position_ranks: ranks?.position_ranks
+    };
+  });
+
   const rosterFull = myRoster.length >= (league.roster_size ?? 20);
-
-  // Free agents: active, not rostered, not in active auctions
-  const excludedIds = [...new Set([...rosteredPlayerIds, ...auctionedPlayerIds])];
-
-  let freeAgentQuery = admin
-    .from('players')
-    .select(FULL_PLAYER_SELECT)
-    .eq('is_active', true)
-    .order('total_points', { ascending: false, nullsFirst: false })
-    .limit(60);
-
-  if (excludedIds.length > 0) {
-    freeAgentQuery = freeAgentQuery.not('id', 'in', `(${excludedIds.join(',')})`);
-  }
-
-  if (q) {
-    freeAgentQuery = freeAgentQuery.ilike('name', `%${q}%`);
-  }
-  if (pos) {
-    freeAgentQuery = freeAgentQuery.or(`primary_position.eq.${pos},secondary_positions.cs.{${pos}}`);
-  }
-
-  const { data: freeAgents } = await freeAgentQuery;
 
   return (
     <TransferMarketClient
       leagueId={leagueId}
       leagueName={league.name}
-      initialAuctions={auctions}
-      initialFreeAgents={(freeAgents ?? []) as any[]}
+      initialAuctions={(auctions ?? []) as any[]}
+      initialFreeAgents={(freeAgents.slice(0, 100) ?? []) as any[]} // Limit to top 100 for performance
       initialMyTeam={{ id: myTeam.id, faab_budget: myTeam.faab_budget, team_name: myTeam.team_name }}
-      initialMyRoster={myRoster}
+      initialMyRoster={myRoster as any[]}
       initialRosterFull={rosterFull}
       initialQ={q ?? ''}
       initialPos={pos ?? ''}

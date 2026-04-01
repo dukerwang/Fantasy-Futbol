@@ -73,13 +73,20 @@ export default async function MatchupDetailPage({ params }: Props) {
     // Fetch player data for all referenced players
     let playerMap: Record<string, Partial<Player>> = {};
     if (playerIds.size > 0) {
-        const { data: players } = await admin
-            .from('players')
-            .select('id, fpl_id, api_football_id, web_name, name, full_name, date_of_birth, nationality, pl_team, pl_team_id, primary_position, secondary_positions, market_value, market_value_updated_at, projected_points, photo_url, height_cm, fpl_status, fpl_news, total_points, form_rating, ppg, is_active, transfermarkt_id, created_at, updated_at')
-            .in('id', Array.from(playerIds));
+        const [{ data: playersData }, { data: rankings }] = await Promise.all([
+            admin.from('players').select(FULL_PLAYER_SELECT).in('id', Array.from(playerIds)) as any,
+            admin.from('player_rankings').select('*').in('player_id', Array.from(playerIds))
+        ]);
 
-        for (const p of players ?? []) {
-            playerMap[p.id] = p as Partial<Player>;
+        const rankMap = new Map((rankings ?? []).map((r: any) => [r.player_id, r]));
+
+        for (const p of (playersData ?? []) as any[]) {
+            const ranks = rankMap.get(p.id);
+            playerMap[p.id] = {
+                ...p,
+                overall_rank: ranks?.overall_rank,
+                position_ranks: ranks?.position_ranks
+            } as Partial<Player>;
         }
     }
 

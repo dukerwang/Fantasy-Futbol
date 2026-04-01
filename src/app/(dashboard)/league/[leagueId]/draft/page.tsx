@@ -58,13 +58,21 @@ export default async function DraftPage({ params }: Props) {
   const picks = (picksData ?? []) as DraftPick[];
 
   // Fetch all active players for the picker (using centralized FULL_PLAYER_SELECT for consistency)
-  const { data: playersData } = await admin
-    .from('players')
-    .select(FULL_PLAYER_SELECT)
-    .eq('is_active', true)
-    .order('market_value', { ascending: false });
+  const [{ data: playersData }, { data: rankings }] = await Promise.all([
+    admin.from('players').select(FULL_PLAYER_SELECT).eq('is_active', true),
+    admin.from('player_rankings').select('*')
+  ]);
 
-  const players = (playersData as any ?? []) as Player[];
+  const rankMap = new Map((rankings ?? []).map((r: any) => [r.player_id, r]));
+
+  const players = (playersData ?? []).map((p: any) => {
+    const ranks = rankMap.get(p.id);
+    return {
+      ...p,
+      overall_rank: ranks?.overall_rank,
+      position_ranks: ranks?.position_ranks
+    };
+  }) as Player[];
 
   // Determine the current user's team in this league
   const myTeam = teams.find((t) => t.user_id === user.id) ?? null;
