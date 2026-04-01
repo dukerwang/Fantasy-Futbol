@@ -104,8 +104,18 @@ export default function PlayerDetailCard({ player, totalPoints, recentForm, matc
                     <div className={styles.positions}>
                         <PositionBadge position={player.primary_position} size="md" />
                         
+                        {/* Secondary Positions */}
+                        {player.secondary_positions && player.secondary_positions.length > 0 && (
+                            <div className={styles.altPositions}>
+                                <span className={styles.altLabel}>Alt:</span>
+                                {player.secondary_positions.map((pos) => (
+                                    <PositionBadge key={pos} position={pos} size="sm" />
+                                ))}
+                            </div>
+                        )}
+                        
                         {/* ── Premium Rank Display ── */}
-                        {player.position_ranks && player.position_ranks.length > 0 ? (
+                        {player.position_ranks && player.position_ranks.length > 0 && (
                             <div className={styles.altPositions}>
                                 <span className={styles.altLabel} style={{ fontWeight: 600, color: 'var(--color-text)' }}>
                                     OVR #{player.overall_rank}
@@ -117,16 +127,6 @@ export default function PlayerDetailCard({ player, totalPoints, recentForm, matc
                                     </span>
                                 ))}
                             </div>
-                        ) : (
-                            /* Fallback if view not joined yet */
-                            player.secondary_positions && player.secondary_positions.length > 0 && (
-                                <div className={styles.altPositions}>
-                                    <span className={styles.altLabel}>Alt:</span>
-                                    {player.secondary_positions.map((pos) => (
-                                        <PositionBadge key={pos} position={pos} size="sm" />
-                                    ))}
-                                </div>
-                            )
                         )}
                     </div>
                 </div>
