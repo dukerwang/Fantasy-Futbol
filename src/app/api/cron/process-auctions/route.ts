@@ -70,13 +70,19 @@ export async function POST(req: NextRequest) {
       const fplData = await fplRes.json();
       const events = fplData.events as any[];
       const now = new Date();
+      let isCurrentGwFinished = false;
       // Derive current GW: highest GW whose deadline has passed
       for (const ev of events) {
         if (ev.deadline_time && new Date(ev.deadline_time) <= now) {
-          currentFplGw = Math.max(currentFplGw, ev.id);
+          if (ev.id > currentFplGw) {
+            currentFplGw = ev.id;
+            isCurrentGwFinished = ev.finished;
+          } else if (ev.id === currentFplGw) {
+            isCurrentGwFinished = ev.finished;
+          }
         }
       }
-      if (currentFplGw) {
+      if (currentFplGw && !isCurrentGwFinished) {
         const fixRes = await fetch(`https://fantasy.premierleague.com/api/fixtures/?event=${currentFplGw}`);
         if (fixRes.ok) {
           const fixtures = await fixRes.json();

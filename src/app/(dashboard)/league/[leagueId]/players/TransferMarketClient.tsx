@@ -287,6 +287,7 @@ export default function TransferMarketClient({
                 const isBidding = auction.my_bid !== null && !isLeading;
 
                 const isSystemAuction = auction.highest_bidder_team_id === null;
+                const isExpired = new Date(auction.expires_at).getTime() <= now;
 
                 return (
                   <div
@@ -360,6 +361,8 @@ export default function TransferMarketClient({
                     {/* Action button */}
                     <button
                       className={`${styles.bidBtn} ${isLeading ? styles.bidBtnLeading : ''} ${isBidding ? styles.bidBtnOutbid : ''}`}
+                      disabled={isExpired}
+                      style={isExpired ? { opacity: 0.6, cursor: 'not-allowed' } : undefined}
                       onClick={() =>
                         openBidModal(
                           auction.player,
@@ -370,7 +373,7 @@ export default function TransferMarketClient({
                         )
                       }
                     >
-                      {isLeading ? 'Raise Bid' : isBidding ? 'Counter Bid' : 'Place Bid'}
+                      {isExpired ? 'Processing...' : isLeading ? 'Raise Bid' : isBidding ? 'Counter Bid' : 'Place Bid'}
                     </button>
                   </div>
                 );

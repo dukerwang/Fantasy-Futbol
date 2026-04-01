@@ -86,6 +86,14 @@ export async function POST(req: NextRequest, { params }: Props) {
   const highestClaim = existingClaims?.[0] ?? null;
   const myClaim = existingClaims?.find((c) => c.team_id === myTeam.id) ?? null;
 
+  // Block bid if the auction has already expired (but is deferred in processing)
+  if (highestClaim && new Date().getTime() >= new Date(highestClaim.expires_at).getTime()) {
+    return NextResponse.json(
+      { error: 'This auction has already expired and is awaiting processing.' },
+      { status: 400 },
+    );
+  }
+
   // Bid must beat the current highest (unless the caller IS the current highest bidder)
   if (highestClaim && highestClaim.team_id !== myTeam.id && bidAmount <= highestClaim.faab_bid) {
     return NextResponse.json(
