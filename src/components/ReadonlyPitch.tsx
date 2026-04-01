@@ -5,6 +5,7 @@ import type { GranularPosition, MatchupLineup, Player, BenchSlot } from '@/types
 import { FORMATION_SLOTS } from '@/types';
 import pitchStyles from './pitch.module.css';
 import PlayerDetailsModal from './players/PlayerDetailsModal';
+import { formatPlayerName } from '@/lib/formatName';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -193,7 +194,7 @@ export default function ReadonlyPitch({ lineup, playerMap, detailMap, teamName }
                                             {player ? (
                                                 <>
                                                     <span className={pitchStyles.nodePlayerName}>
-                                                        {player.web_name ?? player.name ?? '—'}
+                                                        {formatPlayerName(player)}
                                                     </span>
                                                     {player.pl_team && (
                                                         <span className={pitchStyles.nodePlayerClub}>
@@ -269,7 +270,7 @@ export default function ReadonlyPitch({ lineup, playerMap, detailMap, teamName }
                                             </span>
                                         )}
                                         <span className={pitchStyles.benchPlayerName}>
-                                            {player.web_name ?? player.name ?? '—'}
+                                            {formatPlayerName(player)}
                                         </span>
                                         {player.pl_team && (
                                             <span className={pitchStyles.benchPlayerClub}>{player.pl_team}</span>
@@ -341,7 +342,7 @@ export default function ReadonlyPitch({ lineup, playerMap, detailMap, teamName }
                                         </span>
                                         <div style={{ display: 'flex', flexDirection: 'column' }}>
                                             <span style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--text-primary, #f3f4f6)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                                                {p?.web_name ?? p?.name ?? '—'}
+                                                {formatPlayerName(p)}
                                             </span>
                                             {detail?.stats && formatStats(detail.stats, s.slot as GranularPosition) && (
                                                 <span style={{ fontSize: '0.65rem', color: '#9ca3af', marginTop: '-2px' }}>
@@ -374,7 +375,7 @@ export default function ReadonlyPitch({ lineup, playerMap, detailMap, teamName }
                                         <div key={b.player_id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem', opacity: 0.7 }}>
                                             <div style={{ display: 'flex', flexDirection: 'column' }}>
                                                 <span style={{ fontSize: '0.75rem', fontWeight: 500, color: 'var(--text-secondary, #9ca3af)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                                                    {p?.web_name ?? p?.name ?? '—'}
+                                                    {formatPlayerName(p)}
                                                 </span>
                                             </div>
                                             <span style={{ fontSize: '0.75rem', fontWeight: 600, color: pts !== undefined ? '#6366f1' : 'var(--text-muted, #6b7280)', flexShrink: 0 }}>

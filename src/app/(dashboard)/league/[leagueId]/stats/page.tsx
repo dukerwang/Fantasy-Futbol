@@ -3,6 +3,7 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { redirect, notFound } from 'next/navigation';
 import GlobalStatsTable from './GlobalStatsTable';
 import type { Player } from '@/types';
+import { FULL_PLAYER_SELECT } from '@/lib/constants/queries';
 
 interface Props {
   params: Promise<{ leagueId: string }>;
@@ -43,12 +44,7 @@ export default async function StatsPage({ params }: Props) {
   // Fetch all active players ordered by total_points desc
   const { data: players } = await admin
     .from('players')
-    .select(
-      'id, fpl_id, api_football_id, web_name, name, full_name, date_of_birth, nationality, ' +
-      'pl_team, pl_team_id, primary_position, secondary_positions, market_value, market_value_updated_at, ' +
-      'projected_points, photo_url, height_cm, fpl_status, fpl_news, total_points, form_rating, ppg, ' +
-      'is_active, transfermarkt_id, created_at, updated_at',
-    )
+    .select(FULL_PLAYER_SELECT)
     .eq('is_active', true)
     .order('total_points', { ascending: false, nullsFirst: false });
 

@@ -3,6 +3,7 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { redirect, notFound } from 'next/navigation';
 import TransferMarketClient from './TransferMarketClient';
 import type { AuctionListing, Player } from '@/types';
+import { FULL_PLAYER_SELECT } from '@/lib/constants/queries';
 
 interface Props {
   params: Promise<{ leagueId: string }>;
@@ -96,12 +97,11 @@ export default async function TransferMarketPage({ params, searchParams }: Props
     rosteredPlayerIds = (rostered ?? []).map((r) => r.player_id);
   }
 
-  // My roster (for the "drop player" dropdown in the bid modal)
-  const { data: myRosterEntries } = await admin
+  const { data: myRosterEntries } = await (admin
     .from('roster_entries')
-    .select('player_id, player:players(id, fpl_id, api_football_id, web_name, name, full_name, date_of_birth, nationality, pl_team, pl_team_id, primary_position, secondary_positions, market_value, market_value_updated_at, projected_points, photo_url, height_cm, fpl_status, fpl_news, total_points, form_rating, ppg, is_active, transfermarkt_id, created_at, updated_at)')
+    .select(`player_id, player:players(${FULL_PLAYER_SELECT})`) as any)
     .eq('team_id', myTeam.id);
-  const myRoster = (myRosterEntries ?? []).map((e) => e.player as any);
+  const myRoster = (myRosterEntries ?? []).map((e: any) => e.player as any);
   const rosterFull = myRoster.length >= (league.roster_size ?? 20);
 
   // Free agents: active, not rostered, not in active auctions
@@ -109,7 +109,7 @@ export default async function TransferMarketPage({ params, searchParams }: Props
 
   let freeAgentQuery = admin
     .from('players')
-    .select('id, fpl_id, api_football_id, web_name, name, full_name, date_of_birth, nationality, pl_team, pl_team_id, primary_position, secondary_positions, market_value, market_value_updated_at, projected_points, photo_url, height_cm, fpl_status, fpl_news, total_points, form_rating, ppg, is_active, transfermarkt_id, created_at, updated_at')
+    .select(FULL_PLAYER_SELECT)
     .eq('is_active', true)
     .order('total_points', { ascending: false, nullsFirst: false })
     .limit(60);
@@ -126,32 +126,6 @@ export default async function TransferMarketPage({ params, searchParams }: Props
   }
 
   const { data: freeAgents } = await freeAgentQuery;
-
-  // Bulk fetch player rankings and map them to players
-  const { data: rankings } = await admin.from('player_rankings').select('*');
-  const rankMap = new Map((rankings ?? []).map((r: any) => [r.player_id, r]));
-
-  if (myRoster) {
-    for (const p of myRoster) {
-      const player = p as Player;
-      const r = rankMap.get(player.id);
-      if (r) {
-        player.overall_rank = r.overall_rank;
-        player.position_ranks = r.position_ranks;
-      }
-    }
-  }
-
-  if (freeAgents) {
-    for (const p of freeAgents) {
-      const player = p as Player;
-      const r = rankMap.get(player.id);
-      if (r) {
-        player.overall_rank = r.overall_rank;
-        player.position_ranks = r.position_ranks;
-      }
-    }
-  }
 
   return (
     <TransferMarketClient

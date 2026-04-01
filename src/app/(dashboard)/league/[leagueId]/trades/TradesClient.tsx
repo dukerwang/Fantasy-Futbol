@@ -4,6 +4,7 @@ import { useState, useCallback } from 'react';
 import Link from 'next/link';
 import PositionBadge from '@/components/players/PositionBadge';
 import PlayerDetailsModal from '@/components/players/PlayerDetailsModal';
+import { formatPlayerName } from '@/lib/formatName';
 import styles from './trades.module.css';
 
 interface SimplePlayer {
@@ -53,8 +54,7 @@ interface Props {
 type Tab = 'my-trades' | 'propose' | 'trade-block';
 
 function playerDisplayName(p: SimplePlayer) {
-  // Use 'name' if available as it usually contains First + Last from sync.
-  return p.name ?? p.full_name ?? p.web_name;
+  return formatPlayerName(p, 'initial_last');
 }
 
 export default function TradesClient({
@@ -680,7 +680,7 @@ function TradeCard({ trade, myTeamId, playerMap, onAction, onCounter, onViewPlay
                   textAlign: 'left'
                 }}
               >
-                {p.full_name ?? p.web_name ?? p.name}
+                {formatPlayerName(p, 'initial_last')}
               </button>
               <span className={styles.tradePlayerClub}>{p.pl_team}</span>
             </div>

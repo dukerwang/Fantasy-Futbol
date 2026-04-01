@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { redirect, notFound } from 'next/navigation';
 import DraftRoom from './DraftRoom';
+import { FULL_PLAYER_SELECT } from '@/lib/constants/queries';
 import type { League, Team, Player, DraftPick } from '@/types';
 
 interface Props {
@@ -56,16 +57,14 @@ export default async function DraftPage({ params }: Props) {
 
   const picks = (picksData ?? []) as DraftPick[];
 
-  // Fetch all active players for the picker (expanding the select to include rich data for PlayerCards)
+  // Fetch all active players for the picker (using centralized FULL_PLAYER_SELECT for consistency)
   const { data: playersData } = await admin
     .from('players')
-    .select(
-      'id, web_name, name, primary_position, secondary_positions, pl_team, is_active, market_value, date_of_birth, nationality, height_cm, fpl_status, fpl_news, total_points, form_rating, ppg, projected_points, photo_url'
-    )
+    .select(FULL_PLAYER_SELECT)
     .eq('is_active', true)
     .order('market_value', { ascending: false });
 
-  const players = (playersData ?? []) as Player[];
+  const players = (playersData as any ?? []) as Player[];
 
   // Determine the current user's team in this league
   const myTeam = teams.find((t) => t.user_id === user.id) ?? null;
@@ -76,7 +75,7 @@ export default async function DraftPage({ params }: Props) {
       league={league as League}
       teams={teams}
       initialPicks={picks}
-      allPlayers={players as Player[]}
+      allPlayers={players}
       myUserId={user.id}
       myTeam={myTeam}
     />

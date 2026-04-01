@@ -6,6 +6,7 @@ import type { Player, RosterEntry, Formation, GranularPosition, MatchupLineup, B
 import { FORMATION_SLOTS, POSITION_FLEX_MAP } from '@/types';
 import PitchUI from './PitchUI';
 import RosterManager from './RosterManager';
+import { FULL_PLAYER_SELECT } from '@/lib/constants/queries';
 import styles from './my-team.module.css';
 
 export const dynamic = 'force-dynamic';
@@ -61,30 +62,19 @@ export default async function MyTeamPage({ params, searchParams }: Props) {
   const teamRank = standingData?.rank;
 
 
-  // Fetch roster entries with player data
+  // Fetch roster entries with full player data (including rankings)
   const { data: rosterData } = await admin
     .from('roster_entries')
     .select(
       `
       id, team_id, player_id, status, acquisition_type, acquisition_value, acquired_at, on_trade_block,
-      player:players(id, fpl_id, api_football_id, web_name, name, full_name, date_of_birth, nationality, pl_team, pl_team_id, primary_position, secondary_positions, market_value, market_value_updated_at, projected_points, photo_url, height_cm, fpl_status, fpl_news, total_points, form_rating, ppg, is_active, transfermarkt_id, created_at, updated_at)
+      player:players(${FULL_PLAYER_SELECT})
     `
     )
     .eq('team_id', team.id)
     .order('status', { ascending: true });
 
-  const rosterEntries = (rosterData ?? []) as unknown as (RosterEntry & { player: Player })[];
-
-  // Map player rankings
-  const { data: rankings } = await admin.from('player_rankings').select('*');
-  const rankMap = new Map((rankings ?? []).map((r: any) => [r.player_id, r]));
-  for (const e of rosterEntries) {
-    const r = rankMap.get(e.player.id);
-    if (r) {
-      e.player.overall_rank = r.overall_rank;
-      e.player.position_ranks = r.position_ranks;
-    }
-  }
+  const rosterEntries = (rosterData ?? []) as any[];
   const starters = rosterEntries.filter((e) => e.status === 'active');
   const bench = rosterEntries.filter((e) => e.status === 'bench');
   const ir = rosterEntries.filter((e) => e.status === 'ir');

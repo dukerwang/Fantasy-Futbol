@@ -3,59 +3,61 @@ export function formatPlayerName(
     format: 'initial_last' | 'full' | 'web_name' = 'initial_last'
 ): string {
     if (!player || !player.name) return '—';
-    const KNOWN_MONONYMS: Record<string, string> = {
+
+    // A mapping of full DB names to their preferred mononyms
+    const MONONYM_MAP: Record<string, string> = {
         "Rodrigo 'Rodri' Hernandez Cascante": "Rodri",
+        "Rodrigo Hernandez Cascante": "Rodri",
+        "Rodri": "Rodri",
         "Carlos Henrique Casimiro": "Casemiro",
-        "Alisson": "Alisson", // Alisson's name in DB is 'Alisson'
+        "Casemiro": "Casemiro",
+        "Alisson Ramses Becker": "Alisson",
+        "Alisson": "Alisson",
         "Ederson Santana de Moraes": "Ederson",
+        "Ederson": "Ederson",
         "Sávio Moreira de Oliveira": "Savinho",
+        "Sávio Moreira": "Savinho",
+        "Savio Moreira": "Savinho",
+        "Sávio": "Savinho",
+        "Savio": "Savinho",
+        "Savinho": "Savinho",
         "Gabriel Magalhães": "Gabriel",
+        "Gabriel": "Gabriel",
         "Antony Matheus dos Santos": "Antony",
+        "Antony": "Antony",
         "Richarlison de Andrade": "Richarlison",
+        "Richarlison": "Richarlison",
+        "Neto": "Neto",
         "Diogo Jota": "Jota",
+        "Lucrecio de Castro": "Neto",
         "Luiz Díaz": "Díaz",
         "Pedro Porro": "Porro"
     };
 
-    // A player is mononymous if they are explicitly registered in our known overrides map
-    let isMononym = false;
-    let webName = player.web_name?.trim() || "";
+    const dbName = player.name.trim();
 
-    for (const [fullName, mononym] of Object.entries(KNOWN_MONONYMS)) {
-        if (player.name.includes(fullName) || player.name === fullName) {
-            isMononym = true;
-            webName = mononym;
-            break;
+    // Direct match check (case-insensitive and accent-insensitive for common ones)
+    for (const [fullName, mononym] of Object.entries(MONONYM_MAP)) {
+        if (dbName.toLowerCase() === fullName.toLowerCase() || 
+            dbName.toLowerCase().includes(fullName.toLowerCase()) || 
+            fullName.toLowerCase().includes(dbName.toLowerCase())) {
+            return mononym;
         }
     }
 
-    const parts = player.name.trim().split(/\s+/);
-    const lastWord = parts[parts.length - 1].toLowerCase();
-
     if (format === 'full') {
-        if (isMononym) return webName;
         return player.name;
     }
 
     if (format === 'initial_last') {
-        if (isMononym) return webName;
+        const parts = dbName.split(/\s+/);
+        if (parts.length === 1) return dbName;
 
-        // If the player only has one name (e.g., Casemiro might just be stored as "Casemiro")
-        if (parts.length === 1) {
-            return player.name;
-        }
-
-        // For typical names like "Nick Pope", "Bruno Fernandes"
         const firstInitial = parts[0][0].toUpperCase();
-
-        // Some players have multi-word last names, but typically in English football
-        // the last word is fine, or we use everything after the first name.
-        // Let's use everything after the first name to be safe with names like "van Dijk".
         const lastName = parts.slice(1).join(' ');
-
         return `${firstInitial}. ${lastName}`;
     }
 
-    // Fallback to exactly what FPL uses for their shirt or default display.
+    // Default to web_name if available, else name
     return player.web_name ?? player.name;
 }

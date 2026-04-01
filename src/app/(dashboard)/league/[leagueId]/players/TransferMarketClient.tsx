@@ -559,7 +559,7 @@ export default function TransferMarketClient({
                     const fee = Math.floor(Number(p.market_value || 0) * 0.1);
                     return (
                       <option key={p.id} value={p.id}>
-                        {p.name} ({p.primary_position} · {p.pl_team}){fee > 0 ? ` — −£${fee}m Severance` : ''}
+                        {formatPlayerName(p as any)} ({p.primary_position} · {p.pl_team}){fee > 0 ? ` — −£${fee}m Severance` : ''}
                       </option>
                     );
                   })}

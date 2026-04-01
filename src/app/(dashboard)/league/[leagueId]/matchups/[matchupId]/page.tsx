@@ -4,6 +4,8 @@ import { notFound, redirect } from 'next/navigation';
 import Link from 'next/link';
 import type { Matchup, MatchupLineup, Player } from '@/types';
 import ReadonlyPitch from '@/components/ReadonlyPitch';
+import { formatPlayerName } from '@/lib/formatName';
+import { FULL_PLAYER_SELECT } from '@/lib/constants/queries';
 import styles from './matchup-detail.module.css';
 
 export const dynamic = 'force-dynamic';

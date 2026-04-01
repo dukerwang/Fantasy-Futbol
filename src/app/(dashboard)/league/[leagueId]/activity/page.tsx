@@ -2,6 +2,8 @@ import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { redirect, notFound } from 'next/navigation';
 import Link from 'next/link';
+import { formatPlayerName } from '@/lib/formatName';
+import { FULL_PLAYER_SELECT } from '@/lib/constants/queries';
 import styles from './activity.module.css';
 
 interface Props {
@@ -21,11 +23,31 @@ const TYPE_CONFIG: Record<string, { label: string; color: TxColor; icon: string 
   rebate: { label: "Scout's Rebate", color: 'amber', icon: '💸' },
 };
 
-function formatTxNotes(notes: string | null, fallbackName?: string) {
-  if (!notes) return fallbackName ? ` — ${fallbackName}` : '';
+function formatTxNotes(notes: string | null, player?: any) {
+  const fallbackFormatted = player ? formatPlayerName(player) : '';
+  if (!notes) return fallbackFormatted ? ` — ${fallbackFormatted}` : '';
 
   let html = notes;
 
+  // If we have a player object, try to identify their name in the notes and replace it
+  if (player) {
+    const formatted = formatPlayerName(player);
+    // Escape specific names for regex if needed, but usually player.name is safe
+    const dbName = player.name;
+    const webName = player.web_name;
+    
+    // Replace mentions of the raw DB name or web name with the formatted bold name
+    if (dbName) {
+      const escapedDb = dbName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      html = html.replace(new RegExp(escapedDb, 'g'), `<strong>${formatted}</strong>`);
+    }
+    if (webName && webName !== dbName) {
+      const escapedWeb = webName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      html = html.replace(new RegExp(escapedWeb, 'g'), `<strong>${formatted}</strong>`);
+    }
+  }
+
+  // Fallback regex for other cases (e.g. historical notes or multiple players)
   // "Won auction for Nick Pope with £1m bid"
   html = html.replace(/Won auction for (.+?) with/, 'Won auction for <strong>$1</strong> with');
 
@@ -68,7 +90,7 @@ export default async function ActivityPage({ params }: Props) {
   if (!membership && league.commissioner_id !== user.id) redirect('/dashboard');
 
   // Fetch 50 most recent transactions
-  const { data: transactions } = await admin
+  const { data: transactionsData } = await admin
     .from('transactions')
     .select(`
       id,
@@ -78,11 +100,13 @@ export default async function ActivityPage({ params }: Props) {
       notes,
       processed_at,
       team:teams(team_name),
-      player:players(name, web_name, primary_position)
+      player:players(${FULL_PLAYER_SELECT})
     `)
     .eq('league_id', leagueId)
     .order('processed_at', { ascending: false })
     .limit(50);
+
+  const transactions = transactionsData as any[];
 
   return (
     <div className={styles.page}>
@@ -120,7 +144,7 @@ export default async function ActivityPage({ params }: Props) {
                   </div>
                   <p className={styles.txDesc}>
                     {team?.team_name && <strong>{team.team_name}</strong>}
-                    {formatTxNotes(tx.notes, player ? (player.web_name ?? player.name) : undefined)}
+                    {formatTxNotes(tx.notes, tx.player)}
                   </p>
                   {tx.faab_bid != null && (
                     <span className={styles.txFaab}>FAAB: £{tx.faab_bid}m</span>
