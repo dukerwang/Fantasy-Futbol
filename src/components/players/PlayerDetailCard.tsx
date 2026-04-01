@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import type { Player, RatingBreakdownItem } from '@/types';
 import PositionBadge from './PositionBadge';
+import { formatPlayerName } from '@/lib/formatName';
 import styles from './PlayerDetailCard.module.css';
 
 function calculateAge(dateOfBirth: string): number {
@@ -84,7 +85,7 @@ export default function PlayerDetailCard({ player, totalPoints, recentForm, matc
                         // eslint-disable-next-line @next/next/no-img-element
                         <img
                             src={player.photo_url}
-                            alt={player.name}
+                            alt={formatPlayerName(player, 'full')}
                             className={styles.photo}
                             loading="eager"
                             // @ts-ignore
@@ -98,7 +99,7 @@ export default function PlayerDetailCard({ player, totalPoints, recentForm, matc
                 </div>
 
                 <div className={styles.identity}>
-                    <h2 className={styles.playerName}>{player.name}</h2>
+                    <h2 className={styles.playerName}>{formatPlayerName(player, 'full')}</h2>
                     <p className={styles.club}>{player.pl_team}</p>
                     <div className={styles.positions}>
                         <PositionBadge position={player.primary_position} size="md" />
