@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
     .from('waiver_claims')
     .select(`
       *,
-      player:players!waiver_claims_player_id_fkey(id, name),
+      player:players!player_id(id, name),
       team:teams(id, team_name, faab_budget, user_id)
     `)
     .eq('status', 'pending')

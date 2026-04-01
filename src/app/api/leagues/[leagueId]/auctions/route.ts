@@ -46,7 +46,7 @@ export async function GET(_req: NextRequest, { params }: Props) {
     .from('waiver_claims')
     .select(`
       *,
-      player:players!waiver_claims_player_id_fkey(*),
+      player:players!player_id(*),
       team:teams(id, team_name)
     `)
     .eq('league_id', leagueId)
