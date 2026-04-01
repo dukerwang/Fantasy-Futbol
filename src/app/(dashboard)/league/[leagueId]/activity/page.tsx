@@ -32,18 +32,17 @@ function formatTxNotes(notes: string | null, player?: any) {
   // If we have a player object, try to identify their name in the notes and replace it
   if (player) {
     const formatted = formatPlayerName(player);
-    // Escape specific names for regex if needed, but usually player.name is safe
-    const dbName = player.name;
+    const dbName = player.name.trim();
     const webName = player.web_name;
-    
+
     // Replace mentions of the raw DB name or web name with the formatted bold name
     if (dbName) {
       const escapedDb = dbName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      html = html.replace(new RegExp(escapedDb, 'g'), `<strong>${formatted}</strong>`);
+      html = html.replace(new RegExp(`\\b${escapedDb}\\b`, 'g'), `<strong>${formatted}</strong>`);
     }
     if (webName && webName !== dbName) {
       const escapedWeb = webName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      html = html.replace(new RegExp(escapedWeb, 'g'), `<strong>${formatted}</strong>`);
+      html = html.replace(new RegExp(`\\b${escapedWeb}\\b`, 'g'), `<strong>${formatted}</strong>`);
     }
   }
 
@@ -52,10 +51,13 @@ function formatTxNotes(notes: string | null, player?: any) {
   html = html.replace(/Won auction for (.+?) with/, 'Won auction for <strong>$1</strong> with');
 
   // "Dropped Josh King to make room for auction winner: Nick Pope"
-  html = html.replace(/Dropped (.+?) to make room for auction winner: ([^(]+)(\s*\(.*)?$/, 'Dropped <strong>$1</strong> to make room for auction winner: <strong>$2</strong>$3');
+  // We use a callback to ensure both players are formatted correctly
+  html = html.replace(/Dropped (.+?) to make room for auction winner: ([^(]+)/, (match, p1, p2) => {
+    return `Dropped <strong>${formatPlayerName({ name: p1.trim() })}</strong> to make room for auction winner: <strong>${formatPlayerName({ name: p2.trim() })}</strong>`;
+  });
 
   // "Bid of £5m rejected (lost to Duke's Destroyers)"
-  html = html.replace(/\(lost to ([^)]+)\)/, '(lost to <strong>$1</strong>)');
+  html = html.replace(/\(lost to ([^)]+)\)/, (match, p1) => `(lost to <strong>${p1}</strong>)`);
 
   return <span dangerouslySetInnerHTML={{ __html: ` — ${html}` }} />;
 }

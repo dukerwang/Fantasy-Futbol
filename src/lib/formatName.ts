@@ -36,11 +36,11 @@ export function formatPlayerName(
 
     const dbName = player.name.trim();
 
-    // Direct match check (case-insensitive and accent-insensitive for common ones)
+    // Direct match check (case-insensitive)
+    // We only return a mononym if the DB name specifically matches a known variation or the mononym itself.
     for (const [fullName, mononym] of Object.entries(MONONYM_MAP)) {
         if (dbName.toLowerCase() === fullName.toLowerCase() || 
-            dbName.toLowerCase().includes(fullName.toLowerCase()) || 
-            fullName.toLowerCase().includes(dbName.toLowerCase())) {
+            dbName.toLowerCase() === mononym.toLowerCase()) {
             return mononym;
         }
     }
