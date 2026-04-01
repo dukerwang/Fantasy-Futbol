@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { processMatchupsForGameweek } from '@/lib/scoring/matchupProcessor';
 import { FORMATION_SLOTS, POSITION_FLEX_MAP, GranularPosition, MatchupLineup, BenchSlot, Formation } from '@/types';
 
 export const maxDuration = 60;
@@ -108,12 +109,7 @@ export async function GET(req: NextRequest) {
 
     if (updatedCount > 0) {
         try {
-            const syncUrl = new URL('/api/sync/matchups', req.url);
-            syncUrl.searchParams.set('gameweek', String(currentGw));
-            await fetch(syncUrl.toString(), {
-                method: 'POST',
-                headers: { 'Authorization': `Bearer ${process.env.CRON_SECRET}` }
-            });
+            await processMatchupsForGameweek(currentGw, false);
             debugLog.push(`Triggered matchup re-score sync for GW ${currentGw}`);
         } catch (err: any) {
             debugLog.push(`Failed to trigger re-score sync: ${err.message}`);

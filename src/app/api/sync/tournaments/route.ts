@@ -21,6 +21,7 @@ import {
   resolveTiebreaker,
   type SeedEntry,
 } from '@/lib/tournaments/engine';
+import { processMatchupsForGameweek } from '@/lib/scoring/matchupProcessor';
 import type { TournamentType, GranularPosition, ReferenceStats, RatingComponent } from '@/types';
 
 export const maxDuration = 60;
@@ -521,16 +522,13 @@ async function handleResolveStalled(_req: NextRequest) {
       });
     }
 
-    // Force-resolve: trigger matchup sync with finished=true
-    const syncUrl = new URL('/api/sync/matchups', _req.url);
-    syncUrl.searchParams.set('gameweek', String(currentGw));
-    syncUrl.searchParams.set('finished', 'true');
-    const syncRes = await fetch(syncUrl.toString(), {
-      method: 'POST',
-      headers: { 'x-cron-secret': process.env.CRON_SECRET! },
-    });
-
-    const syncResult = syncRes.ok ? await syncRes.json() : { error: 'sync failed' };
+    // Force-resolve: run matchup sync with finished=true
+    let syncResult;
+    try {
+      syncResult = await processMatchupsForGameweek(currentGw, true);
+    } catch (e: any) {
+      syncResult = { error: 'sync failed', detail: e.message };
+    }
 
     return NextResponse.json({
       ok: true,
