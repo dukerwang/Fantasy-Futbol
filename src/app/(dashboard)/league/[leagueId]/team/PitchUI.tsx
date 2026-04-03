@@ -127,8 +127,8 @@ function PitchNode({ slotPos, player, formation, isSelected, isValidTarget, isEm
             onClick={isLocked ? (onViewDetails ? () => onViewDetails() : undefined) : onClick}
             style={{ 
                 alignSelf: align, 
-                ...(isInvalid ? { border: '2px solid #ef4444', backgroundColor: 'rgba(239, 68, 68, 0.1)' } : {}),
-                ...(isLocked ? { opacity: 0.85, cursor: 'pointer', background: 'rgba(255, 255, 255, 0.04)', border: '1px solid rgba(255, 255, 255, 0.15)' } : {})
+                ...(isInvalid ? { border: '2px solid #ef4444', backgroundColor: 'rgba(239, 68, 68, 0.08)' } : {}),
+                ...(isLocked ? { opacity: 0.7, cursor: 'pointer', background: 'rgba(255, 255, 255, 0.65)', border: '1px solid rgba(200, 194, 182, 0.6)' } : {})
             }}
             title={isLocked ? "Match started (Locked) - Click to view" : isInvalid ? "Player is not eligible for this position!" : undefined}
         >
@@ -163,9 +163,9 @@ function PitchNode({ slotPos, player, formation, isSelected, isValidTarget, isEm
                         <span style={{
                             fontSize: '0.68rem',
                             fontWeight: 700,
-                            color: '#10b981',
-                            background: 'rgba(16,185,129,0.12)',
-                            border: '1px solid rgba(16,185,129,0.28)',
+                            color: '#3A6B4A',
+                            background: 'rgba(58,107,74,0.1)',
+                            border: '1px solid rgba(58,107,74,0.25)',
                             borderRadius: '4px',
                             padding: '1px 5px',
                             marginTop: '2px',
@@ -661,7 +661,7 @@ export default function PitchUI({
                                 type="button"
                                 className={`${styles.benchSlot} ${isSelected ? styles.nodeSelected : ''} ${isValidTarget ? styles.nodeValidTarget : ''} ${!pid ? styles.nodeEmpty : ''}`}
                                 onClick={isLocked && entry ? () => setViewingPlayer(entry.player) : () => handleBenchSlotClick(slot)}
-                                style={isLocked ? { opacity: 0.85, cursor: 'pointer', background: 'rgba(255, 255, 255, 0.04)', border: '1px solid rgba(255, 255, 255, 0.15)' } : {}}
+                                style={isLocked ? { opacity: 0.65, cursor: 'pointer' } : {}}
                                 title={isLocked ? "Match started (Locked) - Click to view" : undefined}
                             >
                                 <span className={styles.benchSlotType}>{slot}</span>
@@ -692,9 +692,9 @@ export default function PitchUI({
                                             <span style={{
                                                 fontSize: '0.68rem',
                                                 fontWeight: 700,
-                                                color: '#6366f1',
-                                                background: 'rgba(99,102,241,0.1)',
-                                                border: '1px solid rgba(99,102,241,0.25)',
+                                                color: '#9A9488',
+                                                background: 'rgba(154,148,136,0.12)',
+                                                border: '1px solid rgba(154,148,136,0.28)',
                                                 borderRadius: '4px',
                                                 padding: '1px 5px',
                                                 marginTop: '2px',
@@ -733,7 +733,7 @@ export default function PitchUI({
                                     type="button"
                                     className={`${styles.poolPlayer} ${isSelected ? styles.nodeSelected : ''} ${isValidTarget ? styles.nodeValidTarget : ''}`}
                                     onClick={isLocked ? () => setViewingPlayer(entry.player) : () => handlePoolClick(entry.player.id)}
-                                    style={isLocked ? { opacity: 0.85, cursor: 'pointer', background: 'rgba(255, 255, 255, 0.04)', border: '1px solid rgba(255, 255, 255, 0.15)' } : {}}
+                                    style={isLocked ? { opacity: 0.65, cursor: 'pointer' } : {}}
                                     title={isLocked ? "Match started (Locked) - Click to view" : undefined}
                                 >
                                     <span className={styles.nodePosBadge} style={{ background: POS_COLOR[entry.player.primary_position] }}>

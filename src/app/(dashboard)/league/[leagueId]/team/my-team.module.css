@@ -36,6 +36,7 @@
 }
 
 .teamName {
+  font-family: var(--font-serif);
   font-size: var(--text-3xl);
   font-weight: var(--font-bold);
   color: var(--color-text-primary);
@@ -64,7 +65,7 @@
 
 .editToggleBtn {
   padding: var(--space-2) var(--space-4);
-  background: var(--color-accent-blue, #3b82f6);
+  background: var(--color-accent-blue, #3A6B4A);
   color: #fff;
   border: none;
   border-radius: var(--radius-md);
@@ -86,6 +87,7 @@
 }
 
 .statValue {
+  font-family: var(--font-serif);
   font-size: var(--text-xl);
   font-weight: var(--font-bold);
   color: var(--color-text-primary);
@@ -411,9 +413,9 @@
 }
 
 .formationPillActive {
-  background: var(--color-accent-blue, #3b82f6);
+  background: var(--color-accent-blue, #3A6B4A);
   color: #fff;
-  border-color: var(--color-accent-blue, #3b82f6);
+  border-color: var(--color-accent-blue, #3A6B4A);
 }
 
 /* Swap hint banner */
@@ -422,8 +424,8 @@
   align-items: center;
   gap: var(--space-3);
   padding: var(--space-3) var(--space-4);
-  background: rgba(59, 130, 246, 0.1);
-  border: 1px solid rgba(59, 130, 246, 0.3);
+  background: var(--color-accent-green-dim, rgba(58, 107, 74, 0.08));
+  border: 1px solid var(--color-border-accent, rgba(58, 107, 74, 0.3));
   border-radius: var(--radius-md);
   font-size: var(--text-sm);
   color: var(--color-text-primary);
@@ -470,17 +472,17 @@
 }
 
 .slotSelected {
-  border-color: var(--color-accent-blue, #3b82f6) !important;
-  background: rgba(59, 130, 246, 0.08);
+  border-color: var(--color-accent-blue, #3A6B4A) !important;
+  background: var(--color-accent-green-dim, rgba(58, 107, 74, 0.08));
 }
 
 .slotValidTarget {
-  border-color: var(--color-accent-green, #10b981) !important;
-  background: rgba(16, 185, 129, 0.06);
+  border-color: var(--color-accent-green, #3A6B4A) !important;
+  background: var(--color-accent-green-dim, rgba(58, 107, 74, 0.06));
 }
 
 .slotValidTarget:hover {
-  background: rgba(16, 185, 129, 0.12);
+  background: rgba(58, 107, 74, 0.12);
 }
 
 .slotEmpty {
@@ -674,12 +676,12 @@
 
 .successText {
   font-size: var(--text-sm);
-  color: var(--color-accent-green, #10b981);
+  color: var(--color-accent-green, #3A6B4A);
 }
 
 .saveBtn {
   padding: var(--space-3) var(--space-6);
-  background: var(--color-accent-green, #10b981);
+  background: var(--color-accent-green, #3A6B4A);
   color: #fff;
   border: none;
   border-radius: var(--radius-md);

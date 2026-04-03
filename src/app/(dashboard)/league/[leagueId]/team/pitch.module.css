@@ -1,5 +1,7 @@
 /* ============================================================
    PitchUI — Visual Football Pitch Lineup Editor
+   Cream Editorial Aesthetic — bright grass green pitch,
+   white player chips, Noto Serif player names.
    ============================================================ */
 
 .pitchUI {
@@ -19,7 +21,7 @@
 .formationLabel {
     font-size: 0.75rem;
     font-weight: 700;
-    color: var(--color-text-secondary, #9ca3af);
+    color: var(--color-text-muted, #9A9488);
     text-transform: uppercase;
     letter-spacing: 0.08em;
     white-space: nowrap;
@@ -33,10 +35,10 @@
 
 .formationPill {
     padding: 0.375rem 0.75rem;
-    background: var(--color-bg-card, #1f2937);
-    border: 1px solid var(--color-border, #374151);
+    background: var(--color-bg-card, #F7F3EE);
+    border: 1px solid var(--color-border, #C8C2B6);
     border-radius: 6px;
-    color: var(--color-text-secondary, #9ca3af);
+    color: var(--color-text-secondary, #4A4A4A);
     font-size: 0.8125rem;
     font-weight: 600;
     cursor: pointer;
@@ -44,14 +46,14 @@
 }
 
 .formationPill:hover {
-    border-color: var(--color-text-muted, #6b7280);
-    background: var(--color-bg-elevated, #252d3a);
+    border-color: var(--color-text-muted, #9A9488);
+    background: var(--color-bg-card-hover, #E6DFD4);
 }
 
 .formationPillActive {
-    background: var(--color-accent-blue, #3b82f6);
+    background: var(--color-accent-blue, #3A6B4A);
     color: #fff;
-    border-color: var(--color-accent-blue, #3b82f6);
+    border-color: var(--color-accent-blue, #3A6B4A);
 }
 
 /* ── Selection hint banner ── */
@@ -61,19 +63,19 @@
     justify-content: space-between;
     gap: 1rem;
     padding: 0.625rem 1rem;
-    background: rgba(59, 130, 246, 0.08);
-    border: 1px solid rgba(59, 130, 246, 0.25);
+    background: var(--color-accent-green-dim, rgba(58, 107, 74, 0.08));
+    border: 1px solid var(--color-border-accent, rgba(58, 107, 74, 0.3));
     border-radius: 8px;
     font-size: 0.8125rem;
-    color: var(--color-text-primary, #f3f4f6);
+    color: var(--color-text-primary, #1C1C1C);
 }
 
 .cancelBtn {
     padding: 0.25rem 0.75rem;
     background: transparent;
-    border: 1px solid var(--color-border, #374151);
+    border: 1px solid var(--color-border, #C8C2B6);
     border-radius: 5px;
-    color: var(--color-text-secondary, #9ca3af);
+    color: var(--color-text-secondary, #4A4A4A);
     font-size: 0.75rem;
     cursor: pointer;
     white-space: nowrap;
@@ -81,7 +83,8 @@
 }
 
 .cancelBtn:hover {
-    border-color: var(--color-text-muted, #6b7280);
+    border-color: var(--color-text-muted, #9A9488);
+    background: var(--color-bg-card-hover, #E6DFD4);
 }
 
 /* ── Football Pitch ── */
@@ -90,15 +93,15 @@
     width: 100%;
     border-radius: 12px;
     overflow: hidden;
-    /* Green pitch gradient with horizontal stripe effect */
+    /* Bright grass green with alternating lighter stripe bands */
     background:
         repeating-linear-gradient(to bottom,
-            rgba(255, 255, 255, 0.03) 0px,
-            rgba(255, 255, 255, 0.03) 50px,
-            transparent 50px,
-            transparent 100px),
-        linear-gradient(180deg, #1a4d2e 0%, #1e5c35 50%, #1a4d2e 100%);
-    border: 2px solid rgba(255, 255, 255, 0.08);
+            rgba(255, 255, 255, 0.07) 0px,
+            rgba(255, 255, 255, 0.07) 44px,
+            transparent 44px,
+            transparent 88px),
+        linear-gradient(180deg, #4A7A5A 0%, #5A8F6A 50%, #4A7A5A 100%);
+    border: 2px solid rgba(255, 255, 255, 0.3);
     padding: 1rem 0.5rem;
     display: flex;
     flex-direction: column;
@@ -113,7 +116,7 @@
     right: 5%;
     top: 50%;
     height: 1px;
-    background: rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.28);
     pointer-events: none;
 }
 
@@ -125,7 +128,7 @@
     transform: translate(-50%, -50%);
     width: 80px;
     height: 80px;
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.28);
     border-radius: 50%;
     pointer-events: none;
 }
@@ -163,7 +166,7 @@
     transform: translateY(-50%);
     font-size: 0.6rem;
     font-weight: 800;
-    color: rgba(255, 255, 255, 0.25);
+    color: rgba(255, 255, 255, 0.38);
     letter-spacing: 0.1em;
     text-transform: uppercase;
     writing-mode: vertical-rl;
@@ -177,12 +180,11 @@
     justify-content: space-evenly;
     align-items: center;
     flex: 1;
-    /* let row consume the entire flexible height of the zone */
     width: 100%;
     padding: 0 2rem;
 }
 
-/* ── Pitch Node (player slot on pitch) ── */
+/* ── Pitch Node (player chip on pitch) ── */
 .pitchNode {
     display: flex;
     flex-direction: column;
@@ -191,39 +193,45 @@
     width: 76px;
     min-height: 80px;
     padding: 0.5rem 0.25rem;
-    background: rgba(0, 0, 0, 0.45);
-    border: 2px solid rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 0.93);
+    border: 1px solid rgba(255, 255, 255, 0.65);
     border-radius: 10px;
     cursor: pointer;
-    transition: border-color 0.15s, background 0.15s, transform 0.1s;
+    transition: border-color 0.15s, background 0.15s, transform 0.1s, box-shadow 0.15s;
     text-align: center;
     position: relative;
-    backdrop-filter: blur(4px);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
 }
 
 .pitchNode:hover {
-    background: rgba(0, 0, 0, 0.6);
-    border-color: rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 1);
+    border-color: rgba(255, 255, 255, 0.9);
     transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
 }
 
 .nodeSelected {
-    border-color: var(--color-accent-blue, #3b82f6) !important;
-    background: rgba(59, 130, 246, 0.25) !important;
+    border-color: var(--color-accent-green, #3A6B4A) !important;
+    background: rgba(58, 107, 74, 0.1) !important;
+    box-shadow: 0 0 0 2px var(--color-accent-green, #3A6B4A), 0 2px 8px rgba(0, 0, 0, 0.2) !important;
 }
 
 .nodeValidTarget {
-    border-color: var(--color-accent-green, #10b981) !important;
-    background: rgba(16, 185, 129, 0.15) !important;
+    border-color: var(--color-accent-green, #3A6B4A) !important;
+    background: rgba(58, 107, 74, 0.06) !important;
+    box-shadow: 0 0 0 1px var(--color-accent-green, #3A6B4A), 0 2px 6px rgba(0, 0, 0, 0.15) !important;
 }
 
 .nodeValidTarget:hover {
-    background: rgba(16, 185, 129, 0.25) !important;
+    background: rgba(58, 107, 74, 0.12) !important;
+    transform: translateY(-2px);
 }
 
 .nodeEmpty {
     border-style: dashed;
-    background: rgba(0, 0, 0, 0.2) !important;
+    border-color: rgba(255, 255, 255, 0.55) !important;
+    background: rgba(255, 255, 255, 0.28) !important;
+    box-shadow: none;
 }
 
 /* Position badge on node */
@@ -243,9 +251,10 @@
 }
 
 .nodePlayerName {
+    font-family: var(--font-serif, 'Noto Serif', Georgia, serif);
     font-size: 0.7rem;
     font-weight: 700;
-    color: #fff;
+    color: var(--color-text-primary, #1C1C1C);
     text-align: center;
     line-height: 1.2;
     max-width: 68px;
@@ -256,7 +265,7 @@
 
 .nodePlayerClub {
     font-size: 0.6rem;
-    color: rgba(255, 255, 255, 0.55);
+    color: var(--color-text-muted, #9A9488);
     text-align: center;
     max-width: 68px;
     overflow: hidden;
@@ -266,7 +275,7 @@
 
 .nodeEmptyLabel {
     font-size: 0.65rem;
-    color: rgba(255, 255, 255, 0.3);
+    color: rgba(0, 0, 0, 0.35);
     font-style: italic;
 }
 
@@ -301,7 +310,7 @@
 .benchLabel {
     font-size: 0.75rem;
     font-weight: 700;
-    color: var(--color-text-secondary, #9ca3af);
+    color: var(--color-text-secondary, #4A4A4A);
     text-transform: uppercase;
     letter-spacing: 0.06em;
 }
@@ -324,8 +333,8 @@
     align-items: flex-start;
     gap: 4px;
     padding: 0.625rem 0.75rem;
-    background: var(--color-bg-card, #1f2937);
-    border: 2px solid var(--color-border, #374151);
+    background: var(--color-bg-card, #F7F3EE);
+    border: 1px solid var(--color-border, #C8C2B6);
     border-radius: 10px;
     cursor: pointer;
     text-align: left;
@@ -333,7 +342,8 @@
 }
 
 .benchSlot:hover {
-    border-color: var(--color-text-muted, #6b7280);
+    border-color: var(--color-text-muted, #9A9488);
+    background: var(--color-bg-card-hover, #E6DFD4);
 }
 
 .benchSlotType {
@@ -341,22 +351,22 @@
     font-weight: 800;
     letter-spacing: 0.1em;
     text-transform: uppercase;
-    color: var(--color-text-muted, #6b7280);
-    border: 1px solid var(--color-border, #374151);
+    color: var(--color-text-muted, #9A9488);
+    border: 1px solid var(--color-border, #C8C2B6);
     border-radius: 3px;
     padding: 1px 5px;
 }
 
 .benchSlotDesc {
     font-size: 0.7rem;
-    color: var(--color-text-muted, #6b7280);
+    color: var(--color-text-muted, #9A9488);
     font-style: italic;
 }
 
 .benchPlayerName {
     font-size: 0.8125rem;
     font-weight: 600;
-    color: var(--color-text-primary, #f3f4f6);
+    color: var(--color-text-primary, #1C1C1C);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -365,7 +375,7 @@
 
 .benchPlayerClub {
     font-size: 0.7rem;
-    color: var(--color-text-muted, #6b7280);
+    color: var(--color-text-muted, #9A9488);
 }
 
 /* ── Player Pool ── */
@@ -381,7 +391,7 @@
     gap: 0.5rem;
     font-size: 0.75rem;
     font-weight: 700;
-    color: var(--color-text-secondary, #9ca3af);
+    color: var(--color-text-secondary, #4A4A4A);
     text-transform: uppercase;
     letter-spacing: 0.06em;
 }
@@ -392,19 +402,19 @@
     justify-content: center;
     width: 20px;
     height: 20px;
-    background: var(--color-bg-elevated, #252d3a);
-    border: 1px solid var(--color-border, #374151);
+    background: var(--color-bg-card, #F7F3EE);
+    border: 1px solid var(--color-border, #C8C2B6);
     border-radius: 50%;
     font-size: 0.7rem;
     font-weight: 700;
-    color: var(--color-text-secondary, #9ca3af);
+    color: var(--color-text-secondary, #4A4A4A);
 }
 
 .poolEmpty {
     font-size: 0.8125rem;
-    color: var(--color-text-muted, #6b7280);
+    color: var(--color-text-muted, #9A9488);
     padding: 0.75rem 1rem;
-    border: 1px dashed var(--color-border, #374151);
+    border: 1px dashed var(--color-border, #C8C2B6);
     border-radius: 8px;
     text-align: center;
 }
@@ -420,8 +430,8 @@
     align-items: center;
     gap: 0.5rem;
     padding: 0.5rem 0.75rem;
-    background: var(--color-bg-card, #1f2937);
-    border: 2px solid var(--color-border, #374151);
+    background: var(--color-bg-card, #F7F3EE);
+    border: 1px solid var(--color-border, #C8C2B6);
     border-radius: 8px;
     cursor: pointer;
     text-align: left;
@@ -430,13 +440,14 @@
 }
 
 .poolPlayer:hover {
-    border-color: var(--color-text-muted, #6b7280);
+    border-color: var(--color-text-muted, #9A9488);
+    background: var(--color-bg-card-hover, #E6DFD4);
 }
 
 .poolPlayerName {
     font-size: 0.8125rem;
     font-weight: 600;
-    color: var(--color-text-primary, #f3f4f6);
+    color: var(--color-text-primary, #1C1C1C);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -446,14 +457,14 @@
 
 .poolPlayerClub {
     font-size: 0.7rem;
-    color: var(--color-text-muted, #6b7280);
+    color: var(--color-text-muted, #9A9488);
     white-space: nowrap;
     flex-shrink: 0;
 }
 
 .poolPlayerAlt {
     font-size: 0.65rem;
-    color: var(--color-text-muted, #6b7280);
+    color: var(--color-text-muted, #9A9488);
     font-style: italic;
     white-space: nowrap;
     flex-shrink: 0;
@@ -494,7 +505,7 @@
     justify-content: flex-end;
     gap: 1rem;
     padding-top: 1rem;
-    border-top: 1px solid var(--color-border, #374151);
+    border-top: 1px solid var(--color-border, #C8C2B6);
 }
 
 .errorText {
@@ -504,12 +515,12 @@
 
 .successText {
     font-size: 0.8125rem;
-    color: var(--color-accent-green, #10b981);
+    color: var(--color-accent-green, #3A6B4A);
 }
 
 .saveBtn {
     padding: 0.625rem 1.5rem;
-    background: var(--color-accent-green, #10b981);
+    background: var(--color-accent-green, #3A6B4A);
     color: #fff;
     border: none;
     border-radius: 8px;
