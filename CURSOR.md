@@ -41,12 +41,12 @@ Individual **page-level** CSS files were built for the old dark theme. They use 
 
 ### Color Tokens (current values in `globals.css`)
 ```css
---color-bg-primary: #F0EBE1;       /* Main content area — warm cream */
---color-bg-secondary: #EDE7DC;     /* Sidebar, nav bar */
---color-bg-card: #F7F3EE;          /* Card surfaces */
---color-bg-card-hover: #E6DFD4;    /* Hover state */
---color-border: #C8C2B6;           /* Standard borders */
---color-border-subtle: #DDD6CA;    /* Subtle separators */
+--color-bg-primary: #EDE8DE;       /* Content area — clean warm linen */
+--color-bg-secondary: #DDD9D3;     /* Sidebar, nav bar — clean warm stone (darker) */
+--color-bg-card: #F5F1EB;          /* Card surfaces — lightest layer */
+--color-bg-card-hover: #E3DED6;    /* Hover state */
+--color-border: #C3BDB7;           /* Standard borders */
+--color-border-subtle: #D4CFC9;    /* Subtle separators */
 --color-accent-blue: #3A6B4A;      /* PRIMARY CTA — forest green (not blue) */
 --color-accent-green: #3A6B4A;     /* Same green */
 --color-text-primary: #1C1C1C;     /* Near-black charcoal */
