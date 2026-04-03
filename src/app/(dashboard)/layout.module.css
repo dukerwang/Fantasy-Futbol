@@ -1,13 +1,4 @@
 .main {
   min-height: calc(100vh - var(--nav-height));
-  padding: var(--space-8) var(--space-6);
-  max-width: var(--content-max-width);
-  margin: 0 auto;
-  width: 100%;
 }
 
-@media (max-width: 768px) {
-  .main {
-    padding: var(--space-4) var(--space-3);
-  }
-}

@@ -44,7 +44,7 @@ export default async function DashboardPage() {
   }));
 
   return (
-    <div>
+    <div className={styles.page}>
       <header className={styles.header}>
         <div>
           <h1 className={styles.greeting}>
