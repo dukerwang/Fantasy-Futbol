@@ -7,8 +7,8 @@
 
 :root {
   /* --- Color Palette --- */
-  --color-bg-primary: #EDE8DE;       /* Content area — clean warm linen */
-  --color-bg-secondary: #DDD9D3;     /* Sidebar, nav bar — clean warm stone */
+  --color-bg-primary: #DDD9D3;       /* Content area — clean warm stone */
+  --color-bg-secondary: #EDE8DE;     /* Sidebar, nav bar — clean warm linen (lighter) */
   --color-bg-card: #F5F1EB;          /* Card surfaces — lightest layer */
   --color-bg-card-hover: #E3DED6;    /* Hover / pressed state */
   --color-bg-overlay: rgba(221, 217, 211, 0.95);
