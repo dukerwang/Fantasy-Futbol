@@ -7,14 +7,14 @@
 
 :root {
   /* --- Color Palette --- */
-  --color-bg-primary: #DDD9D3;       /* Content area — clean warm stone */
-  --color-bg-secondary: #EDE8DE;     /* Sidebar, nav bar — clean warm linen (lighter) */
-  --color-bg-card: #F5F1EB;          /* Card surfaces — lightest layer */
-  --color-bg-card-hover: #E3DED6;    /* Hover / pressed state */
-  --color-bg-overlay: rgba(221, 217, 211, 0.95);
+  --color-bg-primary: #F7F3ED;       /* Content area — clean off-white */
+  --color-bg-secondary: #EDE8D8;     /* Sidebar, nav bar — warm cream (darker anchor) */
+  --color-bg-card: #FDFCF9;          /* Card surfaces — near white */
+  --color-bg-card-hover: #EDE8E0;    /* Hover / pressed state */
+  --color-bg-overlay: rgba(237, 232, 216, 0.95);
 
-  --color-border: #C3BDB7;           /* Standard borders */
-  --color-border-subtle: #D4CFC9;    /* Subtle separators */
+  --color-border: #C8C3BC;           /* Standard borders */
+  --color-border-subtle: #D9D4CD;    /* Subtle separators */
   --color-border-accent: rgba(58, 107, 74, 0.4);
 
   --color-accent-blue: #3A6B4A;
