@@ -8,7 +8,7 @@
 :root {
   /* --- Color Palette --- */
   --color-bg-primary: #F7F3ED;       /* Content area — clean off-white */
-  --color-bg-secondary: #EDE8D8;     /* Sidebar, nav bar — warm cream (darker anchor) */
+  --color-bg-secondary: #EDE8DE;     /* Sidebar, nav bar — warm cream (darker anchor) */
   --color-bg-card: #FDFCF9;          /* Card surfaces — near white */
   --color-bg-card-hover: #EDE8E0;    /* Hover / pressed state */
   --color-bg-overlay: rgba(237, 232, 216, 0.95);
