@@ -3,9 +3,7 @@
   top: 0;
   z-index: 100;
   height: var(--nav-height);
-  background: rgba(10, 12, 16, 0.9);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: var(--color-bg-secondary);
   border-bottom: 1px solid var(--color-border);
 }
 
@@ -32,10 +30,12 @@
 }
 
 .brandName {
+  font-family: var(--font-serif);
   font-size: var(--text-base);
   font-weight: var(--font-bold);
   color: var(--color-text-primary);
-  letter-spacing: -0.02em;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
 .links {
@@ -57,12 +57,12 @@
 
 .link:hover {
   color: var(--color-text-primary);
-  background: var(--color-bg-card);
+  background: var(--color-bg-card-hover);
 }
 
 .linkActive {
   color: var(--color-text-primary);
-  background: var(--color-bg-card);
+  background: var(--color-bg-card-hover);
 }
 
 .signOut {
@@ -82,5 +82,5 @@
 .signOut:hover {
   color: var(--color-text-primary);
   border-color: var(--color-text-muted);
-  background: var(--color-bg-card);
+  background: var(--color-bg-card-hover);
 }

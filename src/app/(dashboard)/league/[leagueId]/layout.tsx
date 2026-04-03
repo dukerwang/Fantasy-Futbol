@@ -1,6 +1,6 @@
 import { createAdminClient } from '@/lib/supabase/admin';
 import { notFound } from 'next/navigation';
-import LeagueNav from '@/components/layout/LeagueNav';
+import AppShell from '@/components/layout/AppShell';
 
 interface Props {
     children: React.ReactNode;
@@ -20,9 +20,8 @@ export default async function LeagueLayout({ children, params }: Props) {
     if (!league) notFound();
 
     return (
-        <>
-            <LeagueNav leagueId={leagueId} leagueStatus={league.status} />
+        <AppShell leagueId={leagueId} leagueStatus={league.status}>
             {children}
-        </>
+        </AppShell>
     );
 }
