@@ -166,11 +166,17 @@
 
 /* ── Table ── */
 .tableSection {
-  background: var(--color-bg-card);
+  /* Use the header color as the section background so rounded-corner
+     clipping never reveals a white bleed behind the thead */
+  background: var(--color-bg-secondary);
   border-radius: var(--radius-md);
   overflow: hidden;
   box-shadow: var(--shadow-sm);
   border: 1px solid var(--color-border-subtle);
+}
+
+.table tbody {
+  background: var(--color-bg-card);
 }
 
 .table {
@@ -230,11 +236,16 @@
 /* Own team */
 .ownRow {
   background: rgba(58, 107, 74, 0.05) !important;
-  border-left: 4px solid var(--color-accent-green);
 }
 
 .ownRow:hover {
   background: rgba(58, 107, 74, 0.09) !important;
+}
+
+/* Left accent bar lives on the first cell so it doesn't fight border-collapse */
+.ownRow td:first-child {
+  border-left: 4px solid var(--color-accent-green);
+  padding-left: calc(var(--space-6) - 4px);
 }
 
 .tableRow td {
@@ -258,7 +269,6 @@
 
 .ownRow .rankCell {
   color: var(--color-accent-green) !important;
-  padding-left: calc(var(--space-6) - 4px) !important;
 }
 
 /* Team */
