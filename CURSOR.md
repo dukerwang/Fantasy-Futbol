@@ -121,6 +121,14 @@ Key design decisions validated there:
 
 ---
 
+## Stitch Prototype Rule
+When implementing any UI page that has a Stitch prototype, you MUST:
+1. Call `list_screens` on project 9034509438526576481 to find the screen
+2. Call `get_screen` to get the `htmlCode.downloadUrl`
+3. `curl` the download URL to fetch the raw HTML
+4. Read the actual CSS classes, layout structure, and values from the HTML — do not guess or paraphrase
+Only then may you write any CSS or JSX.
+
 ## Layout Architecture
 
 ```
