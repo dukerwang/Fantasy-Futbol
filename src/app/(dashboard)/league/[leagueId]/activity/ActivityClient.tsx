@@ -738,8 +738,7 @@ export default function ActivityClient({
           <p className={styles.eyebrow}>TRANSACTION HISTORY</p>
           <h1 className={styles.title}>The Transfer Gazette</h1>
           <p className={styles.subtitle}>
-            Every move, every deal — the full record of{' '}
-            {leagueName}&apos;s dynasty.
+            Every move, every deal — the full record of {leagueName}.
           </p>
         </header>
 
