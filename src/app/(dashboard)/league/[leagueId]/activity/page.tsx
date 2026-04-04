@@ -1,78 +1,25 @@
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { redirect, notFound } from 'next/navigation';
-import Link from 'next/link';
-import { formatPlayerName } from '@/lib/formatName';
-import { FULL_PLAYER_SELECT } from '@/lib/constants/queries';
-import styles from './activity.module.css';
+import ActivityClient from './ActivityClient';
+
+export const dynamic = 'force-dynamic';
 
 interface Props {
   params: Promise<{ leagueId: string }>;
 }
 
-type TxColor = 'green' | 'red' | 'blue' | 'purple' | 'amber' | 'gray';
-
-const TYPE_CONFIG: Record<string, { label: string; color: TxColor; icon: string }> = {
-  waiver_claim: { label: 'Auction Win', color: 'green', icon: '🏆' },
-  free_agent_pickup: { label: 'Free Agent Pickup', color: 'blue', icon: '✋' },
-  drop: { label: 'Drop', color: 'red', icon: '❌' },
-  transfer_out: { label: 'Transferred Out', color: 'red', icon: '✈️' },
-  trade: { label: 'Trade', color: 'blue', icon: '🔄' },
-  transfer_compensation: { label: 'Transfer Compensation', color: 'purple', icon: '💰' },
-  draft_pick: { label: 'Draft Pick', color: 'gray', icon: '📋' },
-  rebate: { label: "Scout's Rebate", color: 'amber', icon: '💸' },
-};
-
-function formatTxNotes(notes: string | null, player?: any) {
-  const fallbackFormatted = player ? formatPlayerName(player) : '';
-  if (!notes) return fallbackFormatted ? ` — ${fallbackFormatted}` : '';
-
-  let html = notes;
-
-  // If we have a player object, try to identify their name in the notes and replace it
-  if (player) {
-    const formatted = formatPlayerName(player);
-    const dbName = player.name.trim();
-    const webName = player.web_name;
-
-    // Replace mentions of the raw DB name or web name with the formatted bold name
-    if (dbName) {
-      const escapedDb = dbName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      html = html.replace(new RegExp(`\\b${escapedDb}\\b`, 'g'), `<strong>${formatted}</strong>`);
-    }
-    if (webName && webName !== dbName) {
-      const escapedWeb = webName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      html = html.replace(new RegExp(`\\b${escapedWeb}\\b`, 'g'), `<strong>${formatted}</strong>`);
-    }
-  }
-
-  // Fallback regex for other cases (e.g. historical notes or multiple players)
-  // "Won auction for Nick Pope with £1m bid"
-  html = html.replace(/Won auction for (.+?) with/, 'Won auction for <strong>$1</strong> with');
-
-  // "Dropped Josh King to make room for auction winner: Nick Pope"
-  // We use a callback to ensure both players are formatted correctly
-  html = html.replace(/Dropped (.+?) to make room for auction winner: ([^(]+)/, (match, p1, p2) => {
-    return `Dropped <strong>${formatPlayerName({ name: p1.trim() })}</strong> to make room for auction winner: <strong>${formatPlayerName({ name: p2.trim() })}</strong>`;
-  });
-
-  // "Bid of £5m rejected (lost to Duke's Destroyers)"
-  html = html.replace(/\(lost to ([^)]+)\)/, (match, p1) => `(lost to <strong>${p1}</strong>)`);
-
-  return <span dangerouslySetInnerHTML={{ __html: ` — ${html}` }} />;
-}
-
 export default async function ActivityPage({ params }: Props) {
   const { leagueId } = await params;
 
-  // Auth check
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) redirect('/login');
 
   const admin = createAdminClient();
 
-  // Verify league exists
   const { data: league } = await admin
     .from('leagues')
     .select('name, commissioner_id')
@@ -81,85 +28,51 @@ export default async function ActivityPage({ params }: Props) {
 
   if (!league) notFound();
 
-  // Verify membership
-  const { data: membership } = await admin
+  const { data: myTeam } = await admin
     .from('teams')
     .select('id')
     .eq('league_id', leagueId)
     .eq('user_id', user.id)
     .single();
 
-  if (!membership && league.commissioner_id !== user.id) redirect('/dashboard');
+  if (!myTeam && league.commissioner_id !== user.id) redirect('/dashboard');
 
-  // Fetch 50 most recent transactions
-  const { data: transactionsData } = await admin
-    .from('transactions')
-    .select(`
-      id,
-      type,
-      faab_bid,
-      compensation_amount,
-      notes,
-      processed_at,
-      team:teams(team_name),
-      player:players(${FULL_PLAYER_SELECT})
-    `)
-    .eq('league_id', leagueId)
-    .order('processed_at', { ascending: false })
-    .limit(50);
-
-  const transactions = transactionsData as any[];
+  const [txResult, teamsResult, auctionsResult] = await Promise.all([
+    admin
+      .from('transactions')
+      .select(
+        `id, type, faab_bid, compensation_amount, notes, processed_at,
+         team:teams(id, team_name),
+         player:players(id, web_name, name, primary_position, photo_url, pl_team)`
+      )
+      .eq('league_id', leagueId)
+      .order('processed_at', { ascending: false })
+      .limit(100),
+    admin
+      .from('teams')
+      .select('id, team_name, faab_budget, user:users(username)')
+      .eq('league_id', leagueId)
+      .order('faab_budget', { ascending: false }),
+    admin
+      .from('waiver_claims')
+      .select(
+        `id, faab_bid, created_at,
+         player:players(id, web_name, name, primary_position, photo_url, pl_team),
+         team:teams(id, team_name)`
+      )
+      .eq('league_id', leagueId)
+      .eq('status', 'pending')
+      .order('faab_bid', { ascending: false }),
+  ]);
 
   return (
-    <div className={styles.page}>
-      <header className={styles.header}>
-        <p className={styles.breadcrumb}>
-          <Link href={`/league/${leagueId}`}>{league.name}</Link> / Activity
-        </p>
-        <h1 className={styles.title}>League Activity</h1>
-        <p className={styles.subtitle}>50 most recent transactions across the league</p>
-      </header>
-
-      {!transactions || transactions.length === 0 ? (
-        <div className={styles.emptyState}>
-          <p>No transactions recorded yet.</p>
-        </div>
-      ) : (
-        <div className={styles.timeline}>
-          {transactions.map((tx) => {
-            const cfg = TYPE_CONFIG[tx.type] ?? { label: tx.type, color: 'gray' as TxColor, icon: '•' };
-            const team = tx.team as unknown as { team_name: string } | null;
-            const player = tx.player as unknown as { name: string; web_name?: string | null; primary_position: string } | null;
-            const date = new Date(tx.processed_at);
-            const dateStr = date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
-            const timeStr = date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
-
-            return (
-              <div key={tx.id} className={`${styles.txRow} ${styles[`color_${cfg.color}`]}`}>
-                <div className={styles.txDot} />
-                <div className={styles.txBody}>
-                  <div className={styles.txTop}>
-                    <span className={`${styles.txBadge} ${styles[`badge_${cfg.color}`]}`}>
-                      {cfg.icon} {cfg.label}
-                    </span>
-                    <span className={styles.txDate}>{dateStr} · {timeStr}</span>
-                  </div>
-                  <p className={styles.txDesc}>
-                    {team?.team_name && <strong>{team.team_name}</strong>}
-                    {formatTxNotes(tx.notes, tx.player)}
-                  </p>
-                  {tx.faab_bid != null && (
-                    <span className={styles.txFaab}>FAAB: £{tx.faab_bid}m</span>
-                  )}
-                  {tx.compensation_amount != null && Number(tx.compensation_amount) > 0 && (
-                    <span className={styles.txFaab}>Amount: £{Number(tx.compensation_amount)}m</span>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
-    </div>
+    <ActivityClient
+      leagueId={leagueId}
+      leagueName={league.name}
+      myTeamId={myTeam?.id ?? null}
+      transactions={(txResult.data ?? []) as any[]}
+      teams={(teamsResult.data ?? []) as any[]}
+      liveAuctions={(auctionsResult.data ?? []) as any[]}
+    />
   );
 }

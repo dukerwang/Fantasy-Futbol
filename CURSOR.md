@@ -5,6 +5,14 @@ Before anything else, read `CLAUDE.md` and `GEMINI.md` in the project root.
 - `CLAUDE.md` — execution rules, stack, database schema, coding standards
 - `GEMINI.md` — architectural philosophy, game mechanics, planning principles
 
+## Role of This Agent
+**This agent (Cursor/Claude) is the Antigravity substitute.** In this project's workflow, Antigravity (Gemini) is the planning layer — it produces detailed implementation plans that Claude Code executes. When working in Cursor, this agent fills that planning role.
+
+**Default behavior: plan first, implement second.**
+- When the user asks "how should we do X" or describes a feature → produce a concrete plan (file paths, component names, data shapes, edge cases) as you would hand it to Claude Code
+- Only write code when explicitly asked to implement, or when the task is a clear, small execution task (e.g. a token fix, a CSS tweak, a config change)
+- If a task is large (new page, new feature, significant refactor) → switch to Plan mode, draft the plan, wait for approval before touching files
+
 ## Cursor-Specific Rules
 - Never commit or push without running `npm run build` first
 - If context files conflict, `CLAUDE.md` and `GEMINI.md` take precedence
@@ -25,35 +33,49 @@ A major UI overhaul is underway. The app previously used a generic dark theme. I
 - ✅ Login page dark gradient blob removed (`login.module.css`)
 - ✅ Dashboard page padding restored (`dashboard/page.tsx`, `dashboard.module.css`)
 
-### What Still Needs Work
-Individual **page-level** CSS files were built for the old dark theme. They use the CSS variables correctly (so colors adapt), but some pages may look mismatched or need typographic/layout polish to match the new aesthetic. Priority order:
+### Completed in UI Overhaul Sessions
+- ✅ `globals.css` — `--color-bg-elevated` added; all stale dark tokens documented as forbidden
+- ✅ `matchups.module.css` + `matchup-detail.module.css` — stale token replacement
+- ✅ `tournaments.module.css` + `bracket.module.css` — stale token replacement
+- ✅ `transfers.module.css` — dark `#0f1117` modal inputs fixed
+- ✅ `trades.module.css`, `GlobalBidModal.module.css`, `LeagueNav.module.css` — undefined token fixes
+- ✅ `PlayerDetailCard.module.css` — dark gradient removed
+- ✅ `CLAUDE.md` — design system section rewritten with locked token table + forbidden patterns
+- ✅ `standings/page.tsx` + `standings/standings.module.css` — **initial implementation done (podium + table), needs visual refinement**
 
-1. **My Team page** (`team/my-team.module.css`, `PitchUI.tsx`) — pitch looks too dark green, player chips need the position badge treatment
-2. **Players / Free Agency** (`players/TransferMarketClient.tsx`) — cards need light-mode refinement  
-3. **Matchups** (`matchups/page.tsx`) — score display styling
-4. **Activity log** (`activity/page.tsx`) — transaction feed styling
-5. **Standings** (`standings/page.tsx`) — table styling
-6. Any remaining hardcoded dark hex values in module CSS files (search for `#0d1117`, `#0a0c10`, `#111318`, `#161a22`)
+### What Still Needs Work (Priority Order)
+1. **Standings** (`standings/page.tsx`, `standings/standings.module.css`) — 🔁 **needs refinement** — podium and table are implemented but visual polish pass still required against the Stitch prototype
+2. **Activity Log** (`activity/page.tsx`, `activity/activity.module.css`) — Stitch prototype: "The Transfer Gazette" timeline
+3. **Matchups** (`matchups/page.tsx`, `matchups/matchups.module.css`) — Stitch prototype: matchup cards with GW selector
+4. **Free Agency** (`players/TransferMarketClient.tsx`, `transfers.module.css`) — Stitch prototype: "Player Market"
+5. **Trades** (`trades/TradesClient.tsx`, `trades.module.css`) — Stitch prototype: tabbed trade UI
+6. Final sweep: any remaining hardcoded hex values across all module CSS files
 
 ---
 
 ## Design System
 
-### Color Tokens (current values in `globals.css`)
+### Color Tokens (current locked values in `globals.css`)
 ```css
---color-bg-primary: #EDE8DE;       /* Content area — clean warm linen */
---color-bg-secondary: #DDD9D3;     /* Sidebar, nav bar — clean warm stone (darker) */
---color-bg-card: #F5F1EB;          /* Card surfaces — lightest layer */
---color-bg-card-hover: #E3DED6;    /* Hover state */
---color-border: #C3BDB7;           /* Standard borders */
---color-border-subtle: #D4CFC9;    /* Subtle separators */
---color-accent-blue: #3A6B4A;      /* PRIMARY CTA — forest green (not blue) */
---color-accent-green: #3A6B4A;     /* Same green */
+--color-bg-primary: #F7F3ED;       /* Content area — clean off-white */
+--color-bg-secondary: #EDE8DE;     /* Sidebar, topbar — warm cream (darker anchor) */
+--color-bg-card: #FDFCF9;          /* Card surfaces — near white */
+--color-bg-card-hover: #EDE8E0;    /* Hover/pressed state */
+--color-bg-elevated: #EDE8DE;      /* Inset surfaces: inputs, secondary buttons */
+--color-border: #C8C3BC;           /* Standard borders */
+--color-border-subtle: #D9D4CD;    /* Subtle separators */
+--color-accent-green: #3A6B4A;     /* PRIMARY accent — forest green */
+--color-accent-blue: #3A6B4A;      /* Alias for green (legacy) */
 --color-text-primary: #1C1C1C;     /* Near-black charcoal */
 --color-text-secondary: #4A4A4A;   /* Secondary text */
 --color-text-muted: #9A9488;       /* Timestamps, labels */
 --font-serif: 'Noto Serif', Georgia, serif;
+--font-sans: 'Inter', -apple-system, sans-serif;
 ```
+
+**Forbidden patterns — never use these:**
+- Stale tokens: `--bg-surface`, `--bg-elevated`, `--border-color`, `--text-primary`, `--text-secondary`, `--primary-accent`
+- Dark hex values: `#0d1117`, `#0a0c10`, `#111318`, `#161a22`, `#0f1117`, `#1c2130`
 
 ### Typography Convention
 - **Page titles / headlines**: `font-family: var(--font-serif)`, bold
