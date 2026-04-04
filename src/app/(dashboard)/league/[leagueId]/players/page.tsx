@@ -45,13 +45,42 @@ export default async function TransferMarketPage({ params, searchParams }: Props
     .eq('league_id', leagueId);
   const teamIds = (allTeams ?? []).map((t: { id: string }) => t.id);
 
-  // Active auctions for this league
-  const { data: auctions } = await admin
-    .from('auctions')
-    .select('*, player:players(*)')
+  // Active auctions for this league — query waiver_claims (the actual table)
+  const { data: rawClaims } = await admin
+    .from('waiver_claims')
+    .select('*, player:players!player_id(*), team:teams(id, team_name)')
     .eq('league_id', leagueId)
-    .eq('status', 'active');
-  const auctionedPlayerIds = (auctions ?? []).map((a: any) => a.player_id);
+    .eq('status', 'pending')
+    .eq('is_auction', true)
+    .order('faab_bid', { ascending: false });
+
+  // Group by player to build AuctionListing[] (mirrors GET /api/leagues/[leagueId]/auctions)
+  const auctionMap = new Map<string, any>();
+  for (const claim of rawClaims ?? []) {
+    const existing = auctionMap.get(claim.player_id);
+    if (!existing) {
+      auctionMap.set(claim.player_id, {
+        player: claim.player,
+        expires_at: claim.expires_at,
+        highest_bid: claim.faab_bid,
+        highest_bidder_team_name: claim.team ? (claim.team as any).team_name : 'System',
+        highest_bidder_team_id: claim.team_id,
+        my_bid: claim.team_id && claim.team_id === myTeam.id ? claim.faab_bid : null,
+        my_drop_player_id: claim.team_id && claim.team_id === myTeam.id ? claim.drop_player_id : null,
+        bid_count: 1,
+      });
+    } else {
+      existing.bid_count++;
+      if (claim.team_id && claim.team_id === myTeam.id) {
+        existing.my_bid = claim.faab_bid;
+        existing.my_drop_player_id = claim.drop_player_id;
+      }
+    }
+  }
+  const auctions = Array.from(auctionMap.values()).sort(
+    (a, b) => new Date(a.expires_at).getTime() - new Date(b.expires_at).getTime(),
+  );
+  const auctionedPlayerIds = Array.from(auctionMap.keys());
 
   // Rostered player IDs (any team in this league)
   let rosteredPlayerIds: string[] = [];

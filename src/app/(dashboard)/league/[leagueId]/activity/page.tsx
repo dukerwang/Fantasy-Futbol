@@ -57,11 +57,12 @@ export default async function ActivityPage({ params }: Props) {
       .from('waiver_claims')
       .select(
         `id, faab_bid, created_at,
-         player:players(id, web_name, name, primary_position, photo_url, pl_team),
+         player:players!player_id(id, web_name, name, primary_position, photo_url, pl_team),
          team:teams(id, team_name)`
       )
       .eq('league_id', leagueId)
       .eq('status', 'pending')
+      .eq('is_auction', true)
       .order('faab_bid', { ascending: false }),
   ]);
 
