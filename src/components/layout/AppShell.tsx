@@ -73,6 +73,12 @@ const IconActivity = () => (
   </svg>
 );
 
+const IconStandings = () => (
+  <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+    <path d="M9 2L11 7H16L12 10.5L13.5 16L9 13L4.5 16L6 10.5L2 7H7L9 2Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
+  </svg>
+);
+
 const IconDraft = () => (
   <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
     <rect x="3" y="2" width="12" height="14" rx="2" stroke="currentColor" strokeWidth="1.5" />
@@ -115,6 +121,7 @@ export default function AppShell({ leagueId, leagueStatus, children }: Props) {
   const links = [
     { href: `/league/${leagueId}`, label: 'League', icon: <IconLeague />, exact: true },
     { href: `/league/${leagueId}/team`, label: 'My Team', icon: <IconTeam /> },
+    { href: `/league/${leagueId}/standings`, label: 'Standings', icon: <IconStandings /> },
     { href: `/league/${leagueId}/matchups`, label: 'Matchups', icon: <IconMatchups /> },
     { href: `/league/${leagueId}/players`, label: 'Free Agency', icon: <IconPlayers /> },
     { href: `/league/${leagueId}/stats`, label: 'Stats', icon: <IconStats /> },

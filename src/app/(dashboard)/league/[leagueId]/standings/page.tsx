@@ -16,18 +16,48 @@ interface StandingRow {
   wins: number;
   losses: number;
   draws: number;
-  pts: number;
-  pf: number;
-  pa: number;
-  gd: number;
+  pts: number;   // league table points: W*3 + D*1
+  pf: number;    // fantasy points scored (Points For)
+  pa: number;    // fantasy points conceded (Points Against)
+  gd: number;    // goal difference (pf - pa)
   played: number;
   rank: number;
 }
 
+type FormResult = 'W' | 'D' | 'L';
+
 const MEDALS = ['🥇', '🥈', '🥉'];
+const DRAW_MARGIN = 10;
 
 function formatRank(n: number): string {
   return String(n).padStart(2, '0');
+}
+
+function computeForm(teamId: string, matchups: any[]): FormResult[] {
+  const results: FormResult[] = [];
+  for (const m of matchups) {
+    if (results.length >= 5) break;
+
+    let myScore: number, theirScore: number;
+    if (m.team_a_id === teamId) {
+      myScore = m.score_a ?? 0;
+      theirScore = m.score_b ?? 0;
+    } else if (m.team_b_id === teamId) {
+      myScore = m.score_b ?? 0;
+      theirScore = m.score_a ?? 0;
+    } else {
+      continue;
+    }
+
+    if (Math.abs(myScore - theirScore) <= DRAW_MARGIN) {
+      results.push('D');
+    } else if (myScore > theirScore) {
+      results.push('W');
+    } else {
+      results.push('L');
+    }
+  }
+  return results;
 }
 
 export default async function StandingsPage({ params }: Props) {
@@ -56,11 +86,21 @@ export default async function StandingsPage({ params }: Props) {
 
   if (!membership && league.commissioner_id !== user.id) redirect('/dashboard');
 
-  const { data: standingsRaw } = await admin
-    .from('league_standings')
-    .select('*')
-    .eq('league_id', leagueId)
-    .order('rank', { ascending: true });
+  // Fetch standings and recent matchups in parallel
+  const [{ data: standingsRaw }, { data: recentMatchups }] = await Promise.all([
+    admin
+      .from('league_standings')
+      .select('*')
+      .eq('league_id', leagueId)
+      .order('rank', { ascending: true }),
+    admin
+      .from('matchups')
+      .select('team_a_id, team_b_id, score_a, score_b, gameweek')
+      .eq('league_id', leagueId)
+      .eq('status', 'completed')
+      .order('gameweek', { ascending: false })
+      .limit(100),
+  ]);
 
   const standings: StandingRow[] = (standingsRaw ?? []).map((row: any) => ({
     teamId: row.team_id,
@@ -70,12 +110,18 @@ export default async function StandingsPage({ params }: Props) {
     wins: row.wins,
     draws: row.draws,
     losses: row.losses,
-    pf: row.points_for,
-    pa: row.points_against,
-    gd: row.goal_difference,
-    pts: row.league_points,
+    pf: row.points_for ?? 0,
+    pa: row.points_against ?? 0,
+    gd: row.goal_difference ?? 0,
+    pts: row.league_points ?? 0,
     rank: row.rank,
   }));
+
+  // Build form map: teamId → last 5 results
+  const formMap = new Map<string, FormResult[]>();
+  for (const row of standings) {
+    formMap.set(row.teamId, computeForm(row.teamId, recentMatchups ?? []));
+  }
 
   const top3 = standings.slice(0, 3);
   // Podium order: 2nd | 1st | 3rd
@@ -124,8 +170,8 @@ export default async function StandingsPage({ params }: Props) {
                     </span>
                   </div>
                   <div className={styles.podiumPointsGroup}>
-                    <span className={styles.podiumStatLabel}>Total Points</span>
-                    <span className={styles.podiumStatValue}>{row.pf.toFixed(1)}</span>
+                    <span className={styles.podiumStatLabel}>Total Pts</span>
+                    <span className={styles.podiumStatValue}>{row.pts}</span>
                   </div>
                 </div>
               </div>
@@ -149,12 +195,15 @@ export default async function StandingsPage({ params }: Props) {
                 <th>W</th>
                 <th>D</th>
                 <th>L</th>
-                <th>GD</th>
+                <th>PF</th>
+                <th>PA</th>
+                <th>Form</th>
               </tr>
             </thead>
             <tbody>
               {standings.map((row, i) => {
                 const isOwn = row.teamId === myTeamId;
+                const form = formMap.get(row.teamId) ?? [];
                 return (
                   <tr
                     key={row.teamId}
@@ -165,12 +214,31 @@ export default async function StandingsPage({ params }: Props) {
                       <span className={styles.teamCellName}>{row.teamName}</span>
                     </td>
                     <td className={styles.managerCell}>{row.username}</td>
-                    <td className={styles.ptsCell}>{row.pf.toFixed(1)}</td>
+                    <td className={styles.ptsCell}>{row.pts}</td>
                     <td>{row.wins}</td>
                     <td>{row.draws}</td>
                     <td>{row.losses}</td>
-                    <td className={row.gd >= 0 ? styles.gdPos : styles.gdNeg}>
-                      {row.gd >= 0 ? '+' : ''}{row.gd.toFixed(1)}
+                    <td>{row.pf.toFixed(1)}</td>
+                    <td>{row.pa.toFixed(1)}</td>
+                    <td className={styles.formCell}>
+                      <div className={styles.formDots}>
+                        {form.map((result, idx) => (
+                          <span
+                            key={idx}
+                            className={`${styles.formDot} ${
+                              result === 'W'
+                                ? styles.formDotW
+                                : result === 'D'
+                                ? styles.formDotD
+                                : styles.formDotL
+                            }`}
+                          />
+                        ))}
+                        {/* Pad with grey dots if fewer than 5 results */}
+                        {Array.from({ length: Math.max(0, 5 - form.length) }).map((_, idx) => (
+                          <span key={`empty-${idx}`} className={`${styles.formDot} ${styles.formDotEmpty}`} />
+                        ))}
+                      </div>
                     </td>
                   </tr>
                 );
