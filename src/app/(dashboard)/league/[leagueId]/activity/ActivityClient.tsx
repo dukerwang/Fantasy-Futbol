@@ -361,7 +361,7 @@ function CardContent({ tx }: { tx: Transaction }) {
             )}
           </p>
           {tx.faab_bid != null && (
-            <p className={styles.cardMeta}>£{tx.faab_bid}m FAAB</p>
+            <p className={styles.cardMeta}>£{tx.faab_bid}m bid</p>
           )}
         </>
       );
@@ -381,6 +381,9 @@ function CardContent({ tx }: { tx: Transaction }) {
               {playerName ?? '—'}
             </span>
             {player && <PositionBadge position={player.primary_position} />}
+            {player?.pl_team && (
+              <span className={styles.cardClub}>· {player.pl_team}</span>
+            )}
           </p>
           {dropCost && (
             <p className={`${styles.cardMeta} ${styles.metaRed}`}>
@@ -460,7 +463,7 @@ function CardContent({ tx }: { tx: Transaction }) {
             )}
           </p>
           {amount && (
-            <p className={styles.cardMeta}>{amount} FAAB returned</p>
+            <p className={styles.cardMeta}>{amount} budget returned</p>
           )}
         </>
       );
@@ -644,10 +647,10 @@ function RightSidebar({
         )}
       </div>
 
-      {/* FAAB Ledger */}
+      {/* Transfer Budget */}
       <div className={styles.widget}>
         <div className={styles.widgetHeader}>
-          <span className={styles.widgetTitle}>FAAB LEDGER</span>
+          <span className={styles.widgetTitle}>TRANSFER BUDGET</span>
           <span className={styles.widgetIcon}>
             <IconWallet />
           </span>
@@ -685,9 +688,6 @@ function RightSidebar({
                 })}
               </tbody>
             </table>
-            <p className={styles.faabNote}>
-              Budgets reset at the start of each new season.
-            </p>
           </>
         )}
       </div>

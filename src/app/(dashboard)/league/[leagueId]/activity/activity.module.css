@@ -178,8 +178,10 @@
   width: 48px;
   height: 48px;
   object-fit: cover;
+  object-position: top center;
   border-radius: var(--radius-sm);
   background: var(--color-bg-elevated);
+  display: block;
 }
 
 /* Position-colored fallback when no photo */
@@ -495,8 +497,10 @@
   width: 36px;
   height: 36px;
   object-fit: cover;
+  object-position: top center;
   border-radius: var(--radius-sm);
   background: var(--color-bg-elevated);
+  display: block;
 }
 
 .auctionPosAvatar {
