@@ -1,7 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { redirect, notFound } from 'next/navigation';
-import Link from 'next/link';
 import styles from './standings.module.css';
 
 export const dynamic = 'force-dynamic';
@@ -17,15 +16,14 @@ interface StandingRow {
   wins: number;
   losses: number;
   draws: number;
-  pts: number;   // league table points: 3W + 1D
-  pf: number;    // points for (total fantasy points scored)
-  pa: number;    // points against
-  gd: number;    // goal difference
+  pts: number;
+  pf: number;
+  pa: number;
+  gd: number;
   played: number;
   rank: number;
 }
 
-const RANK_LABELS = ['1st', '2nd', '3rd'];
 const MEDALS = ['🥇', '🥈', '🥉'];
 
 function formatRank(n: number): string {
@@ -87,32 +85,19 @@ export default async function StandingsPage({ params }: Props) {
     ? [top3[1], top3[0]]
     : top3;
 
+  const myTeamId = membership?.id;
+
   return (
     <div className={styles.page}>
 
       {/* Header */}
       <header className={styles.header}>
-        <div className={styles.titleBlock}>
-          <p className={styles.breadcrumb}>
-            <Link href="/dashboard">Dashboard</Link>
-            {' / '}
-            <Link href={`/league/${leagueId}`}>{league.name}</Link>
-            {' / Standings'}
-          </p>
-          <h1 className={styles.title}>Standings</h1>
-          <p className={styles.season}>{league.season} Season</p>
-        </div>
-        <div className={styles.headerActions}>
-          <Link href={`/league/${leagueId}/fixtures`} className={styles.actionBtn}>
-            Fixtures
-          </Link>
-          <Link href={`/league/${leagueId}`} className={styles.actionBtn}>
-            League Home
-          </Link>
-        </div>
+        <p className={styles.eyebrow}>{league.name} · Season {league.season}</p>
+        <h1 className={styles.title}>Standings</h1>
+        <p className={styles.subtitle}>Dynasty format · Season winner takes all</p>
       </header>
 
-      {/* Podium — top 3 */}
+      {/* Podium */}
       {standings.length >= 1 && (
         <div className={styles.podium}>
           {podiumOrder.map((row) => {
@@ -122,26 +107,27 @@ export default async function StandingsPage({ params }: Props) {
                 key={row.teamId}
                 className={`${styles.podiumCard} ${isLeader ? styles.podiumCardLeader : ''}`}
               >
-                <p className={styles.podiumRank}>
-                  {MEDALS[row.rank - 1]} {RANK_LABELS[row.rank - 1] ?? `#${row.rank}`}
-                </p>
+                <span className={styles.podiumEmoji}>{MEDALS[row.rank - 1]}</span>
+
                 {isLeader && (
-                  <div className={styles.podiumLeaderBadge}>
-                    ★ League Leader
-                  </div>
+                  <div className={styles.podiumLeaderBadge}>★ League Leader</div>
                 )}
+
                 <h2 className={styles.podiumTeamName}>{row.teamName}</h2>
                 <p className={styles.podiumManager}>{row.username}</p>
-                <p className={styles.podiumRecord}>
-                  {row.wins}
-                  <span className={styles.podiumRecordSep}>—</span>
-                  {row.draws}
-                  <span className={styles.podiumRecordSep}>—</span>
-                  {row.losses}
-                </p>
-                <div className={styles.podiumDivider} />
-                <p className={styles.podiumStatLabel}>Season Points</p>
-                <p className={styles.podiumStatValue}>{row.pf.toFixed(1)}</p>
+
+                <div className={styles.podiumBottom}>
+                  <div className={styles.podiumRecordGroup}>
+                    <span className={styles.podiumStatLabel}>Record</span>
+                    <span className={styles.podiumRecord}>
+                      {row.wins}-{row.draws}-{row.losses}
+                    </span>
+                  </div>
+                  <div className={styles.podiumPointsGroup}>
+                    <span className={styles.podiumStatLabel}>Total Points</span>
+                    <span className={styles.podiumStatValue}>{row.pf.toFixed(1)}</span>
+                  </div>
+                </div>
               </div>
             );
           })}
@@ -150,13 +136,6 @@ export default async function StandingsPage({ params }: Props) {
 
       {/* Full standings table */}
       <section className={styles.tableSection}>
-        <div className={styles.tableSectionHeader}>
-          <h2 className={styles.tableSectionTitle}>Season Table</h2>
-          <span className={styles.tableRule}>
-            W=3pts · D=1pt · L=0pts · Draw if gap ≤10
-          </span>
-        </div>
-
         {standings.length === 0 ? (
           <p className={styles.emptyState}>No completed matches yet — check back after Gameweek 1.</p>
         ) : (
@@ -166,39 +145,36 @@ export default async function StandingsPage({ params }: Props) {
                 <th>#</th>
                 <th className={styles.teamHeading}>Team</th>
                 <th className={styles.managerHeading}>Manager</th>
-                <th>MP</th>
+                <th>Pts</th>
                 <th>W</th>
                 <th>D</th>
                 <th>L</th>
-                <th>PF</th>
                 <th>GD</th>
-                <th>Pts</th>
               </tr>
             </thead>
             <tbody>
-              {standings.map((row, i) => (
-                <tr
-                  key={row.teamId}
-                  className={`${styles.tableRow} ${row.teamId === membership?.id ? styles.ownRow : ''}`}
-                >
-                  <td className={styles.rankCell}>{formatRank(i + 1)}</td>
-                  <td className={styles.teamCell}>
-                    <span className={styles.teamCellName}>{row.teamName}</span>
-                  </td>
-                  <td className={styles.managerCell}>
-                    <span className={styles.managerCellText}>{row.username}</span>
-                  </td>
-                  <td>{row.played}</td>
-                  <td>{row.wins}</td>
-                  <td>{row.draws}</td>
-                  <td>{row.losses}</td>
-                  <td>{row.pf.toFixed(1)}</td>
-                  <td className={row.gd >= 0 ? styles.gdPos : styles.gdNeg}>
-                    {row.gd >= 0 ? '+' : ''}{row.gd.toFixed(1)}
-                  </td>
-                  <td className={styles.ptsCell}>{row.pts}</td>
-                </tr>
-              ))}
+              {standings.map((row, i) => {
+                const isOwn = row.teamId === myTeamId;
+                return (
+                  <tr
+                    key={row.teamId}
+                    className={`${styles.tableRow} ${isOwn ? styles.ownRow : ''}`}
+                  >
+                    <td className={styles.rankCell}>{formatRank(i + 1)}</td>
+                    <td className={styles.teamCell}>
+                      <span className={styles.teamCellName}>{row.teamName}</span>
+                    </td>
+                    <td className={styles.managerCell}>{row.username}</td>
+                    <td className={styles.ptsCell}>{row.pf.toFixed(1)}</td>
+                    <td>{row.wins}</td>
+                    <td>{row.draws}</td>
+                    <td>{row.losses}</td>
+                    <td className={row.gd >= 0 ? styles.gdPos : styles.gdNeg}>
+                      {row.gd >= 0 ? '+' : ''}{row.gd.toFixed(1)}
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         )}
