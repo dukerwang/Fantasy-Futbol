@@ -12,14 +12,14 @@
 
 .backLink {
     font-size: 0.875rem;
-    color: var(--text-secondary);
+    color: var(--color-text-secondary);
     text-decoration: none;
     font-weight: 500;
     transition: color var(--transition-fast);
 }
 
 .backLink:hover {
-    color: var(--text-primary);
+    color: var(--color-text-primary);
 }
 
 .headerContent {
@@ -31,7 +31,7 @@
 .title {
     font-size: 1.5rem;
     font-weight: 700;
-    color: var(--text-primary);
+    color: var(--color-text-primary);
     margin: 0;
 }
 
@@ -45,7 +45,7 @@
 }
 
 .badgeActive {
-    background: rgba(16, 185, 129, 0.1);
+    background: rgba(58, 107, 74, 0.1);
     color: var(--color-accent-green);
 }
 
@@ -84,7 +84,7 @@
 .championName {
     font-size: 1.125rem;
     font-weight: 700;
-    color: var(--text-primary);
+    color: var(--color-text-primary);
 }
 
 /* Bracket layout */
@@ -99,10 +99,10 @@
 .emptyBracket {
     padding: 3rem;
     text-align: center;
-    background: var(--bg-surface);
-    border: 1px dashed var(--border-color);
+    background: var(--color-bg-card);
+    border: 1px dashed var(--color-border);
     border-radius: 12px;
-    color: var(--text-secondary);
+    color: var(--color-text-secondary);
 }
 
 /* Round column */
@@ -119,22 +119,22 @@
     justify-content: space-between;
     align-items: baseline;
     padding-bottom: 0.5rem;
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--color-border);
 }
 
 .roundName {
     font-size: 0.875rem;
     font-weight: 700;
-    color: var(--text-primary);
+    color: var(--color-text-primary);
 }
 
 .roundGw {
     font-size: 0.75rem;
     font-weight: 500;
-    color: var(--text-muted);
+    color: var(--color-text-muted);
 }
 
-/* Matchups container — vertically spaces matchups to align with bracket flow */
+/* Matchups container */
 .matchups {
     display: flex;
     flex-direction: column;
@@ -145,15 +145,15 @@
 
 /* Individual matchup card */
 .matchup {
-    background: var(--bg-surface);
-    border: 1px solid var(--border-color);
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
     border-radius: 8px;
     overflow: hidden;
     position: relative;
 }
 
 .matchup:hover {
-    border-color: var(--text-muted);
+    border-color: var(--color-text-muted);
 }
 
 .matchupActive {
@@ -172,7 +172,7 @@
     font-weight: 800;
     letter-spacing: 0.05em;
     padding: 0.1rem 0.4rem;
-    background: rgba(16, 185, 129, 0.1);
+    background: rgba(58, 107, 74, 0.1);
     color: var(--color-accent-green);
     border-radius: 0 7px 0 4px;
     display: flex;
@@ -209,13 +209,13 @@
 }
 
 .teamRow:first-child {
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--color-border);
 }
 
 .teamLabel {
     font-size: 0.8rem;
     font-weight: 500;
-    color: var(--text-secondary);
+    color: var(--color-text-secondary);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -223,7 +223,7 @@
 }
 
 .winnerRow .teamLabel {
-    color: var(--text-primary);
+    color: var(--color-text-primary);
     font-weight: 700;
 }
 
@@ -241,7 +241,7 @@
 .legScore {
     font-size: 0.7rem;
     font-weight: 500;
-    color: var(--text-muted);
+    color: var(--color-text-muted);
     min-width: 28px;
     text-align: center;
 }
@@ -249,20 +249,20 @@
 .legDivider {
     width: 1px;
     height: 14px;
-    background: var(--border-color);
+    background: var(--color-border);
     margin: 0 0.15rem;
 }
 
 .totalScore {
     font-size: 0.85rem;
     font-weight: 700;
-    color: var(--text-primary);
+    color: var(--color-text-primary);
     min-width: 32px;
     text-align: right;
 }
 
 .winnerRow .totalScore {
-    color: var(--primary-accent);
+    color: var(--color-accent-green);
 }
 
 /* Responsive */

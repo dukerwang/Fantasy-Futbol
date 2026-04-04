@@ -16,7 +16,7 @@
   display: flex;
   gap: var(--space-5);
   padding: var(--space-6);
-  background: linear-gradient(135deg, #161a22 0%, #1c2130 100%);
+  background: linear-gradient(135deg, var(--color-bg-secondary) 0%, var(--color-bg-elevated) 100%);
   border-bottom: 1px solid var(--color-border);
   align-items: flex-start;
 }

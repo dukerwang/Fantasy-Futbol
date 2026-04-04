@@ -120,12 +120,33 @@ Three different player ID types exist. Never confuse them:
 
 ## Design System
 - **CSS Modules only** — no Tailwind, no inline styles, no styled-components
-- All tokens defined in `@/app/globals.css`
-- Key variables:
-  - `var(--color-bg-primary)` → #0a0c10
-  - `var(--color-text-primary)` → #e8eaf0
-  - `var(--color-pos-gk)`, `var(--color-pos-st)`, etc. for positional accents
-- Premium dark aesthetic — maintain high contrast throughout
+- All tokens defined in `src/app/globals.css` — never hardcode hex values in module CSS files
+- **"Pitch Archivist" light aesthetic** — cream editorial palette, NOT dark
+
+### Locked Color Tokens
+| Token | Value | Usage |
+|---|---|---|
+| `--color-bg-primary` | #F7F3ED | Main content area background |
+| `--color-bg-secondary` | #EDE8DE | Sidebar, topbar — warm cream anchor |
+| `--color-bg-card` | #FDFCF9 | Card surfaces — near white |
+| `--color-bg-card-hover` | #EDE8E0 | Hover/pressed state for cards |
+| `--color-bg-elevated` | #EDE8DE | Inset elements: inputs, secondary buttons |
+| `--color-border` | #C8C3BC | Standard borders |
+| `--color-border-subtle` | #D9D4CD | Subtle separators |
+| `--color-accent-green` | #3A6B4A | Primary accent — forest green |
+| `--color-text-primary` | #1C1C1C | Primary text |
+| `--color-text-secondary` | #4A4A4A | Secondary text |
+| `--color-text-muted` | #9A9488 | Muted/placeholder text |
+
+### Typography
+- `--font-serif`: Noto Serif — player names, team names, stat values, page headings
+- `--font-sans`: Inter — body text, labels, nav items
+
+### Forbidden Patterns
+- Never use stale dark tokens: `--bg-surface`, `--bg-elevated`, `--border-color`, `--text-primary`, `--text-secondary`, `--text-muted`, `--primary-accent`, `--bg-surface-light`
+- Never hardcode dark hex values: `#0d1117`, `#0a0c10`, `#111318`, `#161a22`, `#0f1117`, `#1c2130`
+- Never use `var(--color-bg-page, <dark-fallback>)` — use `var(--color-bg-primary)` directly
+- Positional accent colors: `var(--color-pos-gk)`, `var(--color-pos-st)`, etc.
 
 ## Core Mechanics (Read Before Touching Transfers or Scoring)
 
@@ -142,7 +163,7 @@ Three different player ID types exist. Never confuse them:
 - Minimum bid = 20% of Transfermarkt market value
 
 ### League Format
-- Dynasty (rosters persist year-over-year), 10 teams
+- Dynasty (rosters persist year-over-year), 4-10 teams
 - Season winner = most points after 38 games — no playoffs
 - Weekly matchups are for bragging rights and cup competitions only
 - Draw awarded when `ABS(score_a - score_b) <= 10`

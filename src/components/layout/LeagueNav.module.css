@@ -36,11 +36,11 @@
 
 .link:hover {
     color: var(--color-text-primary);
-    background: var(--color-bg-elevated);
+    background: var(--color-bg-card-hover);
 }
 
 .linkActive {
     color: var(--color-text-primary);
-    background: var(--color-bg-elevated);
+    background: var(--color-bg-card-hover);
     font-weight: var(--font-semibold);
 }
