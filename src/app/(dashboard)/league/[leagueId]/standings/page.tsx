@@ -25,7 +25,12 @@ interface StandingRow {
   rank: number;
 }
 
+const RANK_LABELS = ['1st', '2nd', '3rd'];
 const MEDALS = ['🥇', '🥈', '🥉'];
+
+function formatRank(n: number): string {
+  return String(n).padStart(2, '0');
+}
 
 export default async function StandingsPage({ params }: Props) {
   const { leagueId } = await params;
@@ -75,7 +80,7 @@ export default async function StandingsPage({ params }: Props) {
   }));
 
   const top3 = standings.slice(0, 3);
-  // Reorder: 2nd | 1st | 3rd for the podium layout
+  // Podium order: 2nd | 1st | 3rd
   const podiumOrder = top3.length >= 3
     ? [top3[1], top3[0], top3[2]]
     : top3.length === 2
@@ -117,25 +122,26 @@ export default async function StandingsPage({ params }: Props) {
                 key={row.teamId}
                 className={`${styles.podiumCard} ${isLeader ? styles.podiumCardLeader : ''}`}
               >
-                <div className={styles.podiumMedal}>{MEDALS[row.rank - 1] ?? row.rank}</div>
+                <p className={styles.podiumRank}>
+                  {MEDALS[row.rank - 1]} {RANK_LABELS[row.rank - 1] ?? `#${row.rank}`}
+                </p>
                 {isLeader && (
                   <div className={styles.podiumLeaderBadge}>
                     ★ League Leader
                   </div>
                 )}
                 <h2 className={styles.podiumTeamName}>{row.teamName}</h2>
-                <p className={styles.podiumManager}>Manager: {row.username}</p>
+                <p className={styles.podiumManager}>{row.username}</p>
                 <p className={styles.podiumRecord}>
                   {row.wins}
-                  <span className={styles.podiumRecordSep}>-</span>
+                  <span className={styles.podiumRecordSep}>—</span>
                   {row.draws}
-                  <span className={styles.podiumRecordSep}>-</span>
+                  <span className={styles.podiumRecordSep}>—</span>
                   {row.losses}
                 </p>
-                <div className={styles.podiumStats}>
-                  <span className={styles.podiumStatLabel}>Total Points</span>
-                  <span className={styles.podiumStatValue}>{row.pf.toFixed(1)}</span>
-                </div>
+                <div className={styles.podiumDivider} />
+                <p className={styles.podiumStatLabel}>Season Points</p>
+                <p className={styles.podiumStatValue}>{row.pf.toFixed(1)}</p>
               </div>
             );
           })}
@@ -145,9 +151,9 @@ export default async function StandingsPage({ params }: Props) {
       {/* Full standings table */}
       <section className={styles.tableSection}>
         <div className={styles.tableSectionHeader}>
-          <h2 className={styles.tableSectionTitle}>Season Standings</h2>
+          <h2 className={styles.tableSectionTitle}>Season Table</h2>
           <span className={styles.tableRule}>
-            W=3pts · D=1pt · L=0pts · Draw if gap ≤10 pts
+            W=3pts · D=1pt · L=0pts · Draw if gap ≤10
           </span>
         </div>
 
@@ -159,6 +165,7 @@ export default async function StandingsPage({ params }: Props) {
               <tr>
                 <th>#</th>
                 <th className={styles.teamHeading}>Team</th>
+                <th className={styles.managerHeading}>Manager</th>
                 <th>MP</th>
                 <th>W</th>
                 <th>D</th>
@@ -174,14 +181,12 @@ export default async function StandingsPage({ params }: Props) {
                   key={row.teamId}
                   className={`${styles.tableRow} ${row.teamId === membership?.id ? styles.ownRow : ''}`}
                 >
-                  <td className={styles.rankCell}>
-                    {i < 3 ? MEDALS[i] : i + 1}
-                  </td>
+                  <td className={styles.rankCell}>{formatRank(i + 1)}</td>
                   <td className={styles.teamCell}>
-                    <div className={styles.teamCellInner}>
-                      <span className={styles.teamCellName}>{row.teamName}</span>
-                      <span className={styles.teamCellManager}>{row.username}</span>
-                    </div>
+                    <span className={styles.teamCellName}>{row.teamName}</span>
+                  </td>
+                  <td className={styles.managerCell}>
+                    <span className={styles.managerCellText}>{row.username}</span>
                   </td>
                   <td>{row.played}</td>
                   <td>{row.wins}</td>
