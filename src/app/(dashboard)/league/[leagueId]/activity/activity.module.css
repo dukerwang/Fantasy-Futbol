@@ -146,7 +146,7 @@
 
 .card {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: var(--space-4);
   padding: 20px 24px;
   background: var(--color-bg-card);
@@ -164,31 +164,33 @@
 
 /* ── Icon Slot ── */
 
+/* Outer wrapper — uniform border + clip for all variants */
 .cardIconWrap {
   flex-shrink: 0;
   width: 48px;
   height: 48px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
+  background: var(--color-bg-elevated);
 }
 
-/* Photo from Transfermarkt */
+/* Photo from Transfermarkt — fills the wrapper exactly */
 .playerPhoto {
-  width: 48px;
-  height: 48px;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
   object-position: top center;
-  border-radius: var(--radius-sm);
-  background: var(--color-bg-elevated);
   display: block;
 }
 
 /* Position-colored fallback when no photo */
 .posAvatar {
-  width: 48px;
-  height: 48px;
-  border-radius: var(--radius-sm);
+  width: 100%;
+  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -199,11 +201,10 @@
   letter-spacing: 0.05em;
 }
 
-/* Icon containers for type-specific icons */
+/* Icon containers for type-specific icons — fill the wrapper */
 .iconSlot {
-  width: 48px;
-  height: 48px;
-  border-radius: var(--radius-sm);
+  width: 100%;
+  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
