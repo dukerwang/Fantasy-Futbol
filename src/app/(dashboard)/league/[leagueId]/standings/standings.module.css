@@ -178,10 +178,6 @@
   border-collapse: collapse;
 }
 
-.tableHead tr {
-  background: var(--color-bg-secondary);
-}
-
 .tableHead th {
   padding: var(--space-3) var(--space-6);
   font-family: var(--font-sans);
@@ -193,7 +189,7 @@
   text-align: right;
   white-space: nowrap;
   border-bottom: 1px solid var(--color-border);
-  /* No background here — inherits from tr */
+  background: var(--color-bg-secondary);
 }
 
 .tableHead th:first-child {

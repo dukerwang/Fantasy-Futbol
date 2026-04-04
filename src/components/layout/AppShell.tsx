@@ -14,9 +14,7 @@ interface Props {
 
 const IconLeague = () => (
   <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
-    <rect x="1" y="10" width="4" height="7" rx="1" fill="currentColor" />
-    <rect x="7" y="6" width="4" height="11" rx="1" fill="currentColor" />
-    <rect x="13" y="2" width="4" height="15" rx="1" fill="currentColor" />
+    <path d="M9 2L3 4.5V9c0 3.5 2.5 6.5 6 7.5 3.5-1 6-4 6-7.5V4.5L9 2Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
   </svg>
 );
 
