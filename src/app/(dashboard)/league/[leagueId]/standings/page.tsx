@@ -197,7 +197,7 @@ export default async function StandingsPage({ params }: Props) {
                 <th>L</th>
                 <th>PF</th>
                 <th>PA</th>
-                <th>Form</th>
+                <th className={styles.formHeading}>Form</th>
               </tr>
             </thead>
             <tbody>

@@ -75,7 +75,9 @@ const IconActivity = () => (
 
 const IconStandings = () => (
   <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
-    <path d="M9 2L11 7H16L12 10.5L13.5 16L9 13L4.5 16L6 10.5L2 7H7L9 2Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
+    <rect x="2" y="11" width="4" height="5" rx="1" fill="currentColor" />
+    <rect x="7" y="7" width="4" height="9" rx="1" fill="currentColor" />
+    <rect x="12" y="3" width="4" height="13" rx="1" fill="currentColor" />
   </svg>
 );
 
