@@ -2,11 +2,9 @@ import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { redirect, notFound } from 'next/navigation';
 import Link from 'next/link';
-import styles from '../league.module.css';
+import styles from './standings.module.css';
 
 export const dynamic = 'force-dynamic';
-
-const DRAW_THRESHOLD = 10; // points gap ≤ this = draw
 
 interface Props {
   params: Promise<{ leagueId: string }>;
@@ -19,26 +17,25 @@ interface StandingRow {
   wins: number;
   losses: number;
   draws: number;
-  pts: number;  // table points: 3W + 1D
-  pf: number;  // points for
-  pa: number;  // points against
-  gd: number;  // goal difference (pf - pa)
+  pts: number;   // league table points: 3W + 1D
+  pf: number;    // points for (total fantasy points scored)
+  pa: number;    // points against
+  gd: number;    // goal difference
   played: number;
+  rank: number;
 }
+
+const MEDALS = ['🥇', '🥈', '🥉'];
 
 export default async function StandingsPage({ params }: Props) {
   const { leagueId } = await params;
 
-  // Auth
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
 
   const admin = createAdminClient();
 
-  // League check
   const { data: league } = await admin
     .from('leagues')
     .select('id, name, season, commissioner_id')
@@ -47,7 +44,6 @@ export default async function StandingsPage({ params }: Props) {
 
   if (!league) notFound();
 
-  // Membership check
   const { data: membership } = await admin
     .from('teams')
     .select('id')
@@ -57,8 +53,6 @@ export default async function StandingsPage({ params }: Props) {
 
   if (!membership && league.commissioner_id !== user.id) redirect('/dashboard');
 
-  // Fetch all teams with their standings from the view
-  // Note: we included team_name and username in the view to avoid join issues
   const { data: standingsRaw } = await admin
     .from('league_standings')
     .select('*')
@@ -77,17 +71,30 @@ export default async function StandingsPage({ params }: Props) {
     pa: row.points_against,
     gd: row.goal_difference,
     pts: row.league_points,
+    rank: row.rank,
   }));
 
+  const top3 = standings.slice(0, 3);
+  // Reorder: 2nd | 1st | 3rd for the podium layout
+  const podiumOrder = top3.length >= 3
+    ? [top3[1], top3[0], top3[2]]
+    : top3.length === 2
+    ? [top3[1], top3[0]]
+    : top3;
+
   return (
-    <div>
+    <div className={styles.page}>
+
+      {/* Header */}
       <header className={styles.header}>
-        <div>
+        <div className={styles.titleBlock}>
           <p className={styles.breadcrumb}>
-            <Link href="/dashboard">Dashboard</Link> {' '}
-            <Link href={`/league/${leagueId}`}>{league.name}</Link> / Standings
+            <Link href="/dashboard">Dashboard</Link>
+            {' / '}
+            <Link href={`/league/${leagueId}`}>{league.name}</Link>
+            {' / Standings'}
           </p>
-          <h1 className={styles.leagueName}>Standings</h1>
+          <h1 className={styles.title}>Standings</h1>
           <p className={styles.season}>{league.season} Season</p>
         </div>
         <div className={styles.headerActions}>
@@ -100,60 +107,98 @@ export default async function StandingsPage({ params }: Props) {
         </div>
       </header>
 
-      <section className={styles.card}>
-        <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.75rem', marginBottom: '0.75rem' }}>
-          <h2 className={styles.cardTitle} style={{ margin: 0 }}>Season Standings</h2>
-          <span style={{ fontSize: '0.7rem', color: 'var(--color-text-muted, #6b7280)', fontStyle: 'italic' }}>
+      {/* Podium — top 3 */}
+      {standings.length >= 1 && (
+        <div className={styles.podium}>
+          {podiumOrder.map((row) => {
+            const isLeader = row.rank === 1;
+            return (
+              <div
+                key={row.teamId}
+                className={`${styles.podiumCard} ${isLeader ? styles.podiumCardLeader : ''}`}
+              >
+                <div className={styles.podiumMedal}>{MEDALS[row.rank - 1] ?? row.rank}</div>
+                {isLeader && (
+                  <div className={styles.podiumLeaderBadge}>
+                    ★ League Leader
+                  </div>
+                )}
+                <h2 className={styles.podiumTeamName}>{row.teamName}</h2>
+                <p className={styles.podiumManager}>Manager: {row.username}</p>
+                <p className={styles.podiumRecord}>
+                  {row.wins}
+                  <span className={styles.podiumRecordSep}>-</span>
+                  {row.draws}
+                  <span className={styles.podiumRecordSep}>-</span>
+                  {row.losses}
+                </p>
+                <div className={styles.podiumStats}>
+                  <span className={styles.podiumStatLabel}>Total Points</span>
+                  <span className={styles.podiumStatValue}>{row.pf.toFixed(1)}</span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Full standings table */}
+      <section className={styles.tableSection}>
+        <div className={styles.tableSectionHeader}>
+          <h2 className={styles.tableSectionTitle}>Season Standings</h2>
+          <span className={styles.tableRule}>
             W=3pts · D=1pt · L=0pts · Draw if gap ≤10 pts
           </span>
         </div>
-        <div className={styles.standingsTable}>
-          {/* Header */}
-          <div
-            className={styles.tableHeader}
-            style={{ gridTemplateColumns: '36px 1fr 42px 42px 42px 42px 70px 70px 60px' }}
-          >
-            <span className={styles.rankCol}>#</span>
-            <span className={styles.teamCol}>Team</span>
-            <span className={styles.numCol}>MP</span>
-            <span className={styles.numCol}>W</span>
-            <span className={styles.numCol}>D</span>
-            <span className={styles.numCol}>L</span>
-            <span className={styles.numCol}>PF</span>
-            <span className={styles.numCol}>GD</span>
-            <span className={styles.numCol} style={{ fontWeight: 800, color: 'var(--color-text-primary, #f3f4f6)' }}>Pts</span>
-          </div>
 
-          {standings.length === 0 ? (
-            <p className={styles.emptyCard}>No completed matches yet.</p>
-          ) : (
-            standings.map((row, i) => (
-              <div
-                key={row.teamId}
-                className={`${styles.tableRow} ${row.teamId === membership?.id ? styles.ownRow : ''}`}
-                style={{ gridTemplateColumns: '36px 1fr 42px 42px 42px 42px 70px 70px 60px' }}
-              >
-                <span className={styles.rankCol}>
-                  {i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : i + 1}
-                </span>
-                <div className={styles.teamCol}>
-                  <span className={styles.teamRowName}>{row.teamName}</span>
-                  <span className={styles.teamRowUser}>{row.username}</span>
-                </div>
-                <span className={styles.numCol}>{row.played}</span>
-                <span className={styles.numCol}>{row.wins}</span>
-                <span className={styles.numCol}>{row.draws}</span>
-                <span className={styles.numCol}>{row.losses}</span>
-                <span className={styles.numCol}>{row.pf.toFixed(1)}</span>
-                <span className={styles.numCol} style={{ color: row.gd >= 0 ? '#10b981' : '#ef4444' }}>
-                  {row.gd >= 0 ? '+' : ''}{row.gd.toFixed(1)}
-                </span>
-                <span className={styles.numCol} style={{ fontWeight: 800, fontSize: '1rem' }}>{row.pts}</span>
-              </div>
-            ))
-          )}
-        </div>
+        {standings.length === 0 ? (
+          <p className={styles.emptyState}>No completed matches yet — check back after Gameweek 1.</p>
+        ) : (
+          <table className={styles.table}>
+            <thead className={styles.tableHead}>
+              <tr>
+                <th>#</th>
+                <th className={styles.teamHeading}>Team</th>
+                <th>MP</th>
+                <th>W</th>
+                <th>D</th>
+                <th>L</th>
+                <th>PF</th>
+                <th>GD</th>
+                <th>Pts</th>
+              </tr>
+            </thead>
+            <tbody>
+              {standings.map((row, i) => (
+                <tr
+                  key={row.teamId}
+                  className={`${styles.tableRow} ${row.teamId === membership?.id ? styles.ownRow : ''}`}
+                >
+                  <td className={styles.rankCell}>
+                    {i < 3 ? MEDALS[i] : i + 1}
+                  </td>
+                  <td className={styles.teamCell}>
+                    <div className={styles.teamCellInner}>
+                      <span className={styles.teamCellName}>{row.teamName}</span>
+                      <span className={styles.teamCellManager}>{row.username}</span>
+                    </div>
+                  </td>
+                  <td>{row.played}</td>
+                  <td>{row.wins}</td>
+                  <td>{row.draws}</td>
+                  <td>{row.losses}</td>
+                  <td>{row.pf.toFixed(1)}</td>
+                  <td className={row.gd >= 0 ? styles.gdPos : styles.gdNeg}>
+                    {row.gd >= 0 ? '+' : ''}{row.gd.toFixed(1)}
+                  </td>
+                  <td className={styles.ptsCell}>{row.pts}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </section>
+
     </div>
   );
 }

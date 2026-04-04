@@ -44,3 +44,6 @@ next-env.d.ts
 tmp_*.ts
 tmp_*.js
 *.log
+
+# Cursor IDE local config (may contain API keys)
+.cursor/
