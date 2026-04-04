@@ -175,9 +175,6 @@
   border: 1px solid var(--color-border-subtle);
 }
 
-.table tbody {
-  background: var(--color-bg-card);
-}
 
 .table {
   width: 100%;
@@ -215,10 +212,11 @@
   text-align: center;
 }
 
-/* Rows */
+/* Rows — explicit background on every row so the section's beige never bleeds through */
 .tableRow {
   border-top: 1px solid rgba(200, 195, 188, 0.3);
   transition: background var(--transition-fast);
+  background: var(--color-bg-card);
 }
 
 .tableRow:first-child {
@@ -226,7 +224,7 @@
 }
 
 .tableRow:nth-child(odd) {
-  background: rgba(242, 237, 228, 0.3);
+  background: #f9f6f1;
 }
 
 .tableRow:hover {
@@ -242,10 +240,9 @@
   background: rgba(58, 107, 74, 0.09) !important;
 }
 
-/* Left accent bar lives on the first cell so it doesn't fight border-collapse */
+/* Inset shadow accent — no box-model impact, no border-collapse conflict */
 .ownRow td:first-child {
-  border-left: 4px solid var(--color-accent-green);
-  padding-left: calc(var(--space-6) - 4px);
+  box-shadow: inset 4px 0 0 var(--color-accent-green);
 }
 
 .tableRow td {
