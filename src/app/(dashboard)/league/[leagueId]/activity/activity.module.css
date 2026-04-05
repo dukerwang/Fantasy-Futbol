@@ -435,6 +435,7 @@
   border: 1px solid var(--color-border-subtle);
   border-radius: var(--radius-md);
   overflow: hidden;
+  flex-shrink: 0;
 }
 
 .widgetHeader {
