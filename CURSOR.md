@@ -49,9 +49,12 @@ A major UI overhaul is underway. The app previously used a generic dark theme. I
 - ✅ **Free Agency / Player Market** — tabbed layout (Player Market + Active Auctions), cream editorial player cards, Recent Auctions sidebar, redesigned bid modal with bid history, client-side search + position filters (including LM/RM)
 
 ### What Still Needs Work (Priority Order)
-1. **Matchups** (`matchups/page.tsx`, `matchups/matchups.module.css`) — Stitch prototype: matchup cards with GW selector
-2. **Trades** (`trades/TradesClient.tsx`, `trades.module.css`) — Stitch prototype: tabbed trade UI
-3. Final sweep: any remaining hardcoded hex values across all module CSS files
+1. **League Home** (`league/[leagueId]/page.tsx`) — landing page after selecting a league; likely standings summary + recent matchup + upcoming fixture
+2. **Matchups** (`matchups/page.tsx`, `matchups/matchups.module.css`) — Stitch prototype: matchup cards with GW selector
+3. **Cups / Tournaments** (`tournaments/page.tsx`, `tournaments.module.css`) — bracket / cup round UI
+4. **Trades** (`trades/TradesClient.tsx`, `trades.module.css`) — Stitch prototype: tabbed trade UI
+5. **Shared UI subcomponents** — player cards (used across team, matchups, stats), any other reusable components that still carry dark-mode or placeholder styles
+6. Final sweep: any remaining hardcoded hex values across all module CSS files
 
 ---
 
