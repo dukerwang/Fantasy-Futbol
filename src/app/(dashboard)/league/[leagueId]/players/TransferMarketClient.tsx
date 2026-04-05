@@ -1,8 +1,7 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import type { AuctionListing, Player, GranularPosition } from '@/types';
 import { formatPlayerName } from '@/lib/formatName';
 import styles from './transfers.module.css';
@@ -36,14 +35,11 @@ interface RecentActivityItem {
 
 interface Props {
   leagueId: string;
-  leagueName: string;
   initialAuctions: AuctionListing[];
   initialFreeAgents: (Player & { web_name?: string })[];
   initialMyTeam: MyTeamInfo;
   initialMyRoster: RosterPlayer[];
   initialRosterFull: boolean;
-  initialQ: string;
-  initialPos: string;
   initialRecentActivity: RecentActivityItem[];
 }
 
@@ -110,24 +106,26 @@ const ANTI_SNIPE_WINDOW_MS = 60 * 60 * 1_000;
 
 export default function TransferMarketClient({
   leagueId,
-  leagueName,
   initialAuctions,
   initialFreeAgents,
   initialMyTeam,
   initialMyRoster,
   initialRosterFull,
-  initialQ,
-  initialPos,
   initialRecentActivity,
 }: Props) {
   const [auctions, setAuctions] = useState<AuctionListing[]>(initialAuctions);
-  const [freeAgents, setFreeAgents] = useState<(Player & { web_name?: string })[]>(initialFreeAgents);
+  // Full unfiltered list — refreshed from API; search filters client-side
+  const [allFreeAgents, setAllFreeAgents] = useState<(Player & { web_name?: string })[]>(initialFreeAgents);
   const [myTeam, setMyTeam] = useState<MyTeamInfo>(initialMyTeam);
   const [myRoster, setMyRoster] = useState<RosterPlayer[]>(initialMyRoster);
   const [rosterFull, setRosterFull] = useState(initialRosterFull);
   const [activeTab, setActiveTab] = useState<'market' | 'auctions'>('market');
 
-  const router = useRouter();
+  // Client-side search/filter state
+  const [searchQ, setSearchQ] = useState('');
+  const [searchPos, setSearchPos] = useState('');
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
   const [now, setNow] = useState(Date.now());
   useEffect(() => {
     const id = setInterval(() => setNow(Date.now()), 1_000);
@@ -151,6 +149,29 @@ export default function TransferMarketClient({
   const [submitting, setSubmitting] = useState(false);
   const [viewingPlayer, setViewingPlayer] = useState<Player | null>(null);
 
+  // ── Client-side filtering ────────────────────────────────────────────────────
+
+  const freeAgents = useMemo(() => {
+    let list = allFreeAgents;
+    if (searchQ.trim()) {
+      const q = searchQ.trim().toLowerCase();
+      list = list.filter(
+        (p) =>
+          p.name.toLowerCase().includes(q) ||
+          (p.web_name ?? '').toLowerCase().includes(q) ||
+          (p.pl_team ?? '').toLowerCase().includes(q),
+      );
+    }
+    if (searchPos) {
+      list = list.filter(
+        (p) =>
+          p.primary_position === searchPos ||
+          (p.secondary_positions ?? []).includes(searchPos as any),
+      );
+    }
+    return list;
+  }, [allFreeAgents, searchQ, searchPos]);
+
   // ── Refresh ─────────────────────────────────────────────────────────────────
 
   const refresh = useCallback(async () => {
@@ -160,7 +181,7 @@ export default function TransferMarketClient({
       if (!res.ok) return;
       const data = await res.json();
       setAuctions(data.auctions ?? []);
-      setFreeAgents(data.freeAgents ?? []);
+      setAllFreeAgents(data.freeAgents ?? []); // preserve searchQ/searchPos
       setMyTeam(data.myTeam);
       setMyRoster(data.myRoster ?? []);
       setRosterFull(data.rosterFull ?? false);
@@ -249,14 +270,10 @@ export default function TransferMarketClient({
   function handleSearch(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-    const q = formData.get('q') as string;
-    const params = new URLSearchParams();
-    if (q) params.set('q', q);
-    if (initialPos) params.set('pos', initialPos);
-    router.push(`/league/${leagueId}/players?${params.toString()}`);
+    setSearchQ((formData.get('q') as string) ?? '');
   }
 
-  const positions = ['GK', 'CB', 'LB', 'RB', 'DM', 'CM', 'AM', 'LW', 'RW', 'ST'];
+  const positions = ['GK', 'CB', 'LB', 'RB', 'DM', 'CM', 'LM', 'RM', 'AM', 'LW', 'RW', 'ST'];
 
   // ── Bid stepper ─────────────────────────────────────────────────────────────
 
@@ -325,35 +342,50 @@ export default function TransferMarketClient({
             {/* Search */}
             <form onSubmit={handleSearch} className={styles.searchRow}>
               <input
+                ref={searchInputRef}
                 name="q"
-                defaultValue={initialQ}
+                defaultValue=""
                 className={styles.searchInput}
-                placeholder="Search players — name, club, or position"
+                placeholder="Search by name or club…"
+                onChange={(e) => setSearchQ(e.target.value)}
               />
-              <button type="submit" className={styles.searchBtn}>Search</button>
+              {searchQ && (
+                <button
+                  type="button"
+                  className={styles.searchBtn}
+                  onClick={() => {
+                    setSearchQ('');
+                    if (searchInputRef.current) searchInputRef.current.value = '';
+                  }}
+                >
+                  Clear
+                </button>
+              )}
             </form>
 
             {/* Position filters */}
             <div className={styles.posFilters}>
-              <a
-                href={`/league/${leagueId}/players`}
-                className={`${styles.posFilter} ${!initialPos ? styles.posFilterActive : ''}`}
+              <button
+                type="button"
+                className={`${styles.posFilter} ${!searchPos ? styles.posFilterActive : ''}`}
+                onClick={() => setSearchPos('')}
               >
                 ALL
-              </a>
+              </button>
               {positions.map((p) => (
-                <a
+                <button
                   key={p}
-                  href={`/league/${leagueId}/players?pos=${p}${initialQ ? `&q=${initialQ}` : ''}`}
-                  className={`${styles.posFilter} ${initialPos === p ? styles.posFilterActive : ''}`}
+                  type="button"
+                  className={`${styles.posFilter} ${searchPos === p ? styles.posFilterActive : ''}`}
+                  onClick={() => setSearchPos(searchPos === p ? '' : p)}
                 >
                   {p}
-                </a>
+                </button>
               ))}
             </div>
 
             <p className={styles.resultCount}>
-              {freeAgents.length} player{freeAgents.length !== 1 ? 's' : ''} available
+              {freeAgents.length} of {allFreeAgents.length} player{allFreeAgents.length !== 1 ? 's' : ''} shown
             </p>
 
             <div className={styles.playerList}>

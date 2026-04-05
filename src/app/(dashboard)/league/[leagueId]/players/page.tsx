@@ -9,12 +9,11 @@ export const dynamic = 'force-dynamic';
 
 interface Props {
   params: Promise<{ leagueId: string }>;
-  searchParams: Promise<{ q?: string; pos?: string }>;
+  searchParams: Promise<Record<string, string>>;
 }
 
-export default async function TransferMarketPage({ params, searchParams }: Props) {
+export default async function TransferMarketPage({ params }: Props) {
   const { leagueId } = await params;
-  const { q, pos } = await searchParams;
 
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -119,16 +118,7 @@ export default async function TransferMarketPage({ params, searchParams }: Props
 
   // Filter for Free Agents (not rostered, not auctioned)
   const excludedIds = new Set([...rosteredPlayerIds, ...auctionedPlayerIds]);
-  let freeAgents = allActivePlayersWithRanks.filter(p => !excludedIds.has(p.id));
-
-  // Handle Search and Position filters
-  if (q) {
-    const queryLower = q.toLowerCase();
-    freeAgents = freeAgents.filter(p => p.name.toLowerCase().includes(queryLower) || p.web_name?.toLowerCase().includes(queryLower));
-  }
-  if (pos) {
-    freeAgents = freeAgents.filter(p => p.primary_position === pos || p.secondary_positions?.includes(pos as any));
-  }
+  const freeAgents = allActivePlayersWithRanks.filter(p => !excludedIds.has(p.id));
 
   // My roster for the drop dropdown
   const { data: myRosterEntries } = await (admin
@@ -164,14 +154,11 @@ export default async function TransferMarketPage({ params, searchParams }: Props
   return (
     <TransferMarketClient
       leagueId={leagueId}
-      leagueName={league.name}
       initialAuctions={(auctions ?? []) as any[]}
-      initialFreeAgents={(freeAgents.slice(0, 100) ?? []) as any[]}
+      initialFreeAgents={freeAgents as any[]}
       initialMyTeam={{ id: myTeam.id, faab_budget: myTeam.faab_budget, team_name: myTeam.team_name }}
       initialMyRoster={myRoster as any[]}
       initialRosterFull={rosterFull}
-      initialQ={q ?? ''}
-      initialPos={pos ?? ''}
       initialRecentActivity={(recentActivity ?? []) as any[]}
     />
   );

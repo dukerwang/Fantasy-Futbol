@@ -120,8 +120,7 @@ export async function GET(_req: NextRequest, { params }: Props) {
     .from('players')
     .select('id, fpl_id, api_football_id, web_name, name, full_name, date_of_birth, nationality, pl_team, pl_team_id, primary_position, secondary_positions, market_value, market_value_updated_at, projected_points, photo_url, height_cm, fpl_status, fpl_news, total_points, form_rating, ppg, is_active, transfermarkt_id, created_at, updated_at')
     .eq('is_active', true)
-    .order('market_value', { ascending: false })
-    .limit(60);
+    .order('total_points', { ascending: false, nullsFirst: false });
 
   if (excludedIds.length > 0) {
     freeAgentQuery = freeAgentQuery.not('id', 'in', `(${excludedIds.join(',')})`);
