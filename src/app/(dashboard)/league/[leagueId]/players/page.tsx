@@ -12,8 +12,9 @@ interface Props {
   searchParams: Promise<Record<string, string>>;
 }
 
-export default async function TransferMarketPage({ params }: Props) {
+export default async function TransferMarketPage({ params, searchParams }: Props) {
   const { leagueId } = await params;
+  const { tab } = await searchParams;
 
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -154,6 +155,7 @@ export default async function TransferMarketPage({ params }: Props) {
   return (
     <TransferMarketClient
       leagueId={leagueId}
+      initialTab={tab === 'auctions' ? 'auctions' : 'market'}
       initialAuctions={(auctions ?? []) as any[]}
       initialFreeAgents={freeAgents as any[]}
       initialMyTeam={{ id: myTeam.id, faab_budget: myTeam.faab_budget, team_name: myTeam.team_name }}

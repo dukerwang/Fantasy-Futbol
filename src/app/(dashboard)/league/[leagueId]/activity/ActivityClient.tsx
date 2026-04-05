@@ -619,11 +619,15 @@ function BidCard({ claim, myTeamId }: { claim: WaiverClaim; myTeamId: string | n
   );
 }
 
+const AUCTION_PREVIEW_LIMIT = 4;
+
 function RightSidebar({
+  leagueId,
   liveAuctions,
   teams,
   myTeamId,
 }: {
+  leagueId: string;
   liveAuctions: WaiverClaim[];
   teams: Team[];
   myTeamId: string | null;
@@ -632,6 +636,8 @@ function RightSidebar({
     () => groupAuctions(liveAuctions, myTeamId),
     [liveAuctions, myTeamId],
   );
+  const visibleAuctions = auctions.slice(0, AUCTION_PREVIEW_LIMIT);
+  const overflow = auctions.length - AUCTION_PREVIEW_LIMIT;
 
   return (
     <aside className={styles.sidebar}>
@@ -646,54 +652,66 @@ function RightSidebar({
         {auctions.length === 0 ? (
           <p className={styles.widgetEmpty}>No active auctions right now.</p>
         ) : (
-          <div className={styles.auctionList}>
-            {auctions.map((a) => {
-              const posColor =
-                POS_COLOR_MAP[a.player.primary_position] ??
-                'var(--color-text-muted)';
-              return (
-                <div key={a.player.id} className={styles.auctionItem}>
-                  <div className={styles.auctionIcon}>
-                    {a.player.photo_url ? (
-                      <img
-                        src={a.player.photo_url}
-                        alt={a.player.web_name ?? a.player.name}
-                        className={styles.auctionPhoto}
-                      />
-                    ) : (
-                      <div
-                        className={styles.auctionPosAvatar}
-                        style={{ backgroundColor: posColor }}
-                      >
-                        {a.player.primary_position}
+          <>
+            <div className={styles.auctionList}>
+              {visibleAuctions.map((a) => {
+                const posColor =
+                  POS_COLOR_MAP[a.player.primary_position] ??
+                  'var(--color-text-muted)';
+                return (
+                  <div key={a.player.id} className={styles.auctionItem}>
+                    <div className={styles.auctionIcon}>
+                      {a.player.photo_url ? (
+                        <img
+                          src={a.player.photo_url}
+                          alt={a.player.web_name ?? a.player.name}
+                          className={styles.auctionPhoto}
+                        />
+                      ) : (
+                        <div
+                          className={styles.auctionPosAvatar}
+                          style={{ backgroundColor: posColor }}
+                        >
+                          {a.player.primary_position}
+                        </div>
+                      )}
+                    </div>
+                    <div className={styles.auctionBody}>
+                      <div className={styles.auctionPlayerRow}>
+                        <span className={styles.auctionPlayerName}>
+                          {a.player.web_name ?? formatPlayerName(a.player)}
+                        </span>
+                        <span
+                          className={styles.auctionPosBadge}
+                          style={{ backgroundColor: posColor }}
+                        >
+                          {a.player.primary_position}
+                        </span>
                       </div>
-                    )}
-                  </div>
-                  <div className={styles.auctionBody}>
-                    <div className={styles.auctionPlayerRow}>
-                      <span className={styles.auctionPlayerName}>
-                        {a.player.web_name ?? formatPlayerName(a.player)}
-                      </span>
-                      <span
-                        className={styles.auctionPosBadge}
-                        style={{ backgroundColor: posColor }}
-                      >
-                        {a.player.primary_position}
-                      </span>
-                    </div>
-                    <div className={styles.auctionMeta}>
-                      <span className={styles.auctionBid}>
-                        Top bid: £{a.topBid}m
-                      </span>
-                      <span className={styles.auctionTimer}>
-                        {getTimeRemaining(a.expiresAt)}
-                      </span>
+                      <div className={styles.auctionMeta}>
+                        <span className={styles.auctionBid}>
+                          Top bid: £{a.topBid}m
+                        </span>
+                        <span className={styles.auctionTimer}>
+                          {getTimeRemaining(a.expiresAt)}
+                        </span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+            {overflow > 0 && (
+              <div className={styles.widgetFooter}>
+                <a
+                  href={`/league/${leagueId}/players?tab=auctions`}
+                  className={styles.widgetFooterLink}
+                >
+                  +{overflow} more auction{overflow !== 1 ? 's' : ''} →
+                </a>
+              </div>
+            )}
+          </>
         )}
       </div>
 
@@ -748,6 +766,7 @@ function RightSidebar({
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export default function ActivityClient({
+  leagueId,
   leagueName,
   myTeamId,
   transactions,
@@ -857,6 +876,7 @@ export default function ActivityClient({
 
       {/* Right Sidebar */}
       <RightSidebar
+        leagueId={leagueId}
         liveAuctions={liveAuctions}
         teams={teams}
         myTeamId={myTeamId}

@@ -35,6 +35,7 @@ interface RecentActivityItem {
 
 interface Props {
   leagueId: string;
+  initialTab?: 'market' | 'auctions';
   initialAuctions: AuctionListing[];
   initialFreeAgents: (Player & { web_name?: string })[];
   initialMyTeam: MyTeamInfo;
@@ -106,6 +107,7 @@ const ANTI_SNIPE_WINDOW_MS = 60 * 60 * 1_000;
 
 export default function TransferMarketClient({
   leagueId,
+  initialTab = 'market',
   initialAuctions,
   initialFreeAgents,
   initialMyTeam,
@@ -119,7 +121,7 @@ export default function TransferMarketClient({
   const [myTeam, setMyTeam] = useState<MyTeamInfo>(initialMyTeam);
   const [myRoster, setMyRoster] = useState<RosterPlayer[]>(initialMyRoster);
   const [rosterFull, setRosterFull] = useState(initialRosterFull);
-  const [activeTab, setActiveTab] = useState<'market' | 'auctions'>('market');
+  const [activeTab, setActiveTab] = useState<'market' | 'auctions'>(initialTab);
 
   // Client-side search/filter state
   const [searchQ, setSearchQ] = useState('');

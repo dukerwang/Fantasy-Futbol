@@ -469,6 +469,23 @@
   margin: 0;
 }
 
+.widgetFooter {
+  padding: 10px 16px;
+  border-top: 1px solid var(--color-border-subtle);
+}
+
+.widgetFooterLink {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-accent-green);
+  text-decoration: none;
+  transition: opacity 0.15s;
+}
+
+.widgetFooterLink:hover {
+  opacity: 0.75;
+}
+
 /* ── Live Auctions ── */
 
 .auctionList {
