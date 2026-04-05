@@ -576,82 +576,46 @@ function groupAuctions(liveAuctions: WaiverClaim[], myTeamId: string | null): Au
   );
 }
 
-// ─── Live Bids Section (main feed) ───────────────────────────────────────────
+// ─── Bid Card (inline in feed) ───────────────────────────────────────────────
 
-function LiveBidsSection({
-  liveAuctions,
-  myTeamId,
-}: {
-  liveAuctions: WaiverClaim[];
-  myTeamId: string | null;
-}) {
-  const auctions = useMemo(
-    () => groupAuctions(liveAuctions, myTeamId),
-    [liveAuctions, myTeamId],
-  );
-
-  if (auctions.length === 0) return null;
+function BidCard({ claim, myTeamId }: { claim: WaiverClaim; myTeamId: string | null }) {
+  const player = claim.player;
+  const isMe = claim.team_id === myTeamId;
+  const playerName = player ? (player.web_name ?? formatPlayerName(player)) : '—';
+  const posColor = player ? (POS_COLOR_MAP[player.primary_position] ?? 'var(--color-text-muted)') : undefined;
 
   return (
-    <section className={styles.dateGroup}>
-      <div className={styles.dateLabelRow}>
-        <span className={styles.dateLabel}>LIVE AUCTIONS</span>
-        <div className={styles.dateRule} />
+    <article className={styles.card} style={{ borderLeftColor: '#d97706' }}>
+      <div className={styles.cardIconWrap}>
+        {player?.photo_url ? (
+          <img src={player.photo_url} alt={playerName} className={styles.playerPhoto} />
+        ) : player ? (
+          <div className={styles.posAvatar} style={{ backgroundColor: posColor }}>
+            {player.primary_position}
+          </div>
+        ) : (
+          <div className={`${styles.iconSlot} ${styles.iconSlotGray}`}><IconQuestion /></div>
+        )}
       </div>
-      <div className={styles.cards}>
-        {auctions.map((a) => {
-          const posColor = POS_COLOR_MAP[a.player.primary_position] ?? 'var(--color-text-muted)';
-          return (
-            <article
-              key={a.player.id}
-              className={styles.card}
-              style={{ borderLeftColor: '#d97706' }}
-            >
-              <div className={styles.cardIconWrap}>
-                {a.player.photo_url ? (
-                  <img
-                    src={a.player.photo_url}
-                    alt={a.player.web_name ?? a.player.name}
-                    className={styles.playerPhoto}
-                  />
-                ) : (
-                  <div className={styles.posAvatar} style={{ backgroundColor: posColor }}>
-                    {a.player.primary_position}
-                  </div>
-                )}
-              </div>
-              <div className={styles.cardBody}>
-                <div className={styles.cardHeader}>
-                  <span className={`${styles.typeBadge} ${styles.badge_amber}`}>
-                    LIVE BID
-                  </span>
-                  <span className={styles.timestamp}>
-                    {getTimeRemaining(a.expiresAt)}
-                  </span>
-                </div>
-                <p className={styles.cardMain}>
-                  <strong className={styles.cardPlayer}>
-                    {a.player.web_name ?? formatPlayerName(a.player)}
-                  </strong>
-                  <PositionBadge position={a.player.primary_position} />
-                  {a.player.pl_team && (
-                    <span className={styles.cardClub}>· {a.player.pl_team}</span>
-                  )}
-                </p>
-                <p className={styles.cardMeta}>
-                  {a.bidCount} bid{a.bidCount !== 1 ? 's' : ''} · Top: £{a.topBid}m
-                  {a.myBid !== null && (
-                    <span style={{ color: 'var(--color-accent-green)', fontWeight: 700 }}>
-                      {' '}· Your bid: £{a.myBid}m
-                    </span>
-                  )}
-                </p>
-              </div>
-            </article>
-          );
-        })}
+      <div className={styles.cardBody}>
+        <div className={styles.cardHeader}>
+          <span className={`${styles.typeBadge} ${isMe ? styles.badge_amber : styles.badge_gray}`}>
+            {isMe ? 'YOUR BID' : 'BID PLACED'}
+          </span>
+          <span className={styles.timestamp}>{getRelativeTime(claim.created_at)}</span>
+        </div>
+        <p className={styles.cardMain}>
+          <strong className={styles.cardTeam}>{claim.team?.team_name ?? 'Unknown'}</strong>
+          <span className={styles.cardVerb}> bid </span>
+          <strong className={styles.cardPlayer}>£{claim.faab_bid}m</strong>
+          <span className={styles.cardVerb}> on </span>
+          <strong className={styles.cardPlayer}>{playerName}</strong>
+          {player && <PositionBadge position={player.primary_position} />}
+          {player?.pl_team && <span className={styles.cardClub}>· {player.pl_team}</span>}
+        </p>
+        <p className={styles.cardMeta}>{getTimeRemaining(claim.expires_at)} · Pending</p>
       </div>
-    </section>
+    </article>
   );
 }
 
@@ -792,28 +756,49 @@ export default function ActivityClient({
 }: Props) {
   const [filter, setFilter] = useState<FilterKey>('all');
 
+  type FeedItem =
+    | { kind: 'tx'; ts: string; data: Transaction }
+    | { kind: 'bid'; ts: string; data: WaiverClaim };
+
   const grouped = useMemo(() => {
-    const filtered =
+    const items: FeedItem[] = [];
+
+    // Completed transactions — respect the active filter
+    const filteredTx =
       filter === 'all'
         ? transactions
         : transactions.filter((tx) => FILTER_MAP[filter].includes(tx.type));
+    for (const tx of filteredTx) {
+      items.push({ kind: 'tx', ts: tx.processed_at, data: tx });
+    }
 
-    const groups: { label: string; items: Transaction[] }[] = [];
+    // Pending bids — shown in "all" and "bids" views
+    if (filter === 'all' || filter === 'bids') {
+      for (const claim of liveAuctions) {
+        if (!claim.player) continue;
+        items.push({ kind: 'bid', ts: claim.created_at, data: claim });
+      }
+    }
+
+    // Sort newest first
+    items.sort((a, b) => new Date(b.ts).getTime() - new Date(a.ts).getTime());
+
+    // Group by date label
+    const groups: { label: string; items: FeedItem[] }[] = [];
     const seen = new Map<string, number>();
-
-    for (const tx of filtered) {
-      const label = getDateLabel(tx.processed_at);
+    for (const item of items) {
+      const label = getDateLabel(item.ts);
       const idx = seen.get(label);
       if (idx === undefined) {
-        groups.push({ label, items: [tx] });
+        groups.push({ label, items: [item] });
         seen.set(label, groups.length - 1);
       } else {
-        groups[idx].items.push(tx);
+        groups[idx].items.push(item);
       }
     }
 
     return groups;
-  }, [transactions, filter]);
+  }, [transactions, liveAuctions, filter]);
 
   return (
     <div className={styles.layout}>
@@ -827,9 +812,6 @@ export default function ActivityClient({
             Every move, every deal — the full record of {leagueName}.
           </p>
         </header>
-
-        {/* Live Auctions — pending bids visible to all managers */}
-        <LiveBidsSection liveAuctions={liveAuctions} myTeamId={myTeamId} />
 
         {/* Filter Chips */}
         <div className={styles.filterChips} role="group" aria-label="Filter transactions">
@@ -859,9 +841,13 @@ export default function ActivityClient({
                   <div className={styles.dateRule} />
                 </div>
                 <div className={styles.cards}>
-                  {group.items.map((tx) => (
-                    <TransactionCard key={tx.id} tx={tx} />
-                  ))}
+                  {group.items.map((item) =>
+                    item.kind === 'tx' ? (
+                      <TransactionCard key={item.data.id} tx={item.data} />
+                    ) : (
+                      <BidCard key={item.data.id} claim={item.data} myTeamId={myTeamId} />
+                    ),
+                  )}
                 </div>
               </section>
             ))}
