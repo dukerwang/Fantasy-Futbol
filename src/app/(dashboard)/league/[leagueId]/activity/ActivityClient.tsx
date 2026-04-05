@@ -35,8 +35,10 @@ interface Transaction {
 
 interface WaiverClaim {
   id: string;
+  team_id: string | null;
   faab_bid: number;
   created_at: string;
+  expires_at: string;
   player: Player | null;
   team: Team | null;
 }
@@ -168,8 +170,8 @@ function getRelativeTime(processed_at: string): string {
   );
 }
 
-function getTimeRemaining(createdAt: string): string {
-  const end = new Date(new Date(createdAt).getTime() + 48 * 60 * 60 * 1000);
+function getTimeRemaining(expiresAt: string): string {
+  const end = new Date(expiresAt);
   const now = new Date();
   const diffMs = end.getTime() - now.getTime();
   if (diffMs <= 0) return 'CLOSING';
@@ -535,7 +537,122 @@ function TransactionCard({ tx }: { tx: Transaction }) {
 interface AuctionGroup {
   player: Player;
   topBid: number;
-  auctionStart: string;
+  expiresAt: string;
+  bidCount: number;
+  myBid: number | null;
+}
+
+function groupAuctions(liveAuctions: WaiverClaim[], myTeamId: string | null): AuctionGroup[] {
+  const map = new Map<string, AuctionGroup>();
+
+  for (const claim of liveAuctions) {
+    if (!claim.player) continue;
+    const pid = claim.player.id;
+    const existing = map.get(pid);
+
+    if (!existing) {
+      map.set(pid, {
+        player: claim.player,
+        topBid: claim.faab_bid,
+        expiresAt: claim.expires_at,
+        bidCount: 1,
+        myBid: claim.team_id === myTeamId ? claim.faab_bid : null,
+      });
+    } else {
+      existing.bidCount++;
+      existing.topBid = Math.max(existing.topBid, claim.faab_bid);
+      // Keep the earliest expiry in case of any discrepancy
+      if (new Date(claim.expires_at) < new Date(existing.expiresAt)) {
+        existing.expiresAt = claim.expires_at;
+      }
+      if (claim.team_id === myTeamId) {
+        existing.myBid = claim.faab_bid;
+      }
+    }
+  }
+
+  return Array.from(map.values()).sort(
+    (a, b) => new Date(a.expiresAt).getTime() - new Date(b.expiresAt).getTime(),
+  );
+}
+
+// ─── Live Bids Section (main feed) ───────────────────────────────────────────
+
+function LiveBidsSection({
+  liveAuctions,
+  myTeamId,
+}: {
+  liveAuctions: WaiverClaim[];
+  myTeamId: string | null;
+}) {
+  const auctions = useMemo(
+    () => groupAuctions(liveAuctions, myTeamId),
+    [liveAuctions, myTeamId],
+  );
+
+  if (auctions.length === 0) return null;
+
+  return (
+    <section className={styles.dateGroup}>
+      <div className={styles.dateLabelRow}>
+        <span className={styles.dateLabel}>LIVE AUCTIONS</span>
+        <div className={styles.dateRule} />
+      </div>
+      <div className={styles.cards}>
+        {auctions.map((a) => {
+          const posColor = POS_COLOR_MAP[a.player.primary_position] ?? 'var(--color-text-muted)';
+          return (
+            <article
+              key={a.player.id}
+              className={styles.card}
+              style={{ borderLeftColor: '#d97706' }}
+            >
+              <div className={styles.cardIconWrap}>
+                {a.player.photo_url ? (
+                  <img
+                    src={a.player.photo_url}
+                    alt={a.player.web_name ?? a.player.name}
+                    className={styles.playerPhoto}
+                  />
+                ) : (
+                  <div className={styles.posAvatar} style={{ backgroundColor: posColor }}>
+                    {a.player.primary_position}
+                  </div>
+                )}
+              </div>
+              <div className={styles.cardBody}>
+                <div className={styles.cardHeader}>
+                  <span className={`${styles.typeBadge} ${styles.badge_amber}`}>
+                    LIVE BID
+                  </span>
+                  <span className={styles.timestamp}>
+                    {getTimeRemaining(a.expiresAt)}
+                  </span>
+                </div>
+                <p className={styles.cardMain}>
+                  <strong className={styles.cardPlayer}>
+                    {a.player.web_name ?? formatPlayerName(a.player)}
+                  </strong>
+                  <PositionBadge position={a.player.primary_position} />
+                  {a.player.pl_team && (
+                    <span className={styles.cardClub}>· {a.player.pl_team}</span>
+                  )}
+                </p>
+                <p className={styles.cardMeta}>
+                  {a.bidCount} bid{a.bidCount !== 1 ? 's' : ''} · Top: £{a.topBid}m
+                  {a.myBid !== null && (
+                    <span style={{ color: 'var(--color-accent-green)', fontWeight: 700 }}>
+                      {' '}· Your bid: £{a.myBid}m
+                    </span>
+                  )}
+                </p>
+              </div>
+            </article>
+          );
+        })}
+      </div>
+    </section>
+  );
 }
 
 function RightSidebar({
@@ -547,41 +664,10 @@ function RightSidebar({
   teams: Team[];
   myTeamId: string | null;
 }) {
-  // Group pending claims by player, track top bid and earliest created_at
-  const auctions = useMemo<AuctionGroup[]>(() => {
-    const map = new Map<
-      string,
-      { player: Player; topBid: number; auctionStart: string }
-    >();
-
-    for (const claim of liveAuctions) {
-      if (!claim.player) continue;
-      const pid = claim.player.id;
-      const existing = map.get(pid);
-
-      if (!existing) {
-        map.set(pid, {
-          player: claim.player,
-          topBid: claim.faab_bid,
-          auctionStart: claim.created_at,
-        });
-      } else {
-        map.set(pid, {
-          player: claim.player,
-          topBid: Math.max(existing.topBid, claim.faab_bid),
-          auctionStart:
-            new Date(existing.auctionStart) <= new Date(claim.created_at)
-              ? existing.auctionStart
-              : claim.created_at,
-        });
-      }
-    }
-
-    return Array.from(map.values()).sort(
-      (a, b) =>
-        new Date(a.auctionStart).getTime() - new Date(b.auctionStart).getTime()
-    );
-  }, [liveAuctions]);
+  const auctions = useMemo(
+    () => groupAuctions(liveAuctions, myTeamId),
+    [liveAuctions, myTeamId],
+  );
 
   return (
     <aside className={styles.sidebar}>
@@ -636,7 +722,7 @@ function RightSidebar({
                         Top bid: £{a.topBid}m
                       </span>
                       <span className={styles.auctionTimer}>
-                        {getTimeRemaining(a.auctionStart)}
+                        {getTimeRemaining(a.expiresAt)}
                       </span>
                     </div>
                   </div>
@@ -741,6 +827,9 @@ export default function ActivityClient({
             Every move, every deal — the full record of {leagueName}.
           </p>
         </header>
+
+        {/* Live Auctions — pending bids visible to all managers */}
+        <LiveBidsSection liveAuctions={liveAuctions} myTeamId={myTeamId} />
 
         {/* Filter Chips */}
         <div className={styles.filterChips} role="group" aria-label="Filter transactions">

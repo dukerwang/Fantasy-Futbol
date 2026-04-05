@@ -73,6 +73,29 @@ export async function POST(req: NextRequest, { params }: Props) {
     );
   }
 
+  // Guard: the same drop player cannot be nominated in two simultaneous pending bids.
+  // If both auctions resolve the winner would lose the drop player on the first
+  // and then try (and silently succeed) to drop them again on the second — gaining
+  // two players while only losing one.
+  if (dropPlayerId) {
+    const { data: conflictingBids } = await admin
+      .from('waiver_claims')
+      .select('id')
+      .eq('league_id', leagueId)
+      .eq('team_id', myTeam.id)
+      .eq('drop_player_id', dropPlayerId)
+      .eq('status', 'pending')
+      .eq('is_auction', true)
+      .neq('player_id', playerId); // exclude the current player's own auction
+
+    if (conflictingBids && conflictingBids.length > 0) {
+      return NextResponse.json(
+        { error: 'This player is already nominated as a drop in another of your pending bids. Each pending bid must nominate a different player to drop.' },
+        { status: 400 },
+      );
+    }
+  }
+
   // Current state of this auction (all pending bids for this player, highest first)
   const { data: existingClaims } = await admin
     .from('waiver_claims')

@@ -217,27 +217,74 @@ export async function POST(req: NextRequest) {
 
       const losers = claims.filter((c) => c.id !== winner!.id);
 
-      // Drop the nominated player (charging severance if applicable)
+      // Drop the nominated player (charging severance if applicable).
+      // First verify they are still on the roster — a previous auction processed in
+      // this same cron run (or a manual drop) may have already removed them.
       if (winner.drop_player_id) {
-        await admin
+        const { data: dropEntry } = await admin
           .from('roster_entries')
-          .delete()
-          .eq('league_id', league_id)
+          .select('id')
           .eq('team_id', winner.team_id!)
-          .eq('player_id', winner.drop_player_id);
+          .eq('player_id', winner.drop_player_id)
+          .single();
 
-        const severanceNote = winnerSeveranceFee > 0
-          ? ` (£${winnerSeveranceFee}m severance paid)`
-          : '';
-        const dropName = (winner as any).drop_player_name || winner.drop_player_id;
-        await admin.from('transactions').insert({
-          league_id,
-          team_id: winner.team_id,
-          player_id: winner.drop_player_id,
-          type: 'drop',
-          compensation_amount: winnerSeveranceFee,
-          notes: `Dropped ${dropName} to make room for auction winner: ${(winner.player as any)?.name ?? player_id}${severanceNote}`,
-        });
+        if (!dropEntry) {
+          // Drop player already gone. Check if the roster still has room.
+          const { data: leagueSettings } = await admin
+            .from('leagues')
+            .select('roster_size')
+            .eq('id', league_id)
+            .single();
+          const rosterSize = leagueSettings?.roster_size ?? 20;
+
+          const { count: activeCount } = await admin
+            .from('roster_entries')
+            .select('id', { count: 'exact', head: true })
+            .eq('team_id', winner.team_id!)
+            .neq('status', 'ir');
+
+          if ((activeCount ?? 0) >= rosterSize) {
+            // Roster is full and the expected drop slot is gone — reject this claim.
+            console.warn(
+              `[process-auctions] Drop player ${winner.drop_player_id} already removed from team ` +
+              `${winner.team_id} but roster is full. Rejecting claim for player ${player_id}.`,
+            );
+            await admin
+              .from('waiver_claims')
+              .update({ status: 'rejected' })
+              .in('id', claims.map((c) => c.id));
+            processed++;
+            continue;
+          }
+
+          // Roster has room — proceed without a drop and waive the severance.
+          winnerSeveranceFee = 0;
+          console.log(
+            `[process-auctions] Drop player ${winner.drop_player_id} already removed; ` +
+            `roster has room — skipping drop for team ${winner.team_id}.`,
+          );
+        } else {
+          // Normal path: drop the player and log the transaction.
+          await admin
+            .from('roster_entries')
+            .delete()
+            .eq('league_id', league_id)
+            .eq('team_id', winner.team_id!)
+            .eq('player_id', winner.drop_player_id);
+
+          const severanceNote = winnerSeveranceFee > 0
+            ? ` (£${winnerSeveranceFee}m severance paid)`
+            : '';
+          const dropName = (winner as any).drop_player_name || winner.drop_player_id;
+          await admin.from('transactions').insert({
+            league_id,
+            team_id: winner.team_id,
+            player_id: winner.drop_player_id,
+            type: 'drop',
+            compensation_amount: winnerSeveranceFee,
+            notes: `Dropped ${dropName} to make room for auction winner: ${(winner.player as any)?.name ?? player_id}${severanceNote}`,
+          });
+        }
       }
 
       // Add the won player to the winner's roster

@@ -56,7 +56,7 @@ export default async function ActivityPage({ params }: Props) {
     admin
       .from('waiver_claims')
       .select(
-        `id, faab_bid, created_at,
+        `id, team_id, faab_bid, created_at, expires_at,
          player:players!player_id(id, web_name, name, primary_position, photo_url, pl_team),
          team:teams(id, team_name)`
       )
