@@ -1,222 +1,456 @@
+/* ============================================================
+   Matchups Page — Cream Editorial Design System
+   ============================================================ */
+
 .container {
+    padding: 2rem 2.5rem;
     display: flex;
     flex-direction: column;
     gap: 2rem;
 }
 
-.header {
+/* ── Page Header ── */
+.pageHeader {
     display: flex;
+    align-items: flex-end;
     justify-content: space-between;
-    align-items: center;
-    padding-bottom: 1rem;
-    border-bottom: 1px solid var(--color-border);
+    gap: 1rem;
+    flex-wrap: wrap;
 }
 
-.title {
-    font-size: 1.5rem;
+.pageTitleGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.pageSupertitle {
+    font-family: var(--font-sans);
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--color-text-muted);
+}
+
+.pageTitle {
+    font-family: var(--font-serif);
+    font-size: 2rem;
     font-weight: 700;
     color: var(--color-text-primary);
+    line-height: 1.1;
     margin: 0;
 }
 
-.gwSelector {
+/* ── GW Selector ── */
+.gwSelectorBar {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
+    height: 40px;
+    flex-shrink: 0;
 }
 
-.gwLabel {
-    font-size: 0.875rem;
+.gwArrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: none;
+    border: none;
+    font-size: 1rem;
     color: var(--color-text-secondary);
+    cursor: pointer;
+    transition: color var(--transition-fast);
+    flex-shrink: 0;
+    font-family: var(--font-sans);
+}
+
+.gwArrow:hover:not(:disabled) {
+    color: var(--color-text-primary);
+}
+
+.gwArrow:disabled {
+    color: var(--color-text-muted);
+    cursor: not-allowed;
+}
+
+.gwSeparator {
+    width: 1px;
+    height: 24px;
+    background: var(--color-border);
+    flex-shrink: 0;
+}
+
+.gwPill {
+    font-family: var(--font-sans);
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    background: transparent;
+    border: none;
+    padding: 0 1rem;
+    height: 100%;
+    cursor: pointer;
+    outline: none;
+    appearance: none;
+    -webkit-appearance: none;
+    text-align: center;
+    min-width: 80px;
+}
+
+/* ── Hero Featured Matchup Card ── */
+.heroCard {
+    background: var(--color-bg-card);
+    padding: 2.5rem 2.5rem 2rem;
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    box-shadow: var(--shadow-sm);
+    position: relative;
+    text-decoration: none;
+    color: inherit;
+    transition: box-shadow var(--transition-base);
+    margin-top: 0.5rem;
+}
+
+.heroCard:hover {
+    box-shadow: var(--shadow-md);
+}
+
+.heroSectionLabel {
+    font-family: var(--font-sans);
+    font-size: 0.62rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--color-text-muted);
+    position: absolute;
+    top: 1rem;
+    left: 2.5rem;
+}
+
+.heroTeamCol {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    align-items: flex-start;
+}
+
+.heroTeamCol.right {
+    align-items: flex-end;
+    text-align: right;
+}
+
+.heroTeamName {
+    font-family: var(--font-serif);
+    font-size: 1.375rem;
+    font-weight: 700;
+    color: var(--color-text-primary);
+    line-height: 1.2;
+}
+
+.heroRecord {
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+    font-weight: 500;
+    letter-spacing: 0.02em;
+}
+
+.heroViewLink {
+    font-family: var(--font-sans);
+    font-size: 0.8125rem;
+    color: var(--color-accent-green);
+    text-decoration: none;
+    margin-top: 0.5rem;
     font-weight: 500;
 }
 
-.gwSelect {
+.heroCenter {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.625rem;
     padding: 0.5rem 1rem;
-    background: var(--color-bg-secondary);
-    border: 1px solid var(--color-border);
-    border-radius: 8px;
+}
+
+.heroScoreRow {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+}
+
+.heroScore {
+    font-family: var(--font-serif);
+    font-size: 3rem;
+    font-weight: 700;
     color: var(--color-text-primary);
-    font-size: 0.875rem;
-    font-weight: 600;
-    cursor: pointer;
-    outline: none;
+    line-height: 1;
 }
 
-.gwSelect:focus {
-    border-color: var(--color-accent-green);
+.heroScore.loser {
+    color: var(--color-text-muted);
+    font-weight: 400;
 }
 
-.emptyCard {
-    padding: 3rem;
-    text-align: center;
-    background: var(--color-bg-card);
-    border: 1px dashed var(--color-border);
-    border-radius: 12px;
+.heroDash {
+    font-family: var(--font-serif);
+    font-size: 1.5rem;
+    color: var(--color-border);
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.heroWinBadge {
+    font-family: var(--font-sans);
+    font-size: 0.625rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.25rem 0.75rem;
+    background: var(--color-accent-green);
+    color: #fff;
+    border-radius: 0;
+    white-space: nowrap;
+}
+
+.heroWinBadge.draw {
+    background: var(--color-bg-elevated);
     color: var(--color-text-secondary);
+    border: 1px solid var(--color-border);
 }
 
+.heroWinBadge.live {
+    background: #B5651D;
+}
+
+/* ── Section Label ── */
+.sectionLabel {
+    font-family: var(--font-sans);
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--color-text-muted);
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--color-border-subtle);
+}
+
+/* ── Matchup Grid ── */
 .matchupGrid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
-    gap: 1.5rem;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+}
+
+@media (max-width: 720px) {
+    .matchupGrid {
+        grid-template-columns: 1fr;
+    }
 }
 
 .matchupCardLink {
-    display: block;
     text-decoration: none;
     color: inherit;
+    display: block;
 }
 
 .matchupCard {
     background: var(--color-bg-card);
-    border: 1px solid var(--color-border);
-    border-radius: 12px;
-    padding: 1.5rem;
-    position: relative;
-    overflow: hidden;
-    transition: transform 0.2s, box-shadow 0.2s;
+    padding: 1.125rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow var(--transition-fast);
 }
 
 .matchupCard:hover {
-    transform: translateY(-2px);
     box-shadow: var(--shadow-md);
 }
 
-.matchupCard.live::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: var(--color-accent-green);
+.matchupCard.myMatchup {
+    border-left: 2px solid var(--color-accent-green);
 }
 
-.matchupCard.completed::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: var(--color-accent-blue);
-}
-
-.statusBadge {
-    position: absolute;
-    top: 1rem;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 0.65rem;
-    font-weight: 800;
-    letter-spacing: 0.05em;
-    padding: 0.15rem 0.5rem;
-    border-radius: 4px;
-    background: var(--color-bg-secondary);
-    color: var(--color-text-secondary);
-}
-
-.matchupCard.live .statusBadge {
-    background: rgba(58, 107, 74, 0.1);
-    color: var(--color-accent-green);
-    animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-    0% {
-        opacity: 1;
-    }
-
-    50% {
-        opacity: 0.6;
-    }
-
-    100% {
-        opacity: 1;
-    }
-}
-
-.matchupCard.completed .statusBadge {
-    background: rgba(58, 107, 74, 0.08);
-    color: var(--color-accent-blue);
-}
-
-.matchupTeams {
+.cardCenter {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    margin-top: 1rem;
+    gap: 0.5rem;
+    flex-shrink: 0;
 }
+
+.cardBadge {
+    font-family: var(--font-sans);
+    font-size: 0.6rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.2rem 0.5rem;
+    flex-shrink: 0;
+    border-radius: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+}
+
+.cardBadgeWin { background: var(--color-accent-green); color: #fff; }
+.cardBadgeLoss { background: #9B2335; color: #fff; }
+.cardBadgeDraw { background: var(--color-bg-elevated); color: var(--color-text-secondary); border: 1px solid var(--color-border); }
+.cardBadgeLive { background: #B5651D; color: #fff; }
+.cardBadgeScheduled { background: var(--color-bg-elevated); color: var(--color-text-muted); border: 1px solid var(--color-border-subtle); }
+.cardBadgeFinal { background: var(--color-bg-elevated); color: var(--color-text-secondary); border: 1px solid var(--color-border); }
 
 .team {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: 0.5rem;
+    gap: 0.1rem;
     flex: 1;
+    min-width: 0;
+}
+
+.team.right {
+    align-items: flex-end;
+    text-align: right;
 }
 
 .teamName {
-    font-size: 1rem;
+    font-family: var(--font-sans);
+    font-size: 0.875rem;
     font-weight: 600;
-    color: var(--color-text-secondary);
-    text-align: center;
-    max-width: 140px;
+    color: var(--color-text-primary);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
-.winner .teamName {
-    color: var(--color-text-primary);
+.teamName.myTeam {
+    color: var(--color-accent-green);
+}
+
+.cardScore {
+    font-family: var(--font-sans);
+    font-size: 1rem;
     font-weight: 700;
-}
-
-.score {
-    font-size: 2.25rem;
-    font-weight: 800;
     color: var(--color-text-primary);
-    line-height: 1;
+    flex-shrink: 0;
+    min-width: 3.5ch;
+    text-align: center;
 }
 
-.winner .score {
-    color: var(--color-accent-green);
-}
-
-.vs {
-    font-size: 0.875rem;
-    font-weight: 800;
+.cardScore.loser {
     color: var(--color-text-muted);
-    padding: 0 1.5rem;
+    font-weight: 400;
 }
 
-/* My team highlight */
-.myMatchup {
-    border-color: var(--color-accent-green);
-}
-
-.myTeam .teamName {
-    color: var(--color-accent-green);
-}
-
-/* Live pulse indicator */
+/* Live pulse dot */
 .livePulse {
     display: inline-block;
-    width: 6px;
-    height: 6px;
+    width: 5px;
+    height: 5px;
+    background: currentColor;
     border-radius: 50%;
-    background: var(--color-accent-green);
-    margin-right: 4px;
-    animation: pulse 1.5s infinite;
-    vertical-align: middle;
+    animation: pulse 1.5s ease-in-out infinite;
+    flex-shrink: 0;
 }
 
-/* Live note */
-.liveNote {
-    margin-top: 0.75rem;
-    font-size: 0.7rem;
-    color: var(--color-accent-green);
+@keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.6); }
+}
+
+/* ── GW At a Glance Strip ── */
+.glanceStrip {
+    background: var(--color-bg-card);
+    display: flex;
+    box-shadow: var(--shadow-sm);
+}
+
+.glanceStat {
+    flex: 1;
+    padding: 1.5rem 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.glanceStat + .glanceStat {
+    border-left: 1px solid var(--color-border-subtle);
+}
+
+.glanceLabel {
+    font-family: var(--font-sans);
+    font-size: 0.62rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--color-text-muted);
+}
+
+.glanceValue {
+    font-family: var(--font-serif);
+    font-size: 1.625rem;
+    font-weight: 700;
+    color: var(--color-text-primary);
+    line-height: 1.1;
+}
+
+.glanceSub {
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    color: var(--color-text-secondary);
+}
+
+/* ── Empty State ── */
+.emptyCard {
+    background: var(--color-bg-card);
+    padding: 3rem 2rem;
     text-align: center;
-    opacity: 0.75;
+    font-size: 0.9375rem;
+    color: var(--color-text-muted);
+    font-family: var(--font-sans);
+}
+
+.liveNote {
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+    text-align: center;
+    margin-top: 0.25rem;
+}
+
+/* ── Responsive ── */
+@media (max-width: 600px) {
+    .container {
+        padding: 1rem 1.25rem;
+        gap: 1.25rem;
+    }
+
+    .heroCard {
+        flex-direction: column;
+        gap: 1.25rem;
+        padding: 2rem 1.25rem 1.5rem;
+    }
+
+    .heroTeamCol.right {
+        align-items: flex-start;
+        text-align: left;
+    }
+
+    .heroCenter {
+        width: 100%;
+    }
+
+    .glanceStrip {
+        flex-direction: column;
+    }
+
+    .glanceStat + .glanceStat {
+        border-left: none;
+        border-top: 1px solid var(--color-border-subtle);
+    }
 }

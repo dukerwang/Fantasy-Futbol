@@ -6,6 +6,7 @@ import { FORMATION_SLOTS } from '@/types';
 import pitchStyles from './pitch.module.css';
 import PlayerDetailsModal from './players/PlayerDetailsModal';
 import { formatPlayerName } from '@/lib/formatName';
+import { getScoreIntensityColor } from '@/lib/utils/scoreColor';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -129,17 +130,17 @@ export default function ReadonlyPitch({ lineup, playerMap, detailMap, teamName }
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             {/* Team header */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary, #f3f4f6)' }}>
+                <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: 700, color: 'var(--color-text-primary)' }}>
                     {teamName}
                 </h3>
                 <span style={{
                     padding: '0.2rem 0.6rem',
-                    background: 'var(--bg-surface-light, #252d3a)',
-                    border: '1px solid var(--border-color, #374151)',
-                    borderRadius: '6px',
+                    background: 'var(--color-bg-elevated)',
+                    border: '1px solid var(--color-border)',
+                    borderRadius: '0',
                     fontSize: '0.75rem',
                     fontWeight: 600,
-                    color: 'var(--text-secondary, #9ca3af)',
+                    color: 'var(--color-text-secondary)',
                 }}>
                     {formation}
                 </span>
@@ -206,20 +207,20 @@ export default function ReadonlyPitch({ lineup, playerMap, detailMap, teamName }
                                                             <span style={{
                                                                 fontSize: '0.7rem',
                                                                 fontWeight: 700,
-                                                                color: '#10b981',
-                                                                background: 'rgba(16,185,129,0.12)',
-                                                                border: '1px solid rgba(16,185,129,0.3)',
-                                                                borderRadius: '4px',
+                                                                color: getScoreIntensityColor(detailMap[playerId].points).text,
+                                                                background: getScoreIntensityColor(detailMap[playerId].points).bg,
+                                                                borderRadius: '0',
                                                                 padding: '1px 5px',
                                                                 marginTop: '2px',
                                                                 letterSpacing: '0.02em',
+                                                                alignSelf: 'flex-end',
                                                             }}>
-                                                                {detailMap[playerId].points.toFixed(1)} pts
+                                                                {detailMap[playerId].points.toFixed(1)}
                                                             </span>
                                     {detailMap[playerId].stats && formatStats(detailMap[playerId].stats, pos) && (
                                         <span style={{
                                             fontSize: '0.6rem',
-                                            color: '#9ca3af',
+                                            color: 'rgba(255,255,255,0.6)',
                                             marginTop: '1px',
                                             textAlign: 'center',
                                             lineHeight: 1.2,
@@ -280,19 +281,18 @@ export default function ReadonlyPitch({ lineup, playerMap, detailMap, teamName }
                                                 <span style={{
                                                     fontSize: '0.68rem',
                                                     fontWeight: 700,
-                                                    color: '#6366f1',
-                                                    background: 'rgba(99,102,241,0.1)',
-                                                    border: '1px solid rgba(99,102,241,0.25)',
-                                                    borderRadius: '4px',
+                                                    color: getScoreIntensityColor(detailMap[pid].points).text,
+                                                    background: getScoreIntensityColor(detailMap[pid].points).bg,
+                                                    borderRadius: '0',
                                                     padding: '1px 5px',
                                                     marginTop: '2px',
                                                 }}>
-                                                    {detailMap[pid].points.toFixed(1)} pts
+                                                    {detailMap[pid].points.toFixed(1)}
                                                 </span>
                                                 {detailMap[pid].stats && formatStats(detailMap[pid].stats, player.primary_position) && (
                                                     <span style={{
                                                         fontSize: '0.58rem',
-                                                        color: '#9ca3af',
+                                                        color: 'var(--color-text-muted)',
                                                         marginTop: '1px',
                                                     }}>
                                                         {formatStats(detailMap[pid].stats, player.primary_position)}
@@ -321,13 +321,13 @@ export default function ReadonlyPitch({ lineup, playerMap, detailMap, teamName }
             {/* GW Points Breakdown — bypasses zone matching, reads directly from lineup */}
             {detailMap && (
                 <div style={{
-                    background: 'var(--bg-surface, #1a2235)',
-                    border: '1px solid var(--border-color, #374151)',
-                    borderRadius: '10px',
+                    background: 'var(--color-bg-card)',
+                    border: '1px solid var(--color-border-subtle)',
+                    borderRadius: '0',
                     padding: '0.75rem 1rem',
                 }}>
-                    <div style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--text-secondary, #9ca3af)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.5rem' }}>
-                        GW{''} Points
+                    <div style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.5rem', fontFamily: 'var(--font-sans)' }}>
+                        GW Points
                     </div>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.25rem 1.5rem' }}>
                         {starters.map((s) => {
@@ -337,15 +337,15 @@ export default function ReadonlyPitch({ lineup, playerMap, detailMap, teamName }
                             return (
                                 <div key={s.player_id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem', padding: '0.2rem 0' }}>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', minWidth: 0 }}>
-                                        <span style={{ fontSize: '0.6rem', fontWeight: 700, background: POS_COLOR[s.slot as GranularPosition] ?? '#374151', color: '#fff', borderRadius: '3px', padding: '1px 4px', flexShrink: 0 }}>
+                                        <span style={{ fontSize: '0.6rem', fontWeight: 700, background: POS_COLOR[s.slot as GranularPosition] ?? 'var(--color-bg-elevated)', color: '#fff', borderRadius: '0', padding: '1px 4px', flexShrink: 0 }}>
                                             {s.slot}
                                         </span>
                                         <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                            <span style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--text-primary, #f3f4f6)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                            <span style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--color-text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                                                 {formatPlayerName(p)}
                                             </span>
                                             {detail?.stats && formatStats(detail.stats, s.slot as GranularPosition) && (
-                                                <span style={{ fontSize: '0.65rem', color: '#9ca3af', marginTop: '-2px' }}>
+                                                <span style={{ fontSize: '0.65rem', color: 'var(--color-text-muted)', marginTop: '-2px' }}>
                                                     {formatStats(detail.stats, s.slot as GranularPosition)}
                                                 </span>
                                             )}
@@ -354,7 +354,7 @@ export default function ReadonlyPitch({ lineup, playerMap, detailMap, teamName }
                                     <span style={{
                                         fontSize: '0.78rem',
                                         fontWeight: 700,
-                                        color: pts !== undefined ? '#10b981' : 'var(--text-muted, #6b7280)',
+                                        color: pts !== undefined ? getScoreIntensityColor(pts).bg : 'var(--color-text-muted)',
                                         flexShrink: 0,
                                     }}>
                                         {pts !== undefined ? pts.toFixed(1) : '—'}
@@ -364,21 +364,21 @@ export default function ReadonlyPitch({ lineup, playerMap, detailMap, teamName }
                         })}
                     </div>
                     {bench.filter(b => detailMap && detailMap[b.player_id] !== undefined).length > 0 && (
-                        <div style={{ marginTop: '0.5rem', paddingTop: '0.5rem', borderTop: '1px solid var(--border-color, #374151)' }}>
-                            <div style={{ fontSize: '0.65rem', color: 'var(--text-muted, #6b7280)', marginBottom: '0.25rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Bench</div>
+                        <div style={{ marginTop: '0.5rem', paddingTop: '0.5rem', borderTop: '1px solid var(--color-border-subtle)' }}>
+                            <div style={{ fontSize: '0.65rem', color: 'var(--color-text-muted)', marginBottom: '0.25rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Bench</div>
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.2rem 1.5rem' }}>
                                 {bench.map((b) => {
                                     const p = playerMap[b.player_id];
                                     const detail = detailMap ? detailMap[b.player_id] : null;
                                     const pts = detail?.points;
                                     return (
-                                        <div key={b.player_id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem', opacity: 0.7 }}>
+                                        <div key={b.player_id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem', opacity: 0.75 }}>
                                             <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                                <span style={{ fontSize: '0.75rem', fontWeight: 500, color: 'var(--text-secondary, #9ca3af)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                                <span style={{ fontSize: '0.75rem', fontWeight: 500, color: 'var(--color-text-secondary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                                                     {formatPlayerName(p)}
                                                 </span>
                                             </div>
-                                            <span style={{ fontSize: '0.75rem', fontWeight: 600, color: pts !== undefined ? '#6366f1' : 'var(--text-muted, #6b7280)', flexShrink: 0 }}>
+                                            <span style={{ fontSize: '0.75rem', fontWeight: 600, color: pts !== undefined ? getScoreIntensityColor(pts).bg : 'var(--color-text-muted)', flexShrink: 0 }}>
                                                 {pts !== undefined ? pts.toFixed(1) : '—'}
                                             </span>
                                         </div>

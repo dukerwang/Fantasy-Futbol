@@ -88,7 +88,7 @@
 .pitchContainer {
     position: relative;
     width: 100%;
-    border-radius: 12px;
+    border-radius: 0;
     overflow: hidden;
     /* Green pitch gradient with horizontal stripe effect */
     background:
@@ -301,7 +301,7 @@
 .benchLabel {
     font-size: 0.75rem;
     font-weight: 700;
-    color: var(--color-text-secondary, #9ca3af);
+    color: var(--color-text-secondary);
     text-transform: uppercase;
     letter-spacing: 0.06em;
 }
@@ -324,16 +324,16 @@
     align-items: flex-start;
     gap: 4px;
     padding: 0.625rem 0.75rem;
-    background: var(--color-bg-card, #1f2937);
-    border: 2px solid var(--color-border, #374151);
-    border-radius: 10px;
+    background: var(--color-bg-elevated);
+    border: 1px solid var(--color-border);
+    border-radius: 0;
     cursor: pointer;
     text-align: left;
     transition: border-color 0.15s, background 0.15s;
 }
 
 .benchSlot:hover {
-    border-color: var(--color-text-muted, #6b7280);
+    border-color: var(--color-text-muted);
 }
 
 .benchSlotType {
@@ -341,9 +341,9 @@
     font-weight: 800;
     letter-spacing: 0.1em;
     text-transform: uppercase;
-    color: var(--color-text-muted, #6b7280);
-    border: 1px solid var(--color-border, #374151);
-    border-radius: 3px;
+    color: var(--color-text-muted);
+    border: 1px solid var(--color-border);
+    border-radius: 0;
     padding: 1px 5px;
 }
 
@@ -356,7 +356,7 @@
 .benchPlayerName {
     font-size: 0.8125rem;
     font-weight: 600;
-    color: var(--color-text-primary, #f3f4f6);
+    color: var(--color-text-primary);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -365,7 +365,7 @@
 
 .benchPlayerClub {
     font-size: 0.7rem;
-    color: var(--color-text-muted, #6b7280);
+    color: var(--color-text-muted);
 }
 
 /* ── Player Pool ── */

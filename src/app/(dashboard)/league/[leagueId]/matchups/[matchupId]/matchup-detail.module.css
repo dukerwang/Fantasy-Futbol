@@ -1,124 +1,128 @@
+/* ============================================================
+   Matchup Detail — Cream Editorial Design System
+   ============================================================ */
+
 .container {
     display: flex;
     flex-direction: column;
     gap: 2rem;
+    padding: 2rem 2.5rem;
 }
 
 .backLink {
     display: inline-flex;
     align-items: center;
     gap: 0.375rem;
-    font-size: 0.875rem;
-    color: var(--color-text-secondary);
+    font-family: var(--font-sans);
+    font-size: 0.8125rem;
+    color: var(--color-accent-green);
     text-decoration: none;
-    transition: color 0.15s;
+    transition: opacity var(--transition-fast);
     width: fit-content;
 }
 
 .backLink:hover {
-    color: var(--color-text-primary);
+    opacity: 0.75;
 }
 
-/* ── Score Banner ── */
-.scoreBanner {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 1.5rem 2rem;
-    background: var(--color-bg-card);
-    border: 1px solid var(--color-border);
-    border-radius: 14px;
-    gap: 1rem;
-}
-
-.scoreBanner.live {
-    border-color: var(--color-accent-green);
-    box-shadow: 0 0 0 1px rgba(58, 107, 74, 0.2);
-}
-
-.scoreBanner.completed {
-    border-color: var(--color-accent-blue);
-}
-
-.bannerTeam {
+/* ── Match Header (prototype 1 style) ── */
+.matchHeader {
+    position: relative;
     display: flex;
     flex-direction: column;
-    gap: 0.25rem;
-    flex: 1;
+    gap: 0.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--color-border-subtle);
 }
 
-.bannerTeam.right {
-    align-items: flex-end;
-    text-align: right;
-}
-
-.bannerTeamName {
-    font-size: 1rem;
+.matchTitle {
+    font-family: var(--font-serif);
+    font-size: 1.75rem;
     font-weight: 700;
     color: var(--color-text-primary);
+    line-height: 1.2;
+}
+
+.scoreRow {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
 }
 
 .bannerScore {
-    font-size: 2.5rem;
-    font-weight: 800;
+    font-family: var(--font-serif);
+    font-size: 3rem;
+    font-weight: 700;
     color: var(--color-text-primary);
     line-height: 1;
 }
 
-.bannerScore.winner {
-    color: var(--color-accent-green);
+.bannerScore.loser {
+    color: var(--color-text-muted);
+    font-weight: 400;
 }
 
-.bannerMiddle {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.5rem;
+.scoreDash {
+    font-family: var(--font-serif);
+    font-size: 2rem;
+    color: var(--color-border);
+    line-height: 1;
     flex-shrink: 0;
 }
 
-.statusBadge {
-    font-size: 0.65rem;
+.winBadge {
+    font-family: var(--font-sans);
+    font-size: 0.7rem;
     font-weight: 800;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
-    padding: 0.2rem 0.6rem;
-    border-radius: 4px;
-    background: var(--color-bg-secondary);
+    padding: 0.3rem 0.875rem;
+    background: var(--color-accent-green);
+    color: #fff;
+    border-radius: 0;
+    white-space: nowrap;
+    align-self: center;
+}
+
+.winBadge.draw {
+    background: var(--color-bg-elevated);
     color: var(--color-text-secondary);
+    border: 1px solid var(--color-border);
 }
 
-.statusBadge.live {
-    background: rgba(58, 107, 74, 0.12);
-    color: var(--color-accent-green);
+.winBadge.live {
+    background: #B5651D;
 }
 
-.statusBadge.completed {
-    background: rgba(59, 130, 246, 0.12);
-    color: var(--color-accent-blue);
+.gwMeta {
+    position: absolute;
+    top: 0;
+    right: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.125rem;
 }
 
 .gwLabel {
-    font-size: 0.875rem;
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
     font-weight: 600;
     color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
 }
 
-.vsText {
-    font-size: 1rem;
-    font-weight: 800;
-    color: var(--color-text-muted);
-}
-
-/* ── Pitch Grid ── */
+/* ── Side-by-side pitch grid ── */
 .pitchGrid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 2rem;
+    gap: 1.5rem;
     align-items: start;
 }
 
-@media (max-width: 960px) {
+@media (max-width: 900px) {
     .pitchGrid {
         grid-template-columns: 1fr;
     }
@@ -128,6 +132,19 @@
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
+}
+
+.benchTotal {
+    font-family: var(--font-sans);
+    font-size: 0.8125rem;
+    color: var(--color-text-secondary);
+    text-align: right;
+    padding: 0.375rem 0;
+}
+
+.benchTotal strong {
+    color: var(--color-text-primary);
+    font-weight: 700;
 }
 
 .noLineup {
@@ -141,7 +158,30 @@
     text-align: center;
     background: var(--color-bg-card);
     border: 1px dashed var(--color-border);
-    border-radius: 12px;
+    border-radius: 0;
     color: var(--color-text-secondary);
     font-size: 0.9375rem;
+    font-family: var(--font-sans);
+}
+
+/* ── Responsive ── */
+@media (max-width: 600px) {
+    .container {
+        padding: 1rem 1.25rem;
+        gap: 1.25rem;
+    }
+
+    .matchTitle {
+        font-size: 1.25rem;
+    }
+
+    .bannerScore {
+        font-size: 2.25rem;
+    }
+
+    .gwMeta {
+        position: static;
+        align-items: flex-start;
+        margin-top: 0.25rem;
+    }
 }
