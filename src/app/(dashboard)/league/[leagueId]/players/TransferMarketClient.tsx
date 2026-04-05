@@ -9,7 +9,7 @@ import styles from './transfers.module.css';
 import PosBadge from '@/components/players/PositionBadge';
 import PlayerDetailsModal from '@/components/players/PlayerDetailsModal';
 
-// ─── Props ─────────────────────────────────────────────────────────────────
+// ─── Types ───────────────────────────────────────────────────────────────────
 
 interface MyTeamInfo {
   id: string;
@@ -25,6 +25,15 @@ interface RosterPlayer {
   market_value?: number | null;
 }
 
+interface RecentActivityItem {
+  id: string;
+  type: string;
+  faab_bid: number | null;
+  processed_at: string;
+  team: { id: string; team_name: string } | null;
+  player: { id: string; web_name: string | null; name: string; primary_position: string; pl_team: string } | null;
+}
+
 interface Props {
   leagueId: string;
   leagueName: string;
@@ -35,6 +44,7 @@ interface Props {
   initialRosterFull: boolean;
   initialQ: string;
   initialPos: string;
+  initialRecentActivity: RecentActivityItem[];
 }
 
 // ─── Modal state ─────────────────────────────────────────────────────────────
@@ -42,22 +52,14 @@ interface Props {
 interface ModalState {
   open: boolean;
   player: Player | null;
-  currentHighest: number;   // 0 when nominating a free agent
+  currentHighest: number;
   currentExpiry: string | null;
   myCurrentBid: number | null;
   myCurrentDropId: string | null;
+  bidHistory: AuctionListing['bid_history'];
 }
 
-// ─── Position badge colours ───────────────────────────────────────────────
-
-const POS_COLOUR: Record<string, string> = {
-  GK: '#f59e0b',
-  CB: '#3b82f6', LB: '#3b82f6', RB: '#3b82f6',
-  DM: '#8b5cf6', CM: '#8b5cf6', AM: '#8b5cf6',
-  LW: '#10b981', RW: '#10b981', ST: '#ef4444',
-};
-
-// ─── Countdown helper ────────────────────────────────────────────────────
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function formatCountdown(expiresAt: string, now: number): string {
   const diff = new Date(expiresAt).getTime() - now;
@@ -67,29 +69,44 @@ function formatCountdown(expiresAt: string, now: number): string {
   const s = Math.floor((diff % 60_000) / 1_000);
   if (h >= 24) {
     const d = Math.floor(h / 24);
-    const remH = h % 24;
-    return `${d}d ${remH}h ${m.toString().padStart(2, '0')} m`;
+    return `${d}d ${h % 24}h`;
   }
-  return `${h}h ${m.toString().padStart(2, '0')}m ${s.toString().padStart(2, '0')} s`;
+  return `${h}h ${m.toString().padStart(2, '0')}m ${s.toString().padStart(2, '0')}s`;
 }
-
-// ─── Absolute end-time helper ─────────────────────────────────────────────
 
 function formatEndTime(expiresAt: string): string {
   const date = new Date(expiresAt);
   const now = new Date();
   const timeStr = date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
-
   const todayStr = now.toDateString();
   const tomorrowStr = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1).toDateString();
-
   if (date.toDateString() === todayStr) return `Ends today at ${timeStr}`;
   if (date.toDateString() === tomorrowStr) return `Ends tomorrow at ${timeStr}`;
-  const dayStr = date.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' });
-  return `Ends ${dayStr} at ${timeStr}`;
+  return `Ends ${date.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' })} at ${timeStr}`;
 }
 
-// ─── Main component ───────────────────────────────────────────────────────
+function timeAgo(ts: string): string {
+  const diff = Date.now() - new Date(ts).getTime();
+  const m = Math.floor(diff / 60_000);
+  if (m < 60) return `${m}m ago`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h}h ago`;
+  return `${Math.floor(h / 24)}d ago`;
+}
+
+function formatStat(val: number | null | undefined, decimals = 1): string {
+  if (val == null) return '—';
+  return Number(val).toFixed(decimals);
+}
+
+function formatMarketValue(val: number | null | undefined): string {
+  if (val == null) return '—';
+  return `£${Number(val).toFixed(0)}M`;
+}
+
+const ANTI_SNIPE_WINDOW_MS = 60 * 60 * 1_000;
+
+// ─── Main component ───────────────────────────────────────────────────────────
 
 export default function TransferMarketClient({
   leagueId,
@@ -101,26 +118,24 @@ export default function TransferMarketClient({
   initialRosterFull,
   initialQ,
   initialPos,
+  initialRecentActivity,
 }: Props) {
   const [auctions, setAuctions] = useState<AuctionListing[]>(initialAuctions);
   const [freeAgents, setFreeAgents] = useState<(Player & { web_name?: string })[]>(initialFreeAgents);
   const [myTeam, setMyTeam] = useState<MyTeamInfo>(initialMyTeam);
   const [myRoster, setMyRoster] = useState<RosterPlayer[]>(initialMyRoster);
   const [rosterFull, setRosterFull] = useState(initialRosterFull);
+  const [activeTab, setActiveTab] = useState<'market' | 'auctions'>('market');
 
   const router = useRouter();
-
-  // Tick every second for countdown timers
   const [now, setNow] = useState(Date.now());
   useEffect(() => {
     const id = setInterval(() => setNow(Date.now()), 1_000);
     return () => clearInterval(id);
   }, []);
 
-  // Loading state for refresh
   const [refreshing, setRefreshing] = useState(false);
 
-  // Bidding modal
   const [modal, setModal] = useState<ModalState>({
     open: false,
     player: null,
@@ -128,6 +143,7 @@ export default function TransferMarketClient({
     currentExpiry: null,
     myCurrentBid: null,
     myCurrentDropId: null,
+    bidHistory: [],
   });
   const [bidAmount, setBidAmount] = useState('');
   const [dropPlayerId, setDropPlayerId] = useState('');
@@ -135,7 +151,7 @@ export default function TransferMarketClient({
   const [submitting, setSubmitting] = useState(false);
   const [viewingPlayer, setViewingPlayer] = useState<Player | null>(null);
 
-  // ── Refresh from API ────────────────────────────────────────────────────
+  // ── Refresh ─────────────────────────────────────────────────────────────────
 
   const refresh = useCallback(async () => {
     setRefreshing(true);
@@ -153,7 +169,7 @@ export default function TransferMarketClient({
     }
   }, [leagueId]);
 
-  // ── Modal helpers ───────────────────────────────────────────────────────
+  // ── Modal ───────────────────────────────────────────────────────────────────
 
   function openBidModal(
     player: Player,
@@ -161,10 +177,13 @@ export default function TransferMarketClient({
     currentExpiry: string | null,
     myCurrentBid: number | null,
     myCurrentDropId: string | null,
+    bidHistory: AuctionListing['bid_history'] = [],
   ) {
-    setModal({ open: true, player, currentHighest, currentExpiry, myCurrentBid, myCurrentDropId });
+    setModal({ open: true, player, currentHighest, currentExpiry, myCurrentBid, myCurrentDropId, bidHistory });
     const tmMin = Math.floor(Number(player.market_value || 0) * 0.2);
-    const auctionMin = myCurrentBid !== null ? Math.max(currentHighest, myCurrentBid) + 1 : currentHighest;
+    const auctionMin = myCurrentBid !== null
+      ? Math.max(currentHighest, myCurrentBid) + 1
+      : currentHighest;
     setBidAmount(String(Math.max(auctionMin, tmMin)));
     setDropPlayerId(myCurrentDropId ?? '');
     setSubmitError('');
@@ -178,7 +197,7 @@ export default function TransferMarketClient({
     setSubmitting(false);
   }
 
-  // ── Bid submission ──────────────────────────────────────────────────────
+  // ── Bid submission ──────────────────────────────────────────────────────────
 
   async function handleSubmitBid() {
     if (!modal.player) return;
@@ -215,7 +234,6 @@ export default function TransferMarketClient({
     });
 
     const data = await res.json();
-
     if (!res.ok) {
       setSubmitError(data.error ?? 'Something went wrong. Please try again.');
       setSubmitting(false);
@@ -225,6 +243,8 @@ export default function TransferMarketClient({
     closeModal();
     await refresh();
   }
+
+  // ── Search ──────────────────────────────────────────────────────────────────
 
   function handleSearch(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -238,19 +258,37 @@ export default function TransferMarketClient({
 
   const positions = ['GK', 'CB', 'LB', 'RB', 'DM', 'CM', 'AM', 'LW', 'RW', 'ST'];
 
-  // ── Render ──────────────────────────────────────────────────────────────
+  // ── Bid stepper ─────────────────────────────────────────────────────────────
+
+  const bidNum = parseInt(bidAmount, 10);
+  const tmMin = modal.player ? Math.floor(Number(modal.player.market_value || 0) * 0.2) : 0;
+  const auctionMin = modal.myCurrentBid !== null
+    ? Math.max(modal.currentHighest, modal.myCurrentBid) + 1
+    : modal.currentHighest;
+  const isLeadingBidder = modal.myCurrentBid !== null && modal.myCurrentBid === modal.currentHighest;
+
+  function adjustBid(delta: number) {
+    const next = Math.max(0, (isNaN(bidNum) ? 0 : bidNum) + delta);
+    setBidAmount(String(next));
+  }
+
+  // ── Confirm button label ─────────────────────────────────────────────────────
+
+  const confirmLabel = modal.currentExpiry
+    ? `Confirm Bid — £${isNaN(bidNum) ? '?' : bidNum}m`
+    : `Start Auction — £${isNaN(bidNum) ? '?' : bidNum}m`;
+
+  // ─── Render ──────────────────────────────────────────────────────────────────
 
   return (
     <div className={styles.page}>
-      {/* Header */}
-      <header className={styles.header}>
-        <div>
-          <p className={styles.breadcrumb}>
-            <Link href={`/league/${leagueId}`}>{leagueName}</Link> / Transfer Market
-          </p>
-          <h1 className={styles.title}>Transfer Market</h1>
-          <p className={styles.subtitle}>
-            Public FAAB auctions · 48-hour timer · Anti-snipe: bids in the final hour reset clock to 1h
+
+      {/* ── Page Header ── */}
+      <header className={styles.pageHeader}>
+        <div className={styles.titleBlock}>
+          <h1 className={styles.pageTitle}>Player Market</h1>
+          <p className={styles.pageSubtitle}>
+            Free agents available for auction · 48-hour bidding window
           </p>
         </div>
         <div className={styles.faabBadge}>
@@ -259,155 +297,49 @@ export default function TransferMarketClient({
         </div>
       </header>
 
-      <div className={styles.layout}>
-        {/* ── Left: Active Auctions ── */}
-        <section className={styles.auctionsPanel}>
-          <div className={styles.panelHeader}>
-            <h2 className={styles.panelTitle}>Active Negotiations</h2>
-            <button
-              className={styles.refreshBtn}
-              onClick={refresh}
-              disabled={refreshing}
-              title="Refresh"
-            >
-              {refreshing ? '…' : '↻'}
-            </button>
-          </div>
+      {/* ── Tab Bar ── */}
+      <div className={styles.tabBar}>
+        <button
+          className={`${styles.tab} ${activeTab === 'market' ? styles.tabActive : ''}`}
+          onClick={() => setActiveTab('market')}
+        >
+          Player Market
+        </button>
+        <button
+          className={`${styles.tab} ${activeTab === 'auctions' ? styles.tabActive : ''}`}
+          onClick={() => setActiveTab('auctions')}
+        >
+          Active Auctions
+          {auctions.length > 0 && ` (${auctions.length})`}
+        </button>
+      </div>
 
-          {auctions.length === 0 ? (
-            <div className={styles.emptyState}>
-              <p>No active negotiations.</p>
-              <p className={styles.emptyHint}>Make an offer to a free agent below to kick off negotiations.</p>
-            </div>
-          ) : (
-            <div className={styles.auctionList}>
-              {auctions.map((auction) => {
-                const isUrgent = new Date(auction.expires_at).getTime() - now < ANTI_SNIPE_WINDOW_MS;
-                const isLeading = auction.highest_bidder_team_id === myTeam.id;
-                const isBidding = auction.my_bid !== null && !isLeading;
+      {/* ══════════════════════════════════════════════
+          Player Market Tab
+      ══════════════════════════════════════════════ */}
+      {activeTab === 'market' && (
+        <div className={styles.marketLayout}>
 
-                const isSystemAuction = auction.highest_bidder_team_id === null;
-                const isExpired = new Date(auction.expires_at).getTime() <= now;
-
-                return (
-                  <div
-                    key={auction.player.id}
-                    className={`${styles.auctionCard} ${isUrgent ? styles.auctionCardUrgent : ''} ${isSystemAuction ? styles.auctionCardWaiver : ''}`}
-                  >
-                    {/* Player info */}
-                    <div className={styles.auctionCardTop}>
-                      <div className={styles.playerInfo}>
-                        <PosBadge position={auction.player.primary_position} />
-                        <div>
-                          <button
-                            type="button"
-                            className={styles.playerName}
-                            style={{ background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left', padding: 0, textDecoration: 'underline', color: 'inherit' }}
-                            onClick={() => setViewingPlayer(auction.player)}
-                            title="View Player Details"
-                          >
-                            {formatPlayerName(auction.player, 'initial_last')}
-                          </button>
-                          <span className={styles.playerClub}>{auction.player.pl_team}</span>
-                        </div>
-                      </div>
-                      {/* Countdown */}
-                      <div className={`${styles.countdown} ${isUrgent ? styles.countdownUrgent : ''}`}>
-                        <span>
-                          <span className={styles.countdownIcon}>{isUrgent ? '🔥' : '⏱'}</span>
-                          {' '}{formatCountdown(auction.expires_at, now)}
-                        </span>
-                        <span className={styles.countdownEndTime}>
-                          {formatEndTime(auction.expires_at)}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Bid status */}
-                    <div className={styles.auctionCardMid}>
-                      <div className={styles.bidBlock}>
-                        <span className={styles.bidBlockLabel}>
-                          {isSystemAuction ? 'Waiver Minimum' : 'Leading bid'}
-                        </span>
-                        <span className={styles.bidBlockValue}>
-                          £{auction.highest_bid}m
-                          {isLeading && (
-                            <span className={styles.youLeadTag}> · You</span>
-                          )}
-                        </span>
-                        <span className={styles.bidBlockTeam}>
-                          {isSystemAuction
-                            ? <span className={styles.waiverBadge}>On Waivers</span>
-                            : isLeading ? myTeam.team_name : auction.highest_bidder_team_name
-                          }
-                        </span>
-                      </div>
-
-                      <div className={styles.bidBlock}>
-                        <span className={styles.bidBlockLabel}>
-                          {isSystemAuction
-                            ? '0 bids'
-                            : auction.bid_count === 1 ? '1 bid' : `${auction.bid_count} bids`}
-                        </span>
-                        {auction.my_bid !== null && !isLeading && (
-                          <>
-                            <span className={styles.bidBlockValue}>My bid: £{auction.my_bid}m</span>
-                            <span className={styles.outbidTag}>Outbid</span>
-                          </>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Action button */}
-                    <button
-                      className={`${styles.bidBtn} ${isLeading ? styles.bidBtnLeading : ''} ${isBidding ? styles.bidBtnOutbid : ''}`}
-                      disabled={isExpired}
-                      style={isExpired ? { opacity: 0.6, cursor: 'not-allowed' } : undefined}
-                      onClick={() =>
-                        openBidModal(
-                          auction.player,
-                          auction.highest_bid,
-                          auction.expires_at,
-                          auction.my_bid,
-                          auction.my_drop_player_id,
-                        )
-                      }
-                    >
-                      {isExpired ? 'Processing...' : isLeading ? 'Raise Bid' : isBidding ? 'Counter Bid' : 'Place Bid'}
-                    </button>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </section>
-
-        {/* ── Right: Free Agents ── */}
-        <section className={styles.freeAgentsPanel}>
-          <div className={styles.panelHeader}>
-            <h2 className={styles.panelTitle}>Free Agents</h2>
-          </div>
-
-          {/* Filters */}
-          <div className={styles.filters}>
-            <form onSubmit={handleSearch} className={styles.filterForm} style={{ display: 'flex', gap: 'var(--space-2)', alignItems: 'center', width: '100%' }}>
+          {/* ── Player List ── */}
+          <div>
+            {/* Search */}
+            <form onSubmit={handleSearch} className={styles.searchRow}>
               <input
                 name="q"
                 defaultValue={initialQ}
                 className={styles.searchInput}
-                placeholder="Search player…"
-                style={{ flex: 1 }}
+                placeholder="Search players — name, club, or position"
               />
-              <button type="submit" className={styles.searchBtn} style={{ height: '36px', padding: '0 var(--space-4)', borderRadius: 'var(--radius-md)', background: 'var(--color-bg-card)', border: '1px solid var(--color-border)', cursor: 'pointer', color: 'var(--color-text-secondary)', fontWeight: 'var(--font-medium)' }}>
-                Search
-              </button>
+              <button type="submit" className={styles.searchBtn}>Search</button>
             </form>
+
+            {/* Position filters */}
             <div className={styles.posFilters}>
               <a
                 href={`/league/${leagueId}/players`}
                 className={`${styles.posFilter} ${!initialPos ? styles.posFilterActive : ''}`}
               >
-                All
+                ALL
               </a>
               {positions.map((p) => (
                 <a
@@ -419,174 +351,425 @@ export default function TransferMarketClient({
                 </a>
               ))}
             </div>
+
+            <p className={styles.resultCount}>
+              {freeAgents.length} player{freeAgents.length !== 1 ? 's' : ''} available
+            </p>
+
+            <div className={styles.playerList}>
+              {freeAgents.length === 0 ? (
+                <p className={styles.emptyActivity}>No players match your search.</p>
+              ) : (
+                freeAgents.map((player) => {
+                  const inAuction = auctions.some((a) => a.player.id === player.id);
+                  return (
+                    <div
+                      key={player.id}
+                      className={`${styles.playerCard} ${inAuction ? styles.playerCardInAuction : ''}`}
+                    >
+                      <PosBadge position={player.primary_position} />
+
+                      <div className={styles.playerIdentity}>
+                        <button
+                          type="button"
+                          className={styles.playerName}
+                          onClick={() => setViewingPlayer(player)}
+                        >
+                          {formatPlayerName(player, 'initial_last')}
+                        </button>
+                        <span className={styles.playerClub}>{player.pl_team}</span>
+                      </div>
+
+                      <div className={styles.playerStats}>
+                        <div className={styles.statCol}>
+                          <span className={styles.statLabel}>PPG</span>
+                          <span className={styles.statValue}>{formatStat(player.ppg)}</span>
+                        </div>
+                        <div className={styles.statCol}>
+                          <span className={styles.statLabel}>Form</span>
+                          <span className={styles.statValue}>{formatStat(player.form_rating)}</span>
+                        </div>
+                        <div className={styles.statCol}>
+                          <span className={styles.statLabel}>Mkt Val</span>
+                          <span className={styles.statValue}>{formatMarketValue(player.market_value)}</span>
+                        </div>
+                      </div>
+
+                      {inAuction ? (
+                        <span className={styles.inAuctionBadge}>In Auction</span>
+                      ) : (
+                        <button
+                          className={styles.bidBtn}
+                          onClick={() => openBidModal(player, 0, null, null, null, [])}
+                        >
+                          Bid
+                        </button>
+                      )}
+                    </div>
+                  );
+                })
+              )}
+            </div>
           </div>
 
-          <p className={styles.resultCount}>
-            {freeAgents.length} player{freeAgents.length !== 1 ? 's' : ''} available
-          </p>
+          {/* ── Recent Auctions Sidebar ── */}
+          <aside className={styles.recentAuctionsSidebar}>
+            <div className={styles.sidebarHeader}>
+              <h3 className={styles.sidebarTitle}>Recent Auctions</h3>
+              <p className={styles.sidebarSubtitle}>Transfer Window Activity</p>
+            </div>
 
-          <div className={styles.agentList}>
-            {freeAgents.length === 0 ? (
-              <p className={styles.emptyState}>No players match your search.</p>
+            {initialRecentActivity.length === 0 ? (
+              <p className={styles.emptyActivity}>No completed auctions yet.</p>
             ) : (
-              freeAgents.map((player) => (
-                <div key={player.id} className={styles.agentRow}>
-                  <PosBadge position={player.primary_position} />
-                  <div className={styles.agentInfoTop}>
-                    <button
-                      type="button"
-                      className={styles.agentName}
-                      style={{ background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left', padding: 0, textDecoration: 'underline', color: 'inherit' }}
-                      onClick={() => setViewingPlayer(player)}
-                      title="View Player Details"
-                    >
-                      {formatPlayerName(player, 'initial_last')}
-                    </button>
-                    {player.projected_points !== undefined && player.projected_points !== null ? (
-                      <span className={styles.agentValue} style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-secondary)', marginRight: 'var(--space-2)' }}>Proj: {Number(player.projected_points).toFixed(1)}</span>
-                    ) : null}
-                    <span className={styles.agentValue}>£{Number(player.market_value ?? 0).toFixed(1)}m</span>
-                  </div>
-                  <button
-                    className={styles.nominateBtn}
-                    onClick={() => openBidModal(player, 0, null, null, null)}
+              <div className={styles.activityList}>
+                {initialRecentActivity.map((item) => {
+                  const playerName = item.player
+                    ? (item.player.web_name || item.player.name)
+                    : '—';
+                  const teamName = item.team?.team_name ?? '—';
+                  const bid = item.faab_bid != null ? `£${item.faab_bid}m` : '—';
+                  const when = item.processed_at ? timeAgo(item.processed_at) : '';
+                  return (
+                    <div key={item.id} className={styles.activityItem}>
+                      <div className={styles.activityLeft}>
+                        <p className={styles.activityPlayerName}>{playerName}</p>
+                        <p className={styles.activityTeam}>{teamName}</p>
+                      </div>
+                      <div className={styles.activityRight}>
+                        <span className={styles.activityBid}>{bid}</span>
+                        <span className={styles.activityTime}>{when}</span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            <div className={styles.sidebarFooter}>
+              <Link
+                href={`/league/${leagueId}/activity`}
+                className={styles.viewAllLink}
+              >
+                View all activity →
+              </Link>
+            </div>
+          </aside>
+        </div>
+      )}
+
+      {/* ══════════════════════════════════════════════
+          Active Auctions Tab
+      ══════════════════════════════════════════════ */}
+      {activeTab === 'auctions' && (
+        <div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4)' }}>
+            <p className={styles.resultCount}>
+              {auctions.length === 0
+                ? 'No active auctions'
+                : `${auctions.length} auction${auctions.length !== 1 ? 's' : ''} in progress`}
+            </p>
+            <button className={styles.refreshBtn} onClick={refresh} disabled={refreshing}>
+              {refreshing ? '…' : '↻ Refresh'}
+            </button>
+          </div>
+
+          <div className={styles.auctionsGrid}>
+            {auctions.length === 0 ? (
+              <div className={styles.auctionsEmptyState}>
+                <p className={styles.auctionsEmptyTitle}>No active auctions</p>
+                <p className={styles.auctionsEmptyHint}>
+                  Drop a player from your roster to start a 48-hour bidding window,
+                  or make an offer on a free agent in the Player Market tab.
+                </p>
+              </div>
+            ) : (
+              auctions.map((auction) => {
+                const isUrgent = new Date(auction.expires_at).getTime() - now < ANTI_SNIPE_WINDOW_MS;
+                const isLeading = auction.highest_bidder_team_id === myTeam.id;
+                const isExpired = new Date(auction.expires_at).getTime() <= now;
+                const tmMin = Math.floor(Number(auction.player.market_value || 0) * 0.2);
+
+                return (
+                  <div
+                    key={auction.player.id}
+                    className={`${styles.auctionCard} ${isUrgent ? styles.auctionCardUrgent : ''}`}
                   >
-                    Offer
-                  </button>
-                </div>
-              ))
+                    <div className={styles.auctionCardTop}>
+                      <PosBadge position={auction.player.primary_position} />
+                      <div className={styles.auctionPlayerInfo}>
+                        <button
+                          type="button"
+                          className={styles.auctionPlayerName}
+                          onClick={() => setViewingPlayer(auction.player)}
+                        >
+                          {formatPlayerName(auction.player, 'initial_last')}
+                        </button>
+                        <span className={styles.auctionPlayerClub}>{auction.player.pl_team}</span>
+                      </div>
+                    </div>
+
+                    <div className={styles.auctionCardStats}>
+                      <div className={styles.statCol}>
+                        <span className={styles.statLabel}>PPG</span>
+                        <span className={styles.statValue}>{formatStat(auction.player.ppg)}</span>
+                      </div>
+                      <div className={styles.statCol}>
+                        <span className={styles.statLabel}>Form</span>
+                        <span className={styles.statValue}>{formatStat(auction.player.form_rating)}</span>
+                      </div>
+                      <div className={styles.statCol}>
+                        <span className={styles.statLabel}>Mkt Val</span>
+                        <span className={styles.statValue}>{formatMarketValue(auction.player.market_value)}</span>
+                      </div>
+                    </div>
+
+                    <div className={styles.auctionInfo}>
+                      <div className={styles.auctionInfoRow}>
+                        <div>
+                          <div className={styles.auctionInfoLabel}>Current Bid</div>
+                          <div className={styles.auctionInfoBid}>£{auction.highest_bid}m</div>
+                          <div className={styles.auctionInfoLeader}>
+                            {isLeading ? `You (${myTeam.team_name})` : auction.highest_bidder_team_name}
+                          </div>
+                        </div>
+                        <div style={{ textAlign: 'right' }}>
+                          <div className={styles.auctionInfoLabel}>Time Remaining</div>
+                          <div className={`${styles.auctionInfoCountdown} ${isUrgent ? styles.countdownUrgent : ''}`}>
+                            {formatCountdown(auction.expires_at, now)}
+                          </div>
+                          <div className={styles.auctionInfoLeader}>{formatEndTime(auction.expires_at)}</div>
+                        </div>
+                      </div>
+
+                      <div className={styles.auctionInfoDivider} />
+
+                      <button
+                        className={styles.auctionPlaceBidBtn}
+                        disabled={isExpired}
+                        onClick={() =>
+                          openBidModal(
+                            auction.player,
+                            auction.highest_bid,
+                            auction.expires_at,
+                            auction.my_bid,
+                            auction.my_drop_player_id,
+                            auction.bid_history ?? [],
+                          )
+                        }
+                      >
+                        {isExpired ? 'Processing…' : isLeading ? 'Raise Bid' : 'Place Bid'}
+                      </button>
+
+                      {tmMin > 0 && (
+                        <p className={styles.auctionMinBid}>Min bid: £{tmMin}m</p>
+                      )}
+                    </div>
+                  </div>
+                );
+              })
             )}
           </div>
-        </section>
-      </div>
+        </div>
+      )}
 
-      {/* ── Bid Modal ── */}
+      {/* ══════════════════════════════════════════════
+          Bid Modal
+      ══════════════════════════════════════════════ */}
       {modal.open && modal.player && (
         <div className={styles.modalOverlay} onClick={closeModal}>
           <div className={styles.modalBox} onClick={(e) => e.stopPropagation()}>
-            <button className={styles.modalClose} onClick={closeModal}>×</button>
 
-            {/* Player header */}
-            <div className={styles.modalPlayerHeader}>
-              <PosBadge position={modal.player.primary_position} />
-              <div>
-                <h2 className={styles.modalPlayerName}>
-                  {formatPlayerName(modal.player, 'initial_last')}
-                </h2>
-                <p className={styles.modalPlayerClub}>{modal.player.pl_team}</p>
-              </div>
+            {/* Header */}
+            <div className={styles.modalHeader}>
+              <h2 className={styles.modalTitle}>
+                {modal.currentExpiry ? 'Place a Bid' : 'Start Auction'}
+              </h2>
+              <button className={styles.modalClose} onClick={closeModal} aria-label="Close">×</button>
             </div>
 
-            {/* Auction context */}
-            {modal.currentExpiry ? (
-              <div className={styles.modalAuctionInfo}>
-                <div className={styles.modalInfoRow}>
-                  <span>Current highest bid</span>
-                  <strong>£{modal.currentHighest}m</strong>
-                </div>
-                {modal.myCurrentBid !== null && (
-                  <div className={styles.modalInfoRow}>
-                    <span>Your current bid</span>
-                    <strong>£{modal.myCurrentBid}m</strong>
+            <div className={styles.modalBody}>
+
+              {/* Player info */}
+              <div className={styles.modalPlayerPanel}>
+                <div className={styles.modalPlayerLeft}>
+                  <PosBadge position={modal.player.primary_position} />
+                  <div className={styles.modalPlayerMeta}>
+                    <p className={styles.modalPlayerName}>
+                      {formatPlayerName(modal.player, 'initial_last')}
+                    </p>
+                    <p className={styles.modalPlayerClub}>
+                      {modal.player.pl_team} · {modal.player.primary_position}
+                    </p>
                   </div>
-                )}
-                <div className={styles.modalInfoRow}>
-                  <span>Auction closes</span>
-                  <strong title={formatCountdown(modal.currentExpiry, now)}>
-                    {formatEndTime(modal.currentExpiry)}
-                  </strong>
+                </div>
+                <div className={styles.modalPlayerStats}>
+                  <div className={styles.statCol}>
+                    <span className={styles.statLabel}>PPG</span>
+                    <span className={styles.statValue}>{formatStat(modal.player.ppg)}</span>
+                  </div>
+                  <div className={styles.statDivider} />
+                  <div className={styles.statCol}>
+                    <span className={styles.statLabel}>Mkt Val</span>
+                    <span className={styles.statValue}>{formatMarketValue(modal.player.market_value)}</span>
+                  </div>
                 </div>
               </div>
-            ) : (
-              <div className={styles.modalAuctionInfo}>
-                <p className={styles.nominateHint}>
-                  You are the first to bid — this will start a 48-hour auction.
-                </p>
-              </div>
-            )}
 
-            {/* FAAB remaining */}
-            <div className={styles.modalFaab}>
-              Your FAAB: <strong>£{myTeam.faab_budget}m</strong>
+              {/* Auction status / new auction hint */}
+              {modal.currentExpiry ? (
+                <div className={styles.auctionStatusPanel}>
+                  <div className={styles.auctionStatusTop}>
+                    <div className={styles.auctionStatusBidBlock}>
+                      <div className={styles.auctionStatusBidLabel}>Current Bid</div>
+                      <div className={styles.auctionStatusBidAmount}>£{modal.currentHighest}m</div>
+                      <div className={styles.auctionStatusLeader}>
+                        {modal.myCurrentBid === modal.currentHighest
+                          ? `You (${myTeam.team_name})`
+                          : modal.bidHistory?.[0]?.team_name ?? '—'}
+                      </div>
+                    </div>
+                    <div className={styles.auctionStatusTimerBlock}>
+                      <div className={styles.auctionStatusTimerLabel}>Time Remaining</div>
+                      <div className={`${styles.auctionStatusTimer} ${
+                        new Date(modal.currentExpiry).getTime() - now < ANTI_SNIPE_WINDOW_MS
+                          ? styles.auctionStatusTimerUrgent
+                          : ''
+                      }`}>
+                        {formatCountdown(modal.currentExpiry, now)}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Bid history */}
+                  {modal.bidHistory && modal.bidHistory.length > 0 && (
+                    <>
+                      <div className={styles.bidHistoryDivider} />
+                      <div className={styles.bidHistoryList}>
+                        {modal.bidHistory.slice(0, 3).map((bid, i) => (
+                          <div key={i} className={styles.bidHistoryItem}>
+                            <span className={styles.bidHistoryTeam}>
+                              <span className={`${styles.bidHistoryDot} ${i === 0 ? styles.bidHistoryDotLeading : styles.bidHistoryDotOther}`} />
+                              {bid.team_name}
+                            </span>
+                            <span className={styles.bidHistoryAmount}>£{bid.faab_bid}m</span>
+                            <span className={styles.bidHistoryTime}>{timeAgo(bid.created_at)}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </>
+                  )}
+                </div>
+              ) : (
+                <p className={styles.newAuctionHint}>
+                  You are the first to bid — this will open a 48-hour public auction window.
+                  All managers can see and counter any bid.
+                </p>
+              )}
+
+              {/* Bid input */}
+              <div className={styles.bidInputSection}>
+                <span className={styles.bidInputLabel}>Your Bid</span>
+                <div className={styles.bidStepper}>
+                  <button
+                    type="button"
+                    className={styles.stepperBtn}
+                    onClick={() => adjustBid(-1)}
+                    aria-label="Decrease bid"
+                  >−</button>
+                  <input
+                    type="number"
+                    min={0}
+                    max={myTeam.faab_budget}
+                    step={1}
+                    className={styles.stepperInput}
+                    value={bidAmount}
+                    onChange={(e) => setBidAmount(e.target.value)}
+                    autoFocus
+                  />
+                  <button
+                    type="button"
+                    className={styles.stepperBtn}
+                    onClick={() => adjustBid(1)}
+                    aria-label="Increase bid"
+                  >+</button>
+                  <span className={styles.stepperUnit}>£m</span>
+                </div>
+
+                <div className={styles.bidContextInfo}>
+                  <span>
+                    Min bid: <strong>£{Math.max(auctionMin, tmMin)}m</strong>
+                    {tmMin > 0 && ` (£${tmMin}m Transfermarkt floor)`}
+                  </span>
+                  <span className={styles.bidContextInfoGreen}>
+                    Balance: <strong>£{myTeam.faab_budget}m</strong>
+                  </span>
+                </div>
+
+                {/* Contextual lead message */}
+                {!isNaN(bidNum) && modal.currentExpiry && (
+                  bidNum > modal.currentHighest ? (
+                    <p className={styles.bidLeadMessage}>
+                      Your bid of £{bidNum}m would put you in the lead.
+                    </p>
+                  ) : isLeadingBidder ? (
+                    <p className={styles.bidLeadMessage}>You are currently the highest bidder.</p>
+                  ) : (
+                    <p className={styles.bidWarnMessage}>
+                      Bid above £{modal.currentHighest}m to take the lead.
+                    </p>
+                  )
+                )}
+              </div>
+
+              {/* Drop selector */}
+              {rosterFull && (
+                <label className={styles.modalLabel}>
+                  Drop player (roster full)
+                  <select
+                    className={styles.modalSelect}
+                    value={dropPlayerId}
+                    onChange={(e) => setDropPlayerId(e.target.value)}
+                  >
+                    <option value="">— Select player to release —</option>
+                    {myRoster.map((p) => {
+                      const fee = Math.floor(Number(p.market_value || 0) * 0.1);
+                      return (
+                        <option key={p.id} value={p.id}>
+                          {formatPlayerName(p as any)} ({p.primary_position} · {p.pl_team})
+                          {fee > 0 ? ` — −£${fee}m severance` : ''}
+                        </option>
+                      );
+                    })}
+                  </select>
+                </label>
+              )}
+
+              {/* Error */}
+              {submitError && <p className={styles.modalError}>{submitError}</p>}
             </div>
 
-            {/* Bid input */}
-            <label className={styles.modalLabel}>
-              Your bid (£m)
-              <input
-                type="number"
-                min={0}
-                max={myTeam.faab_budget}
-                step={1}
-                className={styles.modalInput}
-                value={bidAmount}
-                onChange={(e) => setBidAmount(e.target.value)}
-                autoFocus
-              />
-            </label>
-            {(() => {
-              const tmMin = Math.floor(Number(modal.player?.market_value || 0) * 0.2);
-              const auctionMin = modal.myCurrentBid !== null
-                ? Math.max(modal.currentHighest, modal.myCurrentBid) + 1
-                : modal.currentHighest;
-              const enteredAmount = parseInt(bidAmount, 10);
-              const belowTmMin = tmMin > 0 && !isNaN(enteredAmount) && enteredAmount < tmMin;
-              return (
-                <>
-                  <p className={styles.modalHint}>
-                    Auction minimum: <strong>£{auctionMin}m</strong>
-                    {tmMin > 0 && (
-                      <span className={belowTmMin ? styles.tmMinWarn : styles.tmMinOk}>
-                        {' · '}Transfermarkt floor: £{tmMin}m
-                      </span>
-                    )}
-                  </p>
-                </>
-              );
-            })()}
-
-            {/* Drop player selector */}
-            {rosterFull && (
-              <label className={styles.modalLabel}>
-                Drop player (roster full)
-                <select
-                  className={styles.modalSelect}
-                  value={dropPlayerId}
-                  onChange={(e) => setDropPlayerId(e.target.value)}
-                >
-                  <option value="">— Select player to drop —</option>
-                  {myRoster.map((p) => {
-                    const fee = Math.floor(Number(p.market_value || 0) * 0.1);
-                    return (
-                      <option key={p.id} value={p.id}>
-                        {formatPlayerName(p as any)} ({p.primary_position} · {p.pl_team}){fee > 0 ? ` — −£${fee}m Severance` : ''}
-                      </option>
-                    );
-                  })}
-                </select>
-              </label>
-            )}
-
-            {/* Error */}
-            {submitError && <p className={styles.modalError}>{submitError}</p>}
-
-            {/* Actions */}
-            <div className={styles.modalActions}>
-              <button className={styles.cancelBtn} onClick={closeModal} disabled={submitting}>
-                Cancel
-              </button>
+            {/* Footer */}
+            <div className={styles.modalFooter}>
               <button
                 className={styles.submitBtn}
                 onClick={handleSubmitBid}
                 disabled={submitting}
               >
-                {submitting ? 'Submitting…' : modal.currentExpiry ? 'Submit Bid' : 'Start Auction'}
+                {submitting ? 'Submitting…' : confirmLabel}
               </button>
+              <button className={styles.cancelBtn} onClick={closeModal} disabled={submitting}>
+                Cancel
+              </button>
+              <p className={styles.modalDisclaimer}>
+                By bidding you agree to pay if you win · Auction closes when the 48-hour window expires
+              </p>
             </div>
           </div>
         </div>
       )}
 
+      {/* Player details modal */}
       <PlayerDetailsModal
         player={viewingPlayer}
         onClose={() => setViewingPlayer(null)}
@@ -594,6 +777,3 @@ export default function TransferMarketClient({
     </div>
   );
 }
-
-// Reuse the constant from the bid API (1 hour in ms)
-const ANTI_SNIPE_WINDOW_MS = 60 * 60 * 1_000;

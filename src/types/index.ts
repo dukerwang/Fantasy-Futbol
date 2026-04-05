@@ -417,6 +417,12 @@ export function getExpectedBenchSlots(_benchSize?: number): BenchSlot[] {
   return ['DEF', 'MID', 'ATT', 'FLEX'];
 }
 
+export interface AuctionBid {
+  team_name: string;
+  faab_bid: number;
+  created_at: string;
+}
+
 export interface AuctionListing {
   player: Player;
   expires_at: string;
@@ -426,6 +432,7 @@ export interface AuctionListing {
   my_bid: number | null;
   my_drop_player_id: string | null;
   bid_count: number;
+  bid_history: AuctionBid[];
 }
 
 

@@ -59,6 +59,11 @@ export async function GET(_req: NextRequest, { params }: Props) {
   const auctionMap = new Map<string, AuctionListing>();
   for (const claim of claims ?? []) {
     const existing = auctionMap.get(claim.player_id);
+    const bidEntry = {
+      team_name: claim.team ? (claim.team as any).team_name : 'System',
+      faab_bid: claim.faab_bid,
+      created_at: claim.created_at,
+    };
     if (!existing) {
       auctionMap.set(claim.player_id, {
         player: claim.player as Player,
@@ -69,9 +74,11 @@ export async function GET(_req: NextRequest, { params }: Props) {
         my_bid: claim.team_id && claim.team_id === myTeam.id ? claim.faab_bid : null,
         my_drop_player_id: claim.team_id && claim.team_id === myTeam.id ? claim.drop_player_id : null,
         bid_count: 1,
+        bid_history: [bidEntry],
       });
     } else {
       existing.bid_count++;
+      existing.bid_history.push(bidEntry);
       if (claim.team_id && claim.team_id === myTeam.id) {
         existing.my_bid = claim.faab_bid;
         existing.my_drop_player_id = claim.drop_player_id;

@@ -54,10 +54,15 @@ export default async function TransferMarketPage({ params, searchParams }: Props
     .eq('is_auction', true)
     .order('faab_bid', { ascending: false });
 
-  // Group by player to build AuctionListing[] (mirrors GET /api/leagues/[leagueId]/auctions)
+  // Group by player to build AuctionListing[] with per-auction bid history
   const auctionMap = new Map<string, any>();
   for (const claim of rawClaims ?? []) {
     const existing = auctionMap.get(claim.player_id);
+    const bidEntry = {
+      team_name: claim.team ? (claim.team as any).team_name : 'System',
+      faab_bid: claim.faab_bid,
+      created_at: claim.created_at,
+    };
     if (!existing) {
       auctionMap.set(claim.player_id, {
         player: claim.player,
@@ -68,9 +73,11 @@ export default async function TransferMarketPage({ params, searchParams }: Props
         my_bid: claim.team_id && claim.team_id === myTeam.id ? claim.faab_bid : null,
         my_drop_player_id: claim.team_id && claim.team_id === myTeam.id ? claim.drop_player_id : null,
         bid_count: 1,
+        bid_history: [bidEntry],
       });
     } else {
       existing.bid_count++;
+      existing.bid_history.push(bidEntry);
       if (claim.team_id && claim.team_id === myTeam.id) {
         existing.my_bid = claim.faab_bid;
         existing.my_drop_player_id = claim.drop_player_id;
@@ -141,17 +148,31 @@ export default async function TransferMarketPage({ params, searchParams }: Props
 
   const rosterFull = myRoster.length >= (league.roster_size ?? 20);
 
+  // Recent completed auction wins for the sidebar feed
+  const { data: recentActivity } = await admin
+    .from('transactions')
+    .select(
+      `id, type, faab_bid, processed_at,
+       team:teams(id, team_name),
+       player:players(id, web_name, name, primary_position, pl_team)`
+    )
+    .eq('league_id', leagueId)
+    .in('type', ['waiver_claim', 'free_agent_pickup'])
+    .order('processed_at', { ascending: false })
+    .limit(8);
+
   return (
     <TransferMarketClient
       leagueId={leagueId}
       leagueName={league.name}
       initialAuctions={(auctions ?? []) as any[]}
-      initialFreeAgents={(freeAgents.slice(0, 100) ?? []) as any[]} // Limit to top 100 for performance
+      initialFreeAgents={(freeAgents.slice(0, 100) ?? []) as any[]}
       initialMyTeam={{ id: myTeam.id, faab_budget: myTeam.faab_budget, team_name: myTeam.team_name }}
       initialMyRoster={myRoster as any[]}
       initialRosterFull={rosterFull}
       initialQ={q ?? ''}
       initialPos={pos ?? ''}
+      initialRecentActivity={(recentActivity ?? []) as any[]}
     />
   );
 }
