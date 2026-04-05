@@ -43,13 +43,15 @@ A major UI overhaul is underway. The app previously used a generic dark theme. I
 - ✅ `CLAUDE.md` — design system section rewritten with locked token table + forbidden patterns
 - ✅ `standings/page.tsx` + `standings/standings.module.css` — **initial implementation done (podium + table), needs visual refinement**
 
+### Completed in UI Overhaul Sessions (continued)
+- ✅ **Standings** — podium + table implemented and visually polished
+- ✅ **Activity Log** — "The Transfer Gazette" timeline, Live Auctions sidebar widget (capped at 4 rows), Transfer Budget widget
+- ✅ **Free Agency / Player Market** — tabbed layout (Player Market + Active Auctions), cream editorial player cards, Recent Auctions sidebar, redesigned bid modal with bid history, client-side search + position filters (including LM/RM)
+
 ### What Still Needs Work (Priority Order)
-1. **Standings** (`standings/page.tsx`, `standings/standings.module.css`) — 🔁 **needs refinement** — podium and table are implemented but visual polish pass still required against the Stitch prototype
-2. **Activity Log** (`activity/page.tsx`, `activity/activity.module.css`) — Stitch prototype: "The Transfer Gazette" timeline
-3. **Matchups** (`matchups/page.tsx`, `matchups/matchups.module.css`) — Stitch prototype: matchup cards with GW selector
-4. **Free Agency** (`players/TransferMarketClient.tsx`, `transfers.module.css`) — Stitch prototype: "Player Market"
-5. **Trades** (`trades/TradesClient.tsx`, `trades.module.css`) — Stitch prototype: tabbed trade UI
-6. Final sweep: any remaining hardcoded hex values across all module CSS files
+1. **Matchups** (`matchups/page.tsx`, `matchups/matchups.module.css`) — Stitch prototype: matchup cards with GW selector
+2. **Trades** (`trades/TradesClient.tsx`, `trades.module.css`) — Stitch prototype: tabbed trade UI
+3. Final sweep: any remaining hardcoded hex values across all module CSS files
 
 ---
 
