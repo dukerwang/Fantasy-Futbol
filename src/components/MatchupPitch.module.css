@@ -1,348 +1,307 @@
-/* ============================================================
-   MatchupPitch — single unified pitch with horizontal pill chips
-   Cream editorial aesthetic, 0px radii throughout
-   ============================================================ */
+/* MatchupPitch — rebuilt from prototype HTML/CSS */
+.wrapper { display: flex; flex-direction: column; width: 100%; }
 
-.wrapper {
-    display: flex;
-    flex-direction: column;
-    gap: 0;
-    width: 100%;
-}
-
-/* ── Pitch ─────────────────────────────────────────────── */
-.pitchOuter {
-    width: 100%;
-    overflow: hidden;
-    border: 1px solid var(--color-border);
-}
-
+/* ── Pitch (exact prototype pitch-pattern background) ───────────── */
 .pitch {
     width: 100%;
+    min-height: 500px;
+    position: relative;
+    border: 4px solid rgba(255,255,255,0.2);
+    overflow: hidden;
     display: flex;
     flex-direction: column;
-    position: relative;
-    background:
-        repeating-linear-gradient(
-            0deg,
-            transparent,
-            transparent 80px,
-            rgba(0, 0, 0, 0.12) 80px,
-            rgba(0, 0, 0, 0.12) 82px
-        ),
-        linear-gradient(160deg, #2c5f2e 0%, #1e4620 100%);
-    min-height: 380px;
+    background: repeating-linear-gradient(
+        to bottom,
+        #5A8F6A,
+        #5A8F6A 60px,
+        #528361 60px,
+        #528361 120px
+    );
 }
 
-/* Vertical centre divider */
-.pitch::after {
-    content: '';
+/* Vertical center divider */
+.centerDivider {
     position: absolute;
-    top: 0;
-    bottom: 0;
+    top: 0; bottom: 0;
     left: 50%;
-    width: 1px;
-    background: rgba(255, 255, 255, 0.25);
-    pointer-events: none;
+    width: 2px;
+    background: rgba(255,255,255,0.35);
     z-index: 1;
+    pointer-events: none;
 }
 
-/* Centre circle (decorative) */
-.pitch::before {
-    content: '';
+/* Center circle */
+.centerCircle {
     position: absolute;
-    top: 50%;
-    left: 50%;
+    top: 50%; left: 50%;
     transform: translate(-50%, -50%);
-    width: 60px;
-    height: 60px;
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    width: 80px; height: 80px;
+    border: 2px solid rgba(255,255,255,0.35);
     border-radius: 50%;
-    pointer-events: none;
     z-index: 1;
-}
-
-/* ── Team labels inside pitch top ─────────────────────── */
-.pitchTeamLabels {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 2;
     pointer-events: none;
 }
 
-.pitchTeamLabel {
+/* Team name overlays */
+.pitchLabels {
+    position: absolute;
+    top: 10px; left: 0; right: 0;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 16px;
+    pointer-events: none;
+    z-index: 2;
+}
+
+.pitchLabelLeft,
+.pitchLabelRight {
     font-family: var(--font-sans);
-    font-size: 0.6rem;
-    font-weight: 800;
-    letter-spacing: 0.12em;
+    font-size: 0.58rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
     text-transform: uppercase;
-    color: rgba(255, 255, 255, 0.55);
-    padding: 8px 12px;
+    color: rgba(255,255,255,0.7);
 }
 
-.pitchTeamLabel.right {
-    text-align: right;
-}
-
-/* ── Zone rows ────────────────────────────────────────── */
+/* Zone rows */
 .pitchZones {
     display: flex;
     flex-direction: column;
     flex: 1;
-    padding: 28px 0 8px;
+    padding: 38px 0 14px;
+    position: relative;
+    z-index: 2;
 }
 
 .pitchRow {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    min-height: 88px;
+    flex: 1;
+    min-height: 100px;
     align-items: center;
 }
 
 .halfZone {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     justify-content: center;
     align-items: center;
     gap: 6px;
-    padding: 10px 14px;
+    padding: 8px 10px;
 }
 
-/* ── Player Chip ──────────────────────────────────────── */
+/* ── Player chip — card style from prototype ──────────────────────── */
+/* prototype: relative bg-white p-2 w-32 border border-outline-variant */
 .chip {
-    display: inline-flex;
-    align-items: stretch;
     position: relative;
-    background: rgba(255, 255, 255, 0.9);
-    min-width: 108px;
-    max-width: 148px;
-    overflow: visible;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+    background: white;
+    padding: 8px;
+    width: 92px;
+    flex-shrink: 0;
+    border: 1px solid rgba(210,196,183,0.6);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.3);
 }
 
-.chipPos {
+/* Line 1: position badge (prototype: px-1.5 py-0.5 bg-[color] text-white text-[8px] font-bold) */
+.chipPosRow {
+    display: flex;
+    align-items: center;
+    margin-bottom: 3px;
+}
+
+.chipPosLabel {
+    display: inline-block;
+    padding: 1.5px 5px;
+    font-family: var(--font-sans);
+    font-size: 0.45rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: white;
+}
+
+/* Line 2: player name (prototype: font-label font-bold text-[10px] uppercase truncate) */
+.chipName {
+    display: block;
+    font-family: var(--font-sans);
+    font-size: 0.58rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    color: #1c1c19;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding-right: 22px; /* room for score badge */
+}
+
+/* Score badge — absolute top-right, colored by intensity (user-approved style) */
+.chipScore {
+    position: absolute;
+    top: 3px; right: 3px;
     font-family: var(--font-sans);
     font-size: 0.48rem;
     font-weight: 800;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    color: #fff;
-    padding: 4px 4px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    min-width: 24px;
+    padding: 2px 3px;
+    line-height: 1.2;
+    letter-spacing: 0.01em;
 }
 
-.chipName {
-    font-family: var(--font-sans);
-    font-size: 0.66rem;
-    font-weight: 700;
-    color: #1a1a1a;
-    text-transform: uppercase;
-    letter-spacing: 0.02em;
-    padding: 5px 20px 5px 5px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    flex: 1;
-}
-
-/* Score badge — absolute top-right corner, sticker style */
-.chipScore {
-    position: absolute;
-    top: -4px;
-    right: -4px;
-    font-family: var(--font-sans);
-    font-size: 0.55rem;
-    font-weight: 800;
-    padding: 2px 4px;
-    letter-spacing: 0.02em;
-    z-index: 3;
-    line-height: 1.3;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
-}
-
-/* ── Bench ────────────────────────────────────────────── */
+/* ── Bench ────────────────────────────────────────────────────────── */
+/* prototype: bg-bench-bg (#EDE8DE) p-4 */
 .benchSection {
-    background: var(--color-bg-elevated);
-    border-top: 1px solid var(--color-border);
-    border-left: 1px solid var(--color-border);
-    border-right: 1px solid var(--color-border);
+    background: #EDE8DE;
+    padding: 12px 16px;
+    border-top: 1px solid rgba(210,196,183,0.5);
+    border-left: 1px solid var(--color-border, rgba(210,196,183,0.5));
+    border-right: 1px solid var(--color-border, rgba(210,196,183,0.5));
 }
 
-.benchRow {
-    padding: 8px 14px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    border-bottom: 1px solid var(--color-border-subtle);
-}
-
-.benchRow:last-child {
-    border-bottom: none;
-}
-
-.benchLabel {
+.benchSectionLabel {
     font-family: var(--font-sans);
-    font-size: 0.6rem;
-    font-weight: 800;
-    letter-spacing: 0.1em;
+    font-size: 0.58rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
     text-transform: uppercase;
-    color: var(--color-text-muted);
-    flex-shrink: 0;
-    min-width: 160px;
+    color: rgba(78,69,59,0.6);
+    margin-bottom: 10px;
 }
 
-.benchChips {
+.benchChipsRow {
     display: flex;
     flex-wrap: wrap;
-    gap: 6px;
+    gap: 8px;
 }
 
+/* prototype bench chip: relative bg-white p-2 w-28 border border-outline-variant/30 */
 .benchChip {
-    display: inline-flex;
-    align-items: stretch;
     position: relative;
-    background: var(--color-bg-card);
-    border: 1px solid var(--color-border);
-    max-width: 120px;
-    overflow: visible;
+    background: white;
+    padding: 7px;
+    width: 84px;
+    flex-shrink: 0;
+    border: 1px solid rgba(210,196,183,0.3);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.15);
 }
 
 .benchChipName {
+    display: block;
     font-family: var(--font-sans);
-    font-size: 0.6rem;
-    font-weight: 600;
-    color: var(--color-text-secondary);
+    font-size: 0.5rem;
+    font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.02em;
-    padding: 4px 18px 4px 4px;
+    color: #1c1c19;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    flex: 1;
+    padding-right: 18px;
 }
 
-/* ── Player Points Breakdown ──────────────────────────── */
-.breakdown {
-    margin-top: 2rem;
+.benchScore {
+    position: absolute;
+    top: 2px; right: 2px;
+    font-family: var(--font-sans);
+    font-size: 0.42rem;
+    font-weight: 800;
+    padding: 1px 2px;
+    line-height: 1.2;
+}
+
+/* ── Player Points Breakdown ──────────────────────────────────────── */
+.breakdown { margin-top: 2.5rem; }
+
+.breakdownHeaderRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.25rem;
 }
 
 .breakdownTitle {
     font-family: var(--font-sans);
     font-size: 0.65rem;
-    font-weight: 800;
-    letter-spacing: 0.14em;
+    font-weight: 700;
+    letter-spacing: 0.2em;
     text-transform: uppercase;
     color: var(--color-text-muted);
-    margin-bottom: 1rem;
 }
 
 .breakdownGrid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 1.5rem;
+    gap: 2rem;
 }
 
-.breakdownCol {
-    display: flex;
-    flex-direction: column;
-    gap: 0;
-}
+.breakdownCol { display: flex; flex-direction: column; }
 
-.breakdownHeader {
+/* prototype: flex items-center justify-between pb-4 border-b border-outline-variant mb-4 */
+.breakdownColHeader {
     display: flex;
-    align-items: baseline;
+    align-items: center;
     justify-content: space-between;
-    gap: 0.5rem;
-    padding-bottom: 0.5rem;
-    border-bottom: 1px solid var(--color-border);
-    margin-bottom: 0.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(210,196,183,0.7);
+    margin-bottom: 0;
 }
 
-.breakdownTeamName {
+.breakdownColName {
     font-family: var(--font-serif);
-    font-size: 1.1rem;
+    font-size: 1.15rem;
     font-weight: 700;
     color: var(--color-text-primary);
 }
 
-.breakdownTotal {
+.breakdownColTotal {
     font-family: var(--font-sans);
-    font-size: 0.7rem;
+    font-size: 0.75rem;
     font-weight: 600;
-    color: var(--color-text-muted);
+    color: #3A6B4A; /* matchup-accent from prototype */
 }
 
+/* prototype row: flex items-center justify-between p-3 bg-surface-container-low */
 .breakdownRow {
     display: flex;
     align-items: center;
-    gap: 0.625rem;
-    padding: 0.625rem 0;
-    border-bottom: 1px solid var(--color-border-subtle);
+    justify-content: space-between;
+    padding: 10px 12px;
+    background: #f7f3ee;
 }
 
-.breakdownRow:last-child {
-    border-bottom: none;
-}
+.breakdownRowAlt { background: rgba(247,243,238,0.5); }
 
-.breakdownPos {
-    font-family: var(--font-sans);
-    font-size: 0.5rem;
-    font-weight: 800;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    color: #fff;
-    padding: 3px 5px;
-    flex-shrink: 0;
-}
-
-.breakdownInfo {
+.breakdownLeft {
     display: flex;
-    flex-direction: column;
-    gap: 0.15rem;
-    flex: 1;
-    min-width: 0;
+    align-items: center;
+    gap: 10px;
+}
+
+/* prototype: w-1.5 h-6 bg-[color] — thin left-edge colored bar */
+.breakdownBar {
+    display: block;
+    width: 4px;
+    height: 24px;
+    flex-shrink: 0;
 }
 
 .breakdownName {
     font-family: var(--font-sans);
     font-size: 0.8125rem;
-    font-weight: 600;
+    font-weight: 700;
+    text-transform: uppercase;
     color: var(--color-text-primary);
 }
 
 .breakdownStats {
     font-family: var(--font-sans);
-    font-size: 0.65rem;
-    color: var(--color-text-muted);
+    font-size: 0.625rem;
+    color: rgba(78,69,59,0.6);
+    margin-top: 1px;
 }
 
-.breakdownPoints {
+.breakdownPts {
     font-family: var(--font-sans);
-    font-size: 1rem;
+    font-size: 0.875rem;
     font-weight: 700;
     color: var(--color-text-primary);
-    flex-shrink: 0;
-    min-width: 3ch;
-    text-align: right;
-}
-
-/* ── Empty state ──────────────────────────────────────── */
-.emptyHalf {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100%;
-    min-height: 200px;
-    font-family: var(--font-sans);
-    font-size: 0.75rem;
-    color: rgba(255, 255, 255, 0.4);
-    font-style: italic;
 }
