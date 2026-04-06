@@ -125,6 +125,15 @@ function BenchChip({ slotType, player, detail }: {
     );
 }
 
+/** Vertical nudge (px) to create football thirds within each zone row.
+ *  Attack: wingers drop slightly below ST.
+ *  Midfield: DM rises toward CM to form a compact midfield block. */
+function slotOffset(slot: string): number {
+    if (['LW', 'RW', 'LM', 'RM'].includes(slot)) return 10;  // wingers drop down
+    if (slot === 'DM') return -12;                             // DM rises toward CM
+    return 0;
+}
+
 /* ── Group starters into zones ────────────────────────────────────── */
 function groupByZone(starters: { player_id: string; slot: string }[]) {
     const z: Record<Zone, { player_id: string; slot: string }[]> = {
@@ -174,9 +183,9 @@ export default function MatchupPitch({
                         <div key={zone} className={styles.pitchRow}>
                             <div className={styles.halfZone}>
                                 {(zonesA?.[zone] ?? []).map(s => {
-                                    const wide = ['LW','RW','LM','RM'].includes(s.slot);
+                                    const dy = slotOffset(s.slot);
                                     return (
-                                        <div key={s.player_id} style={wide ? { transform: 'translateY(10px)' } : undefined}>
+                                        <div key={s.player_id} style={dy ? { transform: `translateY(${dy}px)` } : undefined}>
                                             <PlayerChip
                                                 slot={s.slot}
                                                 player={playerMap[s.player_id]}
@@ -188,9 +197,9 @@ export default function MatchupPitch({
                             </div>
                             <div className={styles.halfZone}>
                                 {(zonesB?.[zone] ?? []).map(s => {
-                                    const wide = ['LW','RW','LM','RM'].includes(s.slot);
+                                    const dy = slotOffset(s.slot);
                                     return (
-                                        <div key={s.player_id} style={wide ? { transform: 'translateY(10px)' } : undefined}>
+                                        <div key={s.player_id} style={dy ? { transform: `translateY(${dy}px)` } : undefined}>
                                             <PlayerChip
                                                 slot={s.slot}
                                                 player={playerMap[s.player_id]}
