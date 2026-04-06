@@ -6,9 +6,9 @@ import { getScoreIntensityColor } from '@/lib/utils/scoreColor';
 import styles from './MatchupPitch.module.css';
 
 /* ── Zone / colour config (from prototype tailwind theme) ─────────── */
-type Zone = 'ATT' | 'MID' | 'DMZ' | 'DEF' | 'GK';
+type Zone = 'ATT' | 'AMZ' | 'CMZ' | 'DMZ' | 'DEF' | 'GK';
 
-const ZONE_ORDER: Zone[] = ['ATT', 'MID', 'DMZ', 'DEF', 'GK'];
+const ZONE_ORDER: Zone[] = ['ATT', 'AMZ', 'CMZ', 'DMZ', 'DEF', 'GK'];
 
 // Exact hex values from prototype tailwind config
 const SLOT_COLOR: Record<string, string> = {
@@ -23,9 +23,15 @@ const BENCH_COLOR: Record<string, string> = {
 };
 
 const SLOT_TO_ZONE: Record<string, Zone> = {
-    LW: 'ATT', ST: 'ATT', RW: 'ATT', AM: 'ATT',
-    CM: 'MID', LM: 'MID', RM: 'MID',
-    DM: 'DMZ',                           // own row — avoids wrapping in DEF
+    // ATT row: all wide/central attackers + wide mids (LM/RM inline with LW/RW)
+    LW: 'ATT', ST: 'ATT', RW: 'ATT', LM: 'ATT', RM: 'ATT',
+    // AM gets own row between ATT and CM (inline with striker horizontally)
+    AM: 'AMZ',
+    // CM row close to DM (lower than AM)
+    CM: 'CMZ',
+    // DM row
+    DM: 'DMZ',
+    // Defenders
     CB: 'DEF', LB: 'DEF', RB: 'DEF',
     GK: 'GK',
 };
@@ -33,7 +39,7 @@ const SLOT_TO_ZONE: Record<string, Zone> = {
 /* ── Stats formatter — matches prototype "2G · 4SOT · 8.9 rating" ── */
 function fmtStats(stats: Record<string, any> | undefined, slot: string): string {
     if (!stats) return '';
-    const zone = SLOT_TO_ZONE[slot] ?? 'MID';
+    const zone = SLOT_TO_ZONE[slot] ?? 'CMZ';
     const parts: string[] = [];
     const g  = Number(stats.goals_scored ?? 0);
     const a  = Number(stats.assists ?? 0);
@@ -48,7 +54,7 @@ function fmtStats(stats: Record<string, any> | undefined, slot: string): string 
         if (cs) parts.push('CS');
         const tk = Number(stats.tackles ?? 0);
         if (tk) parts.push(`${tk} Tk`);
-    } else if (zone === 'MID') {
+    } else if (zone === 'CMZ' || zone === 'AMZ') {
         if (g) parts.push(`${g}G`);
         if (a) parts.push(`${a}A`);
         const kp = Number(stats.key_passes ?? 0);
@@ -122,9 +128,9 @@ function BenchChip({ slotType, player, detail }: {
 /* ── Group starters into zones ────────────────────────────────────── */
 function groupByZone(starters: { player_id: string; slot: string }[]) {
     const z: Record<Zone, { player_id: string; slot: string }[]> = {
-        ATT: [], MID: [], DMZ: [], DEF: [], GK: [],
+        ATT: [], AMZ: [], CMZ: [], DMZ: [], DEF: [], GK: [],
     };
-    for (const s of starters) z[SLOT_TO_ZONE[s.slot] ?? 'MID'].push(s);
+    for (const s of starters) z[SLOT_TO_ZONE[s.slot] ?? 'CMZ'].push(s);
     return z;
 }
 
