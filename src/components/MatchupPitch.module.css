@@ -84,7 +84,7 @@
 .halfZone {
     display: flex;
     flex-wrap: nowrap;
-    justify-content: center;
+    justify-content: space-around;
     align-items: center;
     gap: 6px;
     padding: 8px 10px;
@@ -96,10 +96,11 @@
     position: relative;
     background: white;
     padding: 8px;
-    width: 92px;
+    width: 100px;
     flex-shrink: 0;
     border: 1px solid rgba(210,196,183,0.6);
     box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+    overflow: visible;
 }
 
 /* Line 1: position badge (prototype: px-1.5 py-0.5 bg-[color] text-white text-[8px] font-bold) */
@@ -132,19 +133,22 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    padding-right: 22px; /* room for score badge */
+    padding-right: 2px;
 }
 
 /* Score badge — absolute top-right, colored by intensity (user-approved style) */
 .chipScore {
     position: absolute;
-    top: 3px; right: 3px;
+    top: -5px;
+    right: -5px;
     font-family: var(--font-sans);
     font-size: 0.48rem;
     font-weight: 800;
-    padding: 2px 3px;
+    padding: 2px 4px;
     line-height: 1.2;
     letter-spacing: 0.01em;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+    z-index: 5;
 }
 
 /* ── Bench ────────────────────────────────────────────────────────── */
