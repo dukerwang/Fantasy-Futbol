@@ -153,10 +153,9 @@ export default function MatchupPitch({
     const totalA = (lineupA?.starters ?? []).reduce((s, x) => s + (detailMap[x.player_id]?.points ?? 0), 0);
     const totalB = (lineupB?.starters ?? []).reduce((s, x) => s + (detailMap[x.player_id]?.points ?? 0), 0);
 
-    // Only render zone rows where at least one team has players
-    const activeZones = ZONE_ORDER.filter(z =>
-        (zonesA?.[z]?.length ?? 0) > 0 || (zonesB?.[z]?.length ?? 0) > 0,
-    );
+    // Always render all 6 zone rows — empty rows act as spacers so
+    // CMZ stays at position 3/6 even when AMZ has no players.
+    const visibleZones = ZONE_ORDER;
 
     return (
         <div className={styles.wrapper}>
@@ -171,27 +170,35 @@ export default function MatchupPitch({
                 </div>
 
                 <div className={styles.pitchZones}>
-                    {activeZones.map(zone => (
+                    {visibleZones.map(zone => (
                         <div key={zone} className={styles.pitchRow}>
                             <div className={styles.halfZone}>
-                                {(zonesA?.[zone] ?? []).map(s => (
-                                    <PlayerChip
-                                        key={s.player_id}
-                                        slot={s.slot}
-                                        player={playerMap[s.player_id]}
-                                        detail={detailMap[s.player_id]}
-                                    />
-                                ))}
+                                {(zonesA?.[zone] ?? []).map(s => {
+                                    const wide = ['LW','RW','LM','RM'].includes(s.slot);
+                                    return (
+                                        <div key={s.player_id} style={wide ? { transform: 'translateY(10px)' } : undefined}>
+                                            <PlayerChip
+                                                slot={s.slot}
+                                                player={playerMap[s.player_id]}
+                                                detail={detailMap[s.player_id]}
+                                            />
+                                        </div>
+                                    );
+                                })}
                             </div>
                             <div className={styles.halfZone}>
-                                {(zonesB?.[zone] ?? []).map(s => (
-                                    <PlayerChip
-                                        key={s.player_id}
-                                        slot={s.slot}
-                                        player={playerMap[s.player_id]}
-                                        detail={detailMap[s.player_id]}
-                                    />
-                                ))}
+                                {(zonesB?.[zone] ?? []).map(s => {
+                                    const wide = ['LW','RW','LM','RM'].includes(s.slot);
+                                    return (
+                                        <div key={s.player_id} style={wide ? { transform: 'translateY(10px)' } : undefined}>
+                                            <PlayerChip
+                                                slot={s.slot}
+                                                player={playerMap[s.player_id]}
+                                                detail={detailMap[s.player_id]}
+                                            />
+                                        </div>
+                                    );
+                                })}
                             </div>
                         </div>
                     ))}
