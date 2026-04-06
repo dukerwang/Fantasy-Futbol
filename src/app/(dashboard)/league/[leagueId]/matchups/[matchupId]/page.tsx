@@ -3,8 +3,7 @@ import { createClient } from '@/lib/supabase/server';
 import { notFound, redirect } from 'next/navigation';
 import Link from 'next/link';
 import type { Matchup, MatchupLineup, Player } from '@/types';
-import ReadonlyPitch from '@/components/ReadonlyPitch';
-import { formatPlayerName } from '@/lib/formatName';
+import MatchupPitch from '@/components/MatchupPitch';
 import { FULL_PLAYER_SELECT } from '@/lib/constants/queries';
 import styles from './matchup-detail.module.css';
 
@@ -12,14 +11,6 @@ export const dynamic = 'force-dynamic';
 
 interface Props {
     params: Promise<{ leagueId: string; matchupId: string }>;
-}
-
-function computeBenchTotal(
-    lineup: MatchupLineup | null,
-    detailMap: Record<string, { points: number }>,
-): number {
-    if (!lineup) return 0;
-    return lineup.bench.reduce((sum, b) => sum + (detailMap[b.player_id]?.points ?? 0), 0);
 }
 
 export default async function MatchupDetailPage({ params }: Props) {
@@ -71,9 +62,9 @@ export default async function MatchupDetailPage({ params }: Props) {
 
     const playerIds = new Set<string>();
     lineupA?.starters.forEach((s) => playerIds.add(s.player_id));
-    lineupA?.bench.forEach((b) => playerIds.add(b.player_id));
+    (lineupA?.bench as any[] ?? []).forEach((b) => playerIds.add(b.player_id));
     lineupB?.starters.forEach((s) => playerIds.add(s.player_id));
-    lineupB?.bench.forEach((b) => playerIds.add(b.player_id));
+    (lineupB?.bench as any[] ?? []).forEach((b) => playerIds.add(b.player_id));
 
     let playerMap: Record<string, Partial<Player>> = {};
     if (playerIds.size > 0) {
@@ -117,20 +108,15 @@ export default async function MatchupDetailPage({ params }: Props) {
         applySlotWeights(lineupB);
     }
 
-    const benchTotalA = computeBenchTotal(lineupA, detailMap);
-    const benchTotalB = computeBenchTotal(lineupB, detailMap);
-
     const isCompleted = matchup.status === 'completed';
-    const isLive = matchup.status === 'live';
-
-    const scoreA = matchup.score_a;
-    const scoreB = matchup.score_b;
-    const isDraw = isCompleted && Math.abs(scoreA - scoreB) <= 10;
-    const aWins = isCompleted && !isDraw && scoreA > scoreB;
-    const bWins = isCompleted && !isDraw && scoreB > scoreA;
-
-    const teamAName = matchup.team_a?.team_name ?? 'Team A';
-    const teamBName = matchup.team_b?.team_name ?? 'Team B';
+    const isLive      = matchup.status === 'live';
+    const scoreA      = matchup.score_a;
+    const scoreB      = matchup.score_b;
+    const isDraw      = isCompleted && Math.abs(scoreA - scoreB) <= 10;
+    const aWins       = isCompleted && !isDraw && scoreA > scoreB;
+    const bWins       = isCompleted && !isDraw && scoreB > scoreA;
+    const teamAName   = matchup.team_a?.team_name ?? 'Team A';
+    const teamBName   = matchup.team_b?.team_name ?? 'Team B';
 
     return (
         <div className={styles.container}>
@@ -138,12 +124,8 @@ export default async function MatchupDetailPage({ params }: Props) {
                 ← Matchups
             </Link>
 
-            {/* Match header — prototype 1 layout */}
+            {/* Score banner */}
             <div className={styles.matchHeader}>
-                <div className={styles.gwMeta}>
-                    <span className={styles.gwLabel}>Game Week {matchup.gameweek}</span>
-                </div>
-
                 <h1 className={styles.matchTitle}>{teamAName} vs {teamBName}</h1>
 
                 <div className={styles.scoreRow}>
@@ -167,56 +149,21 @@ export default async function MatchupDetailPage({ params }: Props) {
                         <span className={`${styles.winBadge} ${styles.draw}`}>Scheduled</span>
                     )}
                 </div>
-            </div>
 
-            {/* Side-by-side pitch panels */}
-            <div className={styles.pitchGrid}>
-                {/* Team A */}
-                <div className={styles.pitchPanel}>
-                    {lineupA ? (
-                        <>
-                            <ReadonlyPitch
-                                lineup={lineupA}
-                                playerMap={playerMap}
-                                detailMap={detailMap}
-                                teamName={teamAName}
-                            />
-                            {benchTotalA > 0 && (
-                                <div className={styles.benchTotal}>
-                                    Bench Total: <strong>{benchTotalA.toFixed(1)} pts</strong>
-                                </div>
-                            )}
-                        </>
-                    ) : (
-                        <div className={styles.noLineup}>
-                            <span>{teamAName} has not submitted a lineup yet.</span>
-                        </div>
-                    )}
-                </div>
-
-                {/* Team B */}
-                <div className={styles.pitchPanel}>
-                    {lineupB ? (
-                        <>
-                            <ReadonlyPitch
-                                lineup={lineupB}
-                                playerMap={playerMap}
-                                detailMap={detailMap}
-                                teamName={teamBName}
-                            />
-                            {benchTotalB > 0 && (
-                                <div className={styles.benchTotal}>
-                                    Bench Total: <strong>{benchTotalB.toFixed(1)} pts</strong>
-                                </div>
-                            )}
-                        </>
-                    ) : (
-                        <div className={styles.noLineup}>
-                            <span>{teamBName} has not submitted a lineup yet.</span>
-                        </div>
-                    )}
+                <div className={styles.gwMeta}>
+                    <span className={styles.gwLabel}>Game Week {matchup.gameweek}</span>
                 </div>
             </div>
+
+            {/* Unified pitch + bench + breakdown */}
+            <MatchupPitch
+                lineupA={lineupA}
+                lineupB={lineupB}
+                playerMap={playerMap}
+                detailMap={detailMap}
+                teamAName={teamAName}
+                teamBName={teamBName}
+            />
         </div>
     );
 }

@@ -128,7 +128,7 @@ export default function LiveMatchupCard({
                     )}
                 </div>
 
-                {/* Team B — right column */}
+                {/* Team B — right column (same depth as team A so names align) */}
                 <div className={`${styles.heroTeamCol} ${styles.right}`}>
                     <span className={styles.heroTeamName}>
                         {bHasCup && <span title="Also in Cup this week" style={{ marginRight: '0.4rem' }}>🏆</span>}
@@ -139,7 +139,6 @@ export default function LiveMatchupCard({
                             {recordB.W}W · {recordB.D}D · {recordB.L}L
                         </span>
                     )}
-                    <span className={styles.heroViewLink}>View Matchup →</span>
                 </div>
             </Link>
         );
@@ -182,9 +181,9 @@ export default function LiveMatchupCard({
                 {/* Center */}
                 <div className={styles.cardMiddle}>{statusText}</div>
 
-                {/* Team B half: [score ... name] [badge] */}
+                {/* Team B half: [score ... name] [badge] — NO row-reverse so score stays left of name */}
                 <div className={`${styles.cardHalf} ${styles.cardHalfRight}`}>
-                    <div className={`${styles.halfInfo} ${styles.halfInfoRight}`}>
+                    <div className={styles.halfInfo}>
                         <span className={`${styles.halfScore} ${aWins ? styles.loser : ''}`}>
                             {scoreB.toFixed(1)}
                         </span>
