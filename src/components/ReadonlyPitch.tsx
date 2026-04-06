@@ -204,16 +204,19 @@ export default function ReadonlyPitch({ lineup, playerMap, detailMap, teamName }
                                                     )}
                                                     {detailMap && playerId && detailMap[playerId] !== undefined && (
                                                         <>
+                                                            {/* Score badge — absolute top-right corner (prototype 1 style) */}
                                                             <span style={{
-                                                                fontSize: '0.7rem',
-                                                                fontWeight: 700,
+                                                                position: 'absolute',
+                                                                top: '4px',
+                                                                right: '4px',
+                                                                fontSize: '0.62rem',
+                                                                fontWeight: 800,
+                                                                lineHeight: 1.4,
                                                                 color: getScoreIntensityColor(detailMap[playerId].points).text,
                                                                 background: getScoreIntensityColor(detailMap[playerId].points).bg,
                                                                 borderRadius: '0',
-                                                                padding: '1px 5px',
-                                                                marginTop: '2px',
-                                                                letterSpacing: '0.02em',
-                                                                alignSelf: 'flex-end',
+                                                                padding: '1px 4px',
+                                                                zIndex: 1,
                                                             }}>
                                                                 {detailMap[playerId].points.toFixed(1)}
                                                             </span>

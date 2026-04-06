@@ -146,55 +146,55 @@ export default function LiveMatchupCard({
     }
 
     // ── Grid card (compact) variant ────────────────────────────────────────────
-    const getBadgeClass = () => {
-        if (isLive) return styles.cardBadgeLive;
-        if (!isCompleted) return styles.cardBadgeScheduled;
-        if (isDraw) return styles.cardBadgeDraw;
-        if (!myTeamSide) return styles.cardBadgeFinal;
-        const myWins = (myTeamSide === 'a' && aWins) || (myTeamSide === 'b' && bWins);
-        return myWins ? styles.cardBadgeWin : styles.cardBadgeLoss;
+    // Each team gets its own W/L/D badge on the outer edge
+    const getTeamBadge = (wins: boolean, loses: boolean): { cls: string; text: string } => {
+        if (isLive) return { cls: styles.sideBadgeLive, text: '▶' };
+        if (!isCompleted) return { cls: styles.sideBadgeEmpty, text: '' };
+        if (isDraw) return { cls: styles.sideBadgeDraw, text: 'D' };
+        if (wins) return { cls: styles.sideBadgeWin, text: 'W' };
+        if (loses) return { cls: styles.sideBadgeLoss, text: 'L' };
+        return { cls: styles.sideBadgeEmpty, text: '' };
     };
 
-    const getBadgeText = () => {
-        if (isLive) return 'Live';
-        if (!isCompleted) return 'SCH';
-        if (isDraw) return 'D';
-        if (!myTeamSide) return 'FT';
-        const myWins = (myTeamSide === 'a' && aWins) || (myTeamSide === 'b' && bWins);
-        return myWins ? 'W' : 'L';
-    };
+    const badgeA = getTeamBadge(aWins, bWins);
+    const badgeB = getTeamBadge(bWins, aWins);
+
+    const statusText = isLive ? 'Live' : isCompleted ? 'Final' : 'Sched';
 
     return (
         <Link href={href} className={styles.matchupCardLink}>
-            <div className={[styles.matchupCard, myTeamSide ? styles.myMatchup : ''].filter(Boolean).join(' ')}>
-                {/* Team A */}
-                <div className={styles.team}>
-                    <span className={[styles.teamName, myTeamSide === 'a' ? styles.myTeam : ''].filter(Boolean).join(' ')}>
-                        {teamAName}
-                        {aHasCup && ' 🏆'}
-                    </span>
+            <div className={styles.matchupCard}>
+                {/* Team A half: [badge] [name ... score] */}
+                <div className={styles.cardHalf}>
+                    <div className={`${styles.sideBadge} ${badgeA.cls}`}>
+                        {isLive && badgeA.text === '▶' ? <span className={styles.livePulse} /> : badgeA.text}
+                    </div>
+                    <div className={styles.halfInfo}>
+                        <span className={[styles.halfName, myTeamSide === 'a' ? styles.myTeam : ''].filter(Boolean).join(' ')}>
+                            {teamAName}{aHasCup && ' 🏆'}
+                        </span>
+                        <span className={`${styles.halfScore} ${bWins ? styles.loser : ''}`}>
+                            {scoreA.toFixed(1)}
+                        </span>
+                    </div>
                 </div>
 
-                {/* Center: score · badge · score */}
-                <div className={styles.cardCenter}>
-                    <span className={`${styles.cardScore} ${bWins ? styles.loser : ''}`}>
-                        {scoreA.toFixed(1)}
-                    </span>
-                    <span className={`${styles.cardBadge} ${getBadgeClass()}`}>
-                        {isLive && <span className={styles.livePulse} />}
-                        {getBadgeText()}
-                    </span>
-                    <span className={`${styles.cardScore} ${aWins ? styles.loser : ''}`}>
-                        {scoreB.toFixed(1)}
-                    </span>
-                </div>
+                {/* Center */}
+                <div className={styles.cardMiddle}>{statusText}</div>
 
-                {/* Team B */}
-                <div className={`${styles.team} ${styles.right}`}>
-                    <span className={[styles.teamName, myTeamSide === 'b' ? styles.myTeam : ''].filter(Boolean).join(' ')}>
-                        {bHasCup && '🏆 '}
-                        {teamBName}
-                    </span>
+                {/* Team B half: [score ... name] [badge] */}
+                <div className={`${styles.cardHalf} ${styles.cardHalfRight}`}>
+                    <div className={`${styles.halfInfo} ${styles.halfInfoRight}`}>
+                        <span className={`${styles.halfScore} ${aWins ? styles.loser : ''}`}>
+                            {scoreB.toFixed(1)}
+                        </span>
+                        <span className={[styles.halfName, styles.right, myTeamSide === 'b' ? styles.myTeam : ''].filter(Boolean).join(' ')}>
+                            {bHasCup && '🏆 '}{teamBName}
+                        </span>
+                    </div>
+                    <div className={`${styles.sideBadge} ${badgeB.cls}`}>
+                        {isLive && badgeB.text === '▶' ? <span className={styles.livePulse} /> : badgeB.text}
+                    </div>
                 </div>
             </div>
         </Link>
