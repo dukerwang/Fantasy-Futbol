@@ -23,10 +23,10 @@ const BENCH_COLOR: Record<string, string> = {
 };
 
 const SLOT_TO_ZONE: Record<string, Zone> = {
-    // ATT row: all wide/central attackers + wide mids (LM/RM inline with LW/RW)
-    LW: 'ATT', ST: 'ATT', RW: 'ATT', LM: 'ATT', RM: 'ATT',
-    // AM gets own row between ATT and CM (inline with striker horizontally)
-    AM: 'AMZ',
+    // ATT row: pure attackers (LW, ST, RW)
+    LW: 'ATT', ST: 'ATT', RW: 'ATT',
+    // AMZ row: AM + LM/RM (wide attacking mids line up with AM)
+    AM: 'AMZ', LM: 'AMZ', RM: 'AMZ',
     // CM row close to DM (lower than AM)
     CM: 'CMZ',
     // DM row
