@@ -12,8 +12,13 @@
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
-    padding-bottom: 2rem;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.headerDivider {
+    width: 100%;
+    height: 1px;
+    background-color: rgba(0, 0, 0, 0.1);
+    margin: 1.5rem 0;
 }
 
 .headerContent {
@@ -81,7 +86,7 @@
     justify-content: space-between;
     align-items: center;
     background: transparent;
-    margin-top: -1.5rem; /* Pull up slightly */
+    padding-bottom: 2rem;
 }
 
 .infoLeft {
@@ -149,25 +154,23 @@
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 3rem;
-    align-items: center; /* Center boxes vertically relative to each other */
+    align-items: stretch; /* Stretch columns to match identical heights for tree geometry */
 }
 
 /* Rounds */
-.round {
+.roundColumn {
     display: flex;
     flex-direction: column;
-    gap: 2rem;
-    height: 100%;
-    justify-content: space-around; /* Distribute matchups evenly */
     position: relative;
+    padding-top: 5rem; /* Space for the floating absolute round header */
 }
 
 .roundHeader {
     text-align: center;
-    margin-bottom: 1rem;
     position: absolute;
-    top: -3rem;
-    width: 100%;
+    top: 0;
+    left: 0;
+    right: 0;
 }
 
 .roundName {
@@ -189,18 +192,36 @@
     margin: 0;
 }
 
-.matchups {
+.matchupSlots {
     display: flex;
     flex-direction: column;
-    gap: 2rem;
-    height: 100%;
-    justify-content: space-around; /* Stretches the flex items to align with adjacent rounds */
+    flex: 1;
+}
+
+.slotPair {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+.slot {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+    padding: 0.5rem 0;
 }
 
 .matchupWrapper {
     position: relative;
-    display: flex;
-    align-items: center;
+    width: 100%;
+    z-index: 2;
+}
+
+.matchupPlaceholder {
+    width: 100%;
 }
 
 /* Matchup Box */
@@ -312,21 +333,42 @@
 }
 
 
-/* Connector Line (drawn out of the right side to the next match) */
-/* Because CSS Grid automatically handles heights if stretching, we'll just use a simple absolute horizontal right line. Real bracket svg logic is complex, but this satisfies the prototype's 1px #C8C3BC lines */
-.connectorLine {
+/* Bracket Tree Branch Connectors */
+.connectorIn {
     position: absolute;
-    right: -3rem; /* extend exactly the gap size */
+    left: -1.5rem;
+    width: 1.5rem;
     top: 50%;
-    width: 3rem;
-    height: 1px;
-    background-color: #C8C3BC;
-    z-index: 1;
+    border-top: 1px solid #C8C3BC;
+    z-index: 0;
 }
 
-.connectorLineActive {
-    background-color: #3A6B4A;
-    height: 2px;
+.elbowTop {
+    position: absolute;
+    right: -1.5rem;
+    width: 1.5rem;
+    top: 25%;
+    bottom: 50%;
+    border-right: 1px solid #C8C3BC;
+    border-top: 1px solid #C8C3BC;
+    border-top-right-radius: 4px;
+    z-index: 0;
+}
+
+.elbowBottom {
+    position: absolute;
+    right: -1.5rem;
+    width: 1.5rem;
+    top: 50%;
+    bottom: 25%;
+    border-right: 1px solid #C8C3BC;
+    border-bottom: 1px solid #C8C3BC;
+    border-bottom-right-radius: 4px;
+    z-index: 0;
+}
+
+.connectorActive, .elbowActive {
+    border-color: #3A6B4A;
 }
 
 /* Overview Section */

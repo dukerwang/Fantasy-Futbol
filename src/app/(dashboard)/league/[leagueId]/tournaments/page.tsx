@@ -28,7 +28,6 @@ export default async function TournamentsPage({ params, searchParams }: Props) {
 
     if (!league) notFound();
 
-    // Validate membership
     const { data: member } = await admin
         .from('teams')
         .select('id')
@@ -38,7 +37,6 @@ export default async function TournamentsPage({ params, searchParams }: Props) {
 
     if (!member) redirect('/dashboard');
 
-    // Fetch all tournaments for this league
     const { data: tournamentsData } = await admin
         .from('tournaments')
         .select('*')
@@ -51,8 +49,12 @@ export default async function TournamentsPage({ params, searchParams }: Props) {
         return (
             <div className={styles.container}>
                 <header className={styles.header}>
-                    <span className={styles.pageSupertitle}>CUPS</span>
-                    <h2 className={styles.title}>Cup Competitions</h2>
+                    <div className={styles.headerTop}>
+                        <div className={styles.headerLeft}>
+                            <span className={styles.pageSupertitle}>CUPS</span>
+                            <h2 className={styles.title}>Cup Competitions</h2>
+                        </div>
+                    </div>
                 </header>
                 <div className={styles.emptyCard}>
                     No tournaments have been created yet.
@@ -61,16 +63,14 @@ export default async function TournamentsPage({ params, searchParams }: Props) {
         );
     }
 
-    // Determine active tournament from search params or default to first
     const selectedCupId = resolvedSearchParams.cup ? String(resolvedSearchParams.cup) : null;
     let activeTournament = tournaments.find(t => t.id === selectedCupId);
     
     if (!activeTournament) {
-        // Fallback to first active, or first overall
         activeTournament = tournaments.find(t => t.status === 'active') || tournaments[0];
     }
+    const isLeagueCup = (activeTournament as any)?.type === 'league_cup' || activeTournament?.name.toLowerCase().includes('league');
 
-    // Fetch rounds with matchups for the active tournament
     const { data: roundsData } = await admin
         .from('tournament_rounds')
         .select('*')
@@ -78,7 +78,6 @@ export default async function TournamentsPage({ params, searchParams }: Props) {
         .order('round_number', { ascending: true });
 
     const rounds = (roundsData ?? []) as TournamentRound[];
-
     const roundIds = rounds.map(r => r.id);
     let matchups: TournamentMatchup[] = [];
     
@@ -97,18 +96,49 @@ export default async function TournamentsPage({ params, searchParams }: Props) {
         matchups = (matchupsData ?? []) as TournamentMatchup[];
     }
 
-    const roundsWithMatchups = rounds.map(round => ({
-        ...round,
-        matchups: matchups.filter(m => m.round_id === round.id),
-    }));
+    // Binary Tree padding logic
+    const roundsWithPairs = rounds.map((round, roundIdx) => {
+        const remainingRounds = rounds.length - roundIdx;
+        const slotsCount = Math.pow(2, remainingRounds - 1);
+        
+        const slots = Array.from({ length: slotsCount }, (_, i) => 
+            matchups.find(m => m.round_id === round.id && m.bracket_position === i) || null
+        );
 
-    // Previous Winner logic (mocked if none, but we can look at completed tournaments)
-    // Find champion of active tournament if completed
+        const pairs = [];
+        if (slotsCount === 1) {
+            pairs.push([slots[0], null]);
+        } else {
+            for (let i = 0; i < slots.length; i += 2) {
+                pairs.push([slots[i], slots[i+1]]);
+            }
+        }
+
+        // Determine correct Matchweek logic based on tournament type
+        let mwLabel = `MW ${round.start_gameweek}`;
+        const formatName = round.name.toLowerCase();
+        
+        if (isLeagueCup) {
+            if (formatName.includes('16')) mwLabel = 'MW 9';
+            else if (formatName.includes('quarter')) mwLabel = 'MW 16';
+            else if (formatName.includes('semi')) mwLabel = 'MW 21 + MW 24';
+            else if (formatName.includes('final')) mwLabel = 'MW 31';
+        } else {
+            // Champions/Europa logic
+            if (formatName.includes('quarter')) mwLabel = 'MW 32 + MW 33';
+            else if (formatName.includes('semi')) mwLabel = 'MW 34 + MW 35';
+            else if (formatName.includes('final')) mwLabel = 'MW 38';
+        }
+
+        return { ...round, pairs, slotsCount, mwLabel };
+    });
+
+    // Determine champion
     let championName = "TBD";
     let championStatus = "In Progress";
-    if (activeTournament.status === 'completed' && roundsWithMatchups.length > 0) {
-        const finalRound = roundsWithMatchups[roundsWithMatchups.length - 1];
-        const finalMatchup = finalRound?.matchups[0];
+    if (activeTournament.status === 'completed' && roundsWithPairs.length > 0) {
+        const finalRound = roundsWithPairs[roundsWithPairs.length - 1];
+        const finalMatchup = finalRound?.pairs[0]?.[0];
         if (finalMatchup?.winner) {
             championName = finalMatchup.winner.team_name;
             championStatus = `Champion`;
@@ -117,81 +147,112 @@ export default async function TournamentsPage({ params, searchParams }: Props) {
 
     return (
         <div className={styles.container}>
-            <header className={styles.header}>
-                <span className={styles.pageSupertitle}>CUPS</span>
-                <div className={styles.headerContent}>
-                    <h2 className={styles.title}>Cup Competitions</h2>
-                    <div className={styles.tabContainer}>
-                        {tournaments.map(t => {
-                            const isActive = t.id === activeTournament.id;
-                            return (
-                                <Link 
-                                    key={t.id} 
-                                    href={`/league/${leagueId}/tournaments?cup=${t.id}`}
-                                    className={`${styles.tab} ${isActive ? styles.tabActive : styles.tabInactive}`}
-                                >
-                                    {t.name}
-                                </Link>
-                            );
-                        })}
+            {/* Unified Header matching exact layout sequence */}
+            <div className={styles.headerSection}>
+                <header className={styles.header}>
+                    <div className={styles.headerTop}>
+                        <div className={styles.headerLeft}>
+                            <span className={styles.pageSupertitle}>CUPS</span>
+                            <h2 className={styles.title}>Cup Competitions</h2>
+                        </div>
+                        <div className={styles.tabContainer}>
+                            {tournaments.map(t => {
+                                const isActive = t.id === activeTournament.id;
+                                return (
+                                    <Link 
+                                        key={t.id} 
+                                        href={`/league/${leagueId}/tournaments?cup=${t.id}`}
+                                        className={`${styles.tab} ${isActive ? styles.tabActive : styles.tabInactive}`}
+                                    >
+                                        {t.name}
+                                    </Link>
+                                );
+                            })}
+                        </div>
                     </div>
-                </div>
-            </header>
+                </header>
 
-            {/* Info Bar */}
-            <div className={styles.infoBar}>
-                <div className={styles.infoLeft}>
-                    <span className={styles.infoText}>
-                        {activeTournament.name} <span className={styles.divider}>·</span> 10 TEAMS <span className={styles.divider}>·</span> FINAL: MATCHWEEK 29
-                    </span>
-                </div>
-                {activeTournament.status === 'active' && (
-                    <div className={styles.infoRight}>
-                        <span className={styles.livePulseIndicator}></span>
-                        <span className={styles.infoLiveText}>IN PROGRESS</span>
+                {/* Separator line above info bar */}
+                <div className={styles.headerDivider} />
+
+                <div className={styles.infoBar}>
+                    <div className={styles.infoLeft}>
+                        <span className={styles.infoText}>
+                            {activeTournament.name} <span className={styles.divider}>·</span> {(activeTournament as any).team_count ?? 10} TEAMS <span className={styles.divider}>·</span> FINAL: {isLeagueCup ? 'MATCHWEEK 31' : 'MATCHWEEK 38'}
+                        </span>
                     </div>
-                )}
+                    {activeTournament.status === 'active' && (
+                        <div className={styles.infoRight}>
+                            <span className={styles.livePulseIndicator}></span>
+                            <span className={styles.infoLiveText}>IN PROGRESS</span>
+                        </div>
+                    )}
+                </div>
             </div>
 
             {/* Bracket Section */}
             <section className={styles.bracketSection}>
-                {roundsWithMatchups.length === 0 ? (
+                {roundsWithPairs.length === 0 ? (
                     <div className={styles.emptyBracket}>Bracket not yet generated.</div>
                 ) : (
                     <div className={styles.bracket}>
-                        {roundsWithMatchups.map((round, roundIdx) => {
-                            // Assign exact Matchweek string based on Design System
-                            let mwLabel = `MW ${round.start_gameweek}`;
-                            if (round.name.toLowerCase().includes('16')) mwLabel = 'MW 9';
-                            else if (round.name.toLowerCase().includes('quarter')) mwLabel = 'MW 16';
-                            else if (round.name.toLowerCase().includes('semi')) mwLabel = 'MW 21 + MW 24';
-                            else if (round.name.toLowerCase().includes('final')) mwLabel = 'MW 29';
+                        {roundsWithPairs.map((round, roundIdx) => {
+                            const isFinal = round.slotsCount === 1;
 
                             return (
-                                <div key={round.id} className={styles.round}>
+                                <div key={round.id} className={styles.roundColumn}>
                                     <div className={styles.roundHeader}>
                                         <h4 className={styles.roundName}>{round.name}</h4>
-                                        <p className={styles.roundGw}>{mwLabel}</p>
+                                        <p className={styles.roundGw}>{round.mwLabel}</p>
                                     </div>
 
-                                    <div className={styles.matchups}>
-                                        {round.matchups.map((matchup) => (
-                                            <div key={matchup.id} className={styles.matchupWrapper}>
-                                                <BracketMatchup
-                                                    matchup={matchup}
-                                                    isTwoLeg={round.is_two_leg}
-                                                    myTeamId={member.id}
-                                                />
-                                                {/* Connector Line */}
-                                                {roundIdx < roundsWithMatchups.length - 1 && (
-                                                    <div className={`${styles.connectorLine} ${
-                                                        (matchup.team_a_id === member.id || matchup.team_b_id === member.id) 
-                                                            && matchup.winner_id === member.id // If my team advanced
-                                                            ? styles.connectorLineActive : ''
-                                                    }`} />
-                                                )}
-                                            </div>
-                                        ))}
+                                    <div className={styles.matchupSlots}>
+                                        {round.pairs.map((pair, pairIdx) => {
+                                            const m0 = pair[0];
+                                            const m1 = pair[1];
+                                            
+                                            // Active highlight logic for elbows
+                                            const myPathTop = m0 && m0.winner_id === member.id && (m0.team_a_id === member.id || m0.team_b_id === member.id);
+                                            const myPathBottom = m1 && m1.winner_id === member.id && (m1.team_a_id === member.id || m1.team_b_id === member.id);
+
+                                            return (
+                                                <div key={pairIdx} className={styles.slotPair}>
+                                                    {/* Top Slot */}
+                                                    <div className={styles.slot}>
+                                                        {roundIdx > 0 && <div className={`${styles.connectorIn} ${hasIncomingActiveLeft(m0, member.id) ? styles.connectorActive : ''}`} />}
+                                                        {m0 ? (
+                                                            <div className={styles.matchupWrapper}>
+                                                                <BracketMatchup matchup={m0} isTwoLeg={round.is_two_leg} myTeamId={member.id} />
+                                                            </div>
+                                                        ) : (
+                                                            <div className={styles.matchupPlaceholder} />
+                                                        )}
+                                                    </div>
+
+                                                    {/* Bottom Slot */}
+                                                    {!isFinal && (
+                                                        <div className={styles.slot}>
+                                                            {roundIdx > 0 && <div className={`${styles.connectorIn} ${hasIncomingActiveLeft(m1, member.id) ? styles.connectorActive : ''}`} />}
+                                                            {m1 ? (
+                                                                <div className={styles.matchupWrapper}>
+                                                                    <BracketMatchup matchup={m1} isTwoLeg={round.is_two_leg} myTeamId={member.id} />
+                                                                </div>
+                                                            ) : (
+                                                                <div className={styles.matchupPlaceholder} />
+                                                            )}
+                                                        </div>
+                                                    )}
+
+                                                    {/* Output Connectors (Elbows) */}
+                                                    {!isFinal && (
+                                                        <>
+                                                            <div className={`${styles.elbowTop} ${myPathTop ? styles.elbowActive : ''}`} />
+                                                            <div className={`${styles.elbowBottom} ${myPathBottom ? styles.elbowActive : ''}`} />
+                                                        </>
+                                                    )}
+                                                </div>
+                                            )
+                                        })}
                                     </div>
                                 </div>
                             );
@@ -205,26 +266,24 @@ export default async function TournamentsPage({ params, searchParams }: Props) {
                 {/* Cup Schedule */}
                 <div className={styles.overviewCard}>
                     <h4 className={styles.overviewTitle}>Cup Schedule</h4>
-                    <table className={styles.scheduleTable}>
-                        <tbody>
-                            <tr className={styles.scheduleRow}>
-                                <td className={styles.scheduleLabel}>Round 16</td>
-                                <td className={styles.scheduleValue}>Matchweek 9</td>
-                            </tr>
-                            <tr className={styles.scheduleRow}>
-                                <td className={styles.scheduleLabel}>Quarterfinals</td>
-                                <td className={styles.scheduleValue}>Matchweek 16</td>
-                            </tr>
-                            <tr className={styles.scheduleRow}>
-                                <td className={styles.scheduleLabel}>Semifinals</td>
-                                <td className={styles.scheduleValue}>MW 21 & 24</td>
-                            </tr>
-                            <tr className={styles.scheduleRow}>
-                                <td className={styles.scheduleLabel}>Final</td>
-                                <td className={`${styles.scheduleValue} ${styles.textGreen}`}>Matchweek 29</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    {isLeagueCup ? (
+                        <table className={styles.scheduleTable}>
+                            <tbody>
+                                <tr className={styles.scheduleRow}><td className={styles.scheduleLabel}>Round 16</td><td className={styles.scheduleValue}>Matchweek 9</td></tr>
+                                <tr className={styles.scheduleRow}><td className={styles.scheduleLabel}>Quarterfinals</td><td className={styles.scheduleValue}>Matchweek 16</td></tr>
+                                <tr className={styles.scheduleRow}><td className={styles.scheduleLabel}>Semifinals</td><td className={styles.scheduleValue}>MW 21 & 24</td></tr>
+                                <tr className={styles.scheduleRow}><td className={styles.scheduleLabel}>Final</td><td className={`${styles.scheduleValue} ${styles.textGreen}`}>Matchweek 31</td></tr>
+                            </tbody>
+                        </table>
+                    ) : (
+                        <table className={styles.scheduleTable}>
+                            <tbody>
+                                <tr className={styles.scheduleRow}><td className={styles.scheduleLabel}>Quarterfinals</td><td className={styles.scheduleValue}>Matchweek 32 & 33</td></tr>
+                                <tr className={styles.scheduleRow}><td className={styles.scheduleLabel}>Semifinals</td><td className={styles.scheduleValue}>Matchweek 34 & 35</td></tr>
+                                <tr className={styles.scheduleRow}><td className={styles.scheduleLabel}>Final</td><td className={`${styles.scheduleValue} ${styles.textGreen}`}>Matchweek 38</td></tr>
+                            </tbody>
+                        </table>
+                    )}
                 </div>
 
                 {/* Previous Winner */}
@@ -246,6 +305,14 @@ export default async function TournamentsPage({ params, searchParams }: Props) {
     );
 }
 
+function hasIncomingActiveLeft(m: TournamentMatchup | null, myId: string) {
+    if (!m) return false;
+    // We highlight left connector if we just look geometrically, 
+    // but the left connector is just the input to THIS matchup.
+    // If the user is in this matchup, the incoming line is technically their advancing path.
+    return (m.team_a_id === myId || m.team_b_id === myId);
+}
+
 function BracketMatchup({
     matchup,
     isTwoLeg,
@@ -263,20 +330,14 @@ function BracketMatchup({
     const totalA = Number(matchup.team_a_score_leg1) + Number(matchup.team_a_score_leg2);
     const totalB = Number(matchup.team_b_score_leg1) + Number(matchup.team_b_score_leg2);
 
-    const isMyMatchup =
-        matchup.team_a_id === myTeamId || matchup.team_b_id === myTeamId;
-
+    const isMyMatchup = matchup.team_a_id === myTeamId || matchup.team_b_id === myTeamId;
     const activeClass = matchup.status === 'active' ? styles.matchupActive : '';
-    
-    // Check if my team is in the matchup and highlight it structurally
     const highlightMyTeam = isMyMatchup ? styles.myMatchupActive : '';
 
     return (
         <div className={`${styles.matchup} ${activeClass} ${highlightMyTeam}`}>
             <div className={`${styles.teamRow} ${matchup.winner_id === matchup.team_a_id && matchup.winner_id ? styles.winnerRow : ''} ${matchup.team_a_id === myTeamId ? styles.myTeamRow : ''}`}>
-                <span className={styles.teamLabel}>
-                    {isTBD ? 'TBD' : teamAName}
-                </span>
+                <span className={styles.teamLabel}>{isTBD ? 'TBD' : teamAName}</span>
                 {!isTBD && !isBye && (
                     <div className={styles.scoreGroup}>
                         {matchup.status === 'active' && <span className={styles.matchupLive}>Live</span>}
@@ -295,9 +356,7 @@ function BracketMatchup({
             </div>
 
             <div className={`${styles.teamRow} ${matchup.winner_id === matchup.team_b_id && matchup.winner_id ? styles.winnerRow : ''} ${matchup.team_b_id === myTeamId ? styles.myTeamRow : ''}`}>
-                <span className={styles.teamLabel}>
-                    {isTBD ? 'TBD' : teamBName}
-                </span>
+                <span className={styles.teamLabel}>{isTBD ? 'TBD' : teamBName}</span>
                 {!isTBD && !isBye && (
                     <div className={styles.scoreGroup}>
                         {matchup.status === 'active' && <span className={styles.matchupLive}>Live</span>}
@@ -314,20 +373,8 @@ function BracketMatchup({
                     </div>
                 )}
             </div>
-            
-            {/* If leg 1 is pending for a two-legged match without score */}
-            {isTwoLeg && isTBD && (
-               <div className={styles.leg1Pending}>
-                   <p className={styles.leg1PendingText}>Leg 1 Pending</p>
-               </div>
-            )}
-            
-            {/* Aggregate sub-label */}
-            {isTwoLeg && !isTBD && !isBye && matchup.status === 'completed' && (
-               <div className={styles.aggregateLabelBox}>
-                   <p className={styles.aggregateLabel}>Aggregate Final</p>
-               </div>
-            )}
+            {isTwoLeg && isTBD && <div className={styles.leg1Pending}><p className={styles.leg1PendingText}>Leg 1 Pending</p></div>}
+            {isTwoLeg && !isTBD && !isBye && matchup.status === 'completed' && <div className={styles.aggregateLabelBox}><p className={styles.aggregateLabel}>Aggregate Final</p></div>}
         </div>
     );
 }
