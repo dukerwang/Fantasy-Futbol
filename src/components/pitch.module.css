@@ -145,11 +145,11 @@
 }
 
 .zoneDEF {
-    flex: 1.3;
+    flex: 0.8;
 }
 
 .zoneMID {
-    flex: 1.5;
+    flex: 2.0;
 }
 
 .zoneATT {

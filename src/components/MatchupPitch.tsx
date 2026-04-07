@@ -125,12 +125,10 @@ function BenchChip({ slotType, player, detail }: {
     );
 }
 
-/** Vertical nudge (px) to create football thirds within each zone row.
- *  Attack: wingers drop slightly below ST.
- *  Midfield: DM rises toward CM to form a compact midfield block. */
 function slotOffset(slot: string): number {
     if (['LW', 'RW', 'LM', 'RM'].includes(slot)) return 10;  // wingers drop down
-    if (slot === 'DM') return -12;                             // DM rises toward CM
+    if (slot === 'CM') return -25;                             // CM rises toward attackers
+    if (slot === 'DM') return -35;                             // DM rises toward CM
     return 0;
 }
 
