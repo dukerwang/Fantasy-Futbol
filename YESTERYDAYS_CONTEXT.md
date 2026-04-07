@@ -1,15 +1,61 @@
 # Context from Yesterday's Session
 
-## 1. Cup Competitions Bracket Schedule
+## 1. Tournament Structure
 
-You explicitly defined the matchweek schedule for the Cup Knockout Bracket during the design phase:
+Three tournaments run simultaneously alongside the 38-game regular season.
+Matchweek scores count for the regular season and any active tournament round simultaneously.
 
-- **Round of 16 (R16):** Matchweek 9
-- **Quarterfinals (QF):** Matchweek 16
-- **Semifinals (SF):** Matchweeks 21 & 24 (Two-legged aggregate)
-- **Final:** Matchweek 29
+### League Cup
+- Everyone competes regardless of league size
+- Single elimination throughout
+- Two-legged semifinals
+- Schedule: R16 (MW9), QF (MW16), SF (MW21 & MW24), Final (MW31)
 
-*(For context, this was specified in your prompt to the design agent when asking to fix the Cup Competitions bracket structure to fit 4 columns without cutoff).*
+### Champions Cup & Consolation Cup
+
+**7-10 teams — standings-based split:**
+| League Size | Champions Cup | Consolation Cup |
+|---|---|---|
+| 10 teams | Top 8 | Bottom 2 |
+| 9 teams | Top 7 | Bottom 2 |
+| 8 teams | Top 6 | Bottom 2 |
+| 7 teams | Top 5 | Bottom 2 |
+
+- Champions Cup: standard bracket, top seeds get byes where needed
+- Consolation Cup: bottom 2 teams play a single final match, runs parallel to Champions Cup
+- Upper and lower bracket teams never mix
+
+**4-6 teams — everyone enters Champions, Consolation Cup fed by eliminations:**
+| League Size | Champions Cup | Consolation Cup |
+|---|---|---|
+| 6 teams | All 6 | 2 SF losers play final |
+| 5 teams | All 5 | QF loser + 2 SF losers (3 teams, MW36-38) |
+| 4 teams | All 4 | 2 SF losers play final |
+
+- For 5 teams: QF loser gets bye in Consolation SF, final runs MW38 alongside Champions Final
+- For 6 teams: SF losers play straight Consolation Final at MW36-37
+- For 4 teams: SF losers play straight Consolation Final at MW36-37
+
+### Champions Cup Schedule (MW32-38)
+- Quarterfinals (if applicable): MW32-33
+- Semifinals: MW34-35
+- Final: MW38
+
+### FAAB Prize Structure
+All prizes are FAAB payouts feeding back into the dynasty economy.
+
+**League standings:**
+- 1st place: large payout
+- 2nd place: modest payout
+- Last place: no payout
+
+**Champions Cup:**
+- Winner: significant payout
+- Runner up: small payout
+
+**Consolation Cup:**
+- Winner: modest payout
+- Runner up: no payout
 
 ---
 
@@ -104,7 +150,7 @@ export function getScoreIntensityColor(points: number): { bg: string; text: stri
 - **Main Area**: `#F7F3ED` parchment background.
 - **Top Header**: "CUPS" (small Inter all-caps muted), "Cup Competitions" (Noto Serif bold headline).
 - **Tab Pills**: Three sharp-cornered (0px radius) tabs: `[League Cup]` (Active, green `#3A6B4A` background / white text), `[Champions Cup]`, `[Europa Cup]`.
-- **Info Bar**: "LEAGUE CUP · 10 TEAMS · FINAL: MATCHWEEK 29" (muted). Right side features a green badge "SEMIFINALS — MW 21+24".
+- **Info Bar**: "LEAGUE CUP · 10 TEAMS · FINAL: MATCHWEEK 31" (muted). Right side features a green badge "SEMIFINALS — MW 21+24".
 
 **The Knockout Bracket (Horizontal Layout)**
 - **Format**: Wide horizontal grid with 4 columns. Match boxes are `#FDFCF9` with sharp corners.
@@ -115,11 +161,11 @@ export function getScoreIntensityColor(points: number): { bg: string; text: stri
 1. **R16 · MW 9**: 2 matches (The Gaffers 2-0 Basement FC; Nord United 1-0 Seville Stars). No byes visible.
 2. **QUARTERFINALS · MW 16**: 4 matches (FC Meridian 52.1 vs 39.4 The Gaffers; Real Classico 55.2 vs 38.1 Nord United; Bayern Blaze 48.7 vs 42.3 Atletico Kings; El Clasico FC 44.7 vs 39.8 Porto Royals).
 3. **SEMIFINALS · MW 21 + MW 24**: 2 matches (SF1: FC Meridian vs Real Classico, aggregate 47.3-41.8 Leg 1; SF2: Bayern Blaze vs El Clasico FC, Leg 1 pending).
-4. **FINAL · MW 29**: 1 Match box centered ("TBD vs TBD").
+4. **FINAL · MW 31**: 1 Match box centered ("TBD vs TBD").
 
 **Cup Overview Section (Bottom Area)**
 - Discard the old "Competitor Deep Dive" and replace it with three data-forward `#FDFCF9` sharp horizontal cards under the bracket:
-  1. **CUP SCHEDULE**: A clear table showing R16 (MW 9), QF (MW 16), SF (MW 21+24), Final (MW 29).
+  1. **CUP SCHEDULE**: A clear table showing R16 (MW 9), QF (MW 16), SF (MW 21+24), Final (MW 31).
   2. **TOP SCORERS**: A leaderboard listing top players (e.g., V. Boniface 34.6, H. Kane 28.9, M. Salah 27.4).
   3. **PREVIOUS WINNER**: Shows past champion (e.g., "Atletico Kings, Season 4") with their total points text.
 

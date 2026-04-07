@@ -278,24 +278,18 @@ export default async function TournamentsPage({ params, searchParams }: Props) {
                 {/* Cup Schedule */}
                 <div className={styles.overviewCard}>
                     <h4 className={styles.overviewTitle}>Cup Schedule</h4>
-                    {isLeagueCup ? (
-                        <table className={styles.scheduleTable}>
-                            <tbody>
-                                <tr className={styles.scheduleRow}><td className={styles.scheduleLabel}>Round 16</td><td className={styles.scheduleValue}>Matchweek 9</td></tr>
-                                <tr className={styles.scheduleRow}><td className={styles.scheduleLabel}>Quarterfinals</td><td className={styles.scheduleValue}>Matchweek 16</td></tr>
-                                <tr className={styles.scheduleRow}><td className={styles.scheduleLabel}>Semifinals</td><td className={styles.scheduleValue}>MW 21 & 24</td></tr>
-                                <tr className={styles.scheduleRow}><td className={styles.scheduleLabel}>Final</td><td className={`${styles.scheduleValue} ${styles.textGreen}`}>Matchweek 31</td></tr>
-                            </tbody>
-                        </table>
-                    ) : (
-                        <table className={styles.scheduleTable}>
-                            <tbody>
-                                <tr className={styles.scheduleRow}><td className={styles.scheduleLabel}>Quarterfinals</td><td className={styles.scheduleValue}>Matchweek 32 & 33</td></tr>
-                                <tr className={styles.scheduleRow}><td className={styles.scheduleLabel}>Semifinals</td><td className={styles.scheduleValue}>Matchweek 34 & 35</td></tr>
-                                <tr className={styles.scheduleRow}><td className={styles.scheduleLabel}>Final</td><td className={`${styles.scheduleValue} ${styles.textGreen}`}>Matchweek 38</td></tr>
-                            </tbody>
-                        </table>
-                    )}
+                    <table className={styles.scheduleTable}>
+                        <tbody>
+                            {roundsWithPairs.map(round => (
+                                <tr key={round.id} className={styles.scheduleRow}>
+                                    <td className={styles.scheduleLabel}>{round.name}</td>
+                                    <td className={`${styles.scheduleValue} ${round.slotsCount === 1 ? styles.textGreen : ''}`}>
+                                        {round.mwLabel}
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
                 </div>
 
                 {/* Previous Winner */}

@@ -40,24 +40,34 @@ export function seedBracket(teams: SeedEntry[], bracketSize: number): (string | 
   const slots: (string | null)[] = new Array(bracketSize).fill(null);
 
   // Standard seeding order for powers of 2
-  const order = seedOrder(bracketSize);
+  const seeding = getSeeding(bracketSize);
+  
   for (let i = 0; i < teams.length; i++) {
-    slots[order[i]] = teams[i].teamId;
+    const seed = teams[i].seed;
+    const slotIdx = seeding.indexOf(seed);
+    if (slotIdx !== -1) {
+      slots[slotIdx] = teams[i].teamId;
+    }
   }
 
   return slots;
 }
 
-/** Recursive standard tournament seed ordering. */
-function seedOrder(size: number): number[] {
-  if (size === 1) return [0];
-  const half = seedOrder(size / 2);
-  const result: number[] = [];
-  for (const pos of half) {
-    result.push(pos * 2);
-    result.push(pos * 2 + 1);
+/** Standard tournament seed ordering algorithm */
+function getSeeding(bracketSize: number): number[] {
+  if (bracketSize === 1) return [1];
+  let rounds = Math.log2(bracketSize);
+  let pls = [1, 2];
+  for (let i = 1; i < rounds; i++) {
+    let nextLayer: number[] = [];
+    let length = pls.length * 2 + 1;
+    pls.forEach((d) => {
+      nextLayer.push(d);
+      nextLayer.push(length - d);
+    });
+    pls = nextLayer;
   }
-  return result;
+  return pls;
 }
 
 // ─── Round Schedule ───────────────────────────────────────────

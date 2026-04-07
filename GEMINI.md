@@ -72,6 +72,63 @@ Three different player IDs exist — plans must specify which one is being used:
 - Weekly matchups exist for bragging rights and cup competitions only
 - Draw rule: `ABS(score_a - score_b) <= 10` → both teams get 1 point
 
+## Tournament Structure
+
+Three tournaments run simultaneously alongside the 38-game regular season.
+Matchweek scores count for the regular season and any active tournament round simultaneously.
+
+### League Cup
+- Everyone competes regardless of league size
+- Single elimination throughout
+- Two-legged semifinals
+- Schedule: R16 (MW9), QF (MW16), SF (MW21 & MW24), Final (MW31)
+
+### Champions Cup & Consolation Cup
+
+**7-10 teams — standings-based split:**
+| League Size | Champions Cup | Consolation Cup |
+|---|---|---|
+| 10 teams | Top 8 | Bottom 2 |
+| 9 teams | Top 7 | Bottom 2 |
+| 8 teams | Top 6 | Bottom 2 |
+| 7 teams | Top 5 | Bottom 2 |
+
+- Champions Cup: standard bracket, top seeds get byes where needed
+- Consolation Cup: bottom 2 teams play a single final match, runs parallel to Champions Cup
+- Upper and lower bracket teams never mix
+
+**4-6 teams — everyone enters Champions, Consolation Cup fed by eliminations:**
+| League Size | Champions Cup | Consolation Cup |
+|---|---|---|
+| 6 teams | All 6 | 2 SF losers play final |
+| 5 teams | All 5 | QF loser + 2 SF losers (3 teams, MW36-38) |
+| 4 teams | All 4 | 2 SF losers play final |
+
+- For 5 teams: QF loser gets bye in Consolation SF, final runs MW38 alongside Champions Final
+- For 6 teams: SF losers play straight Consolation Final at MW36-37
+- For 4 teams: SF losers play straight Consolation Final at MW36-37
+
+### Champions Cup Schedule (MW32-38)
+- Quarterfinals (if applicable): MW32-33
+- Semifinals: MW34-35
+- Final: MW38
+
+### FAAB Prize Structure
+All prizes are FAAB payouts feeding back into the dynasty economy.
+
+**League standings:**
+- 1st place: large payout
+- 2nd place: modest payout
+- Last place: no payout
+
+**Champions Cup:**
+- Winner: significant payout
+- Runner up: small payout
+
+**Consolation Cup:**
+- Winner: modest payout
+- Runner up: no payout
+
 ## Design System
 - **CSS Modules** with CSS variable-based theme — no Tailwind, no inline styles
 - Premium dark aesthetic: `var(--color-bg-primary)` (#0a0c10), `var(--color-text-primary)` (#e8eaf0)
