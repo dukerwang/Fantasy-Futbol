@@ -1,138 +1,432 @@
+/* Full Cream Editorial Overhaul for Cups Page */
 .container {
-    padding: 2rem 2.5rem;
+    padding: 2.5rem 3rem;
     display: flex;
     flex-direction: column;
     gap: 3rem;
+    background-color: #F7F3ED; /* Main parchment background */
+    min-height: 100vh;
 }
 
 .header {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
-    padding-bottom: 1.5rem;
-    border-bottom: 1px solid var(--color-border);
+    padding-bottom: 2rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.headerContent {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
 }
 
 .pageSupertitle {
     font-family: var(--font-sans);
-    font-size: 0.65rem;
+    font-size: 0.75rem;
     text-transform: uppercase;
     letter-spacing: 0.12em;
-    color: var(--color-text-muted);
+    color: rgba(0, 0, 0, 0.6);
     margin: 0;
 }
 
 .title {
     font-family: var(--font-serif);
-    font-size: 2.5rem;
+    font-size: 3rem;
     font-weight: 700;
     color: var(--color-text-primary);
     margin: 0;
     line-height: 1.1;
 }
 
-/* Reusing sectionLabel from matchups */
-.sectionLabel {
-    font-family: var(--font-sans);
-    font-size: 0.65rem;
-    font-weight: 700;
-    color: var(--color-text-secondary);
-    text-transform: uppercase;
-    letter-spacing: 0.12em;
-    padding-bottom: 0.75rem;
-    border-bottom: 1px solid var(--color-border-subtle);
-    margin: 0 0 1.5rem 0;
-}
-
-.emptyCard {
-    padding: 4rem;
-    text-align: center;
-    background: var(--color-bg-card);
-    border: 1px dashed var(--color-border);
-    color: var(--color-text-secondary);
-    font-family: var(--font-serif);
-    font-style: italic;
-}
-
-.tournamentGrid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 1.5rem;
-}
-
-.cardLink {
-    display: block;
-    text-decoration: none;
-    color: inherit;
-}
-
-/* Redesigned Card */
-.card {
-    background: var(--color-bg-card);
-    border: 1px solid var(--color-border-subtle);
-    padding: 1.5rem;
-    position: relative;
-    overflow: hidden;
-    transition: transform 0.2s, box-shadow 0.2s, background-color 0.2s;
+/* Tabs */
+.tabContainer {
     display: flex;
-    flex-direction: column;
     gap: 1rem;
 }
 
-.card:hover {
-    background: var(--color-bg-secondary);
-    border-color: var(--color-border);
-}
-
-/* Optional: use a sharp line instead of top border */
-.cardContent {
-    flex-grow: 1;
-}
-
-.cardBadge {
-    display: inline-block;
+.tab {
     font-family: var(--font-sans);
-    font-size: 0.6rem;
-    font-weight: 600;
-    letter-spacing: 0.1em;
+    font-size: 0.65rem;
+    font-weight: 700;
     text-transform: uppercase;
-    color: var(--color-text-muted);
+    letter-spacing: 0.2em;
+    padding: 0.5rem 1.5rem;
+    border-radius: 0; /* 0px radius rule */
+    cursor: pointer;
+    text-decoration: none;
+    transition: background-color 0.2s, color 0.2s;
 }
 
-.cardName {
+.tabActive {
+    background-color: #3A6B4A;
+    color: #FFFFFF;
+    border: 1px solid #3A6B4A;
+}
+
+.tabInactive {
+    background-color: transparent;
+    color: var(--color-text-primary);
+    border: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+.tabInactive:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* Info Bar */
+.infoBar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: transparent;
+    margin-top: -1.5rem; /* Pull up slightly */
+}
+
+.infoLeft {
+    display: flex;
+    align-items: center;
+}
+
+.infoText {
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.divider {
+    font-size: 1rem;
+    line-height: 1;
+    opacity: 0.5;
+}
+
+.infoRight {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.livePulseIndicator {
+    width: 6px;
+    height: 6px;
+    background-color: #3A6B4A;
+    border-radius: 50%; /* standard pulse dot */
+}
+
+.infoLiveText {
+    font-family: var(--font-sans);
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: #3A6B4A;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+}
+
+/* Bracket Layout */
+.bracketSection {
+    position: relative;
+    width: 100%;
+}
+
+.emptyBracket {
+    padding: 6rem 0;
+    text-align: center;
+    font-family: var(--font-serif);
+    font-style: italic;
+    color: rgba(0, 0, 0, 0.5);
+    border-top: 1px dashed rgba(0,0,0,0.2);
+    border-bottom: 1px dashed rgba(0,0,0,0.2);
+}
+
+.bracket {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 3rem;
+    align-items: center; /* Center boxes vertically relative to each other */
+}
+
+/* Rounds */
+.round {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    height: 100%;
+    justify-content: space-around; /* Distribute matchups evenly */
+    position: relative;
+}
+
+.roundHeader {
+    text-align: center;
+    margin-bottom: 1rem;
+    position: absolute;
+    top: -3rem;
+    width: 100%;
+}
+
+.roundName {
+    font-family: var(--font-sans);
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: rgba(0, 0, 0, 0.6);
+    margin: 0 0 0.25rem 0;
+}
+
+.roundGw {
+    font-family: var(--font-serif);
+    font-size: 0.85rem;
+    font-weight: 700;
+    font-style: italic;
+    color: var(--color-text-primary);
+    margin: 0;
+}
+
+.matchups {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    height: 100%;
+    justify-content: space-around; /* Stretches the flex items to align with adjacent rounds */
+}
+
+.matchupWrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+/* Matchup Box */
+.matchup {
+    background-color: #FDFCF9;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    width: 100%;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    border-radius: 0; /* Strict 0px radius */
+    z-index: 2;
+    position: relative;
+}
+
+/* Active Highlight */
+.myMatchupActive {
+    border-left: 2px solid #3A6B4A;
+}
+
+.teamRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+}
+
+.teamRow:first-child {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.teamLabel {
+    font-family: var(--font-serif);
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--color-text-primary);
+}
+
+.scoreGroup {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.legScore {
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    color: rgba(0, 0, 0, 0.5);
+    font-weight: 500;
+}
+
+.legDivider {
+    width: 1px;
+    height: 12px;
+    background-color: rgba(0, 0, 0, 0.2);
+    margin: 0 0.25rem;
+}
+
+.totalScore {
+    font-family: var(--font-sans);
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--color-text-primary);
+}
+
+.matchupLive {
+    font-family: var(--font-sans);
+    font-size: 0.55rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    background-color: #2D6A4F;
+    color: #FFF;
+    padding: 0.1rem 0.3rem;
+    margin-right: 0.5rem;
+}
+
+.winnerRow .teamLabel, .winnerRow .totalScore {
+    color: #3A6B4A; /* Highlight winner slightly */
+}
+
+/* Two Leg text */
+.leg1Pending {
+    padding-top: 0.75rem;
+    text-align: center;
+}
+
+.leg1PendingText {
+    font-family: var(--font-sans);
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: rgba(0, 0, 0, 0.4);
+    margin: 0;
+}
+
+.aggregateLabelBox {
+    padding-top: 0.5rem;
+    text-align: right;
+}
+
+.aggregateLabel {
+    font-family: var(--font-sans);
+    font-size: 0.55rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: rgba(0, 0, 0, 0.4);
+    margin: 0;
+}
+
+
+/* Connector Line (drawn out of the right side to the next match) */
+/* Because CSS Grid automatically handles heights if stretching, we'll just use a simple absolute horizontal right line. Real bracket svg logic is complex, but this satisfies the prototype's 1px #C8C3BC lines */
+.connectorLine {
+    position: absolute;
+    right: -3rem; /* extend exactly the gap size */
+    top: 50%;
+    width: 3rem;
+    height: 1px;
+    background-color: #C8C3BC;
+    z-index: 1;
+}
+
+.connectorLineActive {
+    background-color: #3A6B4A;
+    height: 2px;
+}
+
+/* Overview Section */
+.overviewGrid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 3rem;
+    margin-top: 2rem;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    padding-top: 3rem;
+}
+
+.overviewCard {
+    background-color: #FDFCF9;
+    padding: 2rem;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 0;
+}
+
+.overviewTitle {
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--color-text-primary);
+    margin: 0 0 1.5rem 0;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+/* Schedule Table */
+.scheduleTable {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.scheduleRow {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.scheduleRow:last-child {
+    border-bottom: none;
+}
+
+.scheduleLabel {
+    padding: 0.75rem 0;
+    font-family: var(--font-sans);
+    font-size: 0.85rem;
+    color: rgba(0, 0, 0, 0.6);
+}
+
+.scheduleValue {
+    padding: 0.75rem 0;
+    text-align: right;
+    font-family: var(--font-serif);
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--color-text-primary);
+}
+
+.textGreen {
+    color: #3A6B4A;
+}
+
+/* Winner Card */
+.winnerContent {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.winnerName {
     font-family: var(--font-serif);
     font-size: 1.5rem;
     font-weight: 700;
     color: var(--color-text-primary);
     margin: 0;
-    line-height: 1.2;
 }
 
-.cardFooter {
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
-    margin-top: auto;
-}
-
-.cardStatus {
+.winnerSubtitle {
     font-family: var(--font-sans);
-    font-size: 0.65rem;
-    font-weight: 600;
+    font-size: 0.75rem;
     text-transform: uppercase;
-    letter-spacing: 0.12em;
-    padding: 0.25rem 0.5rem;
-    border: 1px solid currentColor;
+    letter-spacing: 0.1em;
+    color: rgba(0, 0, 0, 0.5);
+    margin: 0;
 }
 
-.statusActive .cardStatus {
-    color: var(--color-pos-am); /* Often used as active green in earlier files */
+.winnerDescDivider {
+    width: 2rem;
+    height: 1px;
+    background-color: rgba(0, 0, 0, 0.2);
+    margin: 0.5rem 0;
 }
 
-.statusCompleted .cardStatus {
-    color: var(--color-text-secondary);
-}
-
-.statusPending .cardStatus {
-    color: var(--color-pos-mf); /* Blueish or greyish */
+.winnerDesc {
+    font-family: var(--font-serif);
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: rgba(0, 0, 0, 0.7);
+    margin: 0;
 }
