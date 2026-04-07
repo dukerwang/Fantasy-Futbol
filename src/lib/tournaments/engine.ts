@@ -71,45 +71,87 @@ export interface RoundSpec {
   matchCount: number;
 }
 
-/**
- * Build round specs for a tournament.
- *
- * @param bracketSize  Power-of-2 bracket size
- * @param startGw      First gameweek of the tournament
- * @param type         Tournament type (affects leg format)
- */
 export function buildRoundSpecs(
   bracketSize: number,
-  startGw: number,
   type: TournamentType,
+  totalLeagueTeams: number,
 ): RoundSpec[] {
   const totalRounds = Math.log2(bracketSize);
   const rounds: RoundSpec[] = [];
-  let gw = startGw;
 
   for (let i = 0; i < totalRounds; i++) {
     const matchCount = bracketSize / Math.pow(2, i + 1);
     const isFinal = i === totalRounds - 1;
-
-    // Primary cup: 2-leg except Final; Secondary cup: all single-leg; Consolation: 2-leg except Final
-    let isTwoLeg = false;
-    if (type === 'primary_cup' && !isFinal) isTwoLeg = true;
-    if (type === 'consolation_cup' && !isFinal) isTwoLeg = true;
-    // secondary_cup is always single-leg
-
     const name = roundName(bracketSize, i, totalRounds);
-    const endGw = isTwoLeg ? gw + 1 : gw;
+
+    let startGw = 0;
+    let endGw = 0;
+    let isTwoLeg = false;
+
+    if (type === 'secondary_cup') {
+      // LEAGUE CUP: R16 (MW9), QF (MW16), SF (MW21 & MW24), Final (MW31)
+      // Because bracket size could be less than 16, we align from the Final backwards.
+      const roundOffsetFromFinal = totalRounds - 1 - i; 
+      if (roundOffsetFromFinal === 0) { // Final
+        startGw = 31; endGw = 31; isTwoLeg = false;
+      } else if (roundOffsetFromFinal === 1) { // SF
+        startGw = 21; endGw = 24; isTwoLeg = true;
+      } else if (roundOffsetFromFinal === 2) { // QF
+        startGw = 16; endGw = 16; isTwoLeg = false;
+      } else if (roundOffsetFromFinal === 3) { // R16
+        startGw = 9; endGw = 9; isTwoLeg = false;
+      } else { // R32 or beyond (fallback)
+        startGw = 1; endGw = 1; isTwoLeg = false;
+      }
+    } else if (type === 'primary_cup') {
+      // CHAMPIONS CUP: QF (32-33), SF (34-35), Final (38)
+      isTwoLeg = !isFinal;
+      const roundOffsetFromFinal = totalRounds - 1 - i;
+      if (roundOffsetFromFinal === 0) { // Final
+        startGw = 38; endGw = 38;
+      } else if (roundOffsetFromFinal === 1) { // SF
+        startGw = 34; endGw = 35;
+      } else if (roundOffsetFromFinal === 2) { // QF
+        startGw = 32; endGw = 33;
+      } else { // R16 (fallback)
+        startGw = 30; endGw = 31;
+      }
+    } else if (type === 'consolation_cup') {
+      // EUROPA CUP
+      isTwoLeg = !isFinal;
+      const roundOffsetFromFinal = totalRounds - 1 - i;
+      
+      if (totalLeagueTeams >= 7) {
+        // 7-10 teams from standings (7-10 has 2 teams from bottom natively) OR
+        // Wait, 7 teams has Europa fed by eliminations, so it generates 5 teams -> 4 teams effectively?
+        // But the backend `buildRoundSpecs` determines the framework size!
+        // If the bracketSize is generated correctly externally, we map its rounds perfectly.
+        if (roundOffsetFromFinal === 0) { // Final
+          startGw = 38; endGw = 38;
+        } else if (roundOffsetFromFinal === 1) { // SF
+          startGw = 36; endGw = 37;
+        } else if (roundOffsetFromFinal === 2) { // QF
+          startGw = 34; endGw = 35;
+        }
+      } else {
+        // 4-6 teams (where Europa is purely fed by SF eliminations into a single match, except maybe 5 teams which has QF fed)
+        // Just map from Final backwards:
+        if (roundOffsetFromFinal === 0) { // Final
+          startGw = 38; endGw = 38;
+        } else if (roundOffsetFromFinal === 1) { // SF
+          startGw = 36; endGw = 37;
+        }
+      }
+    }
 
     rounds.push({
       name,
       roundNumber: i + 1,
-      startGameweek: gw,
+      startGameweek: startGw,
       endGameweek: endGw,
       isTwoLeg,
       matchCount,
     });
-
-    gw = endGw + 1; // next round starts after this one ends
   }
 
   return rounds;

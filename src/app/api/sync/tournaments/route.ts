@@ -127,20 +127,42 @@ async function handleCreate(_req: NextRequest, params: URLSearchParams) {
   // The teams array should now behave identically to the old one but correctly sorted
   const teams = orderedTeams;
 
-  // Filter teams for consolation cup (bottom half only)
+  // Filter teams based on type and league size
   let eligible = teams;
-  if (type === 'consolation_cup') {
-    const halfIdx = Math.ceil(teams.length / 2);
-    eligible = teams.slice(halfIdx);
-    if (eligible.length < 4) {
-      return NextResponse.json({ error: 'Need at least 4 teams in bottom half for consolation cup' }, { status: 400 });
+  
+  if (type === 'primary_cup' || type === 'consolation_cup') {
+    if (teams.length >= 7) {
+      // Standings-based split
+      if (type === 'primary_cup') {
+        eligible = teams.slice(0, teams.length - 2); // Top X
+      } else if (type === 'consolation_cup') {
+        eligible = teams.slice(teams.length - 2); // Bottom 2
+      }
+    } else {
+      // 4-6 teams
+      if (type === 'primary_cup') {
+        eligible = teams; // All enter Champions
+      } else if (type === 'consolation_cup') {
+        // Europa fed by eliminations, so it starts empty.
+        // Wait, if it starts empty, what should `eligible` be? We seed an empty bracket!
+        // Because of the complicated dynamic dropping, we need the bracket size to be large enough to house the incoming drops.
+        // If 5 teams: drops 1 from QF, 2 from SF = 3 teams. So Europa bracket size = 4 (for SF, F).
+        // If 6 teams: drops 2 from SF = 2 teams? No wait, 2 from QF, 2 from SF = 4 teams. Europa bracket size = 4.
+        // If 4 teams: drops 2 from SF = 2 teams. Europa bracket size = 2.
+        // Instead of writing teams to it, we just create empty slots.
+        if (teams.length === 6 || teams.length === 5) {
+          eligible = new Array(4).fill({ id: null }); // Force bracket size 4
+        } else if (teams.length === 4) {
+          eligible = new Array(2).fill({ id: null }); // Force bracket size 2
+        }
+      }
     }
   }
 
   const seeds: SeedEntry[] = eligible.map((t, i) => ({ teamId: t.id, seed: i + 1 }));
   const bracketSize = nextPow2(seeds.length);
   const bracketSlots = seedBracket(seeds, bracketSize);
-  const roundSpecs = buildRoundSpecs(bracketSize, startGw, type);
+  const roundSpecs = buildRoundSpecs(bracketSize, type, teams.length);
 
   // Tournament name
   const names: Record<TournamentType, string> = {
@@ -403,6 +425,62 @@ async function handleAdvance(_req: NextRequest, params: URLSearchParams) {
       // Advance winner to next round
       if (matchup.next_matchup_id && winnerId) {
         await advanceWinner(admin, matchup.next_matchup_id, winnerId, matchup.bracket_position);
+      }
+
+      // Check Dropdown Cascades to Consolation Cup
+      if (tournament.type === 'primary_cup') {
+        const loserId = winnerId === matchup.team_a_id ? matchup.team_b_id : matchup.team_a_id;
+        if (loserId) {
+          const { count: totalLeagueTeams } = await admin.from('teams').select('id', { count: 'exact', head: true }).eq('league_id', tournament.league_id);
+          
+          if (totalLeagueTeams && totalLeagueTeams >= 4 && totalLeagueTeams <= 6) {
+            // Find parallel consolation cup
+            const { data: consolationCup } = await admin.from('tournaments')
+              .select('id')
+              .eq('league_id', tournament.league_id)
+              .eq('type', 'consolation_cup')
+              .single();
+              
+            if (consolationCup) {
+              const nameLower = round.name.toLowerCase();
+              // Inject into empty slots sequentially. (Since we seeded empty brackets of size 2 or 4)
+              // This basic fill logic looks for the first null slot in the first round of the consolation cup
+              if (
+                 (totalLeagueTeams === 5 && (nameLower.includes('quarter') || nameLower.includes('semi'))) ||
+                 ((totalLeagueTeams === 4 || totalLeagueTeams === 6) && nameLower.includes('semi'))
+              ) {
+                // Determine target Gameweek of the Consolation Round we are injecting into:
+                // If it's a QF drop in a 5-team league, they go to Consolation SF (starts MW36)
+                // If it's a SF drop in 4/6-team, they go to Consolation Final (starts MW36)
+                
+                const { data: targetRound } = await admin.from('tournament_rounds')
+                  .select('id')
+                  .eq('tournament_id', consolationCup.id)
+                  .eq('start_gameweek', 36)
+                  .single();
+
+                if (targetRound) {
+                  const { data: openMatchups } = await admin.from('tournament_matchups')
+                    .select('id, team_a_id, team_b_id')
+                    .eq('round_id', targetRound.id)
+                    .order('bracket_position', { ascending: true });
+
+                  if (openMatchups) {
+                    for (const cand of openMatchups) {
+                      if (!cand.team_a_id) {
+                        await admin.from('tournament_matchups').update({ team_a_id: loserId }).eq('id', cand.id);
+                        break;
+                      } else if (!cand.team_b_id) {
+                        await admin.from('tournament_matchups').update({ team_b_id: loserId, status: 'active' }).eq('id', cand.id);
+                        break;
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
       }
 
       advanced++;

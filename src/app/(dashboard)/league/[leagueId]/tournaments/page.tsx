@@ -150,7 +150,7 @@ export default async function TournamentsPage({ params, searchParams }: Props) {
             {/* Unified Header matching exact layout sequence */}
             <div className={styles.headerSection}>
                 <header className={styles.header}>
-                    <div className={styles.headerTop}>
+                    <div className={styles.headerContent}>
                         <div className={styles.headerLeft}>
                             <span className={styles.pageSupertitle}>CUPS</span>
                             <h2 className={styles.title}>Cup Competitions</h2>
