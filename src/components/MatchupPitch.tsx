@@ -217,12 +217,13 @@ export default function MatchupPitch({
                 { lineup: lineupA, name: teamAName },
                 { lineup: lineupB, name: teamBName },
             ].map(({ lineup, name }) => {
-                const benchTotal = (lineup?.bench as any[] ?? []).reduce((s, b) => s + (detailMap[b.player_id]?.points ?? 0), 0);
+                const benchRawTotal = (lineup?.bench as any[] ?? []).reduce((s, b) => s + (detailMap[b.player_id]?.points ?? 0), 0);
+                const benchContributed = benchRawTotal * 0.2;
                 return (
                 <div key={name} className={styles.benchSection}>
                     <div className={styles.benchHeaderRow}>
                         <p className={styles.benchSectionLabel}>{name} — Bench</p>
-                        {benchTotal > 0 && <span className={styles.benchTotalLabel}>{benchTotal.toFixed(1)} pts</span>}
+                        {benchContributed > 0 && <span className={styles.benchTotalLabel}>+{benchContributed.toFixed(1)} pts</span>}
                     </div>
                     <div className={styles.benchChipsRow}>
                         {(lineup?.bench as any[] ?? []).map((b) => (
