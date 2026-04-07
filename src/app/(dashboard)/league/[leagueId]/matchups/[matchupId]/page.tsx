@@ -99,8 +99,19 @@ export default async function MatchupDetailPage({ params }: Props) {
             lineup?.starters.forEach((s) => {
                 const detail = detailMap[s.player_id];
                 if (detail?.stats && detail.stats.minutes_played > 0) {
-                    const { fantasyPoints } = calculateMatchRating(detail.stats, s.slot, refStats as any);
+                    const { fantasyPoints, rating } = calculateMatchRating(detail.stats, s.slot, refStats as any);
                     detailMap[s.player_id].points = fantasyPoints;
+                    detailMap[s.player_id].stats.rating = rating;
+                }
+            });
+            (lineup?.bench as any[] ?? []).forEach((b) => {
+                const detail = detailMap[b.player_id];
+                if (detail?.stats && detail.stats.minutes_played > 0) {
+                    // For flex/bench, we need a valid position for rating estimation
+                    const pos = playerMap[b.player_id]?.primary_position ?? 'CM'; 
+                    const { fantasyPoints, rating } = calculateMatchRating(detail.stats, pos, refStats as any);
+                    detailMap[b.player_id].points = fantasyPoints;
+                    detailMap[b.player_id].stats.rating = rating;
                 }
             });
         };
