@@ -43,13 +43,27 @@ export default async function TournamentsPage({ params, searchParams }: Props) {
         .eq('league_id', leagueId)
         .order('created_at', { ascending: false });
 
-    const tournaments = (tournamentsData ?? []) as Tournament[];
+    let tournaments = (tournamentsData ?? []) as Tournament[];
+    
+    // Rename any fallback old data and sort securely
+    tournaments = tournaments.map(t => {
+        if (t.type === 'primary_cup') t.name = 'Champions Cup';
+        if (t.type === 'consolation_cup') t.name = 'Consolation Cup';
+        return t;
+    });
+
+    const typeOrder: Record<string, number> = {
+        'secondary_cup': 1,
+        'primary_cup': 2,
+        'consolation_cup': 3
+    };
+    tournaments.sort((a, b) => (typeOrder[a.type] || 99) - (typeOrder[b.type] || 99));
     
     if (tournaments.length === 0) {
         return (
             <div className={styles.container}>
                 <header className={styles.header}>
-                    <div className={styles.headerTop}>
+                    <div className={styles.headerContent}>
                         <div className={styles.headerLeft}>
                             <span className={styles.pageSupertitle}>CUPS</span>
                             <h2 className={styles.title}>Cup Competitions</h2>
@@ -69,7 +83,7 @@ export default async function TournamentsPage({ params, searchParams }: Props) {
     if (!activeTournament) {
         activeTournament = tournaments.find(t => t.status === 'active') || tournaments[0];
     }
-    const isLeagueCup = (activeTournament as any)?.type === 'league_cup' || activeTournament?.name.toLowerCase().includes('league');
+    const isLeagueCup = activeTournament.type === 'secondary_cup';
 
     const { data: roundsData } = await admin
         .from('tournament_rounds')
@@ -114,20 +128,10 @@ export default async function TournamentsPage({ params, searchParams }: Props) {
             }
         }
 
-        // Determine correct Matchweek logic based on tournament type
+        // Build Matchweek logic securely from the backend-generated round data
         let mwLabel = `MW ${round.start_gameweek}`;
-        const formatName = round.name.toLowerCase();
-        
-        if (isLeagueCup) {
-            if (formatName.includes('16')) mwLabel = 'MW 9';
-            else if (formatName.includes('quarter')) mwLabel = 'MW 16';
-            else if (formatName.includes('semi')) mwLabel = 'MW 21 + MW 24';
-            else if (formatName.includes('final')) mwLabel = 'MW 31';
-        } else {
-            // Champions/Europa logic
-            if (formatName.includes('quarter')) mwLabel = 'MW 32 + MW 33';
-            else if (formatName.includes('semi')) mwLabel = 'MW 34 + MW 35';
-            else if (formatName.includes('final')) mwLabel = 'MW 38';
+        if (round.is_two_leg && round.end_gameweek > round.start_gameweek) {
+            mwLabel = `MW ${round.start_gameweek} + MW ${round.end_gameweek}`;
         }
 
         return { ...round, pairs, slotsCount, mwLabel };
@@ -144,6 +148,14 @@ export default async function TournamentsPage({ params, searchParams }: Props) {
             championStatus = `Champion`;
         }
     }
+    // Find exact final matchweek safely
+    let finalGameweekStr = 'MATCHWEEK 38';
+    if (roundsWithPairs.length > 0) {
+        const finalRoundData = roundsWithPairs[roundsWithPairs.length - 1];
+        if (finalRoundData && finalRoundData.end_gameweek) {
+            finalGameweekStr = `MATCHWEEK ${finalRoundData.end_gameweek}`;
+        }
+    }
 
     return (
         <div className={styles.container}>
@@ -157,7 +169,7 @@ export default async function TournamentsPage({ params, searchParams }: Props) {
                         </div>
                         <div className={styles.tabContainer}>
                             {tournaments.map(t => {
-                                const isActive = t.id === activeTournament.id;
+                                const isActive = t.id === activeTournament?.id;
                                 return (
                                     <Link 
                                         key={t.id} 
@@ -178,7 +190,7 @@ export default async function TournamentsPage({ params, searchParams }: Props) {
                 <div className={styles.infoBar}>
                     <div className={styles.infoLeft}>
                         <span className={styles.infoText}>
-                            {activeTournament.name} <span className={styles.divider}>·</span> {(activeTournament as any).team_count ?? 10} TEAMS <span className={styles.divider}>·</span> FINAL: {isLeagueCup ? 'MATCHWEEK 31' : 'MATCHWEEK 38'}
+                            {activeTournament?.name} <span className={styles.divider}>·</span> {(activeTournament as any)?.team_count ?? 10} TEAMS <span className={styles.divider}>·</span> FINAL: {finalGameweekStr}
                         </span>
                     </div>
                     {activeTournament.status === 'active' && (

@@ -166,9 +166,9 @@ async function handleCreate(_req: NextRequest, params: URLSearchParams) {
 
   // Tournament name
   const names: Record<TournamentType, string> = {
-    primary_cup: 'Champions League',
+    primary_cup: 'Champions Cup',
     secondary_cup: 'League Cup',
-    consolation_cup: 'Conference League',
+    consolation_cup: 'Consolation Cup',
   };
 
   // 1. Insert tournament
