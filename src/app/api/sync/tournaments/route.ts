@@ -171,6 +171,13 @@ async function handleCreate(_req: NextRequest, params: URLSearchParams) {
     consolation_cup: 'Consolation Cup',
   };
 
+  // Prevent creation if the league was created midseason and the tournament schedule has already passed
+  const minGwRequired = Math.min(...roundSpecs.map(r => r.startGameweek));
+  if (minGwRequired < startGw) {
+    return NextResponse.json({ 
+      error: `Cannot create ${names[type]}: League was created midseason (gameweek ${startGw}), but this tournament requires a round starting at gameweek ${minGwRequired}.` 
+    }, { status: 400 });
+  }
   // 1. Insert tournament
   const { data: tournament, error: tErr } = await admin
     .from('tournaments')
