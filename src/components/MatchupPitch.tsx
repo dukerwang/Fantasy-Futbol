@@ -12,10 +12,10 @@ const ZONE_ORDER: Zone[] = ['ATT', 'AMZ', 'CMZ', 'DMZ', 'DEF', 'GK'];
 
 // Exact hex values from prototype tailwind config
 const SLOT_COLOR: Record<string, string> = {
-    GK:  '#f59e0b',
-    LB:  '#3b82f6', CB: '#3b82f6', RB: '#3b82f6', DM: '#3b82f6',
-    CM:  '#8b5cf6', LM: '#8b5cf6', RM: '#8b5cf6', AM: '#8b5cf6',
-    LW:  '#ef4444', ST: '#ef4444', RW: '#ef4444',
+    GK: '#f59e0b',
+    LB: '#3b82f6', CB: '#3b82f6', RB: '#3b82f6', DM: '#3b82f6',
+    CM: '#8b5cf6', LM: '#8b5cf6', RM: '#8b5cf6', AM: '#8b5cf6',
+    LW: '#ef4444', ST: '#ef4444', RW: '#ef4444',
 };
 
 const BENCH_COLOR: Record<string, string> = {
@@ -41,8 +41,8 @@ function fmtStats(stats: Record<string, any> | undefined, slot: string): string 
     if (!stats) return '';
     const zone = SLOT_TO_ZONE[slot] ?? 'CMZ';
     const parts: string[] = [];
-    const g  = Number(stats.goals_scored ?? 0);
-    const a  = Number(stats.assists ?? 0);
+    const g = Number(stats.goals_scored ?? 0);
+    const a = Number(stats.assists ?? 0);
     const cs = Number(stats.clean_sheets ?? 0);
     const rtg = stats.minutes_played ? Number(stats.rating ?? 0).toFixed(1) : null;
 
@@ -104,8 +104,8 @@ function BenchChip({ slotType, player, detail }: {
     detail?: Detail;
 }) {
     const pos = player?.primary_position ?? slotType.toUpperCase().slice(0, 3);
-    const bg  = SLOT_COLOR[player?.primary_position ?? ''] ?? BENCH_COLOR[slotType] ?? '#6b7280';
-    const sc  = detail ? getScoreIntensityColor(detail.points) : null;
+    const bg = SLOT_COLOR[player?.primary_position ?? ''] ?? BENCH_COLOR[slotType] ?? '#6b7280';
+    const sc = detail ? getScoreIntensityColor(detail.points) : null;
     return (
         <div className={styles.benchChip}>
             {sc && detail && (
@@ -250,9 +250,9 @@ export default function MatchupPitch({
                                 <span className={styles.breakdownColTotal}>{total.toFixed(1)} Total</span>
                             </div>
                             {(lineup?.starters ?? []).map((s, i) => {
-                                const p      = playerMap[s.player_id];
+                                const p = playerMap[s.player_id];
                                 const detail = detailMap[s.player_id];
-                                const bar    = SLOT_COLOR[s.slot] ?? '#6b7280';
+                                const bar = SLOT_COLOR[s.slot] ?? '#6b7280';
                                 return (
                                     <div
                                         key={s.player_id}
