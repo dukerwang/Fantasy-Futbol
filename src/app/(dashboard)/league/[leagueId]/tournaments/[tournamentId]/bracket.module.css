@@ -1,62 +1,63 @@
 .container {
+    padding: 2rem 2.5rem;
     display: flex;
     flex-direction: column;
-    gap: 2rem;
+    gap: 3rem;
 }
 
 .header {
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
+    gap: 0.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--color-border);
 }
 
 .backLink {
-    font-size: 0.875rem;
-    color: var(--color-text-secondary);
+    font-family: var(--font-sans);
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--color-text-muted);
     text-decoration: none;
-    font-weight: 500;
-    transition: color var(--transition-fast);
-}
-
-.backLink:hover {
-    color: var(--color-text-primary);
+    margin-bottom: 0.5rem;
 }
 
 .headerContent {
     display: flex;
-    align-items: center;
-    gap: 1rem;
+    justify-content: space-between;
+    align-items: flex-end;
 }
 
 .title {
-    font-size: 1.5rem;
+    font-family: var(--font-serif);
+    font-size: 2.5rem;
     font-weight: 700;
     color: var(--color-text-primary);
     margin: 0;
+    line-height: 1.1;
 }
 
 .statusBadge {
+    font-family: var(--font-sans);
     font-size: 0.65rem;
     font-weight: 800;
-    letter-spacing: 0.05em;
-    padding: 0.15rem 0.5rem;
-    border-radius: 4px;
+    letter-spacing: 0.1em;
+    padding: 0.25rem 0.75rem;
     text-transform: uppercase;
+    border: 1px solid currentColor;
 }
 
 .badgeActive {
-    background: rgba(58, 107, 74, 0.1);
-    color: var(--color-accent-green);
+    color: var(--color-pos-am); /* green */
 }
 
 .badgeCompleted {
-    background: rgba(59, 130, 246, 0.1);
-    color: var(--color-accent-blue);
+    color: var(--color-text-secondary);
 }
 
 .badgePending {
-    background: rgba(245, 158, 11, 0.1);
-    color: var(--color-accent-yellow);
+    color: var(--color-pos-mf);
 }
 
 /* Champion banner */
@@ -64,139 +65,130 @@
     display: flex;
     align-items: center;
     gap: 1rem;
-    padding: 1rem 1.5rem;
-    background: linear-gradient(135deg, rgba(245, 158, 11, 0.08), rgba(245, 158, 11, 0.02));
-    border: 1px solid rgba(245, 158, 11, 0.2);
-    border-radius: 12px;
+    padding: 1.5rem;
+    background: var(--color-bg-secondary);
+    border: 1px dashed var(--color-border);
 }
 
 .championLabel {
+    font-family: var(--font-sans);
     font-size: 0.65rem;
     font-weight: 800;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
-    color: var(--color-accent-yellow);
-    background: rgba(245, 158, 11, 0.1);
-    padding: 0.2rem 0.5rem;
-    border-radius: 4px;
+    color: var(--color-pos-am);
 }
 
 .championName {
-    font-size: 1.125rem;
+    font-family: var(--font-serif);
+    font-size: 1.5rem;
     font-weight: 700;
     color: var(--color-text-primary);
+    margin: 0;
 }
 
 /* Bracket layout */
 .bracket {
     display: flex;
-    gap: 1.5rem;
+    gap: 2rem;
     overflow-x: auto;
-    padding-bottom: 1rem;
+    padding: 2rem;
+    background: var(--color-bg-primary);
     scrollbar-width: thin;
 }
 
 .emptyBracket {
-    padding: 3rem;
+    padding: 4rem;
     text-align: center;
     background: var(--color-bg-card);
     border: 1px dashed var(--color-border);
-    border-radius: 12px;
     color: var(--color-text-secondary);
+    font-family: var(--font-serif);
+    font-style: italic;
 }
 
 /* Round column */
 .round {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
-    min-width: 240px;
+    min-width: 260px;
     flex-shrink: 0;
 }
 
 .roundHeader {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    padding-bottom: 0.5rem;
-    border-bottom: 1px solid var(--color-border);
+    text-align: center;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--color-border-subtle);
+    margin-bottom: 2rem;
 }
 
 .roundName {
-    font-size: 0.875rem;
+    font-family: var(--font-sans);
+    font-size: 0.65rem;
     font-weight: 700;
-    color: var(--color-text-primary);
+    color: var(--color-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    display: block;
 }
 
 .roundGw {
-    font-size: 0.75rem;
+    font-family: var(--font-sans);
+    font-size: 0.55rem;
     font-weight: 500;
     color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+    display: block;
 }
 
 /* Matchups container */
 .matchups {
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
     justify-content: space-around;
     flex: 1;
+}
+
+.matchupWrapper {
+    position: relative;
+    /* Space depends on round depth, we can just use equal spacing via flex and margin */
+    margin: 1rem 0;
 }
 
 /* Individual matchup card */
 .matchup {
     background: var(--color-bg-card);
-    border: 1px solid var(--color-border);
-    border-radius: 8px;
-    overflow: hidden;
-    position: relative;
-}
-
-.matchup:hover {
-    border-color: var(--color-text-muted);
+    padding: 1rem;
+    border-left: 4px solid transparent;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
 }
 
 .matchupActive {
-    border-color: var(--color-accent-green);
+    background: rgba(58, 107, 74, 0.05); /* very light green tint (accent-green/5) */
+    border-left-color: var(--color-pos-am); /* green */
 }
 
-.matchupCompleted {
-    opacity: 0.85;
-}
-
-.matchupLive {
+/* Matchup Connector Rules */
+.connectorLine {
     position: absolute;
-    top: 0;
-    right: 0;
-    font-size: 0.6rem;
-    font-weight: 800;
-    letter-spacing: 0.05em;
-    padding: 0.1rem 0.4rem;
-    background: rgba(58, 107, 74, 0.1);
-    color: var(--color-accent-green);
-    border-radius: 0 7px 0 4px;
-    display: flex;
-    align-items: center;
-    gap: 3px;
+    right: -2rem;
+    top: 50%;
+    width: 2rem;
+    height: 2px;
+    background: var(--color-border-subtle);
 }
 
-.livePulse {
-    display: inline-block;
-    width: 5px;
-    height: 5px;
-    border-radius: 50%;
-    background: var(--color-accent-green);
-    animation: pulse 1.5s infinite;
+.matchupActive .connectorLine {
+    background: var(--color-pos-am);
 }
 
-@keyframes pulse {
-    0% { opacity: 1; }
-    50% { opacity: 0.4; }
-    100% { opacity: 1; }
-}
-
+/* My team active styling */
 .myMatchup {
-    border-color: var(--color-accent-blue);
+    border: 1px solid var(--color-pos-am);
 }
 
 /* Team row */
@@ -204,22 +196,17 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0.5rem 0.75rem;
     gap: 0.5rem;
 }
 
-.teamRow:first-child {
-    border-bottom: 1px solid var(--color-border);
-}
-
 .teamLabel {
-    font-size: 0.8rem;
-    font-weight: 500;
+    font-family: var(--font-serif);
+    font-size: 0.9rem;
+    font-style: italic;
     color: var(--color-text-secondary);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 120px;
 }
 
 .winnerRow .teamLabel {
@@ -228,7 +215,20 @@
 }
 
 .myTeamRow .teamLabel {
-    color: var(--color-accent-blue);
+    color: var(--color-pos-am);
+}
+
+.winnerRow.myTeamRow .teamLabel {
+    font-weight: 700;
+}
+
+/* Live indicator */
+.matchupLive {
+    font-family: var(--font-sans);
+    font-size: 0.55rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--color-text-muted);
 }
 
 /* Score display */
@@ -239,22 +239,24 @@
 }
 
 .legScore {
-    font-size: 0.7rem;
+    font-family: var(--font-sans);
+    font-size: 0.65rem;
     font-weight: 500;
     color: var(--color-text-muted);
-    min-width: 28px;
+    min-width: 24px;
     text-align: center;
 }
 
 .legDivider {
     width: 1px;
-    height: 14px;
-    background: var(--color-border);
+    height: 12px;
+    background: var(--color-border-subtle);
     margin: 0 0.15rem;
 }
 
 .totalScore {
-    font-size: 0.85rem;
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
     font-weight: 700;
     color: var(--color-text-primary);
     min-width: 32px;
@@ -262,20 +264,20 @@
 }
 
 .winnerRow .totalScore {
-    color: var(--color-accent-green);
+    color: var(--color-pos-am);
 }
 
 /* Responsive */
 @media (max-width: 768px) {
+    .container {
+        padding: 1rem;
+    }
+    
     .bracket {
         gap: 1rem;
     }
 
     .round {
         min-width: 200px;
-    }
-
-    .teamLabel {
-        max-width: 90px;
     }
 }

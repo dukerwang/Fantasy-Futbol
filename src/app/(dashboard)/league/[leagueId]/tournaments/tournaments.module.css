@@ -1,46 +1,63 @@
 .container {
+    padding: 2rem 2.5rem;
     display: flex;
     flex-direction: column;
-    gap: 2rem;
+    gap: 3rem;
 }
 
 .header {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding-bottom: 1rem;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding-bottom: 1.5rem;
     border-bottom: 1px solid var(--color-border);
 }
 
-.title {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--color-text-primary);
+.pageSupertitle {
+    font-family: var(--font-sans);
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--color-text-muted);
     margin: 0;
 }
 
-.sectionTitle {
-    font-size: 1rem;
-    font-weight: 600;
+.title {
+    font-family: var(--font-serif);
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--color-text-primary);
+    margin: 0;
+    line-height: 1.1;
+}
+
+/* Reusing sectionLabel from matchups */
+.sectionLabel {
+    font-family: var(--font-sans);
+    font-size: 0.65rem;
+    font-weight: 700;
     color: var(--color-text-secondary);
-    margin: 0 0 1rem 0;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.12em;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--color-border-subtle);
+    margin: 0 0 1.5rem 0;
 }
 
 .emptyCard {
-    padding: 3rem;
+    padding: 4rem;
     text-align: center;
     background: var(--color-bg-card);
     border: 1px dashed var(--color-border);
-    border-radius: 12px;
     color: var(--color-text-secondary);
+    font-family: var(--font-serif);
+    font-style: italic;
 }
 
 .tournamentGrid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 1rem;
+    gap: 1.5rem;
 }
 
 .cardLink {
@@ -49,73 +66,73 @@
     color: inherit;
 }
 
+/* Redesigned Card */
 .card {
     background: var(--color-bg-card);
-    border: 1px solid var(--color-border);
-    border-radius: 12px;
+    border: 1px solid var(--color-border-subtle);
     padding: 1.5rem;
     position: relative;
     overflow: hidden;
-    transition: transform 0.2s, box-shadow 0.2s;
+    transition: transform 0.2s, box-shadow 0.2s, background-color 0.2s;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
 }
 
 .card:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
+    background: var(--color-bg-secondary);
+    border-color: var(--color-border);
 }
 
-.statusActive::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: var(--color-accent-green);
-}
-
-.statusCompleted::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: var(--color-accent-blue);
-}
-
-.statusPending::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: var(--color-accent-yellow);
+/* Optional: use a sharp line instead of top border */
+.cardContent {
+    flex-grow: 1;
 }
 
 .cardBadge {
     display: inline-block;
-    font-size: 0.65rem;
-    font-weight: 800;
-    letter-spacing: 0.05em;
-    padding: 0.15rem 0.5rem;
-    border-radius: 4px;
-    background: var(--color-bg-secondary);
-    color: var(--color-text-secondary);
-    margin-bottom: 0.75rem;
+    font-family: var(--font-sans);
+    font-size: 0.6rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
 }
 
 .cardName {
-    font-size: 1.125rem;
+    font-family: var(--font-serif);
+    font-size: 1.5rem;
     font-weight: 700;
     color: var(--color-text-primary);
-    margin: 0 0 0.5rem 0;
+    margin: 0;
+    line-height: 1.2;
+}
+
+.cardFooter {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    margin-top: auto;
 }
 
 .cardStatus {
-    font-size: 0.75rem;
+    font-family: var(--font-sans);
+    font-size: 0.65rem;
     font-weight: 600;
-    color: var(--color-text-muted);
-    text-transform: capitalize;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    padding: 0.25rem 0.5rem;
+    border: 1px solid currentColor;
+}
+
+.statusActive .cardStatus {
+    color: var(--color-pos-am); /* Often used as active green in earlier files */
+}
+
+.statusCompleted .cardStatus {
+    color: var(--color-text-secondary);
+}
+
+.statusPending .cardStatus {
+    color: var(--color-pos-mf); /* Blueish or greyish */
 }

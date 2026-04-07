@@ -54,6 +54,7 @@ export default async function TournamentsPage({ params }: Props) {
     return (
         <div className={styles.container}>
             <header className={styles.header}>
+                <span className={styles.pageSupertitle}>PREMIER LEAGUE 25/26</span>
                 <h1 className={styles.title}>Cups</h1>
             </header>
 
@@ -65,7 +66,7 @@ export default async function TournamentsPage({ params }: Props) {
                 <>
                     {active.length > 0 && (
                         <section>
-                            <h2 className={styles.sectionTitle}>Active</h2>
+                            <h2 className={styles.sectionLabel}>Active</h2>
                             <div className={styles.tournamentGrid}>
                                 {active.map(t => (
                                     <TournamentCard key={t.id} tournament={t} leagueId={leagueId} />
@@ -76,7 +77,7 @@ export default async function TournamentsPage({ params }: Props) {
 
                     {pending.length > 0 && (
                         <section>
-                            <h2 className={styles.sectionTitle}>Upcoming</h2>
+                            <h2 className={styles.sectionLabel}>Upcoming</h2>
                             <div className={styles.tournamentGrid}>
                                 {pending.map(t => (
                                     <TournamentCard key={t.id} tournament={t} leagueId={leagueId} />
@@ -87,7 +88,7 @@ export default async function TournamentsPage({ params }: Props) {
 
                     {completed.length > 0 && (
                         <section>
-                            <h2 className={styles.sectionTitle}>Completed</h2>
+                            <h2 className={styles.sectionLabel}>Completed</h2>
                             <div className={styles.tournamentGrid}>
                                 {completed.map(t => (
                                     <TournamentCard key={t.id} tournament={t} leagueId={leagueId} />
@@ -114,9 +115,13 @@ function TournamentCard({ tournament, leagueId }: { tournament: Tournament; leag
             className={styles.cardLink}
         >
             <div className={`${styles.card} ${statusClass}`}>
-                <div className={styles.cardBadge}>{labels.short}</div>
-                <h3 className={styles.cardName}>{tournament.name}</h3>
-                <span className={styles.cardStatus}>{tournament.status}</span>
+                <div className={styles.cardContent}>
+                    <span className={styles.cardBadge}>{labels.short}</span>
+                    <h3 className={styles.cardName}>{tournament.name}</h3>
+                </div>
+                <div className={styles.cardFooter}>
+                    <span className={styles.cardStatus}>{tournament.status}</span>
+                </div>
             </div>
         </Link>
     );

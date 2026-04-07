@@ -21,18 +21,22 @@ export default function TournamentBracket({ rounds, myTeamId }: Props) {
                         <span className={styles.roundName}>{round.name}</span>
                         <span className={styles.roundGw}>
                             GW {round.start_gameweek}
-                            {round.is_two_leg ? `–${round.end_gameweek}` : ''}
+                            {round.is_two_leg && round.end_gameweek !== round.start_gameweek ? `–${round.end_gameweek}` : ''}
                         </span>
                     </div>
 
                     <div className={styles.matchups}>
                         {round.matchups.map((matchup) => (
-                            <BracketMatchup
-                                key={matchup.id}
-                                matchup={matchup}
-                                isTwoLeg={round.is_two_leg}
-                                myTeamId={myTeamId}
-                            />
+                            <div key={matchup.id} className={styles.matchupWrapper}>
+                                <BracketMatchup
+                                    matchup={matchup}
+                                    isTwoLeg={round.is_two_leg}
+                                    myTeamId={myTeamId}
+                                />
+                                {roundIdx < rounds.length - 1 && (
+                                    <div className={styles.connectorLine} />
+                                )}
+                            </div>
                         ))}
                     </div>
                 </div>
@@ -68,19 +72,15 @@ function BracketMatchup({
 
     return (
         <div className={`${styles.matchup} ${statusClass} ${isMyMatchup ? styles.myMatchup : ''}`}>
-            {matchup.status === 'active' && (
-                <div className={styles.matchupLive}>
-                    <span className={styles.livePulse} />
-                    LIVE
-                </div>
-            )}
-
             <div className={`${styles.teamRow} ${matchup.winner_id === matchup.team_a_id && matchup.winner_id ? styles.winnerRow : ''} ${matchup.team_a_id === myTeamId ? styles.myTeamRow : ''}`}>
                 <span className={styles.teamLabel}>
                     {isTBD ? 'TBD' : teamAName}
                 </span>
                 {!isTBD && !isBye && (
                     <div className={styles.scoreGroup}>
+                        {matchup.status === 'active' && (
+                            <span className={styles.matchupLive}>Live</span>
+                        )}
                         {isTwoLeg && (
                             <>
                                 <span className={styles.legScore}>{Number(matchup.team_a_score_leg1).toFixed(1)}</span>
@@ -101,6 +101,9 @@ function BracketMatchup({
                 </span>
                 {!isTBD && !isBye && (
                     <div className={styles.scoreGroup}>
+                        {matchup.status === 'active' && (
+                            <span className={styles.matchupLive}>Live</span>
+                        )}
                         {isTwoLeg && (
                             <>
                                 <span className={styles.legScore}>{Number(matchup.team_b_score_leg1).toFixed(1)}</span>
