@@ -21,7 +21,6 @@ export async function GET(req: NextRequest) {
         const fplRes = await fetch('https://fantasy.premierleague.com/api/bootstrap-static/');
         if (!fplRes.ok) throw new Error('FPL fetch failed');
         const fplData = await fplRes.json();
-        const now = new Date();
         for (const ev of fplData.events as any[]) {
             // Target the active gameweek, or if between gameweeks, target the upcoming one.
             if (ev.is_current || ev.is_next) {
@@ -175,7 +174,6 @@ async function generateValidLineup(admin: any, teamId: string): Promise<{ lineup
         const slots = FORMATION_SLOTS[formation];
         const starters: { player_id: string; slot: GranularPosition }[] = [];
         const usedIds = new Set<string>();
-        let success = true;
 
         // Pass 1: Ideal matches
         for (const slotPos of slots) {

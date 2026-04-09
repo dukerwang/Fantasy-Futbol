@@ -1,10 +1,10 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { insertMatchups } from '@/lib/schedule/insertMatchups';
 
 export const maxDuration = 60;
 
-export async function POST(req: NextRequest) {
+export async function POST() {
     const admin = createAdminClient();
 
     // 1. Get real user

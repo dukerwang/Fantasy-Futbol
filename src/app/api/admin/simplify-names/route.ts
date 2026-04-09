@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -22,7 +22,7 @@ function wordsMatch(tmName: string, dbName: string) {
     return tmParts.every((part) => normDB.includes(part));
 }
 
-export async function GET(req: NextRequest) {
+export async function GET() {
     const rawData = fs.readFileSync(path.join(process.cwd(), 'players.json'), 'utf-8');
     const tmPlayers = JSON.parse(rawData);
 

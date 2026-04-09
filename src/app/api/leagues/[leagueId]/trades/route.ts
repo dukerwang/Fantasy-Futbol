@@ -46,7 +46,7 @@ export async function GET(_req: NextRequest, { params }: Props) {
 
   // Fetch all rosters (to build split-screen proposal view)
   const allTeamIds = (allTeams ?? []).map((t) => t.id);
-  let allRosters: Record<string, { id: string; name: string; web_name: string | null; primary_position: string; pl_team: string }[]> = {};
+  const allRosters: Record<string, { id: string; name: string; web_name: string | null; primary_position: string; pl_team: string }[]> = {};
 
   if (allTeamIds.length > 0) {
     const { data: rosterEntries } = await admin
@@ -75,7 +75,7 @@ export async function GET(_req: NextRequest, { params }: Props) {
     (t.requested_players ?? []).forEach((id: string) => allPlayerIds.add(id));
   }
 
-  let playerMap: Record<string, { id: string; name: string; web_name: string | null; primary_position: string; pl_team: string }> = {};
+  const playerMap: Record<string, { id: string; name: string; web_name: string | null; primary_position: string; pl_team: string }> = {};
   if (allPlayerIds.size > 0) {
     const { data: players } = await admin
       .from('players')

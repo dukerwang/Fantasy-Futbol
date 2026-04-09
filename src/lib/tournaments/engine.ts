@@ -56,11 +56,11 @@ export function seedBracket(teams: SeedEntry[], bracketSize: number): (string | 
 /** Standard tournament seed ordering algorithm */
 function getSeeding(bracketSize: number): number[] {
   if (bracketSize === 1) return [1];
-  let rounds = Math.log2(bracketSize);
+  const rounds = Math.log2(bracketSize);
   let pls = [1, 2];
   for (let i = 1; i < rounds; i++) {
-    let nextLayer: number[] = [];
-    let length = pls.length * 2 + 1;
+    const nextLayer: number[] = [];
+    const length = pls.length * 2 + 1;
     pls.forEach((d) => {
       nextLayer.push(d);
       nextLayer.push(length - d);

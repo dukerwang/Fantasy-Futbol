@@ -1,8 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { redirect } from 'next/navigation';
-import InteractivePlayerCard from '@/components/players/InteractivePlayerCard';
-import type { Player, RosterEntry, Formation, GranularPosition, MatchupLineup, BenchSlot } from '@/types';
+import type { Formation, GranularPosition, MatchupLineup, BenchSlot } from '@/types';
 import { FORMATION_SLOTS, POSITION_FLEX_MAP } from '@/types';
 import PitchUI from './PitchUI';
 import RosterManager from './RosterManager';
@@ -13,10 +12,9 @@ export const dynamic = 'force-dynamic';
 
 interface Props {
   params: Promise<{ leagueId: string }>;
-  searchParams: Promise<{ mode?: string }>;
 }
 
-export default async function MyTeamPage({ params, searchParams }: Props) {
+export default async function MyTeamPage({ params }: Props) {
   const { leagueId } = await params;
 
   const supabase = await createClient();
@@ -94,7 +92,7 @@ export default async function MyTeamPage({ params, searchParams }: Props) {
   const nonIrEntries = rosterEntries.filter((e) => e.status !== 'ir');
 
   // Fetch current GW player points for score overlay
-  let scoreMap: Record<string, number> = {};
+  const scoreMap: Record<string, number> = {};
   try {
     const fplRes = await fetch('https://fantasy.premierleague.com/api/bootstrap-static/', { next: { revalidate: 300 } });
     if (fplRes.ok) {
@@ -122,8 +120,8 @@ export default async function MyTeamPage({ params, searchParams }: Props) {
 
   // Determine initial formation and assignments from upcoming matchup lineup
   let initialFormation: Formation = '4-3-3';
-  let initialAssignments: Record<number, string> = {};
-  let initialBench: Record<string, string | null> = {
+  const initialAssignments: Record<number, string> = {};
+  const initialBench: Record<string, string | null> = {
     DEF: null,
     MID: null,
     ATT: null,
@@ -140,7 +138,7 @@ export default async function MyTeamPage({ params, searchParams }: Props) {
     .limit(1)
     .single();
 
-  let lockedTeamIds = new Set<number>();
+  const lockedTeamIds = new Set<number>();
 
   // Build a set of active (non-IR) player IDs for sanitization
   const nonIrPlayerIds = new Set(nonIrEntries.map((e) => e.player.id));
@@ -218,13 +216,6 @@ export default async function MyTeamPage({ params, searchParams }: Props) {
       }
     }
   }
-
-  // Now, anyone who isn't a starter and isn't on the 4-man bench is a reserve.
-  const assignedStarterIds = new Set(Object.values(initialAssignments));
-  const assignedBenchIds = new Set(Object.values(initialBench).filter(Boolean));
-  const reserves = nonIrEntries.filter(
-    (e) => !assignedStarterIds.has(e.player.id) && !assignedBenchIds.has(e.player.id)
-  );
 
   return (
     <div>

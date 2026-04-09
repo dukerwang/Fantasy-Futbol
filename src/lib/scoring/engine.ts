@@ -21,7 +21,7 @@ export type { MatchRating, RatingBreakdownItem } from '@/types';
 // ── Team Points (updated to use match rating) ───────────────────────────
 
 import { calculateMatchRating, DEFAULT_REFERENCE_STATS } from './matchRating';
-import type { PositionGroup, ReferenceStats } from '@/types';
+import type { ReferenceStats } from '@/types';
 
 /**
  * Calculate total fantasy points for a team lineup in a gameweek.

@@ -21,7 +21,7 @@ const fs = require('fs');
             await acceptBtn.click();
             await page.waitForTimeout(1000);
         }
-    } catch (e) { }
+    } catch { }
 
     const infoButtons = await page.$$('button[class*="ElementDialogButton"]');
     if (infoButtons.length > 0) {

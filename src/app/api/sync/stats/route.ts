@@ -93,7 +93,7 @@ async function syncFplLiveRatings(gameweek: number): Promise<NextResponse> {
   const elements = (fplData.elements ?? []) as FplLivePlayerStats[];
 
   // 2. Load Reference Stats once for the entire batch
-  const refStats = await loadReferenceStats(supabase as any, '2025-26');
+  await loadReferenceStats(supabase as any, '2025-26');
 
   let saved = 0;
 

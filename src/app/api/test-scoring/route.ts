@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { calculateMatchRating } from '@/lib/scoring/engine';
-import { GranularPosition, RawStats } from '@/types';
+import { RawStats } from '@/types';
 
 function makeStats(overrides: Partial<RawStats>): RawStats {
   return {

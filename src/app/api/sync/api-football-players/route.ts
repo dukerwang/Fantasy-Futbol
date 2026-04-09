@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { fetchPLTeams, fetchPlayersByTeam, ApiPlayer } from '@/lib/api-football/client';
-import { GranularPosition } from '@/types';
 import stringSimilarity from 'string-similarity';
 
 export const maxDuration = 60; // 1 minute max for Vercel Hobby tier
@@ -17,74 +16,6 @@ function normalizeName(name: string): string {
         .toLowerCase()
         .replace(/[^a-z0-9 ]/g, '') // remove punctuation
         .trim();
-}
-
-/**
- * Maps a GranularPosition to the broad category API-Football uses.
- * API-Football only reports: "Goalkeeper" | "Defender" | "Midfielder" | "Attacker"
- */
-function getBroadCategory(pos: GranularPosition): string {
-    if (pos === 'GK') return 'GK';
-    if (pos === 'CB' || pos === 'RB' || pos === 'LB') return 'DEF';
-    if (pos === 'ST') return 'FWD';
-    return 'MID'; // DM, CM, AM, LW, RW
-}
-
-/**
- * Maps an API-Football position string to a broad category.
- */
-function getApiBroadCategory(apiPos: string): string | null {
-    const p = apiPos.toLowerCase();
-    if (p.includes('goalkeeper')) return 'GK';
-    if (p.includes('defender')) return 'DEF';
-    if (p.includes('midfielder')) return 'MID';
-    if (p.includes('attacker')) return 'FWD';
-    return null;
-}
-
-/**
- * Derives secondary positions from API-Football statistics by comparing the API's
- * broad category against the FPL-derived granular primary position.
- *
- * API-Football only returns: "Goalkeeper" | "Defender" | "Midfielder" | "Attacker"
- * When these differ cross-category from the FPL position, it's a real data signal:
- *   - FPL MID (winger/CM/AM) seen as Attacker by API → secondary ST
- *     e.g. a winger FPL calls MID but API tracks as playing forward = genuine hybrid
- *   - FPL FWD (striker) seen as Midfielder by API → secondary AM
- *     e.g. a striker who consistently drops into midfield
- *   - FPL DEF seen as Midfielder by API → secondary DM
- *     e.g. a defender who plays as an emergency DM
- *
- * Within-category sub-positions (LW vs RW, CB vs RB, DM vs CM) cannot be inferred
- * from this data — the FPL sync's primary_position already handles that via overrides.
- */
-function parsePositionsFromApi(
-    playerStats: ApiPlayer['statistics'],
-    fplPrimary: GranularPosition
-): { primary: GranularPosition; secondary: GranularPosition[] } {
-    const fplBroad = getBroadCategory(fplPrimary);
-    const secondary: GranularPosition[] = [];
-
-    for (const stat of playerStats) {
-        if (!stat.games?.position) continue;
-        const apiBroad = getApiBroadCategory(stat.games.position);
-        if (!apiBroad || apiBroad === fplBroad) continue;
-
-        // FPL-MID player that API sees as Attacker → genuinely plays in forward line
-        if (fplBroad === 'MID' && apiBroad === 'FWD' && !secondary.includes('ST')) {
-            secondary.push('ST');
-        }
-        // FPL-FWD player that API sees as Midfielder → drops into creative/wide role
-        else if (fplBroad === 'FWD' && apiBroad === 'MID' && !secondary.includes('AM')) {
-            secondary.push('AM');
-        }
-        // FPL-DEF player that API sees as Midfielder → inverted FB or emergency DM
-        else if (fplBroad === 'DEF' && apiBroad === 'MID' && !secondary.includes('DM')) {
-            secondary.push('DM');
-        }
-    }
-
-    return { primary: fplPrimary, secondary };
 }
 
 export async function POST(req: NextRequest) {
@@ -173,7 +104,6 @@ export async function POST(req: NextRequest) {
 
         for (const apiData of allApiPlayers) {
             const apiPlayer = apiData.player;
-            const normApiFirst = normalizeName(apiPlayer.firstname);
             const normApiLast = normalizeName(apiPlayer.lastname);
             const normApiFull = normalizeName(apiPlayer.name);
 

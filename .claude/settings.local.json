@@ -40,7 +40,8 @@
       "Bash(head:*)",
       "Bash(cd \"/Users/dukewang/Fantasy Futbol\" && /opt/homebrew/bin/npx tsx scripts/backfill_historical_vwe.ts 2>&1)",
       "Bash(cd:*)",
-      "Bash(cd \"/Users/dukewang/Fantasy Futbol\" && /opt/homebrew/bin/node node_modules/typescript/bin/tsc --noEmit 2>&1 | grep -v \"validator.ts\" | grep -v \"^$\" | head -20)"
+      "Bash(cd \"/Users/dukewang/Fantasy Futbol\" && /opt/homebrew/bin/node node_modules/typescript/bin/tsc --noEmit 2>&1 | grep -v \"validator.ts\" | grep -v \"^$\" | head -20)",
+      "Bash(/opt/homebrew/bin/npm run:*)"
     ]
   }
 }

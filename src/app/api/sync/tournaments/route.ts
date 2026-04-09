@@ -63,7 +63,7 @@ export async function POST(req: NextRequest) {
 
   if (action === 'create') return handleCreate(req, searchParams);
   if (action === 'advance') return handleAdvance(req, searchParams);
-  if (action === 'resolve_stalled') return handleResolveStalled(req);
+  if (action === 'resolve_stalled') return handleResolveStalled();
 
   return NextResponse.json({ error: 'Invalid action. Use ?action=create, ?action=advance, or ?action=resolve_stalled' }, { status: 400 });
 }
@@ -108,7 +108,7 @@ async function handleCreate(_req: NextRequest, params: URLSearchParams) {
     .in('team_id', allTeams.map(t => t.id));
 
   const hasPrevSeasonData = prevStats && prevStats.length > 0;
-  let orderedTeams = [...allTeams];
+  const orderedTeams = [...allTeams];
 
   if (hasPrevSeasonData) {
     // Dynasty format: Order teams by previous season rank (unranked teams go to the bottom)
@@ -494,14 +494,7 @@ async function handleAdvance(_req: NextRequest, params: URLSearchParams) {
     }
   }
 
-  // Check if tournament is complete (all matchups completed)
-  const { data: pendingMatchups } = await admin
-    .from('tournament_matchups')
-    .select('id')
-    .in('round_id', rounds.map(r => r.id))
-    .neq('status', 'completed');
-
-  // Also check all rounds
+  // Check if tournament is complete — evaluate across all rounds
   const { data: allRounds } = await admin
     .from('tournament_rounds')
     .select('id')
@@ -533,12 +526,11 @@ async function handleAdvance(_req: NextRequest, params: URLSearchParams) {
  * If >48 hours have passed since the last non-postponed fixture's kickoff,
  * the gameweek is force-finished. Postponed players score 0, autosubs fire.
  */
-async function handleResolveStalled(_req: NextRequest) {
+async function handleResolveStalled() {
   const admin = createAdminClient();
 
   // Derive current GW natively from FPL events
   let currentGw = 0;
-  let gwDeadline: Date | null = null;
   try {
     const fplRes = await fetch('https://fantasy.premierleague.com/api/bootstrap-static/', { next: { revalidate: 60 } });
     if (!fplRes.ok) return NextResponse.json({ error: 'Failed to fetch FPL data' }, { status: 502 });
@@ -549,7 +541,6 @@ async function handleResolveStalled(_req: NextRequest) {
       if (ev.deadline_time && new Date(ev.deadline_time) <= now) {
         if (ev.id > currentGw) {
           currentGw = ev.id;
-          gwDeadline = new Date(ev.deadline_time);
         }
       }
     }

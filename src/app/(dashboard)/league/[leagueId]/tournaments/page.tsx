@@ -83,8 +83,6 @@ export default async function TournamentsPage({ params, searchParams }: Props) {
     if (!activeTournament) {
         activeTournament = tournaments.find(t => t.status === 'active') || tournaments[0];
     }
-    const isLeagueCup = activeTournament.type === 'secondary_cup';
-
     const { data: roundsData } = await admin
         .from('tournament_rounds')
         .select('*')

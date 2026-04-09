@@ -14,7 +14,7 @@ const fs = require('fs');
             await acceptBtn.click();
             await page.waitForTimeout(1000);
         }
-    } catch (e) { }
+    } catch { }
 
     // Click on the first element info button. The button class is usually 'ElementDialogButton'
     const infoButtons = await page.$$('button[class*="ElementDialogButton"]');

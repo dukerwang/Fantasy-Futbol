@@ -21,7 +21,6 @@ type SortDir = 'desc' | 'asc';
 const DEF_POSITIONS: GranularPosition[] = ['CB', 'LB', 'RB'];
 const MID_POSITIONS: GranularPosition[] = ['DM', 'CM', 'AM', 'LM', 'RM'];
 const ATT_POSITIONS: GranularPosition[] = ['LW', 'RW', 'ST'];
-const ALL_GRANULAR: GranularPosition[] = ['GK', 'CB', 'LB', 'RB', 'DM', 'CM', 'AM', 'LM', 'RM', 'LW', 'RW', 'ST'];
 
 type PosFilter = 'ALL' | 'GK' | 'DEF' | 'MID' | 'ATT' | GranularPosition;
 

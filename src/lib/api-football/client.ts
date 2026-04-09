@@ -137,10 +137,7 @@ export async function fetchFixturePlayerStats(fixtureId: number): Promise<ApiPla
  * We default to a broad mapping; fine-grained roles should be confirmed
  * by cross-referencing player stats (e.g., a "Defender" with high key passes = FB/WB).
  */
-export function mapApiPositionToGranular(
-  apiPosition: string,
-  playerName: string
-): string {
+export function mapApiPositionToGranular(apiPosition: string): string {
   const pos = apiPosition.toLowerCase();
   if (pos.includes('goalkeeper')) return 'GK';
   if (pos.includes('defender')) return 'CB'; // Will be refined in data sync

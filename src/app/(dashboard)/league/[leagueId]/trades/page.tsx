@@ -55,7 +55,7 @@ export default async function TradesPage({ params }: Props) {
 
   // Fetch rosters for all other teams (for propose UI)
   const allTeamIds = (allTeams ?? []).map((t) => t.id);
-  let allRosters: Record<string, any[]> = {};
+  const allRosters: Record<string, any[]> = {};
   if (allTeamIds.length > 0) {
     const { data: entries } = await admin
       .from('roster_entries')
@@ -82,7 +82,7 @@ export default async function TradesPage({ params }: Props) {
     (t.requested_players ?? []).forEach((id: string) => allPlayerIds.add(id));
   }
 
-  let playerMap: Record<string, any> = {};
+  const playerMap: Record<string, any> = {};
   if (allPlayerIds.size > 0) {
     const { data: players } = await admin
       .from('players')

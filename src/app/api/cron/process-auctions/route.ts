@@ -62,7 +62,7 @@ export async function POST(req: NextRequest) {
   }
 
   // Fetch current FPL gameweek fixtures for lock checks
-  let lockedPlTeamIds = new Set<number>();
+  const lockedPlTeamIds = new Set<number>();
   let currentFplGw = 0;
   try {
     const fplRes = await fetch('https://fantasy.premierleague.com/api/bootstrap-static/');

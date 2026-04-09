@@ -21,7 +21,6 @@ import type {
     RatingComponent,
     PositionGroup,
     ReferenceStats,
-    RatingCurveConfig,
 } from '@/types';
 
 // Define ComponentScores type as it's used in the new code
@@ -420,8 +419,6 @@ export function calculateMatchRating(
     if (stats.minutes_played === 0) {
         return { rating: 0, fantasyPoints: 0, position, breakdown: [] };
     }
-
-    const posGroup = getPositionGroup(position);
 
     // Step 1: Normalize each component to 0-1 via sigmoid
     const components = computeComponentScores(stats, position, refStats);

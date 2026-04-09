@@ -40,7 +40,7 @@ for (const file of files) {
                     }
                 }
             }
-        } catch (e) {
+        } catch {
             // ignore
         }
     }

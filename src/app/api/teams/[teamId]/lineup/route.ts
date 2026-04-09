@@ -61,8 +61,6 @@ export async function POST(req: NextRequest, { params }: Props) {
     return NextResponse.json({ error: 'League not found' }, { status: 404 });
   }
 
-  const benchSize = (teamWithLeague.league as any).bench_size;
-
   if (!Array.isArray(bench) || bench.length !== 4) {
     return NextResponse.json({ error: 'Must have exactly 4 bench players (DEF, MID, ATT, FLEX)' }, { status: 400 });
   }

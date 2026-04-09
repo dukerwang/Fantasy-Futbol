@@ -174,6 +174,7 @@ Three different player ID types exist. Never confuse them:
 - Always handle loading, error, and empty states in UI components
 - Migrations go in `supabase/migrations/` — never alter DB schema directly
 - Admin utilities → `/api/admin/`, debug tools → `/api/debug/` (never ship debug routes as features)
+- When refactoring or finishing a feature, remove unused imports, dead code, and unreachable branches. Run npm run lint and fix all warnings before committing.
 
 ## Known Fragile Areas
 - `src/lib/scoring/matchRating.ts` + its Edge Function mirror — changes affect all historical scores

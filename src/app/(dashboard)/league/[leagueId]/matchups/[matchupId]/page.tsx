@@ -66,7 +66,7 @@ export default async function MatchupDetailPage({ params }: Props) {
     lineupB?.starters.forEach((s) => playerIds.add(s.player_id));
     (lineupB?.bench as any[] ?? []).forEach((b) => playerIds.add(b.player_id));
 
-    let playerMap: Record<string, Partial<Player>> = {};
+    const playerMap: Record<string, Partial<Player>> = {};
     if (playerIds.size > 0) {
         const [{ data: playersData }, { data: rankings }] = await Promise.all([
             admin.from('players').select(FULL_PLAYER_SELECT).in('id', Array.from(playerIds)) as any,
@@ -83,7 +83,7 @@ export default async function MatchupDetailPage({ params }: Props) {
     const { calculateMatchRating } = await import('@/lib/scoring/engine');
     const refStats = await loadReferenceStats(admin, '2025-26');
 
-    let detailMap: Record<string, { points: number; stats?: any }> = {};
+    const detailMap: Record<string, { points: number; stats?: any }> = {};
     if (playerIds.size > 0 && matchupData.gameweek) {
         const { data: statsRows } = await admin
             .from('player_stats')

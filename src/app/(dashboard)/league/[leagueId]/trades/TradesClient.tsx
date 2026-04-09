@@ -217,7 +217,8 @@ export default function TradesClient({
   function toggleOffered(playerId: string) {
     setOfferedPlayerIds((prev) => {
       const next = new Set(prev);
-      next.has(playerId) ? next.delete(playerId) : next.add(playerId);
+      if (next.has(playerId)) next.delete(playerId);
+      else next.add(playerId);
       return next;
     });
   }
@@ -225,21 +226,10 @@ export default function TradesClient({
   function toggleRequested(playerId: string) {
     setRequestedPlayerIds((prev) => {
       const next = new Set(prev);
-      next.has(playerId) ? next.delete(playerId) : next.add(playerId);
+      if (next.has(playerId)) next.delete(playerId);
+      else next.add(playerId);
       return next;
     });
-  }
-
-  // ── Status badge ─────────────────────────────────────────────────────────
-
-  function statusLabel(status: string) {
-    const map: Record<string, string> = {
-      pending: 'Pending',
-      accepted: 'Accepted',
-      rejected: 'Rejected',
-      cancelled: 'Cancelled',
-    };
-    return map[status] ?? status;
   }
 
   // ── Render ───────────────────────────────────────────────────────────────
@@ -644,7 +634,7 @@ interface TradeCardProps {
   loading: boolean;
 }
 
-function TradeCard({ trade, myTeamId, playerMap, onAction, onCounter, onViewPlayer, error, loading }: TradeCardProps) {
+function TradeCard({ trade, myTeamId, playerMap, onAction, onViewPlayer, loading }: TradeCardProps) {
   const isProposer = trade.team_a_id === myTeamId;
   const teamAName = (trade.team_a as any)?.team_name ?? 'Team A';
   const teamBName = (trade.team_b as any)?.team_name ?? 'Team B';

@@ -32,7 +32,7 @@ function extractToolCalls(file) {
                     }
                 }
             }
-        } catch (e) { }
+        } catch { }
     }
 }
 
