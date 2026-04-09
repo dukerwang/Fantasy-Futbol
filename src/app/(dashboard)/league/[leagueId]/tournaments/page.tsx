@@ -376,7 +376,7 @@ function BracketMatchup({
                 <span className={styles.teamLabel}>
                     {isTBD ? 'TBD' : (
                         <>
-                            {teamASeed && !isBye && <span className={styles.teamSeed}>{teamASeed}</span>}
+                            {teamASeed && <span className={styles.teamSeed}>{teamASeed}</span>}
                             {teamAName}
                         </>
                     )}
@@ -402,7 +402,7 @@ function BracketMatchup({
                 <span className={styles.teamLabel}>
                     {isTBD ? 'TBD' : (
                         <>
-                            {teamBSeed && !isBye && <span className={styles.teamSeed}>{teamBSeed}</span>}
+                            {teamBSeed && <span className={styles.teamSeed}>{teamBSeed}</span>}
                             {teamBName}
                         </>
                     )}
