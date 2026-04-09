@@ -54,7 +54,7 @@ export function seedBracket(teams: SeedEntry[], bracketSize: number): (string | 
 }
 
 /** Standard tournament seed ordering algorithm */
-function getSeeding(bracketSize: number): number[] {
+export function getSeeding(bracketSize: number): number[] {
   if (bracketSize === 1) return [1];
   const rounds = Math.log2(bracketSize);
   let pls = [1, 2];

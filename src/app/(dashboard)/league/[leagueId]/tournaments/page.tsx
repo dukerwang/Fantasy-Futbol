@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server';
 import { notFound, redirect } from 'next/navigation';
 import Link from 'next/link';
 import type { Tournament, TournamentRound, TournamentMatchup } from '@/types';
+import { getSeeding } from '@/lib/tournaments/engine';
 import styles from './tournaments.module.css';
 
 interface Props {
@@ -138,6 +139,21 @@ export default async function TournamentsPage({ params, searchParams }: Props) {
     // Determine champion
     let championName = "TBD";
     let championStatus = "In Progress";
+    
+    const seedMap = new Map<string, number>();
+    if (roundsWithPairs.length > 0) {
+        const firstRound = roundsWithPairs[0];
+        const bracketSize = firstRound.slotsCount * 2;
+        const seeding = getSeeding(bracketSize);
+        
+        const firstRoundMatchups = matchups.filter(m => m.round_id === firstRound.id).sort((a,b) => a.bracket_position - b.bracket_position);
+        
+        firstRoundMatchups.forEach((m) => {
+            if (m.team_a_id) seedMap.set(m.team_a_id, seeding[m.bracket_position * 2]);
+            if (m.team_b_id) seedMap.set(m.team_b_id, seeding[m.bracket_position * 2 + 1]);
+        });
+    }
+
     if (activeTournament.status === 'completed' && roundsWithPairs.length > 0) {
         const finalRound = roundsWithPairs[roundsWithPairs.length - 1];
         const finalMatchup = finalRound?.pairs[0]?.[0];
@@ -232,7 +248,13 @@ export default async function TournamentsPage({ params, searchParams }: Props) {
                                                         {roundIdx > 0 && <div className={`${styles.connectorIn} ${hasIncomingActiveLeft(m0, member.id) ? styles.connectorActive : ''}`} />}
                                                         {m0 ? (
                                                             <div className={styles.matchupWrapper}>
-                                                                <BracketMatchup matchup={m0} isTwoLeg={round.is_two_leg} myTeamId={member.id} />
+                                                                <BracketMatchup 
+                                                                    matchup={m0} 
+                                                                    isTwoLeg={round.is_two_leg} 
+                                                                    myTeamId={member.id} 
+                                                                    teamASeed={seedMap.get(m0.team_a_id ?? '')} 
+                                                                    teamBSeed={seedMap.get(m0.team_b_id ?? '')} 
+                                                                />
                                                             </div>
                                                         ) : (
                                                             <div className={styles.matchupPlaceholder} />
@@ -245,7 +267,13 @@ export default async function TournamentsPage({ params, searchParams }: Props) {
                                                             {roundIdx > 0 && <div className={`${styles.connectorIn} ${hasIncomingActiveLeft(m1, member.id) ? styles.connectorActive : ''}`} />}
                                                             {m1 ? (
                                                                 <div className={styles.matchupWrapper}>
-                                                                    <BracketMatchup matchup={m1} isTwoLeg={round.is_two_leg} myTeamId={member.id} />
+                                                                    <BracketMatchup 
+                                                                        matchup={m1} 
+                                                                        isTwoLeg={round.is_two_leg} 
+                                                                        myTeamId={member.id} 
+                                                                        teamASeed={seedMap.get(m1.team_a_id ?? '')} 
+                                                                        teamBSeed={seedMap.get(m1.team_b_id ?? '')} 
+                                                                    />
                                                                 </div>
                                                             ) : (
                                                                 <div className={styles.matchupPlaceholder} />
@@ -321,10 +349,14 @@ function BracketMatchup({
     matchup,
     isTwoLeg,
     myTeamId,
+    teamASeed,
+    teamBSeed,
 }: {
     matchup: TournamentMatchup;
     isTwoLeg: boolean;
     myTeamId?: string;
+    teamASeed?: number;
+    teamBSeed?: number;
 }) {
     const teamAName = matchup.team_a?.team_name ?? 'BYE';
     const teamBName = matchup.team_b?.team_name ?? 'BYE';
@@ -341,7 +373,14 @@ function BracketMatchup({
     return (
         <div className={`${styles.matchup} ${activeClass} ${highlightMyTeam}`}>
             <div className={`${styles.teamRow} ${matchup.winner_id === matchup.team_a_id && matchup.winner_id ? styles.winnerRow : ''} ${matchup.team_a_id === myTeamId ? styles.myTeamRow : ''}`}>
-                <span className={styles.teamLabel}>{isTBD ? 'TBD' : teamAName}</span>
+                <span className={styles.teamLabel}>
+                    {isTBD ? 'TBD' : (
+                        <>
+                            {teamASeed && !isBye && <span className={styles.teamSeed}>{teamASeed}</span>}
+                            {teamAName}
+                        </>
+                    )}
+                </span>
                 {!isTBD && !isBye && (
                     <div className={styles.scoreGroup}>
                         {matchup.status === 'active' && <span className={styles.matchupLive}>Live</span>}
@@ -360,7 +399,14 @@ function BracketMatchup({
             </div>
 
             <div className={`${styles.teamRow} ${matchup.winner_id === matchup.team_b_id && matchup.winner_id ? styles.winnerRow : ''} ${matchup.team_b_id === myTeamId ? styles.myTeamRow : ''}`}>
-                <span className={styles.teamLabel}>{isTBD ? 'TBD' : teamBName}</span>
+                <span className={styles.teamLabel}>
+                    {isTBD ? 'TBD' : (
+                        <>
+                            {teamBSeed && !isBye && <span className={styles.teamSeed}>{teamBSeed}</span>}
+                            {teamBName}
+                        </>
+                    )}
+                </span>
                 {!isTBD && !isBye && (
                     <div className={styles.scoreGroup}>
                         {matchup.status === 'active' && <span className={styles.matchupLive}>Live</span>}
