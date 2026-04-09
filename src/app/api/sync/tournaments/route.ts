@@ -90,7 +90,7 @@ async function handleCreate(_req: NextRequest, params: URLSearchParams) {
   // (Assuming current season is '2025-26', previous is '2024-25'. This could be made dynamic later.)
   const PREVIOUS_SEASON = '2024-25';
 
-  // Fetch league teams with total_points for fallback seeding
+  // Fetch league teams
   const { data: allTeams, error: teamsErr } = await admin
     .from('teams')
     .select('id, team_name, total_points')
@@ -107,6 +107,12 @@ async function handleCreate(_req: NextRequest, params: URLSearchParams) {
     .eq('season', PREVIOUS_SEASON)
     .in('team_id', allTeams.map(t => t.id));
 
+  // Fetch current standings as fallback
+  const { data: currentStandings } = await admin
+    .from('league_standings')
+    .select('team_id, rank')
+    .eq('league_id', leagueId);
+
   const hasPrevSeasonData = prevStats && prevStats.length > 0;
   const orderedTeams = [...allTeams];
 
@@ -118,10 +124,12 @@ async function handleCreate(_req: NextRequest, params: URLSearchParams) {
       return rankA - rankB;
     });
   } else {
-    // Inaugural season fallback: order by current season's total points (descending)
-    // Since this endpoint is triggered right before the tournament starts,
-    // this accurately reflects the current standings.
-    orderedTeams.sort((a, b) => (b.total_points ?? 0) - (a.total_points ?? 0));
+    // Inaugural season fallback: order by current season's rank via league_standings
+    orderedTeams.sort((a, b) => {
+      const rankA = currentStandings?.find(s => s.team_id === a.id)?.rank ?? 999;
+      const rankB = currentStandings?.find(s => s.team_id === b.id)?.rank ?? 999;
+      return rankA - rankB;
+    });
   }
 
   // The teams array should now behave identically to the old one but correctly sorted
