@@ -51,7 +51,7 @@ interface Props {
   allTeamsIncludingMine: SimpleTeam[];
   allRosters: Record<string, SimplePlayer[]>;
   initialTrades: TradeRecord[];
-  leagueTrades: TradeRecord[];
+  leagueTrades: any[];
   initialPlayerMap: Record<string, SimplePlayer>;
 }
 

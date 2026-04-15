@@ -79,8 +79,9 @@ export default async function TradesPage({ params }: Props) {
   const { data: leagueTrades } = await admin
     .from('trade_proposals')
     .select(`
-      id, offered_players, requested_players, offered_faab, requested_faab,
-      status, created_at, updated_at,
+      id, team_a_id, team_b_id,
+      offered_players, requested_players, offered_faab, requested_faab,
+      status, message, created_at, updated_at,
       team_a:teams!trade_proposals_team_a_id_fkey(id, team_name),
       team_b:teams!trade_proposals_team_b_id_fkey(id, team_name)
     `)
@@ -161,7 +162,7 @@ export default async function TradesPage({ params }: Props) {
       allTeamsIncludingMine={allTeamsIncludingMine ?? []}
       allRosters={allRosters}
       initialTrades={trades ?? []}
-      leagueTrades={leagueTrades ?? []}
+      leagueTrades={(leagueTrades ?? []) as unknown as any[]}
       initialPlayerMap={playerMap}
     />
   );
