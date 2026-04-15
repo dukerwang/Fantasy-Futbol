@@ -657,8 +657,8 @@ export default function TradesClient({
               {leagueTrades.map((trade) => {
                 const teamAName = (trade.team_a as any)?.team_name ?? 'Team A';
                 const teamBName = (trade.team_b as any)?.team_name ?? 'Team B';
-                const offeredPlayers = (trade.offered_players ?? []).map((id) => playerMap[id]).filter(Boolean);
-                const requestedPlayers = (trade.requested_players ?? []).map((id) => playerMap[id]).filter(Boolean);
+                const offeredPlayers = (trade.offered_players ?? []).map((id: string) => playerMap[id]).filter(Boolean);
+                const requestedPlayers = (trade.requested_players ?? []).map((id: string) => playerMap[id]).filter(Boolean);
                 const date = trade.updated_at ?? trade.created_at;
                 const isInvolved = trade.team_a_id === myTeam.id || trade.team_b_id === myTeam.id;
 
