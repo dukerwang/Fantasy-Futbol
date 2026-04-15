@@ -106,6 +106,7 @@ export default async function LeaguePage({ params }: Props) {
     myMatchupsResult,
     auctionsResult,
     activityResult,
+    teamsResult,
   ] = await Promise.all([
     // Full standings (no limit — show all teams)
     admin
@@ -137,6 +138,12 @@ export default async function LeaguePage({ params }: Props) {
       .order('faab_bid', { ascending: false })
       .limit(4),
 
+    // All teams (for draft order manager)
+    admin
+      .from('teams')
+      .select('id, team_name, draft_order')
+      .eq('league_id', leagueId),
+
     // Recent activity
     admin
       .from('transactions')
@@ -154,6 +161,7 @@ export default async function LeaguePage({ params }: Props) {
   const myMatchups = myMatchupsResult.data ?? [];
   const auctions = auctionsResult.data ?? [];
   const activity = activityResult.data ?? [];
+  const initialTeams = (teamsResult.data ?? []) as Array<{ id: string; team_name: string; draft_order: number | null }>;
 
   // ── Matchup hero state ────────────────────────────────────────────────────
   const liveMatchup = myMatchups.find((m) => m.status === 'live');
@@ -266,9 +274,7 @@ export default async function LeaguePage({ params }: Props) {
         <div className={styles.setupBanner}>
           <DraftOrderManager
             leagueId={leagueId}
-            leagueName={league.name}
-            isCommissioner={league.commissioner_id === user.id}
-            leagueStatus={league.status}
+            initialTeams={initialTeams}
           />
         </div>
       )}
