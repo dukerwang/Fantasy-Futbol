@@ -75,9 +75,34 @@ export default async function TradesPage({ params }: Props) {
 
   const myRoster = (myRosterEntries ?? []).map((e) => ({ ...(e.player as any), on_trade_block: e.on_trade_block }));
 
-  // Build playerMap from all players in all trade proposals
+  // ── League Feed — all accepted trades across the whole league ──────────────
+  const { data: leagueTrades } = await admin
+    .from('trade_proposals')
+    .select(`
+      id, offered_players, requested_players, offered_faab, requested_faab,
+      status, created_at, updated_at,
+      team_a:teams!trade_proposals_team_a_id_fkey(id, team_name),
+      team_b:teams!trade_proposals_team_b_id_fkey(id, team_name)
+    `)
+    .eq('league_id', leagueId)
+    .eq('status', 'accepted')
+    .order('updated_at', { ascending: false })
+    .limit(20);
+
+  // All teams including user's own (needed to display league-wide feed)
+  const { data: allTeamsIncludingMine } = await admin
+    .from('teams')
+    .select('id, team_name, faab_budget')
+    .eq('league_id', leagueId);
+
+  // Build playerMap from all players in all trade proposals (own + league feed)
   const allPlayerIds = new Set<string>();
   for (const t of trades ?? []) {
+    (t.offered_players ?? []).forEach((id: string) => allPlayerIds.add(id));
+    (t.requested_players ?? []).forEach((id: string) => allPlayerIds.add(id));
+  }
+  // Also include players from league feed trades
+  for (const t of leagueTrades ?? []) {
     (t.offered_players ?? []).forEach((id: string) => allPlayerIds.add(id));
     (t.requested_players ?? []).forEach((id: string) => allPlayerIds.add(id));
   }
@@ -133,8 +158,10 @@ export default async function TradesPage({ params }: Props) {
       myTeam={myTeam}
       myRoster={myRoster}
       allTeams={allTeams ?? []}
+      allTeamsIncludingMine={allTeamsIncludingMine ?? []}
       allRosters={allRosters}
       initialTrades={trades ?? []}
+      leagueTrades={leagueTrades ?? []}
       initialPlayerMap={playerMap}
     />
   );

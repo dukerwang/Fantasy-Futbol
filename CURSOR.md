@@ -47,14 +47,25 @@ A major UI overhaul is underway. The app previously used a generic dark theme. I
 - ✅ **Standings** — podium + table implemented and visually polished
 - ✅ **Activity Log** — "The Transfer Gazette" timeline, Live Auctions sidebar widget (capped at 4 rows), Transfer Budget widget
 - ✅ **Free Agency / Player Market** — tabbed layout (Player Market + Active Auctions), cream editorial player cards, Recent Auctions sidebar, redesigned bid modal with bid history, client-side search + position filters (including LM/RM)
+- ✅ **Matchups** (`matchups/page.tsx`, `GameweekSelector.tsx`, `LiveMatchupCard.tsx`, `matchup-detail/page.tsx`) — GW selector, matchup cards with live scores, pitch view with player chips and score-intensity badges, bench scoring display, cream editorial styling throughout
+- ✅ **Cups / Tournaments** (`tournaments/page.tsx`, `tournaments.module.css`) — unified cups page with three-tab bracket UI (League Cup, Champions Cup, Consolation Cup), standings-based dynamic seeding, bye handling, correct two-legged SF display, dropout mechanics for midseason leagues
+- 🔄 **League Home** (`league/[leagueId]/page.tsx`, `league.module.css`) — **IN PROGRESS** — dashboard layout: matchup hero (3 states: live/upcoming/final), standings dominant left column, GW Stars + Live Bidding right column, Transfer Gazette feed
+- 🔄 **Trades** (`trades/TradesClient.tsx`, `trades/page.tsx`, `trades.module.css`, new `AddToBlockModal.tsx`) — **IN PROGRESS** — 4 tabs: My Trades (incoming/sent/history) | Propose | League Feed | Trade Block + Add to Block modal
 
 ### What Still Needs Work (Priority Order)
-1. **League Home** (`league/[leagueId]/page.tsx`) — landing page after selecting a league; likely standings summary + recent matchup + upcoming fixture
-2. **Matchups** (`matchups/page.tsx`, `matchups/matchups.module.css`) — Stitch prototype: matchup cards with GW selector
-3. **Cups / Tournaments** (`tournaments/page.tsx`, `tournaments.module.css`) — bracket / cup round UI
-4. **Trades** (`trades/TradesClient.tsx`, `trades.module.css`) — Stitch prototype: tabbed trade UI
-5. **Shared UI subcomponents** — player cards (used across team, matchups, stats), any other reusable components that still carry dark-mode or placeholder styles
-6. Final sweep: any remaining hardcoded hex values across all module CSS files
+1. **Shared UI subcomponents** — player cards (used across team, matchups, stats), any other reusable components that still carry dark-mode or placeholder styles
+2. Final sweep: any remaining hardcoded hex values across all module CSS files
+
+### League Home — Key Implementation Notes
+- Matchup hero: Priority 1=live, 2=upcoming (FPL bootstrap-static fetch with `{ next: { revalidate: 3600 } }` — cached 1hr), 3=completed
+- Top performers: `player_stats` JOIN `players` JOIN `roster_entries!inner` → most recent completed GW, ordered by `fantasy_points` DESC, limit 5
+- Transfer Gazette: condensed `transactions` table (limit 5) — same source as Activity Log, NOT editorial articles
+- Stitch prototype: screen `9397d59caa074cc382d3eaad4cebac9e` on project `9034509438526576481`
+
+### Trades — Key Implementation Notes
+- League Feed tab: ALL `accepted` trades in the league (including user's own — they also appear in My Trades history)
+- Add to Block modal: check `src/app/api/teams/[teamId]/trade-block/route.ts` for exact HTTP method before implementing fetch
+- Stitch prototype: screen `0be4d38bf3d7466ba8eaa25b5b936e12` on project `9034509438526576481`
 
 ---
 
