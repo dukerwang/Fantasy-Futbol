@@ -105,8 +105,8 @@ export default async function LeaguePage({ params }: Props) {
     standingsResult,
     myMatchupsResult,
     auctionsResult,
-    activityResult,
     teamsResult,
+    activityResult,
   ] = await Promise.all([
     // Full standings (no limit — show all teams)
     admin
