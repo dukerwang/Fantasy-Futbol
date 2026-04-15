@@ -654,13 +654,13 @@ export default function TradesClient({
             </div>
           ) : (
             <div className={styles.leagueFeedList}>
-              {leagueTrades.map((trade) => {
-                const teamAName = (trade.team_a as any)?.team_name ?? 'Team A';
-                const teamBName = (trade.team_b as any)?.team_name ?? 'Team B';
-                const offeredPlayers = (trade.offered_players ?? []).map((id: string) => playerMap[id]).filter(Boolean);
-                const requestedPlayers = (trade.requested_players ?? []).map((id: string) => playerMap[id]).filter(Boolean);
-                const date = trade.updated_at ?? trade.created_at;
-                const isInvolved = trade.team_a_id === myTeam.id || trade.team_b_id === myTeam.id;
+              {leagueTrades.map((trade: any) => {
+                const teamAName = trade.team_a?.team_name ?? 'Team A';
+                const teamBName = trade.team_b?.team_name ?? 'Team B';
+                const offeredPlayers: SimplePlayer[] = (trade.offered_players ?? []).map((id: string) => playerMap[id]).filter(Boolean);
+                const requestedPlayers: SimplePlayer[] = (trade.requested_players ?? []).map((id: string) => playerMap[id]).filter(Boolean);
+                const date: string = trade.updated_at ?? trade.created_at;
+                const isInvolved: boolean = trade.team_a_id === myTeam.id || trade.team_b_id === myTeam.id;
 
                 return (
                   <div key={trade.id} className={`${styles.leagueFeedRow} ${isInvolved ? styles.leagueFeedRowMine : ''}`}>
@@ -689,7 +689,7 @@ export default function TradesClient({
                       <div className={styles.leagueFeedSide}>
                         <span className={styles.leagueFeedSideLabel}>{teamAName} sent:</span>
                         <div className={styles.leagueFeedPlayers}>
-                          {offeredPlayers.length > 0 ? offeredPlayers.map((p) => (
+                          {offeredPlayers.length > 0 ? offeredPlayers.map((p: SimplePlayer) => (
                             <span key={p.id} className={styles.leagueFeedPlayerChip}>
                               <span
                                 className={styles.leagueFeedPosBadge}
@@ -708,7 +708,7 @@ export default function TradesClient({
                       <div className={styles.leagueFeedSide}>
                         <span className={styles.leagueFeedSideLabel}>{teamBName} sent:</span>
                         <div className={styles.leagueFeedPlayers}>
-                          {requestedPlayers.length > 0 ? requestedPlayers.map((p) => (
+                          {requestedPlayers.length > 0 ? requestedPlayers.map((p: SimplePlayer) => (
                             <span key={p.id} className={styles.leagueFeedPlayerChip}>
                               <span
                                 className={styles.leagueFeedPosBadge}
