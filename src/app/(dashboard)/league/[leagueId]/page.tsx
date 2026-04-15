@@ -554,7 +554,7 @@ export default async function LeaguePage({ params }: Props) {
 
       {/* Leave League (always available, bottom) */}
       <div className={styles.dangerZone}>
-        <LeaveLeagueButton leagueId={leagueId} />
+        <LeaveLeagueButton leagueId={leagueId} isCommissioner={league.commissioner_id === user.id} />
       </div>
     </div>
   );
