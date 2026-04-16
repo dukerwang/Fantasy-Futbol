@@ -27,7 +27,7 @@
   font-family: var(--font-serif);
   font-size: clamp(2.5rem, 4vw, 3rem);
   font-weight: 700;
-  color: var(--color-text-primary);
+  color: #2A5A3B; /* prototype primary */
   letter-spacing: -0.03em;
   margin: 0 0 var(--space-2) 0;
   line-height: 1;
@@ -51,7 +51,7 @@
 .podiumCard {
   background: var(--color-bg-card);
   padding: var(--space-8);
-  border-radius: var(--radius-md);
+  border-radius: 0;
   border: 1px solid var(--color-border-subtle);
   box-shadow: var(--shadow-sm);
   display: flex;
@@ -89,7 +89,7 @@
   align-items: center;
   gap: var(--space-1);
   padding: 3px var(--space-3);
-  border-radius: var(--radius-full);
+  border-radius: 0;
   background: rgba(58, 107, 74, 0.1);
   color: var(--color-accent-green);
   font-family: var(--font-sans);
@@ -169,7 +169,7 @@
   /* Use the header color as the section background so rounded-corner
      clipping never reveals a white bleed behind the thead */
   background: var(--color-bg-secondary);
-  border-radius: var(--radius-md);
+  border-radius: 0;
   overflow: hidden;
   box-shadow: var(--shadow-sm);
   border: 1px solid var(--color-border-subtle);
