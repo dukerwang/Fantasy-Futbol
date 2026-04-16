@@ -111,104 +111,99 @@
   color: var(--color-text-secondary);
 }
 
+.heroTeamRecord {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+  margin-top: 4px;
+}
+
 .heroScore {
   font-family: 'Noto Serif', serif;
   font-size: 36px;
   font-weight: 700;
   line-height: 1;
   letter-spacing: -0.02em;
-}
-
-.heroScoreUser {
-  color: var(--color-accent-green);
-}
-
-.heroScoreOpp {
   color: var(--color-text-muted);
 }
 
-/* Center panel */
-.heroCenter {
+.heroScoreHighlight {
+  color: var(--color-accent-green);
+}
+
+.heroScoreDivider {
+  font-family: 'Inter', sans-serif;
+  font-size: 24px;
+  color: var(--color-border);
+  font-weight: 300;
+  padding-bottom: 2px;
+}
+
+/* Center panel block */
+.heroCenterBlock {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  padding: 20px 24px;
-  min-width: 110px;
-  background: var(--color-bg-elevated);
+  gap: 12px;
+  padding: 0 32px;
 }
 
-.heroCenterLabel {
-  font-family: 'Inter', sans-serif;
-  font-size: 8px;
-  font-weight: 700;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: var(--color-text-muted);
+.heroScoreGroup {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.heroBadgeBox {
+  display: flex;
+  justify-content: center;
 }
 
 /* Hero badges */
-.heroBadgeLive {
+.heroBadgeLivePill,
+.heroBadgeUpcomingPill,
+.heroBadgeFinalWin,
+.heroBadgeFinalLoss,
+.heroBadgeFinalDraw {
   font-family: 'Inter', sans-serif;
   font-size: 10px;
   font-weight: 700;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
   padding: 4px 10px;
-  border-radius: var(--radius-sm);
+  border-radius: 2px;
+}
+
+.heroBadgeLivePill {
   background: rgba(58, 107, 74, 0.12);
   color: var(--color-accent-green);
+  border: 1px solid rgba(58, 107, 74, 0.2);
   animation: pulse 2s infinite;
 }
 
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.6; }
-}
-
-.heroBadgeUpcoming {
-  font-family: 'Inter', sans-serif;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  padding: 4px 10px;
-  border-radius: var(--radius-sm);
-  background: var(--color-bg-secondary);
-  color: var(--color-text-secondary);
+.heroBadgeUpcomingPill {
+  background: var(--color-bg-elevated);
+  color: var(--color-text-muted);
   border: 1px solid var(--color-border);
 }
 
-.heroBadgeWin {
-  font-family: 'Inter', sans-serif;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  padding: 4px 10px;
-  border-radius: var(--radius-sm);
+.heroBadgeFinalWin {
   background: var(--color-accent-green);
   color: #fff;
 }
 
-.heroBadgeLoss {
-  font-family: 'Inter', sans-serif;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  padding: 4px 10px;
-  border-radius: var(--radius-sm);
-  background: var(--color-accent-red-dim);
-  color: var(--color-accent-red);
-  border: 1px solid rgba(239,68,68,0.25);
+.heroBadgeFinalLoss {
+  background: var(--color-bg-elevated);
+  color: var(--color-text-muted);
+  border: 1px solid var(--color-border);
 }
 
-.heroBadgeDraw {
-  font-family: 'Inter', sans-serif;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  padding: 4px 10px;
-  border-radius: var(--radius-sm);
-  background: var(--color-bg-secondary);
+.heroBadgeFinalDraw {
+  background: var(--color-bg-elevated);
   color: var(--color-text-secondary);
   border: 1px solid var(--color-border);
 }
@@ -310,7 +305,8 @@
   font-size: 12px;
   font-weight: 700;
   font-style: italic;
-  /* bg + color set inline per position */
+  line-height: 1;      /* Center vertically */
+  padding-right: 2px;  /* Optical balance for italic slant */
 }
 
 /* For plain ranks (4+): just show the number */

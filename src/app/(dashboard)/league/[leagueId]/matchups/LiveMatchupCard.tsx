@@ -92,7 +92,7 @@ export default function LiveMatchupCard({
                 <div className={styles.heroTeamCol}>
                     <span className={styles.heroTeamName}>
                         {teamAName}
-                        {aHasCup && <span title="Also in Cup this week" style={{ marginLeft: '0.4rem' }}>🏆</span>}
+                        {aHasCup && <span title="Also in Cup this week" style={{ marginLeft: '0.4rem', fontSize: '0.7em', color: 'var(--color-text-muted)', fontWeight: 500, verticalAlign: 'middle' }}>(Cup)</span>}
                     </span>
                     {recordA && (
                         <span className={styles.heroRecord}>
@@ -131,7 +131,7 @@ export default function LiveMatchupCard({
                 {/* Team B — right column (same depth as team A so names align) */}
                 <div className={`${styles.heroTeamCol} ${styles.right}`}>
                     <span className={styles.heroTeamName}>
-                        {bHasCup && <span title="Also in Cup this week" style={{ marginRight: '0.4rem' }}>🏆</span>}
+                        {bHasCup && <span title="Also in Cup this week" style={{ marginRight: '0.4rem', fontSize: '0.7em', color: 'var(--color-text-muted)', fontWeight: 500, verticalAlign: 'middle' }}>(Cup)</span>}
                         {teamBName}
                     </span>
                     {recordB && (
@@ -170,7 +170,7 @@ export default function LiveMatchupCard({
                     </div>
                     <div className={styles.halfInfo}>
                         <span className={[styles.halfName, myTeamSide === 'a' ? styles.myTeam : ''].filter(Boolean).join(' ')}>
-                            {teamAName}{aHasCup && ' 🏆'}
+                            {teamAName}{aHasCup && <span style={{ marginLeft: '0.3em', fontSize: '0.8em', color: 'var(--color-text-muted)', fontWeight: 500 }}>(Cup)</span>}
                         </span>
                         <span className={`${styles.halfScore} ${bWins ? styles.loser : ''}`}>
                             {scoreA.toFixed(1)}
@@ -188,7 +188,7 @@ export default function LiveMatchupCard({
                             {scoreB.toFixed(1)}
                         </span>
                         <span className={[styles.halfName, styles.right, myTeamSide === 'b' ? styles.myTeam : ''].filter(Boolean).join(' ')}>
-                            {bHasCup && '🏆 '}{teamBName}
+                            {bHasCup && <span style={{ marginRight: '0.3em', fontSize: '0.8em', color: 'var(--color-text-muted)', fontWeight: 500 }}>(Cup)</span>}{teamBName}
                         </span>
                     </div>
                     <div className={`${styles.sideBadge} ${badgeB.cls}`}>

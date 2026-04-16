@@ -265,6 +265,12 @@ export default async function LeaguePage({ params }: Props) {
     return new Date(expiresAt).getTime() - Date.now();
   }
 
+  // ── Compute Team Records from Standings ──────────────────────────────────
+  const userStanding = standings.find((s: any) => s.team_id === userTeam?.id);
+  const oppStanding = standings.find((s: any) => s.team_id === oppTeam?.id);
+  const userRecord = userStanding ? `${userStanding.wins}W · ${userStanding.draws}D · ${userStanding.losses}L` : '0W · 0D · 0L';
+  const oppRecord = oppStanding ? `${oppStanding.wins}W · ${oppStanding.draws}D · ${oppStanding.losses}L` : '0W · 0D · 0L';
+
   // ── Render ────────────────────────────────────────────────────────────────
   return (
     <div className={styles.page}>
@@ -285,34 +291,30 @@ export default async function LeaguePage({ params }: Props) {
           {/* Left — user team */}
           <div className={styles.heroTeam}>
             <span className={styles.heroTeamLabel}>
-              MY TEAM · GW {heroMatchup.gameweek}
+              YOUR FIXTURE · GW {heroMatchup.gameweek}
             </span>
             <span className={styles.heroTeamName}>{userTeam?.team_name ?? '—'}</span>
-            <span className={`${styles.heroScore} ${styles.heroScoreUser}`}>
-              {heroState === 'upcoming' ? '—' : (userScore?.toFixed(1) ?? '0.0')}
-            </span>
+            <span className={styles.heroTeamRecord}>{userRecord}</span>
           </div>
 
-          {/* Center */}
-          <div className={styles.heroCenter}>
-            {heroState === 'live' && (
-              <span className={styles.heroBadgeLive}>● LIVE</span>
-            )}
-            {heroState === 'upcoming' && (
-              <span className={styles.heroBadgeUpcoming}>UPCOMING</span>
-            )}
-            {heroState === 'final' && heroResult === 'win' && (
-              <span className={styles.heroBadgeWin}>✓ WIN</span>
-            )}
-            {heroState === 'final' && heroResult === 'loss' && (
-              <span className={styles.heroBadgeLoss}>LOSS</span>
-            )}
-            {heroState === 'final' && heroResult === 'draw' && (
-              <span className={styles.heroBadgeDraw}>DRAW</span>
-            )}
-            <span className={styles.heroCenterLabel}>
-              {heroState === 'final' ? 'FULL TIME' : heroState === 'live' ? 'IN PROGRESS' : 'AWAY'}
-            </span>
+          {/* Center — Scores & Badge */}
+          <div className={styles.heroCenterBlock}>
+            <div className={styles.heroScoreGroup}>
+              <span className={`${styles.heroScore} ${heroResult === 'win' || (heroState !== 'final' && (userScore ?? 0) > (oppScore ?? 0)) ? styles.heroScoreHighlight : ''}`}>
+                {heroState === 'upcoming' ? '—' : (userScore?.toFixed(1) ?? '0.0')}
+              </span>
+              <span className={styles.heroScoreDivider}>-</span>
+              <span className={`${styles.heroScore} ${heroResult === 'loss' || (heroState !== 'final' && (oppScore ?? 0) > (userScore ?? 0)) ? styles.heroScoreHighlight : ''}`}>
+                {heroState === 'upcoming' ? '—' : (oppScore?.toFixed(1) ?? '0.0')}
+              </span>
+            </div>
+            <div className={styles.heroBadgeBox}>
+              {heroState === 'live' && <span className={styles.heroBadgeLivePill}>● IN PROGRESS</span>}
+              {heroState === 'upcoming' && <span className={styles.heroBadgeUpcomingPill}>UPCOMING</span>}
+              {heroState === 'final' && heroResult === 'win' && <span className={styles.heroBadgeFinalWin}>{userTeam?.team_name} WIN</span>}
+              {heroState === 'final' && heroResult === 'loss' && <span className={styles.heroBadgeFinalLoss}>{oppTeam?.team_name} WIN</span>}
+              {heroState === 'final' && heroResult === 'draw' && <span className={styles.heroBadgeFinalDraw}>DRAW</span>}
+            </div>
           </div>
 
           {/* Right — opponent */}
@@ -323,9 +325,7 @@ export default async function LeaguePage({ params }: Props) {
             <span className={`${styles.heroTeamName} ${styles.heroTeamNameMuted}`}>
               {oppTeam?.team_name ?? '—'}
             </span>
-            <span className={`${styles.heroScore} ${styles.heroScoreOpp}`}>
-              {heroState === 'upcoming' ? '—' : (oppScore?.toFixed(1) ?? '0.0')}
-            </span>
+            <span className={styles.heroTeamRecord}>{oppRecord}</span>
           </div>
         </div>
       )}

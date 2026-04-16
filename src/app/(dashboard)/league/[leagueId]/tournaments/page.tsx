@@ -181,25 +181,23 @@ export default async function TournamentsPage({ params, searchParams }: Props) {
                             <span className={styles.pageSupertitle}>CUPS</span>
                             <h2 className={styles.title}>Cup Competitions</h2>
                         </div>
-                        <div className={styles.tabContainer}>
-                            {tournaments.map(t => {
-                                const isActive = t.id === activeTournament?.id;
-                                return (
-                                    <Link 
-                                        key={t.id} 
-                                        href={`/league/${leagueId}/tournaments?cup=${t.id}`}
-                                        className={`${styles.tab} ${isActive ? styles.tabActive : styles.tabInactive}`}
-                                    >
-                                        {t.name}
-                                    </Link>
-                                );
-                            })}
-                        </div>
                     </div>
                 </header>
 
-                {/* Separator line above info bar */}
-                <div className={styles.headerDivider} />
+                <div className={styles.tabContainer}>
+                    {tournaments.map(t => {
+                        const isActive = t.id === activeTournament?.id;
+                        return (
+                            <Link 
+                                key={t.id} 
+                                href={`/league/${leagueId}/tournaments?cup=${t.id}`}
+                                className={`${styles.tab} ${isActive ? styles.tabActive : styles.tabInactive}`}
+                            >
+                                {t.name}
+                            </Link>
+                        );
+                    })}
+                </div>
 
                 <div className={styles.infoBar}>
                     <div className={styles.infoLeft}>
