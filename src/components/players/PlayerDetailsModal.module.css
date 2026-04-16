@@ -24,7 +24,7 @@
   position: relative;
   width: 100%;
   max-width: 480px;
-  border-radius: var(--radius-xl);
+  border-radius: var(--radius-sm);
   box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6), 0 0 0 1px var(--color-border-accent);
   animation: slideUp 0.2s ease;
   overflow: hidden;
@@ -74,7 +74,7 @@
 .actionBtn {
   flex: 1;
   padding: var(--space-3) var(--space-4);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-sm);
   font-size: var(--text-sm);
   font-weight: var(--font-semibold);
   cursor: pointer;

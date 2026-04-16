@@ -25,7 +25,7 @@
 
 .link {
     padding: var(--space-2) var(--space-4);
-    border-radius: var(--radius-md);
+    border-radius: var(--radius-sm);
     font-size: var(--text-sm);
     font-weight: var(--font-medium);
     color: var(--color-text-secondary);

@@ -151,7 +151,7 @@
   gap: var(--space-4);
   padding: 32px;
   background: var(--color-bg-card);
-  border-radius: 0;
+  border-radius: var(--radius-sm);
   border: 1px solid var(--color-border-subtle);
   border-left-width: 4px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
@@ -170,7 +170,7 @@
   flex-shrink: 0;
   width: 48px;
   height: 48px;
-  border-radius: 0;
+  border-radius: var(--radius-sm);
   border: 1px solid transparent;
   display: flex;
   align-items: center;
@@ -380,7 +380,7 @@
   display: inline-flex;
   align-items: center;
   padding: 1px 5px;
-  border-radius: 3px;
+  border-radius: 2px;
   font-family: var(--font-sans);
   font-size: 9px;
   font-weight: 700;
@@ -399,7 +399,7 @@
   font-size: var(--text-sm);
   background: var(--color-bg-card);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-sm);
 }
 
 /* ============================================================
@@ -435,7 +435,7 @@
 .widget {
   background: var(--color-bg-card);
   border: 1px solid var(--color-border-subtle);
-  border-radius: 0;
+  border-radius: var(--radius-sm);
   overflow: hidden;
   flex-shrink: 0;
 }
@@ -528,7 +528,7 @@
 .auctionPosAvatar {
   width: 36px;
   height: 36px;
-  border-radius: 0;
+  border-radius: var(--radius-sm);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -566,7 +566,7 @@
   display: inline-flex;
   align-items: center;
   padding: 1px 4px;
-  border-radius: 3px;
+  border-radius: 2px;
   font-family: var(--font-sans);
   font-size: 8px;
   font-weight: 700;

@@ -23,7 +23,7 @@
 .formWrapper {
   background: var(--color-bg-card);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-xl);
+  border-radius: var(--radius-sm);
   padding: var(--space-8);
 }
 
@@ -73,7 +73,7 @@
   padding: var(--space-3) var(--space-4);
   background: var(--color-bg-secondary);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-sm);
   color: var(--color-text-primary);
   font-size: var(--text-base);
   outline: none;
@@ -97,7 +97,7 @@
 .toggleRow {
   display: flex;
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-sm);
   overflow: hidden;
 }
 
@@ -123,7 +123,7 @@
   color: var(--color-accent-red);
   background: var(--color-accent-red-dim);
   border: 1px solid rgba(239, 68, 68, 0.2);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-sm);
   padding: var(--space-3) var(--space-4);
 }
 
@@ -134,7 +134,7 @@
   color: #fff;
   font-size: var(--text-base);
   font-weight: var(--font-semibold);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-sm);
   border: none;
   cursor: pointer;
   transition: background var(--transition-fast);

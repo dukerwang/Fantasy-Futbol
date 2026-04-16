@@ -80,7 +80,7 @@
     padding: 0.3rem 0.875rem;
     background: var(--color-accent-green);
     color: #fff;
-    border-radius: 0;
+    border-radius: var(--radius-sm);
     white-space: nowrap;
     align-self: center;
 }
@@ -158,7 +158,7 @@
     text-align: center;
     background: var(--color-bg-card);
     border: 1px dashed var(--color-border);
-    border-radius: 0;
+    border-radius: var(--radius-sm);
     color: var(--color-text-secondary);
     font-size: 0.9375rem;
     font-family: var(--font-sans);

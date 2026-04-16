@@ -35,7 +35,7 @@
     padding: 0.375rem 0.75rem;
     background: var(--color-bg-card, #1f2937);
     border: 1px solid var(--color-border, #374151);
-    border-radius: 6px;
+    border-radius: var(--radius-sm);
     color: var(--color-text-secondary, #9ca3af);
     font-size: 0.8125rem;
     font-weight: 600;
@@ -63,7 +63,7 @@
     padding: 0.625rem 1rem;
     background: rgba(59, 130, 246, 0.08);
     border: 1px solid rgba(59, 130, 246, 0.25);
-    border-radius: 8px;
+    border-radius: var(--radius-sm);
     font-size: 0.8125rem;
     color: var(--color-text-primary, #f3f4f6);
 }
@@ -88,7 +88,7 @@
 .pitchContainer {
     position: relative;
     width: 100%;
-    border-radius: 0;
+    border-radius: var(--radius-sm);
     overflow: hidden;
     /* Green pitch gradient with horizontal stripe effect */
     background:
@@ -193,7 +193,7 @@
     padding: 0.5rem 0.25rem;
     background: rgba(0, 0, 0, 0.45);
     border: 2px solid rgba(255, 255, 255, 0.15);
-    border-radius: 10px;
+    border-radius: var(--radius-sm);
     cursor: pointer;
     transition: border-color 0.15s, background 0.15s, transform 0.1s;
     text-align: center;
@@ -326,7 +326,7 @@
     padding: 0.625rem 0.75rem;
     background: var(--color-bg-elevated);
     border: 1px solid var(--color-border);
-    border-radius: 0;
+    border-radius: var(--radius-sm);
     cursor: pointer;
     text-align: left;
     transition: border-color 0.15s, background 0.15s;
@@ -343,7 +343,7 @@
     text-transform: uppercase;
     color: var(--color-text-muted);
     border: 1px solid var(--color-border);
-    border-radius: 0;
+    border-radius: var(--radius-sm);
     padding: 1px 5px;
 }
 
@@ -405,7 +405,7 @@
     color: var(--color-text-muted, #6b7280);
     padding: 0.75rem 1rem;
     border: 1px dashed var(--color-border, #374151);
-    border-radius: 8px;
+    border-radius: var(--radius-sm);
     text-align: center;
 }
 
@@ -422,7 +422,7 @@
     padding: 0.5rem 0.75rem;
     background: var(--color-bg-card, #1f2937);
     border: 2px solid var(--color-border, #374151);
-    border-radius: 8px;
+    border-radius: var(--radius-sm);
     cursor: pointer;
     text-align: left;
     transition: border-color 0.15s, background 0.15s;
@@ -482,7 +482,7 @@
     font-weight: 800;
     background: var(--color-accent-red, #ef4444);
     color: #fff;
-    border-radius: 3px;
+    border-radius: 2px;
     padding: 1px 5px;
     flex-shrink: 0;
 }
@@ -512,7 +512,7 @@
     background: var(--color-accent-green, #10b981);
     color: #fff;
     border: none;
-    border-radius: 8px;
+    border-radius: var(--radius-sm);
     font-size: 0.875rem;
     font-weight: 700;
     cursor: pointer;

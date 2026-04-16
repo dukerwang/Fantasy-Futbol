@@ -216,7 +216,7 @@
     padding: 0.25rem 0.75rem;
     background: var(--color-accent-green);
     color: #fff;
-    border-radius: 0;
+    border-radius: var(--radius-sm);
     white-space: nowrap;
 }
 
@@ -357,7 +357,7 @@
     font-family: var(--font-sans);
     font-size: 0.75rem;
     font-weight: 800;
-    border-radius: 0;
+    border-radius: var(--radius-sm);
     flex-shrink: 0;
     letter-spacing: 0.02em;
 }

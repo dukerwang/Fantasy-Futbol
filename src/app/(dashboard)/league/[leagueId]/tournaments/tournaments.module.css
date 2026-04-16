@@ -58,7 +58,7 @@
     text-transform: uppercase;
     letter-spacing: 0.2em;
     padding: 0.5rem 1.5rem;
-    border-radius: 0; /* 0px radius rule */
+    border-radius: var(--radius-sm); /* 0px radius rule */
     cursor: pointer;
     text-decoration: none;
     transition: background-color 0.2s, color 0.2s;
@@ -232,7 +232,7 @@
     padding: 1rem;
     display: flex;
     flex-direction: column;
-    border-radius: 0; /* Strict 0px radius */
+    border-radius: var(--radius-sm); /* Strict 0px radius */
     z-index: 2;
     position: relative;
 }
@@ -385,7 +385,7 @@
     background-color: #FDFCF9;
     padding: 2rem;
     border: 1px solid rgba(0, 0, 0, 0.1);
-    border-radius: 0;
+    border-radius: var(--radius-sm);
 }
 
 .overviewTitle {

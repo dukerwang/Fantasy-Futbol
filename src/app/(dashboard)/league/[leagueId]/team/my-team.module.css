@@ -51,7 +51,7 @@
   gap: var(--space-5);
   background: var(--color-bg-card);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-sm);
   padding: var(--space-4) var(--space-6);
 }
 
@@ -68,7 +68,7 @@
   background: var(--color-accent-blue, #3A6B4A);
   color: #fff;
   border: none;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-sm);
   font-size: var(--text-sm);
   font-weight: var(--font-semibold);
   cursor: pointer;
@@ -168,7 +168,7 @@
   justify-content: center;
   height: 56px;
   border: 1px dashed var(--color-border);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-sm);
   font-size: var(--text-sm);
   color: var(--color-text-muted);
   font-style: italic;
@@ -209,7 +209,7 @@
   padding: var(--space-3) var(--space-4);
   background: var(--color-bg-card);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-sm);
 }
 
 @media (max-width: 600px) {
@@ -284,7 +284,7 @@
 .dropBtn {
   padding: var(--space-1) var(--space-3);
   border: 1px solid var(--color-accent-red, #ef4444);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-sm);
   color: var(--color-accent-red, #ef4444);
   font-size: var(--text-xs);
   font-weight: var(--font-medium);
@@ -305,7 +305,7 @@
 .transferOutBtn {
   padding: var(--space-1) var(--space-3);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-sm);
   color: var(--color-text-muted);
   font-size: var(--text-xs);
   font-weight: var(--font-medium);
@@ -329,7 +329,7 @@
   color: var(--color-text-muted);
   padding: var(--space-4);
   border: 1px dashed var(--color-border);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-sm);
   text-align: center;
 }
 
@@ -401,7 +401,7 @@
   padding: var(--space-2) var(--space-3);
   background: var(--color-bg-card);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-sm);
   color: var(--color-text-secondary);
   font-size: var(--text-sm);
   font-weight: var(--font-medium);
@@ -426,7 +426,7 @@
   padding: var(--space-3) var(--space-4);
   background: var(--color-accent-green-dim, rgba(58, 107, 74, 0.08));
   border: 1px solid var(--color-border-accent, rgba(58, 107, 74, 0.3));
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-sm);
   font-size: var(--text-sm);
   color: var(--color-text-primary);
 }
@@ -461,7 +461,7 @@
   padding: var(--space-3) var(--space-4);
   background: var(--color-bg-card);
   border: 2px solid var(--color-border);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-sm);
   cursor: pointer;
   text-align: left;
   transition: border-color 0.15s, background 0.15s;
@@ -599,7 +599,7 @@
   padding: var(--space-3) var(--space-4);
   background: var(--color-bg-card);
   border: 2px solid var(--color-border);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-sm);
   cursor: pointer;
   text-align: left;
   transition: border-color 0.15s, background 0.15s;
@@ -655,7 +655,7 @@
   padding: var(--space-3) var(--space-4);
   background: var(--color-bg-card);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-sm);
   opacity: 0.6;
 }
 
@@ -684,7 +684,7 @@
   background: var(--color-accent-green, #3A6B4A);
   color: #fff;
   border: none;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-sm);
   font-size: var(--text-sm);
   font-weight: var(--font-semibold);
   cursor: pointer;

@@ -42,7 +42,7 @@
   align-items: flex-end;
   background: var(--color-bg-card);
   border: 1px solid var(--color-border);
-  border-radius: 0;
+  border-radius: var(--radius-sm);
   padding: var(--space-3) var(--space-5);
   flex-shrink: 0;
 }
@@ -124,7 +124,7 @@
   padding: var(--space-2) var(--space-3);
   background: var(--color-bg-elevated);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-sm);
   color: var(--color-text-primary);
   font-size: var(--text-sm);
   outline: none;
@@ -142,7 +142,7 @@
 
 .searchBtn {
   padding: var(--space-2) var(--space-4);
-  border-radius: 0;
+  border-radius: var(--radius-sm);
   background: var(--color-bg-card);
   border: 1px solid var(--color-border);
   color: var(--color-text-secondary);
@@ -211,7 +211,7 @@
   padding: 32px;
   background: var(--color-bg-card);
   border: 1px solid var(--color-border-subtle);
-  border-radius: 0;
+  border-radius: var(--radius-sm);
   transition: border-color 0.15s, box-shadow 0.15s;
 }
 
@@ -290,7 +290,7 @@
 
 .bidBtn {
   padding: var(--space-2) var(--space-5);
-  border-radius: 0;
+  border-radius: var(--radius-sm);
   border: none;
   background: var(--color-accent-green);
   color: #fff;
@@ -331,7 +331,7 @@
   top: var(--space-4);
   background: var(--color-bg-elevated);
   border: 1px solid var(--color-border-subtle);
-  border-radius: 0;
+  border-radius: var(--radius-sm);
   overflow: hidden;
 }
 
@@ -450,7 +450,7 @@
 .auctionCard {
   background: var(--color-bg-card);
   border: 1px solid var(--color-border-subtle);
-  border-radius: 0;
+  border-radius: var(--radius-sm);
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -520,7 +520,7 @@
 .auctionInfo {
   margin: 0 var(--space-4) var(--space-4);
   background: var(--color-bg-elevated);
-  border-radius: 0;
+  border-radius: var(--radius-sm);
   padding: var(--space-3) var(--space-4);
   display: flex;
   flex-direction: column;
@@ -575,7 +575,7 @@
 .auctionPlaceBidBtn {
   width: 100%;
   padding: var(--space-2) var(--space-4);
-  border-radius: 0;
+  border-radius: var(--radius-sm);
   border: none;
   background: var(--color-accent-green);
   color: #fff;
@@ -632,7 +632,7 @@
   gap: var(--space-1);
   background: none;
   border: 1px solid var(--color-border);
-  border-radius: 0;
+  border-radius: var(--radius-sm);
   color: var(--color-text-muted);
   font-size: var(--text-xs);
   font-weight: 600;
@@ -667,7 +667,7 @@
 .modalBox {
   background: var(--color-bg-card);
   border: 1px solid var(--color-border-subtle);
-  border-radius: 0;
+  border-radius: var(--radius-sm);
   width: 100%;
   max-width: 520px;
   max-height: 90vh;
@@ -703,7 +703,7 @@
   line-height: 1;
   cursor: pointer;
   padding: var(--space-1);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-sm);
   transition: color 0.15s, background 0.15s;
 }
 
@@ -728,7 +728,7 @@
   justify-content: space-between;
   gap: var(--space-4);
   background: var(--color-bg-elevated);
-  border-radius: 0;
+  border-radius: var(--radius-sm);
   padding: var(--space-3) var(--space-4);
 }
 
@@ -773,7 +773,7 @@
 /* ── Auction Status Panel ── */
 .auctionStatusPanel {
   background: var(--color-bg-elevated);
-  border-radius: 0;
+  border-radius: var(--radius-sm);
   padding: var(--space-4);
   display: flex;
   flex-direction: column;
@@ -890,7 +890,7 @@
 /* ── New Auction Hint ── */
 .newAuctionHint {
   background: var(--color-bg-elevated);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-sm);
   padding: var(--space-4);
   font-size: var(--text-sm);
   color: var(--color-text-secondary);
@@ -921,7 +921,7 @@
 .stepperBtn {
   width: 40px;
   height: 40px;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-sm);
   border: 1px solid var(--color-border);
   background: var(--color-bg-elevated);
   color: var(--color-accent-green);
@@ -945,7 +945,7 @@
   height: 48px;
   background: var(--color-bg-elevated);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-sm);
   text-align: center;
   font-family: var(--font-serif);
   font-size: 1.5rem;
@@ -1020,7 +1020,7 @@
   padding: var(--space-2) var(--space-3);
   background: var(--color-bg-elevated);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-sm);
   color: var(--color-text-primary);
   font-size: var(--text-sm);
   outline: none;
@@ -1041,7 +1041,7 @@
   padding: var(--space-2) var(--space-3);
   background: rgba(220, 38, 38, 0.08);
   border: 1px solid rgba(220, 38, 38, 0.2);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-sm);
 }
 
 /* ── Modal Footer / Actions ── */
@@ -1057,7 +1057,7 @@
 .submitBtn {
   width: 100%;
   padding: var(--space-3) var(--space-4);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-sm);
   border: none;
   background: var(--color-accent-green);
   color: #fff;
@@ -1080,7 +1080,7 @@
 .cancelBtn {
   width: 100%;
   padding: var(--space-2) var(--space-4);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-sm);
   border: 1px solid var(--color-border);
   background: var(--color-bg-elevated);
   color: var(--color-text-secondary);
@@ -1112,7 +1112,7 @@
 .loadingRow {
   height: 72px;
   background: var(--color-bg-elevated);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-sm);
   animation: pulse 1.5s ease-in-out infinite;
 }
 

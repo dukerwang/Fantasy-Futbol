@@ -3,7 +3,7 @@
   align-items: center;
   justify-content: center;
   font-weight: var(--font-bold);
-  border-radius: var(--radius-sm);
+  border-radius: 2px;
   letter-spacing: 0.04em;
   line-height: 1;
   flex-shrink: 0;
