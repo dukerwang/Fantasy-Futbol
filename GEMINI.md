@@ -210,6 +210,11 @@ The prototype uses Tailwind classes. Map them to our CSS Modules as follows:
 - Action button rows: `justify-content: flex-end; gap: 8px` — never stretch buttons full-width in trade cards
 - Card content padding: `padding: 32px` — not the default 16px
 
+**Player photo rules — apply to every card that shows a player image:**
+- Always set `object-fit: cover` AND `object-position: top center` on `<img>` — without `top center`, the crop defaults to the middle, cutting off the face and showing the torso
+- Always set `flex-shrink: 0` on the image so it doesn't compress in flex layouts
+- **Never put `overflow: hidden` on a card that contains a player photo** — it will clip the image. Put `overflow: hidden` only on a wrapper that does NOT contain the photo, or omit it entirely
+- Use `width: 64px; height: 64px` (matches prototype `w-16 h-16`), `border-radius: 0`, `filter: grayscale(100%)` for the editorial look
 
 ## Tech Stack
 | Layer | Technology |
