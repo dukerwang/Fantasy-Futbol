@@ -336,22 +336,24 @@ export default function TradesClient({
                 <div className={styles.tradeGroup}>
                   <div className={styles.tradeSubGroupHeader}>
                     <span className={styles.tradeSubGroupIcon}>↙</span>
-                    <h2 className={styles.tradeGroupTitle}>Incoming</h2>
+                    <h2 className={styles.tradeGroupTitle}>Incoming Proposals</h2>
                     <span className={styles.tradeSubGroupHint}>Awaiting your response</span>
                   </div>
-                  {incomingTrades.map((trade) => (
-                    <TradeCard
-                      key={trade.id}
-                      trade={trade}
-                      myTeamId={myTeam.id}
-                      playerMap={playerMap}
-                      onAction={handleTradeAction}
-                      onCounter={handleCounter}
-                      onViewPlayer={setViewingPlayer}
-                      error={actionError[trade.id] ?? ''}
-                      loading={!!actionLoading[trade.id]}
-                    />
-                  ))}
+                  <div className={styles.pendingGrid}>
+                    {incomingTrades.map((trade) => (
+                      <TradeCard
+                        key={trade.id}
+                        trade={trade}
+                        myTeamId={myTeam.id}
+                        playerMap={playerMap}
+                        onAction={handleTradeAction}
+                        onCounter={handleCounter}
+                        onViewPlayer={setViewingPlayer}
+                        error={actionError[trade.id] ?? ''}
+                        loading={!!actionLoading[trade.id]}
+                      />
+                    ))}
+                  </div>
                 </div>
               )}
 
@@ -763,40 +765,43 @@ export default function TradesClient({
             <div className={styles.tradeBlockGrid}>
               {allBlockPlayers.map((p, i) => {
                 const isMe = p.team_id === myTeam.id;
-                const teamName = isMe
-                  ? myTeam.team_name
-                  : (allTeamsIncludingMine.find((t) => t.id === p.team_id)?.team_name ?? 'Unknown Team');
                 return (
                   <div
                     key={`${p.id}-${i}`}
-                    className={`${styles.tradeBlockCard} ${isMe ? styles.tradeBlockCardMine : ''}`}
-                    style={{ borderLeftColor: positionColor(p.primary_position) }}
+                    className={`${styles.tbCard} ${isMe ? styles.tbCardMine : ''}`}
                   >
-                    <div className={styles.tradeBlockCardInner}>
-                      <PositionBadge position={p.primary_position as any} size="sm" />
-                      <div className={styles.tradeBlockCardInfo}>
-                        <span className={styles.tradeBlockCardName}>
-                          {playerDisplayName(p)}
+                    <div className={styles.tbCardBody}>
+                      {(p as any).photo_url ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={(p as any).photo_url} alt={p.name} className={styles.tbPlayerPhoto} />
+                      ) : (
+                        <div className={styles.tbPlayerPhotoPlaceholder}>⚽</div>
+                      )}
+                      <div className={styles.tbCardInfo}>
+                        <div className={styles.tbCardInfoTop}>
+                          <span className={styles.tbPlayerName}>{playerDisplayName(p)}</span>
+                          {p.market_value && (
+                            <div className={styles.tbValueBlock}>
+                              <span className={styles.tbValueLabel}>Value</span>
+                              <span className={styles.tbPlayerValue}>£{p.market_value.toFixed(0)}m</span>
+                            </div>
+                          )}
+                        </div>
+                        <span className={styles.tbPlayerClub}>
+                          <span className={styles.tcPosDot} style={{ background: positionColor(p.primary_position), margin: 0 }} />
+                          {p.pl_team} · {p.primary_position}
                         </span>
-                        <span className={styles.tradeBlockCardClub}>
-                          {p.pl_team} {p.market_value ? `· £${p.market_value.toFixed(1)}m` : ''}
-                        </span>
-                        <span className={`${styles.tradeBlockCardOwner} ${isMe ? styles.tradeBlockCardOwnerMe : ''}`}>
-                          {isMe ? '★ YOUR PLAYER' : `Owned by ${teamName}`}
-                        </span>
+                        {isMe && <span className={styles.tbOwnerTag}>Your Player</span>}
                       </div>
                     </div>
-                    <div className={styles.tradeBlockCardActions}>
+                    <div className={styles.tbCardAction}>
                       {isMe ? (
-                        <button
-                          className={styles.removeFromBlockBtn}
-                          onClick={() => setShowBlockModal(true)}
-                        >
-                          Manage
+                        <button className={styles.tbManageBtn} onClick={() => setShowBlockModal(true)}>
+                          Update Status
                         </button>
                       ) : (
                         <button
-                          className={styles.proposeTradeQuickBtn}
+                          className={styles.tbProposeBtn}
                           onClick={() => {
                             setSelectedTeamId(p.team_id);
                             setOfferedPlayerIds(new Set());
@@ -849,7 +854,7 @@ function positionColor(pos: string): string {
   return map[pos] ?? 'var(--color-text-muted)';
 }
 
-// ── TradeCard sub-component ───────────────────────────────────────────────
+// ── TradeCard sub-component (prototype-faithful redesign) ──────────────────
 
 interface TradeCardProps {
   trade: TradeRecord;
@@ -867,130 +872,143 @@ function TradeCard({ trade, myTeamId, playerMap, onAction, onCounter, onViewPlay
   const teamAName = (trade.team_a as any)?.team_name ?? 'Team A';
   const teamBName = (trade.team_b as any)?.team_name ?? 'Team B';
 
-  const statusClass: Record<string, string> = {
-    pending: styles.statusPending,
-    accepted: styles.statusAccepted,
-    rejected: styles.statusRejected,
-    cancelled: styles.statusCancelled,
-  };
+  // From viewer's perspective
+  const givePlayers    = isProposer ? trade.offered_players   : trade.requested_players;
+  const receivePlayers = isProposer ? trade.requested_players : trade.offered_players;
+  const giveFaab       = isProposer ? trade.offered_faab      : trade.requested_faab;
+  const receiveFaab    = isProposer ? trade.requested_faab    : trade.offered_faab;
+  const counterpartName = isProposer ? teamBName : teamAName;
 
-  function renderPlayers(ids: string[], label: string) {
-    if (ids.length === 0) return null;
+  const dateStr = new Date(trade.created_at).toLocaleDateString('en-GB', {
+    day: 'numeric', month: 'short', year: 'numeric',
+  });
+
+  function renderPlayer(id: string) {
+    const p = playerMap[id];
+    if (!p) return (
+      <div key={id} className={styles.tcPlayerRow}>
+        <span className={styles.tcPosDot} style={{ background: 'var(--color-border)' }} />
+        <div className={styles.tcPlayerInfo}>
+          <span className={styles.tcPlayerName} style={{ cursor: 'default' }}>Unknown</span>
+        </div>
+      </div>
+    );
     return (
-      <div className={styles.tradePlayerGroup}>
-        <span className={styles.tradeGroupLabel}>{label}</span>
-        {ids.map((id) => {
-          const p = playerMap[id];
-          return p ? (
-            <div key={id} className={styles.tradePlayerRow}>
-              <PositionBadge position={p.primary_position as any} size="sm" />
-              <button
-                className={styles.tradePlayerNameBtn}
-                onClick={() => onViewPlayer?.(p)}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  color: 'var(--color-text)',
-                  fontWeight: 500,
-                  fontSize: '0.9rem',
-                  cursor: 'pointer',
-                  padding: 0,
-                  textAlign: 'left',
-                }}
-              >
-                {formatPlayerName(p, 'initial_last')}
-              </button>
-              <span className={styles.tradePlayerClub}>{p.pl_team}</span>
-            </div>
-          ) : (
-            <div key={id} className={styles.tradePlayerRow}>
-              <span className={styles.unknownPlayer}>Unknown player</span>
-            </div>
-          );
-        })}
+      <div key={id} className={styles.tcPlayerRow}>
+        <span className={styles.tcPosDot} style={{ background: positionColor(p.primary_position) }} />
+        <div className={styles.tcPlayerInfo}>
+          <button className={styles.tcPlayerName} onClick={() => onViewPlayer?.(p)}>
+            {formatPlayerName(p, 'initial_last')}
+          </button>
+          <span className={styles.tcPlayerClub}>{p.pl_team}{p.primary_position ? ` · ${p.primary_position}` : ''}</span>
+        </div>
       </div>
     );
   }
 
+  // ── History card ──
+  if (trade.status !== 'pending') {
+    const statusKey = trade.status as 'accepted' | 'rejected' | 'cancelled';
+    const statusCss = statusKey === 'accepted' ? styles.tcHistoryStatusAccepted : styles.tcHistoryStatusRejected;
+    return (
+      <div className={styles.tcCard}>
+        <div className={styles.tcHistoryHeader}>
+          <div className={styles.tcHistoryTeams}>
+            <span className={styles.tcHistoryTeamName}>{teamAName}</span>
+            <span className={styles.tcHistorySwap}>⇄</span>
+            <span className={styles.tcHistoryTeamName}>{teamBName}</span>
+          </div>
+          <div className={styles.tcHistoryMeta}>
+            <span className={`${styles.tcHistoryStatus} ${statusCss}`}>{trade.status.toUpperCase()}</span>
+            <span className={styles.tcDate}>{dateStr}</span>
+          </div>
+        </div>
+        <div className={styles.tcDeal}>
+          <div className={styles.tcSideCol}>
+            <span className={styles.tcDealLabel}>{isProposer ? 'You gave' : 'You received'}</span>
+            {givePlayers.map(renderPlayer)}
+            {giveFaab > 0 && <span className={styles.tcFaabLine}>+ £{giveFaab}m sweetener</span>}
+          </div>
+          <div className={styles.tcSideCol}>
+            <span className={styles.tcDealLabel}>{isProposer ? 'You received' : 'You gave'}</span>
+            {receivePlayers.map(renderPlayer)}
+            {receiveFaab > 0 && <span className={styles.tcFaabLine}>+ £{receiveFaab}m sweetener</span>}
+          </div>
+        </div>
+        {error && <p className={styles.errorBanner}>{error}</p>}
+      </div>
+    );
+  }
+
+  // ── Outgoing / sent card ──
+  if (isProposer) {
+    return (
+      <div className={styles.tcCard}>
+        <div className={styles.tcSentHeader}>
+          <div>
+            <span className={styles.tcKicker}>Outgoing proposal to</span>
+            <h3 className={styles.tcTeamName}>{counterpartName}</h3>
+          </div>
+          <button className={styles.tcCancelLink} onClick={() => onAction(trade.id, 'cancel')} disabled={loading}>
+            {loading ? '…' : 'Cancel Proposal'}
+          </button>
+        </div>
+        <div className={styles.tcDeal}>
+          <div className={styles.tcSideCol}>
+            <span className={styles.tcDealLabel}>You give</span>
+            {givePlayers.map(renderPlayer)}
+            {giveFaab > 0 && <span className={styles.tcFaabLine}>+ £{giveFaab}m sweetener</span>}
+          </div>
+          <div className={styles.tcSideCol}>
+            <span className={styles.tcDealLabel}>You receive</span>
+            {receivePlayers.map(renderPlayer)}
+            {receiveFaab > 0 && <span className={styles.tcFaabLine}>+ £{receiveFaab}m sweetener</span>}
+          </div>
+        </div>
+        {trade.message && <p className={styles.tradeMessage}>"{trade.message}"</p>}
+        {error && <p className={styles.errorBanner}>{error}</p>}
+      </div>
+    );
+  }
+
+  // ── Incoming card ──
   return (
-    <div className={styles.tradeCard}>
-      <div className={styles.tradeCardHeader}>
-        <div className={styles.tradeCardTeams}>
-          <span className={styles.tradeTeamA}>{teamAName}</span>
-          <span className={styles.tradeVs}>⇄</span>
-          <span className={styles.tradeTeamB}>{teamBName}</span>
+    <div className={styles.tcCard}>
+      <div className={styles.tcIncomingHeader}>
+        <div>
+          <span className={styles.tcKicker}>From</span>
+          <h3 className={styles.tcTeamName}>{counterpartName}</h3>
         </div>
-        <div className={styles.tradeCardMeta}>
-          <span className={`${styles.statusTag} ${statusClass[trade.status]}`}>
-            {trade.status.toUpperCase()}
-          </span>
-          <span className={styles.tradeDate}>
-            {new Date(trade.created_at).toLocaleDateString()}
-          </span>
+        <div className={styles.tcHeaderMeta}>
+          <span className={styles.tcStatusPending}>Pending</span>
+          <span className={styles.tcDate}>{dateStr}</span>
         </div>
       </div>
-
-      <div className={styles.tradeDeal}>
-        <div className={styles.tradeSide}>
-          {renderPlayers(trade.offered_players, `${teamAName} offers:`)}
-          {trade.offered_faab > 0 && (
-            <div className={styles.tradeFaabRow}>
-              <span>+ £{trade.offered_faab}m FAAB</span>
-            </div>
-          )}
+      <div className={styles.tcDeal}>
+        <div className={styles.tcSideCol}>
+          <span className={styles.tcDealLabel}>You give</span>
+          {givePlayers.map(renderPlayer)}
+          {giveFaab > 0 && <span className={styles.tcFaabLine}>+ £{giveFaab}m sweetener</span>}
         </div>
-        <div className={styles.tradeSide}>
-          {renderPlayers(trade.requested_players, `${teamBName} offers:`)}
-          {trade.requested_faab > 0 && (
-            <div className={styles.tradeFaabRow}>
-              <span>+ £{trade.requested_faab}m FAAB</span>
-            </div>
-          )}
+        <div className={styles.tcSideCol}>
+          <span className={styles.tcDealLabel}>You receive</span>
+          {receivePlayers.map(renderPlayer)}
+          {receiveFaab > 0 && <span className={styles.tcFaabLine}>+ £{receiveFaab}m sweetener</span>}
         </div>
       </div>
-
-      {trade.message && (
-        <p className={styles.tradeMessage}>"{trade.message}"</p>
-      )}
-
+      {trade.message && <p className={styles.tradeMessage}>"{trade.message}"</p>}
       {error && <p className={styles.errorBanner}>{error}</p>}
-
-      {trade.status === 'pending' && (
-        <div className={styles.tradeCardActions}>
-          {isProposer ? (
-            <button
-              className={styles.cancelBtn}
-              onClick={() => onAction(trade.id, 'cancel')}
-              disabled={loading}
-            >
-              Cancel Proposal
-            </button>
-          ) : (
-            <>
-              <button
-                onClick={() => onAction(trade.id, 'reject')}
-                disabled={loading}
-              >
-                {loading ? '…' : 'Reject'}
-              </button>
-              <button
-                className={styles.counterBtn}
-                onClick={() => onCounter(trade)}
-                disabled={loading}
-              >
-                Counter Offer
-              </button>
-              <button
-                className={styles.acceptBtn}
-                onClick={() => onAction(trade.id, 'accept')}
-                disabled={loading}
-              >
-                {loading ? '…' : 'Accept Trade'}
-              </button>
-            </>
-          )}
-        </div>
-      )}
+      <div className={styles.tcActions}>
+        <button className={styles.tcAcceptBtn} onClick={() => onAction(trade.id, 'accept')} disabled={loading}>
+          {loading ? '…' : 'Accept'}
+        </button>
+        <button className={styles.tcCounterBtn} onClick={() => onCounter(trade)} disabled={loading}>
+          Counter
+        </button>
+        <button className={styles.tcRejectBtn} onClick={() => onAction(trade.id, 'reject')} disabled={loading}>
+          Reject
+        </button>
+      </div>
     </div>
   );
 }
