@@ -138,6 +138,79 @@ All prizes are FAAB payouts feeding back into the dynasty economy.
 
 A full UI overhaul is planned — do not extend the current design system, just maintain it until the overhaul is explicitly scoped.
 
+## Stitch Prototype Protocol
+
+The Cream Editorial UI has a living Stitch prototype. **Any UI work must consult the prototype HTML before writing CSS.** Guessing at values by eye is unacceptable — spacing, font sizes, colors, and layout structure must come from the actual prototype source.
+
+### MANDATORY: How to Fetch Prototype HTML
+
+Use this exact sequence — **never open the browser for this**:
+
+**Step 1 — Find the right screen** using the Stitch MCP:
+```
+mcp_StitchMCP_list_screens(projectId: "9034509438526576481")
+```
+Match the screen title to the page you are working on (e.g. "Trades - Fantasy Futbol Dynasty Redesign").
+
+**Step 2 — Get the HTML download URL** using:
+```
+mcp_StitchMCP_get_screen(projectId: "9034509438526576481", screenId: "<id>")
+```
+This returns a `htmlCode.downloadUrl`.
+
+**Step 3 — Fetch the raw HTML** using `curl` in a terminal command (NOT the browser, NOT read_url_content — both strip the CSS):
+```bash
+curl -sL "<downloadUrl>" | head -400
+```
+Pipe through `grep` to extract specific sections:
+```bash
+curl -sL "<downloadUrl>" | grep -A5 "card\|badge\|button\|font-noto"
+```
+
+### Stitch Project Reference
+
+- **Project**: "Fantasy Futbol — Cream Editorial UI"
+- **Project ID**: `9034509438526576481`
+- **Key screen titles → use cases**:
+  | Screen Title | Use for |
+  |---|---|
+  | Trades - Fantasy Futbol Dynasty Redesign | Trade cards, trade block, league feed |
+  | Trades - My Trades View | My trades tab layout |
+  | League Home - FC Meridian | League home page |
+  | The Digital Broadsheet — League Dashboard | Dashboard/home variants |
+  | Player Market - Free Agency | FAAB/auction UI |
+  | Active Auctions - Player Market | Active auction cards |
+  | Matchup Detail — Head-to-Head View | Matchup detail page |
+  | Matchup Detail — Side-by-Side View | Matchup alternate layout |
+  | League Standings - Dynasty Fantasy Futbol | Standings page |
+  | The Transfer Gazette - Activity Log | Activity/transaction log |
+  | Cups - League Cup Bracket | Cup bracket UI |
+
+### Prototype CSS Conventions (reference, always verify against actual HTML)
+
+The prototype uses Tailwind classes. Map them to our CSS Modules as follows:
+- `font-noto-serif` → `font-family: 'Noto Serif', Georgia, serif` — used for page titles, section headers, TB card player names, FAAB values
+- `font-label` → `font-family: 'Inter', sans-serif` — used for ALL labels, kickers, metadata, button text, club names
+- `text-primary` → `var(--color-accent-green)` (our dark theme equivalent of the prototype's `#70542c` brown primary)
+- `bg-surface-container-lowest` → `var(--color-bg-card)`
+- `border-outline-variant/20` → `var(--color-border-subtle)` (low opacity border)
+- `text-stone-400` → `var(--color-text-muted)`
+- `tracking-widest` → `letter-spacing: 0.2em` approximately
+- `tracking-[0.2em]` → `letter-spacing: 0.2em` exactly
+
+**Position badge colors** (from prototype `.badge-*` classes — use these exact hex values, not CSS variables):
+- GK: `#D4A017` (amber)
+- DEF (CB/LB/RB): `#1E3A5F` (navy)
+- MID (DM/CM/LM/RM/AM): `#5C3D8F` (purple)
+- ATT (ST): `#8B1A1A` (crimson)
+- Wide (LW/RW): `#3A6B4A` (forest green)
+
+**Design system rules from prototype** (0px border-radius, no rounded corners; right-justified action buttons not full-width; generous padding `p-8` = 32px on cards):
+- Cards: `border-radius: 0` — the system explicitly bans rounded corners
+- Action button rows: `justify-content: flex-end; gap: 8px` — never stretch buttons full-width in trade cards
+- Card content padding: `padding: 32px` — not the default 16px
+
+
 ## Tech Stack
 | Layer | Technology |
 |---|---|
