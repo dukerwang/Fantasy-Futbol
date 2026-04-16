@@ -49,35 +49,42 @@
 .tabContainer {
     display: flex;
     gap: 1rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
 }
 
 .tab {
-    font-family: var(--font-sans);
-    font-size: 0.65rem;
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 12px 20px;
+    font-family: 'Inter', sans-serif;
+    font-size: 10px;
     font-weight: 700;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
-    letter-spacing: 0.2em;
-    padding: 0.5rem 1.5rem;
-    border-radius: var(--radius-sm); /* 0px radius rule */
+    color: var(--color-text-muted);
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
     cursor: pointer;
-    text-decoration: none;
-    transition: background-color 0.2s, color 0.2s;
+    transition: color 0.15s, border-color 0.15s;
+    margin-bottom: -1px;
+}
+.tab:hover {
+    color: var(--color-text-secondary);
 }
 
 .tabActive {
-    background-color: #3A6B4A;
-    color: #FFFFFF;
-    border: 1px solid #3A6B4A;
+    color: var(--color-accent-green);
+    border-bottom-color: var(--color-accent-green);
 }
 
+/* Deprecated, remove or keep empty */
 .tabInactive {
-    background-color: transparent;
-    color: var(--color-text-primary);
-    border: 1px solid rgba(0, 0, 0, 0.2);
 }
-
 .tabInactive:hover {
-    background-color: rgba(0, 0, 0, 0.05);
 }
 
 /* Info Bar */
