@@ -323,7 +323,7 @@ export default async function LeaguePage({ params }: Props) {
             <span className={styles.heroTeamName}>{userTeam?.team_name ?? '—'}</span>
             {userRecord && (
               <span className={styles.heroRecord}>
-                {userRecord.W}W · {userRecord.D}D · {userRecord.L}L
+                {userRecord}
               </span>
             )}
           </div>
@@ -354,7 +354,7 @@ export default async function LeaguePage({ params }: Props) {
             <span className={styles.heroTeamName}>{oppTeam?.team_name ?? '—'}</span>
             {oppRecord && (
               <span className={styles.heroRecord}>
-                {oppRecord.W}W · {oppRecord.D}D · {oppRecord.L}L
+                {oppRecord}
               </span>
             )}
           </div>
