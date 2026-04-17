@@ -116,14 +116,21 @@ export default async function TournamentsPage({ params, searchParams }: Props) {
         const fplRes = await fetch('https://fantasy.premierleague.com/api/bootstrap-static/', { next: { revalidate: 3600 } });
         if (fplRes.ok) {
             const fplData = await fplRes.json();
-            const now = new Date();
-            for (const ev of fplData.events as any[]) {
-                if (ev.deadline_time && new Date(ev.deadline_time) <= now) {
-                    currentFplGw = Math.max(currentFplGw, ev.id);
+            const currentEvent = (fplData.events as any[]).find((e: any) => e.is_current);
+            if (currentEvent) {
+                currentFplGw = currentEvent.id;
+                isFinished = currentEvent.finished;
+            } else {
+                // Fallback to deadline check if no event is marked current
+                const now = new Date();
+                for (const ev of fplData.events as any[]) {
+                    if (ev.deadline_time && new Date(ev.deadline_time) <= now) {
+                        currentFplGw = Math.max(currentFplGw, ev.id);
+                    }
                 }
+                const fallbackEvent = (fplData.events as any[]).find((e: any) => e.id === currentFplGw);
+                isFinished = fallbackEvent?.finished ?? false;
             }
-            const currentEvent = (fplData.events as any[]).find((e: any) => e.id === currentFplGw);
-            isFinished = currentEvent?.finished ?? false;
         }
     } catch { /* FPL unreachable */ }
 
@@ -149,10 +156,15 @@ export default async function TournamentsPage({ params, searchParams }: Props) {
     });
 
     const lastRound = rounds[rounds.length - 1];
-    const isPastFinal = lastRound && lastRound.end_gameweek < currentFplGw;
+    const isPastFinal = lastRound && (currentFplGw > lastRound.end_gameweek || (currentFplGw === lastRound.end_gameweek && isFinished));
+    
+    // Find live round based on range
     const liveRound = rounds.find(r => currentFplGw >= r.start_gameweek && currentFplGw <= r.end_gameweek);
     const displayStatus = (activeTournament.status === 'completed' || isPastFinal) ? 'completed' : 'active';
-    const isLive = liveRound && !isFinished;
+    
+    // A round is fundamentally "Live" if the current GW is within its range 
+    // AND it's not the case that we're on the final GW of that round and it's finished.
+    const isLive = liveRound && (currentFplGw < liveRound.end_gameweek || !isFinished);
 
     const seedMap = new Map<string, number>();
     if (roundsWithPairs.length > 0) {
@@ -237,7 +249,7 @@ export default async function TournamentsPage({ params, searchParams }: Props) {
                                     <div className={styles.roundHeader}>
                                         <p className={styles.roundName}>
                                             {round.name}
-                                            {currentFplGw >= round.start_gameweek && currentFplGw <= round.end_gameweek && !isFinished && (
+                                            {currentFplGw >= round.start_gameweek && currentFplGw <= round.end_gameweek && (currentFplGw < round.end_gameweek || !isFinished) && (
                                                 <span className={styles.roundLiveBadge}>Live</span>
                                             )}
                                         </p>
