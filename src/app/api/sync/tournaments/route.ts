@@ -261,7 +261,7 @@ async function handleCreate(_req: NextRequest, params: URLSearchParams) {
     team_a_id: m.teamA,
     team_b_id: m.teamB,
     bracket_position: m.bracketPos,
-    status: 'pending' as const,
+    status: (m.roundNumber === 1 && m.teamA && m.teamB) ? 'active' : 'pending' as const,
   }));
 
   const { data: insertedMatchups, error: mErr } = await admin
@@ -358,15 +358,16 @@ async function executeAdvance(tournamentId: string, gameweek: number) {
     throw new Error('Tournament not found');
   }
 
-  // Find rounds where this gameweek is the end_gameweek (i.e., round should be finalized)
+  // Find rounds where this gameweek is between start and end inclusive
   const { data: rounds } = await admin
     .from('tournament_rounds')
     .select('*')
     .eq('tournament_id', tournamentId)
-    .eq('end_gameweek', gameweek);
+    .lte('start_gameweek', gameweek)
+    .gte('end_gameweek', gameweek);
 
   if (!rounds || rounds.length === 0) {
-    return { ok: true, message: 'No rounds ending this gameweek' };
+    return { ok: true, message: 'No rounds overlapping this gameweek' };
   }
 
   const season = '2025-26';
@@ -405,6 +406,11 @@ async function executeAdvance(tournamentId: string, gameweek: number) {
           team_b_score_leg2: leg2Scores.scoreB,
         })
         .eq('id', matchup.id);
+
+      // ONLY finalize if this is the end_gameweek
+      if (gameweek !== round.end_gameweek) {
+        continue;
+      }
 
       // Determine winner
       const totalA = leg1Scores.scoreA + leg2Scores.scoreA;
@@ -565,7 +571,13 @@ async function handleResolveStalled() {
     return NextResponse.json({ error: 'FPL API error', detail: String(err) }, { status: 502 });
   }
 
-  if (!currentGw) return NextResponse.json({ ok: true, message: 'No active gameweek found' });
+  // 1. Activation migration for any pending round 1 matchups that should be active
+  await admin
+    .from('tournament_matchups')
+    .update({ status: 'active' })
+    .not('team_a_id', 'is', null)
+    .not('team_b_id', 'is', null)
+    .eq('status', 'pending');
 
   // 1. Find ALL unresolved gameweeks up to currentGw
   const { data: unresolvedGws } = await admin

@@ -117,7 +117,11 @@ export default function LiveMatchupCard({
 
                     {isCompleted && (
                         <span className={`${styles.heroWinBadge} ${isDraw ? styles.draw : ''} ${(!isDraw && myTeamSide && ((myTeamSide === 'a' && bWins) || (myTeamSide === 'b' && aWins))) ? styles.loss : ''}`}>
-                            {aWins ? `${teamAName} Win` : bWins ? `${teamBName} Win` : 'Draw'}
+                            {isDraw 
+                                ? 'Draw' 
+                                : myTeamSide 
+                                    ? ((myTeamSide === 'a' && aWins) || (myTeamSide === 'b' && bWins) ? 'You Won' : 'You Lost')
+                                    : (aWins ? `${teamAName} Win` : `${teamBName} Win`)}
                         </span>
                     )}
                     {isLive && (
