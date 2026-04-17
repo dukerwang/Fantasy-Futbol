@@ -289,7 +289,10 @@
 }
 
 .roundLiveBadgeWrapper {
-    margin-bottom: 0.5rem;
+    position: absolute;
+    top: -1.75rem;
+    left: 0;
+    right: 0;
     display: flex;
     justify-content: center;
 }
