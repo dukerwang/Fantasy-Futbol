@@ -344,14 +344,7 @@ async function handleCreate(_req: NextRequest, params: URLSearchParams) {
 
 // ─── ADVANCE TOURNAMENT ──────────────────────────────────────
 
-async function handleAdvance(_req: NextRequest, params: URLSearchParams) {
-  const tournamentId = params.get('tournament_id');
-  const gameweek = parseInt(params.get('gameweek') ?? '0', 10);
-
-  if (!tournamentId || !gameweek) {
-    return NextResponse.json({ error: 'tournament_id and gameweek required' }, { status: 400 });
-  }
-
+async function executeAdvance(tournamentId: string, gameweek: number) {
   const admin = createAdminClient();
 
   // Load tournament
@@ -362,7 +355,7 @@ async function handleAdvance(_req: NextRequest, params: URLSearchParams) {
     .single();
 
   if (!tournament) {
-    return NextResponse.json({ error: 'Tournament not found' }, { status: 404 });
+    throw new Error('Tournament not found');
   }
 
   // Find rounds where this gameweek is the end_gameweek (i.e., round should be finalized)
@@ -373,7 +366,7 @@ async function handleAdvance(_req: NextRequest, params: URLSearchParams) {
     .eq('end_gameweek', gameweek);
 
   if (!rounds || rounds.length === 0) {
-    return NextResponse.json({ ok: true, message: 'No rounds ending this gameweek' });
+    return { ok: true, message: 'No rounds ending this gameweek' };
   }
 
   const season = '2025-26';
@@ -524,15 +517,31 @@ async function handleAdvance(_req: NextRequest, params: URLSearchParams) {
     }
   }
 
-  return NextResponse.json({ ok: true, advanced, gameweek });
+  return { ok: true, advanced, gameweek };
+}
+
+async function handleAdvance(_req: NextRequest, params: URLSearchParams) {
+  const tournamentId = params.get('tournament_id');
+  const gameweek = parseInt(params.get('gameweek') ?? '0', 10);
+
+  if (!tournamentId || !gameweek) {
+    return NextResponse.json({ error: 'tournament_id and gameweek required' }, { status: 400 });
+  }
+
+  try {
+    const result = await executeAdvance(tournamentId, gameweek);
+    return NextResponse.json(result);
+  } catch (err: any) {
+    return NextResponse.json({ error: err.message }, { status: 500 });
+  }
 }
 
 // ─── RESOLVE STALLED GAMEWEEKS ───────────────────────────────
 
 /**
- * Detects and force-resolves stalled gameweeks.
+ * Detects and force-resolves stalled gameweeks sequentially.
  * If >48 hours have passed since the last non-postponed fixture's kickoff,
- * the gameweek is force-finished. Postponed players score 0, autosubs fire.
+ * the gameweek is force-finished. Tournament brackets are advanced automatically.
  */
 async function handleResolveStalled() {
   const admin = createAdminClient();
@@ -558,72 +567,91 @@ async function handleResolveStalled() {
 
   if (!currentGw) return NextResponse.json({ ok: true, message: 'No active gameweek found' });
 
-  // Check if this GW has any non-completed matchups in our system
-  const { data: liveMatchups } = await admin
+  // 1. Find ALL unresolved gameweeks up to currentGw
+  const { data: unresolvedGws } = await admin
     .from('matchups')
-    .select('id')
-    .eq('gameweek', currentGw)
-    .neq('status', 'completed')
-    .limit(1);
-
-  if (!liveMatchups || liveMatchups.length === 0) {
-    return NextResponse.json({ ok: true, message: `GW${currentGw} already resolved` });
+    .select('gameweek')
+    .lte('gameweek', currentGw)
+    .neq('status', 'completed');
+    
+  if (!unresolvedGws || unresolvedGws.length === 0) {
+    return NextResponse.json({ ok: true, message: `All gameweeks up to ${currentGw} are already resolved` });
   }
+  
+  const uniqueGws = Array.from(new Set(unresolvedGws.map(m => m.gameweek))).sort((a, b) => a - b);
+  const results = [];
 
-  // Check FPL fixtures: find the latest non-postponed fixture kickoff
-  try {
-    const fixRes = await fetch(`https://fantasy.premierleague.com/api/fixtures/?event=${currentGw}`, { next: { revalidate: 60 } });
-    if (!fixRes.ok) return NextResponse.json({ error: 'Failed to fetch fixtures' }, { status: 502 });
-
-    const fixtures = await fixRes.json();
-    const now = new Date();
-    let allNonPostponedFinished = true;
-    let latestKickoff: Date | null = null;
-
-    for (const f of fixtures) {
-      const isPostponed = f.event === null || f.postponed === true;
-      if (isPostponed) continue;
-
-      if (!f.finished && !f.finished_provisional) {
-        allNonPostponedFinished = false;
-      }
-
-      if (f.kickoff_time) {
-        const ko = new Date(f.kickoff_time);
-        if (!latestKickoff || ko > latestKickoff) latestKickoff = ko;
-      }
-    }
-
-    // Force-resolve if all non-postponed fixtures are finished OR
-    // >48 hours since the latest non-postponed kickoff
-    const hoursElapsed = latestKickoff ? (now.getTime() - latestKickoff.getTime()) / (1000 * 60 * 60) : 0;
-    const shouldForceResolve = allNonPostponedFinished || hoursElapsed > 48;
-
-    if (!shouldForceResolve) {
-      return NextResponse.json({
-        ok: true,
-        message: `GW${currentGw} still in progress. ${hoursElapsed.toFixed(1)}h since last kickoff.`,
-      });
-    }
-
-    // Force-resolve: run matchup sync with finished=true
-    let syncResult;
+  // Check FPL fixtures per unresolved GW, sequentially
+  for (const gw of uniqueGws) {
     try {
-      syncResult = await processMatchupsForGameweek(currentGw, true);
-    } catch (e: any) {
-      syncResult = { error: 'sync failed', detail: e.message };
-    }
+      const fixRes = await fetch(`https://fantasy.premierleague.com/api/fixtures/?event=${gw}`, { next: { revalidate: 60 } });
+      if (!fixRes.ok) continue;
 
-    return NextResponse.json({
-      ok: true,
-      action: 'force_resolved',
-      gameweek: currentGw,
-      reason: allNonPostponedFinished ? 'all_non_postponed_finished' : `stalled_${hoursElapsed.toFixed(0)}h`,
-      syncResult,
-    });
-  } catch (err) {
-    return NextResponse.json({ error: 'Failed to check fixtures', detail: String(err) }, { status: 500 });
+      const fixtures = await fixRes.json();
+      const now = new Date();
+      let allNonPostponedFinished = true;
+      let latestKickoff: Date | null = null;
+
+      for (const f of fixtures) {
+        const isPostponed = f.event === null || f.postponed === true;
+        if (isPostponed) continue;
+
+        if (!f.finished && !f.finished_provisional) {
+          allNonPostponedFinished = false;
+        }
+
+        if (f.kickoff_time) {
+          const ko = new Date(f.kickoff_time);
+          if (!latestKickoff || ko > latestKickoff) latestKickoff = ko;
+        }
+      }
+
+      const hoursElapsed = latestKickoff ? (now.getTime() - latestKickoff.getTime()) / (1000 * 60 * 60) : 0;
+      // Force resolve if finished normally, or if 48 hours passed.
+      // Additionally, for older gameweeks, they should definitely be finished if we are on a later GW.
+      const shouldForceResolve = allNonPostponedFinished || hoursElapsed > 48 || gw < currentGw;
+
+      if (!shouldForceResolve) {
+        results.push({ gw, status: 'in_progress', hoursElapsed });
+        break; // Stop processing further gameweeks if a chronological earlier one is still active
+      }
+
+      // Force-resolve: run matchup sync with finished=true
+      const syncResult = await processMatchupsForGameweek(gw, true);
+      
+      // Advance active tournaments for this gameweek
+      const { data: activeTournaments } = await admin
+        .from('tournaments')
+        .select('id')
+        .eq('status', 'active');
+        
+      let advancedCount = 0;
+      if (activeTournaments) {
+        for (const t of activeTournaments) {
+          await executeAdvance(t.id, gw);
+          advancedCount++;
+        }
+      }
+
+      results.push({
+        gw,
+        action: 'force_resolved',
+        reason: allNonPostponedFinished ? 'all_non_postponed_finished' : (gw < currentGw ? 'past_gameweek' : `stalled_${hoursElapsed.toFixed(0)}h`),
+        tournamentsAdvanced: advancedCount,
+        syncResult,
+      });
+
+    } catch (e: any) {
+      results.push({ gw, error: 'sync/advance failed', detail: e.message });
+      break; // Stop on first error to prevent out-of-order bracket advances
+    }
   }
+
+  return NextResponse.json({
+    ok: true,
+    processed: uniqueGws,
+    results
+  });
 }
 
 // ─── Helpers ──────────────────────────────────────────────────
