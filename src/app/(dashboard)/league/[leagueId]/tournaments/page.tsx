@@ -247,12 +247,12 @@ export default async function TournamentsPage({ params, searchParams }: Props) {
                             return (
                                 <div key={round.id} className={styles.roundColumn}>
                                     <div className={styles.roundHeader}>
-                                        <p className={styles.roundName}>
-                                            {round.name}
-                                            {currentFplGw >= round.start_gameweek && currentFplGw <= round.end_gameweek && (currentFplGw < round.end_gameweek || !isFinished) && (
+                                        {currentFplGw >= round.start_gameweek && currentFplGw <= round.end_gameweek && (currentFplGw < round.end_gameweek || !isFinished) && (
+                                            <div className={styles.roundLiveBadgeWrapper}>
                                                 <span className={styles.roundLiveBadge}>Live</span>
-                                            )}
-                                        </p>
+                                            </div>
+                                        )}
+                                        <p className={styles.roundName}>{round.name}</p>
                                         <p className={styles.roundGw}>MW {round.start_gameweek}{round.end_gameweek !== round.start_gameweek && ` - ${round.end_gameweek}`}</p>
                                     </div>
 
