@@ -571,13 +571,59 @@ async function handleResolveStalled() {
     return NextResponse.json({ error: 'FPL API error', detail: String(err) }, { status: 502 });
   }
 
-  // 1. Activation migration for any pending round 1 matchups that should be active
-  await admin
-    .from('tournament_matchups')
-    .update({ status: 'active' })
-    .not('team_a_id', 'is', null)
-    .not('team_b_id', 'is', null)
-    .eq('status', 'pending');
+  // 1. Activation migration for current/past rounds
+  const { data: activeRounds } = await admin
+    .from('tournament_rounds')
+    .select('id')
+    .lte('start_gameweek', currentGw);
+    
+  if (activeRounds && activeRounds.length > 0) {
+    const roundIds = activeRounds.map(r => r.id);
+    await admin
+      .from('tournament_matchups')
+      .update({ status: 'active' })
+      .in('round_id', roundIds)
+      .not('team_a_id', 'is', null)
+      .not('team_b_id', 'is', null)
+      .eq('status', 'pending');
+  }
+
+  // 2. Future Reset: if active but in future round, reset to pending
+  // This handles the user's issue where MW38 matches were accidentally marked active.
+  const { data: futureRounds } = await admin
+    .from('tournament_rounds')
+    .select('id')
+    .gt('start_gameweek', currentGw);
+    
+  if (futureRounds && futureRounds.length > 0) {
+    const futureRoundIds = futureRounds.map(r => r.id);
+    await admin
+      .from('tournament_matchups')
+      .update({ status: 'pending' })
+      .in('round_id', futureRoundIds)
+      .eq('status', 'active');
+  }
+
+  // 3. Auto-complete tournaments past their final date
+  const { data: activeTourneys } = await admin
+    .from('tournaments')
+    .select('id')
+    .eq('status', 'active');
+    
+  if (activeTourneys) {
+    for (const t of activeTourneys) {
+      const { data: lastRounds } = await admin
+        .from('tournament_rounds')
+        .select('end_gameweek')
+        .eq('tournament_id', t.id)
+        .order('end_gameweek', { ascending: false })
+        .limit(1);
+        
+      if (lastRounds && lastRounds.length > 0 && lastRounds[0].end_gameweek < currentGw) {
+        await admin.from('tournaments').update({ status: 'completed' }).eq('id', t.id);
+      }
+    }
+  }
 
   // 2. Identify gameweeks to check (current and last 4)
   const gwsToCheck = [];

@@ -23,7 +23,7 @@ export default async function TournamentsPage({ params, searchParams }: Props) {
 
     const { data: league } = await admin
         .from('leagues')
-        .select('id, name')
+        .select('id, name, created_at')
         .eq('id', leagueId)
         .single();
 
@@ -109,6 +109,24 @@ export default async function TournamentsPage({ params, searchParams }: Props) {
         matchups = (matchupsData ?? []) as TournamentMatchup[];
     }
 
+    // ── Current FPL State ──
+    let currentFplGw = 1;
+    let isFinished = false;
+    try {
+        const fplRes = await fetch('https://fantasy.premierleague.com/api/bootstrap-static/', { next: { revalidate: 3600 } });
+        if (fplRes.ok) {
+            const fplData = await fplRes.json();
+            const now = new Date();
+            for (const ev of fplData.events as any[]) {
+                if (ev.deadline_time && new Date(ev.deadline_time) <= now) {
+                    currentFplGw = Math.max(currentFplGw, ev.id);
+                }
+            }
+            const currentEvent = (fplData.events as any[]).find((e: any) => e.id === currentFplGw);
+            isFinished = currentEvent?.finished ?? false;
+        }
+    } catch { /* FPL unreachable */ }
+
     // Binary Tree padding logic
     const roundsWithPairs = rounds.map((round, roundIdx) => {
         const remainingRounds = rounds.length - roundIdx;
@@ -127,19 +145,15 @@ export default async function TournamentsPage({ params, searchParams }: Props) {
             }
         }
 
-        // Build Matchweek logic securely from the backend-generated round data
-        let mwLabel = `MW ${round.start_gameweek}`;
-        if (round.is_two_leg && round.end_gameweek > round.start_gameweek) {
-            mwLabel = `MW ${round.start_gameweek} + MW ${round.end_gameweek}`;
-        }
-
-        return { ...round, pairs, slotsCount, mwLabel };
+        return { ...round, pairs, slotsCount };
     });
 
-    // Determine champion
-    let championName = "TBD";
-    let championStatus = "In Progress";
-    
+    const lastRound = rounds[rounds.length - 1];
+    const isPastFinal = lastRound && lastRound.end_gameweek < currentFplGw;
+    const liveRound = rounds.find(r => currentFplGw >= r.start_gameweek && currentFplGw <= r.end_gameweek);
+    const displayStatus = (activeTournament.status === 'completed' || isPastFinal) ? 'completed' : 'active';
+    const isLive = liveRound && !isFinished;
+
     const seedMap = new Map<string, number>();
     if (roundsWithPairs.length > 0) {
         const firstRound = roundsWithPairs[0];
@@ -154,26 +168,8 @@ export default async function TournamentsPage({ params, searchParams }: Props) {
         });
     }
 
-    if (activeTournament.status === 'completed' && roundsWithPairs.length > 0) {
-        const finalRound = roundsWithPairs[roundsWithPairs.length - 1];
-        const finalMatchup = finalRound?.pairs[0]?.[0];
-        if (finalMatchup?.winner) {
-            championName = finalMatchup.winner.team_name;
-            championStatus = `Champion`;
-        }
-    }
-    // Find exact final matchweek safely
-    let finalGameweekStr = 'MATCHWEEK 38';
-    if (roundsWithPairs.length > 0) {
-        const finalRoundData = roundsWithPairs[roundsWithPairs.length - 1];
-        if (finalRoundData && finalRoundData.end_gameweek) {
-            finalGameweekStr = `MATCHWEEK ${finalRoundData.end_gameweek}`;
-        }
-    }
-
     return (
         <div className={styles.container}>
-            {/* Unified Header matching exact layout sequence */}
             <div className={styles.headerSection}>
                 <header className={styles.header}>
                     <div className={styles.headerContent}>
@@ -202,19 +198,32 @@ export default async function TournamentsPage({ params, searchParams }: Props) {
                 <div className={styles.infoBar}>
                     <div className={styles.infoLeft}>
                         <span className={styles.infoText}>
-                            {activeTournament?.name} <span className={styles.divider}>·</span> {(activeTournament as any)?.team_count ?? 10} TEAMS <span className={styles.divider}>·</span> FINAL: {finalGameweekStr}
+                            {activeTournament?.name} 
+                            <span className={styles.divider}>·</span>
+                            {league.name}
+                            <span className={styles.divider}>·</span>
+                            FINAL: MATCHWEEK {rounds[rounds.length - 1]?.end_gameweek || 'TBD'}
                         </span>
                     </div>
-                    {activeTournament.status === 'active' && (
+                    {displayStatus === 'active' && isLive && (
                         <div className={styles.infoRight}>
                             <span className={styles.livePulseIndicator}></span>
                             <span className={styles.infoLiveText}>IN PROGRESS</span>
                         </div>
                     )}
+                    {displayStatus === 'completed' && (
+                        <div className={styles.infoRight}>
+                            <span className={styles.infoLiveText} style={{ color: 'var(--color-text-muted)' }}>FINISHED</span>
+                        </div>
+                    )}
+                    {displayStatus === 'active' && !isLive && !isPastFinal && (
+                        <div className={styles.infoRight}>
+                            <span className={styles.infoLiveText} style={{ color: 'var(--color-text-muted)' }}>SCHEDULED</span>
+                        </div>
+                    )}
                 </div>
             </div>
 
-            {/* Bracket Section */}
             <section className={styles.bracketSection}>
                 {roundsWithPairs.length === 0 ? (
                     <div className={styles.emptyBracket}>Bracket not yet generated.</div>
@@ -226,8 +235,13 @@ export default async function TournamentsPage({ params, searchParams }: Props) {
                             return (
                                 <div key={round.id} className={styles.roundColumn}>
                                     <div className={styles.roundHeader}>
-                                        <h4 className={styles.roundName}>{round.name}</h4>
-                                        <p className={styles.roundGw}>{round.mwLabel}</p>
+                                        <p className={styles.roundName}>
+                                            {round.name}
+                                            {currentFplGw >= round.start_gameweek && currentFplGw <= round.end_gameweek && !isFinished && (
+                                                <span className={styles.roundLiveBadge}>Live</span>
+                                            )}
+                                        </p>
+                                        <p className={styles.roundGw}>MW {round.start_gameweek}{round.end_gameweek !== round.start_gameweek && ` - ${round.end_gameweek}`}</p>
                                     </div>
 
                                     <div className={styles.matchupSlots}>
@@ -235,13 +249,11 @@ export default async function TournamentsPage({ params, searchParams }: Props) {
                                             const m0 = pair[0];
                                             const m1 = pair[1];
                                             
-                                            // Active highlight logic for elbows
                                             const myPathTop = m0 && m0.winner_id === member.id && (m0.team_a_id === member.id || m0.team_b_id === member.id);
                                             const myPathBottom = m1 && m1.winner_id === member.id && (m1.team_a_id === member.id || m1.team_b_id === member.id);
 
                                             return (
                                                 <div key={pairIdx} className={styles.slotPair}>
-                                                    {/* Top Slot */}
                                                     <div className={styles.slot}>
                                                         {roundIdx > 0 && <div className={`${styles.connectorIn} ${hasIncomingActiveLeft(m0, member.id) ? styles.connectorActive : ''}`} />}
                                                         {m0 ? (
@@ -259,7 +271,6 @@ export default async function TournamentsPage({ params, searchParams }: Props) {
                                                         )}
                                                     </div>
 
-                                                    {/* Bottom Slot */}
                                                     {!isFinal && (
                                                         <div className={styles.slot}>
                                                             {roundIdx > 0 && <div className={`${styles.connectorIn} ${hasIncomingActiveLeft(m1, member.id) ? styles.connectorActive : ''}`} />}
@@ -279,7 +290,6 @@ export default async function TournamentsPage({ params, searchParams }: Props) {
                                                         </div>
                                                     )}
 
-                                                    {/* Output Connectors (Elbows) */}
                                                     {!isFinal && (
                                                         <>
                                                             <div className={`${styles.elbowTop} ${myPathTop ? styles.elbowActive : ''}`} />
@@ -296,50 +306,12 @@ export default async function TournamentsPage({ params, searchParams }: Props) {
                     </div>
                 )}
             </section>
-
-            {/* Cup Overview Widgets */}
-            <div className={styles.overviewGrid}>
-                {/* Cup Schedule */}
-                <div className={styles.overviewCard}>
-                    <h4 className={styles.overviewTitle}>Cup Schedule</h4>
-                    <table className={styles.scheduleTable}>
-                        <tbody>
-                            {roundsWithPairs.map(round => (
-                                <tr key={round.id} className={styles.scheduleRow}>
-                                    <td className={styles.scheduleLabel}>{round.name}</td>
-                                    <td className={`${styles.scheduleValue} ${round.slotsCount === 1 ? styles.textGreen : ''}`}>
-                                        {round.mwLabel}
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-
-                {/* Previous Winner */}
-                <div className={styles.overviewCard}>
-                    <h4 className={styles.overviewTitle}>Previous Winner</h4>
-                    <div className={styles.winnerContent}>
-                        <p className={styles.winnerName}>{championName}</p>
-                        <p className={styles.winnerSubtitle}>{championStatus}</p>
-                        <div className={styles.winnerDescDivider}></div>
-                        <p className={styles.winnerDesc}>
-                            {championName === 'TBD' 
-                                ? "The tournament is currently awaiting its champion."
-                                : "Secured the title with an impressive performance."}
-                        </p>
-                    </div>
-                </div>
-            </div>
         </div>
     );
 }
 
 function hasIncomingActiveLeft(m: TournamentMatchup | null, myId: string) {
     if (!m) return false;
-    // We highlight left connector if we just look geometrically, 
-    // but the left connector is just the input to THIS matchup.
-    // If the user is in this matchup, the incoming line is technically their advancing path.
     return (m.team_a_id === myId || m.team_b_id === myId);
 }
 
@@ -358,18 +330,17 @@ function BracketMatchup({
 }) {
     const teamAName = matchup.team_a?.team_name ?? 'BYE';
     const teamBName = matchup.team_b?.team_name ?? 'BYE';
-    const isBye = !matchup.team_a_id || !matchup.team_b_id;
     const isTBD = !matchup.team_a_id && !matchup.team_b_id;
+    const isBye = !matchup.team_a_id || !matchup.team_b_id;
 
     const totalA = Number(matchup.team_a_score_leg1) + Number(matchup.team_a_score_leg2);
     const totalB = Number(matchup.team_b_score_leg1) + Number(matchup.team_b_score_leg2);
 
     const isMyMatchup = matchup.team_a_id === myTeamId || matchup.team_b_id === myTeamId;
-    const activeClass = matchup.status === 'active' ? styles.matchupActive : '';
     const highlightMyTeam = isMyMatchup ? styles.myMatchupActive : '';
 
     return (
-        <div className={`${styles.matchup} ${activeClass} ${highlightMyTeam}`}>
+        <div className={`${styles.matchup} ${highlightMyTeam}`}>
             <div className={`${styles.teamRow} ${matchup.winner_id === matchup.team_a_id && matchup.winner_id ? styles.winnerRow : ''} ${matchup.team_a_id === myTeamId ? styles.myTeamRow : ''}`}>
                 <span className={styles.teamLabel}>
                     {isTBD ? 'TBD' : (
@@ -379,9 +350,8 @@ function BracketMatchup({
                         </>
                     )}
                 </span>
-                {!isTBD && !isBye && (
+                {!isTBD && (
                     <div className={styles.scoreGroup}>
-                        {matchup.status === 'active' && <span className={styles.matchupLive}>Live</span>}
                         {isTwoLeg && (
                             <>
                                 <span className={styles.legScore}>{Number(matchup.team_a_score_leg1).toFixed(1)}</span>

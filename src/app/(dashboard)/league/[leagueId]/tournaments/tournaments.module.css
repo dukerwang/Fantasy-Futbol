@@ -288,7 +288,8 @@
     color: var(--color-text-primary);
 }
 
-.matchupLive {
+.roundLiveBadge {
+    display: inline-block;
     font-family: var(--font-sans);
     font-size: 0.55rem;
     font-weight: 700;
@@ -296,8 +297,13 @@
     letter-spacing: 0.15em;
     background-color: #2D6A4F;
     color: #FFF;
-    padding: 0.1rem 0.3rem;
-    margin-right: 0.5rem;
+    padding: 0.1rem 0.4rem;
+    margin-left: 0.5rem;
+    vertical-align: middle;
+}
+
+.matchupLive {
+    display: none; /* Removed from individual matchups per user request */
 }
 
 .winnerRow .teamLabel, .winnerRow .totalScore {
