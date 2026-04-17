@@ -217,6 +217,10 @@
     white-space: nowrap;
 }
 
+.heroWinBadge.loss {
+    background: #9B2C3A;
+}
+
 .heroWinBadge.draw {
     background: var(--color-bg-elevated);
     color: var(--color-text-secondary);
@@ -298,9 +302,9 @@
 }
 
 .halfName {
-    font-family: var(--font-sans);
-    font-size: 0.875rem;
-    font-weight: 600;
+    font-family: var(--font-serif);
+    font-size: 0.9375rem;
+    font-weight: 700;
     color: var(--color-text-primary);
     white-space: nowrap;
     overflow: hidden;

@@ -116,7 +116,7 @@ export default function LiveMatchupCard({
                     </div>
 
                     {isCompleted && (
-                        <span className={`${styles.heroWinBadge} ${isDraw ? styles.draw : ''}`}>
+                        <span className={`${styles.heroWinBadge} ${isDraw ? styles.draw : ''} ${(!isDraw && myTeamSide && ((myTeamSide === 'a' && bWins) || (myTeamSide === 'b' && aWins))) ? styles.loss : ''}`}>
                             {aWins ? `${teamAName} Win` : bWins ? `${teamBName} Win` : 'Draw'}
                         </span>
                     )}
