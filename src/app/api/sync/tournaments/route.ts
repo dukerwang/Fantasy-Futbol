@@ -579,22 +579,18 @@ async function handleResolveStalled() {
     .not('team_b_id', 'is', null)
     .eq('status', 'pending');
 
-  // 1. Find ALL unresolved gameweeks up to currentGw
-  const { data: unresolvedGws } = await admin
-    .from('matchups')
-    .select('gameweek')
-    .lte('gameweek', currentGw)
-    .neq('status', 'completed');
-    
-  if (!unresolvedGws || unresolvedGws.length === 0) {
-    return NextResponse.json({ ok: true, message: `All gameweeks up to ${currentGw} are already resolved` });
+  // 2. Identify gameweeks to check (current and last 4)
+  const gwsToCheck = [];
+  for (let i = 0; i < 5; i++) {
+    const gw = currentGw - i;
+    if (gw >= 1) gwsToCheck.push(gw);
   }
+  gwsToCheck.sort((a, b) => a - b);
   
-  const uniqueGws = Array.from(new Set(unresolvedGws.map(m => m.gameweek))).sort((a, b) => a - b);
   const results = [];
 
-  // Check FPL fixtures per unresolved GW, sequentially
-  for (const gw of uniqueGws) {
+  // Check FPL fixtures per GW, sequentially
+  for (const gw of gwsToCheck) {
     try {
       const fixRes = await fetch(`https://fantasy.premierleague.com/api/fixtures/?event=${gw}`, { next: { revalidate: 60 } });
       if (!fixRes.ok) continue;
@@ -619,49 +615,56 @@ async function handleResolveStalled() {
       }
 
       const hoursElapsed = latestKickoff ? (now.getTime() - latestKickoff.getTime()) / (1000 * 60 * 60) : 0;
-      // Force resolve if finished normally, or if 48 hours passed.
-      // Additionally, for older gameweeks, they should definitely be finished if we are on a later GW.
+      // Force resolve if finished normally, or if 48 hours passed, or if past gameweek.
       const shouldForceResolve = allNonPostponedFinished || hoursElapsed > 48 || gw < currentGw;
 
-      if (!shouldForceResolve) {
-        results.push({ gw, status: 'in_progress', hoursElapsed });
-        break; // Stop processing further gameweeks if a chronological earlier one is still active
-      }
+      if (shouldForceResolve) {
+        // 1. Resolve League Matchups if not yet completed
+        const { data: unresolvedLeague } = await admin
+          .from('matchups')
+          .select('id')
+          .eq('gameweek', gw)
+          .neq('status', 'completed')
+          .limit(1);
 
-      // Force-resolve: run matchup sync with finished=true
-      const syncResult = await processMatchupsForGameweek(gw, true);
-      
-      // Advance active tournaments for this gameweek
-      const { data: activeTournaments } = await admin
-        .from('tournaments')
-        .select('id')
-        .eq('status', 'active');
-        
-      let advancedCount = 0;
-      if (activeTournaments) {
-        for (const t of activeTournaments) {
-          await executeAdvance(t.id, gw);
-          advancedCount++;
+        let leagueSync = null;
+        if (unresolvedLeague && unresolvedLeague.length > 0) {
+          leagueSync = await processMatchupsForGameweek(gw, true);
         }
-      }
+        
+        // 2. Proactively Advance active tournaments for this gameweek
+        const { data: activeTournaments } = await admin
+          .from('tournaments')
+          .select('id')
+          .eq('status', 'active');
+          
+        let advancedCount = 0;
+        if (activeTournaments) {
+          for (const t of activeTournaments) {
+            await executeAdvance(t.id, gw);
+            advancedCount++;
+          }
+        }
 
-      results.push({
-        gw,
-        action: 'force_resolved',
-        reason: allNonPostponedFinished ? 'all_non_postponed_finished' : (gw < currentGw ? 'past_gameweek' : `stalled_${hoursElapsed.toFixed(0)}h`),
-        tournamentsAdvanced: advancedCount,
-        syncResult,
-      });
+        results.push({
+          gw,
+          status: 'processed',
+          leagueSyncTriggered: !!leagueSync,
+          tournamentsAdvanced: advancedCount,
+          reason: allNonPostponedFinished ? 'all_non_postponed_finished' : (gw < currentGw ? 'past_gameweek' : `stalled_${hoursElapsed.toFixed(0)}h`),
+        });
+      } else {
+        results.push({ gw, status: 'in_progress', hoursElapsed });
+      }
 
     } catch (e: any) {
       results.push({ gw, error: 'sync/advance failed', detail: e.message });
-      break; // Stop on first error to prevent out-of-order bracket advances
     }
   }
 
   return NextResponse.json({
     ok: true,
-    processed: uniqueGws,
+    checked: gwsToCheck,
     results
   });
 }
