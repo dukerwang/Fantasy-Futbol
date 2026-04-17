@@ -152,6 +152,15 @@
   padding: 0 32px;
 }
 
+.heroCenterLabel {
+  font-family: 'Inter', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-text-muted);
+}
+
 .heroScoreGroup {
   display: flex;
   align-items: center;

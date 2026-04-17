@@ -121,8 +121,7 @@ export default async function LeaguePage({ params }: Props) {
       .select('*, team_a:teams!team_a_id(id, team_name), team_b:teams!team_b_id(id, team_name)')
       .eq('league_id', leagueId)
       .or(`team_a_id.eq.${myTeamId},team_b_id.eq.${myTeamId}`)
-      .order('gameweek', { ascending: false })
-      .limit(10) : Promise.resolve({ data: null }),
+      .order('gameweek', { ascending: true }) : Promise.resolve({ data: null }),
 
     // Live auctions
     admin
@@ -164,44 +163,75 @@ export default async function LeaguePage({ params }: Props) {
   const initialTeams = (teamsResult.data ?? []) as Array<{ id: string; team_name: string; draft_order: number | null }>;
 
   // ── Matchup hero state ────────────────────────────────────────────────────
+  // Since we ordered by gameweek ASC, find() for scheduled gets the earliest one.
   const liveMatchup = myMatchups.find((m) => m.status === 'live');
   const scheduledMatchup = myMatchups.find((m) => m.status === 'scheduled');
-  const completedMatchup = myMatchups.find((m) => m.status === 'completed');
+  // For completed, we want the latest sequence, so we reverse it to search from highest GW
+  const completedMatchup = [...myMatchups].reverse().find((m) => m.status === 'completed');
 
   let heroMatchup: typeof myMatchups[0] | null = null;
   let heroState: 'live' | 'upcoming' | 'final' | null = null;
 
-  if (liveMatchup) {
-    heroMatchup = liveMatchup;
-    heroState = 'live';
-  } else if (scheduledMatchup) {
-    // Check FPL API for upcoming GW window (cached 1h — not called on every page load)
-    try {
-      const fplRes = await fetch(
-        'https://fantasy.premierleague.com/api/bootstrap-static/',
-        { next: { revalidate: 3600 } }
-      );
-      if (fplRes.ok) {
-        const fplData = await fplRes.json();
-        const nextGW = (fplData.events as any[])?.find((e) => !e.finished && e.is_next);
-        if (nextGW) {
-          const daysUntil = (new Date(nextGW.deadline_time).getTime() - Date.now()) / 86400000;
-          if (daysUntil <= 3) {
-            heroMatchup = scheduledMatchup;
-            heroState = 'upcoming';
-          }
+  // Try to determine the current FPL gameweek as the primary anchor
+  let currentFplGw = 1;
+  let isCurrentFplGwFinished = false;
+  let nextFplGwIsClose = false;
+  
+  try {
+    const fplRes = await fetch('https://fantasy.premierleague.com/api/bootstrap-static/', { next: { revalidate: 3600 } });
+    if (fplRes.ok) {
+      const fplData = await fplRes.json();
+      const now = new Date();
+      for (const ev of fplData.events as any[]) {
+        if (ev.deadline_time && new Date(ev.deadline_time) <= now) {
+          currentFplGw = Math.max(currentFplGw, ev.id);
         }
       }
-    } catch {
-      // FPL API unreachable — fall through to completed
+      const currentEvent = (fplData.events as any[]).find((e: any) => e.id === currentFplGw);
+      isCurrentFplGwFinished = currentEvent?.finished ?? false;
+      
+      const nextGW = (fplData.events as any[]).find((e: any) => !e.finished && e.is_next);
+      if (nextGW) {
+        const daysUntil = (new Date(nextGW.deadline_time).getTime() - Date.now()) / 86400000;
+        if (daysUntil <= 3) nextFplGwIsClose = true;
+      }
     }
-    if (!heroMatchup && completedMatchup) {
+  } catch { /* FPL unreachable */ }
+
+  const currentGwMatchup = myMatchups.find((m) => m.gameweek === currentFplGw);
+  
+  if (currentGwMatchup) {
+    heroMatchup = currentGwMatchup;
+    if (heroMatchup.status === 'live' || (heroMatchup.status === 'scheduled' && !isCurrentFplGwFinished)) {
+      heroState = 'live';
+    } else if (heroMatchup.status === 'completed' || isCurrentFplGwFinished) {
+      if (nextFplGwIsClose) {
+        // If next GW is very close, pivot to showing the upcoming one instead
+        const upcomingMatchup = myMatchups.find((m) => m.gameweek === currentFplGw + 1) || scheduledMatchup;
+        if (upcomingMatchup) {
+          heroMatchup = upcomingMatchup;
+          heroState = 'upcoming';
+        } else {
+          heroState = 'final';
+        }
+      } else {
+        heroState = 'final';
+      }
+    } else {
+      heroState = 'upcoming';
+    }
+  } else {
+    // Fallbacks if current FPL GW doesn't align with local data
+    if (liveMatchup) {
+      heroMatchup = liveMatchup;
+      heroState = 'live';
+    } else if (scheduledMatchup && nextFplGwIsClose) {
+      heroMatchup = scheduledMatchup;
+      heroState = 'upcoming';
+    } else if (completedMatchup) {
       heroMatchup = completedMatchup;
       heroState = 'final';
     }
-  } else if (completedMatchup) {
-    heroMatchup = completedMatchup;
-    heroState = 'final';
   }
 
   // ── Derive result for final state ─────────────────────────────────────────
@@ -290,15 +320,17 @@ export default async function LeaguePage({ params }: Props) {
         <div className={styles.heroCard}>
           {/* Left — user team */}
           <div className={styles.heroTeam}>
-            <span className={styles.heroTeamLabel}>
-              YOUR FIXTURE · GW {heroMatchup.gameweek}
-            </span>
             <span className={styles.heroTeamName}>{userTeam?.team_name ?? '—'}</span>
-            <span className={styles.heroTeamRecord}>{userRecord}</span>
+            {userRecord && (
+              <span className={styles.heroRecord}>
+                {userRecord.W}W · {userRecord.D}D · {userRecord.L}L
+              </span>
+            )}
           </div>
 
           {/* Center — Scores & Badge */}
           <div className={styles.heroCenterBlock}>
+            <span className={styles.heroCenterLabel}>YOUR FIXTURE · GW {heroMatchup.gameweek}</span>
             <div className={styles.heroScoreGroup}>
               <span className={`${styles.heroScore} ${heroResult === 'win' || (heroState !== 'final' && (userScore ?? 0) > (oppScore ?? 0)) ? styles.heroScoreHighlight : ''}`}>
                 {heroState === 'upcoming' ? '—' : (userScore?.toFixed(1) ?? '0.0')}
@@ -317,15 +349,14 @@ export default async function LeaguePage({ params }: Props) {
             </div>
           </div>
 
-          {/* Right — opponent */}
+          {/* Right — opponent team */}
           <div className={`${styles.heroTeam} ${styles.heroTeamRight}`}>
-            <span className={styles.heroTeamLabel}>
-              OPPONENT · GW {heroMatchup.gameweek}
-            </span>
-            <span className={`${styles.heroTeamName} ${styles.heroTeamNameMuted}`}>
-              {oppTeam?.team_name ?? '—'}
-            </span>
-            <span className={styles.heroTeamRecord}>{oppRecord}</span>
+            <span className={styles.heroTeamName}>{oppTeam?.team_name ?? '—'}</span>
+            {oppRecord && (
+              <span className={styles.heroRecord}>
+                {oppRecord.W}W · {oppRecord.D}D · {oppRecord.L}L
+              </span>
+            )}
           </div>
         </div>
       )}

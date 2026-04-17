@@ -60,6 +60,7 @@ export default async function MatchupsPage({ params, searchParams }: Props) {
 
     // Current FPL gameweek
     let currentFplGw = 1;
+    let isCurrentFplGwFinished = false;
     try {
         const fplRes = await fetch('https://fantasy.premierleague.com/api/bootstrap-static/', { next: { revalidate: 300 } });
         if (fplRes.ok) {
@@ -70,6 +71,8 @@ export default async function MatchupsPage({ params, searchParams }: Props) {
                     currentFplGw = Math.max(currentFplGw, ev.id);
                 }
             }
+            const currentEvent = (fplData.events as any[]).find((e: any) => e.id === currentFplGw);
+            isCurrentFplGwFinished = currentEvent?.finished ?? false;
         }
     } catch { /* ignore */ }
 
@@ -201,8 +204,7 @@ export default async function MatchupsPage({ params, searchParams }: Props) {
                             matchup={myMatchup}
                             myTeamId={myTeam?.id}
                             currentFplGw={currentFplGw}
-                            aHasCup={cupTeamIds.has(myMatchup.team_a_id)}
-                            bHasCup={cupTeamIds.has(myMatchup.team_b_id)}
+                            isCurrentFplGwFinished={isCurrentFplGwFinished}
                             featured={true}
                             recordA={recordA}
                             recordB={recordB}
@@ -220,8 +222,7 @@ export default async function MatchupsPage({ params, searchParams }: Props) {
                                         matchup={m}
                                         myTeamId={myTeam?.id}
                                         currentFplGw={currentFplGw}
-                                        aHasCup={cupTeamIds.has(m.team_a_id)}
-                                        bHasCup={cupTeamIds.has(m.team_b_id)}
+                                        isCurrentFplGwFinished={isCurrentFplGwFinished}
                                     />
                                 ))}
                             </div>

@@ -120,16 +120,13 @@
     box-shadow: var(--shadow-md);
 }
 
-.heroSectionLabel {
+.heroSectionLabelCentered {
     font-family: var(--font-sans);
     font-size: 0.62rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.14em;
     color: var(--color-text-muted);
-    position: absolute;
-    top: 1rem;
-    left: 2.5rem;
 }
 
 .heroTeamCol {
