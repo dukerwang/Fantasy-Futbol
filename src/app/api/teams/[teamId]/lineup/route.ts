@@ -87,12 +87,12 @@ export async function POST(req: NextRequest, { params }: Props) {
     return NextResponse.json({ error: 'Duplicate players in lineup' }, { status: 400 });
   }
 
-  // Fetch all non-IR roster entries with player positions
+  // Fetch all active/bench roster entries (exclude IR and taxi — neither can be in a lineup)
   const { data: entries } = await admin
     .from('roster_entries')
     .select('id, player_id, status, player:players(id, primary_position, secondary_positions, pl_team_id, web_name, full_name)')
     .eq('team_id', teamId)
-    .neq('status', 'ir');
+    .not('status', 'in', '("ir","taxi")');
 
   if (!entries) {
     return NextResponse.json({ error: 'Failed to fetch roster' }, { status: 500 });

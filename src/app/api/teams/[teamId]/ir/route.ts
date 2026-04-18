@@ -114,12 +114,12 @@ export async function POST(req: NextRequest, { params }: Props) {
             return NextResponse.json({ error: 'Player is not currently on IR' }, { status: 400 });
         }
 
-        // Validate roster space. Does not include IR players.
+        // Validate roster space. IR and taxi players don't count against the active roster limit.
         const { data: roster } = await admin
             .from('roster_entries')
             .select('id')
             .eq('team_id', teamId)
-            .neq('status', 'ir');
+            .not('status', 'in', '("ir","taxi")');
             
         const { data: league } = await admin
             .from('leagues')
