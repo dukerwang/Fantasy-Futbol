@@ -12,11 +12,13 @@
 
 import { calculateMatchRating, mapFplLiveToRawStats } from '@/lib/scoring/engine';
 import { loadReferenceStats } from '@/lib/scoring/matchups';
+import { processMatchupsForGameweek } from '@/lib/scoring/matchupProcessor';
+import { createAdminClient } from '@/lib/supabase/admin';
 import type { GranularPosition, FplLivePlayerStats } from '@/types';
 import { createClient } from '@supabase/supabase-js';
 import { NextRequest, NextResponse } from 'next/server';
 
-export const maxDuration = 60; // 1 minute max for Vercel Hobby tier
+export const maxDuration = 300;
 
 const FPL_BASE = 'https://fantasy.premierleague.com/api';
 
@@ -117,10 +119,7 @@ async function syncFplLiveRatings(gameweek: number): Promise<NextResponse> {
         const rawStats = mapFplLiveToRawStats(el.stats);
         
         const refStats = await loadReferenceStats(supabase as any, '2025-26');
-    console.log("=== DEBUG: loadReferenceStats Output for ST match_impact ===");
-    console.log(refStats.ST?.match_impact);
-    console.log("====================================================");
-        
+
         // Use the same refStats loaded from the DB
         const { rating, fantasyPoints } = calculateMatchRating(
           rawStats,
@@ -152,7 +151,55 @@ async function syncFplLiveRatings(gameweek: number): Promise<NextResponse> {
   // Recompute pre-computed form_rating (avg match_rating over last 3 appearances)
   await supabase.rpc('update_player_form_ratings');
 
-  return NextResponse.json({ ok: true, mode: 'fpl_live', gameweek, saved });
+  // Precision Finish: resolve league matchups immediately if FPL marks the GW as finished.
+  // events[gw].finished = true means bonus points are applied and the GW is fully locked.
+  const resolution = await tryResolveGameweekIfFinished(gameweek);
+
+  return NextResponse.json({ ok: true, mode: 'fpl_live', gameweek, saved, resolution });
+}
+
+// ── Precision Finish: resolve league matchups as soon as FPL locks the GW ────
+
+async function tryResolveGameweekIfFinished(gameweek: number): Promise<{
+  resolved: boolean;
+  reason: string;
+  detail?: string;
+}> {
+  try {
+    // Check bootstrap-static for events[gameweek].finished — this is set by FPL
+    // only after bonus points are applied and all GW data is locked.
+    const bsRes = await fetch('https://fantasy.premierleague.com/api/bootstrap-static/', {
+      next: { revalidate: 0 },
+    });
+    if (!bsRes.ok) return { resolved: false, reason: 'fpl_api_error' };
+
+    const bsData = await bsRes.json();
+    const gwEvent = (bsData.events as any[]).find((e) => e.id === gameweek);
+
+    if (!gwEvent?.finished) {
+      return { resolved: false, reason: 'gw_not_finished_yet' };
+    }
+
+    const admin = createAdminClient();
+
+    // Check if there are any unresolved matchups for this GW — idempotency guard
+    const { data: unresolved } = await admin
+      .from('matchups')
+      .select('id')
+      .eq('gameweek', gameweek)
+      .neq('status', 'completed')
+      .limit(1);
+
+    if (!unresolved || unresolved.length === 0) {
+      return { resolved: false, reason: 'already_resolved' };
+    }
+
+    await processMatchupsForGameweek(gameweek, true);
+    return { resolved: true, reason: 'fpl_gw_finished' };
+  } catch (err: any) {
+    // Non-blocking — stats sync still succeeds even if resolution fails
+    return { resolved: false, reason: 'error', detail: String(err) };
+  }
 }
 
 // ── Trigger Edge Function ─────────────────────────────────────────────────

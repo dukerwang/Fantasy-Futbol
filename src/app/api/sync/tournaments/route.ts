@@ -552,15 +552,17 @@ async function handleAdvance(_req: NextRequest, params: URLSearchParams) {
 async function handleResolveStalled() {
   const admin = createAdminClient();
 
-  // Derive current GW natively from FPL events
+  // Derive current GW and fetch FPL events for use as the primary completion signal
   let currentGw = 0;
+  let fplEvents: any[] = [];
   try {
-    const fplRes = await fetch('https://fantasy.premierleague.com/api/bootstrap-static/', { next: { revalidate: 60 } });
+    const fplRes = await fetch('https://fantasy.premierleague.com/api/bootstrap-static/', { next: { revalidate: 0 } });
     if (!fplRes.ok) return NextResponse.json({ error: 'Failed to fetch FPL data' }, { status: 502 });
 
     const fplData = await fplRes.json();
+    fplEvents = fplData.events as any[];
     const now = new Date();
-    for (const ev of fplData.events as any[]) {
+    for (const ev of fplEvents) {
       if (ev.deadline_time && new Date(ev.deadline_time) <= now) {
         if (ev.id > currentGw) {
           currentGw = ev.id;
@@ -661,8 +663,14 @@ async function handleResolveStalled() {
       }
 
       const hoursElapsed = latestKickoff ? (now.getTime() - latestKickoff.getTime()) / (1000 * 60 * 60) : 0;
-      // Force resolve if finished normally, or if 48 hours passed, or if past gameweek.
-      const shouldForceResolve = allNonPostponedFinished || hoursElapsed > 48 || gw < currentGw;
+
+      // Primary signal: FPL bootstrap-static events[gw].finished = true means bonus
+      // points are applied and the GW is fully locked. This is the most reliable trigger.
+      const fplGwFinished = fplEvents.find((e) => e.id === gw)?.finished === true;
+
+      // Secondary: all non-postponed fixtures are done (fires before bonus points in some cases)
+      // Emergency fallback: 48 hours elapsed since last kickoff
+      const shouldForceResolve = fplGwFinished || allNonPostponedFinished || hoursElapsed > 48 || gw < currentGw;
 
       if (shouldForceResolve) {
         // 1. Resolve League Matchups if not yet completed
@@ -697,7 +705,7 @@ async function handleResolveStalled() {
           status: 'processed',
           leagueSyncTriggered: !!leagueSync,
           tournamentsAdvanced: advancedCount,
-          reason: allNonPostponedFinished ? 'all_non_postponed_finished' : (gw < currentGw ? 'past_gameweek' : `stalled_${hoursElapsed.toFixed(0)}h`),
+          reason: fplGwFinished ? 'fpl_gw_finished' : (allNonPostponedFinished ? 'all_fixtures_done' : (gw < currentGw ? 'past_gameweek' : `stalled_${hoursElapsed.toFixed(0)}h`)),
         });
       } else {
         results.push({ gw, status: 'in_progress', hoursElapsed });

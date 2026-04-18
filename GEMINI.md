@@ -11,6 +11,13 @@ Fantasy Futbol is a multi-tenant dynasty fantasy soccer platform. Leagues suppor
 
 When planning features, always ask: *does this plan respect the custom rules below?* Generic fantasy sports patterns will often be wrong here.
 
+## 4-Phase Roadmap (Priority Order)
+
+1. **Phase 1: Automation (Precision Finish)** - Redesigning the backend to resolve matchweeks as soon as FPL signals completion (removing the 48-hour gap).
+2. **Phase 2: Tactical Depth (Taxi Squad)** - Implementing the "B-team" storage mechanics and DB structure for youth/stash players.
+3. **Phase 3: Visual Completion & Dark Mode** - Finalizing the Draft, Stats, Dashboard, and the "Taxi-integrated" My Team page in the Cream Editorial style, including a Dark Mode toggle.
+4. **Phase 4: Market Expansion (Loans & Selling)** - Implementing temporary trades (Loans) and Intra-League Auctions (Selling players).
+
 ## Architectural Philosophy
 
 ### The Sigmoid Engine
@@ -131,7 +138,9 @@ All prizes are FAAB payouts feeding back into the dynasty economy.
 
 ## Design System
 - **CSS Modules** with CSS variable-based theme — no Tailwind, no inline styles
-- Premium dark aesthetic: `var(--color-bg-primary)` (#0a0c10), `var(--color-text-primary)` (#e8eaf0)
+- **Dual Theme Support**: 
+  - **Cream Editorial (Primary)**: `#F7F3ED` background, high-contrast serif typography, premium magazine aesthetic.
+  - **Premium Dark (Toggle)**: `var(--color-bg-primary)` (#0a0c10), `var(--color-text-primary)` (#e8eaf0).
 - Positional accent colors: `var(--color-pos-gk)`, `var(--color-pos-st)`, etc.
 - All components are functional React (TypeScript)
 - Mobile-responsive but primarily a desktop experience
@@ -205,8 +214,8 @@ The prototype uses Tailwind classes. Map them to our CSS Modules as follows:
 - ATT (ST): `#8B1A1A` (crimson)
 - Wide (LW/RW): `#3A6B4A` (forest green)
 
-**Design system rules from prototype** (0px border-radius, no rounded corners; right-justified action buttons not full-width; generous padding `p-8` = 32px on cards):
-- Cards: `border-radius: 0` — the system explicitly bans rounded corners
+- **Design system rules from prototype** (Uses token-based border radius 4px/8px; right-justified action buttons not full-width; generous padding `p-8` = 32px on cards):
+- Cards: `border-radius: var(--radius-sm)` (or `var(--radius-md)`) — avoid 0px unless explicitly required for bleed elements.
 - Action button rows: `justify-content: flex-end; gap: 8px` — never stretch buttons full-width in trade cards
 - Card content padding: `padding: 32px` — not the default 16px
 
@@ -214,7 +223,7 @@ The prototype uses Tailwind classes. Map them to our CSS Modules as follows:
 - Always set `object-fit: cover` AND `object-position: top center` on `<img>` — without `top center`, the crop defaults to the middle, cutting off the face and showing the torso
 - Always set `flex-shrink: 0` on the image so it doesn't compress in flex layouts
 - **Never put `overflow: hidden` on a card that contains a player photo** — it will clip the image. Put `overflow: hidden` only on a wrapper that does NOT contain the photo, or omit it entirely
-- Use `width: 64px; height: 64px` (matches prototype `w-16 h-16`), `border-radius: 0` for the editorial look. Apply a 1px border.
+- Use `width: 64px; height: 64px` (matches prototype `w-16 h-16`), `border-radius: var(--radius-sm)` for the editorial look. Apply a 1px border.
 
 ## Tech Stack
 | Layer | Technology |
@@ -256,6 +265,14 @@ Do not make architectural assumptions about unimplemented features. Plan only wh
 ### Deployment Awareness
 - Vercel deploys on `git push` only — localhost is invisible to users
 - Every implementation plan must end with: `npm run build` → commit → push → verify on live URL
+
+### Vercel Hobby Tier Constraints (Hard Limits — Plans Must Respect These)
+- **Cron frequency**: once per day maximum per cron job. Schedules more frequent than daily (e.g. `*/4 * * * *`) will **fail on deployment**. Do not plan sub-daily cron intervals.
+- **Multiple crons**: You CAN add multiple separate cron entries at different daily times (e.g. one at 20:00, another at 23:00) — each fires once per day. This is the correct workaround for needing more coverage.
+- **Cron precision**: ±59 minutes. Crons fire somewhere within the target hour, not at the exact minute.
+- **Max cron jobs**: 100 per project. Currently using 5, so there is room to add more.
+- **Max function duration**: 300 seconds (5 minutes) with Vercel's fluid compute enabled (default). The `maxDuration = 60` comments in the codebase are outdated — the actual limit is 300s on Hobby.
+- **Function invocations**: 1,000,000 per month included. Heavy sync operations should not be scheduled more than necessary.
 
 ### Fragile Areas — Plans Must Flag These
 - `matchRating.ts` changes must be mirrored in the `sync-ratings` Edge Function
