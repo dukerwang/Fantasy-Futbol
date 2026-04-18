@@ -13,9 +13,9 @@ When planning features, always ask: *does this plan respect the custom rules bel
 
 ## 4-Phase Roadmap (Priority Order)
 
-1. **Phase 1: Automation (Precision Finish)** - Redesigning the backend to resolve matchweeks as soon as FPL signals completion (removing the 48-hour gap).
+1. ~~**Phase 1: Automation (Precision Finish)**~~ ✅ **COMPLETE** — Matchweeks now resolve immediately when FPL marks a GW as `finished` (`events[gw].finished = true`, set after bonus points are applied). Resolution check is embedded in the live stats sync (`/api/sync/stats?mode=fpl_live`); additional daily cron windows at 18:00 and 19:00 UTC cover Saturday/Sunday GW completions. Worst-case gap reduced from 48 hours to ~1 hour.
 2. **Phase 2: Tactical Depth (Taxi Squad)** - Implementing the "B-team" storage mechanics and DB structure for youth/stash players.
-3. **Phase 3: Visual Completion & Dark Mode** - Finalizing the Draft, Stats, Dashboard, and the "Taxi-integrated" My Team page in the Cream Editorial style, including a Dark Mode toggle.
+3. **Phase 3: Visual Completion & Dark Mode** - Finalizing the Draft, Stats, Dashboard, and the My Team page in the Cream Editorial style, including a Dark Mode toggle. Note: the Taxi Squad section of My Team depends on Phase 2 DB schema — that portion cannot be built until Phase 2 is complete.
 4. **Phase 4: Market Expansion (Loans & Selling)** - Implementing temporary trades (Loans) and Intra-League Auctions (Selling players).
 
 ## Architectural Philosophy
@@ -145,7 +145,7 @@ All prizes are FAAB payouts feeding back into the dynasty economy.
 - All components are functional React (TypeScript)
 - Mobile-responsive but primarily a desktop experience
 
-A full UI overhaul is planned — do not extend the current design system, just maintain it until the overhaul is explicitly scoped.
+The Cream Editorial UI overhaul is actively in progress (Phase 3). Many pages are already converted. Do not introduce new dark-theme patterns or hardcoded hex values — use the CSS variable tokens defined in `globals.css`. See CURSOR.md for the full list of what has and hasn't been converted yet.
 
 ## Stitch Prototype Protocol
 

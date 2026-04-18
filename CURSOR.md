@@ -19,12 +19,20 @@ Before anything else, read `CLAUDE.md` and `GEMINI.md` in the project root.
 
 ---
 
+## 4-Phase Roadmap
+1. ~~**Phase 1: Automation (Precision Finish)**~~ ✅ **COMPLETE** — Matchweeks resolve immediately when FPL marks a GW as `finished`. Resolution check embedded in the live stats sync; additional daily cron windows at 18:00/19:00 UTC added. Worst-case gap reduced from 48 hours to ~1 hour.
+2. **Phase 2: Tactical Depth (Taxi Squad)** - Implementing the "B-team" storage mechanics and DB structure for youth/stash players.
+3. **Phase 3: Visual Completion & Dark Mode** - Finalizing the Draft, Stats, Dashboard, and the My Team page in the Cream Editorial style, including a Dark Mode toggle. The Taxi Squad portion of My Team depends on Phase 2 — that section cannot be built until Phase 2 is complete.
+4. **Phase 4: Market Expansion (Loans & Selling)** - Implementing temporary trades (Loans) and Intra-League Auctions (Selling players).
+
+---
+
 ## Current Status: Cream Editorial UI Overhaul (In Progress)
 
 A major UI overhaul is underway. The app previously used a generic dark theme. It is being converted to a "Cream Editorial" aesthetic — warm parchment tones, serif typography, forest green accents. **This is partially implemented.**
 
 ### What Has Been Completed
-- ✅ `globals.css` — color tokens remapped from dark to cream (see Design System below)
+- ✅ `globals.css` — color tokens remapped from dark to cream; `--color-bg-elevated` added
 - ✅ Google Fonts loaded: Noto Serif, Work Sans, Inter
 - ✅ `src/components/layout/AppShell.tsx` — new sidebar nav component replacing the old horizontal tab bar
 - ✅ `src/components/layout/AppShell.module.css` — sidebar styles
@@ -32,29 +40,25 @@ A major UI overhaul is underway. The app previously used a generic dark theme. I
 - ✅ `Navbar.tsx` / `Navbar.module.css` — restyled for light mode
 - ✅ Login page dark gradient blob removed (`login.module.css`)
 - ✅ Dashboard page padding restored (`dashboard/page.tsx`, `dashboard.module.css`)
-
-### Completed in UI Overhaul Sessions
-- ✅ `globals.css` — `--color-bg-elevated` added; all stale dark tokens documented as forbidden
 - ✅ `matchups.module.css` + `matchup-detail.module.css` — stale token replacement
 - ✅ `tournaments.module.css` + `bracket.module.css` — stale token replacement
 - ✅ `transfers.module.css` — dark `#0f1117` modal inputs fixed
 - ✅ `trades.module.css`, `GlobalBidModal.module.css`, `LeagueNav.module.css` — undefined token fixes
 - ✅ `PlayerDetailCard.module.css` — dark gradient removed
-- ✅ `CLAUDE.md` — design system section rewritten with locked token table + forbidden patterns
-- ✅ `standings/page.tsx` + `standings/standings.module.css` — **initial implementation done (podium + table), needs visual refinement**
+- ✅ **League Home** — dashboard layout fully implemented
+- ✅ **Trades** — 4-tab trade management system done
+- ✅ **Standings** (`standings/page.tsx`, `standings.module.css`) — podium + table with form dots, cream editorial styling
+- ✅ **Activity Log** — activity feed and live auction grouping refined
+- ✅ **Matchups** — head-to-head pitch layout and score badges finished
 
-### Completed in UI Overhaul Sessions (continued)
-- ✅ **Standings** — podium + table implemented and visually polished
-- ✅ **Activity Log** — "The Transfer Gazette" timeline, Live Auctions sidebar widget (capped at 4 rows), Transfer Budget widget
-- ✅ **Free Agency / Player Market** — tabbed layout (Player Market + Active Auctions), cream editorial player cards, Recent Auctions sidebar, redesigned bid modal with bid history, client-side search + position filters (including LM/RM)
-- ✅ **Matchups** (`matchups/page.tsx`, `GameweekSelector.tsx`, `LiveMatchupCard.tsx`, `matchup-detail/page.tsx`) — GW selector, matchup cards with live scores, pitch view with player chips and score-intensity badges, bench scoring display, cream editorial styling throughout
-- ✅ **Cups / Tournaments** (`tournaments/page.tsx`, `tournaments.module.css`) — unified cups page with three-tab bracket UI (League Cup, Champions Cup, Consolation Cup), standings-based dynamic seeding, bye handling, correct two-legged SF display, dropout mechanics for midseason leagues
-- 🔄 **League Home** (`league/[leagueId]/page.tsx`, `league.module.css`) — **IN PROGRESS** — dashboard layout: matchup hero (3 states: live/upcoming/final), standings dominant left column, GW Stars + Live Bidding right column, Transfer Gazette feed
-- 🔄 **Trades** (`trades/TradesClient.tsx`, `trades/page.tsx`, `trades.module.css`, new `AddToBlockModal.tsx`) — **IN PROGRESS** — 4 tabs: My Trades (incoming/sent/history) | Propose | League Feed | Trade Block + Add to Block modal
-
-### What Still Needs Work (Priority Order)
-1. **Shared UI subcomponents** — player cards (used across team, matchups, stats), any other reusable components that still carry dark-mode or placeholder styles
-2. Final sweep: any remaining hardcoded hex values across all module CSS files
+#### **Phase 3: Visual Completion (In Progress)**
+- **Dashboard** (League selection) — *Still in legacy dark theme*
+- **Stats** (Detailed filters/tables) — *Functional but needs editorial polish*
+- **Draft Room** — *Functionally complex, needs visual overhaul*
+- **Fixtures** — *Legacy layout*
+- **My Team** (Taxi Squad integration) — *Needs UI to support Phase 2 Tactical Depth*
+- **Dark Mode Toggle** — *Requirement for accessibility and aesthetic choice*
+- **Shared UI sweep** — Final sweep of hardcoded hex values and consistent card headers.
 
 ### League Home — Key Implementation Notes
 - Matchup hero: Priority 1=live, 2=upcoming (FPL bootstrap-static fetch with `{ next: { revalidate: 3600 } }` — cached 1hr), 3=completed
@@ -89,9 +93,8 @@ A major UI overhaul is underway. The app previously used a generic dark theme. I
 --font-sans: 'Inter', -apple-system, sans-serif;
 ```
 
-**Forbidden patterns — never use these:**
-- Stale tokens: `--bg-surface`, `--bg-elevated`, `--border-color`, `--text-primary`, `--text-secondary`, `--primary-accent`
-- Dark hex values: `#0d1117`, `#0a0c10`, `#111318`, `#161a22`, `#0f1117`, `#1c2130`
+- Use CSS variables for all color values.
+- Positional accent colors: `var(--color-pos-gk)`, `var(--color-pos-st)`, etc.
 
 ### Typography Convention
 - **Page titles / headlines**: `font-family: var(--font-serif)`, bold
@@ -166,9 +169,9 @@ Only then may you write any CSS or JSX.
 
 ---
 
-## Do Not Touch
-- `src/lib/scoring/matchRating.ts` — sigmoid scoring engine
-- `supabase/functions/sync-ratings/` — Edge Function
-- Any API routes under `src/app/api/`
-- `supabase/migrations/` — database schema
+## Do Not Touch Without Explicit Reason
+- `src/lib/scoring/matchRating.ts` — sigmoid scoring engine; any change must be mirrored in `supabase/functions/sync-ratings/index.ts`
+- `supabase/functions/sync-ratings/` — Edge Function mirror of the scoring engine
+- `supabase/migrations/` — never alter DB schema directly; all changes go through migration files
+- `src/app/api/cron/process-auctions/` — auction processing logic; timing is server-enforced
 - The 12-position system (GK, CB, LB, RB, DM, CM, LM, RM, AM, LW, RW, ST) must be preserved everywhere

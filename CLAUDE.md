@@ -25,6 +25,12 @@ Edge Functions: deploy via `supabase functions deploy [slug]`.
 - **Hosting**: Vercel (auto-deploys on git push to main)
 - **External APIs**: FPL API (stats), Transfermarkt (market values), API-Football, SoFIFA
 
+## 4-Phase Roadmap
+1. ~~**Phase 1: Automation (Precision Finish)**~~ ✅ **COMPLETE** — Matchweeks resolve immediately when FPL marks a GW as `finished`. Resolution check embedded in the live stats sync; additional daily cron windows at 18:00/19:00 UTC added. Worst-case gap reduced from 48 hours to ~1 hour.
+2. **Phase 2: Tactical Depth (Taxi Squad)** - Implementing the "B-team" storage mechanics and DB structure for youth/stash players.
+3. **Phase 3: Visual Completion & Dark Mode** - Finalizing the Draft, Stats, Dashboard, and the My Team page in the Cream Editorial style, including a Dark Mode toggle. The Taxi Squad portion of My Team depends on Phase 2 — cannot be built until Phase 2 is complete.
+4. **Phase 4: Market Expansion (Loans & Selling)** - Implementing temporary trades (Loans) and Intra-League Auctions (Selling players).
+
 ## Project Structure
 ```
 src/
@@ -101,7 +107,7 @@ supabase/
 ## Key RPCs & Views
 ```sql
 -- RPCs
-resolve_matchup(p_matchup_id, p_score_a, p_score_b, ...)
+resolve_matchup(p_matchup_id, p_score_a, p_score_b, ...)  -- exists in DB but NOT called by app code; runtime uses processMatchupsForGameweek() in TypeScript instead
 increment_team_points(team_id, pts)
 update_player_form_ratings()   -- updates form_rating and ppg on players table
 
@@ -112,6 +118,8 @@ player_rankings    -- overall and positional ranks
 
 **Prefer RPCs for any FAAB or points-sensitive updates** — ensures ACID compliance. Do not write raw mutations in route handlers for financial or scoring operations.
 
+**Note on matchup resolution**: Do not use the `resolve_matchup` RPC for resolving league matchups. Call `processMatchupsForGameweek(gameweek, finished)` from `src/lib/scoring/matchupProcessor.ts` — that is the actual runtime path.
+
 ## ID System — Critical
 Three different player ID types exist. Never confuse them:
 - `id` — internal UUID (primary key, use this for all internal relations)
@@ -121,7 +129,9 @@ Three different player ID types exist. Never confuse them:
 ## Design System
 - **CSS Modules only** — no Tailwind, no inline styles, no styled-components
 - All tokens defined in `src/app/globals.css` — never hardcode hex values in module CSS files
-- **"Pitch Archivist" light aesthetic** — cream editorial palette, NOT dark
+- **Dual Theme Support**: 
+  - **Cream Editorial (Primary)**: `#F7F3ED` background, high-contrast serif typography, premium magazine aesthetic.
+  - **Premium Dark (Toggle)**: `var(--color-bg-primary)` (#0a0c10), `var(--color-text-primary)` (#e8eaf0).
 
 ### Locked Color Tokens
 | Token | Value | Usage |
@@ -142,10 +152,7 @@ Three different player ID types exist. Never confuse them:
 - `--font-serif`: Noto Serif — player names, team names, stat values, page headings
 - `--font-sans`: Inter — body text, labels, nav items
 
-### Forbidden Patterns
-- Never use stale dark tokens: `--bg-surface`, `--bg-elevated`, `--border-color`, `--text-primary`, `--text-secondary`, `--text-muted`, `--primary-accent`, `--bg-surface-light`
-- Never hardcode dark hex values: `#0d1117`, `#0a0c10`, `#111318`, `#161a22`, `#0f1117`, `#1c2130`
-- Never use `var(--color-bg-page, <dark-fallback>)` — use `var(--color-bg-primary)` directly
+- Use CSS variables for all color values.
 - Positional accent colors: `var(--color-pos-gk)`, `var(--color-pos-st)`, etc.
 
 ## Core Mechanics (Read Before Touching Transfers or Scoring)
@@ -181,7 +188,7 @@ Three different player ID types exist. Never confuse them:
 - Waiver/auction timing — 48hr window must be server-enforced, not client-side
 - Lineup slot scoring weights — position-dependent, do not generalize or flatten
 - ID mapping between `fpl_id`, `api_football_id`, and internal `id`
-- Vercel cron jobs (`/api/cron/`) — verify on live after every push
+- Vercel cron jobs (`/api/cron/` and `/api/sync/`) — verify on live after every push; cron-triggered routes live in both directories
 
 ## Definition of Done
 A feature is **NOT complete** until all of the following are true:
