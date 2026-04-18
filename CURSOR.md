@@ -21,7 +21,7 @@ Before anything else, read `CLAUDE.md` and `GEMINI.md` in the project root.
 
 ## 4-Phase Roadmap
 1. ~~**Phase 1: Automation (Precision Finish)**~~ ✅ **COMPLETE** — Matchweeks resolve immediately when FPL marks a GW as `finished`. Resolution check embedded in the live stats sync; additional daily cron windows at 18:00/19:00 UTC added. Worst-case gap reduced from 48 hours to ~1 hour.
-2. **Phase 2: Tactical Depth (Taxi Squad)** - Implementing the "B-team" storage mechanics and DB structure for youth/stash players.
+2. ~~**Phase 2: Tactical Depth (Taxi Squad)**~~ ✅ **COMPLETE** — `'taxi'` added to `roster_status` enum; `taxi_size` (default 3) and `taxi_age_limit` (default 21) added to `leagues`. New `POST /api/teams/[teamId]/taxi` route handles `move_to_taxi` (U21 enforcement, slot limit) and `activate` (promote to bench). Lineup and IR routes patched to exclude taxi players. Taxi squad starts empty after draft; managers fill post-draft via FAAB for U21 players.
 3. **Phase 3: Visual Completion & Dark Mode** - Finalizing the Draft, Stats, Dashboard, and the My Team page in the Cream Editorial style, including a Dark Mode toggle. The Taxi Squad portion of My Team depends on Phase 2 — that section cannot be built until Phase 2 is complete.
 4. **Phase 4: Market Expansion (Loans & Selling)** - Implementing temporary trades (Loans) and Intra-League Auctions (Selling players).
 
@@ -56,7 +56,7 @@ A major UI overhaul is underway. The app previously used a generic dark theme. I
 - **Stats** (Detailed filters/tables) — *Functional but needs editorial polish*
 - **Draft Room** — *Functionally complex, needs visual overhaul*
 - **Fixtures** — *Legacy layout*
-- **My Team** (Taxi Squad integration) — *Needs UI to support Phase 2 Tactical Depth*
+- **My Team** (Taxi Squad integration) — *Backend complete (Phase 2). Needs UI: taxi section, move/promote buttons, U21 filter on player browser*
 - **Dark Mode Toggle** — *Requirement for accessibility and aesthetic choice*
 - **Shared UI sweep** — Final sweep of hardcoded hex values and consistent card headers.
 

@@ -5,8 +5,8 @@ A dynasty-style Fantasy Premier League application with **granular positions** (
 ## Tech Stack
 - **Next.js 16** (App Router, TypeScript)
 - **Supabase** (PostgreSQL + Auth)
-- **Vanilla CSS** (CSS Modules, dark premium theme)
-- **API-Football** (free tier, 100 req/day)
+- **Vanilla CSS** (CSS Modules, Cream Editorial + Premium Dark themes)
+- **API-Football**
 
 ---
 
@@ -57,22 +57,22 @@ Open [http://localhost:3000](http://localhost:3000)
 ### Granular Position System
 Instead of the standard DEF/MID/FWD, positions are:
 
-| Code | Position |
-|------|----------|
-| GK | Goalkeeper |
-| CB | Centre-Back |
-| FB | Fullback / Wingback |
-| DM | Defensive Midfielder |
-| CM | Central Midfielder |
-| AM | Attacking Midfielder |
-| W | Winger |
-| ST | Striker / Centre-Forward |
+| Code | Position | Description |
+|------|----------|-------------|
+| GK | GK | Goalkeeper |
+| CB | CB | Centre-Back |
+| LB/RB | FB | Fullback / Wingback |
+| DM | DM | Defensive Midfielder |
+| CM/LM/RM | MID | Central / Wide Midfielder |
+| AM | AM | Attacking Midfielder |
+| LW/RW | W | Winger |
+| ST | ST | Striker / Centre-Forward |
 
-### Scoring Engine (`src/lib/scoring/engine.ts`)
-Points are awarded for football actions, not just G/A:
-- **Defensive**: Tackle Won (+1), Interception (+1), Clean Sheet (CB: +5, FB: +4, GK: +6)
-- **Possession**: Key Pass (+2), Big Chance Created (+3), Pass Completion 90%+ (+2)
-- **Attacking**: Goal (+6), Assist (+4), Shot on Target (+1)
+### Sigmoid Scoring Engine (`src/lib/scoring/matchRating.ts`)
+Points are awarded based on a position-weighted **Match Rating** (1.0–10.0 scale), normalized against 3-season baselines using a sigmoid curve.
+- **Attacking**: Highly sensitive to Finishing clinicality (`stddev: 0.15`).
+- **Defensive**: Weights defensive actions (Tackles, Interceptions) for DM/CB/GK.
+- **Normalization**: Handled by the `loadReferenceStats()` utility for historical consistency.
 
 ### Transfer Compensation (`src/lib/transfers/compensation.ts`)
 When a player transfers out of the Premier League:
