@@ -3,7 +3,6 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { redirect, notFound } from 'next/navigation';
 import Link from 'next/link';
 import { formatPlayerName } from '@/lib/formatName';
-import { plTeamThreeLetter } from '@/lib/plTeamAbbrev';
 import styles from './league.module.css';
 import DraftOrderManager from './DraftOrderManager';
 import LeaveLeagueButton from './LeaveLeagueButton';
@@ -130,7 +129,7 @@ export default async function LeaguePage({ params }: Props) {
       .from('waiver_claims')
       .select(`
         id, team_id, faab_bid, expires_at,
-        player:players!player_id(id, web_name, name, primary_position, pl_team, pl_team_id, photo_url),
+        player:players!player_id(id, web_name, name, primary_position, pl_team, photo_url),
         team:teams(id, team_name)
       `)
       .eq('league_id', leagueId)
@@ -253,7 +252,7 @@ export default async function LeaguePage({ params }: Props) {
       .from('player_stats')
       .select(`
         fantasy_points, match_rating, gameweek,
-        player:players!player_id(id, web_name, name, primary_position, pl_team, pl_team_id, photo_url)
+        player:players!player_id(id, web_name, name, primary_position, pl_team, photo_url)
       `)
       .eq('gameweek', latestCompletedGW)
       .eq('season', '2025-26')
@@ -483,7 +482,7 @@ export default async function LeaguePage({ params }: Props) {
                         <div className={styles.chipInfo}>
                           <span className={styles.chipName}>{formatPlayerName(player, 'full')}</span>
                           <span className={styles.chipClub}>
-                            {plTeamThreeLetter(player.pl_team_id, player.pl_team)}
+                            {(player.pl_team ?? '').toUpperCase()}
                           </span>
                         </div>
                         {isMyPlayer && (
@@ -532,7 +531,6 @@ export default async function LeaguePage({ params }: Props) {
                     name?: string;
                     primary_position?: string;
                     pl_team?: string;
-                    pl_team_id?: number | null;
                     photo_url?: string | null;
                   } | null;
                   return (
@@ -566,7 +564,7 @@ export default async function LeaguePage({ params }: Props) {
                         <div className={styles.chipInfo}>
                           <span className={styles.chipName}>{formatPlayerName(ap, 'full')}</span>
                           <span className={styles.chipClub}>
-                            {plTeamThreeLetter(ap?.pl_team_id, ap?.pl_team)}
+                            {(ap?.pl_team ?? '').toUpperCase()}
                           </span>
                         </div>
                       </div>

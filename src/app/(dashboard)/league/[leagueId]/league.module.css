@@ -416,7 +416,7 @@
   justify-content: space-between;
   gap: 12px;
   padding: 10px 14px;
-  border-radius: 0;
+  border-radius: var(--radius-sm);
   background: var(--color-bg-elevated);
   border-left: 3px solid var(--color-border);
   transition: background 0.15s;
@@ -439,23 +439,24 @@
   flex: 1;
 }
 
+/* Headshot: white rounded frame; position colour via inline borderColor only */
 .chipPhotoMount {
   flex-shrink: 0;
-  width: 58px;
-  height: 68px;
-  padding: 3px;
+  width: 50px;
+  height: 58px;
+  padding: 2px;
   box-sizing: border-box;
-  border-radius: 0;
-  border: 3px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  border: 2px solid var(--color-border);
   background: var(--color-bg-card);
 }
 
 .chipPhotoInner {
   width: 100%;
   height: 100%;
-  border-radius: 0;
+  border-radius: calc(var(--radius-sm) - 2px);
   overflow: hidden;
-  background: var(--color-bg-secondary);
+  background: var(--color-bg-card);
 }
 
 .chipPhoto {
@@ -491,7 +492,7 @@
   font-size: 9px;
   font-weight: 700;
   padding: 3px 6px;
-  border-radius: 0;
+  border-radius: var(--radius-sm);
   color: #fff;
   flex-shrink: 0;
   min-width: 28px;
@@ -537,7 +538,7 @@
   font-weight: 700;
   color: #fff;
   background: var(--color-accent-green);
-  border-radius: 0;
+  border-radius: var(--radius-sm);
   padding: 4px 8px;
   flex-shrink: 0;
   min-width: 42px;
@@ -558,7 +559,7 @@
   justify-content: space-between;
   padding: 10px 14px;
   background: var(--color-bg-elevated);
-  border-radius: 0;
+  border-radius: var(--radius-sm);
   border: 1px solid var(--color-border-subtle);
 }
 
