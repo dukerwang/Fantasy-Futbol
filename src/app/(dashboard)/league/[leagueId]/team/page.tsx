@@ -3,7 +3,7 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import type { Formation, GranularPosition, MatchupLineup, BenchSlot } from '@/types';
-import { FORMATION_SLOTS, POSITION_FLEX_MAP } from '@/types';
+import { FORMATION_SLOTS, POSITION_FLEX_MAP, BENCH_FLEX_MAP } from '@/types';
 import PitchUI from './PitchUI';
 import { FULL_PLAYER_SELECT } from '@/lib/constants/queries';
 import styles from './my-team.module.css';
@@ -207,11 +207,19 @@ export default async function MyTeamPage({ params }: Props) {
       }
     }
 
-    // Auto-assign bench slots
+    // Auto-assign bench slots (must match BENCH_FLEX_MAP so POST /lineup validation succeeds)
     const benchUsed = new Set<string>();
-    const benchPool = bench; // Roster entries with status 'bench'
-    for (const slot of ['DEF', 'MID', 'ATT', 'FLEX']) {
-      const candidate = benchPool.find(e => !benchUsed.has(e.player.id));
+    const benchPool = bench;
+    for (const slot of ['DEF', 'MID', 'ATT', 'FLEX'] as BenchSlot[]) {
+      const allowed = BENCH_FLEX_MAP[slot];
+      const candidate = benchPool.find((e) => {
+        if (benchUsed.has(e.player.id)) return false;
+        const positions: GranularPosition[] = [
+          e.player.primary_position,
+          ...(e.player.secondary_positions ?? []),
+        ];
+        return positions.some((p) => allowed.includes(p));
+      });
       if (candidate) {
         initialBench[slot] = candidate.player.id;
         benchUsed.add(candidate.player.id);
