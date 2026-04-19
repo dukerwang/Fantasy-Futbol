@@ -164,51 +164,56 @@ export default function MatchupPitch({
     // CMZ stays at position 3/6 even when AMZ has no players.
     const visibleZones = ZONE_ORDER;
 
+    function renderHalfPitch(
+        zones: ReturnType<typeof groupByZone> | null,
+        teamName: string,
+        sideKey: string,
+    ) {
+        return (
+            <div className={styles.halfOuter}>
+                <div className={styles.halfField}>
+                    <div className={styles.halfPenaltyBox} />
+                    <div className={styles.halfPenaltyArc} />
+                    <div className={styles.halfGoalBox} />
+                    <div className={styles.halfTeamLabel}>
+                        <span>{teamName}</span>
+                    </div>
+                    <div className={styles.pitchHalfZones}>
+                        {visibleZones.map((zone) => (
+                            <div key={`${sideKey}-${zone}`} className={styles.pitchHalfZoneRow}>
+                                <div className={styles.halfZone}>
+                                    {(zones?.[zone] ?? []).map((s) => {
+                                        const dy = slotOffset(s.slot);
+                                        return (
+                                            <div key={s.player_id} style={dy ? { transform: `translateY(${dy}px)` } : undefined}>
+                                                <PlayerChip
+                                                    slot={s.slot}
+                                                    player={playerMap[s.player_id]}
+                                                    detail={detailMap[s.player_id]}
+                                                />
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className={styles.wrapper}>
-            {/* ── Pitch ─────────────────────────────────────────────── */}
-            <div className={styles.pitch}>
-                <div className={styles.centerDivider} />
-                <div className={styles.centerCircle} />
-
-                <div className={styles.pitchLabels}>
-                    <span className={styles.pitchLabelLeft}>{teamAName}</span>
-                    <span className={styles.pitchLabelRight}>{teamBName}</span>
+            {/* Two vertically oriented half-pitches (attack top / GK bottom), side by side */}
+            <div className={styles.pitchSurface}>
+                <div className={styles.midfieldMarkings}>
+                    <div className={styles.midfieldLine} />
+                    <div className={styles.midfieldCircle} />
                 </div>
-
-                <div className={styles.pitchZones}>
-                    {visibleZones.map(zone => (
-                        <div key={zone} className={styles.pitchRow}>
-                            <div className={styles.halfZone}>
-                                {(zonesA?.[zone] ?? []).map(s => {
-                                    const dy = slotOffset(s.slot);
-                                    return (
-                                        <div key={s.player_id} style={dy ? { transform: `translateY(${dy}px)` } : undefined}>
-                                            <PlayerChip
-                                                slot={s.slot}
-                                                player={playerMap[s.player_id]}
-                                                detail={detailMap[s.player_id]}
-                                            />
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                            <div className={styles.halfZone}>
-                                {(zonesB?.[zone] ?? []).map(s => {
-                                    const dy = slotOffset(s.slot);
-                                    return (
-                                        <div key={s.player_id} style={dy ? { transform: `translateY(${dy}px)` } : undefined}>
-                                            <PlayerChip
-                                                slot={s.slot}
-                                                player={playerMap[s.player_id]}
-                                                detail={detailMap[s.player_id]}
-                                            />
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                        </div>
-                    ))}
+                <div className={styles.pitchHalvesGrid}>
+                    {renderHalfPitch(zonesA, teamAName, 'a')}
+                    {renderHalfPitch(zonesB, teamBName, 'b')}
                 </div>
             </div>
 
