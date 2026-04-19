@@ -408,7 +408,8 @@ export const BENCH_FLEX_MAP: Record<BenchSlot, GranularPosition[]> = {
   DEF: ['CB', 'LB', 'RB'],
   MID: ['DM', 'CM', 'LM', 'RM', 'AM'],
   ATT: ['ST', 'LW', 'RW'],
-  FLEX: ['CB', 'LB', 'RB', 'DM', 'CM', 'LM', 'RM', 'AM', 'LW', 'RW', 'ST'],
+  /** True flex: any starter-eligible position including emergency GK. */
+  FLEX: ['CB', 'LB', 'RB', 'DM', 'CM', 'LM', 'RM', 'AM', 'LW', 'RW', 'ST', 'GK'],
 };
 
 // Always returns the 4 semantic bench slots regardless of league bench_size setting
