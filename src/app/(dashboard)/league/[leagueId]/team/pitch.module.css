@@ -319,56 +319,124 @@
     align-items: center;
     flex: 1;
     width: 100%;
-    min-height: 92px;
+    min-height: 108px;
     padding: 8px 10px;
-    gap: 6px;
+    gap: 8px;
     overflow: visible;
 }
 
-/* ── Pitch node: photo strip + original chip body ── */
-.pitchNode {
-    position: relative;
+/* ── Pitch node: floating photo + chip (stacked, not flush) ── */
+.pitchNodeWrap {
     display: flex;
     flex-direction: column;
-    align-items: stretch;
-    gap: 0;
-    width: 100px;
-    min-height: 0;
+    align-items: center;
+    gap: 6px;
+    position: relative;
+    width: auto;
+    min-width: 104px;
+    max-width: 118px;
     padding: 0;
-    background: white;
-    border: 1px solid rgba(210, 196, 183, 0.6);
-    border-radius: 0;
+    margin: 0;
+    border: none;
+    background: transparent;
     cursor: pointer;
+    box-shadow: none;
+    text-align: center;
+    transition: filter 0.12s;
+}
+
+.pitchNodeWrap:hover .pitchNode {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+}
+
+.nodeWrapSelected {
+    outline: 2px solid var(--color-accent-green, #3A6B4A) !important;
+    outline-offset: 3px;
+    border-radius: 12px;
+}
+
+.nodeWrapValidTarget {
+    outline: 2px solid rgba(58, 107, 74, 0.65) !important;
+    outline-offset: 3px;
+    border-radius: 12px;
+}
+
+.nodeWrapEmpty .nodePhotoMount {
+    border-style: dashed;
+    background: rgba(0, 0, 0, 0.12);
+}
+
+.nodeWrapEmpty .nodePhotoPlaceholder {
+    color: rgba(255, 255, 255, 0.45);
+}
+
+.pitchNodeWrap:not(.nodeWrapEmpty) .nodePhotoPlaceholder {
+    color: rgba(255, 255, 255, 0.88);
+}
+
+.nodeWrapInvalid {
+    outline: 2px solid #ef4444 !important;
+    outline-offset: 3px;
+    border-radius: 12px;
+}
+
+.nodePhotoMount {
+    flex-shrink: 0;
+    width: 54px;
+    height: 62px;
+    padding: 3px;
+    box-sizing: border-box;
+    border-radius: 14px;
+    border: 3px solid var(--color-border, #c8c3bc);
+    background: rgba(0, 0, 0, 0.32);
+}
+
+.nodePhotoInner {
+    width: 100%;
+    height: 100%;
+    border-radius: 10px;
+    overflow: hidden;
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.nodePhotoImg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top center;
+    display: block;
+}
+
+.nodePhotoPlaceholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-serif);
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.pitchNode {
+    position: relative;
+    width: 100%;
+    min-width: 100px;
+    padding: 0;
+    background: var(--color-bg-card, #fdfcf9);
+    border: 1px solid rgba(210, 196, 183, 0.65);
+    border-radius: 8px;
     overflow: visible;
     transition: box-shadow 0.12s;
-    text-align: left;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.22);
 }
 
-.pitchNode:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-}
-
-.nodeSelected {
-    outline: 2px solid var(--color-accent-green, #3A6B4A) !important;
-    outline-offset: 1px;
-}
-
-.nodeValidTarget {
-    outline: 2px solid rgba(58, 107, 74, 0.65) !important;
-    outline-offset: 1px;
-}
-
-.nodeEmpty {
+.nodeChipEmpty {
     border-style: dashed;
-    border-color: rgba(255, 255, 255, 0.55) !important;
-    background: rgba(255, 255, 255, 0.18) !important;
+    border-color: rgba(255, 255, 255, 0.45) !important;
+    background: rgba(255, 255, 255, 0.16) !important;
     box-shadow: none;
-}
-
-.nodeInvalid {
-    outline: 2px solid #ef4444 !important;
-    outline-offset: 1px;
 }
 
 .nodePtsBadge {
@@ -387,58 +455,37 @@
     color: #fff;
 }
 
-.nodePhotoStrip {
-    width: 100%;
-    height: 56px;
-    flex-shrink: 0;
+.nodeChipBody {
+    padding: 7px 6px 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+.nodePlayerNameCenter {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
     overflow: hidden;
-    background: linear-gradient(180deg, rgba(0, 0, 0, 0.05) 0%, rgba(0, 0, 0, 0.1) 100%);
+    font-family: var(--font-serif);
+    font-size: 0.58rem;
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: 0.01em;
+    color: #1c1c19;
+    text-align: center;
+    width: 100%;
+    word-break: break-word;
 }
 
-.nodePhotoImg {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: top center;
-    display: block;
-}
-
-.nodePhotoPlaceholder {
-    width: 100%;
-    height: 100%;
+.nodeMetaChipRow {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-family: var(--font-serif);
-    font-size: 1.2rem;
-    font-weight: 700;
-    color: rgba(28, 28, 25, 0.32);
-}
-
-.nodeEmpty .nodePhotoStrip {
-    background: rgba(0, 0, 0, 0.14);
-    border-bottom: 1px dashed rgba(255, 255, 255, 0.35);
-}
-
-.nodeEmpty .nodePhotoPlaceholder {
-    color: rgba(255, 255, 255, 0.45);
-}
-
-.nodeChipBody {
-    padding: 8px;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0;
-    flex: 1;
-    min-height: 0;
-}
-
-.nodePosRow {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    margin-bottom: 3px;
+    flex-wrap: wrap;
+    gap: 5px;
+    width: 100%;
 }
 
 .nodePosBadge {
@@ -450,31 +497,30 @@
     text-transform: uppercase;
     letter-spacing: 0.04em;
     color: white;
+    flex-shrink: 0;
 }
 
-.nodePlayerName {
-    display: block;
+.nodeTeamChip {
     font-family: var(--font-sans);
-    font-size: 0.58rem;
+    font-size: 0.45rem;
     font-weight: 700;
+    letter-spacing: 0.06em;
     text-transform: uppercase;
-    letter-spacing: 0.02em;
-    color: #1c1c19;
-    white-space: nowrap;
+    color: var(--color-text-secondary, #4a4a4a);
+    max-width: 72px;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 84px;
-    padding-right: 2px;
+    white-space: nowrap;
 }
 
 .nodeLockIcon {
-    font-size: 0.58rem;
+    font-size: 0.52rem;
     margin-top: 1px;
 }
 
 .nodeEmptyLabel {
     font-size: 0.55rem;
-    color: rgba(255, 255, 255, 0.55);
+    color: rgba(255, 255, 255, 0.78);
     font-style: italic;
 }
 

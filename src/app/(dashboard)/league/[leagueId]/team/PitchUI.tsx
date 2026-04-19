@@ -67,6 +67,10 @@ function displayName(player: Player): string {
     return formatPlayerName(player, 'initial_last');
 }
 
+function pitchFullName(player: Player): string {
+    return formatPlayerName(player, 'full');
+}
+
 function isU21Eligible(player: Player, academyAgeLimit: number): boolean {
     if (!player.date_of_birth) return false;
     const dob = new Date(player.date_of_birth);
@@ -126,65 +130,89 @@ interface PitchNodeProps {
 }
 
 function PitchNode({ slotPos, player, isSelected, isValidTarget, isEmpty, isInvalid, isLocked, onClick, onViewDetails, points }: PitchNodeProps) {
-    const cls = [
+    const frameColor = isInvalid ? '#ef4444' : POS_COLOR[slotPos];
+    const wrapCls = [
+        styles.pitchNodeWrap,
+        isSelected ? styles.nodeWrapSelected : '',
+        isValidTarget ? styles.nodeWrapValidTarget : '',
+        isEmpty ? styles.nodeWrapEmpty : '',
+        isInvalid ? styles.nodeWrapInvalid : '',
+    ].filter(Boolean).join(' ');
+
+    const chipCls = [
         styles.pitchNode,
-        isSelected ? styles.nodeSelected : '',
-        isValidTarget ? styles.nodeValidTarget : '',
-        isEmpty ? styles.nodeEmpty : '',
-        isInvalid ? styles.nodeInvalid : '',
+        isEmpty ? styles.nodeChipEmpty : '',
     ].filter(Boolean).join(' ');
 
     return (
         <button
             type="button"
-            className={cls}
+            className={wrapCls}
             onClick={isLocked ? (onViewDetails ?? undefined) : onClick}
             style={isLocked ? { opacity: 0.7, cursor: 'pointer' } : undefined}
             title={isLocked ? 'Match started (Locked) — click to view' : isInvalid ? 'Player is not eligible for this position' : undefined}
         >
-            {points !== undefined && (
-                <span className={styles.nodePtsBadge}>{points.toFixed(1)}</span>
-            )}
-
-            <div className={styles.nodePhotoStrip}>
-                {player?.photo_url ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={player.photo_url} alt={displayName(player)} className={styles.nodePhotoImg} />
-                ) : (
-                    <span className={styles.nodePhotoPlaceholder} aria-hidden>
-                        {player ? displayName(player).charAt(0) : slotPos.charAt(0)}
-                    </span>
-                )}
-            </div>
-
-            <div className={styles.nodeChipBody}>
-                <div className={styles.nodePosRow}>
-                    <span
-                        className={styles.nodePosBadge}
-                        style={{ background: isInvalid ? '#ef4444' : POS_COLOR[slotPos] }}
-                    >
-                        {slotPos}
-                    </span>
-                    {player?.fpl_status && player.fpl_status !== 'a' && (
-                        <span className={styles.nodeStatusDot} data-status={player.fpl_status} />
+            <div
+                className={styles.nodePhotoMount}
+                style={{ borderColor: isEmpty ? 'rgba(255,255,255,0.35)' : frameColor }}
+            >
+                <div className={styles.nodePhotoInner}>
+                    {player?.photo_url ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={player.photo_url} alt={pitchFullName(player)} className={styles.nodePhotoImg} />
+                    ) : (
+                        <span className={styles.nodePhotoPlaceholder} aria-hidden>
+                            {player ? pitchFullName(player).charAt(0) : slotPos.charAt(0)}
+                        </span>
                     )}
                 </div>
+            </div>
 
-                {player ? (
-                    <>
-                        <span
-                            className={styles.nodePlayerName}
-                            onClick={(e) => { if (onViewDetails) { e.stopPropagation(); onViewDetails(); } }}
-                            style={{ cursor: onViewDetails ? 'pointer' : 'default', ...(isInvalid ? { color: '#ef4444' } : {}) }}
-                            title={onViewDetails ? 'View player details' : undefined}
-                        >
-                            {displayName(player)}
-                        </span>
-                        {isLocked && <span className={styles.nodeLockIcon}>🔒</span>}
-                    </>
-                ) : (
-                    <span className={styles.nodeEmptyLabel}>Empty</span>
+            <div className={chipCls}>
+                {points !== undefined && (
+                    <span className={styles.nodePtsBadge}>{points.toFixed(1)}</span>
                 )}
+                <div className={styles.nodeChipBody}>
+                    {player ? (
+                        <>
+                            <span
+                                className={styles.nodePlayerNameCenter}
+                                onClick={(e) => { if (onViewDetails) { e.stopPropagation(); onViewDetails(); } }}
+                                style={{ cursor: onViewDetails ? 'pointer' : 'default', ...(isInvalid ? { color: '#ef4444' } : {}) }}
+                                title={onViewDetails ? 'View player details' : undefined}
+                            >
+                                {pitchFullName(player)}
+                            </span>
+                            <div className={styles.nodeMetaChipRow}>
+                                <span
+                                    className={styles.nodePosBadge}
+                                    style={{ background: isInvalid ? '#ef4444' : POS_COLOR[slotPos] }}
+                                >
+                                    {slotPos}
+                                </span>
+                                <span className={styles.nodeTeamChip}>
+                                    {(player.pl_team ?? '').toUpperCase()}
+                                </span>
+                                {player.fpl_status && player.fpl_status !== 'a' && (
+                                    <span className={styles.nodeStatusDot} data-status={player.fpl_status} />
+                                )}
+                            </div>
+                            {isLocked && <span className={styles.nodeLockIcon}>🔒</span>}
+                        </>
+                    ) : (
+                        <>
+                            <span className={styles.nodeEmptyLabel}>Empty</span>
+                            <div className={styles.nodeMetaChipRow}>
+                                <span
+                                    className={styles.nodePosBadge}
+                                    style={{ background: isInvalid ? '#ef4444' : POS_COLOR[slotPos] }}
+                                >
+                                    {slotPos}
+                                </span>
+                            </div>
+                        </>
+                    )}
+                </div>
             </div>
         </button>
     );

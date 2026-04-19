@@ -414,6 +414,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
   padding: 10px 14px;
   border-radius: var(--radius-sm);
   background: var(--color-bg-elevated);
@@ -429,22 +430,32 @@
   background: rgba(58, 107, 74, 0.05);
 }
 
-.chipLeft {
+.chipListMain {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   min-width: 0;
   flex: 1;
 }
 
-.chipPhotoFrame {
+.chipPhotoMount {
   flex-shrink: 0;
-  width: 46px;
-  height: 56px;
-  border-radius: 6px;
+  width: 52px;
+  height: 60px;
+  padding: 3px;
+  box-sizing: border-box;
+  border-radius: 14px;
+  border: 3px solid var(--color-border);
+  background: rgba(0, 0, 0, 0.22);
+}
+
+.chipPhotoInner {
+  width: 100%;
+  height: 100%;
+  border-radius: 10px;
   overflow: hidden;
   background: var(--color-bg-secondary);
-  border: 1px solid var(--color-border-subtle);
 }
 
 .chipPhoto {
@@ -467,6 +478,28 @@
   color: var(--color-text-muted);
 }
 
+.chipCard {
+  width: 100%;
+  max-width: 220px;
+  padding: 8px 10px;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-sm);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+}
+
+.chipSubRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
 .chipPosBadge {
   font-family: var(--font-sans);
   font-size: 9px;
@@ -479,19 +512,14 @@
   text-align: center;
 }
 
-.chipInfo {
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-  min-width: 0;
-}
-
 .chipName {
   font-family: 'Noto Serif', serif;
   font-size: 14px;
   font-weight: 700;
   color: var(--color-text-primary);
   line-height: 1.25;
+  text-align: center;
+  width: 100%;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -502,21 +530,24 @@
   font-family: var(--font-sans);
   font-size: 9px;
   font-weight: 700;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--color-text-muted);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   min-width: 0;
+  max-width: 140px;
+  text-align: center;
 }
 
 .chipMyTag {
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-sans);
   font-size: 9px;
   font-weight: 700;
   color: var(--color-accent-green);
   flex-shrink: 0;
+  text-align: center;
 }
 
 .chipPoints {
@@ -553,47 +584,8 @@
 .auctionLeft {
   display: flex;
   align-items: center;
-  gap: 10px;
   min-width: 0;
   flex: 1;
-}
-
-.auctionPosBadge {
-  font-family: 'Inter', sans-serif;
-  font-size: 9px;
-  font-weight: 700;
-  padding: 3px 6px;
-  border-radius: var(--radius-sm);
-  color: #fff;
-  flex-shrink: 0;
-  min-width: 28px;
-  text-align: center;
-}
-
-.auctionInfo {
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-  min-width: 0;
-}
-
-.auctionName {
-  font-family: 'Noto Serif', serif;
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--color-text-primary);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.auctionClub {
-  font-family: 'Inter', sans-serif;
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--color-text-muted);
 }
 
 .auctionRight {
