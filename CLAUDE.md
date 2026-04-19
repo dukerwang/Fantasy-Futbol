@@ -1,5 +1,7 @@
 # Fantasy Futbol — Claude Code Execution Context
 
+> Agent routing note: If you are Claude Code, prioritize this file and also read both `CURSOR.md` and `GEMINI.md` for shared conventions. If you are Cursor or Antigravity, read both `CURSOR.md` and `GEMINI.md` before proceeding.
+
 ## CRITICAL: Deployment Rules
 - This app is hosted on **Vercel** at `fantasy-futbol-tau.vercel.app`
 - Local changes are **NOT visible to the user** until pushed to GitHub
