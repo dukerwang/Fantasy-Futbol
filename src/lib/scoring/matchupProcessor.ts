@@ -1,5 +1,6 @@
 import { createAdminClient } from '@/lib/supabase/admin';
 import { calculateTeamScore, loadReferenceStats, type PlayerScoreRecord } from '@/lib/scoring/matchups';
+import { normalizeMatchupLineup } from '@/lib/lineups/normalizeMatchupLineup';
 
 export async function processMatchupsForGameweek(gameweek: number, finished: boolean) {
     const admin = createAdminClient();
@@ -101,8 +102,11 @@ export async function processMatchupsForGameweek(gameweek: number, finished: boo
     const updateErrors: string[] = [];
 
     for (const m of matchups) {
-        const scoreA = calculateTeamScore(m.lineup_a, playerRecord, playerPositions, playerPlTeamId, refStats as any, finished, finishedPlTeamIds);
-        const scoreB = calculateTeamScore(m.lineup_b, playerRecord, playerPositions, playerPlTeamId, refStats as any, finished, finishedPlTeamIds);
+        const lineupA = normalizeMatchupLineup(m.lineup_a as any);
+        const lineupB = normalizeMatchupLineup(m.lineup_b as any);
+
+        const scoreA = calculateTeamScore(lineupA, playerRecord, playerPositions, playerPlTeamId, refStats as any, finished, finishedPlTeamIds);
+        const scoreB = calculateTeamScore(lineupB, playerRecord, playerPositions, playerPlTeamId, refStats as any, finished, finishedPlTeamIds);
         const gap = Math.abs(scoreA - scoreB);
 
         const newStatus = finished ? 'completed' : 'live';
@@ -115,6 +119,9 @@ export async function processMatchupsForGameweek(gameweek: number, finished: boo
             score_b: scoreB,
             status: newStatus,
         };
+        // If we inferred a corrected formation label, persist it so downstream UI stops lying.
+        if (lineupA && lineupA !== m.lineup_a) updatePayload.lineup_a = lineupA;
+        if (lineupB && lineupB !== m.lineup_b) updatePayload.lineup_b = lineupB;
         if (finished) {
             updatePayload.winner_team_id = winnerId;
         }

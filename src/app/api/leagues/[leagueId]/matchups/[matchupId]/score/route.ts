@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { calculateTeamScore, loadReferenceStats, type PlayerScoreRecord } from '@/lib/scoring/matchups';
+import { normalizeMatchupLineup } from '@/lib/lineups/normalizeMatchupLineup';
 
 interface Props {
   params: Promise<{ leagueId: string; matchupId: string }>;
@@ -52,8 +53,8 @@ export async function GET(_req: NextRequest, { params }: Props) {
   }
 
   // Extract all player IDs from both lineups
-  const lineupA = matchup.lineup_a as any | null;
-  const lineupB = matchup.lineup_b as any | null;
+  const lineupA = normalizeMatchupLineup(matchup.lineup_a as any | null);
+  const lineupB = normalizeMatchupLineup(matchup.lineup_b as any | null);
   const playerIds = new Set<string>();
   lineupA?.starters?.forEach((s: any) => playerIds.add(s.player_id));
   lineupA?.bench?.forEach((b: any) => playerIds.add(b.player_id));

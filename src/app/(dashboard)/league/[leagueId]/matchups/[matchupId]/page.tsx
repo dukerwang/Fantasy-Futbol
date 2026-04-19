@@ -5,6 +5,7 @@ import Link from 'next/link';
 import type { Matchup, MatchupLineup, Player } from '@/types';
 import MatchupPitch from '@/components/MatchupPitch';
 import { FULL_PLAYER_SELECT } from '@/lib/constants/queries';
+import { normalizeMatchupLineup } from '@/lib/lineups/normalizeMatchupLineup';
 import styles from './matchup-detail.module.css';
 
 export const dynamic = 'force-dynamic';
@@ -57,8 +58,8 @@ export default async function MatchupDetailPage({ params }: Props) {
         team_b: { id: string; team_name: string } | null;
     };
 
-    const lineupA = matchup.lineup_a as MatchupLineup | null;
-    const lineupB = matchup.lineup_b as MatchupLineup | null;
+    const lineupA = normalizeMatchupLineup(matchup.lineup_a as MatchupLineup | null);
+    const lineupB = normalizeMatchupLineup(matchup.lineup_b as MatchupLineup | null);
 
     const playerIds = new Set<string>();
     lineupA?.starters.forEach((s) => playerIds.add(s.player_id));

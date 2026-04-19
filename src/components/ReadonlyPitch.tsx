@@ -172,7 +172,8 @@ export default function ReadonlyPitch({ lineup, playerMap, detailMap, teamName }
                                     const player = playerId ? playerMap[playerId] : null;
 
                                     // Vertical alignment — mirrors PitchUI node logic exactly
-                                    const isHighWide = (pos === 'LM' || pos === 'RM') && formation === '4-2-3-1';
+                                    const isHighWide =
+                                        (pos === 'LM' || pos === 'RM') && formation === '4-2-3-1';
                                     const align = pos === 'DM'
                                         ? 'flex-end'
                                         : (pos === 'AM' || isHighWide)

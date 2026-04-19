@@ -42,10 +42,12 @@ const POS_COLOR: Record<GranularPosition, string> = {
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 // Matches MatchupPitch's 6-zone approach so DM/CM/AM render as distinct rows
-function getZone(pos: GranularPosition): PitchZone {
+function getZone(pos: GranularPosition, formation: Formation): PitchZone {
     if (pos === 'GK') return 'GK';
     if (pos === 'CB' || pos === 'LB' || pos === 'RB') return 'DEF';
     if (pos === 'DM') return 'DMZ';
+    // In a 4-2-3-1, the wide mids sit with the 10 in the attacking-mid band (matches MatchupPitch grouping)
+    if (formation === '4-2-3-1' && (pos === 'LM' || pos === 'RM')) return 'AMZ';
     if (pos === 'CM' || pos === 'LM' || pos === 'RM') return 'CMZ';
     if (pos === 'AM') return 'AMZ';
     return 'ATT'; // LW, ST, RW
@@ -250,7 +252,7 @@ export default function PitchUI({
 
     // Zone layout for pitch rendering — 6 zones matching MatchupPitch structure
     const zonedSlots = useMemo(() => {
-        const list = slots.map((pos, i) => ({ slotIndex: i, pos, zone: getZone(pos) }));
+        const list = slots.map((pos, i) => ({ slotIndex: i, pos, zone: getZone(pos, formation) }));
         return {
             ATT: list.filter((s) => s.zone === 'ATT'),
             AMZ: list.filter((s) => s.zone === 'AMZ'),

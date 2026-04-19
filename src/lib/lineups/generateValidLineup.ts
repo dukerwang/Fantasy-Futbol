@@ -16,11 +16,13 @@ type RosterRow = {
   };
 };
 
-const ALL_FORMATIONS: Formation[] = [
+// Prefer the league's default shape first — otherwise bots/backfills can "look wrong"
+// even when a simpler valid XI exists.
+const FORMATION_TRIAL_ORDER: Formation[] = [
   '4-3-3',
   '4-4-2',
-  '4-2-3-1',
   '4-1-4-1',
+  '4-2-3-1',
   '3-4-3',
   '4-2-1-3',
 ];
@@ -116,7 +118,7 @@ export async function generateValidLineup(
 
   let bestLineup: MatchupLineup | null = null;
 
-  for (const formation of ALL_FORMATIONS) {
+  for (const formation of FORMATION_TRIAL_ORDER) {
     const slots = FORMATION_SLOTS[formation];
     const starters: { player_id: string; slot: GranularPosition }[] = [];
     const usedIds = new Set<string>();

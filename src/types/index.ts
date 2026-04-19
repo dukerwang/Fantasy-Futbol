@@ -32,11 +32,33 @@ export const FORMATION_SLOTS: Record<Formation, GranularPosition[]> = {
   // Slots ordered left-to-right within each zone so PitchUI renders them correctly without re-sorting.
   '4-4-2': ['GK', 'LB', 'CB', 'CB', 'RB', 'LM', 'CM', 'CM', 'RM', 'ST', 'ST'],
   '4-3-3': ['GK', 'LB', 'CB', 'CB', 'RB', 'CM', 'DM', 'CM', 'LW', 'ST', 'RW'],
+  // 4-2-3-1: double pivot (DM/DM) + central AM + wide mids (LM/RM) + ST
   '4-2-3-1': ['GK', 'LB', 'CB', 'CB', 'RB', 'LM', 'DM', 'AM', 'DM', 'RM', 'ST'],
   '4-1-4-1': ['GK', 'LB', 'CB', 'CB', 'RB', 'LM', 'CM', 'DM', 'CM', 'RM', 'ST'],
   '3-4-3': ['GK', 'CB', 'CB', 'CB', 'LM', 'CM', 'CM', 'RM', 'LW', 'ST', 'RW'],
-  '4-2-1-3': ['GK', 'LB', 'CB', 'CB', 'RB', 'DM', 'AM', 'DM', 'LW', 'ST', 'RW'],
+  // 4-2-1-3: two holders + a central 10 behind a front three
+  '4-2-1-3': ['GK', 'LB', 'CB', 'CB', 'RB', 'DM', 'DM', 'AM', 'LW', 'ST', 'RW'],
 };
+
+export const ALL_FORMATIONS: Formation[] = Object.keys(FORMATION_SLOTS) as Formation[];
+
+function sortedSlots(slots: GranularPosition[]): string {
+  return JSON.stringify([...slots].sort());
+}
+
+/**
+ * If a stored lineup's `formation` label disagrees with its starter slot multiset,
+ * infer the closest matching formation (if any).
+ */
+export function inferFormationFromStarterSlots(
+  starters: { slot: GranularPosition }[],
+): Formation | null {
+  const given = sortedSlots(starters.map((s) => s.slot));
+  for (const f of ALL_FORMATIONS) {
+    if (sortedSlots(FORMATION_SLOTS[f]) === given) return f;
+  }
+  return null;
+}
 
 // --- Database Types ---
 
