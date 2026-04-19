@@ -381,19 +381,12 @@
     flex-shrink: 0;
     width: 66px;
     height: 76px;
-    padding: 3px;
+    padding: 0;
     box-sizing: border-box;
     border-radius: 0;
     border: 3px solid var(--color-border, #c8c3bc);
-    background: var(--color-bg-card, #fdfcf9);
-}
-
-.nodePhotoInner {
-    width: 100%;
-    height: 100%;
-    border-radius: 0;
+    background: var(--color-bg-secondary);
     overflow: hidden;
-    background: var(--color-bg-secondary, #ede8de);
 }
 
 .nodePhotoImg {

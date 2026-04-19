@@ -157,16 +157,14 @@ function PitchNode({ slotPos, player, isSelected, isValidTarget, isEmpty, isInva
                 className={styles.nodePhotoMount}
                 style={{ borderColor: isEmpty ? 'rgba(255,255,255,0.35)' : frameColor }}
             >
-                <div className={styles.nodePhotoInner}>
-                    {player?.photo_url ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={player.photo_url} alt={pitchFullName(player)} className={styles.nodePhotoImg} />
-                    ) : (
-                        <span className={styles.nodePhotoPlaceholder} aria-hidden>
-                            {player ? pitchFullName(player).charAt(0) : slotPos.charAt(0)}
-                        </span>
-                    )}
-                </div>
+                {player?.photo_url ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={player.photo_url} alt={pitchFullName(player)} className={styles.nodePhotoImg} />
+                ) : (
+                    <span className={styles.nodePhotoPlaceholder} aria-hidden>
+                        {player ? pitchFullName(player).charAt(0) : slotPos.charAt(0)}
+                    </span>
+                )}
             </div>
 
             <div className={chipCls}>

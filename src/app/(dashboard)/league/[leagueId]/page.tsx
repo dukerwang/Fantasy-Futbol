@@ -458,20 +458,18 @@ export default async function LeaguePage({ params }: Props) {
                           className={styles.chipPhotoMount}
                           style={{ borderColor: positionColor(player.primary_position) }}
                         >
-                          <div className={styles.chipPhotoInner}>
-                            {player.photo_url ? (
-                              // eslint-disable-next-line @next/next/no-img-element
-                              <img
-                                src={player.photo_url}
-                                alt={formatPlayerName(player, 'full')}
-                                className={styles.chipPhoto}
-                              />
-                            ) : (
-                              <span className={styles.chipPhotoFallback} aria-hidden>
-                                {(player.web_name ?? player.name ?? '?').charAt(0)}
-                              </span>
-                            )}
-                          </div>
+                          {player.photo_url ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img
+                              src={player.photo_url}
+                              alt={formatPlayerName(player, 'full')}
+                              className={styles.chipPhoto}
+                            />
+                          ) : (
+                            <span className={styles.chipPhotoFallback} aria-hidden>
+                              {(player.web_name ?? player.name ?? '?').charAt(0)}
+                            </span>
+                          )}
                         </div>
                         <span
                           className={styles.chipPosBadge}
@@ -540,20 +538,18 @@ export default async function LeaguePage({ params }: Props) {
                           className={styles.chipPhotoMount}
                           style={{ borderColor: positionColor(ap?.primary_position ?? '') }}
                         >
-                          <div className={styles.chipPhotoInner}>
-                            {ap?.photo_url ? (
-                              // eslint-disable-next-line @next/next/no-img-element
-                              <img
-                                src={ap.photo_url}
-                                alt={formatPlayerName(ap, 'full')}
-                                className={styles.chipPhoto}
-                              />
-                            ) : (
-                              <span className={styles.chipPhotoFallback} aria-hidden>
-                                {(ap?.web_name ?? ap?.name ?? '?').charAt(0)}
-                              </span>
-                            )}
-                          </div>
+                          {ap?.photo_url ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img
+                              src={ap.photo_url}
+                              alt={formatPlayerName(ap, 'full')}
+                              className={styles.chipPhoto}
+                            />
+                          ) : (
+                            <span className={styles.chipPhotoFallback} aria-hidden>
+                              {(ap?.web_name ?? ap?.name ?? '?').charAt(0)}
+                            </span>
+                          )}
                         </div>
                         <span
                           className={styles.chipPosBadge}
