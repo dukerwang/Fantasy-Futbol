@@ -22,7 +22,7 @@ Before anything else, read `CLAUDE.md` and `GEMINI.md` in the project root.
 ## 4-Phase Roadmap
 1. ~~**Phase 1: Automation (Precision Finish)**~~ ✅ **COMPLETE** — Matchweeks resolve immediately when FPL marks a GW as `finished`. Resolution check embedded in the live stats sync; additional daily cron windows at 18:00/19:00 UTC added. Worst-case gap reduced from 48 hours to ~1 hour.
 2. ~~**Phase 2: Tactical Depth (Taxi Squad)**~~ ✅ **COMPLETE** — `'taxi'` added to `roster_status` enum; `taxi_size` (default 3) and `taxi_age_limit` (default 21) added to `leagues`. New `POST /api/teams/[teamId]/taxi` route handles `move_to_taxi` (U21 enforcement, slot limit) and `activate` (promote to bench). Lineup and IR routes patched to exclude taxi players. Taxi squad starts empty after draft; managers fill post-draft via FAAB for U21 players.
-3. **Phase 3: Visual Completion & Dark Mode** - Finalizing the Draft, Stats, Dashboard, and the My Team page in the Cream Editorial style, including a Dark Mode toggle. The Taxi Squad portion of My Team depends on Phase 2 — that section cannot be built until Phase 2 is complete.
+3. **Phase 3: Visual Completion & Dark Mode** — My Team + roster management are largely done in Cream Editorial (see polish backlog below). Remaining Phase 3 scope: Draft, Stats, Dashboard, Dark Mode toggle, and shared UI sweep.
 4. **Phase 4: Market Expansion (Loans & Selling)** - Implementing temporary trades (Loans) and Intra-League Auctions (Selling players).
 
 ---
@@ -50,13 +50,23 @@ A major UI overhaul is underway. The app previously used a generic dark theme. I
 - ✅ **Standings** (`standings/page.tsx`, `standings.module.css`) — podium + table with form dots, cream editorial styling
 - ✅ **Activity Log** — activity feed and live auction grouping refined
 - ✅ **Matchups** — head-to-head pitch layout and score badges finished
+- ✅ **My Team** (`league/[leagueId]/team/`) — Cream Editorial pitch (`PitchUI`), formation bar, bench / reserves / academy (taxi) / IR, FAAB strip, gameweek kickoff locks (starters, bench, reserves, and lineup API placement vs saved matchup)
+- ✅ **Roster management** (`league/[leagueId]/team/roster/`) — functional; editorial pass still optional (see polish backlog)
+
+#### **My Team & roster — polish backlog (deferrable)**
+Revisit when circling back on squad UX (not blocking play):
+- **PL club logos** — explore sourcing/display (FPL static assets, API-Football, or licensed pack); rights and caching need a decision.
+- **Chip / photo borders** — decide between current **position-colored** frames vs **neutral** borders for a calmer pitch.
+- **Bench slot copy** — drop or shorten the long labels (“Defender”, “Midfielder”, “Attacker”) next to `DEF` / `MID` / `ATT` / `FLEX`; keep codes or one short word.
+- **Typography** — font consistency and size optimization across pitch, sidebar, and roster.
+- **Icons** — replace **emoji** (locks, hints, etc.) with a small **SVG/icon** set for a more product-native look.
+- **Roster page** — dedicated polish pass (spacing, hierarchy, actions) to match My Team quality.
 
 #### **Phase 3: Visual Completion (In Progress)**
 - **Dashboard** (League selection) — *Still in legacy dark theme*
 - **Stats** (Detailed filters/tables) — *Functional but needs editorial polish*
 - **Draft Room** — *Functionally complex, needs visual overhaul*
 - **Fixtures** — *Legacy layout*
-- **My Team** (Taxi Squad integration) — *Backend complete (Phase 2). Needs UI: taxi section, move/promote buttons, U21 filter on player browser*
 - **Dark Mode Toggle** — *Requirement for accessibility and aesthetic choice*
 - **Shared UI sweep** — Final sweep of hardcoded hex values and consistent card headers.
 
@@ -155,7 +165,8 @@ Only then may you write any CSS or JSX.
   /dashboard            ← Dashboard page (league selection, "Welcome back")
   /league/[leagueId]/*  ← LeagueLayout (AppShell: sidebar + content area)
     /                   ← League dashboard (standings + matchups)
-    /team               ← My Team (pitch, lineup, bench, reserves, taxi)
+    /team               ← My Team (pitch, lineup, bench, reserves, taxi, IR)
+    /team/roster        ← Roster management (drops, slots; polish backlog in doc above)
     /matchups           ← Matchups
     /players            ← Free Agency / transfers
     /stats              ← League stats

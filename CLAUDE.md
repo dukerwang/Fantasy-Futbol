@@ -30,7 +30,7 @@ Edge Functions: deploy via `supabase functions deploy [slug]`.
 ## 4-Phase Roadmap
 1. ~~**Phase 1: Automation (Precision Finish)**~~ ✅ **COMPLETE** — Matchweeks resolve immediately when FPL marks a GW as `finished`. Resolution check embedded in the live stats sync; additional daily cron windows at 18:00/19:00 UTC added. Worst-case gap reduced from 48 hours to ~1 hour.
 2. ~~**Phase 2: Tactical Depth (Taxi Squad)**~~ ✅ **COMPLETE** — `'taxi'` added to `roster_status` enum; `taxi_size` (default 3) and `taxi_age_limit` (default 21) added to `leagues`. New `POST /api/teams/[teamId]/taxi` route handles `move_to_taxi` (U21 enforcement, slot limit) and `activate` (promote to bench). Lineup and IR routes patched to exclude taxi players from roster counts and lineup picks. Taxi squad starts empty after draft; managers fill it post-draft via standard FAAB auctions for U21 players.
-3. **Phase 3: Visual Completion & Dark Mode** - Finalizing the Draft, Stats, Dashboard, and the My Team page in the Cream Editorial style, including a Dark Mode toggle. The Taxi Squad portion of My Team depends on Phase 2 — cannot be built until Phase 2 is complete.
+3. **Phase 3: Visual Completion & Dark Mode** — My Team + roster management are largely complete in Cream Editorial (see `CURSOR.md` for deferrable polish). Remaining: Draft, Stats, Dashboard, Dark Mode toggle, shared UI sweep.
 4. **Phase 4: Market Expansion (Loans & Selling)** - Implementing temporary trades (Loans) and Intra-League Auctions (Selling players).
 
 ## Project Structure
@@ -45,7 +45,8 @@ src/
         players/      # player browser
         standings/    # league standings
         matchups/     # weekly matchups
-        team/         # user's team/lineup
+        team/         # user's team/lineup (+ taxi/IR, kickoff locks)
+        team/roster/  # roster management (drops, etc.)
         fixtures/     # real-world fixtures
         tournaments/  # cup tournaments
         stats/        # league stats
