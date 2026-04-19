@@ -13,16 +13,16 @@ import { getScoreIntensityColor } from '@/lib/utils/scoreColor';
 const POS_COLOR: Record<GranularPosition, string> = {
     GK: 'var(--color-pos-gk, #f59e0b)',
     CB: 'var(--color-pos-cb, #3b82f6)',
-    LB: 'var(--color-pos-fb, #6366f1)',
-    RB: 'var(--color-pos-fb, #6366f1)',
+    LB: 'var(--color-pos-fb, #60a5fa)',
+    RB: 'var(--color-pos-fb, #60a5fa)',
     DM: 'var(--color-pos-dm, #8b5cf6)',
-    CM: 'var(--color-pos-cm, #06b6d4)',
-    LM: 'var(--color-pos-cm, #06b6d4)',
-    RM: 'var(--color-pos-cm, #06b6d4)',
-    AM: 'var(--color-pos-am, #10b981)',
-    LW: 'var(--color-pos-lw, #f97316)',
-    RW: 'var(--color-pos-rw, #ef4444)',
-    ST: 'var(--color-pos-st, #ec4899)',
+    CM: 'var(--color-pos-cm, #a78bfa)',
+    LM: 'var(--color-pos-wm, #86efac)',
+    RM: 'var(--color-pos-wm, #86efac)',
+    AM: 'var(--color-pos-am, #f0abfc)',
+    LW: 'var(--color-pos-lw, #22c55e)',
+    RW: 'var(--color-pos-rw, #16a34a)',
+    ST: 'var(--color-pos-st, #ef4444)',
 };
 
 const ZONE_ORDER: Array<'ATT' | 'MID' | 'DEF' | 'GK'> = ['ATT', 'MID', 'DEF', 'GK'];

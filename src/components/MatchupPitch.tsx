@@ -10,12 +10,19 @@ type Zone = 'ATT' | 'AMZ' | 'CMZ' | 'DMZ' | 'DEF' | 'GK';
 
 const ZONE_ORDER: Zone[] = ['ATT', 'AMZ', 'CMZ', 'DMZ', 'DEF', 'GK'];
 
-// Exact hex values from prototype tailwind config
 const SLOT_COLOR: Record<string, string> = {
-    GK: '#f59e0b',
-    LB: '#3b82f6', CB: '#3b82f6', RB: '#3b82f6', DM: '#3b82f6',
-    CM: '#8b5cf6', LM: '#8b5cf6', RM: '#8b5cf6', AM: '#8b5cf6',
-    LW: '#ef4444', ST: '#ef4444', RW: '#ef4444',
+    GK: 'var(--color-pos-gk)',
+    LB: 'var(--color-pos-fb)',
+    CB: 'var(--color-pos-cb)',
+    RB: 'var(--color-pos-fb)',
+    DM: 'var(--color-pos-dm)',
+    CM: 'var(--color-pos-cm)',
+    LM: 'var(--color-pos-wm)',
+    RM: 'var(--color-pos-wm)',
+    AM: 'var(--color-pos-am)',
+    LW: 'var(--color-pos-lw)',
+    ST: 'var(--color-pos-st)',
+    RW: 'var(--color-pos-rw)',
 };
 
 const BENCH_COLOR: Record<string, string> = {

@@ -25,18 +25,18 @@ const BENCH_SLOT_NAMES: BenchSlot[] = ['DEF', 'MID', 'ATT', 'FLEX'];
 const DEFAULT_TAXI_AGE_LIMIT = 21;
 
 const POS_COLOR: Record<GranularPosition, string> = {
-    GK: '#f59e0b',
-    CB: '#3b82f6',
-    LB: '#6366f1',
-    RB: '#6366f1',
-    DM: '#8b5cf6',
-    CM: '#8b5cf6',
-    LM: '#8b5cf6',
-    RM: '#8b5cf6',
-    AM: '#8b5cf6',
-    LW: '#3A6B4A',
-    RW: '#3A6B4A',
-    ST: '#ef4444',
+    GK: 'var(--color-pos-gk)',
+    CB: 'var(--color-pos-cb)',
+    LB: 'var(--color-pos-fb)',
+    RB: 'var(--color-pos-fb)',
+    DM: 'var(--color-pos-dm)',
+    CM: 'var(--color-pos-cm)',
+    LM: 'var(--color-pos-wm)',
+    RM: 'var(--color-pos-wm)',
+    AM: 'var(--color-pos-am)',
+    LW: 'var(--color-pos-lw)',
+    RW: 'var(--color-pos-rw)',
+    ST: 'var(--color-pos-st)',
 };
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────

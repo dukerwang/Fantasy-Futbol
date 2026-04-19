@@ -50,12 +50,12 @@
 }
 
 .pos_LM {
-  background: var(--color-pos-cm);
+  background: var(--color-pos-wm);
   color: var(--color-text-inverse);
 }
 
 .pos_RM {
-  background: var(--color-pos-cm);
+  background: var(--color-pos-wm);
   color: var(--color-text-inverse);
 }
 

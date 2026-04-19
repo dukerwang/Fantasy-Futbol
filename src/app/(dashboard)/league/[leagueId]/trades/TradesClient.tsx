@@ -843,13 +843,18 @@ export default function TradesClient({
 
 function positionColor(pos: string): string {
   const map: Record<string, string> = {
-    GK: '#D4A017',                            // amber – prototype badge-gk
-    CB: '#1E3A5F', LB: '#1E3A5F', RB: '#1E3A5F', // navy  – prototype badge-def
-    DM: '#5C3D8F',                            // purple – prototype badge-mid
-    CM: '#5C3D8F', LM: '#5C3D8F', RM: '#5C3D8F',
-    AM: '#5C3D8F',
-    LW: '#3A6B4A', RW: '#3A6B4A',             // green  – prototype badge-rw
-    ST: '#8B1A1A',                            // crimson– prototype badge-att
+    GK: 'var(--color-pos-gk)',
+    CB: 'var(--color-pos-cb)',
+    LB: 'var(--color-pos-fb)',
+    RB: 'var(--color-pos-fb)',
+    DM: 'var(--color-pos-dm)',
+    CM: 'var(--color-pos-cm)',
+    LM: 'var(--color-pos-wm)',
+    RM: 'var(--color-pos-wm)',
+    AM: 'var(--color-pos-am)',
+    LW: 'var(--color-pos-lw)',
+    RW: 'var(--color-pos-rw)',
+    ST: 'var(--color-pos-st)',
   };
   return map[pos] ?? 'var(--color-text-muted)';
 }
