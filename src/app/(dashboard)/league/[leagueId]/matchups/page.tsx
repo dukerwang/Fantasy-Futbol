@@ -79,6 +79,22 @@ export default async function MatchupsPage({ params, searchParams }: Props) {
     let targetGw = parseInt(gw ?? '0', 10);
     if (!targetGw) targetGw = currentFplGw;
 
+    // Gameweeks this league actually has fixtures for (must run before matchup query)
+    const { data: allGws } = await admin
+        .from('matchups')
+        .select('gameweek')
+        .eq('league_id', leagueId)
+        .order('gameweek', { ascending: true });
+
+    const gameweeks = Array.from(new Set((allGws ?? []).map((row) => row.gameweek))).sort((a, b) => a - b);
+
+    // If URL/default GW has no league matchups, snap to a real GW (fixes empty page +
+    // invalid <select value> showing the wrong GW in the selector).
+    if (gameweeks.length > 0 && !gameweeks.includes(targetGw)) {
+        const snapped = gameweeks.find((g) => g >= targetGw) ?? gameweeks[gameweeks.length - 1]!;
+        redirect(`/league/${leagueId}/matchups?gw=${snapped}`);
+    }
+
     // Fetch matchups for target GW (include user_id for featured matchup detection)
     const { data: matchupsData } = await admin
         .from('matchups')
@@ -92,15 +108,6 @@ export default async function MatchupsPage({ params, searchParams }: Props) {
         .order('id', { ascending: true });
 
     const matchups = (matchupsData ?? []) as Matchup[];
-
-    // All gameweeks for selector
-    const { data: allGws } = await admin
-        .from('matchups')
-        .select('gameweek')
-        .eq('league_id', leagueId)
-        .order('gameweek', { ascending: true });
-
-    const gameweeks = Array.from(new Set((allGws ?? []).map((row) => row.gameweek)));
 
     // Cup teams this gameweek
     const { data: leagueTourneys } = await admin.from('tournaments').select('id').eq('league_id', leagueId);
