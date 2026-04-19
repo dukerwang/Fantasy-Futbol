@@ -86,6 +86,12 @@ function isIrEligible(player: Player): boolean {
     return player.fpl_status === 'i' || player.fpl_status === 'u' || player.fpl_status === 'd';
 }
 
+/** PL fixture for this player's club has kicked off in the current GW — no XI/bench/reserve reshuffling. */
+function isPlMatchLocked(player: Player | undefined, lockedTeamIds?: Set<number> | null): boolean {
+    if (!player || player.pl_team_id == null) return false;
+    return lockedTeamIds?.has(player.pl_team_id) ?? false;
+}
+
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 interface Props {
@@ -318,6 +324,7 @@ export default function PitchUI({
                 if (curCanGoThere && otherCanComeHere) targets.add(`starter-${i}`);
             }
             for (const e of poolEntries) {
+                if (isPlMatchLocked(e.player, lockedTeamIds)) continue;
                 if (canPlaySlot(e.player, slots[lineupSelection.slotIndex])) targets.add(`pool-${e.player.id}`);
             }
             if (currentEntry) {
@@ -340,13 +347,14 @@ export default function PitchUI({
                 }
             }
             for (const e of poolEntries) {
+                if (isPlMatchLocked(e.player, lockedTeamIds)) continue;
                 if (canPlayBenchSlot(e.player, lineupSelection.slot)) targets.add(`pool-${e.player.id}`);
             }
         }
 
         if (lineupSelection.type === 'pool') {
             const entry = playerMap.get(lineupSelection.playerId);
-            if (entry) {
+            if (entry && !isPlMatchLocked(entry.player, lockedTeamIds)) {
                 for (let i = 0; i < slots.length; i++) {
                     if (canPlaySlot(entry.player, slots[i])) targets.add(`starter-${i}`);
                 }
@@ -357,7 +365,7 @@ export default function PitchUI({
         }
 
         return targets;
-    }, [lineupSelection, assignments, benchAssignments, slots, playerMap, poolEntries]);
+    }, [lineupSelection, assignments, benchAssignments, slots, playerMap, poolEntries, lockedTeamIds]);
 
     // Valid targets for sidebar (taxi/IR) selection
     const validSidebarTargets = useMemo(() => {
@@ -365,16 +373,18 @@ export default function PitchUI({
         if (!sidebarSelection) return targets;
         if (sidebarSelection.type === 'taxi') {
             for (const e of poolEntries) {
+                if (isPlMatchLocked(e.player, lockedTeamIds)) continue;
                 if (isU21Eligible(e.player, academyAgeLimit)) targets.add(`pool-${e.player.id}`);
             }
         }
         if (sidebarSelection.type === 'ir') {
             for (const e of poolEntries) {
+                if (isPlMatchLocked(e.player, lockedTeamIds)) continue;
                 if (isIrEligible(e.player)) targets.add(`pool-${e.player.id}`);
             }
         }
         return targets;
-    }, [sidebarSelection, poolEntries, academyAgeLimit]);
+    }, [sidebarSelection, poolEntries, academyAgeLimit, lockedTeamIds]);
 
     // ── Selection helpers ──
     function clearAll() {
@@ -484,6 +494,10 @@ export default function PitchUI({
                     setSaveError(`${displayName(entry?.player ?? { name: 'Player', web_name: null } as Player)} cannot play ${slotPos}.`);
                     setLineupSelection(null); return;
                 }
+                if (isPlMatchLocked(entry.player, lockedTeamIds)) {
+                    setSaveError('Match started — this player is locked.');
+                    setLineupSelection(null); return;
+                }
                 setAssignments((prev) => ({ ...prev, [slotIndex]: pid }));
                 setSaveError(null); setSaveSuccess(false); setLineupSelection(null); return;
             }
@@ -507,7 +521,7 @@ export default function PitchUI({
                 setSaveError(null); setSaveSuccess(false); setLineupSelection(null); return;
             }
         },
-        [lineupSelection, assignments, slots, playerMap, benchAssignments],
+        [lineupSelection, assignments, slots, playerMap, benchAssignments, lockedTeamIds],
     );
 
     // ── Bench slot click ──
@@ -539,6 +553,10 @@ export default function PitchUI({
                     setSaveError(`${displayName(entry?.player ?? { name: 'Player', web_name: null } as Player)} cannot play the ${slot} bench slot.`);
                     setLineupSelection(null); return;
                 }
+                if (isPlMatchLocked(entry.player, lockedTeamIds)) {
+                    setSaveError('Match started — this player is locked.');
+                    setLineupSelection(null); return;
+                }
                 setBenchAssignments((prev) => ({ ...prev, [slot]: pid }));
                 setSaveError(null); setSaveSuccess(false); setLineupSelection(null); return;
             }
@@ -561,7 +579,7 @@ export default function PitchUI({
                 setSaveError(null); setSaveSuccess(false); setLineupSelection(null); return;
             }
         },
-        [lineupSelection, assignments, benchAssignments, slots, playerMap],
+        [lineupSelection, assignments, benchAssignments, slots, playerMap, lockedTeamIds],
     );
 
     // ── Pool (Reserve) player click ──
@@ -571,6 +589,12 @@ export default function PitchUI({
             if (sidebarSelection) {
                 const targetEntry = poolEntries.find((e) => e.player.id === playerId);
                 if (!targetEntry) return;
+
+                if (isPlMatchLocked(targetEntry.player, lockedTeamIds)) {
+                    setSidebarError('Match started — this player is locked.');
+                    setSidebarSelection(null);
+                    return;
+                }
 
                 if (sidebarSelection.type === 'taxi') {
                     if (!isU21Eligible(targetEntry.player, academyAgeLimit)) {
@@ -593,7 +617,15 @@ export default function PitchUI({
             }
 
             // Otherwise handle as lineup pool selection
-            if (!lineupSelection) { activateLineupSelection({ type: 'pool', playerId }); return; }
+            if (!lineupSelection) {
+                const entry = playerMap.get(playerId);
+                if (isPlMatchLocked(entry?.player, lockedTeamIds)) {
+                    if (entry) setViewingPlayer(entry.player);
+                    return;
+                }
+                activateLineupSelection({ type: 'pool', playerId });
+                return;
+            }
 
             if (lineupSelection.type === 'pool') {
                 setLineupSelection(lineupSelection.playerId === playerId ? null : { type: 'pool', playerId });
@@ -607,6 +639,10 @@ export default function PitchUI({
                     setSaveError(`${displayName(entry?.player ?? { name: 'Player', web_name: null } as Player)} cannot play ${slotPos}.`);
                     setLineupSelection(null); return;
                 }
+                if (isPlMatchLocked(entry.player, lockedTeamIds)) {
+                    setSaveError('Match started — this player is locked.');
+                    setLineupSelection(null); return;
+                }
                 setAssignments((prev) => ({ ...prev, [slotIndex]: playerId }));
                 setSaveError(null); setSaveSuccess(false); setLineupSelection(null); return;
             }
@@ -617,11 +653,15 @@ export default function PitchUI({
                     setSaveError(`${displayName(entry?.player ?? { name: 'Player', web_name: null } as Player)} cannot play the ${slot} bench slot.`);
                     setLineupSelection(null); return;
                 }
+                if (isPlMatchLocked(entry.player, lockedTeamIds)) {
+                    setSaveError('Match started — this player is locked.');
+                    setLineupSelection(null); return;
+                }
                 setBenchAssignments((prev) => ({ ...prev, [slot]: playerId }));
                 setSaveError(null); setSaveSuccess(false); setLineupSelection(null); return;
             }
         },
-        [lineupSelection, sidebarSelection, slots, playerMap, poolEntries, academyAgeLimit],
+        [lineupSelection, sidebarSelection, slots, playerMap, poolEntries, academyAgeLimit, lockedTeamIds],
     );
 
     // ── Taxi swap — sequential: move reserve to taxi first (frees roster slot), then activate taxi player ──
@@ -968,6 +1008,7 @@ export default function PitchUI({
                         ) : (
                             <div className={styles.reservesList}>
                                 {poolEntries.map((entry) => {
+                                    const isLocked = isPlMatchLocked(entry.player, lockedTeamIds);
                                     const isLineupTarget = validLineupTargets.has(`pool-${entry.player.id}`);
                                     const isSidebarTarget = validSidebarTargets.has(`pool-${entry.player.id}`);
                                     const isHighlighted = isLineupTarget || isSidebarTarget;
@@ -981,8 +1022,9 @@ export default function PitchUI({
                                         <button
                                             key={entry.id}
                                             type="button"
-                                            className={`${styles.reserveRow} ${isHighlighted ? styles.reserveRowTarget : ''} ${isDimmed ? styles.reserveRowDimmed : ''}`}
-                                            onClick={() => handlePoolClick(entry.player.id)}
+                                            className={`${styles.reserveRow} ${isLocked ? styles.reserveRowLocked : ''} ${isHighlighted ? styles.reserveRowTarget : ''} ${isDimmed ? styles.reserveRowDimmed : ''}`}
+                                            onClick={isLocked ? () => setViewingPlayer(entry.player) : () => handlePoolClick(entry.player.id)}
+                                            title={isLocked ? 'Match started (Locked)' : undefined}
                                         >
                                             <span
                                                 className={styles.reservePosBadge}
@@ -1008,6 +1050,7 @@ export default function PitchUI({
                                             {entry.player.fpl_status && entry.player.fpl_status !== 'a' && !sidebarSelection && (
                                                 <span className={styles.statusDot} data-status={entry.player.fpl_status} />
                                             )}
+                                            {isLocked && <span className={styles.lockIcon}>🔒</span>}
                                         </button>
                                     );
                                 })}

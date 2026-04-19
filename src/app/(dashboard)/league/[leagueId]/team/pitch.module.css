@@ -773,6 +773,10 @@
     pointer-events: none;
 }
 
+.reserveRowLocked {
+    opacity: 0.72;
+}
+
 .reservePosBadge {
     display: inline-flex;
     align-items: center;

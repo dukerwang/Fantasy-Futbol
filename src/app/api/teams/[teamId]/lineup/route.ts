@@ -4,6 +4,35 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { FORMATION_SLOTS, POSITION_FLEX_MAP, BENCH_FLEX_MAP, getExpectedBenchSlots } from '@/types';
 import type { Formation, GranularPosition, MatchupLineup, BenchSlot } from '@/types';
 
+type LineupPlacement = { kind: 'starter'; slot: GranularPosition } | { kind: 'bench'; slot: BenchSlot };
+
+function placementMapFromLineup(lineup: MatchupLineup | null | undefined): Map<string, LineupPlacement> {
+  const m = new Map<string, LineupPlacement>();
+  if (!lineup) return m;
+  for (const s of lineup.starters ?? []) {
+    m.set(s.player_id, { kind: 'starter', slot: s.slot });
+  }
+  for (const b of lineup.bench ?? []) {
+    if (b.player_id && b.slot) m.set(b.player_id, { kind: 'bench', slot: b.slot as BenchSlot });
+  }
+  return m;
+}
+
+function placementMapFromPayload(
+  starters: { player_id: string; slot: GranularPosition }[],
+  bench: { player_id: string; slot: BenchSlot }[],
+): Map<string, LineupPlacement> {
+  const m = new Map<string, LineupPlacement>();
+  for (const s of starters) m.set(s.player_id, { kind: 'starter', slot: s.slot });
+  for (const b of bench) m.set(b.player_id, { kind: 'bench', slot: b.slot });
+  return m;
+}
+
+function placementKey(p: LineupPlacement | undefined): string {
+  if (!p) return 'out';
+  return p.kind === 'starter' ? `starter:${p.slot}` : `bench:${p.slot}`;
+}
+
 interface Props {
   params: Promise<{ teamId: string }>;
 }
@@ -186,7 +215,7 @@ export async function POST(req: NextRequest, { params }: Props) {
   if (currentFplGw > 0) {
     const { data: currentGwMatchup } = await admin
       .from('matchups')
-      .select('id, team_a_id, team_b_id, gameweek, status')
+      .select('id, team_a_id, team_b_id, gameweek, status, lineup_a, lineup_b')
       .eq('gameweek', currentFplGw)
       .or(`team_a_id.eq.${teamId},team_b_id.eq.${teamId}`)
       .maybeSingle();
@@ -196,7 +225,7 @@ export async function POST(req: NextRequest, { params }: Props) {
   if (!matchup) {
     const { data: nextScheduled } = await admin
       .from('matchups')
-      .select('id, team_a_id, team_b_id, gameweek, status')
+      .select('id, team_a_id, team_b_id, gameweek, status, lineup_a, lineup_b')
       .eq('status', 'scheduled')
       .or(`team_a_id.eq.${teamId},team_b_id.eq.${teamId}`)
       .order('gameweek', { ascending: true })
@@ -205,70 +234,99 @@ export async function POST(req: NextRequest, { params }: Props) {
     matchup = nextScheduled ?? null;
   }
 
-  // --- Kickoff lock: block moves if a player's club has already kicked off this GW ---
+  // --- Kickoff lock: when a saved GW lineup exists, compare XI/bench/reserve placement vs FPL kickoffs.
+  // (Roster status alone misses bench↔reserve moves — both are `bench` in DB.)
   if (matchup) {
     const targetGameweek = (matchup as any).gameweek;
-    const currentStatusMap = new Map<string, string>(
-      entries.map((e: any) => [e.player_id as string, e.status as string]),
-    );
+    const isTeamA = (matchup as any).team_a_id === teamId;
+    const prevLineup = (isTeamA ? (matchup as any).lineup_a : (matchup as any).lineup_b) as MatchupLineup | null;
 
-    // A player is "moved" if their active/bench status is changing
-    const movedPlayerIds = allPlayerIds.filter((pid) => {
-      const currentStatus = currentStatusMap.get(pid);
-      const newStatus = starterSet.has(pid) ? 'active' : 'bench';
-      return currentStatus !== newStatus;
-    });
-
-    if (movedPlayerIds.length > 0) {
-      const movedTeamIds = [
-        ...new Set(
-          movedPlayerIds
-            .map((pid) => (playerMap.get(pid) as any)?.pl_team_id)
-            .filter((id): id is number => id != null),
-        ),
-      ];
-
-      if (movedTeamIds.length > 0) {
-        // Fetch FPL fixtures for the target gameweek to check kickoff times
-        try {
-          const res = await fetch(`https://fantasy.premierleague.com/api/fixtures/?event=${targetGameweek}`, {
-            next: { revalidate: 60 } // cache for 1 minute
-          });
-          
-          if (res.ok) {
-            const fixtures = await res.json();
-            const now = new Date();
-            
-            const startedTeamIds = new Set<number>();
-            for (const f of fixtures) {
-              if (f.kickoff_time && new Date(f.kickoff_time) <= now) {
-                startedTeamIds.add(f.team_h);
-                startedTeamIds.add(f.team_a);
-              }
-            }
-
-            const lockedNames = movedPlayerIds
-              .filter((pid) => {
-                const pl = playerMap.get(pid) as any;
-                return pl && startedTeamIds.has(pl.pl_team_id);
-              })
-              .map((pid) => {
-                const pl = playerMap.get(pid) as any;
-                return pl.web_name || pl.full_name || pid;
-              });
-
-            if (lockedNames.length > 0) {
-              return NextResponse.json(
-                {
-                  error: `Cannot move players whose club has already kicked off: ${lockedNames.join(', ')}`,
-                },
-                { status: 400 },
-              );
-            }
+    let startedTeamIds = new Set<number>();
+    try {
+      const res = await fetch(`https://fantasy.premierleague.com/api/fixtures/?event=${targetGameweek}`, {
+        next: { revalidate: 60 },
+      });
+      if (res.ok) {
+        const fixtures = await res.json();
+        const now = new Date();
+        for (const f of fixtures) {
+          if (f.kickoff_time && new Date(f.kickoff_time) <= now) {
+            startedTeamIds.add(f.team_h);
+            startedTeamIds.add(f.team_a);
           }
-        } catch (err) {
-          console.error('[lineup] Failed to fetch FPL fixtures for lock check:', err);
-          // Fail open to allow lineup submission if FPL API is down
+        }
+      }
+    } catch (err) {
+      console.error('[lineup] Failed to fetch FPL fixtures for lock check:', err);
+    }
+
+    if (startedTeamIds.size > 0) {
+      const plStarted = (pid: string) => {
+        const pl = playerMap.get(pid) as any;
+        return pl && pl.pl_team_id != null && startedTeamIds.has(pl.pl_team_id);
+      };
+
+      if (prevLineup && prevLineup.formation !== formation) {
+        for (const pid of placementMapFromLineup(prevLineup).keys()) {
+          if (plStarted(pid)) {
+            return NextResponse.json(
+              {
+                error:
+                  'Cannot change formation after a match involving one of your squad players has kicked off.',
+              },
+              { status: 400 },
+            );
+          }
+        }
+      }
+
+      if (prevLineup) {
+        const prevMap = placementMapFromLineup(prevLineup);
+        const newMap = placementMapFromPayload(starters, bench);
+        const touched = new Set<string>([...prevMap.keys(), ...newMap.keys()]);
+        const lockedNames: string[] = [];
+        for (const pid of touched) {
+          if (!plStarted(pid)) continue;
+          const prevKey = placementKey(prevMap.get(pid));
+          const nextKey = placementKey(newMap.get(pid));
+          if (prevKey !== nextKey) {
+            const pl = playerMap.get(pid) as any;
+            lockedNames.push((pl?.web_name || pl?.full_name || pid) as string);
+          }
+        }
+        if (lockedNames.length > 0) {
+          return NextResponse.json(
+            {
+              error: `Cannot change lineup for players whose club has already kicked off: ${[...new Set(lockedNames)].join(', ')}`,
+            },
+            { status: 400 },
+          );
+        }
+      } else {
+        const currentStatusMap = new Map<string, string>(
+          entries.map((e: any) => [e.player_id as string, e.status as string]),
+        );
+        const movedPlayerIds = allPlayerIds.filter((pid) => {
+          const currentStatus = currentStatusMap.get(pid);
+          const newStatus = starterSet.has(pid) ? 'active' : 'bench';
+          return currentStatus !== newStatus;
+        });
+
+        if (movedPlayerIds.length > 0) {
+          const lockedNames = movedPlayerIds
+            .filter((pid) => plStarted(pid))
+            .map((pid) => {
+              const pl = playerMap.get(pid) as any;
+              return pl.web_name || pl.full_name || pid;
+            });
+          if (lockedNames.length > 0) {
+            return NextResponse.json(
+              {
+                error: `Cannot move players whose club has already kicked off: ${lockedNames.join(', ')}`,
+              },
+              { status: 400 },
+            );
+          }
         }
       }
     }
