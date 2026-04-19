@@ -106,6 +106,26 @@
   background: var(--color-border);
 }
 
+.rosterLink {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+  white-space: nowrap;
+}
+
+.rosterLink:hover {
+  border-color: var(--color-accent-green);
+  color: var(--color-accent-green);
+  background: rgba(58, 107, 74, 0.05);
+}
+
 .sections {
   display: flex;
   flex-direction: column;

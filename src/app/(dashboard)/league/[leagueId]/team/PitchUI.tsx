@@ -1,19 +1,5 @@
 'use client';
 
-/**
- * PitchUI — Visual football pitch lineup editor.
- *
- * Replaces the vertical list LineupEditor with an immersive pitch view.
- * Players are displayed in zone rows (GK / DEF / MID / ATT) ordered
- * left-to-right matching their lateral position.
- *
- * Interaction model (click-to-select):
- *  1. Click a pitch node or bench slot → selects it (blue outline)
- *  2. Click a pool player → selects it
- *  3. While a slot is selected, clicking a compatible pool player assigns them
- *  4. While a slot is selected, clicking another compatible slot swaps them
- */
-
 import { useCallback, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
@@ -32,19 +18,23 @@ import styles from './pitch.module.css';
 const FORMATIONS: Formation[] = ['4-3-3', '4-4-2', '4-1-4-1', '4-2-3-1', '4-2-1-3', '3-4-3'];
 const BENCH_SLOT_NAMES: BenchSlot[] = ['DEF', 'MID', 'ATT', 'FLEX'];
 
+// Season start year for U21 taxi eligibility check (matches server-side constant)
+const SEASON_START_YEAR = 2025;
+const DEFAULT_TAXI_AGE_LIMIT = 21;
+
 const POS_COLOR: Record<GranularPosition, string> = {
-    GK: 'var(--color-pos-gk, #f59e0b)',
-    CB: 'var(--color-pos-cb, #3b82f6)',
-    LB: 'var(--color-pos-fb, #6366f1)',
-    RB: 'var(--color-pos-fb, #6366f1)',
-    DM: 'var(--color-pos-dm, #8b5cf6)',
-    CM: 'var(--color-pos-cm, #06b6d4)',
-    LM: 'var(--color-pos-cm, #06b6d4)',
-    RM: 'var(--color-pos-cm, #06b6d4)',
-    AM: 'var(--color-pos-am, #10b981)',
-    LW: 'var(--color-pos-lw, #f97316)',
-    RW: 'var(--color-pos-rw, #ef4444)',
-    ST: 'var(--color-pos-st, #ec4899)',
+    GK: '#f59e0b',
+    CB: '#3b82f6',
+    LB: '#6366f1',
+    RB: '#6366f1',
+    DM: '#8b5cf6',
+    CM: '#8b5cf6',
+    LM: '#8b5cf6',
+    RM: '#8b5cf6',
+    AM: '#8b5cf6',
+    LW: '#3A6B4A',
+    RW: '#3A6B4A',
+    ST: '#ef4444',
 };
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -70,12 +60,31 @@ function displayName(player: Player): string {
     return formatPlayerName(player, 'initial_last');
 }
 
+function surnameOnly(player: Player): string {
+    const full = player.web_name || player.name || '';
+    // web_name is already usually the short name (e.g. "Salah")
+    return full.toUpperCase();
+}
+
+function isU21Eligible(player: Player, taxiAgeCutoffYear: number): boolean {
+    if (!player.date_of_birth) return false;
+    const birthYear = new Date(player.date_of_birth).getFullYear();
+    return birthYear >= taxiAgeCutoffYear;
+}
+
+function isIrEligible(player: Player): boolean {
+    return player.fpl_status === 'i' || player.fpl_status === 'u' || player.fpl_status === 'd';
+}
+
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 interface Props {
     teamId: string;
-    allEntries: (RosterEntry & { player: Player })[];
+    allEntries: (RosterEntry & { player: Player })[];   // active + bench status (excludes ir, taxi)
     irEntries: (RosterEntry & { player: Player })[];
+    taxiEntries: (RosterEntry & { player: Player })[];
+    faabBudget: number;
+    taxiAgeLimit?: number;
     initialFormation: Formation;
     initialAssignments: Record<number, string>;
     initialBench: Record<BenchSlot, string | null>;
@@ -83,13 +92,18 @@ interface Props {
     lockedTeamIds?: Set<number>;
 }
 
-type Selection =
+type LineupSelection =
     | { type: 'starter'; slotIndex: number }
     | { type: 'bench-slot'; slot: BenchSlot }
     | { type: 'pool'; playerId: string }
     | null;
 
-// ─── Pitch Zone Component ─────────────────────────────────────────────────────
+type SidebarSelection =
+    | { type: 'taxi'; playerId: string }
+    | { type: 'ir'; playerId: string }
+    | null;
+
+// ─── Pitch Node (player chip on the pitch) ───────────────────────────────────
 
 interface PitchNodeProps {
     slotPos: GranularPosition;
@@ -114,9 +128,6 @@ function PitchNode({ slotPos, player, formation, isSelected, isValidTarget, isEm
         isInvalid ? styles.nodeInvalid : '',
     ].filter(Boolean).join(' ');
 
-    // Only elevate LM/RMs if they are acting as wingers in a 3-attacker formation (like 4-3-3 if it used LM/RMs, or 4-2-3-1 which acts like LAM/RAM)
-    // The user specifically asked to ONLY elevate LM/RMs in formations with 3 attackers EXCEPT 3-4-3.
-    // 4-2-3-1 is the only standard formation that uses LM/RM to support a lone ST alongside an AM (thus 3 attackers: LM, AM, RM behind the ST).
     const isHighWide = (slotPos === 'LM' || slotPos === 'RM') && (formation === '4-2-3-1');
     const align = slotPos === 'DM' ? 'flex-end' : (slotPos === 'AM' || isHighWide) ? 'flex-start' : 'center';
 
@@ -124,55 +135,42 @@ function PitchNode({ slotPos, player, formation, isSelected, isValidTarget, isEm
         <button
             type="button"
             className={cls}
-            onClick={isLocked ? (onViewDetails ? () => onViewDetails() : undefined) : onClick}
-            style={{ 
-                alignSelf: align, 
-                ...(isInvalid ? { border: '2px solid #ef4444', backgroundColor: 'rgba(239, 68, 68, 0.08)' } : {}),
-                ...(isLocked ? { opacity: 0.7, cursor: 'pointer', background: 'rgba(255, 255, 255, 0.65)', border: '1px solid rgba(200, 194, 182, 0.6)' } : {})
+            onClick={isLocked ? (onViewDetails ?? undefined) : onClick}
+            style={{
+                alignSelf: align,
+                ...(isLocked ? { opacity: 0.7, cursor: 'pointer' } : {}),
             }}
-            title={isLocked ? "Match started (Locked) - Click to view" : isInvalid ? "Player is not eligible for this position!" : undefined}
+            title={isLocked ? 'Match started (Locked) — click to view' : isInvalid ? 'Player is not eligible for this position' : undefined}
         >
-            <span className={styles.nodePosBadge} style={{ background: POS_COLOR[slotPos] }}>
+            {/* Position badge — top-left corner */}
+            <span className={styles.nodePosBadge} style={{ background: isInvalid ? '#ef4444' : POS_COLOR[slotPos] }}>
                 {slotPos}
             </span>
+
             {player ? (
                 <>
-                    <span
-                        className={styles.nodePlayerName}
-                        onClick={(e) => {
-                            if (onViewDetails) {
-                                e.stopPropagation();
-                                onViewDetails();
-                            }
-                        }}
-                        style={{ cursor: 'pointer', ...(isInvalid ? { color: '#ef4444', fontWeight: 'bold' } : {}) }}
-                        title="View Player Details"
-                        onMouseEnter={(e) => { e.currentTarget.style.textDecoration = 'underline'; }}
-                        onMouseLeave={(e) => { e.currentTarget.style.textDecoration = 'none'; }}
-                    >
-                        {displayName(player)}
-                    </span>
-                    <span className={styles.nodePlayerClub}>
-                        {player.pl_team}
-                        {isLocked && <span style={{ marginLeft: '4px' }}>🔒</span>}
-                    </span>
+                    {/* Points badge — top-right corner (only when score exists) */}
+                    {points !== undefined && (
+                        <span className={styles.nodePtsBadge}>{points.toFixed(0)}</span>
+                    )}
+
+                    {/* Injury status dot */}
                     {player.fpl_status && player.fpl_status !== 'a' && (
                         <span className={styles.nodeStatusDot} data-status={player.fpl_status} />
                     )}
-                    {points !== undefined && (
-                        <span style={{
-                            fontSize: '0.68rem',
-                            fontWeight: 700,
-                            color: '#3A6B4A',
-                            background: 'rgba(58,107,74,0.1)',
-                            border: '1px solid rgba(58,107,74,0.25)',
-                            borderRadius: '4px',
-                            padding: '1px 5px',
-                            marginTop: '2px',
-                        }}>
-                            {points.toFixed(1)} pts
-                        </span>
-                    )}
+
+                    <span
+                        className={styles.nodePlayerName}
+                        onClick={(e) => { if (onViewDetails) { e.stopPropagation(); onViewDetails(); } }}
+                        style={{ cursor: onViewDetails ? 'pointer' : 'default', ...(isInvalid ? { color: '#ef4444' } : {}) }}
+                        title={onViewDetails ? 'View player details' : undefined}
+                    >
+                        {surnameOnly(player)}
+                    </span>
+                    <span className={styles.nodePlayerClub}>
+                        {player.pl_team}
+                        {isLocked && <span style={{ marginLeft: 3 }}>🔒</span>}
+                    </span>
                 </>
             ) : (
                 <span className={styles.nodeEmptyLabel}>Empty</span>
@@ -187,6 +185,9 @@ export default function PitchUI({
     teamId,
     allEntries,
     irEntries,
+    taxiEntries,
+    faabBudget,
+    taxiAgeLimit = DEFAULT_TAXI_AGE_LIMIT,
     initialFormation,
     initialAssignments,
     initialBench,
@@ -195,14 +196,12 @@ export default function PitchUI({
 }: Props) {
     const router = useRouter();
 
-    // ── State ──
+    // ── Lineup state ──
     const [formation, setFormation] = useState<Formation>(initialFormation);
     const [assignments, setAssignments] = useState<Record<number, string | null>>(() => {
         const slots = FORMATION_SLOTS[initialFormation];
         const result: Record<number, string | null> = {};
-        for (let i = 0; i < slots.length; i++) {
-            result[i] = initialAssignments[i] ?? null;
-        }
+        for (let i = 0; i < slots.length; i++) result[i] = initialAssignments[i] ?? null;
         return result;
     });
     const [benchAssignments, setBenchAssignments] = useState<Record<BenchSlot, string | null>>({
@@ -211,13 +210,21 @@ export default function PitchUI({
         ATT: initialBench.ATT ?? null,
         FLEX: initialBench.FLEX ?? null,
     });
-    const [selection, setSelection] = useState<Selection>(null);
+    const [lineupSelection, setLineupSelection] = useState<LineupSelection>(null);
     const [saving, setSaving] = useState(false);
-    const [error, setError] = useState<string | null>(null);
-    const [success, setSuccess] = useState(false);
+    const [saveError, setSaveError] = useState<string | null>(null);
+    const [saveSuccess, setSaveSuccess] = useState(false);
+
+    // ── Sidebar (taxi/IR swap) state ──
+    const [sidebarSelection, setSidebarSelection] = useState<SidebarSelection>(null);
+    const [sidebarLoading, setSidebarLoading] = useState(false);
+    const [sidebarError, setSidebarError] = useState<string | null>(null);
+
+    // ── Modal ──
     const [viewingPlayer, setViewingPlayer] = useState<Player | null>(null);
 
     const slots = FORMATION_SLOTS[formation];
+    const taxiAgeCutoffYear = SEASON_START_YEAR - taxiAgeLimit;
 
     // ── Derived state ──
     const starterIds = useMemo(
@@ -234,13 +241,13 @@ export default function PitchUI({
         return map;
     }, [allEntries]);
 
+    // Pool = unassigned players (the "Reserves" in the sidebar)
     const poolEntries = useMemo(
         () => allEntries.filter((e) => !starterIds.has(e.player.id) && !benchIds.has(e.player.id)),
         [allEntries, starterIds, benchIds],
     );
 
-    // ── Zone layout (grouped in FORMATION_SLOTS insertion order — no re-sorting) ──
-    // FORMATION_SLOTS arrays are already ordered left-to-right within each zone.
+    // Zone layout for pitch rendering
     const zonedSlots = useMemo(() => {
         const list = slots.map((pos, i) => ({ slotIndex: i, pos, zone: getZone(pos) }));
         return {
@@ -251,25 +258,24 @@ export default function PitchUI({
         };
     }, [slots]);
 
-    // ── Valid swap targets for highlighting ──
-    const validSwapTargets = useMemo(() => {
+    // Valid swap/assign targets for lineup selection highlighting
+    const validLineupTargets = useMemo(() => {
         const targets = new Set<string>();
-        if (!selection) return targets;
+        if (!lineupSelection) return targets;
 
-        if (selection.type === 'starter') {
-            const currentPlayerId = assignments[selection.slotIndex];
+        if (lineupSelection.type === 'starter') {
+            const currentPlayerId = assignments[lineupSelection.slotIndex];
             const currentEntry = currentPlayerId ? playerMap.get(currentPlayerId) : null;
-
             for (let i = 0; i < slots.length; i++) {
-                if (i === selection.slotIndex) continue;
+                if (i === lineupSelection.slotIndex) continue;
                 const otherId = assignments[i];
                 const otherEntry = otherId ? playerMap.get(otherId) : null;
                 const curCanGoThere = !currentEntry || canPlaySlot(currentEntry.player, slots[i]);
-                const otherCanComeHere = !otherEntry || canPlaySlot(otherEntry.player, slots[selection.slotIndex]);
+                const otherCanComeHere = !otherEntry || canPlaySlot(otherEntry.player, slots[lineupSelection.slotIndex]);
                 if (curCanGoThere && otherCanComeHere) targets.add(`starter-${i}`);
             }
             for (const e of poolEntries) {
-                if (canPlaySlot(e.player, slots[selection.slotIndex])) targets.add(`pool-${e.player.id}`);
+                if (canPlaySlot(e.player, slots[lineupSelection.slotIndex])) targets.add(`pool-${e.player.id}`);
             }
             if (currentEntry) {
                 for (const slot of BENCH_SLOT_NAMES) {
@@ -278,25 +284,25 @@ export default function PitchUI({
             }
         }
 
-        if (selection.type === 'bench-slot') {
-            const benchPlayerId = benchAssignments[selection.slot];
+        if (lineupSelection.type === 'bench-slot') {
+            const benchPlayerId = benchAssignments[lineupSelection.slot];
             const benchEntry = benchPlayerId ? playerMap.get(benchPlayerId) : null;
             if (benchEntry) {
                 for (let i = 0; i < slots.length; i++) {
                     if (canPlaySlot(benchEntry.player, slots[i])) targets.add(`starter-${i}`);
                 }
                 for (const slot of BENCH_SLOT_NAMES) {
-                    if (slot === selection.slot) continue;
+                    if (slot === lineupSelection.slot) continue;
                     if (canPlayBenchSlot(benchEntry.player, slot)) targets.add(`bench-${slot}`);
                 }
             }
             for (const e of poolEntries) {
-                if (canPlayBenchSlot(e.player, selection.slot)) targets.add(`pool-${e.player.id}`);
+                if (canPlayBenchSlot(e.player, lineupSelection.slot)) targets.add(`pool-${e.player.id}`);
             }
         }
 
-        if (selection.type === 'pool') {
-            const entry = playerMap.get(selection.playerId);
+        if (lineupSelection.type === 'pool') {
+            const entry = playerMap.get(lineupSelection.playerId);
             if (entry) {
                 for (let i = 0; i < slots.length; i++) {
                     if (canPlaySlot(entry.player, slots[i])) targets.add(`starter-${i}`);
@@ -308,18 +314,66 @@ export default function PitchUI({
         }
 
         return targets;
-    }, [selection, assignments, benchAssignments, slots, playerMap, poolEntries]);
+    }, [lineupSelection, assignments, benchAssignments, slots, playerMap, poolEntries]);
 
-    // ── Formation change (smart — preserves valid assignments) ──
+    // Valid targets for sidebar (taxi/IR) selection
+    const validSidebarTargets = useMemo(() => {
+        const targets = new Set<string>();
+        if (!sidebarSelection) return targets;
+        if (sidebarSelection.type === 'taxi') {
+            for (const e of poolEntries) {
+                if (isU21Eligible(e.player, taxiAgeCutoffYear)) targets.add(`pool-${e.player.id}`);
+            }
+        }
+        if (sidebarSelection.type === 'ir') {
+            for (const e of poolEntries) {
+                if (isIrEligible(e.player)) targets.add(`pool-${e.player.id}`);
+            }
+        }
+        return targets;
+    }, [sidebarSelection, poolEntries, taxiAgeCutoffYear]);
+
+    // ── Selection helpers ──
+    function clearAll() {
+        setLineupSelection(null);
+        setSidebarSelection(null);
+        setSaveError(null);
+    }
+
+    function activateLineupSelection(sel: LineupSelection) {
+        setSidebarSelection(null);
+        setSidebarError(null);
+        setLineupSelection(sel);
+    }
+
+    function activateSidebarSelection(sel: SidebarSelection) {
+        setLineupSelection(null);
+        setSaveError(null);
+        setSidebarSelection(sel);
+        setSidebarError(null);
+    }
+
+    // ── Drop to reserves (unassign from any slot) ──
+    function dropToReserves() {
+        if (!lineupSelection) return;
+        if (lineupSelection.type === 'starter') {
+            setAssignments((prev) => ({ ...prev, [lineupSelection.slotIndex]: null }));
+        } else if (lineupSelection.type === 'bench-slot') {
+            setBenchAssignments((prev) => ({ ...prev, [lineupSelection.slot]: null }));
+        }
+        setLineupSelection(null);
+        setSaveError(null);
+        setSaveSuccess(false);
+    }
+
+    // ── Formation change ──
     function handleFormationChange(f: Formation) {
         const newSlots = FORMATION_SLOTS[f];
         const newAssignments: Record<number, string | null> = {};
         for (let i = 0; i < newSlots.length; i++) newAssignments[i] = null;
-
         const usedPlayers = new Set<string>();
         const oldSlots = FORMATION_SLOTS[formation];
         const oldByPosition = new Map<GranularPosition, string[]>();
-
         for (let i = 0; i < oldSlots.length; i++) {
             const pid = assignments[i];
             if (!pid) continue;
@@ -327,7 +381,6 @@ export default function PitchUI({
             if (!oldByPosition.has(pos)) oldByPosition.set(pos, []);
             oldByPosition.get(pos)!.push(pid);
         }
-
         for (let i = 0; i < newSlots.length; i++) {
             const slotPos = newSlots[i];
             const candidates = oldByPosition.get(slotPos) ?? [];
@@ -336,12 +389,8 @@ export default function PitchUI({
                 const entry = playerMap.get(id);
                 return entry ? canPlaySlot(entry.player, slotPos) : false;
             });
-            if (available) {
-                newAssignments[i] = available;
-                usedPlayers.add(available);
-            }
+            if (available) { newAssignments[i] = available; usedPlayers.add(available); }
         }
-
         const remaining = Object.values(assignments).filter((id): id is string => id != null && !usedPlayers.has(id));
         for (let i = 0; i < newSlots.length; i++) {
             if (newAssignments[i] != null) continue;
@@ -351,218 +400,339 @@ export default function PitchUI({
                 const entry = playerMap.get(id);
                 return entry ? canPlaySlot(entry.player, slotPos) : false;
             });
-            if (cand) {
-                newAssignments[i] = cand;
-                usedPlayers.add(cand);
-            }
+            if (cand) { newAssignments[i] = cand; usedPlayers.add(cand); }
         }
-
         setFormation(f);
         setAssignments(newAssignments);
-        setSelection(null);
-        setError(null);
-        setSuccess(false);
+        clearAll();
+        setSaveSuccess(false);
     }
 
     // ── Starter node click ──
     const handleStarterClick = useCallback(
         (slotIndex: number) => {
-            if (!selection) {
-                setSelection({ type: 'starter', slotIndex });
+            setSidebarSelection(null);
+            setSidebarError(null);
+            if (!lineupSelection) {
+                activateLineupSelection({ type: 'starter', slotIndex });
                 return;
             }
-
-            if (selection.type === 'starter') {
-                if (selection.slotIndex === slotIndex) { setSelection(null); return; }
-                // Swap two starters
-                const pidA = assignments[selection.slotIndex];
+            if (lineupSelection.type === 'starter') {
+                if (lineupSelection.slotIndex === slotIndex) { setLineupSelection(null); return; }
+                const pidA = assignments[lineupSelection.slotIndex];
                 const pidB = assignments[slotIndex];
                 const eA = pidA ? playerMap.get(pidA) : null;
                 const eB = pidB ? playerMap.get(pidB) : null;
                 const aCanGo = !eA || canPlaySlot(eA.player, slots[slotIndex]);
-                const bCanGo = !eB || canPlaySlot(eB.player, slots[selection.slotIndex]);
+                const bCanGo = !eB || canPlaySlot(eB.player, slots[lineupSelection.slotIndex]);
                 if (aCanGo && bCanGo) {
-                    setAssignments((prev) => ({ ...prev, [selection.slotIndex]: pidB ?? null, [slotIndex]: pidA ?? null }));
-                    setError(null); setSuccess(false);
+                    setAssignments((prev) => ({ ...prev, [lineupSelection.slotIndex]: pidB ?? null, [slotIndex]: pidA ?? null }));
+                    setSaveError(null); setSaveSuccess(false);
                 } else {
-                    setError('These players cannot swap — position mismatch.');
+                    setSaveError('Position mismatch — these players cannot swap.');
                 }
-                setSelection(null); return;
+                setLineupSelection(null); return;
             }
-
-            if (selection.type === 'pool') {
-                const pid = selection.playerId;
+            if (lineupSelection.type === 'pool') {
+                const pid = lineupSelection.playerId;
                 const slotPos = slots[slotIndex];
                 const entry = playerMap.get(pid);
                 if (!entry || !canPlaySlot(entry.player, slotPos)) {
-                    setError(`${displayName(entry?.player ?? { name: 'Player', web_name: null } as Player)} cannot play ${slotPos}.`);
-                    setSelection(null); return;
+                    setSaveError(`${displayName(entry?.player ?? { name: 'Player', web_name: null } as Player)} cannot play ${slotPos}.`);
+                    setLineupSelection(null); return;
                 }
                 setAssignments((prev) => ({ ...prev, [slotIndex]: pid }));
-                setError(null); setSuccess(false); setSelection(null); return;
+                setSaveError(null); setSaveSuccess(false); setLineupSelection(null); return;
             }
-
-            if (selection.type === 'bench-slot') {
-                const benchPid = benchAssignments[selection.slot];
-                if (!benchPid) { setSelection({ type: 'starter', slotIndex }); return; }
+            if (lineupSelection.type === 'bench-slot') {
+                const benchPid = benchAssignments[lineupSelection.slot];
+                if (!benchPid) { activateLineupSelection({ type: 'starter', slotIndex }); return; }
                 const eBench = playerMap.get(benchPid);
                 const slotPos = slots[slotIndex];
                 if (!eBench || !canPlaySlot(eBench.player, slotPos)) {
-                    setError(`${displayName(eBench?.player ?? { name: 'Player', web_name: null } as Player)} cannot play ${slotPos}.`);
-                    setSelection(null); return;
+                    setSaveError(`${displayName(eBench?.player ?? { name: 'Player', web_name: null } as Player)} cannot play ${slotPos}.`);
+                    setLineupSelection(null); return;
                 }
                 const curStarterId = assignments[slotIndex];
                 const eStart = curStarterId ? playerMap.get(curStarterId) : null;
-                if (eStart && canPlayBenchSlot(eStart.player, selection.slot)) {
-                    setBenchAssignments((prev) => ({ ...prev, [selection.slot]: curStarterId }));
+                if (eStart && canPlayBenchSlot(eStart.player, lineupSelection.slot)) {
+                    setBenchAssignments((prev) => ({ ...prev, [lineupSelection.slot]: curStarterId }));
                 } else {
-                    setBenchAssignments((prev) => ({ ...prev, [selection.slot]: null }));
+                    setBenchAssignments((prev) => ({ ...prev, [lineupSelection.slot]: null }));
                 }
                 setAssignments((prev) => ({ ...prev, [slotIndex]: benchPid }));
-                setError(null); setSuccess(false); setSelection(null); return;
+                setSaveError(null); setSaveSuccess(false); setLineupSelection(null); return;
             }
         },
-        [selection, assignments, slots, playerMap, benchAssignments],
+        [lineupSelection, assignments, slots, playerMap, benchAssignments],
     );
 
     // ── Bench slot click ──
     const handleBenchSlotClick = useCallback(
         (slot: BenchSlot) => {
-            if (!selection) { setSelection({ type: 'bench-slot', slot }); return; }
-
-            if (selection.type === 'bench-slot') {
-                if (selection.slot === slot) { setSelection(null); return; }
-                const pidA = benchAssignments[selection.slot];
+            setSidebarSelection(null);
+            setSidebarError(null);
+            if (!lineupSelection) { activateLineupSelection({ type: 'bench-slot', slot }); return; }
+            if (lineupSelection.type === 'bench-slot') {
+                if (lineupSelection.slot === slot) { setLineupSelection(null); return; }
+                const pidA = benchAssignments[lineupSelection.slot];
                 const pidB = benchAssignments[slot];
                 const eA = pidA ? playerMap.get(pidA) : null;
                 const eB = pidB ? playerMap.get(pidB) : null;
                 const aOk = !eA || canPlayBenchSlot(eA.player, slot);
-                const bOk = !eB || canPlayBenchSlot(eB.player, selection.slot);
+                const bOk = !eB || canPlayBenchSlot(eB.player, lineupSelection.slot);
                 if (aOk && bOk) {
-                    setBenchAssignments((prev) => ({ ...prev, [selection.slot]: pidB ?? null, [slot]: pidA ?? null }));
-                    setError(null); setSuccess(false);
+                    setBenchAssignments((prev) => ({ ...prev, [lineupSelection.slot]: pidB ?? null, [slot]: pidA ?? null }));
+                    setSaveError(null); setSaveSuccess(false);
                 } else {
-                    setError(`Position mismatch — cannot swap ${selection.slot} and ${slot} bench slots.`);
+                    setSaveError(`Position mismatch — cannot swap ${lineupSelection.slot} and ${slot} bench slots.`);
                 }
-                setSelection(null); return;
+                setLineupSelection(null); return;
             }
-
-            if (selection.type === 'pool') {
-                const pid = selection.playerId;
+            if (lineupSelection.type === 'pool') {
+                const pid = lineupSelection.playerId;
                 const entry = playerMap.get(pid);
                 if (!entry || !canPlayBenchSlot(entry.player, slot)) {
-                    setError(`${displayName(entry?.player ?? { name: 'Player', web_name: null } as Player)} cannot play the ${slot} bench slot.`);
-                    setSelection(null); return;
+                    setSaveError(`${displayName(entry?.player ?? { name: 'Player', web_name: null } as Player)} cannot play the ${slot} bench slot.`);
+                    setLineupSelection(null); return;
                 }
                 setBenchAssignments((prev) => ({ ...prev, [slot]: pid }));
-                setError(null); setSuccess(false); setSelection(null); return;
+                setSaveError(null); setSaveSuccess(false); setLineupSelection(null); return;
             }
-
-            if (selection.type === 'starter') {
-                const starterPid = assignments[selection.slotIndex];
-                if (!starterPid) { setSelection({ type: 'bench-slot', slot }); return; }
+            if (lineupSelection.type === 'starter') {
+                const starterPid = assignments[lineupSelection.slotIndex];
+                if (!starterPid) { activateLineupSelection({ type: 'bench-slot', slot }); return; }
                 const eStart = playerMap.get(starterPid);
                 if (!eStart || !canPlayBenchSlot(eStart.player, slot)) {
-                    setError(`${displayName(eStart?.player ?? { name: 'Player', web_name: null } as Player)} cannot play the ${slot} bench slot.`);
-                    setSelection(null); return;
+                    setSaveError(`${displayName(eStart?.player ?? { name: 'Player', web_name: null } as Player)} cannot play the ${slot} bench slot.`);
+                    setLineupSelection(null); return;
                 }
                 const curBenchId = benchAssignments[slot];
                 const eBench = curBenchId ? playerMap.get(curBenchId) : null;
-                if (eBench && canPlaySlot(eBench.player, slots[selection.slotIndex])) {
-                    setAssignments((prev) => ({ ...prev, [selection.slotIndex]: curBenchId }));
+                if (eBench && canPlaySlot(eBench.player, slots[lineupSelection.slotIndex])) {
+                    setAssignments((prev) => ({ ...prev, [lineupSelection.slotIndex]: curBenchId }));
                 } else {
-                    setAssignments((prev) => ({ ...prev, [selection.slotIndex]: null }));
+                    setAssignments((prev) => ({ ...prev, [lineupSelection.slotIndex]: null }));
                 }
                 setBenchAssignments((prev) => ({ ...prev, [slot]: starterPid }));
-                setError(null); setSuccess(false); setSelection(null); return;
+                setSaveError(null); setSaveSuccess(false); setLineupSelection(null); return;
             }
         },
-        [selection, assignments, benchAssignments, slots, playerMap],
+        [lineupSelection, assignments, benchAssignments, slots, playerMap],
     );
 
-    // ── Pool player click ──
+    // ── Pool (Reserve) player click ──
     const handlePoolClick = useCallback(
         (playerId: string) => {
-            if (!selection) { setSelection({ type: 'pool', playerId }); return; }
+            // If a sidebar (taxi/ir) selection is active, handle it
+            if (sidebarSelection) {
+                const targetEntry = poolEntries.find((e) => e.player.id === playerId);
+                if (!targetEntry) return;
 
-            if (selection.type === 'pool') {
-                setSelection(selection.playerId === playerId ? null : { type: 'pool', playerId });
+                if (sidebarSelection.type === 'taxi') {
+                    if (!isU21Eligible(targetEntry.player, taxiAgeCutoffYear)) {
+                        setSidebarError('This player is not U21 eligible for the taxi squad.');
+                        setSidebarSelection(null); return;
+                    }
+                    handleTaxiSwap(sidebarSelection.playerId, playerId);
+                    return;
+                }
+
+                if (sidebarSelection.type === 'ir') {
+                    if (!isIrEligible(targetEntry.player)) {
+                        setSidebarError('This player must be injured or unavailable to be moved to IR.');
+                        setSidebarSelection(null); return;
+                    }
+                    handleIrSwap(sidebarSelection.playerId, playerId);
+                    return;
+                }
                 return;
             }
 
-            if (selection.type === 'starter') {
-                const slotIndex = selection.slotIndex;
+            // Otherwise handle as lineup pool selection
+            if (!lineupSelection) { activateLineupSelection({ type: 'pool', playerId }); return; }
+
+            if (lineupSelection.type === 'pool') {
+                setLineupSelection(lineupSelection.playerId === playerId ? null : { type: 'pool', playerId });
+                return;
+            }
+            if (lineupSelection.type === 'starter') {
+                const slotIndex = lineupSelection.slotIndex;
                 const slotPos = slots[slotIndex];
                 const entry = playerMap.get(playerId);
                 if (!entry || !canPlaySlot(entry.player, slotPos)) {
-                    setError(`${displayName(entry?.player ?? { name: 'Player', web_name: null } as Player)} cannot play ${slotPos}.`);
-                    setSelection(null); return;
+                    setSaveError(`${displayName(entry?.player ?? { name: 'Player', web_name: null } as Player)} cannot play ${slotPos}.`);
+                    setLineupSelection(null); return;
                 }
                 setAssignments((prev) => ({ ...prev, [slotIndex]: playerId }));
-                setError(null); setSuccess(false); setSelection(null); return;
+                setSaveError(null); setSaveSuccess(false); setLineupSelection(null); return;
             }
-
-            if (selection.type === 'bench-slot') {
-                const slot = selection.slot;
+            if (lineupSelection.type === 'bench-slot') {
+                const slot = lineupSelection.slot;
                 const entry = playerMap.get(playerId);
                 if (!entry || !canPlayBenchSlot(entry.player, slot)) {
-                    setError(`${displayName(entry?.player ?? { name: 'Player', web_name: null } as Player)} cannot play the ${slot} bench slot.`);
-                    setSelection(null); return;
+                    setSaveError(`${displayName(entry?.player ?? { name: 'Player', web_name: null } as Player)} cannot play the ${slot} bench slot.`);
+                    setLineupSelection(null); return;
                 }
                 setBenchAssignments((prev) => ({ ...prev, [slot]: playerId }));
-                setError(null); setSuccess(false); setSelection(null); return;
+                setSaveError(null); setSaveSuccess(false); setLineupSelection(null); return;
             }
         },
-        [selection, slots, playerMap],
+        [lineupSelection, sidebarSelection, slots, playerMap, poolEntries, taxiAgeCutoffYear],
     );
 
-    // ── Save ──
+    // ── Taxi swap (activate outgoing + move_to_taxi incoming) ──
+    async function handleTaxiSwap(outgoingTaxiId: string, incomingReserveId: string) {
+        setSidebarLoading(true);
+        setSidebarError(null);
+        setSidebarSelection(null);
+        try {
+            const [r1, r2] = await Promise.all([
+                fetch(`/api/teams/${teamId}/taxi`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ playerId: outgoingTaxiId, action: 'activate' }),
+                }),
+                fetch(`/api/teams/${teamId}/taxi`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ playerId: incomingReserveId, action: 'move_to_taxi' }),
+                }),
+            ]);
+            const errs: string[] = [];
+            if (!r1.ok) { const d = await r1.json(); errs.push(d.error ?? 'Activate failed'); }
+            if (!r2.ok) { const d = await r2.json(); errs.push(d.error ?? 'Move to taxi failed'); }
+            if (errs.length) { setSidebarError(errs.join(' · ')); } else { router.refresh(); }
+        } catch {
+            setSidebarError('Network error — please try again.');
+        } finally {
+            setSidebarLoading(false);
+        }
+    }
+
+    // ── Taxi standalone activate ──
+    async function handleTaxiActivate(playerId: string) {
+        setSidebarLoading(true);
+        setSidebarError(null);
+        setSidebarSelection(null);
+        try {
+            const res = await fetch(`/api/teams/${teamId}/taxi`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ playerId, action: 'activate' }),
+            });
+            if (!res.ok) { const d = await res.json(); setSidebarError(d.error ?? 'Failed to activate'); }
+            else { router.refresh(); }
+        } catch {
+            setSidebarError('Network error — please try again.');
+        } finally {
+            setSidebarLoading(false);
+        }
+    }
+
+    // ── IR swap (move_to_ir incoming + activate outgoing) ──
+    async function handleIrSwap(outgoingIrId: string, incomingReserveId: string) {
+        setSidebarLoading(true);
+        setSidebarError(null);
+        setSidebarSelection(null);
+        try {
+            const [r1, r2] = await Promise.all([
+                fetch(`/api/teams/${teamId}/ir`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ playerId: outgoingIrId, action: 'activate' }),
+                }),
+                fetch(`/api/teams/${teamId}/ir`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ playerId: incomingReserveId, action: 'move_to_ir' }),
+                }),
+            ]);
+            const errs: string[] = [];
+            if (!r1.ok) { const d = await r1.json(); errs.push(d.error ?? 'Activate failed'); }
+            if (!r2.ok) { const d = await r2.json(); errs.push(d.error ?? 'Move to IR failed'); }
+            if (errs.length) { setSidebarError(errs.join(' · ')); } else { router.refresh(); }
+        } catch {
+            setSidebarError('Network error — please try again.');
+        } finally {
+            setSidebarLoading(false);
+        }
+    }
+
+    // ── IR standalone activate ──
+    async function handleIrActivate(playerId: string) {
+        setSidebarLoading(true);
+        setSidebarError(null);
+        setSidebarSelection(null);
+        try {
+            const res = await fetch(`/api/teams/${teamId}/ir`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ playerId, action: 'activate' }),
+            });
+            if (!res.ok) { const d = await res.json(); setSidebarError(d.error ?? 'Failed to activate from IR'); }
+            else { router.refresh(); }
+        } catch {
+            setSidebarError('Network error — please try again.');
+        } finally {
+            setSidebarLoading(false);
+        }
+    }
+
+    // ── Save lineup ──
     async function handleSave() {
         const starterPayload = slots.map((slot, i) => ({ player_id: assignments[i] as string, slot }));
         if (starterPayload.some((s) => !s.player_id)) {
-            setError('All 11 starting slots must be filled before saving.');
+            setSaveError('All 11 starting slots must be filled before saving.');
             return;
         }
-
         const benchPayload: { player_id: string; slot: BenchSlot }[] = [];
         for (const slot of BENCH_SLOT_NAMES) {
             const pid = benchAssignments[slot];
             if (pid) benchPayload.push({ player_id: pid, slot });
         }
         if (benchPayload.length !== 4) {
-            setError(`Fill all 4 bench slots (DEF, MID, ATT, FLEX). Currently ${benchPayload.length}/4.`);
+            setSaveError(`Fill all 4 bench slots. Currently ${benchPayload.length}/4.`);
             return;
         }
-
-        setSaving(true); setError(null); setSuccess(false);
+        setSaving(true); setSaveError(null); setSaveSuccess(false);
         try {
             const res = await fetch(`/api/teams/${teamId}/lineup`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ formation, starters: starterPayload, bench: benchPayload }),
             });
-            if (!res.ok) {
-                const data = await res.json();
-                setError(data.error ?? 'Failed to save lineup');
-                return;
-            }
-            setSuccess(true);
+            if (!res.ok) { const data = await res.json(); setSaveError(data.error ?? 'Failed to save lineup'); return; }
+            setSaveSuccess(true);
             router.refresh();
         } catch {
-            setError('Network error — please try again.');
+            setSaveError('Network error — please try again.');
         } finally {
             setSaving(false);
         }
     }
 
     const canSave = !saving && slots.every((_, i) => assignments[i] != null) && BENCH_SLOT_NAMES.every((s) => benchAssignments[s] != null);
-
-    // ── Render ──
     const ZONE_ORDER: Array<'ATT' | 'MID' | 'DEF' | 'GK'> = ['ATT', 'MID', 'DEF', 'GK'];
+
+    // Hint text for current selection state
+    const selectionHint = lineupSelection
+        ? lineupSelection.type === 'starter'
+            ? 'Starter selected — click a reserve, another slot, or a bench slot to swap. Click the Reserves header to drop to reserves.'
+            : lineupSelection.type === 'bench-slot'
+            ? `Bench slot ${lineupSelection.slot} selected — click a reserve to assign, another bench slot to swap, or the Reserves header to clear.`
+            : 'Reserve selected — click a starter slot or bench slot to place.'
+        : sidebarSelection
+        ? sidebarSelection.type === 'taxi'
+            ? 'Taxi player selected — click an eligible U21 reserve to swap in.'
+            : 'IR player selected — click an injured/unavailable reserve to swap in.'
+        : null;
+
+    // ─── Render ───────────────────────────────────────────────────────────────
 
     return (
         <div className={styles.pitchUI}>
-            {/* Formation bar */}
+            {/* ── Formation bar ── */}
             <div className={styles.formationBar}>
                 <span className={styles.formationLabel}>Formation</span>
                 <div className={styles.formationPills}>
@@ -579,235 +749,317 @@ export default function PitchUI({
                 </div>
             </div>
 
-            {/* Selection hint */}
-            {selection && (
+            {/* ── Selection hint banner ── */}
+            {selectionHint && (
                 <div className={styles.selectionHint}>
-                    <span>
-                        {selection.type === 'starter' && 'Starter slot selected — click a player from the pool, another slot, or a bench slot to swap.'}
-                        {selection.type === 'bench-slot' && `Bench slot ${selection.slot} selected — click a pool player to assign or another slot to swap.`}
-                        {selection.type === 'pool' && 'Player selected — click a starter slot or bench slot to place them.'}
-                    </span>
-                    <button type="button" className={styles.cancelBtn} onClick={() => { setSelection(null); setError(null); }}>
-                        Cancel
-                    </button>
+                    <span>{selectionHint}</span>
+                    <button type="button" className={styles.cancelBtn} onClick={clearAll}>Cancel</button>
                 </div>
             )}
 
-            {/* ── Football Pitch ── */}
-            <div className={styles.pitchContainer}>
-                {/* Pitch markings */}
-                <div className={styles.pitchCenterLine} />
-                <div className={styles.pitchCenterCircle} />
+            {/* ── 2-column layout: Pitch (left) + Sidebar (right) ── */}
+            <div className={styles.pitchLayout}>
 
-                {/* Zone rows (ATT at top, GK at bottom) */}
-                {ZONE_ORDER.map((zone) => {
-                    const zoneSlots = zonedSlots[zone];
-                    if (zoneSlots.length === 0) return null;
-                    const isCompactMid = zone === 'MID' && zoneSlots.length === 3;
-                    return (
-                        <div key={zone} className={`${styles.pitchZone} ${styles[`zone${zone}`]}`}>
-                            <span className={styles.zoneLabel}>{zone}</span>
-                            <div
-                                className={styles.pitchRow}
-                            // Removed the padding hack. We now use ghost nodes to mathematically match the 5-man line.
-                            >
-                                {isCompactMid && <div style={{ width: '76px', visibility: 'hidden' }} />}
-                                {zoneSlots.map(({ slotIndex, pos }) => {
-                                    const playerId = assignments[slotIndex];
-                                    const entry = playerId ? playerMap.get(playerId) : undefined;
-                                    const isSelected = selection?.type === 'starter' && selection.slotIndex === slotIndex;
-                                    const isValidTarget = validSwapTargets.has(`starter-${slotIndex}`);
-                                    const isInvalid = !!playerId && !!entry && !canPlaySlot(entry.player, pos);
-                                    const isLocked = !!playerId && !!entry && entry.player.pl_team_id !== null && lockedTeamIds?.has(entry.player.pl_team_id);
+                {/* ── LEFT: Pitch ── */}
+                <div className={styles.pitchCol}>
+                    <div className={styles.pitchContainer}>
+                        <div className={styles.pitchCenterLine} />
+                        <div className={styles.pitchCenterCircle} />
+                        <div className={styles.pitchPenaltyTop} />
+                        <div className={styles.pitchPenaltyBottom} />
 
-                                    return (
-                                        <PitchNode
-                                            key={slotIndex}
-                                            slotPos={pos}
-                                            player={entry?.player}
-                                            formation={formation}
-                                            isSelected={isSelected}
-                                            isValidTarget={isValidTarget}
-                                            isEmpty={!playerId}
-                                            isInvalid={isInvalid}
-                                            isLocked={isLocked}
-                                            onClick={() => handleStarterClick(slotIndex)}
-                                            onViewDetails={entry ? () => setViewingPlayer(entry.player) : undefined}
-                                            points={playerId && scoreMap ? scoreMap[playerId] : undefined}
-                                        />
-                                    );
-                                })}
-                                {isCompactMid && <div style={{ width: '76px', visibility: 'hidden' }} />}
-                            </div>
-                        </div>
-                    );
-                })}
-            </div>
-
-            {/* ── Bench Row ── */}
-            <div className={styles.benchSection}>
-                <div className={styles.benchLabel}>Bench Substitutes</div>
-                <div className={styles.benchRow}>
-                    {BENCH_SLOT_NAMES.map((slot) => {
-                                const pid = benchAssignments[slot];
-                        const entry = pid ? playerMap.get(pid) : undefined;
-                        const isSelected = selection?.type === 'bench-slot' && selection.slot === slot;
-                        const isValidTarget = validSwapTargets.has(`bench-${slot}`);
-                        const isLocked = !!pid && !!entry && entry.player.pl_team_id !== null && lockedTeamIds?.has(entry.player.pl_team_id);
-
-                        return (
-                            <button
-                                key={slot}
-                                type="button"
-                                className={`${styles.benchSlot} ${isSelected ? styles.nodeSelected : ''} ${isValidTarget ? styles.nodeValidTarget : ''} ${!pid ? styles.nodeEmpty : ''}`}
-                                onClick={isLocked && entry ? () => setViewingPlayer(entry.player) : () => handleBenchSlotClick(slot)}
-                                style={isLocked ? { opacity: 0.65, cursor: 'pointer' } : {}}
-                                title={isLocked ? "Match started (Locked) - Click to view" : undefined}
-                            >
-                                <span className={styles.benchSlotType}>{slot}</span>
-                                <span className={styles.benchSlotDesc}>{BENCH_SLOT_LABELS[slot]}</span>
-                                {entry ? (
-                                    <>
-                                        <span className={styles.nodePosBadge} style={{ background: POS_COLOR[entry.player.primary_position] }}>
-                                            {entry.player.primary_position}
-                                        </span>
-                                        <span
-                                            className={styles.benchPlayerName}
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                setViewingPlayer(entry.player);
-                                            }}
-                                            style={{ cursor: 'pointer' }}
-                                            title="View Player Details"
-                                            onMouseEnter={(e) => { e.currentTarget.style.textDecoration = 'underline'; }}
-                                            onMouseLeave={(e) => { e.currentTarget.style.textDecoration = 'none'; }}
-                                        >
-                                            {displayName(entry.player)}
-                                        </span>
-                                        <span className={styles.benchPlayerClub}>
-                                            {entry.player.pl_team}
-                                            {isLocked && <span style={{ marginLeft: '4px' }}>🔒</span>}
-                                        </span>
-                                        {scoreMap && pid && scoreMap[pid] !== undefined && (
-                                            <span style={{
-                                                fontSize: '0.68rem',
-                                                fontWeight: 700,
-                                                color: '#9A9488',
-                                                background: 'rgba(154,148,136,0.12)',
-                                                border: '1px solid rgba(154,148,136,0.28)',
-                                                borderRadius: '4px',
-                                                padding: '1px 5px',
-                                                marginTop: '2px',
-                                            }}>
-                                                {scoreMap[pid].toFixed(1)} pts
-                                            </span>
-                                        )}
-                                    </>
-                                ) : (
-                                    <span className={styles.nodeEmptyLabel}>Empty</span>
-                                )}
-                            </button>
-                        );
-                    })}
-                </div>
-            </div>
-
-            {/* ── Player Pool ── */}
-            <div className={styles.poolSection}>
-                <div className={styles.poolLabel}>
-                    Available Players
-                    <span className={styles.poolCount}>{poolEntries.length}</span>
-                </div>
-                {poolEntries.length === 0 ? (
-                    <p className={styles.poolEmpty}>All players assigned to Starting XI or Bench.</p>
-                ) : (
-                    <div className={styles.poolGrid}>
-                        {poolEntries.map((entry) => {
-                            const isSelected = selection?.type === 'pool' && selection.playerId === entry.player.id;
-                            const isValidTarget = validSwapTargets.has(`pool-${entry.player.id}`);
-                            const isLocked = entry.player.pl_team_id !== null && lockedTeamIds?.has(entry.player.pl_team_id);
-
+                        {ZONE_ORDER.map((zone) => {
+                            const zoneSlots = zonedSlots[zone];
+                            if (zoneSlots.length === 0) return null;
+                            const isCompactMid = zone === 'MID' && zoneSlots.length === 3;
                             return (
-                                <button
-                                    key={entry.id}
-                                    type="button"
-                                    className={`${styles.poolPlayer} ${isSelected ? styles.nodeSelected : ''} ${isValidTarget ? styles.nodeValidTarget : ''}`}
-                                    onClick={isLocked ? () => setViewingPlayer(entry.player) : () => handlePoolClick(entry.player.id)}
-                                    style={isLocked ? { opacity: 0.65, cursor: 'pointer' } : {}}
-                                    title={isLocked ? "Match started (Locked) - Click to view" : undefined}
-                                >
-                                    <span className={styles.nodePosBadge} style={{ background: POS_COLOR[entry.player.primary_position] }}>
-                                        {entry.player.primary_position}
-                                    </span>
-                                    <span
-                                        className={styles.poolPlayerName}
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            setViewingPlayer(entry.player);
-                                        }}
-                                        style={{ cursor: 'pointer' }}
-                                        title="View Player Details"
-                                        onMouseEnter={(e) => { e.currentTarget.style.textDecoration = 'underline'; }}
-                                        onMouseLeave={(e) => { e.currentTarget.style.textDecoration = 'none'; }}
-                                    >
-                                        {displayName(entry.player)}
-                                    </span>
-                                    <span className={styles.poolPlayerClub}>
-                                        {entry.player.pl_team}
-                                        {isLocked && <span style={{ marginLeft: '4px' }}>🔒</span>}
-                                    </span>
-                                    {entry.player.secondary_positions && entry.player.secondary_positions.length > 0 && (
-                                        <span className={styles.poolPlayerAlt}>
-                                            +{entry.player.secondary_positions.join('/')}
-                                        </span>
-                                    )}
-                                </button>
+                                <div key={zone} className={`${styles.pitchZone} ${styles[`zone${zone}`]}`}>
+                                    <span className={styles.zoneLabel}>{zone}</span>
+                                    <div className={styles.pitchRow}>
+                                        {isCompactMid && <div style={{ width: '76px', visibility: 'hidden' }} />}
+                                        {zoneSlots.map(({ slotIndex, pos }) => {
+                                            const playerId = assignments[slotIndex];
+                                            const entry = playerId ? playerMap.get(playerId) : undefined;
+                                            const isSelected = lineupSelection?.type === 'starter' && lineupSelection.slotIndex === slotIndex;
+                                            const isValidTarget = validLineupTargets.has(`starter-${slotIndex}`);
+                                            const isInvalid = !!playerId && !!entry && !canPlaySlot(entry.player, pos);
+                                            const isLocked = !!playerId && !!entry && entry.player.pl_team_id !== null && lockedTeamIds?.has(entry.player.pl_team_id);
+                                            return (
+                                                <PitchNode
+                                                    key={slotIndex}
+                                                    slotPos={pos}
+                                                    player={entry?.player}
+                                                    formation={formation}
+                                                    isSelected={isSelected}
+                                                    isValidTarget={isValidTarget}
+                                                    isEmpty={!playerId}
+                                                    isInvalid={isInvalid}
+                                                    isLocked={isLocked}
+                                                    onClick={() => handleStarterClick(slotIndex)}
+                                                    onViewDetails={entry ? () => setViewingPlayer(entry.player) : undefined}
+                                                    points={playerId && scoreMap ? scoreMap[playerId] : undefined}
+                                                />
+                                            );
+                                        })}
+                                        {isCompactMid && <div style={{ width: '76px', visibility: 'hidden' }} />}
+                                    </div>
+                                </div>
                             );
                         })}
                     </div>
-                )}
-            </div>
 
-            {/* ── IR (read-only) ── */}
-            {irEntries.length > 0 && (
-                <div className={styles.irSection}>
-                    <div className={styles.irLabel}>
-                        Injured Reserve
-                        <span className={styles.poolCount}>{irEntries.length}</span>
-                    </div>
-                    <div className={styles.poolGrid}>
-                        {irEntries.map((entry) => (
-                            <div key={entry.id} className={styles.poolPlayer} style={{ opacity: 0.5, cursor: 'default' }}>
-                                <span className={styles.nodePosBadge} style={{ background: POS_COLOR[entry.player.primary_position] }}>
-                                    {entry.player.primary_position}
-                                </span>
-                                <span
-                                    className={styles.poolPlayerName}
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        setViewingPlayer(entry.player);
-                                    }}
-                                    style={{ cursor: 'pointer' }}
-                                    title="View Player Details"
-                                    onMouseEnter={(e) => { e.currentTarget.style.textDecoration = 'underline'; }}
-                                    onMouseLeave={(e) => { e.currentTarget.style.textDecoration = 'none'; }}
-                                >
-                                    {displayName(entry.player)}
-                                </span>
-                                <span className={styles.poolPlayerClub}>{entry.player.pl_team}</span>
-                                <span className={styles.irBadge}>IR</span>
-                            </div>
-                        ))}
+                    {/* Save row below pitch */}
+                    <div className={styles.saveRow}>
+                        {saveError && <span className={styles.errorText}>{saveError}</span>}
+                        {saveSuccess && !saveError && <span className={styles.successText}>Lineup saved!</span>}
+                        <button className={styles.saveBtn} onClick={handleSave} disabled={!canSave}>
+                            {saving ? 'Saving…' : 'Save Lineup'}
+                        </button>
                     </div>
                 </div>
-            )}
 
-            <div className={styles.saveRow}>
-                {error && <span className={styles.errorText}>{error}</span>}
-                {success && !error && <span className={styles.successText}>Lineup saved!</span>}
-                <button className={styles.saveBtn} onClick={handleSave} disabled={!canSave}>
-                    {saving ? 'Saving\u2026' : 'Save Lineup'}
-                </button>
+                {/* ── RIGHT: Sidebar ── */}
+                <div className={styles.sidebarCol}>
+
+                    {/* Sidebar error/loading */}
+                    {sidebarError && (
+                        <div className={styles.sidebarError}>
+                            {sidebarError}
+                            <button type="button" onClick={() => setSidebarError(null)} className={styles.sidebarErrorDismiss}>✕</button>
+                        </div>
+                    )}
+
+                    {/* ── BENCH CARD ── */}
+                    <div className={styles.sidebarCard}>
+                        <div className={styles.sidebarCardHeader}>
+                            <h3 className={styles.sidebarCardTitle}>Bench</h3>
+                            <span className={styles.sidebarCardMeta}>Substitutes</span>
+                        </div>
+                        <div className={styles.benchList}>
+                            {BENCH_SLOT_NAMES.map((slot) => {
+                                const pid = benchAssignments[slot];
+                                const entry = pid ? playerMap.get(pid) : undefined;
+                                const isSelected = lineupSelection?.type === 'bench-slot' && lineupSelection.slot === slot;
+                                const isValidTarget = validLineupTargets.has(`bench-${slot}`);
+                                const isLocked = !!pid && !!entry && entry.player.pl_team_id !== null && lockedTeamIds?.has(entry.player.pl_team_id);
+                                return (
+                                    <button
+                                        key={slot}
+                                        type="button"
+                                        className={`${styles.benchRow} ${isSelected ? styles.benchRowSelected : ''} ${isValidTarget ? styles.benchRowTarget : ''} ${!pid ? styles.benchRowEmpty : ''}`}
+                                        onClick={isLocked && entry ? () => setViewingPlayer(entry.player) : () => handleBenchSlotClick(slot)}
+                                        title={isLocked ? 'Match started (Locked)' : undefined}
+                                    >
+                                        <span className={styles.benchSlotBadge}>{slot}</span>
+                                        <span className={styles.benchSlotDesc}>{BENCH_SLOT_LABELS[slot]}</span>
+                                        {entry ? (
+                                            <>
+                                                <span
+                                                    className={styles.benchPlayerName}
+                                                    onClick={(e) => { e.stopPropagation(); setViewingPlayer(entry.player); }}
+                                                >
+                                                    {displayName(entry.player)}
+                                                </span>
+                                                {scoreMap && pid && scoreMap[pid] !== undefined && (
+                                                    <span className={styles.benchPts}>{scoreMap[pid].toFixed(1)}</span>
+                                                )}
+                                                {isLocked && <span className={styles.lockIcon}>🔒</span>}
+                                            </>
+                                        ) : (
+                                            <span className={styles.benchEmpty}>—</span>
+                                        )}
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    </div>
+
+                    {/* ── RESERVES CARD ── */}
+                    <div
+                        className={`${styles.sidebarCard} ${lineupSelection && lineupSelection.type !== 'pool' ? styles.sidebarCardDropTarget : ''}`}
+                        onClick={(e) => {
+                            // Only drop-to-reserves when clicking the card background (not a player row)
+                            if (e.target === e.currentTarget && (lineupSelection?.type === 'starter' || lineupSelection?.type === 'bench-slot')) {
+                                dropToReserves();
+                            }
+                        }}
+                    >
+                        <div
+                            className={styles.sidebarCardHeader}
+                            style={{ cursor: (lineupSelection?.type === 'starter' || lineupSelection?.type === 'bench-slot') ? 'pointer' : 'default' }}
+                            onClick={() => {
+                                if (lineupSelection?.type === 'starter' || lineupSelection?.type === 'bench-slot') dropToReserves();
+                            }}
+                            title={(lineupSelection?.type === 'starter' || lineupSelection?.type === 'bench-slot') ? 'Click to drop selected player to reserves' : undefined}
+                        >
+                            <h3 className={styles.sidebarCardTitle}>Reserves</h3>
+                            <span className={styles.sidebarCardMeta}>{poolEntries.length} available</span>
+                        </div>
+
+                        {poolEntries.length === 0 ? (
+                            <p className={styles.reservesEmpty}>All players assigned to XI or bench.</p>
+                        ) : (
+                            <div className={styles.reservesList}>
+                                {poolEntries.map((entry) => {
+                                    const isLineupTarget = validLineupTargets.has(`pool-${entry.player.id}`);
+                                    const isSidebarTarget = validSidebarTargets.has(`pool-${entry.player.id}`);
+                                    const isHighlighted = isLineupTarget || isSidebarTarget;
+                                    const isU21 = isU21Eligible(entry.player, taxiAgeCutoffYear);
+                                    const isInjured = isIrEligible(entry.player);
+                                    // Grey out non-eligible players when sidebar selection is active
+                                    const isDimmed = sidebarSelection
+                                        ? (sidebarSelection.type === 'taxi' ? !isU21 : !isInjured)
+                                        : false;
+                                    return (
+                                        <button
+                                            key={entry.id}
+                                            type="button"
+                                            className={`${styles.reserveRow} ${isHighlighted ? styles.reserveRowTarget : ''} ${isDimmed ? styles.reserveRowDimmed : ''}`}
+                                            onClick={() => handlePoolClick(entry.player.id)}
+                                        >
+                                            <span
+                                                className={styles.reservePosBadge}
+                                                style={{ background: POS_COLOR[entry.player.primary_position] }}
+                                            >
+                                                {entry.player.primary_position}
+                                            </span>
+                                            <span
+                                                className={styles.reserveName}
+                                                onClick={(e) => { e.stopPropagation(); setViewingPlayer(entry.player); }}
+                                            >
+                                                {displayName(entry.player)}
+                                            </span>
+                                            <span className={styles.reserveClub}>{entry.player.pl_team}</span>
+                                            {isU21 && sidebarSelection?.type === 'taxi' && (
+                                                <span className={styles.u21Badge}>U21</span>
+                                            )}
+                                            {isInjured && sidebarSelection?.type === 'ir' && (
+                                                <span className={styles.injuryBadge}>
+                                                    {entry.player.fpl_status?.toUpperCase()}
+                                                </span>
+                                            )}
+                                            {entry.player.fpl_status && entry.player.fpl_status !== 'a' && !sidebarSelection && (
+                                                <span className={styles.statusDot} data-status={entry.player.fpl_status} />
+                                            )}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        )}
+                    </div>
+
+                    {/* ── TAXI SQUAD CARD ── */}
+                    {(taxiEntries.length > 0 || true) && (
+                        <div className={styles.sidebarCard}>
+                            <div className={styles.sidebarCardHeader}>
+                                <h3 className={styles.sidebarCardTitle}>Taxi Squad</h3>
+                                <span className={styles.sidebarCardMeta}>{taxiEntries.length} / 3 slots</span>
+                            </div>
+                            {taxiEntries.length === 0 ? (
+                                <p className={styles.reservesEmpty}>No players on taxi squad.</p>
+                            ) : (
+                                <div className={styles.taxiList}>
+                                    {taxiEntries.map((entry) => {
+                                        const isSelected = sidebarSelection?.type === 'taxi' && sidebarSelection.playerId === entry.player.id;
+                                        return (
+                                            <div key={entry.id} className={`${styles.taxiRow} ${isSelected ? styles.taxiRowSelected : ''}`}>
+                                                <span className={styles.u21Badge}>U21</span>
+                                                <span
+                                                    className={styles.taxiName}
+                                                    onClick={() => setViewingPlayer(entry.player)}
+                                                >
+                                                    {displayName(entry.player)}
+                                                </span>
+                                                <span className={styles.taxiClub}>{entry.player.pl_team}</span>
+                                                <div className={styles.taxiActions}>
+                                                    <button
+                                                        type="button"
+                                                        className={`${styles.taxiSwapBtn} ${isSelected ? styles.taxiSwapBtnActive : ''}`}
+                                                        onClick={() => {
+                                                            if (isSelected) { setSidebarSelection(null); return; }
+                                                            activateSidebarSelection({ type: 'taxi', playerId: entry.player.id });
+                                                        }}
+                                                        disabled={sidebarLoading}
+                                                        title="Select to swap with a U21 reserve"
+                                                    >
+                                                        {isSelected ? 'Cancel' : 'Swap'}
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        className={styles.taxiActivateBtn}
+                                                        onClick={() => handleTaxiActivate(entry.player.id)}
+                                                        disabled={sidebarLoading}
+                                                        title="Promote to active roster"
+                                                    >
+                                                        {sidebarLoading ? '…' : 'Activate'}
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+                    {/* ── IR CARD ── */}
+                    {irEntries.length > 0 && (
+                        <div className={styles.sidebarCard}>
+                            <div className={styles.sidebarCardHeader}>
+                                <h3 className={`${styles.sidebarCardTitle} ${styles.irTitle}`}>Injured Reserve</h3>
+                                <span className={styles.sidebarCardMeta}>{irEntries.length} players</span>
+                            </div>
+                            <div className={styles.irList}>
+                                {irEntries.map((entry) => {
+                                    const isSelected = sidebarSelection?.type === 'ir' && sidebarSelection.playerId === entry.player.id;
+                                    return (
+                                        <div key={entry.id} className={`${styles.irRow} ${isSelected ? styles.irRowSelected : ''}`}>
+                                            <span className={styles.irBadge}>IR</span>
+                                            <span
+                                                className={styles.irName}
+                                                onClick={() => setViewingPlayer(entry.player)}
+                                            >
+                                                {displayName(entry.player)}
+                                            </span>
+                                            <span className={styles.irClub}>{entry.player.pl_team}</span>
+                                            <div className={styles.irActions}>
+                                                <button
+                                                    type="button"
+                                                    className={`${styles.irSwapBtn} ${isSelected ? styles.irSwapBtnActive : ''}`}
+                                                    onClick={() => {
+                                                        if (isSelected) { setSidebarSelection(null); return; }
+                                                        activateSidebarSelection({ type: 'ir', playerId: entry.player.id });
+                                                    }}
+                                                    disabled={sidebarLoading}
+                                                    title="Select to swap with an injured reserve"
+                                                >
+                                                    {isSelected ? 'Cancel' : 'Swap'}
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    className={styles.irActivateBtn}
+                                                    onClick={() => handleIrActivate(entry.player.id)}
+                                                    disabled={sidebarLoading}
+                                                    title="Activate from IR"
+                                                >
+                                                    {sidebarLoading ? '…' : 'Activate'}
+                                                </button>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* ── BUDGET CARD ── */}
+                    <div className={styles.budgetCard}>
+                        <span className={styles.budgetLabel}>FAAB Budget</span>
+                        <span className={styles.budgetValue}>£{faabBudget}m</span>
+                        <span className={styles.budgetSub}>remaining</span>
+                    </div>
+
+                </div>
             </div>
 
             <PlayerDetailsModal

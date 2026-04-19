@@ -1,10 +1,10 @@
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { redirect } from 'next/navigation';
+import Link from 'next/link';
 import type { Formation, GranularPosition, MatchupLineup, BenchSlot } from '@/types';
 import { FORMATION_SLOTS, POSITION_FLEX_MAP } from '@/types';
 import PitchUI from './PitchUI';
-import RosterManager from './RosterManager';
 import { FULL_PLAYER_SELECT } from '@/lib/constants/queries';
 import styles from './my-team.module.css';
 
@@ -27,11 +27,11 @@ export default async function MyTeamPage({ params }: Props) {
   const admin = createAdminClient();
 
   // Fetch full team data
-  const { data: team } = await admin
+    const { data: team } = await admin
     .from('teams')
     .select(`
       id, team_name, faab_budget, league_id,
-      league:leagues(id, name, season, status, scoring_rules, bench_size)
+      league:leagues(id, name, season, status, scoring_rules, bench_size, taxi_size, taxi_age_limit)
     `)
     .eq('league_id', leagueId)
     .eq('user_id', user.id)
@@ -89,7 +89,9 @@ export default async function MyTeamPage({ params }: Props) {
   const starters = rosterEntries.filter((e) => e.status === 'active');
   const bench = rosterEntries.filter((e) => e.status === 'bench');
   const ir = rosterEntries.filter((e) => e.status === 'ir');
-  const nonIrEntries = rosterEntries.filter((e) => e.status !== 'ir');
+  const taxi = rosterEntries.filter((e) => e.status === 'taxi');
+  // Lineup pool: active + bench status only (excludes IR and taxi — neither can be slotted into the lineup)
+  const nonIrEntries = rosterEntries.filter((e) => e.status === 'active' || e.status === 'bench');
 
   // Fetch current GW player points for score overlay
   const scoreMap: Record<string, number> = {};
@@ -217,12 +219,15 @@ export default async function MyTeamPage({ params }: Props) {
     }
   }
 
+  const league = team.league as any;
+  const taxiAgeLimit: number = league?.taxi_age_limit ?? 21;
+
   return (
     <div>
       <header className={styles.header}>
         <div>
           <div className={styles.headerTop}>
-            <p className={styles.leagueName}>{(team.league as any).name}</p>
+            <p className={styles.leagueName}>{league.name}</p>
           </div>
           <h1 className={styles.teamName}>{team.team_name}</h1>
         </div>
@@ -230,14 +235,9 @@ export default async function MyTeamPage({ params }: Props) {
           <div className={styles.headerStats}>
             <div className={styles.stat}>
               <span className={styles.statValue}>
-                {teamRank ? (teamRank === 1 ? '🥇 1st' : teamRank === 2 ? '🥈 2nd' : teamRank === 3 ? '🥉 3rd' : `${teamRank}th`) : '—'}
+                {teamRank ? (teamRank === 1 ? '1st' : teamRank === 2 ? '2nd' : teamRank === 3 ? '3rd' : `${teamRank}th`) : '—'}
               </span>
               <span className={styles.statLabel}>League Rank</span>
-            </div>
-            <div className={styles.statDivider} />
-            <div className={styles.stat}>
-              <span className={styles.statValue}>&pound;{team.faab_budget}m</span>
-              <span className={styles.statLabel}>FAAB Budget</span>
             </div>
             <div className={styles.statDivider} />
             <div className={styles.stat}>
@@ -245,6 +245,9 @@ export default async function MyTeamPage({ params }: Props) {
               <span className={styles.statLabel}>Players</span>
             </div>
           </div>
+          <Link href={`/league/${leagueId}/team/roster`} className={styles.rosterLink}>
+            Manage Roster →
+          </Link>
         </div>
       </header>
 
@@ -252,16 +255,15 @@ export default async function MyTeamPage({ params }: Props) {
         teamId={team.id}
         allEntries={nonIrEntries}
         irEntries={ir}
+        taxiEntries={taxi}
+        faabBudget={team.faab_budget}
+        taxiAgeLimit={taxiAgeLimit}
         initialFormation={initialFormation}
         initialAssignments={initialAssignments}
         initialBench={initialBench as Record<BenchSlot, string | null>}
         scoreMap={scoreMap}
         lockedTeamIds={lockedTeamIds}
       />
-
-      <div className={styles.sections}>
-        <RosterManager teamId={team.id} rosterEntries={rosterEntries} />
-      </div>
     </div>
   );
 }

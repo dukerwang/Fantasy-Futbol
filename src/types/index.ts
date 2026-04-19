@@ -173,7 +173,7 @@ export interface Team {
   user?: User;
 }
 
-export type RosterStatus = 'active' | 'bench' | 'ir';
+export type RosterStatus = 'active' | 'bench' | 'ir' | 'taxi';
 
 export interface RosterEntry {
   id: string;
