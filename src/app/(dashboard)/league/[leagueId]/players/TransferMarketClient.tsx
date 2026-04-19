@@ -323,6 +323,15 @@ export default function TransferMarketClient({
     ? `Confirm Bid — £${isNaN(bidNum) ? '?' : bidNum}m`
     : `Start Auction — £${isNaN(bidNum) ? '?' : bidNum}m`;
 
+  const playerAgeForAcademy = modal.player?.date_of_birth
+    ? calculateAgeInYears(modal.player.date_of_birth)
+    : null;
+  const canRouteToAcademy =
+    rosterFull &&
+    playerAgeForAcademy !== null &&
+    playerAgeForAcademy <= academy.age_limit &&
+    academy.current < academy.max;
+
   // ─── Render ──────────────────────────────────────────────────────────────────
 
   return (
@@ -785,18 +794,25 @@ export default function TransferMarketClient({
               {/* Drop selector */}
               {rosterFull && (
                 <>
-                <label className={styles.modalLabel} style={{ marginBottom: '0.5rem' }}>
-                  <input
-                    type="checkbox"
-                    checked={sendToAcademyIfFull}
-                    onChange={(e) => {
-                      setSendToAcademyIfFull(e.target.checked);
-                      if (e.target.checked) setDropPlayerId('');
-                    }}
-                  />{' '}
-                  If I win, send directly to academy (no drop)
-                </label>
-                {sendToAcademyIfFull && (
+                {canRouteToAcademy && (
+                  <label className={styles.modalLabel} style={{ marginBottom: '0.5rem' }}>
+                    <input
+                      type="checkbox"
+                      checked={sendToAcademyIfFull}
+                      onChange={(e) => {
+                        setSendToAcademyIfFull(e.target.checked);
+                        if (e.target.checked) setDropPlayerId('');
+                      }}
+                    />{' '}
+                    If I win, send directly to academy (no drop)
+                  </label>
+                )}
+                {!canRouteToAcademy && (
+                  <p className={styles.modalDisclaimer} style={{ marginTop: 0, marginBottom: '0.6rem' }}>
+                    This player is not eligible for academy routing, so a drop is required while roster is full.
+                  </p>
+                )}
+                {canRouteToAcademy && sendToAcademyIfFull && (
                   <p className={styles.modalDisclaimer} style={{ marginTop: 0, marginBottom: '0.6rem' }}>
                     Academy: {academy.current}/{academy.max} slots · U{academy.age_limit} only.
                   </p>

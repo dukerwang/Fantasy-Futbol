@@ -57,6 +57,7 @@ export default function GlobalBidModal({ player, userTeams, onClose, onSuccess }
   const [submitting, setSubmitting] = useState(false);
 
   const selectedTeam = userTeams.find((t) => t.id === selectedTeamId);
+  const playerAgeForAcademy = player?.date_of_birth ? calculateAgeInYears(player.date_of_birth) : null;
 
   // When team is selected, fetch their roster / FAAB info
   const fetchTeamInfo = useCallback(async (teamId: string, leagueId: string) => {
@@ -275,17 +276,28 @@ export default function GlobalBidModal({ player, userTeams, onClose, onSuccess }
 
                 {teamInfo.rosterFull && (
                   <div className={styles.field}>
-                    <label className={styles.label}>
-                      <input
-                        type="checkbox"
-                        checked={sendToAcademyIfFull}
-                        onChange={(e) => {
-                          setSendToAcademyIfFull(e.target.checked);
-                          if (e.target.checked) setDropPlayerId('');
-                        }}
-                      />{' '}
-                      Send winner directly to academy (no drop)
-                    </label>
+                    {playerAgeForAcademy !== null &&
+                      playerAgeForAcademy <= teamInfo.academy.age_limit &&
+                      teamInfo.academy.current < teamInfo.academy.max && (
+                        <label className={styles.label}>
+                          <input
+                            type="checkbox"
+                            checked={sendToAcademyIfFull}
+                            onChange={(e) => {
+                              setSendToAcademyIfFull(e.target.checked);
+                              if (e.target.checked) setDropPlayerId('');
+                            }}
+                          />{' '}
+                          Send winner directly to academy (no drop)
+                        </label>
+                    )}
+                    {(playerAgeForAcademy == null ||
+                      playerAgeForAcademy > teamInfo.academy.age_limit ||
+                      teamInfo.academy.current >= teamInfo.academy.max) && (
+                      <span className={styles.hint}>
+                        This player is not eligible for academy routing, so a drop is required while roster is full.
+                      </span>
+                    )}
                     <label className={styles.label}>Drop player (roster full):</label>
                     <select
                       className={styles.select}
