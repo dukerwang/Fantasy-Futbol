@@ -18,7 +18,7 @@ import styles from './pitch.module.css';
 const FORMATIONS: Formation[] = ['4-3-3', '4-4-2', '4-1-4-1', '4-2-3-1', '4-2-1-3', '3-4-3'];
 
 type PitchZone = 'ATT' | 'AMZ' | 'CMZ' | 'DMZ' | 'DEF' | 'GK';
-// Zone order: attackers at top of half-pitch, GK at bottom (near goal)
+// Zone order: attackers at top, GK at bottom (same vertical flow as MatchupPitch)
 const ZONE_ORDER: PitchZone[] = ['ATT', 'AMZ', 'CMZ', 'DMZ', 'DEF', 'GK'];
 const BENCH_SLOT_NAMES: BenchSlot[] = ['DEF', 'MID', 'ATT', 'FLEX'];
 
@@ -67,6 +67,14 @@ function displayName(player: Player): string {
     return formatPlayerName(player, 'initial_last');
 }
 
+/** Vertical nudge per slot — matches MatchupPitch for familiar chip rhythm */
+function slotOffset(pos: GranularPosition): number {
+    if (['LW', 'RW', 'LM', 'RM'].includes(pos)) return 10;
+    if (pos === 'CM') return -25;
+    if (pos === 'DM') return -35;
+    return 0;
+}
+
 function surnameOnly(player: Player): string {
     const full = player.web_name || player.name || '';
     // web_name is already usually the short name (e.g. "Salah")
@@ -87,6 +95,8 @@ function isIrEligible(player: Player): boolean {
 
 interface Props {
     teamId: string;
+    /** Shown on the pitch header strip (MatchupPitch-style label) */
+    teamName?: string;
     allEntries: (RosterEntry & { player: Player })[];   // active + bench status (excludes ir, taxi)
     irEntries: (RosterEntry & { player: Player })[];
     taxiEntries: (RosterEntry & { player: Player })[];
@@ -185,6 +195,7 @@ function PitchNode({ slotPos, player, formation, isSelected, isValidTarget, isEm
 
 export default function PitchUI({
     teamId,
+    teamName,
     allEntries,
     irEntries,
     taxiEntries,
@@ -776,25 +787,22 @@ export default function PitchUI({
             {/* ── 2-column layout: Pitch (left) + Sidebar (right) ── */}
             <div className={styles.pitchLayout}>
 
-                {/* ── LEFT: Half-pitch ── */}
+                {/* ── LEFT: Full pitch (MatchupPitch-style center line + circle) ── */}
                 <div className={styles.pitchCol}>
                     <div className={styles.pitchContainer}>
-                        {/* pitchField is the inner white-bordered playing area.
-                            The outer pitchContainer provides the green "run-off" margin
-                            around the field so the bylines/sidelines show inside green. */}
+                        {/* Outer green padding; inner pitchField = white touchlines inside the grass */}
                         <div className={styles.pitchField}>
-                        {/* Half-pitch markings — absolute inside the field */}
-                        <div className={styles.pitchTopLine} />
-                        <div className={styles.pitchHalfCircle} />
-                        <div className={styles.pitchPenaltyBox} />
-                        <div className={styles.pitchPenaltyArc} />
-                        <div className={styles.pitchGoalBox} />
+                        <div className={styles.centerDivider} />
+                        <div className={styles.centerCircle} />
+                        {teamName && (
+                            <div className={styles.pitchLabels}>
+                                <span className={styles.pitchLabelLeft}>{teamName}</span>
+                            </div>
+                        )}
 
-                        {/* Zone rows — flex column inside the field */}
                         <div className={styles.pitchZones}>
                             {ZONE_ORDER.map((zone) => {
                                 const zoneSlots = zonedSlots[zone];
-                                // Skip empty zones (e.g. AMZ in 4-4-2)
                                 if (zoneSlots.length === 0) return null;
                                 return (
                                     <div key={zone} className={`${styles.pitchZone} ${styles[`zone${zone}`]}`}>
@@ -806,21 +814,26 @@ export default function PitchUI({
                                                 const isValidTarget = validLineupTargets.has(`starter-${slotIndex}`);
                                                 const isInvalid = !!playerId && !!entry && !canPlaySlot(entry.player, pos);
                                                 const isLocked = !!playerId && !!entry && entry.player.pl_team_id !== null && lockedTeamIds?.has(entry.player.pl_team_id);
+                                                const dy = slotOffset(pos);
                                                 return (
-                                                    <PitchNode
+                                                    <div
                                                         key={slotIndex}
-                                                        slotPos={pos}
-                                                        player={entry?.player}
-                                                        formation={formation}
-                                                        isSelected={isSelected}
-                                                        isValidTarget={isValidTarget}
-                                                        isEmpty={!playerId}
-                                                        isInvalid={isInvalid}
-                                                        isLocked={isLocked}
-                                                        onClick={() => handleStarterClick(slotIndex)}
-                                                        onViewDetails={entry ? () => setViewingPlayer(entry.player) : undefined}
-                                                        points={playerId && scoreMap ? scoreMap[playerId] : undefined}
-                                                    />
+                                                        style={dy ? { transform: `translateY(${dy}px)` } : undefined}
+                                                    >
+                                                        <PitchNode
+                                                            slotPos={pos}
+                                                            player={entry?.player}
+                                                            formation={formation}
+                                                            isSelected={isSelected}
+                                                            isValidTarget={isValidTarget}
+                                                            isEmpty={!playerId}
+                                                            isInvalid={isInvalid}
+                                                            isLocked={isLocked}
+                                                            onClick={() => handleStarterClick(slotIndex)}
+                                                            onViewDetails={entry ? () => setViewingPlayer(entry.player) : undefined}
+                                                            points={playerId && scoreMap ? scoreMap[playerId] : undefined}
+                                                        />
+                                                    </div>
                                                 );
                                             })}
                                         </div>

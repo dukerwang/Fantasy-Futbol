@@ -253,6 +253,7 @@ export default async function MyTeamPage({ params }: Props) {
 
       <PitchUI
         teamId={team.id}
+        teamName={team.team_name}
         allEntries={nonIrEntries}
         irEntries={ir}
         taxiEntries={taxi}
