@@ -2,6 +2,8 @@ import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { redirect, notFound } from 'next/navigation';
 import Link from 'next/link';
+import type { CSSProperties } from 'react';
+import { formatPlayerName } from '@/lib/formatName';
 import styles from './league.module.css';
 import DraftOrderManager from './DraftOrderManager';
 import LeaveLeagueButton from './LeaveLeagueButton';
@@ -453,15 +455,32 @@ export default async function LeaguePage({ params }: Props) {
                       style={{ borderLeftColor: positionColor(player.primary_position) }}
                     >
                       <div className={styles.chipLeft}>
-                        <span
-                          className={styles.chipPosBadge}
-                          style={{ background: positionColor(player.primary_position) }}
+                        <div
+                          className={styles.chipPhotoFrame}
+                          style={
+                            { '--chip-pos': positionColor(player.primary_position) } as CSSProperties
+                          }
                         >
-                          {player.primary_position}
-                        </span>
+                          {player.photo_url ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img
+                              src={player.photo_url}
+                              alt={formatPlayerName(player, 'full')}
+                              className={styles.chipPhoto}
+                            />
+                          ) : (
+                            <span className={styles.chipPhotoFallback} aria-hidden>
+                              {(player.web_name ?? player.name ?? '?').charAt(0)}
+                            </span>
+                          )}
+                        </div>
                         <div className={styles.chipInfo}>
-                          <span className={styles.chipName}>{player.web_name ?? player.name}</span>
-                          <span className={styles.chipClub}>{player.pl_team}</span>
+                          <span className={styles.chipName}>{formatPlayerName(player, 'full')}</span>
+                          <span className={styles.chipMetaLine}>
+                            <span className={styles.chipPosText}>{player.primary_position}</span>
+                            <span className={styles.chipMetaSep} aria-hidden />
+                            <span className={styles.chipClub}>{player.pl_team}</span>
+                          </span>
                         </div>
                         {isMyPlayer && (
                           <span className={styles.chipMyTag}>★ Your squad</span>

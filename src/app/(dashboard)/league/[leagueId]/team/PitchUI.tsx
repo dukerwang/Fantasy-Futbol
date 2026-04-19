@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState, type CSSProperties } from 'react';
 import { useRouter } from 'next/navigation';
 import {
     FORMATION_SLOTS,
@@ -67,6 +67,14 @@ function displayName(player: Player): string {
     return formatPlayerName(player, 'initial_last');
 }
 
+function pitchCardName(player: Player): string {
+    return formatPlayerName(player, 'full');
+}
+
+function pitchTeamUpper(player: Player): string {
+    return (player.pl_team ?? '').toUpperCase();
+}
+
 function isU21Eligible(player: Player, academyAgeLimit: number): boolean {
     if (!player.date_of_birth) return false;
     const dob = new Date(player.date_of_birth);
@@ -115,7 +123,6 @@ type SidebarSelection =
 interface PitchNodeProps {
     slotPos: GranularPosition;
     player: Player | undefined;
-    formation: Formation;
     isSelected: boolean;
     isValidTarget: boolean;
     isEmpty: boolean;
@@ -126,7 +133,7 @@ interface PitchNodeProps {
     points?: number;
 }
 
-function PitchNode({ slotPos, player, formation, isSelected, isValidTarget, isEmpty, isInvalid, isLocked, onClick, onViewDetails, points }: PitchNodeProps) {
+function PitchNode({ slotPos, player, isSelected, isValidTarget, isEmpty, isInvalid, isLocked, onClick, onViewDetails, points }: PitchNodeProps) {
     const cls = [
         styles.pitchNode,
         isSelected ? styles.nodeSelected : '',
@@ -134,6 +141,8 @@ function PitchNode({ slotPos, player, formation, isSelected, isValidTarget, isEm
         isEmpty ? styles.nodeEmpty : '',
         isInvalid ? styles.nodeInvalid : '',
     ].filter(Boolean).join(' ');
+
+    const accent = isInvalid ? '#ef4444' : POS_COLOR[slotPos];
 
     return (
         <button
@@ -143,40 +152,52 @@ function PitchNode({ slotPos, player, formation, isSelected, isValidTarget, isEm
             style={isLocked ? { opacity: 0.7, cursor: 'pointer' } : undefined}
             title={isLocked ? 'Match started (Locked) — click to view' : isInvalid ? 'Player is not eligible for this position' : undefined}
         >
-            {/* Score badge — absolute top-right, overflows outside card (matches MatchupPitch) */}
             {points !== undefined && (
                 <span className={styles.nodePtsBadge}>{points.toFixed(1)}</span>
             )}
 
-            {/* Inline position badge row (matches MatchupPitch chipPosRow/chipPosLabel) */}
-            <div className={styles.nodePosRow}>
-                <span
-                    className={styles.nodePosBadge}
-                    style={{ background: isInvalid ? '#ef4444' : POS_COLOR[slotPos] }}
-                >
-                    {slotPos}
-                </span>
-                {/* Injury dot inline next to pos badge */}
-                {player?.fpl_status && player.fpl_status !== 'a' && (
-                    <span className={styles.nodeStatusDot} data-status={player.fpl_status} />
+            <div
+                className={styles.nodePhotoStrip}
+                style={{ '--pos-accent': accent } as CSSProperties}
+            >
+                {player?.photo_url ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={player.photo_url} alt={pitchCardName(player)} className={styles.nodePhotoImg} />
+                ) : (
+                    <span className={styles.nodePhotoPlaceholder} aria-hidden>
+                        {player ? pitchCardName(player).charAt(0) : slotPos.charAt(0)}
+                    </span>
                 )}
             </div>
 
-            {player ? (
-                <>
-                    <span
-                        className={styles.nodePlayerName}
-                        onClick={(e) => { if (onViewDetails) { e.stopPropagation(); onViewDetails(); } }}
-                        style={{ cursor: onViewDetails ? 'pointer' : 'default', ...(isInvalid ? { color: '#ef4444' } : {}) }}
-                        title={onViewDetails ? 'View player details' : undefined}
-                    >
-                        {displayName(player)}
-                    </span>
-                    {isLocked && <span className={styles.nodeLockIcon}>🔒</span>}
-                </>
-            ) : (
-                <span className={styles.nodeEmptyLabel}>Empty</span>
-            )}
+            <div className={styles.nodeCopy}>
+                {player ? (
+                    <>
+                        <span
+                            className={styles.nodePlayerName}
+                            onClick={(e) => { if (onViewDetails) { e.stopPropagation(); onViewDetails(); } }}
+                            style={{ cursor: onViewDetails ? 'pointer' : 'default', ...(isInvalid ? { color: '#ef4444' } : {}) }}
+                            title={onViewDetails ? 'View player details' : undefined}
+                        >
+                            {pitchCardName(player)}
+                        </span>
+                        <div className={styles.nodeMetaRow}>
+                            <span className={styles.nodePosInline}>{slotPos}</span>
+                            <span className={styles.nodeMetaSep} aria-hidden />
+                            <span className={styles.nodeTeamLine}>{pitchTeamUpper(player)}</span>
+                            {player.fpl_status && player.fpl_status !== 'a' && (
+                                <span className={styles.nodeStatusDot} data-status={player.fpl_status} />
+                            )}
+                        </div>
+                        {isLocked && <span className={styles.nodeLockIcon}>🔒</span>}
+                    </>
+                ) : (
+                    <>
+                        <span className={styles.nodeEmptyLabel}>Empty</span>
+                        <span className={styles.nodeMetaRowMuted}>{slotPos}</span>
+                    </>
+                )}
+            </div>
         </button>
     );
 }
@@ -818,7 +839,6 @@ export default function PitchUI({
                                                         key={slotIndex}
                                                         slotPos={pos}
                                                         player={entry?.player}
-                                                        formation={formation}
                                                         isSelected={isSelected}
                                                         isValidTarget={isValidTarget}
                                                         isEmpty={!playerId}

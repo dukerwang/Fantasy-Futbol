@@ -437,22 +437,62 @@
   flex: 1;
 }
 
-.chipPosBadge {
-  font-family: 'Inter', sans-serif;
-  font-size: 9px;
-  font-weight: 700;
-  padding: 3px 6px;
-  border-radius: var(--radius-sm);
-  color: #fff;
+/* Headshot + vertical accent caps (position colour) */
+.chipPhotoFrame {
+  position: relative;
   flex-shrink: 0;
-  min-width: 28px;
-  text-align: center;
+  width: 46px;
+  height: 56px;
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--color-bg-secondary);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.06);
+}
+
+.chipPhotoFrame::before,
+.chipPhotoFrame::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  z-index: 2;
+  background: var(--chip-pos, var(--color-text-muted));
+  pointer-events: none;
+}
+
+.chipPhotoFrame::before {
+  left: 0;
+}
+
+.chipPhotoFrame::after {
+  right: 0;
+}
+
+.chipPhoto {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+  display: block;
+}
+
+.chipPhotoFallback {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-sans);
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--color-text-muted);
 }
 
 .chipInfo {
   display: flex;
   flex-direction: column;
-  gap: 1px;
+  gap: 3px;
   min-width: 0;
 }
 
@@ -461,18 +501,53 @@
   font-size: 14px;
   font-weight: 700;
   color: var(--color-text-primary);
-  white-space: nowrap;
+  line-height: 1.25;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
   overflow: hidden;
-  text-overflow: ellipsis;
+}
+
+.chipMetaLine {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  min-width: 0;
+  flex-wrap: wrap;
+  font-family: var(--font-sans);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.chipPosText {
+  flex-shrink: 0;
+}
+
+.chipMetaSep {
+  display: inline-block;
+  width: 4px;
+  height: 4px;
+  margin: 0 6px;
+  border-radius: 50%;
+  background: var(--color-text-muted);
+  opacity: 0.55;
+  flex-shrink: 0;
 }
 
 .chipClub {
-  font-family: 'Inter', sans-serif;
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--color-text-muted);
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  color: inherit;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
 }
 
 .chipMyTag {
