@@ -162,15 +162,48 @@ export async function POST(req: NextRequest, { params }: Props) {
   const starterSet = new Set(starterIds);
   const benchSet = new Set(benchIds);
 
-  // Find next scheduled matchup for this team to determine the target gameweek
-  const { data: matchup } = await admin
-    .from('matchups')
-    .select('id, team_a_id, team_b_id, gameweek')
-    .eq('status', 'scheduled')
-    .or(`team_a_id.eq.${teamId},team_b_id.eq.${teamId}`)
-    .order('gameweek', { ascending: true })
-    .limit(1)
-    .single();
+  // Prefer current FPL GW matchup for lock checks and lineup writes.
+  // Fallback to next scheduled matchup if current GW row is unavailable.
+  let currentFplGw = 0;
+  try {
+    const fplRes = await fetch('https://fantasy.premierleague.com/api/bootstrap-static/', {
+      next: { revalidate: 60 },
+    });
+    if (fplRes.ok) {
+      const fplData = await fplRes.json();
+      const now = new Date();
+      for (const ev of fplData.events as any[]) {
+        if (ev.deadline_time && new Date(ev.deadline_time) <= now) {
+          currentFplGw = Math.max(currentFplGw, ev.id);
+        }
+      }
+    }
+  } catch {
+    // fail open; fallback query below
+  }
+
+  let matchup: any = null;
+  if (currentFplGw > 0) {
+    const { data: currentGwMatchup } = await admin
+      .from('matchups')
+      .select('id, team_a_id, team_b_id, gameweek, status')
+      .eq('gameweek', currentFplGw)
+      .or(`team_a_id.eq.${teamId},team_b_id.eq.${teamId}`)
+      .maybeSingle();
+    matchup = currentGwMatchup ?? null;
+  }
+
+  if (!matchup) {
+    const { data: nextScheduled } = await admin
+      .from('matchups')
+      .select('id, team_a_id, team_b_id, gameweek, status')
+      .eq('status', 'scheduled')
+      .or(`team_a_id.eq.${teamId},team_b_id.eq.${teamId}`)
+      .order('gameweek', { ascending: true })
+      .limit(1)
+      .maybeSingle();
+    matchup = nextScheduled ?? null;
+  }
 
   // --- Kickoff lock: block moves if a player's club has already kicked off this GW ---
   if (matchup) {

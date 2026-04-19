@@ -94,24 +94,24 @@ export default async function MyTeamPage({ params }: Props) {
   const nonIrEntries = rosterEntries.filter((e) => e.status === 'active' || e.status === 'bench');
 
   // Fetch current GW player points for score overlay
+  let currentFplGw = 0;
   const scoreMap: Record<string, number> = {};
   try {
     const fplRes = await fetch('https://fantasy.premierleague.com/api/bootstrap-static/', { next: { revalidate: 300 } });
     if (fplRes.ok) {
       const fplData = await fplRes.json();
       const now = new Date();
-      let currentGw = 0;
       for (const ev of fplData.events as any[]) {
         if (ev.deadline_time && new Date(ev.deadline_time) <= now) {
-          currentGw = Math.max(currentGw, ev.id);
+          currentFplGw = Math.max(currentFplGw, ev.id);
         }
       }
-      if (currentGw) {
+      if (currentFplGw) {
         const playerIds = rosterEntries.map((e) => e.player.id);
         const { data: statsRows } = await admin
           .from('player_stats')
           .select('player_id, fantasy_points')
-          .eq('gameweek', currentGw)
+          .eq('gameweek', currentFplGw)
           .in('player_id', playerIds);
         for (const s of statsRows ?? []) {
           scoreMap[s.player_id] = (scoreMap[s.player_id] ?? 0) + Number(s.fantasy_points);
@@ -130,15 +130,29 @@ export default async function MyTeamPage({ params }: Props) {
     FLEX: null,
   };
 
-  // Try to load existing lineup from next scheduled matchup
-  const { data: matchup } = await admin
-    .from('matchups')
-    .select('id, team_a_id, team_b_id, lineup_a, lineup_b, gameweek')
-    .eq('status', 'scheduled')
-    .or(`team_a_id.eq.${team.id},team_b_id.eq.${team.id}`)
-    .order('gameweek', { ascending: true })
-    .limit(1)
-    .single();
+  // Prefer this team's current FPL GW matchup for locks/lineup hydration.
+  // Fallback to next scheduled matchup if current GW row is unavailable.
+  let matchup: any = null;
+  if (currentFplGw > 0) {
+    const { data: currentGwMatchup } = await admin
+      .from('matchups')
+      .select('id, team_a_id, team_b_id, lineup_a, lineup_b, gameweek, status')
+      .eq('gameweek', currentFplGw)
+      .or(`team_a_id.eq.${team.id},team_b_id.eq.${team.id}`)
+      .maybeSingle();
+    matchup = currentGwMatchup ?? null;
+  }
+  if (!matchup) {
+    const { data: nextScheduled } = await admin
+      .from('matchups')
+      .select('id, team_a_id, team_b_id, lineup_a, lineup_b, gameweek, status')
+      .eq('status', 'scheduled')
+      .or(`team_a_id.eq.${team.id},team_b_id.eq.${team.id}`)
+      .order('gameweek', { ascending: true })
+      .limit(1)
+      .maybeSingle();
+    matchup = nextScheduled ?? null;
+  }
 
   const lockedTeamIds = new Set<number>();
 
