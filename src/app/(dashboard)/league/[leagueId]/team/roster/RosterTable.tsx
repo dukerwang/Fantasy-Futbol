@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { Fragment, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import type { Player, RosterEntry } from '@/types';
 import PlayerDetailsModal from '@/components/players/PlayerDetailsModal';
@@ -83,19 +83,16 @@ function RosterRow({ entry, taxiAgeCutoffYear, taxiSize, currentTaxiCount, loadi
     const u21 = isU21Eligible(player, taxiAgeCutoffYear);
     const irEligible = isIrEligible(player);
     const taxiFull = currentTaxiCount >= taxiSize;
-    const canMoveTaxi = u21 && status !== 'taxi' && status !== 'ir' && !taxiFull;
 
     return (
-        <div className={`${styles.tableRow} ${isLoading ? styles.tableRowLoading : ''}`}>
-            {/* Pos badge */}
-            <div className={styles.colPos}>
+        <tr className={`${styles.dataRow} ${isLoading ? styles.dataRowLoading : ''}`}>
+            <td className={styles.tdPos}>
                 <span className={styles.posBadge} style={{ background: POS_COLOR[player.primary_position] ?? '#6b7280' }}>
                     {player.primary_position}
                 </span>
-            </div>
+            </td>
 
-            {/* Name + meta */}
-            <div className={styles.colName}>
+            <td className={styles.tdName}>
                 <button type="button" className={styles.playerNameBtn} onClick={() => onViewPlayer(player)}>
                     {formatPlayerName(player, 'full')}
                 </button>
@@ -108,27 +105,23 @@ function RosterRow({ entry, taxiAgeCutoffYear, taxiSize, currentTaxiCount, loadi
                     )}
                     {u21 && <span className={styles.u21Tag}>U21</span>}
                 </div>
-            </div>
+            </td>
 
-            {/* Market value */}
-            <div className={styles.colValue}>
+            <td className={styles.tdValue}>
                 £{Number(player.market_value ?? 0).toFixed(1)}m
-            </div>
+            </td>
 
-            {/* PPG */}
-            <div className={styles.colPpg}>
+            <td className={styles.tdPpg}>
                 {player.ppg != null ? Number(player.ppg).toFixed(2) : '—'}
-            </div>
+            </td>
 
-            {/* Status badge */}
-            <div className={styles.colStatus}>
+            <td className={styles.tdStatus}>
                 <span className={`${styles.statusBadge} ${styles[`status_${status}`]}`}>
                     {STATUS_LABEL[status] ?? status}
                 </span>
-            </div>
+            </td>
 
-            {/* Actions */}
-            <div className={styles.colActions}>
+            <td className={styles.tdActions}>
                 {/* Trade block toggle */}
                 {status !== 'ir' && status !== 'taxi' && (
                     <button
@@ -201,8 +194,8 @@ function RosterRow({ entry, taxiAgeCutoffYear, taxiSize, currentTaxiCount, loadi
                 >
                     Drop
                 </button>
-            </div>
-        </div>
+            </td>
+        </tr>
     );
 }
 
@@ -348,45 +341,60 @@ export default function RosterTable({ teamId, rosterEntries, taxiAgeCutoffYear, 
                 </div>
             )}
 
-            {/* Table header */}
-            <div className={styles.tableHeader}>
-                <div className={styles.colPos}>Pos</div>
-                <div className={styles.colName}>Player</div>
-                <div className={styles.colValue}>Value</div>
-                <div className={styles.colPpg}>PPG</div>
-                <div className={styles.colStatus}>Status</div>
-                <div className={styles.colActions}>Actions</div>
+            <div className={styles.tableWrap}>
+                <table className={styles.rosterTable}>
+                    <colgroup>
+                        <col className={styles.colWPos} />
+                        <col className={styles.colWPlayer} />
+                        <col className={styles.colWValue} />
+                        <col className={styles.colWPpg} />
+                        <col className={styles.colWStatus} />
+                        <col className={styles.colWActions} />
+                    </colgroup>
+                    <thead>
+                        <tr className={styles.headRow}>
+                            <th scope="col" className={styles.thPos}>Pos</th>
+                            <th scope="col" className={styles.thName}>Player</th>
+                            <th scope="col" className={styles.thValue}>Value</th>
+                            <th scope="col" className={styles.thPpg}>PPG</th>
+                            <th scope="col" className={styles.thStatus}>Status</th>
+                            <th scope="col" className={styles.thActions}>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {SECTION_ORDER.map((section) => {
+                            const entries = grouped[section];
+                            if (entries.length === 0) return null;
+                            return (
+                                <Fragment key={section}>
+                                    <tr className={styles.sectionRow}>
+                                        <td colSpan={6} className={styles.sectionCell}>
+                                            <div className={styles.sectionHeader}>
+                                                <span className={`${styles.sectionDot} ${styles[`dot_${section}`]}`} />
+                                                {STATUS_LABEL[section]}
+                                                <span className={styles.sectionCount}>{entries.length}</span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {entries.map((entry) => (
+                                        <RosterRow
+                                            key={entry.id}
+                                            entry={entry}
+                                            teamId={teamId}
+                                            taxiAgeCutoffYear={taxiAgeCutoffYear}
+                                            taxiSize={taxiSize}
+                                            currentTaxiCount={currentTaxiCount}
+                                            loadingId={loadingId}
+                                            onAction={handleAction}
+                                            onViewPlayer={setViewingPlayer}
+                                        />
+                                    ))}
+                                </Fragment>
+                            );
+                        })}
+                    </tbody>
+                </table>
             </div>
-
-            {/* Sections */}
-            {SECTION_ORDER.map((section) => {
-                const entries = grouped[section];
-                if (entries.length === 0) return null;
-                return (
-                    <div key={section} className={styles.section}>
-                        <div className={styles.sectionHeader}>
-                            <span className={`${styles.sectionDot} ${styles[`dot_${section}`]}`} />
-                            {STATUS_LABEL[section]}
-                            <span className={styles.sectionCount}>{entries.length}</span>
-                        </div>
-                        <div className={styles.tableBody}>
-                            {entries.map((entry) => (
-                                <RosterRow
-                                    key={entry.id}
-                                    entry={entry}
-                                    teamId={teamId}
-                                    taxiAgeCutoffYear={taxiAgeCutoffYear}
-                                    taxiSize={taxiSize}
-                                    currentTaxiCount={currentTaxiCount}
-                                    loadingId={loadingId}
-                                    onAction={handleAction}
-                                    onViewPlayer={setViewingPlayer}
-                                />
-                            ))}
-                        </div>
-                    </div>
-                );
-            })}
 
             <PlayerDetailsModal player={viewingPlayer} onClose={() => setViewingPlayer(null)} />
         </>
