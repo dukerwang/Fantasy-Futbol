@@ -23,7 +23,7 @@ const STATUS_LABEL: Record<string, string> = {
     active: 'Active',
     bench: 'Bench',
     ir: 'IR',
-    taxi: 'Taxi',
+    taxi: 'Academy',
 };
 
 const SECTION_ORDER = ['active', 'bench', 'taxi', 'ir'];
@@ -36,7 +36,7 @@ interface Props {
     teamId: string;
     leagueId: string;
     rosterEntries: RosterEntryWithPlayer[];
-    taxiAgeCutoffYear: number;
+    taxiAgeLimit: number;
     taxiSize: number;
 }
 
@@ -49,9 +49,14 @@ type ConfirmState = {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function isU21Eligible(player: Player, taxiAgeCutoffYear: number): boolean {
+function isU21Eligible(player: Player, taxiAgeLimit: number): boolean {
     if (!player.date_of_birth) return false;
-    return new Date(player.date_of_birth).getFullYear() >= taxiAgeCutoffYear;
+    const dob = new Date(player.date_of_birth);
+    const now = new Date();
+    let age = now.getFullYear() - dob.getFullYear();
+    const monthDiff = now.getMonth() - dob.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && now.getDate() < dob.getDate())) age--;
+    return age <= taxiAgeLimit;
 }
 
 function isIrEligible(player: Player): boolean {
@@ -69,7 +74,7 @@ function fplStatusLabel(status: string | null | undefined): string {
 interface RowProps {
     entry: RosterEntryWithPlayer;
     teamId: string;
-    taxiAgeCutoffYear: number;
+    taxiAgeLimit: number;
     taxiSize: number;
     currentTaxiCount: number;
     loadingId: string | null;
@@ -77,10 +82,10 @@ interface RowProps {
     onViewPlayer: (player: Player) => void;
 }
 
-function RosterRow({ entry, taxiAgeCutoffYear, taxiSize, currentTaxiCount, loadingId, onAction, onViewPlayer }: RowProps) {
+function RosterRow({ entry, taxiAgeLimit, taxiSize, currentTaxiCount, loadingId, onAction, onViewPlayer }: RowProps) {
     const { player, status } = entry;
     const isLoading = loadingId === entry.player.id;
-    const u21 = isU21Eligible(player, taxiAgeCutoffYear);
+    const u21 = isU21Eligible(player, taxiAgeLimit);
     const irEligible = isIrEligible(player);
     const taxiFull = currentTaxiCount >= taxiSize;
 
@@ -135,20 +140,20 @@ function RosterRow({ entry, taxiAgeCutoffYear, taxiSize, currentTaxiCount, loadi
                     </button>
                 )}
 
-                {/* Move to taxi (U21 only, non-IR, non-taxi, slots available) */}
+                {/* Move to academy (U21 only, non-IR, non-taxi, slots available) */}
                 {status !== 'taxi' && status !== 'ir' && u21 && (
                     <button
                         type="button"
                         className={styles.actionBtn}
                         onClick={() => onAction('move_to_taxi', entry)}
                         disabled={isLoading || taxiFull}
-                        title={taxiFull ? 'Taxi squad is full' : 'Move to taxi squad'}
+                        title={taxiFull ? 'Academy is full' : 'Move to academy'}
                     >
-                        → Taxi
+                        → Academy
                     </button>
                 )}
 
-                {/* Activate from taxi */}
+                {/* Activate from academy */}
                 {status === 'taxi' && (
                     <button
                         type="button"
@@ -201,7 +206,7 @@ function RosterRow({ entry, taxiAgeCutoffYear, taxiSize, currentTaxiCount, loadi
 
 // ─── Main component ───────────────────────────────────────────────────────────
 
-export default function RosterTable({ teamId, rosterEntries, taxiAgeCutoffYear, taxiSize }: Props) {
+export default function RosterTable({ teamId, rosterEntries, taxiAgeLimit, taxiSize }: Props) {
     const router = useRouter();
     const [loadingId, setLoadingId] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
@@ -381,7 +386,7 @@ export default function RosterTable({ teamId, rosterEntries, taxiAgeCutoffYear, 
                                             key={entry.id}
                                             entry={entry}
                                             teamId={teamId}
-                                            taxiAgeCutoffYear={taxiAgeCutoffYear}
+                                            taxiAgeLimit={taxiAgeLimit}
                                             taxiSize={taxiSize}
                                             currentTaxiCount={currentTaxiCount}
                                             loadingId={loadingId}

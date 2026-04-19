@@ -9,6 +9,16 @@ interface Props {
   params: Promise<{ leagueId: string }>;
 }
 
+function calculateAgeInYears(dobIso: string, referenceDate = new Date()): number {
+  const dob = new Date(dobIso);
+  let age = referenceDate.getFullYear() - dob.getFullYear();
+  const monthDiff = referenceDate.getMonth() - dob.getMonth();
+  if (monthDiff < 0 || (monthDiff === 0 && referenceDate.getDate() < dob.getDate())) {
+    age--;
+  }
+  return age;
+}
+
 export async function POST(req: NextRequest, { params }: Props) {
   const { leagueId } = await params;
 
@@ -58,10 +68,21 @@ export async function POST(req: NextRequest, { params }: Props) {
     return NextResponse.json({ error: 'Cannot place a bid while you have a healthy player occupying an IR slot. Please activate them first.' }, { status: 400 });
   }
 
+  // League settings for roster/academy validations
+  const { data: league } = await admin
+    .from('leagues')
+    .select('roster_size, taxi_size, taxi_age_limit')
+    .eq('id', leagueId)
+    .single();
+
+  if (!league) {
+    return NextResponse.json({ error: 'League not found' }, { status: 404 });
+  }
+
   // Transfermarkt minimum bid: 20% of the player's current market value
   const { data: playerData } = await admin
     .from('players')
-    .select('market_value')
+    .select('market_value, name, date_of_birth')
     .eq('id', playerId)
     .single();
 
@@ -71,6 +92,48 @@ export async function POST(req: NextRequest, { params }: Props) {
       { error: `Minimum bid for this player is £${minimumBid}m (20% of Transfermarkt value)` },
       { status: 400 },
     );
+  }
+
+  // Roster capacity check.
+  // If the active roster is full and no drop is nominated, we treat the bid as
+  // "win directly into academy" and validate academy age + slot constraints.
+  const { count: activeRosterCount } = await admin
+    .from('roster_entries')
+    .select('id', { count: 'exact', head: true })
+    .eq('team_id', myTeam.id)
+    .not('status', 'in', '("ir","taxi")');
+  const rosterFull = (activeRosterCount ?? 0) >= (league.roster_size ?? 20);
+
+  if (rosterFull && !dropPlayerId) {
+    const { count: academyCount } = await admin
+      .from('roster_entries')
+      .select('id', { count: 'exact', head: true })
+      .eq('team_id', myTeam.id)
+      .eq('status', 'taxi');
+
+    const academyMax = league.taxi_size ?? 3;
+    if ((academyCount ?? 0) >= academyMax) {
+      return NextResponse.json(
+        { error: `Roster is full and academy is full (${academyMax} slots). Select a player to drop.` },
+        { status: 400 },
+      );
+    }
+
+    const ageLimit = league.taxi_age_limit ?? 21;
+    if (!playerData?.date_of_birth) {
+      return NextResponse.json(
+        { error: 'Roster is full. This player has no DOB on record, so they cannot be auto-routed into academy; select a drop player.' },
+        { status: 400 },
+      );
+    }
+
+    const age = calculateAgeInYears(playerData.date_of_birth);
+    if (age > ageLimit) {
+      return NextResponse.json(
+        { error: `Roster is full. ${playerData.name} is age ${age} and not U${ageLimit} academy-eligible; select a drop player instead.` },
+        { status: 400 },
+      );
+    }
   }
 
   // Guard: the same drop player cannot be nominated in two simultaneous pending bids.

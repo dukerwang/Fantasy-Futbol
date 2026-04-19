@@ -26,10 +26,10 @@ export async function GET(_req: NextRequest, { params }: Props) {
 
   if (!myTeam) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
-  // League settings (roster_size)
+  // League settings
   const { data: league } = await admin
     .from('leagues')
-    .select('roster_size')
+    .select('roster_size, taxi_size, taxi_age_limit')
     .eq('id', leagueId)
     .single();
 
@@ -109,8 +109,10 @@ export async function GET(_req: NextRequest, { params }: Props) {
     .select('player_id, status, player:players(id, fpl_id, api_football_id, web_name, name, full_name, date_of_birth, nationality, pl_team, pl_team_id, primary_position, secondary_positions, market_value, market_value_updated_at, projected_points, photo_url, height_cm, fpl_status, fpl_news, total_points, form_rating, ppg, is_active, transfermarkt_id, created_at, updated_at)')
     .eq('team_id', myTeam.id);
 
-  const myRoster = (myRosterEntries ?? []).map((e) => ({ ...e.player as any, status: e.status })); // Check if team has space
-  const activeRosterCount = myRoster.filter(r => r.status !== 'ir').length;
+  const myRoster = (myRosterEntries ?? []).map((e) => ({ ...e.player as any, status: e.status }));
+  // Roster capacity excludes IR + academy(taxi)
+  const activeRosterCount = myRoster.filter(r => r.status !== 'ir' && r.status !== 'taxi').length;
+  const myTaxiCount = myRoster.filter(r => r.status === 'taxi').length;
   const rosterFull = activeRosterCount >= (league?.roster_size ?? 20);
 
   // Free agents: active players not rostered and not in active auctions
@@ -138,5 +140,10 @@ export async function GET(_req: NextRequest, { params }: Props) {
     },
     myRoster,
     rosterFull,
+    academy: {
+      current: myTaxiCount,
+      max: league?.taxi_size ?? 3,
+      age_limit: league?.taxi_age_limit ?? 21,
+    },
   });
 }

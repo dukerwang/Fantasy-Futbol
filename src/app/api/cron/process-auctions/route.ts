@@ -19,6 +19,16 @@ import { createAdminClient } from '@/lib/supabase/admin';
 
 export const maxDuration = 60; // 1 minute max for Vercel Hobby tier
 
+function calculateAgeInYears(dobIso: string, referenceDate = new Date()): number {
+  const dob = new Date(dobIso);
+  let age = referenceDate.getFullYear() - dob.getFullYear();
+  const monthDiff = referenceDate.getMonth() - dob.getMonth();
+  if (monthDiff < 0 || (monthDiff === 0 && referenceDate.getDate() < dob.getDate())) {
+    age--;
+  }
+  return age;
+}
+
 
 export async function GET(req: NextRequest) {
   return POST(req);
@@ -103,6 +113,22 @@ export async function POST(req: NextRequest) {
     const { league_id, player_id } = claims[0];
 
     try {
+      const { data: leagueSettings } = await admin
+        .from('leagues')
+        .select('roster_size, taxi_size, taxi_age_limit')
+        .eq('id', league_id)
+        .single();
+
+      const rosterSize = leagueSettings?.roster_size ?? 20;
+      const academySize = leagueSettings?.taxi_size ?? 3;
+      const academyAgeLimit = leagueSettings?.taxi_age_limit ?? 21;
+
+      const { data: wonPlayer } = await admin
+        .from('players')
+        .select('id, name, date_of_birth')
+        .eq('id', player_id)
+        .single();
+
       // Separate the system-seed placeholder from real manager bids.
       // Real bids are already sorted faab_bid DESC (highest first).
       const realClaims = claims.filter((c) => c.team_id !== null);
@@ -121,6 +147,7 @@ export async function POST(req: NextRequest) {
       let winner: Claim | null = null;
       let winnerSeveranceFee = 0;
       let winnerFreshFaab = 0;
+      let winnerAcquireStatus: 'bench' | 'taxi' = 'bench';
 
       for (const candidate of realClaims) {
         // Re-fetch FAAB to guard against same-tick double-spend
@@ -155,6 +182,44 @@ export async function POST(req: NextRequest) {
             `but only has £${freshTeam.faab_budget}m. Skipping to next bidder.`,
           );
           continue;
+        }
+
+        // Capacity check:
+        // - With nominated drop: normal path (bench acquisition)
+        // - No drop + full active roster: must route into academy and satisfy academy rules
+        if (!candidate.drop_player_id) {
+          const { count: activeCount } = await admin
+            .from('roster_entries')
+            .select('id', { count: 'exact', head: true })
+            .eq('team_id', candidate.team_id!)
+            .not('status', 'in', '("ir","taxi")');
+
+          const isRosterFull = (activeCount ?? 0) >= rosterSize;
+          if (isRosterFull) {
+            const { count: academyCount } = await admin
+              .from('roster_entries')
+              .select('id', { count: 'exact', head: true })
+              .eq('team_id', candidate.team_id!)
+              .eq('status', 'taxi');
+
+            if ((academyCount ?? 0) >= academySize) {
+              continue;
+            }
+
+            if (!wonPlayer?.date_of_birth) {
+              continue;
+            }
+            const age = calculateAgeInYears(wonPlayer.date_of_birth);
+            if (age > academyAgeLimit) {
+              continue;
+            }
+
+            winnerAcquireStatus = 'taxi';
+          } else {
+            winnerAcquireStatus = 'bench';
+          }
+        } else {
+          winnerAcquireStatus = 'bench';
         }
 
         winner = candidate;
@@ -230,18 +295,11 @@ export async function POST(req: NextRequest) {
 
         if (!dropEntry) {
           // Drop player already gone. Check if the roster still has room.
-          const { data: leagueSettings } = await admin
-            .from('leagues')
-            .select('roster_size')
-            .eq('id', league_id)
-            .single();
-          const rosterSize = leagueSettings?.roster_size ?? 20;
-
           const { count: activeCount } = await admin
             .from('roster_entries')
             .select('id', { count: 'exact', head: true })
             .eq('team_id', winner.team_id!)
-            .neq('status', 'ir');
+            .not('status', 'in', '("ir","taxi")');
 
           if ((activeCount ?? 0) >= rosterSize) {
             // Roster is full and the expected drop slot is gone — reject this claim.
@@ -292,7 +350,7 @@ export async function POST(req: NextRequest) {
         {
           team_id: winner.team_id,
           player_id,
-          status: 'bench',
+          status: winnerAcquireStatus,
           acquisition_type: 'waiver',
           acquisition_value: winner.faab_bid,
           acquired_at: new Date().toISOString(),
@@ -309,8 +367,8 @@ export async function POST(req: NextRequest) {
 
       // Log the winning transaction
       const winNote = winnerSeveranceFee > 0
-        ? `Won auction for ${(winner.player as any)?.name ?? player_id} with £${winner.faab_bid}m bid (+ £${winnerSeveranceFee}m drop severance)`
-        : `Won auction for ${(winner.player as any)?.name ?? player_id} with £${winner.faab_bid}m bid`;
+        ? `Won auction for ${(winner.player as any)?.name ?? player_id} with £${winner.faab_bid}m bid (+ £${winnerSeveranceFee}m drop severance)${winnerAcquireStatus === 'taxi' ? ' -> academy' : ''}`
+        : `Won auction for ${(winner.player as any)?.name ?? player_id} with £${winner.faab_bid}m bid${winnerAcquireStatus === 'taxi' ? ' -> academy' : ''}`;
       await admin.from('transactions').insert({
         league_id,
         team_id: winner.team_id,

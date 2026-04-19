@@ -6,10 +6,15 @@ interface Props {
     params: Promise<{ teamId: string }>;
 }
 
-// Season start year used to compute U21 cutoff.
-// A player born in year >= (SEASON_START_YEAR - taxi_age_limit) qualifies.
-// For 2025-26 with U21 limit: born 2004 or later.
-const SEASON_START_YEAR = 2025;
+function calculateAgeInYears(dobIso: string, referenceDate = new Date()): number {
+    const dob = new Date(dobIso);
+    let age = referenceDate.getFullYear() - dob.getFullYear();
+    const monthDiff = referenceDate.getMonth() - dob.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && referenceDate.getDate() < dob.getDate())) {
+        age--;
+    }
+    return age;
+}
 
 export async function POST(req: NextRequest, { params }: Props) {
     const { teamId } = await params;
@@ -37,10 +42,10 @@ export async function POST(req: NextRequest, { params }: Props) {
 
     if (!team) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
-    // Fetch league taxi config
+    // Fetch league academy config
     const { data: league } = await admin
         .from('leagues')
-        .select('roster_size, taxi_size, taxi_age_limit')
+        .select('roster_size, taxi_size, taxi_age_limit, season')
         .eq('id', team.league_id)
         .single();
 
@@ -66,21 +71,20 @@ export async function POST(req: NextRequest, { params }: Props) {
 
     if (action === 'move_to_taxi') {
         if (entry.status === 'taxi') {
-            return NextResponse.json({ error: 'Player is already on the taxi squad' }, { status: 400 });
+            return NextResponse.json({ error: 'Player is already in the academy' }, { status: 400 });
         }
         if (entry.status === 'ir') {
-            return NextResponse.json({ error: 'Player is on IR. Activate them first before moving to taxi squad.' }, { status: 400 });
+            return NextResponse.json({ error: 'Player is on IR. Activate them first before moving to the academy.' }, { status: 400 });
         }
 
         // Age eligibility check
         if (!player.date_of_birth) {
-            return NextResponse.json({ error: 'Player has no date of birth on record — cannot verify age eligibility.' }, { status: 400 });
+            return NextResponse.json({ error: 'Player has no date of birth on record - cannot verify academy eligibility.' }, { status: 400 });
         }
-        const birthYear = new Date(player.date_of_birth).getFullYear();
-        const cutoffBirthYear = SEASON_START_YEAR - taxiAgeLimit;
-        if (birthYear < cutoffBirthYear) {
+        const age = calculateAgeInYears(player.date_of_birth, new Date());
+        if (age > taxiAgeLimit) {
             return NextResponse.json(
-                { error: `${player.name} is not U${taxiAgeLimit} eligible. Taxi squad is restricted to players born in ${cutoffBirthYear} or later.` },
+                { error: `${player.name} is age ${age} and not U${taxiAgeLimit} eligible for academy placement.` },
                 { status: 400 }
             );
         }
@@ -96,7 +100,7 @@ export async function POST(req: NextRequest, { params }: Props) {
 
         if ((currentTaxi?.length ?? 0) >= taxiSize) {
             return NextResponse.json(
-                { error: `Taxi squad is full (${taxiSize} slots). Promote or drop a taxi player first.` },
+                { error: `Academy is full (${taxiSize} slots). Promote or drop an academy player first.` },
                 { status: 400 }
             );
         }
@@ -114,7 +118,7 @@ export async function POST(req: NextRequest, { params }: Props) {
 
     if (action === 'activate') {
         if (entry.status !== 'taxi') {
-            return NextResponse.json({ error: 'Player is not currently on the taxi squad' }, { status: 400 });
+            return NextResponse.json({ error: 'Player is not currently in the academy' }, { status: 400 });
         }
 
         // Check active roster space (excludes IR and taxi)
@@ -128,7 +132,7 @@ export async function POST(req: NextRequest, { params }: Props) {
 
         if ((activeRoster?.length ?? 0) >= maxActive) {
             return NextResponse.json(
-                { error: 'Active roster is full. Drop a player before promoting from taxi squad.' },
+                { error: 'Active roster is full. Drop a player before promoting from the academy.' },
                 { status: 400 }
             );
         }

@@ -56,10 +56,6 @@ export default async function RosterPage({ params }: Props) {
   const taxiAgeLimit: number = league?.taxi_age_limit ?? 21;
   const taxiSize: number = league?.taxi_size ?? 3;
 
-  // Compute taxi eligibility cutoff year client-side (matches server constant SEASON_START_YEAR=2025)
-  const SEASON_START_YEAR = 2025;
-  const taxiAgeCutoffYear = SEASON_START_YEAR - taxiAgeLimit;
-
   const currentTaxiCount = rosterData.filter((e) => e.status === 'taxi').length;
 
   return (
@@ -80,7 +76,7 @@ export default async function RosterPage({ params }: Props) {
           <div className={styles.metaDivider} />
           <div className={styles.metaStat}>
             <span className={styles.metaValue}>{currentTaxiCount}/{taxiSize}</span>
-            <span className={styles.metaLabel}>Taxi Slots</span>
+            <span className={styles.metaLabel}>Academy Slots</span>
           </div>
         </div>
       </div>
@@ -89,7 +85,7 @@ export default async function RosterPage({ params }: Props) {
         teamId={team.id}
         leagueId={leagueId}
         rosterEntries={rosterData}
-        taxiAgeCutoffYear={taxiAgeCutoffYear}
+        taxiAgeLimit={taxiAgeLimit}
         taxiSize={taxiSize}
       />
     </div>

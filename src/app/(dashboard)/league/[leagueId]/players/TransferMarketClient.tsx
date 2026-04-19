@@ -41,7 +41,16 @@ interface Props {
   initialMyTeam: MyTeamInfo;
   initialMyRoster: RosterPlayer[];
   initialRosterFull: boolean;
+  initialAcademy?: { current: number; max: number; age_limit: number };
   initialRecentActivity: RecentActivityItem[];
+}
+
+function calculateAgeInYears(dobIso: string, referenceDate = new Date()): number {
+  const dob = new Date(dobIso);
+  let age = referenceDate.getFullYear() - dob.getFullYear();
+  const monthDiff = referenceDate.getMonth() - dob.getMonth();
+  if (monthDiff < 0 || (monthDiff === 0 && referenceDate.getDate() < dob.getDate())) age--;
+  return age;
 }
 
 // ─── Modal state ─────────────────────────────────────────────────────────────
@@ -113,6 +122,7 @@ export default function TransferMarketClient({
   initialMyTeam,
   initialMyRoster,
   initialRosterFull,
+  initialAcademy,
   initialRecentActivity,
 }: Props) {
   const [auctions, setAuctions] = useState<AuctionListing[]>(initialAuctions);
@@ -121,6 +131,8 @@ export default function TransferMarketClient({
   const [myTeam, setMyTeam] = useState<MyTeamInfo>(initialMyTeam);
   const [myRoster, setMyRoster] = useState<RosterPlayer[]>(initialMyRoster);
   const [rosterFull, setRosterFull] = useState(initialRosterFull);
+  const [academy, setAcademy] = useState(initialAcademy ?? { current: 0, max: 3, age_limit: 21 });
+  const [sendToAcademyIfFull, setSendToAcademyIfFull] = useState(false);
   const [activeTab, setActiveTab] = useState<'market' | 'auctions'>(initialTab);
 
   // Client-side search/filter state
@@ -187,6 +199,7 @@ export default function TransferMarketClient({
       setMyTeam(data.myTeam);
       setMyRoster(data.myRoster ?? []);
       setRosterFull(data.rosterFull ?? false);
+      setAcademy(data.academy ?? { current: 0, max: 3, age_limit: 21 });
     } finally {
       setRefreshing(false);
     }
@@ -209,6 +222,7 @@ export default function TransferMarketClient({
       : currentHighest;
     setBidAmount(String(Math.max(auctionMin, tmMin)));
     setDropPlayerId(myCurrentDropId ?? '');
+    setSendToAcademyIfFull(false);
     setSubmitError('');
   }
 
@@ -216,6 +230,7 @@ export default function TransferMarketClient({
     setModal((m) => ({ ...m, open: false, player: null }));
     setBidAmount('');
     setDropPlayerId('');
+    setSendToAcademyIfFull(false);
     setSubmitError('');
     setSubmitting(false);
   }
@@ -238,9 +253,20 @@ export default function TransferMarketClient({
       setSubmitError(`Minimum bid for this player is £${tmMin}m (Transfermarkt floor).`);
       return;
     }
-    if (rosterFull && !dropPlayerId) {
-      setSubmitError('Your roster is full — select a player to drop.');
+    if (rosterFull && !dropPlayerId && !sendToAcademyIfFull) {
+      setSubmitError('Your roster is full - select a player to drop, or send winner to academy.');
       return;
+    }
+    if (rosterFull && sendToAcademyIfFull && modal.player?.date_of_birth) {
+      const age = calculateAgeInYears(modal.player.date_of_birth);
+      if (age > academy.age_limit) {
+        setSubmitError(`${formatPlayerName(modal.player)} is age ${age} and not U${academy.age_limit} academy eligible.`);
+        return;
+      }
+      if (academy.current >= academy.max) {
+        setSubmitError(`Academy is full (${academy.current}/${academy.max}) - select a drop player instead.`);
+        return;
+      }
     }
 
     setSubmitting(true);
@@ -252,7 +278,7 @@ export default function TransferMarketClient({
       body: JSON.stringify({
         playerId: modal.player.id,
         bidAmount: amount,
-        dropPlayerId: dropPlayerId || null,
+        dropPlayerId: rosterFull && sendToAcademyIfFull ? null : (dropPlayerId || null),
       }),
     });
 
@@ -758,12 +784,30 @@ export default function TransferMarketClient({
 
               {/* Drop selector */}
               {rosterFull && (
+                <>
+                <label className={styles.modalLabel} style={{ marginBottom: '0.5rem' }}>
+                  <input
+                    type="checkbox"
+                    checked={sendToAcademyIfFull}
+                    onChange={(e) => {
+                      setSendToAcademyIfFull(e.target.checked);
+                      if (e.target.checked) setDropPlayerId('');
+                    }}
+                  />{' '}
+                  If I win, send directly to academy (no drop)
+                </label>
+                {sendToAcademyIfFull && (
+                  <p className={styles.modalDisclaimer} style={{ marginTop: 0, marginBottom: '0.6rem' }}>
+                    Academy: {academy.current}/{academy.max} slots · U{academy.age_limit} only.
+                  </p>
+                )}
                 <label className={styles.modalLabel}>
                   Drop player (roster full)
                   <select
                     className={styles.modalSelect}
                     value={dropPlayerId}
                     onChange={(e) => setDropPlayerId(e.target.value)}
+                    disabled={sendToAcademyIfFull}
                   >
                     <option value="">— Select player to release —</option>
                     {myRoster.map((p) => {
@@ -777,6 +821,7 @@ export default function TransferMarketClient({
                     })}
                   </select>
                 </label>
+                </>
               )}
 
               {/* Error */}

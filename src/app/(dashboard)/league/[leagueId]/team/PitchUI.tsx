@@ -22,8 +22,6 @@ type PitchZone = 'ATT' | 'AMZ' | 'CMZ' | 'DMZ' | 'DEF' | 'GK';
 const ZONE_ORDER: PitchZone[] = ['ATT', 'AMZ', 'CMZ', 'DMZ', 'DEF', 'GK'];
 const BENCH_SLOT_NAMES: BenchSlot[] = ['DEF', 'MID', 'ATT', 'FLEX'];
 
-// Season start year for U21 taxi eligibility check (matches server-side constant)
-const SEASON_START_YEAR = 2025;
 const DEFAULT_TAXI_AGE_LIMIT = 21;
 
 const POS_COLOR: Record<GranularPosition, string> = {
@@ -67,10 +65,14 @@ function displayName(player: Player): string {
     return formatPlayerName(player, 'initial_last');
 }
 
-function isU21Eligible(player: Player, taxiAgeCutoffYear: number): boolean {
+function isU21Eligible(player: Player, academyAgeLimit: number): boolean {
     if (!player.date_of_birth) return false;
-    const birthYear = new Date(player.date_of_birth).getFullYear();
-    return birthYear >= taxiAgeCutoffYear;
+    const dob = new Date(player.date_of_birth);
+    const now = new Date();
+    let age = now.getFullYear() - dob.getFullYear();
+    const monthDiff = now.getMonth() - dob.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && now.getDate() < dob.getDate())) age--;
+    return age <= academyAgeLimit;
 }
 
 function isIrEligible(player: Player): boolean {
@@ -223,7 +225,7 @@ export default function PitchUI({
     const [viewingPlayer, setViewingPlayer] = useState<Player | null>(null);
 
     const slots = FORMATION_SLOTS[formation];
-    const taxiAgeCutoffYear = SEASON_START_YEAR - taxiAgeLimit;
+    const academyAgeLimit = taxiAgeLimit;
 
     // ── Derived state ──
     const starterIds = useMemo(
@@ -323,7 +325,7 @@ export default function PitchUI({
         if (!sidebarSelection) return targets;
         if (sidebarSelection.type === 'taxi') {
             for (const e of poolEntries) {
-                if (isU21Eligible(e.player, taxiAgeCutoffYear)) targets.add(`pool-${e.player.id}`);
+                if (isU21Eligible(e.player, academyAgeLimit)) targets.add(`pool-${e.player.id}`);
             }
         }
         if (sidebarSelection.type === 'ir') {
@@ -332,7 +334,7 @@ export default function PitchUI({
             }
         }
         return targets;
-    }, [sidebarSelection, poolEntries, taxiAgeCutoffYear]);
+    }, [sidebarSelection, poolEntries, academyAgeLimit]);
 
     // ── Selection helpers ──
     function clearAll() {
@@ -531,8 +533,8 @@ export default function PitchUI({
                 if (!targetEntry) return;
 
                 if (sidebarSelection.type === 'taxi') {
-                    if (!isU21Eligible(targetEntry.player, taxiAgeCutoffYear)) {
-                        setSidebarError('This player is not U21 eligible for the taxi squad.');
+                    if (!isU21Eligible(targetEntry.player, academyAgeLimit)) {
+                        setSidebarError('This player is not U21 eligible for the academy.');
                         setSidebarSelection(null); return;
                     }
                     handleTaxiSwap(sidebarSelection.playerId, playerId);
@@ -579,7 +581,7 @@ export default function PitchUI({
                 setSaveError(null); setSaveSuccess(false); setLineupSelection(null); return;
             }
         },
-        [lineupSelection, sidebarSelection, slots, playerMap, poolEntries, taxiAgeCutoffYear],
+        [lineupSelection, sidebarSelection, slots, playerMap, poolEntries, academyAgeLimit],
     );
 
     // ── Taxi swap — sequential: move reserve to taxi first (frees roster slot), then activate taxi player ──
@@ -594,7 +596,7 @@ export default function PitchUI({
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ playerId: incomingReserveId, action: 'move_to_taxi' }),
             });
-            if (!r1.ok) { const d = await r1.json(); setSidebarError(d.error ?? 'Move to taxi failed'); return; }
+            if (!r1.ok) { const d = await r1.json(); setSidebarError(d.error ?? 'Move to academy failed'); return; }
 
             // Step 2: activate the taxi player (now there is roster space)
             const r2 = await fetch(`/api/teams/${teamId}/taxi`, {
@@ -728,7 +730,7 @@ export default function PitchUI({
             : 'Reserve selected — click a starter slot or bench slot to place.'
         : sidebarSelection
         ? sidebarSelection.type === 'taxi'
-            ? 'Taxi player selected — click an eligible U21 reserve to swap in.'
+            ? 'Academy player selected - click an eligible U21 reserve to swap in.'
             : 'IR player selected — click an injured/unavailable reserve to swap in.'
         : null;
 
@@ -930,7 +932,7 @@ export default function PitchUI({
                                     const isLineupTarget = validLineupTargets.has(`pool-${entry.player.id}`);
                                     const isSidebarTarget = validSidebarTargets.has(`pool-${entry.player.id}`);
                                     const isHighlighted = isLineupTarget || isSidebarTarget;
-                                    const isU21 = isU21Eligible(entry.player, taxiAgeCutoffYear);
+                                    const isU21 = isU21Eligible(entry.player, academyAgeLimit);
                                     const isInjured = isIrEligible(entry.player);
                                     // Grey out non-eligible players when sidebar selection is active
                                     const isDimmed = sidebarSelection
@@ -978,11 +980,11 @@ export default function PitchUI({
                     {(taxiEntries.length > 0 || true) && (
                         <div className={styles.sidebarCard}>
                             <div className={styles.sidebarCardHeader}>
-                                <h3 className={styles.sidebarCardTitle}>Taxi Squad</h3>
+                                <h3 className={styles.sidebarCardTitle}>Academy</h3>
                                 <span className={styles.sidebarCardMeta}>{taxiEntries.length} / 3 slots</span>
                             </div>
                             {taxiEntries.length === 0 ? (
-                                <p className={styles.reservesEmpty}>No players on taxi squad.</p>
+                                <p className={styles.reservesEmpty}>No players in academy.</p>
                             ) : (
                                 <div className={styles.taxiList}>
                                     {taxiEntries.map((entry) => {

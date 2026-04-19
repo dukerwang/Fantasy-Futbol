@@ -25,7 +25,7 @@ export default async function TransferMarketPage({ params, searchParams }: Props
   // Validate league membership
   const { data: league } = await admin
     .from('leagues')
-    .select('id, name, roster_size')
+    .select('id, name, roster_size, taxi_size, taxi_age_limit')
     .eq('id', leagueId)
     .single();
   if (!league) notFound();
@@ -124,7 +124,7 @@ export default async function TransferMarketPage({ params, searchParams }: Props
   // My roster for the drop dropdown
   const { data: myRosterEntries } = await (admin
     .from('roster_entries')
-    .select(`player_id, player:players(${FULL_PLAYER_SELECT})`) as any)
+    .select(`player_id, status, player:players(${FULL_PLAYER_SELECT})`) as any)
     .eq('team_id', myTeam.id);
 
   const myRoster = (myRosterEntries ?? []).map((e: any) => {
@@ -132,12 +132,15 @@ export default async function TransferMarketPage({ params, searchParams }: Props
     const ranks = rankMap.get(p.id);
     return {
       ...p,
+      status: e.status,
       overall_rank: ranks?.overall_rank,
       position_ranks: ranks?.position_ranks
     };
   });
 
-  const rosterFull = myRoster.length >= (league.roster_size ?? 20);
+  const activeRosterCount = myRoster.filter((p: any) => p.status !== 'ir' && p.status !== 'taxi').length;
+  const rosterFull = activeRosterCount >= (league.roster_size ?? 20);
+  const academyCount = myRoster.filter((p: any) => p.status === 'taxi').length;
 
   // Recent completed auction wins for the sidebar feed
   const { data: recentActivity } = await admin
@@ -161,6 +164,7 @@ export default async function TransferMarketPage({ params, searchParams }: Props
       initialMyTeam={{ id: myTeam.id, faab_budget: myTeam.faab_budget, team_name: myTeam.team_name }}
       initialMyRoster={myRoster as any[]}
       initialRosterFull={rosterFull}
+      initialAcademy={{ current: academyCount, max: league.taxi_size ?? 3, age_limit: league.taxi_age_limit ?? 21 }}
       initialRecentActivity={(recentActivity ?? []) as any[]}
     />
   );

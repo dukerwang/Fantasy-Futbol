@@ -24,8 +24,17 @@ interface TeamInfo {
   faab_budget: number;
   myRoster: RosterPlayer[];
   rosterFull: boolean;
+  academy: { current: number; max: number; age_limit: number };
   alreadyRostered: boolean; // player is already on this team
   hasPendingBid: boolean;   // team already has a pending auction bid for this player
+}
+
+function calculateAgeInYears(dobIso: string, referenceDate = new Date()): number {
+  const dob = new Date(dobIso);
+  let age = referenceDate.getFullYear() - dob.getFullYear();
+  const monthDiff = referenceDate.getMonth() - dob.getMonth();
+  if (monthDiff < 0 || (monthDiff === 0 && referenceDate.getDate() < dob.getDate())) age--;
+  return age;
 }
 
 interface Props {
@@ -43,6 +52,7 @@ export default function GlobalBidModal({ player, userTeams, onClose, onSuccess }
 
   const [bidAmount, setBidAmount] = useState('0');
   const [dropPlayerId, setDropPlayerId] = useState('');
+  const [sendToAcademyIfFull, setSendToAcademyIfFull] = useState(false);
   const [submitError, setSubmitError] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
@@ -55,6 +65,7 @@ export default function GlobalBidModal({ player, userTeams, onClose, onSuccess }
     setTeamInfoError('');
     setTeamInfo(null);
     setDropPlayerId('');
+    setSendToAcademyIfFull(false);
 
     try {
       const res = await fetch(`/api/leagues/${leagueId}/auctions`);
@@ -77,6 +88,7 @@ export default function GlobalBidModal({ player, userTeams, onClose, onSuccess }
         faab_budget: data.myTeam?.faab_budget ?? 0,
         myRoster,
         rosterFull: data.rosterFull ?? false,
+        academy: data.academy ?? { current: 0, max: 3, age_limit: 21 },
         alreadyRostered,
         hasPendingBid,
       });
@@ -117,9 +129,24 @@ export default function GlobalBidModal({ player, userTeams, onClose, onSuccess }
       setSubmitError(`${selectedTeam.team_name} only has £${teamInfo.faab_budget}m FAAB.`);
       return;
     }
-    if (teamInfo.rosterFull && !dropPlayerId) {
-      setSubmitError('Your roster is full — select a player to drop.');
+    if (teamInfo.rosterFull && !dropPlayerId && !sendToAcademyIfFull) {
+      setSubmitError('Your roster is full - select a drop player, or send winner to academy.');
       return;
+    }
+    if (teamInfo.rosterFull && sendToAcademyIfFull) {
+      if (!player.date_of_birth) {
+        setSubmitError('Player has no DOB on file; select a drop player instead.');
+        return;
+      }
+      const age = calculateAgeInYears(player.date_of_birth);
+      if (age > teamInfo.academy.age_limit) {
+        setSubmitError(`${player.web_name ?? player.name} is age ${age} and not U${teamInfo.academy.age_limit} academy eligible.`);
+        return;
+      }
+      if (teamInfo.academy.current >= teamInfo.academy.max) {
+        setSubmitError(`Academy is full (${teamInfo.academy.current}/${teamInfo.academy.max}); select a drop player.`);
+        return;
+      }
     }
     if (teamInfo.alreadyRostered) {
       setSubmitError('This player is already on your roster.');
@@ -135,7 +162,7 @@ export default function GlobalBidModal({ player, userTeams, onClose, onSuccess }
       body: JSON.stringify({
         playerId: player.id,
         bidAmount: amount,
-        dropPlayerId: dropPlayerId || null,
+        dropPlayerId: teamInfo.rosterFull && sendToAcademyIfFull ? null : (dropPlayerId || null),
       }),
     });
 
@@ -248,11 +275,23 @@ export default function GlobalBidModal({ player, userTeams, onClose, onSuccess }
 
                 {teamInfo.rosterFull && (
                   <div className={styles.field}>
-                    <label className={styles.label}>Drop player (roster full — required):</label>
+                    <label className={styles.label}>
+                      <input
+                        type="checkbox"
+                        checked={sendToAcademyIfFull}
+                        onChange={(e) => {
+                          setSendToAcademyIfFull(e.target.checked);
+                          if (e.target.checked) setDropPlayerId('');
+                        }}
+                      />{' '}
+                      Send winner directly to academy (no drop)
+                    </label>
+                    <label className={styles.label}>Drop player (roster full):</label>
                     <select
                       className={styles.select}
                       value={dropPlayerId}
                       onChange={(e) => setDropPlayerId(e.target.value)}
+                      disabled={sendToAcademyIfFull}
                     >
                       <option value="">— Select a player to drop —</option>
                       {teamInfo.myRoster.map((p) => (
