@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "download-team-logos": "node scripts/download-pl-team-logos.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.8.0",
