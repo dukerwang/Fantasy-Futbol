@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useMemo, useState, type CSSProperties } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
     FORMATION_SLOTS,
@@ -65,14 +65,6 @@ function canPlayBenchSlot(player: Player, slot: BenchSlot): boolean {
 
 function displayName(player: Player): string {
     return formatPlayerName(player, 'initial_last');
-}
-
-function pitchCardName(player: Player): string {
-    return formatPlayerName(player, 'full');
-}
-
-function pitchTeamUpper(player: Player): string {
-    return (player.pl_team ?? '').toUpperCase();
 }
 
 function isU21Eligible(player: Player, academyAgeLimit: number): boolean {
@@ -142,8 +134,6 @@ function PitchNode({ slotPos, player, isSelected, isValidTarget, isEmpty, isInva
         isInvalid ? styles.nodeInvalid : '',
     ].filter(Boolean).join(' ');
 
-    const accent = isInvalid ? '#ef4444' : POS_COLOR[slotPos];
-
     return (
         <button
             type="button"
@@ -156,21 +146,30 @@ function PitchNode({ slotPos, player, isSelected, isValidTarget, isEmpty, isInva
                 <span className={styles.nodePtsBadge}>{points.toFixed(1)}</span>
             )}
 
-            <div
-                className={styles.nodePhotoStrip}
-                style={{ '--pos-accent': accent } as CSSProperties}
-            >
+            <div className={styles.nodePhotoStrip}>
                 {player?.photo_url ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={player.photo_url} alt={pitchCardName(player)} className={styles.nodePhotoImg} />
+                    <img src={player.photo_url} alt={displayName(player)} className={styles.nodePhotoImg} />
                 ) : (
                     <span className={styles.nodePhotoPlaceholder} aria-hidden>
-                        {player ? pitchCardName(player).charAt(0) : slotPos.charAt(0)}
+                        {player ? displayName(player).charAt(0) : slotPos.charAt(0)}
                     </span>
                 )}
             </div>
 
-            <div className={styles.nodeCopy}>
+            <div className={styles.nodeChipBody}>
+                <div className={styles.nodePosRow}>
+                    <span
+                        className={styles.nodePosBadge}
+                        style={{ background: isInvalid ? '#ef4444' : POS_COLOR[slotPos] }}
+                    >
+                        {slotPos}
+                    </span>
+                    {player?.fpl_status && player.fpl_status !== 'a' && (
+                        <span className={styles.nodeStatusDot} data-status={player.fpl_status} />
+                    )}
+                </div>
+
                 {player ? (
                     <>
                         <span
@@ -179,23 +178,12 @@ function PitchNode({ slotPos, player, isSelected, isValidTarget, isEmpty, isInva
                             style={{ cursor: onViewDetails ? 'pointer' : 'default', ...(isInvalid ? { color: '#ef4444' } : {}) }}
                             title={onViewDetails ? 'View player details' : undefined}
                         >
-                            {pitchCardName(player)}
+                            {displayName(player)}
                         </span>
-                        <div className={styles.nodeMetaRow}>
-                            <span className={styles.nodePosInline}>{slotPos}</span>
-                            <span className={styles.nodeMetaSep} aria-hidden />
-                            <span className={styles.nodeTeamLine}>{pitchTeamUpper(player)}</span>
-                            {player.fpl_status && player.fpl_status !== 'a' && (
-                                <span className={styles.nodeStatusDot} data-status={player.fpl_status} />
-                            )}
-                        </div>
                         {isLocked && <span className={styles.nodeLockIcon}>🔒</span>}
                     </>
                 ) : (
-                    <>
-                        <span className={styles.nodeEmptyLabel}>Empty</span>
-                        <span className={styles.nodeMetaRowMuted}>{slotPos}</span>
-                    </>
+                    <span className={styles.nodeEmptyLabel}>Empty</span>
                 )}
             </div>
         </button>
