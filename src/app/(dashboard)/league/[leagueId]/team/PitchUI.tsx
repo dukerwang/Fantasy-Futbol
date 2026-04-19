@@ -128,18 +128,12 @@ function PitchNode({ slotPos, player, formation, isSelected, isValidTarget, isEm
         isInvalid ? styles.nodeInvalid : '',
     ].filter(Boolean).join(' ');
 
-    const isHighWide = (slotPos === 'LM' || slotPos === 'RM') && (formation === '4-2-3-1');
-    const align = slotPos === 'DM' ? 'flex-end' : (slotPos === 'AM' || isHighWide) ? 'flex-start' : 'center';
-
     return (
         <button
             type="button"
             className={cls}
             onClick={isLocked ? (onViewDetails ?? undefined) : onClick}
-            style={{
-                alignSelf: align,
-                ...(isLocked ? { opacity: 0.7, cursor: 'pointer' } : {}),
-            }}
+            style={isLocked ? { opacity: 0.7, cursor: 'pointer' } : undefined}
             title={isLocked ? 'Match started (Locked) — click to view' : isInvalid ? 'Player is not eligible for this position' : undefined}
         >
             {/* Score badge — absolute top-right, overflows outside card (matches MatchupPitch) */}
@@ -761,23 +755,22 @@ export default function PitchUI({
             {/* ── 2-column layout: Pitch (left) + Sidebar (right) ── */}
             <div className={styles.pitchLayout}>
 
-                {/* ── LEFT: Pitch ── */}
+                {/* ── LEFT: Half-pitch ── */}
                 <div className={styles.pitchCol}>
                     <div className={styles.pitchContainer}>
-                        <div className={styles.pitchCenterLine} />
-                        <div className={styles.pitchCenterCircle} />
-                        <div className={styles.pitchPenaltyTop} />
-                        <div className={styles.pitchPenaltyBottom} />
+                        {/* Half-pitch markings: center line at top, half center-circle, penalty box + arc at bottom */}
+                        <div className={styles.pitchTopLine} />
+                        <div className={styles.pitchHalfCircle} />
+                        <div className={styles.pitchPenaltyBox} />
+                        <div className={styles.pitchPenaltyArc} />
+                        <div className={styles.pitchGoalBox} />
 
                         {ZONE_ORDER.map((zone) => {
                             const zoneSlots = zonedSlots[zone];
                             if (zoneSlots.length === 0) return null;
-                            const isCompactMid = zone === 'MID' && zoneSlots.length === 3;
                             return (
                                 <div key={zone} className={`${styles.pitchZone} ${styles[`zone${zone}`]}`}>
-                                    <span className={styles.zoneLabel}>{zone}</span>
                                     <div className={styles.pitchRow}>
-                                        {isCompactMid && <div style={{ width: '76px', visibility: 'hidden' }} />}
                                         {zoneSlots.map(({ slotIndex, pos }) => {
                                             const playerId = assignments[slotIndex];
                                             const entry = playerId ? playerMap.get(playerId) : undefined;
@@ -802,7 +795,6 @@ export default function PitchUI({
                                                 />
                                             );
                                         })}
-                                        {isCompactMid && <div style={{ width: '76px', visibility: 'hidden' }} />}
                                     </div>
                                 </div>
                             );
