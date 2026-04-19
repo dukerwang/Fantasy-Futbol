@@ -67,14 +67,6 @@ function displayName(player: Player): string {
     return formatPlayerName(player, 'initial_last');
 }
 
-/** Vertical nudge per slot — matches MatchupPitch for familiar chip rhythm */
-function slotOffset(pos: GranularPosition): number {
-    if (['LW', 'RW', 'LM', 'RM'].includes(pos)) return 10;
-    if (pos === 'CM') return -25;
-    if (pos === 'DM') return -35;
-    return 0;
-}
-
 function surnameOnly(player: Player): string {
     const full = player.web_name || player.name || '';
     // web_name is already usually the short name (e.g. "Salah")
@@ -787,12 +779,13 @@ export default function PitchUI({
             {/* ── 2-column layout: Pitch (left) + Sidebar (right) ── */}
             <div className={styles.pitchLayout}>
 
-                {/* ── LEFT: Full pitch (MatchupPitch-style center line + circle) ── */}
+                {/* ── LEFT: Full pitch — horizontal halfway line + center circle match
+                    vertical lineup (attack top, GK bottom); not the matchup L/R halves. ── */}
                 <div className={styles.pitchCol}>
                     <div className={styles.pitchContainer}>
                         {/* Outer green padding; inner pitchField = white touchlines inside the grass */}
                         <div className={styles.pitchField}>
-                        <div className={styles.centerDivider} />
+                        <div className={styles.pitchHalftimeLine} />
                         <div className={styles.centerCircle} />
                         {teamName && (
                             <div className={styles.pitchLabels}>
@@ -814,26 +807,21 @@ export default function PitchUI({
                                                 const isValidTarget = validLineupTargets.has(`starter-${slotIndex}`);
                                                 const isInvalid = !!playerId && !!entry && !canPlaySlot(entry.player, pos);
                                                 const isLocked = !!playerId && !!entry && entry.player.pl_team_id !== null && lockedTeamIds?.has(entry.player.pl_team_id);
-                                                const dy = slotOffset(pos);
                                                 return (
-                                                    <div
+                                                    <PitchNode
                                                         key={slotIndex}
-                                                        style={dy ? { transform: `translateY(${dy}px)` } : undefined}
-                                                    >
-                                                        <PitchNode
-                                                            slotPos={pos}
-                                                            player={entry?.player}
-                                                            formation={formation}
-                                                            isSelected={isSelected}
-                                                            isValidTarget={isValidTarget}
-                                                            isEmpty={!playerId}
-                                                            isInvalid={isInvalid}
-                                                            isLocked={isLocked}
-                                                            onClick={() => handleStarterClick(slotIndex)}
-                                                            onViewDetails={entry ? () => setViewingPlayer(entry.player) : undefined}
-                                                            points={playerId && scoreMap ? scoreMap[playerId] : undefined}
-                                                        />
-                                                    </div>
+                                                        slotPos={pos}
+                                                        player={entry?.player}
+                                                        formation={formation}
+                                                        isSelected={isSelected}
+                                                        isValidTarget={isValidTarget}
+                                                        isEmpty={!playerId}
+                                                        isInvalid={isInvalid}
+                                                        isLocked={isLocked}
+                                                        onClick={() => handleStarterClick(slotIndex)}
+                                                        onViewDetails={entry ? () => setViewingPlayer(entry.player) : undefined}
+                                                        points={playerId && scoreMap ? scoreMap[playerId] : undefined}
+                                                    />
                                                 );
                                             })}
                                         </div>

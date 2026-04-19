@@ -139,25 +139,26 @@
     flex-direction: column;
 }
 
-/* ── Inner pitch field — full pitch (MatchupPitch module geometry) ── */
+/* ── Inner pitch field — portrait (taller than wide column feels like a real pitch) ── */
 .pitchField {
     position: relative;
     width: 100%;
-    min-height: 560px;
+    /* Tall field: avoids a squat “square”; tracks viewport height on desktop */
+    min-height: clamp(720px, 78vh, 980px);
     display: flex;
     flex-direction: column;
     border: 2px solid rgba(255, 255, 255, 0.65);
     overflow: hidden;
 }
 
-/* Vertical center divider — same role as MatchupPitch .centerDivider */
-.centerDivider {
+/* Halfway line — horizontal at midfield (lineup runs top → bottom with play direction) */
+.pitchHalftimeLine {
     position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 50%;
-    width: 2px;
-    margin-left: -1px;
+    left: 0;
+    right: 0;
+    top: 50%;
+    height: 2px;
+    margin-top: -1px;
     background: rgba(255, 255, 255, 0.35);
     z-index: 1;
     pointer-events: none;
@@ -217,14 +218,13 @@
     overflow: visible;
 }
 
-/* Zone heights: ATT and DEF are slightly taller (more visual breathing room),
-   the three mid sub-zones are equal, GK is shortest */
-.zoneATT { flex: 1.3; }
-.zoneAMZ { flex: 1.0; }
-.zoneCMZ { flex: 1.0; }
-.zoneDMZ { flex: 1.0; }
-.zoneDEF { flex: 1.3; }
-.zoneGK  { flex: 0.8; }
+/* Zone heights: extra band above CMZ so central mids sit lower vs forwards */
+.zoneATT { flex: 1.25; }
+.zoneAMZ { flex: 1.45; }
+.zoneCMZ { flex: 1.05; margin-top: 6px; }
+.zoneDMZ { flex: 1.05; }
+.zoneDEF { flex: 1.25; }
+.zoneGK  { flex: 0.85; }
 
 /* Full-width row: horizontal spacing matches MatchupPitch .halfZone (space-around) */
 .pitchRow {
