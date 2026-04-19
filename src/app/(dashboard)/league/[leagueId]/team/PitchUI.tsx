@@ -779,14 +779,18 @@ export default function PitchUI({
                 {/* ── LEFT: Half-pitch ── */}
                 <div className={styles.pitchCol}>
                     <div className={styles.pitchContainer}>
-                        {/* Half-pitch markings — absolute overlay, does not affect zone layout */}
+                        {/* pitchField is the inner white-bordered playing area.
+                            The outer pitchContainer provides the green "run-off" margin
+                            around the field so the bylines/sidelines show inside green. */}
+                        <div className={styles.pitchField}>
+                        {/* Half-pitch markings — absolute inside the field */}
                         <div className={styles.pitchTopLine} />
                         <div className={styles.pitchHalfCircle} />
                         <div className={styles.pitchPenaltyBox} />
                         <div className={styles.pitchPenaltyArc} />
                         <div className={styles.pitchGoalBox} />
 
-                        {/* Zone rows — separate flex container so markings don't affect layout */}
+                        {/* Zone rows — flex column inside the field */}
                         <div className={styles.pitchZones}>
                             {ZONE_ORDER.map((zone) => {
                                 const zoneSlots = zonedSlots[zone];
@@ -824,6 +828,7 @@ export default function PitchUI({
                                 );
                             })}
                         </div>
+                        </div>{/* end pitchField */}
                     </div>
 
                     {/* Save row below pitch */}
