@@ -719,6 +719,8 @@ export default function PitchUI({
     }
 
     const canSave = !saving && slots.every((_, i) => assignments[i] != null) && BENCH_SLOT_NAMES.every((s) => benchAssignments[s] != null);
+    // Formation changes are locked once any match in the gameweek has kicked off
+    const isMatchweekLocked = (lockedTeamIds?.size ?? 0) > 0;
 
     // Hint text for current selection state
     const selectionHint = lineupSelection
@@ -745,13 +747,22 @@ export default function PitchUI({
                         <button
                             key={f}
                             type="button"
-                            className={`${styles.formationPill} ${formation === f ? styles.formationPillActive : ''}`}
+                            className={[
+                                styles.formationPill,
+                                formation === f ? styles.formationPillActive : '',
+                                isMatchweekLocked ? styles.formationPillDisabled : '',
+                            ].filter(Boolean).join(' ')}
                             onClick={() => handleFormationChange(f)}
+                            disabled={isMatchweekLocked}
+                            title={isMatchweekLocked ? 'Formation locked — matches in progress' : undefined}
                         >
                             {f}
                         </button>
                     ))}
                 </div>
+                {isMatchweekLocked && (
+                    <span className={styles.formationLockedNote}>🔒 Locked during matchweek</span>
+                )}
             </div>
 
             {/* ── Selection hint banner ── */}
