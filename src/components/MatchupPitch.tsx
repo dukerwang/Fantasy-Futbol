@@ -172,6 +172,8 @@ export default function MatchupPitch({
         return (
             <div className={styles.halfOuter}>
                 <div className={styles.halfField}>
+                    <div className={styles.halfTopLine} />
+                    <div className={styles.halfTopCircle} />
                     <div className={styles.halfPenaltyBox} />
                     <div className={styles.halfPenaltyArc} />
                     <div className={styles.halfGoalBox} />
@@ -207,10 +209,6 @@ export default function MatchupPitch({
         <div className={styles.wrapper}>
             {/* Two vertically oriented half-pitches (attack top / GK bottom), side by side */}
             <div className={styles.pitchSurface}>
-                <div className={styles.midfieldMarkings}>
-                    <div className={styles.midfieldLine} />
-                    <div className={styles.midfieldCircle} />
-                </div>
                 <div className={styles.pitchHalvesGrid}>
                     {renderHalfPitch(zonesA, teamAName, 'a')}
                     {renderHalfPitch(zonesB, teamBName, 'b')}

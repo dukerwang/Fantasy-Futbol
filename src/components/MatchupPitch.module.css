@@ -1,58 +1,22 @@
 /* MatchupPitch — two vertically oriented half-pitches (side by side) */
 .wrapper { display: flex; flex-direction: column; width: 100%; }
 
-/* ── Outer surface: pads the pair of halves ─────────────────────── */
+/* ── Outer surface: neutral pad so each half reads as its own pitch, not one green slab ── */
 .pitchSurface {
     position: relative;
     width: 100%;
     min-height: clamp(560px, 72vh, 920px);
     padding: 14px;
-    background: repeating-linear-gradient(
-        to bottom,
-        #4a7a59,
-        #4a7a59 60px,
-        #426f52 60px,
-        #426f52 120px
-    );
+    background: #ede8de;
+    border: 1px solid rgba(210, 196, 183, 0.45);
+    border-radius: 6px;
 }
 
-/* Shared midfield strip: one horizontal line + semicircle spanning both halves */
-.midfieldMarkings {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 52px;
-    pointer-events: none;
-    z-index: 4;
-}
-
-.midfieldLine {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background: rgba(255, 255, 255, 0.55);
-}
-
-.midfieldCircle {
-    position: absolute;
-    top: 2px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 80px;
-    height: 40px;
-    border: 2px solid rgba(255, 255, 255, 0.45);
-    border-top: none;
-    border-radius: 0 0 40px 40px;
-}
-
-/* Two columns: each is its own vertically oriented half-pitch */
+/* Two columns: two separate vertically oriented half-pitches */
 .pitchHalvesGrid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 10px;
+    gap: 12px;
     align-items: stretch;
     min-height: clamp(520px, 68vh, 880px);
 }
@@ -70,6 +34,8 @@
         #528361 120px
     );
     padding: 12px;
+    border-radius: 6px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12);
 }
 
 /* Inner playing rectangle — white touchlines inside the grass pad */
@@ -81,6 +47,32 @@
     border: 2px solid rgba(255, 255, 255, 0.65);
     overflow: hidden;
     min-height: 0;
+}
+
+/* Top of each half-pitch: halfway line + semicircle opening into this half (midfield) */
+.halfTopLine {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: rgba(255, 255, 255, 0.55);
+    pointer-events: none;
+    z-index: 1;
+}
+
+.halfTopCircle {
+    position: absolute;
+    top: 2px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 40px;
+    border: 2px solid rgba(255, 255, 255, 0.45);
+    border-top: none;
+    border-radius: 0 0 40px 40px;
+    pointer-events: none;
+    z-index: 1;
 }
 
 /* Goal end (bottom of each half): penalty box, arc, six-yard box */
@@ -126,7 +118,7 @@
 
 .halfTeamLabel {
     position: absolute;
-    top: 56px;
+    top: 50px;
     left: 10px;
     right: 10px;
     pointer-events: none;
@@ -147,7 +139,8 @@
     display: flex;
     flex-direction: column;
     flex: 1;
-    padding: 78px 0 12px;
+    /* Space for top halfway line + half-circle + team label */
+    padding: 72px 0 12px;
     position: relative;
     z-index: 2;
 }
