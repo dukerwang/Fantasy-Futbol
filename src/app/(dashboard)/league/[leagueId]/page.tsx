@@ -3,6 +3,7 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { redirect, notFound } from 'next/navigation';
 import Link from 'next/link';
 import { formatPlayerName } from '@/lib/formatName';
+import { plTeamThreeLetter } from '@/lib/plTeamAbbrev';
 import styles from './league.module.css';
 import DraftOrderManager from './DraftOrderManager';
 import LeaveLeagueButton from './LeaveLeagueButton';
@@ -129,7 +130,7 @@ export default async function LeaguePage({ params }: Props) {
       .from('waiver_claims')
       .select(`
         id, team_id, faab_bid, expires_at,
-        player:players!player_id(id, web_name, name, primary_position, pl_team, photo_url),
+        player:players!player_id(id, web_name, name, primary_position, pl_team, pl_team_id, photo_url),
         team:teams(id, team_name)
       `)
       .eq('league_id', leagueId)
@@ -252,7 +253,7 @@ export default async function LeaguePage({ params }: Props) {
       .from('player_stats')
       .select(`
         fantasy_points, match_rating, gameweek,
-        player:players!player_id(id, web_name, name, primary_position, pl_team, photo_url)
+        player:players!player_id(id, web_name, name, primary_position, pl_team, pl_team_id, photo_url)
       `)
       .eq('gameweek', latestCompletedGW)
       .eq('season', '2025-26')
@@ -453,7 +454,7 @@ export default async function LeaguePage({ params }: Props) {
                       className={`${styles.playerChip} ${isMyPlayer ? styles.myPlayerChip : ''}`}
                       style={{ borderLeftColor: positionColor(player.primary_position) }}
                     >
-                      <div className={styles.chipListMain}>
+                      <div className={styles.chipLeft}>
                         <div
                           className={styles.chipPhotoMount}
                           style={{ borderColor: positionColor(player.primary_position) }}
@@ -473,21 +474,21 @@ export default async function LeaguePage({ params }: Props) {
                             )}
                           </div>
                         </div>
-                        <div className={styles.chipCard}>
+                        <span
+                          className={styles.chipPosBadge}
+                          style={{ background: positionColor(player.primary_position) }}
+                        >
+                          {player.primary_position}
+                        </span>
+                        <div className={styles.chipInfo}>
                           <span className={styles.chipName}>{formatPlayerName(player, 'full')}</span>
-                          <div className={styles.chipSubRow}>
-                            <span
-                              className={styles.chipPosBadge}
-                              style={{ background: positionColor(player.primary_position) }}
-                            >
-                              {player.primary_position}
-                            </span>
-                            <span className={styles.chipClub}>{player.pl_team}</span>
-                          </div>
-                          {isMyPlayer && (
-                            <span className={styles.chipMyTag}>★ Your squad</span>
-                          )}
+                          <span className={styles.chipClub}>
+                            {plTeamThreeLetter(player.pl_team_id, player.pl_team)}
+                          </span>
                         </div>
+                        {isMyPlayer && (
+                          <span className={styles.chipMyTag}>★ Your squad</span>
+                        )}
                       </div>
                       <span
                         className={styles.chipPoints}
@@ -526,44 +527,47 @@ export default async function LeaguePage({ params }: Props) {
                   const hh = Math.max(0, Math.floor(msTil / 3600000));
                   const mm = Math.max(0, Math.floor((msTil % 3600000) / 60000));
 
-                  const ap = a.player as { web_name?: string; name?: string; primary_position?: string; pl_team?: string; photo_url?: string | null } | null;
+                  const ap = a.player as {
+                    web_name?: string;
+                    name?: string;
+                    primary_position?: string;
+                    pl_team?: string;
+                    pl_team_id?: number | null;
+                    photo_url?: string | null;
+                  } | null;
                   return (
                     <div key={a.id} className={styles.auctionRow}>
                       <div className={styles.auctionLeft}>
-                        <div className={styles.chipListMain}>
-                          <div
-                            className={styles.chipPhotoMount}
-                            style={{ borderColor: positionColor(ap?.primary_position ?? '') }}
-                          >
-                            <div className={styles.chipPhotoInner}>
-                              {ap?.photo_url ? (
-                                // eslint-disable-next-line @next/next/no-img-element
-                                <img
-                                  src={ap.photo_url}
-                                  alt={formatPlayerName(ap, 'full')}
-                                  className={styles.chipPhoto}
-                                />
-                              ) : (
-                                <span className={styles.chipPhotoFallback} aria-hidden>
-                                  {(ap?.web_name ?? ap?.name ?? '?').charAt(0)}
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                          <div className={styles.chipCard}>
-                            <span className={styles.chipName}>
-                              {formatPlayerName(ap, 'full')}
-                            </span>
-                            <div className={styles.chipSubRow}>
-                              <span
-                                className={styles.chipPosBadge}
-                                style={{ background: positionColor(ap?.primary_position ?? '') }}
-                              >
-                                {ap?.primary_position ?? '—'}
+                        <div
+                          className={styles.chipPhotoMount}
+                          style={{ borderColor: positionColor(ap?.primary_position ?? '') }}
+                        >
+                          <div className={styles.chipPhotoInner}>
+                            {ap?.photo_url ? (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img
+                                src={ap.photo_url}
+                                alt={formatPlayerName(ap, 'full')}
+                                className={styles.chipPhoto}
+                              />
+                            ) : (
+                              <span className={styles.chipPhotoFallback} aria-hidden>
+                                {(ap?.web_name ?? ap?.name ?? '?').charAt(0)}
                               </span>
-                              <span className={styles.chipClub}>{ap?.pl_team ?? ''}</span>
-                            </div>
+                            )}
                           </div>
+                        </div>
+                        <span
+                          className={styles.chipPosBadge}
+                          style={{ background: positionColor(ap?.primary_position ?? '') }}
+                        >
+                          {ap?.primary_position ?? '—'}
+                        </span>
+                        <div className={styles.chipInfo}>
+                          <span className={styles.chipName}>{formatPlayerName(ap, 'full')}</span>
+                          <span className={styles.chipClub}>
+                            {plTeamThreeLetter(ap?.pl_team_id, ap?.pl_team)}
+                          </span>
                         </div>
                       </div>
                       <div className={styles.auctionRight}>

@@ -319,7 +319,7 @@
     align-items: center;
     flex: 1;
     width: 100%;
-    min-height: 108px;
+    min-height: 118px;
     padding: 8px 10px;
     gap: 8px;
     overflow: visible;
@@ -333,8 +333,8 @@
     gap: 6px;
     position: relative;
     width: auto;
-    min-width: 104px;
-    max-width: 118px;
+    min-width: 108px;
+    max-width: 124px;
     padding: 0;
     margin: 0;
     border: none;
@@ -351,19 +351,17 @@
 
 .nodeWrapSelected {
     outline: 2px solid var(--color-accent-green, #3A6B4A) !important;
-    outline-offset: 3px;
-    border-radius: 12px;
+    outline-offset: 2px;
 }
 
 .nodeWrapValidTarget {
     outline: 2px solid rgba(58, 107, 74, 0.65) !important;
-    outline-offset: 3px;
-    border-radius: 12px;
+    outline-offset: 2px;
 }
 
 .nodeWrapEmpty .nodePhotoMount {
     border-style: dashed;
-    background: rgba(0, 0, 0, 0.12);
+    background: transparent;
 }
 
 .nodeWrapEmpty .nodePhotoPlaceholder {
@@ -371,32 +369,31 @@
 }
 
 .pitchNodeWrap:not(.nodeWrapEmpty) .nodePhotoPlaceholder {
-    color: rgba(255, 255, 255, 0.88);
+    color: var(--color-text-secondary, #4a4a4a);
 }
 
 .nodeWrapInvalid {
     outline: 2px solid #ef4444 !important;
-    outline-offset: 3px;
-    border-radius: 12px;
+    outline-offset: 2px;
 }
 
 .nodePhotoMount {
     flex-shrink: 0;
-    width: 54px;
-    height: 62px;
+    width: 66px;
+    height: 76px;
     padding: 3px;
     box-sizing: border-box;
-    border-radius: 14px;
+    border-radius: 0;
     border: 3px solid var(--color-border, #c8c3bc);
-    background: rgba(0, 0, 0, 0.32);
+    background: var(--color-bg-card, #fdfcf9);
 }
 
 .nodePhotoInner {
     width: 100%;
     height: 100%;
-    border-radius: 10px;
+    border-radius: 0;
     overflow: hidden;
-    background: rgba(0, 0, 0, 0.2);
+    background: var(--color-bg-secondary, #ede8de);
 }
 
 .nodePhotoImg {
@@ -414,9 +411,8 @@
     align-items: center;
     justify-content: center;
     font-family: var(--font-serif);
-    font-size: 1.05rem;
+    font-size: 1.15rem;
     font-weight: 700;
-    color: rgba(255, 255, 255, 0.5);
 }
 
 .pitchNode {
@@ -426,7 +422,7 @@
     padding: 0;
     background: var(--color-bg-card, #fdfcf9);
     border: 1px solid rgba(210, 196, 183, 0.65);
-    border-radius: 8px;
+    border-radius: 0;
     overflow: visible;
     transition: box-shadow 0.12s;
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.22);
@@ -451,12 +447,13 @@
     letter-spacing: 0.01em;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
     z-index: 5;
+    border-radius: 0;
     background: var(--color-accent-green, #3A6B4A);
     color: #fff;
 }
 
 .nodeChipBody {
-    padding: 7px 6px 8px;
+    padding: 7px 10px 8px 6px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -498,24 +495,31 @@
     letter-spacing: 0.04em;
     color: white;
     flex-shrink: 0;
+    border-radius: 0;
 }
 
 .nodeTeamChip {
     font-family: var(--font-sans);
     font-size: 0.45rem;
     font-weight: 700;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
     color: var(--color-text-secondary, #4a4a4a);
-    max-width: 72px;
+    max-width: 40px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
 
-.nodeLockIcon {
-    font-size: 0.52rem;
-    margin-top: 1px;
+.nodeLockCorner {
+    position: absolute;
+    bottom: 2px;
+    right: 3px;
+    font-size: 0.42rem;
+    line-height: 1;
+    opacity: 0.9;
+    pointer-events: none;
+    z-index: 4;
 }
 
 .nodeEmptyLabel {

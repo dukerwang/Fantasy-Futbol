@@ -11,6 +11,7 @@ import {
 import type { Formation, GranularPosition, Player, BenchSlot, RosterEntry } from '@/types';
 import PlayerDetailsModal from '@/components/players/PlayerDetailsModal';
 import { formatPlayerName } from '@/lib/formatName';
+import { plTeamThreeLetter } from '@/lib/plTeamAbbrev';
 import styles from './pitch.module.css';
 
 // ─── Constants ──────────────────────────────────────────────────────────────
@@ -172,6 +173,9 @@ function PitchNode({ slotPos, player, isSelected, isValidTarget, isEmpty, isInva
                 {points !== undefined && (
                     <span className={styles.nodePtsBadge}>{points.toFixed(1)}</span>
                 )}
+                {isLocked && player && (
+                    <span className={styles.nodeLockCorner} title="Locked">🔒</span>
+                )}
                 <div className={styles.nodeChipBody}>
                     {player ? (
                         <>
@@ -191,13 +195,12 @@ function PitchNode({ slotPos, player, isSelected, isValidTarget, isEmpty, isInva
                                     {slotPos}
                                 </span>
                                 <span className={styles.nodeTeamChip}>
-                                    {(player.pl_team ?? '').toUpperCase()}
+                                    {plTeamThreeLetter(player.pl_team_id, player.pl_team)}
                                 </span>
                                 {player.fpl_status && player.fpl_status !== 'a' && (
                                     <span className={styles.nodeStatusDot} data-status={player.fpl_status} />
                                 )}
                             </div>
-                            {isLocked && <span className={styles.nodeLockIcon}>🔒</span>}
                         </>
                     ) : (
                         <>
