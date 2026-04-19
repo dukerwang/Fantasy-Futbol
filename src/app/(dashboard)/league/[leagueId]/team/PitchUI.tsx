@@ -785,8 +785,16 @@ export default function PitchUI({
                     <div className={styles.pitchContainer}>
                         {/* Outer green padding; inner pitchField = white touchlines inside the grass */}
                         <div className={styles.pitchField}>
+                        {/* Attacking end (top) */}
+                        <div className={styles.pitchTopPenaltyBox} />
+                        <div className={styles.pitchTopSixBox} />
+                        <div className={styles.pitchTopPenaltyArc} />
                         <div className={styles.pitchHalftimeLine} />
                         <div className={styles.centerCircle} />
+                        {/* Defending end (bottom) — same geometry as MatchupPitch half-field */}
+                        <div className={styles.pitchBottomPenaltyBox} />
+                        <div className={styles.pitchBottomSixBox} />
+                        <div className={styles.pitchBottomPenaltyArc} />
                         {teamName && (
                             <div className={styles.pitchLabels}>
                                 <span className={styles.pitchLabelLeft}>{teamName}</span>

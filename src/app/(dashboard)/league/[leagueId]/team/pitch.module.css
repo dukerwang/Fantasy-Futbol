@@ -178,6 +178,90 @@
     pointer-events: none;
 }
 
+/* ── Goal ends (MatchupPitch-style proportions) ── */
+
+/* Top (attacking) penalty area + D + six-yard */
+.pitchTopPenaltyBox {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 58%;
+    height: 20%;
+    border: 2px solid rgba(255, 255, 255, 0.48);
+    border-top: none;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.pitchTopPenaltyArc {
+    position: absolute;
+    top: 20%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 72px;
+    height: 36px;
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    border-top: none;
+    border-radius: 0 0 36px 36px;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.pitchTopSixBox {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 26%;
+    height: 7%;
+    border: 2px solid rgba(255, 255, 255, 0.38);
+    border-top: none;
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* Bottom (GK) penalty area + D + six-yard */
+.pitchBottomPenaltyBox {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 58%;
+    height: 20%;
+    border: 2px solid rgba(255, 255, 255, 0.48);
+    border-bottom: none;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.pitchBottomPenaltyArc {
+    position: absolute;
+    bottom: 20%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 72px;
+    height: 36px;
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    border-bottom: none;
+    border-radius: 36px 36px 0 0;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.pitchBottomSixBox {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 26%;
+    height: 7%;
+    border: 2px solid rgba(255, 255, 255, 0.38);
+    border-bottom: none;
+    pointer-events: none;
+    z-index: 1;
+}
+
 /* Team label — same typography as MatchupPitch .pitchLabelLeft */
 .pitchLabels {
     position: absolute;
