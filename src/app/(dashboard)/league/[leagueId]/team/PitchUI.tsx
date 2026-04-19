@@ -16,6 +16,10 @@ import styles from './pitch.module.css';
 // ─── Constants ──────────────────────────────────────────────────────────────
 
 const FORMATIONS: Formation[] = ['4-3-3', '4-4-2', '4-1-4-1', '4-2-3-1', '4-2-1-3', '3-4-3'];
+
+type PitchZone = 'ATT' | 'AMZ' | 'CMZ' | 'DMZ' | 'DEF' | 'GK';
+// Zone order: attackers at top of half-pitch, GK at bottom (near goal)
+const ZONE_ORDER: PitchZone[] = ['ATT', 'AMZ', 'CMZ', 'DMZ', 'DEF', 'GK'];
 const BENCH_SLOT_NAMES: BenchSlot[] = ['DEF', 'MID', 'ATT', 'FLEX'];
 
 // Season start year for U21 taxi eligibility check (matches server-side constant)
@@ -39,11 +43,14 @@ const POS_COLOR: Record<GranularPosition, string> = {
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-function getZone(pos: GranularPosition): 'GK' | 'DEF' | 'MID' | 'ATT' {
+// Matches MatchupPitch's 6-zone approach so DM/CM/AM render as distinct rows
+function getZone(pos: GranularPosition): PitchZone {
     if (pos === 'GK') return 'GK';
     if (pos === 'CB' || pos === 'LB' || pos === 'RB') return 'DEF';
-    if (pos === 'DM' || pos === 'CM' || pos === 'LM' || pos === 'RM' || pos === 'AM') return 'MID';
-    return 'ATT';
+    if (pos === 'DM') return 'DMZ';
+    if (pos === 'CM' || pos === 'LM' || pos === 'RM') return 'CMZ';
+    if (pos === 'AM') return 'AMZ';
+    return 'ATT'; // LW, ST, RW
 }
 
 function getPlayerPositions(player: Player): GranularPosition[] {
@@ -242,14 +249,16 @@ export default function PitchUI({
         [allEntries, starterIds, benchIds],
     );
 
-    // Zone layout for pitch rendering
+    // Zone layout for pitch rendering — 6 zones matching MatchupPitch structure
     const zonedSlots = useMemo(() => {
         const list = slots.map((pos, i) => ({ slotIndex: i, pos, zone: getZone(pos) }));
         return {
             ATT: list.filter((s) => s.zone === 'ATT'),
-            MID: list.filter((s) => s.zone === 'MID'),
+            AMZ: list.filter((s) => s.zone === 'AMZ'),
+            CMZ: list.filter((s) => s.zone === 'CMZ'),
+            DMZ: list.filter((s) => s.zone === 'DMZ'),
             DEF: list.filter((s) => s.zone === 'DEF'),
-            GK: list.filter((s) => s.zone === 'GK'),
+            GK:  list.filter((s) => s.zone === 'GK'),
         };
     }, [slots]);
 
@@ -576,28 +585,29 @@ export default function PitchUI({
         [lineupSelection, sidebarSelection, slots, playerMap, poolEntries, taxiAgeCutoffYear],
     );
 
-    // ── Taxi swap (activate outgoing + move_to_taxi incoming) ──
+    // ── Taxi swap — sequential: move reserve to taxi first (frees roster slot), then activate taxi player ──
     async function handleTaxiSwap(outgoingTaxiId: string, incomingReserveId: string) {
         setSidebarLoading(true);
         setSidebarError(null);
         setSidebarSelection(null);
         try {
-            const [r1, r2] = await Promise.all([
-                fetch(`/api/teams/${teamId}/taxi`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ playerId: outgoingTaxiId, action: 'activate' }),
-                }),
-                fetch(`/api/teams/${teamId}/taxi`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ playerId: incomingReserveId, action: 'move_to_taxi' }),
-                }),
-            ]);
-            const errs: string[] = [];
-            if (!r1.ok) { const d = await r1.json(); errs.push(d.error ?? 'Activate failed'); }
-            if (!r2.ok) { const d = await r2.json(); errs.push(d.error ?? 'Move to taxi failed'); }
-            if (errs.length) { setSidebarError(errs.join(' · ')); } else { router.refresh(); }
+            // Step 1: move the reserve to taxi (removes them from active roster count)
+            const r1 = await fetch(`/api/teams/${teamId}/taxi`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ playerId: incomingReserveId, action: 'move_to_taxi' }),
+            });
+            if (!r1.ok) { const d = await r1.json(); setSidebarError(d.error ?? 'Move to taxi failed'); return; }
+
+            // Step 2: activate the taxi player (now there is roster space)
+            const r2 = await fetch(`/api/teams/${teamId}/taxi`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ playerId: outgoingTaxiId, action: 'activate' }),
+            });
+            if (!r2.ok) { const d = await r2.json(); setSidebarError(d.error ?? 'Activate failed'); return; }
+
+            router.refresh();
         } catch {
             setSidebarError('Network error — please try again.');
         } finally {
@@ -625,28 +635,29 @@ export default function PitchUI({
         }
     }
 
-    // ── IR swap (move_to_ir incoming + activate outgoing) ──
+    // ── IR swap — sequential: move reserve to IR first (frees roster slot), then activate IR player ──
     async function handleIrSwap(outgoingIrId: string, incomingReserveId: string) {
         setSidebarLoading(true);
         setSidebarError(null);
         setSidebarSelection(null);
         try {
-            const [r1, r2] = await Promise.all([
-                fetch(`/api/teams/${teamId}/ir`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ playerId: outgoingIrId, action: 'activate' }),
-                }),
-                fetch(`/api/teams/${teamId}/ir`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ playerId: incomingReserveId, action: 'move_to_ir' }),
-                }),
-            ]);
-            const errs: string[] = [];
-            if (!r1.ok) { const d = await r1.json(); errs.push(d.error ?? 'Activate failed'); }
-            if (!r2.ok) { const d = await r2.json(); errs.push(d.error ?? 'Move to IR failed'); }
-            if (errs.length) { setSidebarError(errs.join(' · ')); } else { router.refresh(); }
+            // Step 1: move the reserve to IR (removes them from active roster count)
+            const r1 = await fetch(`/api/teams/${teamId}/ir`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ playerId: incomingReserveId, action: 'move_to_ir' }),
+            });
+            if (!r1.ok) { const d = await r1.json(); setSidebarError(d.error ?? 'Move to IR failed'); return; }
+
+            // Step 2: activate the IR player (now there is roster space)
+            const r2 = await fetch(`/api/teams/${teamId}/ir`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ playerId: outgoingIrId, action: 'activate' }),
+            });
+            if (!r2.ok) { const d = await r2.json(); setSidebarError(d.error ?? 'Activate failed'); return; }
+
+            router.refresh();
         } catch {
             setSidebarError('Network error — please try again.');
         } finally {
@@ -708,7 +719,6 @@ export default function PitchUI({
     }
 
     const canSave = !saving && slots.every((_, i) => assignments[i] != null) && BENCH_SLOT_NAMES.every((s) => benchAssignments[s] != null);
-    const ZONE_ORDER: Array<'ATT' | 'MID' | 'DEF' | 'GK'> = ['ATT', 'MID', 'DEF', 'GK'];
 
     // Hint text for current selection state
     const selectionHint = lineupSelection
@@ -758,47 +768,51 @@ export default function PitchUI({
                 {/* ── LEFT: Half-pitch ── */}
                 <div className={styles.pitchCol}>
                     <div className={styles.pitchContainer}>
-                        {/* Half-pitch markings: center line at top, half center-circle, penalty box + arc at bottom */}
+                        {/* Half-pitch markings — absolute overlay, does not affect zone layout */}
                         <div className={styles.pitchTopLine} />
                         <div className={styles.pitchHalfCircle} />
                         <div className={styles.pitchPenaltyBox} />
                         <div className={styles.pitchPenaltyArc} />
                         <div className={styles.pitchGoalBox} />
 
-                        {ZONE_ORDER.map((zone) => {
-                            const zoneSlots = zonedSlots[zone];
-                            if (zoneSlots.length === 0) return null;
-                            return (
-                                <div key={zone} className={`${styles.pitchZone} ${styles[`zone${zone}`]}`}>
-                                    <div className={styles.pitchRow}>
-                                        {zoneSlots.map(({ slotIndex, pos }) => {
-                                            const playerId = assignments[slotIndex];
-                                            const entry = playerId ? playerMap.get(playerId) : undefined;
-                                            const isSelected = lineupSelection?.type === 'starter' && lineupSelection.slotIndex === slotIndex;
-                                            const isValidTarget = validLineupTargets.has(`starter-${slotIndex}`);
-                                            const isInvalid = !!playerId && !!entry && !canPlaySlot(entry.player, pos);
-                                            const isLocked = !!playerId && !!entry && entry.player.pl_team_id !== null && lockedTeamIds?.has(entry.player.pl_team_id);
-                                            return (
-                                                <PitchNode
-                                                    key={slotIndex}
-                                                    slotPos={pos}
-                                                    player={entry?.player}
-                                                    formation={formation}
-                                                    isSelected={isSelected}
-                                                    isValidTarget={isValidTarget}
-                                                    isEmpty={!playerId}
-                                                    isInvalid={isInvalid}
-                                                    isLocked={isLocked}
-                                                    onClick={() => handleStarterClick(slotIndex)}
-                                                    onViewDetails={entry ? () => setViewingPlayer(entry.player) : undefined}
-                                                    points={playerId && scoreMap ? scoreMap[playerId] : undefined}
-                                                />
-                                            );
-                                        })}
+                        {/* Zone rows — separate flex container so markings don't affect layout */}
+                        <div className={styles.pitchZones}>
+                            {ZONE_ORDER.map((zone) => {
+                                const zoneSlots = zonedSlots[zone];
+                                // Skip empty zones (e.g. AMZ in 4-4-2)
+                                if (zoneSlots.length === 0) return null;
+                                return (
+                                    <div key={zone} className={`${styles.pitchZone} ${styles[`zone${zone}`]}`}>
+                                        <div className={styles.pitchRow}>
+                                            {zoneSlots.map(({ slotIndex, pos }) => {
+                                                const playerId = assignments[slotIndex];
+                                                const entry = playerId ? playerMap.get(playerId) : undefined;
+                                                const isSelected = lineupSelection?.type === 'starter' && lineupSelection.slotIndex === slotIndex;
+                                                const isValidTarget = validLineupTargets.has(`starter-${slotIndex}`);
+                                                const isInvalid = !!playerId && !!entry && !canPlaySlot(entry.player, pos);
+                                                const isLocked = !!playerId && !!entry && entry.player.pl_team_id !== null && lockedTeamIds?.has(entry.player.pl_team_id);
+                                                return (
+                                                    <PitchNode
+                                                        key={slotIndex}
+                                                        slotPos={pos}
+                                                        player={entry?.player}
+                                                        formation={formation}
+                                                        isSelected={isSelected}
+                                                        isValidTarget={isValidTarget}
+                                                        isEmpty={!playerId}
+                                                        isInvalid={isInvalid}
+                                                        isLocked={isLocked}
+                                                        onClick={() => handleStarterClick(slotIndex)}
+                                                        onViewDetails={entry ? () => setViewingPlayer(entry.player) : undefined}
+                                                        points={playerId && scoreMap ? scoreMap[playerId] : undefined}
+                                                    />
+                                                );
+                                            })}
+                                        </div>
                                     </div>
-                                </div>
-                            );
-                        })}
+                                );
+                            })}
+                        </div>
                     </div>
 
                     {/* Save row below pitch */}
