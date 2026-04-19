@@ -142,23 +142,27 @@ function PitchNode({ slotPos, player, formation, isSelected, isValidTarget, isEm
             }}
             title={isLocked ? 'Match started (Locked) — click to view' : isInvalid ? 'Player is not eligible for this position' : undefined}
         >
-            {/* Position badge — top-left corner */}
-            <span className={styles.nodePosBadge} style={{ background: isInvalid ? '#ef4444' : POS_COLOR[slotPos] }}>
-                {slotPos}
-            </span>
+            {/* Score badge — absolute top-right, overflows outside card (matches MatchupPitch) */}
+            {points !== undefined && (
+                <span className={styles.nodePtsBadge}>{points.toFixed(1)}</span>
+            )}
+
+            {/* Inline position badge row (matches MatchupPitch chipPosRow/chipPosLabel) */}
+            <div className={styles.nodePosRow}>
+                <span
+                    className={styles.nodePosBadge}
+                    style={{ background: isInvalid ? '#ef4444' : POS_COLOR[slotPos] }}
+                >
+                    {slotPos}
+                </span>
+                {/* Injury dot inline next to pos badge */}
+                {player?.fpl_status && player.fpl_status !== 'a' && (
+                    <span className={styles.nodeStatusDot} data-status={player.fpl_status} />
+                )}
+            </div>
 
             {player ? (
                 <>
-                    {/* Points badge — top-right corner (only when score exists) */}
-                    {points !== undefined && (
-                        <span className={styles.nodePtsBadge}>{points.toFixed(0)}</span>
-                    )}
-
-                    {/* Injury status dot */}
-                    {player.fpl_status && player.fpl_status !== 'a' && (
-                        <span className={styles.nodeStatusDot} data-status={player.fpl_status} />
-                    )}
-
                     <span
                         className={styles.nodePlayerName}
                         onClick={(e) => { if (onViewDetails) { e.stopPropagation(); onViewDetails(); } }}
@@ -167,10 +171,7 @@ function PitchNode({ slotPos, player, formation, isSelected, isValidTarget, isEm
                     >
                         {surnameOnly(player)}
                     </span>
-                    <span className={styles.nodePlayerClub}>
-                        {player.pl_team}
-                        {isLocked && <span style={{ marginLeft: 3 }}>🔒</span>}
-                    </span>
+                    {isLocked && <span className={styles.nodeLockIcon}>🔒</span>}
                 </>
             ) : (
                 <span className={styles.nodeEmptyLabel}>Empty</span>
