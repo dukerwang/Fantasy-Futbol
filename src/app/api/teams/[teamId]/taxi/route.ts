@@ -89,6 +89,28 @@ export async function POST(req: NextRequest, { params }: Props) {
             );
         }
 
+        // Grandfather rule: aged-out academy players may remain, but must be resolved
+        // before adding new players into academy.
+        const { data: academyRows, error: academyErr } = await admin
+            .from('roster_entries')
+            .select('player:players(name, date_of_birth)')
+            .eq('team_id', teamId)
+            .eq('status', 'taxi');
+        if (academyErr) return NextResponse.json({ error: academyErr.message }, { status: 500 });
+
+        const agedOut = (academyRows ?? []).find((r: any) => {
+            const dob = r.player?.date_of_birth as string | null | undefined;
+            if (!dob) return false;
+            return calculateAgeInYears(dob, new Date()) > taxiAgeLimit;
+        });
+        if (agedOut) {
+            const agedOutName = (agedOut as any).player?.name ?? 'an academy player';
+            return NextResponse.json(
+                { error: `Resolve aged-out academy player ${agedOutName} before adding another player to academy.` },
+                { status: 400 },
+            );
+        }
+
         // Taxi slot availability check
         const { data: currentTaxi, error: taxiCountErr } = await admin
             .from('roster_entries')

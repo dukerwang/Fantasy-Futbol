@@ -403,6 +403,17 @@
   letter-spacing: 0.04em;
 }
 
+.agedOutTag {
+  font-size: 0.58rem;
+  font-weight: 800;
+  background: rgba(239, 68, 68, 0.12);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.45);
+  border-radius: 2px;
+  padding: 1px 4px;
+  letter-spacing: 0.04em;
+}
+
 .statusBadge {
   display: inline-flex;
   align-items: center;

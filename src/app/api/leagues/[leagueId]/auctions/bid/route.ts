@@ -79,6 +79,27 @@ export async function POST(req: NextRequest, { params }: Props) {
     return NextResponse.json({ error: 'League not found' }, { status: 404 });
   }
 
+  // Season compliance: if the team has aged-out academy players, block new bids
+  // until they are promoted/dropped (unless the manager is fixing it manually).
+  const ageLimit = league.taxi_age_limit ?? 21;
+  const { data: academyRows } = await admin
+    .from('roster_entries')
+    .select('player:players(name, date_of_birth)')
+    .eq('team_id', myTeam.id)
+    .eq('status', 'taxi');
+  const agedOut = (academyRows ?? []).find((r: any) => {
+    const dob = r.player?.date_of_birth as string | null | undefined;
+    if (!dob) return false;
+    return calculateAgeInYears(dob) > ageLimit;
+  });
+  if (agedOut) {
+    const agedOutName = (agedOut as any).player?.name ?? 'A player';
+    return NextResponse.json(
+      { error: `Academy compliance required: ${agedOutName} has aged out. Promote or drop aged-out academy players before placing new bids.` },
+      { status: 400 },
+    );
+  }
+
   // Transfermarkt minimum bid: 20% of the player's current market value
   const { data: playerData } = await admin
     .from('players')
@@ -119,7 +140,6 @@ export async function POST(req: NextRequest, { params }: Props) {
       );
     }
 
-    const ageLimit = league.taxi_age_limit ?? 21;
     if (!playerData?.date_of_birth) {
       return NextResponse.json(
         { error: 'Roster is full. This player has no DOB on record, so they cannot be auto-routed into academy; select a drop player.' },

@@ -86,6 +86,7 @@ function RosterRow({ entry, taxiAgeLimit, taxiSize, currentTaxiCount, loadingId,
     const { player, status } = entry;
     const isLoading = loadingId === entry.player.id;
     const u21 = isU21Eligible(player, taxiAgeLimit);
+    const agedOutAcademy = status === 'taxi' && !u21;
     const irEligible = isIrEligible(player);
     const taxiFull = currentTaxiCount >= taxiSize;
 
@@ -109,6 +110,7 @@ function RosterRow({ entry, taxiAgeLimit, taxiSize, currentTaxiCount, loadingId,
                         </span>
                     )}
                     {u21 && <span className={styles.u21Tag}>U21</span>}
+                    {agedOutAcademy && <span className={styles.agedOutTag}>AGED OUT</span>}
                 </div>
             </td>
 

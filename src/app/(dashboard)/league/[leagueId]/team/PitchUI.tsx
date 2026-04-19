@@ -989,9 +989,12 @@ export default function PitchUI({
                                 <div className={styles.taxiList}>
                                     {taxiEntries.map((entry) => {
                                         const isSelected = sidebarSelection?.type === 'taxi' && sidebarSelection.playerId === entry.player.id;
+                                        const isU21 = isU21Eligible(entry.player, academyAgeLimit);
                                         return (
                                             <div key={entry.id} className={`${styles.taxiRow} ${isSelected ? styles.taxiRowSelected : ''}`}>
-                                                <span className={styles.u21Badge}>U21</span>
+                                                <span className={isU21 ? styles.u21Badge : styles.agedOutBadge}>
+                                                    {isU21 ? 'U21' : 'AGED OUT'}
+                                                </span>
                                                 <span
                                                     className={styles.taxiName}
                                                     onClick={() => setViewingPlayer(entry.player)}
