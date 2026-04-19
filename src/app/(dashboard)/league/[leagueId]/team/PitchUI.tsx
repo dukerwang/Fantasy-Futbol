@@ -162,7 +162,7 @@ function PitchNode({ slotPos, player, isSelected, isValidTarget, isEmpty, isInva
                     <img src={player.photo_url} alt={pitchFullName(player)} className={styles.nodePhotoImg} />
                 ) : (
                     <span className={styles.nodePhotoPlaceholder} aria-hidden>
-                        {player ? pitchFullName(player).charAt(0) : slotPos.charAt(0)}
+                        {player ? displayName(player).charAt(0) : slotPos.charAt(0)}
                     </span>
                 )}
             </div>
@@ -183,7 +183,7 @@ function PitchNode({ slotPos, player, isSelected, isValidTarget, isEmpty, isInva
                                 style={{ cursor: onViewDetails ? 'pointer' : 'default', ...(isInvalid ? { color: '#ef4444' } : {}) }}
                                 title={onViewDetails ? 'View player details' : undefined}
                             >
-                                {pitchFullName(player)}
+                                {displayName(player)}
                             </span>
                             <div className={styles.nodeMetaChipRow}>
                                 <span
