@@ -67,12 +67,6 @@ function displayName(player: Player): string {
     return formatPlayerName(player, 'initial_last');
 }
 
-function surnameOnly(player: Player): string {
-    const full = player.web_name || player.name || '';
-    // web_name is already usually the short name (e.g. "Salah")
-    return full.toUpperCase();
-}
-
 function isU21Eligible(player: Player, taxiAgeCutoffYear: number): boolean {
     if (!player.date_of_birth) return false;
     const birthYear = new Date(player.date_of_birth).getFullYear();
@@ -172,7 +166,7 @@ function PitchNode({ slotPos, player, formation, isSelected, isValidTarget, isEm
                         style={{ cursor: onViewDetails ? 'pointer' : 'default', ...(isInvalid ? { color: '#ef4444' } : {}) }}
                         title={onViewDetails ? 'View player details' : undefined}
                     >
-                        {surnameOnly(player)}
+                        {displayName(player)}
                     </span>
                     {isLocked && <span className={styles.nodeLockIcon}>🔒</span>}
                 </>
