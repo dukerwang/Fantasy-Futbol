@@ -21,7 +21,7 @@ const POS_COLOR: Record<GranularPosition, string> = {
     RM: 'var(--color-pos-wm, #86efac)',
     AM: 'var(--color-pos-am, #f0abfc)',
     LW: 'var(--color-pos-lw, #22c55e)',
-    RW: 'var(--color-pos-rw, #16a34a)',
+    RW: 'var(--color-pos-rw, #22c55e)',
     ST: 'var(--color-pos-st, #ef4444)',
 };
 
