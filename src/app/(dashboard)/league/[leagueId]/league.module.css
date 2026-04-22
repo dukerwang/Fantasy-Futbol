@@ -1195,8 +1195,8 @@
 
 .standingsHeader {
   display: grid;
-  grid-template-columns: 32px 1fr 60px 80px;
-  column-gap: 16px;
+  grid-template-columns: 32px 1fr 48px 64px;
+  column-gap: 20px;
   padding-bottom: 8px;
   border-bottom: 1px solid var(--color-border-subtle);
   font-family: 'Inter', sans-serif;
@@ -1212,8 +1212,8 @@
 
 .standingsRow {
   display: grid;
-  grid-template-columns: 32px 1fr 60px 80px;
-  column-gap: 16px;
+  grid-template-columns: 32px 1fr 48px 64px;
+  column-gap: 20px;
   align-items: center;
   padding: 12px 0;
   border-bottom: 1px solid var(--color-border-subtle);
