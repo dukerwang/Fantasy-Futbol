@@ -255,6 +255,7 @@
   }
 }
 
+.leftCol,
 .centerCol {
   display: flex;
   flex-direction: column;

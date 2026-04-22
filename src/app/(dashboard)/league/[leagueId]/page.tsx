@@ -108,15 +108,17 @@ export default async function LeaguePage({ params }: Props) {
     auctionsResult,
     teamsResult,
     activityResult,
+    taxiResult,
+    tournamentsResult,
   ] = await Promise.all([
-    // Full standings (no limit — show all teams)
+    // Full standings
     admin
       .from('league_standings')
       .select('team_id, team_name, rank, league_points, wins, draws, losses, played')
       .eq('league_id', leagueId)
       .order('rank', { ascending: true }),
 
-    // All matchups for user's team (need live, scheduled, and completed)
+    // All matchups for user's team
     myTeamId ? admin
       .from('matchups')
       .select('*, team_a:teams!team_a_id(id, team_name), team_b:teams!team_b_id(id, team_name)')
@@ -138,7 +140,7 @@ export default async function LeaguePage({ params }: Props) {
       .order('faab_bid', { ascending: false })
       .limit(4),
 
-    // All teams (for draft order manager)
+    // All teams
     admin
       .from('teams')
       .select('id, team_name, draft_order')
@@ -155,6 +157,19 @@ export default async function LeaguePage({ params }: Props) {
       .eq('league_id', leagueId)
       .order('processed_at', { ascending: false })
       .limit(5),
+
+    // Taxi Squad
+    myTeamId ? admin
+      .from('roster_entries')
+      .select('player:players(id, web_name, name, primary_position, pl_team, photo_url)')
+      .eq('team_id', myTeamId)
+      .eq('roster_status', 'taxi') : Promise.resolve({ data: [] }),
+
+    // Tournaments
+    admin
+      .from('tournaments')
+      .select('id, name, status, current_round')
+      .eq('league_id', leagueId)
   ]);
 
   const standings = standingsResult.data ?? [];
@@ -162,6 +177,8 @@ export default async function LeaguePage({ params }: Props) {
   const auctions = auctionsResult.data ?? [];
   const activity = activityResult.data ?? [];
   const initialTeams = (teamsResult.data ?? []) as Array<{ id: string; team_name: string; draft_order: number | null }>;
+  const taxiSquad = taxiResult?.data ?? [];
+  const tournaments = tournamentsResult?.data ?? [];
 
   // ── Matchup hero state ────────────────────────────────────────────────────
   // Since we ordered by gameweek ASC, find() for scheduled gets the earliest one.
@@ -319,79 +336,71 @@ export default async function LeaguePage({ params }: Props) {
       {/* ── Dashboard Grid ── */}
       <div className={styles.bodyRow}>
 
-        {/* ── Left Column ── */}
+        {/* ── Left Column (Column 1) ── */}
         <div className={styles.leftCol}>
-
-        {/* League Standings Card */}
-        <div className={styles.standingsCard}>
-          <div className={styles.standingsHeading}>
-            <span className={styles.sectionLabel}>2025/26 SEASON</span>
-            <h2 className={styles.sectionTitle}>League Standings</h2>
-            <div className={styles.standingsDivider} />
+          {/* Manager / FAAB */}
+          <div className={styles.standingsCard}>
+            <div className={styles.standingsHeading}>
+              <span className={styles.sectionLabel}>MANAGER</span>
+              <h2 className={styles.sectionTitle}>{myTeam?.team_name ?? 'Observer'}</h2>
+              <div className={styles.standingsDivider} />
+            </div>
+            <div style={{ padding: '0 32px 32px 32px' }}>
+              <span className={styles.sectionLabel}>FAAB BALANCE</span>
+              <div style={{ fontSize: '2.5rem', fontWeight: 600, fontFamily: "var(--font-noto-serif)", color: "var(--color-accent-green)", marginTop: "8px" }}>
+                £{myTeam?.faab_budget ?? 0}m
+              </div>
+            </div>
           </div>
 
-          {/* Column headers */}
-          <div className={styles.standingsHeaderRow}>
-            <span className={styles.standingsColRnk}>#</span>
-            <span className={styles.standingsColTeam}>TEAM</span>
-            <span className={styles.standingsColRecord}>W·D·L</span>
-            <span className={styles.standingsColPts}>PTS</span>
-          </div>
-
-          <div className={styles.standingsRows}>
-            {standings.map((s) => {
-              const isMe = s.team_id === myTeamId;
-              const medal = rankMedalStyle(s.rank);
-              return (
-                <div key={s.team_id} className={`${styles.standingsRow} ${isMe ? styles.myStandingsRow : ''}`}>
-                  <div className={styles.standingsColRnk}>
-                    <span
-                      className={styles.rankPill}
-                      style={{ background: medal.bg, color: medal.color }}
-                    >
-                      {s.rank}
-                    </span>
-                  </div>
-                  <div className={`${styles.standingsColTeam} ${isMe ? styles.myTeamName : ''}`}>
-                    {s.team_name}
-                    {isMe && <span className={styles.youTag}>YOU</span>}
-                  </div>
-                  <div className={styles.standingsColRecord}>
-                    {s.wins}·{s.draws}·{s.losses}
-                  </div>
-                  <div className={`${styles.standingsColPts} ${isMe ? styles.myPts : ''}`}>
-                    {s.league_points.toLocaleString()}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-
-          <div className={styles.standingsFooter}>
-            <Link href={`/league/${leagueId}/standings`} className={styles.cardLink}>
-              Full Standings →
-            </Link>
+          {/* Academy (Taxi Squad) */}
+          <div className={styles.rightSection} style={{ marginTop: '24px' }}>
+            <span className={styles.sectionLabel}>YOUTH SYSTEM</span>
+            <h2 className={styles.sectionTitle}>The Academy</h2>
+            {taxiSquad.length === 0 ? (
+              <p className={styles.emptyHint}>No academy players.</p>
+            ) : (
+              <div className={styles.playerChips}>
+                {taxiSquad.map((entry: any, i: number) => {
+                  const player = entry.player;
+                  return (
+                    <div key={i} className={styles.playerChip} style={{ borderLeftColor: positionColor(player.primary_position) }}>
+                      <div className={styles.chipLeft}>
+                         <div className={styles.chipPhotoMount} style={{ borderColor: positionColor(player.primary_position) }}>
+                          {player.photo_url ? (
+                            <img src={player.photo_url} alt={player.web_name} className={styles.chipPhoto} />
+                          ) : (
+                            <span className={styles.chipPhotoFallback} aria-hidden>{(player.web_name ?? '?').charAt(0)}</span>
+                          )}
+                        </div>
+                        <span className={styles.chipPosBadge} style={{ background: positionColor(player.primary_position) }}>
+                          {player.primary_position}
+                        </span>
+                        <div className={styles.chipInfo}>
+                          <span className={styles.chipName}>{formatPlayerName(player, 'full')}</span>
+                          <span className={styles.chipClub}>{(player.pl_team ?? '').toUpperCase()}</span>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+            <div className={styles.standingsFooter} style={{ marginTop: '24px' }}>
+              <Link href={`/league/${leagueId}/team/roster`} className={styles.cardLink}>Manage Roster →</Link>
+            </div>
           </div>
         </div>
 
-        </div>
-
-        {/* ── Center Column ── */}
+        {/* ── Center Column (Column 2) ── */}
         <div className={styles.centerCol}>
           {/* Matchup Hero */}
           {heroMatchup && heroState && (
             <div className={styles.heroCard}>
-              {/* Left — user team */}
               <div className={styles.heroTeam}>
                 <span className={styles.heroTeamName}>{userTeam?.team_name ?? '—'}</span>
-                {userRecord && (
-                  <span className={styles.heroRecord}>
-                    {userRecord}
-                  </span>
-                )}
+                {userRecord && <span className={styles.heroRecord}>{userRecord}</span>}
               </div>
-
-              {/* Center — Scores & Badge */}
               <div className={styles.heroCenterBlock}>
                 <span className={styles.heroCenterLabel}>YOUR FIXTURE · GW {heroMatchup.gameweek}</span>
                 <div className={styles.heroScoreGroup}>
@@ -411,20 +420,12 @@ export default async function LeaguePage({ params }: Props) {
                   {heroState === 'final' && heroResult === 'draw' && <span className={styles.heroBadgeFinalDraw}>DRAW</span>}
                 </div>
               </div>
-
-              {/* Right — opponent team */}
               <div className={`${styles.heroTeam} ${styles.heroTeamRight}`}>
                 <span className={styles.heroTeamName}>{oppTeam?.team_name ?? '—'}</span>
-                {oppRecord && (
-                  <span className={styles.heroRecord}>
-                    {oppRecord}
-                  </span>
-                )}
+                {oppRecord && <span className={styles.heroRecord}>{oppRecord}</span>}
               </div>
             </div>
           )}
-
-          {/* No matchup yet */}
           {!heroMatchup && league.status === 'active' && (
             <div className={styles.heroEmpty}>
               <p>No matchup results yet — check back after GW 1.</p>
@@ -438,7 +439,6 @@ export default async function LeaguePage({ params }: Props) {
               <h2 className={styles.gazetteTitle}>Transfer Gazette</h2>
               <span className={styles.gazetteEdition}>DAILY EDITION</span>
             </div>
-
             {activity.length === 0 ? (
               <p className={styles.emptyHint}>No activity yet this season.</p>
             ) : (
@@ -451,10 +451,7 @@ export default async function LeaguePage({ params }: Props) {
                   const note = tx.notes ? ` — ${tx.notes}` : '';
                   return (
                     <div key={tx.id} className={styles.gazetteEntry}>
-                      <span
-                        className={styles.gazetteCategory}
-                        style={{ background: cat.bg, color: cat.color }}
-                      >
+                      <span className={styles.gazetteCategory} style={{ background: cat.bg, color: cat.color }}>
                         {cat.label}
                       </span>
                       <p className={styles.gazetteText}>
@@ -476,75 +473,85 @@ export default async function LeaguePage({ params }: Props) {
           </div>
         </div>
 
-        {/* ── Right Column ── */}
+        {/* ── Right Column (Column 3) ── */}
         <div className={styles.rightCol}>
+          
+          {/* League Standings Card */}
+          <div className={styles.standingsCard}>
+            <div className={styles.standingsHeading}>
+              <span className={styles.sectionLabel}>2025/26 SEASON</span>
+              <h2 className={styles.sectionTitle}>League Standings</h2>
+              <div className={styles.standingsDivider} />
+            </div>
+            <div className={styles.standingsHeaderRow}>
+              <span className={styles.standingsColRnk}>#</span>
+              <span className={styles.standingsColTeam}>TEAM</span>
+              <span className={styles.standingsColRecord}>W·D·L</span>
+              <span className={styles.standingsColPts}>PTS</span>
+            </div>
+            <div className={styles.standingsRows}>
+              {standings.map((s: any) => {
+                const isMe = s.team_id === myTeamId;
+                const medal = rankMedalStyle(s.rank);
+                return (
+                  <div key={s.team_id} className={`${styles.standingsRow} ${isMe ? styles.myStandingsRow : ''}`}>
+                    <div className={styles.standingsColRnk}>
+                      <span className={styles.rankPill} style={{ background: medal.bg, color: medal.color }}>
+                        {s.rank}
+                      </span>
+                    </div>
+                    <div className={`${styles.standingsColTeam} ${isMe ? styles.myTeamName : ''}`}>
+                      {s.team_name}
+                      {isMe && <span className={styles.youTag}>YOU</span>}
+                    </div>
+                    <div className={styles.standingsColRecord}>
+                      {s.wins}·{s.draws}·{s.losses}
+                    </div>
+                    <div className={`${styles.standingsColPts} ${isMe ? styles.myPts : ''}`}>
+                      {s.league_points.toLocaleString()}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            <div className={styles.standingsFooter}>
+              <Link href={`/league/${leagueId}/standings`} className={styles.cardLink}>Full Standings →</Link>
+            </div>
+          </div>
 
-          {/* GW Stars */}
-          <div className={styles.rightSection}>
-            <span className={styles.sectionLabel}>
-              GAMEWEEK {latestCompletedGW ?? '—'}
-            </span>
+          {/* Top Performers (Stars of the Week) */}
+          <div className={styles.rightSection} style={{ marginTop: '24px' }}>
+            <span className={styles.sectionLabel}>GAMEWEEK {latestCompletedGW ?? '—'}</span>
             <h2 className={styles.sectionTitle}>Stars of the Week</h2>
-
             {topPerformers.length === 0 ? (
               <p className={styles.emptyHint}>
-                {latestCompletedGW
-                  ? 'Match ratings not yet available.'
-                  : 'No completed gameweeks yet.'}
+                {latestCompletedGW ? 'Match ratings not yet available.' : 'No completed gameweeks yet.'}
               </p>
             ) : (
               <div className={styles.playerChips}>
-                {topPerformers.map((perf, i) => {
+                {topPerformers.map((perf: any, i: number) => {
                   const player = perf.player as any;
                   if (!player) return null;
                   const isMyPlayer = perf.owner?.team_id === myTeamId;
                   const pts = Number(perf.fantasy_points ?? 0);
                   return (
-                    <div
-                      key={i}
-                      className={`${styles.playerChip} ${isMyPlayer ? styles.myPlayerChip : ''}`}
-                      style={{ borderLeftColor: positionColor(player.primary_position) }}
-                    >
+                    <div key={i} className={`${styles.playerChip} ${isMyPlayer ? styles.myPlayerChip : ''}`} style={{ borderLeftColor: positionColor(player.primary_position) }}>
                       <div className={styles.chipLeft}>
-                        <div
-                          className={styles.chipPhotoMount}
-                          style={{ borderColor: positionColor(player.primary_position) }}
-                        >
+                        <div className={styles.chipPhotoMount} style={{ borderColor: positionColor(player.primary_position) }}>
                           {player.photo_url ? (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img
-                              src={player.photo_url}
-                              alt={formatPlayerName(player, 'full')}
-                              className={styles.chipPhoto}
-                            />
+                            <img src={player.photo_url} alt={formatPlayerName(player, 'full')} className={styles.chipPhoto} />
                           ) : (
-                            <span className={styles.chipPhotoFallback} aria-hidden>
-                              {(player.web_name ?? player.name ?? '?').charAt(0)}
-                            </span>
+                            <span className={styles.chipPhotoFallback} aria-hidden>{(player.web_name ?? player.name ?? '?').charAt(0)}</span>
                           )}
                         </div>
-                        <span
-                          className={styles.chipPosBadge}
-                          style={{ background: positionColor(player.primary_position) }}
-                        >
-                          {player.primary_position}
-                        </span>
+                        <span className={styles.chipPosBadge} style={{ background: positionColor(player.primary_position) }}>{player.primary_position}</span>
                         <div className={styles.chipInfo}>
                           <span className={styles.chipName}>{formatPlayerName(player, 'full')}</span>
-                          <span className={styles.chipClub}>
-                            {(player.pl_team ?? '').toUpperCase()}
-                          </span>
+                          <span className={styles.chipClub}>{(player.pl_team ?? '').toUpperCase()}</span>
                         </div>
-                        {isMyPlayer && (
-                          <span className={styles.chipMyTag}>★ Your squad</span>
-                        )}
+                        {isMyPlayer && <span className={styles.chipMyTag}>★ Your squad</span>}
                       </div>
-                      <span
-                        className={styles.chipPoints}
-                        style={{ background: pointsBadgeColor(pts) }}
-                      >
-                        {pts.toFixed(1)}
-                      </span>
+                      <span className={styles.chipPoints} style={{ background: pointsBadgeColor(pts) }}>{pts.toFixed(1)}</span>
                     </div>
                   );
                 })}
@@ -552,88 +559,32 @@ export default async function LeaguePage({ params }: Props) {
             )}
           </div>
 
-          {/* Live Bidding */}
-          <div className={styles.rightSection}>
-            <span className={styles.sectionLabel}>ACTIVE AUCTIONS</span>
-            <h2 className={styles.sectionTitle}>Live Bidding</h2>
-
-            {auctions.length === 0 ? (
-              <p className={styles.emptyHint}>No active auctions.</p>
+          {/* Tournament Status */}
+          <div className={styles.rightSection} style={{ marginTop: '24px' }}>
+            <span className={styles.sectionLabel}>CUPS & COMPETITIONS</span>
+            <h2 className={styles.sectionTitle}>Tournament Status</h2>
+            {tournaments.length === 0 ? (
+              <p className={styles.emptyHint}>No active tournaments.</p>
             ) : (
-              <div className={styles.auctionRows}>
-                {auctions.map((a: any) => {
-                  const msTil = countdownMs(a.expires_at);
-                  const hrsTil = msTil / 3600000;
-                  const expired = msTil <= 0;
-                  const countdownClass = expired
-                    ? styles.countdownRed
-                    : hrsTil < 2
-                    ? styles.countdownRed
-                    : hrsTil < 24
-                    ? styles.countdownAmber
-                    : styles.countdownGray;
-
-                  const hh = Math.max(0, Math.floor(msTil / 3600000));
-                  const mm = Math.max(0, Math.floor((msTil % 3600000) / 60000));
-
-                  const ap = a.player as {
-                    web_name?: string;
-                    name?: string;
-                    primary_position?: string;
-                    pl_team?: string;
-                    photo_url?: string | null;
-                  } | null;
-                  return (
-                    <div key={a.id} className={styles.auctionRow}>
-                      <div className={styles.auctionLeft}>
-                        <div
-                          className={styles.chipPhotoMount}
-                          style={{ borderColor: positionColor(ap?.primary_position ?? '') }}
-                        >
-                          {ap?.photo_url ? (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img
-                              src={ap.photo_url}
-                              alt={formatPlayerName(ap, 'full')}
-                              className={styles.chipPhoto}
-                            />
-                          ) : (
-                            <span className={styles.chipPhotoFallback} aria-hidden>
-                              {(ap?.web_name ?? ap?.name ?? '?').charAt(0)}
-                            </span>
-                          )}
-                        </div>
-                        <span
-                          className={styles.chipPosBadge}
-                          style={{ background: positionColor(ap?.primary_position ?? '') }}
-                        >
-                          {ap?.primary_position ?? '—'}
-                        </span>
-                        <div className={styles.chipInfo}>
-                          <span className={styles.chipName}>{formatPlayerName(ap, 'full')}</span>
-                          <span className={styles.chipClub}>
-                            {(ap?.pl_team ?? '').toUpperCase()}
-                          </span>
-                        </div>
-                      </div>
-                      <div className={styles.auctionRight}>
-                        <span className={styles.auctionBid}>£{a.faab_bid}m</span>
-                        <span className={`${styles.auctionCountdown} ${countdownClass}`}>
-                          {expired ? 'Processing' : `${hh}h ${mm}m`}
-                        </span>
-                      </div>
+              <div className={styles.playerChips}>
+                {tournaments.map((t: any) => (
+                  <div key={t.id} className={styles.playerChip} style={{ padding: '16px', display: 'flex', justifyContent: 'space-between' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                      <span style={{ fontFamily: 'var(--font-noto-serif)', fontWeight: 600, color: 'var(--color-text-primary)', fontSize: '1.1rem' }}>{t.name}</span>
+                      <span style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>Status: {t.status === 'active' ? `Round ${t.current_round ?? 1}` : t.status}</span>
                     </div>
-                  );
-                })}
+                  </div>
+                ))}
               </div>
             )}
-
-            <Link href={`/league/${leagueId}/activity`} className={styles.cardLink}>
-              View all auctions →
-            </Link>
+            <div className={styles.standingsFooter} style={{ marginTop: '24px' }}>
+              <Link href={`/league/${leagueId}/tournaments`} className={styles.cardLink}>View Brackets →</Link>
+            </div>
           </div>
+
         </div>
       </div>
+
 
       {/* Leave League (always available, bottom) */}
       <div className={styles.dangerZone}>
