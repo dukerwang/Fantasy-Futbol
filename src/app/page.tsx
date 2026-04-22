@@ -16,10 +16,12 @@ export default async function RootPage() {
 
   // Option B: if user has exactly one league, go straight to it
   const admin = createAdminClient();
-  const { data: teams } = await admin
+  const { data: teams, error: teamsError } = await admin
     .from('teams')
     .select('league_id')
     .eq('user_id', user.id);
+
+  console.log('[root] user:', user.id, 'teams:', JSON.stringify(teams), 'error:', teamsError?.message);
 
   if (teams && teams.length === 1) {
     redirect(`/league/${teams[0].league_id}`);
