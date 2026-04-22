@@ -598,7 +598,6 @@ export default async function LeaguePage({ params }: Props) {
 
                   return (
                     <div key={i} className={styles.perfRow}>
-                      <div className={styles.perfLeftBorder} style={{ backgroundColor: posColor }} />
                       <div className={styles.perfPhotoMount}>
                         {player.photo_url ? (
                           <img src={player.photo_url} alt="" className={styles.perfPhoto} />
@@ -608,15 +607,14 @@ export default async function LeaguePage({ params }: Props) {
                           </div>
                         )}
                       </div>
+                      <span className={styles.perfBadge} style={{ backgroundColor: posColor, color: 'white' }}>{player.primary_position}</span>
                       <div className={styles.perfDetails}>
-                        <div className={styles.perfNameRow}>
-                          <span className={styles.perfBadge} style={{ backgroundColor: posColor, color: 'white' }}>{player.primary_position}</span>
-                          <span className={styles.perfName}>{formatPlayerName(player, 'initial_last')}</span>
-                        </div>
+                        <span className={styles.perfName}>{formatPlayerName(player, 'initial_last')}</span>
                         <span className={styles.perfTeamName}>{player.pl_team}</span>
                       </div>
                       <div className={styles.perfScoreBadge}>
-                        {pts.toFixed(1)}
+                        <span className={styles.perfPtsValue}>{pts.toFixed(1)}</span>
+                        <span className={styles.perfPtsUnit}>pts</span>
                       </div>
                     </div>
                   );

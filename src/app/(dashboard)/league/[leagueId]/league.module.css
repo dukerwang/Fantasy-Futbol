@@ -1195,8 +1195,8 @@
 
 .standingsHeader {
   display: grid;
-  grid-template-columns: 32px 1fr 60px 80px;
-  column-gap: 16px;
+  grid-template-columns: 32px 1fr 48px 90px;
+  column-gap: 24px;
   padding-bottom: 8px;
   border-bottom: 1px solid var(--color-border-subtle);
   font-family: 'Inter', sans-serif;
@@ -1212,8 +1212,8 @@
 
 .standingsRow {
   display: grid;
-  grid-template-columns: 32px 1fr 60px 80px;
-  column-gap: 16px;
+  grid-template-columns: 32px 1fr 48px 90px;
+  column-gap: 24px;
   align-items: center;
   padding: 12px 0;
   border-bottom: 1px solid var(--color-border-subtle);
@@ -1312,20 +1312,13 @@
 .perfRow {
   display: flex;
   align-items: center;
-  gap: 16px;
-  background: #EFEBE6;
-  border-radius: var(--radius-sm);
-  padding: 12px 16px;
-  position: relative;
-  overflow: hidden;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--color-border-subtle);
 }
 
-.perfLeftBorder {
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 4px;
+.perfRow:last-child {
+  border-bottom: none;
 }
 
 .perfPhotoMount {
@@ -1403,16 +1396,25 @@
 }
 
 .perfScoreBadge {
-  background: #3A6B4A;
-  color: #fff;
-  font-family: 'Inter', sans-serif;
-  font-size: 14px;
-  font-weight: 700;
-  padding: 6px 12px;
-  border-radius: var(--radius-sm);
   display: flex;
-  align-items: center;
-  justify-content: center;
+  align-items: baseline;
+  gap: 4px;
+  margin-left: auto;
+}
+
+.perfPtsValue {
+  font-family: 'Noto Serif', serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.perfPtsUnit {
+  font-family: 'Inter', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
 }
 
 .tournList {
