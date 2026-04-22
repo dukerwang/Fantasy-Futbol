@@ -110,6 +110,7 @@ export default async function LeaguePage({ params }: Props) {
     activityResult,
     taxiResult,
     tournamentsResult,
+    recentMatchupsResult,
   ] = await Promise.all([
     // Full standings
     admin
@@ -169,7 +170,16 @@ export default async function LeaguePage({ params }: Props) {
     admin
       .from('tournaments')
       .select('id, name, status, current_round')
+      .eq('league_id', leagueId),
+
+    // Recent matchups for form
+    admin
+      .from('matchups')
+      .select('team_a_id, team_b_id, score_a, score_b, gameweek')
       .eq('league_id', leagueId)
+      .eq('status', 'completed')
+      .order('gameweek', { ascending: false })
+      .limit(100)
   ]);
 
   const standings = standingsResult.data ?? [];
@@ -179,6 +189,41 @@ export default async function LeaguePage({ params }: Props) {
   const initialTeams = (teamsResult.data ?? []) as Array<{ id: string; team_name: string; draft_order: number | null }>;
   const taxiSquad = taxiResult?.data ?? [];
   const tournaments = tournamentsResult?.data ?? [];
+  const recentMatchups = recentMatchupsResult?.data ?? [];
+
+  type FormResult = 'W' | 'D' | 'L';
+  const DRAW_MARGIN = 10;
+  function computeForm(teamId: string, matchups: any[]): FormResult[] {
+    const results: FormResult[] = [];
+    for (const m of matchups) {
+      if (results.length >= 5) break;
+
+      let myScore: number, theirScore: number;
+      if (m.team_a_id === teamId) {
+        myScore = m.score_a ?? 0;
+        theirScore = m.score_b ?? 0;
+      } else if (m.team_b_id === teamId) {
+        myScore = m.score_b ?? 0;
+        theirScore = m.score_a ?? 0;
+      } else {
+        continue;
+      }
+
+      if (Math.abs(myScore - theirScore) <= DRAW_MARGIN) {
+        results.push('D');
+      } else if (myScore > theirScore) {
+        results.push('W');
+      } else {
+        results.push('L');
+      }
+    }
+    return results;
+  }
+
+  const formMap = new Map<string, FormResult[]>();
+  for (const row of standings) {
+    formMap.set(row.team_id, computeForm(row.team_id, recentMatchups));
+  }
 
   // ── Matchup hero state ────────────────────────────────────────────────────
   // Since we ordered by gameweek ASC, find() for scheduled gets the earliest one.
@@ -385,12 +430,15 @@ export default async function LeaguePage({ params }: Props) {
           <div className={styles.taxiCard}>
             <div className={styles.cardPadding}>
               <div className={styles.taxiHeaderRow}>
-                <span className={styles.kickerLabel}>TAXI SQUAD</span>
+                <span className={styles.kickerLabel}>ACADEMY</span>
                 <span className={styles.u21Badge}>U21</span>
               </div>
               
               {taxiSquad.length === 0 ? (
-                <p className={styles.emptyHint}>No academy players.</p>
+                <div className={styles.emptyStateBox}>
+                  <div className={styles.emptyStateIcon}>⚽️</div>
+                  <p className={styles.emptyHint}>No academy players.</p>
+                </div>
               ) : (
                 <div className={styles.taxiList}>
                   {taxiSquad.map((entry: any, i: number) => {
@@ -418,7 +466,7 @@ export default async function LeaguePage({ params }: Props) {
           {heroMatchup && heroState && (
             <div className={styles.matchupHero}>
               <div className={styles.matchupTeam}>
-                <div className={styles.matchupShield}></div>
+                <div className={styles.matchupShield}>{userTeam?.team_name?.charAt(0) ?? '?'}</div>
                 <span className={styles.matchupTeamName}>{userTeam?.team_name ?? '—'}</span>
                 <span className={styles.matchupManager}>MANAGER {user.user_metadata?.full_name?.split(' ').pop()?.toUpperCase() ?? 'NAME'}</span>
               </div>
@@ -434,7 +482,7 @@ export default async function LeaguePage({ params }: Props) {
               </div>
 
               <div className={styles.matchupTeam}>
-                <div className={styles.matchupShield}></div>
+                <div className={styles.matchupShield}>{oppTeam?.team_name?.charAt(0) ?? '?'}</div>
                 <span className={styles.matchupTeamName}>{oppTeam?.team_name ?? '—'}</span>
                 <span className={styles.matchupManager}>MANAGER OPPONENT</span>
               </div>
@@ -450,7 +498,10 @@ export default async function LeaguePage({ params }: Props) {
             
             <div className={styles.gazetteContent}>
               {activity.length === 0 ? (
-                <p className={styles.emptyHint}>No activity yet this season.</p>
+                <div className={styles.emptyStateBox}>
+                  <div className={styles.emptyStateIcon}>📰</div>
+                  <p className={styles.emptyHint}>No activity yet this season.</p>
+                </div>
               ) : (
                 <div className={styles.gazetteList}>
                   {activity.map((tx: any) => {
@@ -491,15 +542,34 @@ export default async function LeaguePage({ params }: Props) {
                 <span className={styles.stRank}>RK</span>
                 <span className={styles.stTeam}>TEAM</span>
                 <span className={styles.stPts}>PTS</span>
+                <span className={styles.stForm}>FORM</span>
               </div>
               <div className={styles.standingsList}>
                 {standings.slice(0, 5).map((s: any) => {
                   const isMe = s.team_id === myTeamId;
+                  const form = formMap.get(s.team_id) ?? [];
                   return (
                     <div key={s.team_id} className={`${styles.standingsRow} ${isMe ? styles.stRowActive : ''}`}>
                       <span className={styles.stRankValue}>{s.rank}</span>
                       <span className={`${styles.stTeamName} ${isMe ? styles.stTeamNameBold : ''}`}>{s.team_name}</span>
                       <span className={styles.stPtsValue}>{s.league_points.toLocaleString()}</span>
+                      <div className={styles.formDots}>
+                        {form.map((result, idx) => (
+                          <span
+                            key={idx}
+                            className={`${styles.formDot} ${
+                              result === 'W'
+                                ? styles.formDotW
+                                : result === 'D'
+                                ? styles.formDotD
+                                : styles.formDotL
+                            }`}
+                          />
+                        ))}
+                        {Array.from({ length: Math.max(0, 5 - form.length) }).map((_, idx) => (
+                          <span key={`empty-${idx}`} className={`${styles.formDot} ${styles.formDotEmpty}`} />
+                        ))}
+                      </div>
                     </div>
                   );
                 })}
@@ -531,9 +601,13 @@ export default async function LeaguePage({ params }: Props) {
                   return (
                     <div key={i} className={styles.perfRow}>
                       <div className={styles.perfPhotoMount}>
-                        <div className={styles.perfPhotoFallback}>
-                          {formatPlayerName(player, 'initial_last').charAt(0)}
-                        </div>
+                        {player.photo_url ? (
+                          <img src={player.photo_url} alt="" className={styles.perfPhoto} />
+                        ) : (
+                          <div className={styles.perfPhotoFallback}>
+                            {formatPlayerName(player, 'initial_last').charAt(0)}
+                          </div>
+                        )}
                       </div>
                       <span className={styles.perfBadge} style={{ backgroundColor: posColor, color: 'white' }}>{player.primary_position}</span>
                       <span className={styles.perfName}>{formatPlayerName(player, 'initial_last')}</span>
@@ -552,7 +626,10 @@ export default async function LeaguePage({ params }: Props) {
           <div className={styles.rightCard}>
             <span className={styles.kickerLabel}>TOURNAMENT STATUS</span>
             {tournaments.length === 0 ? (
-              <p className={styles.emptyHint}>No active tournaments.</p>
+              <div className={styles.emptyStateBox}>
+                <div className={styles.emptyStateIcon}>🏆</div>
+                <p className={styles.emptyHint}>No active tournaments.</p>
+              </div>
             ) : (
               <div className={styles.tournList}>
                 {tournaments.map((t: any) => (

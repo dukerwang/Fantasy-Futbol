@@ -85,6 +85,7 @@ export default function TopBar() {
   }, []);
 
   async function handleSignOut() {
+    setIsNavigating(true);
     const supabase = createClient();
     await supabase.auth.signOut();
     router.push('/login');
@@ -171,7 +172,7 @@ export default function TopBar() {
       {isNavigating && <div className={styles.loadingBar} />}
       <div className={styles.inner}>
         {/* --- Wordmark --- */}
-        <Link href="/dashboard" className={styles.brand}>
+        <Link href="/dashboard" className={styles.brand} onClick={() => setIsNavigating(true)}>
           <span className={styles.brandIcon}>⚽</span>
           <span className={styles.brandName}>Fantasy Futbol</span>
         </Link>
@@ -184,6 +185,7 @@ export default function TopBar() {
               <Link
                 href={`/league/${currentLeagueId}`}
                 className={`${styles.navLink} ${isHomeActive() ? styles.navLinkActive : ''}`}
+                onClick={() => setIsNavigating(true)}
               >
                 Home
               </Link>
@@ -242,6 +244,7 @@ export default function TopBar() {
               <Link
                 href={`/league/${currentLeagueId}/activity`}
                 className={`${styles.navLink} ${isActivityActive() ? styles.navLinkActive : ''}`}
+                onClick={() => setIsNavigating(true)}
               >
                 Activity
               </Link>
@@ -278,7 +281,7 @@ export default function TopBar() {
                         key={team.league.id}
                         href={`/league/${team.league.id}`}
                         className={`${styles.leagueDropdownItem} ${team.league.id === currentLeagueId ? styles.leagueDropdownItemActive : ''}`}
-                        onClick={() => setLeagueSwitcherOpen(false)}
+                        onClick={() => { setLeagueSwitcherOpen(false); setIsNavigating(true); }}
                       >
                         <span
                           className={`${styles.leagueDot} ${team.league.id === currentLeagueId ? styles.leagueDotActive : styles.leagueDotInactive}`}
@@ -297,14 +300,14 @@ export default function TopBar() {
                 <Link
                   href="/league/create"
                   className={styles.leagueDropdownAction}
-                  onClick={() => setLeagueSwitcherOpen(false)}
+                  onClick={() => { setLeagueSwitcherOpen(false); setIsNavigating(true); }}
                 >
                   + Create League
                 </Link>
                 <Link
                   href="/league/join"
                   className={styles.leagueDropdownAction}
-                  onClick={() => setLeagueSwitcherOpen(false)}
+                  onClick={() => { setLeagueSwitcherOpen(false); setIsNavigating(true); }}
                 >
                   ↳ Join League
                 </Link>
