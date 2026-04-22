@@ -58,15 +58,6 @@ export function formatPlayerName(
         return `${firstInitial}. ${lastName}`;
     }
 
-    if (format === 'first_last_initial') {
-        const parts = dbName.split(/\s+/);
-        if (parts.length === 1) return dbName;
-
-        const firstName = parts[0];
-        const lastInitial = parts[parts.length - 1][0].toUpperCase();
-        return `${firstName} ${lastInitial}.`;
-    }
-
     // Default to web_name if available, else name
     return player.web_name ?? player.name;
 }

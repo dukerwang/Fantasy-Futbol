@@ -456,7 +456,7 @@ export default async function LeaguePage({ params }: Props) {
                   {activity.map((tx: any) => {
                     const cat = txCategoryStyle(tx.type);
                     const teamName = (tx.team as any)?.team_name ?? 'Unknown';
-                    const playerName = formatPlayerName(tx.player as any, 'first_last_initial');
+                    const playerName = formatPlayerName(tx.player as any, 'initial_last');
                     const faab = tx.faab_bid ? ` for a fee of £${tx.faab_bid}m` : '';
                     
                     let summaryText = <></>;
@@ -493,7 +493,7 @@ export default async function LeaguePage({ params }: Props) {
                 <span className={styles.stPts}>PTS</span>
               </div>
               <div className={styles.standingsList}>
-                {standings.map((s: any) => {
+                {standings.slice(0, 5).map((s: any) => {
                   const isMe = s.team_id === myTeamId;
                   return (
                     <div key={s.team_id} className={`${styles.standingsRow} ${isMe ? styles.stRowActive : ''}`}>
@@ -521,30 +521,22 @@ export default async function LeaguePage({ params }: Props) {
                   const player = perf.player;
                   if (!player) return null;
                   const pts = Number(perf.fantasy_points ?? 0);
-                  const posClass = player.primary_position === 'GK' || player.primary_position === 'CB' || player.primary_position === 'LB' || player.primary_position === 'RB' ? styles.badgeDef : 
-                                   player.primary_position === 'ST' || player.primary_position === 'LW' || player.primary_position === 'RW' ? styles.badgeAtt : styles.badgeMid;
-                  const posLabel = player.primary_position === 'GK' || player.primary_position === 'CB' || player.primary_position === 'LB' || player.primary_position === 'RB' ? 'DEF' : 
-                                   player.primary_position === 'ST' || player.primary_position === 'LW' || player.primary_position === 'RW' ? 'ATT' : 'MID';
+                  const posMap: Record<string, string> = {
+                    GK: 'var(--color-pos-gk)', CB: 'var(--color-pos-cb)', LB: 'var(--color-pos-fb)', RB: 'var(--color-pos-fb)',
+                    DM: 'var(--color-pos-dm)', CM: 'var(--color-pos-cm)', LM: 'var(--color-pos-wm)', RM: 'var(--color-pos-wm)',
+                    AM: 'var(--color-pos-am)', LW: 'var(--color-pos-lw)', RW: 'var(--color-pos-rw)', ST: 'var(--color-pos-st)',
+                  };
+                  const posColor = posMap[player.primary_position] ?? 'var(--color-bg-secondary)';
+
                   return (
                     <div key={i} className={styles.perfRow}>
                       <div className={styles.perfPhotoMount}>
-                        {player.fpl_id ? (
-                           <img 
-                             src={`https://resources.premierleague.com/premierleague/photos/players/110x140/p${player.fpl_id}.png`}
-                             alt={player.web_name}
-                             className={styles.perfPhoto}
-                             onError={(e) => {
-                               (e.target as HTMLImageElement).style.display = 'none';
-                               (e.target as HTMLImageElement).nextElementSibling?.removeAttribute('style');
-                             }}
-                           />
-                        ) : null}
-                        <div className={styles.perfPhotoFallback} style={{ display: player.fpl_id ? 'none' : 'flex' }}>
-                          {player.web_name?.[0] ?? '?'}
+                        <div className={styles.perfPhotoFallback}>
+                          {formatPlayerName(player, 'initial_last').charAt(0)}
                         </div>
                       </div>
-                      <span className={`${styles.perfBadge} ${posClass}`}>{posLabel}</span>
-                      <span className={styles.perfName}>{formatPlayerName(player, 'first_last_initial')}</span>
+                      <span className={styles.perfBadge} style={{ backgroundColor: posColor, color: 'white' }}>{player.primary_position}</span>
+                      <span className={styles.perfName}>{formatPlayerName(player, 'initial_last')}</span>
                       <div className={styles.perfScore}>
                         <span className={styles.perfPts}>{pts.toFixed(1)}</span>
                         <span className={styles.perfPtsUnit}>pts</span>
