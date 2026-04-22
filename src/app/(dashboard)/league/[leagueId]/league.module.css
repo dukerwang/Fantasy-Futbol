@@ -1195,8 +1195,8 @@
 
 .standingsHeader {
   display: grid;
-  grid-template-columns: 32px 1fr 48px 90px;
-  column-gap: 24px;
+  grid-template-columns: 28px 1fr 40px 80px;
+  column-gap: 16px;
   padding-bottom: 8px;
   border-bottom: 1px solid var(--color-border-subtle);
   font-family: 'Inter', sans-serif;
@@ -1212,8 +1212,8 @@
 
 .standingsRow {
   display: grid;
-  grid-template-columns: 32px 1fr 48px 90px;
-  column-gap: 24px;
+  grid-template-columns: 28px 1fr 40px 80px;
+  column-gap: 16px;
   align-items: center;
   padding: 12px 0;
   border-bottom: 1px solid var(--color-border-subtle);
@@ -1242,6 +1242,9 @@
   font-size: 14px;
   font-style: italic;
   color: var(--color-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .stTeamNameBold {
@@ -1262,14 +1265,14 @@
 }
 
 .stForm {
-  text-align: left;
+  text-align: right;
 }
 
 .formDots {
   display: flex;
   gap: 4px;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: flex-end;
 }
 .formDot {
   width: 6px;
