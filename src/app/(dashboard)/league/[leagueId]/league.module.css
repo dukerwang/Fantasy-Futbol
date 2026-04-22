@@ -1255,15 +1255,19 @@
   color: var(--color-text-primary);
 }
 
-.stForm {
+.stPts {
   text-align: right;
+}
+
+.stForm {
+  text-align: left;
 }
 
 .formDots {
   display: flex;
   gap: 4px;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: flex-start;
 }
 .formDot {
   width: 6px;
@@ -1271,8 +1275,8 @@
   border-radius: 50%;
 }
 .formDotW { background-color: var(--color-accent-green); }
-.formDotD { background-color: #94a3b8; }
-.formDotL { background-color: var(--color-accent-red); }
+.formDotD { background-color: #f59e0b; }
+.formDotL { background-color: #c0392b; }
 .formDotEmpty { background-color: transparent; border: 1px solid var(--color-border-subtle); }
 
 .emptyStateBox {
@@ -1282,12 +1286,6 @@
   justify-content: center;
   padding: 32px 0;
   gap: 12px;
-}
-
-.emptyStateIcon {
-  font-size: 32px;
-  color: var(--color-border-subtle);
-  opacity: 0.6;
 }
 
 .cardLink {
@@ -1312,11 +1310,24 @@
 .perfRow {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 16px;
+  background: #EFEBE6;
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  position: relative;
+  overflow: hidden;
+}
+
+.perfLeftBorder {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
 }
 
 .perfPhotoMount {
-  width: 64px;
+  width: 48px;
   height: 64px;
   border-radius: var(--radius-sm);
   background: var(--color-bg-secondary);
@@ -1324,6 +1335,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  border: 2px solid;
 }
 
 .perfPhoto {
@@ -1331,8 +1343,7 @@
   height: 100%;
   object-fit: cover;
   object-position: top center;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--color-border-subtle);
+  border-radius: calc(var(--radius-sm) - 2px);
 }
 
 .perfPhotoFallback {
@@ -1342,61 +1353,60 @@
   color: var(--color-text-muted);
   width: 100%;
   height: 100%;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--color-border-subtle);
+  border-radius: calc(var(--radius-sm) - 2px);
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.perfDetails {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.perfNameRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 2px;
 }
 
 .perfBadge {
   font-family: 'Inter', sans-serif;
   font-size: 10px;
   font-weight: 700;
-  padding: 3px 6px;
+  padding: 2px 6px;
   border-radius: var(--radius-sm);
 }
 
-.badgeDef {
-  background: rgba(30, 58, 95, 0.1);
-  color: #1E3A5F;
-}
-
-.badgeMid {
-  background: rgba(92, 61, 143, 0.1);
-  color: #5C3D8F;
-}
-
-.badgeAtt {
-  background: rgba(139, 26, 26, 0.1);
-  color: #8B1A1A;
-}
-
 .perfName {
-  font-family: 'Noto Serif', serif;
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--color-text-primary);
-  flex: 1;
-}
-
-.perfScore {
-  display: flex;
-  align-items: baseline;
-  gap: 4px;
-}
-
-.perfPts {
   font-family: 'Noto Serif', serif;
   font-size: 16px;
   font-weight: 700;
   color: var(--color-text-primary);
 }
 
-.perfPtsUnit {
+.perfTeamName {
   font-family: 'Inter', sans-serif;
   font-size: 10px;
+  font-weight: 700;
   color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.perfScoreBadge {
+  background: #3A6B4A;
+  color: #fff;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .tournList {

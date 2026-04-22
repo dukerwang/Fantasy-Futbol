@@ -107,10 +107,11 @@ export default function TopBar() {
         ],
       },
       {
-        label: 'League',
+        label: 'Competitions',
         items: [
-          { label: 'Standings', href: `${base}/standings` },
-          { label: 'Stats', href: `${base}/stats` },
+          { label: 'Fixtures', href: `${base}/matchups` },
+          { label: 'Cups', href: `${base}/tournaments` },
+          ...(isDraftVisible ? [{ label: 'Draft', href: `${base}/draft` }] : []),
         ],
       },
       {
@@ -121,11 +122,10 @@ export default function TopBar() {
         ],
       },
       {
-        label: 'Competitions',
+        label: 'League',
         items: [
-          { label: 'Fixtures', href: `${base}/matchups` },
-          { label: 'Cups', href: `${base}/tournaments` },
-          ...(isDraftVisible ? [{ label: 'Draft', href: `${base}/draft` }] : []),
+          { label: 'Standings', href: `${base}/standings` },
+          { label: 'Stats', href: `${base}/stats` },
         ],
       },
     ];

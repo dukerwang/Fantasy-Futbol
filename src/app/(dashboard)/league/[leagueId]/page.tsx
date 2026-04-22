@@ -436,7 +436,6 @@ export default async function LeaguePage({ params }: Props) {
               
               {taxiSquad.length === 0 ? (
                 <div className={styles.emptyStateBox}>
-                  <div className={styles.emptyStateIcon}>⚽️</div>
                   <p className={styles.emptyHint}>No academy players.</p>
                 </div>
               ) : (
@@ -499,7 +498,6 @@ export default async function LeaguePage({ params }: Props) {
             <div className={styles.gazetteContent}>
               {activity.length === 0 ? (
                 <div className={styles.emptyStateBox}>
-                  <div className={styles.emptyStateIcon}>📰</div>
                   <p className={styles.emptyHint}>No activity yet this season.</p>
                 </div>
               ) : (
@@ -592,28 +590,33 @@ export default async function LeaguePage({ params }: Props) {
                   if (!player) return null;
                   const pts = Number(perf.fantasy_points ?? 0);
                   const posMap: Record<string, string> = {
-                    GK: 'var(--color-pos-gk)', CB: 'var(--color-pos-cb)', LB: 'var(--color-pos-fb)', RB: 'var(--color-pos-fb)',
-                    DM: 'var(--color-pos-dm)', CM: 'var(--color-pos-cm)', LM: 'var(--color-pos-wm)', RM: 'var(--color-pos-wm)',
-                    AM: 'var(--color-pos-am)', LW: 'var(--color-pos-lw)', RW: 'var(--color-pos-rw)', ST: 'var(--color-pos-st)',
+                    GK: '#D4A017', CB: '#1E3A5F', LB: '#1E3A5F', RB: '#1E3A5F',
+                    DM: '#5C3D8F', CM: '#5C3D8F', LM: '#5C3D8F', RM: '#5C3D8F',
+                    AM: '#5C3D8F', LW: '#3A6B4A', RW: '#3A6B4A', ST: '#8B1A1A',
                   };
-                  const posColor = posMap[player.primary_position] ?? 'var(--color-bg-secondary)';
+                  const posColor = posMap[player.primary_position] ?? '#94a3b8';
 
                   return (
                     <div key={i} className={styles.perfRow}>
-                      <div className={styles.perfPhotoMount}>
+                      <div className={styles.perfLeftBorder} style={{ backgroundColor: posColor }} />
+                      <div className={styles.perfPhotoMount} style={{ borderColor: posColor }}>
                         {player.photo_url ? (
                           <img src={player.photo_url} alt="" className={styles.perfPhoto} />
                         ) : (
-                          <div className={styles.perfPhotoFallback}>
+                          <div className={styles.perfPhotoFallback} style={{ color: posColor }}>
                             {formatPlayerName(player, 'initial_last').charAt(0)}
                           </div>
                         )}
                       </div>
-                      <span className={styles.perfBadge} style={{ backgroundColor: posColor, color: 'white' }}>{player.primary_position}</span>
-                      <span className={styles.perfName}>{formatPlayerName(player, 'initial_last')}</span>
-                      <div className={styles.perfScore}>
-                        <span className={styles.perfPts}>{pts.toFixed(1)}</span>
-                        <span className={styles.perfPtsUnit}>pts</span>
+                      <div className={styles.perfDetails}>
+                        <div className={styles.perfNameRow}>
+                          <span className={styles.perfBadge} style={{ backgroundColor: posColor, color: 'white' }}>{player.primary_position}</span>
+                          <span className={styles.perfName}>{formatPlayerName(player, 'full')}</span>
+                        </div>
+                        <span className={styles.perfTeamName}>{player.pl_team}</span>
+                      </div>
+                      <div className={styles.perfScoreBadge}>
+                        {pts.toFixed(1)}
                       </div>
                     </div>
                   );
@@ -627,7 +630,6 @@ export default async function LeaguePage({ params }: Props) {
             <span className={styles.kickerLabel}>TOURNAMENT STATUS</span>
             {tournaments.length === 0 ? (
               <div className={styles.emptyStateBox}>
-                <div className={styles.emptyStateIcon}>🏆</div>
                 <p className={styles.emptyHint}>No active tournaments.</p>
               </div>
             ) : (
