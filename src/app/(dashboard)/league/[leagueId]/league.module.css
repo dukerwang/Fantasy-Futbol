@@ -1195,7 +1195,7 @@
 
 .standingsHeader {
   display: grid;
-  grid-template-columns: 28px 1fr 40px 80px;
+  grid-template-columns: 32px 1fr 60px 80px;
   column-gap: 16px;
   padding-bottom: 8px;
   border-bottom: 1px solid var(--color-border-subtle);
@@ -1212,7 +1212,7 @@
 
 .standingsRow {
   display: grid;
-  grid-template-columns: 28px 1fr 40px 80px;
+  grid-template-columns: 32px 1fr 60px 80px;
   column-gap: 16px;
   align-items: center;
   padding: 12px 0;
@@ -1256,23 +1256,23 @@
   font-family: 'Noto Serif', serif;
   font-size: 14px;
   font-weight: 700;
-  text-align: right;
+  text-align: left;
   color: var(--color-text-primary);
 }
 
 .stPts {
-  text-align: right;
+  text-align: left;
 }
 
 .stForm {
-  text-align: right;
+  text-align: left;
 }
 
 .formDots {
   display: flex;
   gap: 4px;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: flex-start;
 }
 .formDot {
   width: 6px;
