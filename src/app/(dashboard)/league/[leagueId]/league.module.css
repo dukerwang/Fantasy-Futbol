@@ -1195,7 +1195,8 @@
 
 .standingsHeader {
   display: grid;
-  grid-template-columns: 24px 1fr 40px 60px;
+  grid-template-columns: 32px 1fr 60px 80px;
+  column-gap: 16px;
   padding-bottom: 8px;
   border-bottom: 1px solid var(--color-border-subtle);
   font-family: 'Inter', sans-serif;
@@ -1211,7 +1212,8 @@
 
 .standingsRow {
   display: grid;
-  grid-template-columns: 24px 1fr 40px 60px;
+  grid-template-columns: 32px 1fr 60px 80px;
+  column-gap: 16px;
   align-items: center;
   padding: 12px 0;
   border-bottom: 1px solid var(--color-border-subtle);
@@ -1335,7 +1337,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 2px solid;
+  border: 1px solid var(--color-border-subtle);
 }
 
 .perfPhoto {
@@ -1369,22 +1371,25 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 2px;
+  margin-bottom: 0;
+  white-space: nowrap;
 }
 
 .perfBadge {
   font-family: 'Inter', sans-serif;
-  font-size: 10px;
-  font-weight: 700;
-  padding: 2px 6px;
-  border-radius: var(--radius-sm);
+  font-size: 9px;
+  font-weight: 800;
+  padding: 1px 4px;
+  border-radius: 4px;
+  flex-shrink: 0;
 }
 
 .perfName {
   font-family: 'Noto Serif', serif;
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 700;
   color: var(--color-text-primary);
+  line-height: 1.2;
 }
 
 .perfTeamName {
@@ -1394,6 +1399,7 @@
   color: var(--color-text-muted);
   text-transform: uppercase;
   letter-spacing: 0.1em;
+  margin-top: 2px;
 }
 
 .perfScoreBadge {
