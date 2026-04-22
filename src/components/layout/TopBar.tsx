@@ -35,9 +35,11 @@ export default function TopBar() {
   const leagueSwitcherRef = useRef<HTMLDivElement>(null);
   const dropdownTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Extract current leagueId from URL
+  // Extract current leagueId from URL — exclude static segments like 'create', 'join'
+  const RESERVED_SEGMENTS = new Set(['create', 'join']);
   const leagueIdMatch = pathname?.match(/\/league\/([^/]+)/);
-  const currentLeagueId = leagueIdMatch ? leagueIdMatch[1] : null;
+  const rawLeagueId = leagueIdMatch ? leagueIdMatch[1] : null;
+  const currentLeagueId = rawLeagueId && !RESERVED_SEGMENTS.has(rawLeagueId) ? rawLeagueId : null;
 
   // Find the current league's status for conditional nav items
   const currentTeam = teams.find(t => t.league.id === currentLeagueId);
@@ -46,7 +48,7 @@ export default function TopBar() {
   // Fetch user's teams + profile on mount
   useEffect(() => {
     const supabase = createClient();
-    supabase.auth.getUser().then(({ data: { user } }) => {
+    supabase.auth.getUser().then(async ({ data: { user } }) => {
       if (!user) return;
 
       // Fetch profile
@@ -59,15 +61,30 @@ export default function TopBar() {
           if (data) setUsername(data.username);
         });
 
-      // Fetch teams with league info
-      supabase
+      // Fetch teams first, then fetch league info separately to avoid RLS join issues
+      const { data: teamsData } = await supabase
         .from('teams')
-        .select('id, team_name, league:leagues(id, name, status, season)')
+        .select('id, team_name, league_id')
         .eq('user_id', user.id)
-        .order('created_at', { ascending: false })
-        .then(({ data }) => {
-          if (data) setTeams(data as unknown as UserTeam[]);
-        });
+        .order('created_at', { ascending: false });
+
+      if (!teamsData || teamsData.length === 0) return;
+
+      const leagueIds = teamsData.map(t => t.league_id).filter(Boolean);
+      const { data: leaguesData } = await supabase
+        .from('leagues')
+        .select('id, name, status, season')
+        .in('id', leagueIds);
+
+      const leagueMap = new Map((leaguesData ?? []).map(l => [l.id, l]));
+
+      const assembled: UserTeam[] = teamsData.map(t => ({
+        id: t.id,
+        team_name: t.team_name,
+        league: leagueMap.get(t.league_id) ?? { id: t.league_id, name: 'Unknown', status: 'active', season: '' },
+      }));
+
+      setTeams(assembled);
     });
   }, []);
 
