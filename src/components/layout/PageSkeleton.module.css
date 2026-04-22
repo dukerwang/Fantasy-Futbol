@@ -1,0 +1,144 @@
+/* ============================================================
+   PageSkeleton — Cream Editorial loading state
+   Used by loading.tsx files across all league sub-routes.
+   ============================================================ */
+
+.skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  animation: fadeIn 0.15s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes shimmer {
+  0% { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--color-bg-elevated) 25%,
+    var(--color-bg-card-hover) 50%,
+    var(--color-bg-elevated) 75%
+  );
+  background-size: 800px 100%;
+  animation: shimmer 1.4s infinite linear;
+  border-radius: var(--radius-sm);
+}
+
+/* Hero / header block */
+.heroBlock {
+  height: 120px;
+  composes: shimmer;
+  border: 1px solid var(--color-border-subtle);
+}
+
+/* Content rows */
+.row {
+  height: 20px;
+  composes: shimmer;
+}
+
+.rowWide {
+  width: 75%;
+}
+
+.rowMedium {
+  width: 55%;
+}
+
+.rowNarrow {
+  width: 35%;
+}
+
+/* Card blocks */
+.cardBlock {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.cardHeader {
+  height: 14px;
+  width: 120px;
+  composes: shimmer;
+}
+
+.cardTitle {
+  height: 22px;
+  width: 200px;
+  composes: shimmer;
+}
+
+.cardRow {
+  height: 16px;
+  composes: shimmer;
+}
+
+.cardRowShort {
+  height: 16px;
+  width: 60%;
+  composes: shimmer;
+}
+
+/* Two-column layout */
+.bodyRow {
+  display: grid;
+  grid-template-columns: 58fr 42fr;
+  gap: 24px;
+}
+
+/* Three-column layout for home */
+.homeRow {
+  display: grid;
+  grid-template-columns: 300px 1fr 340px;
+  gap: 24px;
+}
+
+@media (max-width: 1280px) {
+  .homeRow {
+    grid-template-columns: 280px 1fr 300px;
+    gap: 16px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .homeRow {
+    grid-template-columns: 1fr 320px;
+  }
+}
+
+@media (max-width: 768px) {
+  .homeRow {
+    grid-template-columns: 1fr;
+  }
+}
+
+.col {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* Table rows */
+.tableRows {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.tableRow {
+  height: 40px;
+  composes: shimmer;
+}

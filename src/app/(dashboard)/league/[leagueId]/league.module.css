@@ -231,9 +231,34 @@
 /* ── Zone 2: Body Row ── */
 .bodyRow {
   display: grid;
-  grid-template-columns: 58fr 42fr;
+  grid-template-columns: 300px 1fr 340px;
   gap: 24px;
   align-items: start;
+}
+
+@media (max-width: 1280px) {
+  .bodyRow {
+    grid-template-columns: 280px 1fr 300px;
+    gap: 16px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .bodyRow {
+    grid-template-columns: 1fr 320px;
+  }
+}
+
+@media (max-width: 768px) {
+  .bodyRow {
+    grid-template-columns: 1fr;
+  }
+}
+
+.centerCol {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
 }
 
 /* ── Standings Card ── */

@@ -316,63 +316,13 @@ export default async function LeaguePage({ params }: Props) {
         </div>
       )}
 
-      {/* ── Zone 1: Matchup Hero ── */}
-      {heroMatchup && heroState && (
-        <div className={styles.heroCard}>
-          {/* Left — user team */}
-          <div className={styles.heroTeam}>
-            <span className={styles.heroTeamName}>{userTeam?.team_name ?? '—'}</span>
-            {userRecord && (
-              <span className={styles.heroRecord}>
-                {userRecord}
-              </span>
-            )}
-          </div>
-
-          {/* Center — Scores & Badge */}
-          <div className={styles.heroCenterBlock}>
-            <span className={styles.heroCenterLabel}>YOUR FIXTURE · GW {heroMatchup.gameweek}</span>
-            <div className={styles.heroScoreGroup}>
-              <span className={`${styles.heroScore} ${heroResult === 'win' || (heroState !== 'final' && (userScore ?? 0) > (oppScore ?? 0)) ? styles.heroScoreHighlight : ''}`}>
-                {heroState === 'upcoming' ? '—' : (userScore?.toFixed(1) ?? '0.0')}
-              </span>
-              <span className={styles.heroScoreDivider}>-</span>
-              <span className={`${styles.heroScore} ${heroResult === 'loss' || (heroState !== 'final' && (oppScore ?? 0) > (userScore ?? 0)) ? styles.heroScoreHighlight : ''}`}>
-                {heroState === 'upcoming' ? '—' : (oppScore?.toFixed(1) ?? '0.0')}
-              </span>
-            </div>
-            <div className={styles.heroBadgeBox}>
-              {heroState === 'live' && <span className={styles.heroBadgeLivePill}>● IN PROGRESS</span>}
-              {heroState === 'upcoming' && <span className={styles.heroBadgeUpcomingPill}>UPCOMING</span>}
-              {heroState === 'final' && heroResult === 'win' && <span className={styles.heroBadgeFinalWin}>{userTeam?.team_name} WIN</span>}
-              {heroState === 'final' && heroResult === 'loss' && <span className={styles.heroBadgeFinalLoss}>{oppTeam?.team_name} WIN</span>}
-              {heroState === 'final' && heroResult === 'draw' && <span className={styles.heroBadgeFinalDraw}>DRAW</span>}
-            </div>
-          </div>
-
-          {/* Right — opponent team */}
-          <div className={`${styles.heroTeam} ${styles.heroTeamRight}`}>
-            <span className={styles.heroTeamName}>{oppTeam?.team_name ?? '—'}</span>
-            {oppRecord && (
-              <span className={styles.heroRecord}>
-                {oppRecord}
-              </span>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* No matchup yet */}
-      {!heroMatchup && league.status === 'active' && (
-        <div className={styles.heroEmpty}>
-          <p>No matchup results yet — check back after GW 1.</p>
-        </div>
-      )}
-
-      {/* ── Zone 2: Body Row (Standings + Right Column) ── */}
+      {/* ── Dashboard Grid ── */}
       <div className={styles.bodyRow}>
 
-        {/* Left — League Standings */}
+        {/* ── Left Column ── */}
+        <div className={styles.leftCol}>
+
+        {/* League Standings Card */}
         <div className={styles.standingsCard}>
           <div className={styles.standingsHeading}>
             <span className={styles.sectionLabel}>2025/26 SEASON</span>
@@ -424,7 +374,109 @@ export default async function LeaguePage({ params }: Props) {
           </div>
         </div>
 
-        {/* Right column */}
+        </div>
+
+        {/* ── Center Column ── */}
+        <div className={styles.centerCol}>
+          {/* Matchup Hero */}
+          {heroMatchup && heroState && (
+            <div className={styles.heroCard}>
+              {/* Left — user team */}
+              <div className={styles.heroTeam}>
+                <span className={styles.heroTeamName}>{userTeam?.team_name ?? '—'}</span>
+                {userRecord && (
+                  <span className={styles.heroRecord}>
+                    {userRecord}
+                  </span>
+                )}
+              </div>
+
+              {/* Center — Scores & Badge */}
+              <div className={styles.heroCenterBlock}>
+                <span className={styles.heroCenterLabel}>YOUR FIXTURE · GW {heroMatchup.gameweek}</span>
+                <div className={styles.heroScoreGroup}>
+                  <span className={`${styles.heroScore} ${heroResult === 'win' || (heroState !== 'final' && (userScore ?? 0) > (oppScore ?? 0)) ? styles.heroScoreHighlight : ''}`}>
+                    {heroState === 'upcoming' ? '—' : (userScore?.toFixed(1) ?? '0.0')}
+                  </span>
+                  <span className={styles.heroScoreDivider}>-</span>
+                  <span className={`${styles.heroScore} ${heroResult === 'loss' || (heroState !== 'final' && (oppScore ?? 0) > (userScore ?? 0)) ? styles.heroScoreHighlight : ''}`}>
+                    {heroState === 'upcoming' ? '—' : (oppScore?.toFixed(1) ?? '0.0')}
+                  </span>
+                </div>
+                <div className={styles.heroBadgeBox}>
+                  {heroState === 'live' && <span className={styles.heroBadgeLivePill}>● IN PROGRESS</span>}
+                  {heroState === 'upcoming' && <span className={styles.heroBadgeUpcomingPill}>UPCOMING</span>}
+                  {heroState === 'final' && heroResult === 'win' && <span className={styles.heroBadgeFinalWin}>{userTeam?.team_name} WIN</span>}
+                  {heroState === 'final' && heroResult === 'loss' && <span className={styles.heroBadgeFinalLoss}>{oppTeam?.team_name} WIN</span>}
+                  {heroState === 'final' && heroResult === 'draw' && <span className={styles.heroBadgeFinalDraw}>DRAW</span>}
+                </div>
+              </div>
+
+              {/* Right — opponent team */}
+              <div className={`${styles.heroTeam} ${styles.heroTeamRight}`}>
+                <span className={styles.heroTeamName}>{oppTeam?.team_name ?? '—'}</span>
+                {oppRecord && (
+                  <span className={styles.heroRecord}>
+                    {oppRecord}
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* No matchup yet */}
+          {!heroMatchup && league.status === 'active' && (
+            <div className={styles.heroEmpty}>
+              <p>No matchup results yet — check back after GW 1.</p>
+            </div>
+          )}
+
+          {/* Transfer Gazette */}
+          <div className={styles.gazette}>
+            <div className={styles.gazetteHeader}>
+              <span className={styles.breakingPill}>BREAKING</span>
+              <h2 className={styles.gazetteTitle}>Transfer Gazette</h2>
+              <span className={styles.gazetteEdition}>DAILY EDITION</span>
+            </div>
+
+            {activity.length === 0 ? (
+              <p className={styles.emptyHint}>No activity yet this season.</p>
+            ) : (
+              <div className={styles.gazetteEntries}>
+                {activity.map((tx: any) => {
+                  const cat = txCategoryStyle(tx.type);
+                  const teamName = (tx.team as any)?.team_name ?? 'Unknown';
+                  const playerName = (tx.player as any)?.web_name ?? (tx.player as any)?.name ?? 'Unknown';
+                  const faab = tx.faab_bid ? ` · £${tx.faab_bid}m FAAB` : '';
+                  const note = tx.notes ? ` — ${tx.notes}` : '';
+                  return (
+                    <div key={tx.id} className={styles.gazetteEntry}>
+                      <span
+                        className={styles.gazetteCategory}
+                        style={{ background: cat.bg, color: cat.color }}
+                      >
+                        {cat.label}
+                      </span>
+                      <p className={styles.gazetteText}>
+                        <strong>{teamName}</strong>{' '}
+                        {tx.type === 'trade' ? (
+                          <>completed a trade{note}</>
+                        ) : tx.type === 'drop' ? (
+                          <>released <strong>{playerName}</strong>{note}</>
+                        ) : (
+                          <>signed <strong>{playerName}</strong>{faab}{note}</>
+                        )}
+                      </p>
+                      <span className={styles.gazetteTime}>{timeAgo(tx.processed_at)}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* ── Right Column ── */}
         <div className={styles.rightCol}>
 
           {/* GW Stars */}
@@ -581,50 +633,6 @@ export default async function LeaguePage({ params }: Props) {
             </Link>
           </div>
         </div>
-      </div>
-
-      {/* ── Zone 3: Transfer Gazette ── */}
-      <div className={styles.gazette}>
-        <div className={styles.gazetteHeader}>
-          <span className={styles.breakingPill}>BREAKING</span>
-          <h2 className={styles.gazetteTitle}>Transfer Gazette</h2>
-          <span className={styles.gazetteEdition}>DAILY EDITION</span>
-        </div>
-
-        {activity.length === 0 ? (
-          <p className={styles.emptyHint}>No activity yet this season.</p>
-        ) : (
-          <div className={styles.gazetteEntries}>
-            {activity.map((tx: any) => {
-              const cat = txCategoryStyle(tx.type);
-              const teamName = (tx.team as any)?.team_name ?? 'Unknown';
-              const playerName = (tx.player as any)?.web_name ?? (tx.player as any)?.name ?? 'Unknown';
-              const faab = tx.faab_bid ? ` · £${tx.faab_bid}m FAAB` : '';
-              const note = tx.notes ? ` — ${tx.notes}` : '';
-              return (
-                <div key={tx.id} className={styles.gazetteEntry}>
-                  <span
-                    className={styles.gazetteCategory}
-                    style={{ background: cat.bg, color: cat.color }}
-                  >
-                    {cat.label}
-                  </span>
-                  <p className={styles.gazetteText}>
-                    <strong>{teamName}</strong>{' '}
-                    {tx.type === 'trade' ? (
-                      <>completed a trade{note}</>
-                    ) : tx.type === 'drop' ? (
-                      <>released <strong>{playerName}</strong>{note}</>
-                    ) : (
-                      <>signed <strong>{playerName}</strong>{faab}{note}</>
-                    )}
-                  </p>
-                  <span className={styles.gazetteTime}>{timeAgo(tx.processed_at)}</span>
-                </div>
-              );
-            })}
-          </div>
-        )}
       </div>
 
       {/* Leave League (always available, bottom) */}
