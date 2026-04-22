@@ -1,3 +1,5 @@
+import "jsr:@supabase/functions-js/edge-runtime.d.ts";
+
 /**
  * Supabase Edge Function — sync-ratings
  *

@@ -99,8 +99,6 @@
 
   /* --- Layout --- */
   --nav-height: 52px;
-  --sidebar-width: 220px;
-  --sidebar-width-collapsed: 60px;
   --content-max-width: 1280px;
 }
 

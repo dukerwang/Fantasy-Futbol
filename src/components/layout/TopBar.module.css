@@ -1,0 +1,343 @@
+/* ============================================================
+   TopBar — Persistent top navigation bar
+   Cream Editorial aesthetic. No sidebar needed.
+   ============================================================ */
+
+.topBar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  height: var(--nav-height);
+  background: var(--color-bg-secondary);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.inner {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 var(--space-6);
+  gap: var(--space-6);
+}
+
+/* --- Brand / Wordmark --- */
+.brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+.brandIcon {
+  font-size: var(--text-lg);
+  line-height: 1;
+}
+
+.brandName {
+  font-family: var(--font-serif);
+  font-size: 14px;
+  font-weight: var(--font-bold);
+  color: var(--color-text-primary);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* --- Page Navigation (center) --- */
+.pageNav {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  flex: 1;
+  justify-content: center;
+}
+
+.navItem {
+  position: relative;
+}
+
+.navLink {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: var(--font-medium);
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  transition: color var(--transition-fast), background var(--transition-fast);
+  cursor: pointer;
+  white-space: nowrap;
+  background: transparent;
+  border: none;
+}
+
+.navLink:hover {
+  color: var(--color-text-primary);
+  background: var(--color-bg-card-hover);
+}
+
+.navLinkActive {
+  color: var(--color-accent-green);
+  font-weight: var(--font-semibold);
+}
+
+.navLinkActive:hover {
+  color: var(--color-accent-green);
+}
+
+.chevron {
+  font-size: 10px;
+  opacity: 0.5;
+  transition: transform var(--transition-fast);
+}
+
+.chevronOpen {
+  transform: rotate(180deg);
+}
+
+/* --- Dropdown Panel --- */
+.dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 50%;
+  transform: translateX(-50%);
+  min-width: 180px;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 8px 24px rgba(28, 28, 28, 0.10);
+  padding: var(--space-1) 0;
+  z-index: 200;
+}
+
+.dropdownLink {
+  display: block;
+  padding: var(--space-2) var(--space-4);
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  font-weight: var(--font-normal);
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  transition: color var(--transition-fast), background var(--transition-fast);
+  white-space: nowrap;
+}
+
+.dropdownLink:hover {
+  color: var(--color-text-primary);
+  background: var(--color-bg-card-hover);
+}
+
+.dropdownLinkActive {
+  color: var(--color-accent-green);
+  font-weight: var(--font-medium);
+}
+
+.dropdownLinkDisabled {
+  opacity: 0.4;
+  pointer-events: none;
+  cursor: default;
+}
+
+/* --- Right Section --- */
+.rightSection {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+/* --- League Switcher --- */
+.leagueSwitcher {
+  position: relative;
+}
+
+.leagueSwitcherBtn {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border-subtle);
+  cursor: pointer;
+  transition: border-color var(--transition-fast), background var(--transition-fast);
+}
+
+.leagueSwitcherBtn:hover {
+  border-color: var(--color-border);
+  background: var(--color-bg-card-hover);
+}
+
+.leagueLabel {
+  font-family: var(--font-sans);
+  font-size: 10px;
+  font-weight: var(--font-semibold);
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  line-height: 1;
+}
+
+.leagueName {
+  font-family: var(--font-serif);
+  font-size: 14px;
+  font-weight: var(--font-medium);
+  color: var(--color-text-primary);
+  line-height: 1.2;
+}
+
+.leagueSwitcherChevron {
+  font-size: 10px;
+  color: var(--color-text-muted);
+  margin-left: var(--space-1);
+  transition: transform var(--transition-fast);
+}
+
+.leagueSwitcherChevronOpen {
+  transform: rotate(180deg);
+}
+
+.leagueDropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  min-width: 260px;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 12px 32px rgba(112, 84, 44, 0.08);
+  padding: var(--space-2) 0;
+  z-index: 200;
+}
+
+.leagueDropdownItem {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-4);
+  text-decoration: none;
+  transition: background var(--transition-fast);
+  cursor: pointer;
+}
+
+.leagueDropdownItem:hover {
+  background: var(--color-bg-card-hover);
+}
+
+.leagueDropdownItemActive {
+  background: rgba(58, 107, 74, 0.06);
+}
+
+.leagueDot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-full);
+  flex-shrink: 0;
+}
+
+.leagueDotActive {
+  background: var(--color-accent-green);
+}
+
+.leagueDotInactive {
+  background: var(--color-border);
+}
+
+.leagueDropdownName {
+  font-family: var(--font-serif);
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  color: var(--color-text-primary);
+  flex: 1;
+}
+
+.leagueDropdownSeason {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  color: var(--color-text-muted);
+  flex-shrink: 0;
+}
+
+.leagueDropdownDivider {
+  height: 1px;
+  background: var(--color-border-subtle);
+  margin: var(--space-2) 0;
+}
+
+.leagueDropdownAction {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  transition: color var(--transition-fast), background var(--transition-fast);
+}
+
+.leagueDropdownAction:hover {
+  color: var(--color-accent-green);
+  background: var(--color-bg-card-hover);
+}
+
+/* --- User Avatar --- */
+.userAvatar {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-full);
+  background: var(--color-accent-green);
+  color: var(--color-text-inverse);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: var(--font-bold);
+  font-size: var(--text-sm);
+  flex-shrink: 0;
+}
+
+.signOut {
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: var(--font-medium);
+  color: var(--color-text-secondary);
+  background: transparent;
+  border: 1px solid var(--color-border);
+  cursor: pointer;
+  transition: color var(--transition-fast), border-color var(--transition-fast),
+    background var(--transition-fast);
+}
+
+.signOut:hover {
+  color: var(--color-text-primary);
+  border-color: var(--color-text-muted);
+  background: var(--color-bg-card-hover);
+}
+
+/* --- Responsive --- */
+@media (max-width: 768px) {
+  .pageNav {
+    display: none;
+  }
+
+  .brandName {
+    font-size: 12px;
+  }
+
+  .leagueSwitcherBtn {
+    padding: 4px 8px;
+  }
+
+  .leagueName {
+    font-size: 12px;
+  }
+}

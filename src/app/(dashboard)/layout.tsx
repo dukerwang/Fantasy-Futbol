@@ -1,10 +1,10 @@
-import Navbar from '@/components/layout/Navbar';
+import TopBar from '@/components/layout/TopBar';
 import styles from './layout.module.css';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
     <>
-      <Navbar />
+      <TopBar />
       <main className={styles.main}>{children}</main>
     </>
   );

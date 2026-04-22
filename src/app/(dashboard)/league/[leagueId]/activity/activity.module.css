@@ -493,7 +493,6 @@
 .auctionList {
   display: flex;
   flex-direction: column;
-  divide-y: 1px solid var(--color-border-subtle);
 }
 
 .auctionItem {
