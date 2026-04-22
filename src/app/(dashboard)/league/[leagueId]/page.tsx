@@ -343,7 +343,7 @@ export default async function LeaguePage({ params }: Props) {
             <div className={styles.cardPadding}>
               <span className={styles.kickerLabel}>MANAGER</span>
               <h2 className={styles.managerName}>{myTeam?.team_name ?? 'Observer'}</h2>
-              <span className={styles.managerOwner}>by {user.user_metadata?.full_name ?? 'Manager'}</span>
+              <span className={styles.managerOwner}>by {user.user_metadata?.username ?? user.user_metadata?.preferred_username ?? user.email?.split('@')[0] ?? 'Manager'}</span>
               
               <div className={styles.managerDivider} />
               
@@ -370,17 +370,13 @@ export default async function LeaguePage({ params }: Props) {
           {/* FAAB Balance Card */}
           <div className={styles.faabCard}>
             <div className={styles.cardPadding}>
-              <span className={styles.kickerLabel}>FAAB BALANCE</span>
+              <span className={styles.kickerLabel}>BUDGET</span>
               <div className={styles.faabAmountRow}>
                 <span className={styles.faabAmount}>£{myTeam?.faab_budget ?? 0}</span>
                 <span className={styles.faabRemaining}>REMAINING</span>
               </div>
-              <div className={styles.faabProgressBar}>
-                <div className={styles.faabProgressFill} style={{ width: `${((200 - (myTeam?.faab_budget ?? 0)) / 200) * 100}%` }} />
-              </div>
-              <div className={styles.faabProgressLabels}>
-                <span>USED: £{200 - (myTeam?.faab_budget ?? 0)}</span>
-                <span>BUDGET: £200</span>
+              <div className={styles.faabSpentLabel}>
+                <span>SPENT THIS SEASON: £{200 - (myTeam?.faab_budget ?? 0)}</span>
               </div>
             </div>
           </div>
@@ -430,9 +426,9 @@ export default async function LeaguePage({ params }: Props) {
               <div className={styles.matchupCenter}>
                 {heroState === 'live' && <span className={styles.matchupLiveBadge}>LIVE</span>}
                 <div className={styles.matchupScoreRow}>
-                  <span className={styles.matchupScore}>{heroState === 'upcoming' ? '-' : (userScore?.toFixed(0) ?? '0')}</span>
+                  <span className={styles.matchupScore}>{heroState === 'upcoming' ? '-' : (userScore?.toFixed(1) ?? '0.0')}</span>
                   <span className={styles.matchupScoreDash}>-</span>
-                  <span className={styles.matchupScore}>{heroState === 'upcoming' ? '-' : (oppScore?.toFixed(0) ?? '0')}</span>
+                  <span className={styles.matchupScore}>{heroState === 'upcoming' ? '-' : (oppScore?.toFixed(1) ?? '0.0')}</span>
                 </div>
                 <span className={styles.matchupGwLabel}>MATCHWEEK {heroMatchup.gameweek}</span>
               </div>
@@ -460,7 +456,7 @@ export default async function LeaguePage({ params }: Props) {
                   {activity.map((tx: any) => {
                     const cat = txCategoryStyle(tx.type);
                     const teamName = (tx.team as any)?.team_name ?? 'Unknown';
-                    const playerName = (tx.player as any)?.web_name ?? (tx.player as any)?.name ?? 'Unknown';
+                    const playerName = formatPlayerName(tx.player as any, 'first_last_initial');
                     const faab = tx.faab_bid ? ` for a fee of £${tx.faab_bid}m` : '';
                     
                     let summaryText = <></>;
@@ -531,10 +527,26 @@ export default async function LeaguePage({ params }: Props) {
                                    player.primary_position === 'ST' || player.primary_position === 'LW' || player.primary_position === 'RW' ? 'ATT' : 'MID';
                   return (
                     <div key={i} className={styles.perfRow}>
+                      <div className={styles.perfPhotoMount}>
+                        {player.fpl_id ? (
+                           <img 
+                             src={`https://resources.premierleague.com/premierleague/photos/players/110x140/p${player.fpl_id}.png`}
+                             alt={player.web_name}
+                             className={styles.perfPhoto}
+                             onError={(e) => {
+                               (e.target as HTMLImageElement).style.display = 'none';
+                               (e.target as HTMLImageElement).nextElementSibling?.removeAttribute('style');
+                             }}
+                           />
+                        ) : null}
+                        <div className={styles.perfPhotoFallback} style={{ display: player.fpl_id ? 'none' : 'flex' }}>
+                          {player.web_name?.[0] ?? '?'}
+                        </div>
+                      </div>
                       <span className={`${styles.perfBadge} ${posClass}`}>{posLabel}</span>
-                      <span className={styles.perfName}>{player.web_name}</span>
+                      <span className={styles.perfName}>{formatPlayerName(player, 'first_last_initial')}</span>
                       <div className={styles.perfScore}>
-                        <span className={styles.perfPts}>{pts.toFixed(0)}</span>
+                        <span className={styles.perfPts}>{pts.toFixed(1)}</span>
                         <span className={styles.perfPtsUnit}>pts</span>
                       </div>
                     </div>
