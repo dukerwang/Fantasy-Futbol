@@ -45,46 +45,24 @@ export default function TopBar() {
   const currentTeam = teams.find(t => t.league.id === currentLeagueId);
   const currentLeague = currentTeam?.league;
 
-  // Fetch user's teams + profile on mount
+  // Fetch user's teams + leagues via server API (bypasses RLS)
   useEffect(() => {
-    const supabase = createClient();
-    supabase.auth.getUser().then(async ({ data: { user } }) => {
-      if (!user) return;
+    fetch('/api/user/leagues')
+      .then(r => r.json())
+      .then(({ teams: data }) => {
+        if (data) setTeams(data);
+      });
 
-      // Fetch profile
+    // Also fetch username
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (!user) return;
       supabase
         .from('users')
         .select('username')
         .eq('id', user.id)
         .single()
-        .then(({ data }) => {
-          if (data) setUsername(data.username);
-        });
-
-      // Fetch teams first, then fetch league info separately to avoid RLS join issues
-      const { data: teamsData } = await supabase
-        .from('teams')
-        .select('id, team_name, league_id')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
-
-      if (!teamsData || teamsData.length === 0) return;
-
-      const leagueIds = teamsData.map(t => t.league_id).filter(Boolean);
-      const { data: leaguesData } = await supabase
-        .from('leagues')
-        .select('id, name, status, season')
-        .in('id', leagueIds);
-
-      const leagueMap = new Map((leaguesData ?? []).map(l => [l.id, l]));
-
-      const assembled: UserTeam[] = teamsData.map(t => ({
-        id: t.id,
-        team_name: t.team_name,
-        league: leagueMap.get(t.league_id) ?? { id: t.league_id, name: 'Unknown', status: 'active', season: '' },
-      }));
-
-      setTeams(assembled);
+        .then(({ data }) => { if (data) setUsername(data.username); });
     });
   }, []);
 
