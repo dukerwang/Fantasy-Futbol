@@ -31,6 +31,7 @@ export default function TopBar() {
   const [username, setUsername] = useState<string | null>(null);
   const [leagueSwitcherOpen, setLeagueSwitcherOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+  const [isNavigating, setIsNavigating] = useState(false);
 
   const leagueSwitcherRef = useRef<HTMLDivElement>(null);
   const dropdownTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -44,6 +45,12 @@ export default function TopBar() {
   // Find the current league's status for conditional nav items
   const currentTeam = teams.find(t => t.league.id === currentLeagueId);
   const currentLeague = currentTeam?.league;
+
+  // Clear loading bar when navigation completes (pathname changed)
+  useEffect(() => {
+    setIsNavigating(false);
+    setOpenDropdown(null);
+  }, [pathname]);
 
   // Fetch user's teams + leagues via server API (bypasses RLS)
   useEffect(() => {
@@ -161,6 +168,7 @@ export default function TopBar() {
 
   return (
     <nav className={styles.topBar}>
+      {isNavigating && <div className={styles.loadingBar} />}
       <div className={styles.inner}>
         {/* --- Wordmark --- */}
         <Link href="/dashboard" className={styles.brand}>
@@ -215,7 +223,10 @@ export default function TopBar() {
                           key={item.label}
                           href={item.href}
                           className={`${styles.dropdownLink} ${pathname?.startsWith(item.href) ? styles.dropdownLinkActive : ''}`}
-                          onClick={() => setOpenDropdown(null)}
+                          onClick={() => {
+                            setIsNavigating(true);
+                            setOpenDropdown(null);
+                          }}
                         >
                           {item.label}
                         </Link>

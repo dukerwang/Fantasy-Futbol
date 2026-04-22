@@ -7,12 +7,14 @@ import styles from './PageSkeleton.module.css';
 export default function PageSkeleton({ variant = 'default' }: { variant?: 'table' | 'cards' | 'default' | 'home' }) {
   return (
     <div className={styles.skeleton}>
-      {/* Page header kicker + title */}
-      <div className={styles.cardBlock}>
-        <div className={styles.cardHeader} />
-        <div className={styles.cardTitle} />
-        <div className={`${styles.cardRow} ${styles.rowWide}`} />
-      </div>
+      {/* Page header kicker + title (Not used on Home dashboard) */}
+      {variant !== 'home' && (
+        <div className={styles.cardBlock}>
+          <div className={styles.cardHeader} />
+          <div className={styles.cardTitle} />
+          <div className={`${styles.cardRow} ${styles.rowWide}`} />
+        </div>
+      )}
 
       {variant === 'table' ? (
         /* Standings / Stats variant */
