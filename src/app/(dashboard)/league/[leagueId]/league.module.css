@@ -812,3 +812,539 @@
   border-color: var(--color-accent-green);
   color: var(--color-accent-green);
 }
+
+/* --- REBUILT DASHBOARD CLASSES FOR CREAM EDITORIAL --- */
+
+.managerCard, .faabCard, .taxiCard, .rightCard, .gazetteCard {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+
+.cardPadding {
+  padding: 32px;
+}
+
+.kickerLabel {
+  font-family: 'Inter', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--color-text-muted);
+  display: block;
+  margin-bottom: 8px;
+}
+
+.managerName {
+  font-family: 'Noto Serif', serif;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin-bottom: 4px;
+}
+
+.managerOwner {
+  font-family: 'Noto Serif', serif;
+  font-size: 13px;
+  font-style: italic;
+  color: var(--color-text-muted);
+}
+
+.managerDivider {
+  height: 1px;
+  background: var(--color-border-subtle);
+  margin: 16px 0;
+}
+
+.managerStatsRow {
+  display: flex;
+  justify-content: space-between;
+}
+
+.managerStat {
+  display: flex;
+  flex-direction: column;
+}
+
+.managerStatValue {
+  font-family: 'Noto Serif', serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.managerRecordBlock {
+  display: flex;
+  flex-direction: column;
+}
+
+.managerRecord {
+  font-family: 'Noto Serif', serif;
+  font-size: 16px;
+  color: var(--color-text-primary);
+}
+
+.faabAmountRow {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.faabAmount {
+  font-family: 'Noto Serif', serif;
+  font-size: 40px;
+  font-weight: 700;
+  color: var(--color-accent-green);
+  line-height: 1;
+}
+
+.faabRemaining {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  letter-spacing: 0.05em;
+}
+
+.faabProgressBar {
+  height: 8px;
+  background: var(--color-border-subtle);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 8px;
+  display: flex;
+}
+
+.faabProgressFill {
+  background: var(--color-accent-green);
+  height: 100%;
+}
+
+.faabProgressLabels {
+  display: flex;
+  justify-content: space-between;
+  font-family: 'Inter', sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+}
+
+.taxiHeaderRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.u21Badge {
+  background: rgba(43, 108, 176, 0.1);
+  color: #2b6cb0;
+  font-family: 'Inter', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+}
+
+.taxiList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.taxiRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.taxiAvatar {
+  width: 32px;
+  height: 32px;
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Inter', sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+.taxiInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.taxiName {
+  font-family: 'Noto Serif', serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.taxiPosClub {
+  font-family: 'Inter', sans-serif;
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.matchupHero {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
+  padding: 40px 24px;
+  position: relative;
+  margin-bottom: 24px;
+}
+
+.matchupTeam {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 8px;
+}
+
+.matchupShield {
+  width: 48px;
+  height: 56px;
+  background: var(--color-border-subtle);
+  clip-path: polygon(50% 100%, 100% 80%, 100% 0, 0 0, 0 80%);
+}
+
+.matchupTeamName {
+  font-family: 'Noto Serif', serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.matchupManager {
+  font-family: 'Inter', sans-serif;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+}
+
+.matchupCenter {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.matchupLiveBadge {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: #E57373;
+  color: white;
+  font-family: 'Inter', sans-serif;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  letter-spacing: 0.1em;
+}
+
+.matchupScoreRow {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  margin-bottom: 8px;
+}
+
+.matchupScore {
+  font-family: 'Noto Serif', serif;
+  font-size: 48px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.matchupScoreDash {
+  font-family: 'Noto Serif', serif;
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--color-text-muted);
+}
+
+.matchupGwLabel {
+  font-family: 'Inter', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  color: var(--color-text-muted);
+}
+
+.gazetteHeaderBar {
+  background: #5D4037;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 24px;
+}
+
+.gazetteTitle {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.gazetteDate {
+  font-family: 'Inter', sans-serif;
+  font-size: 10px;
+  color: rgba(255,255,255,0.7);
+}
+
+.gazetteContent {
+  padding: 24px;
+}
+
+.gazetteList {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.gazetteRow {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  border-bottom: 1px solid var(--color-border-subtle);
+  padding-bottom: 16px;
+}
+
+.gazetteRow:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.gazetteRowHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.gazetteRowKicker {
+  font-family: 'Inter', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--color-accent-green);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.gazetteRowTime {
+  font-family: 'Inter', sans-serif;
+  font-size: 10px;
+  color: var(--color-text-muted);
+}
+
+.gazetteHeadline {
+  font-family: 'Noto Serif', serif;
+  font-size: 16px;
+  color: var(--color-text-primary);
+  line-height: 1.4;
+}
+
+.rightCard {
+  padding: 24px;
+}
+
+.standingsTable {
+  display: flex;
+  flex-direction: column;
+}
+
+.standingsHeader {
+  display: grid;
+  grid-template-columns: 24px 1fr 40px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--color-border-subtle);
+  font-family: 'Inter', sans-serif;
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--color-text-muted);
+}
+
+.standingsList {
+  display: flex;
+  flex-direction: column;
+}
+
+.standingsRow {
+  display: grid;
+  grid-template-columns: 24px 1fr 40px;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.standingsRow:last-child {
+  border-bottom: none;
+}
+
+.stRowActive {
+  background: #F3EFEB;
+  margin: 0 -24px;
+  padding: 12px 24px;
+  grid-template-columns: 24px 1fr 40px;
+}
+
+.stRankValue {
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-text-muted);
+}
+
+.stTeamName {
+  font-family: 'Noto Serif', serif;
+  font-size: 14px;
+  font-style: italic;
+  color: var(--color-text-primary);
+}
+
+.stTeamNameBold {
+  font-weight: 700;
+  font-style: normal;
+}
+
+.stPtsValue {
+  font-family: 'Noto Serif', serif;
+  font-size: 14px;
+  font-weight: 700;
+  text-align: right;
+  color: var(--color-text-primary);
+}
+
+.cardLink {
+  font-family: 'Inter', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  text-decoration: none;
+  display: block;
+  text-align: center;
+  margin-top: 16px;
+}
+
+.perfList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.perfRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.perfBadge {
+  font-family: 'Inter', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 6px;
+  border-radius: var(--radius-sm);
+}
+
+.badgeDef {
+  background: rgba(30, 58, 95, 0.1);
+  color: #1E3A5F;
+}
+
+.badgeMid {
+  background: rgba(92, 61, 143, 0.1);
+  color: #5C3D8F;
+}
+
+.badgeAtt {
+  background: rgba(139, 26, 26, 0.1);
+  color: #8B1A1A;
+}
+
+.perfName {
+  font-family: 'Noto Serif', serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  flex: 1;
+}
+
+.perfScore {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.perfPts {
+  font-family: 'Noto Serif', serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.perfPtsUnit {
+  font-family: 'Inter', sans-serif;
+  font-size: 10px;
+  color: var(--color-text-muted);
+}
+
+.tournList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.tournRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #F3EFEB;
+  padding: 12px 16px;
+  border-radius: var(--radius-sm);
+}
+
+.tournIcon {
+  font-size: 20px;
+}
+
+.tournInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.tournName {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.tournDesc {
+  font-family: 'Noto Serif', serif;
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+

@@ -336,222 +336,207 @@ export default async function LeaguePage({ params }: Props) {
       {/* ── Dashboard Grid ── */}
       <div className={styles.bodyRow}>
 
-        {/* ── Left Column (Column 1) ── */}
+        {/* ── Left Column ── */}
         <div className={styles.leftCol}>
-          {/* Manager / FAAB */}
-          <div className={styles.standingsCard}>
-            <div className={styles.standingsHeading}>
-              <span className={styles.sectionLabel}>MANAGER</span>
-              <h2 className={styles.sectionTitle}>{myTeam?.team_name ?? 'Observer'}</h2>
-              <div className={styles.standingsDivider} />
-            </div>
-            <div style={{ padding: '0 32px 32px 32px' }}>
-              <span className={styles.sectionLabel}>FAAB BALANCE</span>
-              <div style={{ fontSize: '2.5rem', fontWeight: 600, fontFamily: "var(--font-noto-serif)", color: "var(--color-accent-green)", marginTop: "8px" }}>
-                £{myTeam?.faab_budget ?? 0}m
+          {/* Manager Card */}
+          <div className={styles.managerCard}>
+            <div className={styles.cardPadding}>
+              <span className={styles.kickerLabel}>MANAGER</span>
+              <h2 className={styles.managerName}>{myTeam?.team_name ?? 'Observer'}</h2>
+              <span className={styles.managerOwner}>by {user.user_metadata?.full_name ?? 'Manager'}</span>
+              
+              <div className={styles.managerDivider} />
+              
+              <div className={styles.managerStatsRow}>
+                <div className={styles.managerStat}>
+                  <span className={styles.kickerLabel}>RANK</span>
+                  <span className={styles.managerStatValue}>#{userStanding?.rank ?? '-'}</span>
+                </div>
+                <div className={styles.managerStat}>
+                  <span className={styles.kickerLabel}>POINTS</span>
+                  <span className={styles.managerStatValue}>{userStanding?.league_points?.toLocaleString() ?? '-'}</span>
+                </div>
+              </div>
+
+              <div className={styles.managerDivider} />
+
+              <div className={styles.managerRecordBlock}>
+                <span className={styles.kickerLabel}>RECORD</span>
+                <span className={styles.managerRecord}>{userRecord}</span>
               </div>
             </div>
           </div>
 
-          {/* Academy (Taxi Squad) */}
-          <div className={styles.rightSection} style={{ marginTop: '24px' }}>
-            <span className={styles.sectionLabel}>YOUTH SYSTEM</span>
-            <h2 className={styles.sectionTitle}>The Academy</h2>
-            {taxiSquad.length === 0 ? (
-              <p className={styles.emptyHint}>No academy players.</p>
-            ) : (
-              <div className={styles.playerChips}>
-                {taxiSquad.map((entry: any, i: number) => {
-                  const player = entry.player;
-                  return (
-                    <div key={i} className={styles.playerChip} style={{ borderLeftColor: positionColor(player.primary_position) }}>
-                      <div className={styles.chipLeft}>
-                         <div className={styles.chipPhotoMount} style={{ borderColor: positionColor(player.primary_position) }}>
-                          {player.photo_url ? (
-                            <img src={player.photo_url} alt={player.web_name} className={styles.chipPhoto} />
-                          ) : (
-                            <span className={styles.chipPhotoFallback} aria-hidden>{(player.web_name ?? '?').charAt(0)}</span>
-                          )}
-                        </div>
-                        <span className={styles.chipPosBadge} style={{ background: positionColor(player.primary_position) }}>
-                          {player.primary_position}
-                        </span>
-                        <div className={styles.chipInfo}>
-                          <span className={styles.chipName}>{formatPlayerName(player, 'full')}</span>
-                          <span className={styles.chipClub}>{(player.pl_team ?? '').toUpperCase()}</span>
+          {/* FAAB Balance Card */}
+          <div className={styles.faabCard}>
+            <div className={styles.cardPadding}>
+              <span className={styles.kickerLabel}>FAAB BALANCE</span>
+              <div className={styles.faabAmountRow}>
+                <span className={styles.faabAmount}>£{myTeam?.faab_budget ?? 0}</span>
+                <span className={styles.faabRemaining}>REMAINING</span>
+              </div>
+              <div className={styles.faabProgressBar}>
+                <div className={styles.faabProgressFill} style={{ width: `${((200 - (myTeam?.faab_budget ?? 0)) / 200) * 100}%` }} />
+              </div>
+              <div className={styles.faabProgressLabels}>
+                <span>USED: £{200 - (myTeam?.faab_budget ?? 0)}</span>
+                <span>BUDGET: £200</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Taxi Squad */}
+          <div className={styles.taxiCard}>
+            <div className={styles.cardPadding}>
+              <div className={styles.taxiHeaderRow}>
+                <span className={styles.kickerLabel}>TAXI SQUAD</span>
+                <span className={styles.u21Badge}>U21</span>
+              </div>
+              
+              {taxiSquad.length === 0 ? (
+                <p className={styles.emptyHint}>No academy players.</p>
+              ) : (
+                <div className={styles.taxiList}>
+                  {taxiSquad.map((entry: any, i: number) => {
+                    const player = entry.player;
+                    const initials = (player.web_name ?? player.name ?? '?').split(' ').map((n: string) => n[0]).join('').substring(0, 2);
+                    return (
+                      <div key={i} className={styles.taxiRow}>
+                        <div className={styles.taxiAvatar}>{initials}</div>
+                        <div className={styles.taxiInfo}>
+                          <span className={styles.taxiName}>{formatPlayerName(player, 'full')}</span>
+                          <span className={styles.taxiPosClub}>{player.primary_position} • {player.pl_team}</span>
                         </div>
                       </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-            <div className={styles.standingsFooter} style={{ marginTop: '24px' }}>
-              <Link href={`/league/${leagueId}/team/roster`} className={styles.cardLink}>Manage Roster →</Link>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           </div>
         </div>
 
-        {/* ── Center Column (Column 2) ── */}
+        {/* ── Center Column ── */}
         <div className={styles.centerCol}>
           {/* Matchup Hero */}
           {heroMatchup && heroState && (
-            <div className={styles.heroCard}>
-              <div className={styles.heroTeam}>
-                <span className={styles.heroTeamName}>{userTeam?.team_name ?? '—'}</span>
-                {userRecord && <span className={styles.heroRecord}>{userRecord}</span>}
+            <div className={styles.matchupHero}>
+              <div className={styles.matchupTeam}>
+                <div className={styles.matchupShield}></div>
+                <span className={styles.matchupTeamName}>{userTeam?.team_name ?? '—'}</span>
+                <span className={styles.matchupManager}>MANAGER {user.user_metadata?.full_name?.split(' ').pop()?.toUpperCase() ?? 'NAME'}</span>
               </div>
-              <div className={styles.heroCenterBlock}>
-                <span className={styles.heroCenterLabel}>YOUR FIXTURE · GW {heroMatchup.gameweek}</span>
-                <div className={styles.heroScoreGroup}>
-                  <span className={`${styles.heroScore} ${heroResult === 'win' || (heroState !== 'final' && (userScore ?? 0) > (oppScore ?? 0)) ? styles.heroScoreHighlight : ''}`}>
-                    {heroState === 'upcoming' ? '—' : (userScore?.toFixed(1) ?? '0.0')}
-                  </span>
-                  <span className={styles.heroScoreDivider}>-</span>
-                  <span className={`${styles.heroScore} ${heroResult === 'loss' || (heroState !== 'final' && (oppScore ?? 0) > (userScore ?? 0)) ? styles.heroScoreHighlight : ''}`}>
-                    {heroState === 'upcoming' ? '—' : (oppScore?.toFixed(1) ?? '0.0')}
-                  </span>
+              
+              <div className={styles.matchupCenter}>
+                {heroState === 'live' && <span className={styles.matchupLiveBadge}>LIVE</span>}
+                <div className={styles.matchupScoreRow}>
+                  <span className={styles.matchupScore}>{heroState === 'upcoming' ? '-' : (userScore?.toFixed(0) ?? '0')}</span>
+                  <span className={styles.matchupScoreDash}>-</span>
+                  <span className={styles.matchupScore}>{heroState === 'upcoming' ? '-' : (oppScore?.toFixed(0) ?? '0')}</span>
                 </div>
-                <div className={styles.heroBadgeBox}>
-                  {heroState === 'live' && <span className={styles.heroBadgeLivePill}>● IN PROGRESS</span>}
-                  {heroState === 'upcoming' && <span className={styles.heroBadgeUpcomingPill}>UPCOMING</span>}
-                  {heroState === 'final' && heroResult === 'win' && <span className={styles.heroBadgeFinalWin}>{userTeam?.team_name} WIN</span>}
-                  {heroState === 'final' && heroResult === 'loss' && <span className={styles.heroBadgeFinalLoss}>{oppTeam?.team_name} WIN</span>}
-                  {heroState === 'final' && heroResult === 'draw' && <span className={styles.heroBadgeFinalDraw}>DRAW</span>}
-                </div>
+                <span className={styles.matchupGwLabel}>MATCHWEEK {heroMatchup.gameweek}</span>
               </div>
-              <div className={`${styles.heroTeam} ${styles.heroTeamRight}`}>
-                <span className={styles.heroTeamName}>{oppTeam?.team_name ?? '—'}</span>
-                {oppRecord && <span className={styles.heroRecord}>{oppRecord}</span>}
+
+              <div className={styles.matchupTeam}>
+                <div className={styles.matchupShield}></div>
+                <span className={styles.matchupTeamName}>{oppTeam?.team_name ?? '—'}</span>
+                <span className={styles.matchupManager}>MANAGER OPPONENT</span>
               </div>
-            </div>
-          )}
-          {!heroMatchup && league.status === 'active' && (
-            <div className={styles.heroEmpty}>
-              <p>No matchup results yet — check back after GW 1.</p>
             </div>
           )}
 
           {/* Transfer Gazette */}
-          <div className={styles.gazette}>
-            <div className={styles.gazetteHeader}>
-              <span className={styles.breakingPill}>BREAKING</span>
-              <h2 className={styles.gazetteTitle}>Transfer Gazette</h2>
-              <span className={styles.gazetteEdition}>DAILY EDITION</span>
+          <div className={styles.gazetteCard}>
+            <div className={styles.gazetteHeaderBar}>
+              <span className={styles.gazetteTitle}>TRANSFER GAZETTE & FEED</span>
+              <span className={styles.gazetteDate}>Edition: {new Date().toLocaleDateString('en-GB').replace(/\//g, '.')}</span>
             </div>
-            {activity.length === 0 ? (
-              <p className={styles.emptyHint}>No activity yet this season.</p>
-            ) : (
-              <div className={styles.gazetteEntries}>
-                {activity.map((tx: any) => {
-                  const cat = txCategoryStyle(tx.type);
-                  const teamName = (tx.team as any)?.team_name ?? 'Unknown';
-                  const playerName = (tx.player as any)?.web_name ?? (tx.player as any)?.name ?? 'Unknown';
-                  const faab = tx.faab_bid ? ` · £${tx.faab_bid}m FAAB` : '';
-                  const note = tx.notes ? ` — ${tx.notes}` : '';
+            
+            <div className={styles.gazetteContent}>
+              {activity.length === 0 ? (
+                <p className={styles.emptyHint}>No activity yet this season.</p>
+              ) : (
+                <div className={styles.gazetteList}>
+                  {activity.map((tx: any) => {
+                    const cat = txCategoryStyle(tx.type);
+                    const teamName = (tx.team as any)?.team_name ?? 'Unknown';
+                    const playerName = (tx.player as any)?.web_name ?? (tx.player as any)?.name ?? 'Unknown';
+                    const faab = tx.faab_bid ? ` for a fee of £${tx.faab_bid}m` : '';
+                    
+                    let summaryText = <></>;
+                    if (tx.type === 'trade') summaryText = <>Trade completed by {teamName}.</>;
+                    else if (tx.type === 'drop') summaryText = <>{playerName} dropped by {teamName}.</>;
+                    else summaryText = <>{playerName} moves to {teamName}{faab}.</>;
+
+                    return (
+                      <div key={tx.id} className={styles.gazetteRow}>
+                        <div className={styles.gazetteRowHeader}>
+                          <span className={styles.gazetteRowKicker}>{cat.label}</span>
+                          <span className={styles.gazetteRowTime}>{timeAgo(tx.processed_at)}</span>
+                        </div>
+                        <p className={styles.gazetteHeadline}>{summaryText}</p>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* ── Right Column ── */}
+        <div className={styles.rightCol}>
+          
+          {/* League Standings */}
+          <div className={styles.rightCard}>
+            <span className={styles.kickerLabel}>LEAGUE STANDINGS</span>
+            <div className={styles.standingsTable}>
+              <div className={styles.standingsHeader}>
+                <span className={styles.stRank}>RK</span>
+                <span className={styles.stTeam}>TEAM</span>
+                <span className={styles.stPts}>PTS</span>
+              </div>
+              <div className={styles.standingsList}>
+                {standings.map((s: any) => {
+                  const isMe = s.team_id === myTeamId;
                   return (
-                    <div key={tx.id} className={styles.gazetteEntry}>
-                      <span className={styles.gazetteCategory} style={{ background: cat.bg, color: cat.color }}>
-                        {cat.label}
-                      </span>
-                      <p className={styles.gazetteText}>
-                        <strong>{teamName}</strong>{' '}
-                        {tx.type === 'trade' ? (
-                          <>completed a trade{note}</>
-                        ) : tx.type === 'drop' ? (
-                          <>released <strong>{playerName}</strong>{note}</>
-                        ) : (
-                          <>signed <strong>{playerName}</strong>{faab}{note}</>
-                        )}
-                      </p>
-                      <span className={styles.gazetteTime}>{timeAgo(tx.processed_at)}</span>
+                    <div key={s.team_id} className={`${styles.standingsRow} ${isMe ? styles.stRowActive : ''}`}>
+                      <span className={styles.stRankValue}>{s.rank}</span>
+                      <span className={`${styles.stTeamName} ${isMe ? styles.stTeamNameBold : ''}`}>{s.team_name}</span>
+                      <span className={styles.stPtsValue}>{s.league_points.toLocaleString()}</span>
                     </div>
                   );
                 })}
               </div>
-            )}
-          </div>
-        </div>
-
-        {/* ── Right Column (Column 3) ── */}
-        <div className={styles.rightCol}>
-          
-          {/* League Standings Card */}
-          <div className={styles.standingsCard}>
-            <div className={styles.standingsHeading}>
-              <span className={styles.sectionLabel}>2025/26 SEASON</span>
-              <h2 className={styles.sectionTitle}>League Standings</h2>
-              <div className={styles.standingsDivider} />
-            </div>
-            <div className={styles.standingsHeaderRow}>
-              <span className={styles.standingsColRnk}>#</span>
-              <span className={styles.standingsColTeam}>TEAM</span>
-              <span className={styles.standingsColRecord}>W·D·L</span>
-              <span className={styles.standingsColPts}>PTS</span>
-            </div>
-            <div className={styles.standingsRows}>
-              {standings.map((s: any) => {
-                const isMe = s.team_id === myTeamId;
-                const medal = rankMedalStyle(s.rank);
-                return (
-                  <div key={s.team_id} className={`${styles.standingsRow} ${isMe ? styles.myStandingsRow : ''}`}>
-                    <div className={styles.standingsColRnk}>
-                      <span className={styles.rankPill} style={{ background: medal.bg, color: medal.color }}>
-                        {s.rank}
-                      </span>
-                    </div>
-                    <div className={`${styles.standingsColTeam} ${isMe ? styles.myTeamName : ''}`}>
-                      {s.team_name}
-                      {isMe && <span className={styles.youTag}>YOU</span>}
-                    </div>
-                    <div className={styles.standingsColRecord}>
-                      {s.wins}·{s.draws}·{s.losses}
-                    </div>
-                    <div className={`${styles.standingsColPts} ${isMe ? styles.myPts : ''}`}>
-                      {s.league_points.toLocaleString()}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-            <div className={styles.standingsFooter}>
-              <Link href={`/league/${leagueId}/standings`} className={styles.cardLink}>Full Standings →</Link>
+              <div className={styles.standingsFooter}>
+                <Link href={`/league/${leagueId}/standings`} className={styles.cardLink}>VIEW FULL LEDGER</Link>
+              </div>
             </div>
           </div>
 
-          {/* Top Performers (Stars of the Week) */}
-          <div className={styles.rightSection} style={{ marginTop: '24px' }}>
-            <span className={styles.sectionLabel}>GAMEWEEK {latestCompletedGW ?? '—'}</span>
-            <h2 className={styles.sectionTitle}>Stars of the Week</h2>
+          {/* Top Performers */}
+          <div className={styles.rightCard}>
+            <span className={styles.kickerLabel}>TOP PERFORMERS (GW {latestCompletedGW ?? '—'})</span>
             {topPerformers.length === 0 ? (
-              <p className={styles.emptyHint}>
-                {latestCompletedGW ? 'Match ratings not yet available.' : 'No completed gameweeks yet.'}
-              </p>
+               <p className={styles.emptyHint}>Not available.</p>
             ) : (
-              <div className={styles.playerChips}>
+              <div className={styles.perfList}>
                 {topPerformers.map((perf: any, i: number) => {
-                  const player = perf.player as any;
+                  const player = perf.player;
                   if (!player) return null;
-                  const isMyPlayer = perf.owner?.team_id === myTeamId;
                   const pts = Number(perf.fantasy_points ?? 0);
+                  const posClass = player.primary_position === 'GK' || player.primary_position === 'CB' || player.primary_position === 'LB' || player.primary_position === 'RB' ? styles.badgeDef : 
+                                   player.primary_position === 'ST' || player.primary_position === 'LW' || player.primary_position === 'RW' ? styles.badgeAtt : styles.badgeMid;
+                  const posLabel = player.primary_position === 'GK' || player.primary_position === 'CB' || player.primary_position === 'LB' || player.primary_position === 'RB' ? 'DEF' : 
+                                   player.primary_position === 'ST' || player.primary_position === 'LW' || player.primary_position === 'RW' ? 'ATT' : 'MID';
                   return (
-                    <div key={i} className={`${styles.playerChip} ${isMyPlayer ? styles.myPlayerChip : ''}`} style={{ borderLeftColor: positionColor(player.primary_position) }}>
-                      <div className={styles.chipLeft}>
-                        <div className={styles.chipPhotoMount} style={{ borderColor: positionColor(player.primary_position) }}>
-                          {player.photo_url ? (
-                            <img src={player.photo_url} alt={formatPlayerName(player, 'full')} className={styles.chipPhoto} />
-                          ) : (
-                            <span className={styles.chipPhotoFallback} aria-hidden>{(player.web_name ?? player.name ?? '?').charAt(0)}</span>
-                          )}
-                        </div>
-                        <span className={styles.chipPosBadge} style={{ background: positionColor(player.primary_position) }}>{player.primary_position}</span>
-                        <div className={styles.chipInfo}>
-                          <span className={styles.chipName}>{formatPlayerName(player, 'full')}</span>
-                          <span className={styles.chipClub}>{(player.pl_team ?? '').toUpperCase()}</span>
-                        </div>
-                        {isMyPlayer && <span className={styles.chipMyTag}>★ Your squad</span>}
+                    <div key={i} className={styles.perfRow}>
+                      <span className={`${styles.perfBadge} ${posClass}`}>{posLabel}</span>
+                      <span className={styles.perfName}>{player.web_name}</span>
+                      <div className={styles.perfScore}>
+                        <span className={styles.perfPts}>{pts.toFixed(0)}</span>
+                        <span className={styles.perfPtsUnit}>pts</span>
                       </div>
-                      <span className={styles.chipPoints} style={{ background: pointsBadgeColor(pts) }}>{pts.toFixed(1)}</span>
                     </div>
                   );
                 })}
@@ -560,26 +545,23 @@ export default async function LeaguePage({ params }: Props) {
           </div>
 
           {/* Tournament Status */}
-          <div className={styles.rightSection} style={{ marginTop: '24px' }}>
-            <span className={styles.sectionLabel}>CUPS & COMPETITIONS</span>
-            <h2 className={styles.sectionTitle}>Tournament Status</h2>
+          <div className={styles.rightCard}>
+            <span className={styles.kickerLabel}>TOURNAMENT STATUS</span>
             {tournaments.length === 0 ? (
               <p className={styles.emptyHint}>No active tournaments.</p>
             ) : (
-              <div className={styles.playerChips}>
+              <div className={styles.tournList}>
                 {tournaments.map((t: any) => (
-                  <div key={t.id} className={styles.playerChip} style={{ padding: '16px', display: 'flex', justifyContent: 'space-between' }}>
-                    <div style={{ display: 'flex', flexDirection: 'column' }}>
-                      <span style={{ fontFamily: 'var(--font-noto-serif)', fontWeight: 600, color: 'var(--color-text-primary)', fontSize: '1.1rem' }}>{t.name}</span>
-                      <span style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>Status: {t.status === 'active' ? `Round ${t.current_round ?? 1}` : t.status}</span>
+                  <div key={t.id} className={styles.tournRow}>
+                    <div className={styles.tournIcon}>🏆</div>
+                    <div className={styles.tournInfo}>
+                      <span className={styles.tournName}>{t.name}</span>
+                      <span className={styles.tournDesc}>{t.status === 'active' ? `Round ${t.current_round ?? 1}` : t.status}</span>
                     </div>
                   </div>
                 ))}
               </div>
             )}
-            <div className={styles.standingsFooter} style={{ marginTop: '24px' }}>
-              <Link href={`/league/${leagueId}/tournaments`} className={styles.cardLink}>View Brackets →</Link>
-            </div>
           </div>
 
         </div>
