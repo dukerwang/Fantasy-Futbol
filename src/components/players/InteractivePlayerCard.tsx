@@ -20,10 +20,6 @@ export default function InteractivePlayerCard({ player, rosterEntry, fantasyPoin
         <>
             <PlayerCard
                 player={player}
-                rosterEntry={rosterEntry}
-                fantasyPoints={fantasyPoints}
-                projectedPoints={projectedPoints}
-                compact={compact}
                 onClick={() => setIsOpen(true)}
             />
             {isOpen && (

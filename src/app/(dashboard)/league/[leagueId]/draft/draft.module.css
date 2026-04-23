@@ -1,76 +1,249 @@
+/* =====================
+   ROOT
+   ===================== */
 .draftRoot {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  background: var(--bg-background);
-  color: var(--text-primary);
+  background: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  overflow: hidden;
+  font-family: var(--font-sans);
+}
+
+/* =====================
+   TOP BANNER
+   ===================== */
+.topBanner {
+  flex-shrink: 0;
+  display: flex;
+  align-items: stretch;
+  height: 72px;
+  background: var(--color-bg-secondary);
+  border-bottom: 1px solid var(--color-border);
   overflow: hidden;
 }
 
-.banner {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1rem 2rem;
-  background: var(--bg-surface-light);
-  border-bottom: 1px solid var(--border-color);
+.topBannerMyTurn {
+  border-bottom-color: var(--color-accent-green);
 }
 
-.bannerMyTurn {
-  background: var(--primary-accent-dark);
-}
-
-.bannerComplete {
-  background: var(--color-accent-green-dark, #064e3b);
-}
-
-.bannerLeft {
-  display: flex;
-  align-items: baseline;
-  gap: 1rem;
-}
-
-.bannerTitle {
-  font-size: 1.25rem;
-  font-weight: 700;
-}
-
-.bannerOnClock {
-  font-size: 1rem;
-  color: var(--text-secondary);
-}
-
-.bannerTeam {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: var(--text-primary);
-}
-
-.bannerRight {
+.completeBanner {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 1.5rem;
+  padding: 0 2rem;
+  width: 100%;
 }
 
-.bannerRound {
+.completeText {
+  font-family: var(--font-serif);
   font-size: 1.125rem;
-  color: var(--text-secondary);
+  font-weight: 700;
+  color: var(--color-accent-green);
 }
 
 .goToTeamBtn {
-  padding: 0.5rem 1rem;
-  background: var(--primary-accent);
+  padding: 0.5rem 1.25rem;
+  background: var(--color-accent-green);
   color: #fff;
   border-radius: var(--radius-sm);
   text-decoration: none;
-  font-weight: 600;
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
 }
 
+.clockBlock {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 110px;
+  background: var(--color-bg-elevated);
+  border-right: 1px solid var(--color-border);
+  padding: 0 0.75rem;
+  gap: 1px;
+}
+
+.clockBlockMyTurn {
+  background: var(--color-accent-green);
+  border-right-color: var(--color-accent-green);
+}
+
+.clockLabel {
+  font-family: var(--font-sans);
+  font-size: 0.45rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.clockBlockMyTurn .clockLabel {
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.clockTime {
+  font-family: var(--font-serif);
+  font-size: 1.625rem;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--color-text-primary);
+}
+
+.clockBlockMyTurn .clockTime {
+  color: #fff;
+}
+
+.clockYouLabel {
+  font-family: var(--font-sans);
+  font-size: 0.45rem;
+  font-weight: 700;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  background: rgba(255, 255, 255, 0.25);
+  color: #fff;
+  padding: 1px 6px;
+  border-radius: 2px;
+}
+
+.pickStripWrap {
+  flex: 1;
+  overflow-x: auto;
+  display: flex;
+  align-items: center;
+  padding: 0 1rem;
+  scrollbar-width: none;
+  min-width: 0;
+}
+
+.pickStripWrap::-webkit-scrollbar {
+  display: none;
+}
+
+.pickStrip {
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+}
+
+.pickStripItemWrap {
+  display: flex;
+  align-items: center;
+}
+
+.stripChevron {
+  color: var(--color-border);
+  font-size: 1rem;
+  margin: 0 3px;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.stripItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 5px 10px;
+  border-radius: var(--radius-sm);
+  min-width: 72px;
+  gap: 1px;
+}
+
+.stripItemCurrent {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-accent-green);
+  box-shadow: 0 2px 8px rgba(58, 107, 74, 0.12);
+}
+
+.stripItemPast {
+  opacity: 0.4;
+}
+
+.stripItemFuture {
+  opacity: 0.65;
+}
+
+.stripPickLabel {
+  font-family: var(--font-serif);
+  font-size: 0.6rem;
+  font-style: italic;
+  color: var(--color-text-muted);
+  line-height: 1;
+}
+
+.stripItemCurrent .stripPickLabel {
+  color: var(--color-accent-green);
+}
+
+.stripTeamName {
+  font-family: var(--font-sans);
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-primary);
+  max-width: 90px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  line-height: 1.2;
+}
+
+.stripPickingNow {
+  font-family: var(--font-sans);
+  font-size: 0.4rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--color-accent-green);
+  line-height: 1;
+}
+
+.bannerMeta {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 0 1.25rem;
+  gap: 2px;
+  border-left: 1px solid var(--color-border-subtle);
+}
+
+.bannerRoundLabel {
+  font-family: var(--font-sans);
+  font-size: 0.55rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+.bannerPickLabel {
+  font-family: var(--font-serif);
+  font-size: 0.8rem;
+  font-weight: 400;
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+}
+
+/* =====================
+   TIMER BAR
+   ===================== */
 .timerBar {
+  flex-shrink: 0;
+  height: 3px;
+  background: var(--color-border-subtle);
   position: relative;
-  height: 24px;
-  background: var(--bg-surface);
-  border-bottom: 1px solid var(--border-color);
   overflow: hidden;
 }
 
@@ -79,111 +252,702 @@
   transition: width 1s linear, background-color 0.3s;
 }
 
-.timerLabel {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 0.875rem;
-  font-weight: 700;
-  color: #fff;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
-}
-
-/* Mobile view toggle (hidden on desktop) */
-.mobileToggle {
-  display: none;
-}
-
-.panels {
-  display: grid;
-  grid-template-columns: 350px 1fr 300px;
+/* =====================
+   MAIN AREA
+   ===================== */
+.mainArea {
   flex: 1;
+  display: flex;
   min-height: 0;
   overflow: hidden;
 }
 
-.pickerPanel,
-.boardPanel,
-.rosterPanel {
+/* =====================
+   BOARD PANEL
+   ===================== */
+.boardPanel {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  height: 100%;
-  min-height: 0;
-  border-right: 1px solid var(--border-color);
+  min-width: 0;
+  overflow: hidden;
+  border-right: 1px solid var(--color-border);
 }
 
-.rosterPanel {
-  border-right: none;
+.boardHeader {
+  flex-shrink: 0;
+  padding: 1rem 1.5rem 0.875rem;
+  border-bottom: 1px solid var(--color-border-subtle);
+  background: var(--color-bg-primary);
 }
 
-.panelTitle {
-  padding: 1rem;
-  font-size: 1.125rem;
-  font-weight: 600;
-  border-bottom: 1px solid var(--border-color);
-  background: var(--bg-surface);
+.boardHeadline {
+  font-family: var(--font-serif);
+  font-size: 1.625rem;
+  font-weight: 700;
+  color: var(--color-accent-green);
+  margin: 0 0 1px;
+  line-height: 1.1;
+}
+
+.boardSubtitle {
+  font-family: var(--font-sans);
+  font-size: 0.65rem;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
   margin: 0;
 }
 
-.panelTitleRow {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border-bottom: 1px solid var(--border-color);
-  background: var(--bg-surface);
+.boardScroll {
+  flex: 1;
+  overflow: auto;
+  background: var(--color-bg-primary);
 }
 
-.panelTitleRow .panelTitle {
-  border-bottom: none;
+.boardTable {
+  border-collapse: collapse;
+  table-layout: fixed;
+  min-width: 100%;
 }
 
-/* Queue Toggle Button */
-.queueToggle {
-  margin-right: 1rem;
-  padding: 0.25rem 0.75rem;
-  font-size: 0.75rem;
-  font-weight: 600;
-  background: var(--bg-surface-light);
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
-  color: var(--text-secondary);
+/* ----------------------
+   Table Header
+   ---------------------- */
+.roundHeaderCell {
+  width: 34px;
+  min-width: 34px;
+  background: var(--color-bg-secondary);
+  font-family: var(--font-sans);
+  font-size: 0.55rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  text-align: center;
+  padding: 0.5rem 0.25rem;
+  border: 1px solid var(--color-border-subtle);
+  position: sticky;
+  top: 0;
+  left: 0;
+  z-index: 20;
+}
+
+.teamHeaderCell {
+  background: var(--color-bg-secondary);
+  font-family: var(--font-sans);
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  text-align: center;
+  padding: 0.5rem 0.25rem;
+  border: 1px solid var(--color-border-subtle);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  min-width: 90px;
+  max-width: 130px;
+  overflow: hidden;
+}
+
+.teamHeaderName {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--color-text-secondary);
+}
+
+.myTeamHeader {
+  background: rgba(58, 107, 74, 0.05);
+}
+
+.myTeamHeader .teamHeaderName {
+  color: var(--color-accent-green);
+}
+
+.onClockHeader {
+  background: rgba(58, 107, 74, 0.08);
+  border-bottom: 2px solid var(--color-accent-green) !important;
+}
+
+/* ----------------------
+   Table Cells
+   ---------------------- */
+.roundCell {
+  background: var(--color-bg-secondary);
+  font-family: var(--font-sans);
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  text-align: center;
+  padding: 0;
+  border: 1px solid var(--color-border-subtle);
+  width: 34px;
+  min-width: 34px;
+  position: sticky;
+  left: 0;
+  z-index: 5;
+}
+
+.pickCell {
+  height: 68px;
+  min-width: 90px;
+  max-width: 130px;
+  border: 1px solid var(--color-border-subtle);
+  vertical-align: middle;
+  position: relative;
+  overflow: hidden;
+  transition: background 0.15s;
+  padding: 4px 3px 3px;
+  box-sizing: border-box;
+}
+
+.pickCellFilled {
+  background: var(--color-bg-card);
   cursor: pointer;
 }
 
-.queueToggleActive {
-  background: var(--primary-accent);
-  color: #fff;
-  border-color: var(--primary-accent);
+.pickCellFilled:hover {
+  background: var(--color-bg-card-hover);
 }
 
-/* Draft Queue Panel */
-.queuePanel {
+.pickCellCurrent {
+  background: rgba(58, 107, 74, 0.06);
+  border-color: var(--color-accent-green);
+  box-shadow: inset 0 0 0 1px var(--color-accent-green);
+}
+
+.pickCellFuture {
+  background: transparent;
+  opacity: 0.45;
+}
+
+.myTeamCell {
+  background-color: rgba(58, 107, 74, 0.02);
+}
+
+.myTeamCell.pickCellFilled {
+  background: rgba(58, 107, 74, 0.04);
+}
+
+.myTeamCell.pickCellFilled:hover {
+  background: rgba(58, 107, 74, 0.08);
+}
+
+.pickCellOptimistic {
+  opacity: 0.65;
+}
+
+.cellLabel {
+  position: absolute;
+  top: 2px;
+  left: 3px;
+  font-family: var(--font-sans);
+  font-size: 0.45rem;
+  color: var(--color-text-muted);
+  line-height: 1;
+  pointer-events: none;
+  opacity: 0.6;
+  white-space: nowrap;
+}
+
+.pickedContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  height: 100%;
+  padding-top: 8px;
   overflow: hidden;
-  border-bottom: 1px solid var(--border-color);
-  background: var(--bg-surface);
 }
 
-.queueEmpty {
-  padding: 1rem;
+.pickedName {
+  font-family: var(--font-sans);
+  font-size: 0.6rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
   text-align: center;
-  color: var(--text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+  line-height: 1.2;
+  padding: 0 2px;
+}
+
+.confirmingLabel {
+  font-size: 0.5rem;
+  color: var(--color-text-muted);
+  font-style: italic;
+  animation: confirmPulse 1.5s infinite;
+}
+
+@keyframes confirmPulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+
+.onClockContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  height: 100%;
+  padding-top: 8px;
+}
+
+.onClockDot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  background: var(--color-accent-green);
+  border-radius: 50%;
+  animation: pulse 1.5s infinite;
+}
+
+.onClockText {
+  font-family: var(--font-sans);
+  font-size: 0.42rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--color-accent-green);
+  line-height: 1;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.6); opacity: 0.4; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* =====================
+   POSITION BADGES
+   ===================== */
+.posBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-sans);
+  font-size: 0.52rem;
+  font-weight: 700;
+  color: #fff;
+  border-radius: 3px;
+  flex-shrink: 0;
+  width: 26px;
+  height: 16px;
+  letter-spacing: 0.02em;
+  line-height: 1;
+}
+
+.posGK  { background: var(--color-pos-gk); }
+.posCB  { background: var(--color-pos-cb); }
+.posLB  { background: var(--color-pos-fb); }
+.posRB  { background: var(--color-pos-fb); }
+.posDM  { background: var(--color-pos-dm); }
+.posCM  { background: var(--color-pos-cm); }
+.posLM  { background: var(--color-pos-cm); }
+.posRM  { background: var(--color-pos-cm); }
+.posAM  { background: var(--color-pos-am); }
+.posLW  { background: var(--color-pos-lw); }
+.posRW  { background: var(--color-pos-rw); }
+.posST  { background: var(--color-pos-st); }
+
+/* =====================
+   RIGHT SIDEBAR
+   ===================== */
+.sidebarPanel {
+  flex-shrink: 0;
+  width: 360px;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-bg-secondary);
+  overflow: hidden;
+  border-left: 1px solid var(--color-border);
+}
+
+.sidebarTabs {
+  flex-shrink: 0;
+  display: flex;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-bg-secondary);
+}
+
+.sidebarTab {
+  flex: 1;
+  padding: 0.7rem 0.4rem;
+  font-family: var(--font-sans);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sidebarTab:hover {
+  color: var(--color-text-secondary);
+}
+
+.sidebarTabActive {
+  color: var(--color-accent-green);
+  border-bottom-color: var(--color-accent-green);
+}
+
+/* =====================
+   TAB CONTENT
+   ===================== */
+.tabContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.tabContentScrollable {
+  flex: 1;
+  overflow-y: auto;
+}
+
+/* =====================
+   PLAYERS TAB
+   ===================== */
+.searchRow {
+  flex-shrink: 0;
+  padding: 0.75rem 0.875rem 0.5rem;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 0.55rem 0.75rem;
+  font-family: var(--font-sans);
   font-size: 0.8rem;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-primary);
+  box-sizing: border-box;
+  outline: none;
+}
+
+.searchInput:focus {
+  border-color: var(--color-accent-green);
+  box-shadow: 0 0 0 2px rgba(58, 107, 74, 0.1);
+}
+
+.searchInput::placeholder {
+  color: var(--color-text-muted);
+}
+
+.posFilters {
+  flex-shrink: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 0 0.875rem 0.625rem;
+}
+
+.posBtn {
+  padding: 3px 7px;
+  font-family: var(--font-sans);
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: 3px;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: background 0.1s, color 0.1s;
+  line-height: 1.4;
+}
+
+.posBtn:hover {
+  background: var(--color-bg-elevated);
+}
+
+.posBtnActive {
+  background: var(--color-accent-green);
+  color: #fff;
+  border-color: var(--color-accent-green);
+}
+
+.pickError {
+  flex-shrink: 0;
+  padding: 0.5rem 0.875rem;
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  color: #b91c1c;
+  background: #fef2f2;
+  border-top: 1px solid #fecaca;
+  border-bottom: 1px solid #fecaca;
+  margin: 0;
+}
+
+.playerList {
+  flex: 1;
+  overflow: hidden;
+  background: var(--color-bg-card);
+}
+
+/* Player Row (react-window rendered) */
+.playerRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 0.875rem;
+  border-bottom: 1px solid var(--color-border-subtle);
+  cursor: pointer;
+  background: var(--color-bg-card);
+  box-sizing: border-box;
+  gap: 8px;
+  transition: background 0.1s;
+}
+
+.playerRow:hover {
+  background: var(--color-bg-card-hover);
+}
+
+.playerRowLeft {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
+}
+
+.playerInfo {
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
+}
+
+.playerName {
+  display: block;
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.playerClub {
+  display: block;
+  font-family: var(--font-sans);
+  font-size: 0.6rem;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.playerRowRight {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
+}
+
+.playerPpg {
+  font-family: var(--font-serif);
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--color-accent-green);
+  min-width: 28px;
+  text-align: right;
+}
+
+.queueBtn {
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: 3px;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  font-size: 0.875rem;
+  line-height: 1;
+  transition: color 0.1s, border-color 0.1s;
+  flex-shrink: 0;
+}
+
+.queueBtn:hover {
+  color: #f59e0b;
+  border-color: #f59e0b;
+}
+
+.queueBtnActive {
+  color: #f59e0b;
+  border-color: #f59e0b;
+}
+
+.draftBtn {
+  padding: 4px 9px;
+  font-family: var(--font-sans);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  background: var(--color-accent-green);
+  color: #fff;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  flex-shrink: 0;
+  white-space: nowrap;
+  transition: opacity 0.1s;
+}
+
+.draftBtn:hover:not(.draftBtnDisabled) {
+  opacity: 0.85;
+}
+
+.draftBtnDisabled {
+  background: var(--color-bg-elevated);
+  color: var(--color-text-muted);
+  cursor: not-allowed;
+}
+
+.emptyState {
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  text-align: center;
+  margin: 0;
+}
+
+.emptyStateWrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1.5rem;
+  gap: 0.5rem;
+  text-align: center;
+}
+
+.emptyStateHint {
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+  max-width: 240px;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* =====================
+   MY ROSTER TAB
+   ===================== */
+.rosterList {
+  list-style: none;
+  margin: 0;
+  padding: 0.5rem 0;
+}
+
+.rosterItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0.5rem 0.875rem;
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.rosterItem:last-child {
+  border-bottom: none;
+}
+
+.rosterItemOptimistic {
+  opacity: 0.55;
+}
+
+.rosterPickNum {
+  font-family: var(--font-sans);
+  font-size: 0.58rem;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  min-width: 24px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.rosterPlayerInfo {
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
+}
+
+.rosterPlayerName {
+  display: block;
+  font-family: var(--font-sans);
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.rosterPlayerClub {
+  display: block;
+  font-family: var(--font-sans);
+  font-size: 0.6rem;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* =====================
+   QUEUE TAB
+   ===================== */
+.queueAutoPickHint {
+  padding: 0.5rem 0.875rem;
+  font-family: var(--font-sans);
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: var(--color-accent-green);
+  background: rgba(58, 107, 74, 0.06);
+  border-bottom: 1px solid var(--color-border-subtle);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
 }
 
 .queueList {
   list-style: none;
-  padding: 0;
   margin: 0;
+  padding: 0.5rem 0;
 }
 
 .queueItem {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  border-bottom: 1px solid var(--border-color);
-  font-size: 0.8rem;
+  gap: 6px;
+  padding: 0.5rem 0.875rem;
+  border-bottom: 1px solid var(--color-border-subtle);
 }
 
 .queueItem:last-child {
@@ -191,37 +955,85 @@
 }
 
 .queueRank {
+  font-family: var(--font-sans);
+  font-size: 0.62rem;
   font-weight: 700;
-  color: var(--text-secondary);
-  width: 20px;
+  color: var(--color-text-muted);
+  min-width: 14px;
   text-align: center;
+  flex-shrink: 0;
+}
+
+.queuePlayerInfo {
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
 }
 
 .queuePlayerName {
-  flex: 1;
+  display: block;
+  font-family: var(--font-sans);
+  font-size: 0.82rem;
   font-weight: 600;
+  color: var(--color-text-primary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.queueControls {
+.queuePlayerClub {
+  display: block;
+  font-family: var(--font-sans);
+  font-size: 0.6rem;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.queueItemActions {
   display: flex;
-  gap: 0.25rem;
+  align-items: center;
+  gap: 3px;
+  flex-shrink: 0;
+}
+
+.queueDraftBtn {
+  padding: 3px 8px;
+  font-family: var(--font-sans);
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  background: var(--color-accent-green);
+  color: #fff;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.queueDraftBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .queueMoveBtn {
-  width: 24px;
-  height: 24px;
+  width: 22px;
+  height: 22px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--bg-surface-light);
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
-  color: var(--text-secondary);
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: 3px;
+  color: var(--color-text-secondary);
   cursor: pointer;
-  font-size: 0.75rem;
+  font-size: 0.65rem;
+  line-height: 1;
+  flex-shrink: 0;
 }
 
 .queueMoveBtn:disabled {
@@ -230,559 +1042,50 @@
 }
 
 .queueRemoveBtn {
-  width: 24px;
-  height: 24px;
+  width: 22px;
+  height: 22px;
   display: flex;
   align-items: center;
   justify-content: center;
   background: transparent;
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
-  color: var(--color-accent-red, #ef4444);
+  border: 1px solid var(--color-border);
+  border-radius: 3px;
+  color: #dc2626;
   cursor: pointer;
-  font-size: 0.875rem;
+  font-size: 0.8rem;
   font-weight: 700;
-}
-
-/* Picker Panel */
-.searchInput {
-  margin: 1rem;
-  padding: 0.75rem;
-  background: var(--bg-surface-light);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-sm);
-  color: var(--text-primary);
-}
-
-.posFilters {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  padding: 0 1rem 1rem;
-  border-bottom: 1px solid var(--border-color);
-}
-
-.posBtn {
-  padding: 0.25rem 0.5rem;
-  font-size: 0.75rem;
-  background: var(--bg-surface);
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
-  color: var(--text-secondary);
-  cursor: pointer;
-}
-
-.posBtnActive {
-  background: var(--primary-accent);
-  color: #fff;
-  border-color: var(--primary-accent);
-}
-
-.playerList {
-  flex: 1;
-  overflow: hidden;
-}
-
-.playerRow {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.75rem 1rem;
-  border-bottom: 1px solid var(--border-color);
-  cursor: pointer;
-  box-sizing: border-box;
-}
-
-.playerRow:hover {
-  background: var(--bg-surface-light);
-}
-
-.playerInfo {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  min-width: 0;
-  flex: 1;
-}
-
-.playerActions {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+  line-height: 1;
   flex-shrink: 0;
 }
 
-.queueBtn {
-  width: 28px;
-  height: 28px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: transparent;
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
-  color: var(--text-secondary);
-  cursor: pointer;
-  font-size: 1rem;
+.queueRemoveBtn:hover {
+  background: #fef2f2;
+  border-color: #dc2626;
 }
 
-.queueBtnActive {
-  color: #eab308;
-  border-color: #eab308;
-}
-
-.posBadge,
-.posBadgeSm {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  color: #fff;
-  border-radius: 4px;
-  flex-shrink: 0;
-}
-
-.posBadge {
-  width: 36px;
-  height: 24px;
-  font-size: 0.75rem;
-  background: #6b7280;
-}
-
-.posBadgeSm {
-  width: 28px;
-  height: 20px;
-  font-size: 0.65rem;
-  background: #6b7280;
-}
-
-.posGK {
-  background: #eab308;
-}
-
-.posCB {
-  background: #3b82f6;
-}
-
-.posLB {
-  background: #3b82f6;
-}
-
-.posRB {
-  background: #3b82f6;
-}
-
-.posDM {
-  background: #a855f7;
-}
-
-.posCM {
-  background: #a855f7;
-}
-
-.posAM {
-  background: #a855f7;
-}
-
-.posLW {
-  background: #10b981;
-}
-
-.posRW {
-  background: #10b981;
-}
-
-.posST {
-  background: #ef4444;
-}
-
-.playerName {
-  display: block;
-  font-weight: 600;
-  font-size: 0.9rem;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.playerClub {
-  display: block;
-  font-size: 0.75rem;
-  color: var(--text-secondary);
-}
-
-.pickBtn {
-  padding: 0.5rem 1rem;
-  background: var(--primary-accent);
-  color: white;
-  border: none;
-  border-radius: var(--radius-sm);
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.pickBtn:disabled {
-  background: var(--bg-surface);
-  color: var(--text-secondary);
-  cursor: not-allowed;
-}
-
-.pickError {
-  color: var(--color-accent-red);
-  padding: 0 1rem;
-  font-size: 0.875rem;
-}
-
-.emptyPicker,
-.pickerMore {
-  padding: 1rem;
-  text-align: center;
-  color: var(--text-secondary);
-  font-size: 0.875rem;
-}
-
-/* Board Panel */
-.boardDesktop {
-  display: flex;
-}
-
-.boardMobile {
-  display: none;
-}
-
-.boardScroll {
-  flex: 1;
-  overflow: auto;
-  padding: 1rem;
-}
-
-.boardTable {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.boardTable th,
-.boardTable td {
-  border: 1px solid var(--border-color);
-  padding: 0.5rem;
-  text-align: center;
-}
-
-.teamHeaderCell {
-  background: var(--bg-surface);
-  font-weight: 600;
-  position: sticky;
-  top: 0;
-  z-index: 10;
-}
-
-.teamHeaderOnClock {
-  background: rgba(234, 179, 8, 0.2);
-  box-shadow: inset 0 -3px 0 0 #eab308;
-}
-
-.myTeamCol {
-  background: rgba(var(--primary-accent-rgb), 0.1);
-}
-
-.roundCell {
-  background: var(--bg-surface);
-  font-weight: 600;
-  width: 40px;
-  position: sticky;
-  left: 0;
-  z-index: 5;
-}
-
-.pickCell {
-  height: 60px;
-  vertical-align: middle;
-  transition: background 0.3s;
-}
-
-.pickCellFilled {
-  background: var(--bg-surface-light);
-}
-
-.pickCellCurrent {
-  background: rgba(234, 179, 8, 0.1);
-  box-shadow: inset 0 0 0 2px #eab308;
-}
-
-.pickCellOptimistic {
-  background: rgba(var(--primary-accent-rgb), 0.05);
-}
-
-.pickedPlayer {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.25rem;
-}
-
-.pickedName {
-  font-size: 0.75rem;
-  font-weight: 600;
-}
-
-.confirmingLabel {
-  font-size: 0.6rem;
-  color: var(--text-secondary);
-  font-style: italic;
-  opacity: 0.7;
-  animation: confirmPulse 1.5s infinite;
-}
-
-@keyframes confirmPulse {
-
-  0%,
-  100% {
-    opacity: 0.5;
+/* =====================
+   MOBILE
+   ===================== */
+@media (max-width: 900px) {
+  .boardPanel {
+    display: none;
   }
 
-  50% {
-    opacity: 1;
-  }
-}
-
-.onClockDot {
-  display: inline-block;
-  width: 12px;
-  height: 12px;
-  background: #eab308;
-  border-radius: 50%;
-  animation: pulse 1.5s infinite;
-}
-
-@keyframes pulse {
-  0% {
-    transform: scale(1);
-    opacity: 1;
-  }
-
-  50% {
-    transform: scale(1.5);
-    opacity: 0.5;
-  }
-
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-}
-
-/* Recent Picks (Mobile List View) */
-.recentPicksList {
-  flex: 1;
-  overflow-y: auto;
-  padding: 0.5rem;
-}
-
-.recentPickItem {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem 1rem;
-  border-bottom: 1px solid var(--border-color);
-}
-
-.recentPickOptimistic {
-  opacity: 0.6;
-}
-
-.recentPickNumber {
-  font-weight: 700;
-  font-size: 0.8rem;
-  color: var(--text-secondary);
-  min-width: 30px;
-}
-
-.recentPickDetails {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-}
-
-.recentPickName {
-  font-weight: 600;
-  font-size: 0.9rem;
-}
-
-.recentPickTeam {
-  font-size: 0.75rem;
-  color: var(--text-secondary);
-}
-
-/* Roster Panel */
-.rosterList {
-  flex: 1;
-  overflow-y: auto;
-  padding: 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.rosterTeam {
-  background: var(--bg-surface);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-sm);
-  overflow: hidden;
-}
-
-.rosterMyTeam {
-  border-color: var(--primary-accent);
-}
-
-.rosterTeamHeader {
-  display: flex;
-  justify-content: space-between;
-  padding: 0.5rem 1rem;
-  background: var(--bg-surface-light);
-  border-bottom: 1px solid var(--border-color);
-  font-size: 0.875rem;
-  font-weight: 600;
-}
-
-.rosterCount {
-  color: var(--text-secondary);
-}
-
-.rosterPickList {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.rosterPickItem {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.25rem 1rem;
-  font-size: 0.8rem;
-  border-bottom: 1px solid var(--border-color);
-}
-
-.rosterPickItem:last-child {
-  border-bottom: none;
-}
-
-.rosterPickOptimistic {
-  opacity: 0.5;
-  font-style: italic;
-}
-
-.rosterPickName {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* ===================================
-   RESPONSIVE — Mobile (<768px)
-   =================================== */
-@media (max-width: 768px) {
-  .banner {
-    flex-direction: column;
-    gap: 0.5rem;
-    padding: 0.75rem 1rem;
-    text-align: center;
-  }
-
-  .bannerLeft {
-    flex-direction: column;
-    gap: 0.25rem;
-  }
-
-  .bannerTeam {
-    font-size: 1.25rem;
-  }
-
-  .bannerRound {
-    font-size: 0.9rem;
-  }
-
-  .mobileToggle {
-    display: flex;
-    border-bottom: 1px solid var(--border-color);
-  }
-
-  .mobileToggleBtn {
+  .sidebarPanel {
+    width: 100%;
     flex: 1;
-    padding: 0.75rem;
-    background: var(--bg-surface);
-    border: none;
-    border-bottom: 3px solid transparent;
-    color: var(--text-secondary);
-    font-weight: 600;
-    font-size: 0.875rem;
-    cursor: pointer;
   }
 
-  .mobileToggleBtnActive {
-    color: var(--text-primary);
-    border-bottom-color: var(--primary-accent);
+  .topBanner {
+    height: auto;
+    min-height: 60px;
   }
 
-  .panels {
-    display: flex;
-    flex-direction: column;
-    overflow-y: auto;
+  .pickStripWrap {
+    padding: 0 0.75rem;
   }
 
-  .pickerPanel {
-    border-right: none;
-    border-bottom: 1px solid var(--border-color);
-    max-height: 50vh;
-    min-height: 300px;
-  }
-
-  /* Hide the full draft board on mobile */
-  .boardDesktop {
-    display: none !important;
-  }
-
-  .boardMobile {
-    display: none;
-    flex-direction: column;
-    border-bottom: 1px solid var(--border-color);
-    max-height: 40vh;
-    overflow: hidden;
-  }
-
-  .boardMobileVisible {
-    display: flex;
-  }
-
-  .rosterPanel {
-    border-right: none;
-    max-height: 40vh;
-  }
-
-  .boardTable th,
-  .boardTable td {
-    padding: 0.25rem;
-    font-size: 0.65rem;
-  }
-
-  .pickCell {
-    height: 40px;
-  }
-
-  .pickedName {
-    font-size: 0.6rem;
-  }
-}
-
-/* ===================================
-   RESPONSIVE — Tablet (768-1024px)
-   =================================== */
-@media (min-width: 769px) and (max-width: 1024px) {
-  .panels {
-    grid-template-columns: 280px 1fr 240px;
-  }
-
-  .boardMobile {
-    display: none;
+  .bannerMeta {
+    padding: 0 0.75rem;
   }
 }
