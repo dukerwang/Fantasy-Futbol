@@ -347,7 +347,7 @@
   position: sticky;
   top: 0;
   z-index: 10;
-  min-width: 90px;
+  min-width: 72px;
   max-width: 130px;
   overflow: hidden;
 }
@@ -394,7 +394,7 @@
 
 .pickCell {
   height: 68px;
-  min-width: 90px;
+  min-width: 72px;
   max-width: 130px;
   border: 1px solid var(--color-border-subtle);
   vertical-align: middle;
@@ -702,7 +702,7 @@
 .playerList {
   flex: 1;
   overflow: hidden;
-  background: var(--color-bg-card);
+  background: transparent;
 }
 
 /* Player Row (react-window rendered) */
@@ -713,7 +713,7 @@
   padding: 0 0.875rem;
   border-bottom: 1px solid var(--color-border-subtle);
   cursor: pointer;
-  background: var(--color-bg-card);
+  background: transparent;
   box-sizing: border-box;
   gap: 8px;
   transition: background 0.1s;

@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
+import ThemeToggle from './ThemeToggle';
 import styles from './TopBar.module.css';
 
 interface LeagueInfo {
@@ -314,6 +315,9 @@ export default function TopBar() {
               </div>
             )}
           </div>
+
+          {/* Theme Toggle */}
+          <ThemeToggle />
 
           {/* User Avatar */}
           <div className={styles.userAvatar}>

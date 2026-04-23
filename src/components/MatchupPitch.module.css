@@ -5,7 +5,9 @@
 .pitchSurface {
     position: relative;
     width: 100%;
-    min-height: clamp(560px, 72vh, 920px);
+    /* Maintain a square-ish aspect for the dual-pitch container */
+    aspect-ratio: 1.1 / 1;
+    max-height: 920px;
     padding: 14px;
     background: #ede8de;
     border: 1px solid rgba(210, 196, 183, 0.45);
@@ -18,7 +20,7 @@
     grid-template-columns: 1fr 1fr;
     gap: 12px;
     align-items: stretch;
-    min-height: clamp(520px, 68vh, 880px);
+    height: 100%;
 }
 
 .halfOuter {

@@ -34,16 +34,17 @@
   --color-text-inverse: #FFFFFF;
 
   /* --- Position Colors --- */
-  --color-pos-gk: #f59e0b;
-  --color-pos-cb: #3b82f6;
-  --color-pos-fb: #60a5fa;
-  --color-pos-dm: #8b5cf6;
-  --color-pos-cm: #a78bfa;
-  --color-pos-am: #e879f9;
-  --color-pos-wm: #4ade80;
-  --color-pos-lw: #22c55e;
-  --color-pos-rw: #22c55e;
-  --color-pos-st: #ef4444;
+  /* --- Position Colors (from prototype) --- */
+  --color-pos-gk: #D4A017;
+  --color-pos-cb: #1E3A5F;
+  --color-pos-fb: #1E3A5F;
+  --color-pos-dm: #5C3D8F;
+  --color-pos-cm: #5C3D8F;
+  --color-pos-am: #5C3D8F;
+  --color-pos-wm: #5C3D8F;
+  --color-pos-lw: #3A6B4A;
+  --color-pos-rw: #3A6B4A;
+  --color-pos-st: #8B1A1A;
 
   /* --- Typography --- */
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -100,6 +101,29 @@
   /* --- Layout --- */
   --nav-height: 52px;
   --content-max-width: 1280px;
+}
+
+[data-theme="dark"] {
+  --color-bg-primary: #0a0c10;
+  --color-bg-secondary: #161b22;
+  --color-bg-card: #0d1117;
+  --color-bg-card-hover: #21262d;
+  --color-bg-overlay: rgba(13, 17, 23, 0.95);
+  --color-bg-elevated: #21262d;
+
+  --color-border: #30363d;
+  --color-border-subtle: #21262d;
+  --color-border-accent: rgba(77, 138, 97, 0.4);
+
+  --color-text-primary: #e8eaf0;
+  --color-text-secondary: #b1babf;
+  --color-text-muted: #8b949e;
+  --color-text-inverse: #0a0c10;
+
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5);
+  --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.6);
 }
 
 /* --- Reset & Base --- */

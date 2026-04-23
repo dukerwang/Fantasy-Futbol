@@ -340,6 +340,9 @@ export default function DraftRoom({
       if (search.trim()) {
         const q = search.toLowerCase();
         return (
+          (p.name?.toLowerCase() || '').includes(q) ||
+          (p.full_name?.toLowerCase() || '').includes(q) ||
+          (p.web_name?.toLowerCase() || '').includes(q) ||
           formatPlayerName(p, 'initial_last').toLowerCase().includes(q) ||
           p.pl_team.toLowerCase().includes(q)
         );

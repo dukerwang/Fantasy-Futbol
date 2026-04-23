@@ -143,8 +143,13 @@
 .pitchField {
     position: relative;
     width: 100%;
-    /* Tall field: avoids a squat “square”; tracks viewport height on desktop */
-    min-height: clamp(720px, 78vh, 980px);
+    /* 
+       Standard pitch ratio is ~105m x 68m (0.647). 
+       Using 2/3 (0.666) for a consistent, premium tall aesthetic.
+       Max-height prevents it from becoming absurdly large on ultrawide monitors.
+    */
+    aspect-ratio: 2 / 3;
+    max-height: 980px;
     display: flex;
     flex-direction: column;
     border: 2px solid rgba(255, 255, 255, 0.65);
