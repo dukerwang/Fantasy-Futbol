@@ -453,12 +453,24 @@ Deno.serve(async (req: Request) => {
         const elements = (fplData.elements ?? []) as FplLiveElement[];
         console.log(`sync-ratings: ${elements.length} players from FPL`);
 
+        // ── Fetch fixtures for DGW detection ───────────────────────────────
+        const fixturesRes = await fetch(`${FPL_BASE}/fixtures/?event=${gw}`, {
+            headers: { "User-Agent": "FantasyFutbol/1.0" },
+        });
+        const fixtures = await fixturesRes.json();
+        const teamFixtures: Record<number, number[]> = {};
+        fixtures.forEach((f: any) => {
+            if (!teamFixtures[f.team_h]) teamFixtures[f.team_h] = [];
+            if (!teamFixtures[f.team_a]) teamFixtures[f.team_a] = [];
+            teamFixtures[f.team_h].push(f.id);
+            teamFixtures[f.team_a].push(f.id);
+        });
+
         // ── Build FPL ID → DB player lookup (single query) ──────────────────
-        const fplIds = elements.filter((e) => e.stats.minutes > 0).map((e) => e.id);
+        // Note: we fetch ALL players now to handle DGW/DNP rows
         const { data: dbPlayers, error: dbError } = await supabase
             .from("players")
-            .select("id, fpl_id, primary_position")
-            .in("fpl_id", fplIds);
+            .select("id, fpl_id, pl_team_id, primary_position");
 
         if (dbError) {
             return new Response(JSON.stringify({ error: "DB player lookup failed", detail: dbError.message }), {
@@ -467,36 +479,84 @@ Deno.serve(async (req: Request) => {
             });
         }
 
-        const playerMap = new Map<number, { id: string; primary_position: GranularPosition }>();
+        const playerMap = new Map<number, { id: string; pl_team_id: number; primary_position: GranularPosition }>();
         for (const p of dbPlayers ?? []) {
-            playerMap.set(p.fpl_id, { id: p.id, primary_position: p.primary_position as GranularPosition });
+            playerMap.set(p.fpl_id, { id: p.id, pl_team_id: p.pl_team_id, primary_position: p.primary_position as GranularPosition });
         }
 
         // ── Process all players ──────────────────────────────────────────────
         const upsertRows: Record<string, unknown>[] = [];
 
         for (const el of elements) {
-            if (el.stats.minutes === 0) continue;
-
             const dbPlayer = playerMap.get(el.id);
             if (!dbPlayer) continue;
 
-            const rawStats = mapFplToRawStats(el.stats);
+            const playerFixIds = teamFixtures[dbPlayer.pl_team_id || 0] || [];
 
-            const pos = dbPlayer.primary_position;
-            const result = calculateMatchRating(rawStats, pos, refStats);
+            if (el.explain && el.explain.length > 0) {
+                for (const ex of el.explain) {
+                    const fixtureId = ex.fixture;
+                    const fixtureMinutes = ex.stats.find((s: any) => s.identifier === "minutes")?.value ?? 0;
+                    const totalMinutes = el.stats.minutes || 1;
+                    const ratio = fixtureMinutes / totalMinutes;
 
-            upsertRows.push({
-                player_id: dbPlayer.id,
-                match_id: gw * 1000 + el.id, // composite key
-                gameweek: gw,
-                season,
-                stats: rawStats,
-                fantasy_points: result.fantasyPoints,
-                match_rating: result.rating,
-            });
+                    const fixtureFplStats = {
+                        ...el.stats,
+                        minutes: fixtureMinutes,
+                        goals_scored: ex.stats.find((s: any) => s.identifier === "goals_scored")?.value ?? 0,
+                        assists: ex.stats.find((s: any) => s.identifier === "assists")?.value ?? 0,
+                        clean_sheets: ex.stats.find((s: any) => s.identifier === "clean_sheets")?.value ?? 0,
+                        goals_conceded: ex.stats.find((s: any) => s.identifier === "goals_conceded")?.value ?? 0,
+                        saves: ex.stats.find((s: any) => s.identifier === "saves")?.value ?? 0,
+                        penalties_saved: ex.stats.find((s: any) => s.identifier === "penalties_saved")?.value ?? 0,
+                        penalties_missed: ex.stats.find((s: any) => s.identifier === "penalties_missed")?.value ?? 0,
+                        yellow_cards: ex.stats.find((s: any) => s.identifier === "yellow_cards")?.value ?? 0,
+                        red_cards: ex.stats.find((s: any) => s.identifier === "red_cards")?.value ?? 0,
+                        bonus: ex.stats.find((s: any) => s.identifier === "bonus")?.value ?? 0,
+                        bps: ex.stats.find((s: any) => s.identifier === "bps")?.value ?? 0,
+                        // Distribute non-point stats
+                        influence: (parseFloat(el.stats.influence) * ratio).toFixed(1),
+                        creativity: (parseFloat(el.stats.creativity) * ratio).toFixed(1),
+                        threat: (parseFloat(el.stats.threat) * ratio).toFixed(1),
+                        ict_index: (parseFloat(el.stats.ict_index) * ratio).toFixed(1),
+                        expected_goals: (parseFloat(el.stats.expected_goals) * ratio).toFixed(2),
+                        expected_assists: (parseFloat(el.stats.expected_assists) * ratio).toFixed(2),
+                        expected_goals_conceded: (parseFloat(el.stats.expected_goals_conceded) * ratio).toFixed(2),
+                        // Defensive granular
+                        tackles: Math.round((el.stats.tackles ?? 0) * ratio),
+                        clearances_blocks_interceptions: Math.round((el.stats.clearances_blocks_interceptions ?? 0) * ratio),
+                        recoveries: Math.round((el.stats.recoveries ?? 0) * ratio),
+                    };
 
+                    const rawStats = mapFplToRawStats(fixtureFplStats as any);
+                    const result = calculateMatchRating(rawStats, dbPlayer.primary_position, refStats);
 
+                    upsertRows.push({
+                        player_id: dbPlayer.id,
+                        match_id: fixtureId,
+                        gameweek: gw,
+                        season,
+                        stats: rawStats,
+                        fantasy_points: result.fantasyPoints,
+                        match_rating: result.rating,
+                    });
+                }
+            } else {
+                // Fallback for DNPs
+                const fixtureId = playerFixIds[0] || (gw * 1000 + el.id);
+                const rawStats = mapFplToRawStats(el.stats);
+                const result = calculateMatchRating(rawStats, dbPlayer.primary_position, refStats);
+
+                upsertRows.push({
+                    player_id: dbPlayer.id,
+                    match_id: fixtureId,
+                    gameweek: gw,
+                    season,
+                    stats: rawStats,
+                    fantasy_points: result.fantasyPoints,
+                    match_rating: result.rating,
+                });
+            }
         }
 
         // ── Batch upsert in chunks of 100 ───────────────────────────────────

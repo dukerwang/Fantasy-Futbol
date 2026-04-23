@@ -603,4 +603,8 @@ export interface FplLivePlayerStats {
     expected_assists: string;
     expected_goals_conceded: string;
   };
+  explain: {
+    fixture: number;
+    stats: { identifier: string; value: number }[];
+  }[];
 }

@@ -140,7 +140,10 @@ export default async function MyTeamPage({ params }: Props) {
       .eq('gameweek', currentFplGw)
       .or(`team_a_id.eq.${team.id},team_b_id.eq.${team.id}`)
       .maybeSingle();
-    matchup = currentGwMatchup ?? null;
+    // Only use the current GW matchup if it's not already completed
+    if (currentGwMatchup && currentGwMatchup.status !== 'completed') {
+      matchup = currentGwMatchup;
+    }
   }
   if (!matchup) {
     const { data: nextScheduled } = await admin

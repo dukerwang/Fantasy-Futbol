@@ -30,7 +30,7 @@ export async function GET(
   // 2. Fetch our custom fantasy_points and ratings
   const { data: dbStats } = await supabase
     .from('player_stats')
-    .select('gameweek, fantasy_points, match_rating, stats')
+    .select('match_id, gameweek, fantasy_points, match_rating, stats')
     .eq('player_id', playerId);
 
   let gamelog = dbStats ?? [];
@@ -49,10 +49,13 @@ export async function GET(
       const histRes = await fetch(`${FPL_BASE}/element-summary/${dbPlayer.fpl_id}/`, { next: { revalidate: 300 } });
       const histData = await histRes.json();
 
-      const statsMap = new Map(gamelog.map((s: any) => [s.gameweek, s]));
+      // Use match_id (fixture_id) for mapping to avoid DGW duplication
+      const statsMap = new Map(dbStats?.map((s: any) => [s.match_id, s]) ?? []);
 
       const enrichedLog = histData.history.map((h: any) => {
-        const dbEntry = statsMap.get(h.round) as any;
+        // Fallback to gameweek-based mapping for legacy records if fixture mapping fails
+        const dbEntry = statsMap.get(h.fixture) || (dbStats as any[])?.find((s: any) => s.gameweek === h.round && s.match_id === (h.round * 1000 + dbPlayer.fpl_id));
+        
         const opponentName = teamMap.get(h.opponent_team) ?? 'UNK';
         const resultString = h.team_h_score !== null && h.team_a_score !== null
           ? `${h.team_h_score}-${h.team_a_score}`

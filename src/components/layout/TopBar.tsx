@@ -102,16 +102,15 @@ export default function TopBar() {
       {
         label: 'Squad',
         items: [
-          { label: 'My Club', href: `${base}/team` },
-          { label: 'Roster', href: `${base}/roster`, disabled: true },
+          { label: 'Lineup', href: `${base}/team` },
+          { label: 'My Club', href: `${base}/roster` },
         ],
       },
       {
-        label: 'Competitions',
+        label: 'League',
         items: [
-          { label: 'Fixtures', href: `${base}/matchups` },
-          { label: 'Cups', href: `${base}/tournaments` },
-          ...(isDraftVisible ? [{ label: 'Draft', href: `${base}/draft` }] : []),
+          { label: 'Standings', href: `${base}/standings` },
+          { label: 'Stats', href: `${base}/stats` },
         ],
       },
       {
@@ -122,10 +121,11 @@ export default function TopBar() {
         ],
       },
       {
-        label: 'League',
+        label: 'Competitions',
         items: [
-          { label: 'Standings', href: `${base}/standings` },
-          { label: 'Stats', href: `${base}/stats` },
+          { label: 'Fixtures', href: `${base}/matchups` },
+          { label: 'Cups', href: `${base}/tournaments` },
+          ...(isDraftVisible ? [{ label: 'Draft', href: `${base}/draft` }] : []),
         ],
       },
     ];

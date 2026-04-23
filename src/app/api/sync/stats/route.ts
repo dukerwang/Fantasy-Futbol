@@ -95,52 +95,119 @@ async function syncFplLiveRatings(gameweek: number): Promise<NextResponse> {
   const elements = (fplData.elements ?? []) as FplLivePlayerStats[];
 
   // 2. Load Reference Stats once for the entire batch
-  await loadReferenceStats(supabase as any, '2025-26');
+  const refStats = await loadReferenceStats(supabase as any, '2025-26');
+
+  // 3. Fetch fixtures to map teams to fixture IDs (for DGW support)
+  const fixturesRes = await fetch(`${FPL_BASE}/fixtures/?event=${gameweek}`);
+  const fixtures = await fixturesRes.json();
+  const teamFixtures: Record<number, number[]> = {};
+  fixtures.forEach((f: any) => {
+    if (!teamFixtures[f.team_h]) teamFixtures[f.team_h] = [];
+    if (!teamFixtures[f.team_a]) teamFixtures[f.team_a] = [];
+    teamFixtures[f.team_h].push(f.id);
+    teamFixtures[f.team_a].push(f.id);
+  });
+
+  // 4. Bulk lookup players to avoid N+1 queries
+  const fplIds = elements.map(el => el.id);
+  const { data: dbPlayers } = await supabase
+    .from('players')
+    .select('id, fpl_id, pl_team_id, primary_position')
+    .in('fpl_id', fplIds);
+  
+  const playerMap = new Map();
+  dbPlayers?.forEach(p => playerMap.set(p.fpl_id, p));
 
   let saved = 0;
 
-  // 3. Process in batches of 50
+  // 5. Process in batches
   for (let i = 0; i < elements.length; i += 50) {
     const chunk = elements.slice(i, i + 50);
 
     await Promise.all(
       chunk.map(async (el) => {
-        if (el.stats.minutes === 0) return;
-
-        // Look up player by fpl_id
-        const { data: dbPlayer } = await supabase
-          .from('players')
-          .select('id, primary_position')
-          .eq('fpl_id', el.id)
-          .single();
-
+        const dbPlayer = playerMap.get(el.id);
         if (!dbPlayer) return;
 
-        const rawStats = mapFplLiveToRawStats(el.stats);
+        const playerFixIds = teamFixtures[dbPlayer.pl_team_id || 0] || [];
         
-        const refStats = await loadReferenceStats(supabase as any, '2025-26');
+        // If player has played or is in squad, FPL provides 'explain' per match
+        if (el.explain && el.explain.length > 0) {
+          for (const ex of el.explain) {
+            const fixtureId = ex.fixture;
+            const fixtureMinutes = ex.stats.find((s: any) => s.identifier === 'minutes')?.value ?? 0;
+            const totalMinutes = el.stats.minutes || 1;
+            const ratio = fixtureMinutes / totalMinutes;
 
-        // Use the same refStats loaded from the DB
-        const { rating, fantasyPoints } = calculateMatchRating(
-          rawStats,
-          dbPlayer.primary_position as GranularPosition,
-          refStats as any
-        );
+            const fixtureFplStats = {
+              ...el.stats,
+              minutes: fixtureMinutes,
+              goals_scored: ex.stats.find((s: any) => s.identifier === 'goals_scored')?.value ?? 0,
+              assists: ex.stats.find((s: any) => s.identifier === 'assists')?.value ?? 0,
+              clean_sheets: ex.stats.find((s: any) => s.identifier === 'clean_sheets')?.value ?? 0,
+              goals_conceded: ex.stats.find((s: any) => s.identifier === 'goals_conceded')?.value ?? 0,
+              saves: ex.stats.find((s: any) => s.identifier === 'saves')?.value ?? 0,
+              penalties_saved: ex.stats.find((s: any) => s.identifier === 'penalties_saved')?.value ?? 0,
+              penalties_missed: ex.stats.find((s: any) => s.identifier === 'penalties_missed')?.value ?? 0,
+              yellow_cards: ex.stats.find((s: any) => s.identifier === 'yellow_cards')?.value ?? 0,
+              red_cards: ex.stats.find((s: any) => s.identifier === 'red_cards')?.value ?? 0,
+              bonus: ex.stats.find((s: any) => s.identifier === 'bonus')?.value ?? 0,
+              bps: ex.stats.find((s: any) => s.identifier === 'bps')?.value ?? 0,
+              // Distribute non-point stats by minute ratio
+              influence: (parseFloat(el.stats.influence) * ratio).toString(),
+              creativity: (parseFloat(el.stats.creativity) * ratio).toString(),
+              threat: (parseFloat(el.stats.threat) * ratio).toString(),
+              ict_index: (parseFloat(el.stats.ict_index) * ratio).toString(),
+              expected_goals: (parseFloat(el.stats.expected_goals) * ratio).toString(),
+              expected_assists: (parseFloat(el.stats.expected_assists) * ratio).toString(),
+              expected_goals_conceded: (parseFloat(el.stats.expected_goals_conceded) * ratio).toString(),
+            };
 
-        const { error } = await supabase.from('player_stats').upsert(
-          {
-            player_id: dbPlayer.id,
-            match_id: gameweek * 1000 + el.id, // composite key: gw + fpl_id
-            gameweek,
-            season: '2025-26',
-            stats: rawStats,
-            fantasy_points: fantasyPoints,
-            match_rating: rating,
-          },
-          { onConflict: 'player_id,match_id' },
-        );
+            const rawStats = mapFplLiveToRawStats(fixtureFplStats);
+            const { rating, fantasyPoints } = calculateMatchRating(
+              rawStats,
+              dbPlayer.primary_position as GranularPosition,
+              refStats as any
+            );
 
-        if (!error) saved++;
+            const { error } = await supabase.from('player_stats').upsert(
+              {
+                player_id: dbPlayer.id,
+                match_id: fixtureId,
+                gameweek,
+                season: '2025-26',
+                stats: rawStats,
+                fantasy_points: fantasyPoints,
+                match_rating: rating,
+              },
+              { onConflict: 'player_id,match_id' },
+            );
+            if (!error) saved++;
+          }
+        } else {
+          // Fallback for players who didn't play (DNP)
+          const fixtureId = playerFixIds[0] || (gameweek * 1000 + el.id);
+          const rawStats = mapFplLiveToRawStats(el.stats);
+          const { rating, fantasyPoints } = calculateMatchRating(
+            rawStats,
+            dbPlayer.primary_position as GranularPosition,
+            refStats as any
+          );
+
+          await supabase.from('player_stats').upsert(
+            {
+              player_id: dbPlayer.id,
+              match_id: fixtureId,
+              gameweek,
+              season: '2025-26',
+              stats: rawStats,
+              fantasy_points: fantasyPoints,
+              match_rating: rating,
+            },
+            { onConflict: 'player_id,match_id' },
+          );
+          saved++;
+        }
       }),
     );
   }

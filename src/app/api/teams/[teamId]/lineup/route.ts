@@ -219,7 +219,10 @@ export async function POST(req: NextRequest, { params }: Props) {
       .eq('gameweek', currentFplGw)
       .or(`team_a_id.eq.${teamId},team_b_id.eq.${teamId}`)
       .maybeSingle();
-    matchup = currentGwMatchup ?? null;
+    // Only use the current GW matchup if it's not already completed
+    if (currentGwMatchup && currentGwMatchup.status !== 'completed') {
+      matchup = currentGwMatchup;
+    }
   }
 
   if (!matchup) {

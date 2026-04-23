@@ -85,3 +85,10 @@ export function mapFplLiveToRawStats(
     expected_goals_conceded: parseFloat(fplStats.expected_goals_conceded) || 0,
   };
 }
+
+/**
+ * Extract a specific stat value from FPL's 'explain' stats array.
+ */
+export function getFplExplainStat(explainStats: { identifier: string; value: number }[], identifier: string): number {
+  return explainStats.find((s) => s.identifier === identifier)?.value ?? 0;
+}
