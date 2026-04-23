@@ -15,8 +15,7 @@ export const POSITION_FLEX_MAP: Record<string, string[]> = {
 };
 
 export interface PlayerScoreRecord {
-  minutes: number;
-  statsJson: any;
+  fixtures: { minutes: number; statsJson: any }[];
 }
 
 /**
@@ -51,22 +50,24 @@ export function calculateTeamScore(
   /** Helper to score a single player in a specific slot */
   function scorePlayerInSlot(playerId: string, slot: GranularPosition): number {
     const record = playerRecord.get(playerId);
-    if (!record || record.minutes === 0) return 0;
+    if (!record) return 0;
 
-    const stats = record.statsJson;
-    if (!stats) return 0;
-
-    const { fantasyPoints } = calculateMatchRating(stats, slot, refStats as any);
-    return fantasyPoints;
+    let playerTotal = 0;
+    for (const fix of record.fixtures) {
+      if (fix.minutes === 0 || !fix.statsJson) continue;
+      const { fantasyPoints } = calculateMatchRating(fix.statsJson, slot, refStats as any);
+      playerTotal += fantasyPoints;
+    }
+    return playerTotal;
   }
 
   // 1. Starters & Auto-Subs
   for (const starter of starters) {
     const record = playerRecord.get(starter.player_id);
-    const minutes = record?.minutes ?? 0;
+    const totalMinutes = record?.fixtures.reduce((s, f) => s + f.minutes, 0) ?? 0;
 
-    if (minutes > 0) {
-      // Starter played — score using their actual lineup slot
+    if (totalMinutes > 0) {
+      // Starter played at least one match — score using their actual lineup slot
       score += scorePlayerInSlot(starter.player_id, starter.slot);
     } else {
       // Auto-sub logic: only trigger if the player's match is confirmed finished
@@ -80,7 +81,8 @@ export function calculateTeamScore(
           if (usedBenchIds.has(benchId)) continue;
 
           const benchRecord = playerRecord.get(benchId);
-          if ((benchRecord?.minutes ?? 0) === 0) continue;
+          const benchMinutes = benchRecord?.fixtures.reduce((s, f) => s + f.minutes, 0) ?? 0;
+          if (benchMinutes === 0) continue;
 
           const subPositions = playerPositions.get(benchId) ?? [];
           const canPlaySlot = subPositions.some((pos) => slotAllowedPos.includes(pos));
@@ -99,12 +101,22 @@ export function calculateTeamScore(
   for (const benchId of benchIds) {
     if (!usedBenchIds.has(benchId)) {
       const record = playerRecord.get(benchId);
-      if (record && record.minutes > 0 && record.statsJson) {
+      const totalMinutes = record?.fixtures.reduce((s, f) => s + f.minutes, 0) ?? 0;
+
+      if (record && totalMinutes > 0) {
         // Score bench player in a neutral slot matching their primary position
         const primaryPos = (playerPositions.get(benchId)?.[0] ?? 'CM') as GranularPosition;
-        const { fantasyPoints } = calculateMatchRating(record.statsJson, primaryPos, refStats as any);
-        if (fantasyPoints > 0) {
-          score += fantasyPoints * 0.20;
+        
+        let benchPlayerTotal = 0;
+        for (const fix of record.fixtures) {
+          if (fix.minutes > 0 && fix.statsJson) {
+            const { fantasyPoints } = calculateMatchRating(fix.statsJson, primaryPos, refStats as any);
+            benchPlayerTotal += fantasyPoints;
+          }
+        }
+
+        if (benchPlayerTotal > 0) {
+          score += benchPlayerTotal * 0.20;
         }
       }
     }

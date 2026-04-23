@@ -37,13 +37,47 @@ export async function processMatchupsForGameweek(gameweek: number, finished: boo
         }
     } catch { /* Fail open */ }
 
-    // Collect all player IDs (starters + bench) across all matchups
+    // Collect all player IDs (starters + bench) across all matchups.
+    // If a matchup has a null lineup, try to resolve it from the most recent past lineup for that team.
     const playerIds = new Set<string>();
+    const resolvedLineups = new Map<string, { lineup_a?: any; lineup_b?: any }>();
+
     for (const m of matchups) {
-        m.lineup_a?.starters?.forEach((s: any) => playerIds.add(s.player_id));
-        m.lineup_a?.bench?.forEach((b: any) => playerIds.add(b.player_id));
-        m.lineup_b?.starters?.forEach((s: any) => playerIds.add(s.player_id));
-        m.lineup_b?.bench?.forEach((b: any) => playerIds.add(b.player_id));
+        let lA = m.lineup_a;
+        let lB = m.lineup_b;
+
+        // Fallback for Team A
+        if (!lA) {
+            const { data: pastA } = await admin
+                .from('matchups')
+                .select('lineup_a, lineup_b, team_a_id')
+                .or(`team_a_id.eq.${m.team_a_id},team_b_id.eq.${m.team_a_id}`)
+                .lt('gameweek', gameweek)
+                .order('gameweek', { ascending: false })
+                .limit(5);
+            const matchA = pastA?.find(pm => pm.team_a_id === m.team_a_id ? pm.lineup_a : pm.lineup_b);
+            if (matchA) lA = (matchA.team_a_id === m.team_a_id ? matchA.lineup_a : matchA.lineup_b);
+        }
+
+        // Fallback for Team B
+        if (!lB) {
+            const { data: pastB } = await admin
+                .from('matchups')
+                .select('lineup_a, lineup_b, team_a_id')
+                .or(`team_a_id.eq.${m.team_b_id},team_b_id.eq.${m.team_b_id}`)
+                .lt('gameweek', gameweek)
+                .order('gameweek', { ascending: false })
+                .limit(5);
+            const matchB = pastB?.find(pm => pm.team_a_id === m.team_b_id ? pm.lineup_a : pm.lineup_b);
+            if (matchB) lB = (matchB.team_a_id === m.team_b_id ? matchB.lineup_a : matchB.lineup_b);
+        }
+
+        resolvedLineups.set(m.id, { lineup_a: lA, lineup_b: lB });
+
+        lA?.starters?.forEach((s: any) => playerIds.add(s.player_id));
+        lA?.bench?.forEach((b: any) => playerIds.add(b.player_id));
+        lB?.starters?.forEach((s: any) => playerIds.add(s.player_id));
+        lB?.bench?.forEach((b: any) => playerIds.add(b.player_id));
     }
 
     if (playerIds.size === 0) {
@@ -61,25 +95,39 @@ export async function processMatchupsForGameweek(gameweek: number, finished: boo
         .eq('gameweek', gameweek)
         .in('player_id', Array.from(playerIds));
 
-    // Map: player_id → { minutes, statsJson }
+    // Fetch all current roster entries for these teams to sanitize fallbacks
+    const teamIds = new Set<string>();
+    for (const m of matchups) {
+        teamIds.add(m.team_a_id);
+        teamIds.add(m.team_b_id);
+    }
+    const { data: allRosterEntries } = await admin
+        .from('roster_entries')
+        .select('team_id, player_id, status')
+        .in('team_id', Array.from(teamIds));
+    
+    const teamRosterMap = new Map<string, Set<string>>();
+    const teamIrMap = new Map<string, Set<string>>();
+    for (const e of allRosterEntries ?? []) {
+        if (!teamRosterMap.has(e.team_id)) teamRosterMap.set(e.team_id, new Set());
+        teamRosterMap.get(e.team_id)!.add(e.player_id);
+        if (e.status === 'ir') {
+            if (!teamIrMap.has(e.team_id)) teamIrMap.set(e.team_id, new Set());
+            teamIrMap.get(e.team_id)!.add(e.player_id);
+        }
+    }
+
+    // Map: player_id → { fixtures: { minutes, statsJson }[] }
     const playerRecord = new Map<string, PlayerScoreRecord>();
     for (const row of statsData ?? []) {
         const fixtureMins: number = (row.stats as any)?.minutes_played ?? 0;
         const existing = playerRecord.get(row.player_id);
 
+        const fixture = { minutes: fixtureMins, statsJson: row.stats };
         if (!existing) {
-            playerRecord.set(row.player_id, { minutes: fixtureMins, statsJson: row.stats });
+            playerRecord.set(row.player_id, { fixtures: [fixture] });
         } else {
-            // Double GW: accumulate minutes and key stats
-            const merged = { ...existing.statsJson };
-            merged.goals = (merged.goals ?? 0) + ((row.stats as any)?.goals ?? 0);
-            merged.assists = (merged.assists ?? 0) + ((row.stats as any)?.assists ?? 0);
-            merged.saves = (merged.saves ?? 0) + ((row.stats as any)?.saves ?? 0);
-            merged.goals_conceded = (merged.goals_conceded ?? 0) + ((row.stats as any)?.goals_conceded ?? 0);
-            merged.yellow_cards = (merged.yellow_cards ?? 0) + ((row.stats as any)?.yellow_cards ?? 0);
-            merged.red_cards = (merged.red_cards ?? 0) + ((row.stats as any)?.red_cards ?? 0);
-            merged.minutes_played = (merged.minutes_played ?? 0) + fixtureMins;
-            playerRecord.set(row.player_id, { minutes: Math.max(existing.minutes, fixtureMins), statsJson: merged });
+            existing.fixtures.push(fixture);
         }
     }
 
@@ -101,9 +149,26 @@ export async function processMatchupsForGameweek(gameweek: number, finished: boo
     let updated = 0;
     const updateErrors: string[] = [];
 
+    const sanitize = (lineup: any, teamId: string) => {
+        if (!lineup) return null;
+        const roster = teamRosterMap.get(teamId);
+        const ir = teamIrMap.get(teamId);
+        if (!roster) return lineup;
+        return {
+            ...lineup,
+            starters: (lineup.starters ?? []).map((s: any) => 
+                (s && s.player_id && roster.has(s.player_id) && !ir?.has(s.player_id)) ? s : { ...s, player_id: null }
+            ),
+            bench: (lineup.bench ?? []).map((b: any) => 
+                (b && b.player_id && roster.has(b.player_id) && !ir?.has(b.player_id)) ? b : { ...b, player_id: null }
+            )
+        };
+    };
+
     for (const m of matchups) {
-        const lineupA = normalizeMatchupLineup(m.lineup_a as any);
-        const lineupB = normalizeMatchupLineup(m.lineup_b as any);
+        const resolved = resolvedLineups.get(m.id);
+        const lineupA = normalizeMatchupLineup(sanitize(resolved?.lineup_a, m.team_a_id));
+        const lineupB = normalizeMatchupLineup(sanitize(resolved?.lineup_b, m.team_b_id));
 
         const scoreA = calculateTeamScore(lineupA, playerRecord, playerPositions, playerPlTeamId, refStats as any, finished, finishedPlTeamIds);
         const scoreB = calculateTeamScore(lineupB, playerRecord, playerPositions, playerPlTeamId, refStats as any, finished, finishedPlTeamIds);

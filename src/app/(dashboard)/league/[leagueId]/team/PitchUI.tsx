@@ -880,7 +880,6 @@ export default function PitchUI({
                         <div className={styles.pitchZones}>
                             {ZONE_ORDER.map((zone) => {
                                 const zoneSlots = zonedSlots[zone];
-                                if (zoneSlots.length === 0) return null;
                                 return (
                                     <div key={zone} className={`${styles.pitchZone} ${styles[`zone${zone}`]}`}>
                                         <div className={styles.pitchRow}>

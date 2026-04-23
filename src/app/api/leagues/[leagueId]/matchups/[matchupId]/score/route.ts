@@ -80,15 +80,12 @@ export async function GET(_req: NextRequest, { params }: Props) {
   for (const row of statsRows ?? []) {
     const fixtureMins: number = (row.stats as any)?.minutes_played ?? 0;
     const existing = playerRecord.get(row.player_id);
+    
+    const fixture = { minutes: fixtureMins, statsJson: row.stats };
     if (!existing) {
-      playerRecord.set(row.player_id, { minutes: fixtureMins, statsJson: row.stats });
+      playerRecord.set(row.player_id, { fixtures: [fixture] });
     } else {
-      // Accumulate for double gameweek
-      const merged = { ...existing.statsJson };
-      merged.goals = (merged.goals ?? 0) + ((row.stats as any)?.goals ?? 0);
-      merged.assists = (merged.assists ?? 0) + ((row.stats as any)?.assists ?? 0);
-      merged.minutes_played = (merged.minutes_played ?? 0) + fixtureMins;
-      playerRecord.set(row.player_id, { minutes: Math.max(existing.minutes, fixtureMins), statsJson: merged });
+      existing.fixtures.push(fixture);
     }
   }
 
