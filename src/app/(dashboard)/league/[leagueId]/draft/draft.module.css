@@ -564,6 +564,8 @@
 .sidebarPanel {
   flex-shrink: 0;
   width: 360px;
+  min-height: 0;
+  align-self: stretch;
   display: flex;
   flex-direction: column;
   background: var(--color-bg-secondary);
@@ -675,7 +677,7 @@
   line-height: 1.4;
 }
 
-.posBtn:hover {
+.posBtn:hover:not(.posBtnActive) {
   background: var(--color-bg-elevated);
 }
 

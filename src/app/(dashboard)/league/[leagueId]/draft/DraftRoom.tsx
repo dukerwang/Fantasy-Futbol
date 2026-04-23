@@ -457,14 +457,19 @@ export default function DraftRoom({
 
   const [listHeight, setListHeight] = useState(500);
   useEffect(() => {
+    if (sidebarTab !== 'players') return;
     const el = playerListRef.current;
     if (!el) return;
     const observer = new ResizeObserver((entries) => {
-      for (const entry of entries) setListHeight(entry.contentRect.height);
+      for (const entry of entries) {
+        if (entry.contentRect.height > 0) setListHeight(entry.contentRect.height);
+      }
     });
     observer.observe(el);
+    const h = el.getBoundingClientRect().height;
+    if (h > 0) setListHeight(h);
     return () => observer.disconnect();
-  }, []);
+  }, [sidebarTab]);
 
   const timerMm = String(Math.floor(secondsLeft / 60));
   const timerSs = String(secondsLeft % 60).padStart(2, '0');
