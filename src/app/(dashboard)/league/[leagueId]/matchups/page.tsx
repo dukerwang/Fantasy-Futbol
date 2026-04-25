@@ -4,6 +4,8 @@ import { notFound, redirect } from 'next/navigation';
 import type { Matchup } from '@/types';
 import LiveMatchupCard from './LiveMatchupCard';
 import GameweekSelector from './GameweekSelector';
+import { getFplStatus } from '@/lib/fpl/api';
+import { processMatchupsForGameweek } from '@/lib/scoring/matchupProcessor';
 import styles from './matchups.module.css';
 
 export const dynamic = 'force-dynamic';
@@ -64,18 +66,9 @@ export default async function MatchupsPage({ params, searchParams }: Props) {
     let currentFplGw = 1;
     let isCurrentFplGwFinished = false;
     try {
-        const fplRes = await fetch('https://fantasy.premierleague.com/api/bootstrap-static/', { next: { revalidate: 300 } });
-        if (fplRes.ok) {
-            const fplData = await fplRes.json();
-            const now = new Date();
-            for (const ev of fplData.events as any[]) {
-                if (ev.deadline_time && new Date(ev.deadline_time) <= now) {
-                    currentFplGw = Math.max(currentFplGw, ev.id);
-                }
-            }
-            const currentEvent = (fplData.events as any[]).find((e: any) => e.id === currentFplGw);
-            isCurrentFplGwFinished = currentEvent?.finished ?? false;
-        }
+        const fplStatus = await getFplStatus();
+        currentFplGw = fplStatus.currentGw;
+        isCurrentFplGwFinished = fplStatus.isFinished;
     } catch { /* ignore */ }
 
     // Gameweeks this league actually has fixtures for (must run before matchup query)
@@ -135,7 +128,7 @@ export default async function MatchupsPage({ params, searchParams }: Props) {
     }
 
     // Fetch matchups for target GW (include user_id for featured matchup detection)
-    const { data: matchupsData } = await admin
+    let { data: matchupsData } = await admin
         .from('matchups')
         .select(`
             *,
@@ -143,8 +136,32 @@ export default async function MatchupsPage({ params, searchParams }: Props) {
             team_b:teams!matchups_team_b_id_fkey(id, team_name, user_id)
         `)
         .eq('league_id', leagueId)
-        .eq('gameweek', targetGw)
-        .order('id', { ascending: true });
+        .eq('gameweek', targetGw);
+
+    // SERVER-SIDE SYNC: If we are in the current gameweek and scores are 0.0, 
+    // force a sync before rendering to prevent the "0.0 flash" in the UI.
+    const isCurrentGw = targetGw === currentFplGw;
+    const needsSync = isCurrentGw && (matchupsData ?? []).some(m => 
+        m.status !== 'completed' && 
+        (parseFloat(m.score_a) === 0 && parseFloat(m.score_b) === 0)
+    );
+
+    if (needsSync) {
+        // Run the processor (this updates the DB and returns the count)
+        await processMatchupsForGameweek(targetGw, isCurrentFplGwFinished);
+        
+        // Re-fetch fresh data for the render
+        const { data: freshData } = await admin
+            .from('matchups')
+            .select(`
+                *,
+                team_a:teams!matchups_team_a_id_fkey(id, team_name, user_id),
+                team_b:teams!matchups_team_b_id_fkey(id, team_name, user_id)
+            `)
+            .eq('league_id', leagueId)
+            .eq('gameweek', targetGw);
+        matchupsData = freshData;
+    }
 
     const matchups = (matchupsData ?? []) as Matchup[];
 

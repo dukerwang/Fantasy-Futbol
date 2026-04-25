@@ -6,6 +6,8 @@ import { formatPlayerName } from '@/lib/formatName';
 import styles from './league.module.css';
 import DraftOrderManager from './DraftOrderManager';
 import LeaveLeagueButton from './LeaveLeagueButton';
+import { getFplStatus } from '@/lib/fpl/api';
+import { processMatchupsForGameweek } from '@/lib/scoring/matchupProcessor';
 
 export const dynamic = 'force-dynamic';
 
@@ -199,15 +201,15 @@ export default async function LeaguePage({ params }: Props) {
       const { insertMatchups } = await import('@/lib/schedule/insertMatchups');
       await insertMatchups(admin, leagueId).catch(console.error);
       
-      // Re-fetch myMatchups and recentMatchups
+      // Refresh myMatchups if they were just created
       if (myTeamId) {
-        const { data: refreshedMyMatchups } = await admin
+        const { data: freshMyMatchups } = await admin
           .from('matchups')
           .select('*, team_a:teams!team_a_id(id, team_name), team_b:teams!team_b_id(id, team_name)')
           .eq('league_id', leagueId)
           .or(`team_a_id.eq.${myTeamId},team_b_id.eq.${myTeamId}`)
           .order('gameweek', { ascending: true });
-        myMatchups = refreshedMyMatchups ?? [];
+        if (freshMyMatchups) myMatchups = freshMyMatchups;
       }
 
       const { data: refreshedRecent } = await admin
@@ -218,6 +220,28 @@ export default async function LeaguePage({ params }: Props) {
         .order('gameweek', { ascending: false })
         .limit(100);
       recentMatchups = refreshedRecent ?? [];
+    }
+  }
+
+  // ── SERVER-SIDE SCORE SYNC ──────────────────────────────────────────────
+  // If the current matchup shows 0.0-0.0, force a sync to avoid the initial flash
+  const fplStatus = await getFplStatus();
+  const currentFplGw = fplStatus.currentGw;
+  const currentMatchup = myMatchups.find(m => m.gameweek === currentFplGw);
+
+  if (currentMatchup && currentMatchup.status !== 'completed' && 
+      parseFloat(currentMatchup.score_a) === 0 && parseFloat(currentMatchup.score_b) === 0) {
+    await processMatchupsForGameweek(currentFplGw, fplStatus.isFinished);
+    
+    // Refresh myMatchups again with fresh scores
+    if (myTeamId) {
+      const { data: freshMyMatchups } = await admin
+        .from('matchups')
+        .select('*, team_a:teams!team_a_id(id, team_name), team_b:teams!team_b_id(id, team_name)')
+        .eq('league_id', leagueId)
+        .or(`team_a_id.eq.${myTeamId},team_b_id.eq.${myTeamId}`)
+        .order('gameweek', { ascending: true });
+      if (freshMyMatchups) myMatchups = freshMyMatchups;
     }
   }
 
