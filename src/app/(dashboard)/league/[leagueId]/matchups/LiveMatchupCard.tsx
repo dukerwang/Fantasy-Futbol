@@ -69,6 +69,7 @@ export default function LiveMatchupCard({
                 }
             } catch { /* silent */ }
         };
+        poll(); // fetch immediately on mount
         const interval = setInterval(poll, 60_000);
         return () => clearInterval(interval);
     }, [isLive, matchup.id, matchup.league_id]);
