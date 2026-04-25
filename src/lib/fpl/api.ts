@@ -15,7 +15,7 @@ export async function getFplStatus(): Promise<FplStatus> {
     });
     
     if (!fplRes.ok) {
-      return { currentGw: 1, isFinished: false };
+      return { currentGw: 1, isFinished: false, nextGwIsClose: false };
     }
 
     const fplData = await fplRes.json();
