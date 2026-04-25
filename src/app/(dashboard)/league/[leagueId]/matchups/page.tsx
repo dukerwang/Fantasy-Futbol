@@ -6,6 +6,8 @@ import LiveMatchupCard from './LiveMatchupCard';
 import GameweekSelector from './GameweekSelector';
 import styles from './matchups.module.css';
 
+export const dynamic = 'force-dynamic';
+
 interface Props {
     params: Promise<{ leagueId: string }>;
     searchParams: Promise<{ gw?: string }>;
@@ -43,7 +45,7 @@ export default async function MatchupsPage({ params, searchParams }: Props) {
 
     const { data: league } = await admin
         .from('leagues')
-        .select('id, name, commissioner_id')
+        .select('id, name, commissioner_id, status')
         .eq('id', leagueId)
         .single();
 
@@ -76,9 +78,6 @@ export default async function MatchupsPage({ params, searchParams }: Props) {
         }
     } catch { /* ignore */ }
 
-    let targetGw = parseInt(gw ?? '0', 10);
-    if (!targetGw) targetGw = currentFplGw;
-
     // Gameweeks this league actually has fixtures for (must run before matchup query)
     const { data: allGws } = await admin
         .from('matchups')
@@ -86,7 +85,47 @@ export default async function MatchupsPage({ params, searchParams }: Props) {
         .eq('league_id', leagueId)
         .order('gameweek', { ascending: true });
 
-    const gameweeks = Array.from(new Set((allGws ?? []).map((row) => row.gameweek))).sort((a, b) => a - b);
+    let gameweeks = Array.from(new Set((allGws ?? []).map((row) => row.gameweek))).sort((a, b) => a - b);
+
+    // Self-healing: if the draft was auto-completed via SQL cron, matchups might not exist yet
+    if (gameweeks.length === 0 && league.status === 'active') {
+        const { insertMatchups } = await import('@/lib/schedule/insertMatchups');
+        await insertMatchups(admin, leagueId).catch(console.error);
+        
+        // Re-fetch gameweeks after generation
+        const { data: refreshedGws } = await admin
+            .from('matchups')
+            .select('gameweek')
+            .eq('league_id', leagueId)
+            .order('gameweek', { ascending: true });
+        gameweeks = Array.from(new Set((refreshedGws ?? []).map((row) => row.gameweek))).sort((a, b) => a - b);
+    }
+
+    let targetGw = parseInt(gw ?? '0', 10);
+    
+    // Robust fallback if no gw in URL or FPL API fails
+    if (!targetGw) {
+        if (currentFplGw > 1) {
+            targetGw = currentFplGw;
+        } else if (gameweeks.length > 0) {
+            // Find the first active gameweek
+            const { data: activeMatchups } = await admin
+                .from('matchups')
+                .select('gameweek')
+                .eq('league_id', leagueId)
+                .in('status', ['live', 'scheduled'])
+                .order('gameweek', { ascending: true })
+                .limit(1);
+            
+            if (activeMatchups && activeMatchups.length > 0) {
+                targetGw = activeMatchups[0].gameweek;
+            } else {
+                targetGw = gameweeks[gameweeks.length - 1]; // Fallback to last week of season
+            }
+        } else {
+            targetGw = 1;
+        }
+    }
 
     // If URL/default GW has no league matchups, snap to a real GW (fixes empty page +
     // invalid <select value> showing the wrong GW in the selector).

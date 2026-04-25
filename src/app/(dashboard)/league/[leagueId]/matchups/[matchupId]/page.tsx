@@ -80,10 +80,11 @@ export default async function MatchupDetailPage({ params }: Props) {
         }
     }
 
-    const { loadReferenceStats } = await import('@/lib/scoring/matchups');
-    const { calculateMatchRating } = await import('@/lib/scoring/engine');
-    const refStats = await loadReferenceStats(admin, '2025-26');
-
+    // Load pre-computed fantasy_points from player_stats.
+    // We do NOT re-run calculateMatchRating here — the stored stats JSON often has
+    // zeroed BPS/ICT fields when the sync ran before FPL finalized bonus points,
+    // which would produce wrong recalculated scores. The fantasy_points column is
+    // computed at sync time with the full data and is the authoritative value.
     const detailMap: Record<string, { points: number; stats?: any }> = {};
     if (playerIds.size > 0 && matchupData.gameweek) {
         const { data: statsRows } = await admin
@@ -95,35 +96,17 @@ export default async function MatchupDetailPage({ params }: Props) {
         for (const s of statsRows ?? []) {
             detailMap[s.player_id] = { points: Number(s.fantasy_points), stats: s.stats || {} };
         }
-
-        const applySlotWeights = (lineup: MatchupLineup | null) => {
-            lineup?.starters.forEach((s) => {
-                const detail = detailMap[s.player_id];
-                if (detail?.stats && detail.stats.minutes_played > 0) {
-                    const { fantasyPoints, rating } = calculateMatchRating(detail.stats, s.slot, refStats as any);
-                    detailMap[s.player_id].points = fantasyPoints;
-                    detailMap[s.player_id].stats.rating = rating;
-                }
-            });
-            (lineup?.bench as any[] ?? []).forEach((b) => {
-                const detail = detailMap[b.player_id];
-                if (detail?.stats && detail.stats.minutes_played > 0) {
-                    // For flex/bench, we need a valid position for rating estimation
-                    const pos = playerMap[b.player_id]?.primary_position ?? 'CM'; 
-                    const { fantasyPoints, rating } = calculateMatchRating(detail.stats, pos, refStats as any);
-                    detailMap[b.player_id].points = fantasyPoints;
-                    detailMap[b.player_id].stats.rating = rating;
-                }
-            });
-        };
-        applySlotWeights(lineupA);
-        applySlotWeights(lineupB);
     }
+
+    let computedScoreA = 0;
+    lineupA?.starters.forEach(s => { computedScoreA += detailMap[s.player_id]?.points || 0; });
+    let computedScoreB = 0;
+    lineupB?.starters.forEach(s => { computedScoreB += detailMap[s.player_id]?.points || 0; });
 
     const isCompleted = matchup.status === 'completed';
     const isLive      = matchup.status === 'live';
-    const scoreA      = matchup.score_a;
-    const scoreB      = matchup.score_b;
+    const scoreA      = isCompleted ? matchup.score_a : computedScoreA;
+    const scoreB      = isCompleted ? matchup.score_b : computedScoreB;
     const isDraw      = isCompleted && Math.abs(scoreA - scoreB) <= 10;
     const aWins       = isCompleted && !isDraw && scoreA > scoreB;
     const bWins       = isCompleted && !isDraw && scoreB > scoreA;

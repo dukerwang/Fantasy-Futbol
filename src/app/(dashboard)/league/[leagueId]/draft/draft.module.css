@@ -347,8 +347,8 @@
   position: sticky;
   top: 0;
   z-index: 10;
-  min-width: 72px;
-  max-width: 130px;
+  min-width: 0;
+  max-width: 140px;
   overflow: hidden;
 }
 
@@ -394,8 +394,8 @@
 
 .pickCell {
   height: 68px;
-  min-width: 72px;
-  max-width: 130px;
+  min-width: 0;
+  max-width: 140px;
   border: 1px solid var(--color-border-subtle);
   vertical-align: middle;
   position: relative;
@@ -406,7 +406,7 @@
 }
 
 .pickCellFilled {
-  background: var(--color-bg-card);
+  background: var(--color-bg-primary);
   cursor: pointer;
 }
 

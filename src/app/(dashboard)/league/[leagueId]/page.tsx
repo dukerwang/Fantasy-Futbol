@@ -183,13 +183,43 @@ export default async function LeaguePage({ params }: Props) {
   ]);
 
   const standings = standingsResult.data ?? [];
-  const myMatchups = myMatchupsResult.data ?? [];
+  let myMatchups = myMatchupsResult.data ?? [];
   const auctions = auctionsResult.data ?? [];
   const activity = activityResult.data ?? [];
   const initialTeams = (teamsResult.data ?? []) as Array<{ id: string; team_name: string; draft_order: number | null }>;
   const taxiSquad = taxiResult?.data ?? [];
   const tournaments = tournamentsResult?.data ?? [];
-  const recentMatchups = recentMatchupsResult?.data ?? [];
+  let recentMatchups = recentMatchupsResult?.data ?? [];
+
+  // Self-healing: if the draft was auto-completed via SQL cron, matchups might not exist yet
+  if (league.status === 'active' && recentMatchups.length === 0 && myMatchups.length === 0) {
+    // Check if there are truly no matchups in the league
+    const { count } = await admin.from('matchups').select('id', { count: 'exact', head: true }).eq('league_id', leagueId);
+    if (count === 0) {
+      const { insertMatchups } = await import('@/lib/schedule/insertMatchups');
+      await insertMatchups(admin, leagueId).catch(console.error);
+      
+      // Re-fetch myMatchups and recentMatchups
+      if (myTeamId) {
+        const { data: refreshedMyMatchups } = await admin
+          .from('matchups')
+          .select('*, team_a:teams!team_a_id(id, team_name), team_b:teams!team_b_id(id, team_name)')
+          .eq('league_id', leagueId)
+          .or(`team_a_id.eq.${myTeamId},team_b_id.eq.${myTeamId}`)
+          .order('gameweek', { ascending: true });
+        myMatchups = refreshedMyMatchups ?? [];
+      }
+
+      const { data: refreshedRecent } = await admin
+        .from('matchups')
+        .select('team_a_id, team_b_id, score_a, score_b, gameweek')
+        .eq('league_id', leagueId)
+        .eq('status', 'completed')
+        .order('gameweek', { ascending: false })
+        .limit(100);
+      recentMatchups = refreshedRecent ?? [];
+    }
+  }
 
   type FormResult = 'W' | 'D' | 'L';
   const DRAW_MARGIN = 10;

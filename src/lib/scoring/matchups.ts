@@ -1,5 +1,5 @@
-import { calculateMatchRating, DEFAULT_REFERENCE_STATS } from './engine';
-import type { GranularPosition, ReferenceStats, RatingComponent } from '@/types';
+import { DEFAULT_REFERENCE_STATS } from './engine';
+import type { ReferenceStats, RatingComponent } from '@/types';
 import type { createAdminClient } from '@/lib/supabase/admin';
 
 export type RefStatsMap = Record<string, ReferenceStats>;
@@ -15,7 +15,15 @@ export const POSITION_FLEX_MAP: Record<string, string[]> = {
 };
 
 export interface PlayerScoreRecord {
-  fixtures: { minutes: number; statsJson: any }[];
+  /**
+   * Each fixture the player appeared in during this gameweek.
+   * `fantasyPoints` is the pre-computed value from `player_stats.fantasy_points`
+   * (calculated by the sync edge function with full FPL ICT/BPS data).
+   * We use this directly rather than re-running calculateMatchRating, because the
+   * stored `stats` JSON often has zeroed BPS/ICT fields when the sync runs before
+   * FPL finalizes bonus points — which would produce near-zero re-calculated scores.
+   */
+  fixtures: { minutes: number; fantasyPoints: number }[];
 }
 
 /**
@@ -34,7 +42,7 @@ export function calculateTeamScore(
   playerRecord: Map<string, PlayerScoreRecord>,
   playerPositions: Map<string, string[]>,
   playerPlTeamId: Map<string, number>,
-  refStats: Record<string, ReferenceStats>,
+  _refStats: Record<string, ReferenceStats>,
   finished: boolean,
   finishedPlTeamIds: Set<number>
 ): number {
@@ -43,22 +51,15 @@ export function calculateTeamScore(
   let score = 0;
   const benchEntries: { player_id: string; slot: string }[] = lineup.bench ?? [];
   const benchIds = benchEntries.map((b: any) => b.player_id);
-  const starters: { player_id: string; slot: GranularPosition }[] = lineup.starters ?? [];
+  const starters: { player_id: string; slot: string }[] = lineup.starters ?? [];
 
   const usedBenchIds = new Set<string>();
 
-  /** Helper to score a single player in a specific slot */
-  function scorePlayerInSlot(playerId: string, slot: GranularPosition): number {
+  /** Sum pre-computed fantasy points across all fixtures for a player */
+  function getStoredPoints(playerId: string): number {
     const record = playerRecord.get(playerId);
     if (!record) return 0;
-
-    let playerTotal = 0;
-    for (const fix of record.fixtures) {
-      if (fix.minutes === 0 || !fix.statsJson) continue;
-      const { fantasyPoints } = calculateMatchRating(fix.statsJson, slot, refStats as any);
-      playerTotal += fantasyPoints;
-    }
-    return playerTotal;
+    return record.fixtures.reduce((sum, fix) => sum + (fix.minutes > 0 ? fix.fantasyPoints : 0), 0);
   }
 
   // 1. Starters & Auto-Subs
@@ -67,10 +68,10 @@ export function calculateTeamScore(
     const totalMinutes = record?.fixtures.reduce((s, f) => s + f.minutes, 0) ?? 0;
 
     if (totalMinutes > 0) {
-      // Starter played at least one match — score using their actual lineup slot
-      score += scorePlayerInSlot(starter.player_id, starter.slot);
+      // Starter played — use pre-computed points directly
+      score += getStoredPoints(starter.player_id);
     } else {
-      // Auto-sub logic: only trigger if the player's match is confirmed finished
+      // Auto-sub: only fire if this player's PL match is confirmed finished
       const plTeamId = playerPlTeamId.get(starter.player_id);
       const fixtureFinished = finished || (plTeamId != null && finishedPlTeamIds.has(plTeamId));
 
@@ -88,7 +89,7 @@ export function calculateTeamScore(
           const canPlaySlot = subPositions.some((pos) => slotAllowedPos.includes(pos));
 
           if (canPlaySlot) {
-            score += scorePlayerInSlot(benchId, starter.slot);
+            score += getStoredPoints(benchId);
             usedBenchIds.add(benchId);
             break;
           }
@@ -104,17 +105,7 @@ export function calculateTeamScore(
       const totalMinutes = record?.fixtures.reduce((s, f) => s + f.minutes, 0) ?? 0;
 
       if (record && totalMinutes > 0) {
-        // Score bench player in a neutral slot matching their primary position
-        const primaryPos = (playerPositions.get(benchId)?.[0] ?? 'CM') as GranularPosition;
-        
-        let benchPlayerTotal = 0;
-        for (const fix of record.fixtures) {
-          if (fix.minutes > 0 && fix.statsJson) {
-            const { fantasyPoints } = calculateMatchRating(fix.statsJson, primaryPos, refStats as any);
-            benchPlayerTotal += fantasyPoints;
-          }
-        }
-
+        const benchPlayerTotal = getStoredPoints(benchId);
         if (benchPlayerTotal > 0) {
           score += benchPlayerTotal * 0.20;
         }

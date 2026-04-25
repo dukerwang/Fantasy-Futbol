@@ -117,13 +117,14 @@ export async function processMatchupsForGameweek(gameweek: number, finished: boo
         }
     }
 
-    // Map: player_id → { fixtures: { minutes, statsJson }[] }
+    // Map: player_id → { fixtures: { minutes, fantasyPoints }[] }
     const playerRecord = new Map<string, PlayerScoreRecord>();
     for (const row of statsData ?? []) {
         const fixtureMins: number = (row.stats as any)?.minutes_played ?? 0;
+        const pts: number = Number(row.fantasy_points) || 0;
         const existing = playerRecord.get(row.player_id);
 
-        const fixture = { minutes: fixtureMins, statsJson: row.stats };
+        const fixture = { minutes: fixtureMins, fantasyPoints: pts };
         if (!existing) {
             playerRecord.set(row.player_id, { fixtures: [fixture] });
         } else {

@@ -338,13 +338,17 @@ export default function DraftRoom({
       if (pickedPlayerIds.has(p.id)) return false;
       if (posFilter !== 'ALL' && p.primary_position !== posFilter) return false;
       if (search.trim()) {
-        const q = search.toLowerCase();
-        return (
-          (p.name?.toLowerCase() || '').includes(q) ||
-          (p.full_name?.toLowerCase() || '').includes(q) ||
-          (p.web_name?.toLowerCase() || '').includes(q) ||
-          formatPlayerName(p, 'initial_last').toLowerCase().includes(q) ||
-          p.pl_team.toLowerCase().includes(q)
+        const qParts = search.toLowerCase().trim().split(/\s+/);
+        const nameStr = (p.name || '').toLowerCase();
+        const fullNameStr = (p.full_name || '').toLowerCase();
+        const webNameStr = (p.web_name || '').toLowerCase();
+        const plTeamStr = (p.pl_team || '').toLowerCase();
+        
+        return qParts.every(part => 
+          nameStr.includes(part) || 
+          fullNameStr.includes(part) || 
+          webNameStr.includes(part) || 
+          plTeamStr.includes(part)
         );
       }
       return true;
