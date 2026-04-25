@@ -1,6 +1,7 @@
 export interface FplStatus {
   currentGw: number;
   isFinished: boolean;
+  nextGwIsClose: boolean;
 }
 
 /**
@@ -31,9 +32,16 @@ export async function getFplStatus(): Promise<FplStatus> {
     const currentEvent = (fplData.events as any[]).find((e: any) => e.id === currentGw);
     const isFinished = currentEvent?.finished ?? false;
 
-    return { currentGw, isFinished };
+    let nextGwIsClose = false;
+    const nextGW = (fplData.events as any[]).find((e: any) => !e.finished && e.is_next);
+    if (nextGW) {
+      const daysUntil = (new Date(nextGW.deadline_time).getTime() - Date.now()) / 86400000;
+      if (daysUntil <= 3) nextGwIsClose = true;
+    }
+
+    return { currentGw, isFinished, nextGwIsClose };
   } catch (error) {
     console.error('Error fetching FPL status:', error);
-    return { currentGw: 1, isFinished: false };
+    return { currentGw: 1, isFinished: false, nextGwIsClose: false };
   }
 }

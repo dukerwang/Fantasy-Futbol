@@ -289,31 +289,7 @@ export default async function LeaguePage({ params }: Props) {
   let heroMatchup: typeof myMatchups[0] | null = null;
   let heroState: 'live' | 'upcoming' | 'final' | null = null;
 
-  // Try to determine the current FPL gameweek as the primary anchor
-  let currentFplGw = 1;
-  let isCurrentFplGwFinished = false;
-  let nextFplGwIsClose = false;
-  
-  try {
-    const fplRes = await fetch('https://fantasy.premierleague.com/api/bootstrap-static/', { next: { revalidate: 3600 } });
-    if (fplRes.ok) {
-      const fplData = await fplRes.json();
-      const now = new Date();
-      for (const ev of fplData.events as any[]) {
-        if (ev.deadline_time && new Date(ev.deadline_time) <= now) {
-          currentFplGw = Math.max(currentFplGw, ev.id);
-        }
-      }
-      const currentEvent = (fplData.events as any[]).find((e: any) => e.id === currentFplGw);
-      isCurrentFplGwFinished = currentEvent?.finished ?? false;
-      
-      const nextGW = (fplData.events as any[]).find((e: any) => !e.finished && e.is_next);
-      if (nextGW) {
-        const daysUntil = (new Date(nextGW.deadline_time).getTime() - Date.now()) / 86400000;
-        if (daysUntil <= 3) nextFplGwIsClose = true;
-      }
-    }
-  } catch { /* FPL unreachable */ }
+  const { isFinished: isCurrentFplGwFinished, nextGwIsClose: nextFplGwIsClose } = fplStatus;
 
   const currentGwMatchup = myMatchups.find((m) => m.gameweek === currentFplGw);
   
