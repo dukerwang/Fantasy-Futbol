@@ -21,7 +21,7 @@
 
 .pos_GK {
   background: var(--color-pos-gk);
-  color: var(--color-text-inverse);
+  color: #fff;
 }
 
 .pos_CB {
@@ -31,12 +31,12 @@
 
 .pos_LB {
   background: var(--color-pos-fb);
-  color: var(--color-text-inverse);
+  color: #fff;
 }
 
 .pos_RB {
   background: var(--color-pos-fb);
-  color: var(--color-text-inverse);
+  color: #fff;
 }
 
 .pos_DM {
@@ -46,32 +46,32 @@
 
 .pos_CM {
   background: var(--color-pos-cm);
-  color: var(--color-text-inverse);
+  color: #fff;
 }
 
 .pos_LM {
   background: var(--color-pos-wm);
-  color: var(--color-text-inverse);
+  color: #fff;
 }
 
 .pos_RM {
   background: var(--color-pos-wm);
-  color: var(--color-text-inverse);
+  color: #fff;
 }
 
 .pos_AM {
   background: var(--color-pos-am);
-  color: var(--color-text-inverse);
+  color: #fff;
 }
 
 .pos_LW {
   background: var(--color-pos-lw);
-  color: var(--color-text-inverse);
+  color: #fff;
 }
 
 .pos_RW {
   background: var(--color-pos-rw);
-  color: var(--color-text-inverse);
+  color: #fff;
 }
 
 .pos_ST {

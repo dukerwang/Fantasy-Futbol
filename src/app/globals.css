@@ -33,18 +33,17 @@
   --color-text-muted: #9A9488;
   --color-text-inverse: #FFFFFF;
 
-  /* --- Position Colors --- */
-  /* --- Position Colors (from prototype) --- */
-  --color-pos-gk: #D4A017;
-  --color-pos-cb: #1E3A5F;
-  --color-pos-fb: #1E3A5F;
-  --color-pos-dm: #5C3D8F;
-  --color-pos-cm: #5C3D8F;
-  --color-pos-am: #5C3D8F;
-  --color-pos-wm: #5C3D8F;
-  --color-pos-lw: #3A6B4A;
-  --color-pos-rw: #3A6B4A;
-  --color-pos-st: #8B1A1A;
+  /* --- Position Colors (Vibrant Editorial) --- */
+  --color-pos-gk: #D4A017; /* Amber */
+  --color-pos-cb: #1E3A5F; /* Navy */
+  --color-pos-fb: #3B82F6; /* Blue */
+  --color-pos-dm: #5C3D8F; /* Purple */
+  --color-pos-cm: #8B5CF6; /* Violet */
+  --color-pos-am: #E879F9; /* Pink/Magenta */
+  --color-pos-wm: #4ADE80; /* Light Green */
+  --color-pos-lw: #22C55E; /* Green */
+  --color-pos-rw: #22C55E; /* Green */
+  --color-pos-st: #8B1A1A; /* Crimson */
 
   /* --- Typography --- */
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;

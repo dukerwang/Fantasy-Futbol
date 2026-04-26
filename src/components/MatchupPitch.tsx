@@ -26,7 +26,7 @@ const SLOT_COLOR: Record<string, string> = {
 };
 
 const BENCH_COLOR: Record<string, string> = {
-    def: '#3b82f6', mid: '#8b5cf6', atk: '#ef4444', flex: '#6b7280',
+    def: 'var(--color-pos-fb)', mid: 'var(--color-pos-cm)', atk: 'var(--color-pos-st)', flex: 'var(--color-text-muted)',
 };
 
 const SLOT_TO_ZONE: Record<string, Zone> = {
