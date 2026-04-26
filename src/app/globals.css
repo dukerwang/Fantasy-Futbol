@@ -35,15 +35,15 @@
 
   /* --- Position Colors (Vibrant Editorial Refined) --- */
   --color-pos-gk: #D4A017; /* Amber */
-  --color-pos-cb: #2A5A92; /* Steel Blue (Lighter than Navy) */
-  --color-pos-fb: #3B82F6; /* Blue (Vibrant) */
-  --color-pos-dm: #7450A1; /* Muted Purple (Lighter than Deep Purple) */
-  --color-pos-cm: #9D81C1; /* Lavender (Lighter than Violet) */
-  --color-pos-am: #E879F9; /* Pink/Magenta */
-  --color-pos-wm: #4ADE80; /* Light Green */
-  --color-pos-lw: #22C55E; /* Green */
-  --color-pos-rw: #22C55E; /* Green */
-  --color-pos-st: #A62626; /* Deep Red (Lighter than Crimson) */
+  --color-pos-cb: #2A5A92; /* Steel Blue */
+  --color-pos-fb: #3B82F6; /* Blue */
+  --color-pos-dm: #7450A1; /* Muted Purple */
+  --color-pos-cm: #9D81C1; /* Lavender */
+  --color-pos-am: #B54E7F; /* Rose/Plum (Muted Pink-Red) */
+  --color-pos-wm: #68A37C; /* Moss Green (Muted, Non-Neon) */
+  --color-pos-lw: #4D8A61; /* Deep Sage (Lighter than UI Accent) */
+  --color-pos-rw: #4D8A61; /* Deep Sage (Lighter than UI Accent) */
+  --color-pos-st: #A62626; /* Deep Red */
 
   /* --- Typography --- */
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
