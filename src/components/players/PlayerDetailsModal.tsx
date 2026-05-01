@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import type { Player } from '@/types';
-import PlayerDetailCard from './PlayerDetailCard';
+import PremiumPlayerCard from './PremiumPlayerCard';
 import styles from './PlayerDetailsModal.module.css';
 
 interface Props {
@@ -49,7 +49,7 @@ export default function PlayerDetailsModal({
                     ×
                 </button>
 
-                <PlayerDetailCard
+                <PremiumPlayerCard
                     player={player}
                     totalPoints={totalPoints}
                     recentForm={recentForm}
