@@ -1,13 +1,13 @@
 # ⚽ Fantasy Futbol
 
-> A multi-user dynasty sports platform that brings real-world football economics and tactical depth to fantasy sports.
+> A multi-tenant dynasty sports platform that brings real-world football economics and tactical depth to fantasy sports.
 
 ![Next.js](https://img.shields.io/badge/Next.js-16-black?style=flat&logo=next.js)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?style=flat&logo=typescript)
 ![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL-green?style=flat&logo=supabase)
 ![Vercel](https://img.shields.io/badge/Deployed_on-Vercel-black?style=flat&logo=vercel)
 
-Fantasy Futbol is a highly-customized, multi-user dynasty fantasy soccer application. Unlike mainstream platforms (like Sleeper or ESPN) that abstract sports into arbitrary point systems, this platform mirrors real-world football mechanics. Players are valued via public auctions (like real transfer windows) and scored contextually based on their real-world performance using a custom mathematical model.
+Fantasy Futbol is a highly-customized, multi-tenant dynasty fantasy soccer application. Unlike mainstream platforms (like Sleeper or ESPN) that abstract sports into arbitrary point systems, this platform mirrors real-world football mechanics. Players are valued via public auctions (like real transfer windows) and scored contextually based on their real-world performance using a custom mathematical model.
 
 ## ✨ Technical Highlights (For Recruiters/Engineers)
 
@@ -32,21 +32,17 @@ Fantasy Futbol is a highly-customized, multi-user dynasty fantasy soccer applica
 ## 🛠 Local Development Setup
 
 ### 1. Prerequisites
-
 - Node.js ≥ 20
 - A Supabase project ([supabase.com](https://supabase.com))
 - An API-Football free account ([api-football.com](https://www.api-football.com))
 
 ### 2. Install Dependencies
-
 ```bash
 npm install
 ```
 
 ### 3. Configure Environment
-
 Copy `.env.local` and fill in your values:
-
 ```env
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
@@ -56,25 +52,20 @@ CRON_SECRET=your-secret-for-cron-routes
 ```
 
 ### 4. Run Database Migrations
-
 In your Supabase dashboard → SQL Editor, run the setup scripts located in:
-
 ```
 supabase/migrations/
 ```
 
 ### 5. Start Development Server
-
 ```bash
 npm run dev
 ```
-
 Open [http://localhost:3000](http://localhost:3000)
 
 ---
 
 ## 🗄️ Project Structure
-
 ```text
 src/
 ├── app/            # Next.js App Router (Dashboard, League, Auth, API Routes)
