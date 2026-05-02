@@ -144,7 +144,6 @@ export default function PremiumPlayerCard({
     const stageRef = useRef<HTMLDivElement>(null);
     const cardRef = useRef<HTMLDivElement>(null);
     const holoRef = useRef<HTMLDivElement>(null);
-    const overlayRef = useRef<HTMLDivElement>(null); // buttons overlay — syncs tilt, not flip
     const [flipped, setFlipped] = useState(false);
     const [tab, setTab] = useState<'log' | 'breakdown'>('log');
     const [hovering, setHovering] = useState(false);
@@ -189,6 +188,7 @@ export default function PremiumPlayerCard({
     // Mononyms — map full DB names to their known single-name identity
     const MONONYM_MAP: Record<string, string> = {
         'Sávio Moreira de Oliveira': 'Savinho',
+        'Savio Moreira de Oliveira': 'Savinho',
         'Savinho': 'Savinho',
         'Alisson Becker': 'Alisson',
         'Ederson Santana de Moraes': 'Ederson',
@@ -240,10 +240,6 @@ export default function PremiumPlayerCard({
         const ry = (px - 0.5) * 16;
 
         card.style.transform = `rotateX(${rx}deg) rotateY(${flipped ? 180 + ry : ry}deg)`;
-        // Sync the same tilt (not flip) to the overlay so buttons tilt with the card
-        if (overlayRef.current) {
-            overlayRef.current.style.transform = `rotateX(${rx}deg) rotateY(${ry}deg)`;
-        }
 
         if (holo) {
             holo.style.setProperty('--mx', `${px * 100}%`);
@@ -257,9 +253,6 @@ export default function PremiumPlayerCard({
     const onMouseLeave = useCallback(() => {
         if (cardRef.current) {
             cardRef.current.style.transform = `rotateX(0deg) rotateY(${flipped ? 180 : 0}deg)`;
-        }
-        if (overlayRef.current) {
-            overlayRef.current.style.transform = `rotateX(0deg) rotateY(0deg)`;
         }
         setHovering(false);
     }, [flipped]);
@@ -426,6 +419,18 @@ export default function PremiumPlayerCard({
                                 <span className={styles.rankEmpty}>—</span>
                             )}
                         </div>
+                    </div>
+
+                    {/* Action buttons — front face */}
+                    <div className={styles.cardActions}>
+                        <button className={styles.actionIconBtn} onClick={handleFlip} aria-label="Flip to game log">
+                            <FlipIcon />
+                        </button>
+                        {onClose && (
+                            <button className={styles.actionIconBtn} onClick={onClose} aria-label="Close">
+                                ×
+                            </button>
+                        )}
                     </div>
 
 
@@ -597,20 +602,20 @@ export default function PremiumPlayerCard({
                     </div>
                 </div>
                 {/* end .back face */}
+
+                {/* Action buttons — back face: mirrored layout but stable logic */}
+                <div className={styles.cardActionsBack}>
+                    <button className={styles.actionIconBtn} onClick={handleFlip} aria-label="Flip to front">
+                        <FlipIcon />
+                    </button>
+                    {onClose && (
+                        <button className={styles.actionIconBtn} onClick={onClose} aria-label="Close">
+                            ×
+                        </button>
+                    )}
+                </div>
             </div>
             {/* end .card */}
-
-            {/* Buttons — outside .card to avoid flip mirroring; tilt synced via overlayRef */}
-            <div className={styles.cardActionsOverlay} ref={overlayRef}>
-                <button className={styles.actionIconBtn} onClick={handleFlip} aria-label={flipped ? 'Flip to front' : 'Flip to game log'}>
-                    <FlipIcon />
-                </button>
-                {onClose && (
-                    <button className={styles.actionIconBtn} onClick={onClose} aria-label="Close">
-                        ×
-                    </button>
-                )}
-            </div>
         </div>
     );
 }
