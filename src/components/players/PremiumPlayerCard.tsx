@@ -164,21 +164,12 @@ export default function PremiumPlayerCard({
     const playedGames = gamelog.filter(g => !g.isDNP);
     const recentGames = playedGames.slice(-8);
     const maxPts = Math.max(...recentGames.map(g => g.fantasy_points), 20);
-    const avgL3 = recentGames.length >= 3
-        ? recentGames.slice(-3).reduce((s, g) => s + g.fantasy_points, 0) / 3
-        : recentGames.length > 0
-            ? recentGames.reduce((s, g) => s + g.fantasy_points, 0) / recentGames.length
-            : null;
 
-    const displayForm = avgL3 ?? recentForm ?? player.form;
+    const displayForm = player.form_rating ?? recentForm ?? player.form;
     const rating = matchRating;
 
-    // Try 250×250 photo for better quality
-    let photoUrl = player.photo_url?.replace('110x140', '250x250') ?? null;
-    if (photoUrl) {
-        photoUrl = photoUrl.replace(/\/250x250\/(\d)/, '/250x250/p$1');
-        photoUrl = photoUrl.replace('.jpg', '.png');
-    }
+    // FPL provides a 250x250 higher resolution version of the same photo
+    const photoUrl = player.photo_url?.replace('110x140', '250x250');
 
     const resolvedTeamId = player.pl_team_id ?? TEAM_TO_ID[player.pl_team];
 
@@ -432,7 +423,7 @@ export default function PremiumPlayerCard({
                             {displayForm != null && (
                                 <div className={styles.formSummary}>
                                     <span className={styles.formLbl}>Form · L3</span>
-                                    <span className={styles.formVal}>{displayForm.toFixed(1)}</span>
+                                    <span className={styles.formVal}>{typeof displayForm === 'number' ? displayForm.toFixed(1) : displayForm}</span>
                                 </div>
                             )}
                         </div>
@@ -465,9 +456,9 @@ export default function PremiumPlayerCard({
                                                 <tr>
                                                     <th className={styles.gwTh}>GW</th>
                                                     <th className={styles.oppTh}>Opp</th>
-                                                    <th>Min</th>
-                                                    <th>G</th>
-                                                    <th>A</th>
+                                                    <th className={styles.ctrTh}>Min</th>
+                                                    <th className={styles.ctrTh}>G</th>
+                                                    <th className={styles.ctrTh}>A</th>
                                                     <th>Pts</th>
                                                     <th>Rtg</th>
                                                 </tr>
@@ -505,9 +496,9 @@ export default function PremiumPlayerCard({
                                                                     </span>
                                                                 )}
                                                             </td>
-                                                            <td>{g.stats?.minutes_played ?? '—'}</td>
-                                                            <td>{g.stats?.goals ?? 0}</td>
-                                                            <td>{g.stats?.assists ?? 0}</td>
+                                                            <td className={styles.ctrTd}>{g.stats?.minutes_played ?? '—'}</td>
+                                                            <td className={styles.ctrTd}>{g.stats?.goals ?? 0}</td>
+                                                            <td className={styles.ctrTd}>{g.stats?.assists ?? 0}</td>
                                                             <td className={styles.ptsTd}>{g.fantasy_points.toFixed(1)}</td>
                                                             <td>
                                                                 {g.match_rating != null ? (
@@ -551,7 +542,7 @@ export default function PremiumPlayerCard({
                         </div>
                     </div>
                     {/* Action buttons */}
-                    <div className={styles.cardActionsBack}>
+                    <div className={styles.cardActions}>
                         {onClose && (
                             <button className={styles.actionIconBtn} onClick={onClose} aria-label="Close">
                                 ×

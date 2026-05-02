@@ -67,6 +67,15 @@
   flex-direction: column;
   height: 100%;
   position: relative;
+  transition: pointer-events 0s;
+}
+
+.isFlipped .front {
+  pointer-events: none;
+}
+
+.isFlipped .back {
+  pointer-events: auto;
 }
 
 /* Team-color pitch backdrop */
@@ -496,15 +505,7 @@
   z-index: 10;
 }
 
-.cardActionsBack {
-  position: absolute;
-  top: 14px;
-  left: 14px;
-  display: flex;
-  flex-direction: row;
-  gap: 8px;
-  z-index: 10;
-}
+
 
 .actionIconBtn {
   width: 34px;
@@ -605,6 +606,7 @@
 
 .back {
   transform: rotateY(180deg) translateZ(0);
+  pointer-events: none;
 }
 
 .backContent {
@@ -811,6 +813,7 @@
 }
 
 .gwTd, .oppTd { text-align: left !important; }
+.ctrTh, .ctrTd { text-align: center !important; }
 
 .gwTd {
   font-family: var(--font-serif);
