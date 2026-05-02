@@ -518,12 +518,12 @@
 .cardActionsBack {
   position: absolute;
   top: 14px;
-  left: 14px; /* visually right when back face is rotated 180deg */
+  left: 14px; /* visually right:14px after 180deg Y flip */
   display: flex;
-  flex-direction: row-reverse; /* so Close is closest to edge visually after mirror */
+  flex-direction: row; /* DOM [X, Flip] → after Y-flip → visual [Flip][X] */
   gap: 8px;
   z-index: 10;
-  pointer-events: auto; /* ensure clickable even though .back has pointer-events: none by default */
+  pointer-events: auto;
 }
 
 /* Hides a button group on the wrong card face — prevents backface-visibility bleed-through */

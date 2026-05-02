@@ -149,11 +149,16 @@ export default function PremiumPlayerCard({
     const [hovering, setHovering] = useState(false);
     const [gamelog, setGamelog] = useState<GamelogEntry[]>([]);
 
-    // Try 250x250 on premierleague26 CDN (2025/26 season); fall back to stored 110x140
-    const hiResUrl = player.photo_url
+    // 3-step image fallback: current-season large → last-season large → stored small
+    const img26_250 = player.photo_url
         ? player.photo_url.replace('premierleague25/photos/players/110x140/', 'premierleague26/photos/players/250x250/')
         : null;
-    const [imgSrc, setImgSrc] = useState<string | null>(hiResUrl ?? player.photo_url ?? null);
+    const imgLegacy250 = player.photo_url
+        ? player.photo_url.replace('premierleague25/photos/players/110x140/', 'premierleague/photos/players/250x250/p')
+        : null;
+    const imgStored = player.photo_url ?? null;
+    const [imgSrc, setImgSrc] = useState<string | null>(img26_250 ?? imgStored);
+    const [imgStage, setImgStage] = useState<'hi26' | 'legacy' | 'stored'>('hi26');
 
     useEffect(() => {
         fetch(`/api/players/${player.id}`)
@@ -305,9 +310,12 @@ export default function PremiumPlayerCard({
                                 className={styles.photo}
                                 loading="eager"
                                 onError={() => {
-                                    // High-res failed — fall back to stored 110x140
-                                    if (imgSrc !== player.photo_url) {
-                                        setImgSrc(player.photo_url ?? null);
+                                    if (imgStage === 'hi26' && imgLegacy250) {
+                                        setImgStage('legacy');
+                                        setImgSrc(imgLegacy250);
+                                    } else if (imgStage === 'legacy' && imgStored) {
+                                        setImgStage('stored');
+                                        setImgSrc(imgStored);
                                     }
                                 }}
                             />
