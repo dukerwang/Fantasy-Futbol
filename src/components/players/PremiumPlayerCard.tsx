@@ -194,16 +194,24 @@ export default function PremiumPlayerCard({
 
     const fullName = (player.name ?? '').trim();
     let firstName = '';
-    let webName = fullName; // fallback
+    let webName = fullName;
+
+    const PREFIXES = new Set(['van', 'de', 'di', 'da', 'del', 'le', 'dos', 'el']);
 
     if (MONONYMS.has(fullName)) {
-        // Single-name player: no firstName, use mononym as the display name
         webName = fullName;
         firstName = '';
     } else if (fullName.includes(' ')) {
         const parts = fullName.split(/\s+/);
-        const last = parts.pop()!;          // last word → big display name
-        firstName = parts.join(' ');        // everything before → small name above
+        let last = parts.pop()!;
+
+        // If the new last word is a prefix, keep going back one more
+        if (parts.length > 0 && PREFIXES.has(parts[parts.length - 1].toLowerCase())) {
+            const prefix = parts.pop()!;
+            last = `${prefix} ${last}`;
+        }
+
+        firstName = parts.join(' ');
         webName = last;
     }
 
