@@ -171,8 +171,8 @@ export default function PremiumPlayerCard({
     const displayForm = calculatedForm ?? player.form_rating ?? recentForm ?? player.form;
     const rating = matchRating;
 
-    // FPL provides a 250x250 higher resolution version of the same photo at the main premierleague CDN path
-    const photoUrl = player.photo_url?.replace('110x140', '250x250');
+    // Use photo URL as stored; the 110x140 CDN path is the reliably-served size
+    const photoUrl = player.photo_url;
 
     const resolvedTeamId = player.pl_team_id ?? TEAM_TO_ID[player.pl_team];
 
@@ -553,17 +553,17 @@ export default function PremiumPlayerCard({
                             )}
                         </div>
                     </div>
-                    {/* Action buttons */}
-                    <div className={styles.cardActionsBack}>
-                        {onClose && (
-                            <button className={styles.actionIconBtn} onClick={onClose} aria-label="Close">
-                                ×
-                            </button>
-                        )}
-                        <button className={styles.actionIconBtn} onClick={handleFlip} aria-label="Flip to front">
-                            <FlipIcon />
+                </div>
+                {/* Action buttons — outside backContent so they sit at face level, same as front */}
+                <div className={styles.cardActionsBack}>
+                    {onClose && (
+                        <button className={styles.actionIconBtn} onClick={onClose} aria-label="Close">
+                            ×
                         </button>
-                    </div>
+                    )}
+                    <button className={styles.actionIconBtn} onClick={handleFlip} aria-label="Flip to front">
+                        <FlipIcon />
+                    </button>
                 </div>
             </div>
         </div>

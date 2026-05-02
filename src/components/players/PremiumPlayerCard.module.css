@@ -516,11 +516,12 @@
 .cardActionsBack {
   position: absolute;
   top: 14px;
-  left: 14px; /* visually right when flipped 180deg */
+  left: 14px; /* visually right when back face is rotated 180deg */
   display: flex;
-  flex-direction: row-reverse; /* Flip button first from edge */
+  flex-direction: row-reverse; /* so Close is closest to edge visually after mirror */
   gap: 8px;
   z-index: 10;
+  pointer-events: auto; /* ensure clickable even though .back has pointer-events: none by default */
 }
 
 
