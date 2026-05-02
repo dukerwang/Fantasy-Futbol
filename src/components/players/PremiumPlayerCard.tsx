@@ -169,7 +169,7 @@ export default function PremiumPlayerCard({
     const rating = matchRating;
 
     // FPL provides a 250x250 higher resolution version of the same photo at the main premierleague CDN path
-    const photoUrl = player.photo_url?.replace(/(premierleague25|premierleague)\/photos\/players\/110x140/, 'premierleague/photos/players/250x250');
+    const photoUrl = player.photo_url?.replace('110x140', '250x250');
 
     const resolvedTeamId = player.pl_team_id ?? TEAM_TO_ID[player.pl_team];
 
@@ -542,7 +542,7 @@ export default function PremiumPlayerCard({
                         </div>
                     </div>
                     {/* Action buttons */}
-                    <div className={styles.cardActions}>
+                    <div className={styles.cardActionsBack}>
                         {onClose && (
                             <button className={styles.actionIconBtn} onClick={onClose} aria-label="Close">
                                 ×
