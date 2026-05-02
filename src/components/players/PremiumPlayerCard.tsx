@@ -168,8 +168,8 @@ export default function PremiumPlayerCard({
     const displayForm = player.form_rating ?? recentForm ?? player.form;
     const rating = matchRating;
 
-    // Use the raw photo_url that works everywhere else in the app
-    const photoUrl = player.photo_url;
+    // FPL provides a 250x250 higher resolution version of the same photo at the main premierleague CDN path
+    const photoUrl = player.photo_url?.replace(/(premierleague25|premierleague)\/photos\/players\/110x140/, 'premierleague/photos/players/250x250');
 
     const resolvedTeamId = player.pl_team_id ?? TEAM_TO_ID[player.pl_team];
 
