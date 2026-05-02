@@ -423,7 +423,7 @@
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--color-text-muted);
-  margin-top: 5px;
+  margin-top: 6px;
 }
 
 /* ── Position rank strip ────────────────────────────────────── */
@@ -514,9 +514,8 @@
   flex-direction: row;
   gap: 8px;
   z-index: 20;
-  pointer-events: auto;
+  pointer-events: none; /* Let mouse events pass through to the stage for tilting */
   transform-style: preserve-3d;
-  transition: transform 0.08s ease-out;
 }
 
 
@@ -529,6 +528,7 @@
   background: var(--color-bg-card);
   color: var(--color-text-secondary);
   cursor: pointer;
+  pointer-events: auto; /* Re-enable for the buttons themselves */
   display: flex;
   align-items: center;
   justify-content: center;

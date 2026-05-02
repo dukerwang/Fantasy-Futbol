@@ -186,11 +186,21 @@ export default function PremiumPlayerCard({
 
     const resolvedTeamId = player.pl_team_id ?? TEAM_TO_ID[player.pl_team];
 
-    // Mononyms — players known by a single display name
-    const MONONYMS = new Set([
-        'Savinho', 'Alisson', 'Ederson', 'Casemiro', 'Rodri',
-        'Antony', 'Richarlison', 'Neto', 'Gabriel',
-    ]);
+    // Mononyms — map full DB names to their known single-name identity
+    const MONONYM_MAP: Record<string, string> = {
+        'Sávio Moreira de Oliveira': 'Savinho',
+        'Savinho': 'Savinho',
+        'Alisson Becker': 'Alisson',
+        'Ederson Santana de Moraes': 'Ederson',
+        'Ederson': 'Ederson',
+        'Rodri': 'Rodri',
+        'Rodrigo Hernandez': 'Rodri',
+        'Casemiro': 'Casemiro',
+        'Antony Santos': 'Antony',
+        'Richarlison de Andrade': 'Richarlison',
+        'Norberto Murara Neto': 'Neto',
+        'Gabriel Magalhães': 'Gabriel',
+    };
 
     const fullName = (player.name ?? '').trim();
     let firstName = '';
@@ -198,8 +208,8 @@ export default function PremiumPlayerCard({
 
     const PREFIXES = new Set(['van', 'de', 'di', 'da', 'del', 'le', 'dos', 'el']);
 
-    if (MONONYMS.has(fullName)) {
-        webName = fullName;
+    if (MONONYM_MAP[fullName]) {
+        webName = MONONYM_MAP[fullName];
         firstName = '';
     } else if (fullName.includes(' ')) {
         const parts = fullName.split(/\s+/);
