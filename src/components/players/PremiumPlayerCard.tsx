@@ -423,19 +423,6 @@ export default function PremiumPlayerCard({
                         </div>
                     </div>
 
-                    {/* Action buttons — front face */}
-                    <div className={styles.cardActions}>
-                        <button className={styles.actionIconBtn} onClick={handleFlip} aria-label="Flip to game log">
-                            <FlipIcon />
-                        </button>
-                        {onClose && (
-                            <button className={styles.actionIconBtn} onClick={onClose} aria-label="Close">
-                                ×
-                            </button>
-                        )}
-                    </div>
-
-
                     {/* Holographic overlay */}
                     <div
                         className={styles.holo}
@@ -510,7 +497,7 @@ export default function PremiumPlayerCard({
                         {/* Tab content */}
                         <div className={styles.backTabContent}>
                             {tab === 'log' && (
-                                <div className={styles.glWrap}>
+                                <div className={styles.glWrap} onWheel={(e) => e.stopPropagation()}>
                                     {gamelog.length > 0 ? (
                                         <table className={styles.glTable}>
                                             <thead>
@@ -601,23 +588,23 @@ export default function PremiumPlayerCard({
                                 </div>
                             )}
                         </div>
-
-                        {/* Action buttons — back face: moved INSIDE face to avoid showing through front */}
-                        <div className={styles.cardActionsBack}>
-                            <button className={styles.actionIconBtn} onClick={handleFlip} aria-label="Flip to front">
-                                <FlipIcon />
-                            </button>
-                            {onClose && (
-                                <button className={styles.actionIconBtn} onClick={onClose} aria-label="Close">
-                                    ×
-                                </button>
-                            )}
-                        </div>
                     </div>
                 </div>
                 {/* end .back face */}
             </div>
             {/* end .card */}
+
+            {/* Flat Action Buttons — Outside .card to prevent jitter and mirroring */}
+            <div className={styles.cardActionsOverlay}>
+                {onClose && (
+                    <button className={styles.actionIconBtn} onClick={onClose} aria-label="Close">
+                        ×
+                    </button>
+                )}
+                <button className={styles.actionIconBtn} onClick={handleFlip} aria-label={flipped ? 'Flip to front' : 'Flip to game log'}>
+                    <FlipIcon />
+                </button>
+            </div>
         </div>
     );
 }
