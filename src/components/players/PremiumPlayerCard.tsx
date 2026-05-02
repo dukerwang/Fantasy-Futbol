@@ -144,6 +144,7 @@ export default function PremiumPlayerCard({
     const stageRef = useRef<HTMLDivElement>(null);
     const cardRef = useRef<HTMLDivElement>(null);
     const holoRef = useRef<HTMLDivElement>(null);
+    const overlayRef = useRef<HTMLDivElement>(null); // buttons overlay — syncs tilt, not flip
     const [flipped, setFlipped] = useState(false);
     const [tab, setTab] = useState<'log' | 'breakdown'>('log');
     const [hovering, setHovering] = useState(false);
@@ -221,6 +222,10 @@ export default function PremiumPlayerCard({
         const ry = (px - 0.5) * 16;
 
         card.style.transform = `rotateX(${rx}deg) rotateY(${flipped ? 180 + ry : ry}deg)`;
+        // Sync the same tilt (not flip) to the overlay so buttons tilt with the card
+        if (overlayRef.current) {
+            overlayRef.current.style.transform = `rotateX(${rx}deg) rotateY(${ry}deg)`;
+        }
 
         if (holo) {
             holo.style.setProperty('--mx', `${px * 100}%`);
@@ -234,6 +239,9 @@ export default function PremiumPlayerCard({
     const onMouseLeave = useCallback(() => {
         if (cardRef.current) {
             cardRef.current.style.transform = `rotateX(0deg) rotateY(${flipped ? 180 : 0}deg)`;
+        }
+        if (overlayRef.current) {
+            overlayRef.current.style.transform = `rotateX(0deg) rotateY(0deg)`;
         }
         setHovering(false);
     }, [flipped]);
@@ -574,8 +582,8 @@ export default function PremiumPlayerCard({
             </div>
             {/* end .card */}
 
-            {/* Buttons rendered outside .card — no 3D transform involvement, same on both faces */}
-            <div className={styles.cardActionsOverlay}>
+            {/* Buttons — outside .card to avoid flip mirroring; tilt synced via overlayRef */}
+            <div className={styles.cardActionsOverlay} ref={overlayRef}>
                 <button className={styles.actionIconBtn} onClick={handleFlip} aria-label={flipped ? 'Flip to front' : 'Flip to game log'}>
                     <FlipIcon />
                 </button>

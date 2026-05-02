@@ -515,6 +515,8 @@
   gap: 8px;
   z-index: 20;
   pointer-events: auto;
+  transform-style: preserve-3d;
+  transition: transform 0.08s ease-out;
 }
 
 
