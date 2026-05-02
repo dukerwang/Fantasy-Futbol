@@ -526,6 +526,12 @@
   pointer-events: auto; /* ensure clickable even though .back has pointer-events: none by default */
 }
 
+/* Hides a button group on the wrong card face — prevents backface-visibility bleed-through */
+.cardActionsHidden {
+  visibility: hidden;
+  pointer-events: none;
+}
+
 
 
 .actionIconBtn {

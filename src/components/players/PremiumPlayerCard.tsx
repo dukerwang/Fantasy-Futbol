@@ -149,6 +149,13 @@ export default function PremiumPlayerCard({
     const [hovering, setHovering] = useState(false);
     const [gamelog, setGamelog] = useState<GamelogEntry[]>([]);
 
+    // Try high-res 250x250 PL CDN first; fall back to stored 110x140 on error
+    const hiResUrl = player.photo_url
+        ? player.photo_url
+            .replace('premierleague25/photos/players/110x140/', 'premierleague/photos/players/250x250/p')
+        : null;
+    const [imgSrc, setImgSrc] = useState<string | null>(hiResUrl ?? player.photo_url ?? null);
+
     useEffect(() => {
         fetch(`/api/players/${player.id}`)
             .then(r => r.json())
@@ -171,8 +178,6 @@ export default function PremiumPlayerCard({
     const displayForm = calculatedForm ?? player.form_rating ?? recentForm ?? player.form;
     const rating = matchRating;
 
-    // Use photo URL as stored; the 110x140 CDN path is the reliably-served size
-    const photoUrl = player.photo_url;
 
     const resolvedTeamId = player.pl_team_id ?? TEAM_TO_ID[player.pl_team];
 
@@ -293,13 +298,19 @@ export default function PremiumPlayerCard({
 
                     {/* Hero — player photo */}
                     <div className={styles.hero}>
-                        {photoUrl ? (
+                        {imgSrc ? (
                             // eslint-disable-next-line @next/next/no-img-element
                             <img
-                                src={photoUrl}
+                                src={imgSrc}
                                 alt={formatPlayerName(player, 'full')}
                                 className={styles.photo}
                                 loading="eager"
+                                onError={() => {
+                                    // High-res failed — fall back to stored 110x140
+                                    if (imgSrc !== player.photo_url) {
+                                        setImgSrc(player.photo_url ?? null);
+                                    }
+                                }}
                             />
                         ) : (
                             <div className={styles.photoPlaceholder}>
@@ -384,8 +395,8 @@ export default function PremiumPlayerCard({
                         </div>
                     </div>
 
-                    {/* Action buttons */}
-                    <div className={styles.cardActions}>
+                    {/* Action buttons — front face */}
+                    <div className={`${styles.cardActions} ${flipped ? styles.cardActionsHidden : ''}`}>
                         {onClose && (
                             <button className={styles.actionIconBtn} onClick={onClose} aria-label="Close">
                                 ×
@@ -563,8 +574,8 @@ export default function PremiumPlayerCard({
                         </div>
                     </div>
                 </div>
-                {/* Action buttons — outside backContent so they sit at face level, same as front */}
-                <div className={styles.cardActionsBack}>
+                {/* Action buttons — back face (outside backContent to sit at face level) */}
+                <div className={`${styles.cardActionsBack} ${flipped ? '' : styles.cardActionsHidden}`}>
                     {onClose && (
                         <button className={styles.actionIconBtn} onClick={onClose} aria-label="Close">
                             ×
