@@ -162,14 +162,14 @@ export default function PremiumPlayerCard({
     const posVar = POS_CSS_VAR[player.primary_position] ?? 'var(--color-accent-green)';
 
     const playedGames = gamelog.filter(g => !g.isDNP);
-    const recentGames = playedGames.slice(-8);
+    const recentGames = playedGames.slice(0, 8).reverse();
     const maxPts = Math.max(...recentGames.map(g => g.fantasy_points), 20);
 
     const displayForm = player.form_rating ?? recentForm ?? player.form;
     const rating = matchRating;
 
-    // FPL provides a 250x250 higher resolution version of the same photo
-    const photoUrl = player.photo_url?.replace('110x140', '250x250');
+    // Use the raw photo_url that works everywhere else in the app
+    const photoUrl = player.photo_url;
 
     const resolvedTeamId = player.pl_team_id ?? TEAM_TO_ID[player.pl_team];
 

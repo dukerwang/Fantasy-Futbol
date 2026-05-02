@@ -70,11 +70,11 @@
   transition: pointer-events 0s;
 }
 
-.isFlipped .front {
+.flipped .front {
   pointer-events: none;
 }
 
-.isFlipped .back {
+.flipped .back {
   pointer-events: auto;
 }
 
@@ -621,6 +621,7 @@
   align-items: flex-start;
   justify-content: space-between;
   padding-bottom: 11px;
+  padding-right: 80px;
   border-bottom: 2px solid var(--color-text-primary);
   margin-bottom: 10px;
   flex-shrink: 0;
