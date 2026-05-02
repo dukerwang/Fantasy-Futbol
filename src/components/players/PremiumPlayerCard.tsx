@@ -163,9 +163,12 @@ export default function PremiumPlayerCard({
 
     const playedGames = gamelog.filter(g => !g.isDNP);
     const recentGames = playedGames.slice(0, 8).reverse();
-    const maxPts = Math.max(...recentGames.map(g => g.fantasy_points), 20);
+    const l3Games = playedGames.slice(0, 3);
+    const calculatedForm = l3Games.length > 0 
+        ? l3Games.reduce((acc, g) => acc + (g.match_rating ?? 0), 0) / l3Games.length
+        : null;
 
-    const displayForm = player.form_rating ?? recentForm ?? player.form;
+    const displayForm = calculatedForm ?? player.form_rating ?? recentForm ?? player.form;
     const rating = matchRating;
 
     // FPL provides a 250x250 higher resolution version of the same photo at the main premierleague CDN path
@@ -173,9 +176,17 @@ export default function PremiumPlayerCard({
 
     const resolvedTeamId = player.pl_team_id ?? TEAM_TO_ID[player.pl_team];
 
-    const webName = player.web_name ?? player.name;
-    const nameParts = (player.name ?? '').trim().split(/\s+/);
-    const firstName = nameParts.length > 1 ? nameParts.slice(0, -1).join(' ') : '';
+    const fullName = (player.name ?? '').trim();
+    let webName = player.web_name ?? fullName;
+    let firstName = '';
+    
+    if (player.web_name && fullName.includes(player.web_name) && fullName !== player.web_name) {
+        firstName = fullName.replace(player.web_name, '').trim();
+    } else if (!player.web_name && fullName.includes(' ')) {
+        const parts = fullName.split(/\s+/);
+        webName = parts.pop() || '';
+        firstName = parts.join(' ');
+    }
 
 
 
@@ -405,17 +416,18 @@ export default function PremiumPlayerCard({
                         <div className={styles.formSection}>
                             <div className={styles.formBars}>
                                 {recentGames.length > 0 ? recentGames.map((g, i) => {
-                                    const h = Math.max(3, (g.fantasy_points / maxPts) * 42);
-                                    const barCls = g.fantasy_points >= 12 ? styles.barHigh
-                                        : g.fantasy_points >= 7 ? styles.barMid
-                                        : g.fantasy_points > 0 ? styles.barLow
+                                    const ratingVal = g.match_rating ?? 0;
+                                    const h = Math.max(3, (ratingVal / 10) * 42);
+                                    const barCls = ratingVal >= 8 ? styles.barHigh
+                                        : ratingVal >= 5.5 ? styles.barMid
+                                        : ratingVal > 0 ? styles.barLow
                                         : styles.barDnp;
                                     return (
                                         <div
                                             key={i}
                                             className={`${styles.formBar} ${barCls}`}
                                             style={{ height: `${h}px` }}
-                                            title={`GW${g.gameweek} · ${g.fantasy_points.toFixed(1)} pts`}
+                                            title={`GW${g.gameweek} · ${ratingVal.toFixed(1)} Rtg`}
                                         />
                                     );
                                 }) : <span className={styles.formEmpty}>No data yet</span>}
