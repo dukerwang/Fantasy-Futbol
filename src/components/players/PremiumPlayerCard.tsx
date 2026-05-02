@@ -190,6 +190,8 @@ export default function PremiumPlayerCard({
         'Sávio Moreira de Oliveira': 'Savinho',
         'Savio Moreira de Oliveira': 'Savinho',
         'Savinho': 'Savinho',
+        'Savio': 'Savinho',
+        'Sávio': 'Savinho',
         'Alisson Becker': 'Alisson',
         'Ederson Santana de Moraes': 'Ederson',
         'Ederson': 'Ederson',
@@ -599,21 +601,21 @@ export default function PremiumPlayerCard({
                                 </div>
                             )}
                         </div>
+
+                        {/* Action buttons — back face: moved INSIDE face to avoid showing through front */}
+                        <div className={styles.cardActionsBack}>
+                            <button className={styles.actionIconBtn} onClick={handleFlip} aria-label="Flip to front">
+                                <FlipIcon />
+                            </button>
+                            {onClose && (
+                                <button className={styles.actionIconBtn} onClick={onClose} aria-label="Close">
+                                    ×
+                                </button>
+                            )}
+                        </div>
                     </div>
                 </div>
                 {/* end .back face */}
-
-                {/* Action buttons — back face: mirrored layout but stable logic */}
-                <div className={styles.cardActionsBack}>
-                    <button className={styles.actionIconBtn} onClick={handleFlip} aria-label="Flip to front">
-                        <FlipIcon />
-                    </button>
-                    {onClose && (
-                        <button className={styles.actionIconBtn} onClick={onClose} aria-label="Close">
-                            ×
-                        </button>
-                    )}
-                </div>
             </div>
             {/* end .card */}
         </div>

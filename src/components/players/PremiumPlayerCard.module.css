@@ -50,6 +50,7 @@
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
   overflow: hidden;
+  pointer-events: none;
   background: var(--color-bg-card);
   box-shadow:
     0 1px 0 rgba(255, 255, 255, 0.55) inset,
@@ -67,6 +68,7 @@
   flex-direction: column;
   height: 100%;
   position: relative;
+  pointer-events: auto;
   transition: pointer-events 0s;
 }
 
@@ -628,7 +630,6 @@
 
 .back {
   transform: rotateY(180deg) translateZ(0);
-  pointer-events: none;
 }
 
 .backContent {
@@ -797,6 +798,8 @@
   overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: var(--color-border) transparent;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 }
 
 .glWrap::-webkit-scrollbar { width: 4px; }
