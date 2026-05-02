@@ -176,16 +176,25 @@ export default function PremiumPlayerCard({
 
     const resolvedTeamId = player.pl_team_id ?? TEAM_TO_ID[player.pl_team];
 
+    // Mononyms — players known by a single display name
+    const MONONYMS = new Set([
+        'Savinho', 'Alisson', 'Ederson', 'Casemiro', 'Rodri',
+        'Antony', 'Richarlison', 'Neto', 'Gabriel',
+    ]);
+
     const fullName = (player.name ?? '').trim();
-    let webName = player.web_name ?? fullName;
     let firstName = '';
-    
-    if (player.web_name && fullName.includes(player.web_name) && fullName !== player.web_name) {
-        firstName = fullName.replace(player.web_name, '').trim();
-    } else if (!player.web_name && fullName.includes(' ')) {
+    let webName = fullName; // fallback
+
+    if (MONONYMS.has(fullName)) {
+        // Single-name player: no firstName, use mononym as the display name
+        webName = fullName;
+        firstName = '';
+    } else if (fullName.includes(' ')) {
         const parts = fullName.split(/\s+/);
-        webName = parts.pop() || '';
-        firstName = parts.join(' ');
+        const last = parts.pop()!;          // last word → big display name
+        firstName = parts.join(' ');        // everything before → small name above
+        webName = last;
     }
 
 
