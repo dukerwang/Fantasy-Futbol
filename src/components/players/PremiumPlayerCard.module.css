@@ -50,7 +50,6 @@
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
   overflow: hidden;
-  pointer-events: none;
   background: var(--color-bg-card);
   box-shadow:
     0 1px 0 rgba(255, 255, 255, 0.55) inset,
@@ -521,7 +520,7 @@
 .cardActionsBack {
   position: absolute;
   top: 14px;
-  left: 14px; /* Visually top-right because face is rotateY(180deg) */
+  right: 14px;
   display: flex;
   flex-direction: row;
   gap: 8px;
@@ -800,6 +799,7 @@
   scrollbar-color: var(--color-border) transparent;
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
+  transform: translateZ(1px); /* Pull above the face plane to fix 3D scroll issues */
 }
 
 .glWrap::-webkit-scrollbar { width: 4px; }
