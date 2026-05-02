@@ -35,32 +35,7 @@
   to   { transform: translateY(0);    opacity: 1; }
 }
 
-/* X close button — floats over the top-right corner of the card */
-.closeBtn {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  z-index: 300;
-  width: 28px;
-  height: 28px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(10, 12, 16, 0.55);
-  backdrop-filter: blur(4px);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  border-radius: var(--radius-full);
-  color: rgba(255, 255, 255, 0.90);
-  font-size: 18px;
-  line-height: 1;
-  cursor: pointer;
-  transition: background var(--transition-fast), border-color var(--transition-fast);
-}
 
-.closeBtn:hover {
-  background: rgba(239, 68, 68, 0.65);
-  border-color: rgba(239, 68, 68, 0.75);
-}
 
 /* ── Optional action buttons below the card ─────────────────── */
 

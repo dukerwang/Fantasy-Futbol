@@ -41,7 +41,17 @@
       "Bash(cd \"/Users/dukewang/Fantasy Futbol\" && /opt/homebrew/bin/npx tsx scripts/backfill_historical_vwe.ts 2>&1)",
       "Bash(cd:*)",
       "Bash(cd \"/Users/dukewang/Fantasy Futbol\" && /opt/homebrew/bin/node node_modules/typescript/bin/tsc --noEmit 2>&1 | grep -v \"validator.ts\" | grep -v \"^$\" | head -20)",
-      "Bash(/opt/homebrew/bin/npm run:*)"
+      "Bash(/opt/homebrew/bin/npm run:*)",
+      "WebFetch(domain:api.anthropic.com)",
+      "Bash(gunzip)",
+      "Bash(tar -xO \"fantasy-futbol-prototype/project/Player Card.html\")",
+      "Bash(tar -xO \"fantasy-futbol-prototype/project/card.css\")",
+      "Bash(tar -xO \"fantasy-futbol-prototype/project/app.jsx\")",
+      "Bash(git push *)",
+      "Bash(git pull *)",
+      "Bash(git stash *)",
+      "Bash(git rebase *)",
+      "Bash(git checkout *)"
     ]
   }
 }

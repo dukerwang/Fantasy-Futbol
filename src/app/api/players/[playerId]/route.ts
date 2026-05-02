@@ -57,9 +57,13 @@ export async function GET(
         const dbEntry = statsMap.get(h.fixture) || (dbStats as any[])?.find((s: any) => s.gameweek === h.round && s.match_id === (h.round * 1000 + dbPlayer.fpl_id));
         
         const opponentName = teamMap.get(h.opponent_team) ?? 'UNK';
-        const resultString = h.team_h_score !== null && h.team_a_score !== null
-          ? `${h.team_h_score}-${h.team_a_score}`
-          : '';
+        let resultString = '';
+        if (h.team_h_score !== null && h.team_a_score !== null) {
+          const isWin = h.was_home ? h.team_h_score > h.team_a_score : h.team_a_score > h.team_h_score;
+          const isLoss = h.was_home ? h.team_h_score < h.team_a_score : h.team_a_score < h.team_h_score;
+          const outcome = isWin ? 'W' : isLoss ? 'L' : 'D';
+          resultString = `${outcome} ${h.team_h_score}-${h.team_a_score}`;
+        }
         const isDNP = h.minutes === 0;
 
         return {

@@ -5,7 +5,6 @@ import type { Player, RatingBreakdownItem } from '@/types';
 import { formatPlayerName } from '@/lib/formatName';
 import styles from './PremiumPlayerCard.module.css';
 
-// ── Team color map ───────────────────────────────────────────
 const TEAM_COLORS: Record<string, string> = {
     'Arsenal': '#EF0107',
     'Aston Villa': '#680D3A',
@@ -27,6 +26,14 @@ const TEAM_COLORS: Record<string, string> = {
     'Spurs': '#132257',
     'West Ham': '#7A263A',
     'Wolves': '#D4A017',
+};
+
+const TEAM_TO_ID: Record<string, number> = {
+    'Arsenal': 1, 'Aston Villa': 2, 'Bournemouth': 3, 'Brentford': 4,
+    'Brighton': 5, 'Chelsea': 6, 'Crystal Palace': 7, 'Everton': 8,
+    'Fulham': 9, 'Ipswich': 10, 'Leicester': 11, 'Liverpool': 12,
+    'Man City': 13, 'Man Utd': 14, 'Newcastle': 15, 'Nottm Forest': 16,
+    'Southampton': 17, 'Spurs': 18, 'West Ham': 19, 'Wolves': 20
 };
 
 function getTeamColor(teamName: string): string {
@@ -82,6 +89,7 @@ interface Props {
     recentForm?: number;
     matchRating?: number | null;
     ratingBreakdown?: RatingBreakdownItem[] | null;
+    onClose?: () => void;
 }
 
 function calcAge(dob: string): number {
@@ -101,6 +109,21 @@ function cmToFeet(cm: number): string {
     return `${ft}'${inch}"`;
 }
 
+function parseMatchResult(opponent: string | undefined, result: string | undefined) {
+    if (!result || !opponent) return null;
+    const match = result.match(/(\d+)\s*-\s*(\d+)/);
+    if (!match) return null;
+    const s1 = parseInt(match[1], 10);
+    const s2 = parseInt(match[2], 10);
+    const isHome = opponent.includes('(H)');
+    const pScore = isHome ? s1 : s2;
+    const oScore = isHome ? s2 : s1;
+    let code = 'D';
+    if (pScore > oScore) code = 'W';
+    else if (pScore < oScore) code = 'L';
+    return { code, text: `${code} ${s1}-${s2}` };
+}
+
 function FlipIcon() {
     return (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="16" height="16" aria-hidden="true">
@@ -116,6 +139,7 @@ export default function PremiumPlayerCard({
     recentForm,
     matchRating,
     ratingBreakdown,
+    onClose,
 }: Props) {
     const stageRef = useRef<HTMLDivElement>(null);
     const cardRef = useRef<HTMLDivElement>(null);
@@ -137,22 +161,32 @@ export default function PremiumPlayerCard({
     const posLong = POS_LONG[player.primary_position] ?? player.primary_position;
     const posVar = POS_CSS_VAR[player.primary_position] ?? 'var(--color-accent-green)';
 
-    const displayForm = recentForm ?? player.form_rating;
-    const rating = matchRating;
-
-    // Try 250×250 photo for better quality
-    const photoUrl = player.photo_url?.replace('110x140', '250x250') ?? null;
-
-    const webName = player.web_name ?? player.name;
-    const nameParts = (player.name ?? '').trim().split(/\s+/);
-    const firstName = nameParts.length > 1 ? nameParts.slice(0, -1).join(' ') : '';
-
     const playedGames = gamelog.filter(g => !g.isDNP);
     const recentGames = playedGames.slice(-8);
     const maxPts = Math.max(...recentGames.map(g => g.fantasy_points), 20);
     const avgL3 = recentGames.length >= 3
         ? recentGames.slice(-3).reduce((s, g) => s + g.fantasy_points, 0) / 3
-        : null;
+        : recentGames.length > 0
+            ? recentGames.reduce((s, g) => s + g.fantasy_points, 0) / recentGames.length
+            : null;
+
+    const displayForm = avgL3 ?? recentForm ?? player.form;
+    const rating = matchRating;
+
+    // Try 250×250 photo for better quality
+    let photoUrl = player.photo_url?.replace('110x140', '250x250') ?? null;
+    if (photoUrl) {
+        photoUrl = photoUrl.replace(/\/250x250\/(\d)/, '/250x250/p$1');
+        photoUrl = photoUrl.replace('.jpg', '.png');
+    }
+
+    const resolvedTeamId = player.pl_team_id ?? TEAM_TO_ID[player.pl_team];
+
+    const webName = player.web_name ?? player.name;
+    const nameParts = (player.name ?? '').trim().split(/\s+/);
+    const firstName = nameParts.length > 1 ? nameParts.slice(0, -1).join(' ') : '';
+
+
 
     const onMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
         const stage = stageRef.current;
@@ -223,9 +257,17 @@ export default function PremiumPlayerCard({
                     {/* Masthead */}
                     <div className={styles.masthead}>
                         <div className={styles.mastheadLeft}>
-                            <div className={styles.crest} style={{ background: teamColor }}>
-                                {player.pl_team.charAt(0)}
-                            </div>
+                            {resolvedTeamId ? (
+                                <img
+                                    src={`/team-logos/${resolvedTeamId}.png`}
+                                    alt={player.pl_team}
+                                    className={styles.crestImg}
+                                />
+                            ) : (
+                                <div className={styles.crest} style={{ background: teamColor }}>
+                                    {player.pl_team.charAt(0)}
+                                </div>
+                            )}
                             <div className={styles.clubMeta}>
                                 <span className={styles.mastheadName}>{formatPlayerName(player, 'full')}</span>
                                 <span className={styles.mastheadClub}>{player.pl_team}</span>
@@ -331,10 +373,17 @@ export default function PremiumPlayerCard({
                         </div>
                     </div>
 
-                    {/* Flip button */}
-                    <button className={styles.flipBtn} onClick={handleFlip} aria-label="Flip to game log">
-                        <FlipIcon />
-                    </button>
+                    {/* Action buttons */}
+                    <div className={styles.cardActions}>
+                        {onClose && (
+                            <button className={styles.actionIconBtn} onClick={onClose} aria-label="Close">
+                                ×
+                            </button>
+                        )}
+                        <button className={styles.actionIconBtn} onClick={handleFlip} aria-label="Flip to game log">
+                            <FlipIcon />
+                        </button>
+                    </div>
 
                     {/* Holographic overlay */}
                     <div
@@ -380,10 +429,10 @@ export default function PremiumPlayerCard({
                                     );
                                 }) : <span className={styles.formEmpty}>No data yet</span>}
                             </div>
-                            {avgL3 != null && (
+                            {displayForm != null && (
                                 <div className={styles.formSummary}>
                                     <span className={styles.formLbl}>Form · L3</span>
-                                    <span className={styles.formVal}>{avgL3.toFixed(1)}</span>
+                                    <span className={styles.formVal}>{displayForm.toFixed(1)}</span>
                                 </div>
                             )}
                         </div>
@@ -414,7 +463,7 @@ export default function PremiumPlayerCard({
                                         <table className={styles.glTable}>
                                             <thead>
                                                 <tr>
-                                                    <th>GW</th>
+                                                    <th className={styles.gwTh}>GW</th>
                                                     <th className={styles.oppTh}>Opp</th>
                                                     <th>Min</th>
                                                     <th>G</th>
@@ -434,22 +483,25 @@ export default function PremiumPlayerCard({
                                                             </tr>
                                                         );
                                                     }
-                                                    const rc = g.result?.charAt(0);
+                                                    const parsedRes = parseMatchResult(g.opponent, g.result);
+                                                    const resCode = parsedRes?.code;
+                                                    const resText = parsedRes?.text ?? g.result;
+                                                    
                                                     return (
                                                         <tr key={g.gameweek}>
                                                             <td className={styles.gwTd}>{g.gameweek}</td>
                                                             <td className={styles.oppTd}>
                                                                 {g.opponent}
-                                                                {g.result && (
+                                                                {resText && (
                                                                     <span
                                                                         className={styles.resTag}
                                                                         style={{
-                                                                            color: rc === 'W' ? 'var(--color-accent-green)'
-                                                                                : rc === 'L' ? 'var(--color-accent-red)'
+                                                                            color: resCode === 'W' ? 'var(--color-accent-green)'
+                                                                                : resCode === 'L' ? 'var(--color-accent-red)'
                                                                                     : 'var(--color-accent-yellow)',
                                                                         }}
                                                                     >
-                                                                        {g.result}
+                                                                        {resText}
                                                                     </span>
                                                                 )}
                                                             </td>
@@ -497,13 +549,17 @@ export default function PremiumPlayerCard({
                                 </div>
                             )}
                         </div>
-
-                        {/* Flip back */}
-                        <div className={styles.backFooter}>
-                            <button className={styles.flipBtnBack} onClick={handleFlip} aria-label="Flip to front">
-                                <FlipIcon />
+                    </div>
+                    {/* Action buttons */}
+                    <div className={styles.cardActionsBack}>
+                        {onClose && (
+                            <button className={styles.actionIconBtn} onClick={onClose} aria-label="Close">
+                                ×
                             </button>
-                        </div>
+                        )}
+                        <button className={styles.actionIconBtn} onClick={handleFlip} aria-label="Flip to front">
+                            <FlipIcon />
+                        </button>
                     </div>
                 </div>
             </div>

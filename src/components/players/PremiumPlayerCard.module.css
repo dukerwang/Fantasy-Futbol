@@ -484,13 +484,29 @@
   color: var(--chip-color, var(--color-accent-green));
 }
 
-/* ── Flip button (front face) ───────────────────────────────── */
+/* ── Action Buttons (Close, Flip) ───────────────────────────── */
 
-.flipBtn {
+.cardActions {
   position: absolute;
-  top: 58px;
+  top: 14px;
   right: 14px;
-  z-index: 7;
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  z-index: 10;
+}
+
+.cardActionsBack {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  z-index: 10;
+}
+
+.actionIconBtn {
   width: 34px;
   height: 34px;
   border-radius: 50%;
@@ -503,12 +519,30 @@
   justify-content: center;
   transition: border-color var(--transition-base), color var(--transition-base), transform var(--transition-base);
   box-shadow: 0 2px 8px rgba(28, 28, 28, 0.10);
+  font-size: 20px;
+  line-height: 1;
 }
 
-.flipBtn:hover {
+.actionIconBtn:hover {
   border-color: var(--color-accent-green);
   color: var(--color-accent-green);
+}
+
+.actionIconBtn[aria-label="Close"]:hover {
+  border-color: var(--color-accent-red);
+  color: var(--color-accent-red);
+  transform: none; /* No rotation for close button */
+}
+
+.actionIconBtn[aria-label^="Flip"]:hover {
   transform: rotate(180deg);
+}
+
+.crestImg {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  flex-shrink: 0;
 }
 
 /* ── Holographic shimmer overlay ────────────────────────────── */
@@ -727,12 +761,14 @@
   overflow: hidden;
   position: relative;
   min-height: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 /* ── Game log table ─────────────────────────────────────────── */
 
 .glWrap {
-  height: 100%;
+  flex: 1;
   overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: var(--color-border) transparent;
@@ -764,7 +800,7 @@
   z-index: 1;
 }
 
-.oppTh { text-align: left !important; }
+.gwTh, .oppTh { text-align: left !important; }
 
 .glTable tbody td {
   padding: 5px 3px;
@@ -773,6 +809,8 @@
   color: var(--color-text-primary);
   text-align: right;
 }
+
+.gwTd, .oppTd { text-align: left !important; }
 
 .gwTd {
   font-family: var(--font-serif);
@@ -878,34 +916,6 @@
 
 /* ── Back footer (flip button) ──────────────────────────────── */
 
-.backFooter {
-  margin-top: 10px;
-  display: flex;
-  justify-content: center;
-  padding-top: 8px;
-  border-top: 1px solid var(--color-border-subtle);
-  flex-shrink: 0;
-}
-
-.flipBtnBack {
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  border: 1px solid var(--color-border);
-  background: var(--color-bg-card);
-  color: var(--color-text-secondary);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: border-color var(--transition-base), color var(--transition-base), transform var(--transition-base);
-}
-
-.flipBtnBack:hover {
-  border-color: var(--color-accent-green);
-  color: var(--color-accent-green);
-  transform: rotate(180deg);
-}
 
 /* ── Mobile scale ───────────────────────────────────────────── */
 

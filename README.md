@@ -32,17 +32,21 @@ Fantasy Futbol is a highly-customized, multi-tenant dynasty fantasy soccer appli
 ## 🛠 Local Development Setup
 
 ### 1. Prerequisites
+
 - Node.js ≥ 20
 - A Supabase project ([supabase.com](https://supabase.com))
 - An API-Football free account ([api-football.com](https://www.api-football.com))
 
 ### 2. Install Dependencies
+
 ```bash
 npm install
 ```
 
 ### 3. Configure Environment
+
 Copy `.env.local` and fill in your values:
+
 ```env
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
@@ -52,20 +56,25 @@ CRON_SECRET=your-secret-for-cron-routes
 ```
 
 ### 4. Run Database Migrations
+
 In your Supabase dashboard → SQL Editor, run the setup scripts located in:
+
 ```
 supabase/migrations/
 ```
 
 ### 5. Start Development Server
+
 ```bash
 npm run dev
 ```
+
 Open [http://localhost:3000](http://localhost:3000)
 
 ---
 
 ## 🗄️ Project Structure
+
 ```text
 src/
 ├── app/            # Next.js App Router (Dashboard, League, Auth, API Routes)

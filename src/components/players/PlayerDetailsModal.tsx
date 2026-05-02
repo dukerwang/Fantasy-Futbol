@@ -45,14 +45,11 @@ export default function PlayerDetailsModal({
             aria-label={`Player details: ${player.name}`}
         >
             <div className={styles.box} onClick={(e) => e.stopPropagation()}>
-                <button className={styles.closeBtn} onClick={onClose} aria-label="Close">
-                    ×
-                </button>
-
                 <PremiumPlayerCard
                     player={player}
                     totalPoints={totalPoints}
                     recentForm={recentForm}
+                    onClose={onClose}
                 />
 
                 {(onPick || onNominate) && (
