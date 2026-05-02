@@ -241,10 +241,11 @@
   justify-content: center;
   padding: 8px 28px 0;
   overflow: visible;
+  margin-top: -8px;
 }
 
 .photo {
-  height: 210px;
+  height: 250px;
   width: auto;
   max-width: calc(100% - 20px);
   object-fit: contain;
@@ -503,33 +504,17 @@
   color: var(--chip-color, var(--color-accent-green));
 }
 
-/* ── Action Buttons (Close, Flip) ───────────────────────────── */
+/* ── Action Buttons — Stage-level overlay (outside 3D card, no transform issues) ── */
 
-.cardActions {
+.cardActionsOverlay {
   position: absolute;
   top: 14px;
   right: 14px;
   display: flex;
   flex-direction: row;
   gap: 8px;
-  z-index: 10;
-}
-
-.cardActionsBack {
-  position: absolute;
-  top: 14px;
-  left: 14px; /* visually right:14px after 180deg Y flip */
-  display: flex;
-  flex-direction: row; /* DOM [X, Flip] → after Y-flip → visual [Flip][X] */
-  gap: 8px;
-  z-index: 10;
+  z-index: 20;
   pointer-events: auto;
-}
-
-/* Hides a button group on the wrong card face — prevents backface-visibility bleed-through */
-.cardActionsHidden {
-  visibility: hidden;
-  pointer-events: none;
 }
 
 

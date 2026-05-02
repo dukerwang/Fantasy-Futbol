@@ -402,17 +402,6 @@ export default function PremiumPlayerCard({
                         </div>
                     </div>
 
-                    {/* Action buttons — front face: Flip first, X second */}
-                    <div className={`${styles.cardActions} ${flipped ? styles.cardActionsHidden : ''}`}>
-                        <button className={styles.actionIconBtn} onClick={handleFlip} aria-label="Flip to game log">
-                            <FlipIcon />
-                        </button>
-                        {onClose && (
-                            <button className={styles.actionIconBtn} onClick={onClose} aria-label="Close">
-                                ×
-                            </button>
-                        )}
-                    </div>
 
                     {/* Holographic overlay */}
                     <div
@@ -581,18 +570,20 @@ export default function PremiumPlayerCard({
                         </div>
                     </div>
                 </div>
-                {/* Action buttons — back face
-                     DOM: [X, Flip] + row-reverse + 180° Y flip = visual [Flip][X] matching front */}
-                <div className={`${styles.cardActionsBack} ${flipped ? '' : styles.cardActionsHidden}`}>
-                    {onClose && (
-                        <button className={styles.actionIconBtn} onClick={onClose} aria-label="Close">
-                            ×
-                        </button>
-                    )}
-                    <button className={styles.actionIconBtn} onClick={handleFlip} aria-label="Flip to front">
-                        <FlipIcon />
+                {/* end .back face */}
+            </div>
+            {/* end .card */}
+
+            {/* Buttons rendered outside .card — no 3D transform involvement, same on both faces */}
+            <div className={styles.cardActionsOverlay}>
+                <button className={styles.actionIconBtn} onClick={handleFlip} aria-label={flipped ? 'Flip to front' : 'Flip to game log'}>
+                    <FlipIcon />
+                </button>
+                {onClose && (
+                    <button className={styles.actionIconBtn} onClick={onClose} aria-label="Close">
+                        ×
                     </button>
-                </div>
+                )}
             </div>
         </div>
     );
