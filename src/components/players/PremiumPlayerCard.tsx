@@ -149,10 +149,9 @@ export default function PremiumPlayerCard({
     const [hovering, setHovering] = useState(false);
     const [gamelog, setGamelog] = useState<GamelogEntry[]>([]);
 
-    // Try high-res 250x250 PL CDN first; fall back to stored 110x140 on error
+    // Try 250x250 on the same premierleague25 CDN (current season); fall back to stored 110x140
     const hiResUrl = player.photo_url
-        ? player.photo_url
-            .replace('premierleague25/photos/players/110x140/', 'premierleague/photos/players/250x250/p')
+        ? player.photo_url.replace('/110x140/', '/250x250/')
         : null;
     const [imgSrc, setImgSrc] = useState<string | null>(hiResUrl ?? player.photo_url ?? null);
 
@@ -395,16 +394,16 @@ export default function PremiumPlayerCard({
                         </div>
                     </div>
 
-                    {/* Action buttons — front face */}
+                    {/* Action buttons — front face: Flip first, X second */}
                     <div className={`${styles.cardActions} ${flipped ? styles.cardActionsHidden : ''}`}>
+                        <button className={styles.actionIconBtn} onClick={handleFlip} aria-label="Flip to game log">
+                            <FlipIcon />
+                        </button>
                         {onClose && (
                             <button className={styles.actionIconBtn} onClick={onClose} aria-label="Close">
                                 ×
                             </button>
                         )}
-                        <button className={styles.actionIconBtn} onClick={handleFlip} aria-label="Flip to game log">
-                            <FlipIcon />
-                        </button>
                     </div>
 
                     {/* Holographic overlay */}
@@ -574,7 +573,8 @@ export default function PremiumPlayerCard({
                         </div>
                     </div>
                 </div>
-                {/* Action buttons — back face (outside backContent to sit at face level) */}
+                {/* Action buttons — back face
+                     DOM: [X, Flip] + row-reverse + 180° Y flip = visual [Flip][X] matching front */}
                 <div className={`${styles.cardActionsBack} ${flipped ? '' : styles.cardActionsHidden}`}>
                     {onClose && (
                         <button className={styles.actionIconBtn} onClick={onClose} aria-label="Close">
