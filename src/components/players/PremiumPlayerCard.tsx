@@ -149,9 +149,9 @@ export default function PremiumPlayerCard({
     const [hovering, setHovering] = useState(false);
     const [gamelog, setGamelog] = useState<GamelogEntry[]>([]);
 
-    // Try 250x250 on the same premierleague25 CDN (current season); fall back to stored 110x140
+    // Try 250x250 on premierleague26 CDN (2025/26 season); fall back to stored 110x140
     const hiResUrl = player.photo_url
-        ? player.photo_url.replace('/110x140/', '/250x250/')
+        ? player.photo_url.replace('premierleague25/photos/players/110x140/', 'premierleague26/photos/players/250x250/')
         : null;
     const [imgSrc, setImgSrc] = useState<string | null>(hiResUrl ?? player.photo_url ?? null);
 
