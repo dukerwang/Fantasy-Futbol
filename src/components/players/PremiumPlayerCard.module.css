@@ -3,6 +3,14 @@
    360 × 520px fixed canvas, 18px radius
    ============================================================ */
 
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  position: relative;
+}
+
 .stage {
   perspective: 1800px;
   width: 360px;
@@ -509,13 +517,13 @@
 
 /* FLAT Action Buttons — Standardized order (X, then Flip) and outside 3D stack to prevent jitter */
 .cardActionsOverlay {
-  position: absolute;
-  top: 18px;
-  right: 18px;
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 8px;
+  justify-content: flex-end;
+  gap: 12px;
+  width: 100%;
+  max-width: 360px;
   z-index: 1000;
   pointer-events: auto;
 }

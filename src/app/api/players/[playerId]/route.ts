@@ -39,22 +39,28 @@ export async function GET(
     try {
       // 3. Fetch FPL bootstrap to map team IDs to names (cached aggressively)
       const bootRes = await fetch(`${FPL_BASE}/bootstrap-static/`, { next: { revalidate: 3600 } });
+      if (!bootRes.ok) throw new Error(`FPL Bootstrap failed: ${bootRes.status}`);
       const bootData = await bootRes.json();
+      
       const teamMap = new Map<number, string>();
-      for (const t of bootData.teams) {
-        teamMap.set(t.id, t.short_name);
+      if (bootData.teams) {
+        for (const t of bootData.teams) {
+          teamMap.set(t.id, t.short_name);
+        }
       }
 
       // 4. Fetch FPL element-summary for comprehensive match array
       const histRes = await fetch(`${FPL_BASE}/element-summary/${dbPlayer.fpl_id}/`, { next: { revalidate: 300 } });
+      if (!histRes.ok) throw new Error(`FPL element-summary failed: ${histRes.status}`);
       const histData = await histRes.json();
 
-      // Use match_id (fixture_id) for mapping to avoid DGW duplication
+      // Use composite match_id (GW * 1000 + FPL_ID) for mapping
       const statsMap = new Map(dbStats?.map((s: any) => [s.match_id, s]) ?? []);
 
-      const enrichedLog = histData.history.map((h: any) => {
-        // Fallback to gameweek-based mapping for legacy records if fixture mapping fails
-        const dbEntry = statsMap.get(h.fixture) || (dbStats as any[])?.find((s: any) => s.gameweek === h.round && s.match_id === (h.round * 1000 + dbPlayer.fpl_id));
+      const enrichedLog = (histData.history ?? []).map((h: any) => {
+        // Correct composite ID for mapping: round * 1000 + fpl_id
+        const compositeId = h.round * 1000 + dbPlayer.fpl_id;
+        const dbEntry = statsMap.get(compositeId);
         
         const opponentName = teamMap.get(h.opponent_team) ?? 'UNK';
         let resultString = '';
@@ -83,10 +89,23 @@ export async function GET(
       gamelog = enrichedLog;
     } catch (err) {
       console.error('Failed to augment game log from FPL', err);
-      // Fallback to purely our db sorted descending
+      // Enrich DB stats with basic info even in fallback
+      gamelog = (dbStats ?? []).map((s: any) => ({
+        ...s,
+        isDNP: (s.stats?.minutes_played === 0),
+        opponent: 'Unknown',
+        result: ''
+      }));
       gamelog.sort((a: any, b: any) => b.gameweek - a.gameweek);
     }
   } else {
+    // Enrich DB stats even if no FPL ID
+    gamelog = (dbStats ?? []).map((s: any) => ({
+      ...s,
+      isDNP: (s.stats?.minutes_played === 0),
+      opponent: 'Unknown',
+      result: ''
+    }));
     gamelog.sort((a: any, b: any) => b.gameweek - a.gameweek);
   }
 

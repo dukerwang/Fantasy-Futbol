@@ -172,7 +172,10 @@ export default function PremiumPlayerCard({
     const posLong = POS_LONG[player.primary_position] ?? player.primary_position;
     const posVar = POS_CSS_VAR[player.primary_position] ?? 'var(--color-accent-green)';
 
-    const playedGames = gamelog.filter(g => !g.isDNP);
+    const playedGames = gamelog.filter(g => {
+        const isDNP = g.isDNP ?? (g.stats?.minutes_played === 0);
+        return !isDNP;
+    });
     const recentGames = playedGames.slice(0, 8).reverse();
     const l3Games = playedGames.slice(0, 3);
     const calculatedForm = l3Games.length > 0 
@@ -277,14 +280,27 @@ export default function PremiumPlayerCard({
     } as React.CSSProperties;
 
     return (
-        <div
-            className={styles.stage}
-            ref={stageRef}
-            onMouseMove={onMouseMove}
-            onMouseEnter={() => setHovering(true)}
-            onMouseLeave={onMouseLeave}
-        >
-            <div className={styles.cardShadow} style={{ opacity: hovering ? 0.5 : 0.22 }} />
+        <div className={styles.container}>
+            {/* Flat Action Buttons — Outside stage to prevent jitter and 3D issues */}
+            <div className={styles.cardActionsOverlay}>
+                <button className={styles.actionIconBtn} onClick={handleFlip} aria-label={flipped ? 'Flip to front' : 'Flip to game log'}>
+                    <FlipIcon />
+                </button>
+                {onClose && (
+                    <button className={styles.actionIconBtn} onClick={onClose} aria-label="Close">
+                        ×
+                    </button>
+                )}
+            </div>
+
+            <div
+                className={styles.stage}
+                ref={stageRef}
+                onMouseMove={onMouseMove}
+                onMouseEnter={() => setHovering(true)}
+                onMouseLeave={onMouseLeave}
+            >
+                <div className={styles.cardShadow} style={{ opacity: hovering ? 0.5 : 0.22 }} />
 
             <div
                 className={`${styles.card} ${flipped ? styles.flipped : ''}`}
@@ -594,17 +610,8 @@ export default function PremiumPlayerCard({
             </div>
             {/* end .card */}
 
-            {/* Flat Action Buttons — Outside .card to prevent jitter and mirroring */}
-            <div className={styles.cardActionsOverlay}>
-                {onClose && (
-                    <button className={styles.actionIconBtn} onClick={onClose} aria-label="Close">
-                        ×
-                    </button>
-                )}
-                <button className={styles.actionIconBtn} onClick={handleFlip} aria-label={flipped ? 'Flip to front' : 'Flip to game log'}>
-                    <FlipIcon />
-                </button>
             </div>
+            {/* end .stage */}
         </div>
     );
 }
