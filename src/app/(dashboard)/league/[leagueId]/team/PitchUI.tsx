@@ -393,7 +393,26 @@ export default function PitchUI({
         setSaveError(null);
     }
 
-    function activateLineupSelection(sel: LineupSelection) {
+    function activateLineupSelection(sel: LineupSelection | null) {
+        if (!sel) {
+            setLineupSelection(null);
+            return;
+        }
+        if (sel.type === 'starter') {
+            const pid = assignments[sel.slotIndex];
+            const entry = pid ? playerMap.get(pid) : null;
+            if (entry && isPlMatchLocked(entry.player, lockedTeamIds)) {
+                setSaveError(`${displayName(entry.player)} is locked — match started.`);
+                return;
+            }
+        } else if (sel.type === 'bench-slot') {
+            const pid = benchAssignments[sel.slot];
+            const entry = pid ? playerMap.get(pid) : null;
+            if (entry && isPlMatchLocked(entry.player, lockedTeamIds)) {
+                setSaveError(`${displayName(entry.player)} is locked — match started.`);
+                return;
+            }
+        }
         setSidebarSelection(null);
         setSidebarError(null);
         setLineupSelection(sel);
@@ -476,6 +495,12 @@ export default function PitchUI({
                 const pidB = assignments[slotIndex];
                 const eA = pidA ? playerMap.get(pidA) : null;
                 const eB = pidB ? playerMap.get(pidB) : null;
+                
+                if ((eA && isPlMatchLocked(eA.player, lockedTeamIds)) || (eB && isPlMatchLocked(eB.player, lockedTeamIds))) {
+                    setSaveError('Match started — one of these players is locked.');
+                    setLineupSelection(null); return;
+                }
+
                 const aCanGo = !eA || canPlaySlot(eA.player, slots[slotIndex]);
                 const bCanGo = !eB || canPlaySlot(eB.player, slots[lineupSelection.slotIndex]);
                 if (aCanGo && bCanGo) {
@@ -494,8 +519,12 @@ export default function PitchUI({
                     setSaveError(`${displayName(entry?.player ?? { name: 'Player', web_name: null } as Player)} cannot play ${slotPos}.`);
                     setLineupSelection(null); return;
                 }
-                if (isPlMatchLocked(entry.player, lockedTeamIds)) {
-                    setSaveError('Match started — this player is locked.');
+                
+                const existingId = assignments[slotIndex];
+                const existingEntry = existingId ? playerMap.get(existingId) : null;
+
+                if (isPlMatchLocked(entry.player, lockedTeamIds) || (existingEntry && isPlMatchLocked(existingEntry.player, lockedTeamIds))) {
+                    setSaveError('Match started — involved player is locked.');
                     setLineupSelection(null); return;
                 }
                 setAssignments((prev) => ({ ...prev, [slotIndex]: pid }));
@@ -512,6 +541,12 @@ export default function PitchUI({
                 }
                 const curStarterId = assignments[slotIndex];
                 const eStart = curStarterId ? playerMap.get(curStarterId) : null;
+
+                if ((eBench && isPlMatchLocked(eBench.player, lockedTeamIds)) || (eStart && isPlMatchLocked(eStart.player, lockedTeamIds))) {
+                    setSaveError('Match started — involved player is locked.');
+                    setLineupSelection(null); return;
+                }
+
                 if (eStart && canPlayBenchSlot(eStart.player, lineupSelection.slot)) {
                     setBenchAssignments((prev) => ({ ...prev, [lineupSelection.slot]: curStarterId }));
                 } else {
@@ -536,6 +571,12 @@ export default function PitchUI({
                 const pidB = benchAssignments[slot];
                 const eA = pidA ? playerMap.get(pidA) : null;
                 const eB = pidB ? playerMap.get(pidB) : null;
+
+                if ((eA && isPlMatchLocked(eA.player, lockedTeamIds)) || (eB && isPlMatchLocked(eB.player, lockedTeamIds))) {
+                    setSaveError('Match started — involved player is locked.');
+                    setLineupSelection(null); return;
+                }
+
                 const aOk = !eA || canPlayBenchSlot(eA.player, slot);
                 const bOk = !eB || canPlayBenchSlot(eB.player, lineupSelection.slot);
                 if (aOk && bOk) {
@@ -553,8 +594,12 @@ export default function PitchUI({
                     setSaveError(`${displayName(entry?.player ?? { name: 'Player', web_name: null } as Player)} cannot play the ${slot} bench slot.`);
                     setLineupSelection(null); return;
                 }
-                if (isPlMatchLocked(entry.player, lockedTeamIds)) {
-                    setSaveError('Match started — this player is locked.');
+                
+                const existingId = benchAssignments[slot];
+                const existingEntry = existingId ? playerMap.get(existingId) : null;
+
+                if (isPlMatchLocked(entry.player, lockedTeamIds) || (existingEntry && isPlMatchLocked(existingEntry.player, lockedTeamIds))) {
+                    setSaveError('Match started — involved player is locked.');
                     setLineupSelection(null); return;
                 }
                 setBenchAssignments((prev) => ({ ...prev, [slot]: pid }));
@@ -568,8 +613,15 @@ export default function PitchUI({
                     setSaveError(`${displayName(eStart?.player ?? { name: 'Player', web_name: null } as Player)} cannot play the ${slot} bench slot.`);
                     setLineupSelection(null); return;
                 }
+                
                 const curBenchId = benchAssignments[slot];
                 const eBench = curBenchId ? playerMap.get(curBenchId) : null;
+
+                if ((eStart && isPlMatchLocked(eStart.player, lockedTeamIds)) || (eBench && isPlMatchLocked(eBench.player, lockedTeamIds))) {
+                    setSaveError('Match started — involved player is locked.');
+                    setLineupSelection(null); return;
+                }
+
                 if (eBench && canPlaySlot(eBench.player, slots[lineupSelection.slotIndex])) {
                     setAssignments((prev) => ({ ...prev, [lineupSelection.slotIndex]: curBenchId }));
                 } else {

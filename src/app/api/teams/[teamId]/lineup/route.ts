@@ -196,7 +196,8 @@ export async function POST(req: NextRequest, { params }: Props) {
   let currentFplGw = 0;
   try {
     const fplRes = await fetch('https://fantasy.premierleague.com/api/bootstrap-static/', {
-      next: { revalidate: 60 },
+      headers: { 'User-Agent': 'FantasyFutbol/1.0' },
+      next: { revalidate: 3600 },
     });
     if (fplRes.ok) {
       const fplData = await fplRes.json();
@@ -247,7 +248,8 @@ export async function POST(req: NextRequest, { params }: Props) {
     let startedTeamIds = new Set<number>();
     try {
       const res = await fetch(`https://fantasy.premierleague.com/api/fixtures/?event=${targetGameweek}`, {
-        next: { revalidate: 60 },
+        headers: { 'User-Agent': 'FantasyFutbol/1.0' },
+        next: { revalidate: 0 }, // Always get fresh fixture status for lock enforcement
       });
       if (res.ok) {
         const fixtures = await res.json();

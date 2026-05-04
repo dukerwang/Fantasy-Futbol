@@ -38,7 +38,10 @@ export async function GET(
   if (dbPlayer.fpl_id) {
     try {
       // 3. Fetch FPL bootstrap to map team IDs to names (cached aggressively)
-      const bootRes = await fetch(`${FPL_BASE}/bootstrap-static/`, { next: { revalidate: 3600 } });
+      const bootRes = await fetch(`${FPL_BASE}/bootstrap-static/`, {
+        headers: { 'User-Agent': 'FantasyFutbol/1.0' },
+        next: { revalidate: 3600 }
+      });
       if (!bootRes.ok) throw new Error(`FPL Bootstrap failed: ${bootRes.status}`);
       const bootData = await bootRes.json();
       
@@ -50,7 +53,10 @@ export async function GET(
       }
 
       // 4. Fetch FPL element-summary for comprehensive match array
-      const histRes = await fetch(`${FPL_BASE}/element-summary/${dbPlayer.fpl_id}/`, { next: { revalidate: 300 } });
+      const histRes = await fetch(`${FPL_BASE}/element-summary/${dbPlayer.fpl_id}/`, {
+        headers: { 'User-Agent': 'FantasyFutbol/1.0' },
+        next: { revalidate: 300 }
+      });
       if (!histRes.ok) throw new Error(`FPL element-summary failed: ${histRes.status}`);
       const histData = await histRes.json();
 
@@ -58,9 +64,8 @@ export async function GET(
       const statsMap = new Map(dbStats?.map((s: any) => [s.match_id, s]) ?? []);
 
       const enrichedLog = (histData.history ?? []).map((h: any) => {
-        // Correct composite ID for mapping: round * 1000 + fpl_id
-        const compositeId = h.round * 1000 + dbPlayer.fpl_id;
-        const dbEntry = statsMap.get(compositeId) as any;
+        // Try matching by actual fixture ID first, then fallback to synthetic ID (for DNPs)
+        const dbEntry = (statsMap.get(h.fixture) || statsMap.get(h.round * 1000 + dbPlayer.fpl_id)) as any;
         
         const opponentName = teamMap.get(h.opponent_team) ?? 'UNK';
         let resultString = '';

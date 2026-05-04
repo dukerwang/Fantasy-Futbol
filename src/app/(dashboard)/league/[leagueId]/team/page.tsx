@@ -97,7 +97,10 @@ export default async function MyTeamPage({ params }: Props) {
   let currentFplGw = 0;
   const scoreMap: Record<string, number> = {};
   try {
-    const fplRes = await fetch('https://fantasy.premierleague.com/api/bootstrap-static/', { next: { revalidate: 300 } });
+    const fplRes = await fetch('https://fantasy.premierleague.com/api/bootstrap-static/', {
+      headers: { 'User-Agent': 'FantasyFutbol/1.0' },
+      next: { revalidate: 300 }
+    });
     if (fplRes.ok) {
       const fplData = await fplRes.json();
       const now = new Date();
@@ -208,7 +211,8 @@ export default async function MyTeamPage({ params }: Props) {
     // Identify which teams have locked for this matchup's gameweek
     try {
       const res = await fetch(`https://fantasy.premierleague.com/api/fixtures/?event=${(matchup as any).gameweek}`, {
-        next: { revalidate: 60 }
+        headers: { 'User-Agent': 'FantasyFutbol/1.0' },
+        next: { revalidate: 15 } // Check for match starts frequently
       });
       if (res.ok) {
         const fixtures = await res.json();
