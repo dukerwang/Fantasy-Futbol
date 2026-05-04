@@ -60,7 +60,7 @@ export async function GET(
       const enrichedLog = (histData.history ?? []).map((h: any) => {
         // Correct composite ID for mapping: round * 1000 + fpl_id
         const compositeId = h.round * 1000 + dbPlayer.fpl_id;
-        const dbEntry = statsMap.get(compositeId);
+        const dbEntry = statsMap.get(compositeId) as any;
         
         const opponentName = teamMap.get(h.opponent_team) ?? 'UNK';
         let resultString = '';
