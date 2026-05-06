@@ -25,6 +25,7 @@ import { processRelegationCompensation, type RelegationResult } from './relegati
 import { distributeAllPrizes, type PrizeEntry } from './prizeDistribution';
 import { insertMatchups } from '@/lib/schedule/insertMatchups';
 import { createAllTournaments, type CreateTournamentResult } from '@/lib/tournaments/createTournaments';
+import { syncPlayersFromFpl } from '@/lib/players/syncPlayers';
 
 export interface PreflightResult {
   ready: boolean;
@@ -44,6 +45,7 @@ export interface ResetResult {
   standingsArchived: number;
   matchupsGenerated: number;
   tournamentsCreated: CreateTournamentResult[];
+  playersSynced: number;
 }
 
 /**
@@ -271,6 +273,14 @@ export async function runSeasonReset(
     return { matchupsGenerated: 0, tournamentsCreated: [] };
   });
 
+  // Step 11: Sync FPL players so promoted clubs' new players are immediately
+  // available for FAAB. The daily cron also handles this, but running it here
+  // means managers don't have to wait until 02:00 UTC after reset.
+  const playerSyncResult = await syncPlayersFromFpl(admin).catch((err) => {
+    console.error('[seasonReset] syncPlayersFromFpl failed:', err);
+    return { synced: 0, systemBidsSeeded: 0, autoTransferOuts: [] };
+  });
+
   return {
     seasonFrom,
     seasonTo,
@@ -282,5 +292,6 @@ export async function runSeasonReset(
     standingsArchived,
     matchupsGenerated: (scheduleResult as any).matchups ?? 0,
     tournamentsCreated: tournamentResult.tournamentsCreated,
+    playersSynced: playerSyncResult.synced,
   };
 }
