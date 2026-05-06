@@ -16,10 +16,10 @@ export async function GET(
   const { playerId } = await params;
   const supabase = await createClient();
 
-  // 1. Fetch player to get fpl_id for cross-referencing
+  // 1. Fetch player to get fpl_id and team_id for cross-referencing
   const { data: dbPlayer, error: pError } = await supabase
     .from('players')
-    .select('fpl_id')
+    .select('fpl_id, pl_team_id, name')
     .eq('id', playerId)
     .single();
 
@@ -33,86 +33,133 @@ export async function GET(
     .select('match_id, gameweek, fantasy_points, match_rating, stats')
     .eq('player_id', playerId);
 
-  let gamelog = dbStats ?? [];
+  const statsMap = new Map(dbStats?.map((s: any) => [Number(s.match_id), s]) ?? []);
+  
+  let teamMap = new Map<number, { name: string, short: string }>();
+  let fixtureMap = new Map<number, any>();
+  const USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
 
-  if (dbPlayer.fpl_id) {
-    try {
-      // 3. Fetch FPL bootstrap to map team IDs to names (cached aggressively)
-      const bootRes = await fetch(`${FPL_BASE}/bootstrap-static/`, {
-        headers: { 'User-Agent': 'FantasyFutbol/1.0' },
-        next: { revalidate: 3600 }
-      });
-      if (!bootRes.ok) throw new Error(`FPL Bootstrap failed: ${bootRes.status}`);
+  try {
+    // 3. Fetch FPL bootstrap (cached 1hr)
+    const bootRes = await fetch(`${FPL_BASE}/bootstrap-static/`, {
+      headers: { 'User-Agent': USER_AGENT },
+      next: { revalidate: 3600 }
+    });
+    if (bootRes.ok) {
       const bootData = await bootRes.json();
-      
-      const teamMap = new Map<number, string>();
-      if (bootData.teams) {
-        for (const t of bootData.teams) {
-          teamMap.set(t.id, t.short_name);
-        }
-      }
+      bootData.teams?.forEach((t: any) => teamMap.set(t.id, { name: t.name, short: t.short_name }));
+    }
 
-      // 4. Fetch FPL element-summary for comprehensive match array
+    // 4. Fetch all fixtures (cached 1hr)
+    const fixRes = await fetch(`${FPL_BASE}/fixtures/`, {
+      headers: { 'User-Agent': USER_AGENT },
+      next: { revalidate: 3600 }
+    });
+    if (fixRes.ok) {
+      const fixData = await fixRes.json();
+      fixData.forEach((f: any) => fixtureMap.set(f.id, f));
+    }
+
+    // 5. Try fetching player-specific history (cached 5m)
+    let enrichedLog: any[] = [];
+    let historyFetched = false;
+
+    if (dbPlayer.fpl_id) {
       const histRes = await fetch(`${FPL_BASE}/element-summary/${dbPlayer.fpl_id}/`, {
-        headers: { 'User-Agent': 'FantasyFutbol/1.0' },
+        headers: { 'User-Agent': USER_AGENT },
         next: { revalidate: 300 }
       });
-      if (!histRes.ok) throw new Error(`FPL element-summary failed: ${histRes.status}`);
-      const histData = await histRes.json();
+      
+      if (histRes.ok) {
+        const histData = await histRes.json();
+        historyFetched = true;
+        enrichedLog = (histData.history ?? []).map((h: any) => {
+          const dbEntry = (statsMap.get(h.fixture) || statsMap.get(h.round * 1000 + dbPlayer.fpl_id)) as any;
+          const opponent = teamMap.get(h.opponent_team)?.short ?? 'UNK';
+          
+          let resultString = '';
+          if (h.team_h_score !== null && h.team_a_score !== null) {
+            const isWin = h.was_home ? h.team_h_score > h.team_a_score : h.team_a_score > h.team_h_score;
+            const isLoss = h.was_home ? h.team_h_score < h.team_a_score : h.team_a_score < h.team_h_score;
+            const outcome = isWin ? 'W' : isLoss ? 'L' : 'D';
+            resultString = `${outcome} ${h.team_h_score}-${h.team_a_score}`;
+          }
 
-      // Use composite match_id (GW * 1000 + FPL_ID) for mapping
-      const statsMap = new Map(dbStats?.map((s: any) => [s.match_id, s]) ?? []);
+          return {
+            gameweek: h.round,
+            opponent: h.was_home ? `${opponent} (H)` : `${opponent} (A)`,
+            result: resultString,
+            date: h.kickoff_time,
+            isDNP: h.minutes === 0,
+            fantasy_points: dbEntry ? Number(dbEntry.fantasy_points) : 0,
+            match_rating: dbEntry ? Number(dbEntry.match_rating) : null,
+            stats: dbEntry ? dbEntry.stats : { minutes_played: h.minutes, goals: 0, assists: 0 },
+          };
+        });
+      }
+    }
 
-      const enrichedLog = (histData.history ?? []).map((h: any) => {
-        // Try matching by actual fixture ID first, then fallback to synthetic ID (for DNPs)
-        const dbEntry = (statsMap.get(h.fixture) || statsMap.get(h.round * 1000 + dbPlayer.fpl_id)) as any;
-        
-        const opponentName = teamMap.get(h.opponent_team) ?? 'UNK';
-        let resultString = '';
-        if (h.team_h_score !== null && h.team_a_score !== null) {
-          const isWin = h.was_home ? h.team_h_score > h.team_a_score : h.team_a_score > h.team_h_score;
-          const isLoss = h.was_home ? h.team_h_score < h.team_a_score : h.team_a_score < h.team_h_score;
-          const outcome = isWin ? 'W' : isLoss ? 'L' : 'D';
-          resultString = `${outcome} ${h.team_h_score}-${h.team_a_score}`;
+    // 6. Fallback if element-summary failed OR player has no fpl_id
+    if (!historyFetched) {
+      enrichedLog = (dbStats ?? []).map((s: any) => {
+        const mid = Number(s.match_id);
+        const f = fixtureMap.get(mid);
+        let opponent = 'Unknown';
+        let result = '';
+        let isHome = false;
+
+        if (f) {
+          const isPlayerHome = f.team_h === dbPlayer.pl_team_id;
+          isHome = isPlayerHome;
+          const oppId = isPlayerHome ? f.team_a : f.team_h;
+          opponent = teamMap.get(oppId)?.short ?? 'UNK';
+          
+          if (f.finished) {
+            const isWin = isPlayerHome ? f.team_h_score > f.team_a_score : f.team_a_score > f.team_h_score;
+            const isLoss = isPlayerHome ? f.team_h_score < f.team_a_score : f.team_a_score < f.team_h_score;
+            const outcome = isWin ? 'W' : isLoss ? 'L' : 'D';
+            result = `${outcome} ${f.team_h_score}-${f.team_a_score}`;
+          }
+        } else if (mid > 1000) {
+          // Synthetic ID DNP lookup
+          const gw = s.gameweek;
+          const gwFixtures = Array.from(fixtureMap.values()).filter(fix => fix.event === gw && (fix.team_h === dbPlayer.pl_team_id || fix.team_a === dbPlayer.pl_team_id));
+          if (gwFixtures.length > 0) {
+            const firstFix = gwFixtures[0];
+            const isPlayerHome = firstFix.team_h === dbPlayer.pl_team_id;
+            isHome = isPlayerHome;
+            const oppId = isPlayerHome ? firstFix.team_a : firstFix.team_h;
+            opponent = teamMap.get(oppId)?.short ?? 'UNK';
+          }
         }
-        const isDNP = h.minutes === 0;
 
         return {
-          gameweek: h.round,
-          opponent: h.was_home ? `${opponentName} (H)` : `${opponentName} (A)`,
-          result: resultString,
-          date: h.kickoff_time,
-          isDNP,
-          fantasy_points: dbEntry ? dbEntry.fantasy_points : 0,
-          match_rating: dbEntry ? dbEntry.match_rating : null,
-          stats: dbEntry ? dbEntry.stats : { minutes_played: h.minutes, goals: 0, assists: 0 },
+          gameweek: s.gameweek,
+          opponent: opponent !== 'Unknown' ? (isHome ? `${opponent} (H)` : `${opponent} (A)`) : opponent,
+          result,
+          isDNP: (s.stats?.minutes_played === 0),
+          fantasy_points: Number(s.fantasy_points),
+          match_rating: s.match_rating ? Number(s.match_rating) : null,
+          stats: s.stats,
         };
       });
-
-      // Sort chronologically descending
-      enrichedLog.sort((a: any, b: any) => b.gameweek - a.gameweek);
-      gamelog = enrichedLog;
-    } catch (err) {
-      console.error('Failed to augment game log from FPL', err);
-      // Enrich DB stats with basic info even in fallback
-      gamelog = (dbStats ?? []).map((s: any) => ({
-        ...s,
-        isDNP: (s.stats?.minutes_played === 0),
-        opponent: 'Unknown',
-        result: ''
-      }));
-      gamelog.sort((a: any, b: any) => b.gameweek - a.gameweek);
     }
-  } else {
-    // Enrich DB stats even if no FPL ID
-    gamelog = (dbStats ?? []).map((s: any) => ({
-      ...s,
-      isDNP: (s.stats?.minutes_played === 0),
-      opponent: 'Unknown',
-      result: ''
-    }));
-    gamelog.sort((a: any, b: any) => b.gameweek - a.gameweek);
-  }
 
-  return NextResponse.json({ gamelog });
+    enrichedLog.sort((a: any, b: any) => b.gameweek - a.gameweek);
+    return NextResponse.json({ gamelog: enrichedLog });
+
+  } catch (err) {
+    console.error('Critical failure in player game log generation', err);
+    // Absolute baseline fallback
+    const fallback = (dbStats ?? []).map((s: any) => ({
+      ...s,
+      fantasy_points: Number(s.fantasy_points),
+      match_rating: s.match_rating ? Number(s.match_rating) : null,
+      opponent: 'Unknown',
+      result: '',
+      isDNP: (s.stats?.minutes_played === 0),
+    }));
+    fallback.sort((a: any, b: any) => b.gameweek - a.gameweek);
+    return NextResponse.json({ gamelog: fallback });
+  }
 }
