@@ -1,6 +1,7 @@
 import { createAdminClient } from '@/lib/supabase/admin';
 import { calculateTeamScore, loadReferenceStats, type PlayerScoreRecord } from '@/lib/scoring/matchups';
 import { normalizeMatchupLineup } from '@/lib/lineups/normalizeMatchupLineup';
+import { getLatestReferenceStatsSeason } from '@/lib/season/currentSeason';
 
 export async function processMatchupsForGameweek(gameweek: number, finished: boolean) {
     const admin = createAdminClient();
@@ -85,8 +86,9 @@ export async function processMatchupsForGameweek(gameweek: number, finished: boo
     }
 
     // 2. Load reference stats for dynamic slot scoring
-    const season = '2025-26';
+    const season = await getLatestReferenceStatsSeason(admin);
     const refStats = await loadReferenceStats(admin, season);
+
 
     // 3. Fetch player stats for this GW
     const { data: statsData } = await admin

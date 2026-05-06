@@ -347,7 +347,7 @@ export default async function LeaguePage({ params }: Props) {
         player:players!player_id(id, web_name, name, primary_position, pl_team, photo_url)
       `)
       .eq('gameweek', latestCompletedGW)
-      .eq('season', '2025-26')
+      .eq('season', league.current_season ?? league.season)
       .order('fantasy_points', { ascending: false })
       .limit(5);
 

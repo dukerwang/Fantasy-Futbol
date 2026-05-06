@@ -23,6 +23,7 @@ import { runPreflightChecks, runSeasonReset } from '@/lib/offseason/seasonReset'
 import { previewRelegationCompensation } from '@/lib/offseason/relegationHandler';
 import { buildSeasonPrizes, buildCupPrizes, DEFAULT_PRIZE_CONFIG } from '@/lib/offseason/prizeDistribution';
 import type { PrizeConfig } from '@/lib/offseason/prizeDistribution';
+import { getCurrentFplSeason, nextSeason } from '@/lib/season/currentSeason';
 
 export const maxDuration = 300;
 
@@ -59,8 +60,8 @@ export async function GET(req: NextRequest) {
   }
 
   const prizeConfig: PrizeConfig = (league.prize_config as PrizeConfig) ?? DEFAULT_PRIZE_CONFIG;
-  const seasonFrom = league.current_season ?? '2025-26';
-  const seasonTo = bumpSeason(seasonFrom);
+  const seasonFrom = league.current_season ?? await getCurrentFplSeason();
+  const seasonTo = nextSeason(seasonFrom);
 
   const [preflight, relegationPreview, seasonPrizes, cupPrizes] = await Promise.all([
     runPreflightChecks(admin, leagueId),
@@ -113,8 +114,8 @@ export async function POST(req: NextRequest) {
     .eq('id', leagueId)
     .single();
 
-  const seasonFrom = season_from ?? league?.current_season ?? '2025-26';
-  const seasonTo = season_to ?? bumpSeason(seasonFrom);
+  const seasonFrom = season_from ?? league?.current_season ?? await getCurrentFplSeason();
+  const seasonTo = season_to ?? nextSeason(seasonFrom);
 
   // Preflight check first
   const preflight = await runPreflightChecks(admin, leagueId);
@@ -140,12 +141,3 @@ export async function POST(req: NextRequest) {
   }
 }
 
-/** Bumps '2025-26' → '2026-27', etc. */
-function bumpSeason(season: string): string {
-  const parts = season.split('-');
-  if (parts.length !== 2) return season;
-  const start = parseInt(parts[0], 10);
-  const end = parseInt(parts[1], 10);
-  if (isNaN(start) || isNaN(end)) return season;
-  return `${start + 1}-${end + 1}`;
-}

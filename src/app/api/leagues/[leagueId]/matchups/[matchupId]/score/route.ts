@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { calculateTeamScore, loadReferenceStats, type PlayerScoreRecord } from '@/lib/scoring/matchups';
 import { normalizeMatchupLineup } from '@/lib/lineups/normalizeMatchupLineup';
+import { getLatestReferenceStatsSeason } from '@/lib/season/currentSeason';
 
 interface Props {
   params: Promise<{ leagueId: string; matchupId: string }>;
@@ -66,7 +67,7 @@ export async function GET(_req: NextRequest, { params }: Props) {
   }
 
   // 1. Load reference stats
-  const season = '2025-26';
+  const season = await getLatestReferenceStatsSeason(admin);
   const refStats = await loadReferenceStats(admin, season);
 
   // 2. Fetch player stats for this GW

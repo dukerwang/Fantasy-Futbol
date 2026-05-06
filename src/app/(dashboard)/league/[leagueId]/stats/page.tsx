@@ -4,6 +4,7 @@ import { redirect, notFound } from 'next/navigation';
 import GlobalStatsTable from './GlobalStatsTable';
 import type { Player } from '@/types';
 import { FULL_PLAYER_SELECT } from '@/lib/constants/queries';
+import { getCurrentFplSeason } from '@/lib/season/currentSeason';
 
 interface Props {
   params: Promise<{ leagueId: string }>;
@@ -29,10 +30,12 @@ export default async function StatsPage({ params }: Props) {
   // Validate league
   const { data: league } = await admin
     .from('leagues')
-    .select('id, name')
+    .select('id, name, current_season')
     .eq('id', leagueId)
     .single();
   if (!league) notFound();
+
+  const season = (league as any).current_season ?? await getCurrentFplSeason();
 
   // All teams in this league
   const { data: allTeams } = await admin
@@ -82,7 +85,7 @@ export default async function StatsPage({ params }: Props) {
     const { data } = await admin
       .from('player_stats')
       .select('player_id')
-      .eq('season', '2025-26')
+      .eq('season', season)
       .range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1);
 
     if (!data || data.length === 0) break;

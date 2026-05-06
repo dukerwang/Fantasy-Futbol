@@ -14,6 +14,7 @@ import { calculateMatchRating, mapFplLiveToRawStats } from '@/lib/scoring/engine
 import { loadReferenceStats } from '@/lib/scoring/matchups';
 import { processMatchupsForGameweek } from '@/lib/scoring/matchupProcessor';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { getCurrentFplSeason, getLatestReferenceStatsSeason } from '@/lib/season/currentSeason';
 import type { GranularPosition, FplLivePlayerStats } from '@/types';
 import { createClient } from '@supabase/supabase-js';
 import { NextRequest, NextResponse } from 'next/server';
@@ -95,7 +96,9 @@ async function syncFplLiveRatings(gameweek: number): Promise<NextResponse> {
   const elements = (fplData.elements ?? []) as FplLivePlayerStats[];
 
   // 2. Load Reference Stats once for the entire batch
-  const refStats = await loadReferenceStats(supabase as any, '2025-26');
+  const refStatsSeason = await getLatestReferenceStatsSeason(supabase as any);
+  const refStats = await loadReferenceStats(supabase as any, refStatsSeason);
+  const fplSeason = await getCurrentFplSeason();
 
   // 3. Fetch fixtures to map teams to fixture IDs (for DGW support)
   const fixturesRes = await fetch(`${FPL_BASE}/fixtures/?event=${gameweek}`);
@@ -175,7 +178,7 @@ async function syncFplLiveRatings(gameweek: number): Promise<NextResponse> {
                 player_id: dbPlayer.id,
                 match_id: fixtureId,
                 gameweek,
-                season: '2025-26',
+                season: fplSeason,
                 stats: rawStats,
                 fantasy_points: fantasyPoints,
                 match_rating: rating,
@@ -199,7 +202,7 @@ async function syncFplLiveRatings(gameweek: number): Promise<NextResponse> {
               player_id: dbPlayer.id,
               match_id: fixtureId,
               gameweek,
-              season: '2025-26',
+              season: fplSeason,
               stats: rawStats,
               fantasy_points: fantasyPoints,
               match_rating: rating,
