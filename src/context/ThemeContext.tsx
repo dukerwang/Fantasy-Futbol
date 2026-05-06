@@ -21,10 +21,10 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     if (savedTheme) {
       setThemeState(savedTheme);
       document.documentElement.setAttribute('data-theme', savedTheme);
-    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      // Default to system preference if no saved theme
-      setThemeState('dark');
-      document.documentElement.setAttribute('data-theme', 'dark');
+    } else {
+      // Default to light mode explicitly
+      setThemeState('light');
+      document.documentElement.setAttribute('data-theme', 'light');
     }
   }, []);
 
