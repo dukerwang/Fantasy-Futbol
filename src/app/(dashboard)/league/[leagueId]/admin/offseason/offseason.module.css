@@ -1,0 +1,431 @@
+.page {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 40px 24px 80px;
+  font-family: 'Inter', -apple-system, sans-serif;
+}
+
+/* ── Header ──────────────────────────────────────────────── */
+.header {
+  margin-bottom: 32px;
+}
+
+.eyebrow {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--color-text-muted, #888);
+  margin: 0 0 8px;
+}
+
+.title {
+  font-family: 'Noto Serif', Georgia, serif;
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--color-text-primary, #1a1a1a);
+  margin: 0 0 8px;
+}
+
+.subtitle {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary, #555);
+  max-width: 600px;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* ── Status row ──────────────────────────────────────────── */
+.statusRow {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 32px;
+}
+
+.statusBadge {
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  background: var(--color-bg-card, #f5f3ee);
+  border: 1px solid var(--color-border-subtle, #e0dbd0);
+  color: var(--color-text-primary, #1a1a1a);
+}
+
+.statusLocked {
+  background: #fff3cd;
+  border-color: #f0c040;
+  color: #856404;
+}
+
+.statusOpen {
+  background: #d1fae5;
+  border-color: #6ee7b7;
+  color: #065f46;
+}
+
+/* ── Section ─────────────────────────────────────────────── */
+.section {
+  margin-bottom: 36px;
+}
+
+.sectionTitle {
+  font-family: 'Noto Serif', Georgia, serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--color-text-primary, #1a1a1a);
+  margin: 0 0 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid var(--color-border-subtle, #e0dbd0);
+  padding-bottom: 10px;
+}
+
+.sectionBadge {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 20px;
+  background: var(--color-accent-green, #2d6a4f);
+  color: #fff;
+}
+
+/* ── Alert box ───────────────────────────────────────────── */
+.alertBox {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 18px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.alertBox[data-type="info"] {
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  color: #1e3a5f;
+}
+
+.alertBox[data-type="success"] {
+  background: #d1fae5;
+  border: 1px solid #6ee7b7;
+  color: #065f46;
+}
+
+.alertBox[data-type="error"] {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #991b1b;
+}
+
+.alertIcon {
+  font-size: 1rem;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.issueList {
+  margin: 6px 0 0;
+  padding-left: 18px;
+}
+
+.issueList li {
+  margin-bottom: 4px;
+}
+
+/* ── Table ───────────────────────────────────────────────── */
+.tableWrapper {
+  overflow-x: auto;
+  border-radius: 8px;
+  border: 1px solid var(--color-border-subtle, #e0dbd0);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.table thead {
+  background: var(--color-bg-card, #f5f3ee);
+}
+
+.table th {
+  padding: 10px 14px;
+  text-align: left;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--color-text-muted, #888);
+  border-bottom: 1px solid var(--color-border-subtle, #e0dbd0);
+}
+
+.table td {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--color-border-subtle, #e0dbd0);
+  color: var(--color-text-primary, #1a1a1a);
+}
+
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.table tfoot td {
+  background: var(--color-bg-card, #f5f3ee);
+  border-top: 2px solid var(--color-border-subtle, #e0dbd0);
+  border-bottom: none;
+}
+
+.table tbody tr:hover {
+  background: var(--color-bg-hover, rgba(0,0,0,0.02));
+}
+
+.playerName, .teamName {
+  font-weight: 600;
+}
+
+.clubName {
+  color: var(--color-text-secondary, #555);
+}
+
+.faabAmount {
+  font-weight: 700;
+  color: #065f46;
+}
+
+/* ── Season transition ───────────────────────────────────── */
+.transitionRow {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 0;
+}
+
+.seasonBadge {
+  padding: 8px 20px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 1.1rem;
+  background: var(--color-bg-card, #f5f3ee);
+  border: 2px solid var(--color-border-subtle, #e0dbd0);
+}
+
+.seasonBadgeNext {
+  background: var(--color-accent-green, #2d6a4f);
+  color: #fff;
+  border-color: var(--color-accent-green, #2d6a4f);
+}
+
+.arrow {
+  font-size: 1.4rem;
+  color: var(--color-text-muted, #888);
+}
+
+/* ── Action cards ────────────────────────────────────────── */
+.actionCard {
+  padding: 28px 32px;
+  border-radius: 10px;
+  background: var(--color-bg-card, #fdfaf5);
+  border: 1px solid var(--color-border-subtle, #e0dbd0);
+  margin-bottom: 24px;
+}
+
+.actionCard[data-type="danger"] {
+  background: #fff5f5;
+  border-color: #fecaca;
+}
+
+.cardTitle {
+  font-family: 'Noto Serif', Georgia, serif;
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0 0 8px;
+  color: var(--color-text-primary, #1a1a1a);
+}
+
+.cardDesc {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary, #555);
+  line-height: 1.6;
+  margin: 0 0 20px;
+}
+
+/* ── Buttons ─────────────────────────────────────────────── */
+.btnPrimary {
+  padding: 10px 24px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  border: none;
+  background: var(--color-accent-green, #2d6a4f);
+  color: #fff;
+  transition: opacity 0.15s;
+}
+
+.btnPrimary:hover {
+  opacity: 0.85;
+}
+
+.btnDanger {
+  padding: 10px 24px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  border: none;
+  background: #dc2626;
+  color: #fff;
+  transition: opacity 0.15s;
+}
+
+.btnDanger:hover {
+  opacity: 0.85;
+}
+
+.btnSecondary {
+  padding: 10px 24px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  background: transparent;
+  border: 1px solid var(--color-border-subtle, #e0dbd0);
+  color: var(--color-text-secondary, #555);
+  transition: background 0.15s;
+}
+
+.btnSecondary:hover {
+  background: var(--color-bg-card, #f5f3ee);
+}
+
+.btnSmall {
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  background: #dc2626;
+  color: #fff;
+  border: none;
+  margin-left: 8px;
+}
+
+/* ── Confirm box ─────────────────────────────────────────── */
+.confirmBox {
+  padding: 28px 32px;
+  border-radius: 10px;
+  background: #fff5f5;
+  border: 2px solid #dc2626;
+  margin-bottom: 24px;
+}
+
+.confirmText {
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: #1a1a1a;
+  margin: 0 0 20px;
+}
+
+.confirmButtons {
+  display: flex;
+  gap: 12px;
+}
+
+/* ── Loading ─────────────────────────────────────────────── */
+.loadingBox {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 48px;
+  color: var(--color-text-muted, #888);
+  font-size: 0.9rem;
+}
+
+.spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid var(--color-border-subtle, #e0dbd0);
+  border-top-color: var(--color-accent-green, #2d6a4f);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── Result section ──────────────────────────────────────── */
+.resultSection {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.resultGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 16px;
+}
+
+.resultCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px 16px;
+  border-radius: 10px;
+  background: var(--color-bg-card, #f5f3ee);
+  border: 1px solid var(--color-border-subtle, #e0dbd0);
+  text-align: center;
+}
+
+.resultNumber {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: var(--color-accent-green, #2d6a4f);
+  line-height: 1;
+  margin-bottom: 6px;
+}
+
+.resultLabel {
+  font-size: 0.75rem;
+  color: var(--color-text-muted, #888);
+  font-weight: 500;
+}
+
+.nextStepsCard {
+  padding: 28px 32px;
+  border-radius: 10px;
+  background: var(--color-bg-card, #fdfaf5);
+  border: 1px solid var(--color-border-subtle, #e0dbd0);
+}
+
+.nextStepsList {
+  margin: 12px 0 0;
+  padding-left: 20px;
+  font-size: 0.875rem;
+  color: var(--color-text-secondary, #555);
+  line-height: 2;
+}
+
+.nextStepsList code {
+  font-family: 'Courier New', monospace;
+  background: rgba(0,0,0,0.06);
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-size: 0.8em;
+}
+
+.emptyState {
+  font-size: 0.875rem;
+  color: var(--color-text-muted, #888);
+  font-style: italic;
+  padding: 12px 0;
+}

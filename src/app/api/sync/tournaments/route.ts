@@ -86,9 +86,19 @@ async function handleCreate(_req: NextRequest, params: URLSearchParams) {
 
   const admin = createAdminClient();
 
-  // Determine the previous season string for dynasty seeding
-  // (Assuming current season is '2025-26', previous is '2024-25'. This could be made dynamic later.)
-  const PREVIOUS_SEASON = '2024-25';
+  // Fetch league info for seeding and season tracking
+  const { data: leagueRow, error: leagueErr } = await admin
+    .from('leagues')
+    .select('current_season, previous_season')
+    .eq('id', leagueId)
+    .single();
+
+  if (leagueErr || !leagueRow) {
+    return NextResponse.json({ error: 'League not found' }, { status: 404 });
+  }
+
+  const CURRENT_SEASON = leagueRow.current_season ?? '2025-26';
+  const PREVIOUS_SEASON = leagueRow.previous_season ?? '2024-25';
 
   // Fetch league teams
   const { data: allTeams, error: teamsErr } = await admin
@@ -194,7 +204,7 @@ async function handleCreate(_req: NextRequest, params: URLSearchParams) {
       name: names[type],
       type,
       status: 'pending',
-      season: '2025-26',
+      season: CURRENT_SEASON,
     })
     .select()
     .single();
@@ -370,7 +380,14 @@ async function executeAdvance(tournamentId: string, gameweek: number) {
     return { ok: true, message: 'No rounds overlapping this gameweek' };
   }
 
-  const season = '2025-26';
+  const season = admin
+    ? await admin
+        .from('tournaments')
+        .select('league:leagues(current_season)')
+        .eq('id', tournamentId)
+        .single()
+        .then(({ data }) => (data?.league as any)?.current_season ?? '2025-26')
+    : '2025-26';
   const refStats = await loadReferenceStats(admin, season);
 
   let advanced = 0;

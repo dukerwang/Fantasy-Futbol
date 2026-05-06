@@ -32,6 +32,20 @@ export async function POST(req: NextRequest, { params }: Props) {
 
     if (!team) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
+    // Check roster lock (set during offseason reset)
+    const { data: leagueData } = await admin
+        .from('leagues')
+        .select('roster_locked')
+        .eq('id', team.league_id)
+        .single();
+
+    if (leagueData?.roster_locked) {
+        return NextResponse.json(
+            { error: 'Rosters are locked during the offseason. Drops are not allowed until the new season begins.' },
+            { status: 403 },
+        );
+    }
+
     // Get roster entry to verify they actually own the player
     const { data: entry } = await admin
         .from('roster_entries')

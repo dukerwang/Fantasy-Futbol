@@ -71,7 +71,7 @@ export async function POST(req: NextRequest, { params }: Props) {
   // League settings for roster/academy validations
   const { data: league } = await admin
     .from('leagues')
-    .select('roster_size, taxi_size, taxi_age_limit')
+    .select('roster_size, taxi_size, taxi_age_limit, roster_locked')
     .eq('id', leagueId)
     .single();
 
@@ -79,7 +79,13 @@ export async function POST(req: NextRequest, { params }: Props) {
     return NextResponse.json({ error: 'League not found' }, { status: 404 });
   }
 
-  // Season compliance: if the team has aged-out academy players, block new bids
+  if (league.roster_locked) {
+    return NextResponse.json(
+      { error: 'Rosters are locked during the offseason. Auction bids are not allowed until the new season begins.' },
+      { status: 403 },
+    );
+  }
+
   // until they are promoted/dropped (unless the manager is fixing it manually).
   const ageLimit = league.taxi_age_limit ?? 21;
   const { data: academyRows } = await admin
