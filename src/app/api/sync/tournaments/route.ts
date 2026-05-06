@@ -15,13 +15,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { calculateMatchRating, DEFAULT_REFERENCE_STATS } from '@/lib/scoring/engine';
 import {
-  nextPow2,
-  seedBracket,
-  buildRoundSpecs,
   resolveTiebreaker,
-  type SeedEntry,
 } from '@/lib/tournaments/engine';
 import { processMatchupsForGameweek } from '@/lib/scoring/matchupProcessor';
+import { createTournament } from '@/lib/tournaments/createTournaments';
 import type { TournamentType, GranularPosition, ReferenceStats, RatingComponent } from '@/types';
 
 export const maxDuration = 60;
@@ -73,10 +70,10 @@ export async function POST(req: NextRequest) {
 async function handleCreate(_req: NextRequest, params: URLSearchParams) {
   const leagueId = params.get('league_id');
   const type = params.get('type') as TournamentType | null;
-  const startGw = parseInt(params.get('start_gameweek') ?? '0', 10);
+  const startGw = parseInt(params.get('start_gameweek') ?? '1', 10);
 
-  if (!leagueId || !type || !startGw) {
-    return NextResponse.json({ error: 'league_id, type, and start_gameweek required' }, { status: 400 });
+  if (!leagueId || !type) {
+    return NextResponse.json({ error: 'league_id and type required' }, { status: 400 });
   }
 
   const validTypes: TournamentType[] = ['primary_cup', 'secondary_cup', 'consolation_cup'];
@@ -86,10 +83,10 @@ async function handleCreate(_req: NextRequest, params: URLSearchParams) {
 
   const admin = createAdminClient();
 
-  // Fetch league info for seeding and season tracking
+  // Fetch season from league
   const { data: leagueRow, error: leagueErr } = await admin
     .from('leagues')
-    .select('current_season, previous_season')
+    .select('current_season')
     .eq('id', leagueId)
     .single();
 
@@ -97,260 +94,17 @@ async function handleCreate(_req: NextRequest, params: URLSearchParams) {
     return NextResponse.json({ error: 'League not found' }, { status: 404 });
   }
 
-  const CURRENT_SEASON = leagueRow.current_season ?? '2025-26';
-  const PREVIOUS_SEASON = leagueRow.previous_season ?? '2024-25';
+  const season = leagueRow.current_season ?? '2025-26';
+  const result = await createTournament(admin, leagueId, type, startGw, season);
 
-  // Fetch league teams
-  const { data: allTeams, error: teamsErr } = await admin
-    .from('teams')
-    .select('id, team_name, total_points')
-    .eq('league_id', leagueId);
-
-  if (teamsErr || !allTeams || allTeams.length < 4) {
-    return NextResponse.json({ error: 'Need at least 4 teams in the league', detail: teamsErr }, { status: 400 });
+  if (!result.ok) {
+    return NextResponse.json({ error: result.error }, { status: 500 });
   }
 
-  // Fetch previous season stats for seeding
-  const { data: prevStats } = await admin
-    .from('team_stats')
-    .select('team_id, rank')
-    .eq('season', PREVIOUS_SEASON)
-    .in('team_id', allTeams.map(t => t.id));
-
-  // Fetch current standings as fallback
-  const { data: currentStandings } = await admin
-    .from('league_standings')
-    .select('team_id, rank')
-    .eq('league_id', leagueId);
-
-  const hasPrevSeasonData = prevStats && prevStats.length > 0;
-  const orderedTeams = [...allTeams];
-
-  if (hasPrevSeasonData) {
-    // Dynasty format: Order teams by previous season rank (unranked teams go to the bottom)
-    orderedTeams.sort((a, b) => {
-      const rankA = prevStats.find(s => s.team_id === a.id)?.rank ?? 999;
-      const rankB = prevStats.find(s => s.team_id === b.id)?.rank ?? 999;
-      return rankA - rankB;
-    });
-  } else {
-    // Inaugural season fallback: order by current season's rank via league_standings
-    orderedTeams.sort((a, b) => {
-      const rankA = currentStandings?.find(s => s.team_id === a.id)?.rank ?? 999;
-      const rankB = currentStandings?.find(s => s.team_id === b.id)?.rank ?? 999;
-      return rankA - rankB;
-    });
-  }
-
-  // The teams array should now behave identically to the old one but correctly sorted
-  const teams = orderedTeams;
-
-  // Filter teams based on type and league size
-  let eligible = teams;
-  
-  if (type === 'primary_cup' || type === 'consolation_cup') {
-    if (teams.length >= 7) {
-      // Standings-based split
-      if (type === 'primary_cup') {
-        eligible = teams.slice(0, teams.length - 2); // Top X
-      } else if (type === 'consolation_cup') {
-        eligible = teams.slice(teams.length - 2); // Bottom 2
-      }
-    } else {
-      // 4-6 teams
-      if (type === 'primary_cup') {
-        eligible = teams; // All enter Champions
-      } else if (type === 'consolation_cup') {
-        // Europa fed by eliminations, so it starts empty.
-        // Wait, if it starts empty, what should `eligible` be? We seed an empty bracket!
-        // Because of the complicated dynamic dropping, we need the bracket size to be large enough to house the incoming drops.
-        // If 5 teams: drops 1 from QF, 2 from SF = 3 teams. So Europa bracket size = 4 (for SF, F).
-        // If 6 teams: drops 2 from SF = 2 teams? No wait, 2 from QF, 2 from SF = 4 teams. Europa bracket size = 4.
-        // If 4 teams: drops 2 from SF = 2 teams. Europa bracket size = 2.
-        // Instead of writing teams to it, we just create empty slots.
-        if (teams.length === 6 || teams.length === 5) {
-          eligible = new Array(4).fill({ id: null }); // Force bracket size 4
-        } else if (teams.length === 4) {
-          eligible = new Array(2).fill({ id: null }); // Force bracket size 2
-        }
-      }
-    }
-  }
-
-  const seeds: SeedEntry[] = eligible.map((t, i) => ({ teamId: t.id, seed: i + 1 }));
-  const bracketSize = nextPow2(seeds.length);
-  const bracketSlots = seedBracket(seeds, bracketSize);
-  const roundSpecs = buildRoundSpecs(bracketSize, type, teams.length);
-
-  // Tournament name
-  const names: Record<TournamentType, string> = {
-    primary_cup: 'Champions Cup',
-    secondary_cup: 'League Cup',
-    consolation_cup: 'Consolation Cup',
-  };
-
-  // Prevent creation if the league was created midseason and the tournament schedule has already passed
-  const minGwRequired = Math.min(...roundSpecs.map(r => r.startGameweek));
-  if (minGwRequired < startGw) {
-    return NextResponse.json({ 
-      error: `Cannot create ${names[type]}: League was created midseason (gameweek ${startGw}), but this tournament requires a round starting at gameweek ${minGwRequired}.` 
-    }, { status: 400 });
-  }
-  // 1. Insert tournament
-  const { data: tournament, error: tErr } = await admin
-    .from('tournaments')
-    .insert({
-      league_id: leagueId,
-      name: names[type],
-      type,
-      status: 'pending',
-      season: CURRENT_SEASON,
-    })
-    .select()
-    .single();
-
-  if (tErr || !tournament) {
-    return NextResponse.json({ error: 'Failed to create tournament', detail: tErr?.message }, { status: 500 });
-  }
-
-  // 2. Insert rounds
-  const roundInserts = roundSpecs.map(r => ({
-    tournament_id: tournament.id,
-    name: r.name,
-    round_number: r.roundNumber,
-    start_gameweek: r.startGameweek,
-    end_gameweek: r.endGameweek,
-    is_two_leg: r.isTwoLeg,
-  }));
-
-  const { data: rounds, error: rErr } = await admin
-    .from('tournament_rounds')
-    .insert(roundInserts)
-    .select()
-    .order('round_number', { ascending: true });
-
-  if (rErr || !rounds) {
-    return NextResponse.json({ error: 'Failed to create rounds', detail: rErr?.message }, { status: 500 });
-  }
-
-  // 3. Build matchups round by round (need to create later rounds first for next_matchup_id linking)
-  // Strategy: create all matchups without next_matchup_id, then update links.
-
-  // Round 1 matchups from bracket slots
-  const allMatchups: { roundId: string; roundNumber: number; teamA: string | null; teamB: string | null; bracketPos: number }[] = [];
-
-  // First round: pair bracket slots
-  const firstRound = rounds[0];
-  for (let i = 0; i < bracketSlots.length; i += 2) {
-    allMatchups.push({
-      roundId: firstRound.id,
-      roundNumber: 1,
-      teamA: bracketSlots[i],
-      teamB: bracketSlots[i + 1],
-      bracketPos: i / 2,
-    });
-  }
-
-  // Subsequent rounds: empty matchups (TBD)
-  for (let r = 1; r < rounds.length; r++) {
-    const matchCount = roundSpecs[r].matchCount;
-    for (let m = 0; m < matchCount; m++) {
-      allMatchups.push({
-        roundId: rounds[r].id,
-        roundNumber: r + 1,
-        teamA: null,
-        teamB: null,
-        bracketPos: m,
-      });
-    }
-  }
-
-  // Insert all matchups
-  const matchupInserts = allMatchups.map(m => ({
-    round_id: m.roundId,
-    team_a_id: m.teamA,
-    team_b_id: m.teamB,
-    bracket_position: m.bracketPos,
-    status: (m.roundNumber === 1 && m.teamA && m.teamB) ? 'active' : 'pending' as const,
-  }));
-
-  const { data: insertedMatchups, error: mErr } = await admin
-    .from('tournament_matchups')
-    .insert(matchupInserts)
-    .select()
-    .order('created_at', { ascending: true });
-
-  if (mErr || !insertedMatchups) {
-    return NextResponse.json({ error: 'Failed to create matchups', detail: mErr?.message }, { status: 500 });
-  }
-
-  // 4. Link next_matchup_id: matchup at round R, position P feeds into round R+1, position floor(P/2)
-  // Group matchups by round
-  const matchupsByRound = new Map<string, typeof insertedMatchups>();
-  for (const m of insertedMatchups) {
-    const arr = matchupsByRound.get(m.round_id) || [];
-    arr.push(m);
-    matchupsByRound.set(m.round_id, arr);
-  }
-
-  for (let r = 0; r < rounds.length - 1; r++) {
-    const currentRoundMatchups = matchupsByRound.get(rounds[r].id) || [];
-    const nextRoundMatchups = matchupsByRound.get(rounds[r + 1].id) || [];
-
-    // Sort by bracket_position
-    currentRoundMatchups.sort((a, b) => a.bracket_position - b.bracket_position);
-    nextRoundMatchups.sort((a, b) => a.bracket_position - b.bracket_position);
-
-    for (const cm of currentRoundMatchups) {
-      const nextPos = Math.floor(cm.bracket_position / 2);
-      const nextMatchup = nextRoundMatchups.find(nm => nm.bracket_position === nextPos);
-      if (nextMatchup) {
-        await admin
-          .from('tournament_matchups')
-          .update({ next_matchup_id: nextMatchup.id })
-          .eq('id', cm.id);
-      }
-    }
-  }
-
-  // 5. Auto-advance byes in round 1
-  const firstRoundMatchups = matchupsByRound.get(rounds[0].id) || [];
-  for (const m of firstRoundMatchups) {
-    const aIsNull = !m.team_a_id;
-    const bIsNull = !m.team_b_id;
-
-    if (aIsNull && bIsNull) continue; // both empty — skip
-
-    if (aIsNull || bIsNull) {
-      // One team has a bye — auto-advance the non-null team
-      const winnerId = m.team_a_id || m.team_b_id;
-      await admin
-        .from('tournament_matchups')
-        .update({ winner_id: winnerId, status: 'completed' })
-        .eq('id', m.id);
-
-      // Place winner into next round matchup
-      if (m.next_matchup_id && winnerId) {
-        await advanceWinner(admin, m.next_matchup_id, winnerId, m.bracket_position);
-      }
-    }
-  }
-
-  // 6. Set tournament to active
-  await admin
-    .from('tournaments')
-    .update({ status: 'active' })
-    .eq('id', tournament.id);
-
-  return NextResponse.json({
-    ok: true,
-    tournament_id: tournament.id,
-    bracket_size: bracketSize,
-    teams: seeds.length,
-    byes: bracketSize - seeds.length,
-    rounds: rounds.length,
-  });
+  return NextResponse.json(result);
 }
+
+// ─── ADVANCE TOURNAMENT ──────────────────────────────────────
 
 // ─── ADVANCE TOURNAMENT ──────────────────────────────────────
 

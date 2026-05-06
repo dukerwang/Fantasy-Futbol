@@ -23,6 +23,8 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { processRelegationCompensation, type RelegationResult } from './relegationHandler';
 import { distributeAllPrizes, type PrizeEntry } from './prizeDistribution';
+import { insertMatchups } from '@/lib/schedule/insertMatchups';
+import { createAllTournaments, type CreateTournamentResult } from '@/lib/tournaments/createTournaments';
 
 export interface PreflightResult {
   ready: boolean;
@@ -40,6 +42,8 @@ export interface ResetResult {
   matchupsReset: number;
   tournamentsReset: number;
   standingsArchived: number;
+  matchupsGenerated: number;
+  tournamentsCreated: CreateTournamentResult[];
 }
 
 /**
@@ -253,6 +257,20 @@ export async function runSeasonReset(
     })
     .eq('id', leagueId);
 
+  // Step 9: Generate new matchup schedule for the upcoming season.
+  // insertMatchups fetches the current FPL GW to determine the start GW
+  // (pre-season → GW1, mid-season → next GW). It's idempotent.
+  const scheduleResult = await insertMatchups(admin, leagueId).catch((err) => {
+    console.error('[seasonReset] insertMatchups failed:', err);
+    return { ok: true as const, matchups: 0, gameweeks: 0, skipped: true };
+  });
+
+  // Step 10: Generate all three tournament brackets for the new season.
+  const tournamentResult = await createAllTournaments(admin, leagueId, seasonTo).catch((err) => {
+    console.error('[seasonReset] createAllTournaments failed:', err);
+    return { matchupsGenerated: 0, tournamentsCreated: [] };
+  });
+
   return {
     seasonFrom,
     seasonTo,
@@ -262,5 +280,7 @@ export async function runSeasonReset(
     matchupsReset,
     tournamentsReset,
     standingsArchived,
+    matchupsGenerated: (scheduleResult as any).matchups ?? 0,
+    tournamentsCreated: tournamentResult.tournamentsCreated,
   };
 }
