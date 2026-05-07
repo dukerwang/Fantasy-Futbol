@@ -273,8 +273,12 @@ async function main() {
   } else {
     console.log(`\n[auctions] ${thresholdCrossers.length} player(s) crossed £${AUCTION_THRESHOLD}m threshold.`);
 
-    // 1. Fetch all league IDs
-    const { data: leagues } = await supabase.from('leagues').select('id');
+    // 1. Fetch all ACTIVE league IDs (skip offseason leagues)
+    const { data: leagues } = await supabase
+      .from('leagues')
+      .select('id')
+      .eq('status', 'active')
+      .eq('roster_locked', false);
     if (!leagues || leagues.length === 0) {
       console.log('[auctions] No leagues found — skipping.');
     } else {

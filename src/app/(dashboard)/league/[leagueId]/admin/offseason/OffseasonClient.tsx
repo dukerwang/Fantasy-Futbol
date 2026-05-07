@@ -113,11 +113,43 @@ export default function OffseasonClient({ leagueId, league, cronSecret }: Props)
         </p>
       </header>
 
-      {/* Already done */}
+      {/* Kickoff New Season */}
       {alreadyInOffseason && phase !== 'done' && (
-        <div className={styles.alertBox} data-type="info">
-          <span className={styles.alertIcon}>ℹ️</span>
-          <span>This league is already in offseason mode. The reset has been run for this season.</span>
+        <div className={styles.actionCard}>
+          <h2 className={styles.cardTitle}>Kickoff New Season</h2>
+          <p className={styles.cardDesc}>
+            This league is currently in offseason mode. When you are ready to begin the new season, click the button below. This will unlock rosters, set the league active, and dump all new unowned high-value summer arrivals (£40m+) into a massive 48-hour FAAB auction block.
+          </p>
+          <button
+            className={styles.btnPrimary}
+            onClick={async () => {
+              setPhase('running');
+              setErrorMsg(null);
+              try {
+                const res = await fetch('/api/admin/offseason/kickoff', {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                    'x-cron-secret': cronSecret,
+                  },
+                  body: JSON.stringify({ league_id: leagueId }),
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error ?? 'Kickoff failed');
+                setResult({
+                  ...data,
+                  isKickoff: true,
+                });
+                setPhase('done');
+              } catch (err: any) {
+                setErrorMsg(err.message);
+                setPhase('error');
+              }
+            }}
+            disabled={phase === 'running'}
+          >
+            {phase === 'running' ? 'Starting Season...' : 'Start New Season'}
+          </button>
         </div>
       )}
 
@@ -342,8 +374,35 @@ export default function OffseasonClient({ leagueId, league, cronSecret }: Props)
         </div>
       )}
 
-      {/* Done */}
-      {phase === 'done' && result && (
+      {/* Done (Kickoff) */}
+      {phase === 'done' && result?.isKickoff && (
+        <div className={styles.resultSection}>
+          <div className={styles.alertBox} data-type="success">
+            <span className={styles.alertIcon}>🎉</span>
+            <span>
+              The new season has officially begun! Rosters are unlocked.
+            </span>
+          </div>
+
+          <div className={styles.nextStepsCard}>
+            <h2 className={styles.cardTitle}>Summer Auction Block</h2>
+            <p className={styles.cardDesc}>
+              <strong>{result.auctionsCreated}</strong> players have been added to the FAAB auction block. 
+              These are unowned high-value arrivals (£40m+) that transferred over the summer.
+            </p>
+            {result.auctionedPlayers?.length > 0 && (
+              <ul className={styles.nextStepsList}>
+                {result.auctionedPlayers.map((name: string, i: number) => (
+                  <li key={i}>{name}</li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Done (Reset) */}
+      {phase === 'done' && result && !result.isKickoff && (
         <div className={styles.resultSection}>
           <div className={styles.alertBox} data-type="success">
             <span className={styles.alertIcon}>🎉</span>
