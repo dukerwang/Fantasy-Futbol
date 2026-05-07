@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { sendEmail } from '@/lib/email/client';
+import { getTradeProposedEmail } from '@/lib/email/templates';
 
 interface Props {
   params: Promise<{ leagueId: string }>;
@@ -135,7 +137,7 @@ export async function POST(req: NextRequest, { params }: Props) {
   // Verify caller's team
   const { data: myTeam } = await admin
     .from('teams')
-    .select('id, faab_budget')
+    .select('id, faab_budget, team_name')
     .eq('league_id', leagueId)
     .eq('user_id', user.id)
     .single();
@@ -157,7 +159,7 @@ export async function POST(req: NextRequest, { params }: Props) {
   // Verify target team is in this league
   const { data: targetTeam } = await admin
     .from('teams')
-    .select('id, faab_budget')
+    .select('id, faab_budget, user_id')
     .eq('id', targetTeamId)
     .eq('league_id', leagueId)
     .single();
@@ -227,6 +229,33 @@ export async function POST(req: NextRequest, { params }: Props) {
     .single();
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+  // --- SEND EMAIL NOTIFICATION ---
+  try {
+    const { data: targetUser } = await admin.from('users').select('email').eq('id', targetTeam.user_id).single();
+    if (targetUser?.email) {
+      // Fetch player names
+      const allIds = [...offeredPlayerIds, ...requestedPlayerIds];
+      const { data: players } = await admin.from('players').select('id, name').in('id', allIds);
+      
+      const offeredNames = offeredPlayerIds.map(id => players?.find(p => p.id === id)?.name || 'Unknown Player');
+      const requestedNames = requestedPlayerIds.map(id => players?.find(p => p.id === id)?.name || 'Unknown Player');
+      
+      if (offeredFaab > 0) offeredNames.push(`£\${offeredFaab}m FAAB`);
+      if (requestedFaab > 0) requestedNames.push(`£\${requestedFaab}m FAAB`);
+
+      const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://gaffa.live';
+      const actionUrl = `\${baseUrl}/league/\${leagueId}/trades`;
+
+      await sendEmail({
+        to: targetUser.email,
+        subject: `New Trade Proposal from \${myTeam.team_name}`,
+        html: getTradeProposedEmail(myTeam.team_name, requestedNames, offeredNames, actionUrl) // Notice flip: offered by me = received by them
+      });
+    }
+  } catch (err) {
+    console.error('Failed to send trade proposal email:', err);
+  }
 
   return NextResponse.json({ trade }, { status: 201 });
 }

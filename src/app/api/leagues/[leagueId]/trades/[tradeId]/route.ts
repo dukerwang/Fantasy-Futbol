@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { sendEmail } from '@/lib/email/client';
+import { getTradeAcceptedEmail } from '@/lib/email/templates';
 
 interface Props {
   params: Promise<{ leagueId: string; tradeId: string }>;
@@ -217,6 +219,28 @@ export async function POST(req: NextRequest, { params }: Props) {
   if (anyPlayerLocked) {
     // Mark as accepted but deferred — will execute after GW ends
     await admin.from('trade_proposals').update({ status: 'accepted_deferred' }).eq('id', tradeId);
+
+    // --- SEND EMAIL NOTIFICATION ---
+    try {
+      const { data: allTeams } = await admin.from('teams').select('user_id').eq('league_id', leagueId);
+      if (allTeams && allTeams.length > 0) {
+        const userIds = allTeams.map(t => t.user_id);
+        const { data: users } = await admin.from('users').select('email').in('id', userIds);
+        const emails = (users ?? []).map(u => u.email).filter(Boolean);
+
+        if (emails.length > 0) {
+          const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://gaffa.live';
+          await sendEmail({
+            to: emails,
+            subject: 'Trade Agreed (Pending Gameweek Completion)',
+            html: getTradeAcceptedEmail(teamA.team_name, teamB.team_name, `\${baseUrl}/league/\${leagueId}`)
+          });
+        }
+      }
+    } catch (err) {
+      console.error('Failed to send trade accepted email:', err);
+    }
+
     return NextResponse.json({ ok: true, deferred: true, message: 'Trade accepted but deferred until gameweek ends — one or more players are locked.' });
   }
 
@@ -322,6 +346,27 @@ export async function POST(req: NextRequest, { params }: Props) {
 
   if (errors.length > 0) {
     return NextResponse.json({ error: errors.join('; ') }, { status: 500 });
+  }
+
+  // --- SEND EMAIL NOTIFICATION ---
+  try {
+    const { data: allTeams } = await admin.from('teams').select('user_id').eq('league_id', leagueId);
+    if (allTeams && allTeams.length > 0) {
+      const userIds = allTeams.map(t => t.user_id);
+      const { data: users } = await admin.from('users').select('email').in('id', userIds);
+      const emails = (users ?? []).map(u => u.email).filter(Boolean);
+
+      if (emails.length > 0) {
+        const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://gaffa.live';
+        await sendEmail({
+          to: emails,
+          subject: 'Blockbuster Trade Completed!',
+          html: getTradeAcceptedEmail(teamA.team_name, teamB.team_name, `\${baseUrl}/league/\${leagueId}`)
+        });
+      }
+    }
+  } catch (err) {
+    console.error('Failed to send trade accepted email:', err);
   }
 
   return NextResponse.json({ ok: true });

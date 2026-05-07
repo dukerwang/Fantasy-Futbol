@@ -16,6 +16,8 @@
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { sendEmail } from '@/lib/email/client';
+import { getAuctionWonEmail } from '@/lib/email/templates';
 
 export const maxDuration = 60; // 1 minute max for Vercel Hobby tier
 
@@ -330,6 +332,20 @@ export async function POST(req: NextRequest) {
             .eq('team_id', winner.team_id!)
             .eq('player_id', winner.drop_player_id);
 
+          // Start 48-hour waiver auction for the dropped player
+          const auctionExpiry = new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString();
+          await admin.from('waiver_claims').insert({
+            league_id,
+            team_id: null,
+            player_id: winner.drop_player_id,
+            faab_bid: 0,
+            priority: 999,
+            status: 'pending',
+            gameweek: 0,
+            is_auction: true,
+            expires_at: auctionExpiry,
+          });
+
           const severanceNote = winnerSeveranceFee > 0
             ? ` (£${winnerSeveranceFee}m severance paid)`
             : '';
@@ -417,17 +433,52 @@ export async function POST(req: NextRequest) {
         }
       }
 
-      // Mark winner approved, all others rejected
+      // Mark winner approved
       await admin
         .from('waiver_claims')
         .update({ status: 'approved' })
         .eq('id', winner.id);
 
+      // Mark losers rejected
       if (losers.length > 0) {
         await admin
           .from('waiver_claims')
           .update({ status: 'rejected' })
           .in('id', losers.map((c) => c.id));
+      }
+
+      // ── SEND NOTIFICATION ──
+      try {
+        const { data: leagueTeams } = await admin
+          .from('teams')
+          .select('id, team_name, user_id')
+          .eq('league_id', league_id);
+
+        const winnerTeam = leagueTeams?.find(t => t.id === winner?.team_id);
+        const initiatorTeam = initiator?.team_id ? leagueTeams?.find(t => t.id === initiator.team_id) : null;
+        
+        const userIds = (leagueTeams ?? []).map(t => t.user_id);
+        const { data: users } = await admin.from('users').select('email').in('id', userIds);
+        const leagueEmails = (users ?? []).map(u => u.email).filter(Boolean);
+
+        if (leagueEmails.length > 0) {
+          const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://gaffa.live';
+          await sendEmail({
+            to: leagueEmails,
+            subject: `Auction Won: ${(winner.player as any)?.name ?? 'Player'} signed by ${winnerTeam?.team_name ?? 'Club'}`,
+            html: getAuctionWonEmail(
+              (winner.player as any)?.name ?? 'Unknown Player',
+              winnerTeam?.team_name ?? 'Unknown Club',
+              winner.faab_bid,
+              realClaims.length,
+              (winner as any).drop_player_name || null,
+              initiatorTeam?.team_name || null,
+              `${baseUrl}/league/${league_id}`
+            )
+          });
+        }
+      } catch (emailErr) {
+        console.error('[process-auctions] Failed to send auction result email:', emailErr);
       }
 
       processed++;

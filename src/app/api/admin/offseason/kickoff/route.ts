@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { sendEmail } from '@/lib/email/client';
+import { getSystemAuctionsEmail } from '@/lib/email/templates';
 
 export const maxDuration = 300;
 
@@ -118,6 +120,28 @@ export async function POST(req: NextRequest) {
   if (updateErr) {
     console.error('[kickoff] Failed to activate league:', updateErr);
     return NextResponse.json({ error: 'Failed to activate league' }, { status: 500 });
+  }
+
+  // --- SEND EMAIL NOTIFICATION ---
+  try {
+    const { data: allTeams } = await admin.from('teams').select('user_id').eq('league_id', leagueId);
+    if (allTeams && allTeams.length > 0) {
+      const userIds = allTeams.map(t => t.user_id);
+      const { data: users } = await admin.from('users').select('email').in('id', userIds);
+      const emails = (users ?? []).map(u => u.email).filter(Boolean);
+
+      if (emails.length > 0) {
+        const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://gaffa.live';
+        const playerInfo = playersToAuction.map(p => ({ name: p.web_name ?? 'Unknown', value: p.market_value as number }));
+        await sendEmail({
+          to: emails,
+          subject: 'The Season Has Begun!',
+          html: getSystemAuctionsEmail(playerInfo, true, `\${baseUrl}/league/\${leagueId}`)
+        });
+      }
+    }
+  } catch (err) {
+    console.error('[kickoff] Failed to send kickoff email:', err);
   }
 
   return NextResponse.json({

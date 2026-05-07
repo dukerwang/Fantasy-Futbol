@@ -251,8 +251,8 @@ async function main() {
 
   console.log(`\n[done] Successfully updated ${written} player market values from Transfermarkt.`);
 
-  // Step 5: Seed system FAAB auctions for players who just crossed the £40m threshold
-  // for the first time (previous value was null or < 40) and are currently unowned.
+  // Step 5: Seed system FAAB auctions for newly arriving players
+  // (previous value was null) whose initial market value is >= £40m.
 
   const AUCTION_THRESHOLD = 40.0; // £40m Transfermarkt value
   const AUCTION_WINDOW_HOURS = 48;
@@ -261,17 +261,17 @@ async function main() {
   // `dbPlayers` was fetched at the top of the script — it has the old values.
   const prevValueById = new Map(dbPlayers.map(p => [p.id, p.market_value as number | null]));
 
-  // Find players whose market_value just crossed £40m for the first time
-  const thresholdCrossers = updates.filter(u => {
+  // Find players whose market_value was just populated for the first time and is >= 40m
+  const newArrivals = updates.filter(u => {
     if (u.market_value < AUCTION_THRESHOLD) return false;
     const prev = prevValueById.get(u.id) ?? null;
-    return prev == null || prev < AUCTION_THRESHOLD;
+    return prev == null; // Must be a brand new market_value
   });
 
-  if (thresholdCrossers.length === 0) {
+  if (newArrivals.length === 0) {
     console.log('\n[auctions] No new threshold crossers — no system auctions to create.');
   } else {
-    console.log(`\n[auctions] ${thresholdCrossers.length} player(s) crossed £${AUCTION_THRESHOLD}m threshold.`);
+    console.log(`\n[auctions] ${newArrivals.length} player(s) crossed £${AUCTION_THRESHOLD}m threshold.`);
 
     // 1. Fetch all ACTIVE league IDs (skip offseason leagues)
     const { data: leagues } = await supabase
@@ -282,7 +282,7 @@ async function main() {
     if (!leagues || leagues.length === 0) {
       console.log('[auctions] No leagues found — skipping.');
     } else {
-      const crosserIds = thresholdCrossers.map(u => u.id);
+      const crosserIds = newArrivals.map(u => u.id);
 
       // 2. Find which crossers are already owned in any league
       const { data: ownedEntries } = await supabase
@@ -301,11 +301,11 @@ async function main() {
       const alreadyAuctioned = new Set((existingAuctions ?? []).map(a => a.player_id));
 
       // 4. Filter to eligible players
-      const eligible = thresholdCrossers.filter(u =>
+      const eligible = newArrivals.filter(u =>
         !ownedPlayerIds.has(u.id) && !alreadyAuctioned.has(u.id)
       );
 
-      console.log(`[auctions] ${eligible.length} eligible (${thresholdCrossers.length - eligible.length} already owned or in auction)`);
+      console.log(`[auctions] ${eligible.length} eligible (${newArrivals.length - eligible.length} already owned or in auction)`);
 
       if (eligible.length > 0 && !DRY_RUN) {
         const expiresAt = new Date(Date.now() + AUCTION_WINDOW_HOURS * 60 * 60 * 1000).toISOString();
@@ -329,6 +329,35 @@ async function main() {
           console.log(`[auctions] ✓ Created ${auctionRows.length} auction entries (${eligible.length} players × ${leagues.length} leagues)`);
           for (const p of eligible) {
             console.log(`  → ${p.name} (£${p.market_value}m)`);
+          }
+          
+          // --- SEND EMAIL NOTIFICATIONS ---
+          try {
+            const { sendEmail } = await import('../src/lib/email/client');
+            const { getSystemAuctionsEmail } = await import('../src/lib/email/templates');
+            
+            const playerInfo = eligible.map(p => ({ name: p.name, value: p.market_value as number }));
+            const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://gaffa.live';
+            
+            for (const league of leagues) {
+              const { data: allTeams } = await supabase.from('teams').select('user_id').eq('league_id', league.id);
+              if (allTeams && allTeams.length > 0) {
+                const userIds = allTeams.map((t: any) => t.user_id);
+                const { data: users } = await supabase.from('users').select('email').in('id', userIds);
+                const emails = (users ?? []).map((u: any) => u.email).filter(Boolean);
+                
+                if (emails.length > 0) {
+                  await sendEmail({
+                    to: emails,
+                    subject: 'Transfer Window Alert: New Players on Waivers',
+                    html: getSystemAuctionsEmail(playerInfo, false, `\${baseUrl}/league/\${league.id}`)
+                  });
+                }
+              }
+            }
+            console.log('[auctions] ✓ Sent email notifications');
+          } catch (err) {
+            console.error('[auctions] Failed to send email notifications:', err);
           }
         }
       } else if (DRY_RUN) {

@@ -2,6 +2,8 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { calculateTeamScore, loadReferenceStats, type PlayerScoreRecord } from '@/lib/scoring/matchups';
 import { normalizeMatchupLineup } from '@/lib/lineups/normalizeMatchupLineup';
 import { getLatestReferenceStatsSeason } from '@/lib/season/currentSeason';
+import { sendEmail } from '@/lib/email/client';
+import { getMatchweekSummaryEmail } from '@/lib/email/templates';
 
 export async function processMatchupsForGameweek(gameweek: number, finished: boolean) {
     const admin = createAdminClient();
@@ -9,7 +11,7 @@ export async function processMatchupsForGameweek(gameweek: number, finished: boo
     // 1. Fetch incomplete matchups for this GW
     const { data: matchups, error: fetchErr } = await admin
         .from('matchups')
-        .select('*, team_a:teams!matchups_team_a_id_fkey(*), team_b:teams!matchups_team_b_id_fkey(*)')
+        .select('*, team_a:teams!matchups_team_a_id_fkey(*), team_b:teams!matchups_team_b_id_fkey(*), league:leagues(name)')
         .eq('gameweek', gameweek)
         .neq('status', 'completed');
 
@@ -152,6 +154,13 @@ export async function processMatchupsForGameweek(gameweek: number, finished: boo
     let updated = 0;
     const updateErrors: string[] = [];
 
+    // For summary emails
+    const leagueSummaryData = new Map<string, { 
+        name: string, 
+        results: any[], 
+        highScorer: { teamName: string, score: number } 
+    }>();
+
     const sanitize = (lineup: any, teamId: string) => {
         if (!lineup) return null;
         const roster = teamRosterMap.get(teamId);
@@ -201,8 +210,69 @@ export async function processMatchupsForGameweek(gameweek: number, finished: boo
 
         if (!error) {
             updated++;
+
+            // Collect summary data
+            if (finished) {
+                if (!leagueSummaryData.has(m.league_id)) {
+                    leagueSummaryData.set(m.league_id, {
+                        name: (m as any).league?.name || 'Your League',
+                        results: [],
+                        highScorer: { teamName: '', score: -1 }
+                    });
+                }
+                const summary = leagueSummaryData.get(m.league_id)!;
+                summary.results.push({
+                    teamA: (m.team_a as any).team_name,
+                    scoreA: scoreA,
+                    teamB: (m.team_b as any).team_name,
+                    scoreB: scoreB,
+                    winner: winnerId === m.team_a_id ? (m.team_a as any).team_name : (winnerId === m.team_b_id ? (m.team_b as any).team_name : null)
+                });
+                
+                if (scoreA > summary.highScorer.score) {
+                    summary.highScorer = { teamName: (m.team_a as any).team_name, score: scoreA };
+                }
+                if (scoreB > summary.highScorer.score) {
+                    summary.highScorer = { teamName: (m.team_b as any).team_name, score: scoreB };
+                }
+            }
         } else {
             updateErrors.push(`Matchup ${m.id} error: ${error.message}`);
+        }
+    }
+
+    // 6. Send summary emails
+    if (finished && leagueSummaryData.size > 0) {
+        for (const [leagueId, summary] of Array.from(leagueSummaryData.entries())) {
+            try {
+                const { data: allTeams } = await admin
+                    .from('teams')
+                    .select('user_id')
+                    .eq('league_id', leagueId);
+                
+                if (allTeams && allTeams.length > 0) {
+                    const userIds = allTeams.map(t => t.user_id);
+                    const { data: users } = await admin.from('users').select('email').in('id', userIds);
+                    const emails = (users ?? []).map(u => u.email).filter(Boolean);
+
+                    if (emails.length > 0) {
+                        const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://gaffa.live';
+                        await sendEmail({
+                            to: emails,
+                            subject: `Monday Review: GW${gameweek} Summary - ${summary.name}`,
+                            html: getMatchweekSummaryEmail(
+                                summary.name,
+                                gameweek,
+                                summary.results,
+                                summary.highScorer,
+                                `\${baseUrl}/league/\${leagueId}/standings`
+                            )
+                        });
+                    }
+                }
+            } catch (err) {
+                console.error(`[matchupProcessor] Failed to send summary for league \${leagueId}:`, err);
+            }
         }
     }
 

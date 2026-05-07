@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { sendEmail } from '@/lib/email/client';
+import { getPlayerDroppedEmail } from '@/lib/email/templates';
 
 interface Props {
     params: Promise<{ teamId: string }>;
@@ -134,6 +136,27 @@ export async function POST(req: NextRequest, { params }: Props) {
             is_auction: true,
             expires_at: auctionExpiry,
         });
+
+        // --- SEND EMAIL NOTIFICATION ---
+        try {
+            const { data: allTeams } = await admin.from('teams').select('user_id').eq('league_id', team.league_id);
+            if (allTeams && allTeams.length > 0) {
+                const userIds = allTeams.map(t => t.user_id);
+                const { data: users } = await admin.from('users').select('email').in('id', userIds);
+                const emails = (users ?? []).map(u => u.email).filter(Boolean);
+
+                if (emails.length > 0) {
+                    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://gaffa.live';
+                    await sendEmail({
+                        to: emails,
+                        subject: `Waiver Alert: \${player.name} Dropped`,
+                        html: getPlayerDroppedEmail(team.team_name, player.name, `\${baseUrl}/league/\${team.league_id}`)
+                    });
+                }
+            }
+        } catch (err) {
+            console.error('Failed to send drop email:', err);
+        }
     }
 
     return NextResponse.json({ ok: true });
