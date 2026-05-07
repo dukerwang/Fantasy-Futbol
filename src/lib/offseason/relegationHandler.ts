@@ -1,5 +1,5 @@
 /**
- * Fantasy Futbol — Relegation Compensation Handler
+ * Gaffa — Relegation Compensation Handler
  *
  * Processes end-of-season FAAB compensation for players at relegated clubs.
  * Detection is automatic: the existing sync/players route marks relegated

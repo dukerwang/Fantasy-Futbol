@@ -1,5 +1,5 @@
 /**
- * Fantasy Futbol — Prize Distribution
+ * Gaffa — Prize Distribution
  *
  * Distributes end-of-season FAAB prizes to teams for:
  * - Regular season standings (ranks 1–N, compressed distribution)

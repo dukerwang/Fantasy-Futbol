@@ -1,5 +1,5 @@
 // ============================================================
-// Fantasy Futbol — Core TypeScript Types
+// Gaffa — Core TypeScript Types
 // ============================================================
 
 // --- Granular Position System ---

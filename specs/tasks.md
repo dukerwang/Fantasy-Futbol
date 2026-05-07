@@ -1,4 +1,4 @@
-# Fantasy Futbol Project Tasks
+# Gaffa Project Tasks
 
 - [ ] **Project Initialization & Setup**
     - [ ] Initialize Next.js project with TypeScript

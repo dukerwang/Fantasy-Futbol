@@ -1,5 +1,5 @@
 /**
- * Fantasy Futbol — Match Rating Engine
+ * Gaffa — Match Rating Engine
  *
  * Produces a 1-10 match rating from FPL live stats + API-Football metrics
  * using position-specific weight profiles.  The rating is then curved into

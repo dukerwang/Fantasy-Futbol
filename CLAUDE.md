@@ -1,9 +1,9 @@
-# Fantasy Futbol — Claude Code Execution Context
+# Gaffa — Claude Code Execution Context
 
 > Agent routing note: If you are Claude Code, prioritize this file and also read both `CURSOR.md` and `GEMINI.md` for shared conventions. If you are Cursor or Antigravity, read both `CURSOR.md` and `GEMINI.md` before proceeding.
 
 ## CRITICAL: Deployment Rules
-- This app is hosted on **Vercel** at `fantasy-futbol-tau.vercel.app`
+- This app is hosted on **Vercel** at `gaffa-tau.vercel.app`
 - Local changes are **NOT visible to the user** until pushed to GitHub
 - After every implementation: `npm run build` (must pass) → `git add . && git commit -m "..." && git push`
 - Never tell the user a feature is live until after `git push` has run successfully
@@ -202,4 +202,4 @@ A feature is **NOT complete** until all of the following are true:
 - [ ] Loading states: skeletons or spinners during data fetch
 - [ ] Mobile responsiveness checked
 - [ ] `npm run build` passes with zero errors
-- [ ] Code committed and pushed → verified live on `fantasy-futbol-tau.vercel.app`
+- [ ] Code committed and pushed → verified live on `gaffa-tau.vercel.app`

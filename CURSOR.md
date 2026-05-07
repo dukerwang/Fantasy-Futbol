@@ -1,4 +1,4 @@
-# Fantasy Futbol — Cursor Context
+# Gaffa — Cursor Context
 
 ## Read First
 Before anything else, read `CLAUDE.md` and `GEMINI.md` in the project root.

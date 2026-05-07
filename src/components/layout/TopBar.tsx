@@ -175,7 +175,7 @@ export default function TopBar() {
         {/* --- Wordmark --- */}
         <Link href="/dashboard" className={styles.brand} onClick={() => setIsNavigating(true)}>
           <span className={styles.brandIcon}>⚽</span>
-          <span className={styles.brandName}>Fantasy Futbol</span>
+          <span className={styles.brandName}>Gaffa</span>
         </Link>
 
         {/* --- Page Navigation (only when in a league) --- */}

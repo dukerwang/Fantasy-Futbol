@@ -1,5 +1,5 @@
 -- ============================================================
--- Fantasy Futbol — Server-Driven Auto-Pick via pg_cron
+-- Gaffa — Server-Driven Auto-Pick via pg_cron
 --
 -- This migration creates a database function that:
 -- 1. Identifies drafts where the timer has expired (90s since last pick)

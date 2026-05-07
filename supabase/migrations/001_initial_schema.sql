@@ -1,5 +1,5 @@
 -- ============================================================
--- Fantasy Futbol — Initial Database Schema
+-- Gaffa — Initial Database Schema
 -- Run this in your Supabase SQL editor or via supabase CLI.
 -- ============================================================
 

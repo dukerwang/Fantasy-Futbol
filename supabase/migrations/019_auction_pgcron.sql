@@ -14,7 +14,7 @@ AS $$
 BEGIN
   -- Fire-and-forget POST request to the Vercel cron endpoint
   PERFORM net.http_post(
-      url:='https://fantasy-futbol-dzbvhbvat-dukerwangs-projects.vercel.app/api/cron/process-auctions',
+      url:='https://gaffa-dzbvhbvat-dukerwangs-projects.vercel.app/api/cron/process-auctions',
       headers:='{"x-cron-secret": "irenie_beanie"}'::jsonb
   );
 END;

@@ -1,5 +1,5 @@
 -- ============================================================
--- Fantasy Futbol — Migration 017: Add rebate & transfer_out
+-- Gaffa — Migration 017: Add rebate & transfer_out
 -- to transaction_type enum and supporting indices.
 -- ============================================================
 

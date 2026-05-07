@@ -1,6 +1,6 @@
-# Instructions for Building Fantasy Futbol
+# Instructions for Building Gaffa
 
-This folder contains the specifications for the Fantasy Futbol application.
+This folder contains the specifications for the Gaffa application.
 
 ## 1. Project Overview
 Build a granular, dynasty-style Fantasy Premier League app using **Next.js**, **Supabase**, and **Vanilla CSS**.
@@ -18,4 +18,4 @@ Build a granular, dynasty-style Fantasy Premier League app using **Next.js**, **
 -   Use **Vanilla CSS** with Modules.
 -   Aim for a dark, premium aesthetic.
 -   Focus on "Granular Positions" (CB vs FB) in all UI components.
-\n- ALWAYS use the Vercel deployment URL for testing: https://fantasy-futbol-tau.vercel.app/ (DO NOT use localhost)
+\n- ALWAYS use the Vercel deployment URL for testing: https://gaffa-tau.vercel.app/ (DO NOT use localhost)

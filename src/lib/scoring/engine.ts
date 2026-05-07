@@ -1,5 +1,5 @@
 /**
- * Fantasy Futbol — Scoring Engine
+ * Gaffa — Scoring Engine
  *
  * This module delegates to the Match Rating Engine (matchRating.ts) for all
  * new scoring calculations. Legacy functions are preserved for backward

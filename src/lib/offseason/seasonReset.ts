@@ -1,5 +1,5 @@
 /**
- * Fantasy Futbol — Season Reset Orchestrator
+ * Gaffa — Season Reset Orchestrator
  *
  * Runs the full end-of-season reset in sequence:
  * 1. Preflight validation (all GW38 matchups completed, all cups completed)

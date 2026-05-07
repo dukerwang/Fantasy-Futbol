@@ -7,7 +7,7 @@ export default function SignupPage() {
       <div className={styles.card}>
         <div className={styles.logo}>
           <span className={styles.logoIcon}>⚽</span>
-          <h1 className={styles.logoText}>Fantasy Futbol</h1>
+          <h1 className={styles.logoText}>Gaffa</h1>
         </div>
         <h2 className={styles.heading}>Create your account</h2>
         <p className={styles.subheading}>Join a dynasty league today</p>

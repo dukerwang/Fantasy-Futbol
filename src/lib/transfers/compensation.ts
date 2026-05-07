@@ -1,5 +1,5 @@
 /**
- * Fantasy Futbol — Transfer Compensation Logic
+ * Gaffa — Transfer Compensation Logic
  *
  * When a real-world player transfers OUT of the Premier League,
  * any fantasy team that owns that player receives compensation:

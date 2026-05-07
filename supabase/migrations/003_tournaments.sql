@@ -1,5 +1,5 @@
 -- ============================================================
--- Fantasy Futbol — Tournament Schema (Phase 15)
+-- Gaffa — Tournament Schema (Phase 15)
 -- Run this in your Supabase SQL editor AFTER 001_initial_schema.sql.
 -- ============================================================
 

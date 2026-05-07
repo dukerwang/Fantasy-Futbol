@@ -1,13 +1,13 @@
-# Fantasy Futbol — Planning Context (Antigravity / Gemini)
+# Gaffa — Planning Context (Antigravity / Gemini)
 
 Plans produced here are handed off to Claude Code for execution. Write implementation plans with enough specificity that an AI agent with no additional context can execute them — include file paths, function names, DB tables, and edge cases explicitly. Do not execute code yourself.
 
 Your default mode in this file is planning only. Never write, create, or modify files unless explicitly told to implement. If the user asks a question or requests changes to a plan, update the plan document only. Wait for explicit instruction like "implement this" or "execute" before touching any code.
 
 ## What This App Is
-Vision: Fantasy Futbol is built to be a more realistic, tactically deep alternative to mainstream dynasty apps like Sleeper. Where those apps abstract away football into arbitrary point systems, Fantasy Futbol mirrors how real football actually works — managers negotiate for players through public auctions (like real transfer windows), players are scored based on how they actually performed in their real-world position, and the best real-world players are the most valuable fantasy assets. Every mechanic should reinforce this philosophy: if a feature would feel at home in Sleeper but wouldn't make sense in the context of real football management, it probably needs rethinking.
+Vision: Gaffa is built to be a more realistic, tactically deep alternative to mainstream dynasty apps like Sleeper. Where those apps abstract away football into arbitrary point systems, Gaffa mirrors how real football actually works — managers negotiate for players through public auctions (like real transfer windows), players are scored based on how they actually performed in their real-world position, and the best real-world players are the most valuable fantasy assets. Every mechanic should reinforce this philosophy: if a feature would feel at home in Sleeper but wouldn't make sense in the context of real football management, it probably needs rethinking.
 
-Fantasy Futbol is a multi-tenant dynasty fantasy soccer platform. Leagues support 4–10 managers and are invite-based. Anyone can create or join a league. It is NOT a clone of FPL or ESPN Fantasy. It has deeply custom mechanics around scoring, transfers, and economy that must be preserved in every plan.
+Gaffa is a multi-tenant dynasty fantasy soccer platform. Leagues support 4–10 managers and are invite-based. Anyone can create or join a league. It is NOT a clone of FPL or ESPN Fantasy. It has deeply custom mechanics around scoring, transfers, and economy that must be preserved in every plan.
 
 When planning features, always ask: *does this plan respect the custom rules below?* Generic fantasy sports patterns will often be wrong here.
 
@@ -159,7 +159,7 @@ Use this exact sequence — **never open the browser for this**:
 ```
 mcp_StitchMCP_list_screens(projectId: "9034509438526576481")
 ```
-Match the screen title to the page you are working on (e.g. "Trades - Fantasy Futbol Dynasty Redesign").
+Match the screen title to the page you are working on (e.g. "Trades - Gaffa Dynasty Redesign").
 
 **Step 2 — Get the HTML download URL** using:
 ```
@@ -178,12 +178,12 @@ curl -sL "<downloadUrl>" | grep -A5 "card\|badge\|button\|font-noto"
 
 ### Stitch Project Reference
 
-- **Project**: "Fantasy Futbol — Cream Editorial UI"
+- **Project**: "Gaffa — Cream Editorial UI"
 - **Project ID**: `9034509438526576481`
 - **Key screen titles → use cases**:
   | Screen Title | Use for |
   |---|---|
-  | Trades - Fantasy Futbol Dynasty Redesign | Trade cards, trade block, league feed |
+  | Trades - Gaffa Dynasty Redesign | Trade cards, trade block, league feed |
   | Trades - My Trades View | My trades tab layout |
   | League Home - FC Meridian | League home page |
   | The Digital Broadsheet — League Dashboard | Dashboard/home variants |
@@ -191,7 +191,7 @@ curl -sL "<downloadUrl>" | grep -A5 "card\|badge\|button\|font-noto"
   | Active Auctions - Player Market | Active auction cards |
   | Matchup Detail — Head-to-Head View | Matchup detail page |
   | Matchup Detail — Side-by-Side View | Matchup alternate layout |
-  | League Standings - Dynasty Fantasy Futbol | Standings page |
+  | League Standings - Dynasty Gaffa | Standings page |
   | The Transfer Gazette - Activity Log | Activity/transaction log |
   | Cups - League Cup Bracket | Cup bracket UI |
 

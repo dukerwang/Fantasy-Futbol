@@ -3,7 +3,7 @@ import { ThemeProvider } from '@/context/ThemeContext';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'Fantasy Futbol',
+  title: 'Gaffa',
   description: 'Dynasty-style Fantasy Premier League with granular positions and real transfer values.',
 };
 

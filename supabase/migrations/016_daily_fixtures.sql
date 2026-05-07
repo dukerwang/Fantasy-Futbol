@@ -1,5 +1,5 @@
 -- ============================================================
--- Fantasy Futbol — Migration 016: Daily Fixtures Tracking
+-- Gaffa — Migration 016: Daily Fixtures Tracking
 --
 -- Supports the "Active Window" live-polling architecture (Pillar 3).
 --

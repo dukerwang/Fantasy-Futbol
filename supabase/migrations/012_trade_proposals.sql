@@ -1,5 +1,5 @@
 -- ============================================================
--- Fantasy Futbol — Trade Proposals
+-- Gaffa — Trade Proposals
 -- Run this in your Supabase SQL editor.
 -- ============================================================
 

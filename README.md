@@ -1,4 +1,4 @@
-# ⚽ Fantasy Futbol
+# ⚽ Gaffa
 
 > A multi-tenant dynasty sports platform that brings real-world football economics and tactical depth to fantasy sports.
 
@@ -7,7 +7,7 @@
 ![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL-green?style=flat&logo=supabase)
 ![Vercel](https://img.shields.io/badge/Deployed_on-Vercel-black?style=flat&logo=vercel)
 
-Fantasy Futbol is a highly-customized, multi-tenant dynasty fantasy soccer application. Unlike mainstream platforms (like Sleeper or ESPN) that abstract sports into arbitrary point systems, this platform mirrors real-world football mechanics. Players are valued via public auctions (like real transfer windows) and scored contextually based on their real-world performance using a custom mathematical model.
+Gaffa is a highly-customized, multi-tenant dynasty fantasy soccer application. Unlike mainstream platforms (like Sleeper or ESPN) that abstract sports into arbitrary point systems, this platform mirrors real-world football mechanics. Players are valued via public auctions (like real transfer windows) and scored contextually based on their real-world performance using a custom mathematical model.
 
 ## ✨ Technical Highlights (For Recruiters/Engineers)
 
