@@ -381,12 +381,12 @@ export default function OffseasonClient({ leagueId, league, cronSecret }: Props)
           </div>
 
           <div className={styles.nextStepsCard}>
-            <h2 className={styles.cardTitle}>Next Steps</h2>
-            <ol className={styles.nextStepsList}>
-              <li>Run <code>POST /api/sync/players</code> after the FPL bootstrap updates (mid-June) to pull in promoted clubs' players and seed auctions for high-value newcomers.</li>
-              <li>Once rosters are settled, run <code>POST /api/sync/tournaments?action=create</code> for all three cups with the new season's start gameweek.</li>
-              <li>Set <code>leagues.roster_locked = false</code> and <code>leagues.status = 'active'</code> when the new season begins.</li>
-            </ol>
+            <h2 className={styles.cardTitle}>Reset Complete</h2>
+            <p className={styles.cardDesc}>
+              The season transition is entirely automated. You do not need to do anything else.
+              The Vercel cron job will automatically sync the new FPL players at 02:00 UTC.
+              Set <code>leagues.status = 'active'</code> when you are ready to begin the new season.
+            </p>
           </div>
         </div>
       )}
