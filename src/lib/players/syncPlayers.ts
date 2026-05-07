@@ -172,40 +172,5 @@ export async function syncPlayersFromFpl(admin: SupabaseClient): Promise<SyncPla
     }
   }
 
-  // --- System Auctions for newly-arriving high-value players ---
-  const newHighValuePlayers = rows.filter(
-    (row) => !existingFplIds.has(row.fpl_id) && row.market_value >= 40.0,
-  );
-
-  let systemBidsSeeded = 0;
-  if (newHighValuePlayers.length > 0) {
-    const { data: insertedPlayers } = await admin
-      .from('players')
-      .select('id, fpl_id')
-      .in('fpl_id', newHighValuePlayers.map((p) => p.fpl_id));
-
-    if (insertedPlayers && insertedPlayers.length > 0) {
-      const { data: leagues } = await admin.from('leagues').select('id');
-      const expiresAt = new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString();
-
-      const systemBids = insertedPlayers.flatMap((player) =>
-        (leagues ?? []).map((league) => ({
-          league_id: league.id,
-          team_id: null,
-          player_id: player.id,
-          faab_bid: 0,
-          status: 'pending',
-          is_auction: true,
-          expires_at: expiresAt,
-        })),
-      );
-
-      if (systemBids.length > 0) {
-        await admin.from('waiver_claims').insert(systemBids);
-        systemBidsSeeded = newHighValuePlayers.length;
-      }
-    }
-  }
-
-  return { synced: rows.length, systemBidsSeeded, autoTransferOuts };
+  return { synced: rows.length, systemBidsSeeded: 0, autoTransferOuts };
 }
