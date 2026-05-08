@@ -19,10 +19,10 @@ const SLOT_COLOR: Record<string, string> = {
     LB: 'var(--color-pos-fb)',
     CB: 'var(--color-pos-cb)',
     RB: 'var(--color-pos-fb)',
+    LWB: 'var(--color-pos-fb)',
+    RWB: 'var(--color-pos-fb)',
     DM: 'var(--color-pos-dm)',
     CM: 'var(--color-pos-cm)',
-    LM: 'var(--color-pos-wm)',
-    RM: 'var(--color-pos-wm)',
     AM: 'var(--color-pos-am)',
     LW: 'var(--color-pos-lw)',
     ST: 'var(--color-pos-st)',
@@ -36,12 +36,12 @@ const BENCH_COLOR: Record<string, string> = {
 const SLOT_TO_ZONE: Record<string, Zone> = {
     // ATT row: pure attackers (LW, ST, RW)
     LW: 'ATT', ST: 'ATT', RW: 'ATT',
-    // AMZ row: AM + LM/RM (wide attacking mids line up with AM)
-    AM: 'AMZ', LM: 'AMZ', RM: 'AMZ',
+    // AMZ row: AM
+    AM: 'AMZ',
     // CM row close to DM (lower than AM)
     CM: 'CMZ',
     // DM row
-    DM: 'DMZ',
+    DM: 'DMZ', LWB: 'DMZ', RWB: 'DMZ',
     // Defenders
     CB: 'DEF', LB: 'DEF', RB: 'DEF',
     GK: 'GK',
@@ -143,9 +143,9 @@ function BenchChip({ slotType, player, detail, isSubOut, onClick }: {
 }
 
 function slotOffset(slot: string): number {
-    if (['LW', 'RW', 'LM', 'RM'].includes(slot)) return 10;  // wingers drop down
+    if (['LW', 'RW'].includes(slot)) return 10;  // wingers drop down
     if (slot === 'CM') return -25;                             // CM rises toward attackers
-    if (slot === 'DM') return -35;                             // DM rises toward CM
+    if (['DM', 'LWB', 'RWB'].includes(slot)) return -35;       // DM and WBs rise toward CM
     return 0;
 }
 

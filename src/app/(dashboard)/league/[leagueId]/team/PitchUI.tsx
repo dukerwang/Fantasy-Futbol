@@ -18,7 +18,7 @@ import { Icon } from '@/components/ui/Icon';
 
 // ─── Constants ──────────────────────────────────────────────────────────────
 
-const FORMATIONS: Formation[] = ['4-3-3', '4-4-2', '4-1-4-1', '4-2-3-1', '4-2-1-3', '3-4-3'];
+const FORMATIONS: Formation[] = ['4-3-3', '4-2-1-3', '4-2-2-2', '3-4-3', '3-4-1-2', '3-5-2', '5-3-2'];
 
 type PitchZone = 'ATT' | 'AMZ' | 'CMZ' | 'DMZ' | 'DEF' | 'GK';
 // Zone order: attackers at top, GK at bottom (same vertical flow as MatchupPitch)
@@ -32,10 +32,10 @@ const POS_COLOR: Record<GranularPosition, string> = {
     CB: 'var(--color-pos-cb)',
     LB: 'var(--color-pos-fb)',
     RB: 'var(--color-pos-fb)',
+    LWB: 'var(--color-pos-fb)',
+    RWB: 'var(--color-pos-fb)',
     DM: 'var(--color-pos-dm)',
     CM: 'var(--color-pos-cm)',
-    LM: 'var(--color-pos-wm)',
-    RM: 'var(--color-pos-wm)',
     AM: 'var(--color-pos-am)',
     LW: 'var(--color-pos-lw)',
     RW: 'var(--color-pos-rw)',
@@ -47,11 +47,10 @@ const POS_COLOR: Record<GranularPosition, string> = {
 // Matches MatchupPitch's 6-zone approach so DM/CM/AM render as distinct rows
 function getZone(pos: GranularPosition, formation: Formation): PitchZone {
     if (pos === 'GK') return 'GK';
+    if (pos === 'LWB' || pos === 'RWB') return 'DMZ';
     if (pos === 'CB' || pos === 'LB' || pos === 'RB') return 'DEF';
     if (pos === 'DM') return 'DMZ';
-    // In a 4-2-3-1, the wide mids sit with the 10 in the attacking-mid band (matches MatchupPitch grouping)
-    if (formation === '4-2-3-1' && (pos === 'LM' || pos === 'RM')) return 'AMZ';
-    if (pos === 'CM' || pos === 'LM' || pos === 'RM') return 'CMZ';
+    if (pos === 'CM') return 'CMZ';
     if (pos === 'AM') return 'AMZ';
     return 'ATT'; // LW, ST, RW
 }

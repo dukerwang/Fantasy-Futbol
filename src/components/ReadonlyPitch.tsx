@@ -15,10 +15,10 @@ const POS_COLOR: Record<GranularPosition, string> = {
     CB: 'var(--color-pos-cb, #3b82f6)',
     LB: 'var(--color-pos-fb, #60a5fa)',
     RB: 'var(--color-pos-fb, #60a5fa)',
+    LWB: 'var(--color-pos-fb, #60a5fa)',
+    RWB: 'var(--color-pos-fb, #60a5fa)',
     DM: 'var(--color-pos-dm, #8b5cf6)',
     CM: 'var(--color-pos-cm, #a78bfa)',
-    LM: 'var(--color-pos-wm, #4ade80)',
-    RM: 'var(--color-pos-wm, #4ade80)',
     AM: 'var(--color-pos-am, #e879f9)',
     LW: 'var(--color-pos-lw, #22c55e)',
     RW: 'var(--color-pos-rw, #22c55e)',
@@ -40,7 +40,7 @@ const ZONE_CLASS_MAP = {
 function getZone(pos: GranularPosition): 'GK' | 'DEF' | 'MID' | 'ATT' {
     if (pos === 'GK') return 'GK';
     if (pos === 'CB' || pos === 'LB' || pos === 'RB') return 'DEF';
-    if (pos === 'DM' || pos === 'CM' || pos === 'LM' || pos === 'RM' || pos === 'AM') return 'MID';
+    if (pos === 'DM' || pos === 'CM' || pos === 'AM' || pos === 'LWB' || pos === 'RWB') return 'MID';
     return 'ATT';
 }
 
@@ -59,8 +59,8 @@ function formatStats(stats: any, pos?: GranularPosition) {
     if (stats.goals) parts.push(`G: ${stats.goals}`);
     if (stats.assists) parts.push(`A: ${stats.assists}`);
     
-    // Only show CS if NOT a wide/attacking player (LM, RM, AM, or ATT)
-    const isAttacker = pos && (getZone(pos) === 'ATT' || pos === 'AM' || pos === 'LM' || pos === 'RM');
+    // Only show CS if NOT a wide/attacking player (AM, or ATT)
+    const isAttacker = pos && (getZone(pos) === 'ATT' || pos === 'AM');
     if (stats.clean_sheet && !isAttacker) {
         parts.push(`CS: ${stats.clean_sheet ? 1 : 0}`);
     }
@@ -172,11 +172,9 @@ export default function ReadonlyPitch({ lineup, playerMap, detailMap, teamName }
                                     const player = playerId ? playerMap[playerId] : null;
 
                                     // Vertical alignment — mirrors PitchUI node logic exactly
-                                    const isHighWide =
-                                        (pos === 'LM' || pos === 'RM') && formation === '4-2-3-1';
-                                    const align = pos === 'DM'
+                                    const align = (pos === 'DM' || pos === 'LWB' || pos === 'RWB')
                                         ? 'flex-end'
-                                        : (pos === 'AM' || isHighWide)
+                                        : (pos === 'AM')
                                             ? 'flex-start'
                                             : 'center';
 

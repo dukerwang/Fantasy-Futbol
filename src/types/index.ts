@@ -3,7 +3,7 @@
 // ============================================================
 
 // --- Granular Position System ---
-export type GranularPosition = 'GK' | 'CB' | 'LB' | 'RB' | 'DM' | 'CM' | 'LM' | 'RM' | 'AM' | 'LW' | 'RW' | 'ST';
+export type GranularPosition = 'GK' | 'CB' | 'LB' | 'RB' | 'LWB' | 'RWB' | 'DM' | 'CM' | 'AM' | 'LW' | 'RW' | 'ST';
 
 // Maps each formation slot to which player positions can fill it.
 // Flexibility is intentionally strict — a slot only accepts its own position type.
@@ -14,10 +14,10 @@ export const POSITION_FLEX_MAP: Record<GranularPosition, GranularPosition[]> = {
   CB: ['CB'],
   LB: ['LB'],
   RB: ['RB'],
+  LWB: ['LWB'],
+  RWB: ['RWB'],
   DM: ['DM'],
   CM: ['CM'],
-  LM: ['LM'],
-  RM: ['RM'],
   AM: ['AM'],
   LW: ['LW'],
   RW: ['RW'],
@@ -26,18 +26,23 @@ export const POSITION_FLEX_MAP: Record<GranularPosition, GranularPosition[]> = {
 
 // Supported formations (slot lists)
 // Slots are ordered left-to-right within each zone row for direct visual rendering.
-export type Formation = '4-4-2' | '4-3-3' | '4-2-3-1' | '4-1-4-1' | '3-4-3' | '4-2-1-3';
+export type Formation = '4-3-3' | '4-2-1-3' | '4-2-2-2' | '3-4-1-2' | '3-5-2' | '3-4-3' | '5-3-2';
 
 export const FORMATION_SLOTS: Record<Formation, GranularPosition[]> = {
   // Slots ordered left-to-right within each zone so PitchUI renders them correctly without re-sorting.
-  '4-4-2': ['GK', 'LB', 'CB', 'CB', 'RB', 'LM', 'CM', 'CM', 'RM', 'ST', 'ST'],
   '4-3-3': ['GK', 'LB', 'CB', 'CB', 'RB', 'CM', 'DM', 'CM', 'LW', 'ST', 'RW'],
-  // 4-2-3-1: double pivot (DM/DM) + central AM + wide mids (LM/RM) + ST
-  '4-2-3-1': ['GK', 'LB', 'CB', 'CB', 'RB', 'LM', 'DM', 'AM', 'DM', 'RM', 'ST'],
-  '4-1-4-1': ['GK', 'LB', 'CB', 'CB', 'RB', 'LM', 'CM', 'DM', 'CM', 'RM', 'ST'],
-  '3-4-3': ['GK', 'CB', 'CB', 'CB', 'LM', 'CM', 'CM', 'RM', 'LW', 'ST', 'RW'],
-  // 4-2-1-3: two holders + a central 10 behind a front three
-  '4-2-1-3': ['GK', 'LB', 'CB', 'CB', 'RB', 'DM', 'DM', 'AM', 'LW', 'ST', 'RW'],
+  // 4-2-1-3: double pivot (DM/DM) + central AM + wingers + ST
+  '4-2-1-3': ['GK', 'LB', 'CB', 'CB', 'RB', 'DM', 'DM', 'LW', 'AM', 'RW', 'ST'],
+  // 4-2-2-2: two DMs, two AMs, two STs (modern box midfield)
+  '4-2-2-2': ['GK', 'LB', 'CB', 'CB', 'RB', 'DM', 'DM', 'AM', 'AM', 'ST', 'ST'],
+  // 3-4-1-2: 3 CBs, 2 WBs, 2 CMs, 1 AM, 2 STs
+  '3-4-1-2': ['GK', 'CB', 'CB', 'CB', 'LWB', 'CM', 'CM', 'RWB', 'AM', 'ST', 'ST'],
+  // 3-5-2: 3 CBs, 2 WBs, 1 DM, 2 CMs, 2 STs
+  '3-5-2': ['GK', 'CB', 'CB', 'CB', 'LWB', 'CM', 'DM', 'CM', 'RWB', 'ST', 'ST'],
+  // 5-3-2: 3 CBs, 2 FBs, 3 CMs, 2 STs
+  '5-3-2': ['GK', 'LB', 'CB', 'CB', 'CB', 'RB', 'CM', 'DM', 'CM', 'ST', 'ST'],
+  // 3-4-3: 3 CBs, 2 WBs, 2 CMs, wingers + ST
+  '3-4-3': ['GK', 'CB', 'CB', 'CB', 'LWB', 'CM', 'CM', 'RWB', 'LW', 'ST', 'RW'],
 };
 
 export const ALL_FORMATIONS: Formation[] = Object.keys(FORMATION_SLOTS) as Formation[];
@@ -427,11 +432,11 @@ export const BENCH_SLOT_LABELS: Record<BenchSlot, string> = {
 };
 
 export const BENCH_FLEX_MAP: Record<BenchSlot, GranularPosition[]> = {
-  DEF: ['CB', 'LB', 'RB'],
-  MID: ['DM', 'CM', 'LM', 'RM', 'AM'],
+  DEF: ['CB', 'LB', 'RB', 'LWB', 'RWB'],
+  MID: ['DM', 'CM', 'AM'],
   ATT: ['ST', 'LW', 'RW'],
   /** True flex: any starter-eligible position including emergency GK. */
-  FLEX: ['CB', 'LB', 'RB', 'DM', 'CM', 'LM', 'RM', 'AM', 'LW', 'RW', 'ST', 'GK'],
+  FLEX: ['CB', 'LB', 'RB', 'LWB', 'RWB', 'DM', 'CM', 'AM', 'LW', 'RW', 'ST', 'GK'],
 };
 
 // Always returns the 4 semantic bench slots regardless of league bench_size setting

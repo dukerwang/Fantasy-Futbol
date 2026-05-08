@@ -20,11 +20,12 @@ type RosterRow = {
 // even when a simpler valid XI exists.
 const FORMATION_TRIAL_ORDER: Formation[] = [
   '4-3-3',
-  '4-4-2',
-  '4-1-4-1',
-  '4-2-3-1',
-  '3-4-3',
   '4-2-1-3',
+  '4-2-2-2',
+  '3-4-3',
+  '3-4-1-2',
+  '3-5-2',
+  '5-3-2',
 ];
 
 /**
@@ -80,8 +81,8 @@ export async function generateValidLineup(
 
   const getCat = (p: string) => {
     if (p === 'GK') return 'GK';
-    if (['CB', 'LB', 'RB'].includes(p)) return 'DEF';
-    if (['DM', 'CM', 'LM', 'RM', 'AM'].includes(p)) return 'MID';
+    if (['CB', 'LB', 'RB', 'LWB', 'RWB'].includes(p)) return 'DEF';
+    if (['DM', 'CM', 'AM'].includes(p)) return 'MID';
     return 'ATT';
   };
 

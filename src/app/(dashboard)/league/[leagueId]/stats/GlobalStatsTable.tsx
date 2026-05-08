@@ -18,8 +18,8 @@ interface Props {
 type SortKey = 'total_points' | 'ppg' | 'projected_points' | 'market_value' | 'form';
 type SortDir = 'desc' | 'asc';
 
-const DEF_POSITIONS: GranularPosition[] = ['CB', 'LB', 'RB'];
-const MID_POSITIONS: GranularPosition[] = ['DM', 'CM', 'AM', 'LM', 'RM'];
+const DEF_POSITIONS: GranularPosition[] = ['CB', 'LB', 'RB', 'LWB', 'RWB'];
+const MID_POSITIONS: GranularPosition[] = ['DM', 'CM', 'AM'];
 const ATT_POSITIONS: GranularPosition[] = ['LW', 'RW', 'ST'];
 
 type PosFilter = 'ALL' | 'GK' | 'DEF' | 'MID' | 'ATT' | GranularPosition;
@@ -27,10 +27,10 @@ type PosFilter = 'ALL' | 'GK' | 'DEF' | 'MID' | 'ATT' | GranularPosition;
 const POS_FILTER_OPTIONS: { label: string; value: PosFilter }[] = [
   { label: 'All Positions', value: 'ALL' },
   { label: 'GK', value: 'GK' },
-  { label: 'DEF (CB/LB/RB)', value: 'DEF' },
+  { label: 'DEF (CB/LB/RB/LWB/RWB)', value: 'DEF' },
   { label: 'MID (DM/CM/AM)', value: 'MID' },
   { label: 'ATT (LW/RW/ST)', value: 'ATT' },
-  ...(['CB', 'LB', 'RB', 'DM', 'CM', 'AM', 'LM', 'RM', 'LW', 'RW', 'ST'] as GranularPosition[]).map((p) => ({
+  ...(['CB', 'LB', 'RB', 'LWB', 'RWB', 'DM', 'CM', 'AM', 'LW', 'RW', 'ST'] as GranularPosition[]).map((p) => ({
     label: p,
     value: p as PosFilter,
   })),

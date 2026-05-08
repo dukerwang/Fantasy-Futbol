@@ -37,8 +37,8 @@ export const FLEX_CONFIG: Record<GranularPosition, { flex: number; components: R
     RB: { flex: 0.25, components: ['creativity', 'match_impact', 'defensive'] },
     DM: { flex: 0.25, components: ['match_impact', 'influence', 'goal_involvement'] },
     CM: { flex: 0.25, components: ['match_impact', 'creativity', 'influence'] },
-    LM: { flex: 0.10, components: ['goal_involvement', 'creativity', 'influence'] },
-    RM: { flex: 0.10, components: ['goal_involvement', 'creativity', 'influence'] },
+    LWB: { flex: 0.20, components: ['creativity', 'goal_involvement', 'defensive'] },
+    RWB: { flex: 0.20, components: ['creativity', 'goal_involvement', 'defensive'] },
     AM: { flex: 0.25, components: ['creativity', 'goal_involvement', 'finishing'] },
     LW: { flex: 0.15, components: ['goal_involvement', 'finishing', 'threat'] },
     RW: { flex: 0.15, components: ['goal_involvement', 'finishing', 'threat'] },
@@ -53,8 +53,8 @@ export const POSITION_WEIGHTS: Record<GranularPosition, Record<RatingComponent, 
     RB: { match_impact: 0.20, influence: 0.10, creativity: 0.15, threat: 0.05, defensive: 0.10, goal_involvement: 0.15, finishing: 0.00, save_score: 0.00 },
     DM: { match_impact: 0.30, influence: 0.25, creativity: 0.05, threat: 0.00, defensive: 0.10, goal_involvement: 0.05, finishing: 0.00, save_score: 0.00 },
     CM: { match_impact: 0.20, influence: 0.15, creativity: 0.15, threat: 0.10, defensive: 0.05, goal_involvement: 0.10, finishing: 0.00, save_score: 0.00 },
-    LM: { match_impact: 0.10, influence: 0.10, creativity: 0.10, threat: 0.10, defensive: 0.10, goal_involvement: 0.30, finishing: 0.10, save_score: 0.00 },
-    RM: { match_impact: 0.10, influence: 0.10, creativity: 0.10, threat: 0.10, defensive: 0.10, goal_involvement: 0.30, finishing: 0.10, save_score: 0.00 },
+    LWB: { match_impact: 0.15, influence: 0.10, creativity: 0.20, threat: 0.10, defensive: 0.10, goal_involvement: 0.25, finishing: 0.10, save_score: 0.00 },
+    RWB: { match_impact: 0.15, influence: 0.10, creativity: 0.20, threat: 0.10, defensive: 0.10, goal_involvement: 0.25, finishing: 0.10, save_score: 0.00 },
     AM: { match_impact: 0.15, influence: 0.15, creativity: 0.25, threat: 0.15, defensive: 0.00, goal_involvement: 0.15, finishing: 0.00, save_score: 0.00 },
     LW: { match_impact: 0.10, influence: 0.10, creativity: 0.05, threat: 0.05, defensive: 0.10, goal_involvement: 0.25, finishing: 0.25, save_score: 0.00 },
     RW: { match_impact: 0.10, influence: 0.10, creativity: 0.05, threat: 0.05, defensive: 0.10, goal_involvement: 0.25, finishing: 0.25, save_score: 0.00 },
@@ -67,8 +67,8 @@ export const POSITION_WEIGHTS: Record<GranularPosition, Record<RatingComponent, 
 
 export function getPositionGroup(pos: GranularPosition): PositionGroup {
     if (pos === 'GK') return 'GK';
-    if (pos === 'CB' || pos === 'LB' || pos === 'RB') return 'DEF';
-    if (pos === 'DM' || pos === 'CM' || pos === 'LM' || pos === 'RM' || pos === 'AM') return 'MID';
+    if (pos === 'CB' || pos === 'LB' || pos === 'RB' || pos === 'LWB' || pos === 'RWB') return 'DEF';
+    if (pos === 'DM' || pos === 'CM' || pos === 'AM') return 'MID';
     return 'ATT'; // LW, RW, ST
 }
 
@@ -182,7 +182,7 @@ function computeComponentScores(
         } else if (position === 'CM') {
             csBonus = 4; // Reduced bonus for CM
         }
-        // LM, RM, AM, and ATT receive 0
+        // AM and ATT receive 0
     }
     const canGetCS = csBonus > 0;
     const xgcOutperf = Math.max(0, xgc - gc) * 5;
@@ -390,8 +390,8 @@ export const DEFAULT_REFERENCE_STATS: Record<GranularPosition, ReferenceStats> =
     RB: makeRef([12, 9.3], [14.2, 11.53], [9.5, 12.92], [2, 8.06], [0.2, 2.8], [0, 1.82], [0, 1], [0, 1]),
     DM: makeRef([12, 6.54], [13, 12.62], [10.1, 13.09], [2, 10.22], [0.2, 2.8], [0, 1.95], [-0.01, 1], [0, 1.36]),
     CM: makeRef([11, 6.69], [12.2, 15.78], [14.2, 17.75], [8, 14.92], [0.2, 2.8], [0, 2.76], [-0.01, 0.11], [0, 1]),
-    LM: makeRef([10, 7.07], [10.2, 17.61], [16.3, 16.71], [15, 17.83], [0.2, 2.8], [0, 3.17], [-0.02, 0.13], [0, 1]),
-    RM: makeRef([9, 7.01], [11, 19.08], [15.1, 15.22], [16, 20.49], [0.2, 2.8], [0, 3.47], [-0.01, 0.13], [0, 1]),
+    LWB: makeRef([10, 8.50], [13.0, 12.0], [12.0, 15.00], [6, 11.00], [0.2, 2.8], [0, 2.20], [-0.01, 0.50], [0, 1]),
+    RWB: makeRef([11, 8.50], [12.5, 12.0], [11.0, 14.00], [4, 10.00], [0.2, 2.8], [0, 2.20], [0, 0.50], [0, 1]),
     AM: makeRef([10, 7.47], [12, 19.4], [15.9, 17.88], [10, 16.43], [0.2, 2.8], [0, 3.46], [-0.01, 0.13], [0, 1.04]),
     LW: makeRef([10, 7.46], [10.6, 19.21], [15.95, 16.7], [19.5, 18.5], [0.2, 2.8], [0, 3.69], [-0.02, 0.15], [0, 1]),
     RW: makeRef([9, 7.45], [11.8, 19.08], [16.3, 17.59], [19, 18.11], [0.2, 2.8], [0, 3.48], [-0.01, 0.14], [0, 1]),

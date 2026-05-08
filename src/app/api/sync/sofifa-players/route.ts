@@ -24,16 +24,16 @@ const PL_LEAGUE_ID = 13;
 
 // ── SoFIFA position ID → our GranularPosition ────────────────────────────────
 // Full table from https://sofifa.com/document
-const SOFIFA_TO_GRANULAR: Partial<Record<number, GranularPosition>> = {
+const SOFIFA_TO_GRANULAR: Partial<Record<number, string>> = {
   0: 'GK',
   1: 'CB',  // SW  (sweeper)
-  2: 'RB',  // RWB
+  2: 'RWB', // RWB
   3: 'RB',  // RB
   4: 'CB',  // RCB
   5: 'CB',  // CB
   6: 'CB',  // LCB
   7: 'LB',  // LB
-  8: 'LB',  // LWB
+  8: 'LWB', // LWB
   9: 'DM',  // RDM
   10: 'DM', // CDM
   11: 'DM', // LDM
@@ -56,7 +56,7 @@ const SOFIFA_TO_GRANULAR: Partial<Record<number, GranularPosition>> = {
   // 28=SUB, 29=RES → intentionally omitted (map to undefined → null)
 };
 
-function toGranular(posId: number): GranularPosition | null {
+function toGranular(posId: number): string | null {
   if (posId < 0) return null;
   return SOFIFA_TO_GRANULAR[posId] ?? null;
 }
@@ -210,17 +210,44 @@ async function runSync(preloadedTeams: SoFifaTeamDetail[] | null) {
   for (const team of teams) {
 
     for (const sp of team.players ?? []) {
-      const primary = toGranular(sp.position1);
-      if (!primary) continue; // SUB / RES players — skip
+      const primaryRaw = toGranular(sp.position1);
+      if (!primaryRaw) continue; // SUB / RES players — skip
 
       // Collect up to 3 valid secondary positions (deduplicated, not same as primary)
-      const secondary: GranularPosition[] = [];
+      const secondaryRaw: string[] = [];
       for (const posId of [sp.position2, sp.position3, sp.position4]) {
         const g = toGranular(posId);
-        if (g && g !== primary && !secondary.includes(g)) {
-          secondary.push(g);
+        if (g && g !== primaryRaw && !secondaryRaw.includes(g)) {
+          secondaryRaw.push(g);
         }
       }
+
+      // Apply Defensive Anchor mapping rule
+      const allPositions = new Set([primaryRaw, ...secondaryRaw]);
+      const hasFullback = allPositions.has('LB') || allPositions.has('RB') || allPositions.has('LWB') || allPositions.has('RWB');
+
+      const convert = (pos: string): string | null => {
+        if (pos === 'LM') {
+          if (allPositions.has('LB') || allPositions.has('LWB')) return 'LWB';
+          if (hasFullback) return null; // Drop unmatched LM if they have any fullback tag
+          return 'LW';
+        }
+        if (pos === 'RM') {
+          if (allPositions.has('RB') || allPositions.has('RWB')) return 'RWB';
+          if (hasFullback) return null; // Drop unmatched RM if they have any fullback tag
+          return 'RW';
+        }
+        return pos;
+      };
+
+      let primary = convert(primaryRaw) as GranularPosition | null;
+      if (!primary) {
+        // Fallback if primary was dropped but shouldn't be null
+        primary = (primaryRaw === 'LM' ? 'LWB' : 'RWB') as GranularPosition;
+      }
+
+      const secondary = Array.from(new Set(secondaryRaw.map(convert).filter(Boolean))) as GranularPosition[];
+      const finalSecondary = secondary.filter(p => p !== primary);
 
       // Match to our DB by name
       const fullName = [sp.firstName, sp.lastName].filter(Boolean).join(' ');
@@ -243,7 +270,7 @@ async function runSync(preloadedTeams: SoFifaTeamDetail[] | null) {
 
       if (dbMatch) {
         matched++;
-        updates.push({ id: dbMatch.id, primary_position: primary, secondary_positions: secondary });
+        updates.push({ id: dbMatch.id, primary_position: primary, secondary_positions: finalSecondary });
       }
     }
 
