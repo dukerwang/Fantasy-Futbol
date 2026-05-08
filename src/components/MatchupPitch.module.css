@@ -206,6 +206,7 @@
     font-family: var(--font-sans);
     font-size: 0.58rem;
     font-weight: 700;
+    text-transform: uppercase;
     letter-spacing: 0.02em;
     color: #1c1c19;
     white-space: nowrap;
@@ -282,6 +283,7 @@
     font-family: var(--font-sans);
     font-size: 0.5rem;
     font-weight: 700;
+    text-transform: uppercase;
     letter-spacing: 0.02em;
     color: #1c1c19;
     white-space: nowrap;
@@ -380,6 +382,7 @@
     font-family: var(--font-sans);
     font-size: 0.8125rem;
     font-weight: 700;
+    text-transform: uppercase;
     color: var(--color-text-primary);
 }
 
