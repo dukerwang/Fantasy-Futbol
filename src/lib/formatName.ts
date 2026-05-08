@@ -32,12 +32,7 @@ export function formatPlayerName(
         "Diogo Jota": "Jota",
         "Lucrecio de Castro": "Neto",
         "Luiz Díaz": "Díaz",
-        "Pedro Porro": "Porro",
-        "Kepa Arrizabalaga": "Kepa",
-        "Kepa": "Kepa",
-        "Kevin De Bruyne": "KDB",
-        "De Bruyne": "KDB",
-        "KDB": "KDB"
+        "Pedro Porro": "Porro"
     };
 
     const webName = player.web_name?.trim() || '';
