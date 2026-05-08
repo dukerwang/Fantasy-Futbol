@@ -339,6 +339,14 @@ export default function PremiumPlayerCard({
 
                     {/* Hero — player photo */}
                     <div className={styles.hero}>
+                        {player.fpl_status !== 'a' && player.fpl_status !== null && player.fpl_status !== undefined && (
+                            <div className={`${styles.injuryOverlay} ${player.fpl_status === 'd' ? styles.injuryDoubtful : styles.injuryOut}`}>
+                                <span className={styles.injuryText}>
+                                    {player.fpl_status === 'd' ? 'DOUBTFUL' : player.fpl_status === 'i' ? 'OUT' : player.fpl_status === 's' ? 'SUSPENDED' : 'UNAVAILABLE'}
+                                    {player.fpl_news ? ` · ${player.fpl_news}` : ''}
+                                </span>
+                            </div>
+                        )}
                         {imgSrc ? (
                             // eslint-disable-next-line @next/next/no-img-element
                             <img
@@ -378,6 +386,11 @@ export default function PremiumPlayerCard({
                         <span className={styles.lastName}>{webName}</span>
                         <div className={styles.idMeta}>
                             <span className={styles.posTag} style={{ background: posVar }}>{player.primary_position}</span>
+                            {player.secondary_positions?.map(pos => (
+                                <span key={pos} className={styles.posTag} style={{ background: POS_CSS_VAR[pos] || 'var(--color-bg-elevated)' }}>
+                                    {pos}
+                                </span>
+                            ))}
                             {player.nationality && (
                                 <><span className={styles.dot}>·</span><span>{player.nationality}</span></>
                             )}
