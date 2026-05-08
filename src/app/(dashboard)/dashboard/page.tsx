@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
+import { Icon } from '@/components/ui/Icon';
 import styles from './dashboard.module.css';
 
 export default async function DashboardPage() {
@@ -85,9 +86,23 @@ export default async function DashboardPage() {
                   <div className={styles.stat}>
                     <span 
                       className={styles.statValue} 
-                      style={{ color: team.rank === 1 ? '#f59e0b' : 'var(--text-primary)' }}
+                      style={{ color: team.rank === 1 ? '#f59e0b' : 'var(--text-primary)', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
                     >
-                      {team.rank ? (team.rank === 1 ? '🥇 1st' : team.rank === 2 ? '🥈 2nd' : team.rank === 3 ? '🥉 3rd' : `${team.rank}th`) : '—'}
+                      {team.rank ? (
+                        <>
+                          {team.rank <= 3 && (
+                            <Icon 
+                              name="trophy" 
+                              size={14} 
+                              strokeWidth={2}
+                              style={{ 
+                                color: team.rank === 1 ? '#f59e0b' : team.rank === 2 ? '#94a3b8' : '#92400e' 
+                              }} 
+                            />
+                          )}
+                          {team.rank}{team.rank === 1 ? 'st' : team.rank === 2 ? 'nd' : team.rank === 3 ? 'rd' : 'th'}
+                        </>
+                      ) : '—'}
                     </span>
                     <span className={styles.statLabel}>Rank</span>
                   </div>
@@ -106,7 +121,7 @@ export default async function DashboardPage() {
         </section>
       ) : (
         <div className={styles.empty}>
-          <p className={styles.emptyIcon}>🏆</p>
+          <p className={styles.emptyIcon}><Icon name="trophy" size={48} strokeWidth={1} /></p>
           <h2 className={styles.emptyTitle}>No leagues yet</h2>
           <p className={styles.emptyText}>
             Create a league and invite your friends to get started.

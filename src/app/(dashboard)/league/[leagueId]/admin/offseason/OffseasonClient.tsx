@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import styles from './offseason.module.css';
+import { Icon } from '@/components/ui/Icon';
+
 
 interface League {
   id: string;
@@ -156,7 +158,11 @@ export default function OffseasonClient({ leagueId, league, cronSecret }: Props)
       {/* Roster lock status */}
       <div className={styles.statusRow}>
         <div className={`${styles.statusBadge} ${league.roster_locked ? styles.statusLocked : styles.statusOpen}`}>
-          {league.roster_locked ? '🔒 Rosters Locked' : '🔓 Rosters Open'}
+          {league.roster_locked ? (
+            <><Icon name="lock" size={14} style={{ marginRight: '6px' }} /> Rosters Locked</>
+          ) : (
+            <><Icon name="unlock" size={14} style={{ marginRight: '6px' }} /> Rosters Open</>
+          )}
         </div>
         <div className={styles.statusBadge}>
           Status: <strong>{league.status}</strong>
@@ -190,7 +196,7 @@ export default function OffseasonClient({ leagueId, league, cronSecret }: Props)
       {/* Error state */}
       {phase === 'error' && (
         <div className={styles.alertBox} data-type="error">
-          <span className={styles.alertIcon}>❌</span>
+          <span className={styles.alertIcon}><Icon name="x" size={16} /></span>
           <span>{errorMsg}</span>
           <button className={styles.btnSmall} onClick={loadPreview}>Retry</button>
         </div>
@@ -204,7 +210,7 @@ export default function OffseasonClient({ leagueId, league, cronSecret }: Props)
             <h2 className={styles.sectionTitle}>Preflight Check</h2>
             {preflightData.preflight.ready ? (
               <div className={styles.alertBox} data-type="success">
-                <span className={styles.alertIcon}>✅</span>
+                <span className={styles.alertIcon}><Icon name="check" size={16} /></span>
                 <span>All checks passed — season is complete and ready to reset.</span>
               </div>
             ) : (

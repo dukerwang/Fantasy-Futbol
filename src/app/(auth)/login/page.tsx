@@ -1,3 +1,5 @@
+import Link from 'next/link';
+import { Icon } from '@/components/ui/Icon';
 import styles from './login.module.css';
 import LoginForm from '@/components/auth/LoginForm';
 
@@ -6,7 +8,7 @@ export default function LoginPage() {
     <div className={styles.page}>
       <div className={styles.card}>
         <div className={styles.logo}>
-          <span className={styles.logoIcon}>⚽</span>
+          <span className={styles.logoIcon}><Icon name="activity" size={32} strokeWidth={2.5} /></span>
           <h1 className={styles.logoText}>Gaffa</h1>
         </div>
         <h2 className={styles.heading}>Welcome back</h2>

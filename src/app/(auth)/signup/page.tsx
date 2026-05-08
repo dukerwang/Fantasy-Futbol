@@ -1,4 +1,5 @@
 import styles from '../login/login.module.css';
+import { Icon } from '@/components/ui/Icon';
 import SignupForm from '@/components/auth/SignupForm';
 
 export default function SignupPage() {
@@ -6,7 +7,7 @@ export default function SignupPage() {
     <div className={styles.page}>
       <div className={styles.card}>
         <div className={styles.logo}>
-          <span className={styles.logoIcon}>⚽</span>
+          <span className={styles.logoIcon}><Icon name="activity" size={32} strokeWidth={2.5} /></span>
           <h1 className={styles.logoText}>Gaffa</h1>
         </div>
         <h2 className={styles.heading}>Create your account</h2>

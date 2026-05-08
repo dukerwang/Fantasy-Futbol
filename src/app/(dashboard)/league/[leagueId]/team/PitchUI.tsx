@@ -13,6 +13,8 @@ import PlayerDetailsModal from '@/components/players/PlayerDetailsModal';
 import { formatPlayerName } from '@/lib/formatName';
 import { plTeamThreeLetter } from '@/lib/plTeamAbbrev';
 import styles from './pitch.module.css';
+import { Icon } from '@/components/ui/Icon';
+
 
 // ─── Constants ──────────────────────────────────────────────────────────────
 
@@ -178,7 +180,9 @@ function PitchNode({ slotPos, player, isSelected, isValidTarget, isEmpty, isInva
                     <span className={styles.nodePtsBadge}>{points.toFixed(1)}</span>
                 )}
                 {isLocked && player && (
-                    <span className={styles.nodeLockCorner} title="Locked">🔒</span>
+                    <span className={styles.nodeLockCorner} title="Locked">
+                        <Icon name="lock" size={12} />
+                    </span>
                 )}
                 <div className={styles.nodeChipBody}>
                     {player ? (
@@ -892,7 +896,9 @@ export default function PitchUI({
                     ))}
                 </div>
                 {isMatchweekLocked && (
-                    <span className={styles.formationLockedNote}>🔒 Locked during matchweek</span>
+                    <span className={styles.formationLockedNote}>
+                        <Icon name="lock" size={14} style={{ marginRight: '4px' }} /> Locked during matchweek
+                    </span>
                 )}
             </div>
 
@@ -1021,7 +1027,7 @@ export default function PitchUI({
                                                 {scoreMap && pid && scoreMap[pid] !== undefined && (
                                                     <span className={styles.benchPts}>{scoreMap[pid].toFixed(1)}</span>
                                                 )}
-                                                {isLocked && <span className={styles.lockIcon}>🔒</span>}
+                                                {isLocked && <span className={styles.lockIcon}><Icon name="lock" size={14} /></span>}
                                             </>
                                         ) : (
                                             <span className={styles.benchEmpty}>—</span>
@@ -1101,7 +1107,7 @@ export default function PitchUI({
                                             {entry.player.fpl_status && entry.player.fpl_status !== 'a' && !sidebarSelection && (
                                                 <span className={styles.statusDot} data-status={entry.player.fpl_status} />
                                             )}
-                                            {isLocked && <span className={styles.lockIcon}>🔒</span>}
+                                            {isLocked && <span className={styles.lockIcon}><Icon name="lock" size={14} /></span>}
                                         </button>
                                     );
                                 })}

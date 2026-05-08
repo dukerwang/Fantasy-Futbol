@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import ThemeToggle from './ThemeToggle';
+import { Icon } from '@/components/ui/Icon';
 import styles from './TopBar.module.css';
 
 interface LeagueInfo {
@@ -174,7 +175,7 @@ export default function TopBar() {
       <div className={styles.inner}>
         {/* --- Wordmark --- */}
         <Link href="/dashboard" className={styles.brand} onClick={() => setIsNavigating(true)}>
-          <span className={styles.brandIcon}>⚽</span>
+          <span className={styles.brandIcon}><Icon name="activity" size={20} strokeWidth={2} /></span>
           <span className={styles.brandName}>Gaffa</span>
         </Link>
 
