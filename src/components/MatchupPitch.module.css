@@ -229,6 +229,21 @@
     z-index: 5;
 }
 
+.subIconPitch {
+    position: absolute;
+    top: -6px;
+    left: -6px;
+    z-index: 6;
+    background: white;
+    border-radius: 50%;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    color: #16a34a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2px;
+}
+
 /* ── Bench ────────────────────────────────────────────────────────── */
 .benchSection {
     background: #EDE8DE;
@@ -305,6 +320,21 @@
     z-index: 5;
 }
 
+.subIconBench {
+    position: absolute;
+    top: -6px;
+    left: -6px;
+    z-index: 6;
+    background: white;
+    border-radius: 50%;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    color: #dc2626;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2px;
+}
+
 /* ── Player Points Breakdown ──────────────────────────────────────── */
 .breakdown { margin-top: 2.5rem; }
 
@@ -379,11 +409,21 @@
 }
 
 .breakdownName {
+    display: flex;
+    align-items: center;
+    gap: 4px;
     font-family: var(--font-sans);
     font-size: 0.8125rem;
     font-weight: 700;
     text-transform: uppercase;
     color: var(--color-text-primary);
+}
+
+.breakdownSubIcon {
+    color: #16a34a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .breakdownStats {

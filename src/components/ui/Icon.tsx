@@ -14,7 +14,10 @@ type IconName =
   | 'users'
   | 'settings'
   | 'chevron-right'
-  | 'chevron-left';
+  | 'chevron-left'
+  | 'arrow-up'
+  | 'arrow-down'
+  | 'repeat';
 
 interface IconProps extends React.SVGProps<SVGSVGElement> {
   name: IconName;
@@ -95,6 +98,26 @@ export const Icon: React.FC<IconProps> = ({
     ),
     'chevron-right': <path d="m9 18 6-6-6-6" />,
     'chevron-left': <path d="m15 18-6-6 6-6" />,
+    'arrow-up': (
+      <>
+        <path d="m5 12 7-7 7 7" />
+        <path d="M12 19V5" />
+      </>
+    ),
+    'arrow-down': (
+      <>
+        <path d="M12 5v14" />
+        <path d="m19 12-7 7-7-7" />
+      </>
+    ),
+    'repeat': (
+      <>
+        <path d="m17 2 4 4-4 4" />
+        <path d="M3 11v-1a4 4 0 0 1 4-4h14" />
+        <path d="m7 22-4-4 4-4" />
+        <path d="M21 13v1a4 4 0 0 1-4 4H3" />
+      </>
+    ),
   };
 
   return (

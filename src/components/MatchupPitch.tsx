@@ -1,8 +1,12 @@
 'use client';
 
-import type { MatchupLineup, Player } from '@/types';
+import { useState } from 'react';
+import type { MatchupLineup, Player, GranularPosition } from '@/types';
+import { POSITION_FLEX_MAP } from '@/types';
 import { formatPlayerName } from '@/lib/formatName';
 import { getScoreIntensityColor } from '@/lib/utils/scoreColor';
+import PlayerDetailsModal from './players/PlayerDetailsModal';
+import { Icon } from './ui/Icon';
 import styles from './MatchupPitch.module.css';
 
 /* ── Zone / colour config (from prototype tailwind theme) ─────────── */
@@ -79,15 +83,18 @@ function fmtStats(stats: Record<string, any> | undefined, slot: string): string 
 /* ── Sub-components ───────────────────────────────────────────────── */
 type Detail = { points: number; stats?: Record<string, any> };
 
-function PlayerChip({ slot, player, detail }: {
+function PlayerChip({ slot, player, detail, isSubIn, onClick }: {
     slot: string;
     player?: Partial<Player>;
     detail?: Detail;
+    isSubIn?: boolean;
+    onClick?: () => void;
 }) {
     const bg = SLOT_COLOR[slot] ?? '#6b7280';
     const sc = detail ? getScoreIntensityColor(detail.points) : null;
     return (
-        <div className={styles.chip}>
+        <div className={styles.chip} onClick={onClick} style={{ cursor: onClick ? 'pointer' : undefined }}>
+            {isSubIn && <span className={styles.subIconPitch} title="Auto-subbed in"><Icon name="arrow-up" size={14} strokeWidth={2} /></span>}
             {sc && detail && (
                 <span className={styles.chipScore} style={{ background: sc.bg, color: sc.text }}>
                     {detail.points.toFixed(1)}
@@ -105,16 +112,19 @@ function PlayerChip({ slot, player, detail }: {
     );
 }
 
-function BenchChip({ slotType, player, detail }: {
+function BenchChip({ slotType, player, detail, isSubOut, onClick }: {
     slotType: string;
     player?: Partial<Player>;
     detail?: Detail;
+    isSubOut?: boolean;
+    onClick?: () => void;
 }) {
     const pos = player?.primary_position ?? slotType.toUpperCase().slice(0, 3);
     const bg = SLOT_COLOR[player?.primary_position ?? ''] ?? BENCH_COLOR[slotType] ?? '#6b7280';
     const sc = detail ? getScoreIntensityColor(detail.points) : null;
     return (
-        <div className={styles.benchChip}>
+        <div className={styles.benchChip} onClick={onClick} style={{ cursor: onClick ? 'pointer' : undefined }}>
+            {isSubOut && <span className={styles.subIconBench} title="Auto-subbed out"><Icon name="arrow-down" size={14} strokeWidth={2} /></span>}
             {sc && detail && (
                 <span className={styles.benchScore} style={{ background: sc.bg, color: sc.text }}>
                     {detail.points.toFixed(1)}
@@ -140,12 +150,63 @@ function slotOffset(slot: string): number {
 }
 
 /* ── Group starters into zones ────────────────────────────────────── */
-function groupByZone(starters: { player_id: string; slot: string }[]) {
-    const z: Record<Zone, { player_id: string; slot: string }[]> = {
+function groupByZone(starters: { player_id: string; slot: string; isSubIn?: boolean }[]) {
+    const z: Record<Zone, { player_id: string; slot: string; isSubIn?: boolean }[]> = {
         ATT: [], AMZ: [], CMZ: [], DMZ: [], DEF: [], GK: [],
     };
     for (const s of starters) z[SLOT_TO_ZONE[s.slot] ?? 'CMZ'].push(s);
     return z;
+}
+
+/* ── Resolve Autosubs ─────────────────────────────────────────────── */
+function resolveSubs(
+    lineup: MatchupLineup | null,
+    detailMap: Record<string, Detail>,
+    playerMap: Record<string, Partial<Player>>,
+    matchupStatus: string
+) {
+    if (!lineup) return { starters: [], bench: [] };
+
+    const starters = [...(lineup.starters || [])].map(s => ({ ...s, isSubIn: false }));
+    const bench = [...(lineup.bench as any[] || [])].map(b => ({ ...b, isSubOut: false }));
+    
+    // Only resolve autosubs for completed gameweeks to avoid premature subs
+    if (matchupStatus === 'completed') {
+        const usedBenchIds = new Set<string>();
+
+        for (let i = 0; i < starters.length; i++) {
+            const starterId = starters[i].player_id;
+            const starterMins = detailMap[starterId]?.stats?.minutes_played ?? 0;
+            
+            if (starterMins === 0) {
+                const slotAllowedPos = POSITION_FLEX_MAP[starters[i].slot as GranularPosition] ?? [];
+                
+                for (let j = 0; j < bench.length; j++) {
+                    const benchId = bench[j].player_id;
+                    if (usedBenchIds.has(benchId)) continue;
+                    
+                    const benchMins = detailMap[benchId]?.stats?.minutes_played ?? 0;
+                    if (benchMins === 0) continue;
+                    
+                    const player = playerMap[benchId];
+                    const subPositions = [player?.primary_position, ...(player?.secondary_positions ?? [])];
+                    const canPlaySlot = subPositions.some(pos => slotAllowedPos.includes(pos as GranularPosition));
+                    
+                    if (canPlaySlot) {
+                        usedBenchIds.add(benchId);
+                        
+                        // Swap them!
+                        const tempSlot = starters[i].slot;
+                        starters[i] = { player_id: benchId, slot: tempSlot, isSubIn: true };
+                        bench[j] = { ...bench[j], player_id: starterId, isSubOut: true };
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    return { starters, bench };
 }
 
 /* ── Main component ───────────────────────────────────────────────── */
@@ -156,16 +217,33 @@ interface Props {
     detailMap: Record<string, Detail>;
     teamAName: string;
     teamBName: string;
+    matchupStatus?: string;
 }
 
 export default function MatchupPitch({
-    lineupA, lineupB, playerMap, detailMap, teamAName, teamBName,
+    lineupA, lineupB, playerMap, detailMap, teamAName, teamBName, matchupStatus = 'live',
 }: Props) {
-    const zonesA = lineupA ? groupByZone(lineupA.starters) : null;
-    const zonesB = lineupB ? groupByZone(lineupB.starters) : null;
+    const [viewingPlayer, setViewingPlayer] = useState<Partial<Player> | null>(null);
 
-    const totalA = (lineupA?.starters ?? []).reduce((s, x) => s + (detailMap[x.player_id]?.points ?? 0), 0);
-    const totalB = (lineupB?.starters ?? []).reduce((s, x) => s + (detailMap[x.player_id]?.points ?? 0), 0);
+    const resolvedA = resolveSubs(lineupA, detailMap, playerMap, matchupStatus);
+    const resolvedB = resolveSubs(lineupB, detailMap, playerMap, matchupStatus);
+
+    const zonesA = groupByZone(resolvedA.starters);
+    const zonesB = groupByZone(resolvedB.starters);
+
+    function calcBenchBonus(bench: any[]) {
+        const rawBenchPts = bench.reduce((sum, b) => {
+            if (b.isSubOut) return sum; // this was a starter subbed out
+            return sum + (detailMap[b.player_id]?.points ?? 0);
+        }, 0);
+        return rawBenchPts * 0.2;
+    }
+
+    const benchBonusA = calcBenchBonus(resolvedA.bench);
+    const benchBonusB = calcBenchBonus(resolvedB.bench);
+
+    const totalA = resolvedA.starters.reduce((s, x) => s + (detailMap[x.player_id]?.points ?? 0), 0) + benchBonusA;
+    const totalB = resolvedB.starters.reduce((s, x) => s + (detailMap[x.player_id]?.points ?? 0), 0) + benchBonusB;
 
     // Always render all 6 zone rows — empty rows act as spacers so
     // CMZ stays at position 3/6 even when AMZ has no players.
@@ -199,6 +277,8 @@ export default function MatchupPitch({
                                                     slot={s.slot}
                                                     player={playerMap[s.player_id]}
                                                     detail={detailMap[s.player_id]}
+                                                    isSubIn={s.isSubIn}
+                                                    onClick={() => setViewingPlayer(playerMap[s.player_id] ?? null)}
                                                 />
                                             </div>
                                         );
@@ -224,24 +304,24 @@ export default function MatchupPitch({
 
             {/* ── Bench ─────────────────────────────────────────────── */}
             {[
-                { lineup: lineupA, name: teamAName },
-                { lineup: lineupB, name: teamBName },
-            ].map(({ lineup, name }) => {
-                const benchRawTotal = (lineup?.bench as any[] ?? []).reduce((s, b) => s + (detailMap[b.player_id]?.points ?? 0), 0);
-                const benchContributed = benchRawTotal * 0.2;
+                { bench: resolvedA.bench, name: teamAName, bonus: benchBonusA },
+                { bench: resolvedB.bench, name: teamBName, bonus: benchBonusB },
+            ].map(({ bench, name, bonus }) => {
                 return (
                 <div key={name} className={styles.benchSection}>
                     <div className={styles.benchHeaderRow}>
                         <p className={styles.benchSectionLabel}>{name} — Bench</p>
-                        {benchContributed > 0 && <span className={styles.benchTotalLabel}>+{benchContributed.toFixed(1)} pts</span>}
+                        {bonus > 0 && <span className={styles.benchTotalLabel}>+{bonus.toFixed(1)} bench pts</span>}
                     </div>
                     <div className={styles.benchChipsRow}>
-                        {(lineup?.bench as any[] ?? []).map((b) => (
+                        {bench.map((b) => (
                             <BenchChip
                                 key={b.player_id}
                                 slotType={b.slot_type ?? b.slot ?? 'flex'}
                                 player={playerMap[b.player_id]}
                                 detail={detailMap[b.player_id]}
+                                isSubOut={b.isSubOut}
+                                onClick={() => setViewingPlayer(playerMap[b.player_id] ?? null)}
                             />
                         ))}
                     </div>
@@ -256,15 +336,15 @@ export default function MatchupPitch({
                 </div>
                 <div className={styles.breakdownGrid}>
                     {[
-                        { lineup: lineupA, name: teamAName, total: totalA },
-                        { lineup: lineupB, name: teamBName, total: totalB },
-                    ].map(({ lineup, name, total }) => (
+                        { starters: resolvedA.starters, name: teamAName, total: totalA, bonus: benchBonusA },
+                        { starters: resolvedB.starters, name: teamBName, total: totalB, bonus: benchBonusB },
+                    ].map(({ starters, name, total, bonus }) => (
                         <div key={name} className={styles.breakdownCol}>
                             <div className={styles.breakdownColHeader}>
                                 <span className={styles.breakdownColName}>{name}</span>
                                 <span className={styles.breakdownColTotal}>{total.toFixed(1)} Total</span>
                             </div>
-                            {(lineup?.starters ?? []).map((s, i) => {
+                            {starters.map((s, i) => {
                                 const p = playerMap[s.player_id];
                                 const detail = detailMap[s.player_id];
                                 const bar = SLOT_COLOR[s.slot] ?? '#6b7280';
@@ -278,6 +358,7 @@ export default function MatchupPitch({
                                             <div>
                                                 <p className={styles.breakdownName}>
                                                     {p ? formatPlayerName(p) : '—'}
+                                                    {s.isSubIn && <span title="Auto-subbed in" className={styles.breakdownSubIcon}><Icon name="arrow-up" size={14} strokeWidth={2} /></span>}
                                                 </p>
                                                 {detail?.stats && (
                                                     <p className={styles.breakdownStats}>
@@ -292,10 +373,30 @@ export default function MatchupPitch({
                                     </div>
                                 );
                             })}
+                            {bonus > 0 && (
+                                <div className={`${styles.breakdownRow} ${starters.length % 2 !== 0 ? styles.breakdownRowAlt : ''}`}>
+                                    <div className={styles.breakdownLeft}>
+                                        <span className={styles.breakdownBar} style={{ background: '#d1d5db' }} />
+                                        <div>
+                                            <p className={styles.breakdownName}>Bench Contribution (20%)</p>
+                                        </div>
+                                    </div>
+                                    <span className={styles.breakdownPts}>
+                                        {bonus.toFixed(1)}
+                                    </span>
+                                </div>
+                            )}
                         </div>
                     ))}
                 </div>
             </div>
+            
+            {viewingPlayer && (
+                <PlayerDetailsModal
+                    player={viewingPlayer as Player}
+                    onClose={() => setViewingPlayer(null)}
+                />
+            )}
         </div>
     );
 }

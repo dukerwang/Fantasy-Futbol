@@ -157,13 +157,25 @@ function PitchNode({ slotPos, player, isSelected, isValidTarget, isEmpty, isInva
         <button
             type="button"
             className={wrapCls}
-            onClick={isLocked ? (onViewDetails ?? undefined) : onClick}
+            onClick={(e) => {
+                if (player && onViewDetails) {
+                    onViewDetails();
+                } else if (!isLocked) {
+                    onClick();
+                }
+            }}
             style={isLocked ? { opacity: 0.7, cursor: 'pointer' } : undefined}
             title={isLocked ? 'Match started (Locked) — click to view' : isInvalid ? 'Player is not eligible for this position' : undefined}
         >
             <div
                 className={styles.nodePhotoMount}
                 style={{ borderColor: isEmpty ? 'rgba(255,255,255,0.35)' : frameColor }}
+                onClick={(e) => {
+                    if (player && !isLocked) {
+                        e.stopPropagation();
+                        onClick();
+                    }
+                }}
             >
                 {player?.photo_url ? (
                     // eslint-disable-next-line @next/next/no-img-element
@@ -189,9 +201,7 @@ function PitchNode({ slotPos, player, isSelected, isValidTarget, isEmpty, isInva
                         <>
                             <span
                                 className={styles.nodePlayerNameCenter}
-                                onClick={(e) => { if (onViewDetails) { e.stopPropagation(); onViewDetails(); } }}
-                                style={{ cursor: onViewDetails ? 'pointer' : 'default', ...(isInvalid ? { color: '#ef4444' } : {}) }}
-                                title={onViewDetails ? 'View player details' : undefined}
+                                style={isInvalid ? { color: '#ef4444' } : {}}
                             >
                                 {displayName(player)}
                             </span>

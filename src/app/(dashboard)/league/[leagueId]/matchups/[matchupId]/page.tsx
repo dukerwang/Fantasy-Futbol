@@ -150,7 +150,6 @@ export default async function MatchupDetailPage({ params }: Props) {
                 </div>
             </div>
 
-            {/* Unified pitch + bench + breakdown */}
             <MatchupPitch
                 lineupA={lineupA}
                 lineupB={lineupB}
@@ -158,6 +157,7 @@ export default async function MatchupDetailPage({ params }: Props) {
                 detailMap={detailMap}
                 teamAName={teamAName}
                 teamBName={teamBName}
+                matchupStatus={matchup.status}
             />
         </div>
     );
