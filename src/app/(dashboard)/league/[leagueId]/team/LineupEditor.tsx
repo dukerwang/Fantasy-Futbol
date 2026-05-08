@@ -11,7 +11,7 @@ import {
 import type { Formation, GranularPosition, RosterEntry, Player, BenchSlot } from '@/types';
 import styles from './my-team.module.css';
 
-const FORMATIONS: Formation[] = ['4-3-3', '4-4-2', '4-1-4-1', '4-2-3-1', '3-4-3', '4-2-1-3'];
+const FORMATIONS: Formation[] = ['4-3-3', '4-2-1-3', '4-2-2-2', '3-4-3', '3-4-1-2', '3-5-2', '5-3-2'];
 const BENCH_SLOT_NAMES: BenchSlot[] = ['DEF', 'MID', 'ATT', 'FLEX'];
 
 const POS_COLOR: Record<GranularPosition, string> = {
@@ -19,10 +19,10 @@ const POS_COLOR: Record<GranularPosition, string> = {
   CB: 'var(--color-pos-cb)',
   LB: 'var(--color-pos-fb)',
   RB: 'var(--color-pos-fb)',
+  LWB: 'var(--color-pos-fb)',
+  RWB: 'var(--color-pos-fb)',
   DM: 'var(--color-pos-dm)',
   CM: 'var(--color-pos-cm)',
-  LM: 'var(--color-pos-wm)',
-  RM: 'var(--color-pos-wm)',
   AM: 'var(--color-pos-am)',
   LW: 'var(--color-pos-lw)',
   RW: 'var(--color-pos-rw)',

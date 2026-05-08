@@ -116,14 +116,36 @@ async function main() {
   for (const sp of sofifaPlayers) {
     if (!sp.positions || sp.positions.length === 0) continue;
 
-    // Map positions to GranularPosition, deduplicate
-    const granular = [...new Set(sp.positions.map(p => POS_MAP[p]).filter(Boolean))];
-    if (granular.length === 0) continue;
+    const rawPositions = sp.positions.map(p => POS_MAP[p]).filter(Boolean);
+    if (rawPositions.length === 0) continue;
 
-    const primary = granular[0];
-    const secondary = granular.slice(1);
+    const allPositions = new Set(rawPositions);
+    const hasFullback = allPositions.has('LB') || allPositions.has('RB') || allPositions.has('LWB') || allPositions.has('RWB');
 
-    // Build match candidates: full name, short name, and first+last variants of each
+    const convert = (pos) => {
+      if (pos === 'LM') {
+        if (allPositions.has('LB') || allPositions.has('LWB')) return 'LWB';
+        if (hasFullback) return null; // Drop unmatched LM if they have any fullback tag
+        return 'LW';
+      }
+      if (pos === 'RM') {
+        if (allPositions.has('RB') || allPositions.has('RWB')) return 'RWB';
+        if (hasFullback) return null; // Drop unmatched RM if they have any fullback tag
+        return 'RW';
+      }
+      return pos;
+    };
+
+    let primaryRaw = rawPositions[0];
+    let primary = convert(primaryRaw);
+    if (!primary) {
+      primary = primaryRaw === 'LM' ? 'LWB' : 'RWB'; // Fallback
+    }
+
+    const secondaryRaw = rawPositions.slice(1);
+    const secondary = [...new Set(secondaryRaw.map(convert).filter(Boolean))].filter(p => p !== primary);
+
+    const granular = [primary, ...secondary];
     const normFull = normalizeName(sp.full_name || sp.short_name);
     const normShort = normalizeName(sp.short_name);
     const candidates = [...new Set([
