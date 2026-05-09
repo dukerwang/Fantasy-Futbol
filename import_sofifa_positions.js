@@ -21,13 +21,13 @@ const INPUT_FILE = path.join(__dirname, 'sofifa_positions.json');
 const POS_MAP = {
   GK: 'GK',
   SW: 'CB',   // sweeper
-  RWB: 'RB',
+  RWB: 'RWB',
   RB: 'RB',
   RCB: 'CB',
   CB: 'CB',
   LCB: 'CB',
   LB: 'LB',
-  LWB: 'LB',
+  LWB: 'LWB',
   RDM: 'DM',
   CDM: 'DM',
   LDM: 'DM',
@@ -119,33 +119,79 @@ async function main() {
     const rawPositions = sp.positions.map(p => POS_MAP[p]).filter(Boolean);
     if (rawPositions.length === 0) continue;
 
-    const allPositions = new Set(rawPositions);
-    const hasFullback = allPositions.has('LB') || allPositions.has('RB') || allPositions.has('LWB') || allPositions.has('RWB');
+    // ── New Hybrid Wide Player Rules ───────────────────────────────────────────
+    const allRaw = new Set(sp.positions);
+    
+    // Left Side Traits
+    const hasLB = allRaw.has('LB') || allRaw.has('LWB');
+    const hasLM = allRaw.has('LM');
+    const hasLW = allRaw.has('LW') || allRaw.has('LF');
+    const isLWB = hasLB && hasLM;
+    
+    // Right Side Traits
+    const hasRB = allRaw.has('RB') || allRaw.has('RWB');
+    const hasRM = allRaw.has('RM');
+    const hasRW = allRaw.has('RW') || allRaw.has('RF');
+    const isRWB = hasRB && hasRM;
 
-    const convert = (pos) => {
-      if (pos === 'LM') {
-        if (allPositions.has('LB') || allPositions.has('LWB')) return 'LWB';
-        if (hasFullback) return null; // Drop unmatched LM if they have any fullback tag
-        return 'LW';
-      }
-      if (pos === 'RM') {
-        if (allPositions.has('RB') || allPositions.has('RWB')) return 'RWB';
-        if (hasFullback) return null; // Drop unmatched RM if they have any fullback tag
-        return 'RW';
-      }
-      return pos;
-    };
+    // Build Final Positions set
+    const finalSet = new Set();
+    
+    // Process Left Side
+    if (isLWB) {
+      finalSet.add('LWB');
+      if (!hasLW) finalSet.add('LB'); // Keep LB only if no LW
+    } else {
+      if (hasLB) finalSet.add('LB');
+      if (hasLM) finalSet.add('LW'); // LM -> LW if no FB
+    }
+    if (hasLW) finalSet.add('LW');
 
-    let primaryRaw = rawPositions[0];
-    let primary = convert(primaryRaw);
-    if (!primary) {
-      primary = primaryRaw === 'LM' ? 'LWB' : 'RWB'; // Fallback
+    // Process Right Side
+    if (isRWB) {
+      finalSet.add('RWB');
+      if (!hasRW) finalSet.add('RB'); // Keep RB only if no RW
+    } else {
+      if (hasRB) finalSet.add('RB');
+      if (hasRM) finalSet.add('RW'); // RM -> RW if no FB
+    }
+    if (hasRW) finalSet.add('RW');
+
+    // Add other positions (GK, CB, DM, CM, AM, ST)
+    for (const raw of sp.positions) {
+      const mapped = POS_MAP[raw];
+      if (mapped && !['LB', 'RB', 'LW', 'RW', 'LWB', 'RWB', 'LM', 'RM', 'LF', 'RF'].includes(raw)) {
+        finalSet.add(mapped);
+      }
     }
 
-    const secondaryRaw = rawPositions.slice(1);
-    const secondary = [...new Set(secondaryRaw.map(convert).filter(Boolean))].filter(p => p !== primary);
+    const allFinal = Array.from(finalSet);
+    
+    // Determine Primary
+    const sofifaPrimaryRaw = sp.positions[0];
+    let primary = POS_MAP[sofifaPrimaryRaw];
+    
+    // Basic conversion for primary if it was LM/RM
+    if (sofifaPrimaryRaw === 'LM') primary = isLWB ? 'LWB' : 'LW';
+    if (sofifaPrimaryRaw === 'RM') primary = isRWB ? 'RWB' : 'RW';
 
-    const granular = [primary, ...secondary];
+    // Refinement Logic
+    const isDefender = ['CB', 'LB', 'RB'].includes(POS_MAP[sofifaPrimaryRaw]);
+    
+    // Rule: LW/RW vs LWB/RWB dominance
+    if (isLWB && hasLW) {
+      primary = isDefender ? 'LWB' : 'LW';
+    }
+    if (isRWB && hasRW) {
+      primary = isDefender ? 'RWB' : 'RW';
+    }
+
+    // Rule: LWB/RWB priority over LB/RB if no winger exists
+    if (isLWB && !hasLW && ['LB', 'LWB'].includes(primary)) primary = 'LWB';
+    if (isRWB && !hasRW && ['RB', 'RWB'].includes(primary)) primary = 'RWB';
+
+    // Final primary/secondary split
+    const secondary = allFinal.filter(p => p !== primary);
     const normFull = normalizeName(sp.full_name || sp.short_name);
     const normShort = normalizeName(sp.short_name);
     const candidates = [...new Set([
@@ -217,7 +263,7 @@ async function main() {
   const CHUNK = 50;
   for (let i = 0; i < updates.length; i += CHUNK) {
     const chunk = updates.slice(i, i + CHUNK);
-    await Promise.all(
+    const results = await Promise.all(
       chunk.map(u =>
         supabase
           .from('players')
@@ -225,6 +271,9 @@ async function main() {
           .eq('id', u.id)
       )
     );
+    for (const r of results) {
+      if (r.error) console.error('Update error:', r.error);
+    }
     process.stdout.write(`\rUpdated ${Math.min(i + CHUNK, updates.length)}/${updates.length}...`);
   }
 

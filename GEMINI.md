@@ -30,7 +30,13 @@ The scoring system is built around the principle that **the best real-world play
 - A world-class defensive midfielder should outscore a mediocre striker
 
 ### Granular Positioning
-The positional system is strict and intentional. 12 positions: GK, CB, LB, RB, DM, CM, LM, RM, AM, LW, RW, ST. Players can only be slotted into their primary or secondary position. The slot they occupy changes how their stats are weighted. Do not plan features that flatten or generalize positions. Position slot determines how FPL metrics are weighted in the rating calculation — e.g. a striker's goal involvement carries far more weight than a centreback's. Granular positions are sourced from SoFIFA scrapes (primary + secondary).
+The positional system is strict and intentional. 12 positions: GK, CB, LB, RB, LWB, RWB, DM, CM, AM, LW, RW, ST. Players can only be slotted into their primary or secondary position. The slot they occupy changes how their stats are weighted. Do not plan features that flatten or generalize positions. Position slot determines how FPL metrics are weighted in the rating calculation — e.g. a striker's goal involvement carries far more weight than a centreback's. Granular positions are sourced from SoFIFA scrapes (primary + secondary). 
+
+**Mapping Rule (The Defensive Anchor):** 
+The traditional "Wide Midfielder" (LM/RM) does not exist in this taxonomy.
+1. `LM/RM` tags mapping to a side with an existing `LB/RB` tag become `LWB/RWB`.
+2. If a player has *any* fullback tag (`LB/RB/LWB/RWB`), any remaining `LM/RM` tags are dropped (preventing workhorse midfielders from being misclassified as wingers).
+3. If a player has *no* fullback tags, `LM` becomes `LW` and `RM` becomes `RW`.
 
 ### Dynasty Format
 Rosters persist year-over-year. Economic decisions (market values, FAAB) have long-term consequences. Plans should account for multi-season implications where relevant.
