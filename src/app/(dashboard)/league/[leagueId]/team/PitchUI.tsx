@@ -47,7 +47,7 @@ const POS_COLOR: Record<GranularPosition, string> = {
 // Matches MatchupPitch's 6-zone approach so DM/CM/AM render as distinct rows
 function getZone(pos: GranularPosition, formation: Formation): PitchZone {
     if (pos === 'GK') return 'GK';
-    if (pos === 'LWB' || pos === 'RWB') return 'DMZ';
+    if (pos === 'LWB' || pos === 'RWB') return 'CMZ';
     if (pos === 'CB' || pos === 'LB' || pos === 'RB') return 'DEF';
     if (pos === 'DM') return 'DMZ';
     if (pos === 'CM') return 'CMZ';

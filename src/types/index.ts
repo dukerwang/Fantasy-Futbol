@@ -32,7 +32,7 @@ export const FORMATION_SLOTS: Record<Formation, GranularPosition[]> = {
   // Slots ordered left-to-right within each zone so PitchUI renders them correctly without re-sorting.
   '4-3-3': ['GK', 'LB', 'CB', 'CB', 'RB', 'CM', 'DM', 'CM', 'LW', 'ST', 'RW'],
   // 4-2-1-3: double pivot (DM/DM) + central AM + wingers + ST
-  '4-2-1-3': ['GK', 'LB', 'CB', 'CB', 'RB', 'DM', 'DM', 'LW', 'AM', 'RW', 'ST'],
+  '4-2-1-3': ['GK', 'LB', 'CB', 'CB', 'RB', 'DM', 'DM', 'LW', 'AM', 'ST', 'RW'],
   // 4-2-2-2: two DMs, two AMs, two STs (modern box midfield)
   '4-2-2-2': ['GK', 'LB', 'CB', 'CB', 'RB', 'DM', 'DM', 'AM', 'AM', 'ST', 'ST'],
   // 3-4-1-2: 3 CBs, 2 WBs, 2 CMs, 1 AM, 2 STs

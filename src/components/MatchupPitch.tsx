@@ -38,10 +38,10 @@ const SLOT_TO_ZONE: Record<string, Zone> = {
     LW: 'ATT', ST: 'ATT', RW: 'ATT',
     // AMZ row: AM
     AM: 'AMZ',
-    // CM row close to DM (lower than AM)
-    CM: 'CMZ',
     // DM row
-    DM: 'DMZ', LWB: 'DMZ', RWB: 'DMZ',
+    DM: 'DMZ',
+    // Midfield row
+    LWB: 'CMZ', RWB: 'CMZ', CM: 'CMZ',
     // Defenders
     CB: 'DEF', LB: 'DEF', RB: 'DEF',
     GK: 'GK',
