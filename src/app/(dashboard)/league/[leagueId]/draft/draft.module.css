@@ -551,8 +551,8 @@
 .posRB  { background: var(--color-pos-fb); }
 .posDM  { background: var(--color-pos-dm); }
 .posCM  { background: var(--color-pos-cm); }
-.posLM  { background: var(--color-pos-cm); }
-.posRM  { background: var(--color-pos-cm); }
+.posLWB { background: var(--color-pos-wb); }
+.posRWB { background: var(--color-pos-wb); }
 .posAM  { background: var(--color-pos-am); }
 .posLW  { background: var(--color-pos-lw); }
 .posRW  { background: var(--color-pos-rw); }

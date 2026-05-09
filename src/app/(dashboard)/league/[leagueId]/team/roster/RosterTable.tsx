@@ -9,17 +9,17 @@ import styles from './roster.module.css';
 
 // ─── Position ordering ────────────────────────────────────────────────────────
 
-const POS_ORDER = ['GK', 'CB', 'LB', 'RB', 'DM', 'CM', 'LM', 'RM', 'AM', 'LW', 'RW', 'ST'];
+const POS_ORDER = ['GK', 'CB', 'LB', 'RB', 'LWB', 'RWB', 'DM', 'CM', 'AM', 'LW', 'RW', 'ST'];
 
 const POS_COLOR: Record<string, string> = {
     GK: 'var(--color-pos-gk)',
     CB: 'var(--color-pos-cb)',
     LB: 'var(--color-pos-fb)',
     RB: 'var(--color-pos-fb)',
+    LWB: 'var(--color-pos-wb)',
+    RWB: 'var(--color-pos-wb)',
     DM: 'var(--color-pos-dm)',
     CM: 'var(--color-pos-cm)',
-    LM: 'var(--color-pos-wm)',
-    RM: 'var(--color-pos-wm)',
     AM: 'var(--color-pos-am)',
     LW: 'var(--color-pos-lw)',
     RW: 'var(--color-pos-rw)',

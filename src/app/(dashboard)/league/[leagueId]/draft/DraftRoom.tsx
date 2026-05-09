@@ -43,7 +43,7 @@ interface Props {
   myTeam: Team | null;
 }
 
-const POSITION_ORDER = ['GK', 'CB', 'LB', 'RB', 'DM', 'CM', 'LM', 'RM', 'AM', 'LW', 'RW', 'ST'] as const;
+const POSITION_ORDER = ['GK', 'CB', 'LB', 'RB', 'LWB', 'RWB', 'DM', 'CM', 'AM', 'LW', 'RW', 'ST'] as const;
 
 interface PlayerRowCustomProps {
   players: Player[];

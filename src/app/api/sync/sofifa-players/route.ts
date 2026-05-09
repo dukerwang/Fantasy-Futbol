@@ -56,9 +56,9 @@ const SOFIFA_TO_GRANULAR: Partial<Record<number, string>> = {
   // 28=SUB, 29=RES → intentionally omitted (map to undefined → null)
 };
 
-function toGranular(posId: number): string | null {
+function toGranular(posId: number): GranularPosition | null {
   if (posId < 0) return null;
-  return SOFIFA_TO_GRANULAR[posId] ?? null;
+  return (SOFIFA_TO_GRANULAR[posId] as GranularPosition) || null;
 }
 
 function normalizeName(name: string): string {
@@ -222,32 +222,76 @@ async function runSync(preloadedTeams: SoFifaTeamDetail[] | null) {
         }
       }
 
-      // Apply Defensive Anchor mapping rule
-      const allPositions = new Set([primaryRaw, ...secondaryRaw]);
-      const hasFullback = allPositions.has('LB') || allPositions.has('RB') || allPositions.has('LWB') || allPositions.has('RWB');
-
-      const convert = (pos: string): string | null => {
-        if (pos === 'LM') {
-          if (allPositions.has('LB') || allPositions.has('LWB')) return 'LWB';
-          if (hasFullback) return null; // Drop unmatched LM if they have any fullback tag
-          return 'LW';
+      // Apply New Wingback Taxonomy Mapping Rules (Phase 16)
+      const allRaw = new Set([primaryRaw, ...secondaryRaw]);
+      
+      const hasL = (p: string) => ['LB', 'LWB', 'LM', 'LW'].includes(p);
+      const hasR = (p: string) => ['RB', 'RWB', 'RM', 'RW'].includes(p);
+      const isFB = (p: string) => ['LB', 'RB', 'LWB', 'RWB'].includes(p);
+      const isWM = (p: string) => ['LM', 'RM'].includes(p);
+      const isWG = (p: string) => ['LW', 'RW'].includes(p);
+      
+      const finalAll = new Set<GranularPosition>();
+      const leftRaw = Array.from(allRaw).filter(hasL) as GranularPosition[];
+      const rightRaw = Array.from(allRaw).filter(hasR) as GranularPosition[];
+      
+      const processSide = (sideSet: GranularPosition[], side: 'L' | 'R') => {
+        const set = new Set(sideSet);
+        const FB = (side === 'L' ? 'LB' : 'RB') as GranularPosition;
+        const WB = (side === 'L' ? 'LWB' : 'RWB') as GranularPosition;
+        const WM = (side === 'L' ? 'LM' : 'RM') as GranularPosition;
+        const WG = (side === 'L' ? 'LW' : 'RW') as GranularPosition;
+        
+        const hasFBTag = set.has(FB) || set.has(WB);
+        const hasWMTag = set.has(WM);
+        const hasWGTag = set.has(WG);
+        
+        const out = new Set<GranularPosition>();
+        if (hasWMTag && hasFBTag) out.add(WB);
+        if (hasWMTag) out.add(WG);
+        
+        set.forEach(p => {
+          if (p !== WM) out.add(p);
+        });
+        
+        // Drop FB if has all 3 (WG/WM, WB, FB) on same side
+        if (out.has(WG) && out.has(WB) && out.has(FB)) {
+          out.delete(FB);
         }
-        if (pos === 'RM') {
-          if (allPositions.has('RB') || allPositions.has('RWB')) return 'RWB';
-          if (hasFullback) return null; // Drop unmatched RM if they have any fullback tag
-          return 'RW';
-        }
-        return pos;
+        return out;
       };
 
-      let primary = convert(primaryRaw) as GranularPosition | null;
-      if (!primary) {
-        // Fallback if primary was dropped but shouldn't be null
-        primary = (primaryRaw === 'LM' ? 'LWB' : 'RWB') as GranularPosition;
+      processSide(leftRaw, 'L').forEach(p => finalAll.add(p));
+      processSide(rightRaw, 'R').forEach(p => finalAll.add(p));
+      allRaw.forEach(p => { if (!hasL(p) && !hasR(p)) finalAll.add(p as GranularPosition); });
+
+      // Primary selection logic
+      let primary: GranularPosition = primaryRaw;
+      if (isWM(primaryRaw)) {
+        const side = hasL(primaryRaw) ? 'L' : 'R';
+        const FB = (side === 'L' ? 'LB' : 'RB') as GranularPosition;
+        const WB = (side === 'L' ? 'LWB' : 'RWB') as GranularPosition;
+        const WG = (side === 'L' ? 'LW' : 'RW') as GranularPosition;
+        
+        if (allRaw.has(FB)) primary = WB;
+        else primary = WG;
+      } else if (isFB(primaryRaw)) {
+        const side = hasL(primaryRaw) ? 'L' : 'R';
+        const WM = (side === 'L' ? 'LM' : 'RM') as GranularPosition;
+        const WG = (side === 'L' ? 'LW' : 'RW') as GranularPosition;
+        if (allRaw.has(WM) || allRaw.has(WG)) {
+          primary = (side === 'L' ? 'LWB' : 'RWB') as GranularPosition;
+        }
+      }
+      
+      // Override: "if a player has wide midfield or winger primary and a secondary fullback position then give them winger primary"
+      if ((isWM(primaryRaw) || isWG(primaryRaw)) && Array.from(allRaw).some(isFB)) {
+        const side = hasL(primaryRaw) ? 'L' : 'R';
+        primary = (side === 'L' ? 'LW' : 'RW') as GranularPosition;
       }
 
-      const secondary = Array.from(new Set(secondaryRaw.map(convert).filter(Boolean))) as GranularPosition[];
-      const finalSecondary = secondary.filter(p => p !== primary);
+      finalAll.add(primary);
+      const finalSecondary = Array.from(finalAll).filter(p => p !== primary);
 
       // Match to our DB by name
       const fullName = [sp.firstName, sp.lastName].filter(Boolean).join(' ');

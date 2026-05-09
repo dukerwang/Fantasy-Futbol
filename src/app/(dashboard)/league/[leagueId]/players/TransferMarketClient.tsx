@@ -301,7 +301,7 @@ export default function TransferMarketClient({
     setSearchQ((formData.get('q') as string) ?? '');
   }
 
-  const positions = ['GK', 'CB', 'LB', 'RB', 'DM', 'CM', 'LM', 'RM', 'AM', 'LW', 'RW', 'ST'];
+  const positions = ['GK', 'CB', 'LB', 'RB', 'LWB', 'RWB', 'DM', 'CM', 'AM', 'LW', 'RW', 'ST'];
 
   // ── Bid stepper ─────────────────────────────────────────────────────────────
 

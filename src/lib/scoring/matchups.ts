@@ -10,7 +10,8 @@ export type RefStatsMap = Record<string, ReferenceStats>;
  */
 export const POSITION_FLEX_MAP: Record<string, string[]> = {
   GK: ['GK'], CB: ['CB'], LB: ['LB'], RB: ['RB'],
-  DM: ['DM'], CM: ['CM'], LM: ['LM'], RM: ['RM'],
+  LWB: ['LWB'], RWB: ['RWB'],
+  DM: ['DM'], CM: ['CM'],
   AM: ['AM'], LW: ['LW'], RW: ['RW'], ST: ['ST'],
 };
 

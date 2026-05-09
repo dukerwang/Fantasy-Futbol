@@ -21,8 +21,9 @@ function positionColor(pos: string): string {
   const map: Record<string, string> = {
     GK: 'var(--color-pos-gk)',
     CB: 'var(--color-pos-cb)', LB: 'var(--color-pos-fb)', RB: 'var(--color-pos-fb)',
+    LWB: 'var(--color-pos-wb)', RWB: 'var(--color-pos-wb)',
     DM: 'var(--color-pos-dm)',
-    CM: 'var(--color-pos-cm)', LM: 'var(--color-pos-wm)', RM: 'var(--color-pos-wm)',
+    CM: 'var(--color-pos-cm)',
     AM: 'var(--color-pos-am)',
     LW: 'var(--color-pos-lw)', RW: 'var(--color-pos-rw)',
     ST: 'var(--color-pos-st)',
@@ -621,7 +622,8 @@ export default async function LeaguePage({ params }: Props) {
                   const pts = Number(perf.fantasy_points ?? 0);
                   const posMap: Record<string, string> = {
                     GK: 'var(--color-pos-gk)', CB: 'var(--color-pos-cb)', LB: 'var(--color-pos-fb)', RB: 'var(--color-pos-fb)',
-                    DM: 'var(--color-pos-dm)', CM: 'var(--color-pos-cm)', LM: 'var(--color-pos-wm)', RM: 'var(--color-pos-wm)',
+                    LWB: 'var(--color-pos-wb)', RWB: 'var(--color-pos-wb)',
+                    DM: 'var(--color-pos-dm)', CM: 'var(--color-pos-cm)',
                     AM: 'var(--color-pos-am)', LW: 'var(--color-pos-lw)', RW: 'var(--color-pos-rw)', ST: 'var(--color-pos-st)',
                   };
                   const posColor = posMap[player.primary_position] ?? 'var(--color-bg-secondary)';

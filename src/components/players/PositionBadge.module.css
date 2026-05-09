@@ -49,13 +49,13 @@
   color: #fff;
 }
 
-.pos_LM {
-  background: var(--color-pos-wm);
+.pos_LWB {
+  background: var(--color-pos-wb);
   color: #fff;
 }
 
-.pos_RM {
-  background: var(--color-pos-wm);
+.pos_RWB {
+  background: var(--color-pos-wb);
   color: #fff;
 }
 

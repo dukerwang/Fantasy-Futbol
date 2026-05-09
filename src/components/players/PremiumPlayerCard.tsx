@@ -56,7 +56,8 @@ function ratingHex(r: number | null): string {
 
 const POS_LONG: Record<string, string> = {
     GK: 'Goalkeeper', CB: 'Centre-Back', LB: 'Left-Back', RB: 'Right-Back',
-    DM: 'Defensive Mid', CM: 'Central Mid', LM: 'Left Mid', RM: 'Right Mid',
+    LWB: 'Left Wing-Back', RWB: 'Right Wing-Back',
+    DM: 'Defensive Mid', CM: 'Central Mid', 
     AM: 'Attacking Mid', LW: 'Left Winger', RW: 'Right Winger', ST: 'Striker',
 };
 
@@ -64,9 +65,9 @@ const POS_CSS_VAR: Record<string, string> = {
     GK: 'var(--color-pos-gk)',
     CB: 'var(--color-pos-cb)',
     LB: 'var(--color-pos-fb)', RB: 'var(--color-pos-fb)',
+    LWB: 'var(--color-pos-wb)', RWB: 'var(--color-pos-wb)',
     DM: 'var(--color-pos-dm)',
     CM: 'var(--color-pos-cm)',
-    LM: 'var(--color-pos-wm)', RM: 'var(--color-pos-wm)',
     AM: 'var(--color-pos-am)',
     LW: 'var(--color-pos-lw)', RW: 'var(--color-pos-rw)',
     ST: 'var(--color-pos-st)',
