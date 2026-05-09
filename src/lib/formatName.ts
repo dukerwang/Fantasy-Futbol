@@ -28,9 +28,8 @@ export function formatPlayerName(
         "Antony": "Antony",
         "Richarlison de Andrade": "Richarlison",
         "Richarlison": "Richarlison",
-        "Neto": "Neto",
+        "Norberto Murara Neto": "Neto",
         "Diogo Jota": "Jota",
-        "Lucrecio de Castro": "Neto",
         "Luiz Díaz": "Díaz",
         "Pedro Porro": "Porro"
     };
