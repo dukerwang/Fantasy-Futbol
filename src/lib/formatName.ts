@@ -1,10 +1,10 @@
 export function formatPlayerName(
     player?: { name?: string | null; web_name?: string | null; full_name?: string | null } | null,
-    format: 'initial_last' | 'full' | 'web_name' | 'first_last_initial' = 'initial_last'
-): string {
+    format: 'initial_last' | 'full' | 'web_name' | 'first_last_initial' | 'split' = 'initial_last'
+): any {
     if (!player) return '—';
     const sourceName = player.full_name || player.name;
-    
+
     // A mapping of full DB names or web names to their preferred mononyms
     const MONONYM_MAP: Record<string, string> = {
         "Rodrigo 'Rodri' Hernandez Cascante": "Rodri",
@@ -30,8 +30,7 @@ export function formatPlayerName(
         "Richarlison": "Richarlison",
         "Norberto Murara Neto": "Neto",
         "Diogo Jota": "Jota",
-        "Luiz Díaz": "Díaz",
-        "Pedro Porro": "Porro"
+        "Luiz Díaz": "Díaz"
     };
 
     const webName = player.web_name?.trim() || '';
@@ -41,7 +40,7 @@ export function formatPlayerName(
 
     // 1. Check mononyms first (case-insensitive)
     for (const [fullName, mononym] of Object.entries(MONONYM_MAP)) {
-        if (dbName.toLowerCase() === fullName.toLowerCase() || 
+        if (dbName.toLowerCase() === fullName.toLowerCase() ||
             webName.toLowerCase() === fullName.toLowerCase() ||
             dbName.toLowerCase() === mononym.toLowerCase()) {
             return mononym;
@@ -59,13 +58,28 @@ export function formatPlayerName(
         if (parts.length === 1) return dbName;
 
         const firstInitial = parts[0][0].toUpperCase();
-        
+
         // Filter out any parts that are already initials (like "B.") to avoid "B. B. Fernandes"
         // and join the rest as the last name.
         const lastNameParts = parts.slice(1).filter(p => !/^[A-Z]\.$/i.test(p));
         const lastName = lastNameParts.join(' ');
-        
+
         return `${firstInitial}. ${lastName}`;
+    }
+
+    if (format === 'split') {
+        const parts = dbName.split(/\s+/);
+        if (parts.length === 1) return { first: '', last: dbName };
+        
+        // Handle common prefixes for compound last names
+        const PREFIXES = new Set(['van', 'de', 'di', 'da', 'del', 'le', 'dos', 'el']);
+        let last = parts.pop()!;
+        if (parts.length > 0 && PREFIXES.has(parts[parts.length - 1].toLowerCase())) {
+            const prefix = parts.pop()!;
+            last = `${prefix} ${last}`;
+        }
+        
+        return { first: parts.join(' '), last };
     }
 
     // Default fallthrough / legacy 'first_last_initial' behavior

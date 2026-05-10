@@ -188,48 +188,7 @@ export default function PremiumPlayerCard({
 
 
     const resolvedTeamId = player.pl_team_id ?? TEAM_TO_ID[player.pl_team];
-
-    // Mononyms — map full DB names to their known single-name identity
-    const MONONYM_MAP: Record<string, string> = {
-        'Sávio Moreira de Oliveira': 'Savinho',
-        'Savio Moreira de Oliveira': 'Savinho',
-        'Savinho': 'Savinho',
-        'Savio': 'Savinho',
-        'Sávio': 'Savinho',
-        'Alisson Becker': 'Alisson',
-        'Ederson Santana de Moraes': 'Ederson',
-        'Ederson': 'Ederson',
-        'Rodri': 'Rodri',
-        'Rodrigo Hernandez': 'Rodri',
-        'Casemiro': 'Casemiro',
-        'Antony Santos': 'Antony',
-        'Richarlison de Andrade': 'Richarlison',
-        'Norberto Murara Neto': 'Neto',
-        'Gabriel Magalhães': 'Gabriel',
-    };
-
-    const fullName = (player.name ?? '').trim();
-    let firstName = '';
-    let webName = fullName;
-
-    const PREFIXES = new Set(['van', 'de', 'di', 'da', 'del', 'le', 'dos', 'el']);
-
-    if (MONONYM_MAP[fullName]) {
-        webName = MONONYM_MAP[fullName];
-        firstName = '';
-    } else if (fullName.includes(' ')) {
-        const parts = fullName.split(/\s+/);
-        let last = parts.pop()!;
-
-        // If the new last word is a prefix, keep going back one more
-        if (parts.length > 0 && PREFIXES.has(parts[parts.length - 1].toLowerCase())) {
-            const prefix = parts.pop()!;
-            last = `${prefix} ${last}`;
-        }
-
-        firstName = parts.join(' ');
-        webName = last;
-    }
+    const { first: firstName, last: webName } = formatPlayerName(player, 'split');
 
 
 

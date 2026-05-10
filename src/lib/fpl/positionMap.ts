@@ -27,6 +27,8 @@ export const FPL_POSITION_OVERRIDES: Record<string, GranularPosition> = {
   'jurrien timber': 'RB',
   'kieran tierney': 'LB',
   'jakub kiwior': 'LB',
+  'josh nichols': 'RB',         // Arsenal
+  'ethan sutherland': 'LB',     // Wolves
 
   // Aston Villa
   'matty cash': 'RB',
@@ -92,6 +94,12 @@ export const FPL_POSITION_OVERRIDES: Record<string, GranularPosition> = {
   'diogo dalot': 'RB',
   'luke shaw': 'LB',
   'tyrell malacia': 'LB',
+  'altay bayindir': 'GK',       // Man United (GK, override needed if defaults to CM)
+  'tommy setford': 'GK',        // Arsenal
+  'callan mckenna': 'GK',       // Bournemouth
+  'james wright': 'GK',         // Aston Villa
+  'sam proctor': 'GK',          // Aston Villa
+  'max merrick': 'GK',          // Chelsea
 
   // Newcastle
   'kieran trippier': 'RB',
@@ -161,6 +169,8 @@ export const FPL_POSITION_OVERRIDES: Record<string, GranularPosition> = {
 
   'martin odegaard': 'AM',      // Arsenal (see web_name fallback 'ødegaard' below)
   'kai havertz': 'AM',          // Arsenal (plays as #10 / false 9)
+  'max dowman': 'AM',           // Arsenal (youth prospect)
+  'ryan mcaidoo': 'AM',         // Man City
   'emiliano buendia': 'AM',     // Aston Villa
   'jacob ramsey': 'AM',         // Aston Villa
   'dango ouattara': 'AM',       // Bournemouth
@@ -189,15 +199,24 @@ export const FPL_POSITION_OVERRIDES: Record<string, GranularPosition> = {
   'miguel almiron': 'RW',       // Newcastle
   'john mcginn': 'CM',          // Aston Villa — box-to-box CM
   'youri tielemans': 'CM',      // Aston Villa
+  'jayce fitzgerald': 'CM',     // Man Utd
+  'jim thwaites': 'CM',         // Man Utd
+  'callum bates': 'CM',         // Everton
+  'landon emenalo': 'CM',       // Chelsea
 
   // ─── LEFT WINGERS (FPL: MID or FWD → LW) ────────────────────────────────
 
   'gabriel martinelli': 'LW',   // Arsenal
   'leandro trossard': 'LW',     // Arsenal
+  'asher agbinone': 'LW',       // Crystal Palace (youth prospect)
   'leon bailey': 'LW',          // Aston Villa
   'morgan rogers': 'LW',        // Aston Villa
   'kaoru mitoma': 'LW',         // Brighton
   'raheem sterling': 'LW',      // Chelsea
+  'mykhailo mudryk': 'LW',      // Chelsea
+  'jesse derry': 'LW',          // Crystal Palace
+  'ryan kavuma-mcqueen': 'LW',  // Chelsea
+  'seung-soo park': 'LW',       // Newcastle
   'dwight mcneil': 'LW',        // Everton
   'jack harrison': 'LW',        // Everton
   'demarai gray': 'LW',         // Everton
@@ -242,6 +261,8 @@ export const FPL_POSITION_OVERRIDES: Record<string, GranularPosition> = {
   'mohammed kudus': 'RW',       // West Ham
   'jacob murphy': 'RW',         // Newcastle
   'anthony elanga': 'RW',       // Nottm Forest
+  'kieran morrison': 'RW',      // Liverpool
+  'luka bentt': 'RW',           // Brentford
   'michael olise': 'RW',        // Crystal Palace / Bayern (if still listed)
   'saul niguez': 'CM',          // Wolves (loan) — CM
   // riyad mahrez removed — at Al-Ahli, not in PL
@@ -278,6 +299,11 @@ export const FPL_POSITION_OVERRIDES: Record<string, GranularPosition> = {
   'joao pedro': 'ST',           // Brighton
   'danny welbeck': 'ST',        // Brighton
   'evan ferguson': 'ST',        // Brighton
+  'jayden danns': 'ST',         // Liverpool
+  'nathan fraser': 'ST',        // Wolves
+  'leon chiwome': 'ST',         // Wolves
+  'braiden graham': 'ST',       // Everton
+  'malcom dacosta': 'ST',       // Bournemouth
 
   // ─── 2025-26 NEW ARRIVALS ─────────────────────────────────────────────────
 
@@ -300,6 +326,11 @@ export const FPL_POSITION_OVERRIDES: Record<string, GranularPosition> = {
   'ethan ampadu': 'DM',
   'pascal struijk': 'LB',       // Leeds LB
   'joe rodon': 'CB',            // Leeds CB (already defaults, explicit for clarity)
+  'miodrag pivaš': 'CB',        // Newcastle
+  'wellity lucky': 'CB',        // Liverpool
+  'amara nallo': 'CB',          // Liverpool
+  'godwill kukonki': 'CB',      // Man Utd
+  'reece welch': 'CB',          // Everton
 
   // Sunderland (promoted 2025-26)
   'granit xhaka': 'DM',

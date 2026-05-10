@@ -7,7 +7,7 @@ AS $$
 BEGIN
   -- Fire-and-forget POST request to the production URL
   PERFORM net.http_post(
-      url:='https://gaffa-tau.vercel.app/api/cron/process-auctions',
+      url:='https://gaffa.live/api/cron/process-auctions',
       headers:='{"x-cron-secret": "irenie_beanie"}'::jsonb
   );
 END;

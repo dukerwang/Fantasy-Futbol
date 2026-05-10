@@ -19,48 +19,6 @@ import stringSimilarity from 'string-similarity';
 
 export const maxDuration = 60; // 1 minute max for Vercel Hobby tier
 
-const BASE_URL = 'https://api.sofifa.net';
-const PL_LEAGUE_ID = 13;
-
-// ── SoFIFA position ID → our GranularPosition ────────────────────────────────
-// Full table from https://sofifa.com/document
-const SOFIFA_TO_GRANULAR: Partial<Record<number, string>> = {
-  0: 'GK',
-  1: 'CB',  // SW  (sweeper)
-  2: 'RWB', // RWB
-  3: 'RB',  // RB
-  4: 'CB',  // RCB
-  5: 'CB',  // CB
-  6: 'CB',  // LCB
-  7: 'LB',  // LB
-  8: 'LWB', // LWB
-  9: 'DM',  // RDM
-  10: 'DM', // CDM
-  11: 'DM', // LDM
-  12: 'RM', // RM
-  13: 'CM', // RCM
-  14: 'CM', // CM
-  15: 'CM', // LCM
-  16: 'LM', // LM
-  17: 'AM', // RAM
-  18: 'AM', // CAM
-  19: 'AM', // LAM
-  20: 'RW', // RF
-  21: 'ST', // CF
-  22: 'LW', // LF
-  23: 'RW', // RW
-  24: 'ST', // RS
-  25: 'ST', // ST
-  26: 'ST', // LS
-  27: 'LW', // LW
-  // 28=SUB, 29=RES → intentionally omitted (map to undefined → null)
-};
-
-function toGranular(posId: number): GranularPosition | null {
-  if (posId < 0) return null;
-  return (SOFIFA_TO_GRANULAR[posId] as GranularPosition) || null;
-}
-
 function normalizeName(name: string): string {
   return name
     .normalize('NFD')
@@ -70,58 +28,19 @@ function normalizeName(name: string): string {
     .trim();
 }
 
-async function sofiFetch<T>(path: string): Promise<T> {
-  const cfClearance = process.env.SOFIFA_CF_CLEARANCE;
-  if (!cfClearance) {
-    throw new Error(
-      'SOFIFA_CF_CLEARANCE not set. Open sofifa.com in your browser, ' +
-      'DevTools → Application → Cookies → api.sofifa.net, copy the cf_clearance value.'
-    );
-  }
-
-  const res = await fetch(`${BASE_URL}${path}`, {
-    headers: {
-      'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
-      'Accept': 'application/json, text/plain, */*',
-      'Accept-Language': 'en-US,en;q=0.9',
-      'Referer': 'https://sofifa.com/',
-      'Cookie': `cf_clearance=${cfClearance}`,
-    },
-    next: { revalidate: 0 },
-  });
-  if (!res.ok) {
-    const body = await res.text().catch(() => '');
-    throw new Error(`SoFIFA ${res.status} on ${path}: ${body.slice(0, 200)}`);
-  }
-  const json = await res.json();
-  return json.data as T;
-}
-
 // ── Types ─────────────────────────────────────────────────────────────────────
-
-interface SoFifaLeague {
-  id: number;
-  name: string;
-  latestRoster: string;
-}
-
-interface SoFifaTeamStub {
-  id: number;
-  name: string;
-}
 
 interface SoFifaSquadPlayer {
   id: number;
-  firstName: string;
-  lastName: string;
+  fullName: string;
   commonName: string;
-  position1: number;
-  position2: number;
-  position3: number;
-  position4: number;
+  positions: string[];
+  roles: string[];
 }
 
 interface SoFifaTeamDetail {
+  id: number;
+  name: string;
   players: SoFifaSquadPlayer[];
 }
 
@@ -176,28 +95,12 @@ async function runSync(preloadedTeams: SoFifaTeamDetail[] | null) {
     }
   }
 
-  // 2 & 3. Get team squads — either from pre-fetched data (Playwright) or SoFIFA API
-  let teams: SoFifaTeamDetail[];
-  let rosterLabel = 'preloaded';
-
-  if (preloadedTeams) {
-    teams = preloadedTeams;
-  } else {
-    const allLeagues = await sofiFetch<SoFifaLeague[]>('/leagues');
-    const plLeague = allLeagues.find((l) => l.id === PL_LEAGUE_ID);
-    if (!plLeague) {
-      return NextResponse.json({ error: 'Premier League not found in SoFIFA leagues' }, { status: 502 });
-    }
-    rosterLabel = plLeague.latestRoster;
-    const plTeams = await sofiFetch<SoFifaTeamStub[]>(`/league/${PL_LEAGUE_ID}/${rosterLabel}`);
-    teams = [];
-    for (const t of plTeams) {
-      try {
-        teams.push(await sofiFetch<SoFifaTeamDetail>(`/team/${t.id}`));
-      } catch { /* skip on error */ }
-      await new Promise((r) => setTimeout(r, 1000));
-    }
+  // 2. Teams are now entirely pre-fetched from HTML scraper
+  if (!preloadedTeams) {
+    return NextResponse.json({ error: 'preloadedTeams payload is required now that SoFIFA API is blocked.' }, { status: 400 });
   }
+  
+  const teams = preloadedTeams;
 
   // 4. Process squads → collect position updates
   const updates: Array<{
@@ -210,93 +113,131 @@ async function runSync(preloadedTeams: SoFifaTeamDetail[] | null) {
   for (const team of teams) {
 
     for (const sp of team.players ?? []) {
-      const primaryRaw = toGranular(sp.position1);
-      if (!primaryRaw) continue; // SUB / RES players — skip
+      // Filter out SUB/RES
+      const validPositions = sp.positions?.filter(p => !['SUB', 'RES'].includes(p)) || [];
+      if (validPositions.length === 0) continue;
 
-      // Collect up to 3 valid secondary positions (deduplicated, not same as primary)
-      const secondaryRaw: string[] = [];
-      for (const posId of [sp.position2, sp.position3, sp.position4]) {
-        const g = toGranular(posId);
-        if (g && g !== primaryRaw && !secondaryRaw.includes(g)) {
-          secondaryRaw.push(g);
-        }
-      }
+      const primaryRaw = validPositions[0];
+      const secondaryRaw = validPositions.slice(1);
+      const allRaw = new Set<string>([primaryRaw, ...secondaryRaw]);
 
-      // Apply New Wingback Taxonomy Mapping Rules (Phase 16)
-      const allRaw = new Set([primaryRaw, ...secondaryRaw]);
-      
-      const hasL = (p: string) => ['LB', 'LWB', 'LM', 'LW'].includes(p);
-      const hasR = (p: string) => ['RB', 'RWB', 'RM', 'RW'].includes(p);
-      const isFB = (p: string) => ['LB', 'RB', 'LWB', 'RWB'].includes(p);
-      const isWM = (p: string) => ['LM', 'RM'].includes(p);
-      const isWG = (p: string) => ['LW', 'RW'].includes(p);
-      
       const finalAll = new Set<GranularPosition>();
-      const leftRaw = Array.from(allRaw).filter(hasL) as GranularPosition[];
-      const rightRaw = Array.from(allRaw).filter(hasR) as GranularPosition[];
+      let primary = primaryRaw as GranularPosition | 'LM' | 'RM';
+
+      const hasLM = allRaw.has('LM');
+      const hasRM = allRaw.has('RM');
+      const hasLB = allRaw.has('LB');
+      const hasRB = allRaw.has('RB');
+      const hasLW = allRaw.has('LW');
+      const hasRW = allRaw.has('RW');
       
-      const processSide = (sideSet: GranularPosition[], side: 'L' | 'R') => {
-        const set = new Set(sideSet);
-        const FB = (side === 'L' ? 'LB' : 'RB') as GranularPosition;
-        const WB = (side === 'L' ? 'LWB' : 'RWB') as GranularPosition;
-        const WM = (side === 'L' ? 'LM' : 'RM') as GranularPosition;
-        const WG = (side === 'L' ? 'LW' : 'RW') as GranularPosition;
+      const processed = new Set<string>();
+      
+      // Special Case: both LM and RM, and exactly one of LB or RB
+      const hasExactlyOneFullback = (hasLB && !hasRB) || (!hasLB && hasRB);
+      
+      if (hasLM && hasRM && hasExactlyOneFullback) {
+        finalAll.add('LW');
+        finalAll.add('RW');
+        if (hasLB) finalAll.add('LWB');
+        if (hasRB) finalAll.add('RWB');
         
-        const hasFBTag = set.has(FB) || set.has(WB);
-        const hasWMTag = set.has(WM);
-        const hasWGTag = set.has(WG);
+        if (primaryRaw === 'LM') primary = 'LW';
+        else if (primaryRaw === 'RM') primary = 'RW';
+        else if (primaryRaw === 'LB') primary = 'LWB';
+        else if (primaryRaw === 'RB') primary = 'RWB';
         
-        const out = new Set<GranularPosition>();
-        if (hasWMTag && hasFBTag) out.add(WB);
-        if (hasWMTag) out.add(WG);
+        processed.add('LM');
+        processed.add('RM');
+        processed.add('LB');
+        processed.add('RB');
+        processed.add('LW');
+        processed.add('RW');
+      }
+
+      const processSide = (side: 'L' | 'R') => {
+        const M = `${side}M`;
+        const B = `${side}B`;
+        const W = `${side}W`;
+        const WB = `${side}WB` as GranularPosition;
         
-        set.forEach(p => {
-          if (p !== WM) out.add(p);
-        });
+        if (processed.has(M) || processed.has(B) || processed.has(W)) return;
         
-        // Drop FB if has all 3 (WG/WM, WB, FB) on same side
-        if (out.has(WG) && out.has(WB) && out.has(FB)) {
-          out.delete(FB);
+        const has_M = allRaw.has(M);
+        const has_B = allRaw.has(B);
+        const has_W = allRaw.has(W);
+        
+        // Does player have both fb and midfielder positions?
+        if (!(has_M && has_B)) {
+          if (has_M) {
+            finalAll.add(W as GranularPosition);
+            if (primaryRaw === M) primary = W as GranularPosition;
+            processed.add(M);
+          }
+          if (has_B) {
+            finalAll.add(B as GranularPosition);
+            processed.add(B);
+          }
+          return;
         }
-        return out;
+        
+        // Player has both. Check if they have the same side wing
+        if (has_W) {
+          finalAll.add(W as GranularPosition);
+          finalAll.add(WB);
+          
+          if (primaryRaw === M || primaryRaw === W) {
+            primary = W as GranularPosition;
+          } else if (primaryRaw === B) {
+            primary = WB;
+          }
+          
+          processed.add(M);
+          processed.add(B);
+          processed.add(W);
+          return;
+        }
+        
+        // Player has just M and B. Look at roles.
+        let isAttackingOrInvertedWingback = false;
+        if (sp.roles && sp.roles.length > 0) {
+          const firstRole = sp.roles[0].toLowerCase();
+          if (firstRole.includes('attacking wingback') || firstRole.includes('inverted wingback')) {
+            isAttackingOrInvertedWingback = true;
+          }
+        }
+        
+        if (isAttackingOrInvertedWingback) {
+          finalAll.add(WB);
+          finalAll.add(B as GranularPosition);
+          if (primaryRaw === M || primaryRaw === B) primary = WB;
+        } else {
+          finalAll.add(B as GranularPosition);
+          finalAll.add(WB);
+          if (primaryRaw === M || primaryRaw === B) primary = B as GranularPosition;
+        }
+        
+        processed.add(M);
+        processed.add(B);
       };
-
-      processSide(leftRaw, 'L').forEach(p => finalAll.add(p));
-      processSide(rightRaw, 'R').forEach(p => finalAll.add(p));
-      allRaw.forEach(p => { if (!hasL(p) && !hasR(p)) finalAll.add(p as GranularPosition); });
-
-      // Primary selection logic
-      let primary: GranularPosition = primaryRaw;
-      if (isWM(primaryRaw)) {
-        const side = hasL(primaryRaw) ? 'L' : 'R';
-        const FB = (side === 'L' ? 'LB' : 'RB') as GranularPosition;
-        const WB = (side === 'L' ? 'LWB' : 'RWB') as GranularPosition;
-        const WG = (side === 'L' ? 'LW' : 'RW') as GranularPosition;
-        
-        if (allRaw.has(FB)) primary = WB;
-        else primary = WG;
-      } else if (isFB(primaryRaw)) {
-        const side = hasL(primaryRaw) ? 'L' : 'R';
-        const WM = (side === 'L' ? 'LM' : 'RM') as GranularPosition;
-        const WG = (side === 'L' ? 'LW' : 'RW') as GranularPosition;
-        if (allRaw.has(WM) || allRaw.has(WG)) {
-          primary = (side === 'L' ? 'LWB' : 'RWB') as GranularPosition;
+      
+      processSide('L');
+      processSide('R');
+      
+      for (const p of allRaw) {
+        if (!processed.has(p)) {
+          finalAll.add(p as GranularPosition);
         }
       }
       
-      // Override: "if a player has wide midfield or winger primary and a secondary fullback position then give them winger primary"
-      if ((isWM(primaryRaw) || isWG(primaryRaw)) && Array.from(allRaw).some(isFB)) {
-        const side = hasL(primaryRaw) ? 'L' : 'R';
-        primary = (side === 'L' ? 'LW' : 'RW') as GranularPosition;
-      }
+      // Ensure primary is in the set
+      finalAll.add(primary as GranularPosition);
 
-      finalAll.add(primary);
       const finalSecondary = Array.from(finalAll).filter(p => p !== primary);
 
       // Match to our DB by name
-      const fullName = [sp.firstName, sp.lastName].filter(Boolean).join(' ');
       const common = sp.commonName || '';
-      const normFull = normalizeName(fullName);
+      const normFull = normalizeName(sp.fullName || '');
       const normCommon = normalizeName(common);
 
       let dbMatch = nameMap.get(normFull) ?? nameMap.get(normCommon) ?? null;
@@ -314,7 +255,11 @@ async function runSync(preloadedTeams: SoFifaTeamDetail[] | null) {
 
       if (dbMatch) {
         matched++;
-        updates.push({ id: dbMatch.id, primary_position: primary, secondary_positions: finalSecondary });
+        updates.push({ 
+          id: dbMatch.id, 
+          primary_position: primary as GranularPosition, 
+          secondary_positions: finalSecondary 
+        });
       }
     }
 
@@ -341,7 +286,6 @@ async function runSync(preloadedTeams: SoFifaTeamDetail[] | null) {
 
   return NextResponse.json({
     ok: true,
-    roster: rosterLabel,
     teams: teams.length,
     matched,
     updated: updates.length,
