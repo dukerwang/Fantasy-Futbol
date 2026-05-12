@@ -50,7 +50,13 @@ export async function processPlayerTransferOut(
     throw new Error(`Player not found: ${playerId}`);
   }
 
-  const compensation = Math.round(player.market_value * COMPENSATION_RATE * 100) / 100;
+  if (!player.market_value || player.market_value <= 0) {
+    console.warn(`[compensation] Player ${player.name} has no market_value — skipping compensation payout.`);
+    // Still mark inactive and remove from rosters, but issue no FAAB
+  }
+  const compensation = player.market_value
+    ? Math.round(player.market_value * COMPENSATION_RATE * 100) / 100
+    : 0;
 
   // 2. Mark player as inactive
   const { error: inactiveError } = await supabase

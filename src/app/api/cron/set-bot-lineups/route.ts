@@ -18,14 +18,17 @@ export async function GET(req: NextRequest) {
     // 2. Get current gameweek from FPL
     let currentGw = 1;
     try {
-        const fplRes = await fetch('https://fantasy.premierleague.com/api/bootstrap-static/');
+        const fplRes = await fetch('https://fantasy.premierleague.com/api/bootstrap-static/', {
+            next: { revalidate: 0 },
+        });
         if (!fplRes.ok) throw new Error('FPL fetch failed');
         const fplData = await fplRes.json();
+        const now = new Date();
+        // Use the highest GW whose deadline has passed — consistent with all other routes.
+        // is_current / is_next can both be null between GWs, causing this cron to silently do nothing.
         for (const ev of fplData.events as any[]) {
-            // Target the active gameweek, or if between gameweeks, target the upcoming one.
-            if (ev.is_current || ev.is_next) {
-                currentGw = ev.id;
-                break;
+            if (ev.deadline_time && new Date(ev.deadline_time) <= now) {
+                if (ev.id > currentGw) currentGw = ev.id;
             }
         }
     } catch (err: any) {

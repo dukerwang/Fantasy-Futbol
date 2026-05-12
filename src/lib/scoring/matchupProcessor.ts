@@ -4,6 +4,7 @@ import { normalizeMatchupLineup } from '@/lib/lineups/normalizeMatchupLineup';
 import { getLatestReferenceStatsSeason } from '@/lib/season/currentSeason';
 import { sendEmail } from '@/lib/email/client';
 import { getMatchweekSummaryEmail } from '@/lib/email/templates';
+import { executeAdvanceTournament } from '@/lib/tournaments/advanceTournament';
 
 export async function processMatchupsForGameweek(gameweek: number, finished: boolean) {
     const admin = createAdminClient();
@@ -161,8 +162,12 @@ export async function processMatchupsForGameweek(gameweek: number, finished: boo
         highScorer: { teamName: string, score: number } 
     }>();
 
+    // Only sanitize lineups when the GW is finished (score is being locked in).
+    // During a live GW, never retroactively null out players — a mid-GW roster move
+    // (e.g. a player won at auction) should not zero out that player's already-earned pts.
     const sanitize = (lineup: any, teamId: string) => {
         if (!lineup) return null;
+        if (!finished) return lineup; // live GW: never alter starters
         const roster = teamRosterMap.get(teamId);
         const ir = teamIrMap.get(teamId);
         if (!roster) return lineup;
@@ -287,16 +292,20 @@ export async function processMatchupsForGameweek(gameweek: number, finished: boo
 
 /**
  * Scans the DB for ANY matchups still in 'live' status across ALL gameweeks.
- * For each stalled GW, checks FPL's bootstrap-static to see if finished=true.
- * If so, resolves that GW immediately.
+ * For each stalled GW, checks FPL's bootstrap-static to see if the GW is
+ * finished (bonus points locked) OR finished_provisional (all fixtures done,
+ * bonus points pending). Either is sufficient to lock in match scores.
  *
- * This is called after every fpl_live sync so that resolution is not tied to
- * whichever GW the current sync targeted. Once the current GW number rolls
- * forward past a stalled GW, this function catches it.
+ * After resolving a GW, any active tournaments are advanced for that GW so
+ * cup brackets stay in sync.
+ *
+ * This is called after every fpl_live sync AND by the dedicated
+ * /api/sync/resolve-matchups cron (4× daily) so no GW can stay orphaned.
  */
 export async function resolveAllStalledGameweeks(): Promise<{
     resolved: number[];
     skipped: number[];
+    tournamentsAdvanced: number;
     reason?: string;
 }> {
     try {
@@ -309,44 +318,65 @@ export async function resolveAllStalledGameweeks(): Promise<{
             .eq('status', 'live');
 
         if (!liveMatchups || liveMatchups.length === 0) {
-            return { resolved: [], skipped: [], reason: 'no_live_matchups' };
+            return { resolved: [], skipped: [], tournamentsAdvanced: 0, reason: 'no_live_matchups' };
         }
 
         const stalledGws = [...new Set(liveMatchups.map(m => m.gameweek))].sort((a, b) => a - b);
 
-        // 2. Fetch FPL bootstrap once — covers all GW finished flags
+        // 2. Fetch FPL bootstrap once — covers all GW finished/finished_provisional flags
         const bsRes = await fetch('https://fantasy.premierleague.com/api/bootstrap-static/', {
             next: { revalidate: 0 },
             headers: { 'User-Agent': 'FantasyFutbol/1.0' },
         });
 
         if (!bsRes.ok) {
-            return { resolved: [], skipped: stalledGws, reason: 'fpl_api_error' };
+            return { resolved: [], skipped: stalledGws, tournamentsAdvanced: 0, reason: 'fpl_api_error' };
         }
 
         const bsData = await bsRes.json();
-        const finishedSet = new Set<number>(
+        // Accept finished (bonus locked) OR finished_provisional (all matches done, bonus pending).
+        // finished_provisional fires hours before finished — eliminates most overnight delays.
+        const resolveableSet = new Set<number>(
             (bsData.events as any[])
-                .filter((e: any) => e.finished === true)
+                .filter((e: any) => e.finished === true || e.finished_provisional === true)
                 .map((e: any) => e.id as number)
         );
 
-        // 3. Resolve each stalled GW that FPL has marked finished
+        // 3. Resolve each stalled GW
         const resolved: number[] = [];
         const skipped: number[] = [];
+        let tournamentsAdvanced = 0;
 
         for (const gw of stalledGws) {
-            if (!finishedSet.has(gw)) {
+            if (!resolveableSet.has(gw)) {
                 skipped.push(gw);
                 continue;
             }
-            // Process with finished=true to lock in winners and flip status
+            // Process with finished=true to lock in winners and flip status to 'completed'
             await processMatchupsForGameweek(gw, true);
             resolved.push(gw);
+
+            // Advance any active tournaments for this now-resolved GW so cup brackets stay live.
+            // We do this inline rather than calling the tournament route to avoid HTTP overhead.
+            try {
+                const { data: activeTournaments } = await admin
+                    .from('tournaments')
+                    .select('id')
+                    .eq('status', 'active');
+
+                if (activeTournaments) {
+                    for (const t of activeTournaments) {
+                        await executeAdvanceTournament(t.id, gw);
+                        tournamentsAdvanced++;
+                    }
+                }
+            } catch (tErr) {
+                console.warn(`[resolveAllStalledGameweeks] Tournament advance failed for GW ${gw}:`, tErr);
+            }
         }
 
-        return { resolved, skipped };
+        return { resolved, skipped, tournamentsAdvanced };
     } catch (err: any) {
-        return { resolved: [], skipped: [], reason: `error: ${String(err)}` };
+        return { resolved: [], skipped: [], tournamentsAdvanced: 0, reason: `error: ${String(err)}` };
     }
 }

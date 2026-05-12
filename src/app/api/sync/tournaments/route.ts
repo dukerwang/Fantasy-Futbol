@@ -19,6 +19,7 @@ import {
 } from '@/lib/tournaments/engine';
 import { processMatchupsForGameweek } from '@/lib/scoring/matchupProcessor';
 import { createTournament } from '@/lib/tournaments/createTournaments';
+import { executeAdvanceTournament } from '@/lib/tournaments/advanceTournament';
 import type { TournamentType, GranularPosition, ReferenceStats, RatingComponent } from '@/types';
 
 export const maxDuration = 60;
@@ -306,7 +307,8 @@ async function handleAdvance(_req: NextRequest, params: URLSearchParams) {
   }
 
   try {
-    const result = await executeAdvance(tournamentId, gameweek);
+    // Delegate to the shared lib (same function used by matchupProcessor)
+    const result = await executeAdvanceTournament(tournamentId, gameweek);
     return NextResponse.json(result);
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 });
@@ -466,7 +468,7 @@ async function handleResolveStalled() {
         let advancedCount = 0;
         if (activeTournaments) {
           for (const t of activeTournaments) {
-            await executeAdvance(t.id, gw);
+            await executeAdvanceTournament(t.id, gw);
             advancedCount++;
           }
         }

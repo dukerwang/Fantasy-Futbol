@@ -43,13 +43,17 @@ export async function GET(req: NextRequest) {
   if (!Number.isFinite(targetGw) || targetGw < 1 || targetGw > 38) {
     targetGw = 1;
     try {
-      const fplRes = await fetch('https://fantasy.premierleague.com/api/bootstrap-static/');
+      const fplRes = await fetch('https://fantasy.premierleague.com/api/bootstrap-static/', {
+        next: { revalidate: 0 },
+      });
       if (!fplRes.ok) throw new Error('FPL fetch failed');
       const fplData = await fplRes.json();
+      const now = new Date();
+      // Use the highest GW whose deadline has passed — consistent with all other routes.
+      // is_current / is_next can both be null between GWs.
       for (const ev of fplData.events as any[]) {
-        if (ev.is_current || ev.is_next) {
-          targetGw = ev.id;
-          break;
+        if (ev.deadline_time && new Date(ev.deadline_time) <= now) {
+          if (ev.id > targetGw) targetGw = ev.id;
         }
       }
     } catch (err: any) {

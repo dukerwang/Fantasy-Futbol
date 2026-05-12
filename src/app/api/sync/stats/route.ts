@@ -26,7 +26,7 @@ const FPL_BASE = 'https://fantasy.premierleague.com/api';
 
 async function getCurrentGameweek(): Promise<number> {
     const res = await fetch('https://fantasy.premierleague.com/api/bootstrap-static/', {
-        next: { revalidate: 3600 }
+        next: { revalidate: 0 } // Always fresh — stale response picks wrong GW
     });
     const data = await res.json();
     const now = new Date();
