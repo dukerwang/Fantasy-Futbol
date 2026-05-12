@@ -27,6 +27,22 @@
         {
             "path": "/api/cron/set-bot-lineups",
             "schedule": "0 9 * * *"
+        },
+        {
+            "path": "/api/sync/resolve-matchups",
+            "schedule": "0 12 * * *"
+        },
+        {
+            "path": "/api/sync/resolve-matchups",
+            "schedule": "0 16 * * *"
+        },
+        {
+            "path": "/api/sync/resolve-matchups",
+            "schedule": "0 20 * * *"
+        },
+        {
+            "path": "/api/sync/resolve-matchups",
+            "schedule": "0 0 * * *"
         }
     ]
 }

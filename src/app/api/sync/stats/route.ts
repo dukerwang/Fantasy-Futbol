@@ -12,7 +12,7 @@
 
 import { calculateMatchRating, mapFplLiveToRawStats } from '@/lib/scoring/engine';
 import { loadReferenceStats } from '@/lib/scoring/matchups';
-import { processMatchupsForGameweek } from '@/lib/scoring/matchupProcessor';
+import { resolveAllStalledGameweeks } from '@/lib/scoring/matchupProcessor';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { getCurrentFplSeason, getLatestReferenceStatsSeason } from '@/lib/season/currentSeason';
 import type { GranularPosition, FplLivePlayerStats } from '@/types';
@@ -221,56 +221,15 @@ async function syncFplLiveRatings(gameweek: number): Promise<NextResponse> {
   // Recompute pre-computed form_rating (avg match_rating over last 3 appearances)
   await supabase.rpc('update_player_form_ratings');
 
-  // Precision Finish: resolve league matchups immediately if FPL marks the GW as finished.
-  // events[gw].finished = true means bonus points are applied and the GW is fully locked.
-  const resolution = await tryResolveGameweekIfFinished(gameweek);
+  // Resolve all stalled GWs — not just the one being synced.
+  // This catches GWs that were left as 'live' once getCurrentGameweek() rolled forward.
+  const resolution = await resolveAllStalledGameweeks();
 
   return NextResponse.json({ ok: true, mode: 'fpl_live', gameweek, saved, resolution });
 }
 
-// ── Precision Finish: resolve league matchups as soon as FPL locks the GW ────
-
-async function tryResolveGameweekIfFinished(gameweek: number): Promise<{
-  resolved: boolean;
-  reason: string;
-  detail?: string;
-}> {
-  try {
-    // Check bootstrap-static for events[gameweek].finished — this is set by FPL
-    // only after bonus points are applied and all GW data is locked.
-    const bsRes = await fetch('https://fantasy.premierleague.com/api/bootstrap-static/', {
-      next: { revalidate: 0 },
-    });
-    if (!bsRes.ok) return { resolved: false, reason: 'fpl_api_error' };
-
-    const bsData = await bsRes.json();
-    const gwEvent = (bsData.events as any[]).find((e) => e.id === gameweek);
-
-    if (!gwEvent?.finished) {
-      return { resolved: false, reason: 'gw_not_finished_yet' };
-    }
-
-    const admin = createAdminClient();
-
-    // Check if there are any unresolved matchups for this GW — idempotency guard
-    const { data: unresolved } = await admin
-      .from('matchups')
-      .select('id')
-      .eq('gameweek', gameweek)
-      .neq('status', 'completed')
-      .limit(1);
-
-    if (!unresolved || unresolved.length === 0) {
-      return { resolved: false, reason: 'already_resolved' };
-    }
-
-    await processMatchupsForGameweek(gameweek, true);
-    return { resolved: true, reason: 'fpl_gw_finished' };
-  } catch (err: any) {
-    // Non-blocking — stats sync still succeeds even if resolution fails
-    return { resolved: false, reason: 'error', detail: String(err) };
-  }
-}
+// tryResolveGameweekIfFinished replaced by resolveAllStalledGameweeks in matchupProcessor.ts
+// That function scans ALL live GWs in the DB, not just the one being synced.
 
 // ── Trigger Edge Function ─────────────────────────────────────────────────
 

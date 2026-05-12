@@ -284,3 +284,69 @@ export async function processMatchupsForGameweek(gameweek: number, finished: boo
         errors: updateErrors.length > 0 ? updateErrors : undefined 
     };
 }
+
+/**
+ * Scans the DB for ANY matchups still in 'live' status across ALL gameweeks.
+ * For each stalled GW, checks FPL's bootstrap-static to see if finished=true.
+ * If so, resolves that GW immediately.
+ *
+ * This is called after every fpl_live sync so that resolution is not tied to
+ * whichever GW the current sync targeted. Once the current GW number rolls
+ * forward past a stalled GW, this function catches it.
+ */
+export async function resolveAllStalledGameweeks(): Promise<{
+    resolved: number[];
+    skipped: number[];
+    reason?: string;
+}> {
+    try {
+        const admin = createAdminClient();
+
+        // 1. Find all GWs that still have live (unresolved) matchups
+        const { data: liveMatchups } = await admin
+            .from('matchups')
+            .select('gameweek')
+            .eq('status', 'live');
+
+        if (!liveMatchups || liveMatchups.length === 0) {
+            return { resolved: [], skipped: [], reason: 'no_live_matchups' };
+        }
+
+        const stalledGws = [...new Set(liveMatchups.map(m => m.gameweek))].sort((a, b) => a - b);
+
+        // 2. Fetch FPL bootstrap once — covers all GW finished flags
+        const bsRes = await fetch('https://fantasy.premierleague.com/api/bootstrap-static/', {
+            next: { revalidate: 0 },
+            headers: { 'User-Agent': 'FantasyFutbol/1.0' },
+        });
+
+        if (!bsRes.ok) {
+            return { resolved: [], skipped: stalledGws, reason: 'fpl_api_error' };
+        }
+
+        const bsData = await bsRes.json();
+        const finishedSet = new Set<number>(
+            (bsData.events as any[])
+                .filter((e: any) => e.finished === true)
+                .map((e: any) => e.id as number)
+        );
+
+        // 3. Resolve each stalled GW that FPL has marked finished
+        const resolved: number[] = [];
+        const skipped: number[] = [];
+
+        for (const gw of stalledGws) {
+            if (!finishedSet.has(gw)) {
+                skipped.push(gw);
+                continue;
+            }
+            // Process with finished=true to lock in winners and flip status
+            await processMatchupsForGameweek(gw, true);
+            resolved.push(gw);
+        }
+
+        return { resolved, skipped };
+    } catch (err: any) {
+        return { resolved: [], skipped: [], reason: `error: ${String(err)}` };
+    }
+}
