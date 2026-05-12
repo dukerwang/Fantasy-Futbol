@@ -9,7 +9,7 @@
  */
 
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { resolvePosition } from '@/lib/fpl/positionMap';
+import { resolvePosition, FPL_POSITION_OVERRIDES } from '@/lib/fpl/positionMap';
 import { processPlayerTransferOut } from '@/lib/transfers/compensation';
 
 const FPL_URL = 'https://fantasy.premierleague.com/api/bootstrap-static/';
@@ -130,16 +130,29 @@ export async function syncPlayersFromFpl(admin: SupabaseClient): Promise<SyncPla
   );
 
   // Re-map rows, preserving manually-set overrides
-  const finalRows = rows.map((row) => ({
-    ...row,
-    name: nameMap.get(row.fpl_id) ?? row.name,
-    primary_position: primaryPositionMap.get(row.fpl_id) ?? row.primary_position,
-    secondary_positions: secondaryPositionsMap.get(row.fpl_id) ?? [],
-    market_value:
-      marketValueMap.has(row.fpl_id) && marketValueMap.get(row.fpl_id) !== null
-        ? marketValueMap.get(row.fpl_id)
-        : row.market_value,
-  }));
+  const finalRows = rows.map((row) => {
+    const existingPos = primaryPositionMap.get(row.fpl_id);
+    
+    // Check if this player has an explicit override in our mapping file
+    const firstName = row.name.split(' ')[0];
+    const secondName = row.name.split(' ').slice(1).join(' ');
+    const fullKey = `${firstName} ${secondName}`.toLowerCase();
+    const webKey = row.web_name.toLowerCase();
+    const isExplicitOverride = !!(FPL_POSITION_OVERRIDES[fullKey] || FPL_POSITION_OVERRIDES[webKey]);
+
+    return {
+      ...row,
+      name: nameMap.get(row.fpl_id) ?? row.name,
+      // If it's in our override file, let the file win. 
+      // Otherwise, preserve what's already in the DB.
+      primary_position: isExplicitOverride ? row.primary_position : (existingPos ?? row.primary_position),
+      secondary_positions: secondaryPositionsMap.get(row.fpl_id) ?? [],
+      market_value:
+        marketValueMap.has(row.fpl_id) && marketValueMap.get(row.fpl_id) !== null
+          ? marketValueMap.get(row.fpl_id)
+          : row.market_value,
+    };
+  });
 
   const { error } = await admin
     .from('players')

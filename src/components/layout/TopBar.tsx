@@ -113,6 +113,8 @@ export default function TopBar() {
         items: [
           { label: 'Standings', href: `${base}/standings` },
           { label: 'Stats', href: `${base}/stats` },
+          { label: 'Finance', href: `${base}/finance` },
+          { label: 'History', href: `${base}/history` },
         ],
       },
       {

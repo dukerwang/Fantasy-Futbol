@@ -1,0 +1,414 @@
+/* ─────────────────────────────────────────────
+   League History — CSS Module
+   Design: Cream Editorial
+   ───────────────────────────────────────────── */
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+/* ── Header ── */
+.header {
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.eyebrow {
+  font-family: 'Inter', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  margin: 0 0 8px;
+}
+
+.title {
+  font-family: 'Noto Serif', serif;
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin: 0 0 4px;
+  line-height: 1.1;
+}
+
+.subtitle {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+/* ── Records Strip ── */
+.recordsStrip {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.recordsKicker {
+  font-family: 'Inter', sans-serif;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.recordsGrid {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.recordCard {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex: 1;
+  min-width: 220px;
+}
+
+.recordIcon {
+  font-size: 28px;
+  flex-shrink: 0;
+}
+
+.recordCard > div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.recordLabel {
+  font-family: 'Inter', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.recordValue {
+  font-family: 'Noto Serif', serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  line-height: 1.1;
+}
+
+.recordMeta {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  color: var(--color-text-muted);
+}
+
+/* ── Season List ── */
+.seasonList {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+/* ── Season Panel ── */
+.seasonPanel {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  padding: 32px;
+}
+
+.seasonHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.seasonHeaderLeft {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.seasonBadge {
+  font-family: 'Noto Serif', serif;
+  font-size: 14px;
+  font-weight: 700;
+  font-style: italic;
+  padding: 6px 14px;
+  background: var(--color-accent-green);
+  color: #fff;
+  border-radius: var(--radius-sm);
+  flex-shrink: 0;
+}
+
+.seasonTitle {
+  font-family: 'Noto Serif', serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin: 0 0 4px;
+  line-height: 1.2;
+}
+
+.seasonChampion {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+.seasonChampion strong {
+  color: var(--color-text-primary);
+}
+
+/* ── Cup Row ── */
+.cupRow {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.cupBadge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-sm);
+}
+
+.cupIcon {
+  font-size: 18px;
+}
+
+.cupBadge > div {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.cupName {
+  font-family: 'Inter', sans-serif;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.cupWinner {
+  font-family: 'Noto Serif', serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+/* ── Podium ── */
+.podium {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.podiumCard {
+  flex: 1;
+  min-width: 160px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 20px 16px;
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-sm);
+  text-align: center;
+  transition: transform 0.15s;
+}
+
+.podiumCard:hover {
+  transform: translateY(-2px);
+}
+
+.podiumCardFirst {
+  background: rgba(58, 107, 74, 0.04);
+}
+
+.podiumMedal {
+  font-size: 28px;
+  line-height: 1;
+}
+
+.podiumTeam {
+  font-family: 'Noto Serif', serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  line-height: 1.2;
+}
+
+.podiumManager {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  color: var(--color-text-muted);
+}
+
+.podiumPts {
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-accent-green);
+  margin-top: 4px;
+}
+
+/* ── Table ── */
+.tableWrap {
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tableHeadRow {
+  background: var(--color-bg-elevated);
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.tableHeadRow th {
+  font-family: 'Inter', sans-serif;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  padding: 10px 16px;
+  text-align: left;
+}
+
+.thPts { text-align: right !important; }
+
+.tableRow {
+  border-bottom: 1px solid var(--color-border-subtle);
+  transition: background 0.12s;
+}
+
+.tableRow:last-child {
+  border-bottom: none;
+}
+
+.tableRow:hover {
+  background: var(--color-bg-elevated);
+}
+
+.tableRowMedal {
+  background: rgba(58, 107, 74, 0.02);
+}
+
+.tdRank {
+  padding: 12px 16px;
+  width: 56px;
+}
+
+.medalBadge {
+  font-size: 16px;
+}
+
+.rankNum {
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-text-muted);
+}
+
+.tdTeam {
+  font-family: 'Noto Serif', serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  padding: 12px 16px;
+}
+
+.thTeam { width: 100%; }
+
+.tdManager {
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  color: var(--color-text-muted);
+  padding: 12px 16px;
+  white-space: nowrap;
+}
+
+.thManager { min-width: 120px; }
+
+.tdPts {
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  text-align: right;
+  padding: 12px 16px;
+  white-space: nowrap;
+}
+
+/* ── Empty State ── */
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 80px 32px;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-sm);
+  gap: 16px;
+}
+
+.emptyIcon {
+  font-size: 48px;
+  line-height: 1;
+}
+
+.emptyTitle {
+  font-family: 'Noto Serif', serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.emptyDesc {
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  color: var(--color-text-muted);
+  line-height: 1.6;
+  margin: 0;
+  max-width: 420px;
+}
+
+.emptyText {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  color: var(--color-text-muted);
+  font-style: italic;
+  padding: 12px 0;
+  margin: 0;
+}

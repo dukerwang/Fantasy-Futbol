@@ -1,0 +1,337 @@
+[
+  {
+    "name": "Asher Agbinone",
+    "web_name": "Agbinone",
+    "pl_team": "Crystal Palace"
+  },
+  {
+    "name": "Jayce Fitzgerald",
+    "web_name": "Fitzgerald",
+    "pl_team": "Man Utd"
+  },
+  {
+    "name": "Godwill Kukonki",
+    "web_name": "Kukonki",
+    "pl_team": "Man Utd"
+  },
+  {
+    "name": "Jim Thwaites",
+    "web_name": "Thwaites",
+    "pl_team": "Man Utd"
+  },
+  {
+    "name": "Seung-Soo Park",
+    "web_name": "Seung soo",
+    "pl_team": "Newcastle"
+  },
+  {
+    "name": "Callan McKenna",
+    "web_name": "McKenna",
+    "pl_team": "Bournemouth"
+  },
+  {
+    "name": "Ian Poveda-Ocampo",
+    "web_name": "Poveda",
+    "pl_team": "Sunderland"
+  },
+  {
+    "name": "Lucá Williams-Barnett",
+    "web_name": "Williams-Barnett",
+    "pl_team": "Spurs"
+  },
+  {
+    "name": "Airidas Golambeckis",
+    "web_name": "Golambeckis",
+    "pl_team": "West Ham"
+  },
+  {
+    "name": "Luka Bentt",
+    "web_name": "Bentt",
+    "pl_team": "Brentford"
+  },
+  {
+    "name": "Conor McManus",
+    "web_name": "McManus",
+    "pl_team": "Brentford"
+  },
+  {
+    "name": "Mathis Eboué",
+    "web_name": "Eboué",
+    "pl_team": "Chelsea"
+  },
+  {
+    "name": "Ryan Kavuma-McQueen",
+    "web_name": "Kavuma-McQueen",
+    "pl_team": "Chelsea"
+  },
+  {
+    "name": "Zach Marsh",
+    "web_name": "Marsh",
+    "pl_team": "Crystal Palace"
+  },
+  {
+    "name": "Dean Benamar",
+    "web_name": "Benamar",
+    "pl_team": "Crystal Palace"
+  },
+  {
+    "name": "Reece Welch",
+    "web_name": "Welch",
+    "pl_team": "Everton"
+  },
+  {
+    "name": "Braiden Graham",
+    "web_name": "Graham",
+    "pl_team": "Everton"
+  },
+  {
+    "name": "Seth Ridgeon",
+    "web_name": "Ridgeon",
+    "pl_team": "Fulham"
+  },
+  {
+    "name": "Andre Harriman-Annous",
+    "web_name": "Harriman-Annous",
+    "pl_team": "Arsenal"
+  },
+  {
+    "name": "James Wright",
+    "web_name": "Wright",
+    "pl_team": "Aston Villa"
+  },
+  {
+    "name": "Wellity Lucky",
+    "web_name": "Lucky",
+    "pl_team": "Liverpool"
+  },
+  {
+    "name": "Oliver Pimlott",
+    "web_name": "Pimlott",
+    "pl_team": "Burnley"
+  },
+  {
+    "name": "Tommy Setford",
+    "web_name": "Setford",
+    "pl_team": "Arsenal"
+  },
+  {
+    "name": "TJ Carroll",
+    "web_name": "Carroll",
+    "pl_team": "Aston Villa"
+  },
+  {
+    "name": "Ollie Shield",
+    "web_name": "Shield",
+    "pl_team": "Brentford"
+  },
+  {
+    "name": "Malcom DaCosta",
+    "web_name": "DaCosta",
+    "pl_team": "Bournemouth"
+  },
+  {
+    "name": "Nathan Fraser",
+    "web_name": "Fraser",
+    "pl_team": "Wolves"
+  },
+  {
+    "name": "Alfie McNally",
+    "web_name": "McNally",
+    "pl_team": "Fulham"
+  },
+  {
+    "name": "Amara Nallo",
+    "web_name": "Nallo",
+    "pl_team": "Liverpool"
+  },
+  {
+    "name": "Jayden Danns",
+    "web_name": "Danns",
+    "pl_team": "Liverpool"
+  },
+  {
+    "name": "Will Wright",
+    "web_name": "Wright",
+    "pl_team": "Liverpool"
+  },
+  {
+    "name": "Ryan McAidoo",
+    "web_name": "McAidoo",
+    "pl_team": "Man City"
+  },
+  {
+    "name": "Josh Gracey",
+    "web_name": "Gracey",
+    "pl_team": "Wolves"
+  },
+  {
+    "name": "Sam Alabi",
+    "web_name": "Alabi",
+    "pl_team": "Newcastle"
+  },
+  {
+    "name": "Jenson Jones",
+    "web_name": "Jenson Jones",
+    "pl_team": "Sunderland"
+  },
+  {
+    "name": "Luke Rawlings",
+    "web_name": "Rawlings",
+    "pl_team": "Wolves"
+  },
+  {
+    "name": "Rio Kyerematen",
+    "web_name": "Kyerematen",
+    "pl_team": "Spurs"
+  },
+  {
+    "name": "Leon Chiwome",
+    "web_name": "Chiwome",
+    "pl_team": "Wolves"
+  },
+  {
+    "name": "Saheed Olagunju",
+    "web_name": "Olagunju",
+    "pl_team": "Wolves"
+  },
+  {
+    "name": "Jerome Abbey",
+    "web_name": "Abbey",
+    "pl_team": "Wolves"
+  },
+  {
+    "name": "Dermot Mee",
+    "web_name": "Mee",
+    "pl_team": "Man Utd"
+  },
+  {
+    "name": "Riley Owen",
+    "web_name": "Owen",
+    "pl_team": "Brentford"
+  },
+  {
+    "name": "Miodrag Pivaš",
+    "web_name": "Pivas",
+    "pl_team": "Newcastle"
+  },
+  {
+    "name": "Charlie Stevens",
+    "web_name": "Stevens",
+    "pl_team": "Bournemouth"
+  },
+  {
+    "name": "Jack Whittaker",
+    "web_name": "Whittaker",
+    "pl_team": "Sunderland"
+  },
+  {
+    "name": "Samuel Amissah",
+    "web_name": "Amissah",
+    "pl_team": "Fulham"
+  },
+  {
+    "name": "Callum Bates",
+    "web_name": "Bates",
+    "pl_team": "Everton"
+  },
+  {
+    "name": "Coby Ebere",
+    "web_name": "Ebere",
+    "pl_team": "Everton"
+  },
+  {
+    "name": "Brayden Clarke",
+    "web_name": "Clarke",
+    "pl_team": "Arsenal"
+  },
+  {
+    "name": "Charlie Tasker",
+    "web_name": "Tasker",
+    "pl_team": "Brighton"
+  },
+  {
+    "name": "Josh Nichols",
+    "web_name": "Nichols",
+    "pl_team": "Arsenal"
+  },
+  {
+    "name": "Kian McMahon-Brown",
+    "web_name": "McMahon-Brown",
+    "pl_team": "Burnley"
+  },
+  {
+    "name": "Mykhailo Mudryk",
+    "web_name": "Mudryk",
+    "pl_team": "Chelsea"
+  },
+  {
+    "name": "Freddie Simmonds",
+    "web_name": "Simmonds",
+    "pl_team": "Brighton"
+  },
+  {
+    "name": "Ronnie Hollingshead",
+    "web_name": "Hollingshead",
+    "pl_team": "Aston Villa"
+  },
+  {
+    "name": "Sam Proctor",
+    "web_name": "Proctor",
+    "pl_team": "Aston Villa"
+  },
+  {
+    "name": "Max Merrick",
+    "web_name": "Merrick",
+    "pl_team": "Chelsea"
+  },
+  {
+    "name": "Kieran Morrison",
+    "web_name": "Morrison",
+    "pl_team": "Liverpool"
+  },
+  {
+    "name": "Leon Routh",
+    "web_name": "Leon Routh",
+    "pl_team": "Aston Villa"
+  },
+  {
+    "name": "Landon Emenalo",
+    "web_name": "Emenalo",
+    "pl_team": "Chelsea"
+  },
+  {
+    "name": "Marli Salmon",
+    "web_name": "Salmon",
+    "pl_team": "Arsenal"
+  },
+  {
+    "name": "Jesse Derry",
+    "web_name": "Derry",
+    "pl_team": "Chelsea"
+  },
+  {
+    "name": "Joél Drakes-Thomas",
+    "web_name": "Drakes-Thomas",
+    "pl_team": "Crystal Palace"
+  },
+  {
+    "name": "Max Dowman",
+    "web_name": "Dowman",
+    "pl_team": "Arsenal"
+  },
+  {
+    "name": "Altay Bayındır",
+    "web_name": "Bayindir",
+    "pl_team": "Man Utd"
+  },
+  {
+    "name": "Finlay Herrick",
+    "web_name": "Herrick",
+    "pl_team": "West Ham"
+  },
+  {
+    "name": "Ethan Sutherland",
+    "web_name": "Sutherland",
+    "pl_team": "Wolves"
+  }
+]
