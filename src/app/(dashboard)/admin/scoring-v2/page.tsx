@@ -44,6 +44,7 @@ const NAMED_ANCHORS = [
 
 interface PlayerStatsRow {
   player_id: string;
+  match_id?: number;
   gameweek: number;
   match_rating: number | null;
   match_rating_v2: number | null;
@@ -141,14 +142,27 @@ export default async function ScoringV2Page() {
   // zero rows here while v2 rows exist.
   const statsSeason = await getCurrentFplSeason();
 
-  // 1. Fetch all player_stats rows where v2 is populated (the only useful set).
-  const { data: statsRows } = await admin
-    .from('player_stats')
-    .select('player_id, gameweek, match_rating, match_rating_v2, fantasy_points, fantasy_points_v2')
-    .eq('season', statsSeason)
-    .not('match_rating_v2', 'is', null);
-
-  const rows = (statsRows ?? []) as PlayerStatsRow[];
+  // 1. Fetch ALL player_stats rows where v2 is populated (PostgREST default limit
+  //    is 1000 rows — a single .select() silently truncates; that caused GP≈2–3).
+  const STATS_PAGE = 1000;
+  const rows: PlayerStatsRow[] = [];
+  let statsOffset = 0;
+  for (;;) {
+    const { data: chunk, error: statsErr } = await admin
+      .from('player_stats')
+      .select('player_id, match_id, gameweek, match_rating, match_rating_v2, fantasy_points, fantasy_points_v2')
+      .eq('season', statsSeason)
+      .not('match_rating_v2', 'is', null)
+      .order('gameweek', { ascending: true })
+      .order('player_id', { ascending: true })
+      .order('match_id', { ascending: true })
+      .range(statsOffset, statsOffset + STATS_PAGE - 1);
+    if (statsErr) throw new Error(`player_stats scoring-v2: ${statsErr.message}`);
+    if (!chunk?.length) break;
+    rows.push(...(chunk as PlayerStatsRow[]));
+    if (chunk.length < STATS_PAGE) break;
+    statsOffset += STATS_PAGE;
+  }
 
   // 2. Bucket by player.primary_position for the per-position deltas.
   const playerIds = Array.from(new Set(rows.map((r) => r.player_id)));
