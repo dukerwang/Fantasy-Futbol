@@ -379,15 +379,44 @@ export function applyPositionWeights(
 }
 
 // ════════════════════════════════════════════════════════════════════════════
-// Step 3 & 4 — Curve Map → 1.0–10.0 Rating & Fantasy Points
+// Step 3 & 4 — Rating display + Fantasy Points
+//
+// Two separate scales exist:
+//
+//  • SCORING SCALE  (internal, unchanged)  1.0 + 9.0 × composite → [1, 10]
+//    Used only as the input to calculateFantasyPoints so the points curve
+//    calibration is never disturbed.
+//
+//  • DISPLAY SCALE  (curveFinalRating, exported)  3.5 + 7.0 × composite
+//    Shifted so the median player (composite ≈ 0.475) lands near 6.8,
+//    matching the Fotmob / SofaScore rating distribution that fans expect.
+//    Top performers reach 8–9, poor games dip to 5.5–6.0.
+//
+// Fantasy points are intentionally decoupled from the display rating so
+// that aesthetic re-calibration of the display never changes game balance.
 // ════════════════════════════════════════════════════════════════════════════
 
+/**
+ * Internal scoring-scale rating, used only to feed calculateFantasyPoints.
+ * Never stored or shown in the UI — curveFinalRating() is the display value.
+ */
+function computeScoringRating(composite: number, minutesPlayed: number): number {
+    if (composite < 0 || minutesPlayed === 0) return 0;
+    let r = 1.0 + 9.0 * composite;
+    if (minutesPlayed < 60) r = Math.max(1.0, r - (1 - minutesPlayed / 60) * 1.5);
+    return Math.max(1.0, Math.min(10.0, r));
+}
+
+/**
+ * Display rating on the 1–10 scale shown to users.
+ * 3.5 + 7.0 × composite maps the median composite (~0.475) to ≈ 6.8,
+ * consistent with Fotmob/SofaScore where average PL starters rate 6.5–7.0.
+ */
 export function curveFinalRating(composite: number, minutesPlayed: number): number {
     if (composite < 0 || minutesPlayed === 0) return 0;
 
-    let rating = 1.0 + 9.0 * composite;
+    let rating = 3.5 + 7.0 * composite;
 
-    // Flat minute penalty: if they barely played, they don't get a 10/10 no matter what
     if (minutesPlayed < 60) {
         const penalty = (1 - (minutesPlayed / 60)) * 1.5;
         rating = Math.max(1.0, rating - penalty);
@@ -397,27 +426,20 @@ export function curveFinalRating(composite: number, minutesPlayed: number): numb
 }
 
 /**
- * Calculates fantasy points from a 1-10 match rating using an exponential curve.
+ * Fantasy points from the scoring-scale rating (not the display rating).
+ * Calibration: median game ≈ 6–8 pts, excellent game ≈ 18–22 pts.
  */
 export function calculateFantasyPoints(rating: number, minutesPlayed: number): number {
     if (minutesPlayed === 0 || rating === 0) return 0;
 
-    // Base 4.0 points for simply playing a decent match to pull down the midpoint
     const basePoints = 4.0;
-    // Point expansion scale
     const scale = 5.0;
-    // Sub-60 mins played penalty
     const minutePenalty = minutesPlayed < 60 ? 1.0 : 0;
 
-    // 1.5 exponent gives a flat curve across standard games, heavily rewarding 8.5+ ratings
     const curve = Math.pow(Math.max(0, rating - 4.0) / 2.0, 1.5);
-
     let finalPoints = basePoints + (scale * curve) - minutePenalty;
 
-    // If they got totally crushed (rating < 3.0), they can get 0 or negative
-    if (rating < 3.0) {
-        finalPoints -= 2.0;
-    }
+    if (rating < 3.0) finalPoints -= 2.0;
 
     return Math.max(0, Number(finalPoints.toFixed(1)));
 }
@@ -518,11 +540,14 @@ export function calculateMatchRating(
         item.detail = components[item.key as RatingComponent].detail;
     }
 
-    // Step 3: Linear map → 1.0-10.0 (with minutes cap)
+    // Step 3: Display rating (Fotmob-calibrated scale for UI)
     const rating = curveFinalRating(composite, stats.minutes_played);
 
-    // Step 4: Curve → fantasy points
-    const fantasyPoints = calculateFantasyPoints(rating, stats.minutes_played);
+    // Step 4: Fantasy points — uses internal scoring scale (1+9×composite),
+    // completely decoupled from the display rating so points calibration is
+    // never affected by display-scale adjustments.
+    const scoringRating = computeScoringRating(composite, stats.minutes_played);
+    const fantasyPoints = calculateFantasyPoints(scoringRating, stats.minutes_played);
 
     return {
         rating: Math.round(rating * 10) / 10,
