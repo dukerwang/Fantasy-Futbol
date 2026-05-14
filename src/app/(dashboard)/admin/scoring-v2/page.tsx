@@ -43,6 +43,7 @@ const NAMED_ANCHORS = [
 ] as const;
 
 interface PlayerStatsRow {
+  id?: string;
   player_id: string;
   match_id?: number;
   gameweek: number;
@@ -142,20 +143,19 @@ export default async function ScoringV2Page() {
   // zero rows here while v2 rows exist.
   const statsSeason = await getCurrentFplSeason();
 
-  // 1. Fetch ALL player_stats rows where v2 is populated (PostgREST default limit
-  //    is 1000 rows — a single .select() silently truncates; that caused GP≈2–3).
+  // 1. Fetch ALL player_stats rows where v2 is populated. PostgREST returns max
+  //    1000 rows per request — paginate with `.range()`. Order by `id` only so
+  //    pages are stable (multi-column `.order()` is easy to get wrong).
   const STATS_PAGE = 1000;
   const rows: PlayerStatsRow[] = [];
   let statsOffset = 0;
   for (;;) {
     const { data: chunk, error: statsErr } = await admin
       .from('player_stats')
-      .select('player_id, match_id, gameweek, match_rating, match_rating_v2, fantasy_points, fantasy_points_v2')
+      .select('id, player_id, match_id, gameweek, match_rating, match_rating_v2, fantasy_points, fantasy_points_v2')
       .eq('season', statsSeason)
       .not('match_rating_v2', 'is', null)
-      .order('gameweek', { ascending: true })
-      .order('player_id', { ascending: true })
-      .order('match_id', { ascending: true })
+      .order('id', { ascending: true })
       .range(statsOffset, statsOffset + STATS_PAGE - 1);
     if (statsErr) throw new Error(`player_stats scoring-v2: ${statsErr.message}`);
     if (!chunk?.length) break;
@@ -234,21 +234,28 @@ export default async function ScoringV2Page() {
     ptsV2: number;
     sumR1: number;
     sumR2: number;
+    /** Rows where legacy `match_rating` was actually stored (often sparse vs points). */
+    nR1: number;
   };
   const shadowAgg = new Map<string, ShadowAcc>();
   for (const r of rows) {
-    if (r.fantasy_points == null || r.fantasy_points_v2 == null) continue;
-    if (r.match_rating == null || r.match_rating_v2 == null) continue;
+    // Full-season v2 sample: any row the backfill marked with v2 counts toward GP.
+    // Do NOT require legacy `match_rating` here — many historical rows have points
+    // but null v1 rating; requiring both capped GP at ~3 for everyone.
+    if (r.fantasy_points_v2 == null || r.match_rating_v2 == null) continue;
     let ex = shadowAgg.get(r.player_id);
     if (!ex) {
-      ex = { gp: 0, ptsV1: 0, ptsV2: 0, sumR1: 0, sumR2: 0 };
+      ex = { gp: 0, ptsV1: 0, ptsV2: 0, sumR1: 0, sumR2: 0, nR1: 0 };
       shadowAgg.set(r.player_id, ex);
     }
     ex.gp += 1;
-    ex.ptsV1 += Number(r.fantasy_points);
+    ex.ptsV1 += Number(r.fantasy_points ?? 0);
     ex.ptsV2 += Number(r.fantasy_points_v2);
-    ex.sumR1 += Number(r.match_rating);
     ex.sumR2 += Number(r.match_rating_v2);
+    if (r.match_rating != null && !Number.isNaN(Number(r.match_rating))) {
+      ex.sumR1 += Number(r.match_rating);
+      ex.nR1 += 1;
+    }
   }
 
   const shadowByPlayer: Record<string, ShadowStatsPayload> = {};
@@ -260,7 +267,7 @@ export default async function ScoringV2Page() {
       ptsV2: ex.ptsV2,
       ppgV1: gp > 0 ? ex.ptsV1 / gp : 0,
       ppgV2: gp > 0 ? ex.ptsV2 / gp : 0,
-      avgRV1: gp > 0 ? ex.sumR1 / gp : 0,
+      avgRV1: ex.nR1 > 0 ? ex.sumR1 / ex.nR1 : null,
       avgRV2: gp > 0 ? ex.sumR2 / gp : 0,
     };
   }

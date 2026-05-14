@@ -12,8 +12,9 @@ export interface ShadowStatsPayload {
   ptsV2: number;
   ppgV1: number;
   ppgV2: number;
-  /** Season average 1–10 match rating (same GP as pts). */
-  avgRV1: number;
+  /** Season avg v1 match rating; null when legacy `match_rating` was never stored on those rows. */
+  avgRV1: number | null;
+  /** Season avg v2 match rating over `gp`. */
   avgRV2: number;
 }
 
@@ -147,14 +148,14 @@ export default function ShadowStatsTable({ statsSeason, players, shadowByPlayer 
         av = sa!.ppgV2 - sa!.ppgV1;
         bv = sb!.ppgV2 - sb!.ppgV1;
       } else if (sortKey === 'avg_r_v1') {
-        av = sa!.avgRV1;
-        bv = sb!.avgRV1;
+        av = sa!.avgRV1 ?? -1e9;
+        bv = sb!.avgRV1 ?? -1e9;
       } else if (sortKey === 'avg_r_v2') {
         av = sa!.avgRV2;
         bv = sb!.avgRV2;
       } else if (sortKey === 'delta_avg_r') {
-        av = sa!.avgRV2 - sa!.avgRV1;
-        bv = sb!.avgRV2 - sb!.avgRV1;
+        av = sa!.avgRV1 != null ? sa!.avgRV2 - sa!.avgRV1 : -1e9;
+        bv = sb!.avgRV1 != null ? sb!.avgRV2 - sb!.avgRV1 : -1e9;
       } else if (sortKey === 'projected_points') {
         av = a.projected_points ?? -1e9;
         bv = b.projected_points ?? -1e9;
@@ -172,11 +173,11 @@ export default function ShadowStatsTable({ statsSeason, players, shadowByPlayer 
       <p className={styles.sectionHint}>
         Every active player, same filters/sort UX as league <strong>Stats</strong>.{' '}
         <strong>GP</strong> is how many games that player has in <code>player_stats</code> for{' '}
-        <strong>{statsSeason}</strong> where both engines are populated (after backfill, that is the full season for
-        most players). <strong>Pts</strong> and <strong>PPG</strong> are the full-season sum and average over{' '}
-        <em>those same GP</em>. <strong>Avg R v1 / v2</strong> is the season average 1–10 match rating over the same
-        games — not a rolling 3-game window. League Stats &quot;Form&quot; is still last-3 there; here everything is
-        apples-to-apples on the full shadow sample.
+        <strong>{statsSeason}</strong> where v2 is populated (after backfill, that is the full season for most
+        players). <strong>Pts</strong> and <strong>PPG</strong> are the full-season sum and average over{' '}
+        <em>those same GP</em>. <strong>Avg R v1</strong> averages only rows that have legacy{' '}
+        <code>match_rating</code> (some old rows have points but never stored v1 rating). <strong>Avg R v2</strong> is
+        the season average over the same GP as Pts/PPG.
       </p>
 
       <div className={styles.shadowControls}>
@@ -246,9 +247,11 @@ export default function ShadowStatsTable({ statsSeason, players, shadowByPlayer 
               const s = shadowByPlayer[player.id];
               const dPts = s ? s.ptsV2 - s.ptsV1 : null;
               const dPpg = s ? s.ppgV2 - s.ppgV1 : null;
-              const dAvgR = s ? s.avgRV2 - s.avgRV1 : null;
+              const dAvgR =
+                s != null && s.avgRV1 != null ? s.avgRV2 - s.avgRV1 : null;
               const ppgV1s = s ? s.ppgV1.toFixed(1) : '—';
               const ppgV2s = s ? s.ppgV2.toFixed(1) : '—';
+              const avgR1s = s?.avgRV1 != null ? s.avgRV1.toFixed(2) : '—';
 
               return (
                 <tr key={player.id} className={styles.shadowRow}>
@@ -272,7 +275,7 @@ export default function ShadowStatsTable({ statsSeason, players, shadowByPlayer 
                   <td className={`${styles.shadowTdNum} ${dPpg != null ? (dPpg >= 0 ? styles.cellNumPos : styles.cellNumNeg) : ''}`}>
                     {dPpg != null ? `${dPpg >= 0 ? '+' : ''}${dPpg.toFixed(2)}` : '—'}
                   </td>
-                  <td className={styles.shadowTdNum}>{s ? s.avgRV1.toFixed(2) : '—'}</td>
+                  <td className={styles.shadowTdNum}>{avgR1s}</td>
                   <td className={styles.shadowTdNum}>{s ? s.avgRV2.toFixed(2) : '—'}</td>
                   <td className={`${styles.shadowTdNum} ${dAvgR != null ? (dAvgR >= 0 ? styles.cellNumPos : styles.cellNumNeg) : ''}`}>
                     {dAvgR != null ? `${dAvgR >= 0 ? '+' : ''}${dAvgR.toFixed(2)}` : '—'}
