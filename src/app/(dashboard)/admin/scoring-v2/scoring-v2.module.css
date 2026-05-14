@@ -231,6 +231,30 @@
   text-transform: uppercase;
 }
 
+.subTableTitle {
+  font-family: var(--font-serif);
+  font-size: 15px;
+  font-weight: 600;
+  margin: 0 0 8px;
+  margin-top: 0;
+  color: var(--color-text-secondary);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.subTableTitle + .tableScroll {
+  margin-bottom: 0;
+}
+
+.tableScroll + .subTableTitle {
+  margin-top: 28px;
+}
+
+.tableScroll {
+  overflow-x: auto;
+  margin-bottom: 8px;
+}
+
 .anchorBlock {
   margin-top: 24px;
   padding: 20px;

@@ -8,15 +8,14 @@
  * Access: any user who commissioners at least one league (we don't have a
  * global admin flag; the league commissioner is the natural admin).
  *
- * Empty-state behavior: this page is meaningful only after the dual-write
- * sync has run at least once (i.e., the Phase 3A change is deployed and
- * /api/sync/stats has fired). Until then, fantasy_points_v2 is NULL on
- * existing rows and the page shows empty placeholders.
+ * Empty-state behavior: meaningful after v2 columns are populated (dual-write
+ * sync or `scripts/backfill-scoring-v2.mjs`). Until then, match_rating_v2 is NULL.
  */
 
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
-import { getLatestReferenceStatsSeason } from '@/lib/season/currentSeason';
+import type { SupabaseClient } from '@supabase/supabase-js';
+import { getCurrentFplSeason, getLatestReferenceStatsSeason } from '@/lib/season/currentSeason';
 import { redirect } from 'next/navigation';
 import styles from './scoring-v2.module.css';
 
@@ -68,6 +67,28 @@ function safeDelta(v2: number | null, v1: number | null): number | null {
   return v2 - v1;
 }
 
+const PLAYER_CHUNK = 120;
+
+async function fetchPlayersByIds(
+  admin: SupabaseClient,
+  ids: string[],
+): Promise<Map<string, { id: string; primary_position: string; web_name: string | null; name: string | null; full_name: string | null }>> {
+  const map = new Map<string, { id: string; primary_position: string; web_name: string | null; name: string | null; full_name: string | null }>();
+  const unique = Array.from(new Set(ids));
+  for (let i = 0; i < unique.length; i += PLAYER_CHUNK) {
+    const slice = unique.slice(i, i + PLAYER_CHUNK);
+    const { data, error } = await admin
+      .from('players')
+      .select('id, primary_position, name, full_name, web_name')
+      .in('id', slice);
+    if (error) throw new Error(`players chunk ${i}: ${error.message}`);
+    for (const p of data ?? []) {
+      map.set(p.id, p as { id: string; primary_position: string; web_name: string | null; name: string | null; full_name: string | null });
+    }
+  }
+  return map;
+}
+
 /**
  * Render a horizontal CSS bar showing a delta value relative to its scale.
  * Positive deltas extend right (green), negative left (red).
@@ -109,28 +130,24 @@ export default async function ScoringV2Page() {
     redirect('/dashboard');
   }
 
-  const season = await getLatestReferenceStatsSeason(admin);
+  const refStatsSeason = await getLatestReferenceStatsSeason(admin);
+  // Must match sync + backfill (`getCurrentFplSeason`). Using `rating_reference_stats`
+  // season alone can mismatch (e.g. empty table fallback vs DB convention) and yield
+  // zero rows here while v2 rows exist.
+  const statsSeason = await getCurrentFplSeason();
 
   // 1. Fetch all player_stats rows where v2 is populated (the only useful set).
   const { data: statsRows } = await admin
     .from('player_stats')
     .select('player_id, gameweek, match_rating, match_rating_v2, fantasy_points, fantasy_points_v2')
-    .eq('season', season)
+    .eq('season', statsSeason)
     .not('match_rating_v2', 'is', null);
 
   const rows = (statsRows ?? []) as PlayerStatsRow[];
 
   // 2. Bucket by player.primary_position for the per-position deltas.
   const playerIds = Array.from(new Set(rows.map((r) => r.player_id)));
-  const { data: playersData } = await admin
-    .from('players')
-    .select('id, primary_position, name, full_name, web_name')
-    .in('id', playerIds.length ? playerIds : ['00000000-0000-0000-0000-000000000000']);
-
-  const playerById = new Map<string, { primary_position: string; web_name: string | null; name: string | null; full_name: string | null }>();
-  for (const p of playersData ?? []) {
-    playerById.set(p.id, p as any);
-  }
+  const playerById = await fetchPlayersByIds(admin, playerIds);
 
   const displayName = (p: { web_name: string | null; full_name: string | null; name: string | null } | undefined): string => {
     return p?.web_name || p?.full_name || p?.name || '—';
@@ -142,9 +159,12 @@ export default async function ScoringV2Page() {
     GRANULAR_POSITIONS.map((p) => [p, { n: 0, sumRatingDelta: 0, sumPointsDelta: 0 }])
   );
 
+  const posKeys = new Set<string>(GRANULAR_POSITIONS as unknown as string[]);
+
   for (const r of rows) {
-    const pos = playerById.get(r.player_id)?.primary_position;
-    if (!pos || !(pos in posAgg)) continue;
+    const p = playerById.get(r.player_id);
+    const pos = p?.primary_position ? String(p.primary_position).toUpperCase() : '';
+    if (!pos || !posKeys.has(pos)) continue;
     const dR = safeDelta(r.match_rating_v2, r.match_rating);
     const dP = safeDelta(r.fantasy_points_v2, r.fantasy_points);
     if (dR == null || dP == null) continue;
@@ -163,8 +183,8 @@ export default async function ScoringV2Page() {
     };
   });
 
-  // 4. Top movers (by per-player average fantasy-point delta across all their
-  //    rated fixtures). Needs >=3 fixtures to filter out single-game noise.
+  // 4. Top movers (by per-player average fantasy-point delta across fixtures
+  //    with both v1 and v2 points). Min 2 fixtures.
   type PlayerAgg = { n: number; sumDelta: number; pos: string; name: string };
   const playerAgg = new Map<string, PlayerAgg>();
   for (const r of rows) {
@@ -174,14 +194,61 @@ export default async function ScoringV2Page() {
     if (dP == null) continue;
     const ex = playerAgg.get(r.player_id);
     const name = displayName(p);
-    if (!ex) playerAgg.set(r.player_id, { n: 1, sumDelta: dP, pos: p.primary_position, name });
+    if (!ex) playerAgg.set(r.player_id, { n: 1, sumDelta: dP, pos: String(p.primary_position).toUpperCase(), name });
     else { ex.n++; ex.sumDelta += dP; }
   }
   const moverRows = Array.from(playerAgg.entries())
-    .filter(([, v]) => v.n >= 3)
+    .filter(([, v]) => v.n >= 2)
     .map(([id, v]) => ({ id, ...v, avgDelta: v.sumDelta / v.n }));
   const topUp = [...moverRows].sort((a, b) => b.avgDelta - a.avgDelta).slice(0, 12);
   const topDown = [...moverRows].sort((a, b) => a.avgDelta - b.avgDelta).slice(0, 12);
+
+  // 4b. Season leaderboards: same `rows` set, ranked by v2 outcomes with v1 alongside.
+  type Lb = {
+    id: string;
+    name: string;
+    pos: string;
+    n: number;
+    ptsV1: number;
+    ptsV2: number;
+    avgRV1: number;
+    avgRV2: number;
+  };
+  const lbMap = new Map<string, { n: number; ptsV1: number; ptsV2: number; sumRV1: number; sumRV2: number; pos: string; name: string }>();
+  for (const r of rows) {
+    const p = playerById.get(r.player_id);
+    if (!p) continue;
+    if (r.fantasy_points == null || r.fantasy_points_v2 == null) continue;
+    if (r.match_rating == null || r.match_rating_v2 == null) continue;
+    const fp1 = Number(r.fantasy_points);
+    const fp2 = Number(r.fantasy_points_v2);
+    const mr1 = Number(r.match_rating);
+    const mr2 = Number(r.match_rating_v2);
+    const posLb = String(p.primary_position).toUpperCase();
+    const nameLb = displayName(p);
+    const cur = lbMap.get(r.player_id);
+    if (!cur) {
+      lbMap.set(r.player_id, { n: 1, ptsV1: fp1, ptsV2: fp2, sumRV1: mr1, sumRV2: mr2, pos: posLb, name: nameLb });
+    } else {
+      cur.n += 1;
+      cur.ptsV1 += fp1;
+      cur.ptsV2 += fp2;
+      cur.sumRV1 += mr1;
+      cur.sumRV2 += mr2;
+    }
+  }
+  const lbRows: Lb[] = Array.from(lbMap.entries()).map(([id, v]) => ({
+    id,
+    name: v.name,
+    pos: v.pos,
+    n: v.n,
+    ptsV1: v.ptsV1,
+    ptsV2: v.ptsV2,
+    avgRV1: v.sumRV1 / v.n,
+    avgRV2: v.sumRV2 / v.n,
+  }));
+  const leaderboardPtsV2 = [...lbRows].sort((a, b) => b.ptsV2 - a.ptsV2).slice(0, 30);
+  const leaderboardAvgRv2 = [...lbRows].filter((x) => x.n >= 8).sort((a, b) => b.avgRV2 - a.avgRV2).slice(0, 30);
 
   // 5. Named-anchor breakdowns (one row per GW per player). Anchor lookup is
   //    a separate query so we still show anchors even if they have NO v2 data
@@ -199,7 +266,13 @@ export default async function ScoringV2Page() {
     const ranked = anchorMatches
       .map((c) => ({ c, n: rows.filter((r) => r.player_id === c.id).length }))
       .sort((x, y) => y.n - x.n);
-    const chosen = ranked[0]?.c;
+    const chosen = ranked[0]?.c as {
+      id: string;
+      primary_position: string;
+      name: string | null;
+      full_name: string | null;
+      web_name: string | null;
+    } | undefined;
     if (!chosen) continue;
 
     const playerRows = rows
@@ -207,8 +280,8 @@ export default async function ScoringV2Page() {
       .sort((x, y) => x.gameweek - y.gameweek);
     anchorPlayers.push({
       id: chosen.id,
-      name: displayName(chosen as any) || a.label,
-      pos: (chosen as any).primary_position,
+      name: displayName(chosen) || a.label,
+      pos: chosen.primary_position,
       rows: playerRows,
     });
   }
@@ -258,20 +331,25 @@ export default async function ScoringV2Page() {
         <div>
           <h1 className={styles.title}>Scoring Engine V2 — Shadow Comparison</h1>
           <p className={styles.subtitle}>
-            Side-by-side: FROZEN v1 (legacy) vs v2 (Phase 1+2 rebalance) for season {season}.
-            Past GWs are populated by the offseason backfill script.
+            Side-by-side: FROZEN v1 (legacy) vs v2 (Phase 1+2 rebalance). Player-stats season{' '}
+            <strong>{statsSeason}</strong>
+            {refStatsSeason !== statsSeason && (
+              <> · Reference baselines loaded for <strong>{refStatsSeason}</strong></>
+            )}
+            . Past GWs: run <code>scripts/backfill-scoring-v2.mjs</code> once, then refresh.
           </p>
         </div>
         <div className={styles.meta}>
           <div><span className={styles.metaLabel}>player-fixtures with v2:</span> {rows.length}</div>
           <div><span className={styles.metaLabel}>matchups with v2:</span> {(matchupsRaw ?? []).length}</div>
+          <div><span className={styles.metaLabel}>unique players:</span> {playerById.size}</div>
         </div>
       </header>
 
       {dataEmpty && (
         <section className={styles.emptyBanner}>
           <strong>No v2 data yet.</strong> Dual-write activates the next time <code>/api/sync/stats?mode=fpl_live</code> runs.
-          Run <code>scripts/backfill-scoring-v2.ts</code> in the offseason to populate past GWs.
+          Run <code>scripts/backfill-scoring-v2.mjs</code> in the offseason to populate past GWs.
         </section>
       )}
 
@@ -312,7 +390,7 @@ export default async function ScoringV2Page() {
       {/* Top movers */}
       <section className={styles.section}>
         <h2 className={styles.sectionTitle}>Top movers</h2>
-        <p className={styles.sectionHint}>Players with the largest avg fantasy-point delta (min 3 rated fixtures).</p>
+        <p className={styles.sectionHint}>Players with the largest avg fantasy-point delta per game (min 2 fixtures with both v1 and v2 points).</p>
         <div className={styles.moverGrid}>
           <div>
             <h3 className={styles.moverTitle}>Up</h3>
@@ -355,10 +433,107 @@ export default async function ScoringV2Page() {
         </div>
       </section>
 
+      {/* Season leaderboards (v1 vs v2) */}
+      <section className={styles.section}>
+        <h2 className={styles.sectionTitle}>Season leaderboards</h2>
+        <p className={styles.sectionHint}>
+          Same player pool as above (only fixtures with both engines populated).{' '}
+          <strong>Rating</strong> is the 1–10 match score from each engine (not FPL points).{' '}
+          <strong>Pts</strong> are Gaffa fantasy points for that fixture. First table sorts by total v2 pts; second by avg v2 rating (min 8 games).
+        </p>
+        <h3 className={styles.subTableTitle}>Top 30 by season fantasy points (v2 rank)</h3>
+        <div className={styles.tableScroll}>
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Player</th>
+                <th>Pos</th>
+                <th>G</th>
+                <th>Pts v1</th>
+                <th>Pts v2</th>
+                <th>Δ pts</th>
+                <th>Avg R v1</th>
+                <th>Avg R v2</th>
+                <th>Δ R</th>
+              </tr>
+            </thead>
+            <tbody>
+              {leaderboardPtsV2.length === 0 && (
+                <tr><td colSpan={10} className={styles.muted}>No complete v1+v2 rows to rank.</td></tr>
+              )}
+              {leaderboardPtsV2.map((row, i) => {
+                const dPts = row.ptsV2 - row.ptsV1;
+                const dR = row.avgRV2 - row.avgRV1;
+                return (
+                  <tr key={row.id}>
+                    <td>{i + 1}</td>
+                    <td>{row.name}</td>
+                    <td><span className={styles.cellPos}>{row.pos}</span></td>
+                    <td className={styles.cellNum}>{row.n}</td>
+                    <td className={styles.cellNum}>{fmt(row.ptsV1, 1)}</td>
+                    <td className={styles.cellNum}>{fmt(row.ptsV2, 1)}</td>
+                    <td className={dPts >= 0 ? styles.cellNumPos : styles.cellNumNeg}>{dPts >= 0 ? '+' : ''}{fmt(dPts, 1)}</td>
+                    <td className={styles.cellNum}>{fmt(row.avgRV1, 2)}</td>
+                    <td className={styles.cellNum}>{fmt(row.avgRV2, 2)}</td>
+                    <td className={dR >= 0 ? styles.cellNumPos : styles.cellNumNeg}>{dR >= 0 ? '+' : ''}{fmt(dR, 2)}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+
+        <h3 className={styles.subTableTitle}>Top 30 by avg match rating v2 (≥8 games)</h3>
+        <div className={styles.tableScroll}>
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Player</th>
+                <th>Pos</th>
+                <th>G</th>
+                <th>Avg R v1</th>
+                <th>Avg R v2</th>
+                <th>Δ R</th>
+                <th>Pts v1</th>
+                <th>Pts v2</th>
+                <th>Δ pts</th>
+              </tr>
+            </thead>
+            <tbody>
+              {leaderboardAvgRv2.length === 0 && (
+                <tr><td colSpan={10} className={styles.muted}>Need at least 8 rated games per player for this view.</td></tr>
+              )}
+              {leaderboardAvgRv2.map((row, i) => {
+                const dPts = row.ptsV2 - row.ptsV1;
+                const dR = row.avgRV2 - row.avgRV1;
+                return (
+                  <tr key={row.id}>
+                    <td>{i + 1}</td>
+                    <td>{row.name}</td>
+                    <td><span className={styles.cellPos}>{row.pos}</span></td>
+                    <td className={styles.cellNum}>{row.n}</td>
+                    <td className={styles.cellNum}>{fmt(row.avgRV1, 2)}</td>
+                    <td className={styles.cellNum}>{fmt(row.avgRV2, 2)}</td>
+                    <td className={dR >= 0 ? styles.cellNumPos : styles.cellNumNeg}>{dR >= 0 ? '+' : ''}{fmt(dR, 2)}</td>
+                    <td className={styles.cellNum}>{fmt(row.ptsV1, 1)}</td>
+                    <td className={styles.cellNum}>{fmt(row.ptsV2, 1)}</td>
+                    <td className={dPts >= 0 ? styles.cellNumPos : styles.cellNumNeg}>{dPts >= 0 ? '+' : ''}{fmt(dPts, 1)}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
       {/* Named anchors */}
       <section className={styles.section}>
         <h2 className={styles.sectionTitle}>Named anchors</h2>
-        <p className={styles.sectionHint}>Players flagged by the user as miscalibrated under v1.</p>
+        <p className={styles.sectionHint}>
+          Players you flagged as miscalibrated under v1. Each row is one gameweek (one row per fixture if DGW). Read across: v1 vs v2 <strong>rating</strong> (1–10 match quality) and <strong>pts</strong> (fantasy points that week).
+        </p>
         {anchorPlayers.length === 0 && (
           <p className={styles.muted}>No anchor players found in the players table.</p>
         )}
