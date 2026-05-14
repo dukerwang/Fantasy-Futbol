@@ -218,7 +218,8 @@ export default async function ScoringV2Page() {
     gp: number;
     ptsV1: number;
     ptsV2: number;
-    gws: { gw: number; r2: number }[];
+    sumR1: number;
+    sumR2: number;
   };
   const shadowAgg = new Map<string, ShadowAcc>();
   for (const r of rows) {
@@ -226,27 +227,27 @@ export default async function ScoringV2Page() {
     if (r.match_rating == null || r.match_rating_v2 == null) continue;
     let ex = shadowAgg.get(r.player_id);
     if (!ex) {
-      ex = { gp: 0, ptsV1: 0, ptsV2: 0, gws: [] };
+      ex = { gp: 0, ptsV1: 0, ptsV2: 0, sumR1: 0, sumR2: 0 };
       shadowAgg.set(r.player_id, ex);
     }
     ex.gp += 1;
     ex.ptsV1 += Number(r.fantasy_points);
     ex.ptsV2 += Number(r.fantasy_points_v2);
-    ex.gws.push({ gw: r.gameweek, r2: Number(r.match_rating_v2) });
+    ex.sumR1 += Number(r.match_rating);
+    ex.sumR2 += Number(r.match_rating_v2);
   }
 
   const shadowByPlayer: Record<string, ShadowStatsPayload> = {};
   for (const [pid, ex] of shadowAgg) {
-    const sortedG = [...ex.gws].sort((a, b) => b.gw - a.gw);
-    const last3 = sortedG.slice(0, 3).map((x) => x.r2);
-    const formV2 = last3.length > 0 ? last3.reduce((a, b) => a + b, 0) / last3.length : null;
+    const gp = ex.gp;
     shadowByPlayer[pid] = {
-      gp: ex.gp,
+      gp,
       ptsV1: ex.ptsV1,
       ptsV2: ex.ptsV2,
-      ppgV1: ex.gp > 0 ? ex.ptsV1 / ex.gp : 0,
-      ppgV2: ex.gp > 0 ? ex.ptsV2 / ex.gp : 0,
-      formV2,
+      ppgV1: gp > 0 ? ex.ptsV1 / gp : 0,
+      ppgV2: gp > 0 ? ex.ptsV2 / gp : 0,
+      avgRV1: gp > 0 ? ex.sumR1 / gp : 0,
+      avgRV2: gp > 0 ? ex.sumR2 / gp : 0,
     };
   }
 

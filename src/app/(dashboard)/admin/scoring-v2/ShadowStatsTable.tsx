@@ -12,7 +12,9 @@ export interface ShadowStatsPayload {
   ptsV2: number;
   ppgV1: number;
   ppgV2: number;
-  formV2: number | null;
+  /** Season average 1–10 match rating (same GP as pts). */
+  avgRV1: number;
+  avgRV2: number;
 }
 
 /** Minimal player row — mirrors league Stats page fields used in the table. */
@@ -26,7 +28,6 @@ export interface ShadowStatsPlayer {
   pl_team: string;
   total_points: number | null;
   ppg: number | null;
-  form_rating: number | null;
   market_value: number;
   projected_points: number | null;
 }
@@ -38,8 +39,9 @@ type SortKey =
   | 'ppg_v2'
   | 'ppg_v1'
   | 'delta_ppg'
-  | 'form_v1'
-  | 'form_v2'
+  | 'avg_r_v1'
+  | 'avg_r_v2'
+  | 'delta_avg_r'
   | 'projected_points'
   | 'market_value';
 
@@ -112,10 +114,7 @@ export default function ShadowStatsTable({ statsSeason, players, shadowByPlayer 
   }, [players, search, posFilter]);
 
   const sorted = useMemo(() => {
-    const shadowRequired =
-      sortKey !== 'form_v1' &&
-      sortKey !== 'projected_points' &&
-      sortKey !== 'market_value';
+    const shadowRequired = sortKey !== 'projected_points' && sortKey !== 'market_value';
 
     return [...filtered].sort((a, b) => {
       const sa = shadowByPlayer[a.id];
@@ -147,12 +146,15 @@ export default function ShadowStatsTable({ statsSeason, players, shadowByPlayer 
       } else if (sortKey === 'delta_ppg') {
         av = sa!.ppgV2 - sa!.ppgV1;
         bv = sb!.ppgV2 - sb!.ppgV1;
-      } else if (sortKey === 'form_v1') {
-        av = a.form_rating ?? -1e9;
-        bv = b.form_rating ?? -1e9;
-      } else if (sortKey === 'form_v2') {
-        av = sa!.formV2 ?? -1e9;
-        bv = sb!.formV2 ?? -1e9;
+      } else if (sortKey === 'avg_r_v1') {
+        av = sa!.avgRV1;
+        bv = sb!.avgRV1;
+      } else if (sortKey === 'avg_r_v2') {
+        av = sa!.avgRV2;
+        bv = sb!.avgRV2;
+      } else if (sortKey === 'delta_avg_r') {
+        av = sa!.avgRV2 - sa!.avgRV1;
+        bv = sb!.avgRV2 - sb!.avgRV1;
       } else if (sortKey === 'projected_points') {
         av = a.projected_points ?? -1e9;
         bv = b.projected_points ?? -1e9;
@@ -168,11 +170,13 @@ export default function ShadowStatsTable({ statsSeason, players, shadowByPlayer 
     <section className={styles.section}>
       <h2 className={styles.sectionTitle}>Full season leaderboard (v1 vs v2)</h2>
       <p className={styles.sectionHint}>
-        Same layout as league <strong>Stats</strong>: every active player, filters and sortable columns.{' '}
-        <strong>Pts / PPG</strong> here are summed from <code>player_stats</code> rows where v2 exists for season{' '}
-        <strong>{statsSeason}</strong> (after backfill = every GW). <strong>Form v1</strong> is the DB{' '}
-        <code>form_rating</code> (avg match rating, last 3 apps — v1 pipeline). <strong>Form v2</strong> is the same idea
-        using v2 match ratings. Players with no v2 rows yet show <span className={styles.muted}>—</span> in shadow columns.
+        Every active player, same filters/sort UX as league <strong>Stats</strong>.{' '}
+        <strong>GP</strong> is how many games that player has in <code>player_stats</code> for{' '}
+        <strong>{statsSeason}</strong> where both engines are populated (after backfill, that is the full season for
+        most players). <strong>Pts</strong> and <strong>PPG</strong> are the full-season sum and average over{' '}
+        <em>those same GP</em>. <strong>Avg R v1 / v2</strong> is the season average 1–10 match rating over the same
+        games — not a rolling 3-game window. League Stats &quot;Form&quot; is still last-3 there; here everything is
+        apples-to-apples on the full shadow sample.
       </p>
 
       <div className={styles.shadowControls}>
@@ -220,14 +224,17 @@ export default function ShadowStatsTable({ statsSeason, players, shadowByPlayer 
               <th className={`${styles.shadowTh} ${styles.shadowSortable}`} onClick={() => handleSort('delta_ppg')}>
                 Δ PPG {sortIndicator('delta_ppg')}
               </th>
+              <th className={`${styles.shadowTh} ${styles.shadowSortable}`} onClick={() => handleSort('avg_r_v1')}>
+                Avg R v1 {sortIndicator('avg_r_v1')}
+              </th>
+              <th className={`${styles.shadowTh} ${styles.shadowSortable}`} onClick={() => handleSort('avg_r_v2')}>
+                Avg R v2 {sortIndicator('avg_r_v2')}
+              </th>
+              <th className={`${styles.shadowTh} ${styles.shadowSortable}`} onClick={() => handleSort('delta_avg_r')}>
+                Δ Avg R {sortIndicator('delta_avg_r')}
+              </th>
               <th className={`${styles.shadowTh} ${styles.shadowSortable}`} onClick={() => handleSort('projected_points')}>
                 Proj {sortIndicator('projected_points')}
-              </th>
-              <th className={`${styles.shadowTh} ${styles.shadowSortable}`} onClick={() => handleSort('form_v1')}>
-                Form v1 {sortIndicator('form_v1')}
-              </th>
-              <th className={`${styles.shadowTh} ${styles.shadowSortable}`} onClick={() => handleSort('form_v2')}>
-                Form v2 {sortIndicator('form_v2')}
               </th>
               <th className={`${styles.shadowTh} ${styles.shadowSortable}`} onClick={() => handleSort('market_value')}>
                 Value {sortIndicator('market_value')}
@@ -239,10 +246,9 @@ export default function ShadowStatsTable({ statsSeason, players, shadowByPlayer 
               const s = shadowByPlayer[player.id];
               const dPts = s ? s.ptsV2 - s.ptsV1 : null;
               const dPpg = s ? s.ppgV2 - s.ppgV1 : null;
+              const dAvgR = s ? s.avgRV2 - s.avgRV1 : null;
               const ppgV1s = s ? s.ppgV1.toFixed(1) : '—';
               const ppgV2s = s ? s.ppgV2.toFixed(1) : '—';
-              const formV1s = player.form_rating != null ? Number(player.form_rating).toFixed(1) : '—';
-              const formV2s = s?.formV2 != null ? s.formV2.toFixed(1) : '—';
 
               return (
                 <tr key={player.id} className={styles.shadowRow}>
@@ -266,18 +272,21 @@ export default function ShadowStatsTable({ statsSeason, players, shadowByPlayer 
                   <td className={`${styles.shadowTdNum} ${dPpg != null ? (dPpg >= 0 ? styles.cellNumPos : styles.cellNumNeg) : ''}`}>
                     {dPpg != null ? `${dPpg >= 0 ? '+' : ''}${dPpg.toFixed(2)}` : '—'}
                   </td>
+                  <td className={styles.shadowTdNum}>{s ? s.avgRV1.toFixed(2) : '—'}</td>
+                  <td className={styles.shadowTdNum}>{s ? s.avgRV2.toFixed(2) : '—'}</td>
+                  <td className={`${styles.shadowTdNum} ${dAvgR != null ? (dAvgR >= 0 ? styles.cellNumPos : styles.cellNumNeg) : ''}`}>
+                    {dAvgR != null ? `${dAvgR >= 0 ? '+' : ''}${dAvgR.toFixed(2)}` : '—'}
+                  </td>
                   <td className={styles.shadowTdNum}>
                     {player.projected_points != null ? Number(player.projected_points).toFixed(1) : '—'}
                   </td>
-                  <td className={styles.shadowTdNum}>{formV1s}</td>
-                  <td className={styles.shadowTdNum}>{formV2s}</td>
                   <td className={styles.shadowTdNum}>£{Number(player.market_value ?? 0).toFixed(1)}m</td>
                 </tr>
               );
             })}
             {sorted.length === 0 && (
               <tr>
-                <td colSpan={12} className={styles.shadowEmpty}>
+                <td colSpan={13} className={styles.shadowEmpty}>
                   No players match your filters.
                 </td>
               </tr>
