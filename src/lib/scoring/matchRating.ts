@@ -427,16 +427,20 @@ export function curveFinalRating(composite: number, minutesPlayed: number): numb
 
 /**
  * Fantasy points from the scoring-scale rating (not the display rating).
- * Calibration: median game ≈ 6–8 pts, excellent game ≈ 18–22 pts.
+ * Calibration: average game (6.5 display) ≈ 7 pts, good (7.0) ≈ 11 pts,
+ * exceptional (8.0) ≈ 22 pts, masterclass (9.0) ≈ 37 pts.
  */
 export function calculateFantasyPoints(rating: number, minutesPlayed: number): number {
     if (minutesPlayed === 0 || rating === 0) return 0;
 
     const basePoints = 4.0;
-    const scale = 5.0;
+    const scale = 6.0;
     const minutePenalty = minutesPlayed < 60 ? 1.0 : 0;
 
-    const curve = Math.pow(Math.max(0, rating - 4.0) / 2.0, 1.5);
+    // Exponent 2.0 gives a convex curve: each additional half-point of rating
+    // produces a progressively larger points gain, so a 6.5→7.0 gap (a real
+    // quality difference) feels meaningful rather than miniscule in game terms.
+    const curve = Math.pow(Math.max(0, rating - 4.0) / 2.0, 2.0);
     let finalPoints = basePoints + (scale * curve) - minutePenalty;
 
     if (rating < 3.0) finalPoints -= 2.0;
