@@ -93,6 +93,9 @@ let failures = 0;
 for (let gw = fromArg; gw <= toArg; gw++) {
   const ok = await callOneGw(gw);
   if (!ok) failures++;
+  // Small pause between GWs to avoid FPL API rate-limiting (each Vercel
+  // function call makes 3 FPL requests: bootstrap-static, live, fixtures).
+  if (gw < toArg) await new Promise((r) => setTimeout(r, 1500));
 }
 console.log(`\nDone. ${toArg - fromArg + 1} GWs attempted, ${failures} failures.`);
 if (failures > 0) process.exit(1);
