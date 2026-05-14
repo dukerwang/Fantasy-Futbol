@@ -387,10 +387,10 @@ export function applyPositionWeights(
 //    Used only as the input to calculateFantasyPoints so the points curve
 //    calibration is never disturbed.
 //
-//  • DISPLAY SCALE  (curveFinalRating, exported)  3.5 + 7.0 × composite
-//    Shifted so the median player (composite ≈ 0.475) lands near 6.8,
+//  • DISPLAY SCALE  (curveFinalRating, exported)  3.0 + 7.0 × composite
+//    Shifted so the median player (composite ≈ 0.50) lands near 6.5,
 //    matching the Fotmob / SofaScore rating distribution that fans expect.
-//    Top performers reach 8–9, poor games dip to 5.5–6.0.
+//    Top performers reach 8–9, poor games dip to 5.0–6.0.
 //
 // Fantasy points are intentionally decoupled from the display rating so
 // that aesthetic re-calibration of the display never changes game balance.
@@ -409,13 +409,13 @@ function computeScoringRating(composite: number, minutesPlayed: number): number 
 
 /**
  * Display rating on the 1–10 scale shown to users.
- * 3.5 + 7.0 × composite maps the median composite (~0.475) to ≈ 6.8,
- * consistent with Fotmob/SofaScore where average PL starters rate 6.5–7.0.
+ * 3.0 + 7.0 × composite maps the median composite (~0.50) to ≈ 6.5,
+ * consistent with Fotmob/SofaScore where average PL starters rate 6.0–6.5.
  */
 export function curveFinalRating(composite: number, minutesPlayed: number): number {
     if (composite < 0 || minutesPlayed === 0) return 0;
 
-    let rating = 3.5 + 7.0 * composite;
+    let rating = 3.0 + 7.0 * composite;
 
     if (minutesPlayed < 60) {
         const penalty = (1 - (minutesPlayed / 60)) * 1.5;

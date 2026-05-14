@@ -196,7 +196,7 @@ export async function POST(req: NextRequest) {
                 red_cards: find('red_cards') ?? 0,
                 own_goals: find('own_goals') ?? 0,
                 bonus: find('bonus') ?? 0,
-                bps: find('bps') ?? 0,
+                bps: Math.round((el.stats.bps ?? 0) * ratio),
                 influence: (parseFloat(el.stats.influence) * ratio).toString(),
                 creativity: (parseFloat(el.stats.creativity) * ratio).toString(),
                 threat: (parseFloat(el.stats.threat) * ratio).toString(),

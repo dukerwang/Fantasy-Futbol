@@ -155,7 +155,7 @@ async function syncFplLiveRatings(gameweek: number): Promise<NextResponse> {
               red_cards: findExplain('red_cards') ?? 0,
               own_goals: findExplain('own_goals') ?? 0,
               bonus: findExplain('bonus') ?? 0,
-              bps: findExplain('bps') ?? 0,
+              bps: Math.round((el.stats.bps ?? 0) * ratio),
               // Distribute non-point GW-aggregate stats by minute ratio.
               // FPL only itemises point-bearing stats in `explain`; ICT/xG and
               // the granular defensive counts are GW totals on `el.stats`.
