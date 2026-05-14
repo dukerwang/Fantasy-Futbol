@@ -18,6 +18,11 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import { getCurrentFplSeason, getLatestReferenceStatsSeason } from '@/lib/season/currentSeason';
 import { redirect } from 'next/navigation';
 import styles from './scoring-v2.module.css';
+import { FULL_PLAYER_SELECT } from '@/lib/constants/queries';
+import ShadowStatsTable, {
+  type ShadowStatsPayload,
+  type ShadowStatsPlayer,
+} from './ShadowStatsTable';
 
 export const dynamic = 'force-dynamic';
 
@@ -203,52 +208,49 @@ export default async function ScoringV2Page() {
   const topUp = [...moverRows].sort((a, b) => b.avgDelta - a.avgDelta).slice(0, 12);
   const topDown = [...moverRows].sort((a, b) => a.avgDelta - b.avgDelta).slice(0, 12);
 
-  // 4b. Season leaderboards: same `rows` set, ranked by v2 outcomes with v1 alongside.
-  type Lb = {
-    id: string;
-    name: string;
-    pos: string;
-    n: number;
+  // Full-season shadow leaderboard: all active players + per-player aggregates from `rows`.
+  const { data: allActiveForShadow } = await admin
+    .from('players')
+    .select(FULL_PLAYER_SELECT)
+    .eq('is_active', true);
+
+  type ShadowAcc = {
+    gp: number;
     ptsV1: number;
     ptsV2: number;
-    avgRV1: number;
-    avgRV2: number;
+    gws: { gw: number; r2: number }[];
   };
-  const lbMap = new Map<string, { n: number; ptsV1: number; ptsV2: number; sumRV1: number; sumRV2: number; pos: string; name: string }>();
+  const shadowAgg = new Map<string, ShadowAcc>();
   for (const r of rows) {
-    const p = playerById.get(r.player_id);
-    if (!p) continue;
     if (r.fantasy_points == null || r.fantasy_points_v2 == null) continue;
     if (r.match_rating == null || r.match_rating_v2 == null) continue;
-    const fp1 = Number(r.fantasy_points);
-    const fp2 = Number(r.fantasy_points_v2);
-    const mr1 = Number(r.match_rating);
-    const mr2 = Number(r.match_rating_v2);
-    const posLb = String(p.primary_position).toUpperCase();
-    const nameLb = displayName(p);
-    const cur = lbMap.get(r.player_id);
-    if (!cur) {
-      lbMap.set(r.player_id, { n: 1, ptsV1: fp1, ptsV2: fp2, sumRV1: mr1, sumRV2: mr2, pos: posLb, name: nameLb });
-    } else {
-      cur.n += 1;
-      cur.ptsV1 += fp1;
-      cur.ptsV2 += fp2;
-      cur.sumRV1 += mr1;
-      cur.sumRV2 += mr2;
+    let ex = shadowAgg.get(r.player_id);
+    if (!ex) {
+      ex = { gp: 0, ptsV1: 0, ptsV2: 0, gws: [] };
+      shadowAgg.set(r.player_id, ex);
     }
+    ex.gp += 1;
+    ex.ptsV1 += Number(r.fantasy_points);
+    ex.ptsV2 += Number(r.fantasy_points_v2);
+    ex.gws.push({ gw: r.gameweek, r2: Number(r.match_rating_v2) });
   }
-  const lbRows: Lb[] = Array.from(lbMap.entries()).map(([id, v]) => ({
-    id,
-    name: v.name,
-    pos: v.pos,
-    n: v.n,
-    ptsV1: v.ptsV1,
-    ptsV2: v.ptsV2,
-    avgRV1: v.sumRV1 / v.n,
-    avgRV2: v.sumRV2 / v.n,
-  }));
-  const leaderboardPtsV2 = [...lbRows].sort((a, b) => b.ptsV2 - a.ptsV2).slice(0, 30);
-  const leaderboardAvgRv2 = [...lbRows].filter((x) => x.n >= 8).sort((a, b) => b.avgRV2 - a.avgRV2).slice(0, 30);
+
+  const shadowByPlayer: Record<string, ShadowStatsPayload> = {};
+  for (const [pid, ex] of shadowAgg) {
+    const sortedG = [...ex.gws].sort((a, b) => b.gw - a.gw);
+    const last3 = sortedG.slice(0, 3).map((x) => x.r2);
+    const formV2 = last3.length > 0 ? last3.reduce((a, b) => a + b, 0) / last3.length : null;
+    shadowByPlayer[pid] = {
+      gp: ex.gp,
+      ptsV1: ex.ptsV1,
+      ptsV2: ex.ptsV2,
+      ppgV1: ex.gp > 0 ? ex.ptsV1 / ex.gp : 0,
+      ppgV2: ex.gp > 0 ? ex.ptsV2 / ex.gp : 0,
+      formV2,
+    };
+  }
+
+  const shadowTablePlayers = (allActiveForShadow ?? []) as unknown as ShadowStatsPlayer[];
 
   // 5. Named-anchor breakdowns (one row per GW per player). Anchor lookup is
   //    a separate query so we still show anchors even if they have NO v2 data
@@ -433,100 +435,11 @@ export default async function ScoringV2Page() {
         </div>
       </section>
 
-      {/* Season leaderboards (v1 vs v2) */}
-      <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>Season leaderboards</h2>
-        <p className={styles.sectionHint}>
-          Same player pool as above (only fixtures with both engines populated).{' '}
-          <strong>Rating</strong> is the 1–10 match score from each engine (not FPL points).{' '}
-          <strong>Pts</strong> are Gaffa fantasy points for that fixture. First table sorts by total v2 pts; second by avg v2 rating (min 8 games).
-        </p>
-        <h3 className={styles.subTableTitle}>Top 30 by season fantasy points (v2 rank)</h3>
-        <div className={styles.tableScroll}>
-          <table className={styles.table}>
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Player</th>
-                <th>Pos</th>
-                <th>G</th>
-                <th>Pts v1</th>
-                <th>Pts v2</th>
-                <th>Δ pts</th>
-                <th>Avg R v1</th>
-                <th>Avg R v2</th>
-                <th>Δ R</th>
-              </tr>
-            </thead>
-            <tbody>
-              {leaderboardPtsV2.length === 0 && (
-                <tr><td colSpan={10} className={styles.muted}>No complete v1+v2 rows to rank.</td></tr>
-              )}
-              {leaderboardPtsV2.map((row, i) => {
-                const dPts = row.ptsV2 - row.ptsV1;
-                const dR = row.avgRV2 - row.avgRV1;
-                return (
-                  <tr key={row.id}>
-                    <td>{i + 1}</td>
-                    <td>{row.name}</td>
-                    <td><span className={styles.cellPos}>{row.pos}</span></td>
-                    <td className={styles.cellNum}>{row.n}</td>
-                    <td className={styles.cellNum}>{fmt(row.ptsV1, 1)}</td>
-                    <td className={styles.cellNum}>{fmt(row.ptsV2, 1)}</td>
-                    <td className={dPts >= 0 ? styles.cellNumPos : styles.cellNumNeg}>{dPts >= 0 ? '+' : ''}{fmt(dPts, 1)}</td>
-                    <td className={styles.cellNum}>{fmt(row.avgRV1, 2)}</td>
-                    <td className={styles.cellNum}>{fmt(row.avgRV2, 2)}</td>
-                    <td className={dR >= 0 ? styles.cellNumPos : styles.cellNumNeg}>{dR >= 0 ? '+' : ''}{fmt(dR, 2)}</td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-
-        <h3 className={styles.subTableTitle}>Top 30 by avg match rating v2 (≥8 games)</h3>
-        <div className={styles.tableScroll}>
-          <table className={styles.table}>
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Player</th>
-                <th>Pos</th>
-                <th>G</th>
-                <th>Avg R v1</th>
-                <th>Avg R v2</th>
-                <th>Δ R</th>
-                <th>Pts v1</th>
-                <th>Pts v2</th>
-                <th>Δ pts</th>
-              </tr>
-            </thead>
-            <tbody>
-              {leaderboardAvgRv2.length === 0 && (
-                <tr><td colSpan={10} className={styles.muted}>Need at least 8 rated games per player for this view.</td></tr>
-              )}
-              {leaderboardAvgRv2.map((row, i) => {
-                const dPts = row.ptsV2 - row.ptsV1;
-                const dR = row.avgRV2 - row.avgRV1;
-                return (
-                  <tr key={row.id}>
-                    <td>{i + 1}</td>
-                    <td>{row.name}</td>
-                    <td><span className={styles.cellPos}>{row.pos}</span></td>
-                    <td className={styles.cellNum}>{row.n}</td>
-                    <td className={styles.cellNum}>{fmt(row.avgRV1, 2)}</td>
-                    <td className={styles.cellNum}>{fmt(row.avgRV2, 2)}</td>
-                    <td className={dR >= 0 ? styles.cellNumPos : styles.cellNumNeg}>{dR >= 0 ? '+' : ''}{fmt(dR, 2)}</td>
-                    <td className={styles.cellNum}>{fmt(row.ptsV1, 1)}</td>
-                    <td className={styles.cellNum}>{fmt(row.ptsV2, 1)}</td>
-                    <td className={dPts >= 0 ? styles.cellNumPos : styles.cellNumNeg}>{dPts >= 0 ? '+' : ''}{fmt(dPts, 1)}</td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      </section>
+      <ShadowStatsTable
+        statsSeason={statsSeason}
+        players={shadowTablePlayers}
+        shadowByPlayer={shadowByPlayer}
+      />
 
       {/* Named anchors */}
       <section className={styles.section}>
