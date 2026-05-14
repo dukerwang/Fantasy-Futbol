@@ -128,7 +128,16 @@ function computeComponentScores(
     position: GranularPosition,
     refStats: Record<GranularPosition, ReferenceStats>,
 ): Record<RatingComponent, ComponentResult> {
-    const ref = refStats[position];
+    // Defensive fallback chain: position → LB/RB equivalent for LWB/RWB → defaults.
+    // Should never hit the final fallback because DEFAULT_REFERENCE_STATS covers
+    // all 12 granular positions, but guards against a future enum addition that
+    // skips a reference-stats seed.
+    const ref = refStats[position]
+        ?? (position === 'LWB' ? refStats.LB : undefined)
+        ?? (position === 'RWB' ? refStats.RB : undefined)
+        ?? refStats.CM
+        ?? DEFAULT_REFERENCE_STATS[position]
+        ?? DEFAULT_REFERENCE_STATS.CM;
 
     // 1. Match Impact (BPS)
     //    Subtract estimated goal/assist contribution to avoid double-counting
@@ -166,12 +175,24 @@ function computeComponentScores(
     };
 
     // 5. Defensive Score
-    //    Raw = clean_sheet bonus + xGC outperformance − goals-conceded penalty
-    //    + FPL granular defensive actions
+    //    Primary signal: FPL `defensive_contribution` — a position-weighted
+    //    defensive action count provided directly by the FPL API (25/26+).
+    //      DEF: tackles + CBI
+    //      MID/FWD: tackles + CBI + recoveries
+    //      GK: 0 (use save_score instead)
     //
-    //    Nerfs to prevent volume-farming from dominating:
-    //      - Tackle Diminishing Return: curve prevents 10-tackle games scaling linearly
-    //      - CB CBI Nerf: clearance-spammers get half credit (stops Tarkowski exploiting volume)
+    //    Position-specific adjustments:
+    //      - CB: clearance volume is nerfed (clearances are largely positional
+    //        and lopsided in mid-block teams). We rebuild the raw input from
+    //        components: tackles + CBI * 0.5, dropping FPL's flat DC for CBs.
+    //      - Full-backs (LB/RB/LWB/RWB): FPL's DEF bucket excludes recoveries,
+    //        but FBs do recover the ball routinely. Add recoveries * 0.5 on top.
+    //      - DM/CM/AM/LW/RW/ST: FPL DC already includes recoveries; use directly.
+    //
+    //    Outcome modifiers (added on top of the activity signal):
+    //      + xGC outperformance bonus (defense kept goals below the chance quality)
+    //      − GC penalty (defense let goals through above the chance quality)
+    //      + clean-sheet bonus (position-weighted: GK/DEF/DM full, CM half, AM/ATT 0)
     const gc = stats.goals_conceded;
     const xgc = stats.expected_goals_conceded ?? 0;
     const posGroup = getPositionGroup(position);
@@ -187,20 +208,30 @@ function computeComponentScores(
     const canGetCS = csBonus > 0;
     const xgcOutperf = Math.max(0, xgc - gc) * 5;
     const gcPenalty = Math.max(0, gc - xgc) * 5;
-    const tackleCurve = Math.pow(Math.max(0, stats.fpl_tackles ?? 0), 0.8) * 1.5;
-    const recoveriesCurve = Math.pow(Math.max(0, stats.fpl_recoveries ?? 0), 0.7) * 0.8;
-    const cbiCurve = position === 'CB'
-        ? Math.pow(Math.max(0, stats.fpl_cbi ?? 0), 0.6) * 1.2
-        : Math.pow(Math.max(0, stats.fpl_cbi ?? 0), 0.8) * 1.2;
-    const defActionsRaw = tackleCurve + cbiCurve + recoveriesCurve;
-    const bypassPenalty = ((stats as any).dribbled_past ?? 0) * 2.0;
-    const defensiveRaw = defActionsRaw + csBonus + xgcOutperf - gcPenalty - bypassPenalty;
+
+    const tackles = Math.max(0, stats.fpl_tackles ?? 0);
+    const cbi = Math.max(0, stats.fpl_cbi ?? 0);
+    const recoveries = Math.max(0, stats.fpl_recoveries ?? 0);
+    const dc = Math.max(0, stats.fpl_def_contrib ?? 0);
+
+    let defActionsRaw: number;
+    if (position === 'GK') {
+        defActionsRaw = 0; // GK defensive credit lives in save_score
+    } else if (position === 'CB') {
+        defActionsRaw = tackles + cbi * 0.5;
+    } else if (position === 'LB' || position === 'RB' || position === 'LWB' || position === 'RWB') {
+        defActionsRaw = dc + recoveries * 0.5;
+    } else {
+        defActionsRaw = dc;
+    }
+
+    const defensiveRaw = defActionsRaw + csBonus + xgcOutperf - gcPenalty;
 
     const defensive: ComponentResult = {
         score: sigmoidNormalize(defensiveRaw, ref.defensive.median, ref.defensive.stddev),
         detail: (stats.clean_sheet && canGetCS)
-            ? `CS, ${gc} conceded vs ${xgc.toFixed(1)} xGC`
-            : `${gc} conceded vs ${xgc.toFixed(1)} xGC`,
+            ? `CS, ${gc} conceded vs ${xgc.toFixed(1)} xGC (DC ${dc}, T ${tackles}, CBI ${cbi}, R ${recoveries})`
+            : `${gc} conceded vs ${xgc.toFixed(1)} xGC (DC ${dc}, T ${tackles}, CBI ${cbi}, R ${recoveries})`,
     };
 
 
@@ -355,11 +386,16 @@ export function calculateFantasyPoints(rating: number, minutesPlayed: number): n
 }
 
 // ════════════════════════════════════════════════════════════════════════════
-// Default Reference Stats (seed values — will be replaced by historical CSV)
+// Default Reference Stats — offline fallback only
 //
-// Per-position-group medians and stddevs for each component's raw input.
-// These are reasonable estimates; the real values should be computed from
-// the vaastav/Fantasy-Premier-League merged_gw.csv data.
+// Per-position medians/stddevs for each component's raw input. At runtime the
+// `rating_reference_stats` table (filled by `scripts/recompute_reference_stats.mjs`
+// from the current season's FPL `event/{gw}/live` + our `players.primary_position`)
+// overrides these via `loadReferenceStats()`.
+//
+// Older idea was multi-season vaastav/merged_gw CSVs; that path does not carry
+// 25/26 granular defense or `defensive_contribution`, so it cannot match this
+// engine's defensive raw input. Multi-season baselines would need a bespoke merge.
 // ════════════════════════════════════════════════════════════════════════════
 
 function makeRef(
@@ -379,23 +415,32 @@ function makeRef(
     };
 }
 
-// Match Control baseline estimates: (influence × 1.5) + (bps × 1.0)
-// Calibrated from FPL live data distributions per position.
+// Per-position medians and stddevs for each rating-component raw input.
+// These are FALLBACK values used only when the DB `rating_reference_stats`
+// table is empty (e.g., a fresh deploy before the first sync). At runtime,
+// `loadReferenceStats()` in src/lib/scoring/matchups.ts overlays the live DB
+// values on top of these.
 //
+// Refresh: re-run `node scripts/recompute_reference_stats.mjs` whenever:
+//   - A new season has accumulated >5 GWs of data
+//   - The engine's raw-input formulas change (especially defensive)
+//   - The 12-position taxonomy changes
+//
+// Values below were generated from 2025-26 FPL live data (GW1-35, minutes>=45).
+//                 match_impact   influence      creativity     threat         defensive       goal_invol     finishing       save_score
 export const DEFAULT_REFERENCE_STATS: Record<GranularPosition, ReferenceStats> = {
-    // Generated by compute_fpl_reference_stats.js (>45m filter, Seasons: 23-24, 24-25, 25-26)
-    GK: makeRef([14, 9.3], [21.8, 14.28], [0, 3.17], [0, 1.51], [0.2, 2.8], [0, 0.48], [0, 1], [6, 4.03]),
-    CB: makeRef([12, 8.72], [18.2, 11.82], [1.8, 10.6], [2, 9.81], [0.2, 2.8], [0, 1.59], [0, 1], [0, 0.92]),
-    LB: makeRef([10, 9.12], [14.8, 11.2], [10.3, 14.04], [4, 9.59], [0.2, 2.8], [0, 1.7], [-0.01, 1], [0, 1]),
-    RB: makeRef([12, 9.3], [14.2, 11.53], [9.5, 12.92], [2, 8.06], [0.2, 2.8], [0, 1.82], [0, 1], [0, 1]),
-    DM: makeRef([12, 6.54], [13, 12.62], [10.1, 13.09], [2, 10.22], [0.2, 2.8], [0, 1.95], [-0.01, 1], [0, 1.36]),
-    CM: makeRef([11, 6.69], [12.2, 15.78], [14.2, 17.75], [8, 14.92], [0.2, 2.8], [0, 2.76], [-0.01, 0.11], [0, 1]),
-    LWB: makeRef([10, 8.50], [13.0, 12.0], [12.0, 15.00], [6, 11.00], [0.2, 2.8], [0, 2.20], [-0.01, 0.50], [0, 1]),
-    RWB: makeRef([11, 8.50], [12.5, 12.0], [11.0, 14.00], [4, 10.00], [0.2, 2.8], [0, 2.20], [0, 0.50], [0, 1]),
-    AM: makeRef([10, 7.47], [12, 19.4], [15.9, 17.88], [10, 16.43], [0.2, 2.8], [0, 3.46], [-0.01, 0.13], [0, 1.04]),
-    LW: makeRef([10, 7.46], [10.6, 19.21], [15.95, 16.7], [19.5, 18.5], [0.2, 2.8], [0, 3.69], [-0.02, 0.15], [0, 1]),
-    RW: makeRef([9, 7.45], [11.8, 19.08], [16.3, 17.59], [19, 18.11], [0.2, 2.8], [0, 3.48], [-0.01, 0.14], [0, 1]),
-    ST: makeRef([6, 9.22], [8.2, 21.49], [10.8, 11.29], [21, 22.13], [0.2, 2.8], [0, 3.92], [-0.02, 0.15], [0, 1]),
+    GK:  makeRef([12.00, 10.44], [21.20, 12.83], [ 0.00,  2.18], [ 0.00,  2.38], [ 0.50,  9.02], [0.00, 0.35], [ 0.000, 0.04], [4.00, 3.94]),
+    CB:  makeRef([10.00, 10.12], [20.20, 12.28], [ 1.40,  6.72], [ 2.00, 10.33], [ 5.60,  9.37], [0.00, 1.55], [-0.010, 0.22], [0.00, 1.00]),
+    LB:  makeRef([11.00, 10.43], [16.00, 10.60], [ 7.90, 12.48], [ 4.00,  9.55], [ 8.60,  9.64], [0.00, 1.62], [-0.028, 0.20], [0.00, 1.00]),
+    RB:  makeRef([11.00, 10.14], [15.30, 12.11], [ 6.80, 12.08], [ 2.00,  7.87], [ 9.95, 10.07], [0.00, 1.72], [-0.018, 0.22], [0.00, 1.00]),
+    LWB: makeRef([ 9.00, 10.29], [14.60, 11.00], [11.15, 13.75], [ 4.00,  9.54], [ 8.85,  9.87], [0.00, 1.67], [-0.025, 0.21], [0.00, 1.00]),
+    RWB: makeRef([10.00, 10.02], [14.00, 11.72], [11.20, 13.66], [ 2.00,  8.86], [ 8.75,  9.94], [0.00, 1.92], [-0.020, 0.25], [0.00, 1.00]),
+    DM:  makeRef([14.00,  6.84], [13.40, 13.15], [10.35, 13.71], [ 2.00,  9.82], [10.90, 10.08], [0.00, 2.08], [-0.025, 0.28], [0.00, 1.00]),
+    CM:  makeRef([13.00,  6.83], [11.80, 14.36], [14.80, 16.49], [ 6.00, 11.54], [ 7.85,  7.37], [0.00, 2.45], [-0.045, 0.32], [0.00, 1.00]),
+    AM:  makeRef([12.00,  7.63], [11.20, 19.34], [17.10, 18.95], [12.00, 15.09], [ 6.10,  5.94], [0.00, 3.41], [-0.065, 0.45], [0.00, 1.00]),
+    LW:  makeRef([ 9.00,  7.49], [ 8.80, 16.47], [14.40, 15.37], [12.00, 16.02], [ 5.68,  5.60], [0.00, 2.85], [-0.070, 0.38], [0.00, 1.00]),
+    RW:  makeRef([10.00,  6.95], [10.60, 16.30], [15.80, 16.17], [17.00, 15.91], [ 5.73,  5.54], [0.00, 3.01], [-0.060, 0.40], [0.00, 1.00]),
+    ST:  makeRef([ 7.00,  9.26], [ 7.20, 20.66], [ 6.10,  9.43], [19.00, 21.80], [ 3.95,  5.35], [0.00, 3.76], [-0.040, 0.47], [0.00, 1.00]),
 };
 
 // ════════════════════════════════════════════════════════════════════════════

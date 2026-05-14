@@ -181,8 +181,7 @@ Only then may you write any CSS or JSX.
 ---
 
 ## Do Not Touch Without Explicit Reason
-- `src/lib/scoring/matchRating.ts` — sigmoid scoring engine; any change must be mirrored in `supabase/functions/sync-ratings/index.ts`
-- `supabase/functions/sync-ratings/` — Edge Function mirror of the scoring engine
+- `src/lib/scoring/matchRating.ts` — sigmoid scoring engine; single source of truth (the old Supabase Edge Function mirror was deleted in migration 037)
 - `supabase/migrations/` — never alter DB schema directly; all changes go through migration files
 - `src/app/api/cron/process-auctions/` — auction processing logic; timing is server-enforced
-- The 12-position system (GK, CB, LB, RB, DM, CM, LM, RM, AM, LW, RW, ST) must be preserved everywhere
+- The 12-position system (GK, CB, LB, RB, LWB, RWB, DM, CM, AM, LW, RW, ST) must be preserved everywhere

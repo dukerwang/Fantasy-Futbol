@@ -79,11 +79,12 @@ export async function GET(_req: NextRequest, { params }: Props) {
 
   const playerRecord = new Map<string, PlayerScoreRecord>();
   for (const row of statsRows ?? []) {
-    const fixtureMins: number = (row.stats as any)?.minutes_played ?? 0;
+    const stats = (row.stats as any) ?? null;
+    const fixtureMins: number = stats?.minutes_played ?? 0;
     const pts: number = Number(row.fantasy_points) || 0;
     const existing = playerRecord.get(row.player_id);
-    
-    const fixture = { minutes: fixtureMins, fantasyPoints: pts };
+
+    const fixture = { minutes: fixtureMins, fantasyPoints: pts, stats };
     if (!existing) {
       playerRecord.set(row.player_id, { fixtures: [fixture] });
     } else {

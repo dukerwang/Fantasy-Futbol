@@ -4,13 +4,15 @@
  * Modes:
  *   ?mode=fpl_form       — Bulk-sync FPL form / status / points (lightweight)
  *   ?mode=fpl_live&gw=N  — Sync per-match ratings for gameweek N via FPL live data
- *   ?mode=trigger_ratings&gw=N — Invoke the Edge Function for full rating sync
  *
  * The legacy fixture-based API-Football path has been removed in favour of
- * the FPL live rating system.
+ * the FPL live rating system. The Supabase Edge Function trigger_ratings mode
+ * was removed in migration 037 — this Next.js route is the single source of
+ * truth for the scoring engine.
  */
 
 import { calculateMatchRating, mapFplLiveToRawStats } from '@/lib/scoring/engine';
+import { calculateMatchRatingV1 } from '@/lib/scoring/matchRatingV1Legacy';
 import { loadReferenceStats } from '@/lib/scoring/matchups';
 import { resolveAllStalledGameweeks } from '@/lib/scoring/matchupProcessor';
 import { createAdminClient } from '@/lib/supabase/admin';
@@ -62,14 +64,8 @@ export async function POST(req: NextRequest) {
     return syncFplLiveRatings(gw);
   }
 
-  if (mode === 'trigger_ratings') {
-    const gw = parseInt(searchParams.get('gw') ?? '0', 10);
-    if (!gw) return NextResponse.json({ error: 'gw is required' }, { status: 400 });
-    return triggerEdgeFunctionRatings(gw);
-  }
-
   return NextResponse.json(
-    { error: 'Invalid mode. Use fpl_form, fpl_live, or trigger_ratings.' },
+    { error: 'Invalid mode. Use fpl_form or fpl_live.' },
     { status: 400 },
   );
 }
@@ -142,21 +138,27 @@ async function syncFplLiveRatings(gameweek: number): Promise<NextResponse> {
             const totalMinutes = el.stats.minutes || 1;
             const ratio = fixtureMinutes / totalMinutes;
 
+            const findExplain = (key: string) =>
+              ex.stats.find((s: { identifier: string; value: number }) => s.identifier === key)?.value;
+
             const fixtureFplStats = {
               ...el.stats,
               minutes: fixtureMinutes,
-              goals_scored: ex.stats.find((s: any) => s.identifier === 'goals_scored')?.value ?? 0,
-              assists: ex.stats.find((s: any) => s.identifier === 'assists')?.value ?? 0,
-              clean_sheets: ex.stats.find((s: any) => s.identifier === 'clean_sheets')?.value ?? 0,
-              goals_conceded: ex.stats.find((s: any) => s.identifier === 'goals_conceded')?.value ?? 0,
-              saves: ex.stats.find((s: any) => s.identifier === 'saves')?.value ?? 0,
-              penalties_saved: ex.stats.find((s: any) => s.identifier === 'penalties_saved')?.value ?? 0,
-              penalties_missed: ex.stats.find((s: any) => s.identifier === 'penalties_missed')?.value ?? 0,
-              yellow_cards: ex.stats.find((s: any) => s.identifier === 'yellow_cards')?.value ?? 0,
-              red_cards: ex.stats.find((s: any) => s.identifier === 'red_cards')?.value ?? 0,
-              bonus: ex.stats.find((s: any) => s.identifier === 'bonus')?.value ?? 0,
-              bps: ex.stats.find((s: any) => s.identifier === 'bps')?.value ?? 0,
-              // Distribute non-point stats by minute ratio
+              goals_scored: findExplain('goals_scored') ?? 0,
+              assists: findExplain('assists') ?? 0,
+              clean_sheets: findExplain('clean_sheets') ?? 0,
+              goals_conceded: findExplain('goals_conceded') ?? 0,
+              saves: findExplain('saves') ?? 0,
+              penalties_saved: findExplain('penalties_saved') ?? 0,
+              penalties_missed: findExplain('penalties_missed') ?? 0,
+              yellow_cards: findExplain('yellow_cards') ?? 0,
+              red_cards: findExplain('red_cards') ?? 0,
+              own_goals: findExplain('own_goals') ?? 0,
+              bonus: findExplain('bonus') ?? 0,
+              bps: findExplain('bps') ?? 0,
+              // Distribute non-point GW-aggregate stats by minute ratio.
+              // FPL only itemises point-bearing stats in `explain`; ICT/xG and
+              // the granular defensive counts are GW totals on `el.stats`.
               influence: (parseFloat(el.stats.influence) * ratio).toString(),
               creativity: (parseFloat(el.stats.creativity) * ratio).toString(),
               threat: (parseFloat(el.stats.threat) * ratio).toString(),
@@ -164,13 +166,26 @@ async function syncFplLiveRatings(gameweek: number): Promise<NextResponse> {
               expected_goals: (parseFloat(el.stats.expected_goals) * ratio).toString(),
               expected_assists: (parseFloat(el.stats.expected_assists) * ratio).toString(),
               expected_goals_conceded: (parseFloat(el.stats.expected_goals_conceded) * ratio).toString(),
+              // Granular defensive (25/26+) — also GW totals; allocate by minute ratio.
+              tackles: Math.round((el.stats.tackles ?? 0) * ratio),
+              clearances_blocks_interceptions: Math.round((el.stats.clearances_blocks_interceptions ?? 0) * ratio),
+              recoveries: Math.round((el.stats.recoveries ?? 0) * ratio),
+              defensive_contribution: Math.round((el.stats.defensive_contribution ?? 0) * ratio),
             };
 
             const rawStats = mapFplLiveToRawStats(fixtureFplStats);
-            const { rating, fantasyPoints } = calculateMatchRating(
+            // V2 = new (Phase 1+2) engine with granular defense, recomputed
+            // reference stats, and FPL defensive_contribution.
+            const v2 = calculateMatchRating(
               rawStats,
               dbPlayer.primary_position as GranularPosition,
               refStats as any
+            );
+            // V1 = frozen pre-rebalance engine, written to the legacy columns
+            // so the admin shadow view can compare apples-to-apples.
+            const v1 = calculateMatchRatingV1(
+              rawStats,
+              dbPlayer.primary_position as GranularPosition,
             );
 
             const { error } = await supabase.from('player_stats').upsert(
@@ -180,8 +195,10 @@ async function syncFplLiveRatings(gameweek: number): Promise<NextResponse> {
                 gameweek,
                 season: fplSeason,
                 stats: rawStats,
-                fantasy_points: fantasyPoints,
-                match_rating: rating,
+                fantasy_points: v1.fantasyPoints,
+                match_rating: v1.rating,
+                fantasy_points_v2: v2.fantasyPoints,
+                match_rating_v2: v2.rating,
               },
               { onConflict: 'player_id,match_id' },
             );
@@ -191,10 +208,14 @@ async function syncFplLiveRatings(gameweek: number): Promise<NextResponse> {
           // Fallback for players who didn't play (DNP)
           const fixtureId = playerFixIds[0] || (gameweek * 1000 + el.id);
           const rawStats = mapFplLiveToRawStats(el.stats);
-          const { rating, fantasyPoints } = calculateMatchRating(
+          const v2 = calculateMatchRating(
             rawStats,
             dbPlayer.primary_position as GranularPosition,
             refStats as any
+          );
+          const v1 = calculateMatchRatingV1(
+            rawStats,
+            dbPlayer.primary_position as GranularPosition,
           );
 
           await supabase.from('player_stats').upsert(
@@ -204,8 +225,10 @@ async function syncFplLiveRatings(gameweek: number): Promise<NextResponse> {
               gameweek,
               season: fplSeason,
               stats: rawStats,
-              fantasy_points: fantasyPoints,
-              match_rating: rating,
+              fantasy_points: v1.fantasyPoints,
+              match_rating: v1.rating,
+              fantasy_points_v2: v2.fantasyPoints,
+              match_rating_v2: v2.rating,
             },
             { onConflict: 'player_id,match_id' },
           );
@@ -230,40 +253,6 @@ async function syncFplLiveRatings(gameweek: number): Promise<NextResponse> {
 
 // tryResolveGameweekIfFinished replaced by resolveAllStalledGameweeks in matchupProcessor.ts
 // That function scans ALL live GWs in the DB, not just the one being synced.
-
-// ── Trigger Edge Function ─────────────────────────────────────────────────
-
-async function triggerEdgeFunctionRatings(gameweek: number): Promise<NextResponse> {
-  const edgeFnUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/sync-ratings`;
-  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-
-  try {
-    const res = await fetch(edgeFnUrl, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${serviceKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ gameweek }),
-    });
-
-    if (!res.ok) {
-      const text = await res.text();
-      return NextResponse.json(
-        { error: `Edge function error: ${res.status}`, detail: text },
-        { status: 502 },
-      );
-    }
-
-    const result = await res.json();
-    return NextResponse.json({ ok: true, mode: 'trigger_ratings', gameweek, result });
-  } catch (err) {
-    return NextResponse.json(
-      { error: 'Failed to invoke Edge Function', detail: String(err) },
-      { status: 500 },
-    );
-  }
-}
 
 // ── Bulk FPL Form Sync (unchanged) ────────────────────────────────────────
 

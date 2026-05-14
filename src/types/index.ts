@@ -296,6 +296,13 @@ export interface RawStats {
   fpl_tackles?: number;
   fpl_cbi?: number;
   fpl_recoveries?: number;
+  /**
+   * FPL `defensive_contribution` — position-weighted defensive action count.
+   * DEF: T+CBI; MID/FWD: T+CBI+R; GK: 0. Available from FPL live for 25/26+.
+   * Use this as the primary defensive activity signal; the raw fields above
+   * are retained for breakdown UI and historical compatibility.
+   */
+  fpl_def_contrib?: number;
 }
 
 export type TransactionType =
@@ -607,6 +614,19 @@ export interface FplLivePlayerStats {
     expected_goals: string;
     expected_assists: string;
     expected_goals_conceded: string;
+    // 25/26 — granular defensive fields.
+    // `defensive_contribution` is FPL's position-weighted defensive action count:
+    //   DEF: tackles + CBI
+    //   MID/FWD: tackles + CBI + recoveries
+    //   GK: always 0
+    // Use it as the primary defensive activity signal; raw T/CBI/R are kept
+    // for breakdown UI and any future use.
+    tackles: number;
+    clearances_blocks_interceptions: number;
+    recoveries: number;
+    defensive_contribution: number;
+    expected_goal_involvements?: string;
+    starts?: number;
   };
   explain: {
     fixture: number;

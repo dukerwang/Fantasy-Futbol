@@ -215,8 +215,8 @@ The prototype uses Tailwind classes. Map them to our CSS Modules as follows:
 
 **Position badge colors** (from prototype `.badge-*` classes — use these exact hex values, not CSS variables):
 - GK: `#D4A017` (amber)
-- DEF (CB/LB/RB): `#1E3A5F` (navy)
-- MID (DM/CM/LM/RM/AM): `#5C3D8F` (purple)
+- DEF (CB/LB/RB/LWB/RWB): `#1E3A5F` (navy)
+- MID (DM/CM/AM): `#5C3D8F` (purple)
 - ATT (ST): `#8B1A1A` (crimson)
 - Wide (LW/RW): `#3A6B4A` (forest green)
 
@@ -281,7 +281,7 @@ Do not make architectural assumptions about unimplemented features. Plan only wh
 - **Function invocations**: 1,000,000 per month included. Heavy sync operations should not be scheduled more than necessary.
 
 ### Fragile Areas — Plans Must Flag These
-- `matchRating.ts` changes must be mirrored in the `sync-ratings` Edge Function
+- `src/lib/scoring/matchRating.ts` is the single source of truth (the divergent `sync-ratings` Edge Function was deleted in migration 037)
 - Do not trigger batch score recalculations without explicit reason
 - Prefer RPCs over raw mutations for FAAB and points-sensitive operations (ACID compliance)
 - Never hardcode sigmoid medians/stddevs — always load from DB via `loadReferenceStats()`

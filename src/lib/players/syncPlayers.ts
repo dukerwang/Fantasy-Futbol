@@ -143,10 +143,14 @@ export async function syncPlayersFromFpl(admin: SupabaseClient): Promise<SyncPla
     return {
       ...row,
       name: nameMap.get(row.fpl_id) ?? row.name,
-      // If it's in our override file, let the file win. 
-      // Otherwise, preserve what's already in the DB.
-      primary_position: isExplicitOverride ? row.primary_position : (existingPos ?? row.primary_position),
-      secondary_positions: secondaryPositionsMap.get(row.fpl_id) ?? [],
+      // PRIORITY:
+      // 1. Existing DB position (Preserves SoFIFA/Manual overrides already in DB)
+      // 2. Explicit manual override file (Fallback for new players)
+      // 3. Generic FPL mapping (Last resort)
+      primary_position: existingPos ?? (isExplicitOverride ? row.primary_position : row.primary_position),
+      secondary_positions: (secondaryPositionsMap.get(row.fpl_id) ?? []).filter(
+        (p) => p !== (existingPos ?? (isExplicitOverride ? row.primary_position : row.primary_position))
+      ),
       market_value:
         marketValueMap.has(row.fpl_id) && marketValueMap.get(row.fpl_id) !== null
           ? marketValueMap.get(row.fpl_id)

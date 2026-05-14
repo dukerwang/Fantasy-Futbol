@@ -1,11 +1,11 @@
-import { DEFAULT_REFERENCE_STATS } from './engine';
-import type { ReferenceStats, RatingComponent } from '@/types';
+import { calculateMatchRating, DEFAULT_REFERENCE_STATS } from './engine';
+import type { GranularPosition, RawStats, ReferenceStats, RatingComponent } from '@/types';
 import type { createAdminClient } from '@/lib/supabase/admin';
 
 export type RefStatsMap = Record<string, ReferenceStats>;
 
-/** 
- * Map of which positions can fill which slots. 
+/**
+ * Map of which positions can fill which slots.
  * Currently strict: each slot only accepts its own position type.
  */
 export const POSITION_FLEX_MAP: Record<string, string[]> = {
@@ -18,20 +18,57 @@ export const POSITION_FLEX_MAP: Record<string, string[]> = {
 export interface PlayerScoreRecord {
   /**
    * Each fixture the player appeared in during this gameweek.
-   * `fantasyPoints` is the pre-computed value from `player_stats.fantasy_points`
-   * (calculated by the sync edge function with full FPL ICT/BPS data).
-   * We use this directly rather than re-running calculateMatchRating, because the
-   * stored `stats` JSON often has zeroed BPS/ICT fields when the sync runs before
-   * FPL finalizes bonus points — which would produce near-zero re-calculated scores.
+   *
+   *   minutes        — fixture-allocated minutes
+   *   fantasyPoints  — pre-computed (primary-position-based) value from
+   *                    `player_stats.fantasy_points`. Used for the LIVE
+   *                    scoreboard and for the bench depth bonus, both of
+   *                    which are intentionally primary-position scored.
+   *   stats          — raw RawStats JSON for the fixture. Used to re-score
+   *                    starters and auto-subs at the slot they actually
+   *                    played in (role-aware), only when the GW is finished.
    */
-  fixtures: { minutes: number; fantasyPoints: number }[];
+  fixtures: { minutes: number; fantasyPoints: number; stats: RawStats | null }[];
+}
+
+/**
+ * Re-score one fixture under a given lineup slot. Used for role-aware scoring
+ * of starters (at their slot) and auto-subs (at the slot they're filling) once
+ * the GW is finished. Returns 0 when stats are unavailable so we can fall back
+ * to stored points without exploding.
+ */
+function rateAtSlot(
+  stats: RawStats | null,
+  slot: string,
+  refStats: Record<string, ReferenceStats>,
+): number {
+  if (!stats) return 0;
+  if (!(stats.minutes_played > 0)) return 0;
+  const { fantasyPoints } = calculateMatchRating(
+    stats,
+    slot as GranularPosition,
+    refStats as Record<GranularPosition, ReferenceStats>,
+  );
+  return fantasyPoints;
 }
 
 /**
  * Resolve a single team's lineup score with auto-subs and bench bonus.
- * 
+ *
+ * Role-aware scoring (Phase 2):
+ *   - When `finished === true`, starters and auto-subs are re-scored at the
+ *     slot they actually filled in this matchup. A bench RB subbed into LB
+ *     is scored under LB weights for this matchup only — `player_stats`
+ *     stays primary-position-based so the player browser / PPG / rankings
+ *     don't drift league-by-league.
+ *   - During live (`finished === false`), the stored primary-position points
+ *     drive the scoreboard. The UI surfaces this as "approximate, locks at
+ *     GW finish".
+ *   - Bench depth bonus (20%) always uses stored points, since bench players
+ *     didn't play any slot.
+ *
  * @param lineup The team's lineup object (starters, bench)
- * @param playerRecord Map of player_id to their match minutes and stats
+ * @param playerRecord Map of player_id to their match minutes / points / stats
  * @param playerPositions Map of player_id to their allowed positions
  * @param playerPlTeamId Map of player_id to their Premier League team ID
  * @param refStats Reference stats for the rating engine
@@ -43,7 +80,7 @@ export function calculateTeamScore(
   playerRecord: Map<string, PlayerScoreRecord>,
   playerPositions: Map<string, string[]>,
   playerPlTeamId: Map<string, number>,
-  _refStats: Record<string, ReferenceStats>,
+  refStats: Record<string, ReferenceStats>,
   finished: boolean,
   finishedPlTeamIds: Set<number>
 ): number {
@@ -56,21 +93,41 @@ export function calculateTeamScore(
 
   const usedBenchIds = new Set<string>();
 
-  /** Sum pre-computed fantasy points across all fixtures for a player */
+  /** Sum pre-computed (primary-position) fantasy points across all fixtures. */
   function getStoredPoints(playerId: string): number {
     const record = playerRecord.get(playerId);
     if (!record) return 0;
     return record.fixtures.reduce((sum, fix) => sum + (fix.minutes > 0 ? fix.fantasyPoints : 0), 0);
   }
 
-  // 1. Starters & Auto-Subs
+  /**
+   * Sum points across fixtures, re-scoring each at the given slot when the GW
+   * is finished AND stats are present. Falls back to stored fantasyPoints
+   * otherwise — this keeps the live scoreboard stable while still allowing the
+   * final score to reflect the slot the player actually filled.
+   */
+  function getSlotPoints(playerId: string, slot: string): number {
+    const record = playerRecord.get(playerId);
+    if (!record) return 0;
+    let total = 0;
+    for (const fix of record.fixtures) {
+      if (fix.minutes <= 0) continue;
+      if (finished && fix.stats) {
+        total += rateAtSlot(fix.stats, slot, refStats);
+      } else {
+        total += fix.fantasyPoints;
+      }
+    }
+    return total;
+  }
+
+  // 1. Starters & Auto-Subs (role-aware once finished=true)
   for (const starter of starters) {
     const record = playerRecord.get(starter.player_id);
     const totalMinutes = record?.fixtures.reduce((s, f) => s + f.minutes, 0) ?? 0;
 
     if (totalMinutes > 0) {
-      // Starter played — use pre-computed points directly
-      score += getStoredPoints(starter.player_id);
+      score += getSlotPoints(starter.player_id, starter.slot);
     } else {
       // Auto-sub: only fire if this player's PL match is confirmed finished
       const plTeamId = playerPlTeamId.get(starter.player_id);
@@ -90,7 +147,9 @@ export function calculateTeamScore(
           const canPlaySlot = subPositions.some((pos) => slotAllowedPos.includes(pos));
 
           if (canPlaySlot) {
-            score += getStoredPoints(benchId);
+            // Auto-sub fills the absent starter's slot, so we rate the sub at
+            // THAT slot (not the sub's own primary position).
+            score += getSlotPoints(benchId, starter.slot);
             usedBenchIds.add(benchId);
             break;
           }
@@ -99,7 +158,9 @@ export function calculateTeamScore(
     }
   }
 
-  // 2. Bench depth bonus (20% of unused bench players who played)
+  // 2. Bench depth bonus (20% of unused bench players who played).
+  //    Bench players didn't fill any slot, so we credit them at their
+  //    primary-position points (i.e., stored fantasyPoints, unchanged from v1).
   for (const benchId of benchIds) {
     if (!usedBenchIds.has(benchId)) {
       const record = playerRecord.get(benchId);

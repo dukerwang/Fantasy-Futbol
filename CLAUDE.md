@@ -76,13 +76,24 @@ supabase/
 ```
 
 ## Scoring Engine (Handle With Extreme Care)
-- Primary source: `src/lib/scoring/matchRating.ts`
-- **CRITICAL**: Any changes to `matchRating.ts` MUST be manually mirrored in `supabase/functions/sync-ratings/index.ts`
+- Primary source: `src/lib/scoring/matchRating.ts` — single source of truth
+- The legacy Supabase Edge Function `sync-ratings` was a divergent copy and has been deleted (migration `037`). Do not reintroduce a parallel scoring engine.
+- Sync path: Vercel cron → `/api/sync/stats?mode=fpl_live` → `calculateMatchRating` → `player_stats`
 - Uses sigmoid normalization: `sigmoidNormalize(val, median, stddev)`
-- Always load reference stats from DB using `loadReferenceStats()` — never hardcode medians/stddevs
+- Always load reference stats from DB using `loadReferenceStats()` — never hardcode medians/stddevs. Regenerate with `node scripts/recompute_reference_stats.mjs` at the start of each new season (or whenever the engine's raw-input formulas change).
 - Use `DEFAULT_REFERENCE_STATS` only as a fallback, never as primary values
 - Ratings are cached in `player_stats` — do not trigger batch recalculations without a clear reason
 - Scoring weights per position group are in `matchRating.ts` — attacker ratings are highly sensitive to Finishing (`stddev: 0.15`)
+
+### Scoring V2 Rebalance Status
+- **Phases 1+2 deployed.** Engine now uses FPL `defensive_contribution` (25/26+), position-specific defensive raw input, real per-position reference stats, and role-aware scoring at matchup resolution.
+- **Phase 3 shadow validation active.** `player_stats.*_v2` and `matchups.score_*_v2` columns hold V2 output; primary columns hold frozen V1 output via `matchRatingV1Legacy.ts`. Compare in `/admin/scoring-v2`.
+- **Phase 3D promotion runbook (after season ends + sign-off in admin view):**
+  1. Run `node scripts/backfill-scoring-v2.mjs` to populate v2 columns across GW1..38.
+  2. Review `/admin/scoring-v2` end-to-end. Stop if anything looks wrong.
+  3. Apply migration `040_promote_scoring_v2.sql` (copies v2 → primary, drops v2 columns).
+  4. In the same PR, delete `src/lib/scoring/matchRatingV1Legacy.ts`, remove the dual-write from `/api/sync/stats/route.ts` (revert v1.fantasyPoints assignment to v2.fantasyPoints), remove the dual `playerRecordV1/V2` split from `matchupProcessor.ts`, and remove `/admin/scoring-v2` + `/api/admin/backfill-scoring-v2`.
+  5. `npm run build` → commit → push.
 
 ## Database Tables
 | Table | Purpose | Rows |
@@ -187,7 +198,7 @@ Three different player ID types exist. Never confuse them:
 - When refactoring or finishing a feature, remove unused imports, dead code, and unreachable branches. Run npm run lint and fix all warnings before committing.
 
 ## Known Fragile Areas
-- `src/lib/scoring/matchRating.ts` + its Edge Function mirror — changes affect all historical scores
+- `src/lib/scoring/matchRating.ts` — changes affect all historical scores
 - Waiver/auction timing — 48hr window must be server-enforced, not client-side
 - Lineup slot scoring weights — position-dependent, do not generalize or flatten
 - ID mapping between `fpl_id`, `api_football_id`, and internal `id`

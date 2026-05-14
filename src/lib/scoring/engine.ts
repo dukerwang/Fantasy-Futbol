@@ -83,6 +83,11 @@ export function mapFplLiveToRawStats(
     expected_goals: parseFloat(fplStats.expected_goals) || 0,
     expected_assists: parseFloat(fplStats.expected_assists) || 0,
     expected_goals_conceded: parseFloat(fplStats.expected_goals_conceded) || 0,
+    // FPL granular defensive stats (25/26+)
+    fpl_tackles: fplStats.tackles ?? 0,
+    fpl_cbi: fplStats.clearances_blocks_interceptions ?? 0,
+    fpl_recoveries: fplStats.recoveries ?? 0,
+    fpl_def_contrib: fplStats.defensive_contribution ?? 0,
   };
 }
 

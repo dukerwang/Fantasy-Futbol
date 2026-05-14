@@ -86,15 +86,16 @@ export async function POST() {
     // Strict granular quotas summing to 20 based on actual DB distribution
     const limits = {
         GK: 2,
-        CB: 3, LB: 2, RB: 2,
-        DM: 2, CM: 2, AM: 1, LM: 1, RM: 1,
-        LW: 1, RW: 1, ST: 2
+        CB: 3, LB: 1, RB: 1, LWB: 1, RWB: 1,
+        DM: 2, CM: 2, AM: 1,
+        LW: 1, RW: 1, ST: 4
     };
 
     const teamCounts: Record<string, typeof limits> = {};
     for (const t of teams) {
         teamCounts[t.id] = {
-            GK: 0, CB: 0, LB: 0, RB: 0, DM: 0, CM: 0, AM: 0, LM: 0, RM: 0, LW: 0, RW: 0, ST: 0
+            GK: 0, CB: 0, LB: 0, RB: 0, LWB: 0, RWB: 0,
+            DM: 0, CM: 0, AM: 0, LW: 0, RW: 0, ST: 0
         };
     }
 
