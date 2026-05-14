@@ -37,8 +37,13 @@ export const FLEX_CONFIG: Record<GranularPosition, { flex: number; components: R
     RB: { flex: 0.25, components: ['creativity', 'match_impact', 'defensive'] },
     DM: { flex: 0.25, components: ['match_impact', 'influence', 'goal_involvement'] },
     CM: { flex: 0.25, components: ['match_impact', 'creativity', 'influence'] },
-    LWB: { flex: 0.20, components: ['creativity', 'goal_involvement', 'defensive'] },
-    RWB: { flex: 0.20, components: ['creativity', 'goal_involvement', 'defensive'] },
+    // Defensive is intentionally excluded from LWB/RWB flex: dc values in V2
+    // give defensive a real score (0.52–0.60) that would steal the flex in
+    // quiet non-CS games, inflating scores over V1 where dc was always 0.
+    // Defensive still contributes via its 0.10 base weight; flex only rewards
+    // genuine creative or attacking output.
+    LWB: { flex: 0.20, components: ['creativity', 'goal_involvement'] },
+    RWB: { flex: 0.20, components: ['creativity', 'goal_involvement'] },
     AM: { flex: 0.25, components: ['creativity', 'goal_involvement', 'finishing'] },
     LW: { flex: 0.25, components: ['goal_involvement', 'finishing', 'threat'] },
     RW: { flex: 0.25, components: ['goal_involvement', 'finishing', 'threat'] },
