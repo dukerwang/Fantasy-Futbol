@@ -1,15 +1,15 @@
 /**
  * scripts/backfill-scoring-v2.mjs
  *
- * Thin wrapper that POSTs to /api/admin/backfill-scoring-v2 to backfill the
+ * Calls POST /api/admin/backfill-scoring-v2 one GW at a time to backfill the
  * v2 shadow columns across every completed GW of the current FPL season.
  *
- * Intended for use after the 25/26 season ends, before promoting v2 to
- * primary (Phase 3D). Can also be used to populate a single GW for ad-hoc
- * inspection.
+ * Calling one GW per request avoids Node.js undici's 30-second headers
+ * timeout that fires when the entire season backfill is requested in a single
+ * HTTP call against gaffa.live (Vercel).
  *
  * Usage:
- *   node scripts/backfill-scoring-v2.mjs                  # all completed GWs
+ *   node scripts/backfill-scoring-v2.mjs                  # all GWs 1-38
  *   node scripts/backfill-scoring-v2.mjs --from=1 --to=38
  *   node scripts/backfill-scoring-v2.mjs --from=37        # GW 37 onward
  *   node scripts/backfill-scoring-v2.mjs --base=https://gaffa.live
@@ -37,8 +37,8 @@ const getArg = (k) => {
 const base = getArg('base')
   ?? process.env.NEXT_PUBLIC_APP_URL
   ?? 'https://gaffa.live';
-const from = getArg('from');
-const to = getArg('to');
+const fromArg = parseInt(getArg('from') ?? '1', 10);
+const toArg   = parseInt(getArg('to')   ?? '38', 10);
 const includeStats = getArg('stats') !== 'false';
 const includeMatchups = getArg('matchups') !== 'false';
 const secret = process.env.CRON_SECRET;
@@ -47,23 +47,52 @@ if (!secret) {
   process.exit(1);
 }
 
-const params = new URLSearchParams();
-if (from) params.set('from', from);
-if (to) params.set('to', to);
-if (!includeStats) params.set('stats', 'false');
-if (!includeMatchups) params.set('matchups', 'false');
+const baseUrl = base.replace(/\/$/, '');
 
-const url = `${base.replace(/\/$/, '')}/api/admin/backfill-scoring-v2${params.size ? `?${params}` : ''}`;
-console.log(`POST ${url}`);
+async function callOneGw(gw) {
+  const params = new URLSearchParams({ from: String(gw), to: String(gw) });
+  if (!includeStats) params.set('stats', 'false');
+  if (!includeMatchups) params.set('matchups', 'false');
+  const url = `${baseUrl}/api/admin/backfill-scoring-v2?${params}`;
 
-const res = await fetch(url, {
-  method: 'POST',
-  headers: {
-    'x-cron-secret': secret,
-    'Content-Type': 'application/json',
-  },
-});
-const body = await res.text();
-console.log(`HTTP ${res.status}`);
-console.log(body);
-if (!res.ok) process.exit(1);
+  process.stdout.write(`  GW${String(gw).padStart(2, '0')} → POST ${url} … `);
+
+  let res;
+  try {
+    res = await fetch(url, {
+      method: 'POST',
+      headers: { 'x-cron-secret': secret, 'Content-Type': 'application/json' },
+      // 90s timeout: each single-GW call should complete well within this.
+      signal: AbortSignal.timeout(90_000),
+    });
+  } catch (err) {
+    console.error(`FAILED (network: ${err.message})`);
+    return false;
+  }
+
+  const body = await res.text();
+  if (!res.ok) {
+    console.error(`HTTP ${res.status}\n${body}`);
+    return false;
+  }
+
+  let parsed;
+  try { parsed = JSON.parse(body); } catch { parsed = null; }
+
+  const s = parsed?.summary?.[0];
+  if (s) {
+    console.log(`HTTP ${res.status} — stats:${s.statsUpdated} matchups:${s.matchupsUpdated} errors:${s.statsErrors + s.matchupErrors}`);
+  } else {
+    console.log(`HTTP ${res.status}`);
+  }
+  return true;
+}
+
+console.log(`Backfilling GW${fromArg}–GW${toArg} (one request per GW) against ${baseUrl}`);
+let failures = 0;
+for (let gw = fromArg; gw <= toArg; gw++) {
+  const ok = await callOneGw(gw);
+  if (!ok) failures++;
+}
+console.log(`\nDone. ${toArg - fromArg + 1} GWs attempted, ${failures} failures.`);
+if (failures > 0) process.exit(1);
