@@ -71,10 +71,11 @@ function matchesPos(player: ShadowStatsPlayer, filter: PosFilter): boolean {
   if (filter === 'DEF') return DEF_POSITIONS.includes(player.primary_position);
   if (filter === 'MID') return MID_POSITIONS.includes(player.primary_position);
   if (filter === 'ATT') return ATT_POSITIONS.includes(player.primary_position);
-  return (
-    player.primary_position === filter ||
-    (player.secondary_positions?.includes(filter as GranularPosition) ?? false)
-  );
+  // For specific granular positions, only match primary_position.
+  // V2 points are computed using each player's primary position weights, so
+  // including secondary-position players would mix incompatible scoring contexts
+  // and make the position-filtered ranking misleading.
+  return player.primary_position === filter;
 }
 
 interface Props {
