@@ -92,12 +92,11 @@ function normalizePosition(pos: GranularPosition): GranularPosition {
 
 /**
  * Steepness of the sigmoid curve.
- * K=1.3 spreads the rating distribution wider than the neutral K=1.0:
- * players genuinely above the median score noticeably more, creating
- * bigger natural gaps between quality tiers without introducing the
- * variance artifacts that come from a convex points curve.
+ * K=1.0 is the neutral value — the sigmoid maps ±1σ to ~0.73/0.27.
+ * Increasing K widens the spread but inflates consistently-elite players
+ * (e.g. creative AMs) too aggressively; 1.0 keeps ratings honest.
  */
-const SIGMOID_K = 1.3;
+const SIGMOID_K = 1.0;
 
 // ════════════════════════════════════════════════════════════════════════════
 // Cross-position normalization for event components
@@ -433,9 +432,9 @@ export function curveFinalRating(composite: number, minutesPlayed: number): numb
 
 /**
  * Fantasy points from the scoring-scale rating (not the display rating).
- * Calibration (with SIGMOID_K=1.3 widening rating spread):
- * average game (6.5 display) ≈ 8 pts, good (7.0) ≈ 12 pts,
- * exceptional (8.0) ≈ 21 pts, masterclass (9.0) ≈ 32 pts.
+ * Calibration (SIGMOID_K=1.0, scale=6.0, exponent=1.5):
+ * average game (6.5 display) ≈ 8 pts, good (7.0) ≈ 11 pts,
+ * exceptional (8.0) ≈ 19 pts, masterclass (9.0) ≈ 29 pts.
  */
 export function calculateFantasyPoints(rating: number, minutesPlayed: number): number {
     if (minutesPlayed === 0 || rating === 0) return 0;
