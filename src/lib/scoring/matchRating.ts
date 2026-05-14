@@ -37,8 +37,8 @@ export const FLEX_CONFIG: Record<GranularPosition, { flex: number; components: R
     RB: { flex: 0.25, components: ['creativity', 'match_impact', 'defensive'] },
     DM: { flex: 0.25, components: ['match_impact', 'influence', 'goal_involvement'] },
     CM: { flex: 0.25, components: ['match_impact', 'creativity', 'influence'] },
-    LWB: { flex: 0.25, components: ['creativity', 'goal_involvement', 'defensive'] },
-    RWB: { flex: 0.25, components: ['creativity', 'goal_involvement', 'defensive'] },
+    LWB: { flex: 0.20, components: ['creativity', 'goal_involvement', 'defensive'] },
+    RWB: { flex: 0.20, components: ['creativity', 'goal_involvement', 'defensive'] },
     AM: { flex: 0.25, components: ['creativity', 'goal_involvement', 'finishing'] },
     LW: { flex: 0.25, components: ['goal_involvement', 'finishing', 'threat'] },
     RW: { flex: 0.25, components: ['goal_involvement', 'finishing', 'threat'] },
@@ -87,6 +87,32 @@ function normalizePosition(pos: GranularPosition): GranularPosition {
 
 /** Steepness of the sigmoid curve. 1.5 gives good spread for football stats. */
 const SIGMOID_K = 1.0;
+
+// ════════════════════════════════════════════════════════════════════════════
+// Cross-position normalization for event components
+//
+// Goal involvement (goals × 6 + assists × 4) and finishing (xG outperformance)
+// must be evaluated on a COMMON scale across all positions.  Position-specific
+// gi_stddev values range from 1.67 (LWB) to 3.76 (ST): this alone means a
+// LWB assist (giRaw=4) outscores a ST 2-goal game (giRaw=12) in V2, which is
+// the wrong result for a cross-position fantasy ranking.
+//
+// Pooled outfield gi_stddev (average of per-position values) ≈ 2.28. We use a
+// slightly wider 2.5 to avoid over-rewarding occasional goal-scorers.
+//
+// Pooled finishing_stddev ≈ 0.28 (V1 used 0.15 which over-rewarded clinical
+// finishing; V2 per-position ST value of 0.47 is far too wide). 0.28 is a
+// reasonable middle ground.
+// ════════════════════════════════════════════════════════════════════════════
+
+/** Common goal-involvement scale used for ALL outfield positions. */
+const GLOBAL_GI_STDDEV = 2.5;
+/** Median gi_raw across all outfield positions (almost all games have 0). */
+const GLOBAL_GI_MEDIAN = 0;
+/** Common finishing (xG outperf) scale used for ALL positions. */
+const GLOBAL_FINISHING_STDDEV = 0.28;
+/** Median xG outperformance across all outfield positions. */
+const GLOBAL_FINISHING_MEDIAN = -0.03;
 
 /**
  * Normalize a raw value to (0, 1) using the logistic sigmoid function.
@@ -237,6 +263,10 @@ function computeComponentScores(
 
 
     // 7. Goal Involvement  (goals × 6 + assists × 4 — mirrors on-pitch impact)
+    //    Uses a GLOBAL (cross-position) stddev so that 1 goal / 1 assist have the
+    //    same fantasy value regardless of the scorer's position.  Position-specific
+    //    normalization here creates the paradox where a LWB assist outscores a ST
+    //    2-goal game because assists are rarer for LWBs.
     const g = stats.goals;
     const a = stats.assists;
     const goalInvRaw = g * 6 + a * 4;
@@ -246,7 +276,7 @@ function computeComponentScores(
     if (a > 0) goalParts.push(`${a} assist(s)`);
 
     const goalInvolvement: ComponentResult = {
-        score: sigmoidNormalize(goalInvRaw, ref.goal_involvement.median, ref.goal_involvement.stddev),
+        score: sigmoidNormalize(goalInvRaw, GLOBAL_GI_MEDIAN, GLOBAL_GI_STDDEV),
         detail: goalParts.length > 0 ? goalParts.join(', ') : 'No goals or assists',
     };
 
@@ -254,10 +284,12 @@ function computeComponentScores(
     const xa = stats.expected_assists ?? 0;
     const xgOutperf = g - xg;
     const xaOutperf = a - xa;
-    const finInput = xgOutperf + (xaOutperf * 0.5); // Weight xA outperf slightly less in pure clinicality
+    const finInput = xgOutperf + (xaOutperf * 0.5);
 
+    // Finishing also uses a global stddev: V2's per-position ST value (0.47) was
+    // 3× wider than V1's (0.15), massively deflating clinical strikers like Haaland.
     const finishing: ComponentResult = {
-        score: sigmoidNormalize(finInput, ref.finishing.median, ref.finishing.stddev),
+        score: sigmoidNormalize(finInput, GLOBAL_FINISHING_MEDIAN, GLOBAL_FINISHING_STDDEV),
         detail: `${xgOutperf >= 0 ? '+' : ''}${xgOutperf.toFixed(2)} vs xG, ${xaOutperf >= 0 ? '+' : ''}${xaOutperf.toFixed(2)} vs xA`,
     };
 
