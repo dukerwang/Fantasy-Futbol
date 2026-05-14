@@ -141,17 +141,34 @@ export async function POST(req: NextRequest) {
               dbPlayer.primary_position as GranularPosition,
               refStats as any,
             );
-            const { error } = await supabase
+            const payload = {
+              stats: rawStats,
+              fantasy_points_v2: v2.fantasyPoints,
+              match_rating_v2: v2.rating,
+            };
+
+            // Try exact match first (real fixture ID stored in match_id).
+            const { data: hit, error } = await supabase
               .from('player_stats')
-              .update({
-                stats: rawStats,
-                fantasy_points_v2: v2.fantasyPoints,
-                match_rating_v2: v2.rating,
-              })
+              .update(payload)
               .eq('player_id', dbPlayer.id)
               .eq('match_id', fixtureId)
-              .eq('gameweek', gameweek);
-            if (error) statsErrors++;
+              .eq('gameweek', gameweek)
+              .select('id');
+
+            if (error) { statsErrors++; return; }
+            if (hit && hit.length > 0) { statsUpdated++; return; }
+
+            // Historic rows (GW1–32) were written with synthetic match_ids
+            // (gameweek*1000 + fpl_player_id). Fall back to player+GW match.
+            const { error: e2 } = await supabase
+              .from('player_stats')
+              .update(payload)
+              .eq('player_id', dbPlayer.id)
+              .eq('gameweek', gameweek)
+              .is('match_rating_v2', null);  // only touch rows not yet backfilled
+
+            if (e2) statsErrors++;
             else statsUpdated++;
           };
 
