@@ -161,12 +161,13 @@ export async function POST(req: NextRequest) {
 
             // Historic rows (GW1–32) were written with synthetic match_ids
             // (gameweek*1000 + fpl_player_id). Fall back to player+GW match.
+            // No IS NULL guard — re-runs must overwrite existing values so
+            // engine changes take effect on subsequent backfill passes.
             const { error: e2 } = await supabase
               .from('player_stats')
               .update(payload)
               .eq('player_id', dbPlayer.id)
-              .eq('gameweek', gameweek)
-              .is('match_rating_v2', null);  // only touch rows not yet backfilled
+              .eq('gameweek', gameweek);
 
             if (e2) statsErrors++;
             else statsUpdated++;
