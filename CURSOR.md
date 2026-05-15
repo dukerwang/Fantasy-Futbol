@@ -1,187 +1,189 @@
 # Gaffa — Cursor Context
 
 ## Read First
-Before anything else, read `CLAUDE.md` and `GEMINI.md` in the project root.
-- `CLAUDE.md` — execution rules, stack, database schema, coding standards
-- `GEMINI.md` — architectural philosophy, game mechanics, planning principles
 
-## Role of This Agent
-**This agent (Cursor/Claude) is the Antigravity substitute.** In this project's workflow, Antigravity (Gemini) is the planning layer — it produces detailed implementation plans that Claude Code executes. When working in Cursor, this agent fills that planning role.
+Before planning or implementing, read:
 
-**Default behavior: plan first, implement second.**
-- When the user asks "how should we do X" or describes a feature → produce a concrete plan (file paths, component names, data shapes, edge cases) as you would hand it to Claude Code
-- Only write code when explicitly asked to implement, or when the task is a clear, small execution task (e.g. a token fix, a CSS tweak, a config change)
-- If a task is large (new page, new feature, significant refactor) → switch to Plan mode, draft the plan, wait for approval before touching files
+| File | Role |
+|---|---|
+| `CLAUDE.md` | Deployment, stack, DB, scoring runbook, definition of done |
+| `GEMINI.md` | Product philosophy, mechanics, planning standards |
+| This file | Cursor workflow, UI status, Stitch protocol |
 
-## Cursor-Specific Rules
-- Never commit or push without running `npm run build` first
-- If context files conflict, `CLAUDE.md` and `GEMINI.md` take precedence
+If files conflict on execution (build, push, scoring paths), **`CLAUDE.md` wins**.
+
+## Agent Role
+
+**Cursor is the planning + implementation agent** (Antigravity/Gemini substitute in this repo).
+
+| User intent | Action |
+|---|---|
+| “How should we…”, new feature, large refactor | **Plan first** — files, types, APIs, edge cases; wait for approval unless clearly told to implement |
+| Small fix (token, CSS, one-line bug) | Implement directly |
+| Scoring / FAAB / standings changes | Extra caution — read Scoring section below; never tune constants to fix one player |
+
+**Commits:** only when the user asks. **Push:** only when asked. **Build:** run before claiming work is done (`CLAUDE.md`).
+
+---
+
+## Scoring V2 — Implementer Notes (Shadow Phase)
+
+Live production still serves **V1** in primary columns. V2 is in `*_v2` columns for comparison.
+
+### When you touch scoring
+
+1. Edit only `src/lib/scoring/matchRating.ts` (and sync/backfill routes if inputs change)
+2. `npm run build`
+3. Push → wait for Vercel deploy
+4. `node scripts/backfill-scoring-v2.mjs` (optionally `--from=N --to=M`)
+5. User reviews `/admin/scoring-v2`
+
+### Script output
+
+Per gameweek line example:
+
+`HTTP 200 — stats:412 matchups:15 errors:0`
+
+- **stats** — `player_stats` rows updated with V2 rating/points  
+- **matchups** — H2H rows with `score_*_v2` recalculated  
+- Script pauses **1.5s** between GWs (FPL rate limits)
+
+### Do not change without explicit approval
+
+- `SIGMOID_K` (stay **1.0** — 1.3 over-inflated elite mids)
+- Points exponent (stay **1.5** — 2.0 worsened avg-rating vs PPG inversions)
+- `curveFinalRating` coefficients (display scale tied to FotMob targets)
+- Per-player hacks
+
+### Intentional product behavior
+
+Higher **peak** games can yield higher season PPG than a player with a higher **average** display rating. The points curve is convex (`exponent 1.5`). Do not “fix” Neto-style examples by flattening the curve unless product reverses that decision.
 
 ---
 
 ## 4-Phase Roadmap
-1. ~~**Phase 1: Automation (Precision Finish)**~~ ✅ **COMPLETE** — Matchweeks resolve immediately when FPL marks a GW as `finished`. Resolution check embedded in the live stats sync; additional daily cron windows at 18:00/19:00 UTC added. Worst-case gap reduced from 48 hours to ~1 hour.
-2. ~~**Phase 2: Tactical Depth (Taxi Squad)**~~ ✅ **COMPLETE** — `'taxi'` added to `roster_status` enum; `taxi_size` (default 3) and `taxi_age_limit` (default 21) added to `leagues`. New `POST /api/teams/[teamId]/taxi` route handles `move_to_taxi` (U21 enforcement, slot limit) and `activate` (promote to bench). Lineup and IR routes patched to exclude taxi players. Taxi squad starts empty after draft; managers fill post-draft via FAAB for U21 players.
-3. **Phase 3: Visual Completion & Dark Mode** — My Team + roster management are largely done in Cream Editorial (see polish backlog below). Remaining Phase 3 scope: Draft, Stats, Dashboard, Dark Mode toggle, and shared UI sweep.
-4. **Phase 4: Market Expansion (Loans & Selling)** - Implementing temporary trades (Loans) and Intra-League Auctions (Selling players).
+
+1. ~~Automation~~ ✅  
+2. ~~Taxi squad~~ ✅  
+3. **Visual + Scoring V2 shadow** — in progress (`CURSOR.md` UI list; `CLAUDE.md` promotion runbook)  
+4. Loans & selling — not started  
 
 ---
 
-## Current Status: Cream Editorial UI Overhaul (In Progress)
+## Cream Editorial UI — Status
 
-A major UI overhaul is underway. The app previously used a generic dark theme. It is being converted to a "Cream Editorial" aesthetic — warm parchment tones, serif typography, forest green accents. **This is partially implemented.**
+Warm parchment UI replacing legacy dark theme. **Partially complete.**
 
-### What Has Been Completed
-- ✅ `globals.css` — color tokens remapped from dark to cream; `--color-bg-elevated` added
-- ✅ Google Fonts loaded: Noto Serif, Work Sans, Inter
-- ✅ `src/components/layout/AppShell.tsx` — new sidebar nav component replacing the old horizontal tab bar
-- ✅ `src/components/layout/AppShell.module.css` — sidebar styles
-- ✅ `league/[leagueId]/layout.tsx` — now uses AppShell instead of LeagueNav
-- ✅ `Navbar.tsx` / `Navbar.module.css` — restyled for light mode
-- ✅ Login page dark gradient blob removed (`login.module.css`)
-- ✅ Dashboard page padding restored (`dashboard/page.tsx`, `dashboard.module.css`)
-- ✅ `matchups.module.css` + `matchup-detail.module.css` — stale token replacement
-- ✅ `tournaments.module.css` + `bracket.module.css` — stale token replacement
-- ✅ `transfers.module.css` — dark `#0f1117` modal inputs fixed
-- ✅ `trades.module.css`, `GlobalBidModal.module.css`, `LeagueNav.module.css` — undefined token fixes
-- ✅ `PlayerDetailCard.module.css` — dark gradient removed
-- ✅ **League Home** — dashboard layout fully implemented
-- ✅ **Trades** — 4-tab trade management system done
-- ✅ **Standings** (`standings/page.tsx`, `standings.module.css`) — podium + table with form dots, cream editorial styling
-- ✅ **Activity Log** — activity feed and live auction grouping refined
-- ✅ **Matchups** — head-to-head pitch layout and score badges finished
-- ✅ **My Team** (`league/[leagueId]/team/`) — Cream Editorial pitch (`PitchUI`), formation bar, bench / reserves / academy (taxi) / IR, FAAB strip, gameweek kickoff locks (starters, bench, reserves, and lineup API placement vs saved matchup)
-- ✅ **Roster management** (`league/[leagueId]/team/roster/`) — functional; editorial pass still optional (see polish backlog)
+### Done
 
-#### **My Team & roster — polish backlog (deferrable)**
-Revisit when circling back on squad UX (not blocking play):
-- **PL club logos** — explore sourcing/display (FPL static assets, API-Football, or licensed pack); rights and caching need a decision.
-- **Chip / photo borders** — decide between current **position-colored** frames vs **neutral** borders for a calmer pitch.
-- **Bench slot copy** — drop or shorten the long labels (“Defender”, “Midfielder”, “Attacker”) next to `DEF` / `MID` / `ATT` / `FLEX`; keep codes or one short word.
-- **Typography** — font consistency and size optimization across pitch, sidebar, and roster.
-- **Icons** — replace **emoji** (locks, hints, etc.) with a small **SVG/icon** set for a more product-native look.
-- **Roster page** — dedicated polish pass (spacing, hierarchy, actions) to match My Team quality.
+- `globals.css` tokens, Google Fonts (Noto Serif, Inter, Work Sans)
+- `AppShell` sidebar; league layout uses it
+- Navbar, login, dashboard padding
+- League Home, Trades (4-tab), Standings, Activity, Matchups (pitch H2H)
+- **My Team** — pitch, formation, bench/reserves/taxi/IR, FAAB strip, kickoff locks
+- **Roster management** — functional; editorial polish optional
+- Token fixes: matchups, tournaments, transfers modals, trades, PlayerDetailCard
 
-#### **Phase 3: Visual Completion (In Progress)**
-- **Dashboard** (League selection) — *Still in legacy dark theme*
-- **Stats** (Detailed filters/tables) — *Functional but needs editorial polish*
-- **Draft Room** — *Functionally complex, needs visual overhaul*
-- **Fixtures** — *Legacy layout*
-- **Dark Mode Toggle** — *Requirement for accessibility and aesthetic choice*
-- **Shared UI sweep** — Final sweep of hardcoded hex values and consistent card headers.
+### Remaining (Phase 3 UI)
 
-### League Home — Key Implementation Notes
-- Matchup hero: Priority 1=live, 2=upcoming (FPL bootstrap-static fetch with `{ next: { revalidate: 3600 } }` — cached 1hr), 3=completed
-- Top performers: `player_stats` JOIN `players` JOIN `roster_entries!inner` → most recent completed GW, ordered by `fantasy_points` DESC, limit 5
-- Transfer Gazette: condensed `transactions` table (limit 5) — same source as Activity Log, NOT editorial articles
-- Stitch prototype: screen `9397d59caa074cc382d3eaad4cebac9e` on project `9034509438526576481`
+| Area | Status |
+|---|---|
+| Dashboard (league picker) | Legacy dark |
+| Stats | Functional; needs editorial pass |
+| Draft room | Complex; needs visual overhaul |
+| Fixtures | Legacy layout |
+| Dark mode toggle | Not shipped |
+| Shared sweep | Hardcoded hex, card headers |
 
-### Trades — Key Implementation Notes
-- League Feed tab: ALL `accepted` trades in the league (including user's own — they also appear in My Trades history)
-- Add to Block modal: check `src/app/api/teams/[teamId]/trade-block/route.ts` for exact HTTP method before implementing fetch
-- Stitch prototype: screen `0be4d38bf3d7466ba8eaa25b5b936e12` on project `9034509438526576481`
+### My Team — polish backlog (deferrable)
+
+- PL club logos (rights + source TBD)
+- Player chip borders (position color vs neutral)
+- Bench slot labels (shorten “Defender” / “Midfielder” copy)
+- Typography pass; emoji → SVG icons
+- Roster page spacing/hierarchy to match My Team
+
+### League Home notes
+
+- Matchup hero priority: live → upcoming (FPL bootstrap, `revalidate: 3600`) → last completed
+- Top performers: `player_stats` × `players` × `roster_entries`, latest finished GW
+- Transfer Gazette: last 5 `transactions` (not editorial articles)
+- Stitch screen `9397d59caa074cc382d3eaad4cebac9e`
+
+### Trades notes
+
+- League Feed: all `accepted` trades in league
+- Trade-block API: `src/app/api/teams/[teamId]/trade-block/route.ts` — verify HTTP method before fetch
+- Stitch screen `0be4d38bf3d7466ba8eaa25b5b936e12`
 
 ---
 
-## Design System
+## Design System (locked tokens)
 
-### Color Tokens (current locked values in `globals.css`)
 ```css
---color-bg-primary: #F7F3ED;       /* Content area — clean off-white */
---color-bg-secondary: #EDE8DE;     /* Sidebar, topbar — warm cream (darker anchor) */
---color-bg-card: #FDFCF9;          /* Card surfaces — near white */
---color-bg-card-hover: #EDE8E0;    /* Hover/pressed state */
---color-bg-elevated: #EDE8DE;      /* Inset surfaces: inputs, secondary buttons */
---color-border: #C8C3BC;           /* Standard borders */
---color-border-subtle: #D9D4CD;    /* Subtle separators */
---color-accent-green: #3A6B4A;     /* PRIMARY accent — forest green */
---color-accent-blue: #3A6B4A;      /* Alias for green (legacy) */
---color-text-primary: #1C1C1C;     /* Near-black charcoal */
---color-text-secondary: #4A4A4A;   /* Secondary text */
---color-text-muted: #9A9488;       /* Timestamps, labels */
+--color-bg-primary: #F7F3ED;
+--color-bg-secondary: #EDE8DE;
+--color-bg-card: #FDFCF9;
+--color-bg-elevated: #EDE8DE;
+--color-border: #C8C3BC;
+--color-accent-green: #3A6B4A;
+--color-text-primary: #1C1C1C;
 --font-serif: 'Noto Serif', Georgia, serif;
---font-sans: 'Inter', -apple-system, sans-serif;
+--font-sans: 'Inter', system-ui, sans-serif;
 ```
 
-- Use CSS variables for all color values.
-- Positional accent colors: `var(--color-pos-gk)`, `var(--color-pos-st)`, etc.
+- Page titles: serif bold  
+- Nav/body: Work Sans / Inter  
+- ALL CAPS labels: Inter, tracked  
 
-### Typography Convention
-- **Page titles / headlines**: `font-family: var(--font-serif)`, bold
-- **Nav labels, body copy**: Work Sans (loaded via Google Fonts, falls back to `var(--font-sans)`)
-- **Data labels (ALL CAPS, tracked)**: Inter (loaded via Google Fonts, falls back to `var(--font-sans)`)
+### Position badge colors (do not change)
 
-### Position Badge Colors (DO NOT CHANGE)
-```css
---color-pos-gk: #f59e0b;    /* Amber */
---color-pos-cb: #3b82f6;    /* Navy blue */
---color-pos-fb: #60a5fa;    /* Light blue */
---color-pos-dm: #8b5cf6;    /* Purple */
---color-pos-cm: #a78bfa;    /* Light purple */
---color-pos-am: #c084fc;    /* Violet */
---color-pos-lw: #22c55e;    /* Green */
---color-pos-rw: #16a34a;    /* Dark green */
---color-pos-st: #ef4444;    /* Red */
-```
+GK amber `#f59e0b`, CB navy `#3b82f6`, FB light blue, DM/CM purples, AM violet, wing green, ST red — see `globals.css` `--color-pos-*`.
 
-### Sidebar (AppShell)
-- Expanded: `--sidebar-width: 220px`
-- Collapsed: `--sidebar-width-collapsed: 60px`
-- State persisted in localStorage (`sidebar-collapsed`)
-- Active nav item: 3px left border in `var(--color-accent-green)`, green-tinted bg
-- Nav links: League, My Team, Matchups, Free Agency, Stats, Cups, Trades, Activity (+ Draft Channel if league status is setup/drafting)
+### AppShell
+
+- Width 220px / collapsed 60px; `localStorage` `sidebar-collapsed`
+- Active item: 3px green left border
+- Nav: League, My Team, Matchups, Free Agency, Stats, Cups, Trades, Activity (+ Draft if `setup`/`drafting`)
 
 ---
 
-## Stitch Prototype Reference
+## Stitch Prototype
 
-The Stitch design prototype lives at:
-**https://stitch.withgoogle.com/projects/9034509438526576481**
+**Project:** [Gaffa — Cream Editorial UI](https://stitch.withgoogle.com/projects/9034509438526576481)  
+**Project ID:** `9034509438526576481`
 
-Key design decisions validated there:
-- Sidebar nav with collapsible toggle
-- Cream content area + slightly darker warm sand sidebar
-- Noto Serif bold for page headlines
-- Position badge pill colors (GK amber, DEF navy, MID purple, ATT green, ST red)
-- Football pitch: bright grass green (`#5A8F6A`) with horizontal stripe bands and white line markings
-- No AI-generated player photos
-- Player chips on pitch: white card, position badge, surname in Noto Serif 12px, club code, points badge
-- Bench/Reserves/Taxi Squad in right sidebar column on My Team page
+### Mandatory protocol for UI work
+
+1. `list_screens` → find screen by title  
+2. `get_screen` → `htmlCode.downloadUrl`  
+3. `curl -sL "<url>"` — **do not guess** spacing/colors from memory  
+
+Pitch: grass `#5A8F6A`, stripe bands, white lines; player chips white card + position pill + surname serif 12px.
 
 ---
-
-## Stitch Prototype Rule
-When implementing any UI page that has a Stitch prototype, you MUST:
-1. Call `list_screens` on project 9034509438526576481 to find the screen
-2. Call `get_screen` to get the `htmlCode.downloadUrl`
-3. `curl` the download URL to fetch the raw HTML
-4. Read the actual CSS classes, layout structure, and values from the HTML — do not guess or paraphrase
-Only then may you write any CSS or JSX.
 
 ## Layout Architecture
 
 ```
-/dashboard              ← DashboardLayout (Navbar + <main> wrapper with padding)
-  /dashboard            ← Dashboard page (league selection, "Welcome back")
-  /league/[leagueId]/*  ← LeagueLayout (AppShell: sidebar + content area)
-    /                   ← League dashboard (standings + matchups)
-    /team               ← My Team (pitch, lineup, bench, reserves, taxi, IR)
-    /team/roster        ← Roster management (drops, slots; polish backlog in doc above)
-    /matchups           ← Matchups
-    /players            ← Free Agency / transfers
-    /stats              ← League stats
-    /tournaments        ← Cup competitions
-    /trades             ← Trade proposals
-    /activity           ← Activity log
-    /draft              ← Draft room (only visible when league status = setup/drafting)
+/dashboard                    ← Navbar + main padding
+/league/[leagueId]/*          ← AppShell (sidebar + content; AppShell owns padding)
+  /team, /team/roster
+  /matchups, /players, /stats, /tournaments, /trades, /activity, /draft
+/admin/scoring-v2             ← V1 vs V2 shadow comparison
 ```
 
-**Critical:** `AppShell` provides its own content padding. Do NOT add extra padding at the `(dashboard)/layout.tsx` level — that would double-pad all league pages.
+Do **not** add extra padding in `(dashboard)/layout.tsx` for league routes — double padding.
 
 ---
 
 ## Do Not Touch Without Explicit Reason
-- `src/lib/scoring/matchRating.ts` — sigmoid scoring engine; single source of truth (the old Supabase Edge Function mirror was deleted in migration 037)
-- `supabase/migrations/` — never alter DB schema directly; all changes go through migration files
-- `src/app/api/cron/process-auctions/` — auction processing logic; timing is server-enforced
-- The 12-position system (GK, CB, LB, RB, LWB, RWB, DM, CM, AM, LW, RW, ST) must be preserved everywhere
+
+| Path | Why |
+|---|---|
+| `src/lib/scoring/matchRating.ts` | Single source of truth; backfill + admin review required |
+| `src/lib/scoring/matchRatingV1Legacy.ts` | Frozen V1 until promotion PR |
+| `supabase/migrations/` | Schema only via new migration files |
+| `040_promote_scoring_v2.sql` | Irreversible until reviewed — user sign-off |
+| `src/app/api/cron/process-auctions/` | Server-enforced timing |
+| 12-position taxonomy | GK…ST including LWB/RWB — no LM/RM slots |

@@ -1,216 +1,240 @@
 # Gaffa — Claude Code Execution Context
 
-> Agent routing note: If you are Claude Code, prioritize this file and also read both `CURSOR.md` and `GEMINI.md` for shared conventions. If you are Cursor or Antigravity, read both `CURSOR.md` and `GEMINI.md` before proceeding.
+> **Agent routing:** Claude Code prioritizes this file; also read `CURSOR.md` and `GEMINI.md`. Cursor / Antigravity agents read all three before implementing.
 
 ## CRITICAL: Deployment Rules
-- This app is hosted on **Vercel** at `gaffa.live` (or `fantasy-futbol-tau.vercel.app`)
-- Local changes are **NOT visible to the user** until pushed to GitHub
-- After every implementation: `npm run build` (must pass) → `git add . && git commit -m "..." && git push`
-- Never tell the user a feature is live until after `git push` has run successfully
-- Do not assume `npm run dev` output proves anything works in production
+
+- Hosted on **Vercel** at [gaffa.live](https://gaffa.live) (alias `fantasy-futbol-tau.vercel.app`)
+- Local changes are **not visible** until pushed to GitHub → Vercel auto-deploys `main`
+- After every implementation: `npm run build` (must pass) → `git add` → `git commit` → `git push`
+- Never claim a feature is live until `git push` succeeds
+- `npm run dev` does not prove production behavior
 
 ## Commands
+
 ```bash
-npm run dev        # local dev server (port 3000)
-npm run build      # production build — run this before every push
-npm run lint       # lint check
+npm run dev        # local dev (port 3000)
+npm run build      # production build — required before every push
+npm run lint       # ESLint
 git push           # triggers Vercel deployment
 ```
 
-Database migrations: apply new `.sql` files in `supabase/migrations/` via Supabase Dashboard or CLI.
-Edge Functions: deploy via `supabase functions deploy [slug]`.
+- **Migrations:** add `.sql` under `supabase/migrations/`, apply via Supabase Dashboard or CLI
+- **Edge Functions:** `supabase functions deploy [slug]` (scoring no longer uses Edge Functions — see Scoring below)
 
 ## Stack
-- **Frontend**: Next.js App Router, TypeScript, CSS Modules (vanilla — no Tailwind)
-- **Backend**: Supabase (PostgreSQL), RPC functions, Edge Functions
-- **Auth**: Supabase Auth
-- **Hosting**: Vercel (auto-deploys on git push to main)
-- **External APIs**: FPL API (stats), Transfermarkt (market values), API-Football, SoFIFA
+
+| Layer | Technology |
+|---|---|
+| Frontend | Next.js App Router, TypeScript, **CSS Modules only** (no Tailwind) |
+| Backend | Supabase (PostgreSQL, RPCs) |
+| Auth | Supabase Auth |
+| Hosting | Vercel |
+| Data | FPL API (live stats), Transfermarkt (market values), API-Football, SoFIFA (positions) |
+
+**Season context:** Active development targets **2025/26** FPL data (`defensive_contribution`, current squads). Do not assume 2024/25 rosters or stats.
 
 ## 4-Phase Roadmap
-1. ~~**Phase 1: Automation (Precision Finish)**~~ ✅ **COMPLETE** — Matchweeks resolve immediately when FPL marks a GW as `finished`. Resolution check embedded in the live stats sync; additional daily cron windows at 18:00/19:00 UTC added. Worst-case gap reduced from 48 hours to ~1 hour.
-2. ~~**Phase 2: Tactical Depth (Taxi Squad)**~~ ✅ **COMPLETE** — `'taxi'` added to `roster_status` enum; `taxi_size` (default 3) and `taxi_age_limit` (default 21) added to `leagues`. New `POST /api/teams/[teamId]/taxi` route handles `move_to_taxi` (U21 enforcement, slot limit) and `activate` (promote to bench). Lineup and IR routes patched to exclude taxi players from roster counts and lineup picks. Taxi squad starts empty after draft; managers fill it post-draft via standard FAAB auctions for U21 players.
-3. **Phase 3: Visual Completion & Dark Mode** — My Team + roster management are largely complete in Cream Editorial (see `CURSOR.md` for deferrable polish). Remaining: Draft, Stats, Dashboard, Dark Mode toggle, shared UI sweep.
-4. **Phase 4: Market Expansion (Loans & Selling)** - Implementing temporary trades (Loans) and Intra-League Auctions (Selling players).
+
+1. ~~**Phase 1: Automation (Precision Finish)**~~ ✅ — GW resolves when FPL `events[gw].finished`; embedded in live stats sync + daily crons (18:00/19:00 UTC). Worst-case gap ~1 hour (was ~48h).
+2. ~~**Phase 2: Tactical Depth (Taxi Squad)**~~ ✅ — `roster_status` includes `taxi`; `taxi_size` / `taxi_age_limit` on `leagues`; `POST /api/teams/[teamId]/taxi`; lineup/IR exclude taxi from counts.
+3. **Phase 3: Visual Completion & Scoring V2** — Cream Editorial UI (see `CURSOR.md`). **Scoring V2** in shadow validation on 25/26 (see Scoring below); promotion after sign-off.
+4. **Phase 4: Market Expansion (Loans & Selling)** — temporary loans + intra-league selling auctions.
 
 ## Project Structure
+
 ```
 src/
   app/
-    (auth)/           # login, signup pages
-    (dashboard)/      # all league UI pages
-      league/[leagueId]/
-        draft/        # draft room
-        trades/       # trade proposals
-        players/      # player browser
-        standings/    # league standings
-        matchups/     # weekly matchups
-        team/         # user's team/lineup (+ taxi/IR, kickoff locks)
-        team/roster/  # roster management (drops, etc.)
-        fixtures/     # real-world fixtures
-        tournaments/  # cup tournaments
-        stats/        # league stats
-        activity/     # transaction log
+    (auth)/              # login, signup
+    (dashboard)/         # league UI + admin
+      admin/scoring-v2/  # V1 vs V2 comparison (shadow validation)
+      league/[leagueId]/ # draft, trades, players, standings, matchups, team, roster, …
     api/
-      leagues/[leagueId]/   # league actions (draft, trades, auctions)
-      teams/[teamId]/       # roster actions (lineup, drop, IR, trade-block)
-      sync/                 # data sync routes (players, stats, matchups)
-      cron/                 # scheduled jobs (process-auctions, set-bot-lineups)
-      admin/                # admin-only utilities
-      debug/                # debug routes (non-production)
-  components/
-    auth/ players/ layout/ transfers/ teams/
+      sync/              # FPL stats sync (live + cron)
+      cron/              # auctions, bot lineups, resolution windows
+      admin/             # backfill-scoring-v2, admin utilities
+      leagues/ teams/    # domain routes
+  components/            # auth, players, layout, transfers, teams
   lib/
-    scoring/          # custom rating engine — MOST FRAGILE AREA
-    supabase/         # Supabase client + helpers
-    fpl/              # FPL API integration
-    api-football/     # API-Football integration
-    transfers/        # transfer/FAAB logic
-    tournaments/      # cup tournament logic
-    schedule/         # fixture schedule helpers
+    scoring/             # matchRating.ts — SINGLE SOURCE OF TRUTH
+      matchRating.ts     # V2 engine
+      matchRatingV1Legacy.ts  # frozen V1 (dual-write only; delete at promotion)
+      engine.ts          # re-exports calculateMatchRating
+      matchupProcessor.ts
+      matchups.ts
+    supabase/ fpl/ api-football/ transfers/ tournaments/ schedule/
 
-supabase/
-  migrations/         # all DB migrations
-  functions/
-    sync-ratings/     # Edge Function — must stay in sync with matchRating.ts
+supabase/migrations/     # 037+ removed sync-ratings edge cron; 039 shadow cols; 040 promotion (DO NOT apply yet)
+scripts/
+  backfill-scoring-v2.mjs
+  recompute_reference_stats.mjs
 ```
 
 ## Scoring Engine (Handle With Extreme Care)
-- Primary source: `src/lib/scoring/matchRating.ts` — single source of truth
-- The legacy Supabase Edge Function `sync-ratings` was a divergent copy and has been deleted (migration `037`). Do not reintroduce a parallel scoring engine.
-- Sync path: Vercel cron → `/api/sync/stats?mode=fpl_live` → `calculateMatchRating` → `player_stats`
-- Uses sigmoid normalization: `sigmoidNormalize(val, median, stddev)`
-- Always load reference stats from DB using `loadReferenceStats()` — never hardcode medians/stddevs. Regenerate with `node scripts/recompute_reference_stats.mjs` at the start of each new season (or whenever the engine's raw-input formulas change).
-- Use `DEFAULT_REFERENCE_STATS` only as a fallback, never as primary values
-- Ratings are cached in `player_stats` — do not trigger batch recalculations without a clear reason
-- Scoring weights per position group are in `matchRating.ts` — attacker ratings are highly sensitive to Finishing (`stddev: 0.15`)
 
-### Scoring V2 Rebalance Status
-- **Phases 1+2 deployed.** Engine now uses FPL `defensive_contribution` (25/26+), position-specific defensive raw input, real per-position reference stats, and role-aware scoring at matchup resolution.
-- **Phase 3 shadow validation active.** `player_stats.*_v2` and `matchups.score_*_v2` columns hold V2 output; primary columns hold frozen V1 output via `matchRatingV1Legacy.ts`. Compare in `/admin/scoring-v2`.
-- **Phase 3D promotion runbook (after season ends + sign-off in admin view):**
-  1. Run `node scripts/backfill-scoring-v2.mjs` to populate v2 columns across GW1..38.
-  2. Review `/admin/scoring-v2` end-to-end. Stop if anything looks wrong.
-  3. Apply migration `040_promote_scoring_v2.sql` (copies v2 → primary, drops v2 columns).
-  4. In the same PR, delete `src/lib/scoring/matchRatingV1Legacy.ts`, remove the dual-write from `/api/sync/stats/route.ts` (revert v1.fantasyPoints assignment to v2.fantasyPoints), remove the dual `playerRecordV1/V2` split from `matchupProcessor.ts`, and remove `/admin/scoring-v2` + `/api/admin/backfill-scoring-v2`.
-  5. `npm run build` → commit → push.
+### Source of truth
 
-## Database Tables
-| Table | Purpose | Rows |
+- **V2 engine:** `src/lib/scoring/matchRating.ts` (imported via `src/lib/scoring/engine.ts`)
+- **V1 frozen:** `src/lib/scoring/matchRatingV1Legacy.ts` — used only for dual-write to primary columns during shadow phase
+- **Deleted:** Supabase Edge Function `sync-ratings` (migration `037`). **Never** add a parallel scoring implementation.
+
+### Runtime paths
+
+| Path | What runs |
+|---|---|
+| Live sync | Cron → `POST /api/sync/stats?mode=fpl_live` → V2 + V1 → `player_stats` (primary = V1, `*_v2` = V2) |
+| Matchup resolution | `processMatchupsForGameweek()` in `matchupProcessor.ts` (not `resolve_matchup` RPC) |
+| Historical V2 backfill | `node scripts/backfill-scoring-v2.mjs` → `POST /api/admin/backfill-scoring-v2` per GW |
+| Admin review | `/admin/scoring-v2` |
+
+### Pipeline (V2)
+
+1. **Sigmoid normalize** raw inputs → 0–1 per component (`sigmoidNormalize`, `SIGMOID_K`)
+2. **Position weights** + flex → composite 0–1 (`POSITION_WEIGHTS`, `FLEX_CONFIG`)
+3. **Display rating** — `curveFinalRating`: `3.0 + 7.0 × composite` (FotMob-like; median starter ≈ **6.5**)
+4. **Fantasy points** — `calculateFantasyPoints` on internal scoring scale `1.0 + 9.0 × composite` (display and points are **decoupled**)
+
+### Current calibration (May 2026 — do not change without explicit product sign-off)
+
+| Constant | Value | Notes |
 |---|---|---|
-| `users` | Auth users | 37 |
-| `leagues` | League configs, FAAB settings, scoring weights | 9 |
-| `teams` | Manager teams within leagues | 35 |
-| `players` | Master player list — 28 columns, PPG, form, market value | 825 |
-| `roster_entries` | Player ↔ team link, contract/slot info — status: active/bench/ir/taxi | 524 |
-| `player_stats` | Granular per-match FPL stats (cached ratings here) | 9,320 |
-| `rating_reference_stats` | Baseline stats for sigmoid normalization | 96 |
-| `matchups` | Weekly head-to-head matchups | 151 |
-| `league_standings` | Computed view — rank by `league_points` | view |
-| `player_rankings` | Overall and positional ranks | view |
-| `draft_picks` | Draft order and picks | 524 |
-| `draft_queues` | Pre-draft player queues | — |
-| `waiver_claims` | Active waiver bids (48hr window) | — |
-| `transactions` | Full audit log of all moves | — |
-| `trade_proposals` | Manager-to-manager trades | — |
-| `tournaments` | Cup tournament instances | — |
-| `tournament_rounds` | Rounds within tournaments | — |
-| `tournament_matchups` | Individual cup matchups | — |
-| `league_members` | Users ↔ leagues junction | — |
+| `SIGMOID_K` | **1.0** | Neutral spread. **Rejected:** `1.3` — inflated elite AM/CM season averages (e.g. Bruno ~8.4). |
+| Display scale | `3.0 + 7.0 × composite` | Average game ≈ 6–6.5; good ≈ 7; exceptional ≈ 8; masterclass 9+ |
+| Points `scale` | **6.0** | Up from 5.0 for slightly wider PPG gaps |
+| Points exponent | **1.5** | Convex curve rewards **peak games** (intentional). **Rejected:** `2.0` — stronger variance artifact (lower avg rating can beat higher avg PPG). |
+| Points floor | `basePoints = 4.0`, curve on `(rating - 4) / 2` | Sub-60 min: −1 pt; rating &lt; 3: −2 pts |
 
-## Key RPCs & Views
-```sql
--- RPCs
-resolve_matchup(p_matchup_id, p_score_a, p_score_b, ...)  -- exists in DB but NOT called by app code; runtime uses processMatchupsForGameweek() in TypeScript instead
-increment_team_points(team_id, pts)
-update_player_form_ratings()   -- updates form_rating and ppg on players table
+Approximate points targets (display rating): 6.5 → ~8 pts, 7.0 → ~11, 8.0 → ~19, 9.0 → ~29.
 
--- Views
-league_standings   -- rank by league_points; draw = ABS(score_a - score_b) <= 10
-player_rankings    -- overall and positional ranks
+### Design goals (product)
+
+- **FotMob-like** display distribution (not FPL default points)
+- **Positional balance** — top DM/CB can compete with top attackers; `match_impact` (BPS-driven) matters for mids/defenders
+- **Real-life accuracy** — best real-world players rise; no per-player hardcoding
+- **Peak performances matter** — explosive GWs can lift season PPG above a steadier, higher-rated player; do not “fix” this with exponent ≤ 1 unless product explicitly reverses
+
+### Critical data bug (fixed — keep fixed)
+
+Per-fixture `bps` must **not** come from FPL `explain` (no `bps` key there). Both sync and backfill use:
+
+```typescript
+bps: Math.round((el.stats.bps ?? 0) * ratio)  // ratio = fixture minutes / GW total minutes
 ```
 
-**Prefer RPCs for any FAAB or points-sensitive updates** — ensures ACID compliance. Do not write raw mutations in route handlers for financial or scoring operations.
+Broken `bps` zeroed `match_impact` and collapsed DM/CM/CB vs attackers.
 
-**Note on matchup resolution**: Do not use the `resolve_matchup` RPC for resolving league matchups. Call `processMatchupsForGameweek(gameweek, finished)` from `src/lib/scoring/matchupProcessor.ts` — that is the actual runtime path.
+### Reference stats
+
+- Load at runtime: `loadReferenceStats()` from `rating_reference_stats` table
+- Regenerate: `node scripts/recompute_reference_stats.mjs` (new season or raw-input formula changes)
+- `DEFAULT_REFERENCE_STATS` in `matchRating.ts` — **fallback only**, never primary
+
+### Shadow validation (25/26 season)
+
+Migration **039** added nullable shadow columns:
+
+- `player_stats.match_rating_v2`, `fantasy_points_v2`
+- `matchups.score_a_v2`, `score_b_v2`
+
+Primary columns still hold **V1** until promotion. Role-aware slot scoring at matchup resolution uses lineup slot position (Phase 2 of rebalance).
+
+### Phase 3D promotion runbook (after full-season sign-off in `/admin/scoring-v2`)
+
+1. `node scripts/backfill-scoring-v2.mjs` (GW 1–38; script prints `stats:N matchups:M` per GW)
+2. Review `/admin/scoring-v2` — stop if distributions or spot-checks look wrong
+3. Apply migration **`040_promote_scoring_v2.sql`** (copies v2 → primary, drops shadow cols, recomputes winners)
+4. Same PR: delete `matchRatingV1Legacy.ts`; remove V1 dual-write in `/api/sync/stats/route.ts` and `matchupProcessor.ts`; remove `/admin/scoring-v2` + `/api/admin/backfill-scoring-v2`
+5. `npm run build` → commit → push
+
+**Do not apply migration 040** until the user signs off.
+
+## Database (core tables)
+
+| Table | Purpose |
+|---|---|
+| `users`, `leagues`, `teams`, `league_members` | Tenancy & config |
+| `players` | Master list (PPG, form, market value, positions) |
+| `roster_entries` | `active` / `bench` / `ir` / `taxi` |
+| `player_stats` | Per-fixture FPL stats + cached ratings (V1 primary, V2 shadow) |
+| `rating_reference_stats` | Sigmoid baselines per position × component |
+| `matchups` | Weekly H2H (bragging + cups); draw if `ABS(score_a - score_b) <= 10` |
+| `waiver_claims`, `transactions`, `trade_proposals` | Economy audit trail |
+| `tournaments` + rounds/matchups | Cups |
+
+**Views:** `league_standings` (season points), `player_rankings`
+
+## Key RPCs
+
+```sql
+resolve_matchup(...)   -- EXISTS but NOT used; app uses processMatchupsForGameweek() in TS
+increment_team_points(team_id, pts)
+update_player_form_ratings()
+```
+
+**Prefer RPCs** for FAAB and points-sensitive mutations (ACID). Do not bypass with ad-hoc handler writes for money or standings.
 
 ## ID System — Critical
-Three different player ID types exist. Never confuse them:
-- `id` — internal UUID (primary key, use this for all internal relations)
-- `fpl_id` — FPL API identifier (use only for FPL live data fetches)
-- `api_football_id` — API-Football / Transfermarkt identifier (use for market value data)
+
+| ID | Use |
+|---|---|
+| `players.id` | Internal UUID — all relations |
+| `players.fpl_id` | FPL live fetch only |
+| `players.api_football_id` | Market value / API-Football only |
+
+Never mix these in queries or caches.
+
+## Positional System
+
+**12 granular positions:** GK, CB, LB, RB, LWB, RWB, DM, CM, AM, LW, RW, ST (no LM/RM in app taxonomy).
+
+- Primary or secondary slot only (enforced in lineup)
+- **Slot position** drives scoring weights for that matchup (role-aware resolution)
+- SoFIFA ingest maps legacy LM/RM → LWB/RWB or LW/RW (see `GEMINI.md`)
 
 ## Design System
-- **CSS Modules only** — no Tailwind, no inline styles, no styled-components
-- All tokens defined in `src/app/globals.css` — never hardcode hex values in module CSS files
-- **Dual Theme Support**: 
-  - **Cream Editorial (Primary)**: `#F7F3ED` background, high-contrast serif typography, premium magazine aesthetic.
-  - **Premium Dark (Toggle)**: `var(--color-bg-primary)` (#0a0c10), `var(--color-text-primary)` (#e8eaf0).
 
-### Locked Color Tokens
-| Token | Value | Usage |
-|---|---|---|
-| `--color-bg-primary` | #F7F3ED | Main content area background |
-| `--color-bg-secondary` | #EDE8DE | Sidebar, topbar — warm cream anchor |
-| `--color-bg-card` | #FDFCF9 | Card surfaces — near white |
-| `--color-bg-card-hover` | #EDE8E0 | Hover/pressed state for cards |
-| `--color-bg-elevated` | #EDE8DE | Inset elements: inputs, secondary buttons |
-| `--color-border` | #C8C3BC | Standard borders |
-| `--color-border-subtle` | #D9D4CD | Subtle separators |
-| `--color-accent-green` | #3A6B4A | Primary accent — forest green |
-| `--color-text-primary` | #1C1C1C | Primary text |
-| `--color-text-secondary` | #4A4A4A | Secondary text |
-| `--color-text-muted` | #9A9488 | Muted/placeholder text |
+- **CSS Modules** + tokens in `src/app/globals.css` — no Tailwind, no inline styles, no hardcoded hex in modules
+- **Cream Editorial** (default): `#F7F3ED` bg, Noto Serif headlines, forest green `#3A6B4A` accent
+- **Premium Dark** (toggle planned): CSS variables swap theme
+- Typography: `--font-serif` (Noto Serif), `--font-sans` (Inter)
+- Position badge colors: `--color-pos-*` — do not change without design review (`CURSOR.md`)
 
-### Typography
-- `--font-serif`: Noto Serif — player names, team names, stat values, page headings
-- `--font-sans`: Inter — body text, labels, nav items
+## Core Mechanics
 
-- Use CSS variables for all color values.
-- Positional accent colors: `var(--color-pos-gk)`, `var(--color-pos-st)`, etc.
+### FAAB / transfers
 
-## Core Mechanics (Read Before Touching Transfers or Scoring)
+- **Public** highest bid visible to all managers
+- Drop → **48-hour waiver** before free agency; competitive bids; highest wins
+- Drop cost: **10%** of Transfermarkt value (severance)
+- **Scout's Rebate:** 20% to nominator if another team wins
+- Min bid: **20%** of market value
 
-### Positional System
-- 12 granular positions: GK, CB, LB, RB, DM, CM, LM, RM, AM, LW, RW, ST
-- Players can only be slotted into their primary or secondary position — strictly enforced
-- The slot a player occupies changes how their stats are weighted in scoring
+### League format
 
-### FAAB / Transfer Economy
-- **Public bidding** — all managers see the current highest bid (not blind)
-- Dropping a player triggers a **48-hour waiver window** before they become a free agent
-- Drop cost: **10% FAAB severance** based on current Transfermarkt market value
-- **Scout's Rebate**: nominating team gets 20% FAAB back if another team wins the auction
-- Minimum bid = 20% of Transfermarkt market value
-
-### League Format
-- Dynasty (rosters persist year-over-year), 4-10 teams
-- Season winner = most points after 38 games — no playoffs
-- Weekly matchups are for bragging rights and cup competitions only
-- Draw awarded when `ABS(score_a - score_b) <= 10`
+- Dynasty, 4–10 teams, 38 GWs, **no playoffs** — most `league_points` wins
+- Weekly matchups: bragging + cups only
+- Draw: `ABS(score_a - score_b) <= 10`
 
 ## Coding Standards
-- TypeScript strictly — no `any` unless unavoidable (add a comment explaining why)
-- Functional components only — no class components
-- Always handle loading, error, and empty states in UI components
-- Migrations go in `supabase/migrations/` — never alter DB schema directly
-- Admin utilities → `/api/admin/`, debug tools → `/api/debug/` (never ship debug routes as features)
-- When refactoring or finishing a feature, remove unused imports, dead code, and unreachable branches. Run npm run lint and fix all warnings before committing.
+
+- TypeScript strict; avoid `any` (comment if unavoidable)
+- Functional React components only
+- Loading, error, and empty states required in UI
+- Admin → `/api/admin/`; debug → `/api/debug/` (never productize debug routes)
+- Remove dead code on finish; run `npm run lint` before commit
 
 ## Known Fragile Areas
-- `src/lib/scoring/matchRating.ts` — changes affect all historical scores
-- Waiver/auction timing — 48hr window must be server-enforced, not client-side
-- Lineup slot scoring weights — position-dependent, do not generalize or flatten
-- ID mapping between `fpl_id`, `api_football_id`, and internal `id`
-- Vercel cron jobs (`/api/cron/` and `/api/sync/`) — verify on live after every push; cron-triggered routes live in both directories
+
+- `matchRating.ts` — any change affects perception of all player values; requires backfill + admin review
+- Waiver/auction **48h** must be server-enforced
+- Lineup slot weights — position-specific; never flatten
+- `fpl_id` ↔ `id` mapping in sync routes
+- Vercel crons in `/api/cron/` and `/api/sync/` — verify on live after deploy
 
 ## Definition of Done
-A feature is **NOT complete** until all of the following are true:
-- [ ] After writing code, run npm run build. If it fails, read the errors, fix them, and run again. Loop until the build passes clean — do not stop and ask the user. Only then commit and push.
-- [ ] Edge cases handled: `null` stats, missing players, invalid bids, mid-game transfers
-- [ ] Error states: UI feedback for failed API calls
-- [ ] Empty states: placeholder UI when no data exists
-- [ ] Loading states: skeletons or spinners during data fetch
-- [ ] Mobile responsiveness checked
-- [ ] `npm run build` passes with zero errors
-- [ ] Code committed and pushed → verified live on `gaffa.live`
+
+- [ ] `npm run build` passes (fix loop until clean)
+- [ ] Edge cases: null stats, missing players, invalid bids, mid-GW moves
+- [ ] UI: loading, error, empty states; mobile checked
+- [ ] Committed and pushed; verified on `gaffa.live` when user expects production
