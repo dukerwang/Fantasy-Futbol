@@ -432,15 +432,15 @@ export function curveFinalRating(composite: number, minutesPlayed: number): numb
 
 /**
  * Fantasy points from the scoring-scale rating (not the display rating).
- * Calibration (SIGMOID_K=1.0, scale=6.0, exponent=1.5):
- * average game (6.5 display) ≈ 8 pts, good (7.0) ≈ 11 pts,
- * exceptional (8.0) ≈ 19 pts, masterclass (9.0) ≈ 29 pts.
+ * Calibration (SIGMOID_K=1.0, scale=7.0, exponent=1.5, base=2.0):
+ * average game (6.5 display) ≈ 6.5 pts, good (7.0) ≈ 10 pts,
+ * exceptional (8.0) ≈ 18 pts, masterclass (9.0) ≈ 27 pts.
  */
 export function calculateFantasyPoints(rating: number, minutesPlayed: number): number {
     if (minutesPlayed === 0 || rating === 0) return 0;
 
-    const basePoints = 4.0;
-    const scale = 6.0;
+    const basePoints = 2.0;
+    const scale = 7.0;
     const minutePenalty = minutesPlayed < 60 ? 1.0 : 0;
 
     const curve = Math.pow(Math.max(0, rating - 4.0) / 2.0, 1.5);
