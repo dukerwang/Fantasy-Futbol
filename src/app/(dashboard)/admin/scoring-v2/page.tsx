@@ -51,6 +51,16 @@ interface PlayerStatsRow {
   match_rating_v2: number | null;
   fantasy_points: number | null;
   fantasy_points_v2: number | null;
+  stats: { minutes_played?: number } | null;
+}
+
+function fixtureMinutes(row: PlayerStatsRow): number {
+  return Number(row.stats?.minutes_played ?? 0);
+}
+
+/** True when the player actually played (excludes DNP rows with 0 minutes). */
+function isPlayedFixture(row: PlayerStatsRow): boolean {
+  return fixtureMinutes(row) > 0;
 }
 
 interface MatchupRow {
@@ -152,7 +162,7 @@ export default async function ScoringV2Page() {
   for (;;) {
     const { data: chunk, error: statsErr } = await admin
       .from('player_stats')
-      .select('id, player_id, match_id, gameweek, match_rating, match_rating_v2, fantasy_points, fantasy_points_v2')
+      .select('id, player_id, match_id, gameweek, match_rating, match_rating_v2, fantasy_points, fantasy_points_v2, stats')
       .eq('season', statsSeason)
       .not('match_rating_v2', 'is', null)
       .order('id', { ascending: true })
@@ -243,6 +253,9 @@ export default async function ScoringV2Page() {
     // Do NOT require legacy `match_rating` here — many historical rows have points
     // but null v1 rating; requiring both capped GP at ~3 for everyone.
     if (r.fantasy_points_v2 == null || r.match_rating_v2 == null) continue;
+    // PPG / GP / avg rating: only fixtures where the player played (same rule as
+    // update_player_form_ratings — DNPs with 0 minutes must not deflate averages).
+    if (!isPlayedFixture(r)) continue;
     let ex = shadowAgg.get(r.player_id);
     if (!ex) {
       ex = { gp: 0, ptsV1: 0, ptsV2: 0, sumR1: 0, sumR2: 0, nR1: 0 };

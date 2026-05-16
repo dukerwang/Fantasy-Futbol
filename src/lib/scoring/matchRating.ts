@@ -439,11 +439,11 @@ export function curveFinalRating(composite: number, minutesPlayed: number): numb
 export function calculateFantasyPoints(rating: number, minutesPlayed: number): number {
     if (minutesPlayed === 0 || rating === 0) return 0;
 
-    const basePoints = 2.0;
-    const scale = 7.0;
+    const basePoints = 0.0;
+    const scale = 10.0;
     const minutePenalty = minutesPlayed < 60 ? 1.0 : 0;
 
-    const curve = Math.pow(Math.max(0, rating - 4.0) / 2.0, 1.5);
+    const curve = Math.pow(Math.max(0, rating - 4.5) / 2.0, 1.5);
     let finalPoints = basePoints + (scale * curve) - minutePenalty;
 
     if (rating < 3.0) finalPoints -= 2.0;

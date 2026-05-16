@@ -173,12 +173,11 @@ export default function ShadowStatsTable({ statsSeason, players, shadowByPlayer 
       <h2 className={styles.sectionTitle}>Full season leaderboard (v1 vs v2)</h2>
       <p className={styles.sectionHint}>
         Every active player, same filters/sort UX as league <strong>Stats</strong>.{' '}
-        <strong>GP</strong> is how many games that player has in <code>player_stats</code> for{' '}
-        <strong>{statsSeason}</strong> where v2 is populated (after backfill, that is the full season for most
-        players). <strong>Pts</strong> and <strong>PPG</strong> are the full-season sum and average over{' '}
-        <em>those same GP</em>. <strong>Avg R v1</strong> averages only rows that have legacy{' '}
-        <code>match_rating</code> (some old rows have points but never stored v1 rating). <strong>Avg R v2</strong> is
-        the season average over the same GP as Pts/PPG.
+        <strong>GP</strong> counts v2-populated fixtures in <strong>{statsSeason}</strong> where the player had
+        minutes (&gt; 0) — DNPs are excluded, matching league <strong>Stats</strong> PPG. <strong>Pts</strong> and{' '}
+        <strong>PPG</strong> are the season sum and average over those played fixtures. <strong>Avg R v1</strong>{' '}
+        averages only played rows that also have legacy <code>match_rating</code>. <strong>Avg R v2</strong> uses the
+        same played-fixture sample as Pts/PPG.
       </p>
 
       <div className={styles.shadowControls}>
