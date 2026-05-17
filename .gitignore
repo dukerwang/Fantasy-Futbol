@@ -47,3 +47,6 @@ tmp_*.js
 
 # Cursor IDE local config (may contain API keys)
 .cursor/
+
+# context backups
+backup_docs/
