@@ -88,14 +88,20 @@ function matchesPos(player: ShadowStatsPlayer, filter: PosFilter): boolean {
 interface Props {
   statsSeason: string;
   players: ShadowStatsPlayer[];
-  shadowByPlayer: Record<string, ShadowStatsPayload>;
+  shadowMaps: {
+    all: Record<string, ShadowStatsPayload>;
+    gt45: Record<string, ShadowStatsPayload>;
+  };
 }
 
-export default function ShadowStatsTable({ statsSeason, players, shadowByPlayer }: Props) {
+export default function ShadowStatsTable({ statsSeason, players, shadowMaps }: Props) {
   const [search, setSearch] = useState('');
   const [posFilter, setPosFilter] = useState<PosFilter>('ALL');
+  const [minMins, setMinMins] = useState<'all' | 'gt45'>('all');
   const [sortKey, setSortKey] = useState<SortKey>('pts_v2');
   const [sortDir, setSortDir] = useState<SortDir>('desc');
+
+  const shadowByPlayer = minMins === 'all' ? shadowMaps.all : shadowMaps.gt45;
 
   function handleSort(key: SortKey) {
     if (sortKey === key) setSortDir((d) => (d === 'desc' ? 'asc' : 'desc'));
@@ -216,6 +222,14 @@ export default function ShadowStatsTable({ statsSeason, players, shadowByPlayer 
               {opt.label}
             </option>
           ))}
+        </select>
+        <select
+          className={styles.shadowSelect}
+          value={minMins}
+          onChange={(e) => setMinMins(e.target.value as 'all' | 'gt45')}
+        >
+          <option value="all">All Played Games (&gt;0 mins)</option>
+          <option value="gt45">Starter Games (&gt;45 mins only)</option>
         </select>
         <span className={styles.shadowResultCount}>{sorted.length} players</span>
       </div>

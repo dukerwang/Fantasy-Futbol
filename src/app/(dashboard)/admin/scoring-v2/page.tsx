@@ -248,48 +248,53 @@ export default async function ScoringV2Page() {
     nR1: number;
     totalMinutes: number;
   };
-  const shadowAgg = new Map<string, ShadowAcc>();
-  for (const r of rows) {
-    // Full-season v2 sample: any row the backfill marked with v2 counts toward GP.
-    // Do NOT require legacy `match_rating` here — many historical rows have points
-    // but null v1 rating; requiring both capped GP at ~3 for everyone.
-    if (r.fantasy_points_v2 == null || r.match_rating_v2 == null) continue;
-    // PPG / GP / avg rating: only fixtures where the player played (same rule as
-    // update_player_form_ratings — DNPs with 0 minutes must not deflate averages).
-    if (!isPlayedFixture(r)) continue;
-    let ex = shadowAgg.get(r.player_id);
-    if (!ex) {
-      ex = { gp: 0, ptsV1: 0, ptsV2: 0, sumR1: 0, sumR2: 0, nR1: 0, totalMinutes: 0 };
-      shadowAgg.set(r.player_id, ex);
+
+  function buildShadowAgg(minMins: number) {
+    const shadowAgg = new Map<string, ShadowAcc>();
+    for (const r of rows) {
+      if (r.fantasy_points_v2 == null || r.match_rating_v2 == null) continue;
+      if (!isPlayedFixture(r)) continue;
+      const mins = Number(r.stats?.minutes_played ?? 0);
+      if (mins < minMins) continue;
+
+      let ex = shadowAgg.get(r.player_id);
+      if (!ex) {
+        ex = { gp: 0, ptsV1: 0, ptsV2: 0, sumR1: 0, sumR2: 0, nR1: 0, totalMinutes: 0 };
+        shadowAgg.set(r.player_id, ex);
+      }
+      ex.gp += 1;
+      ex.ptsV1 += Number(r.fantasy_points ?? 0);
+      ex.ptsV2 += Number(r.fantasy_points_v2);
+      ex.sumR2 += Number(r.match_rating_v2);
+      ex.totalMinutes += mins;
+      if (r.match_rating != null && !Number.isNaN(Number(r.match_rating))) {
+        ex.sumR1 += Number(r.match_rating);
+        ex.nR1 += 1;
+      }
     }
-    ex.gp += 1;
-    ex.ptsV1 += Number(r.fantasy_points ?? 0);
-    ex.ptsV2 += Number(r.fantasy_points_v2);
-    ex.sumR2 += Number(r.match_rating_v2);
-    ex.totalMinutes += Number(r.stats?.minutes_played ?? 0);
-    if (r.match_rating != null && !Number.isNaN(Number(r.match_rating))) {
-      ex.sumR1 += Number(r.match_rating);
-      ex.nR1 += 1;
+
+    const result: Record<string, ShadowStatsPayload> = {};
+    for (const [pid, ex] of shadowAgg) {
+      const gp = ex.gp;
+      const totalMinutes = ex.totalMinutes;
+      result[pid] = {
+        gp,
+        ptsV1: ex.ptsV1,
+        ptsV2: ex.ptsV2,
+        ppgV1: gp > 0 ? ex.ptsV1 / gp : 0,
+        ppgV2: gp > 0 ? ex.ptsV2 / gp : 0,
+        p90V1: totalMinutes > 0 ? (ex.ptsV1 / totalMinutes) * 90 : 0,
+        p90V2: totalMinutes > 0 ? (ex.ptsV2 / totalMinutes) * 90 : 0,
+        avgRV1: ex.nR1 > 0 ? ex.sumR1 / ex.nR1 : null,
+        avgRV2: gp > 0 ? ex.sumR2 / gp : 0,
+        totalMinutes,
+      };
     }
+    return result;
   }
 
-  const shadowByPlayer: Record<string, ShadowStatsPayload> = {};
-  for (const [pid, ex] of shadowAgg) {
-    const gp = ex.gp;
-    const totalMinutes = ex.totalMinutes;
-    shadowByPlayer[pid] = {
-      gp,
-      ptsV1: ex.ptsV1,
-      ptsV2: ex.ptsV2,
-      ppgV1: gp > 0 ? ex.ptsV1 / gp : 0,
-      ppgV2: gp > 0 ? ex.ptsV2 / gp : 0,
-      p90V1: totalMinutes > 0 ? (ex.ptsV1 / totalMinutes) * 90 : 0,
-      p90V2: totalMinutes > 0 ? (ex.ptsV2 / totalMinutes) * 90 : 0,
-      avgRV1: ex.nR1 > 0 ? ex.sumR1 / ex.nR1 : null,
-      avgRV2: gp > 0 ? ex.sumR2 / gp : 0,
-      totalMinutes,
-    };
-  }
+  const shadowByPlayerAll = buildShadowAgg(0);
+  const shadowByPlayer45 = buildShadowAgg(45);
 
   const shadowTablePlayers = (allActiveForShadow ?? []) as unknown as ShadowStatsPlayer[];
 
@@ -479,7 +484,10 @@ export default async function ScoringV2Page() {
       <ShadowStatsTable
         statsSeason={statsSeason}
         players={shadowTablePlayers}
-        shadowByPlayer={shadowByPlayer}
+        shadowMaps={{
+          all: shadowByPlayerAll,
+          gt45: shadowByPlayer45,
+        }}
       />
 
       {/* Named anchors */}
