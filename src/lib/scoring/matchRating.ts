@@ -54,8 +54,8 @@ export const FLEX_CONFIG: Record<GranularPosition, { flex: number; components: R
 export const POSITION_WEIGHTS: Record<GranularPosition, Record<RatingComponent, number>> = {
     GK: { match_impact: 0.25, influence: 0.20, creativity: 0.05, threat: 0.00, defensive: 0.15, goal_involvement: 0.00, finishing: 0.00, save_score: 0.10 },
     CB: { match_impact: 0.30, influence: 0.05, creativity: 0.05, threat: 0.00, defensive: 0.10, goal_involvement: 0.20, finishing: 0.05, save_score: 0.00 },
-    LB: { match_impact: 0.20, influence: 0.10, creativity: 0.15, threat: 0.05, defensive: 0.10, goal_involvement: 0.15, finishing: 0.00, save_score: 0.00 },
-    RB: { match_impact: 0.20, influence: 0.10, creativity: 0.15, threat: 0.05, defensive: 0.10, goal_involvement: 0.15, finishing: 0.00, save_score: 0.00 },
+    LB: { match_impact: 0.25, influence: 0.15, creativity: 0.15, threat: 0.00, defensive: 0.15, goal_involvement: 0.05, finishing: 0.00, save_score: 0.00 },
+    RB: { match_impact: 0.25, influence: 0.15, creativity: 0.15, threat: 0.00, defensive: 0.15, goal_involvement: 0.05, finishing: 0.00, save_score: 0.00 },
     DM: { match_impact: 0.30, influence: 0.25, creativity: 0.05, threat: 0.00, defensive: 0.10, goal_involvement: 0.05, finishing: 0.00, save_score: 0.00 },
     CM: { match_impact: 0.20, influence: 0.15, creativity: 0.15, threat: 0.10, defensive: 0.05, goal_involvement: 0.10, finishing: 0.00, save_score: 0.00 },
     LWB: { match_impact: 0.15, influence: 0.05, creativity: 0.20, threat: 0.05, defensive: 0.10, goal_involvement: 0.20, finishing: 0.00, save_score: 0.00 },
@@ -408,7 +408,6 @@ export function applyPositionWeights(
 function computeScoringRating(composite: number, minutesPlayed: number): number {
     if (composite < 0 || minutesPlayed === 0) return 0;
     let r = 1.0 + 9.0 * composite;
-    if (minutesPlayed < 60) r = Math.max(1.0, r - (1 - minutesPlayed / 60) * 1.5);
     return Math.max(1.0, Math.min(10.0, r));
 }
 
@@ -421,11 +420,6 @@ export function curveFinalRating(composite: number, minutesPlayed: number): numb
     if (composite < 0 || minutesPlayed === 0) return 0;
 
     let rating = 3.0 + 7.0 * composite;
-
-    if (minutesPlayed < 60) {
-        const penalty = (1 - (minutesPlayed / 60)) * 1.5;
-        rating = Math.max(1.0, rating - penalty);
-    }
 
     return Math.max(1.0, Math.min(10.0, rating));
 }
@@ -441,10 +435,9 @@ export function calculateFantasyPoints(rating: number, minutesPlayed: number): n
 
     const basePoints = 0.0;
     const scale = 10.0;
-    const minutePenalty = minutesPlayed < 60 ? 1.0 : 0;
 
     const curve = Math.pow(Math.max(0, rating - 4.5) / 2.0, 1.5);
-    let finalPoints = basePoints + (scale * curve) - minutePenalty;
+    let finalPoints = basePoints + (scale * curve);
 
     if (rating < 3.0) finalPoints -= 2.0;
 
