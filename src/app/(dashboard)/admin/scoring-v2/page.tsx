@@ -246,6 +246,7 @@ export default async function ScoringV2Page() {
     sumR2: number;
     /** Rows where legacy `match_rating` was actually stored (often sparse vs points). */
     nR1: number;
+    totalMinutes: number;
   };
   const shadowAgg = new Map<string, ShadowAcc>();
   for (const r of rows) {
@@ -258,13 +259,14 @@ export default async function ScoringV2Page() {
     if (!isPlayedFixture(r)) continue;
     let ex = shadowAgg.get(r.player_id);
     if (!ex) {
-      ex = { gp: 0, ptsV1: 0, ptsV2: 0, sumR1: 0, sumR2: 0, nR1: 0 };
+      ex = { gp: 0, ptsV1: 0, ptsV2: 0, sumR1: 0, sumR2: 0, nR1: 0, totalMinutes: 0 };
       shadowAgg.set(r.player_id, ex);
     }
     ex.gp += 1;
     ex.ptsV1 += Number(r.fantasy_points ?? 0);
     ex.ptsV2 += Number(r.fantasy_points_v2);
     ex.sumR2 += Number(r.match_rating_v2);
+    ex.totalMinutes += Number(r.stats?.minutes_played ?? 0);
     if (r.match_rating != null && !Number.isNaN(Number(r.match_rating))) {
       ex.sumR1 += Number(r.match_rating);
       ex.nR1 += 1;
@@ -274,14 +276,18 @@ export default async function ScoringV2Page() {
   const shadowByPlayer: Record<string, ShadowStatsPayload> = {};
   for (const [pid, ex] of shadowAgg) {
     const gp = ex.gp;
+    const totalMinutes = ex.totalMinutes;
     shadowByPlayer[pid] = {
       gp,
       ptsV1: ex.ptsV1,
       ptsV2: ex.ptsV2,
       ppgV1: gp > 0 ? ex.ptsV1 / gp : 0,
       ppgV2: gp > 0 ? ex.ptsV2 / gp : 0,
+      p90V1: totalMinutes > 0 ? (ex.ptsV1 / totalMinutes) * 90 : 0,
+      p90V2: totalMinutes > 0 ? (ex.ptsV2 / totalMinutes) * 90 : 0,
       avgRV1: ex.nR1 > 0 ? ex.sumR1 / ex.nR1 : null,
       avgRV2: gp > 0 ? ex.sumR2 / gp : 0,
+      totalMinutes,
     };
   }
 

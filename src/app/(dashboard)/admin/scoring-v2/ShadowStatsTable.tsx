@@ -12,10 +12,13 @@ export interface ShadowStatsPayload {
   ptsV2: number;
   ppgV1: number;
   ppgV2: number;
+  p90V1: number;
+  p90V2: number;
   /** Season avg v1 match rating; null when legacy `match_rating` was never stored on those rows. */
   avgRV1: number | null;
   /** Season avg v2 match rating over `gp`. */
   avgRV2: number;
+  totalMinutes?: number;
 }
 
 /** Minimal player row — mirrors league Stats page fields used in the table. */
@@ -40,11 +43,15 @@ type SortKey =
   | 'ppg_v2'
   | 'ppg_v1'
   | 'delta_ppg'
+  | 'p90_v2'
+  | 'p90_v1'
+  | 'delta_p90'
   | 'avg_r_v1'
   | 'avg_r_v2'
   | 'delta_avg_r'
   | 'projected_points'
-  | 'market_value';
+  | 'market_value'
+  | 'total_minutes';
 
 type SortDir = 'desc' | 'asc';
 
@@ -148,6 +155,18 @@ export default function ShadowStatsTable({ statsSeason, players, shadowByPlayer 
       } else if (sortKey === 'delta_ppg') {
         av = sa!.ppgV2 - sa!.ppgV1;
         bv = sb!.ppgV2 - sb!.ppgV1;
+      } else if (sortKey === 'p90_v2') {
+        av = sa!.p90V2;
+        bv = sb!.p90V2;
+      } else if (sortKey === 'p90_v1') {
+        av = sa!.p90V1;
+        bv = sb!.p90V1;
+      } else if (sortKey === 'delta_p90') {
+        av = sa!.p90V2 - sa!.p90V1;
+        bv = sb!.p90V2 - sb!.p90V1;
+      } else if (sortKey === 'total_minutes') {
+        av = sa!.totalMinutes ?? 0;
+        bv = sb!.totalMinutes ?? 0;
       } else if (sortKey === 'avg_r_v1') {
         av = sa!.avgRV1 ?? -1e9;
         bv = sb!.avgRV1 ?? -1e9;
@@ -207,6 +226,9 @@ export default function ShadowStatsTable({ statsSeason, players, shadowByPlayer 
             <tr>
               <th className={styles.shadowThPlayer}>Player</th>
               <th className={styles.shadowTh}>GP</th>
+              <th className={`${styles.shadowTh} ${styles.shadowSortable}`} onClick={() => handleSort('total_minutes')}>
+                Mins {sortIndicator('total_minutes')}
+              </th>
               <th className={`${styles.shadowTh} ${styles.shadowSortable}`} onClick={() => handleSort('pts_v1')}>
                 Pts v1 {sortIndicator('pts_v1')}
               </th>
@@ -224,6 +246,15 @@ export default function ShadowStatsTable({ statsSeason, players, shadowByPlayer 
               </th>
               <th className={`${styles.shadowTh} ${styles.shadowSortable}`} onClick={() => handleSort('delta_ppg')}>
                 Δ PPG {sortIndicator('delta_ppg')}
+              </th>
+              <th className={`${styles.shadowTh} ${styles.shadowSortable}`} onClick={() => handleSort('p90_v1')}>
+                P90 v1 {sortIndicator('p90_v1')}
+              </th>
+              <th className={`${styles.shadowTh} ${styles.shadowSortable}`} onClick={() => handleSort('p90_v2')}>
+                P90 v2 {sortIndicator('p90_v2')}
+              </th>
+              <th className={`${styles.shadowTh} ${styles.shadowSortable}`} onClick={() => handleSort('delta_p90')}>
+                Δ P90 {sortIndicator('delta_p90')}
               </th>
               <th className={`${styles.shadowTh} ${styles.shadowSortable}`} onClick={() => handleSort('avg_r_v1')}>
                 Avg R v1 {sortIndicator('avg_r_v1')}
@@ -247,10 +278,13 @@ export default function ShadowStatsTable({ statsSeason, players, shadowByPlayer 
               const s = shadowByPlayer[player.id];
               const dPts = s ? s.ptsV2 - s.ptsV1 : null;
               const dPpg = s ? s.ppgV2 - s.ppgV1 : null;
+              const dP90 = s ? s.p90V2 - s.p90V1 : null;
               const dAvgR =
                 s != null && s.avgRV1 != null ? s.avgRV2 - s.avgRV1 : null;
               const ppgV1s = s ? s.ppgV1.toFixed(1) : '—';
               const ppgV2s = s ? s.ppgV2.toFixed(1) : '—';
+              const p90V1s = s ? s.p90V1.toFixed(1) : '—';
+              const p90V2s = s ? s.p90V2.toFixed(1) : '—';
               const avgR1s = s?.avgRV1 != null ? s.avgRV1.toFixed(2) : '—';
 
               return (
@@ -265,6 +299,7 @@ export default function ShadowStatsTable({ statsSeason, players, shadowByPlayer 
                     </div>
                   </td>
                   <td className={styles.shadowTdNum}>{s?.gp ?? '—'}</td>
+                  <td className={styles.shadowTdNum}>{s?.totalMinutes ?? '—'}</td>
                   <td className={styles.shadowTdNum}>{s ? s.ptsV1.toFixed(1) : '—'}</td>
                   <td className={styles.shadowTdNum}>{s ? s.ptsV2.toFixed(1) : '—'}</td>
                   <td className={`${styles.shadowTdNum} ${dPts != null ? (dPts >= 0 ? styles.cellNumPos : styles.cellNumNeg) : ''}`}>
@@ -274,6 +309,11 @@ export default function ShadowStatsTable({ statsSeason, players, shadowByPlayer 
                   <td className={styles.shadowTdNum}>{ppgV2s}</td>
                   <td className={`${styles.shadowTdNum} ${dPpg != null ? (dPpg >= 0 ? styles.cellNumPos : styles.cellNumNeg) : ''}`}>
                     {dPpg != null ? `${dPpg >= 0 ? '+' : ''}${dPpg.toFixed(2)}` : '—'}
+                  </td>
+                  <td className={styles.shadowTdNum}>{p90V1s}</td>
+                  <td className={styles.shadowTdNum}>{p90V2s}</td>
+                  <td className={`${styles.shadowTdNum} ${dP90 != null ? (dP90 >= 0 ? styles.cellNumPos : styles.cellNumNeg) : ''}`}>
+                    {dP90 != null ? `${dP90 >= 0 ? '+' : ''}${dP90.toFixed(2)}` : '—'}
                   </td>
                   <td className={styles.shadowTdNum}>{avgR1s}</td>
                   <td className={styles.shadowTdNum}>{s ? s.avgRV2.toFixed(2) : '—'}</td>
@@ -289,7 +329,7 @@ export default function ShadowStatsTable({ statsSeason, players, shadowByPlayer 
             })}
             {sorted.length === 0 && (
               <tr>
-                <td colSpan={13} className={styles.shadowEmpty}>
+                <td colSpan={17} className={styles.shadowEmpty}>
                   No players match your filters.
                 </td>
               </tr>
