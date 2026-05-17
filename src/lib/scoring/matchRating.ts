@@ -35,7 +35,7 @@ export const FLEX_CONFIG: Record<GranularPosition, { flex: number; components: R
     CB: { flex: 0.25, components: ['defensive', 'match_impact', 'goal_involvement'] },
     LB: { flex: 0.25, components: ['creativity', 'match_impact', 'defensive'] },
     RB: { flex: 0.25, components: ['creativity', 'match_impact', 'defensive'] },
-    DM: { flex: 0.25, components: ['match_impact', 'influence', 'goal_involvement'] },
+    DM: { flex: 0.25, components: ['match_impact', 'influence', 'defensive'] },
     CM: { flex: 0.25, components: ['match_impact', 'creativity', 'influence'] },
     // Defensive is intentionally excluded from LWB/RWB flex: dc values in V2
     // give defensive a real score (0.52–0.60) that would steal the flex in
