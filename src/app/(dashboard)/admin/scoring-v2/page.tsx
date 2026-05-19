@@ -19,6 +19,8 @@ import { getCurrentFplSeason, getLatestReferenceStatsSeason } from '@/lib/season
 import { redirect } from 'next/navigation';
 import styles from './scoring-v2.module.css';
 import { FULL_PLAYER_SELECT } from '@/lib/constants/queries';
+import { calculateMatchRating } from '@/lib/scoring/matchRating';
+import { loadReferenceStats } from '@/lib/scoring/matchups';
 import ShadowStatsTable, {
   type ShadowStatsPayload,
   type ShadowStatsPlayer,
@@ -89,18 +91,18 @@ const PLAYER_CHUNK = 120;
 async function fetchPlayersByIds(
   admin: SupabaseClient,
   ids: string[],
-): Promise<Map<string, { id: string; primary_position: string; web_name: string | null; name: string | null; full_name: string | null }>> {
-  const map = new Map<string, { id: string; primary_position: string; web_name: string | null; name: string | null; full_name: string | null }>();
+): Promise<Map<string, { id: string; primary_position: string; secondary_positions: string[] | null; web_name: string | null; name: string | null; full_name: string | null }>> {
+  const map = new Map<string, { id: string; primary_position: string; secondary_positions: string[] | null; web_name: string | null; name: string | null; full_name: string | null }>();
   const unique = Array.from(new Set(ids));
   for (let i = 0; i < unique.length; i += PLAYER_CHUNK) {
     const slice = unique.slice(i, i + PLAYER_CHUNK);
     const { data, error } = await admin
       .from('players')
-      .select('id, primary_position, name, full_name, web_name')
+      .select('id, primary_position, secondary_positions, name, full_name, web_name')
       .in('id', slice);
     if (error) throw new Error(`players chunk ${i}: ${error.message}`);
     for (const p of data ?? []) {
-      map.set(p.id, p as { id: string; primary_position: string; web_name: string | null; name: string | null; full_name: string | null });
+      map.set(p.id, p as { id: string; primary_position: string; secondary_positions: string[] | null; web_name: string | null; name: string | null; full_name: string | null });
     }
   }
   return map;
@@ -148,6 +150,7 @@ export default async function ScoringV2Page() {
   }
 
   const refStatsSeason = await getLatestReferenceStatsSeason(admin);
+  const refStats = await loadReferenceStats(admin, refStatsSeason);
   // Must match sync + backfill (`getCurrentFplSeason`). Using `rating_reference_stats`
   // season alone can mismatch (e.g. empty table fallback vs DB convention) and yield
   // zero rows here while v2 rows exist.
@@ -250,45 +253,88 @@ export default async function ScoringV2Page() {
   };
 
   function buildShadowAgg(minMins: number) {
-    const shadowAgg = new Map<string, ShadowAcc>();
+    // shadowAgg maps: playerId -> Map of position -> ShadowAcc
+    const shadowAgg = new Map<string, Map<string, ShadowAcc>>();
     for (const r of rows) {
       if (r.fantasy_points_v2 == null || r.match_rating_v2 == null) continue;
       if (!isPlayedFixture(r)) continue;
       const mins = Number(r.stats?.minutes_played ?? 0);
       if (mins < minMins) continue;
 
-      let ex = shadowAgg.get(r.player_id);
-      if (!ex) {
-        ex = { gp: 0, ptsV1: 0, ptsV2: 0, sumR1: 0, sumR2: 0, nR1: 0, totalMinutes: 0 };
-        shadowAgg.set(r.player_id, ex);
+      const p = playerById.get(r.player_id);
+      if (!p) continue;
+
+      let playerMap = shadowAgg.get(r.player_id);
+      if (!playerMap) {
+        playerMap = new Map<string, ShadowAcc>();
+        shadowAgg.set(r.player_id, playerMap);
       }
-      ex.gp += 1;
-      ex.ptsV1 += Number(r.fantasy_points ?? 0);
-      ex.ptsV2 += Number(r.fantasy_points_v2);
-      ex.sumR2 += Number(r.match_rating_v2);
-      ex.totalMinutes += mins;
-      if (r.match_rating != null && !Number.isNaN(Number(r.match_rating))) {
-        ex.sumR1 += Number(r.match_rating);
-        ex.nR1 += 1;
+
+      // 1. Primary Position
+      const primPos = p.primary_position ? String(p.primary_position).toUpperCase() : '';
+      if (primPos) {
+        let primAcc = playerMap.get(primPos);
+        if (!primAcc) {
+          primAcc = { gp: 0, ptsV1: 0, ptsV2: 0, sumR1: 0, sumR2: 0, nR1: 0, totalMinutes: 0 };
+          playerMap.set(primPos, primAcc);
+        }
+        primAcc.gp += 1;
+        primAcc.ptsV1 += Number(r.fantasy_points ?? 0);
+        primAcc.ptsV2 += Number(r.fantasy_points_v2);
+        primAcc.sumR2 += Number(r.match_rating_v2);
+        primAcc.totalMinutes += mins;
+        if (r.match_rating != null && !Number.isNaN(Number(r.match_rating))) {
+          primAcc.sumR1 += Number(r.match_rating);
+          primAcc.nR1 += 1;
+        }
+      }
+
+      // 2. Secondary Positions (dynamically calculated)
+      const secPositions = (p.secondary_positions ?? []) as string[];
+      for (const secPos of secPositions) {
+        const posKey = String(secPos).toUpperCase();
+        if (!posKey || posKey === primPos) continue;
+
+        let secAcc = playerMap.get(posKey);
+        if (!secAcc) {
+          secAcc = { gp: 0, ptsV1: 0, ptsV2: 0, sumR1: 0, sumR2: 0, nR1: 0, totalMinutes: 0 };
+          playerMap.set(posKey, secAcc);
+        }
+
+        // Dynamically calculate rating and points under this secondary position weights
+        const dynamicRating = calculateMatchRating(r.stats as any, posKey as any, refStats as any);
+
+        secAcc.gp += 1;
+        secAcc.ptsV1 += Number(r.fantasy_points ?? 0);
+        secAcc.ptsV2 += dynamicRating.fantasyPoints;
+        secAcc.sumR2 += dynamicRating.rating;
+        secAcc.totalMinutes += mins;
+        if (r.match_rating != null && !Number.isNaN(Number(r.match_rating))) {
+          secAcc.sumR1 += Number(r.match_rating);
+          secAcc.nR1 += 1;
+        }
       }
     }
 
-    const result: Record<string, ShadowStatsPayload> = {};
-    for (const [pid, ex] of shadowAgg) {
-      const gp = ex.gp;
-      const totalMinutes = ex.totalMinutes;
-      result[pid] = {
-        gp,
-        ptsV1: ex.ptsV1,
-        ptsV2: ex.ptsV2,
-        ppgV1: gp > 0 ? ex.ptsV1 / gp : 0,
-        ppgV2: gp > 0 ? ex.ptsV2 / gp : 0,
-        p90V1: totalMinutes > 0 ? (ex.ptsV1 / totalMinutes) * 90 : 0,
-        p90V2: totalMinutes > 0 ? (ex.ptsV2 / totalMinutes) * 90 : 0,
-        avgRV1: ex.nR1 > 0 ? ex.sumR1 / ex.nR1 : null,
-        avgRV2: gp > 0 ? ex.sumR2 / gp : 0,
-        totalMinutes,
-      };
+    const result: Record<string, Record<string, ShadowStatsPayload>> = {};
+    for (const [pid, playerMap] of shadowAgg) {
+      result[pid] = {};
+      for (const [pos, ex] of playerMap) {
+        const gp = ex.gp;
+        const totalMinutes = ex.totalMinutes;
+        result[pid][pos] = {
+          gp,
+          ptsV1: ex.ptsV1,
+          ptsV2: ex.ptsV2,
+          ppgV1: gp > 0 ? ex.ptsV1 / gp : 0,
+          ppgV2: gp > 0 ? ex.ptsV2 / gp : 0,
+          p90V1: totalMinutes > 0 ? (ex.ptsV1 / totalMinutes) * 90 : 0,
+          p90V2: totalMinutes > 0 ? (ex.ptsV2 / totalMinutes) * 90 : 0,
+          avgRV1: ex.nR1 > 0 ? ex.sumR1 / ex.nR1 : null,
+          avgRV2: gp > 0 ? ex.sumR2 / gp : 0,
+          totalMinutes,
+        };
+      }
     }
     return result;
   }

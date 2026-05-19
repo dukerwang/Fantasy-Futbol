@@ -449,3 +449,133 @@
     text-align: left;
   }
 }
+
+/* --- Secondary Role Badges --- */
+.badgeWrapper {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.secArrow {
+  font-size: 11px;
+  color: var(--color-text-muted);
+  font-weight: 600;
+  user-select: none;
+}
+
+.activeSecBadge {
+  font-family: var(--font-mono, monospace);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #3A6B4A;
+  background: #EDE8DE;
+  border: 1px solid #DDD5C7;
+  padding: 1px 5px;
+  border-radius: 0px;
+  display: inline-block;
+  text-transform: uppercase;
+}
+
+/* --- Premium Cream Editorial Slider --- */
+.sliderContainer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  padding: 6px 12px;
+  border-radius: 0px;
+}
+
+.sliderLabel {
+  font-size: 13px;
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  font-family: var(--font-sans);
+}
+
+.sliderLabel strong {
+  font-family: var(--font-mono, monospace);
+  color: var(--color-accent-green, #3A6B4A);
+  font-size: 14px;
+}
+
+.sliderInput {
+  -webkit-appearance: none;
+  width: 100px;
+  height: 4px;
+  background: #DDD5C7;
+  outline: none;
+  margin: 0;
+  padding: 0;
+  border-radius: 0px;
+  cursor: pointer;
+}
+
+.sliderInput::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 12px;
+  height: 12px;
+  background: #3A6B4A;
+  border: none;
+  border-radius: 0px;
+  transition: transform 0.1s ease;
+}
+
+.sliderInput::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+}
+
+.sliderInput::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  background: #3A6B4A;
+  border: none;
+  border-radius: 0px;
+  cursor: pointer;
+  transition: transform 0.1s ease;
+}
+
+.sliderInput::-moz-range-thumb:hover {
+  transform: scale(1.2);
+}
+
+/* --- Premium Segmented Toggle --- */
+.segmentedToggle {
+  display: inline-flex;
+  border: 1px solid var(--color-border);
+  border-radius: 0px;
+  overflow: hidden;
+  background: var(--color-bg-card);
+}
+
+.toggleButton {
+  background: transparent;
+  border: none;
+  border-right: 1px solid var(--color-border);
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  font-family: var(--font-sans);
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.toggleButton:last-child {
+  border-right: none;
+}
+
+.toggleButton:hover {
+  background: var(--color-bg-secondary);
+  color: var(--color-text-primary);
+}
+
+.activeToggle {
+  background: #3A6B4A !important;
+  color: #FFFFFF !important;
+}
+

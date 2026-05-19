@@ -45,14 +45,33 @@ const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
       process.exit(1);
     }
   } else {
-    const browser = await chromium.launch({
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
-      headless: true
-    });
-    const context = await browser.newContext({
-      userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
-    });
-    const page = await context.newPage();
+    const headful = process.argv.includes('--headful');
+    let browser = null;
+    let context = null;
+    let page = null;
+
+    if (headful) {
+      context = await chromium.launchPersistentContext('./playwright-profile', {
+        headless: false,
+        executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+        args: [
+          '--no-sandbox',
+          '--disable-setuid-sandbox',
+          '--disable-blink-features=AutomationControlled'
+        ],
+        userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+      });
+      page = context.pages()[0] || await context.newPage();
+    } else {
+      browser = await chromium.launch({
+        args: ['--no-sandbox', '--disable-setuid-sandbox'],
+        headless: true
+      });
+      context = await browser.newContext({
+        userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+      });
+      page = await context.newPage();
+    }
 
     try {
       console.log('Loading sofifa.com to establish session...');
@@ -61,6 +80,12 @@ const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
       console.log('Fetching Premier League teams...');
       await page.goto(`${SOFIFA_BASE}/teams?lg=13`, { waitUntil: 'domcontentloaded', timeout: 60000 });
+      if (headful) {
+        console.log('🔒 Cloudflare challenge may appear. If a "Verify you are human" checkbox is shown in the browser, please check it to proceed...');
+        await page.waitForSelector('table tbody tr a[href^="/team/"]', { timeout: 60000 }).catch(e => console.log('⚠️ Warning: Timeout waiting for team selector. proceeding...'));
+      } else {
+        await page.waitForSelector('table tbody tr a[href^="/team/"]', { timeout: 15000 }).catch(e => console.log('⚠️ Warning: Timeout waiting for team selector. proceeding...'));
+      }
       
       const teamsData = await page.evaluate(() => {
         const links = Array.from(document.querySelectorAll('table tbody tr a[href^="/team/"]'));
@@ -84,11 +109,15 @@ const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
         const team = teamsData[i];
         console.log(`\n[${i + 1}/${teamsData.length}] Roster for ${team.name} (ID: ${team.id})...`);
         
-        await page.goto(`${SOFIFA_BASE}${team.href}`, { waitUntil: 'domcontentloaded', timeout: 60000 });
-        await delay(1500);
+        // Fetch HTML seamlessly via same-origin XHR to bypass Cloudflare navigation tracking
+        await delay(2000);
+        const playerLinks = await page.evaluate(async (url) => {
+          const res = await fetch(url);
+          const html = await res.text();
+          const parser = new DOMParser();
+          const doc = parser.parseFromString(html, 'text/html');
 
-        const playerLinks = await page.evaluate(() => {
-          const rows = Array.from(document.querySelectorAll('table tbody tr'));
+          const rows = Array.from(doc.querySelectorAll('table tbody tr'));
           const unique = [];
           const seen = new Set();
 
@@ -140,7 +169,7 @@ const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
             }
           }
           return unique;
-        });
+        }, `${SOFIFA_BASE}${team.href}`);
 
         const teamPlayers = [];
         const BATCH_SIZE = 5;
@@ -149,8 +178,20 @@ const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
           const batch = playerLinks.slice(j, j + BATCH_SIZE);
           
           const batchResults = await Promise.all(batch.map(async (pLink) => {
-            const widePositions = ['LM', 'RM', 'LB', 'RB', 'LWB', 'RWB'];
-            const needsRoles = pLink.positions.some(p => widePositions.includes(p));
+            const hasLeftFb = pLink.positions.includes('LB') || pLink.positions.includes('LWB');
+            const hasLeftMid = pLink.positions.includes('LM');
+            const hasLeftWing = pLink.positions.includes('LW');
+            
+            const hasRightFb = pLink.positions.includes('RB') || pLink.positions.includes('RWB');
+            const hasRightMid = pLink.positions.includes('RM');
+            const hasRightWing = pLink.positions.includes('RW');
+            
+            let needsRoles = false;
+            if (!(pLink.positions.includes('LM') && pLink.positions.includes('RM'))) {
+              const leftNeeds = (hasLeftFb && hasLeftMid && !hasLeftWing);
+              const rightNeeds = (hasRightFb && hasRightMid && !hasRightWing);
+              needsRoles = leftNeeds || rightNeeds;
+            }
             
             // Extract a clean full name from the URL slug as a baseline
             const slug = pLink.href.split('/')[3] || '';
@@ -166,13 +207,16 @@ const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
               };
             }
 
-            // If we need roles, visit the page
-            const playerPage = await context.newPage();
+            // Fetch player details silently via XHR to completely bypass Cloudflare navigation triggers
             try {
-              await playerPage.goto(`${SOFIFA_BASE}${pLink.href}`, { waitUntil: 'domcontentloaded', timeout: 30000 });
-              const details = await playerPage.evaluate(() => {
-                const fullName = document.querySelector('h1')?.innerText.trim() || '';
-                const bodyText = document.body.innerText;
+              const details = await page.evaluate(async (url) => {
+                const res = await fetch(url);
+                const html = await res.text();
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                
+                const fullName = doc.querySelector('h1')?.innerText.trim() || '';
+                const bodyText = doc.body.innerText;
                 const roleIndex = bodyText.indexOf('Roles');
                 let roles = [];
                 if (roleIndex !== -1) {
@@ -206,7 +250,7 @@ const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
                   }
                 }
                 return { fullName, roles: Array.from(new Set(roles)) };
-              });
+              }, `${SOFIFA_BASE}${pLink.href}`);
 
               return {
                 id: pLink.id,
@@ -224,8 +268,6 @@ const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
                 positions: pLink.positions,
                 roles: []
               };
-            } finally {
-              await playerPage.close();
             }
           }));
 
@@ -249,7 +291,11 @@ const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
     } catch (e) {
       console.error('Scraping error:', e.message);
     } finally {
-      await browser.close();
+      if (headful) {
+        if (context) await context.close();
+      } else {
+        if (browser) await browser.close();
+      }
     }
   }
 

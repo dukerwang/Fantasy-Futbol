@@ -24,50 +24,94 @@ const PL_LEAGUE_ID = 13;
 
 // ── SoFIFA position ID → our GranularPosition ────────────────────────────────
 // Full table from https://sofifa.com/document
-const SOFIFA_TO_GRANULAR: Partial<Record<number, string>> = {
+const SOFIFA_ID_TO_RAW_STRING: Partial<Record<number, string>> = {
   0: 'GK',
-  1: 'CB',  // SW  (sweeper)
-  2: 'RWB', // RWB
-  3: 'RB',  // RB
-  4: 'CB',  // RCB
-  5: 'CB',  // CB
-  6: 'CB',  // LCB
-  7: 'LB',  // LB
-  8: 'LWB', // LWB
-  9: 'DM',  // RDM
-  10: 'DM', // CDM
-  11: 'DM', // LDM
-  12: 'RM', // RM
-  13: 'CM', // RCM
-  14: 'CM', // CM
-  15: 'CM', // LCM
-  16: 'LM', // LM
-  17: 'AM', // RAM
-  18: 'AM', // CAM
-  19: 'AM', // LAM
-  20: 'RW', // RF
-  21: 'ST', // CF
-  22: 'LW', // LF
-  23: 'RW', // RW
-  24: 'ST', // RS
-  25: 'ST', // ST
-  26: 'ST', // LS
-  27: 'LW', // LW
+  1: 'SW',
+  2: 'RWB',
+  3: 'RB',
+  4: 'RCB',
+  5: 'CB',
+  6: 'LCB',
+  7: 'LB',
+  8: 'LWB',
+  9: 'RDM',
+  10: 'CDM',
+  11: 'LDM',
+  12: 'RM',
+  13: 'RCM',
+  14: 'CM',
+  15: 'LCM',
+  16: 'LM',
+  17: 'RAM',
+  18: 'CAM',
+  19: 'LAM',
+  20: 'RF',
+  21: 'CF',
+  22: 'LF',
+  23: 'RW',
+  24: 'RS',
+  25: 'ST',
+  26: 'LS',
+  27: 'LW',
   // 28=SUB, 29=RES → intentionally omitted (map to undefined → null)
 };
 
-function toGranular(posId: number): GranularPosition | null {
+const POS_MAP: Record<string, GranularPosition | 'LM' | 'RM'> = {
+  GK: 'GK',
+  SW: 'CB',   // sweeper
+  RWB: 'RWB',
+  RB: 'RB',
+  RCB: 'CB',
+  CB: 'CB',
+  LCB: 'CB',
+  LB: 'LB',
+  LWB: 'LWB',
+  RDM: 'DM',
+  CDM: 'DM',
+  LDM: 'DM',
+  RM: 'RM',
+  RCM: 'CM',
+  CM: 'CM',
+  LCM: 'CM',
+  LM: 'LM',
+  RAM: 'AM',
+  CAM: 'AM',
+  LAM: 'AM',
+  RF: 'RW',
+  CF: 'ST',
+  LF: 'LW',
+  RW: 'RW',
+  RS: 'ST',
+  ST: 'ST',
+  LS: 'ST',
+  LW: 'LW',
+  DM: 'DM', // self-map
+  AM: 'AM', // self-map
+};
+
+function toRawString(posId: number): string | null {
   if (posId < 0) return null;
-  return (SOFIFA_TO_GRANULAR[posId] as GranularPosition) || null;
+  return SOFIFA_ID_TO_RAW_STRING[posId] || null;
 }
 
 function normalizeName(name: string): string {
+  if (!name) return '';
   return name
     .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[\u0300-\u036f]/g, '') // Remove diacritics
     .toLowerCase()
-    .replace(/[^a-z0-9 ]/g, '')
+    .replace(/ß/g, 'ss')             // German Eszett
+    .replace(/-/g, ' ')              // Replace hyphens with space
+    .replace(/[^a-z0-9 ]/g, '')      // Strip other non-alphanumeric except spaces
+    .replace(/\s+/g, ' ')            // Normalize multiple spaces
     .trim();
+}
+
+// Returns "first last" by taking only the first and last word of a multi-word name.
+function firstLast(name: string) {
+  const parts = name.split(' ').filter(Boolean);
+  if (parts.length <= 2) return name;
+  return `${parts[0]} ${parts[parts.length - 1]}`;
 }
 
 async function sofiFetch<T>(path: string): Promise<T> {
@@ -115,10 +159,13 @@ interface SoFifaSquadPlayer {
   firstName: string;
   lastName: string;
   commonName: string;
+  fullName?: string;
   position1: number;
   position2: number;
   position3: number;
   position4: number;
+  positions?: string[]; // from scraper
+  roles?: string[];     // from scraper
 }
 
 interface SoFifaTeamDetail {
@@ -162,17 +209,35 @@ async function runSync(preloadedTeams: SoFifaTeamDetail[] | null) {
     return NextResponse.json({ error: 'Failed to fetch players from DB' }, { status: 500 });
   }
 
-  const nameMap = new Map<string, typeof dbPlayers[0]>();
-  const nameList: string[] = [];
+  type DbPlayer = NonNullable<typeof dbPlayers>[number];
+  const nameMap = new Map<string, DbPlayer>();
+
+  function addToMap(key: string | null, player: DbPlayer) {
+    if (!key) return;
+    if (!nameMap.has(key)) {
+      nameMap.set(key, player);
+    }
+  }
 
   for (const p of dbPlayers) {
     const normFull = normalizeName(p.name);
     const normWeb = p.web_name ? normalizeName(p.web_name) : null;
-    nameMap.set(normFull, p);
-    nameList.push(normFull);
-    if (normWeb && normWeb !== normFull) {
-      nameMap.set(normWeb, p);
-      nameList.push(normWeb);
+
+    addToMap(normFull, p);
+    addToMap(normWeb, p);
+    addToMap(firstLast(normFull), p);
+    if (normWeb) addToMap(firstLast(normWeb), p);
+
+    // Reverse 2-word names to support order variations (e.g. Endo Wataru <-> Wataru Endo)
+    const fullParts = normFull.split(' ').filter(Boolean);
+    if (fullParts.length === 2) {
+      addToMap(`${fullParts[1]} ${fullParts[0]}`, p);
+    }
+    if (normWeb) {
+      const webParts = normWeb.split(' ').filter(Boolean);
+      if (webParts.length === 2) {
+        addToMap(`${webParts[1]} ${webParts[0]}`, p);
+      }
     }
   }
 
@@ -210,111 +275,186 @@ async function runSync(preloadedTeams: SoFifaTeamDetail[] | null) {
   for (const team of teams) {
 
     for (const sp of team.players ?? []) {
-      const primaryRaw = toGranular(sp.position1);
-      if (!primaryRaw) continue; // SUB / RES players — skip
+      let sofifaPrimaryRaw: string | null = null;
+      let positionsRaw: string[] = [];
+      let roles: string[] = [];
 
-      // Collect up to 3 valid secondary positions (deduplicated, not same as primary)
-      const secondaryRaw: string[] = [];
-      for (const posId of [sp.position2, sp.position3, sp.position4]) {
-        const g = toGranular(posId);
-        if (g && g !== primaryRaw && !secondaryRaw.includes(g)) {
-          secondaryRaw.push(g);
+      if (sp.positions) {
+        positionsRaw = sp.positions;
+        if (positionsRaw.length > 0) sofifaPrimaryRaw = positionsRaw[0];
+        roles = sp.roles || [];
+      } else {
+        sofifaPrimaryRaw = toRawString(sp.position1);
+        if (sofifaPrimaryRaw) positionsRaw.push(sofifaPrimaryRaw);
+        for (const posId of [sp.position2, sp.position3, sp.position4]) {
+          const str = toRawString(posId);
+          if (str && !positionsRaw.includes(str)) positionsRaw.push(str);
         }
       }
 
-      // Apply New Wingback Taxonomy Mapping Rules (Phase 16)
-      const allRaw = new Set([primaryRaw, ...secondaryRaw]);
-      
-      const hasL = (p: string) => ['LB', 'LWB', 'LM', 'LW'].includes(p);
-      const hasR = (p: string) => ['RB', 'RWB', 'RM', 'RW'].includes(p);
-      const isFB = (p: string) => ['LB', 'RB', 'LWB', 'RWB'].includes(p);
-      const isWM = (p: string) => ['LM', 'RM'].includes(p);
-      const isWG = (p: string) => ['LW', 'RW'].includes(p);
-      
-      const finalAll = new Set<GranularPosition>();
-      const leftRaw = Array.from(allRaw).filter(hasL) as GranularPosition[];
-      const rightRaw = Array.from(allRaw).filter(hasR) as GranularPosition[];
-      
-      const processSide = (sideSet: GranularPosition[], side: 'L' | 'R') => {
-        const set = new Set(sideSet);
-        const FB = (side === 'L' ? 'LB' : 'RB') as GranularPosition;
-        const WB = (side === 'L' ? 'LWB' : 'RWB') as GranularPosition;
-        const WM = (side === 'L' ? 'LM' : 'RM') as GranularPosition;
-        const WG = (side === 'L' ? 'LW' : 'RW') as GranularPosition;
-        
-        const hasFBTag = set.has(FB) || set.has(WB);
-        const hasWMTag = set.has(WM);
-        const hasWGTag = set.has(WG);
-        
-        const out = new Set<GranularPosition>();
-        if (hasWMTag && hasFBTag) out.add(WB);
-        if (hasWMTag) out.add(WG);
-        
-        set.forEach(p => {
-          if (p !== WM) out.add(p);
-        });
-        
-        // Drop FB if has all 3 (WG/WM, WB, FB) on same side
-        if (out.has(WG) && out.has(WB) && out.has(FB)) {
-          out.delete(FB);
+      if (!sofifaPrimaryRaw) continue; // SUB / RES players — skip
+
+      // ── New Hybrid Wide Player Rules ───────────────────────────────────────────
+      const allRaw = new Set(positionsRaw);
+
+      const hasLB = allRaw.has('LB') || allRaw.has('LWB');
+      const hasLM = allRaw.has('LM');
+      const hasLW = allRaw.has('LW') || allRaw.has('LF');
+
+      const hasRB = allRaw.has('RB') || allRaw.has('RWB');
+      const hasRM = allRaw.has('RM');
+      const hasRW = allRaw.has('RW') || allRaw.has('RF');
+
+      const hasBothMid = hasLM && hasRM;
+      const hasOnlyOneFB = (hasLB && !hasRB) || (!hasLB && hasRB);
+
+      const finalSet = new Set<GranularPosition>();
+
+      let primary: GranularPosition = POS_MAP[sofifaPrimaryRaw] as GranularPosition;
+
+      const applySide = (
+        side: 'L' | 'R',
+        hasFB: boolean,
+        hasMid: boolean,
+        hasWing: boolean
+      ) => {
+        const fb = `${side}B` as GranularPosition;
+        const wb = `${side}WB` as GranularPosition;
+        const wing = `${side}W` as GranularPosition;
+        const midRaw = `${side}M`;
+        const fbRaw = `${side}B`;
+        const wingRaw = `${side}W`;
+
+        const pCat = sofifaPrimaryRaw === midRaw ? 'mid' : sofifaPrimaryRaw === wingRaw ? 'wing' : sofifaPrimaryRaw === fbRaw ? 'fb' : 'other';
+
+        // Special Case: both lm/rm, but only one lb/rb -> evaluate before roles
+        if (hasBothMid && hasOnlyOneFB) {
+          if (hasMid) {
+            finalSet.add(wing);
+            if (pCat === 'mid' || pCat === 'wing') primary = wing;
+          }
+          if (hasFB) {
+            finalSet.add(wb);
+            if (pCat === 'fb') primary = wb;
+          }
+          return;
         }
-        return out;
+
+        // 1. Does not have both FB and Mid for this side
+        if (!hasFB || !hasMid) {
+          if (hasMid) {
+            finalSet.add(wing);
+            if (pCat === 'mid') primary = wing;
+          }
+          if (hasWing) {
+            finalSet.add(wing);
+            if (pCat === 'wing') primary = wing;
+          }
+          if (hasFB) {
+            finalSet.add(fb);
+            if (pCat === 'fb') primary = fb;
+          }
+          return;
+        }
+
+        // 2. Has FB, Mid, and Wing -> Check Primary Position
+        if (hasFB && hasMid && hasWing) {
+          if (pCat === 'mid' || pCat === 'wing') {
+            primary = wing;
+            finalSet.add(wing);
+            finalSet.add(wb);
+          } else if (pCat === 'fb') {
+            primary = wb;
+            finalSet.add(wb);
+            finalSet.add(wing);
+          } else {
+            finalSet.add(wing);
+            finalSet.add(wb);
+          }
+          return;
+        }
+
+        // 3. Has FB and Mid but no Wing -> Look at roles
+        if (hasFB && hasMid && !hasWing) {
+          const firstRoleLower = (roles[0] || '').toLowerCase();
+          const isAttackingOrInverted = firstRoleLower.includes('attacking wingback') || firstRoleLower.includes('inverted wingback');
+
+          if (isAttackingOrInverted) {
+            if (pCat === 'fb' || pCat === 'mid') primary = wb;
+            finalSet.add(wb);
+            finalSet.add(fb);
+          } else {
+            if (pCat === 'fb' || pCat === 'mid') primary = fb;
+            finalSet.add(fb);
+            finalSet.add(wb);
+          }
+          return;
+        }
       };
 
-      processSide(leftRaw, 'L').forEach(p => finalAll.add(p));
-      processSide(rightRaw, 'R').forEach(p => finalAll.add(p));
-      allRaw.forEach(p => { if (!hasL(p) && !hasR(p)) finalAll.add(p as GranularPosition); });
+      applySide('L', hasLB, hasLM, hasLW);
+      applySide('R', hasRB, hasRM, hasRW);
 
-      // Primary selection logic
-      let primary: GranularPosition = primaryRaw;
-      if (isWM(primaryRaw)) {
-        const side = hasL(primaryRaw) ? 'L' : 'R';
-        const FB = (side === 'L' ? 'LB' : 'RB') as GranularPosition;
-        const WB = (side === 'L' ? 'LWB' : 'RWB') as GranularPosition;
-        const WG = (side === 'L' ? 'LW' : 'RW') as GranularPosition;
-        
-        if (allRaw.has(FB)) primary = WB;
-        else primary = WG;
-      } else if (isFB(primaryRaw)) {
-        const side = hasL(primaryRaw) ? 'L' : 'R';
-        const WM = (side === 'L' ? 'LM' : 'RM') as GranularPosition;
-        const WG = (side === 'L' ? 'LW' : 'RW') as GranularPosition;
-        if (allRaw.has(WM) || allRaw.has(WG)) {
-          primary = (side === 'L' ? 'LWB' : 'RWB') as GranularPosition;
+      // Add other positions (GK, CB, DM, CM, AM, ST)
+      for (const raw of positionsRaw) {
+        const mapped = POS_MAP[raw];
+        if (mapped && !['LB', 'RB', 'LW', 'RW', 'LWB', 'RWB', 'LM', 'RM', 'LF', 'RF'].includes(raw)) {
+          finalSet.add(mapped as GranularPosition);
         }
       }
-      
-      // Override: "if a player has wide midfield or winger primary and a secondary fullback position then give them winger primary"
-      if ((isWM(primaryRaw) || isWG(primaryRaw)) && Array.from(allRaw).some(isFB)) {
-        const side = hasL(primaryRaw) ? 'L' : 'R';
-        primary = (side === 'L' ? 'LW' : 'RW') as GranularPosition;
+
+      if (primary && !finalSet.has(primary)) {
+        finalSet.add(primary);
       }
 
-      finalAll.add(primary);
-      const finalSecondary = Array.from(finalAll).filter(p => p !== primary);
+      // Final primary/secondary split
+      const finalSecondary = Array.from(finalSet).filter(p => p !== primary);
 
       // Match to our DB by name
-      const fullName = [sp.firstName, sp.lastName].filter(Boolean).join(' ');
+      const fullName = sp.fullName || [sp.firstName, sp.lastName].filter(Boolean).join(' ');
       const common = sp.commonName || '';
       const normFull = normalizeName(fullName);
       const normCommon = normalizeName(common);
 
-      let dbMatch = nameMap.get(normFull) ?? nameMap.get(normCommon) ?? null;
+      const candidates = Array.from(new Set([
+        normFull, normCommon,
+        firstLast(normFull), firstLast(normCommon),
+      ])).filter(Boolean) as string[];
 
-      if (!dbMatch) {
-        // Fuzzy fallback — try the more distinctive name first
-        for (const candidate of [normFull, normCommon].filter(Boolean)) {
-          const { bestMatch } = stringSimilarity.findBestMatch(candidate, nameList);
-          if (bestMatch.rating > 0.82) {
-            dbMatch = nameMap.get(bestMatch.target) ?? null;
-            break;
-          }
-        }
+      let dbMatch = null;
+      for (const c of candidates) {
+        dbMatch = nameMap.get(c) ?? null;
+        if (dbMatch) break;
       }
+
+      const MANUAL_OVERRIDES: Record<string, string> = {
+        'Louis Jordan Beyer': 'Jordan Beyer',
+        'Toluwalase Emmanuel Arokodare': 'Tolu Arokodare',
+        'Alejandro Jiménez Sánchez': 'Álex Jiménez Sánchez',
+        'Tóth Alex László': 'Alex Tóth',
+        'Xavier Quentin Shay Simons': 'Xavi Simons',
+        'Valentín Mariano José Castellanos Giménez': 'Valentín Castellanos',
+        'Abdul-Nasir Oluwatosin Oluwadoyinsolami Adarabioyo': 'Tosin Adarabioyo',
+        'Eli Junior Eric Anat Kroupi': 'Junior Kroupi',
+        'Eli Junior Kroupi': 'Junior Kroupi',
+        'Adilson Angel Abreu de Almeida Gomés': 'Angel Gomes',
+        'James William McConnell': 'James McConnell',
+        'Lewis William Orford': 'Lewis Orford'
+      };
+
+      if (!dbMatch && MANUAL_OVERRIDES[fullName]) {
+        dbMatch = nameMap.get(normalizeName(MANUAL_OVERRIDES[fullName])) ?? null;
+      }
+
+      if (!dbMatch && common && MANUAL_OVERRIDES[common]) {
+        dbMatch = nameMap.get(normalizeName(MANUAL_OVERRIDES[common])) ?? null;
+      }
+
+      // Fuzzy matching is completely disabled to guarantee 100% precision and zero false positives.
 
       if (dbMatch) {
         matched++;
-        updates.push({ id: dbMatch.id, primary_position: primary, secondary_positions: finalSecondary });
+        updates.push({ id: dbMatch.id, primary_position: primary as GranularPosition, secondary_positions: finalSecondary as GranularPosition[] });
       }
     }
 

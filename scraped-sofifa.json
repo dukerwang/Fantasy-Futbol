@@ -24,13 +24,15 @@
         ],
         "roles": [
           "Attacking wingback ++",
-          "Support",
+          "SupportAttack",
           "Inverted wingback +",
-          "Build-up",
+          "Build-upAttack",
           "Attacking wingback +",
           "Ball-playing defender +",
-          "Aggressive",
-          "Layout 1 2 3"
+          "DefendBuild-upAggressive",
+          "Layout 1",
+          "2",
+          "3"
         ]
       },
       {
@@ -54,21 +56,12 @@
       {
         "id": 256197,
         "commonName": "P. Hincapié",
-        "fullName": "Piero Hincapié",
+        "fullName": "Piero Hincapie",
         "positions": [
-          "CB",
-          "LB"
+          "LB",
+          "CB"
         ],
-        "roles": [
-          "Ball-playing defender +",
-          "Build-up",
-          "Aggressive",
-          "Wide back +",
-          "Support",
-          "Fullback +",
-          "Versatile",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 248148,
@@ -98,10 +91,7 @@
           "RW",
           "RM"
         ],
-        "roles": [
-          "Inside forward ++",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 207421,
@@ -111,10 +101,7 @@
           "LW",
           "LM"
         ],
-        "roles": [
-          "Inside forward +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 235794,
@@ -144,12 +131,7 @@
           "LW",
           "LM"
         ],
-        "roles": [
-          "Winger +",
-          "Versatile",
-          "Inside forward +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 254796,
@@ -159,10 +141,7 @@
           "RW",
           "RM"
         ],
-        "roles": [
-          "Inside forward +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 222665,
@@ -192,11 +171,7 @@
           "RB",
           "CM"
         ],
-        "roles": [
-          "Inverted wingback +",
-          "Build-up",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 257711,
@@ -207,14 +182,7 @@
           "CB",
           "CM"
         ],
-        "roles": [
-          "Inverted wingback ++",
-          "Build-up",
-          "Falseback +",
-          "Ball-playing defender +",
-          "Aggressive",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 206585,
@@ -231,8 +199,8 @@
         "fullName": "Kai Havertz",
         "positions": [
           "ST",
-          "CM",
-          "AM"
+          "AM",
+          "CM"
         ],
         "roles": []
       },
@@ -258,19 +226,12 @@
       {
         "id": 278773,
         "commonName": "M. Lewis-Skelly",
-        "fullName": "Myles Lewis-Skelly",
+        "fullName": "Myles Lewis Skelly",
         "positions": [
           "LB",
           "CM"
         ],
-        "roles": [
-          "Inverted wingback +",
-          "Build-up",
-          "Falseback +",
-          "Box-to-Box +",
-          "Ball-winning",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 225193,
@@ -289,20 +250,10 @@
         "fullName": "Ethan Nwaneri",
         "positions": [
           "RW",
-          "CM",
           "AM",
           "RM"
         ],
-        "roles": [
-          "Winger +",
-          "Versatile",
-          "Wide playmaker +",
-          "Build-up",
-          "Holding +",
-          "Ball-winning",
-          "Half-winger +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 265693,
@@ -313,33 +264,19 @@
           "LB",
           "CM"
         ],
-        "roles": [
-          "Ball-playing defender +",
-          "Build-up",
-          "Aggressive",
-          "Wide back +",
-          "Support",
-          "Inverted wingback +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 256958,
         "commonName": "Fábio Vieira",
-        "fullName": "Fábio Daniel Ferreira Vieira",
+        "fullName": "Fabio Daniel Ferreira Vieira",
         "positions": [
           "CM",
+          "AM",
           "RW",
-          "RM",
           "DM"
         ],
-        "roles": [
-          "Deep-Lying playmaker +",
-          "Build-up",
-          "Inside forward +",
-          "Wide playmaker +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 248732,
@@ -359,12 +296,7 @@
           "LM",
           "RW"
         ],
-        "roles": [
-          "Wide playmaker +",
-          "Build-up",
-          "Inside forward +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 83046,
@@ -387,9 +319,12 @@
         ],
         "roles": [
           "Attacking wingback +",
-          "Support",
+          "SupportAttack",
           "Winger +",
-          "Layout 1 2 3"
+          "BalancedAttack",
+          "Layout 1",
+          "2",
+          "3"
         ]
       }
     ]
@@ -416,13 +351,7 @@
           "RB",
           "CM"
         ],
-        "roles": [
-          "Playmaker +",
-          "Build-up",
-          "Attacking wingback +",
-          "Support",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 237678,
@@ -443,18 +372,19 @@
         "roles": []
       },
       {
-        "id": 260908,
-        "commonName": "M. Kerkez",
-        "fullName": "Milos Kerkez",
+        "id": 216267,
+        "commonName": "A. Robertson",
+        "fullName": "Andrew Robertson",
         "positions": [
           "LB",
           "LM"
         ],
         "roles": [
           "Attacking wingback +",
-          "Support",
-          "Wingback +",
-          "Layout 1 2 3"
+          "SupportAttack",
+          "Layout 1",
+          "2",
+          "3"
         ]
       },
       {
@@ -485,12 +415,7 @@
           "RM",
           "RW"
         ],
-        "roles": [
-          "Inside forward ++",
-          "Winger ++",
-          "Inside forward +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 242516,
@@ -500,11 +425,7 @@
           "LM",
           "LW"
         ],
-        "roles": [
-          "Inside forward +",
-          "Winger +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 256630,
@@ -515,22 +436,14 @@
           "LM",
           "CM"
         ],
-        "roles": [
-          "Playmaker ++",
-          "Build-up",
-          "Shadow striker +",
-          "Half-winger +",
-          "Wide playmaker ++",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
-        "id": 257289,
-        "commonName": "H. Ekitiké",
-        "fullName": "Hugo Ekitike",
+        "id": 233731,
+        "commonName": "A. Isak",
+        "fullName": "Alexander Isak",
         "positions": [
-          "ST",
-          "AM"
+          "ST"
         ],
         "roles": []
       },
@@ -544,20 +457,6 @@
           "AM"
         ],
         "roles": []
-      },
-      {
-        "id": 80376,
-        "commonName": "R. Ngumoha",
-        "fullName": "Rio Ngumoha",
-        "positions": [
-          "LM",
-          "LW"
-        ],
-        "roles": [
-          "Inside forward +",
-          "Winger +",
-          "Layout 1 2 3"
-        ]
       },
       {
         "id": 279128,
@@ -579,25 +478,24 @@
           "RM",
           "RW"
         ],
-        "roles": [
-          "Attacking wingback +",
-          "Support",
-          "Inside forward +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
-        "id": 216267,
-        "commonName": "A. Robertson",
-        "fullName": "Andrew Robertson",
+        "id": 260908,
+        "commonName": "M. Kerkez",
+        "fullName": "Milos Kerkez",
         "positions": [
           "LB",
           "LM"
         ],
         "roles": [
           "Attacking wingback +",
-          "Support",
-          "Layout 1 2 3"
+          "SupportAttack",
+          "Wingback +",
+          "BalancedSupport",
+          "Layout 1",
+          "2",
+          "3"
         ]
       },
       {
@@ -612,11 +510,28 @@
         ],
         "roles": [
           "Ball-playing defender +",
-          "Build-up",
-          "Aggressive",
+          "DefendBuild-upAggressive",
           "Wingback +",
-          "Support",
-          "Layout 1 2 3"
+          "BalancedSupport",
+          "Layout 1",
+          "2",
+          "3"
+        ]
+      },
+      {
+        "id": 252897,
+        "commonName": "C. Ramsay",
+        "fullName": "Calvin Ramsay",
+        "positions": [
+          "RB",
+          "RM"
+        ],
+        "roles": [
+          "Wingback +",
+          "BalancedSupport",
+          "Layout 1",
+          "2",
+          "3"
         ]
       },
       {
@@ -629,6 +544,16 @@
         "roles": []
       },
       {
+        "id": 80376,
+        "commonName": "R. Ngumoha",
+        "fullName": "Rio Ngumoha",
+        "positions": [
+          "LM",
+          "LW"
+        ],
+        "roles": []
+      },
+      {
         "id": 235805,
         "commonName": "F. Chiesa",
         "fullName": "Federico Chiesa",
@@ -637,36 +562,7 @@
           "ST",
           "RW"
         ],
-        "roles": [
-          "Inside forward +",
-          "Winger +",
-          "False 9 +",
-          "Build-up",
-          "Layout 1 2 3"
-        ]
-      },
-      {
-        "id": 233731,
-        "commonName": "A. Isak",
-        "fullName": "Alexander Isak",
-        "positions": [
-          "ST"
-        ],
         "roles": []
-      },
-      {
-        "id": 252897,
-        "commonName": "C. Ramsay",
-        "fullName": "Calvin Ramsay",
-        "positions": [
-          "RB",
-          "RM"
-        ],
-        "roles": [
-          "Wingback +",
-          "Support",
-          "Layout 1 2 3"
-        ]
       },
       {
         "id": 222514,
@@ -726,6 +622,16 @@
         "roles": []
       },
       {
+        "id": 257289,
+        "commonName": "H. Ekitiké",
+        "fullName": "Hugo Ekitike",
+        "positions": [
+          "ST",
+          "AM"
+        ],
+        "roles": []
+      },
+      {
         "id": 264298,
         "commonName": "C. Bradley",
         "fullName": "Conor Bradley",
@@ -735,11 +641,13 @@
         ],
         "roles": [
           "Attacking wingback +",
-          "Support",
+          "SupportAttack",
           "Inverted wingback +",
-          "Build-up",
+          "Build-upAttack",
           "Wide playmaker +",
-          "Layout 1 2 3"
+          "Layout 1",
+          "2",
+          "3"
         ]
       },
       {
@@ -771,10 +679,12 @@
         ],
         "roles": [
           "Wingback +",
-          "Support",
+          "BalancedSupport",
           "Wide midfielder +",
-          "Build-up",
-          "Layout 1 2 3"
+          "SupportDefendBuild-up",
+          "Layout 1",
+          "2",
+          "3"
         ]
       },
       {
@@ -786,13 +696,7 @@
           "DM",
           "CM"
         ],
-        "roles": [
-          "Fullback +",
-          "Versatile",
-          "Holding +",
-          "Ball-winning",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 278030,
@@ -805,11 +709,14 @@
         ],
         "roles": [
           "Inverted wingback +",
-          "Build-up",
+          "Build-upAttack",
           "Falseback +",
+          "DefendBalanced",
           "Box-to-Box +",
-          "Ball-winning",
-          "Layout 1 2 3"
+          "BalancedBall-winning",
+          "Layout 1",
+          "2",
+          "3"
         ]
       },
       {
@@ -823,10 +730,12 @@
         ],
         "roles": [
           "Wingback +",
-          "Support",
+          "BalancedSupport",
           "Stopper +",
-          "Aggressive",
-          "Layout 1 2 3"
+          "BalancedAggressive",
+          "Layout 1",
+          "2",
+          "3"
         ]
       },
       {
@@ -859,9 +768,12 @@
         ],
         "roles": [
           "Attacking wingback +",
-          "Support",
+          "SupportAttack",
           "Wingback +",
-          "Layout 1 2 3"
+          "BalancedSupport",
+          "Layout 1",
+          "2",
+          "3"
         ]
       },
       {
@@ -869,14 +781,11 @@
         "commonName": "L. Koumas",
         "fullName": "Lewis Koumas",
         "positions": [
-          "RM",
           "LM",
-          "RW"
+          "RM",
+          "LW"
         ],
-        "roles": [
-          "Winger +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       }
     ]
   },
@@ -904,16 +813,18 @@
         ],
         "roles": [
           "Attacking wingback +",
-          "Support",
+          "SupportAttack",
           "Deep-Lying playmaker +",
-          "Build-up",
-          "Layout 1 2 3"
+          "Build-upDefend",
+          "Layout 1",
+          "2",
+          "3"
         ]
       },
       {
-        "id": 239818,
-        "commonName": "Rúben Dias",
-        "fullName": "Ruben Santos Gato Alves Dias",
+        "id": 277031,
+        "commonName": "A. Khusanov",
+        "fullName": "Abdukodir Khusanov",
         "positions": [
           "CB"
         ],
@@ -931,21 +842,23 @@
       {
         "id": 277427,
         "commonName": "N. O'Reilly",
-        "fullName": "Nico O'Reilly",
+        "fullName": "Nico Oreilly",
         "positions": [
           "LB",
-          "CM",
-          "LM"
+          "CM"
         ],
-        "roles": [
-          "Wingback +",
-          "Support",
-          "Inverted wingback +",
-          "Build-up",
-          "Box-to-Box +",
-          "Ball-winning",
-          "Layout 1 2 3"
-        ]
+        "roles": []
+      },
+      {
+        "id": 218667,
+        "commonName": "Bernardo Silva",
+        "fullName": "Bernardo Mota Carvalho E Silva",
+        "positions": [
+          "CM",
+          "DM",
+          "RW"
+        ],
+        "roles": []
       },
       {
         "id": 231866,
@@ -958,23 +871,23 @@
         "roles": []
       },
       {
-        "id": 218667,
-        "commonName": "Bernardo Silva",
-        "fullName": "Bernardo Mota Carvalho E Silva",
+        "id": 241236,
+        "commonName": "A. Semenyo",
+        "fullName": "Antoine Semenyo",
         "positions": [
-          "CM",
           "RW",
-          "DM"
+          "LW",
+          "RM"
         ],
         "roles": []
       },
       {
-        "id": 237692,
-        "commonName": "P. Foden",
-        "fullName": "Phil Foden",
+        "id": 246420,
+        "commonName": "J. Doku",
+        "fullName": "Jeremy Doku",
         "positions": [
-          "AM",
-          "CM",
+          "LW",
+          "LM",
           "RW"
         ],
         "roles": []
@@ -988,13 +901,7 @@
           "RM",
           "AM"
         ],
-        "roles": [
-          "Wide playmaker ++",
-          "Build-up",
-          "Wide playmaker +",
-          "Shadow striker +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 239085,
@@ -1006,22 +913,6 @@
         "roles": []
       },
       {
-        "id": 241236,
-        "commonName": "A. Semenyo",
-        "fullName": "Antoine Semenyo",
-        "positions": [
-          "RW",
-          "LW",
-          "RM"
-        ],
-        "roles": [
-          "Inside forward +",
-          "Winger +",
-          "Versatile",
-          "Layout 1 2 3"
-        ]
-      },
-      {
         "id": 256675,
         "commonName": "O. Marmoush",
         "fullName": "Omar Marmoush",
@@ -1030,12 +921,7 @@
           "ST",
           "LM"
         ],
-        "roles": [
-          "Inside forward +",
-          "False 9 +",
-          "Build-up",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 240638,
@@ -1059,6 +945,15 @@
         "roles": []
       },
       {
+        "id": 239818,
+        "commonName": "Rúben Dias",
+        "fullName": "Ruben Santos Gato Alves Dias",
+        "positions": [
+          "CB"
+        ],
+        "roles": []
+      },
+      {
         "id": 242641,
         "commonName": "R. Aït-Nouri",
         "fullName": "Rayan Aït-Nouri",
@@ -1068,18 +963,11 @@
         ],
         "roles": [
           "Attacking wingback +",
-          "Support",
-          "Layout 1 2 3"
+          "SupportAttack",
+          "Layout 1",
+          "2",
+          "3"
         ]
-      },
-      {
-        "id": 277031,
-        "commonName": "A. Khusanov",
-        "fullName": "Abdukodir Khusanov",
-        "positions": [
-          "CB"
-        ],
-        "roles": []
       },
       {
         "id": 271574,
@@ -1090,14 +978,7 @@
           "LB",
           "CM"
         ],
-        "roles": [
-          "Inverted wingback +",
-          "Build-up",
-          "Falseback +",
-          "Box-to-Box +",
-          "Ball-winning",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 263063,
@@ -1109,54 +990,37 @@
         "roles": []
       },
       {
-        "id": 246420,
-        "commonName": "J. Doku",
-        "fullName": "Jérémy Doku",
+        "id": 237692,
+        "commonName": "P. Foden",
+        "fullName": "Phil Foden",
         "positions": [
-          "LW",
-          "RW",
-          "LM"
+          "AM",
+          "CM",
+          "RW"
         ],
-        "roles": [
-          "Winger ++",
-          "Versatile",
-          "Inside forward +",
-          "Winger +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 270409,
         "commonName": "Savinho",
-        "fullName": "Sávio Moreira de Oliveira",
+        "fullName": "Savio Moreira De Oliveira",
         "positions": [
           "RW",
           "LW",
           "RM"
         ],
-        "roles": [
-          "Winger +",
-          "Versatile",
-          "Inside forward +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 208920,
         "commonName": "N. Aké",
-        "fullName": "Nathan Aké",
+        "fullName": "Nathan Ake",
         "positions": [
           "CB",
           "LB",
           "DM"
         ],
-        "roles": [
-          "Ball-playing defender +",
-          "Build-up",
-          "Aggressive",
-          "Falseback +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 203574,
@@ -1167,13 +1031,7 @@
           "RB",
           "DM"
         ],
-        "roles": [
-          "Ball-playing defender +",
-          "Build-up",
-          "Aggressive",
-          "Falseback +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 207410,
@@ -1226,12 +1084,14 @@
         ],
         "roles": [
           "Ball-playing defender +",
-          "Build-up",
-          "Aggressive",
+          "DefendBuild-upAggressive",
           "Wide back +",
-          "Support",
+          "DefendAggressiveSupport",
           "Wingback +",
-          "Layout 1 2 3"
+          "BalancedSupport",
+          "Layout 1",
+          "2",
+          "3"
         ]
       },
       {
@@ -1244,13 +1104,7 @@
           "LM",
           "ST"
         ],
-        "roles": [
-          "Shadow striker +",
-          "Holding +",
-          "Ball-winning",
-          "Inside forward +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 271227,
@@ -1282,10 +1136,12 @@
         ],
         "roles": [
           "Wingback +",
-          "Support",
+          "BalancedSupport",
           "Wide midfielder +",
-          "Build-up",
-          "Layout 1 2 3"
+          "SupportDefendBuild-up",
+          "Layout 1",
+          "2",
+          "3"
         ]
       },
       {
@@ -1298,10 +1154,14 @@
         ],
         "roles": [
           "Attacking wingback +",
-          "Support",
+          "SupportAttack",
           "Wingback +",
+          "BalancedSupport",
           "Inside forward +",
-          "Layout 1 2 3"
+          "BalancedAttack",
+          "Layout 1",
+          "2",
+          "3"
         ]
       },
       {
@@ -1331,11 +1191,7 @@
           "LM",
           "LW"
         ],
-        "roles": [
-          "Wide playmaker +",
-          "Build-up",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 83205,
@@ -1358,11 +1214,7 @@
           "RW",
           "LW"
         ],
-        "roles": [
-          "Winger +",
-          "Versatile",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 81539,
@@ -1382,12 +1234,7 @@
           "CB",
           "LB"
         ],
-        "roles": [
-          "Defender +",
-          "Fullback +",
-          "Versatile",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 81337,
@@ -1399,8 +1246,10 @@
         ],
         "roles": [
           "Wingback +",
-          "Support",
-          "Layout 1 2 3"
+          "BalancedSupport",
+          "Layout 1",
+          "2",
+          "3"
         ]
       },
       {
@@ -1438,13 +1287,7 @@
           "LM",
           "LW"
         ],
-        "roles": [
-          "Winger +",
-          "Wide playmaker +",
-          "Build-up",
-          "Inside forward +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       }
     ]
   },
@@ -1471,10 +1314,12 @@
         ],
         "roles": [
           "Wingback +",
-          "Support",
+          "BalancedSupport",
           "Wide midfielder +",
-          "Build-up",
-          "Layout 1 2 3"
+          "SupportDefendBuild-up",
+          "Layout 1",
+          "2",
+          "3"
         ]
       },
       {
@@ -1505,9 +1350,12 @@
         ],
         "roles": [
           "Wingback +",
-          "Support",
+          "BalancedSupport",
           "Attacking wingback +",
-          "Layout 1 2 3"
+          "SupportAttack",
+          "Layout 1",
+          "2",
+          "3"
         ]
       },
       {
@@ -1521,48 +1369,38 @@
         "roles": []
       },
       {
-        "id": 236499,
-        "commonName": "Douglas Luiz",
-        "fullName": "Douglas Luiz Soares De Paulo",
+        "id": 216393,
+        "commonName": "Y. Tielemans",
+        "fullName": "Youri Tielemans",
         "positions": [
+          "CM",
           "DM",
-          "CM"
+          "AM"
         ],
         "roles": []
       },
       {
         "id": 210881,
         "commonName": "J. McGinn",
-        "fullName": "John McGinn",
+        "fullName": "John Mcginn",
         "positions": [
           "RM",
           "LM",
           "AM",
           "RB"
         ],
-        "roles": [
-          "Wide midfielder +",
-          "Support",
-          "Build-up",
-          "Playmaker +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 226162,
         "commonName": "E. Buendía",
-        "fullName": "Emiliano Buendía",
+        "fullName": "Emiliano Buendia",
         "positions": [
           "LM",
           "AM",
           "LW"
         ],
-        "roles": [
-          "Winger +",
-          "Playmaker +",
-          "Build-up",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 260247,
@@ -1573,12 +1411,7 @@
           "LM",
           "CM"
         ],
-        "roles": [
-          "Playmaker +",
-          "Build-up",
-          "Inside forward +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 221697,
@@ -1598,11 +1431,17 @@
           "RM",
           "LW"
         ],
-        "roles": [
-          "Wide playmaker +",
-          "Build-up",
-          "Layout 1 2 3"
-        ]
+        "roles": []
+      },
+      {
+        "id": 236499,
+        "commonName": "Douglas Luiz",
+        "fullName": "Douglas Luiz Soares De Paulo",
+        "positions": [
+          "DM",
+          "CM"
+        ],
+        "roles": []
       },
       {
         "id": 199189,
@@ -1624,14 +1463,7 @@
           "CM",
           "RB"
         ],
-        "roles": [
-          "Holding +",
-          "Ball-winning",
-          "Box-to-Box +",
-          "Wingback +",
-          "Support",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 248465,
@@ -1643,8 +1475,10 @@
         ],
         "roles": [
           "Attacking wingback +",
-          "Support",
-          "Layout 1 2 3"
+          "SupportAttack",
+          "Layout 1",
+          "2",
+          "3"
         ]
       },
       {
@@ -1655,21 +1489,6 @@
           "CB"
         ],
         "roles": []
-      },
-      {
-        "id": 275468,
-        "commonName": "Andrés García",
-        "fullName": "Andrés García Robledo",
-        "positions": [
-          "RB",
-          "RM"
-        ],
-        "roles": [
-          "Wingback +",
-          "Support",
-          "Attacking wingback +",
-          "Layout 1 2 3"
-        ]
       },
       {
         "id": 200110,
@@ -1688,11 +1507,7 @@
           "RM",
           "RW"
         ],
-        "roles": [
-          "Inside forward +",
-          "Winger +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 231352,
@@ -1726,16 +1541,12 @@
       {
         "id": 82968,
         "commonName": "Alysson",
-        "fullName": "Alysson Edward F. da R. dos Santos",
+        "fullName": "Alysson Edward F Da R Dos Santos",
         "positions": [
           "RM",
           "RW"
         ],
-        "roles": [
-          "Winger +",
-          "Versatile",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 82350,
@@ -1757,24 +1568,25 @@
           "ST",
           "RW"
         ],
-        "roles": [
-          "Winger +",
-          "Poacher +",
-          "Support",
-          "Versatile",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
-        "id": 216393,
-        "commonName": "Y. Tielemans",
-        "fullName": "Youri Tielemans",
+        "id": 275468,
+        "commonName": "Andrés García",
+        "fullName": "Andrés García Robledo",
         "positions": [
-          "CM",
-          "DM",
-          "AM"
+          "RB",
+          "RM"
         ],
-        "roles": []
+        "roles": [
+          "Wingback +",
+          "BalancedSupport",
+          "Attacking wingback +",
+          "SupportAttack",
+          "Layout 1",
+          "2",
+          "3"
+        ]
       },
       {
         "id": 236987,
@@ -1787,21 +1599,6 @@
         "roles": []
       },
       {
-        "id": 275266,
-        "commonName": "T. Patterson",
-        "fullName": "Travis Patterson",
-        "positions": [
-          "LB",
-          "LM"
-        ],
-        "roles": [
-          "Attacking wingback +",
-          "Support",
-          "Winger +",
-          "Layout 1 2 3"
-        ]
-      },
-      {
         "id": 274348,
         "commonName": "K. Young",
         "fullName": "Kadan Young",
@@ -1810,28 +1607,18 @@
           "RM",
           "LW"
         ],
-        "roles": [
-          "Winger +",
-          "Versatile",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 272379,
         "commonName": "S. Iling-Junior",
-        "fullName": "Samuel Iling-Junior",
+        "fullName": "Samuel Iling Junior",
         "positions": [
           "LM",
           "LB",
           "RM"
         ],
-        "roles": [
-          "Wide midfielder +",
-          "Support",
-          "Build-up",
-          "Attacking wingback +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 271808,
@@ -1843,8 +1630,10 @@
         ],
         "roles": [
           "Wingback +",
-          "Support",
-          "Layout 1 2 3"
+          "BalancedSupport",
+          "Layout 1",
+          "2",
+          "3"
         ]
       },
       {
@@ -1859,21 +1648,13 @@
       {
         "id": 271362,
         "commonName": "Y. Özcan",
-        "fullName": "Yasin Özcan",
+        "fullName": "Yasin Ozcan",
         "positions": [
           "CB",
           "LB",
           "DM"
         ],
-        "roles": [
-          "Wide back +",
-          "Aggressive",
-          "Support",
-          "Ball-playing defender +",
-          "Build-up",
-          "Falseback +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 268550,
@@ -1887,18 +1668,13 @@
       {
         "id": 267849,
         "commonName": "T. O'Reilly",
-        "fullName": "Tommi O'Reilly",
+        "fullName": "Tommi Oreilly",
         "positions": [
           "RM",
           "AM",
           "RW"
         ],
-        "roles": [
-          "Winger +",
-          "Playmaker +",
-          "Build-up",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 264411,
@@ -1909,13 +1685,7 @@
           "LB",
           "DM"
         ],
-        "roles": [
-          "Wide back +",
-          "Aggressive",
-          "Support",
-          "Falseback +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 264039,
@@ -1926,15 +1696,7 @@
           "LW",
           "ST"
         ],
-        "roles": [
-          "Winger +",
-          "Wide midfielder +",
-          "Support",
-          "Build-up",
-          "Inside forward +",
-          "False 9 +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 258932,
@@ -1945,13 +1707,7 @@
           "LW",
           "ST"
         ],
-        "roles": [
-          "Inside forward +",
-          "Winger +",
-          "False 9 +",
-          "Build-up",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 258444,
@@ -1962,14 +1718,7 @@
           "RM",
           "ST"
         ],
-        "roles": [
-          "Inside forward +",
-          "Winger +",
-          "Versatile",
-          "Poacher +",
-          "Support",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 246871,
@@ -2000,12 +1749,7 @@
           "RW",
           "AM"
         ],
-        "roles": [
-          "False 9 +",
-          "Build-up",
-          "Inside forward +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 78113,
@@ -2017,27 +1761,38 @@
         ],
         "roles": [
           "Attacking wingback +",
-          "Support",
+          "SupportAttack",
           "Wingback +",
+          "BalancedSupport",
           "Winger +",
-          "Layout 1 2 3"
+          "BalancedAttack",
+          "Layout 1",
+          "2",
+          "3"
         ]
       },
       {
         "id": 76255,
         "commonName": "J. Jimoh-Aloba",
-        "fullName": "Jamaldeen Jimoh-Aloba",
+        "fullName": "Jamaldeen Jimoh Aloba",
         "positions": [
           "AM",
           "LM",
           "RM",
           "CM"
         ],
-        "roles": [
-          "Half-winger +",
-          "Winger +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
+      },
+      {
+        "id": 75767,
+        "commonName": "B. Broggio",
+        "fullName": "Ben Broggio",
+        "positions": [
+          "LW",
+          "LM",
+          "AM"
+        ],
+        "roles": []
       },
       {
         "id": 74207,
@@ -2049,8 +1804,10 @@
         ],
         "roles": [
           "Wingback +",
-          "Support",
-          "Layout 1 2 3"
+          "BalancedSupport",
+          "Layout 1",
+          "2",
+          "3"
         ]
       }
     ]
@@ -2078,35 +1835,31 @@
         ],
         "roles": [
           "Attacking wingback +",
-          "Support",
+          "SupportAttack",
           "Inverted wingback +",
-          "Build-up",
-          "Layout 1 2 3"
+          "Build-upAttack",
+          "Layout 1",
+          "2",
+          "3"
         ]
       },
       {
-        "id": 230918,
-        "commonName": "T. Chalobah",
-        "fullName": "Trevoh Chalobah",
-        "positions": [
-          "CB",
-          "RB"
-        ],
-        "roles": [
-          "Stopper +",
-          "Aggressive",
-          "Defender +",
-          "Fullback +",
-          "Versatile",
-          "Layout 1 2 3"
-        ]
-      },
-      {
-        "id": 222104,
-        "commonName": "T. Adarabioyo",
-        "fullName": "Tosin Adarabioyo",
+        "id": 248695,
+        "commonName": "W. Fofana",
+        "fullName": "Wesley Fofana",
         "positions": [
           "CB"
+        ],
+        "roles": []
+      },
+      {
+        "id": 272978,
+        "commonName": "J. Hato",
+        "fullName": "Jorrel Hato",
+        "positions": [
+          "LB",
+          "CB",
+          "DM"
         ],
         "roles": []
       },
@@ -2118,12 +1871,7 @@
           "LB",
           "CM"
         ],
-        "roles": [
-          "Inverted wingback ++",
-          "Build-up",
-          "Falseback +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 238074,
@@ -2133,13 +1881,7 @@
           "RB",
           "DM"
         ],
-        "roles": [
-          "Falseback ++",
-          "Inverted wingback +",
-          "Build-up",
-          "Deep-Lying playmaker +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 256079,
@@ -2160,13 +1902,7 @@
           "RM",
           "CM"
         ],
-        "roles": [
-          "Playmaker ++",
-          "Build-up",
-          "Shadow striker +",
-          "Inside forward ++",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 238616,
@@ -2177,10 +1913,7 @@
           "LM",
           "RW"
         ],
-        "roles": [
-          "Winger +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 247090,
@@ -2214,20 +1947,6 @@
         "roles": []
       },
       {
-        "id": 76687,
-        "commonName": "Estêvão",
-        "fullName": "Estêvão Willian Almeida",
-        "positions": [
-          "RM",
-          "RW"
-        ],
-        "roles": [
-          "Inside forward +",
-          "Winger +",
-          "Layout 1 2 3"
-        ]
-      },
-      {
         "id": 263620,
         "commonName": "R. Lavia",
         "fullName": "Romeo Lavia",
@@ -2245,38 +1964,36 @@
           "LM",
           "LW"
         ],
-        "roles": [
-          "Winger +",
-          "Inside forward +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
-        "id": 248695,
-        "commonName": "W. Fofana",
-        "fullName": "Wesley Fofana",
+        "id": 261530,
+        "commonName": "Dário Essugo",
+        "fullName": "Dario Cassia Luis Essugo",
         "positions": [
-          "CB"
+          "DM",
+          "CM"
         ],
         "roles": []
       },
       {
-        "id": 272978,
-        "commonName": "J. Hato",
-        "fullName": "Jorrel Hato",
+        "id": 230918,
+        "commonName": "T. Chalobah",
+        "fullName": "Trevoh Chalobah",
         "positions": [
-          "LB",
           "CB",
-          "DM"
+          "RB"
         ],
-        "roles": [
-          "Falseback +",
-          "Inverted wingback +",
-          "Build-up",
-          "Ball-playing defender +",
-          "Aggressive",
-          "Layout 1 2 3"
-        ]
+        "roles": []
+      },
+      {
+        "id": 222104,
+        "commonName": "T. Adarabioyo",
+        "fullName": "Tosin Adarabioyo",
+        "positions": [
+          "CB"
+        ],
+        "roles": []
       },
       {
         "id": 258485,
@@ -2306,6 +2023,15 @@
         "roles": []
       },
       {
+        "id": 262859,
+        "commonName": "L. Colwill",
+        "fullName": "Levi Colwill",
+        "positions": [
+          "CB"
+        ],
+        "roles": []
+      },
+      {
         "id": 71651,
         "commonName": "J. Acheampong",
         "fullName": "Josh Acheampong",
@@ -2314,14 +2040,7 @@
           "RB",
           "DM"
         ],
-        "roles": [
-          "Stopper +",
-          "Aggressive",
-          "Falseback +",
-          "Holding +",
-          "Ball-winning",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 242578,
@@ -2338,6 +2057,16 @@
         "fullName": "Mamadou Sarr",
         "positions": [
           "CB"
+        ],
+        "roles": []
+      },
+      {
+        "id": 85333,
+        "commonName": "J. Derry",
+        "fullName": "Jesse Derry",
+        "positions": [
+          "LM",
+          "LW"
         ],
         "roles": []
       },
@@ -2360,11 +2089,12 @@
         "roles": []
       },
       {
-        "id": 262859,
-        "commonName": "L. Colwill",
-        "fullName": "Levi Colwill",
+        "id": 76687,
+        "commonName": "Estêvão",
+        "fullName": "Estevao Willian Almeida",
         "positions": [
-          "CB"
+          "RM",
+          "RW"
         ],
         "roles": []
       },
@@ -2375,22 +2105,6 @@
         "positions": [
           "LM",
           "LW"
-        ],
-        "roles": [
-          "Winger +",
-          "Wide playmaker +",
-          "Build-up",
-          "Inside forward +",
-          "Layout 1 2 3"
-        ]
-      },
-      {
-        "id": 261530,
-        "commonName": "Dário Essugo",
-        "fullName": "Dario Cassia Luis Essugo",
-        "positions": [
-          "DM",
-          "CM"
         ],
         "roles": []
       },
@@ -2432,44 +2146,29 @@
           "RM",
           "ST"
         ],
-        "roles": [
-          "Shadow striker +",
-          "Inside forward +",
-          "False 9 +",
-          "Build-up",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 275244,
         "commonName": "I. Samuels-Smith",
-        "fullName": "Ishé Samuels-Smith",
+        "fullName": "Ishe Samuels Smith",
         "positions": [
           "LB",
           "CB"
         ],
-        "roles": [
-          "Fullback +",
-          "Versatile",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 274559,
         "commonName": "K. Páez",
-        "fullName": "Kendry Páez",
+        "fullName": "Kendry Paez",
         "positions": [
           "AM",
           "RM",
           "ST",
           "CM"
         ],
-        "roles": [
-          "Half-winger +",
-          "Wide playmaker +",
-          "Build-up",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 274069,
@@ -2482,9 +2181,12 @@
         ],
         "roles": [
           "Fullback +",
-          "Versatile",
+          "DefendBalancedVersatile",
           "Defender +",
-          "Layout 1 2 3"
+          "DefendBalanced",
+          "Layout 1",
+          "2",
+          "3"
         ]
       },
       {
@@ -2522,12 +2224,7 @@
           "CB",
           "RB"
         ],
-        "roles": [
-          "Defender +",
-          "Fullback +",
-          "Versatile",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 82383,
@@ -2538,13 +2235,7 @@
           "RW",
           "RM"
         ],
-        "roles": [
-          "Advanced forward +",
-          "Support",
-          "Versatile",
-          "Inside forward +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 71998,
@@ -2556,10 +2247,7 @@
           "ST",
           "LW"
         ],
-        "roles": [
-          "Winger +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       }
     ]
   },
@@ -2568,9 +2256,9 @@
     "name": "Newcastle United",
     "players": [
       {
-        "id": 203841,
-        "commonName": "N. Pope",
-        "fullName": "Nick Pope",
+        "id": 233934,
+        "commonName": "A. Ramsdale",
+        "fullName": "Aaron Ramsdale",
         "positions": [
           "GK"
         ],
@@ -2586,9 +2274,12 @@
         ],
         "roles": [
           "Wingback +",
-          "Support",
+          "BalancedSupport",
           "Attacking wingback +",
-          "Layout 1 2 3"
+          "SupportAttack",
+          "Layout 1",
+          "2",
+          "3"
         ]
       },
       {
@@ -2601,19 +2292,13 @@
         "roles": []
       },
       {
-        "id": 198032,
-        "commonName": "D. Burn",
-        "fullName": "Dan Burn",
+        "id": 251809,
+        "commonName": "S. Botman",
+        "fullName": "Sven Botman",
         "positions": [
-          "CB",
-          "LB"
+          "CB"
         ],
-        "roles": [
-          "Defender +",
-          "Fullback +",
-          "Versatile",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 266127,
@@ -2625,8 +2310,10 @@
         ],
         "roles": [
           "Wingback +",
-          "Support",
-          "Layout 1 2 3"
+          "BalancedSupport",
+          "Layout 1",
+          "2",
+          "3"
         ]
       },
       {
@@ -2640,13 +2327,12 @@
         "roles": []
       },
       {
-        "id": 246923,
-        "commonName": "J. Ramsey",
-        "fullName": "Jacob Ramsey",
+        "id": 247851,
+        "commonName": "Bruno Guimarães",
+        "fullName": "Bruno Guimaraes Moura",
         "positions": [
           "CM",
-          "LW",
-          "AM"
+          "DM"
         ],
         "roles": []
       },
@@ -2669,18 +2355,14 @@
           "RW",
           "LM"
         ],
-        "roles": [
-          "Inside forward +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
-        "id": 254022,
-        "commonName": "N. Woltemade",
-        "fullName": "Nick Woltemade",
+        "id": 270519,
+        "commonName": "W. Osula",
+        "fullName": "William Osula",
         "positions": [
-          "ST",
-          "CM"
+          "ST"
         ],
         "roles": []
       },
@@ -2694,12 +2376,7 @@
           "RW",
           "LM"
         ],
-        "roles": [
-          "Winger +",
-          "Versatile",
-          "Inside forward +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 206085,
@@ -2709,11 +2386,7 @@
           "RW",
           "RM"
         ],
-        "roles": [
-          "Winger +",
-          "Versatile",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 257470,
@@ -2723,11 +2396,18 @@
           "RW",
           "RM"
         ],
-        "roles": [
-          "Winger +",
-          "Versatile",
-          "Layout 1 2 3"
-        ]
+        "roles": []
+      },
+      {
+        "id": 246923,
+        "commonName": "J. Ramsey",
+        "fullName": "Jacob Ramsey",
+        "positions": [
+          "CM",
+          "LW",
+          "AM"
+        ],
+        "roles": []
       },
       {
         "id": 237329,
@@ -2740,73 +2420,12 @@
         "roles": []
       },
       {
-        "id": 274246,
-        "commonName": "L. Miley",
-        "fullName": "Lewis Miley",
+        "id": 198032,
+        "commonName": "D. Burn",
+        "fullName": "Dan Burn",
         "positions": [
-          "CM",
-          "RB",
-          "DM"
-        ],
-        "roles": [
-          "Holding +",
-          "Ball-winning",
-          "Deep-Lying playmaker +",
-          "Build-up",
-          "Wingback +",
-          "Support",
-          "Layout 1 2 3"
-        ]
-      },
-      {
-        "id": 251809,
-        "commonName": "S. Botman",
-        "fullName": "Sven Botman",
-        "positions": [
-          "CB"
-        ],
-        "roles": []
-      },
-      {
-        "id": 262118,
-        "commonName": "T. Livramento",
-        "fullName": "Tino Livramento",
-        "positions": [
-          "RB",
-          "LB",
-          "RM"
-        ],
-        "roles": [
-          "Attacking wingback +",
-          "Support",
-          "Wingback +",
-          "Layout 1 2 3"
-        ]
-      },
-      {
-        "id": 233934,
-        "commonName": "A. Ramsdale",
-        "fullName": "Aaron Ramsdale",
-        "positions": [
-          "GK"
-        ],
-        "roles": []
-      },
-      {
-        "id": 270519,
-        "commonName": "W. Osula",
-        "fullName": "William Osula",
-        "positions": [
-          "ST"
-        ],
-        "roles": []
-      },
-      {
-        "id": 234824,
-        "commonName": "Y. Wissa",
-        "fullName": "Yoane Wissa",
-        "positions": [
-          "ST"
+          "CB",
+          "LB"
         ],
         "roles": []
       },
@@ -2821,26 +2440,43 @@
         ],
         "roles": [
           "Wingback +",
-          "Support",
+          "BalancedSupport",
           "Falseback +",
+          "DefendBalanced",
           "Ball-playing defender +",
-          "Build-up",
-          "Aggressive",
-          "Layout 1 2 3"
+          "DefendBuild-upAggressive",
+          "Layout 1",
+          "2",
+          "3"
         ]
       },
       {
-        "id": 72281,
-        "commonName": "L. Shahar",
-        "fullName": "Leo Shahar",
+        "id": 203841,
+        "commonName": "N. Pope",
+        "fullName": "Nick Pope",
         "positions": [
-          "RB"
+          "GK"
         ],
-        "roles": [
-          "Fullback +",
-          "Versatile",
-          "Layout 1 2 3"
-        ]
+        "roles": []
+      },
+      {
+        "id": 254022,
+        "commonName": "N. Woltemade",
+        "fullName": "Nick Woltemade",
+        "positions": [
+          "ST",
+          "CM"
+        ],
+        "roles": []
+      },
+      {
+        "id": 234824,
+        "commonName": "Y. Wissa",
+        "fullName": "Yoane Wissa",
+        "positions": [
+          "ST"
+        ],
+        "roles": []
       },
       {
         "id": 77791,
@@ -2851,6 +2487,22 @@
           "AM"
         ],
         "roles": []
+      },
+      {
+        "id": 72281,
+        "commonName": "L. Shahar",
+        "fullName": "Leo Shahar",
+        "positions": [
+          "RB",
+          "RM"
+        ],
+        "roles": [
+          "Wingback +",
+          "BalancedSupport",
+          "Layout 1",
+          "2",
+          "3"
+        ]
       },
       {
         "id": 163600,
@@ -2871,21 +2523,41 @@
         "roles": []
       },
       {
-        "id": 247851,
-        "commonName": "Bruno Guimarães",
-        "fullName": "Bruno Guimaraes Moura",
-        "positions": [
-          "CM",
-          "DM"
-        ],
-        "roles": []
-      },
-      {
         "id": 210047,
         "commonName": "F. Schär",
         "fullName": "Fabian Schar",
         "positions": [
           "CB"
+        ],
+        "roles": []
+      },
+      {
+        "id": 262118,
+        "commonName": "T. Livramento",
+        "fullName": "Tino Livramento",
+        "positions": [
+          "RB",
+          "LB",
+          "RM"
+        ],
+        "roles": [
+          "Attacking wingback +",
+          "SupportAttack",
+          "Wingback +",
+          "BalancedSupport",
+          "Layout 1",
+          "2",
+          "3"
+        ]
+      },
+      {
+        "id": 274246,
+        "commonName": "L. Miley",
+        "fullName": "Lewis Miley",
+        "positions": [
+          "CM",
+          "RB",
+          "DM"
         ],
         "roles": []
       },
@@ -2897,15 +2569,7 @@
           "RB",
           "CB"
         ],
-        "roles": [
-          "Fullback +",
-          "Versatile",
-          "Wingback +",
-          "Support",
-          "Wide back +",
-          "Aggressive",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 277411,
@@ -2926,11 +2590,7 @@
           "RW",
           "LM"
         ],
-        "roles": [
-          "Winger +",
-          "Versatile",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 258805,
@@ -2943,8 +2603,10 @@
         ],
         "roles": [
           "Fullback +",
-          "Versatile",
-          "Layout 1 2 3"
+          "DefendBalancedVersatile",
+          "Layout 1",
+          "2",
+          "3"
         ]
       },
       {
@@ -2969,12 +2631,14 @@
         ],
         "roles": [
           "Wingback +",
-          "Support",
+          "BalancedSupport",
           "Wide playmaker +",
-          "Build-up",
+          "Build-upAttack",
           "Ball-playing defender +",
-          "Aggressive",
-          "Layout 1 2 3"
+          "DefendBuild-upAggressive",
+          "Layout 1",
+          "2",
+          "3"
         ]
       },
       {
@@ -2989,16 +2653,13 @@
       {
         "id": 74209,
         "commonName": "Antoñito Cordero",
-        "fullName": "Antonio José Cordero Campillo",
+        "fullName": "Antonio Jose Cordero Campillo",
         "positions": [
           "LW",
           "RW",
           "LM"
         ],
-        "roles": [
-          "Inside forward +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       }
     ]
   },
@@ -3018,25 +2679,11 @@
       {
         "id": 234574,
         "commonName": "Diogo Dalot",
-        "fullName": "José Diogo Dalot Teixeira",
+        "fullName": "Jose Diogo Dalot Teixeira",
         "positions": [
           "RB",
           "LB",
           "CM"
-        ],
-        "roles": [
-          "Inverted wingback +",
-          "Build-up",
-          "Falseback +",
-          "Layout 1 2 3"
-        ]
-      },
-      {
-        "id": 269087,
-        "commonName": "L. Yoro",
-        "fullName": "Leny Yoro",
-        "positions": [
-          "CB"
         ],
         "roles": []
       },
@@ -3044,6 +2691,15 @@
         "id": 203263,
         "commonName": "H. Maguire",
         "fullName": "Harry Maguire",
+        "positions": [
+          "CB"
+        ],
+        "roles": []
+      },
+      {
+        "id": 75087,
+        "commonName": "A. Heaven",
+        "fullName": "Ayden Heaven",
         "positions": [
           "CB"
         ],
@@ -3060,12 +2716,14 @@
         ],
         "roles": [
           "Wingback +",
-          "Support",
+          "BalancedSupport",
           "Fullback +",
-          "Versatile",
+          "DefendBalancedVersatile",
           "Wide back +",
-          "Aggressive",
-          "Layout 1 2 3"
+          "DefendAggressiveSupport",
+          "Layout 1",
+          "2",
+          "3"
         ]
       },
       {
@@ -3097,31 +2755,18 @@
           "RB",
           "RW"
         ],
-        "roles": [
-          "Wide playmaker +",
-          "Build-up",
-          "Inside forward +",
-          "Attacking wingback +",
-          "Support",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 240243,
         "commonName": "Matheus Cunha",
-        "fullName": "Matheus Santos Carneiro da Cunha",
+        "fullName": "Matheus Santos Carneiro Da Cunha",
         "positions": [
           "AM",
           "LM",
           "ST"
         ],
-        "roles": [
-          "Shadow striker +",
-          "Inside forward +",
-          "False 9 +",
-          "Build-up",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 212198,
@@ -3142,13 +2787,7 @@
           "RM",
           "ST"
         ],
-        "roles": [
-          "Inside forward +",
-          "Poacher +",
-          "Support",
-          "Versatile",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 233064,
@@ -3159,13 +2798,7 @@
           "LM",
           "CM"
         ],
-        "roles": [
-          "Playmaker +",
-          "Build-up",
-          "Inside forward +",
-          "Deep-Lying playmaker +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 253306,
@@ -3178,19 +2811,16 @@
         "roles": []
       },
       {
-        "id": 278124,
-        "commonName": "S. Lacey",
-        "fullName": "Shea Lacey",
+        "id": 277432,
+        "commonName": "P. Dorgu",
+        "fullName": "Patrick Dorgu",
         "positions": [
+          "LM",
+          "LB",
           "RM",
-          "RW"
+          "LW"
         ],
-        "roles": [
-          "Winger +",
-          "Wide playmaker +",
-          "Build-up",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 239301,
@@ -3212,18 +2842,20 @@
         ],
         "roles": [
           "Wingback +",
-          "Support",
+          "BalancedSupport",
           "Falseback +",
+          "DefendBalanced",
           "Ball-playing defender +",
-          "Build-up",
-          "Aggressive",
-          "Layout 1 2 3"
+          "DefendBuild-upAggressive",
+          "Layout 1",
+          "2",
+          "3"
         ]
       },
       {
-        "id": 75087,
-        "commonName": "A. Heaven",
-        "fullName": "Ayden Heaven",
+        "id": 269087,
+        "commonName": "L. Yoro",
+        "fullName": "Leny Yoro",
         "positions": [
           "CB"
         ],
@@ -3267,15 +2899,6 @@
         "roles": []
       },
       {
-        "id": 269233,
-        "commonName": "T. Fredricson",
-        "fullName": "Tyler Fredricson",
-        "positions": [
-          "CB"
-        ],
-        "roles": []
-      },
-      {
         "id": 238041,
         "commonName": "T. Malacia",
         "fullName": "Tyrell Malacia",
@@ -3285,9 +2908,21 @@
         ],
         "roles": [
           "Wingback +",
-          "Support",
-          "Layout 1 2 3"
+          "BalancedSupport",
+          "Layout 1",
+          "2",
+          "3"
         ]
+      },
+      {
+        "id": 278124,
+        "commonName": "S. Lacey",
+        "fullName": "Shea Lacey",
+        "positions": [
+          "RM",
+          "RW"
+        ],
+        "roles": []
       },
       {
         "id": 75439,
@@ -3301,6 +2936,15 @@
         "roles": []
       },
       {
+        "id": 269233,
+        "commonName": "T. Fredricson",
+        "fullName": "Tyler Fredricson",
+        "positions": [
+          "CB"
+        ],
+        "roles": []
+      },
+      {
         "id": 82853,
         "commonName": "B. Mantato",
         "fullName": "Bendito Mantato",
@@ -3309,12 +2953,7 @@
           "LB",
           "RW"
         ],
-        "roles": [
-          "Winger +",
-          "Attacking wingback +",
-          "Support",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 82899,
@@ -3345,8 +2984,10 @@
         ],
         "roles": [
           "Wingback +",
-          "Support",
-          "Layout 1 2 3"
+          "BalancedSupport",
+          "Layout 1",
+          "2",
+          "3"
         ]
       },
       {
@@ -3359,30 +3000,14 @@
         "roles": []
       },
       {
-        "id": 277432,
-        "commonName": "P. Dorgu",
-        "fullName": "Patrick Dorgu",
-        "positions": [
-          "LM",
-          "LB",
-          "RM",
-          "LW"
-        ],
-        "roles": [
-          "Winger +",
-          "Attacking wingback +",
-          "Support",
-          "Layout 1 2 3"
-        ]
-      },
-      {
         "id": 278125,
         "commonName": "G. Biancheri",
         "fullName": "Gabriele Biancheri",
         "positions": [
           "ST",
-          "RW",
-          "AM"
+          "RM",
+          "AM",
+          "RW"
         ],
         "roles": []
       },
@@ -3396,9 +3021,12 @@
         ],
         "roles": [
           "Wingback +",
-          "Support",
+          "BalancedSupport",
           "Winger +",
-          "Layout 1 2 3"
+          "BalancedAttack",
+          "Layout 1",
+          "2",
+          "3"
         ]
       },
       {
@@ -3420,10 +3048,7 @@
           "RB",
           "RW"
         ],
-        "roles": [
-          "Winger +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 268443,
@@ -3463,11 +3088,7 @@
           "RM",
           "LW"
         ],
-        "roles": [
-          "Wide playmaker +",
-          "Build-up",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 231677,
@@ -3478,14 +3099,7 @@
           "LM",
           "ST"
         ],
-        "roles": [
-          "Inside forward +",
-          "Winger +",
-          "Versatile",
-          "False 9 +",
-          "Build-up",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 226753,
@@ -3515,12 +3129,7 @@
           "LM",
           "CM"
         ],
-        "roles": [
-          "Half-winger +",
-          "Wide playmaker +",
-          "Build-up",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 77403,
@@ -3541,12 +3150,7 @@
           "AM",
           "LW"
         ],
-        "roles": [
-          "Winger +",
-          "Playmaker +",
-          "Build-up",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 71973,
@@ -3564,9 +3168,9 @@
     "name": "Tottenham Hotspur",
     "players": [
       {
-        "id": 240091,
-        "commonName": "G. Vicario",
-        "fullName": "Guglielmo Vicario",
+        "id": 73580,
+        "commonName": "A. Kinský",
+        "fullName": "Antonin Kinsky",
         "positions": [
           "GK"
         ],
@@ -3582,8 +3186,10 @@
         ],
         "roles": [
           "Wingback +",
-          "Support",
-          "Layout 1 2 3"
+          "BalancedSupport",
+          "Layout 1",
+          "2",
+          "3"
         ]
       },
       {
@@ -3598,17 +3204,12 @@
       {
         "id": 264453,
         "commonName": "M. van de Ven",
-        "fullName": "Micky van de Ven",
+        "fullName": "Micky Van De Ven",
         "positions": [
           "CB",
           "LB"
         ],
-        "roles": [
-          "Defender +",
-          "Fullback +",
-          "Versatile",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 243702,
@@ -3621,49 +3222,31 @@
         ],
         "roles": [
           "Wingback +",
-          "Support",
-          "Layout 1 2 3"
+          "BalancedSupport",
+          "Layout 1",
+          "2",
+          "3"
         ]
       },
       {
-        "id": 238216,
-        "commonName": "C. Gallagher",
-        "fullName": "Conor Gallagher",
-        "positions": [
-          "CM",
-          "LM",
-          "DM"
-        ],
-        "roles": [
-          "Box-to-Box +",
-          "Ball-winning",
-          "Wide playmaker +",
-          "Build-up",
-          "Deep-Lying playmaker +",
-          "Layout 1 2 3"
-        ]
-      },
-      {
-        "id": 270208,
-        "commonName": "A. Gray",
-        "fullName": "Archie Gray",
+        "id": 229391,
+        "commonName": "Palhinha",
+        "fullName": "Joao Maria Palhinha Goncalves",
         "positions": [
           "DM",
-          "CB",
-          "RB",
           "CM"
         ],
-        "roles": [
-          "Holding +",
-          "Ball-winning",
-          "Wide half +",
-          "Build-up",
-          "Ball-playing defender +",
-          "Aggressive",
-          "Wingback +",
-          "Support",
-          "Layout 1 2 3"
-        ]
+        "roles": []
+      },
+      {
+        "id": 227535,
+        "commonName": "R. Bentancur",
+        "fullName": "Rodrigo Bentancur",
+        "positions": [
+          "DM",
+          "CM"
+        ],
+        "roles": []
       },
       {
         "id": 237679,
@@ -3674,15 +3257,7 @@
           "RM",
           "AM"
         ],
-        "roles": [
-          "False 9 +",
-          "Build-up",
-          "Poacher +",
-          "Support",
-          "Versatile",
-          "Inside forward +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 268421,
@@ -3694,48 +3269,37 @@
           "LM",
           "AM"
         ],
-        "roles": [
-          "False 9 +",
-          "Build-up",
-          "Advanced forward +",
-          "Support",
-          "Versatile",
-          "Inside forward +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
-        "id": 245367,
-        "commonName": "X. Simons",
-        "fullName": "Xavi Simons",
+        "id": 238216,
+        "commonName": "C. Gallagher",
+        "fullName": "Conor Gallagher",
         "positions": [
-          "AM",
-          "LM",
-          "LW",
-          "ST"
-        ],
-        "roles": [
-          "Shadow striker +",
-          "Inside forward +",
-          "Layout 1 2 3"
-        ]
-      },
-      {
-        "id": 225539,
-        "commonName": "D. Solanke",
-        "fullName": "Dominic Solanke",
-        "positions": [
-          "ST"
+          "CM",
+          "DM",
+          "AM"
         ],
         "roles": []
       },
       {
-        "id": 229391,
-        "commonName": "Palhinha",
-        "fullName": "Joao Maria Palhinha Goncalves",
+        "id": 231943,
+        "commonName": "Richarlison",
+        "fullName": "Richarlison De Andrade",
         "positions": [
-          "DM",
-          "CM"
+          "ST",
+          "LW",
+          "LM"
+        ],
+        "roles": []
+      },
+      {
+        "id": 220697,
+        "commonName": "J. Maddison",
+        "fullName": "James Maddison",
+        "positions": [
+          "CM",
+          "AM"
         ],
         "roles": []
       },
@@ -3750,13 +3314,25 @@
         "roles": []
       },
       {
-        "id": 75770,
-        "commonName": "C. Olusesi",
-        "fullName": "Callum Olusesi",
+        "id": 272926,
+        "commonName": "L. Bergvall",
+        "fullName": "Lucas Bergvall",
         "positions": [
           "CM",
           "AM",
           "DM"
+        ],
+        "roles": []
+      },
+      {
+        "id": 270208,
+        "commonName": "A. Gray",
+        "fullName": "Archie Gray",
+        "positions": [
+          "DM",
+          "CB",
+          "RB",
+          "CM"
         ],
         "roles": []
       },
@@ -3770,32 +3346,25 @@
         "roles": []
       },
       {
-        "id": 260105,
-        "commonName": "R. Drăgușin",
-        "fullName": "Radu Dragusin",
-        "positions": [
-          "CB"
-        ],
-        "roles": []
-      },
-      {
-        "id": 83381,
-        "commonName": "Souza",
-        "fullName": "João Victor de Souza Menezes",
+        "id": 259583,
+        "commonName": "D. Udogie",
+        "fullName": "Destiny Udogie",
         "positions": [
           "LB",
           "LM"
         ],
         "roles": [
-          "Attacking wingback +",
-          "Support",
-          "Layout 1 2 3"
+          "Wingback +",
+          "BalancedSupport",
+          "Layout 1",
+          "2",
+          "3"
         ]
       },
       {
-        "id": 73580,
-        "commonName": "A. Kinský",
-        "fullName": "Antonin Kinsky",
+        "id": 240091,
+        "commonName": "G. Vicario",
+        "fullName": "Guglielmo Vicario",
         "positions": [
           "GK"
         ],
@@ -3812,20 +3381,48 @@
         "roles": []
       },
       {
-        "id": 231943,
-        "commonName": "Richarlison",
-        "fullName": "Richarlison de Andrade",
+        "id": 225539,
+        "commonName": "D. Solanke",
+        "fullName": "Dominic Solanke",
         "positions": [
-          "ST",
-          "LW",
+          "ST"
+        ],
+        "roles": []
+      },
+      {
+        "id": 260105,
+        "commonName": "R. Drăgușin",
+        "fullName": "Radu Dragusin",
+        "positions": [
+          "CB"
+        ],
+        "roles": []
+      },
+      {
+        "id": 75770,
+        "commonName": "C. Olusesi",
+        "fullName": "Callum Olusesi",
+        "positions": [
+          "CM",
+          "AM",
+          "DM"
+        ],
+        "roles": []
+      },
+      {
+        "id": 83381,
+        "commonName": "Souza",
+        "fullName": "João Victor de Souza Menezes",
+        "positions": [
+          "LB",
           "LM"
         ],
         "roles": [
-          "Poacher +",
-          "Support",
-          "Versatile",
-          "Inside forward +",
-          "Layout 1 2 3"
+          "Attacking wingback +",
+          "SupportAttack",
+          "Layout 1",
+          "2",
+          "3"
         ]
       },
       {
@@ -3856,16 +3453,6 @@
         "roles": []
       },
       {
-        "id": 220697,
-        "commonName": "J. Maddison",
-        "fullName": "James Maddison",
-        "positions": [
-          "CM",
-          "AM"
-        ],
-        "roles": []
-      },
-      {
         "id": 247394,
         "commonName": "D. Kulusevski",
         "fullName": "Dejan Kulusevski",
@@ -3873,6 +3460,18 @@
           "CM",
           "RW",
           "AM"
+        ],
+        "roles": []
+      },
+      {
+        "id": 245367,
+        "commonName": "X. Simons",
+        "fullName": "Xavi Simons",
+        "positions": [
+          "AM",
+          "LM",
+          "LW",
+          "ST"
         ],
         "roles": []
       },
@@ -3885,57 +3484,7 @@
           "RM",
           "ST"
         ],
-        "roles": [
-          "Winger +",
-          "Versatile",
-          "Inside forward +",
-          "False 9 +",
-          "Build-up",
-          "Layout 1 2 3"
-        ]
-      },
-      {
-        "id": 227535,
-        "commonName": "R. Bentancur",
-        "fullName": "Rodrigo Bentancur",
-        "positions": [
-          "DM",
-          "CM"
-        ],
         "roles": []
-      },
-      {
-        "id": 259583,
-        "commonName": "D. Udogie",
-        "fullName": "Destiny Udogie",
-        "positions": [
-          "LB",
-          "LM"
-        ],
-        "roles": [
-          "Wingback +",
-          "Support",
-          "Layout 1 2 3"
-        ]
-      },
-      {
-        "id": 272926,
-        "commonName": "L. Bergvall",
-        "fullName": "Lucas Bergvall",
-        "positions": [
-          "CM",
-          "AM",
-          "RM",
-          "DM"
-        ],
-        "roles": [
-          "Box-to-Box +",
-          "Ball-winning",
-          "Playmaker +",
-          "Build-up",
-          "Wide playmaker +",
-          "Layout 1 2 3"
-        ]
       },
       {
         "id": 270579,
@@ -3946,26 +3495,12 @@
           "LM",
           "RM"
         ],
-        "roles": [
-          "Winger +",
-          "Versatile",
-          "Inside forward +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 205923,
         "commonName": "B. Davies",
         "fullName": "Ben Davies",
-        "positions": [
-          "CB"
-        ],
-        "roles": []
-      },
-      {
-        "id": 279117,
-        "commonName": "A. Dorrington",
-        "fullName": "Alfie Dorrington",
         "positions": [
           "CB"
         ],
@@ -4023,7 +3558,8 @@
         "fullName": "Alfie Devine",
         "positions": [
           "AM",
-          "CM"
+          "CM",
+          "LM"
         ],
         "roles": []
       },
@@ -4036,13 +3572,7 @@
           "LW",
           "LM"
         ],
-        "roles": [
-          "Advanced forward +",
-          "Support",
-          "Versatile",
-          "Winger +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 246791,
@@ -4053,12 +3583,7 @@
           "RW",
           "LW"
         ],
-        "roles": [
-          "Inside forward +",
-          "Wide playmaker +",
-          "Build-up",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 83028,
@@ -4067,14 +3592,10 @@
         "positions": [
           "LM",
           "RM",
-          "AM",
+          "ST",
           "LW"
         ],
-        "roles": [
-          "Winger +",
-          "Half-winger +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 75272,
@@ -4097,6 +3618,17 @@
         "roles": []
       },
       {
+        "id": 72284,
+        "commonName": "T. Hall",
+        "fullName": "Tyrese Hall",
+        "positions": [
+          "LM",
+          "CM",
+          "LW"
+        ],
+        "roles": []
+      },
+      {
         "id": 72159,
         "commonName": "M. Moore",
         "fullName": "Mikey Moore",
@@ -4105,15 +3637,7 @@
           "LM",
           "AM"
         ],
-        "roles": [
-          "Winger +",
-          "Versatile",
-          "Wide playmaker +",
-          "Build-up",
-          "Inside forward +",
-          "Half-winger +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 71106,
@@ -4124,14 +3648,7 @@
           "RW",
           "LM"
         ],
-        "roles": [
-          "Winger +",
-          "Wide midfielder +",
-          "Support",
-          "Build-up",
-          "Inside forward +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       }
     ]
   },
@@ -4158,8 +3675,10 @@
         ],
         "roles": [
           "Wingback +",
-          "Support",
-          "Layout 1 2 3"
+          "BalancedSupport",
+          "Layout 1",
+          "2",
+          "3"
         ]
       },
       {
@@ -4201,8 +3720,10 @@
         ],
         "roles": [
           "Wingback +",
-          "Support",
-          "Layout 1 2 3"
+          "BalancedSupport",
+          "Layout 1",
+          "2",
+          "3"
         ]
       },
       {
@@ -4228,20 +3749,13 @@
       {
         "id": 235353,
         "commonName": "I. Sarr",
-        "fullName": "Ismaïla Sarr",
+        "fullName": "Ismaila Sarr",
         "positions": [
           "RW",
           "AM",
           "RM"
         ],
-        "roles": [
-          "Wide playmaker +",
-          "Build-up",
-          "Winger +",
-          "Versatile",
-          "Playmaker +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 238756,
@@ -4255,19 +3769,14 @@
       {
         "id": 259377,
         "commonName": "Yeremy Pino",
-        "fullName": "Yeremy Jesús Pino Santos",
+        "fullName": "Yeremy Jesus Pino Santos",
         "positions": [
           "LW",
           "RW",
           "AM",
           "LM"
         ],
-        "roles": [
-          "Wide playmaker +",
-          "Build-up",
-          "Playmaker +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 251421,
@@ -4276,14 +3785,9 @@
         "positions": [
           "RW",
           "RM",
-          "LM"
+          "LW"
         ],
-        "roles": [
-          "Winger +",
-          "Versatile",
-          "Inside forward +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 232730,
@@ -4317,8 +3821,10 @@
         ],
         "roles": [
           "Wingback +",
-          "Support",
-          "Layout 1 2 3"
+          "BalancedSupport",
+          "Layout 1",
+          "2",
+          "3"
         ]
       },
       {
@@ -4341,10 +3847,12 @@
         ],
         "roles": [
           "Wingback +",
-          "Support",
+          "BalancedSupport",
           "Stopper +",
-          "Aggressive",
-          "Layout 1 2 3"
+          "BalancedAggressive",
+          "Layout 1",
+          "2",
+          "3"
         ]
       },
       {
@@ -4365,14 +3873,7 @@
           "RM",
           "ST"
         ],
-        "roles": [
-          "Inside forward +",
-          "Winger +",
-          "Versatile",
-          "Poacher +",
-          "Support",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 236461,
@@ -4393,15 +3894,7 @@
           "LM",
           "AM"
         ],
-        "roles": [
-          "Half-winger +",
-          "Support",
-          "Box-to-Box +",
-          "Ball-winning",
-          "Inside forward +",
-          "Winger +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 236988,
@@ -4432,13 +3925,7 @@
           "RB",
           "CM"
         ],
-        "roles": [
-          "Holding +",
-          "Ball-winning",
-          "Wingback +",
-          "Support",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 203824,
@@ -4460,10 +3947,12 @@
         ],
         "roles": [
           "Attacking wingback +",
-          "Support",
+          "SupportAttack",
           "Wide midfielder +",
-          "Build-up",
-          "Layout 1 2 3"
+          "SupportDefendBuild-up",
+          "Layout 1",
+          "2",
+          "3"
         ]
       },
       {
@@ -4476,9 +3965,12 @@
         ],
         "roles": [
           "Attacking wingback +",
-          "Support",
+          "SupportAttack",
           "Winger +",
-          "Layout 1 2 3"
+          "BalancedAttack",
+          "Layout 1",
+          "2",
+          "3"
         ]
       },
       {
@@ -4520,14 +4012,7 @@
           "LM",
           "RW"
         ],
-        "roles": [
-          "Winger +",
-          "Wide midfielder +",
-          "Support",
-          "Build-up",
-          "Inside forward +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 271191,
@@ -4548,25 +4033,25 @@
         ],
         "roles": [
           "Attacking wingback +",
-          "Support",
+          "SupportAttack",
           "Wingback +",
+          "BalancedSupport",
           "Inside forward +",
-          "Layout 1 2 3"
+          "BalancedAttack",
+          "Layout 1",
+          "2",
+          "3"
         ]
       },
       {
         "id": 264035,
         "commonName": "J. Rak-Sakyi",
-        "fullName": "Jesurun Rak-Sakyi",
+        "fullName": "Jesurun Rak Sakyi",
         "positions": [
           "RM",
           "RW"
         ],
-        "roles": [
-          "Inside forward +",
-          "Winger +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 76444,
@@ -4588,10 +4073,14 @@
         ],
         "roles": [
           "Attacking wingback +",
-          "Support",
+          "SupportAttack",
           "Wingback +",
+          "BalancedSupport",
           "Inside forward +",
-          "Layout 1 2 3"
+          "BalancedAttack",
+          "Layout 1",
+          "2",
+          "3"
         ]
       }
     ]
@@ -4620,8 +4109,10 @@
         ],
         "roles": [
           "Wingback +",
-          "Support",
-          "Layout 1 2 3"
+          "BalancedSupport",
+          "Layout 1",
+          "2",
+          "3"
         ]
       },
       {
@@ -4650,12 +4141,7 @@
           "LB",
           "RB"
         ],
-        "roles": [
-          "Fullback ++",
-          "Versatile",
-          "Fullback +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 235173,
@@ -4686,27 +4172,17 @@
           "AM",
           "RW"
         ],
-        "roles": [
-          "Wide playmaker +",
-          "Build-up",
-          "Winger +",
-          "Playmaker +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 240740,
         "commonName": "C. Hudson-Odoi",
-        "fullName": "Callum Hudson-Odoi",
+        "fullName": "Callum Hudson Odoi",
         "positions": [
           "LM",
           "LW"
         ],
-        "roles": [
-          "Winger +",
-          "Inside forward +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 236015,
@@ -4755,40 +4231,29 @@
           "RM",
           "RW"
         ],
-        "roles": [
-          "Winger +",
-          "Inside forward +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 264349,
         "commonName": "J. McAtee",
-        "fullName": "James McAtee",
+        "fullName": "James Mcatee",
         "positions": [
           "RM",
+          "AM",
           "RW"
         ],
-        "roles": [
-          "Inside forward +",
-          "Winger +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 256008,
         "commonName": "Morato",
-        "fullName": "Felipe Rodrigues da Silva",
+        "fullName": "Felipe Rodrigues Da Silva",
         "positions": [
           "CB",
           "LB",
           "DM"
         ],
-        "roles": [
-          "Defender +",
-          "Falseback +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 256781,
@@ -4800,10 +4265,14 @@
         ],
         "roles": [
           "Attacking wingback +",
-          "Support",
+          "SupportAttack",
           "Wingback +",
+          "BalancedSupport",
           "Winger +",
-          "Layout 1 2 3"
+          "BalancedAttack",
+          "Layout 1",
+          "2",
+          "3"
         ]
       },
       {
@@ -4824,15 +4293,12 @@
           "RM",
           "LW"
         ],
-        "roles": [
-          "Winger +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
-        "id": 268474,
-        "commonName": "L. Lucca",
-        "fullName": "Lorenzo Lucca",
+        "id": 192123,
+        "commonName": "C. Wood",
+        "fullName": "Chris Wood",
         "positions": [
           "ST"
         ],
@@ -4842,6 +4308,15 @@
         "id": 230978,
         "commonName": "T. Awoniyi",
         "fullName": "Taiwo Awoniyi",
+        "positions": [
+          "ST"
+        ],
+        "roles": []
+      },
+      {
+        "id": 268474,
+        "commonName": "L. Lucca",
+        "fullName": "Lorenzo Lucca",
         "positions": [
           "ST"
         ],
@@ -4870,7 +4345,8 @@
         "commonName": "Z. Abbott",
         "fullName": "Zach Abbott",
         "positions": [
-          "CB"
+          "CB",
+          "RB"
         ],
         "roles": []
       },
@@ -4893,18 +4369,11 @@
         ],
         "roles": [
           "Attacking wingback +",
-          "Support",
-          "Layout 1 2 3"
+          "SupportAttack",
+          "Layout 1",
+          "2",
+          "3"
         ]
-      },
-      {
-        "id": 192123,
-        "commonName": "C. Wood",
-        "fullName": "Chris Wood",
-        "positions": [
-          "ST"
-        ],
-        "roles": []
       },
       {
         "id": 74310,
@@ -4916,8 +4385,10 @@
         ],
         "roles": [
           "Wingback +",
-          "Support",
-          "Layout 1 2 3"
+          "BalancedSupport",
+          "Layout 1",
+          "2",
+          "3"
         ]
       },
       {
@@ -4941,21 +4412,14 @@
       {
         "id": 269421,
         "commonName": "Jota Silva",
-        "fullName": "João Pedro Ferreira Silva",
+        "fullName": "Joao Pedro Ferreira Silva",
         "positions": [
           "RM",
           "LM",
           "ST",
           "RW"
         ],
-        "roles": [
-          "Inside forward +",
-          "Winger +",
-          "Poacher +",
-          "Support",
-          "Versatile",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 266208,
@@ -4972,14 +4436,10 @@
         "fullName": "Arnaud Kalimuendo",
         "positions": [
           "ST",
+          "LM",
           "RM"
         ],
-        "roles": [
-          "Poacher +",
-          "Support",
-          "Versatile",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 251616,
@@ -5000,8 +4460,10 @@
         ],
         "roles": [
           "Fullback +",
-          "Versatile",
-          "Layout 1 2 3"
+          "DefendBalancedVersatile",
+          "Layout 1",
+          "2",
+          "3"
         ]
       },
       {
@@ -5023,14 +4485,7 @@
           "CB",
           "RB"
         ],
-        "roles": [
-          "Ball-playing defender +",
-          "Build-up",
-          "Aggressive",
-          "Fullback +",
-          "Versatile",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 80412,
@@ -5039,11 +4494,7 @@
         "positions": [
           "LB"
         ],
-        "roles": [
-          "Fullback +",
-          "Versatile",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 79201,
@@ -5055,9 +4506,12 @@
         ],
         "roles": [
           "Wingback +",
-          "Support",
+          "BalancedSupport",
           "Winger +",
-          "Layout 1 2 3"
+          "BalancedAttack",
+          "Layout 1",
+          "2",
+          "3"
         ]
       },
       {
@@ -5065,18 +4519,12 @@
         "commonName": "J. Gardner",
         "fullName": "Joe Gardner",
         "positions": [
-          "AM",
           "LM",
           "ST",
-          "CM"
+          "AM",
+          "LW"
         ],
-        "roles": [
-          "Playmaker +",
-          "Build-up",
-          "Wide playmaker +",
-          "False 9 +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       }
     ]
   },
@@ -5104,10 +4552,12 @@
         ],
         "roles": [
           "Wingback +",
-          "Support",
+          "BalancedSupport",
           "Stopper +",
-          "Aggressive",
-          "Layout 1 2 3"
+          "BalancedAggressive",
+          "Layout 1",
+          "2",
+          "3"
         ]
       },
       {
@@ -5138,8 +4588,10 @@
         ],
         "roles": [
           "Wingback +",
-          "Support",
-          "Layout 1 2 3"
+          "BalancedSupport",
+          "Layout 1",
+          "2",
+          "3"
         ]
       },
       {
@@ -5148,6 +4600,7 @@
         "fullName": "James Garner",
         "positions": [
           "DM",
+          "RB",
           "CM"
         ],
         "roles": []
@@ -5163,6 +4616,18 @@
         "roles": []
       },
       {
+        "id": 243282,
+        "commonName": "D. McNeil",
+        "fullName": "Dwight Mcneil",
+        "positions": [
+          "LM",
+          "RM",
+          "AM",
+          "LW"
+        ],
+        "roles": []
+      },
+      {
         "id": 261188,
         "commonName": "I. Ndiaye",
         "fullName": "Iliman Ndiaye",
@@ -5171,28 +4636,7 @@
           "LM",
           "RW"
         ],
-        "roles": [
-          "Winger +",
-          "Layout 1 2 3"
-        ]
-      },
-      {
-        "id": 243282,
-        "commonName": "D. McNeil",
-        "fullName": "Dwight McNeil",
-        "positions": [
-          "LM",
-          "AM",
-          "RM",
-          "LW"
-        ],
-        "roles": [
-          "Wide playmaker +",
-          "Build-up",
-          "Winger +",
-          "Playmaker +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 237386,
@@ -5250,7 +4694,8 @@
         "fullName": "Harrison Armstrong",
         "positions": [
           "CM",
-          "DM"
+          "DM",
+          "AM"
         ],
         "roles": []
       },
@@ -5273,8 +4718,10 @@
         ],
         "roles": [
           "Wingback +",
-          "Support",
-          "Layout 1 2 3"
+          "BalancedSupport",
+          "Layout 1",
+          "2",
+          "3"
         ]
       },
       {
@@ -5297,10 +4744,12 @@
         ],
         "roles": [
           "Wide midfielder +",
-          "Support",
-          "Build-up",
+          "SupportDefendBuild-up",
           "Half-winger +",
-          "Layout 1 2 3"
+          "AttackBalancedRoaming",
+          "Layout 1",
+          "2",
+          "3"
         ]
       },
       {
@@ -5322,10 +4771,7 @@
           "ST",
           "LW"
         ],
-        "roles": [
-          "Winger +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 70448,
@@ -5334,13 +4780,7 @@
         "positions": [
           "LB"
         ],
-        "roles": [
-          "Fullback +",
-          "Versatile",
-          "Inverted wingback +",
-          "Build-up",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 180216,
@@ -5352,8 +4792,10 @@
         ],
         "roles": [
           "Wingback +",
-          "Support",
-          "Layout 1 2 3"
+          "BalancedSupport",
+          "Layout 1",
+          "2",
+          "3"
         ]
       },
       {
@@ -5373,11 +4815,7 @@
           "LM",
           "LW"
         ],
-        "roles": [
-          "Wide playmaker +",
-          "Build-up",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 278555,
@@ -5399,10 +4837,12 @@
         ],
         "roles": [
           "Wide back +",
-          "Aggressive",
-          "Support",
+          "DefendAggressiveSupport",
           "Wingback +",
-          "Layout 1 2 3"
+          "BalancedSupport",
+          "Layout 1",
+          "2",
+          "3"
         ]
       },
       {
@@ -5415,16 +4855,7 @@
           "RM",
           "DM"
         ],
-        "roles": [
-          "Box-to-Box +",
-          "Ball-winning",
-          "Deep-Lying playmaker +",
-          "Build-up",
-          "Half-winger +",
-          "Wide midfielder +",
-          "Support",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 77295,
@@ -5436,9 +4867,12 @@
         ],
         "roles": [
           "Attacking wingback +",
-          "Support",
+          "SupportAttack",
           "Inside forward +",
-          "Layout 1 2 3"
+          "BalancedAttack",
+          "Layout 1",
+          "2",
+          "3"
         ]
       },
       {
@@ -5460,8 +4894,10 @@
         ],
         "roles": [
           "Attacking wingback +",
-          "Support",
-          "Layout 1 2 3"
+          "SupportAttack",
+          "Layout 1",
+          "2",
+          "3"
         ]
       }
     ]
@@ -5488,15 +4924,7 @@
           "RB",
           "CM"
         ],
-        "roles": [
-          "Box crasher +",
-          "Wide half +",
-          "Build-up",
-          "Wingback +",
-          "Support",
-          "Deep-Lying playmaker +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 258908,
@@ -5508,9 +4936,9 @@
         "roles": []
       },
       {
-        "id": 199915,
-        "commonName": "L. Dunk",
-        "fullName": "Lewis Dunk",
+        "id": 225863,
+        "commonName": "O. Boscagli",
+        "fullName": "Olivier Boscagli",
         "positions": [
           "CB"
         ],
@@ -5527,8 +4955,10 @@
         ],
         "roles": [
           "Wingback +",
-          "Support",
-          "Layout 1 2 3"
+          "BalancedSupport",
+          "Layout 1",
+          "2",
+          "3"
         ]
       },
       {
@@ -5559,11 +4989,7 @@
           "RM",
           "RW"
         ],
-        "roles": [
-          "Inside forward +",
-          "Winger +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 255565,
@@ -5573,11 +4999,7 @@
           "LM",
           "LW"
         ],
-        "roles": [
-          "Inside forward +",
-          "Winger +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 277283,
@@ -5589,14 +5011,7 @@
           "AM",
           "CM"
         ],
-        "roles": [
-          "Holding +",
-          "Ball-winning",
-          "Inverted wingback +",
-          "Build-up",
-          "Playmaker +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 186146,
@@ -5620,20 +5035,14 @@
       {
         "id": 269278,
         "commonName": "D. Gómez",
-        "fullName": "Diego Gómez",
+        "fullName": "Diego Gomez",
         "positions": [
           "DM",
           "AM",
           "LM",
           "CM"
         ],
-        "roles": [
-          "Box crasher +",
-          "Playmaker +",
-          "Build-up",
-          "Wide playmaker +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 138412,
@@ -5644,15 +5053,7 @@
           "CM",
           "RB"
         ],
-        "roles": [
-          "Deep-Lying playmaker +",
-          "Build-up",
-          "Centre-half +",
-          "Half-winger +",
-          "Support",
-          "Attacking wingback +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 251479,
@@ -5664,10 +5065,12 @@
         ],
         "roles": [
           "Attacking wingback +",
-          "Support",
+          "SupportAttack",
           "Inverted wingback +",
-          "Build-up",
-          "Layout 1 2 3"
+          "Build-upAttack",
+          "Layout 1",
+          "2",
+          "3"
         ]
       },
       {
@@ -5680,16 +5083,18 @@
         ],
         "roles": [
           "Wingback +",
-          "Support",
+          "BalancedSupport",
           "Inverted wingback +",
-          "Build-up",
-          "Layout 1 2 3"
+          "Build-upAttack",
+          "Layout 1",
+          "2",
+          "3"
         ]
       },
       {
-        "id": 225863,
-        "commonName": "O. Boscagli",
-        "fullName": "Olivier Boscagli",
+        "id": 199915,
+        "commonName": "L. Dunk",
+        "fullName": "Lewis Dunk",
         "positions": [
           "CB"
         ],
@@ -5723,12 +5128,7 @@
           "AM",
           "RM"
         ],
-        "roles": [
-          "Advanced forward +",
-          "Support",
-          "Versatile",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 240734,
@@ -5744,20 +5144,12 @@
       {
         "id": 241585,
         "commonName": "Igor Julio",
-        "fullName": "Igor Julio dos Santos de Paulo",
+        "fullName": "Igor Julio Dos Santos De Paulo",
         "positions": [
           "CB",
           "LB"
         ],
-        "roles": [
-          "Ball-playing defender +",
-          "Build-up",
-          "Aggressive",
-          "Defender +",
-          "Fullback +",
-          "Versatile",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 78227,
@@ -5768,10 +5160,7 @@
           "AM",
           "RW"
         ],
-        "roles": [
-          "Inside forward +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 206594,
@@ -5783,10 +5172,12 @@
         ],
         "roles": [
           "Wide midfielder +",
-          "Support",
-          "Build-up",
+          "SupportDefendBuild-up",
           "Winger +",
-          "Layout 1 2 3"
+          "BalancedAttack",
+          "Layout 1",
+          "2",
+          "3"
         ]
       },
       {
@@ -5798,10 +5189,7 @@
           "RM",
           "LW"
         ],
-        "roles": [
-          "Winger +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 243588,
@@ -5839,14 +5227,7 @@
           "CM",
           "RM"
         ],
-        "roles": [
-          "Playmaker +",
-          "Build-up",
-          "Holding +",
-          "Ball-winning",
-          "Inside forward +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 277512,
@@ -5858,12 +5239,7 @@
           "LM",
           "AM"
         ],
-        "roles": [
-          "False 9 +",
-          "Build-up",
-          "Inside forward +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 275246,
@@ -5874,11 +5250,7 @@
           "RM",
           "LW"
         ],
-        "roles": [
-          "Inside forward +",
-          "Winger +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 274516,
@@ -5889,11 +5261,7 @@
           "RM",
           "LW"
         ],
-        "roles": [
-          "Inside forward +",
-          "Winger +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 273621,
@@ -5922,27 +5290,18 @@
           "RM",
           "CM"
         ],
-        "roles": [
-          "Half-winger +",
-          "Inside forward +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 271743,
         "commonName": "A. Cozier-Duberry",
-        "fullName": "Amario Cozier-Duberry",
+        "fullName": "Amario Cozier Duberry",
         "positions": [
           "RM",
           "RW",
           "LM"
         ],
-        "roles": [
-          "Inside forward +",
-          "Wide playmaker +",
-          "Build-up",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 271584,
@@ -5954,9 +5313,12 @@
         ],
         "roles": [
           "Wingback +",
-          "Support",
+          "BalancedSupport",
           "Falseback +",
-          "Layout 1 2 3"
+          "DefendBalanced",
+          "Layout 1",
+          "2",
+          "3"
         ]
       },
       {
@@ -5968,12 +5330,7 @@
           "RM",
           "CM"
         ],
-        "roles": [
-          "Playmaker +",
-          "Build-up",
-          "Inside forward +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 269181,
@@ -5987,20 +5344,12 @@
       {
         "id": 263914,
         "commonName": "E. Cashin",
-        "fullName": "Eíran Cashin",
+        "fullName": "Eiran Cashin",
         "positions": [
           "CB",
           "LB"
         ],
-        "roles": [
-          "Stopper +",
-          "Aggressive",
-          "Wide back +",
-          "Support",
-          "Fullback +",
-          "Versatile",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 263522,
@@ -6011,15 +5360,7 @@
           "LW",
           "AM"
         ],
-        "roles": [
-          "Winger +",
-          "Wide midfielder +",
-          "Support",
-          "Build-up",
-          "Inside forward +",
-          "Shadow striker +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 263339,
@@ -6042,19 +5383,13 @@
       {
         "id": 70841,
         "commonName": "M. Yalcouyé",
-        "fullName": "Malick Yalcouyé",
+        "fullName": "Malick Yalcouye",
         "positions": [
           "CM",
           "RM",
           "AM"
         ],
-        "roles": [
-          "Half-winger +",
-          "Support",
-          "Wide playmaker +",
-          "Build-up",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       }
     ]
   },
@@ -6081,27 +5416,10 @@
         ],
         "roles": [
           "Wingback +",
-          "Support",
-          "Layout 1 2 3"
-        ]
-      },
-      {
-        "id": 224258,
-        "commonName": "K. Ajer",
-        "fullName": "Kristoffer Ajer",
-        "positions": [
-          "CB",
-          "RB",
-          "LB"
-        ],
-        "roles": [
-          "Wide back +",
-          "Aggressive",
-          "Support",
-          "Defender +",
-          "Fullback +",
-          "Versatile",
-          "Layout 1 2 3"
+          "BalancedSupport",
+          "Layout 1",
+          "2",
+          "3"
         ]
       },
       {
@@ -6114,23 +5432,93 @@
         "roles": []
       },
       {
-        "id": 224494,
-        "commonName": "R. Henry",
-        "fullName": "Rico Henry",
+        "id": 248484,
+        "commonName": "N. Collins",
+        "fullName": "Nathan Collins",
+        "positions": [
+          "CB"
+        ],
+        "roles": []
+      },
+      {
+        "id": 243606,
+        "commonName": "K. Lewis-Potter",
+        "fullName": "Keane Lewis Potter",
         "positions": [
           "LB",
-          "LM"
+          "LM",
+          "RM"
         ],
-        "roles": [
-          "Wingback +",
-          "Support",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 270608,
         "commonName": "Y. Yarmoliuk",
         "fullName": "Yehor Yarmoliuk",
+        "positions": [
+          "DM",
+          "CM"
+        ],
+        "roles": []
+      },
+      {
+        "id": 229723,
+        "commonName": "M. Jensen",
+        "fullName": "Mathias Jensen",
+        "positions": [
+          "CM",
+          "DM",
+          "AM"
+        ],
+        "roles": []
+      },
+      {
+        "id": 265552,
+        "commonName": "D. Ouattara",
+        "fullName": "Dango Ouattara",
+        "positions": [
+          "RM",
+          "LM",
+          "ST",
+          "RW"
+        ],
+        "roles": []
+      },
+      {
+        "id": 260926,
+        "commonName": "K. Schade",
+        "fullName": "Kevin Schade",
+        "positions": [
+          "LM",
+          "LW",
+          "ST"
+        ],
+        "roles": []
+      },
+      {
+        "id": 241508,
+        "commonName": "M. Damsgaard",
+        "fullName": "Mikkel Damsgaard",
+        "positions": [
+          "AM",
+          "CM",
+          "LW"
+        ],
+        "roles": []
+      },
+      {
+        "id": 275771,
+        "commonName": "Igor Thiago",
+        "fullName": "Igor Thiago Rodrigues",
+        "positions": [
+          "ST"
+        ],
+        "roles": []
+      },
+      {
+        "id": 183711,
+        "commonName": "J. Henderson",
+        "fullName": "Jordan Henderson",
         "positions": [
           "DM",
           "CM"
@@ -6148,83 +5536,6 @@
         "roles": []
       },
       {
-        "id": 265552,
-        "commonName": "D. Ouattara",
-        "fullName": "Dango Ouattara",
-        "positions": [
-          "RM",
-          "LM",
-          "ST",
-          "RW"
-        ],
-        "roles": [
-          "Winger +",
-          "Poacher +",
-          "Support",
-          "Versatile",
-          "Layout 1 2 3"
-        ]
-      },
-      {
-        "id": 260926,
-        "commonName": "K. Schade",
-        "fullName": "Kevin Schade",
-        "positions": [
-          "LM",
-          "LW",
-          "ST"
-        ],
-        "roles": [
-          "Inside forward +",
-          "Winger +",
-          "Poacher +",
-          "Support",
-          "Versatile",
-          "Layout 1 2 3"
-        ]
-      },
-      {
-        "id": 229723,
-        "commonName": "M. Jensen",
-        "fullName": "Mathias Jensen",
-        "positions": [
-          "CM",
-          "DM",
-          "AM"
-        ],
-        "roles": []
-      },
-      {
-        "id": 275771,
-        "commonName": "Igor Thiago",
-        "fullName": "Igor Thiago Rodrigues",
-        "positions": [
-          "ST"
-        ],
-        "roles": []
-      },
-      {
-        "id": 241508,
-        "commonName": "M. Damsgaard",
-        "fullName": "Mikkel Damsgaard",
-        "positions": [
-          "AM",
-          "CM",
-          "LW"
-        ],
-        "roles": []
-      },
-      {
-        "id": 183711,
-        "commonName": "J. Henderson",
-        "fullName": "Jordan Henderson",
-        "positions": [
-          "DM",
-          "CM"
-        ],
-        "roles": []
-      },
-      {
         "id": 278919,
         "commonName": "R. Donovan",
         "fullName": "Romelle Donovan",
@@ -6233,35 +5544,33 @@
           "AM",
           "RW"
         ],
-        "roles": [
-          "Inside forward +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
-        "id": 248484,
-        "commonName": "N. Collins",
-        "fullName": "Nathan Collins",
+        "id": 224258,
+        "commonName": "K. Ajer",
+        "fullName": "Kristoffer Ajer",
         "positions": [
-          "CB"
+          "CB",
+          "RB",
+          "LB"
         ],
         "roles": []
       },
       {
-        "id": 243606,
-        "commonName": "K. Lewis-Potter",
-        "fullName": "Keane Lewis-Potter",
+        "id": 224494,
+        "commonName": "R. Henry",
+        "fullName": "Rico Henry",
         "positions": [
           "LB",
-          "LM",
-          "RM"
+          "LM"
         ],
         "roles": [
-          "Attacking wingback +",
-          "Support",
           "Wingback +",
-          "Inside forward +",
-          "Layout 1 2 3"
+          "BalancedSupport",
+          "Layout 1",
+          "2",
+          "3"
         ]
       },
       {
@@ -6275,8 +5584,10 @@
         ],
         "roles": [
           "Wingback +",
-          "Support",
-          "Layout 1 2 3"
+          "BalancedSupport",
+          "Layout 1",
+          "2",
+          "3"
         ]
       },
       {
@@ -6297,12 +5608,7 @@
           "LM",
           "RW"
         ],
-        "roles": [
-          "Wide playmaker +",
-          "Build-up",
-          "Inside forward +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 75452,
@@ -6319,6 +5625,16 @@
         "fullName": "Ethan Pinnock",
         "positions": [
           "CB"
+        ],
+        "roles": []
+      },
+      {
+        "id": 231445,
+        "commonName": "J. Dasilva",
+        "fullName": "Josh Dasilva",
+        "positions": [
+          "CM",
+          "DM"
         ],
         "roles": []
       },
@@ -6361,16 +5677,6 @@
         "roles": []
       },
       {
-        "id": 231445,
-        "commonName": "J. Dasilva",
-        "fullName": "Josh Dasilva",
-        "positions": [
-          "CM",
-          "DM"
-        ],
-        "roles": []
-      },
-      {
         "id": 278957,
         "commonName": "J. Meghoma",
         "fullName": "Jayden Meghoma",
@@ -6380,10 +5686,14 @@
         ],
         "roles": [
           "Attacking wingback +",
-          "Support",
+          "SupportAttack",
           "Wingback +",
+          "BalancedSupport",
           "Winger +",
-          "Layout 1 2 3"
+          "BalancedAttack",
+          "Layout 1",
+          "2",
+          "3"
         ]
       },
       {
@@ -6391,7 +5701,9 @@
         "commonName": "I. Morgan",
         "fullName": "Iwan Morgan",
         "positions": [
-          "ST"
+          "ST",
+          "AM",
+          "LM"
         ],
         "roles": []
       },
@@ -6422,11 +5734,7 @@
           "LM",
           "LW"
         ],
-        "roles": [
-          "Winger +",
-          "Inside forward +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 271173,
@@ -6437,11 +5745,7 @@
           "LM",
           "RW"
         ],
-        "roles": [
-          "Winger +",
-          "Inside forward +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 267844,
@@ -6501,10 +5805,7 @@
           "RM",
           "LW"
         ],
-        "roles": [
-          "Winger +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 72456,
@@ -6515,12 +5816,7 @@
           "RM",
           "DM"
         ],
-        "roles": [
-          "Box-to-Box +",
-          "Ball-winning",
-          "Winger +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       }
     ]
   },
@@ -6538,16 +5834,21 @@
         "roles": []
       },
       {
-        "id": 216266,
-        "commonName": "K. Tete",
-        "fullName": "Kenny Tete",
+        "id": 222501,
+        "commonName": "T. Castagne",
+        "fullName": "Timothy Castagne",
         "positions": [
-          "RB"
+          "RB",
+          "RM"
         ],
         "roles": [
-          "Fullback +",
-          "Versatile",
-          "Layout 1 2 3"
+          "Wingback +",
+          "BalancedSupport",
+          "Wide midfielder +",
+          "SupportDefendBuild-up",
+          "Layout 1",
+          "2",
+          "3"
         ]
       },
       {
@@ -6578,8 +5879,10 @@
         ],
         "roles": [
           "Wingback +",
-          "Support",
-          "Layout 1 2 3"
+          "BalancedSupport",
+          "Layout 1",
+          "2",
+          "3"
         ]
       },
       {
@@ -6612,13 +5915,7 @@
           "AM",
           "RW"
         ],
-        "roles": [
-          "Inside forward +",
-          "Winger +",
-          "Playmaker +",
-          "Build-up",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 213655,
@@ -6629,12 +5926,7 @@
           "DM",
           "LW"
         ],
-        "roles": [
-          "Wide playmaker +",
-          "Build-up",
-          "Deep-Lying playmaker +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 240273,
@@ -6645,13 +5937,7 @@
           "CM",
           "LM"
         ],
-        "roles": [
-          "Playmaker +",
-          "Build-up",
-          "Deep-Lying playmaker +",
-          "Winger +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 204838,
@@ -6663,6 +5949,17 @@
         "roles": []
       },
       {
+        "id": 246172,
+        "commonName": "S. Chukwueze",
+        "fullName": "Samuel Chukwueze",
+        "positions": [
+          "RM",
+          "LM",
+          "RW"
+        ],
+        "roles": []
+      },
+      {
         "id": 277295,
         "commonName": "O. Bobb",
         "fullName": "Oscar Bobb",
@@ -6670,21 +5967,6 @@
           "RM",
           "LM",
           "RW"
-        ],
-        "roles": [
-          "Inside forward +",
-          "Wide playmaker +",
-          "Build-up",
-          "Layout 1 2 3"
-        ]
-      },
-      {
-        "id": 70786,
-        "commonName": "J. King",
-        "fullName": "Josh King",
-        "positions": [
-          "AM",
-          "CM"
         ],
         "roles": []
       },
@@ -6709,10 +5991,22 @@
         ],
         "roles": [
           "Attacking wingback +",
-          "Support",
+          "SupportAttack",
           "Wingback +",
-          "Layout 1 2 3"
+          "BalancedSupport",
+          "Layout 1",
+          "2",
+          "3"
         ]
+      },
+      {
+        "id": 216266,
+        "commonName": "K. Tete",
+        "fullName": "Kenny Tete",
+        "positions": [
+          "RB"
+        ],
+        "roles": []
       },
       {
         "id": 237522,
@@ -6724,22 +6018,6 @@
         "roles": []
       },
       {
-        "id": 222501,
-        "commonName": "T. Castagne",
-        "fullName": "Timothy Castagne",
-        "positions": [
-          "RB",
-          "RM"
-        ],
-        "roles": [
-          "Wingback +",
-          "Support",
-          "Wide midfielder +",
-          "Build-up",
-          "Layout 1 2 3"
-        ]
-      },
-      {
         "id": 200726,
         "commonName": "B. Lecomte",
         "fullName": "Benjamin Lecomte",
@@ -6749,19 +6027,14 @@
         "roles": []
       },
       {
-        "id": 246172,
-        "commonName": "S. Chukwueze",
-        "fullName": "Samuel Chukwueze",
+        "id": 70786,
+        "commonName": "J. King",
+        "fullName": "Josh King",
         "positions": [
-          "RM",
-          "RW"
+          "AM",
+          "CM"
         ],
-        "roles": [
-          "Wide playmaker +",
-          "Build-up",
-          "Inside forward +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 264337,
@@ -6769,6 +6042,17 @@
         "fullName": "Rodrigo Muniz Carvalho",
         "positions": [
           "ST"
+        ],
+        "roles": []
+      },
+      {
+        "id": 70571,
+        "commonName": "Kevin",
+        "fullName": "Kevin Santos",
+        "positions": [
+          "LM",
+          "LW",
+          "RW"
         ],
         "roles": []
       },
@@ -6801,21 +6085,6 @@
         "roles": []
       },
       {
-        "id": 70571,
-        "commonName": "Kevin",
-        "fullName": "Kevin Santos",
-        "positions": [
-          "LM",
-          "LW",
-          "RW"
-        ],
-        "roles": [
-          "Winger +",
-          "Inside forward +",
-          "Layout 1 2 3"
-        ]
-      },
-      {
         "id": 279008,
         "commonName": "L. De Fougerolles",
         "fullName": "Luc De Fougerolles",
@@ -6833,14 +6102,7 @@
           "CM",
           "LM"
         ],
-        "roles": [
-          "Playmaker +",
-          "Build-up",
-          "Holding +",
-          "Ball-winning",
-          "Winger +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 241076,
@@ -6854,19 +6116,13 @@
       {
         "id": 83185,
         "commonName": "A. Loupalo-Bi",
-        "fullName": "Aaron Loupalo-Bi",
+        "fullName": "Aaron Loupalo Bi",
         "positions": [
           "ST",
           "LM",
           "LW"
         ],
-        "roles": [
-          "Advanced forward +",
-          "Support",
-          "Versatile",
-          "Inside forward +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 74430,
@@ -6877,14 +6133,7 @@
           "LB",
           "DM"
         ],
-        "roles": [
-          "Stopper +",
-          "Aggressive",
-          "Ball-playing defender +",
-          "Build-up",
-          "Falseback +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       }
     ]
   },
@@ -6902,17 +6151,19 @@
         "roles": []
       },
       {
-        "id": 278928,
-        "commonName": "Álex Jiménez",
-        "fullName": "Alejandro Jiménez Sánchez",
+        "id": 190885,
+        "commonName": "A. Smith",
+        "fullName": "Adam Smith",
         "positions": [
           "RB",
           "RM"
         ],
         "roles": [
           "Wingback +",
-          "Support",
-          "Layout 1 2 3"
+          "BalancedSupport",
+          "Layout 1",
+          "2",
+          "3"
         ]
       },
       {
@@ -6923,14 +6174,7 @@
           "CB",
           "RB"
         ],
-        "roles": [
-          "Wide back +",
-          "Aggressive",
-          "Support",
-          "Fullback +",
-          "Versatile",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 236506,
@@ -6951,9 +6195,12 @@
         ],
         "roles": [
           "Wingback +",
-          "Support",
+          "BalancedSupport",
           "Attacking wingback +",
-          "Layout 1 2 3"
+          "SupportAttack",
+          "Layout 1",
+          "2",
+          "3"
         ]
       },
       {
@@ -6968,9 +6215,9 @@
         "roles": []
       },
       {
-        "id": 232999,
-        "commonName": "T. Adams",
-        "fullName": "Tyler Adams",
+        "id": 213884,
+        "commonName": "R. Christie",
+        "fullName": "Ryan Christie",
         "positions": [
           "DM",
           "CM"
@@ -6980,39 +6227,25 @@
       {
         "id": 83494,
         "commonName": "Rayan",
-        "fullName": "Rayan Vitor Simplício Rocha",
+        "fullName": "Rayan Vitor Simplicio Rocha",
         "positions": [
           "RM",
           "ST",
           "RW"
         ],
-        "roles": [
-          "Inside forward +",
-          "Advanced forward +",
-          "Support",
-          "Versatile",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
-        "id": 255223,
-        "commonName": "A. Adli",
-        "fullName": "Amine Adli",
+        "id": 237477,
+        "commonName": "M. Tavernier",
+        "fullName": "Marcus Tavernier",
         "positions": [
-          "ST",
           "LM",
-          "AM"
+          "RM",
+          "AM",
+          "LW"
         ],
-        "roles": [
-          "False 9 +",
-          "Build-up",
-          "Advanced forward +",
-          "Support",
-          "Versatile",
-          "Inside forward +",
-          "Shadow striker +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 277909,
@@ -7034,11 +6267,22 @@
         "roles": []
       },
       {
-        "id": 213884,
-        "commonName": "R. Christie",
-        "fullName": "Ryan Christie",
+        "id": 232999,
+        "commonName": "T. Adams",
+        "fullName": "Tyler Adams",
         "positions": [
           "DM",
+          "CM"
+        ],
+        "roles": []
+      },
+      {
+        "id": 236920,
+        "commonName": "J. Kluivert",
+        "fullName": "Justin Kluivert",
+        "positions": [
+          "AM",
+          "LM",
           "CM"
         ],
         "roles": []
@@ -7052,15 +6296,7 @@
           "RB",
           "CM"
         ],
-        "roles": [
-          "Holding +",
-          "Ball-winning",
-          "Wide half +",
-          "Build-up",
-          "Wingback +",
-          "Support",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 220196,
@@ -7069,20 +6305,6 @@
         "positions": [
           "RM",
           "RW"
-        ],
-        "roles": [
-          "Winger +",
-          "Inside forward +",
-          "Layout 1 2 3"
-        ]
-      },
-      {
-        "id": 70903,
-        "commonName": "A. Tóth",
-        "fullName": "Alex Toth",
-        "positions": [
-          "CM",
-          "DM"
         ],
         "roles": []
       },
@@ -7096,18 +6318,13 @@
         "roles": []
       },
       {
-        "id": 190885,
-        "commonName": "A. Smith",
-        "fullName": "Adam Smith",
+        "id": 81319,
+        "commonName": "V. Milosavljević",
+        "fullName": "Veljko Milosavljevic",
         "positions": [
-          "RB",
-          "RM"
+          "CB"
         ],
-        "roles": [
-          "Wingback +",
-          "Support",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 172203,
@@ -7119,21 +6336,15 @@
         "roles": []
       },
       {
-        "id": 237477,
-        "commonName": "M. Tavernier",
-        "fullName": "Marcus Tavernier",
+        "id": 255223,
+        "commonName": "A. Adli",
+        "fullName": "Amine Adli",
         "positions": [
+          "ST",
           "LM",
-          "RM",
-          "AM",
-          "LW"
+          "AM"
         ],
-        "roles": [
-          "Wide playmaker +",
-          "Build-up",
-          "Playmaker +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 223197,
@@ -7145,11 +6356,12 @@
         "roles": []
       },
       {
-        "id": 81319,
-        "commonName": "V. Milosavljević",
-        "fullName": "Veljko Milosavljevic",
+        "id": 70903,
+        "commonName": "A. Tóth",
+        "fullName": "Alex Toth",
         "positions": [
-          "CB"
+          "CM",
+          "DM"
         ],
         "roles": []
       },
@@ -7165,16 +6377,12 @@
       {
         "id": 266815,
         "commonName": "B. Gannon-Doak",
-        "fullName": "Ben Gannon-Doak",
+        "fullName": "Ben Gannon Doak",
         "positions": [
           "RM",
           "RW"
         ],
-        "roles": [
-          "Inside forward +",
-          "Winger +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 271235,
@@ -7204,22 +6412,6 @@
         "roles": []
       },
       {
-        "id": 236920,
-        "commonName": "J. Kluivert",
-        "fullName": "Justin Kluivert",
-        "positions": [
-          "AM",
-          "LM",
-          "CM"
-        ],
-        "roles": [
-          "Playmaker +",
-          "Build-up",
-          "Inside forward +",
-          "Layout 1 2 3"
-        ]
-      },
-      {
         "id": 269796,
         "commonName": "J. Soler",
         "fullName": "Julio Soler",
@@ -7229,8 +6421,26 @@
         ],
         "roles": [
           "Wingback +",
-          "Support",
-          "Layout 1 2 3"
+          "BalancedSupport",
+          "Layout 1",
+          "2",
+          "3"
+        ]
+      },
+      {
+        "id": 278928,
+        "commonName": "Álex Jiménez",
+        "fullName": "Alejandro Jiménez Sánchez",
+        "positions": [
+          "RB",
+          "RM"
+        ],
+        "roles": [
+          "Wingback +",
+          "BalancedSupport",
+          "Layout 1",
+          "2",
+          "3"
         ]
       },
       {
@@ -7258,13 +6468,7 @@
         "positions": [
           "RB"
         ],
-        "roles": [
-          "Fullback +",
-          "Versatile",
-          "Inverted wingback +",
-          "Build-up",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 243048,
@@ -7283,30 +6487,18 @@
           "RM",
           "RW"
         ],
-        "roles": [
-          "Winger +",
-          "Wide midfielder +",
-          "Support",
-          "Build-up",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 240787,
         "commonName": "H. Traoré",
-        "fullName": "Hamed Junior Traoré",
+        "fullName": "Hamed Junior Traore",
         "positions": [
           "LM",
           "AM",
           "LW"
         ],
-        "roles": [
-          "Wide playmaker +",
-          "Build-up",
-          "Inside forward +",
-          "Shadow striker +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 240060,
@@ -7317,13 +6509,7 @@
           "LB",
           "CM"
         ],
-        "roles": [
-          "Inverted wingback +",
-          "Build-up",
-          "Wingback +",
-          "Support",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 75839,
@@ -7351,17 +6537,19 @@
         "roles": []
       },
       {
-        "id": 229880,
-        "commonName": "A. Wan-Bissaka",
-        "fullName": "Aaron Wan-Bissaka",
+        "id": 227927,
+        "commonName": "K. Walker-Peters",
+        "fullName": "Kyle Walker-Peters",
         "positions": [
           "RB",
           "RM"
         ],
         "roles": [
-          "Wingback +",
-          "Support",
-          "Layout 1 2 3"
+          "Attacking wingback +",
+          "SupportAttack",
+          "Layout 1",
+          "2",
+          "3"
         ]
       },
       {
@@ -7381,12 +6569,7 @@
           "CB",
           "RB"
         ],
-        "roles": [
-          "Defender +",
-          "Fullback +",
-          "Versatile",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 274915,
@@ -7398,8 +6581,10 @@
         ],
         "roles": [
           "Wingback +",
-          "Support",
-          "Layout 1 2 3"
+          "BalancedSupport",
+          "Layout 1",
+          "2",
+          "3"
         ]
       },
       {
@@ -7411,14 +6596,7 @@
           "ST",
           "RW"
         ],
-        "roles": [
-          "Inside forward +",
-          "Winger +",
-          "Poacher +",
-          "Support",
-          "Versatile",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 236792,
@@ -7449,17 +6627,12 @@
           "LM",
           "LW"
         ],
-        "roles": [
-          "Inside forward +",
-          "Wide playmaker +",
-          "Build-up",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 237712,
-        "commonName": "V. Castellanos",
-        "fullName": "Valentin Castellanos",
+        "commonName": "T. Castellanos",
+        "fullName": "Taty Castellanos",
         "positions": [
           "ST"
         ],
@@ -7467,7 +6640,7 @@
       },
       {
         "id": 264290,
-        "commonName": "Pablo Felipe",
+        "commonName": "Pablo",
         "fullName": "Pablo Felipe Pereira De Jesus",
         "positions": [
           "ST"
@@ -7496,6 +6669,22 @@
         "roles": []
       },
       {
+        "id": 229880,
+        "commonName": "A. Wan-Bissaka",
+        "fullName": "Aaron Wan-Bissaka",
+        "positions": [
+          "RB",
+          "RM"
+        ],
+        "roles": [
+          "Wingback +",
+          "BalancedSupport",
+          "Layout 1",
+          "2",
+          "3"
+        ]
+      },
+      {
         "id": 245388,
         "commonName": "J. Todibo",
         "fullName": "Jean Clair Todibo",
@@ -7503,21 +6692,6 @@
           "CB"
         ],
         "roles": []
-      },
-      {
-        "id": 227927,
-        "commonName": "K. Walker-Peters",
-        "fullName": "Kyle Walker-Peters",
-        "positions": [
-          "RB",
-          "LB",
-          "RM"
-        ],
-        "roles": [
-          "Attacking wingback +",
-          "Support",
-          "Layout 1 2 3"
-        ]
       },
       {
         "id": 245336,
@@ -7535,11 +6709,7 @@
         "positions": [
           "LB"
         ],
-        "roles": [
-          "Fullback +",
-          "Versatile",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 193105,
@@ -7553,15 +6723,12 @@
       {
         "id": 213956,
         "commonName": "Adama Traoré",
-        "fullName": "Adama Traoré Diarra",
+        "fullName": "Adama Traore Diarra",
         "positions": [
           "RM",
           "RW"
         ],
-        "roles": [
-          "Winger +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 196978,
@@ -7600,10 +6767,7 @@
           "LW",
           "CM"
         ],
-        "roles": [
-          "Winger +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 70230,
@@ -7633,13 +6797,7 @@
           "RM",
           "RW"
         ],
-        "roles": [
-          "Poacher +",
-          "Support",
-          "Versatile",
-          "Inside forward +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 278098,
@@ -7659,11 +6817,7 @@
           "RM",
           "CM"
         ],
-        "roles": [
-          "Half-winger +",
-          "Winger +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 235844,
@@ -7685,10 +6839,7 @@
           "ST",
           "LW"
         ],
-        "roles": [
-          "Winger +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 205569,
@@ -7742,14 +6893,7 @@
           "CB",
           "RB"
         ],
-        "roles": [
-          "Wide back +",
-          "Aggressive",
-          "Support",
-          "Fullback +",
-          "Versatile",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 243908,
@@ -7779,15 +6923,7 @@
           "CB",
           "CM"
         ],
-        "roles": [
-          "Fullback +",
-          "Versatile",
-          "Inverted wingback +",
-          "Build-up",
-          "Ball-playing defender +",
-          "Aggressive",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 199503,
@@ -7796,33 +6932,6 @@
         "positions": [
           "DM",
           "CM"
-        ],
-        "roles": []
-      },
-      {
-        "id": 275048,
-        "commonName": "C. Talbi",
-        "fullName": "Chemsdine Talbi",
-        "positions": [
-          "RW",
-          "RM",
-          "LM"
-        ],
-        "roles": [
-          "Winger +",
-          "Versatile",
-          "Inside forward +",
-          "Layout 1 2 3"
-        ]
-      },
-      {
-        "id": 264293,
-        "commonName": "H. Diarra",
-        "fullName": "Habib Diarra",
-        "positions": [
-          "CM",
-          "AM",
-          "DM"
         ],
         "roles": []
       },
@@ -7838,22 +6947,37 @@
         "roles": []
       },
       {
+        "id": 275048,
+        "commonName": "C. Talbi",
+        "fullName": "Chemsdine Talbi",
+        "positions": [
+          "RW",
+          "RM",
+          "LM"
+        ],
+        "roles": []
+      },
+      {
         "id": 246350,
         "commonName": "E. Le Fée",
-        "fullName": "Enzo Le Fée",
+        "fullName": "Enzo Le Fee",
         "positions": [
           "CM",
           "LM",
           "AM"
         ],
-        "roles": [
-          "Half-winger +",
-          "Support",
-          "Wide playmaker +",
-          "Build-up",
-          "Playmaker +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
+      },
+      {
+        "id": 264293,
+        "commonName": "H. Diarra",
+        "fullName": "Habib Diarra",
+        "positions": [
+          "CM",
+          "AM",
+          "DM"
+        ],
+        "roles": []
       },
       {
         "id": 251810,
@@ -7873,22 +6997,26 @@
           "CM",
           "RM"
         ],
-        "roles": [
-          "Playmaker +",
-          "Build-up",
-          "Box-to-Box +",
-          "Ball-winning",
-          "Inside forward +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
-        "id": 71493,
-        "commonName": "H. Jones",
-        "fullName": "Harrison Jones",
+        "id": 264205,
+        "commonName": "N. Angulo",
+        "fullName": "Nilson Angulo",
         "positions": [
-          "AM",
-          "CM"
+          "LM",
+          "RM",
+          "LW"
+        ],
+        "roles": []
+      },
+      {
+        "id": 83236,
+        "commonName": "J. Ta Bi",
+        "fullName": "Jocelin Ta Bi",
+        "positions": [
+          "RM",
+          "RW"
         ],
         "roles": []
       },
@@ -7899,11 +7027,7 @@
         "positions": [
           "LB"
         ],
-        "roles": [
-          "Fullback +",
-          "Versatile",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 241187,
@@ -7917,11 +7041,13 @@
         ],
         "roles": [
           "Wide back +",
-          "Aggressive",
-          "Support",
+          "DefendAggressiveSupport",
           "Wingback +",
+          "BalancedSupport",
           "Centre-half +",
-          "Layout 1 2 3"
+          "Layout 1",
+          "2",
+          "3"
         ]
       },
       {
@@ -7932,19 +7058,6 @@
           "CB"
         ],
         "roles": []
-      },
-      {
-        "id": 256831,
-        "commonName": "D. Cirkin",
-        "fullName": "Dennis Cirkin",
-        "positions": [
-          "LB"
-        ],
-        "roles": [
-          "Fullback +",
-          "Versatile",
-          "Layout 1 2 3"
-        ]
       },
       {
         "id": 259987,
@@ -7974,13 +7087,26 @@
           "LM",
           "RW"
         ],
-        "roles": [
-          "Poacher +",
-          "Support",
-          "Versatile",
-          "Inside forward +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
+      },
+      {
+        "id": 256831,
+        "commonName": "D. Cirkin",
+        "fullName": "Dennis Cirkin",
+        "positions": [
+          "LB"
+        ],
+        "roles": []
+      },
+      {
+        "id": 71493,
+        "commonName": "H. Jones",
+        "fullName": "Harrison Jones",
+        "positions": [
+          "AM",
+          "CM"
+        ],
+        "roles": []
       },
       {
         "id": 194150,
@@ -8011,13 +7137,7 @@
           "LW",
           "RM"
         ],
-        "roles": [
-          "Winger +",
-          "Versatile",
-          "Wide playmaker +",
-          "Build-up",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 274219,
@@ -8031,15 +7151,12 @@
       {
         "id": 207948,
         "commonName": "B. Traoré",
-        "fullName": "Bertrand Traoré",
+        "fullName": "Bertrand Traore",
         "positions": [
           "RW",
           "RM"
         ],
-        "roles": [
-          "Inside forward +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 268903,
@@ -8050,43 +7167,7 @@
           "LM",
           "RW"
         ],
-        "roles": [
-          "Winger +",
-          "Versatile",
-          "Inside forward +",
-          "Layout 1 2 3"
-        ]
-      },
-      {
-        "id": 264205,
-        "commonName": "N. Angulo",
-        "fullName": "Nilson Angulo",
-        "positions": [
-          "LM",
-          "RM",
-          "LW"
-        ],
-        "roles": [
-          "Winger +",
-          "Wide playmaker +",
-          "Build-up",
-          "Layout 1 2 3"
-        ]
-      },
-      {
-        "id": 83236,
-        "commonName": "J. Ta Bi",
-        "fullName": "Jocelin Ta Bi",
-        "positions": [
-          "RM",
-          "RW"
-        ],
-        "roles": [
-          "Winger +",
-          "Inside forward +",
-          "Versatile",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 279028,
@@ -8115,11 +7196,7 @@
           "RB",
           "DM"
         ],
-        "roles": [
-          "Defender +",
-          "Falseback +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 260779,
@@ -8130,12 +7207,7 @@
           "LM",
           "RW"
         ],
-        "roles": [
-          "Winger +",
-          "Versatile",
-          "Inside forward +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 258483,
@@ -8150,19 +7222,12 @@
       {
         "id": 257270,
         "commonName": "T. Pembélé",
-        "fullName": "Timothée Pembélé",
+        "fullName": "Timothee Pembele",
         "positions": [
           "RB",
           "CB"
         ],
-        "roles": [
-          "Fullback +",
-          "Versatile",
-          "Wide back +",
-          "Aggressive",
-          "Support",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 253969,
@@ -8172,13 +7237,7 @@
           "LB",
           "CB"
         ],
-        "roles": [
-          "Fullback +",
-          "Versatile",
-          "Stopper +",
-          "Aggressive",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 251521,
@@ -8191,8 +7250,10 @@
         ],
         "roles": [
           "Wingback +",
-          "Support",
-          "Layout 1 2 3"
+          "BalancedSupport",
+          "Layout 1",
+          "2",
+          "3"
         ]
       },
       {
@@ -8224,13 +7285,7 @@
           "CB",
           "CM"
         ],
-        "roles": [
-          "Inverted wingback +",
-          "Build-up",
-          "Stopper +",
-          "Aggressive",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 216464,
@@ -8241,13 +7296,7 @@
           "DM",
           "RM"
         ],
-        "roles": [
-          "Deep-Lying playmaker +",
-          "Build-up",
-          "Centre-half +",
-          "Wide playmaker +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 212491,
@@ -8259,9 +7308,12 @@
         ],
         "roles": [
           "Attacking wingback +",
-          "Support",
+          "SupportAttack",
           "Inside forward +",
-          "Layout 1 2 3"
+          "BalancedAttack",
+          "Layout 1",
+          "2",
+          "3"
         ]
       },
       {
@@ -8282,13 +7334,7 @@
           "LM",
           "LW"
         ],
-        "roles": [
-          "Advanced forward +",
-          "Support",
-          "Versatile",
-          "Inside forward +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       }
     ]
   },
@@ -8315,8 +7361,10 @@
         ],
         "roles": [
           "Wingback +",
-          "Support",
-          "Layout 1 2 3"
+          "BalancedSupport",
+          "Layout 1",
+          "2",
+          "3"
         ]
       },
       {
@@ -8328,19 +7376,12 @@
           "LB",
           "CB"
         ],
-        "roles": [
-          "Fullback +",
-          "Versatile",
-          "Ball-playing defender +",
-          "Build-up",
-          "Aggressive",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
-        "id": 229266,
-        "commonName": "J. Rodon",
-        "fullName": "Joe Rodon",
+        "id": 244238,
+        "commonName": "J. Bijol",
+        "fullName": "Jaka Bijol",
         "positions": [
           "CB"
         ],
@@ -8366,11 +7407,14 @@
         ],
         "roles": [
           "Attacking wingback +",
-          "Support",
+          "SupportAttack",
           "Wingback +",
+          "BalancedSupport",
           "Wide back +",
-          "Aggressive",
-          "Layout 1 2 3"
+          "DefendAggressiveSupport",
+          "Layout 1",
+          "2",
+          "3"
         ]
       },
       {
@@ -8385,22 +7429,14 @@
         "roles": []
       },
       {
-        "id": 247361,
-        "commonName": "B. Aaronson",
-        "fullName": "Brenden Aaronson",
+        "id": 236764,
+        "commonName": "A. Tanaka",
+        "fullName": "Ao Tanaka",
         "positions": [
-          "RW",
-          "AM",
-          "CM",
-          "RM"
+          "DM",
+          "CM"
         ],
-        "roles": [
-          "Wide playmaker +",
-          "Build-up",
-          "Shadow striker +",
-          "Deep-Lying playmaker +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 257191,
@@ -8440,20 +7476,17 @@
           "RW",
           "RM"
         ],
-        "roles": [
-          "Inside forward +",
-          "Winger +",
-          "Versatile",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
-        "id": 236764,
-        "commonName": "A. Tanaka",
-        "fullName": "Ao Tanaka",
+        "id": 247361,
+        "commonName": "B. Aaronson",
+        "fullName": "Brenden Aaronson",
         "positions": [
-          "DM",
-          "CM"
+          "RW",
+          "AM",
+          "CM",
+          "RM"
         ],
         "roles": []
       },
@@ -8468,19 +7501,20 @@
         "roles": []
       },
       {
-        "id": 248384,
-        "commonName": "I. Gruev",
-        "fullName": "Ilia Gruev",
+        "id": 269495,
+        "commonName": "F. Buonanotte",
+        "fullName": "Facundo Buonanotte",
         "positions": [
-          "DM",
+          "AM",
+          "RM",
           "CM"
         ],
         "roles": []
       },
       {
-        "id": 244238,
-        "commonName": "J. Bijol",
-        "fullName": "Jaka Bijol",
+        "id": 229266,
+        "commonName": "J. Rodon",
+        "fullName": "Joe Rodon",
         "positions": [
           "CB"
         ],
@@ -8513,12 +7547,7 @@
           "LM",
           "RW"
         ],
-        "roles": [
-          "Wide playmaker +",
-          "Build-up",
-          "Inside forward +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 230084,
@@ -8539,22 +7568,6 @@
         "roles": []
       },
       {
-        "id": 269495,
-        "commonName": "F. Buonanotte",
-        "fullName": "Facundo Buonanotte",
-        "positions": [
-          "AM",
-          "RM",
-          "CM"
-        ],
-        "roles": [
-          "Playmaker +",
-          "Build-up",
-          "Inside forward +",
-          "Layout 1 2 3"
-        ]
-      },
-      {
         "id": 208892,
         "commonName": "S. Byram",
         "fullName": "Sam Byram",
@@ -8565,8 +7578,10 @@
         ],
         "roles": [
           "Wingback +",
-          "Support",
-          "Layout 1 2 3"
+          "BalancedSupport",
+          "Layout 1",
+          "2",
+          "3"
         ]
       },
       {
@@ -8587,11 +7602,7 @@
           "RM",
           "CM"
         ],
-        "roles": [
-          "Playmaker +",
-          "Build-up",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 203215,
@@ -8599,6 +7610,16 @@
         "fullName": "Alex Cairns",
         "positions": [
           "GK"
+        ],
+        "roles": []
+      },
+      {
+        "id": 248384,
+        "commonName": "I. Gruev",
+        "fullName": "Ilia Gruev",
+        "positions": [
+          "DM",
+          "CM"
         ],
         "roles": []
       },
@@ -8611,13 +7632,7 @@
           "RM",
           "RW"
         ],
-        "roles": [
-          "Poacher +",
-          "Support",
-          "Versatile",
-          "Inside forward +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 256776,
@@ -8631,8 +7646,10 @@
         ],
         "roles": [
           "Wingback +",
-          "Support",
-          "Layout 1 2 3"
+          "BalancedSupport",
+          "Layout 1",
+          "2",
+          "3"
         ]
       },
       {
@@ -8645,65 +7662,41 @@
           "ST",
           "CM"
         ],
-        "roles": [
-          "Playmaker +",
-          "Build-up",
-          "Inside forward +",
-          "Poacher +",
-          "Support",
-          "Versatile",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 243134,
         "commonName": "L. Ramazani",
         "fullName": "Largie Ramazani",
         "positions": [
+          "LW",
           "LM",
-          "ST",
-          "RM",
-          "LW"
+          "RM"
         ],
-        "roles": [
-          "Inside forward +",
-          "Winger +",
-          "False 9 +",
-          "Build-up",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 232080,
         "commonName": "J. Harrison",
         "fullName": "Jack Harrison",
         "positions": [
-          "LW",
           "RW",
-          "LM"
+          "LW",
+          "LM",
+          "RM"
         ],
-        "roles": [
-          "Winger +",
-          "Versatile",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 231838,
         "commonName": "M. Wöber",
-        "fullName": "Maximilian Wöber",
+        "fullName": "Maximilian Wober",
         "positions": [
           "CB",
           "LB",
           "DM"
         ],
-        "roles": [
-          "Wide back +",
-          "Aggressive",
-          "Support",
-          "Falseback +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 78258,
@@ -8714,13 +7707,7 @@
           "LM",
           "LW"
         ],
-        "roles": [
-          "Advanced forward +",
-          "Support",
-          "Versatile",
-          "Inside forward +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       }
     ]
   },
@@ -8745,37 +7732,16 @@
           "RB",
           "CM"
         ],
-        "roles": [
-          "Inverted wingback +",
-          "Build-up",
-          "Falseback +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 272777,
         "commonName": "B. Humphreys",
         "fullName": "Bashir Humphreys",
         "positions": [
-          "LB",
           "CB",
+          "LB",
           "RB"
-        ],
-        "roles": [
-          "Fullback +",
-          "Versatile",
-          "Ball-playing defender +",
-          "Build-up",
-          "Aggressive",
-          "Layout 1 2 3"
-        ]
-      },
-      {
-        "id": 230708,
-        "commonName": "J. Worrall",
-        "fullName": "Joe Worrall",
-        "positions": [
-          "CB"
         ],
         "roles": []
       },
@@ -8789,18 +7755,62 @@
         "roles": []
       },
       {
-        "id": 277068,
-        "commonName": "Lucas Pires",
-        "fullName": "Lucas Pires Silva",
+        "id": 271121,
+        "commonName": "Q. Hartman",
+        "fullName": "Quilindschy Hartman",
         "positions": [
           "LB",
           "LM"
         ],
         "roles": [
           "Wingback +",
-          "Support",
-          "Layout 1 2 3"
+          "BalancedSupport",
+          "Layout 1",
+          "2",
+          "3"
         ]
+      },
+      {
+        "id": 205569,
+        "commonName": "J. Ward-Prowse",
+        "fullName": "James Ward Prowse",
+        "positions": [
+          "CM",
+          "DM",
+          "AM"
+        ],
+        "roles": []
+      },
+      {
+        "id": 234569,
+        "commonName": "Florentino",
+        "fullName": "Florentino Morris Luis",
+        "positions": [
+          "DM",
+          "CM"
+        ],
+        "roles": []
+      },
+      {
+        "id": 235619,
+        "commonName": "M. Edwards",
+        "fullName": "Marcus Edwards",
+        "positions": [
+          "RM",
+          "RW"
+        ],
+        "roles": []
+      },
+      {
+        "id": 243669,
+        "commonName": "J. Anthony",
+        "fullName": "Jaidon Anthony",
+        "positions": [
+          "LM",
+          "RM",
+          "LW"
+        ],
+        "roles": []
       },
       {
         "id": 257084,
@@ -8814,31 +7824,6 @@
         "roles": []
       },
       {
-        "id": 258171,
-        "commonName": "Hannibal",
-        "fullName": "Hannibal Mejbri",
-        "positions": [
-          "CM",
-          "AM"
-        ],
-        "roles": []
-      },
-      {
-        "id": 235619,
-        "commonName": "M. Edwards",
-        "fullName": "Marcus Edwards",
-        "positions": [
-          "RM",
-          "RW"
-        ],
-        "roles": [
-          "Wide playmaker +",
-          "Build-up",
-          "Inside forward +",
-          "Layout 1 2 3"
-        ]
-      },
-      {
         "id": 239373,
         "commonName": "Z. Flemming",
         "fullName": "Zian Flemming",
@@ -8848,26 +7833,12 @@
         "roles": []
       },
       {
-        "id": 243669,
-        "commonName": "J. Anthony",
-        "fullName": "Jaidon Anthony",
+        "id": 258171,
+        "commonName": "Hannibal",
+        "fullName": "Hannibal Mejbri",
         "positions": [
-          "LM",
-          "RM",
-          "LW"
-        ],
-        "roles": [
-          "Inside forward +",
-          "Layout 1 2 3"
-        ]
-      },
-      {
-        "id": 234569,
-        "commonName": "Florentino",
-        "fullName": "Florentino Morris Luis",
-        "positions": [
-          "DM",
-          "CM"
+          "CM",
+          "AM"
         ],
         "roles": []
       },
@@ -8891,12 +7862,7 @@
           "RM",
           "LW"
         ],
-        "roles": [
-          "Inside forward +",
-          "Wide playmaker +",
-          "Build-up",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 264880,
@@ -8907,41 +7873,32 @@
           "ST",
           "RW"
         ],
-        "roles": [
-          "Winger +",
-          "Poacher +",
-          "Support",
-          "Versatile",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
-        "id": 271121,
-        "commonName": "Q. Hartman",
-        "fullName": "Quilindschy Hartman",
+        "id": 277068,
+        "commonName": "Lucas Pires",
+        "fullName": "Lucas Pires Silva",
         "positions": [
           "LB",
           "LM"
         ],
         "roles": [
           "Wingback +",
-          "Support",
-          "Layout 1 2 3"
+          "BalancedSupport",
+          "Layout 1",
+          "2",
+          "3"
         ]
       },
       {
-        "id": 231485,
-        "commonName": "A. Tuanzebe",
-        "fullName": "Axel Tuanzebe",
+        "id": 252316,
+        "commonName": "H. Ekdal",
+        "fullName": "Hjalmar Ekdal",
         "positions": [
-          "CB",
-          "RB"
+          "CB"
         ],
-        "roles": [
-          "Stopper +",
-          "Aggressive",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 269096,
@@ -8970,32 +7927,34 @@
           "LM",
           "LW"
         ],
-        "roles": [
-          "Target forward +",
-          "Wide",
-          "False 9 +",
-          "Build-up",
-          "Inside forward +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
-        "id": 205569,
-        "commonName": "J. Ward-Prowse",
-        "fullName": "James Ward Prowse",
+        "id": 231485,
+        "commonName": "A. Tuanzebe",
+        "fullName": "Axel Tuanzebe",
         "positions": [
-          "CM",
-          "DM",
-          "AM"
+          "CB",
+          "RB"
         ],
         "roles": []
       },
       {
-        "id": 252316,
-        "commonName": "H. Ekdal",
-        "fullName": "Hjalmar Ekdal",
+        "id": 230708,
+        "commonName": "J. Worrall",
+        "fullName": "Joe Worrall",
         "positions": [
           "CB"
+        ],
+        "roles": []
+      },
+      {
+        "id": 253150,
+        "commonName": "M. Trésor",
+        "fullName": "Mike Tresor",
+        "positions": [
+          "LM",
+          "LW"
         ],
         "roles": []
       },
@@ -9010,6 +7969,16 @@
         "roles": []
       },
       {
+        "id": 262642,
+        "commonName": "Z. Amdouni",
+        "fullName": "Zeki Amdouni",
+        "positions": [
+          "ST",
+          "AM"
+        ],
+        "roles": []
+      },
+      {
         "id": 273927,
         "commonName": "E. Agyei",
         "fullName": "Enock Agyei",
@@ -9017,10 +7986,7 @@
           "RM",
           "RW"
         ],
-        "roles": [
-          "Winger +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 202617,
@@ -9042,16 +8008,6 @@
         "roles": []
       },
       {
-        "id": 262642,
-        "commonName": "Z. Amdouni",
-        "fullName": "Zeki Amdouni",
-        "positions": [
-          "ST",
-          "AM"
-        ],
-        "roles": []
-      },
-      {
         "id": 225147,
         "commonName": "C. Roberts",
         "fullName": "Connor Roberts",
@@ -9059,12 +8015,7 @@
           "RB",
           "CM"
         ],
-        "roles": [
-          "Inverted wingback +",
-          "Build-up",
-          "Falseback +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 242660,
@@ -9074,19 +8025,6 @@
           "CB"
         ],
         "roles": []
-      },
-      {
-        "id": 253150,
-        "commonName": "M. Trésor",
-        "fullName": "Mike Trésor",
-        "positions": [
-          "LM",
-          "LW"
-        ],
-        "roles": [
-          "Winger +",
-          "Layout 1 2 3"
-        ]
       },
       {
         "id": 273619,
@@ -9104,13 +8042,9 @@
         "positions": [
           "LM",
           "LW",
-          "RW"
+          "RM"
         ],
-        "roles": [
-          "Winger +",
-          "Versatile",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 271065,
@@ -9119,7 +8053,6 @@
         "positions": [
           "CM",
           "AM",
-          "RW",
           "DM"
         ],
         "roles": []
@@ -9133,14 +8066,7 @@
           "LM",
           "CM"
         ],
-        "roles": [
-          "Playmaker +",
-          "Build-up",
-          "Wide playmaker +",
-          "Half-winger +",
-          "Support",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 266041,
@@ -9151,14 +8077,7 @@
           "LW",
           "RM"
         ],
-        "roles": [
-          "Wide playmaker +",
-          "Build-up",
-          "Winger +",
-          "Versatile",
-          "Inside forward +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 264505,
@@ -9170,29 +8089,25 @@
         ],
         "roles": [
           "Wingback +",
-          "Support",
+          "BalancedSupport",
           "Winger +",
-          "Layout 1 2 3"
+          "BalancedAttack",
+          "Layout 1",
+          "2",
+          "3"
         ]
       },
       {
         "id": 261766,
         "commonName": "A. Hountondji",
-        "fullName": "Andréas Hountondji",
+        "fullName": "Andreas Hountondji",
         "positions": [
           "ST",
           "RM",
           "LM",
           "RW"
         ],
-        "roles": [
-          "Poacher +",
-          "Support",
-          "Versatile",
-          "Advanced forward +",
-          "Inside forward +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 260099,
@@ -9201,13 +8116,7 @@
         "positions": [
           "RB"
         ],
-        "roles": [
-          "Fullback +",
-          "Versatile",
-          "Inverted wingback +",
-          "Build-up",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 242265,
@@ -9254,8 +8163,10 @@
         ],
         "roles": [
           "Wingback +",
-          "Support",
-          "Layout 1 2 3"
+          "BalancedSupport",
+          "Layout 1",
+          "2",
+          "3"
         ]
       },
       {
@@ -9297,9 +8208,12 @@
         ],
         "roles": [
           "Attacking wingback +",
-          "Support",
+          "SupportAttack",
           "Wingback +",
-          "Layout 1 2 3"
+          "BalancedSupport",
+          "Layout 1",
+          "2",
+          "3"
         ]
       },
       {
@@ -9394,11 +8308,14 @@
         ],
         "roles": [
           "Wide back +",
-          "Aggressive",
-          "Support",
+          "DefendAggressiveSupport",
           "Defender +",
+          "DefendBalanced",
           "Wingback +",
-          "Layout 1 2 3"
+          "BalancedSupport",
+          "Layout 1",
+          "2",
+          "3"
         ]
       },
       {
@@ -9411,9 +8328,12 @@
         ],
         "roles": [
           "Attacking wingback +",
-          "Support",
+          "SupportAttack",
           "Wingback +",
-          "Layout 1 2 3"
+          "BalancedSupport",
+          "Layout 1",
+          "2",
+          "3"
         ]
       },
       {
@@ -9426,14 +8346,16 @@
         ],
         "roles": [
           "Attacking wingback +",
-          "Support",
-          "Layout 1 2 3"
+          "SupportAttack",
+          "Layout 1",
+          "2",
+          "3"
         ]
       },
       {
-        "id": 206075,
-        "commonName": "S. Johnstone",
-        "fullName": "Sam Johnstone",
+        "id": 198350,
+        "commonName": "D. Bentley",
+        "fullName": "Daniel Bentley",
         "positions": [
           "GK"
         ],
@@ -9448,12 +8370,7 @@
           "LM",
           "RM"
         ],
-        "roles": [
-          "Winger +",
-          "Versatile",
-          "Inside forward +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 226380,
@@ -9465,13 +8382,7 @@
           "RW",
           "LM"
         ],
-        "roles": [
-          "Poacher +",
-          "Support",
-          "Versatile",
-          "Inside forward +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 75772,
@@ -9482,32 +8393,24 @@
           "AM",
           "RM"
         ],
-        "roles": [
-          "Winger +",
-          "Versatile",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 274377,
         "commonName": "E. González",
-        "fullName": "Enso González",
+        "fullName": "Enso Gonzalez",
         "positions": [
           "LW",
           "RW",
           "AM",
           "LM"
         ],
-        "roles": [
-          "Winger +",
-          "Versatile",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
-        "id": 198350,
-        "commonName": "D. Bentley",
-        "fullName": "Daniel Bentley",
+        "id": 206075,
+        "commonName": "S. Johnstone",
+        "fullName": "Sam Johnstone",
         "positions": [
           "GK"
         ],
@@ -9523,13 +8426,7 @@
           "RM",
           "LB"
         ],
-        "roles": [
-          "Wide midfielder +",
-          "Support",
-          "Build-up",
-          "Playmaker +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 264622,
@@ -9561,10 +8458,12 @@
         ],
         "roles": [
           "Wide back +",
-          "Aggressive",
-          "Support",
+          "DefendAggressiveSupport",
           "Wingback +",
-          "Layout 1 2 3"
+          "BalancedSupport",
+          "Layout 1",
+          "2",
+          "3"
         ]
       },
       {
@@ -9598,9 +8497,12 @@
         ],
         "roles": [
           "Wingback +",
-          "Support",
+          "BalancedSupport",
           "Winger +",
-          "Layout 1 2 3"
+          "BalancedAttack",
+          "Layout 1",
+          "2",
+          "3"
         ]
       },
       {
@@ -9626,20 +8528,14 @@
       {
         "id": 75628,
         "commonName": "Fer López",
-        "fullName": "Fernando López González",
+        "fullName": "Fernando Lopez Gonzalez",
         "positions": [
           "RW",
           "AM",
           "CM",
           "RM"
         ],
-        "roles": [
-          "Wide playmaker +",
-          "Build-up",
-          "Playmaker +",
-          "Deep-Lying playmaker +",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       },
       {
         "id": 72031,
@@ -9651,11 +8547,7 @@
           "RB",
           "CM"
         ],
-        "roles": [
-          "Holding +",
-          "Ball-winning",
-          "Layout 1 2 3"
-        ]
+        "roles": []
       }
     ]
   }

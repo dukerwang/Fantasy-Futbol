@@ -50,11 +50,15 @@ const POS_MAP = {
 };
 
 function normalizeName(name) {
+  if (!name) return '';
   return name
     .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[\u0300-\u036f]/g, '') // Remove diacritics
     .toLowerCase()
-    .replace(/[^a-z0-9 ]/g, '')
+    .replace(/ß/g, 'ss')             // German Eszett
+    .replace(/-/g, ' ')              // Replace hyphens with space
+    .replace(/[^a-z0-9 ]/g, '')      // Strip other non-alphanumeric except spaces
+    .replace(/\s+/g, ' ')            // Normalize multiple spaces
     .trim();
 }
 
@@ -89,23 +93,34 @@ async function main() {
     return `${parts[0]} ${parts[parts.length - 1]}`;
   }
 
-  // Build name lookup — index every variant: full, web, and first+last shorthand
+  // Build name lookup — index every variant: full, web, first+last, and reversed 2-word names
   const nameMap = new Map();
-  const nameList = [];
   function addToMap(key, player) {
     if (!key) return;
     if (!nameMap.has(key)) {
       nameMap.set(key, player);
-      nameList.push(key);
     }
   }
   for (const p of dbPlayers) {
     const normFull = normalizeName(p.name);
     const normWeb = p.web_name ? normalizeName(p.web_name) : null;
+    
     addToMap(normFull, p);
     addToMap(normWeb, p);
     addToMap(firstLast(normFull), p);
     if (normWeb) addToMap(firstLast(normWeb), p);
+
+    // Reverse 2-word names to support order variations (e.g. Endo Wataru <-> Wataru Endo)
+    const fullParts = normFull.split(' ').filter(Boolean);
+    if (fullParts.length === 2) {
+      addToMap(`${fullParts[1]} ${fullParts[0]}`, p);
+    }
+    if (normWeb) {
+      const webParts = normWeb.split(' ').filter(Boolean);
+      if (webParts.length === 2) {
+        addToMap(`${webParts[1]} ${webParts[0]}`, p);
+      }
+    }
   }
 
   // Process each sofifa player
@@ -214,6 +229,7 @@ async function main() {
       'Valentín Mariano José Castellanos Giménez': 'Valentín Castellanos',
       'Abdul-Nasir Oluwatosin Oluwadoyinsolami Adarabioyo': 'Tosin Adarabioyo',
       'Eli Junior Eric Anat Kroupi': 'Junior Kroupi',
+      'Eli Junior Kroupi': 'Junior Kroupi',
       'Adilson Angel Abreu de Almeida Gomés': 'Angel Gomes',
       'James William McConnell': 'James McConnell',
       'Lewis William Orford': 'Lewis Orford'
@@ -229,17 +245,7 @@ async function main() {
       dbMatch = nameMap.get(overrideName) ?? null;
     }
 
-    if (!dbMatch) {
-      // Fuzzy fallback
-      for (const candidate of candidates) {
-        if (nameList.length === 0) continue;
-        const { bestMatch } = stringSimilarity.findBestMatch(candidate, nameList);
-        if (bestMatch.rating > 0.82) {
-          dbMatch = nameMap.get(bestMatch.target) ?? null;
-          break;
-        }
-      }
-    }
+    // Fuzzy matching is completely disabled to guarantee 100% precision and zero false positives.
 
     if (dbMatch) {
       matched++;

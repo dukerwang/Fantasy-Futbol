@@ -73,24 +73,46 @@ const POS_FILTER_OPTIONS: { label: string; value: PosFilter }[] = [
   })),
 ];
 
-function matchesPos(player: ShadowStatsPlayer, filter: PosFilter): boolean {
-  if (filter === 'ALL') return true;
-  if (filter === 'DEF') return DEF_POSITIONS.includes(player.primary_position);
-  if (filter === 'MID') return MID_POSITIONS.includes(player.primary_position);
-  if (filter === 'ATT') return ATT_POSITIONS.includes(player.primary_position);
-  // For specific granular positions, only match primary_position.
-  // V2 points are computed using each player's primary position weights, so
-  // including secondary-position players would mix incompatible scoring contexts
-  // and make the position-filtered ranking misleading.
-  return player.primary_position === filter;
+function groupContains(group: PosFilter, pos: GranularPosition): boolean {
+  if (group === 'ALL') return true;
+  if (group === 'GK') return pos === 'GK';
+  if (group === 'DEF') return DEF_POSITIONS.includes(pos);
+  if (group === 'MID') return MID_POSITIONS.includes(pos);
+  if (group === 'ATT') return ATT_POSITIONS.includes(pos);
+  return pos === group;
+}
+
+function resolveActivePosition(
+  player: ShadowStatsPlayer,
+  posFilter: PosFilter,
+  posType: 'primary' | 'secondary' | 'both'
+): GranularPosition | null {
+  const primary = player.primary_position;
+  const secondaries = player.secondary_positions ?? [];
+
+  if (posType === 'primary') {
+    if (groupContains(posFilter, primary)) {
+      return primary;
+    }
+  } else if (posType === 'secondary') {
+    const match = secondaries.find((pos) => groupContains(posFilter, pos));
+    if (match) return match;
+  } else if (posType === 'both') {
+    if (groupContains(posFilter, primary)) {
+      return primary;
+    }
+    const match = secondaries.find((pos) => groupContains(posFilter, pos));
+    if (match) return match;
+  }
+  return null;
 }
 
 interface Props {
   statsSeason: string;
   players: ShadowStatsPlayer[];
   shadowMaps: {
-    all: Record<string, ShadowStatsPayload>;
-    gt45: Record<string, ShadowStatsPayload>;
+    all: Record<string, Record<string, ShadowStatsPayload>>;
+    gt45: Record<string, Record<string, ShadowStatsPayload>>;
   };
 }
 
@@ -98,6 +120,8 @@ export default function ShadowStatsTable({ statsSeason, players, shadowMaps }: P
   const [search, setSearch] = useState('');
   const [posFilter, setPosFilter] = useState<PosFilter>('ALL');
   const [minMins, setMinMins] = useState<'all' | 'gt45'>('all');
+  const [minGames, setMinGames] = useState<number>(0);
+  const [posType, setPosType] = useState<'primary' | 'secondary' | 'both'>('primary');
   const [sortKey, setSortKey] = useState<SortKey>('pts_v2');
   const [sortDir, setSortDir] = useState<SortDir>('desc');
 
@@ -118,22 +142,39 @@ export default function ShadowStatsTable({ statsSeason, players, shadowMaps }: P
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    return players.filter((p) => {
-      if (q) {
-        const full = formatPlayerName(p, 'full').toLowerCase();
-        if (!full.includes(q) && !p.name.toLowerCase().includes(q)) return false;
-      }
-      if (!matchesPos(p, posFilter)) return false;
-      return true;
-    });
-  }, [players, search, posFilter]);
+    return players
+      .map((p) => {
+        const activePos = resolveActivePosition(p, posFilter, posType);
+        return { player: p, activePos };
+      })
+      .filter((item): item is { player: ShadowStatsPlayer; activePos: GranularPosition } => {
+        const { player: p, activePos } = item;
+        if (!activePos) return false;
+
+        if (q) {
+          const full = formatPlayerName(p, 'full').toLowerCase();
+          if (!full.includes(q) && !p.name.toLowerCase().includes(q)) return false;
+        }
+
+        const s = shadowByPlayer[p.id]?.[activePos];
+        const gp = s?.gp ?? 0;
+        if (gp < minGames) return false;
+
+        return true;
+      });
+  }, [players, search, posFilter, posType, shadowByPlayer, minGames]);
 
   const sorted = useMemo(() => {
     const shadowRequired = sortKey !== 'projected_points' && sortKey !== 'market_value';
 
-    return [...filtered].sort((a, b) => {
-      const sa = shadowByPlayer[a.id];
-      const sb = shadowByPlayer[b.id];
+    return [...filtered].sort((aObj, bObj) => {
+      const a = aObj.player;
+      const b = bObj.player;
+      const activePosA = aObj.activePos;
+      const activePosB = bObj.activePos;
+
+      const sa = shadowByPlayer[a.id]?.[activePosA];
+      const sb = shadowByPlayer[b.id]?.[activePosB];
 
       if (shadowRequired) {
         if (!sa && !sb) return 0;
@@ -144,44 +185,44 @@ export default function ShadowStatsTable({ statsSeason, players, shadowMaps }: P
       let av = 0;
       let bv = 0;
       if (sortKey === 'pts_v2') {
-        av = sa!.ptsV2;
-        bv = sb!.ptsV2;
+        av = sa?.ptsV2 ?? 0;
+        bv = sb?.ptsV2 ?? 0;
       } else if (sortKey === 'pts_v1') {
-        av = sa!.ptsV1;
-        bv = sb!.ptsV1;
+        av = sa?.ptsV1 ?? 0;
+        bv = sb?.ptsV1 ?? 0;
       } else if (sortKey === 'delta_pts') {
-        av = sa!.ptsV2 - sa!.ptsV1;
-        bv = sb!.ptsV2 - sb!.ptsV1;
+        av = sa ? sa.ptsV2 - sa.ptsV1 : 0;
+        bv = sb ? sb.ptsV2 - sb.ptsV1 : 0;
       } else if (sortKey === 'ppg_v2') {
-        av = sa!.ppgV2;
-        bv = sb!.ppgV2;
+        av = sa?.ppgV2 ?? 0;
+        bv = sb?.ppgV2 ?? 0;
       } else if (sortKey === 'ppg_v1') {
-        av = sa!.ppgV1;
-        bv = sb!.ppgV1;
+        av = sa?.ppgV1 ?? 0;
+        bv = sb?.ppgV1 ?? 0;
       } else if (sortKey === 'delta_ppg') {
-        av = sa!.ppgV2 - sa!.ppgV1;
-        bv = sb!.ppgV2 - sb!.ppgV1;
+        av = sa ? sa.ppgV2 - sa.ppgV1 : 0;
+        bv = sb ? sb.ppgV2 - sb.ppgV1 : 0;
       } else if (sortKey === 'p90_v2') {
-        av = sa!.p90V2;
-        bv = sb!.p90V2;
+        av = sa?.p90V2 ?? 0;
+        bv = sb?.p90V2 ?? 0;
       } else if (sortKey === 'p90_v1') {
-        av = sa!.p90V1;
-        bv = sb!.p90V1;
+        av = sa?.p90V1 ?? 0;
+        bv = sb?.p90V1 ?? 0;
       } else if (sortKey === 'delta_p90') {
-        av = sa!.p90V2 - sa!.p90V1;
-        bv = sb!.p90V2 - sb!.p90V1;
+        av = sa ? sa.p90V2 - sa.p90V1 : 0;
+        bv = sb ? sb.p90V2 - sb.p90V1 : 0;
       } else if (sortKey === 'total_minutes') {
-        av = sa!.totalMinutes ?? 0;
-        bv = sb!.totalMinutes ?? 0;
+        av = sa?.totalMinutes ?? 0;
+        bv = sb?.totalMinutes ?? 0;
       } else if (sortKey === 'avg_r_v1') {
-        av = sa!.avgRV1 ?? -1e9;
-        bv = sb!.avgRV1 ?? -1e9;
+        av = sa?.avgRV1 ?? -1e9;
+        bv = sb?.avgRV1 ?? -1e9;
       } else if (sortKey === 'avg_r_v2') {
-        av = sa!.avgRV2;
-        bv = sb!.avgRV2;
+        av = sa?.avgRV2 ?? 0;
+        bv = sb?.avgRV2 ?? 0;
       } else if (sortKey === 'delta_avg_r') {
-        av = sa!.avgRV1 != null ? sa!.avgRV2 - sa!.avgRV1 : -1e9;
-        bv = sb!.avgRV1 != null ? sb!.avgRV2 - sb!.avgRV1 : -1e9;
+        av = sa && sa.avgRV1 != null ? sa.avgRV2 - sa.avgRV1 : -1e9;
+        bv = sb && sb.avgRV1 != null ? sb.avgRV2 - sb.avgRV1 : -1e9;
       } else if (sortKey === 'projected_points') {
         av = a.projected_points ?? -1e9;
         bv = b.projected_points ?? -1e9;
@@ -231,6 +272,45 @@ export default function ShadowStatsTable({ statsSeason, players, shadowMaps }: P
           <option value="all">All Played Games (&gt;0 mins)</option>
           <option value="gt45">Starter Games (&gt;45 mins only)</option>
         </select>
+
+        {/* Dynamic Games Played Slider */}
+        <div className={styles.sliderContainer}>
+          <span className={styles.sliderLabel}>Min Games: <strong>{minGames}</strong></span>
+          <input
+            type="range"
+            min="0"
+            max="38"
+            value={minGames}
+            onChange={(e) => setMinGames(parseInt(e.target.value))}
+            className={styles.sliderInput}
+          />
+        </div>
+
+        {/* Position Type Segmented Control */}
+        <div className={styles.segmentedToggle}>
+          <button
+            type="button"
+            className={`${styles.toggleButton} ${posType === 'primary' ? styles.activeToggle : ''}`}
+            onClick={() => setPosType('primary')}
+          >
+            Primary
+          </button>
+          <button
+            type="button"
+            className={`${styles.toggleButton} ${posType === 'secondary' ? styles.activeToggle : ''}`}
+            onClick={() => setPosType('secondary')}
+          >
+            Secondary
+          </button>
+          <button
+            type="button"
+            className={`${styles.toggleButton} ${posType === 'both' ? styles.activeToggle : ''}`}
+            onClick={() => setPosType('both')}
+          >
+            Both
+          </button>
+        </div>
+
         <span className={styles.shadowResultCount}>{sorted.length} players</span>
       </div>
 
@@ -288,8 +368,8 @@ export default function ShadowStatsTable({ statsSeason, players, shadowMaps }: P
             </tr>
           </thead>
           <tbody>
-            {sorted.map((player) => {
-              const s = shadowByPlayer[player.id];
+            {sorted.map(({ player, activePos }) => {
+              const s = shadowByPlayer[player.id]?.[activePos];
               const dPts = s ? s.ptsV2 - s.ptsV1 : null;
               const dPpg = s ? s.ppgV2 - s.ppgV1 : null;
               const dP90 = s ? s.p90V2 - s.p90V1 : null;
@@ -304,7 +384,17 @@ export default function ShadowStatsTable({ statsSeason, players, shadowMaps }: P
               return (
                 <tr key={player.id} className={styles.shadowRow}>
                   <td className={styles.shadowTdPlayer}>
-                    <PosBadge position={player.primary_position} />
+                    <div className={styles.badgeWrapper}>
+                      <PosBadge position={player.primary_position} />
+                      {player.primary_position !== activePos && (
+                        <>
+                          <span className={styles.secArrow}>→</span>
+                          <span className={styles.activeSecBadge} title={`Evaluated at secondary role: ${activePos}`}>
+                            {activePos}
+                          </span>
+                        </>
+                      )}
+                    </div>
                     <div className={styles.shadowPlayerInfo}>
                       <span className={styles.shadowPlayerName}>
                         {formatPlayerName(player, 'full')}
