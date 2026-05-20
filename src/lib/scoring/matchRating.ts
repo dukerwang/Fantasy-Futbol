@@ -163,6 +163,7 @@ function computeComponentScores(
     stats: RawStats,
     position: GranularPosition,
     refStats: Record<GranularPosition, ReferenceStats>,
+    primaryPosition?: GranularPosition,
 ): Record<RatingComponent, ComponentResult> {
     // Defensive fallback chain: position → LB/RB equivalent for LWB/RWB → defaults.
     // Should never hit the final fallback because DEFAULT_REFERENCE_STATS covers
@@ -234,12 +235,19 @@ function computeComponentScores(
     const posGroup = getPositionGroup(position);
     let csBonus = 0;
     if (stats.clean_sheet && stats.minutes_played >= 60) {
+        let baseCs = 0;
         if (posGroup === 'GK' || posGroup === 'DEF' || position === 'DM') {
-            csBonus = 12; // Full bonus for GK, DEF, and DM
+            baseCs = 12; // Full bonus for GK, DEF, and DM
         } else if (position === 'CM') {
-            csBonus = 4; // Reduced bonus for CM
+            baseCs = 4; // Reduced bonus for CM
         }
-        // AM and ATT receive 0
+        
+        // Option B: Capped CS strictly for AM playing at CB/LB/RB
+        if (primaryPosition && primaryPosition === 'AM' && ['CB', 'LB', 'RB'].includes(position)) {
+            csBonus = 0;
+        } else {
+            csBonus = baseCs;
+        }
     }
     const canGetCS = csBonus > 0;
     const xgcOutperf = Math.max(0, xgc - gc) * 5;
@@ -518,6 +526,7 @@ export function calculateMatchRating(
     stats: RawStats,
     position: GranularPosition,
     refStats: Record<GranularPosition, ReferenceStats> = DEFAULT_REFERENCE_STATS,
+    primaryPosition?: GranularPosition,
 ): MatchRating {
     // Player didn't play → zero rating
     if (stats.minutes_played === 0) {
@@ -525,7 +534,7 @@ export function calculateMatchRating(
     }
 
     // Step 1: Normalize each component to 0-1 via sigmoid
-    const components = computeComponentScores(stats, position, refStats);
+    const components = computeComponentScores(stats, position, refStats, primaryPosition);
 
     const scores: ComponentScores = {} as ComponentScores;
     for (const [k, v] of Object.entries(components)) {
@@ -541,13 +550,19 @@ export function calculateMatchRating(
     }
 
     // Step 3: Display rating (Fotmob-calibrated scale for UI)
-    const rating = curveFinalRating(composite, stats.minutes_played);
+    let rating = curveFinalRating(composite, stats.minutes_played);
 
     // Step 4: Fantasy points — uses internal scoring scale (1+9×composite),
     // completely decoupled from the display rating so points calibration is
     // never affected by display-scale adjustments.
     const scoringRating = computeScoringRating(composite, stats.minutes_played);
-    const fantasyPoints = calculateFantasyPoints(scoringRating, stats.minutes_played);
+    let fantasyPoints = calculateFantasyPoints(scoringRating, stats.minutes_played);
+
+    // Option B: Surgically narrow the penalty to AMs playing at CB/LB/RB
+    if (primaryPosition && primaryPosition === 'AM' && ['CB', 'LB', 'RB'].includes(position)) {
+        rating = rating * 0.80;
+        fantasyPoints = fantasyPoints * 0.80;
+    }
 
     return {
         rating: Math.round(rating * 10) / 10,

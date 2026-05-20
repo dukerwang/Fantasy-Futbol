@@ -122,7 +122,7 @@ async function getPlayerScores(
 
   const { data: stats } = await admin
     .from('player_stats')
-    .select('player_id, stats')
+    .select('player_id, stats, player:players(primary_position)')
     .eq('gameweek', gw)
     .in('player_id', playerIds);
 
@@ -131,10 +131,12 @@ async function getPlayerScores(
   return lineup.starters.map((starter: { player_id: string; slot: GranularPosition }) => {
     const playerStat = stats.find((s) => s.player_id === starter.player_id);
     if (playerStat?.stats) {
+      const primPos = (playerStat.player as any)?.primary_position;
       const { fantasyPoints } = calculateMatchRating(
         playerStat.stats as any,
         starter.slot,
         refStats as any,
+        primPos as GranularPosition,
       );
       return { playerId: starter.player_id, points: fantasyPoints };
     }

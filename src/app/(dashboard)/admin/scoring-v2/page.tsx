@@ -302,7 +302,7 @@ export default async function ScoringV2Page() {
         }
 
         // Dynamically calculate rating and points under this secondary position weights
-        const dynamicRating = calculateMatchRating(r.stats as any, posKey as any, refStats as any);
+        const dynamicRating = calculateMatchRating(r.stats as any, posKey as any, refStats as any, primPos as any);
 
         secAcc.gp += 1;
         secAcc.ptsV1 += Number(r.fantasy_points ?? 0);

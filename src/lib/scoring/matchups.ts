@@ -41,6 +41,7 @@ function rateAtSlot(
   stats: RawStats | null,
   slot: string,
   refStats: Record<string, ReferenceStats>,
+  primaryPosition?: string,
 ): number {
   if (!stats) return 0;
   if (!(stats.minutes_played > 0)) return 0;
@@ -48,6 +49,7 @@ function rateAtSlot(
     stats,
     slot as GranularPosition,
     refStats as Record<GranularPosition, ReferenceStats>,
+    primaryPosition as GranularPosition,
   );
   return fantasyPoints;
 }
@@ -109,11 +111,13 @@ export function calculateTeamScore(
   function getSlotPoints(playerId: string, slot: string): number {
     const record = playerRecord.get(playerId);
     if (!record) return 0;
+    const allowed = playerPositions.get(playerId) ?? [];
+    const primaryPosition = allowed[0];
     let total = 0;
     for (const fix of record.fixtures) {
       if (fix.minutes <= 0) continue;
       if (finished && fix.stats) {
-        total += rateAtSlot(fix.stats, slot, refStats);
+        total += rateAtSlot(fix.stats, slot, refStats, primaryPosition);
       } else {
         total += fix.fantasyPoints;
       }
