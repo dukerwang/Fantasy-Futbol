@@ -33,8 +33,8 @@ type ComponentScores = Record<RatingComponent, number>;
 export const FLEX_CONFIG: Record<GranularPosition, { flex: number; components: RatingComponent[] }> = {
     GK: { flex: 0.20, components: ['save_score', 'defensive'] },
     CB: { flex: 0.25, components: ['defensive', 'match_impact', 'goal_involvement'] },
-    LB: { flex: 0.25, components: ['creativity', 'match_impact', 'defensive'] },
-    RB: { flex: 0.25, components: ['creativity', 'match_impact', 'defensive'] },
+    LB: { flex: 0.25, components: ['defensive', 'creativity'] },
+    RB: { flex: 0.25, components: ['defensive', 'creativity'] },
     DM: { flex: 0.25, components: ['match_impact', 'influence', 'defensive'] },
     CM: { flex: 0.25, components: ['match_impact', 'creativity', 'influence'] },
     // Defensive is intentionally excluded from LWB/RWB flex: dc values in V2
@@ -54,8 +54,8 @@ export const FLEX_CONFIG: Record<GranularPosition, { flex: number; components: R
 export const POSITION_WEIGHTS: Record<GranularPosition, Record<RatingComponent, number>> = {
     GK: { match_impact: 0.25, influence: 0.20, creativity: 0.05, threat: 0.00, defensive: 0.15, goal_involvement: 0.00, finishing: 0.00, save_score: 0.10 },
     CB: { match_impact: 0.30, influence: 0.05, creativity: 0.05, threat: 0.00, defensive: 0.25, goal_involvement: 0.05, finishing: 0.05, save_score: 0.00 },
-    LB: { match_impact: 0.25, influence: 0.15, creativity: 0.15, threat: 0.00, defensive: 0.15, goal_involvement: 0.05, finishing: 0.00, save_score: 0.00 },
-    RB: { match_impact: 0.25, influence: 0.15, creativity: 0.15, threat: 0.00, defensive: 0.15, goal_involvement: 0.05, finishing: 0.00, save_score: 0.00 },
+    LB: { match_impact: 0.30, influence: 0.05, creativity: 0.15, threat: 0.00, defensive: 0.15, goal_involvement: 0.10, finishing: 0.00, save_score: 0.00 },
+    RB: { match_impact: 0.30, influence: 0.05, creativity: 0.15, threat: 0.00, defensive: 0.15, goal_involvement: 0.10, finishing: 0.00, save_score: 0.00 },
     DM: { match_impact: 0.30, influence: 0.25, creativity: 0.05, threat: 0.00, defensive: 0.10, goal_involvement: 0.05, finishing: 0.00, save_score: 0.00 },
     CM: { match_impact: 0.20, influence: 0.15, creativity: 0.15, threat: 0.10, defensive: 0.05, goal_involvement: 0.10, finishing: 0.00, save_score: 0.00 },
     LWB: { match_impact: 0.15, influence: 0.05, creativity: 0.20, threat: 0.05, defensive: 0.10, goal_involvement: 0.20, finishing: 0.00, save_score: 0.00 },

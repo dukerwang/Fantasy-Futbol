@@ -11,6 +11,20 @@ const path = require('path');
 const { createClient } = require('@supabase/supabase-js');
 const stringSimilarity = require('string-similarity');
 
+// Load environment variables from .env.local
+try {
+  const envPath = path.resolve(process.cwd(), '.env.local');
+  if (fs.existsSync(envPath)) {
+    const envFile = fs.readFileSync(envPath, 'utf-8');
+    for (const line of envFile.split('\n')) {
+      const match = line.match(/^\s*([\w.-]+)\s*=\s*(.*)?\s*$/);
+      if (match) {
+        process.env[match[1]] = (match[2] || '').replace(/^"|"$/g, "");
+      }
+    }
+  }
+} catch (e) {}
+
 // ── Config ───────────────────────────────────────────────────────────────────
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -232,7 +246,8 @@ async function main() {
       'Eli Junior Kroupi': 'Junior Kroupi',
       'Adilson Angel Abreu de Almeida Gomés': 'Angel Gomes',
       'James William McConnell': 'James McConnell',
-      'Lewis William Orford': 'Lewis Orford'
+      'Lewis William Orford': 'Lewis Orford',
+      'Daniel Muñoz Mejía': 'Daniel Muñoz'
     };
 
     if (!dbMatch && MANUAL_OVERRIDES[sp.full_name]) {
