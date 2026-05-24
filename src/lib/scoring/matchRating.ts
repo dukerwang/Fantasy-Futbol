@@ -33,8 +33,8 @@ type ComponentScores = Record<RatingComponent, number>;
 export const FLEX_CONFIG: Record<GranularPosition, { flex: number; components: RatingComponent[] }> = {
     GK: { flex: 0.20, components: ['save_score', 'defensive'] },
     CB: { flex: 0.25, components: ['defensive', 'match_impact', 'goal_involvement'] },
-    LB: { flex: 0.25, components: ['defensive', 'creativity'] },
-    RB: { flex: 0.25, components: ['defensive', 'creativity'] },
+    LB: { flex: 0.25, components: ['defensive', 'match_impact', 'goal_involvement'] },
+    RB: { flex: 0.25, components: ['defensive', 'match_impact', 'goal_involvement'] },
     DM: { flex: 0.25, components: ['match_impact', 'influence', 'defensive'] },
     CM: { flex: 0.25, components: ['match_impact', 'creativity', 'influence'] },
     // Defensive is intentionally excluded from LWB/RWB flex: dc values in V2
@@ -42,27 +42,27 @@ export const FLEX_CONFIG: Record<GranularPosition, { flex: number; components: R
     // quiet non-CS games, inflating scores over V1 where dc was always 0.
     // Defensive still contributes via its 0.10 base weight; flex only rewards
     // genuine creative or attacking output.
-    LWB: { flex: 0.20, components: ['creativity', 'goal_involvement'] },
-    RWB: { flex: 0.20, components: ['creativity', 'goal_involvement'] },
+    LWB: { flex: 0.25, components: ['creativity', 'threat', 'goal_involvement'] },
+    RWB: { flex: 0.25, components: ['creativity', 'threat', 'goal_involvement'] },
     AM: { flex: 0.25, components: ['creativity', 'goal_involvement', 'finishing'] },
-    LW: { flex: 0.25, components: ['goal_involvement', 'finishing', 'threat'] },
-    RW: { flex: 0.25, components: ['goal_involvement', 'finishing', 'threat'] },
+    LW: { flex: 0.25, components: ['goal_involvement', 'threat', 'creativity'] },
+    RW: { flex: 0.25, components: ['goal_involvement', 'threat', 'creativity'] },
     ST: { flex: 0.25, components: ['threat', 'goal_involvement', 'finishing'] },
 };
 
 //                                                                                                       Σ = 1.00
 export const POSITION_WEIGHTS: Record<GranularPosition, Record<RatingComponent, number>> = {
-    GK: { match_impact: 0.25, influence: 0.20, creativity: 0.05, threat: 0.00, defensive: 0.15, goal_involvement: 0.00, finishing: 0.00, save_score: 0.10 },
+    GK: { match_impact: 0.25, influence: 0.20, creativity: 0.00, threat: 0.00, defensive: 0.32, goal_involvement: 0.00, finishing: 0.00, save_score: 0.03 },
     CB: { match_impact: 0.30, influence: 0.05, creativity: 0.05, threat: 0.00, defensive: 0.25, goal_involvement: 0.05, finishing: 0.05, save_score: 0.00 },
-    LB: { match_impact: 0.30, influence: 0.05, creativity: 0.15, threat: 0.00, defensive: 0.15, goal_involvement: 0.10, finishing: 0.00, save_score: 0.00 },
-    RB: { match_impact: 0.30, influence: 0.05, creativity: 0.15, threat: 0.00, defensive: 0.15, goal_involvement: 0.10, finishing: 0.00, save_score: 0.00 },
+    LB: { match_impact: 0.30, influence: 0.05, creativity: 0.10, threat: 0.00, defensive: 0.20, goal_involvement: 0.10, finishing: 0.00, save_score: 0.00 },
+    RB: { match_impact: 0.30, influence: 0.05, creativity: 0.10, threat: 0.00, defensive: 0.20, goal_involvement: 0.10, finishing: 0.00, save_score: 0.00 },
     DM: { match_impact: 0.30, influence: 0.25, creativity: 0.05, threat: 0.00, defensive: 0.10, goal_involvement: 0.05, finishing: 0.00, save_score: 0.00 },
     CM: { match_impact: 0.20, influence: 0.15, creativity: 0.15, threat: 0.10, defensive: 0.05, goal_involvement: 0.10, finishing: 0.00, save_score: 0.00 },
-    LWB: { match_impact: 0.15, influence: 0.05, creativity: 0.20, threat: 0.05, defensive: 0.10, goal_involvement: 0.20, finishing: 0.00, save_score: 0.00 },
-    RWB: { match_impact: 0.15, influence: 0.05, creativity: 0.20, threat: 0.05, defensive: 0.10, goal_involvement: 0.20, finishing: 0.00, save_score: 0.00 },
+    LWB: { match_impact: 0.25, influence: 0.05, creativity: 0.15, threat: 0.05, defensive: 0.15, goal_involvement: 0.10, finishing: 0.00, save_score: 0.00 },
+    RWB: { match_impact: 0.25, influence: 0.05, creativity: 0.15, threat: 0.05, defensive: 0.15, goal_involvement: 0.10, finishing: 0.00, save_score: 0.00 },
     AM: { match_impact: 0.10, influence: 0.10, creativity: 0.25, threat: 0.15, defensive: 0.00, goal_involvement: 0.15, finishing: 0.00, save_score: 0.00 },
-    LW: { match_impact: 0.10, influence: 0.05, creativity: 0.10, threat: 0.05, defensive: 0.05, goal_involvement: 0.20, finishing: 0.20, save_score: 0.00 },
-    RW: { match_impact: 0.10, influence: 0.05, creativity: 0.10, threat: 0.05, defensive: 0.05, goal_involvement: 0.20, finishing: 0.20, save_score: 0.00 },
+    LW: { match_impact: 0.15, influence: 0.05, creativity: 0.05, threat: 0.10, defensive: 0.00, goal_involvement: 0.15, finishing: 0.25, save_score: 0.00 },
+    RW: { match_impact: 0.15, influence: 0.05, creativity: 0.05, threat: 0.10, defensive: 0.00, goal_involvement: 0.15, finishing: 0.25, save_score: 0.00 },
     ST: { match_impact: 0.15, influence: 0.10, creativity: 0.10, threat: 0.15, defensive: 0.00, goal_involvement: 0.15, finishing: 0.10, save_score: 0.00 },
 };
 
@@ -165,10 +165,6 @@ function computeComponentScores(
     refStats: Record<GranularPosition, ReferenceStats>,
     primaryPosition?: GranularPosition,
 ): Record<RatingComponent, ComponentResult> {
-    // Defensive fallback chain: position → LB/RB equivalent for LWB/RWB → defaults.
-    // Should never hit the final fallback because DEFAULT_REFERENCE_STATS covers
-    // all 12 granular positions, but guards against a future enum addition that
-    // skips a reference-stats seed.
     const ref = refStats[position]
         ?? (position === 'LWB' ? refStats.LB : undefined)
         ?? (position === 'RWB' ? refStats.RB : undefined)
@@ -236,8 +232,10 @@ function computeComponentScores(
     let csBonus = 0;
     if (stats.clean_sheet && stats.minutes_played >= 60) {
         let baseCs = 0;
-        if (posGroup === 'GK' || posGroup === 'DEF' || position === 'DM') {
-            baseCs = 12; // Full bonus for GK, DEF, and DM
+        if (position === 'GK') {
+            baseCs = 16; // Elevated Clean Sheet bonus for GK under Strategy A.4
+        } else if (posGroup === 'DEF' || position === 'DM') {
+            baseCs = 12; // Full bonus for DEF and DM
         } else if (position === 'CM') {
             baseCs = 4; // Reduced bonus for CM
         }
@@ -260,7 +258,7 @@ function computeComponentScores(
 
     let defActionsRaw: number;
     if (position === 'GK') {
-        defActionsRaw = 0; // GK defensive credit lives in save_score
+        defActionsRaw = recoveries * 0.5 + cbi * 0.5;
     } else if (position === 'CB') {
         defActionsRaw = tackles + cbi * 0.5;
     } else if (position === 'LB' || position === 'RB' || position === 'LWB' || position === 'RWB') {
@@ -269,13 +267,22 @@ function computeComponentScores(
         defActionsRaw = dc;
     }
 
-    const defensiveRaw = defActionsRaw + csBonus + xgcOutperf - gcPenalty;
+    let defensiveRaw: number;
+    if (position === 'GK') {
+        defensiveRaw = defActionsRaw + csBonus - gc * 4.0;
+    } else {
+        defensiveRaw = defActionsRaw + csBonus + xgcOutperf - gcPenalty;
+    }
 
     const defensive: ComponentResult = {
         score: sigmoidNormalize(defensiveRaw, ref.defensive.median, ref.defensive.stddev),
-        detail: (stats.clean_sheet && canGetCS)
-            ? `CS, ${gc} conceded vs ${xgc.toFixed(1)} xGC (DC ${dc}, T ${tackles}, CBI ${cbi}, R ${recoveries})`
-            : `${gc} conceded vs ${xgc.toFixed(1)} xGC (DC ${dc}, T ${tackles}, CBI ${cbi}, R ${recoveries})`,
+        detail: position === 'GK'
+            ? (stats.clean_sheet && canGetCS)
+                ? `CS, R ${recoveries}, CBI ${cbi}`
+                : `R ${recoveries}, CBI ${cbi}`
+            : (stats.clean_sheet && canGetCS)
+                ? `CS, ${gc} conceded vs ${xgc.toFixed(1)} xGC (DC ${dc}, T ${tackles}, CBI ${cbi}, R ${recoveries})`
+                : `${gc} conceded vs ${xgc.toFixed(1)} xGC (DC ${dc}, T ${tackles}, CBI ${cbi}, R ${recoveries})`,
     };
 
 
@@ -316,10 +323,15 @@ function computeComponentScores(
     if (position === 'GK') {
         const sv = stats.saves;
         const psav = stats.penalty_saves;
-        const saveRaw = sv * 2 + psav * 5 - Math.max(0, gc - xgc) * 2;
+        const saveRaw = sv * 2 + psav * 5;
+
+        let scoreVal = sigmoidNormalize(saveRaw, ref.save_score.median, ref.save_score.stddev);
+        if (stats.clean_sheet && stats.minutes_played >= 60) {
+            scoreVal = Math.max(scoreVal, 0.85); // CS Save Floor under Strategy A.4
+        }
 
         saveScore = {
-            score: sigmoidNormalize(saveRaw, ref.save_score.median, ref.save_score.stddev),
+            score: scoreVal,
             detail: `${sv} save(s)${psav > 0 ? `, ${psav} pen save(s)` : ''}`,
         };
     } else {
@@ -496,18 +508,18 @@ function makeRef(
 // Values below were generated from 2025-26 FPL live data (GW1-35, minutes>=45).
 //                 match_impact   influence      creativity     threat         defensive       goal_invol     finishing       save_score
 export const DEFAULT_REFERENCE_STATS: Record<GranularPosition, ReferenceStats> = {
-    GK:  makeRef([12.00, 10.44], [21.20, 12.83], [ 0.00,  2.18], [ 0.00,  2.38], [ 0.50,  9.02], [0.00, 0.35], [ 0.000, 0.04], [4.00, 3.94]),
-    CB:  makeRef([10.00, 10.12], [20.20, 12.28], [ 1.40,  6.72], [ 2.00, 10.33], [ 5.60,  9.37], [0.00, 1.55], [-0.010, 0.22], [0.00, 1.00]),
-    LB:  makeRef([11.00, 10.43], [16.00, 10.60], [ 7.90, 12.48], [ 4.00,  9.55], [ 8.60,  9.64], [0.00, 1.62], [-0.028, 0.20], [0.00, 1.00]),
-    RB:  makeRef([11.00, 10.14], [15.30, 12.11], [ 6.80, 12.08], [ 2.00,  7.87], [ 9.95, 10.07], [0.00, 1.72], [-0.018, 0.22], [0.00, 1.00]),
-    LWB: makeRef([ 9.00, 10.29], [14.60, 11.00], [11.15, 13.75], [ 4.00,  9.54], [ 8.85,  9.87], [0.00, 1.67], [-0.025, 0.21], [0.00, 1.00]),
-    RWB: makeRef([10.00, 10.02], [14.00, 11.72], [11.20, 13.66], [ 2.00,  8.86], [ 8.75,  9.94], [0.00, 1.92], [-0.020, 0.25], [0.00, 1.00]),
-    DM:  makeRef([14.00,  6.84], [13.40, 13.15], [10.35, 13.71], [ 2.00,  9.82], [10.90, 10.08], [0.00, 2.08], [-0.025, 0.28], [0.00, 1.00]),
-    CM:  makeRef([13.00,  6.83], [11.80, 14.36], [14.80, 16.49], [ 6.00, 11.54], [ 7.85,  7.37], [0.00, 2.45], [-0.045, 0.32], [0.00, 1.00]),
-    AM:  makeRef([12.00,  7.63], [11.20, 19.34], [17.10, 18.95], [12.00, 15.09], [ 6.10,  5.94], [0.00, 3.41], [-0.065, 0.45], [0.00, 1.00]),
-    LW:  makeRef([ 9.00,  7.49], [ 8.80, 16.47], [14.40, 15.37], [12.00, 16.02], [ 5.68,  5.60], [0.00, 2.85], [-0.070, 0.38], [0.00, 1.00]),
-    RW:  makeRef([10.00,  6.95], [10.60, 16.30], [15.80, 16.17], [17.00, 15.91], [ 5.73,  5.54], [0.00, 3.01], [-0.060, 0.40], [0.00, 1.00]),
-    ST:  makeRef([ 7.00,  9.26], [ 7.20, 20.66], [ 6.10,  9.43], [19.00, 21.80], [ 3.95,  5.35], [0.00, 3.76], [-0.040, 0.47], [0.00, 1.00]),
+    GK:  makeRef([12.00, 10.17], [21.00, 12.42], [ 0.00,  2.08], [ 0.00,  1.29], [ 3.50, 10.72], [0.00, 0.33], [ 0.000, 0.04], [ 6.00,  4.55]),
+    CB:  makeRef([10.00,  9.84], [20.00, 11.85], [ 1.40,  6.41], [ 2.00, 10.33], [ 8.80,  9.19], [0.00, 1.55], [-0.010, 0.22], [0.00, 1.00]),
+    LB:  makeRef([10.00,  9.86], [14.80, 10.64], [ 8.30, 12.79], [ 2.00,  8.82], [12.45,  9.79], [0.00, 1.66], [-0.020, 0.22], [0.00, 1.00]),
+    RB:  makeRef([10.00,  9.86], [14.80, 10.64], [ 8.30, 12.79], [ 2.00,  8.82], [12.45,  9.79], [0.00, 1.66], [-0.020, 0.22], [0.00, 1.00]),
+    LWB: makeRef([10.00,  9.86], [14.80, 10.64], [ 8.30, 12.79], [ 2.00,  8.82], [12.45,  9.79], [0.00, 1.66], [-0.020, 0.22], [0.00, 1.00]),
+    RWB: makeRef([10.00,  9.86], [14.80, 10.64], [ 8.30, 12.79], [ 2.00,  8.82], [12.45,  9.79], [0.00, 1.66], [-0.020, 0.22], [0.00, 1.00]),
+    DM:  makeRef([14.00,  6.57], [13.40, 12.96], [10.50, 13.26], [ 2.00,  9.62], [18.30,  7.44], [0.00, 2.06], [-0.025, 0.28], [0.00, 1.00]),
+    CM:  makeRef([13.00,  6.71], [12.00, 14.24], [15.00, 15.81], [ 6.00, 11.59], [14.50,  5.60], [0.00, 2.46], [-0.045, 0.32], [0.00, 1.00]),
+    AM:  makeRef([12.00,  7.69], [11.20, 19.28], [17.10, 19.55], [12.00, 15.09], [11.50,  5.49], [0.00, 3.40], [-0.065, 0.45], [0.00, 1.00]),
+    LW:  makeRef([10.00,  7.02], [ 9.60, 16.12], [15.20, 15.29], [14.00, 15.63], [10.60,  4.95], [0.00, 2.91], [-0.065, 0.39], [0.00, 1.00]),
+    RW:  makeRef([10.00,  7.02], [ 9.60, 16.12], [15.20, 15.29], [14.00, 15.63], [10.60,  4.95], [0.00, 2.91], [-0.065, 0.39], [0.00, 1.00]),
+    ST:  makeRef([ 6.00,  9.21], [ 6.80, 20.62], [ 6.10,  9.30], [19.00, 21.93], [ 9.00,  4.29], [0.00, 3.77], [-0.050, 0.47], [0.00, 1.00]),
 };
 
 // ════════════════════════════════════════════════════════════════════════════
@@ -558,8 +570,13 @@ export function calculateMatchRating(
     const scoringRating = computeScoringRating(composite, stats.minutes_played);
     let fantasyPoints = calculateFantasyPoints(scoringRating, stats.minutes_played);
 
-    // Option B: Surgically narrow the penalty to AMs playing at CB/LB/RB
-    if (primaryPosition && primaryPosition === 'AM' && ['CB', 'LB', 'RB'].includes(position)) {
+    // Out-of-Position (OOP) penalty:
+    // If a player's primary role is a midfielder or attacker (DM, CM, AM, LW, RW, ST)
+    // and they are slotted into a defensive position (CB, LB, RB, LWB, RWB), apply a 20% penalty
+    // to account for baseline-mismatch volume inflation.
+    const isMidOrAtt = ['DM', 'CM', 'AM', 'LW', 'RW', 'ST'].includes(primaryPosition || '');
+    const isDefSlot = ['CB', 'LB', 'RB', 'LWB', 'RWB'].includes(position);
+    if (primaryPosition && isMidOrAtt && isDefSlot) {
         rating = rating * 0.80;
         fantasyPoints = fantasyPoints * 0.80;
     }
