@@ -293,8 +293,8 @@ export default function GlobalStatsTable({ leagueId, leagueName, players, shadow
               const s = shadowByPlayer[player.id]?.[activePos];
               const gp = s ? s.gp : 0;
               const totalPoints = s ? s.total_points : 0;
-              const ppg = s && s.gp > 0 ? (s.total_points / s.gp).toFixed(2) : '—';
-              const avgRating = s && s.gp > 0 ? s.avg_rating.toFixed(2) : '—';
+              const ppg = s && s.gp > 0 ? (s.total_points / s.gp).toFixed(1) : '—';
+              const avgRating = s && s.gp > 0 ? s.avg_rating.toFixed(1) : '—';
               const isOwned = player.owner_team_name !== null;
 
               return (
@@ -332,15 +332,15 @@ export default function GlobalStatsTable({ leagueId, leagueName, players, shadow
                   </td>
                   <td className={`${styles.td} ${styles.tdNum}`}>{gp}</td>
                   <td className={`${styles.td} ${styles.tdNum}`}>
-                    {s ? totalPoints.toFixed(2) : '—'}
+                    {s ? totalPoints.toFixed(1) : '—'}
                   </td>
                   <td className={`${styles.td} ${styles.tdNum}`}>{ppg}</td>
                   <td className={`${styles.td} ${styles.tdNum}`}>{avgRating}</td>
                   <td className={`${styles.td} ${styles.tdNum}`} style={{ color: 'var(--color-text-secondary)', fontWeight: 'var(--font-medium)' }}>
-                    {player.projected_points != null ? Number(player.projected_points).toFixed(2) : '—'}
+                    {player.projected_points != null ? Number(player.projected_points).toFixed(1) : '—'}
                   </td>
                   <td className={`${styles.td} ${styles.tdNum}`}>
-                    {player.form_rating != null ? Number(player.form_rating).toFixed(2) : '—'}
+                    {player.form_rating != null ? Number(player.form_rating).toFixed(1) : '—'}
                   </td>
                   <td className={`${styles.td} ${styles.tdNum}`}>
                     £{Number(player.market_value ?? 0).toFixed(1)}m

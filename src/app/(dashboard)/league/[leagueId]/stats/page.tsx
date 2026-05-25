@@ -49,7 +49,7 @@ export default async function StatsPage({ params }: Props) {
   const [{ data: playersData }, { data: rankings }, { data: refData }] = await Promise.all([
     admin.from('players').select(FULL_PLAYER_SELECT).eq('is_active', true).order('total_points', { ascending: false, nullsFirst: false }) as any,
     admin.from('player_rankings').select('*'),
-    admin.from('rating_reference_stats').select('*').eq('season', '2025/26'),
+    admin.from('rating_reference_stats').select('*').eq('season', season),
   ]);
 
   const rankMap = new Map((rankings ?? []).map((r: any) => [r.player_id, r]));

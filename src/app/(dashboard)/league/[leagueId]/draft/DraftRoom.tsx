@@ -85,7 +85,7 @@ function PlayerRow({
       </div>
       <div className={styles.playerRowRight}>
         {player.ppg != null && (
-          <span className={styles.playerPpg}>{Number(player.ppg).toFixed(2)}</span>
+          <span className={styles.playerPpg}>{Number(player.ppg).toFixed(1)}</span>
         )}
         <button
           type="button"

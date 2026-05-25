@@ -125,11 +125,11 @@ export default async function MatchupDetailPage({ params }: Props) {
 
                 <div className={styles.scoreRow}>
                     <span className={`${styles.bannerScore} ${bWins ? styles.loser : ''}`}>
-                        {scoreA.toFixed(2)}
+                        {scoreA.toFixed(1)}
                     </span>
                     <span className={styles.scoreDash}>–</span>
                     <span className={`${styles.bannerScore} ${aWins ? styles.loser : ''}`}>
-                        {scoreB.toFixed(2)}
+                        {scoreB.toFixed(1)}
                     </span>
 
                     {isCompleted && (
