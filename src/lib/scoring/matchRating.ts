@@ -261,10 +261,10 @@ function computeComponentScores(
         defActionsRaw = recoveries * 0.5 + cbi * 0.5;
     } else if (position === 'CB') {
         defActionsRaw = tackles + cbi * 0.5;
-    } else if (position === 'LB' || position === 'RB' || position === 'LWB' || position === 'RWB') {
-        defActionsRaw = dc + recoveries * 0.5;
     } else {
-        defActionsRaw = dc;
+        // Symmetric 0.5x recoveries for all outfield positions to reward active
+        // defending (tackles + cbi) and prevent low-block recovery farming.
+        defActionsRaw = (tackles + cbi) + recoveries * 0.5;
     }
 
     let defensiveRaw: number;

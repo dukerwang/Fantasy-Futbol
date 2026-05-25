@@ -33,6 +33,7 @@ import { readFileSync, existsSync } from 'node:fs';
 
 const args = process.argv.slice(2);
 const dryRun = args.includes('--dry-run');
+const force = args.includes('--force');
 const seasonArg = args.find((a) => a.startsWith('--season='))?.split('=')[1]
   ?? (() => {
     const idx = args.indexOf('--season');
@@ -85,33 +86,35 @@ function defensiveRawInput(s, pos) {
   let csBonus = 0;
   if (cleanSheet && minutes >= 60) {
     const pg = positionGroup(pos);
-    if (pg === 'GK' || pg === 'DEF' || pos === 'DM') csBonus = 12;
+    if (pos === 'GK') csBonus = 16; // Elevated CS bonus for GK under Strategy A.4
+    else if (pg === 'DEF' || pos === 'DM') csBonus = 12;
     else if (pos === 'CM') csBonus = 4;
   }
-
-  const xgcOutperf = Math.max(0, xgc - gc) * 5;
-  const gcPenalty = Math.max(0, gc - xgc) * 5;
 
   const tackles = Math.max(0, s.tackles ?? 0);
   const cbi = Math.max(0, s.clearances_blocks_interceptions ?? 0);
   const recoveries = Math.max(0, s.recoveries ?? 0);
   const dc = Math.max(0, s.defensive_contribution ?? 0);
 
+  if (pos === 'GK') {
+    const defActionsRaw = recoveries * 0.5 + cbi * 0.5;
+    return defActionsRaw + csBonus - gc * 4.0;
+  }
+
+  const xgcOutperf = Math.max(0, xgc - gc) * 5;
+  const gcPenalty = Math.max(0, gc - xgc) * 5;
+
   let defActionsRaw;
-  if (pos === 'GK') defActionsRaw = 0;
-  else if (pos === 'CB') defActionsRaw = tackles + cbi * 0.5;
-  else if (['LB', 'RB', 'LWB', 'RWB'].includes(pos)) defActionsRaw = dc + recoveries * 0.5;
-  else defActionsRaw = dc;
+  if (pos === 'CB') defActionsRaw = tackles + cbi * 0.5;
+  else defActionsRaw = (tackles + cbi) + recoveries * 0.5;
 
   return defActionsRaw + csBonus + xgcOutperf - gcPenalty;
 }
 
 function saveScoreRaw(s) {
-  const gc = s.goals_conceded ?? 0;
-  const xgc = parseFloat(s.expected_goals_conceded) || 0;
   const sv = s.saves ?? 0;
   const psav = s.penalties_saved ?? 0;
-  return sv * 2 + psav * 5 - Math.max(0, gc - xgc) * 2;
+  return sv * 2 + psav * 5;
 }
 
 function median(arr) {
@@ -170,6 +173,10 @@ async function main() {
   console.log(`Season: ${season}`);
 
   const completed = await detectCompletedGameweeks();
+  if (completed.length < 5 && !force) {
+    console.warn(`Only ${completed.length} completed gameweeks found. A minimum of 5 completed gameweeks is required to recompute baseline stats to prevent early-season volatility. Run with --force to override. Aborting.`);
+    return;
+  }
   if (completed.length === 0) {
     console.warn('No completed gameweeks yet; aborting.');
     return;
@@ -188,27 +195,74 @@ async function main() {
     const data = await fetchGwLive(gw);
     let kept = 0;
     for (const el of data.elements ?? []) {
-      const s = el.stats ?? {};
-      if ((s.minutes ?? 0) < 45) continue;
       const pos = fplToPos.get(el.id);
       if (!pos || !POSITIONS.includes(pos)) continue;
 
-      const goals = s.goals_scored ?? 0;
-      const assists = s.assists ?? 0;
-      const bps = s.bps ?? 0;
-      const adjBps = Math.max(0, bps - goals * 12 - assists * 9);
-      const xg = parseFloat(s.expected_goals) || 0;
-      const xa = parseFloat(s.expected_assists) || 0;
+      const explainList = (el.explain && el.explain.length > 0) ? el.explain : [{ fixture: 0, stats: [] }];
+      for (const ex of explainList) {
+        let fixtureMinutes = 0;
+        let fixtureFplStats = {};
 
-      buckets[pos].match_impact.push(adjBps);
-      buckets[pos].influence.push(parseFloat(s.influence) || 0);
-      buckets[pos].creativity.push(parseFloat(s.creativity) || 0);
-      buckets[pos].threat.push(parseFloat(s.threat) || 0);
-      buckets[pos].defensive.push(defensiveRawInput(s, pos));
-      buckets[pos].goal_involvement.push(goals * 6 + assists * 4);
-      buckets[pos].finishing.push((goals - xg) + (assists - xa) * 0.5);
-      buckets[pos].save_score.push(pos === 'GK' ? saveScoreRaw(s) : 0);
-      kept++;
+        if (el.explain && el.explain.length > 0) {
+          fixtureMinutes = ex.stats.find((s) => s.identifier === 'minutes')?.value ?? 0;
+          if (fixtureMinutes < 45) continue;
+
+          const totalMinutes = el.stats.minutes || 1;
+          const ratio = fixtureMinutes / totalMinutes;
+
+          const findExplain = (key) =>
+            ex.stats.find((s) => s.identifier === key)?.value;
+
+          fixtureFplStats = {
+            ...el.stats,
+            minutes: fixtureMinutes,
+            goals_scored: findExplain('goals_scored') ?? 0,
+            assists: findExplain('assists') ?? 0,
+            clean_sheets: findExplain('clean_sheets') ?? 0,
+            goals_conceded: findExplain('goals_conceded') ?? 0,
+            saves: findExplain('saves') ?? 0,
+            penalties_saved: findExplain('penalties_saved') ?? 0,
+            penalties_missed: findExplain('penalties_missed') ?? 0,
+            yellow_cards: findExplain('yellow_cards') ?? 0,
+            red_cards: findExplain('red_cards') ?? 0,
+            own_goals: findExplain('own_goals') ?? 0,
+            bps: Math.round((el.stats.bps ?? 0) * ratio),
+            influence: (parseFloat(el.stats.influence) * ratio).toString(),
+            creativity: (parseFloat(el.stats.creativity) * ratio).toString(),
+            threat: (parseFloat(el.stats.threat) * ratio).toString(),
+            ict_index: (parseFloat(el.stats.ict_index) * ratio).toString(),
+            expected_goals: (parseFloat(el.stats.expected_goals) * ratio).toString(),
+            expected_assists: (parseFloat(el.stats.expected_assists) * ratio).toString(),
+            expected_goals_conceded: (parseFloat(el.stats.expected_goals_conceded) * ratio).toString(),
+            tackles: Math.round((el.stats.tackles ?? 0) * ratio),
+            clearances_blocks_interceptions: Math.round((el.stats.clearances_blocks_interceptions ?? 0) * ratio),
+            recoveries: Math.round((el.stats.recoveries ?? 0) * ratio),
+            defensive_contribution: Math.round((el.stats.defensive_contribution ?? 0) * ratio),
+          };
+        } else {
+          // Fallback if explain is missing (should not happen in normal FPL live data)
+          fixtureMinutes = el.stats.minutes ?? 0;
+          if (fixtureMinutes < 45) continue;
+          fixtureFplStats = el.stats;
+        }
+
+        const goals = fixtureFplStats.goals_scored ?? 0;
+        const assists = fixtureFplStats.assists ?? 0;
+        const bps = fixtureFplStats.bps ?? 0;
+        const adjBps = Math.max(0, bps - goals * 12 - assists * 9);
+        const xg = parseFloat(fixtureFplStats.expected_goals) || 0;
+        const xa = parseFloat(fixtureFplStats.expected_assists) || 0;
+
+        buckets[pos].match_impact.push(adjBps);
+        buckets[pos].influence.push(parseFloat(fixtureFplStats.influence) || 0);
+        buckets[pos].creativity.push(parseFloat(fixtureFplStats.creativity) || 0);
+        buckets[pos].threat.push(parseFloat(fixtureFplStats.threat) || 0);
+        buckets[pos].defensive.push(defensiveRawInput(fixtureFplStats, pos));
+        buckets[pos].goal_involvement.push(goals * 6 + assists * 4);
+        buckets[pos].finishing.push((goals - xg) + (assists - xa) * 0.5);
+        buckets[pos].save_score.push(pos === 'GK' ? saveScoreRaw(fixtureFplStats) : 0);
+        kept++;
+      }
     }
     console.log(`${kept} rows kept`);
   }
@@ -217,9 +271,20 @@ async function main() {
   console.log('Position  Component         Median    Stddev    N');
   console.log('-'.repeat(60));
   const rows = [];
+  const getPooledValues = (pos, comp) => {
+    if (pos === 'LW' || pos === 'RW') {
+      return [...buckets.LW[comp], ...buckets.RW[comp]];
+    }
+    // Fully merge all Wide Defenders (Fullbacks & Wingbacks) into a single unified benchmark pool
+    if (pos === 'LB' || pos === 'RB' || pos === 'LWB' || pos === 'RWB') {
+      return [...buckets.LB[comp], ...buckets.RB[comp], ...buckets.LWB[comp], ...buckets.RWB[comp]];
+    }
+    return buckets[pos][comp];
+  };
+
   for (const pos of POSITIONS) {
     for (const comp of COMPONENTS) {
-      const vals = buckets[pos][comp];
+      const vals = getPooledValues(pos, comp);
       const med = Number(median(vals).toFixed(4));
       const sd = Number(pstdev(vals).toFixed(4));
       const n = vals.length;
