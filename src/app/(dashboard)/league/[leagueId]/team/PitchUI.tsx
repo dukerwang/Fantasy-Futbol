@@ -188,7 +188,7 @@ function PitchNode({ slotPos, player, isSelected, isValidTarget, isEmpty, isInva
 
             <div className={chipCls}>
                 {points !== undefined && (
-                    <span className={styles.nodePtsBadge}>{points.toFixed(1)}</span>
+                    <span className={styles.nodePtsBadge}>{points.toFixed(2)}</span>
                 )}
                 {isLocked && player && (
                     <span className={styles.nodeLockCorner} title="Locked">
@@ -1034,7 +1034,7 @@ export default function PitchUI({
                                                     {displayName(entry.player)}
                                                 </span>
                                                 {scoreMap && pid && scoreMap[pid] !== undefined && (
-                                                    <span className={styles.benchPts}>{scoreMap[pid].toFixed(1)}</span>
+                                                    <span className={styles.benchPts}>{scoreMap[pid].toFixed(2)}</span>
                                                 )}
                                                 {isLocked && <span className={styles.lockIcon}><Icon name="lock" size={14} /></span>}
                                             </>

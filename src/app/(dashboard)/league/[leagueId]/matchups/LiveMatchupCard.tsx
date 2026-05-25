@@ -108,11 +108,11 @@ export default function LiveMatchupCard({
                     </span>
                     <div className={styles.heroScoreRow}>
                         <span className={`${styles.heroScore} ${bWins ? styles.loser : ''}`}>
-                            {scoreA.toFixed(1)}
+                            {scoreA.toFixed(2)}
                         </span>
                         <span className={styles.heroDash}>–</span>
                         <span className={`${styles.heroScore} ${aWins ? styles.loser : ''}`}>
-                            {scoreB.toFixed(1)}
+                            {scoreB.toFixed(2)}
                         </span>
                     </div>
 
@@ -179,7 +179,7 @@ export default function LiveMatchupCard({
                             {teamAName}
                         </span>
                         <span className={`${styles.halfScore} ${bWins ? styles.loser : ''}`}>
-                            {scoreA.toFixed(1)}
+                            {scoreA.toFixed(2)}
                         </span>
                     </div>
                 </div>
@@ -191,7 +191,7 @@ export default function LiveMatchupCard({
                 <div className={`${styles.cardHalf} ${styles.cardHalfRight}`}>
                     <div className={styles.halfInfo}>
                         <span className={`${styles.halfScore} ${aWins ? styles.loser : ''}`}>
-                            {scoreB.toFixed(1)}
+                            {scoreB.toFixed(2)}
                         </span>
                         <span className={[styles.halfName, styles.right, myTeamSide === 'b' ? styles.myTeam : ''].filter(Boolean).join(' ')}>
                             {teamBName}

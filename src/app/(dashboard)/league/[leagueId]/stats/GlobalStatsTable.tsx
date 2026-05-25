@@ -161,7 +161,7 @@ export default function GlobalStatsTable({ leagueId, leagueName, players }: Prop
           </thead>
           <tbody>
             {sorted.map((player) => {
-              const ppg = player.ppg != null ? player.ppg.toFixed(1) : '—';
+              const ppg = player.ppg != null ? player.ppg.toFixed(2) : '—';
               const isOwned = player.owner_team_name !== null;
 
               return (
@@ -188,14 +188,14 @@ export default function GlobalStatsTable({ leagueId, leagueName, players }: Prop
                     )}
                   </td>
                   <td className={`${styles.td} ${styles.tdNum}`}>
-                    {player.total_points != null ? Number(player.total_points).toFixed(1) : '—'}
+                    {player.total_points != null ? Number(player.total_points).toFixed(2) : '—'}
                   </td>
                   <td className={`${styles.td} ${styles.tdNum}`}>{ppg}</td>
                   <td className={`${styles.td} ${styles.tdNum}`} style={{ color: 'var(--color-text-secondary)', fontWeight: 'var(--font-medium)' }}>
-                    {player.projected_points != null ? Number(player.projected_points).toFixed(1) : '—'}
+                    {player.projected_points != null ? Number(player.projected_points).toFixed(2) : '—'}
                   </td>
                   <td className={`${styles.td} ${styles.tdNum}`}>
-                    {player.form != null ? Number(player.form).toFixed(1) : '—'}
+                    {player.form != null ? Number(player.form).toFixed(2) : '—'}
                   </td>
                   <td className={`${styles.td} ${styles.tdNum}`}>
                     £{Number(player.market_value ?? 0).toFixed(1)}m

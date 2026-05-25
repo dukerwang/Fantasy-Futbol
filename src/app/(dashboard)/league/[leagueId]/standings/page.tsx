@@ -218,8 +218,8 @@ export default async function StandingsPage({ params }: Props) {
                     <td>{row.wins}</td>
                     <td>{row.draws}</td>
                     <td>{row.losses}</td>
-                    <td>{row.pf.toFixed(1)}</td>
-                    <td>{row.pa.toFixed(1)}</td>
+                    <td>{row.pf.toFixed(2)}</td>
+                    <td>{row.pa.toFixed(2)}</td>
                     <td className={styles.formCell}>
                       <div className={styles.formDots}>
                         {form.map((result, idx) => (

@@ -12,7 +12,6 @@
  */
 
 import { calculateMatchRating, mapFplLiveToRawStats } from '@/lib/scoring/engine';
-import { calculateMatchRatingV1 } from '@/lib/scoring/matchRatingV1Legacy';
 import { loadReferenceStats } from '@/lib/scoring/matchups';
 import { resolveAllStalledGameweeks } from '@/lib/scoring/matchupProcessor';
 import { createAdminClient } from '@/lib/supabase/admin';
@@ -174,18 +173,11 @@ async function syncFplLiveRatings(gameweek: number): Promise<NextResponse> {
             };
 
             const rawStats = mapFplLiveToRawStats(fixtureFplStats);
-            // V2 = new (Phase 1+2) engine with granular defense, recomputed
-            // reference stats, and FPL defensive_contribution.
+            // Calculate using the official promoted V2 scoring engine
             const v2 = calculateMatchRating(
               rawStats,
               dbPlayer.primary_position as GranularPosition,
               refStats as any
-            );
-            // V1 = frozen pre-rebalance engine, written to the legacy columns
-            // so the admin shadow view can compare apples-to-apples.
-            const v1 = calculateMatchRatingV1(
-              rawStats,
-              dbPlayer.primary_position as GranularPosition,
             );
 
             const { error } = await supabase.from('player_stats').upsert(
@@ -195,10 +187,8 @@ async function syncFplLiveRatings(gameweek: number): Promise<NextResponse> {
                 gameweek,
                 season: fplSeason,
                 stats: rawStats,
-                fantasy_points: v1.fantasyPoints,
-                match_rating: v1.rating,
-                fantasy_points_v2: v2.fantasyPoints,
-                match_rating_v2: v2.rating,
+                fantasy_points: v2.fantasyPoints,
+                match_rating: v2.rating,
               },
               { onConflict: 'player_id,match_id' },
             );
@@ -213,10 +203,6 @@ async function syncFplLiveRatings(gameweek: number): Promise<NextResponse> {
             dbPlayer.primary_position as GranularPosition,
             refStats as any
           );
-          const v1 = calculateMatchRatingV1(
-            rawStats,
-            dbPlayer.primary_position as GranularPosition,
-          );
 
           await supabase.from('player_stats').upsert(
             {
@@ -225,10 +211,8 @@ async function syncFplLiveRatings(gameweek: number): Promise<NextResponse> {
               gameweek,
               season: fplSeason,
               stats: rawStats,
-              fantasy_points: v1.fantasyPoints,
-              match_rating: v1.rating,
-              fantasy_points_v2: v2.fantasyPoints,
-              match_rating_v2: v2.rating,
+              fantasy_points: v2.fantasyPoints,
+              match_rating: v2.rating,
             },
             { onConflict: 'player_id,match_id' },
           );

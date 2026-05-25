@@ -17,6 +17,8 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import type { GranularPosition } from '@/types';
 import stringSimilarity from 'string-similarity';
 
+
+
 export const maxDuration = 60; // 1 minute max for Vercel Hobby tier
 
 const BASE_URL = 'https://api.sofifa.net';
@@ -456,6 +458,7 @@ async function runSync(preloadedTeams: SoFifaTeamDetail[] | null) {
         matched++;
         updates.push({ id: dbMatch.id, primary_position: primary as GranularPosition, secondary_positions: finalSecondary as GranularPosition[] });
       }
+
     }
 
   }

@@ -504,9 +504,9 @@ export default async function LeaguePage({ params }: Props) {
               <div className={styles.matchupCenter}>
                 {heroState === 'live' && <span className={styles.matchupLiveBadge}>LIVE</span>}
                 <div className={styles.matchupScoreRow}>
-                  <span className={styles.matchupScore}>{heroState === 'upcoming' ? '-' : (userScore?.toFixed(1) ?? '0.0')}</span>
+                  <span className={styles.matchupScore}>{heroState === 'upcoming' ? '-' : (userScore?.toFixed(2) ?? '0.00')}</span>
                   <span className={styles.matchupScoreDash}>-</span>
-                  <span className={styles.matchupScore}>{heroState === 'upcoming' ? '-' : (oppScore?.toFixed(1) ?? '0.0')}</span>
+                  <span className={styles.matchupScore}>{heroState === 'upcoming' ? '-' : (oppScore?.toFixed(2) ?? '0.00')}</span>
                 </div>
                 <span className={styles.matchupGwLabel}>MATCHWEEK {heroMatchup.gameweek}</span>
               </div>
@@ -645,7 +645,7 @@ export default async function LeaguePage({ params }: Props) {
                         <span className={styles.perfTeamName}>{player.pl_team}</span>
                       </div>
                       <div className={styles.perfScoreBadge}>
-                        <span className={styles.perfPtsValue}>{pts.toFixed(1)}</span>
+                        <span className={styles.perfPtsValue}>{pts.toFixed(2)}</span>
                         <span className={styles.perfPtsUnit}>pts</span>
                       </div>
                     </div>

@@ -93,10 +93,10 @@ export async function processMatchupsForGameweek(gameweek: number, finished: boo
     const refStats = await loadReferenceStats(admin, season);
 
 
-    // 3. Fetch player stats for this GW (including v2 shadow columns)
+    // 3. Fetch player stats for this GW
     const { data: statsData } = await admin
         .from('player_stats')
-        .select('player_id, fantasy_points, fantasy_points_v2, stats')
+        .select('player_id, fantasy_points, stats')
         .eq('gameweek', gameweek)
         .in('player_id', Array.from(playerIds));
 
@@ -122,31 +122,20 @@ export async function processMatchupsForGameweek(gameweek: number, finished: boo
         }
     }
 
-    // We build TWO playerRecord maps for dual-write:
-    //   playerRecordV1: stored v1 fantasy_points (primary-position scored,
-    //     legacy frozen engine). `stats: null` so the role-aware path in
-    //     calculateTeamScore short-circuits to stored points — replicating
-    //     pre-Phase-2 behavior exactly.
-    //   playerRecordV2: stored v2 fantasy_points_v2 + raw stats JSON, so the
+    // We build ONE playerRecord map for matchup scoring:
+    //   playerRecord: stored fantasy_points (V2) + raw stats JSON, so the
     //     role-aware path engages when finished=true.
-    const playerRecordV1 = new Map<string, PlayerScoreRecord>();
-    const playerRecordV2 = new Map<string, PlayerScoreRecord>();
+    const playerRecord = new Map<string, PlayerScoreRecord>();
     for (const row of statsData ?? []) {
         const stats = (row.stats as any) ?? null;
         const fixtureMins: number = stats?.minutes_played ?? 0;
-        const ptsV1: number = Number(row.fantasy_points) || 0;
-        const ptsV2: number = Number(row.fantasy_points_v2) || 0;
+        const pts: number = Number(row.fantasy_points) || 0;
 
-        const fixV1 = { minutes: fixtureMins, fantasyPoints: ptsV1, stats: null };
-        const fixV2 = { minutes: fixtureMins, fantasyPoints: ptsV2, stats };
+        const fix = { minutes: fixtureMins, fantasyPoints: pts, stats };
 
-        const existingV1 = playerRecordV1.get(row.player_id);
-        if (!existingV1) playerRecordV1.set(row.player_id, { fixtures: [fixV1] });
-        else existingV1.fixtures.push(fixV1);
-
-        const existingV2 = playerRecordV2.get(row.player_id);
-        if (!existingV2) playerRecordV2.set(row.player_id, { fixtures: [fixV2] });
-        else existingV2.fixtures.push(fixV2);
+        const existing = playerRecord.get(row.player_id);
+        if (!existing) playerRecord.set(row.player_id, { fixtures: [fix] });
+        else existing.fixtures.push(fix);
     }
 
     // 4. Fetch player positions and PL team IDs
@@ -199,17 +188,9 @@ export async function processMatchupsForGameweek(gameweek: number, finished: boo
         const lineupA = normalizeMatchupLineup(sanitize(resolved?.lineup_a, m.team_a_id));
         const lineupB = normalizeMatchupLineup(sanitize(resolved?.lineup_b, m.team_b_id));
 
-        // Primary scores (live + final) come from the FROZEN V1 engine path.
-        // The V1 playerRecord has `stats: null`, so calculateTeamScore short-
-        // circuits the role-aware re-scoring and falls back to stored
-        // fantasy_points — matching pre-Phase-2 behavior exactly.
-        const scoreA = calculateTeamScore(lineupA, playerRecordV1, playerPositions, playerPlTeamId, refStats as any, finished, finishedPlTeamIds);
-        const scoreB = calculateTeamScore(lineupB, playerRecordV1, playerPositions, playerPlTeamId, refStats as any, finished, finishedPlTeamIds);
-
-        // V2 shadow scores: stored fantasy_points_v2 for live; role-aware
-        // re-scoring at slot for the final once `finished=true`.
-        const scoreAv2 = calculateTeamScore(lineupA, playerRecordV2, playerPositions, playerPlTeamId, refStats as any, finished, finishedPlTeamIds);
-        const scoreBv2 = calculateTeamScore(lineupB, playerRecordV2, playerPositions, playerPlTeamId, refStats as any, finished, finishedPlTeamIds);
+        // Calculate team scores under the promoted official V2 engine (with dynamic slot-aware scoring)
+        const scoreA = calculateTeamScore(lineupA, playerRecord, playerPositions, playerPlTeamId, refStats as any, finished, finishedPlTeamIds);
+        const scoreB = calculateTeamScore(lineupB, playerRecord, playerPositions, playerPlTeamId, refStats as any, finished, finishedPlTeamIds);
         const gap = Math.abs(scoreA - scoreB);
 
         const newStatus = finished ? 'completed' : 'live';
@@ -220,8 +201,6 @@ export async function processMatchupsForGameweek(gameweek: number, finished: boo
         const updatePayload: Record<string, any> = {
             score_a: scoreA,
             score_b: scoreB,
-            score_a_v2: scoreAv2,
-            score_b_v2: scoreBv2,
             status: newStatus,
         };
         // If we inferred a corrected formation label, persist it so downstream UI stops lying.

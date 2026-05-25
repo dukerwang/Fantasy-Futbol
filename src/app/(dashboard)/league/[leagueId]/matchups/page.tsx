@@ -297,14 +297,14 @@ export default async function MatchupsPage({ params, searchParams }: Props) {
                         <div className={styles.glanceStrip}>
                             <div className={styles.glanceStat}>
                                 <span className={styles.glanceLabel}>Highest Score</span>
-                                <span className={styles.glanceValue}>{highestThisGw.score.toFixed(1)}</span>
+                                <span className={styles.glanceValue}>{highestThisGw.score.toFixed(2)}</span>
                                 <span className={styles.glanceSub}>{highestThisGw.team}</span>
                             </div>
                             <div className={styles.glanceStat}>
                                 <span className={styles.glanceLabel}>Closest Match</span>
                                 <span className={styles.glanceValue}>
                                     {closestMatch
-                                        ? `${Math.abs(closestMatch.score_a - closestMatch.score_b).toFixed(1)} pts`
+                                        ? `${Math.abs(closestMatch.score_a - closestMatch.score_b).toFixed(2)} pts`
                                         : '—'}
                                 </span>
                                 <span className={styles.glanceSub}>
@@ -316,7 +316,7 @@ export default async function MatchupsPage({ params, searchParams }: Props) {
                             <div className={styles.glanceStat}>
                                 <span className={styles.glanceLabel}>Season High</span>
                                 <span className={styles.glanceValue}>
-                                    {seasonHigh.score > 0 ? seasonHigh.score.toFixed(1) : '—'}
+                                    {seasonHigh.score > 0 ? seasonHigh.score.toFixed(2) : '—'}
                                 </span>
                                 <span className={styles.glanceSub}>{seasonHigh.team}</span>
                             </div>
