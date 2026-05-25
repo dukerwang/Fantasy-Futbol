@@ -198,9 +198,9 @@ export default async function ScoringV2Page() {
         match_id: r.match_id,
         gameweek: r.gameweek,
         match_rating: v1Result.rating, // V1 (legacy)
-        match_rating_v2: r.match_rating ? Number(r.match_rating) : null, // V2 (promoted live)
+        match_rating_v2: r.match_rating !== null && r.match_rating !== undefined ? Number(r.match_rating) : null, // V2 (promoted live)
         fantasy_points: v1Result.fantasyPoints, // V1 (legacy)
-        fantasy_points_v2: r.fantasy_points ? Number(r.fantasy_points) : null, // V2 (promoted live)
+        fantasy_points_v2: r.fantasy_points !== null && r.fantasy_points !== undefined ? Number(r.fantasy_points) : null, // V2 (promoted live)
         stats: r.stats
       });
     }

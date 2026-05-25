@@ -30,7 +30,6 @@ type SortKey =
   | 'total_points'
   | 'ppg'
   | 'avg_rating'
-  | 'projected_points'
   | 'market_value'
   | 'form'
   | 'total_minutes';
@@ -151,9 +150,6 @@ export default function GlobalStatsTable({ leagueId, leagueName, players, shadow
       } else if (sortKey === 'avg_rating') {
         av = sa ? sa.avg_rating : 0;
         bv = sb ? sb.avg_rating : 0;
-      } else if (sortKey === 'projected_points') {
-        av = aObj.player.projected_points ?? 0;
-        bv = bObj.player.projected_points ?? 0;
       } else if (sortKey === 'market_value') {
         av = aObj.player.market_value ?? 0;
         bv = bObj.player.market_value ?? 0;
@@ -277,9 +273,6 @@ export default function GlobalStatsTable({ leagueId, leagueName, players, shadow
               <th className={`${styles.th} ${styles.sortable}`} onClick={() => handleSort('avg_rating')}>
                 Avg Rating {sortIndicator('avg_rating')}
               </th>
-              <th className={`${styles.th} ${styles.sortable}`} onClick={() => handleSort('projected_points')}>
-                Proj {sortIndicator('projected_points')}
-              </th>
               <th className={`${styles.th} ${styles.sortable}`} onClick={() => handleSort('form')}>
                 Form {sortIndicator('form')}
               </th>
@@ -336,9 +329,6 @@ export default function GlobalStatsTable({ leagueId, leagueName, players, shadow
                   </td>
                   <td className={`${styles.td} ${styles.tdNum}`}>{ppg}</td>
                   <td className={`${styles.td} ${styles.tdNum}`}>{avgRating}</td>
-                  <td className={`${styles.td} ${styles.tdNum}`} style={{ color: 'var(--color-text-secondary)', fontWeight: 'var(--font-medium)' }}>
-                    {player.projected_points != null ? Number(player.projected_points).toFixed(1) : '—'}
-                  </td>
                   <td className={`${styles.td} ${styles.tdNum}`}>
                     {player.form_rating != null ? Number(player.form_rating).toFixed(2) : '—'}
                   </td>
@@ -350,7 +340,7 @@ export default function GlobalStatsTable({ leagueId, leagueName, players, shadow
             })}
             {sorted.length === 0 && (
               <tr>
-                <td colSpan={9} className={styles.emptyRow}>
+                <td colSpan={8} className={styles.emptyRow}>
                   No players match your filters.
                 </td>
               </tr>

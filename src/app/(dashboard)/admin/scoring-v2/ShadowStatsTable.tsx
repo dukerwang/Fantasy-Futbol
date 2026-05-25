@@ -33,7 +33,6 @@ export interface ShadowStatsPlayer {
   total_points: number | null;
   ppg: number | null;
   market_value: number;
-  projected_points: number | null;
 }
 
 type SortKey =
@@ -49,7 +48,6 @@ type SortKey =
   | 'avg_r_v1'
   | 'avg_r_v2'
   | 'delta_avg_r'
-  | 'projected_points'
   | 'market_value'
   | 'total_minutes';
 
@@ -165,7 +163,7 @@ export default function ShadowStatsTable({ statsSeason, players, shadowMaps }: P
   }, [players, search, posFilter, posType, shadowByPlayer, minGames]);
 
   const sorted = useMemo(() => {
-    const shadowRequired = sortKey !== 'projected_points' && sortKey !== 'market_value';
+    const shadowRequired = sortKey !== 'market_value';
 
     return [...filtered].sort((aObj, bObj) => {
       const a = aObj.player;
@@ -223,9 +221,6 @@ export default function ShadowStatsTable({ statsSeason, players, shadowMaps }: P
       } else if (sortKey === 'delta_avg_r') {
         av = sa && sa.avgRV1 != null ? sa.avgRV2 - sa.avgRV1 : -1e9;
         bv = sb && sb.avgRV1 != null ? sb.avgRV2 - sb.avgRV1 : -1e9;
-      } else if (sortKey === 'projected_points') {
-        av = a.projected_points ?? -1e9;
-        bv = b.projected_points ?? -1e9;
       } else if (sortKey === 'market_value') {
         av = a.market_value ?? 0;
         bv = b.market_value ?? 0;
@@ -359,9 +354,6 @@ export default function ShadowStatsTable({ statsSeason, players, shadowMaps }: P
               <th className={`${styles.shadowTh} ${styles.shadowSortable}`} onClick={() => handleSort('delta_avg_r')}>
                 Δ Avg R {sortIndicator('delta_avg_r')}
               </th>
-              <th className={`${styles.shadowTh} ${styles.shadowSortable}`} onClick={() => handleSort('projected_points')}>
-                Proj {sortIndicator('projected_points')}
-              </th>
               <th className={`${styles.shadowTh} ${styles.shadowSortable}`} onClick={() => handleSort('market_value')}>
                 Value {sortIndicator('market_value')}
               </th>
@@ -424,16 +416,13 @@ export default function ShadowStatsTable({ statsSeason, players, shadowMaps }: P
                   <td className={`${styles.shadowTdNum} ${dAvgR != null ? (dAvgR >= 0 ? styles.cellNumPos : styles.cellNumNeg) : ''}`}>
                     {dAvgR != null ? `${dAvgR >= 0 ? '+' : ''}${dAvgR.toFixed(2)}` : '—'}
                   </td>
-                  <td className={styles.shadowTdNum}>
-                    {player.projected_points != null ? Number(player.projected_points).toFixed(1) : '—'}
-                  </td>
                   <td className={styles.shadowTdNum}>£{Number(player.market_value ?? 0).toFixed(1)}m</td>
                 </tr>
               );
             })}
             {sorted.length === 0 && (
               <tr>
-                <td colSpan={17} className={styles.shadowEmpty}>
+                <td colSpan={16} className={styles.shadowEmpty}>
                   No players match your filters.
                 </td>
               </tr>
