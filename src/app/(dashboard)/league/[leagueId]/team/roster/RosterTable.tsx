@@ -126,7 +126,7 @@ function RosterRow({ entry, taxiAgeLimit, taxiSize, currentTaxiCount, loadingId,
             </td>
 
             <td className={styles.tdPpg}>
-                {player.ppg != null ? Number(player.ppg).toFixed(1) : '—'}
+                {player.ppg != null ? Number(player.ppg).toFixed(2) : '—'}
             </td>
 
             <td className={styles.tdStatus}>

@@ -179,7 +179,7 @@ export function calculateTeamScore(
     }
   }
 
-  return Math.round(score * 10) / 10;
+  return Math.round(score * 100) / 100;
 }
 
 /**

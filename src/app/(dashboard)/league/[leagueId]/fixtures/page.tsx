@@ -104,15 +104,15 @@ export default async function FixturesPage({ params }: Props) {
                       <div className={styles.matchupScore}>
                         {m.status === 'completed' ? (
                           <>
-                            <span>{(m.score_a ?? 0).toFixed(1)}</span>
+                            <span>{(m.score_a ?? 0).toFixed(2)}</span>
                             <span className={styles.scoreDash}>—</span>
-                            <span>{(m.score_b ?? 0).toFixed(1)}</span>
+                            <span>{(m.score_b ?? 0).toFixed(2)}</span>
                           </>
                         ) : m.status === 'live' ? (
                           <>
-                            <span>{(m.score_a ?? 0).toFixed(1)}</span>
+                            <span>{(m.score_a ?? 0).toFixed(2)}</span>
                             <span className={styles.scoreDash}>—</span>
-                            <span>{(m.score_b ?? 0).toFixed(1)}</span>
+                            <span>{(m.score_b ?? 0).toFixed(2)}</span>
                           </>
                         ) : (
                           <span className={styles.scoreDash}>vs</span>

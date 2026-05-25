@@ -1,0 +1,41 @@
+--- DUPLICATE MATCHES REPORT ---
+
+[1] DB Player Key: Reiss Nelson | Brentford
+  -> Scraped: Reiss Nelson (Common: R. Nelson) | Positions: RM, LM, RW | Method: direct: reiss nelson
+  -> Scraped: Reiss Nelson (Common: R. Nelson) | Positions: RM, LM, RW | Method: direct: reiss nelson
+
+[2] DB Player Key: Harvey Elliott | Aston Villa
+  -> Scraped: Harvey Elliott (Common: H. Elliott) | Positions: AM, CM, RW | Method: direct: harvey elliott
+  -> Scraped: Harvey Elliott (Common: H. Elliott) | Positions: AM, CM, RW | Method: direct: harvey elliott
+
+[3] DB Player Key: Jack Grealish | Everton
+  -> Scraped: Jack Grealish (Common: J. Grealish) | Positions: LM, LW | Method: direct: jack grealish
+  -> Scraped: Jack Grealish (Common: J. Grealish) | Positions: LM, LW | Method: direct: jack grealish
+
+[4] DB Player Key: Jadon Sancho | Aston Villa
+  -> Scraped: Jadon Sancho (Common: J. Sancho) | Positions: LM, RM, LW | Method: direct: jadon sancho
+  -> Scraped: Jadon Sancho (Common: J. Sancho) | Positions: LM, RM, LW | Method: direct: jadon sancho
+
+[5] DB Player Key: Evann Guessand | Crystal Palace
+  -> Scraped: Evann Guessand (Common: E. Guessand) | Positions: RW, RM, ST | Method: direct: evann guessand
+  -> Scraped: Evann Guessand (Common: E. Guessand) | Positions: RW, RM, ST | Method: direct: evann guessand
+
+[6] DB Player Key: Axel Disasi | West Ham
+  -> Scraped: Axel Disasi (Common: A. Disasi) | Positions: CB, RB | Method: direct: axel disasi
+  -> Scraped: Axel Disasi (Common: A. Disasi) | Positions: CB, RB | Method: direct: axel disasi
+
+[7] DB Player Key: Tyrique George | Everton
+  -> Scraped: Tyrique George (Common: T. George) | Positions: LM, RM, ST, LW | Method: direct: tyrique george
+  -> Scraped: Tyrique George (Common: T. George) | Positions: LM, RM, ST, LW | Method: direct: tyrique george
+
+[8] DB Player Key: Facundo Buonanotte | Leeds
+  -> Scraped: Facundo Buonanotte (Common: F. Buonanotte) | Positions: AM, RM, CM | Method: direct: facundo buonanotte
+  -> Scraped: Facundo Buonanotte (Common: F. Buonanotte) | Positions: AM, RM, CM | Method: direct: facundo buonanotte
+
+[9] DB Player Key: James Ward-Prowse | Burnley
+  -> Scraped: James Ward Prowse (Common: J. Ward-Prowse) | Positions: CM, DM, AM | Method: direct: james ward prowse
+  -> Scraped: James Ward Prowse (Common: J. Ward-Prowse) | Positions: CM, DM, AM | Method: direct: james ward prowse
+
+Total duplicate DB players: 9
+Total matched players: 542
+Total unmatched players: 220

@@ -37,13 +37,12 @@ export const FLEX_CONFIG: Record<GranularPosition, { flex: number; components: R
     RB: { flex: 0.25, components: ['defensive', 'match_impact', 'goal_involvement'] },
     DM: { flex: 0.25, components: ['match_impact', 'influence', 'defensive'] },
     CM: { flex: 0.25, components: ['match_impact', 'creativity', 'influence'] },
-    // Defensive is intentionally excluded from LWB/RWB flex: dc values in V2
-    // give defensive a real score (0.52–0.60) that would steal the flex in
-    // quiet non-CS games, inflating scores over V1 where dc was always 0.
-    // Defensive still contributes via its 0.10 base weight; flex only rewards
-    // genuine creative or attacking output.
-    LWB: { flex: 0.25, components: ['creativity', 'threat', 'goal_involvement'] },
-    RWB: { flex: 0.25, components: ['creativity', 'threat', 'goal_involvement'] },
+    // Defensive and Match Impact are now included in LWB/RWB flex components
+    // to ensure they get rewarded for clean sheets and solid defensive games just
+    // like standard fullbacks, preventing quiet defensive games from dragging down
+    // their scores while still allowing creative/attacking outputs to flex.
+    LWB: { flex: 0.25, components: ['defensive', 'match_impact', 'creativity', 'threat', 'goal_involvement'] },
+    RWB: { flex: 0.25, components: ['defensive', 'match_impact', 'creativity', 'threat', 'goal_involvement'] },
     AM: { flex: 0.25, components: ['creativity', 'goal_involvement', 'finishing'] },
     LW: { flex: 0.25, components: ['goal_involvement', 'threat', 'creativity'] },
     RW: { flex: 0.25, components: ['goal_involvement', 'threat', 'creativity'] },
@@ -463,7 +462,7 @@ export function calculateFantasyPoints(rating: number, minutesPlayed: number): n
 
     if (rating < 3.0) finalPoints -= 2.0;
 
-    return Math.max(0, Number(finalPoints.toFixed(1)));
+    return Math.max(0, Number(finalPoints.toFixed(2)));
 }
 
 // ════════════════════════════════════════════════════════════════════════════
@@ -584,8 +583,8 @@ export function calculateMatchRating(
     }
 
     return {
-        rating: Math.round(rating * 10) / 10,
-        fantasyPoints: Math.round(fantasyPoints * 10) / 10,
+        rating: Math.round(rating * 100) / 100,
+        fantasyPoints: Math.round(fantasyPoints * 100) / 100,
         position,
         breakdown,
     };
