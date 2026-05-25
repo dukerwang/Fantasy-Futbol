@@ -4,9 +4,11 @@ import { redirect, notFound } from 'next/navigation';
 import GlobalStatsTable from './GlobalStatsTable';
 import type { Player } from '@/types';
 import { FULL_PLAYER_SELECT } from '@/lib/constants/queries';
-import { getCurrentFplSeason } from '@/lib/season/currentSeason';
+import { getCurrentFplSeason, getLatestReferenceStatsSeason } from '@/lib/season/currentSeason';
 import { calculateMatchRating, DEFAULT_REFERENCE_STATS } from '@/lib/scoring/matchRating';
 import type { GranularPosition } from '@/types';
+
+export const dynamic = 'force-dynamic';
 
 interface Props {
   params: Promise<{ leagueId: string }>;
@@ -37,6 +39,7 @@ export default async function StatsPage({ params }: Props) {
   if (!league) notFound();
 
   const season = (league as any).current_season ?? await getCurrentFplSeason();
+  const refSeason = await getLatestReferenceStatsSeason(admin);
 
   // All teams in this league
   const { data: allTeams } = await admin
@@ -49,7 +52,7 @@ export default async function StatsPage({ params }: Props) {
   const [{ data: playersData }, { data: rankings }, { data: refData }] = await Promise.all([
     admin.from('players').select(FULL_PLAYER_SELECT).eq('is_active', true).order('total_points', { ascending: false, nullsFirst: false }) as any,
     admin.from('player_rankings').select('*'),
-    admin.from('rating_reference_stats').select('*').eq('season', season),
+    admin.from('rating_reference_stats').select('*').eq('season', refSeason),
   ]);
 
   const rankMap = new Map((rankings ?? []).map((r: any) => [r.player_id, r]));
