@@ -65,7 +65,7 @@ export async function buildSeasonPrizes(
 ): Promise<PrizeEntry[]> {
   const { data: standings, error } = await admin
     .from('league_standings')
-    .select('team_id, rank, team:teams(team_name)')
+    .select('team_id, rank, team_name')
     .eq('league_id', leagueId)
     .order('rank', { ascending: true });
 
@@ -79,11 +79,10 @@ export async function buildSeasonPrizes(
 
     const amount = prizeConfig[key] ?? DEFAULT_PRIZE_CONFIG[key] ?? 52;
     const label = ORDINAL_LABELS[rankIdx];
-    const team = row.team as unknown as { team_name: string };
 
     entries.push({
       teamId: row.team_id,
-      teamName: team?.team_name ?? 'Unknown',
+      teamName: row.team_name ?? 'Unknown',
       prizeKey: key,
       prizeLabel: label,
       amount,

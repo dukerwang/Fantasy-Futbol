@@ -20,15 +20,25 @@ export async function GET(req: NextRequest) {
 
   const admin = createAdminClient();
 
-  // Verify that the user is actually a member of the league
-  const { data: membership } = await admin
-    .from('league_members')
-    .select('league_id')
+  // Verify that the user is actually a member of the league (has a team or is the commissioner)
+  const { data: league } = await admin
+    .from('leagues')
+    .select('commissioner_id')
+    .eq('id', leagueId)
+    .single();
+
+  if (!league) {
+    return NextResponse.json({ error: 'League not found' }, { status: 404 });
+  }
+
+  const { data: myTeam } = await admin
+    .from('teams')
+    .select('id')
     .eq('league_id', leagueId)
     .eq('user_id', user.id)
     .single();
 
-  if (!membership) {
+  if (!myTeam && league.commissioner_id !== user.id) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 
@@ -86,15 +96,25 @@ export async function POST(req: NextRequest) {
 
   const admin = createAdminClient();
 
-  // Verify that the sender is a member of the league
-  const { data: membership } = await admin
-    .from('league_members')
-    .select('league_id')
+  // Verify that the sender is a member of the league (has a team or is the commissioner)
+  const { data: league } = await admin
+    .from('leagues')
+    .select('commissioner_id')
+    .eq('id', leagueId)
+    .single();
+
+  if (!league) {
+    return NextResponse.json({ error: 'League not found' }, { status: 404 });
+  }
+
+  const { data: myTeam } = await admin
+    .from('teams')
+    .select('id')
     .eq('league_id', leagueId)
     .eq('user_id', user.id)
     .single();
 
-  if (!membership) {
+  if (!myTeam && league.commissioner_id !== user.id) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 
