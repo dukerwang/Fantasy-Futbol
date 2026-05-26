@@ -59,6 +59,19 @@ export async function POST(req: NextRequest, { params }: Props) {
 
   if (action === 'reject') {
     await admin.from('trade_proposals').update({ status: 'rejected' }).eq('id', tradeId);
+    // Notify team A proposer that it was rejected
+    try {
+      const { createNotification } = await import('@/lib/notifications/createNotification');
+      await createNotification(admin, {
+        leagueId,
+        userId: teamA.user_id,
+        title: 'Trade Proposal Rejected',
+        content: `Your trade proposal to **${teamB.team_name}** has been declined.`,
+        url: `/league/${leagueId}/trades`
+      });
+    } catch (err) {
+      console.error('[trade/reject] Failed to create notification:', err);
+    }
     return NextResponse.json({ ok: true });
   }
 
@@ -361,12 +374,24 @@ export async function POST(req: NextRequest, { params }: Props) {
         await sendEmail({
           to: emails,
           subject: 'Blockbuster Trade Completed!',
-          html: getTradeAcceptedEmail(teamA.team_name, teamB.team_name, `\${baseUrl}/league/\${leagueId}`)
+          html: getTradeAcceptedEmail(teamA.team_name, teamB.team_name, `${baseUrl}/league/${leagueId}`)
+        });
+      }
+
+      // Create in-game notifications for the league
+      const { createNotification } = await import('@/lib/notifications/createNotification');
+      for (const t of allTeams) {
+        await createNotification(admin, {
+          leagueId,
+          userId: t.user_id,
+          title: 'Blockbuster Trade Completed!',
+          content: `A trade has been completed between **${teamA.team_name}** and **${teamB.team_name}**! Check the activity logs to see who moved.`,
+          url: `/league/${leagueId}`
         });
       }
     }
   } catch (err) {
-    console.error('Failed to send trade accepted email:', err);
+    console.error('Failed to send trade accepted notifications:', err);
   }
 
   return NextResponse.json({ ok: true });

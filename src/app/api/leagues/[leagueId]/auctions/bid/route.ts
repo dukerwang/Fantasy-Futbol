@@ -310,13 +310,23 @@ export async function POST(req: NextRequest, { params }: Props) {
             html: getOutbidEmail(
               playerData?.name ?? 'Unknown Player',
               bidAmount,
-              `\${baseUrl}/league/\${leagueId}`
+              `${baseUrl}/league/${leagueId}`
             )
           });
         }
+
+        // Create in-game notification
+        const { createNotification } = await import('@/lib/notifications/createNotification');
+        await createNotification(admin, {
+          leagueId,
+          userId: outbidTeam.user_id,
+          title: 'Outbid Warning!',
+          content: `You have been outbid for **${playerData?.name ?? 'Unknown Player'}**. The new high bid is now **£${bidAmount}m**.`,
+          url: `/league/${leagueId}/players`
+        });
       }
     } catch (err) {
-      console.error('[bid] Failed to send outbid notification:', err);
+      console.error('[bid] Failed to send outbid notifications:', err);
     }
   }
 

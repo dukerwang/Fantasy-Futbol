@@ -17,7 +17,10 @@ type IconName =
   | 'chevron-left'
   | 'arrow-up'
   | 'arrow-down'
-  | 'repeat';
+  | 'repeat'
+  | 'bell'
+  | 'message-square'
+  | 'mail';
 
 interface IconProps extends React.SVGProps<SVGSVGElement> {
   name: IconName;
@@ -116,6 +119,23 @@ export const Icon: React.FC<IconProps> = ({
         <path d="M3 11v-1a4 4 0 0 1 4-4h14" />
         <path d="m7 22-4-4 4-4" />
         <path d="M21 13v1a4 4 0 0 1-4 4H3" />
+      </>
+    ),
+    bell: (
+      <>
+        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+        <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+      </>
+    ),
+    'message-square': (
+      <>
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+      </>
+    ),
+    mail: (
+      <>
+        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+        <polyline points="22,6 12,13 2,6" />
       </>
     ),
   };

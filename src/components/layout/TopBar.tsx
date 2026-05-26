@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import ThemeToggle from './ThemeToggle';
+import NotificationBell from './NotificationBell';
 import { Icon } from '@/components/ui/Icon';
 import styles from './TopBar.module.css';
 
@@ -115,6 +116,7 @@ export default function TopBar() {
           { label: 'Stats', href: `${base}/stats` },
           { label: 'Finance', href: `${base}/finance` },
           { label: 'History', href: `${base}/history` },
+          { label: 'Chat & Lobby', href: `${base}/chat` },
         ],
       },
       {
@@ -318,6 +320,9 @@ export default function TopBar() {
               </div>
             )}
           </div>
+
+          {/* Notification Bell */}
+          <NotificationBell leagueId={currentLeagueId} />
 
           {/* Theme Toggle */}
           <ThemeToggle />

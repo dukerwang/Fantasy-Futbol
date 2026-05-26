@@ -1,0 +1,186 @@
+'use client';
+
+import { useState, useEffect, useRef } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { Icon } from '@/components/ui/Icon';
+import styles from './NotificationBell.module.css';
+
+interface Notification {
+  id: string;
+  league_id: string;
+  user_id: string;
+  title: string;
+  content: string;
+  url?: string;
+  read: boolean;
+  created_at: string;
+}
+
+interface NotificationBellProps {
+  leagueId: string | null;
+}
+
+export default function NotificationBell({ leagueId }: NotificationBellProps) {
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
+
+  const fetchNotifications = async () => {
+    try {
+      const url = leagueId 
+        ? `/api/notifications?league_id=${leagueId}` 
+        : '/api/notifications';
+      const res = await fetch(url);
+      if (res.ok) {
+        const data = await res.json();
+        setNotifications(data.notifications || []);
+      }
+    } catch (err) {
+      console.error('Failed to fetch notifications:', err);
+    }
+  };
+
+  // Fetch on mount and when leagueId changes
+  useEffect(() => {
+    fetchNotifications();
+
+    // Poll for notifications every 60 seconds
+    const interval = setInterval(fetchNotifications, 60000);
+    return () => clearInterval(interval);
+  }, [leagueId]);
+
+  // Handle outside click to close dropdown
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setIsOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const unreadCount = notifications.filter(n => !n.read).length;
+  const displayNotifications = notifications.slice(0, 5); // Show latest 5
+
+  const handleMarkAllRead = async () => {
+    if (!leagueId) return;
+    try {
+      const res = await fetch('/api/notifications', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ leagueId, markAll: true })
+      });
+      if (res.ok) {
+        setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+      }
+    } catch (err) {
+      console.error('Failed to mark all as read:', err);
+    }
+  };
+
+  const handleItemClick = async (n: Notification) => {
+    setIsOpen(false);
+    if (!n.read) {
+      try {
+        await fetch('/api/notifications', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ notificationId: n.id })
+        });
+        setNotifications(prev => prev.map(item => item.id === n.id ? { ...item, read: true } : item));
+      } catch (err) {
+        console.error('Failed to mark notification as read:', err);
+      }
+    }
+    if (n.url) {
+      router.push(n.url);
+    }
+  };
+
+  const formatTime = (dateStr: string) => {
+    const d = new Date(dateStr);
+    const now = new Date();
+    const diffMs = now.getTime() - d.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMins / 60);
+    const diffDays = Math.floor(diffHours / 24);
+
+    if (diffMins < 1) return 'Just now';
+    if (diffMins < 60) return `${diffMins}m ago`;
+    if (diffHours < 24) return `${diffHours}h ago`;
+    if (diffDays === 1) return 'Yesterday';
+    return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+  };
+
+  return (
+    <div className={styles.bellContainer} ref={dropdownRef}>
+      <button
+        className={`${styles.bellBtn} ${isOpen ? styles.bellBtnActive : ''}`}
+        onClick={() => {
+          setIsOpen(!isOpen);
+          if (!isOpen) {
+            fetchNotifications(); // Refresh on open
+          }
+        }}
+        type="button"
+        aria-label="Notifications"
+      >
+        <Icon name="bell" size={18} strokeWidth={1.5} />
+        {unreadCount > 0 && (
+          <span className={styles.badge}>
+            {unreadCount > 99 ? '99+' : unreadCount}
+          </span>
+        )}
+      </button>
+
+      {isOpen && (
+        <div className={styles.dropdown}>
+          <div className={styles.header}>
+            <span className={styles.title}>Notifications</span>
+            {unreadCount > 0 && (
+              <button className={styles.markAllBtn} onClick={handleMarkAllRead}>
+                Mark all read
+              </button>
+            )}
+          </div>
+
+          <div className={styles.list}>
+            {displayNotifications.length > 0 ? (
+              displayNotifications.map(n => (
+                <button
+                  key={n.id}
+                  className={`${styles.item} ${!n.read ? styles.itemUnread : ''}`}
+                  onClick={() => handleItemClick(n)}
+                >
+                  <div className={styles.itemHeader}>
+                    <span className={styles.itemTitle}>{n.title}</span>
+                    <span className={styles.itemTime}>{formatTime(n.created_at)}</span>
+                  </div>
+                  <p className={styles.itemContent}>{n.content}</p>
+                </button>
+              ))
+            ) : (
+              <div className={styles.empty}>
+                <span className={styles.emptyTitle}>All Caught Up!</span>
+                <span className={styles.emptyText}>You don&apos;t have any notifications right now.</span>
+              </div>
+            )}
+          </div>
+
+          <div className={styles.footer}>
+            <Link
+              href={leagueId ? `/league/${leagueId}/inbox` : '/dashboard'}
+              className={styles.footerLink}
+              onClick={() => setIsOpen(false)}
+            >
+              View All Inbox
+            </Link>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

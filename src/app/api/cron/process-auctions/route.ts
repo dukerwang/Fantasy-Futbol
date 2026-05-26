@@ -477,8 +477,37 @@ export async function POST(req: NextRequest) {
             )
           });
         }
+
+        // Create in-game notifications
+        const { createNotification } = await import('@/lib/notifications/createNotification');
+        
+        // 1. Notify the winner
+        if (winnerTeam) {
+          await createNotification(admin, {
+            leagueId: league_id,
+            userId: winnerTeam.user_id,
+            title: 'Auction Won!',
+            content: `You secured **${(winner.player as any)?.name ?? 'Player'}** for **£${winner.faab_bid}m** in a ${realClaims.length}-bidder auction.${winner.drop_player_id ? ` **${(winner as any).drop_player_name}** was dropped to waivers to clear roster space.` : ''}`,
+            url: `/league/${league_id}/team`
+          });
+        }
+
+        // 2. Notify the losing bidders
+        const losingBidders = realClaims.filter(c => c.team_id !== winner!.team_id);
+        for (const loser of losingBidders) {
+          const loserTeam = leagueTeams?.find(t => t.id === loser.team_id);
+          if (loserTeam) {
+            await createNotification(admin, {
+              leagueId: league_id,
+              userId: loserTeam.user_id,
+              title: 'Waiver Auction Lost',
+              content: `Your waiver bid of **£${loser.faab_bid}m** for **${(winner!.player as any)?.name ?? 'Player'}** was unsuccessful. **${winnerTeam?.team_name ?? 'Another team'}** won the signature for **£${winner!.faab_bid}m**.`,
+              url: `/league/${league_id}/players`
+            });
+          }
+        }
       } catch (emailErr) {
-        console.error('[process-auctions] Failed to send auction result email:', emailErr);
+        console.error('[process-auctions] Failed to send auction result notifications:', emailErr);
       }
 
       processed++;

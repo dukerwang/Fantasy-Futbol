@@ -136,12 +136,24 @@ export async function POST(req: NextRequest) {
         await sendEmail({
           to: emails,
           subject: 'The Season Has Begun!',
-          html: getSystemAuctionsEmail(playerInfo, true, `\${baseUrl}/league/\${leagueId}`)
+          html: getSystemAuctionsEmail(playerInfo, true, `${baseUrl}/league/${leagueId}`)
+        });
+      }
+
+      // Create in-game notifications
+      const { createNotification } = await import('@/lib/notifications/createNotification');
+      for (const t of allTeams) {
+        await createNotification(admin, {
+          leagueId,
+          userId: t.user_id,
+          title: 'New Season Started!',
+          content: `The commissioner has officially kicked off the new season! Rosters are unlocked, and **${playersToAuction.length}** high-value summer arrivals have been added to the FAAB auction block.`,
+          url: `/league/${leagueId}`
         });
       }
     }
   } catch (err) {
-    console.error('[kickoff] Failed to send kickoff email:', err);
+    console.error('[kickoff] Failed to send kickoff notifications:', err);
   }
 
   return NextResponse.json({

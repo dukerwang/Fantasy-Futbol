@@ -149,13 +149,25 @@ export async function POST(req: NextRequest, { params }: Props) {
                     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://gaffa.live';
                     await sendEmail({
                         to: emails,
-                        subject: `Waiver Alert: \${player.name} Dropped`,
-                        html: getPlayerDroppedEmail(team.team_name, player.name, `\${baseUrl}/league/\${team.league_id}`)
+                        subject: `Waiver Alert: ${player.name} Dropped`,
+                        html: getPlayerDroppedEmail(team.team_name, player.name, `${baseUrl}/league/${team.league_id}`)
+                    });
+                }
+
+                // Create in-game notifications
+                const { createNotification } = await import('@/lib/notifications/createNotification');
+                for (const t of allTeams) {
+                    await createNotification(admin, {
+                        leagueId: team.league_id,
+                        userId: t.user_id,
+                        title: 'Waiver Alert: Player Dropped',
+                        content: `**${team.team_name}** dropped **${player.name}** to the waiver pool. A 48-hour FAAB waiver auction has automatically begun.`,
+                        url: `/league/${team.league_id}/players`
                     });
                 }
             }
         } catch (err) {
-            console.error('Failed to send drop email:', err);
+            console.error('Failed to send drop notifications:', err);
         }
     }
 

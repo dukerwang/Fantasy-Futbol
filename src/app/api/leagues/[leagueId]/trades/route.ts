@@ -241,20 +241,30 @@ export async function POST(req: NextRequest, { params }: Props) {
       const offeredNames = offeredPlayerIds.map(id => players?.find(p => p.id === id)?.name || 'Unknown Player');
       const requestedNames = requestedPlayerIds.map(id => players?.find(p => p.id === id)?.name || 'Unknown Player');
       
-      if (offeredFaab > 0) offeredNames.push(`£\${offeredFaab}m FAAB`);
-      if (requestedFaab > 0) requestedNames.push(`£\${requestedFaab}m FAAB`);
+      if (offeredFaab > 0) offeredNames.push(`£${offeredFaab}m FAAB`);
+      if (requestedFaab > 0) requestedNames.push(`£${requestedFaab}m FAAB`);
 
       const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://gaffa.live';
-      const actionUrl = `\${baseUrl}/league/\${leagueId}/trades`;
+      const actionUrl = `${baseUrl}/league/${leagueId}/trades`;
 
       await sendEmail({
         to: targetUser.email,
-        subject: `New Trade Proposal from \${myTeam.team_name}`,
+        subject: `New Trade Proposal from ${myTeam.team_name}`,
         html: getTradeProposedEmail(myTeam.team_name, requestedNames, offeredNames, actionUrl) // Notice flip: offered by me = received by them
+      });
+
+      // Create in-game notification for recipient manager
+      const { createNotification } = await import('@/lib/notifications/createNotification');
+      await createNotification(admin, {
+        leagueId,
+        userId: targetTeam.user_id,
+        title: 'New Trade Proposal!',
+        content: `**${myTeam.team_name}** has proposed a new trade. They are offering: **${requestedNames.join(', ')}** in exchange for: **${offeredNames.join(', ')}**.${message ? ` Message: "${message}"` : ''}`,
+        url: `/league/${leagueId}/trades`
       });
     }
   } catch (err) {
-    console.error('Failed to send trade proposal email:', err);
+    console.error('Failed to send trade proposal notifications:', err);
   }
 
   return NextResponse.json({ trade }, { status: 201 });

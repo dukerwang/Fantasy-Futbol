@@ -72,23 +72,35 @@ export async function POST(req: NextRequest, { params }: Props) {
       .select('user_id')
       .eq('league_id', leagueId);
       
-    if (allTeams && allTeams.length > 0) {
-      const userIds = allTeams.map(t => t.user_id);
-      const { data: users } = await admin.from('users').select('email').in('id', userIds);
-      const emails = (users ?? []).map(u => u.email).filter(Boolean);
+      if (allTeams && allTeams.length > 0) {
+        const userIds = allTeams.map(t => t.user_id);
+        const { data: users } = await admin.from('users').select('email').in('id', userIds);
+        const emails = (users ?? []).map(u => u.email).filter(Boolean);
 
-      if (emails.length > 0) {
-        const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://gaffa.live';
-        await sendEmail({
-          to: emails,
-          subject: 'Gaffa Draft: THE DRAFT HAS BEGUN!',
-          html: getDraftStartedEmail(league.name ?? 'Your League', `\${baseUrl}/league/\${leagueId}/draft`)
-        });
+        if (emails.length > 0) {
+          const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://gaffa.live';
+          await sendEmail({
+            to: emails,
+            subject: 'Gaffa Draft: THE DRAFT HAS BEGUN!',
+            html: getDraftStartedEmail(league.name ?? 'Your League', `\${baseUrl}/league/\${leagueId}/draft`)
+          });
+        }
+
+        // Create in-game notifications
+        const { createNotification } = await import('@/lib/notifications/createNotification');
+        for (const t of allTeams) {
+          await createNotification(admin, {
+            leagueId,
+            userId: t.user_id,
+            title: 'Draft Started!',
+            content: `The commissioner has officially started the draft for **${league.name}**! The War Room is now open.`,
+            url: `/league/${leagueId}/draft`
+          });
+        }
       }
+    } catch (err) {
+      console.error('[draft/start] Failed to send draft started notifications:', err);
     }
-  } catch (err) {
-    console.error('[draft/start] Failed to send draft started email:', err);
-  }
 
   return NextResponse.json({ ok: true });
 }

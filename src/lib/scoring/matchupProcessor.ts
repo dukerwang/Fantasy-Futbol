@@ -272,13 +272,25 @@ export async function processMatchupsForGameweek(gameweek: number, finished: boo
                                 gameweek,
                                 summary.results,
                                 summary.highScorer,
-                                `\${baseUrl}/league/\${leagueId}/standings`
+                                `${baseUrl}/league/${leagueId}/standings`
                             )
+                        });
+                    }
+
+                    // Create in-game notifications
+                    const { createNotification } = await import('@/lib/notifications/createNotification');
+                    for (const t of allTeams) {
+                        await createNotification(admin, {
+                            leagueId: leagueId,
+                            userId: t.user_id,
+                            title: `Gameweek ${gameweek} Review`,
+                            content: `Matchweek ${gameweek} is finalized! **${summary.highScorer.teamName}** top-scored with **${summary.highScorer.score.toFixed(1)}** points. Check all results now.`,
+                            url: `/league/${leagueId}`
                         });
                     }
                 }
             } catch (err) {
-                console.error(`[matchupProcessor] Failed to send summary for league \${leagueId}:`, err);
+                console.error(`[matchupProcessor] Failed to send summary for league ${leagueId}:`, err);
             }
         }
     }
