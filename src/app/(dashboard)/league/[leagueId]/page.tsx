@@ -55,6 +55,7 @@ function txCategoryStyle(type: string): { label: string; color: string; bg: stri
     case 'trade': return { label: 'TRADE', color: '#fff', bg: '#3b82f6' };
     case 'bid': return { label: 'BID', color: '#92400e', bg: '#fde68a' };
     case 'ir': return { label: 'IR', color: '#fff', bg: '#6b7280' };
+    case 'prize_payout': return { label: 'PRIZE PAYOUT', color: '#fff', bg: '#d97706' };
     default: return { label: type.toUpperCase().replace(/_/g, ' '), color: '#fff', bg: 'var(--color-text-muted)' };
   }
 }
@@ -103,6 +104,36 @@ export default async function LeaguePage({ params }: Props) {
     .single();
 
   const myTeamId = myTeam?.id ?? null;
+
+  // Check if league is active and ready for offseason reset
+  let showSeasonCompleteBanner = false;
+  if (league.status === 'active') {
+    const [incompleteMatchupsRes, incompleteTourneysRes] = await Promise.all([
+      admin
+        .from('matchups')
+        .select('id', { count: 'exact', head: true })
+        .eq('league_id', leagueId)
+        .neq('status', 'completed'),
+      admin
+        .from('tournaments')
+        .select('id', { count: 'exact', head: true })
+        .eq('league_id', leagueId)
+        .neq('status', 'completed')
+    ]);
+
+    const incompleteMatchups = incompleteMatchupsRes.count ?? 0;
+    const incompleteTourneys = incompleteTourneysRes.count ?? 0;
+
+    // Fetch total matchups count to ensure the league matches actually exist
+    const { count: totalMatchups } = await admin
+      .from('matchups')
+      .select('id', { count: 'exact', head: true })
+      .eq('league_id', leagueId);
+
+    if (totalMatchups && totalMatchups > 0 && incompleteMatchups === 0 && incompleteTourneys === 0) {
+      showSeasonCompleteBanner = true;
+    }
+  }
 
   // ── Parallel data fetches ────────────────────────────────────────────────
   const [
@@ -409,6 +440,26 @@ export default async function LeaguePage({ params }: Props) {
         </div>
       )}
 
+      {/* Season Complete Banner */}
+      {showSeasonCompleteBanner && (
+        <div className={styles.seasonCompleteBanner}>
+          <div className={styles.bannerIcon}>🏆</div>
+          <div className={styles.bannerContent}>
+            <h3>Season Complete! Ready for Offseason Reset</h3>
+            <p>
+              {league.commissioner_id === user.id
+                ? 'All regular season matchups and cup tournaments are finished. As the commissioner, you can now run the end-of-season reset to distribute FAAB prizes, process relegation compensations, and transition to the next season.'
+                : 'All matchups and cup tournaments have finished. The league is currently waiting for the commissioner to run the offseason reset and release FAAB prize compensations.'}
+            </p>
+          </div>
+          {league.commissioner_id === user.id && (
+            <Link href={`/league/${leagueId}/admin/offseason`} className={styles.bannerButton}>
+              Go to Offseason Panel
+            </Link>
+          )}
+        </div>
+      )}
+
       {/* ── Dashboard Grid ── */}
       <div className={styles.bodyRow}>
 
@@ -540,9 +591,15 @@ export default async function LeaguePage({ params }: Props) {
                     const faab = tx.faab_bid ? ` for a fee of £${tx.faab_bid}m` : '';
                     
                     let summaryText = <></>;
-                    if (tx.type === 'trade') summaryText = <>Trade completed by {teamName}.</>;
-                    else if (tx.type === 'drop') summaryText = <>{playerName} dropped by {teamName}.</>;
-                    else summaryText = <>{playerName} moves to {teamName}{faab}.</>;
+                    if (tx.type === 'trade') {
+                      summaryText = <>Trade completed by {teamName}.</>;
+                    } else if (tx.type === 'drop') {
+                      summaryText = <>{playerName} dropped by {teamName}.</>;
+                    } else if (tx.type === 'prize_payout') {
+                      summaryText = <>{tx.notes || `${teamName} received a prize payout.`}</>;
+                    } else {
+                      summaryText = <>{playerName} moves to {teamName}{faab}.</>;
+                    }
 
                     return (
                       <div key={tx.id} className={styles.gazetteRow}>

@@ -342,6 +342,60 @@ export async function executeAdvanceTournament(
 
     if (count === 0) {
       await admin.from('tournaments').update({ status: 'completed' }).eq('id', tournamentId);
+
+      // Query winner/runner-up details to log activity feed announcements
+      try {
+        const { data: finalRound } = await admin
+          .from('tournament_rounds')
+          .select('id')
+          .eq('tournament_id', tournamentId)
+          .order('round_number', { ascending: false })
+          .limit(1)
+          .single();
+
+        if (finalRound) {
+          const { data: finalMatchup } = await admin
+            .from('tournament_matchups')
+            .select('team_a_id, team_b_id, winner_id, team_a:teams!team_a_id(team_name), team_b:teams!team_b_id(team_name)')
+            .eq('round_id', finalRound.id)
+            .eq('status', 'completed')
+            .limit(1)
+            .single();
+
+          if (finalMatchup && finalMatchup.winner_id) {
+            const winnerId = finalMatchup.winner_id;
+            const runnerUpId = winnerId === finalMatchup.team_a_id ? finalMatchup.team_b_id : finalMatchup.team_a_id;
+            
+            const winnerName = (winnerId === finalMatchup.team_a_id
+              ? (finalMatchup.team_a as any)?.team_name
+              : (finalMatchup.team_b as any)?.team_name) ?? 'Unknown';
+
+            const runnerUpName = (runnerUpId === finalMatchup.team_a_id
+              ? (finalMatchup.team_a as any)?.team_name
+              : (finalMatchup.team_b as any)?.team_name) ?? 'Unknown';
+
+            // Log winner announcement transaction (type = prize_payout)
+            await admin.from('transactions').insert({
+              league_id: tournament.league_id,
+              team_id: winnerId,
+              type: 'prize_payout',
+              notes: `🏆 Winner of the ${tournament.name} (${winnerName})!`,
+            });
+
+            // Log runner-up announcement transaction (type = prize_payout)
+            if (runnerUpId) {
+              await admin.from('transactions').insert({
+                league_id: tournament.league_id,
+                team_id: runnerUpId,
+                type: 'prize_payout',
+                notes: `🥈 Runner-Up of the ${tournament.name} (${runnerUpName})!`,
+              });
+            }
+          }
+        }
+      } catch (logErr) {
+        console.error('[advanceTournament] Failed to log tournament completion activity:', logErr);
+      }
     }
   }
 

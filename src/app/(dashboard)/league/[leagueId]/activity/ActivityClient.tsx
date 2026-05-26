@@ -128,6 +128,11 @@ const TYPE_CONFIG: Record<string, TypeCfg> = {
     borderColor: 'var(--color-text-muted)',
     badgeVariant: 'gray',
   },
+  prize_payout: {
+    label: 'PRIZE PAYOUT',
+    borderColor: '#d97706',
+    badgeVariant: 'amber',
+  },
 };
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -331,6 +336,12 @@ function TypeIcon({ type, player }: { type: string; player: Player | null }) {
           <IconDraft />
         </div>
       );
+    case 'prize_payout':
+      return (
+        <div className={`${styles.iconSlot} ${styles.iconSlotAmber}`} style={{ fontSize: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          🏆
+        </div>
+      );
     default:
       return (
         <div className={`${styles.iconSlot} ${styles.iconSlotGray}`}>
@@ -480,6 +491,22 @@ function CardContent({ tx }: { tx: Transaction }) {
           {player && <PositionBadge position={player.primary_position} />}
           {player?.pl_team && (
             <span className={styles.cardClub}>· {player.pl_team}</span>
+          )}
+        </p>
+      );
+    }
+
+    case 'prize_payout': {
+      return (
+        <p className={styles.cardMain}>
+          <strong className={styles.cardTeam}>{teamName}</strong>
+          {tx.notes && (
+            <span className={styles.cardNotes}> — {tx.notes}</span>
+          )}
+          {tx.faab_bid != null && tx.faab_bid > 0 && (
+            <span className={styles.cardMeta} style={{ color: 'var(--color-accent-green)', marginLeft: '8px', fontWeight: 'bold' }}>
+              (+£{tx.faab_bid}m FAAB)
+            </span>
           )}
         </p>
       );

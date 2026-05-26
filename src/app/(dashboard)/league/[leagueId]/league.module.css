@@ -1457,3 +1457,74 @@
   color: var(--color-text-muted);
 }
 
+/* ── Season Complete Banner ── */
+.seasonCompleteBanner {
+  background: var(--color-bg-card);
+  border: 1px solid #d97706; /* amber border for gold theme */
+  border-left: 5px solid #d97706;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 24px;
+  margin-bottom: 8px;
+  box-shadow: var(--shadow-sm);
+}
+
+.bannerIcon {
+  font-size: 32px;
+  flex-shrink: 0;
+  animation: float 3s ease-in-out infinite;
+}
+
+.bannerContent {
+  flex: 1;
+}
+
+.bannerContent h3 {
+  font-family: 'Noto Serif', serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: #92400e;
+  margin: 0 0 6px 0;
+}
+
+.bannerContent p {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+.bannerButton {
+  background: #d97706;
+  color: #fff;
+  border: none;
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 10px 20px;
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  transition: background 0.2s, transform 0.1s;
+  box-shadow: 0 2px 4px rgba(217, 119, 6, 0.2);
+}
+
+.bannerButton:hover {
+  background: #b45309;
+  transform: translateY(-1px);
+}
+
+.bannerButton:active {
+  transform: translateY(0);
+}
+
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-4px); }
+  100% { transform: translateY(0px); }
+}
+
