@@ -159,7 +159,7 @@ export async function POST(req: NextRequest, { params }: Props) {
   // Verify target team is in this league
   const { data: targetTeam } = await admin
     .from('teams')
-    .select('id, faab_budget, user_id')
+    .select('id, team_name, faab_budget, user_id')
     .eq('id', targetTeamId)
     .eq('league_id', leagueId)
     .single();
@@ -261,6 +261,26 @@ export async function POST(req: NextRequest, { params }: Props) {
         title: 'New Trade Proposal!',
         content: `**${myTeam.team_name}** has proposed a new trade. They are offering: **${requestedNames.join(', ')}** in exchange for: **${offeredNames.join(', ')}**.${message ? ` Message: "${message}"` : ''}`,
         url: `/league/${leagueId}/trades`
+      });
+
+      // Broadcast trade proposal as a system chat message in league-lobby
+      const offeredNamesPlain = offeredPlayerIds.map(id => players?.find(p => p.id === id)?.name || 'Unknown Player');
+      const requestedNamesPlain = requestedPlayerIds.map(id => players?.find(p => p.id === id)?.name || 'Unknown Player');
+      if (offeredFaab > 0) offeredNamesPlain.push(`£${offeredFaab}m FAAB`);
+      if (requestedFaab > 0) requestedNamesPlain.push(`£${requestedFaab}m FAAB`);
+
+      await admin.from('chat_messages').insert({
+        league_id: leagueId,
+        sender_id: user.id,
+        recipient_id: null,
+        message: `[SYSTEM:TRADE_PROPOSAL:${JSON.stringify({
+          tradeId: trade.id,
+          proposerName: myTeam.team_name,
+          targetName: targetTeam.team_name,
+          offered: offeredNamesPlain,
+          requested: requestedNamesPlain,
+          isCounter: !!parentTradeId
+        })}]`
       });
     }
   } catch (err) {

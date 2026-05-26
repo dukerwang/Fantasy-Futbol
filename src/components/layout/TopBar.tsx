@@ -116,7 +116,6 @@ export default function TopBar() {
           { label: 'Stats', href: `${base}/stats` },
           { label: 'Finance', href: `${base}/finance` },
           { label: 'History', href: `${base}/history` },
-          { label: 'Chat & Lobby', href: `${base}/chat` },
         ],
       },
       {
@@ -320,6 +319,19 @@ export default function TopBar() {
               </div>
             )}
           </div>
+
+          {/* Persistent League Chat */}
+          {currentLeagueId && (
+            <Link
+              href={`/league/${currentLeagueId}/chat`}
+              className={`${styles.iconBtn} ${pathname?.startsWith(`/league/${currentLeagueId}/chat`) ? styles.iconBtnActive : ''}`}
+              title="League Chat Lobby"
+              aria-label="League Chat Lobby"
+              onClick={() => setIsNavigating(true)}
+            >
+              <Icon name="message-square" size={18} strokeWidth={1.5} />
+            </Link>
+          )}
 
           {/* Notification Bell */}
           <NotificationBell leagueId={currentLeagueId} />

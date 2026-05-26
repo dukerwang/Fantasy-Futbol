@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { Icon } from '@/components/ui/Icon';
 import styles from './Chat.module.css';
@@ -56,6 +57,7 @@ export default function ChatClient({
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const feedRef = useRef<HTMLDivElement>(null);
   const supabase = createClient();
+  const router = useRouter();
 
   // Scroll to bottom helper
   const scrollToBottom = (behavior: 'smooth' | 'auto' = 'smooth') => {
@@ -324,6 +326,17 @@ export default function ChatClient({
               const teamLabel = teamInfo ? teamInfo.team_name : (isSelf ? 'My Club' : '');
               const initial = senderName ? senderName[0].toUpperCase() : '?';
 
+              const isSystemTrade = m.message.startsWith('[SYSTEM:TRADE_PROPOSAL:');
+              let tradeData: any = null;
+              if (isSystemTrade) {
+                try {
+                  const jsonStr = m.message.substring('[SYSTEM:TRADE_PROPOSAL:'.length, m.message.length - 1);
+                  tradeData = JSON.parse(jsonStr);
+                } catch (e) {
+                  console.error('Failed to parse system trade msg:', e);
+                }
+              }
+
               return (
                 <div
                   key={m.id}
@@ -342,15 +355,49 @@ export default function ChatClient({
                       <span className={styles.msgTime}>{formatMsgTime(m.created_at)}</span>
                     </div>
 
-                    <div
-                      className={`
-                        ${styles.msgTextCard} 
-                        ${isSelf ? styles.msgTextCardSelf : ''} 
-                        ${m.recipient_id ? styles.msgTextCardDM : ''}
-                      `}
-                    >
-                      {m.message}
-                    </div>
+                    {isSystemTrade && tradeData ? (
+                      <div className={styles.tradeWidgetCard}>
+                        <div className={styles.tradeWidgetHeader}>
+                          <Icon name="repeat" size={16} className={styles.tradeWidgetIcon} />
+                          <span className={styles.tradeWidgetTitle}>
+                            {tradeData.isCounter ? 'Counter Trade Offer' : 'New Trade Proposed'}
+                          </span>
+                        </div>
+                        <div className={styles.tradeWidgetTeams}>
+                          <strong>{tradeData.proposerName}</strong> proposed to <strong>{tradeData.targetName}</strong>
+                        </div>
+                        <div className={styles.tradeWidgetOfferBlock}>
+                          <div className={styles.tradeWidgetCol}>
+                            <span className={styles.tradeWidgetLabel}>Giving:</span>
+                            <span className={styles.tradeWidgetValue}>
+                              {tradeData.offered && tradeData.offered.length > 0 ? tradeData.offered.join(', ') : 'None'}
+                            </span>
+                          </div>
+                          <div className={styles.tradeWidgetCol}>
+                            <span className={styles.tradeWidgetLabel}>Receiving:</span>
+                            <span className={styles.tradeWidgetValue}>
+                              {tradeData.requested && tradeData.requested.length > 0 ? tradeData.requested.join(', ') : 'None'}
+                            </span>
+                          </div>
+                        </div>
+                        <button
+                          className={styles.tradeWidgetBtn}
+                          onClick={() => router.push(`/league/${leagueId}/trades`)}
+                        >
+                          Review Trade Offer ↗
+                        </button>
+                      </div>
+                    ) : (
+                      <div
+                        className={`
+                          ${styles.msgTextCard} 
+                          ${isSelf ? styles.msgTextCardSelf : ''} 
+                          ${m.recipient_id ? styles.msgTextCardDM : ''}
+                        `}
+                      >
+                        {m.message}
+                      </div>
+                    )}
                   </div>
                 </div>
               );

@@ -363,3 +363,32 @@
     font-size: 12px;
   }
 }
+
+/* Persistent Header Icon Buttons */
+.iconBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-full);
+  background: transparent;
+  border: 1px solid var(--color-border);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  text-decoration: none;
+}
+
+.iconBtn:hover {
+  color: var(--color-text-primary);
+  border-color: var(--color-text-muted);
+  background: var(--color-bg-card-hover);
+}
+
+.iconBtnActive {
+  color: var(--color-accent-green);
+  border-color: var(--color-accent-green);
+  background: rgba(58, 107, 74, 0.05);
+}
+
