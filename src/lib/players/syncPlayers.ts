@@ -189,5 +189,25 @@ export async function syncPlayersFromFpl(admin: SupabaseClient): Promise<SyncPla
     }
   }
 
+  // ── Deactivate players no longer present in FPL API (Relegations / Permanent Departures) ──
+  const activeFplIdsInIncoming = new Set(finalRows.map((r) => r.fpl_id));
+  const missingPlayers = (existingPlayers ?? []).filter(
+    (p) => p.is_active && p.fpl_id != null && !activeFplIdsInIncoming.has(p.fpl_id)
+  );
+
+  if (missingPlayers.length > 0) {
+    const missingIds = missingPlayers.map((p) => p.id);
+    const { error: deactivateError } = await admin
+      .from('players')
+      .update({ is_active: false, updated_at: new Date().toISOString() })
+      .in('id', missingIds);
+
+    if (deactivateError) {
+      console.error(`[syncPlayers] Failed to deactivate ${missingIds.length} missing players:`, deactivateError.message);
+    } else {
+      console.log(`[syncPlayers] Deactivated ${missingIds.length} players missing from FPL API: ${missingPlayers.map(p => p.name).join(', ')}`);
+    }
+  }
+
   return { synced: rows.length, systemBidsSeeded: 0, autoTransferOuts };
 }

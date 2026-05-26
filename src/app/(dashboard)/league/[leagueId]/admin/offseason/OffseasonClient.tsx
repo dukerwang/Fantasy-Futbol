@@ -1,9 +1,8 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import styles from './offseason.module.css';
 import { Icon } from '@/components/ui/Icon';
-
 
 interface League {
   id: string;
@@ -34,6 +33,17 @@ interface PreflightData {
     incompleteTournaments: { id: string; name: string }[];
   };
   preview: {
+    seasonPrizes: { teamId: string; teamName: string; prizeKey: string; prizeLabel: string; amount: number }[];
+    cupPrizes: { teamId: string; teamName: string; prizeKey: string; prizeLabel: string; amount: number }[];
+    totalPrizeFaab: number;
+  };
+}
+
+interface KickoffPreviewData {
+  leagueId: string;
+  leagueStatus: string;
+  rosterLocked: boolean;
+  preview: {
     relegationPlayers: {
       playerId: string;
       playerName: string;
@@ -43,9 +53,11 @@ interface PreflightData {
       ownedBy: { teamName: string; leagueId: string }[];
     }[];
     totalRelegationFaab: number;
-    seasonPrizes: { teamId: string; teamName: string; prizeKey: string; prizeLabel: string; amount: number }[];
-    cupPrizes: { teamId: string; teamName: string; prizeKey: string; prizeLabel: string; amount: number }[];
-    totalPrizeFaab: number;
+    summerArrivals: {
+      id: string;
+      name: string;
+      marketValue: number;
+    }[];
   };
 }
 
@@ -54,6 +66,7 @@ type ResetPhase = 'idle' | 'loading_preview' | 'preview_ready' | 'confirming' | 
 export default function OffseasonClient({ leagueId, league, cronSecret }: Props) {
   const [phase, setPhase] = useState<ResetPhase>('idle');
   const [preflightData, setPreflightData] = useState<PreflightData | null>(null);
+  const [kickoffPreviewData, setKickoffPreviewData] = useState<KickoffPreviewData | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [result, setResult] = useState<any>(null);
 
@@ -67,6 +80,23 @@ export default function OffseasonClient({ leagueId, league, cronSecret }: Props)
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? 'Failed to load preview');
       setPreflightData(data);
+      setPhase('preview_ready');
+    } catch (err: any) {
+      setErrorMsg(err.message);
+      setPhase('error');
+    }
+  }, [leagueId, cronSecret]);
+
+  const loadKickoffPreview = useCallback(async () => {
+    setPhase('loading_preview');
+    setErrorMsg(null);
+    try {
+      const res = await fetch(`/api/admin/offseason/kickoff?league_id=${leagueId}`, {
+        headers: { 'x-cron-secret': cronSecret },
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? 'Failed to load kickoff preview');
+      setKickoffPreviewData(data);
       setPhase('preview_ready');
     } catch (err: any) {
       setErrorMsg(err.message);
@@ -101,59 +131,44 @@ export default function OffseasonClient({ leagueId, league, cronSecret }: Props)
     }
   };
 
+  const runKickoff = async () => {
+    setPhase('running');
+    setErrorMsg(null);
+    try {
+      const res = await fetch('/api/admin/offseason/kickoff', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-cron-secret': cronSecret,
+        },
+        body: JSON.stringify({ league_id: leagueId }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? 'Kickoff failed');
+      setResult({
+        ...data,
+        isKickoff: true,
+      });
+      setPhase('done');
+    } catch (err: any) {
+      setErrorMsg(err.message);
+      setPhase('error');
+    }
+  };
+
   const alreadyInOffseason = league.status === 'offseason';
 
   return (
     <div className={styles.page}>
       <header className={styles.header}>
         <p className={styles.eyebrow}>{league.name} · Commissioner Tools</p>
-        <h1 className={styles.title}>End-of-Season Reset</h1>
+        <h1 className={styles.title}>Season Transition Panel</h1>
         <p className={styles.subtitle}>
           Transition from <strong>{league.current_season}</strong> to the next season.
-          This will archive standings, distribute prizes, process relegation compensation,
-          and clear the match schedule for regeneration.
+          First close the active season with a **Season Reset** to archive results and distribute standings FAAB prizes,
+          then execute the **Season Kickoff** later in the summer to process permanent relegation drops and open the transfer market.
         </p>
       </header>
-
-      {/* Kickoff New Season */}
-      {alreadyInOffseason && phase !== 'done' && (
-        <div className={styles.actionCard}>
-          <h2 className={styles.cardTitle}>Kickoff New Season</h2>
-          <p className={styles.cardDesc}>
-            This league is currently in offseason mode. When you are ready to begin the new season, click the button below. This will unlock rosters, set the league active, and dump all new unowned high-value summer arrivals (£40m+) into a massive 48-hour FAAB auction block.
-          </p>
-          <button
-            className={styles.btnPrimary}
-            onClick={async () => {
-              setPhase('running');
-              setErrorMsg(null);
-              try {
-                const res = await fetch('/api/admin/offseason/kickoff', {
-                  method: 'POST',
-                  headers: {
-                    'Content-Type': 'application/json',
-                    'x-cron-secret': cronSecret,
-                  },
-                  body: JSON.stringify({ league_id: leagueId }),
-                });
-                const data = await res.json();
-                if (!res.ok) throw new Error(data.error ?? 'Kickoff failed');
-                setResult({
-                  ...data,
-                  isKickoff: true,
-                });
-                setPhase('done');
-              } catch (err: any) {
-                setErrorMsg(err.message);
-                setPhase('error');
-              }
-            }}
-            disabled={phase === 'running'}
-          >
-            {phase === 'running' ? 'Starting Season...' : 'Start New Season'}
-          </button>
-        </div>
-      )}
 
       {/* Roster lock status */}
       <div className={styles.statusRow}>
@@ -172,13 +187,25 @@ export default function OffseasonClient({ leagueId, league, cronSecret }: Props)
         </div>
       </div>
 
+      {/* Kickoff Season: Preview Trigger */}
+      {alreadyInOffseason && phase === 'idle' && (
+        <div className={styles.actionCard}>
+          <h2 className={styles.cardTitle}>Step 2 — Kickoff New Season</h2>
+          <p className={styles.cardDesc}>
+            Load a preview of the upcoming season's roster changes. This will show summer arrivals crossing the Transfermarkt threshold (£40m+) that will be placed on the system auction block, and all relegated or permanently departed players who will be officially dropped and their managers compensated.
+          </p>
+          <button className={styles.btnPrimary} onClick={loadKickoffPreview}>
+            Load Kickoff Preview
+          </button>
+        </div>
+      )}
+
       {/* Load Preview */}
       {phase === 'idle' && !alreadyInOffseason && (
         <div className={styles.actionCard}>
           <h2 className={styles.cardTitle}>Step 1 — Run Preflight Check</h2>
           <p className={styles.cardDesc}>
-            Before resetting, load a preview of what will happen: prize payouts,
-            relegated players on rosters, and whether all matchups and cups have completed.
+            Before resetting the season, load a preview of final standings prizes, Cup payouts, and matchup status checks. Relegation drops are delayed until the summer kickoff to give players a grace period to transfer back to the Prem.
           </p>
           <button className={styles.btnPrimary} onClick={loadPreview}>
             Load Preview
@@ -189,7 +216,7 @@ export default function OffseasonClient({ leagueId, league, cronSecret }: Props)
       {phase === 'loading_preview' && (
         <div className={styles.loadingBox}>
           <div className={styles.spinner} />
-          <p>Running preflight checks…</p>
+          <p>Running preflight and preview analysis…</p>
         </div>
       )}
 
@@ -198,12 +225,12 @@ export default function OffseasonClient({ leagueId, league, cronSecret }: Props)
         <div className={styles.alertBox} data-type="error">
           <span className={styles.alertIcon}><Icon name="x" size={16} /></span>
           <span>{errorMsg}</span>
-          <button className={styles.btnSmall} onClick={loadPreview}>Retry</button>
+          <button className={styles.btnSmall} onClick={alreadyInOffseason ? loadKickoffPreview : loadPreview}>Retry</button>
         </div>
       )}
 
-      {/* Preview */}
-      {(phase === 'preview_ready' || phase === 'confirming') && preflightData && (
+      {/* RESET PREVIEW */}
+      {(phase === 'preview_ready' || phase === 'confirming') && preflightData && !alreadyInOffseason && (
         <>
           {/* Preflight status */}
           <section className={styles.section}>
@@ -236,49 +263,9 @@ export default function OffseasonClient({ leagueId, league, cronSecret }: Props)
               <span className={styles.arrow}>→</span>
               <div className={`${styles.seasonBadge} ${styles.seasonBadgeNext}`}>{preflightData.seasonTo}</div>
             </div>
-          </section>
-
-          {/* Relegated players */}
-          <section className={styles.section}>
-            <h2 className={styles.sectionTitle}>
-              Relegation Compensation
-              <span className={styles.sectionBadge}>{preflightData.preview.relegationPlayers.length} players</span>
-            </h2>
-            {preflightData.preview.relegationPlayers.length === 0 ? (
-              <p className={styles.emptyState}>No relegated players are on fantasy rosters — no compensation required.</p>
-            ) : (
-              <div className={styles.tableWrapper}>
-                <table className={styles.table}>
-                  <thead>
-                    <tr>
-                      <th>Player</th>
-                      <th>Club</th>
-                      <th>Market Value</th>
-                      <th>FAAB Payout (80%)</th>
-                      <th>Roster Owner</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {preflightData.preview.relegationPlayers.map((p) => (
-                      <tr key={p.playerId}>
-                        <td className={styles.playerName}>{p.playerName}</td>
-                        <td className={styles.clubName}>{p.club}</td>
-                        <td>£{p.marketValue.toFixed(1)}m</td>
-                        <td className={styles.faabAmount}>+{p.compensationFaab.toFixed(1)}</td>
-                        <td>{p.ownedBy.map((o) => o.teamName).join(', ')}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                  <tfoot>
-                    <tr>
-                      <td colSpan={3}><strong>Total Relegation FAAB</strong></td>
-                      <td className={styles.faabAmount}><strong>+{preflightData.preview.totalRelegationFaab.toFixed(1)}</strong></td>
-                      <td />
-                    </tr>
-                  </tfoot>
-                </table>
-              </div>
-            )}
+            <p className={styles.cardDesc} style={{ marginTop: '10px' }}>
+              ℹ️ Relegated and departed players remain on rosters throughout the summer as a **Grace Period** in case they secure transfers back to a Premier League team before kickoff!
+            </p>
           </section>
 
           {/* Season prizes */}
@@ -342,8 +329,8 @@ export default function OffseasonClient({ leagueId, league, cronSecret }: Props)
               <h2 className={styles.cardTitle}>Step 2 — Confirm & Execute Reset</h2>
               <p className={styles.cardDesc}>
                 This action is <strong>irreversible</strong>. It will archive the {preflightData.seasonFrom} season,
-                pay out all prizes, process relegation compensation, delete all matchups and
-                tournaments for regeneration, and transition the league to offseason mode.
+                pay out all standings and tournament prizes, delete all matchups and brackets for regeneration,
+                and transition the league to offseason mode.
               </p>
               <button className={styles.btnDanger} onClick={() => setPhase('confirming')}>
                 I Understand — Proceed to Confirm
@@ -357,7 +344,7 @@ export default function OffseasonClient({ leagueId, league, cronSecret }: Props)
                 ⚠️ <strong>Are you absolutely sure?</strong><br />
                 This will permanently close the <strong>{preflightData.seasonFrom}</strong> season
                 and cannot be undone. All prizes will be paid, rosters will be locked,
-                and matchup data will be cleared.
+                and matchup/cup data will be cleared.
               </p>
               <div className={styles.confirmButtons}>
                 <button className={styles.btnDanger} onClick={runReset}>
@@ -372,15 +359,112 @@ export default function OffseasonClient({ leagueId, league, cronSecret }: Props)
         </>
       )}
 
+      {/* KICKOFF PREVIEW */}
+      {phase === 'preview_ready' && kickoffPreviewData && alreadyInOffseason && (
+        <>
+          {/* Relegation Compensation */}
+          <section className={styles.section}>
+            <h2 className={styles.sectionTitle}>
+              Summer Relegation & Transfer Departures
+              <span className={styles.sectionBadge}>{kickoffPreviewData.preview.relegationPlayers.length} players</span>
+            </h2>
+            <p className={styles.cardDesc} style={{ marginBottom: '15px' }}>
+              These players have officially departed the Premier League (either via team relegation or permanent transfer abroad) and did not secure a transfer back to the Prem during the summer grace period. They will be dropped from fantasy rosters and their managers compensated with **80% FAAB**.
+            </p>
+            {kickoffPreviewData.preview.relegationPlayers.length === 0 ? (
+              <p className={styles.emptyState}>No relegated or departed players are rostered — no payouts needed.</p>
+            ) : (
+              <div className={styles.tableWrapper}>
+                <table className={styles.table}>
+                  <thead>
+                    <tr>
+                      <th>Player</th>
+                      <th>Club</th>
+                      <th>Market Value</th>
+                      <th>FAAB Payout (80%)</th>
+                      <th>Roster Owner</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {kickoffPreviewData.preview.relegationPlayers.map((p) => (
+                      <tr key={p.playerId}>
+                        <td className={styles.playerName}>{p.playerName}</td>
+                        <td className={styles.clubName}>{p.club}</td>
+                        <td>£{p.marketValue.toFixed(1)}m</td>
+                        <td className={styles.faabAmount}>+{p.compensationFaab.toFixed(1)}</td>
+                        <td>{p.ownedBy.map((o) => o.teamName).join(', ')}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                  <tfoot>
+                    <tr>
+                      <td colSpan={3}><strong>Total Compensation Paid</strong></td>
+                      <td className={styles.faabAmount}><strong>+{kickoffPreviewData.preview.totalRelegationFaab.toFixed(1)}</strong></td>
+                      <td />
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+            )}
+          </section>
+
+          {/* Summer Arrivals */}
+          <section className={styles.section}>
+            <h2 className={styles.sectionTitle}>
+              Summer arrivals on Auction
+              <span className={styles.sectionBadge}>{kickoffPreviewData.preview.summerArrivals.length} players</span>
+            </h2>
+            <p className={styles.cardDesc} style={{ marginBottom: '15px' }}>
+              These are brand-new high-value arrivals (Transfermarkt value **&gt;= £40m**) who entered the league over the summer. To ensure fairness, they will be placed in a **48-hour system-wide FAAB auction** block immediately upon kickoff, rather than being claimable via standard first-come-first-served free agency.
+            </p>
+            {kickoffPreviewData.preview.summerArrivals.length === 0 ? (
+              <p className={styles.emptyState}>No high-value summer arrivals detected.</p>
+            ) : (
+              <div className={styles.tableWrapper}>
+                <table className={styles.table}>
+                  <thead>
+                    <tr>
+                      <th>Player</th>
+                      <th>Transfermarkt Value</th>
+                      <th>Auction Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {kickoffPreviewData.preview.summerArrivals.map((p) => (
+                      <tr key={p.id}>
+                        <td className={styles.playerName}>{p.name}</td>
+                        <td>£{p.marketValue.toFixed(1)}m</td>
+                        <td className={styles.faabAmount}>Pending (48H Auction)</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </section>
+
+          {/* Execute Kickoff Card */}
+          <div className={styles.actionCard} data-type="danger">
+            <h2 className={styles.cardTitle}>Confirm & Kickoff Season</h2>
+            <p className={styles.cardDesc}>
+              This will officially begin the new season! Rosters will be **unlocked**, the league status will be updated to **active**, all pending relegated/departed players will be permanently dropped with FAAB payouts, and the 48-hour summer auctions will be created.
+            </p>
+            <button className={styles.btnPrimary} onClick={runKickoff}>
+              Yes — Start New Season
+            </button>
+          </div>
+        </>
+      )}
+
       {/* Running */}
       {phase === 'running' && (
         <div className={styles.loadingBox}>
           <div className={styles.spinner} />
-          <p>Running offseason reset… this may take up to 30 seconds.</p>
+          <p>Processing season transition… this may take up to 30 seconds.</p>
         </div>
       )}
 
-      {/* Done (Kickoff) */}
+      {/* Done (Kickoff Result) */}
       {phase === 'done' && result?.isKickoff && (
         <div className={styles.resultSection}>
           <div className={styles.alertBox} data-type="success">
@@ -390,24 +474,49 @@ export default function OffseasonClient({ leagueId, league, cronSecret }: Props)
             </span>
           </div>
 
-          <div className={styles.nextStepsCard}>
-            <h2 className={styles.cardTitle}>Summer Auction Block</h2>
-            <p className={styles.cardDesc}>
-              <strong>{result.auctionsCreated}</strong> players have been added to the FAAB auction block. 
-              These are unowned high-value arrivals (£40m+) that transferred over the summer.
-            </p>
-            {result.auctionedPlayers?.length > 0 && (
+          <div className={styles.resultGrid} style={{ marginBottom: '30px' }}>
+            <div className={styles.resultCard}>
+              <span className={styles.resultNumber}>{result.relegationResults?.length ?? 0}</span>
+              <span className={styles.resultLabel}>Departed Players Dropped</span>
+            </div>
+            <div className={styles.resultCard}>
+              <span className={styles.resultNumber}>{result.auctionsCreated}</span>
+              <span className={styles.resultLabel}>Marquee Summer Auctions Seeded</span>
+            </div>
+          </div>
+
+          {result.relegationResults?.length > 0 && (
+            <div className={styles.nextStepsCard} style={{ marginBottom: '20px' }}>
+              <h2 className={styles.cardTitle}>Completed Relegation drops & Payouts</h2>
               <ul className={styles.nextStepsList}>
-                {result.auctionedPlayers.map((name: string, i: number) => (
-                  <li key={i}>{name}</li>
+                {result.relegationResults.map((r: any) => (
+                  <li key={r.playerId}>
+                    ❌ <strong>{r.playerName}</strong> ({r.club}) dropped — Owners compensated: {r.affectedRosters.map((t: any) => `${t.teamName} (+£${r.compensationFaab}m)`).join(', ')}
+                  </li>
                 ))}
               </ul>
+            </div>
+          )}
+
+          <div className={styles.nextStepsCard}>
+            <h2 className={styles.cardTitle}>Summer Auction Block Activated</h2>
+            <p className={styles.cardDesc}>
+              Managers have **48 hours** to place their initial FAAB bids on the following new marquee arrivals:
+            </p>
+            {result.auctionedPlayers?.length > 0 ? (
+              <ul className={styles.nextStepsList}>
+                {result.auctionedPlayers.map((name: string, i: number) => (
+                  <li key={i}>⭐ <strong>{name}</strong></li>
+                ))}
+              </ul>
+            ) : (
+              <p className={styles.emptyState}>No summer arrivals placed on the auction block.</p>
             )}
           </div>
         </div>
       )}
 
-      {/* Done (Reset) */}
+      {/* Done (Reset Result) */}
       {phase === 'done' && result && !result.isKickoff && (
         <div className={styles.resultSection}>
           <div className={styles.alertBox} data-type="success">
@@ -432,10 +541,6 @@ export default function OffseasonClient({ leagueId, league, cronSecret }: Props)
               <span className={styles.resultLabel}>Total FAAB Distributed</span>
             </div>
             <div className={styles.resultCard}>
-              <span className={styles.resultNumber}>{result.relegationResults?.length ?? 0}</span>
-              <span className={styles.resultLabel}>Relegation Payouts</span>
-            </div>
-            <div className={styles.resultCard}>
               <span className={styles.resultNumber}>{result.matchupsReset}</span>
               <span className={styles.resultLabel}>Matchups Cleared</span>
             </div>
@@ -446,11 +551,11 @@ export default function OffseasonClient({ leagueId, league, cronSecret }: Props)
           </div>
 
           <div className={styles.nextStepsCard}>
-            <h2 className={styles.cardTitle}>Reset Complete</h2>
+            <h2 className={styles.cardTitle}>Reset Complete — Grace Period Active</h2>
             <p className={styles.cardDesc}>
-              The season transition is entirely automated. You do not need to do anything else.
-              The Vercel cron job will automatically sync the new FPL players at 02:00 UTC.
-              Set <code>leagues.status = 'active'</code> when you are ready to begin the new season.
+              The old season has been archived, prizes paid, and new schedules/brackets have been generated for <strong>{result.seasonTo}</strong>.
+              Rosters are locked. Relegated players will remain on rosters as a grace period. 
+              Run the **Kickoff** later in the summer when you are ready to process final relegation drops and activate the league!
             </p>
           </div>
         </div>

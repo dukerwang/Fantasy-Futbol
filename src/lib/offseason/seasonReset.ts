@@ -21,7 +21,6 @@
  */
 
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { processRelegationCompensation, type RelegationResult } from './relegationHandler';
 import { distributeAllPrizes, type PrizeEntry } from './prizeDistribution';
 import { insertMatchups } from '@/lib/schedule/insertMatchups';
 import { createAllTournaments, type CreateTournamentResult } from '@/lib/tournaments/createTournaments';
@@ -39,7 +38,6 @@ export interface ResetResult {
   seasonTo: string;
   prizesPaid: PrizeEntry[];
   totalPrizeFaab: number;
-  relegationResults: RelegationResult[];
   matchupsReset: number;
   tournamentsReset: number;
   standingsArchived: number;
@@ -235,10 +233,7 @@ export async function runSeasonReset(
   // Step 3: Distribute prizes
   const { paid: prizesPaid, totalFaab: totalPrizeFaab } = await distributeAllPrizes(admin, leagueId, seasonFrom);
 
-  // Step 4: Process relegation compensation
-  const relegationResults = await processRelegationCompensation(admin, leagueId, seasonFrom, seasonTo);
-
-  // Step 5: Reset matchup schedule
+  // Step 4: Reset matchup schedule
   const matchupsReset = await resetMatchups(admin, leagueId);
 
   // Step 6: Reset tournaments
@@ -354,7 +349,6 @@ export async function runSeasonReset(
     seasonTo,
     prizesPaid,
     totalPrizeFaab,
-    relegationResults,
     matchupsReset,
     tournamentsReset,
     standingsArchived,
