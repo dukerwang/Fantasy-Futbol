@@ -272,7 +272,82 @@ export async function runSeasonReset(
     return { matchupsGenerated: 0, tournamentsCreated: [] };
   });
 
+  // Step 11: Send League and Cup Champions notifications to all managers
+  try {
+    const { createNotification } = await import('@/lib/notifications/createNotification');
+    const { data: leagueTeams } = await admin
+      .from('teams')
+      .select('user_id')
+      .eq('league_id', leagueId);
 
+    const leagueChamp = prizesPaid.find(p => p.prizeKey === 'season_1st')?.teamName;
+    const championsCupWinner = prizesPaid.find(p => p.prizeKey === 'champions_cup_winner')?.teamName;
+    const leagueCupWinner = prizesPaid.find(p => p.prizeKey === 'league_cup_winner')?.teamName;
+    const consolationCupWinner = prizesPaid.find(p => p.prizeKey === 'consolation_cup_winner')?.teamName;
+
+    const shortSeason = seasonFrom.replace(/20(\d{2})-20(\d{2})/g, '$1/$2').replace(/20(\d{2})-(\d{2})/g, '$1/$2');
+
+    if (leagueTeams && leagueTeams.length > 0) {
+      for (const t of leagueTeams) {
+        // Send League Champions notification
+        if (leagueChamp) {
+          await createNotification(admin, {
+            leagueId,
+            userId: t.user_id,
+            title: '🏆 League Champions Crowned!',
+            content: `**${leagueChamp}** are your ${shortSeason} League Champions!`,
+            url: `/league/${leagueId}/history`
+          });
+        }
+
+        // Send Champions Cup Winner notification
+        if (championsCupWinner) {
+          await createNotification(admin, {
+            leagueId,
+            userId: t.user_id,
+            title: '🏆 Champions Cup Winner!',
+            content: `**${championsCupWinner}** have won the Champions Cup!`,
+            url: `/league/${leagueId}/tournaments`
+          });
+        }
+
+        // Send League Cup Winner notification
+        if (leagueCupWinner) {
+          await createNotification(admin, {
+            leagueId,
+            userId: t.user_id,
+            title: '🏆 League Cup Winner!',
+            content: `**${leagueCupWinner}** have won the League Cup!`,
+            url: `/league/${leagueId}/tournaments`
+          });
+        }
+
+        // Send Consolation Cup Winner notification
+        if (consolationCupWinner) {
+          await createNotification(admin, {
+            leagueId,
+            userId: t.user_id,
+            title: '🏆 Consolation Cup Winner!',
+            content: `**${consolationCupWinner}** have won the Consolation Cup!`,
+            url: `/league/${leagueId}/tournaments`
+          });
+        }
+      }
+    }
+
+    // Also send a public system announcement chat message in the lobby
+    const announcerTeam = prizesPaid.find(p => p.prizeKey === 'season_1st') || prizesPaid[0];
+    if (announcerTeam && leagueChamp) {
+      await admin.from('chat_messages').insert({
+        league_id: leagueId,
+        sender_id: announcerTeam.teamId, // attributed to the league champion's user profile!
+        recipient_id: null,
+        message: `🏆 **ALL HAIL THE CHAMPIONS** 🏆\n\n- **${leagueChamp}** are Gaffa's official **${shortSeason} League Champions**!\n${championsCupWinner ? `- **${championsCupWinner}** have won the **Champions Cup**!\n` : ''}${leagueCupWinner ? `- **${leagueCupWinner}** have won the **League Cup**!\n` : ''}${consolationCupWinner ? `- **${consolationCupWinner}** have won the **Consolation Cup**!\n` : ''}\nAll dynasty prizes and FAAB allocations are fully updated. Review historical archives at /league/${leagueId}/history!`,
+      });
+    }
+  } catch (err) {
+    console.error('[seasonReset] Failed to generate champions notifications:', err);
+  }
 
   return {
     seasonFrom,
