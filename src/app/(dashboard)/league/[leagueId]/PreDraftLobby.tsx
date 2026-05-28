@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
-import ChatClient from './chat/ChatClient';
+import SidebarChat from './SidebarChat';
 import DraftOrderManager from './DraftOrderManager';
 import styles from './preDraftLobby.module.css';
 import type { League, Team } from '@/types';
@@ -222,9 +222,8 @@ export default function PreDraftLobby({
 
       {/* Right Pane - Sidebar Chat */}
       <div className={styles.rightPane}>
-        <ChatClient
+        <SidebarChat
           leagueId={leagueId}
-          leagueName={league.name}
           currentUserId={myUserId}
           currentUsername={currentUsername}
         />

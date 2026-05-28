@@ -9,7 +9,7 @@ import { createClient } from '@/lib/supabase/client';
 import { formatPlayerName } from '@/lib/formatName';
 import type { League, Team, Player, DraftPick } from '@/types';
 import PlayerDetailsModal from '@/components/players/PlayerDetailsModal';
-import ChatClient from '../chat/ChatClient';
+import SidebarChat from '../SidebarChat';
 import styles from './draft.module.css';
 
 
@@ -1098,9 +1098,8 @@ export default function DraftRoom({
           {sidebarTab === 'chat' && (
             <div className={styles.tabContent}>
               <div className={styles.draftChatWrapper}>
-                <ChatClient
+                <SidebarChat
                   leagueId={leagueId}
-                  leagueName={league.name}
                   currentUserId={myUserId}
                   currentUsername={(myTeam as any)?.user?.username || (myTeam as any)?.user?.email?.split('@')[0] || 'Manager'}
                 />
