@@ -53,6 +53,7 @@ export default function ChatClient({
   const [isSending, setIsSending] = useState(false);
   const [loading, setLoading] = useState(true);
   const [unreadDMs, setUnreadDMs] = useState<Set<string>>(new Set());
+  const [mobileView, setMobileView] = useState<'list' | 'chat'>('list');
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const feedRef = useRef<HTMLDivElement>(null);
@@ -227,7 +228,7 @@ export default function ChatClient({
   const otherManagers = teams.filter((t) => t.user_id !== currentUserId);
 
   return (
-    <div className={styles.chatLayout}>
+    <div className={`${styles.chatLayout} ${mobileView === 'chat' ? styles.mobileShowChat : styles.mobileShowList}`}>
       {/* Sidebar: Channels & Managers */}
       <aside className={styles.sidebar}>
         <div className={styles.sidebarHeader}>
@@ -240,7 +241,10 @@ export default function ChatClient({
             <div className={styles.sectionHeader}>Channels</div>
             <button
               className={`${styles.sidebarBtn} ${activeTab.type === 'lobby' ? styles.sidebarBtnActive : ''}`}
-              onClick={() => setActiveTab({ type: 'lobby' })}
+              onClick={() => {
+                setActiveTab({ type: 'lobby' });
+                setMobileView('chat');
+              }}
             >
               <Icon name="message-square" className={styles.icon} size={16} />
               <span style={{ flex: 1, fontWeight: activeTab.type === 'lobby' ? 'bold' : 'normal' }}>
@@ -262,14 +266,15 @@ export default function ChatClient({
                   <button
                     key={team.user_id}
                     className={`${styles.sidebarBtn} ${isActive ? styles.sidebarBtnActive : ''}`}
-                    onClick={() =>
+                    onClick={() => {
                       setActiveTab({
                         type: 'dm',
                         userId: team.user_id,
                         username: team.user.username,
                         teamName: team.team_name
-                      })
-                    }
+                      });
+                      setMobileView('chat');
+                    }}
                   >
                     <span className={styles.managerAvatar}>{managerInitial}</span>
                     <div className={styles.managerInfo}>
@@ -293,6 +298,17 @@ export default function ChatClient({
       <section className={styles.mainPanel}>
         {/* Thread Header */}
         <header className={styles.panelHeader}>
+          {/* Back button (Mobile Only) */}
+          <button
+            className={styles.mobileBackBtn}
+            onClick={() => setMobileView('list')}
+            type="button"
+            aria-label="Back to chats list"
+          >
+            <Icon name="chevron-left" size={18} strokeWidth={2.5} />
+            <span>Chats</span>
+          </button>
+
           <div className={styles.panelTitle}>
             {activeTab.type === 'lobby' ? (
               <>

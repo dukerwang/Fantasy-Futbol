@@ -1127,3 +1127,49 @@
   0%, 100% { opacity: 1; }
   50% { opacity: 0.5; }
 }
+
+/* --- Mobile Transfers Tactile Cards --- */
+@media (max-width: 768px) {
+  .playerCard {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-4);
+    padding: var(--space-4);
+  }
+  .playerIdentity {
+    align-items: center;
+    text-align: center;
+  }
+  .playerName {
+    text-align: center;
+  }
+  .playerStats {
+    border-left: none;
+    border-right: none;
+    padding: var(--space-2) 0;
+    justify-content: space-evenly;
+    flex-shrink: 0;
+  }
+  .bidBtn,
+  .inAuctionBadge {
+    width: 100%;
+    text-align: center;
+  }
+  .searchRow {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-2);
+  }
+  .searchBtn {
+    width: 100%;
+  }
+  .faabBadge {
+    align-items: center;
+    width: 100%;
+    margin-top: var(--space-2);
+  }
+  .tab {
+    padding: 10px 12px;
+    font-size: 9px;
+  }
+}

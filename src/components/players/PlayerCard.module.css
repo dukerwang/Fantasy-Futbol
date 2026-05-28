@@ -274,3 +274,33 @@
   background: #1c2128;
   border-color: #30363d;
 }
+
+/* --- Mobile Compact Player Card Layout --- */
+@media (max-width: 600px) {
+  .card {
+    flex-direction: column;
+    align-items: stretch;
+    padding: var(--space-4);
+    gap: var(--space-3);
+  }
+  .left {
+    gap: var(--space-3);
+    width: 100%;
+  }
+  .right {
+    width: 100%;
+    justify-content: space-between;
+    border-top: 1px solid var(--color-border-subtle);
+    padding-top: var(--space-2);
+    gap: var(--space-4);
+  }
+  .actions {
+    flex: 1;
+    justify-content: flex-end;
+  }
+  .actions button {
+    flex: 1;
+    max-width: 120px;
+    text-align: center;
+  }
+}

@@ -194,6 +194,8 @@ export interface Team {
   faab_budget: number;
   total_points: number;
   draft_order: number | null;
+  abbreviation: string | null;
+  logo_url: string | null;
   created_at: string;
   updated_at: string;
   // Joined fields

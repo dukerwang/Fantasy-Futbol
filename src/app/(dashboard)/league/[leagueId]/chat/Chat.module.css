@@ -471,3 +471,91 @@
   opacity: 0.9;
 }
 
+/* --- Mobile Chat UI Layout --- */
+.mobileBackBtn {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .chatLayout {
+    height: calc(100vh - var(--nav-height));
+    position: relative;
+    overflow: hidden;
+  }
+
+  .sidebar {
+    width: 100% !important;
+    max-width: 100%;
+    border-right: none;
+  }
+
+  .mainPanel {
+    width: 100% !important;
+    max-width: 100%;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 10;
+  }
+
+  .mobileShowList .sidebar {
+    display: flex;
+  }
+
+  .mobileShowList .mainPanel {
+    display: none;
+  }
+
+  .mobileShowChat .sidebar {
+    display: none;
+  }
+
+  .mobileShowChat .mainPanel {
+    display: flex;
+  }
+
+  .panelHeader {
+    padding: 0 var(--space-4);
+    gap: var(--space-3);
+  }
+
+  .mobileBackBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--color-accent-green);
+    font-family: var(--font-sans);
+    font-size: 14px;
+    font-weight: var(--font-semibold);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    flex-shrink: 0;
+    padding: var(--space-1) 0;
+    margin-right: var(--space-2);
+  }
+
+  .panelTitle {
+    font-size: 14px;
+  }
+
+  .panelSubtitle {
+    display: none; /* Hide subtitle to preserve header horizontal space */
+  }
+
+  .messagesFeed {
+    padding: var(--space-4);
+    gap: var(--space-4);
+  }
+
+  .msgRow {
+    max-width: 90%;
+  }
+
+  .inputArea {
+    padding: var(--space-3) var(--space-4);
+  }
+}
+

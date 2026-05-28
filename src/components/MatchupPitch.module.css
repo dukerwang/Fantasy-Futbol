@@ -439,3 +439,24 @@
     font-weight: 700;
     color: var(--color-text-primary);
 }
+
+/* --- Mobile Matchups Vertical Stacking --- */
+@media (max-width: 768px) {
+    .pitchSurface {
+        aspect-ratio: auto;
+        max-height: none;
+        height: auto;
+        padding: 8px;
+    }
+    .pitchHalvesGrid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+    .halfOuter {
+        height: 520px; /* Standalone portrait height on mobile */
+    }
+    .breakdownGrid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+}

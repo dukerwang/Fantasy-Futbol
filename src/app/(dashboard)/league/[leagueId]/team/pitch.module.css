@@ -1137,3 +1137,52 @@
     flex-shrink: 0;
     line-height: 1;
 }
+
+/* --- Mobile Pitch Responsive Scaling --- */
+@media (max-width: 600px) {
+    .pitchContainer {
+        padding: 10px 6px;
+    }
+    .pitchRow {
+        padding: 4px;
+        gap: 4px;
+        min-height: 80px;
+    }
+    .pitchNodeWrap {
+        min-width: 60px;
+        max-width: 72px;
+        gap: 3px;
+    }
+    .nodePhotoMount {
+        width: 42px;
+        height: 48px;
+        border-width: 2px;
+    }
+    .nodePhotoPlaceholder {
+        font-size: 0.85rem;
+    }
+    .pitchNode {
+        min-width: 60px;
+    }
+    .nodeChipBody {
+        padding: 3px 2px 4px 2px;
+        gap: 2px;
+    }
+    .nodePlayerNameCenter {
+        font-size: 0.55rem;
+    }
+    .nodePosBadge,
+    .nodeTeamChip {
+        font-size: 0.42rem;
+        padding: 1px 3px;
+    }
+    .nodePtsBadge {
+        font-size: 0.4rem;
+        top: -4px;
+        right: -4px;
+        padding: 1px 3px;
+    }
+    .nodeEmptyLabel {
+        font-size: 0.5rem;
+    }
+}

@@ -527,3 +527,37 @@
 .saveBtn:not(:disabled):hover {
     opacity: 0.9;
 }
+
+/* --- Mobile Pitch Responsive Scaling --- */
+@media (max-width: 600px) {
+    .pitchContainer {
+        padding: 0.5rem 0.25rem;
+        min-height: 480px;
+    }
+    .pitchRow {
+        padding: 0 0.25rem;
+    }
+    .pitchNode {
+        width: 62px;
+        min-height: 64px;
+        padding: 0.25rem 0.12rem;
+        gap: 2px;
+    }
+    .nodePlayerName {
+        font-size: 0.6rem;
+        max-width: 58px;
+    }
+    .nodePlayerClub {
+        font-size: 0.52rem;
+        max-width: 58px;
+    }
+    .nodePosBadge {
+        min-width: 22px;
+        height: 14px;
+        font-size: 0.55rem;
+        padding: 0 2px;
+    }
+    .nodeEmptyLabel {
+        font-size: 0.55rem;
+    }
+}

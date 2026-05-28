@@ -73,6 +73,69 @@
   box-shadow: 0 4px 14px rgba(58, 107, 74, 0.3);
 }
 
+/* --- Mobile Bottom Sheet UI --- */
+.dragHandle {
+  display: none;
+}
+
+.cardScaler {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+@media (max-width: 768px) {
+  .overlay {
+    align-items: flex-end;
+    justify-content: center;
+    padding: 0;
+  }
+
+  .box {
+    width: 100vw;
+    background: var(--color-bg-card);
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    box-shadow: 0 -8px 32px rgba(10, 12, 16, 0.18);
+    padding: var(--space-4) var(--space-4) var(--space-8);
+    animation: slideUpMobile 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+    border-top: 1px solid var(--color-border-subtle);
+  }
+
+  .dragHandle {
+    display: block;
+    width: 36px;
+    height: 4px;
+    background: var(--color-border);
+    border-radius: var(--radius-full);
+    margin: 0 auto var(--space-4) auto;
+    flex-shrink: 0;
+  }
+
+  .actions {
+    width: 100%;
+    max-width: 360px;
+    margin: 0 auto;
+    padding: 0 var(--space-2);
+  }
+}
+
 @media (max-width: 400px) {
-  .actions { width: calc(100vw - 20px); }
+  .cardScaler {
+    transform: scale(0.9);
+    transform-origin: center top;
+    margin-bottom: -52px;
+  }
+}
+
+@media (max-width: 350px) {
+  .cardScaler {
+    transform: scale(0.78);
+    transform-origin: center top;
+    margin-bottom: -114px;
+  }
+}
+
+@keyframes slideUpMobile {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
 }

@@ -35,6 +35,7 @@ export default function TopBar() {
   const [leagueSwitcherOpen, setLeagueSwitcherOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [isNavigating, setIsNavigating] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const leagueSwitcherRef = useRef<HTMLDivElement>(null);
   const dropdownTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -53,6 +54,7 @@ export default function TopBar() {
   useEffect(() => {
     setIsNavigating(false);
     setOpenDropdown(null);
+    setMobileMenuOpen(false);
   }, [pathname]);
 
   // Fetch user's teams + leagues via server API (bypasses RLS)
@@ -348,8 +350,94 @@ export default function TopBar() {
           <button onClick={handleSignOut} className={styles.signOut} type="button">
             Sign out
           </button>
+
+          {/* Hamburger Menu Toggle (Mobile Only) */}
+          {currentLeagueId && (
+            <button
+              className={styles.menuToggle}
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              type="button"
+              aria-label="Toggle navigation menu"
+              aria-expanded={mobileMenuOpen}
+            >
+              {mobileMenuOpen ? (
+                <Icon name="x" size={20} strokeWidth={2} />
+              ) : (
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M4 6h16M4 12h16M4 18h16" strokeLinecap="round" />
+                </svg>
+              )}
+            </button>
+          )}
         </div>
       </div>
+
+      {/* --- Mobile Drawer Navigation (Mobile Only) --- */}
+      {currentLeagueId && mobileMenuOpen && (
+        <div className={styles.mobileDrawer}>
+          <div className={styles.mobileDrawerContent}>
+            {/* Home (standalone) */}
+            <div className={styles.mobileDrawerItem}>
+              <Link
+                href={`/league/${currentLeagueId}`}
+                className={`${styles.mobileDrawerLink} ${isHomeActive() ? styles.mobileDrawerLinkActive : ''}`}
+                onClick={() => {
+                  setIsNavigating(true);
+                  setMobileMenuOpen(false);
+                }}
+              >
+                Home
+              </Link>
+            </div>
+
+            {/* Nav Groups */}
+            {navGroups.map((group) => (
+              <div key={group.label} className={styles.mobileDrawerGroup}>
+                <div className={styles.mobileDrawerGroupLabel}>{group.label}</div>
+                <div className={styles.mobileDrawerGroupItems}>
+                  {group.items.map((item) => (
+                    item.disabled ? (
+                      <span
+                        key={item.label}
+                        className={`${styles.mobileDrawerSubLink} ${styles.mobileDrawerSubLinkDisabled}`}
+                      >
+                        {item.label}
+                        <span style={{ fontSize: '9px', marginLeft: '6px', opacity: 0.5 }}>Soon</span>
+                      </span>
+                    ) : (
+                      <Link
+                        key={item.label}
+                        href={item.href}
+                        className={`${styles.mobileDrawerSubLink} ${pathname?.startsWith(item.href) ? styles.mobileDrawerSubLinkActive : ''}`}
+                        onClick={() => {
+                          setIsNavigating(true);
+                          setMobileMenuOpen(false);
+                        }}
+                      >
+                        {item.label}
+                      </Link>
+                    )
+                  ))}
+                </div>
+              </div>
+            ))}
+
+            {/* Activity (standalone) */}
+            <div className={styles.mobileDrawerItem}>
+              <Link
+                href={`/league/${currentLeagueId}/activity`}
+                className={`${styles.mobileDrawerLink} ${isActivityActive() ? styles.mobileDrawerLinkActive : ''}`}
+                onClick={() => {
+                  setIsNavigating(true);
+                  setMobileMenuOpen(false);
+                }}
+              >
+                Activity
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
     </nav>
   );
 }

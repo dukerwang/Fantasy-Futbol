@@ -253,6 +253,54 @@
   .bodyRow {
     grid-template-columns: 1fr;
   }
+
+  /* --- Dashboard Mobile Layouts --- */
+  .heroCard {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto;
+    text-align: center;
+    min-height: 0;
+  }
+  .heroTeam {
+    padding: var(--space-4);
+    align-items: center !important;
+    text-align: center !important;
+  }
+  .heroTeamRight {
+    border-left: none;
+    border-top: 1px solid var(--color-border-subtle);
+  }
+  .heroTeam:first-child {
+    border-right: none;
+    border-bottom: 1px solid var(--color-border-subtle);
+  }
+  .heroCenterBlock {
+    padding: var(--space-4) 0;
+    order: -1;
+    border-bottom: 1px solid var(--color-border-subtle);
+  }
+  .heroScoreGroup {
+    gap: var(--space-4);
+  }
+  .standingsCard,
+  .rightSection,
+  .gazette {
+    padding: var(--space-4);
+  }
+  .standingsHeaderRow,
+  .standingsRow {
+    grid-template-columns: 28px 1fr 60px 50px;
+    padding: 10px 4px;
+  }
+  .standingsColTeam {
+    font-size: 13px;
+  }
+  .standingsColRecord {
+    font-size: 11px;
+  }
+  .standingsColPts {
+    font-size: 12px;
+  }
 }
 
 .leftCol,
