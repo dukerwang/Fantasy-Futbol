@@ -6,6 +6,8 @@ import { formatPlayerName } from '@/lib/formatName';
 import styles from './league.module.css';
 import DraftOrderManager from './DraftOrderManager';
 import LeaveLeagueButton from './LeaveLeagueButton';
+import PreDraftLobby from './PreDraftLobby';
+
 import { getFplStatus } from '@/lib/fpl/api';
 import { processMatchupsForGameweek } from '@/lib/scoring/matchupProcessor';
 
@@ -178,7 +180,7 @@ export default async function LeaguePage({ params }: Props) {
     // All teams
     admin
       .from('teams')
-      .select('id, team_name, draft_order')
+      .select('id, team_name, draft_order, abbreviation, logo_url, user_id, user:users(id, username, email)')
       .eq('league_id', leagueId),
 
     // Recent activity
@@ -220,7 +222,7 @@ export default async function LeaguePage({ params }: Props) {
   let myMatchups = myMatchupsResult.data ?? [];
   const auctions = auctionsResult.data ?? [];
   const activity = activityResult.data ?? [];
-  const initialTeams = (teamsResult.data ?? []) as Array<{ id: string; team_name: string; draft_order: number | null }>;
+  const initialTeams = (teamsResult.data ?? []) as any[];
   const taxiSquad = taxiResult?.data ?? [];
   const tournaments = tournamentsResult?.data ?? [];
   let recentMatchups = recentMatchupsResult?.data ?? [];
@@ -425,6 +427,25 @@ export default async function LeaguePage({ params }: Props) {
   const oppStanding = standings.find((s: any) => s.team_id === oppTeam?.id);
   const userRecord = userStanding ? `${userStanding.wins}W · ${userStanding.draws}D · ${userStanding.losses}L` : '0W · 0D · 0L';
   const oppRecord = oppStanding ? `${oppStanding.wins}W · ${oppStanding.draws}D · ${oppStanding.losses}L` : '0W · 0D · 0L';
+
+  // If the league is in setup or drafting phase, render the dedicated Pre-Draft waiting room lobby
+  if (league.status === 'setup' || league.status === 'drafting') {
+    const isCommissioner = league.commissioner_id === user.id;
+    const currentUsername = user.user_metadata?.username ?? user.user_metadata?.preferred_username ?? user.email?.split('@')[0] ?? 'Manager';
+    const myDetailedTeam = initialTeams.find(t => t.user_id === user.id) ?? null;
+
+    return (
+      <PreDraftLobby
+        leagueId={leagueId}
+        league={league}
+        teams={initialTeams}
+        myUserId={user.id}
+        myTeam={myDetailedTeam}
+        currentUsername={currentUsername}
+        isCommissioner={isCommissioner}
+      />
+    );
+  }
 
   // ── Render ────────────────────────────────────────────────────────────────
   return (

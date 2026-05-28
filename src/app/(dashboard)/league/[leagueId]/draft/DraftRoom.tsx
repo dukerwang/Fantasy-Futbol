@@ -9,7 +9,9 @@ import { createClient } from '@/lib/supabase/client';
 import { formatPlayerName } from '@/lib/formatName';
 import type { League, Team, Player, DraftPick } from '@/types';
 import PlayerDetailsModal from '@/components/players/PlayerDetailsModal';
+import ChatClient from '../chat/ChatClient';
 import styles from './draft.module.css';
+
 
 const TIMER_SECONDS = 90;
 const QUEUE_STORAGE_KEY = (leagueId: string, teamId: string) =>
@@ -189,7 +191,7 @@ export default function DraftRoom({
   const [pickError, setPickError] = useState<string | null>(null);
   const [secondsLeft, setSecondsLeft] = useState(TIMER_SECONDS);
   const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null);
-  const [sidebarTab, setSidebarTab] = useState<'players' | 'roster' | 'queue'>('players');
+  const [sidebarTab, setSidebarTab] = useState<'players' | 'roster' | 'queue' | 'chat'>('players');
 
   // Scouting Leaderboard Advanced Filters & Sorting States
   const [advancedOpen, setAdvancedOpen] = useState(false);
@@ -653,7 +655,7 @@ export default function DraftRoom({
                     >
                       <span className={styles.stripPickLabel}>{item.label}</span>
                       <span className={styles.stripTeamName}>
-                        {item.team?.team_name ?? '—'}
+                        {item.team?.abbreviation ?? item.team?.team_name ?? '—'}
                       </span>
                       {item.isCurrent && (
                         <span className={styles.stripPickingNow}>PICKING NOW</span>
@@ -710,7 +712,7 @@ export default function DraftRoom({
                         currentTeam?.id === team.id && !isDraftComplete ? styles.onClockHeader : '',
                       ].filter(Boolean).join(' ')}
                     >
-                      <span className={styles.teamHeaderName}>{team.team_name}</span>
+                      <span className={styles.teamHeaderName}>{team.abbreviation ?? team.team_name}</span>
                     </th>
                   ))}
                 </tr>
@@ -815,6 +817,13 @@ export default function DraftRoom({
               onClick={() => setSidebarTab('queue')}
             >
               Queue{activeQueuePlayers.length > 0 ? ` (${activeQueuePlayers.length})` : ''}
+            </button>
+            <button
+              type="button"
+              className={`${styles.sidebarTab} ${sidebarTab === 'chat' ? styles.sidebarTabActive : ''}`}
+              onClick={() => setSidebarTab('chat')}
+            >
+              Chat
             </button>
           </div>
 
@@ -1082,6 +1091,20 @@ export default function DraftRoom({
                   </ul>
                 </>
               )}
+            </div>
+          )}
+
+          {/* Chat Tab */}
+          {sidebarTab === 'chat' && (
+            <div className={styles.tabContent}>
+              <div className={styles.draftChatWrapper}>
+                <ChatClient
+                  leagueId={leagueId}
+                  leagueName={league.name}
+                  currentUserId={myUserId}
+                  currentUsername={(myTeam as any)?.user?.username || (myTeam as any)?.user?.email?.split('@')[0] || 'Manager'}
+                />
+              </div>
             </div>
           )}
         </aside>
