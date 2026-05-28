@@ -192,6 +192,7 @@ export default function DraftRoom({
   const [secondsLeft, setSecondsLeft] = useState(TIMER_SECONDS);
   const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null);
   const [sidebarTab, setSidebarTab] = useState<'players' | 'roster' | 'queue' | 'chat'>('players');
+  const [rosterSortMode, setRosterSortMode] = useState<'draft' | 'position'>('draft');
 
   // Scouting Leaderboard Advanced Filters & Sorting States
   const [advancedOpen, setAdvancedOpen] = useState(false);
@@ -497,12 +498,17 @@ export default function DraftRoom({
 
   const myRoster = useMemo(() => {
     if (!myTeam) return [];
-    return [...(teamPicks[myTeam.id] ?? [])].sort((a, b) => {
-      const posA = POSITION_ORDER.indexOf(a.player?.primary_position as typeof POSITION_ORDER[number]);
-      const posB = POSITION_ORDER.indexOf(b.player?.primary_position as typeof POSITION_ORDER[number]);
-      return (posA === -1 ? 99 : posA) - (posB === -1 ? 99 : posB);
-    });
-  }, [teamPicks, myTeam]);
+    const rosterPicks = [...(teamPicks[myTeam.id] ?? [])];
+    if (rosterSortMode === 'draft') {
+      return rosterPicks.sort((a, b) => a.pick - b.pick);
+    } else {
+      return rosterPicks.sort((a, b) => {
+        const posA = POSITION_ORDER.indexOf(a.player?.primary_position as typeof POSITION_ORDER[number]);
+        const posB = POSITION_ORDER.indexOf(b.player?.primary_position as typeof POSITION_ORDER[number]);
+        return (posA === -1 ? 99 : posA) - (posB === -1 ? 99 : posB);
+      });
+    }
+  }, [teamPicks, myTeam, rosterSortMode]);
 
   const makePick = useCallback(async (playerId: string) => {
     if (!isMyTurn || loadingPick || !currentTeam || !myTeam) return;
@@ -975,6 +981,24 @@ export default function DraftRoom({
           {/* My Roster Tab */}
           {sidebarTab === 'roster' && (
             <div className={styles.tabContentScrollable}>
+              {myRoster.length > 0 && (
+                <div className={styles.rosterToggleBar}>
+                  <button
+                    type="button"
+                    className={`${styles.rosterToggleBtn} ${rosterSortMode === 'draft' ? styles.rosterToggleBtnActive : ''}`}
+                    onClick={() => setRosterSortMode('draft')}
+                  >
+                    By Draft Pick
+                  </button>
+                  <button
+                    type="button"
+                    className={`${styles.rosterToggleBtn} ${rosterSortMode === 'position' ? styles.rosterToggleBtnActive : ''}`}
+                    onClick={() => setRosterSortMode('position')}
+                  >
+                    By Position
+                  </button>
+                </div>
+              )}
               {myRoster.length === 0 ? (
                 <div className={styles.emptyStateWrap}>
                   <p className={styles.emptyState}>No picks yet.</p>

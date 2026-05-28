@@ -54,7 +54,84 @@ export default function PreDraftLobby({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Profile picture upload & cropper states
+  const [imageToCrop, setImageToCrop] = useState<string | null>(null);
+  const [cropZoom, setCropZoom] = useState(1);
+  const [cropX, setCropX] = useState(0);
+  const [cropY, setCropY] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+
   const supabase = createClient();
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      setError('Please select a valid image file (PNG/JPEG)');
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      setError('File exceeds 5MB size limit.');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      if (event.target?.result) {
+        setImageToCrop(event.target.result as string);
+        setCropZoom(1);
+        setCropX(0);
+        setCropY(0);
+        setError(null);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleApplyCrop = () => {
+    if (!imageToCrop) return;
+
+    const img = new Image();
+    img.src = imageToCrop;
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = 150;
+      canvas.height = 150;
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, 150, 150);
+
+        const scale = cropZoom * (150 / 200);
+        const cx = 75;
+        const cy = 75;
+
+        ctx.save();
+        ctx.translate(cx + cropX * (150 / 200), cy + cropY * (150 / 200));
+        ctx.scale(scale, scale);
+
+        const imgRatio = img.width / img.height;
+        let dw, dh;
+        if (imgRatio >= 1) {
+          dh = 200;
+          dw = 200 * imgRatio;
+        } else {
+          dw = 200;
+          dh = 200 / imgRatio;
+        }
+
+        ctx.drawImage(img, -dw / 2, -dh / 2, dw, dh);
+        ctx.restore();
+
+        const base64 = canvas.toDataURL('image/jpeg', 0.85);
+        setEditLogo(base64);
+        setImageToCrop(null);
+      }
+    };
+  };
 
   async function handleSaveIdentity(e: React.FormEvent) {
     e.preventDefault();
@@ -270,14 +347,130 @@ export default function PreDraftLobby({
                 </div>
 
                 <div className={styles.inputGroup}>
-                  <label className={styles.inputLabel}>Profile Logo URL</label>
-                  <input
-                    type="url"
-                    className={styles.textInput}
-                    placeholder="e.g. https://domain.com/photo.png"
-                    value={editLogo}
-                    onChange={(e) => setEditLogo(e.target.value)}
-                  />
+                  <label className={styles.inputLabel}>Profile Photo / Logo</label>
+                  
+                  {imageToCrop ? (
+                    <div className={styles.cropperWorkspace}>
+                      <p className={styles.cropperHint}>Drag to center your photo, then adjust the zoom below.</p>
+                      
+                      <div
+                        className={styles.cropperContainer}
+                        onMouseDown={(e) => {
+                          setIsDragging(true);
+                          setDragStart({ x: e.clientX - cropX, y: e.clientY - cropY });
+                        }}
+                        onMouseMove={(e) => {
+                          if (!isDragging) return;
+                          setCropX(e.clientX - dragStart.x);
+                          setCropY(e.clientY - dragStart.y);
+                        }}
+                        onMouseUp={() => setIsDragging(false)}
+                        onMouseLeave={() => setIsDragging(false)}
+                        onTouchStart={(e) => {
+                          if (e.touches.length === 1) {
+                            setIsDragging(true);
+                            setDragStart({ x: e.touches[0].clientX - cropX, y: e.touches[0].clientY - cropY });
+                          }
+                        }}
+                        onTouchMove={(e) => {
+                          if (!isDragging || e.touches.length !== 1) return;
+                          setCropX(e.touches[0].clientX - dragStart.x);
+                          setCropY(e.touches[0].clientY - dragStart.y);
+                        }}
+                        onTouchEnd={() => setIsDragging(false)}
+                      >
+                        <img
+                          src={imageToCrop}
+                          alt="Crop preview"
+                          className={styles.cropperImage}
+                          style={{
+                            transform: `translate(${cropX}px, ${cropY}px) scale(${cropZoom})`,
+                          }}
+                          draggable={false}
+                        />
+                        <div className={styles.cropperOverlay} />
+                      </div>
+
+                      <div className={styles.cropperControls}>
+                        <div className={styles.zoomRow}>
+                          <span className={styles.zoomLabel}>Zoom:</span>
+                          <input
+                            type="range"
+                            min="1"
+                            max="3"
+                            step="0.05"
+                            value={cropZoom}
+                            onChange={(e) => setCropZoom(parseFloat(e.target.value))}
+                            className={styles.zoomSlider}
+                          />
+                        </div>
+                        <div className={styles.cropperButtons}>
+                          <button
+                            type="button"
+                            className={styles.cropCancelBtn}
+                            onClick={() => setImageToCrop(null)}
+                          >
+                            Cancel
+                          </button>
+                          <button
+                            type="button"
+                            className={styles.cropApplyBtn}
+                            onClick={handleApplyCrop}
+                          >
+                            Apply Crop
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className={styles.uploadArea}>
+                      <div className={styles.uploadPreviewRow}>
+                        <div className={styles.uploadAvatarPreview}>
+                          {editLogo ? (
+                            <img src={editLogo} alt="Preview" className={styles.previewLogoImg} />
+                          ) : (
+                            <div className={styles.previewLogoFallback}>
+                              {getInitials(editName, editAbbr)}
+                            </div>
+                          )}
+                        </div>
+                        <div className={styles.uploadBtnCol}>
+                          <label className={styles.fileUploadLabel}>
+                            Choose File...
+                            <input
+                              type="file"
+                              accept="image/png, image/jpeg, image/jpg"
+                              onChange={handleFileChange}
+                              className={styles.hiddenFileInput}
+                            />
+                          </label>
+                          <span className={styles.uploadRequirements}>
+                            Supports JPG or PNG. Max size 5MB.
+                          </span>
+                          {editLogo && (
+                            <button
+                              type="button"
+                              onClick={() => setEditLogo('')}
+                              className={styles.removeLogoBtn}
+                            >
+                              Remove Photo
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                      
+                      <div className={styles.urlInputFallback}>
+                        <label className={styles.urlLabel}>Or enter direct Image URL:</label>
+                        <input
+                          type="url"
+                          className={styles.textInput}
+                          placeholder="e.g. https://domain.com/photo.png"
+                          value={editLogo}
+                          onChange={(e) => setEditLogo(e.target.value)}
+                        />
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {error && <p className={styles.modalError}>{error}</p>}

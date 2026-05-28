@@ -501,10 +501,10 @@ export default function PremiumPlayerCard({
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                {gamelog.map((g) => {
+                                                {gamelog.map((g, index) => {
                                                     if (g.isDNP) {
                                                         return (
-                                                            <tr key={g.gameweek} className={styles.dnpRow}>
+                                                            <tr key={`${g.gameweek}-${g.opponent ?? index}`} className={styles.dnpRow}>
                                                                 <td className={styles.gwTd}>{g.gameweek}</td>
                                                                 <td className={styles.oppTd}>{g.opponent}</td>
                                                                 <td colSpan={5} className={styles.dnpTd}>DNP</td>
@@ -516,7 +516,7 @@ export default function PremiumPlayerCard({
                                                     const resText = parsedRes?.text ?? g.result;
                                                     
                                                     return (
-                                                        <tr key={g.gameweek}>
+                                                        <tr key={`${g.gameweek}-${g.opponent ?? index}`}>
                                                             <td className={styles.gwTd}>{g.gameweek}</td>
                                                             <td className={styles.oppTd}>
                                                                 {g.opponent}
