@@ -347,9 +347,9 @@
   position: sticky;
   top: 0;
   z-index: 10;
-  width: 130px;
-  min-width: 130px;
-  max-width: 130px;
+  width: auto;
+  min-width: 0;
+  max-width: none;
   overflow: hidden;
 }
 
@@ -395,9 +395,9 @@
 
 .pickCell {
   height: 68px;
-  width: 130px;
-  min-width: 130px;
-  max-width: 130px;
+  width: auto;
+  min-width: 0;
+  max-width: none;
   border: 1px solid var(--color-border-subtle);
   vertical-align: middle;
   position: relative;
