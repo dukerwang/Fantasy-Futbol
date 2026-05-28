@@ -33,6 +33,9 @@ function cellPickLabel(roundNum: number, teamDraftOrder: number, numTeams: numbe
   return `${String(roundNum).padStart(2, '0')}.${String(posInRound).padStart(2, '0')}`;
 }
 
+type SortKey = 'total_points' | 'ppg' | 'avg_rating' | 'market_value' | 'form' | 'total_minutes';
+type SortDir = 'desc' | 'asc';
+
 interface Props {
   leagueId: string;
   league: League;
@@ -41,16 +44,21 @@ interface Props {
   allPlayers: Player[];
   myUserId: string;
   myTeam: Team | null;
+  shadowMaps: {
+    all: Record<string, Record<string, { gp: number; total_points: number; avg_rating: number; total_minutes: number }>>;
+    gt45: Record<string, Record<string, { gp: number; total_points: number; avg_rating: number; total_minutes: number }>>;
+  };
 }
 
 const POSITION_ORDER = ['GK', 'CB', 'LB', 'RB', 'LWB', 'RWB', 'DM', 'CM', 'AM', 'LW', 'RW', 'ST'] as const;
 
 interface PlayerRowCustomProps {
-  players: Player[];
+  players: { player: Player; activePos: string }[];
   queue: string[];
   myTurn: boolean;
   picking: boolean;
   draftDone: boolean;
+  shadowByPlayer: Record<string, Record<string, { gp: number; total_points: number; avg_rating: number; total_minutes: number }>>;
   onToggleQueue: (id: string) => void;
   onMakePick: (id: string) => void;
   onSelectPlayer: (p: Player) => void;
@@ -64,46 +72,75 @@ function PlayerRow({
   myTurn,
   picking,
   draftDone,
+  shadowByPlayer,
   onToggleQueue,
   onMakePick,
   onSelectPlayer,
 }: { index: number; style: React.CSSProperties; ariaAttributes: Record<string, unknown> } & PlayerRowCustomProps) {
-  const player = players[index];
-  if (!player) return null;
+  const item = players[index];
+  if (!item) return null;
+  const { player, activePos } = item;
   const isQueued = queue.includes(player.id);
+  const isMyPick = myTurn && !picking && !draftDone;
+
+  const s = shadowByPlayer[player.id]?.[activePos];
+  const gp = s ? s.gp : 0;
+  const totalPoints = s ? s.total_points : 0;
+  const ppg = s && s.gp > 0 ? (s.total_points / s.gp).toFixed(1) : '—';
+  const avgRating = s && s.gp > 0 ? s.avg_rating.toFixed(1) : '—';
+  const form = player.form_rating != null ? Number(player.form_rating).toFixed(1) : '—';
+  const value = player.market_value != null ? `£${Number(player.market_value).toFixed(1)}m` : '—';
 
   return (
     <div style={style} className={styles.playerRow} onClick={() => onSelectPlayer(player)}>
-      <div className={styles.playerRowLeft}>
-        <span className={`${styles.posBadge} ${styles[`pos${player.primary_position}` as keyof typeof styles]}`}>
-          {player.primary_position}
-        </span>
-        <div className={styles.playerInfo}>
-          <span className={styles.playerName}>{formatPlayerName(player, 'initial_last')}</span>
-          <span className={styles.playerClub}>{player.pl_team}</span>
+      {/* Sticky Player + Actions Column */}
+      <div className={styles.tdPlayerSticky}>
+        <div className={styles.playerRowLeft}>
+          <div className={styles.posRow}>
+            <span className={`${styles.posBadge} ${styles[`pos${player.primary_position}` as keyof typeof styles]}`}>
+              {player.primary_position}
+            </span>
+            {player.primary_position !== activePos && (
+              <>
+                <span className={styles.secArrow}>→</span>
+                <span className={styles.activeSecBadge} title={`Secondary role: ${activePos}`}>
+                  {activePos}
+                </span>
+              </>
+            )}
+          </div>
+          <div className={styles.playerInfo}>
+            <span className={styles.playerName}>{formatPlayerName(player, 'initial_last')}</span>
+            <span className={styles.playerClub}>{player.pl_team}</span>
+          </div>
+        </div>
+        <div className={styles.rowActions}>
+          <button
+            type="button"
+            className={`${styles.queueBtn} ${isQueued ? styles.queueBtnActive : ''}`}
+            onClick={(e) => { e.stopPropagation(); onToggleQueue(player.id); }}
+            title={isQueued ? 'Remove from queue' : 'Add to queue'}
+          >
+            {isQueued ? '★' : '☆'}
+          </button>
+          <button
+            type="button"
+            className={`${styles.draftBtn} ${!isMyPick ? styles.draftBtnDisabled : ''}`}
+            onClick={(e) => { e.stopPropagation(); onMakePick(player.id); }}
+            disabled={!isMyPick}
+          >
+            Draft
+          </button>
         </div>
       </div>
-      <div className={styles.playerRowRight}>
-        {player.ppg != null && (
-          <span className={styles.playerPpg}>{Number(player.ppg).toFixed(2)}</span>
-        )}
-        <button
-          type="button"
-          className={`${styles.queueBtn} ${isQueued ? styles.queueBtnActive : ''}`}
-          onClick={(e) => { e.stopPropagation(); onToggleQueue(player.id); }}
-          title={isQueued ? 'Remove from queue' : 'Add to queue'}
-        >
-          {isQueued ? '★' : '☆'}
-        </button>
-        <button
-          type="button"
-          className={`${styles.draftBtn} ${(!myTurn || picking || draftDone) ? styles.draftBtnDisabled : ''}`}
-          onClick={(e) => { e.stopPropagation(); onMakePick(player.id); }}
-          disabled={!myTurn || picking || draftDone}
-        >
-          Draft
-        </button>
-      </div>
+
+      {/* Scrollable Stats Columns */}
+      <div className={styles.tdNum}>{gp}</div>
+      <div className={styles.tdNum}>{totalPoints.toFixed(1)}</div>
+      <div className={styles.tdNum}>{ppg}</div>
+      <div className={styles.tdNum}>{avgRating}</div>
+      <div className={styles.tdNum}>{form}</div>
+      <div className={styles.tdNum}>{value}</div>
     </div>
   );
 }
@@ -126,6 +163,7 @@ export default function DraftRoom({
   allPlayers,
   myUserId,
   myTeam,
+  shadowMaps,
 }: Props) {
   const router = useRouter();
   const [picks, setPicks] = useState<DraftPick[]>(initialPicks);
@@ -152,6 +190,14 @@ export default function DraftRoom({
   const [secondsLeft, setSecondsLeft] = useState(TIMER_SECONDS);
   const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null);
   const [sidebarTab, setSidebarTab] = useState<'players' | 'roster' | 'queue'>('players');
+
+  // Scouting Leaderboard Advanced Filters & Sorting States
+  const [advancedOpen, setAdvancedOpen] = useState(false);
+  const [minMins, setMinMins] = useState<'all' | 'gt45'>('all');
+  const [minGames, setMinGames] = useState<number>(0);
+  const [posType, setPosType] = useState<'primary' | 'secondary' | 'both'>('primary');
+  const [sortKey, setSortKey] = useState<SortKey>('total_points');
+  const [sortDir, setSortDir] = useState<SortDir>('desc');
 
   const currentCellRef = useRef<HTMLTableCellElement>(null);
   const boardScrollRef = useRef<HTMLDivElement>(null);
@@ -333,27 +379,104 @@ export default function DraftRoom({
     return map;
   }, [effectivePicks, teams]);
 
-  const availablePlayers = useMemo(() => {
-    return allPlayers.filter((p) => {
-      if (pickedPlayerIds.has(p.id)) return false;
-      if (posFilter !== 'ALL' && p.primary_position !== posFilter) return false;
-      if (search.trim()) {
-        const qParts = search.toLowerCase().trim().split(/\s+/);
-        const nameStr = (p.name || '').toLowerCase();
-        const fullNameStr = (p.full_name || '').toLowerCase();
-        const webNameStr = (p.web_name || '').toLowerCase();
-        const plTeamStr = (p.pl_team || '').toLowerCase();
-        
-        return qParts.every(part => 
-          nameStr.includes(part) || 
-          fullNameStr.includes(part) || 
-          webNameStr.includes(part) || 
-          plTeamStr.includes(part)
-        );
+  const shadowByPlayer = minMins === 'all' ? shadowMaps.all : shadowMaps.gt45;
+
+  const unpickedPlayers = useMemo(() => {
+    return allPlayers.filter((p) => !pickedPlayerIds.has(p.id));
+  }, [allPlayers, pickedPlayerIds]);
+
+  const sortedAndFiltered = useMemo(() => {
+    function groupContains(group: string, pos: string): boolean {
+      const DEF_POSITIONS = ['CB', 'LB', 'RB', 'LWB', 'RWB'];
+      const MID_POSITIONS = ['DM', 'CM', 'AM'];
+      const ATT_POSITIONS = ['LW', 'RW', 'ST'];
+      if (group === 'ALL') return true;
+      if (group === 'GK') return pos === 'GK';
+      if (group === 'DEF') return DEF_POSITIONS.includes(pos);
+      if (group === 'MID') return MID_POSITIONS.includes(pos);
+      if (group === 'ATT') return ATT_POSITIONS.includes(pos);
+      return pos === group;
+    }
+
+    function resolveActivePosition(
+      player: Player,
+      posFilter: string,
+      posType: 'primary' | 'secondary' | 'both'
+    ): string | null {
+      const primary = player.primary_position;
+      const secondaries = player.secondary_positions ?? [];
+
+      if (posType === 'primary') {
+        if (groupContains(posFilter, primary)) {
+          return primary;
+        }
+      } else if (posType === 'secondary') {
+        const match = secondaries.find((pos) => groupContains(posFilter, pos));
+        if (match) return match;
+      } else if (posType === 'both') {
+        if (groupContains(posFilter, primary)) {
+          return primary;
+        }
+        const match = secondaries.find((pos) => groupContains(posFilter, pos));
+        if (match) return match;
       }
-      return true;
+      return null;
+    }
+
+    const q = search.trim().toLowerCase();
+    const filtered = unpickedPlayers
+      .map((p) => {
+        const activePos = resolveActivePosition(p, posFilter, posType);
+        return { player: p, activePos };
+      })
+      .filter((item): item is { player: Player; activePos: string } => {
+        const { player: p, activePos } = item;
+        if (!activePos) return false;
+
+        if (q) {
+          const full = p.name.toLowerCase();
+          const web = (p.web_name || '').toLowerCase();
+          const club = (p.pl_team || '').toLowerCase();
+          if (!full.includes(q) && !web.includes(q) && !club.includes(q)) return false;
+        }
+
+        const s = shadowByPlayer[p.id]?.[activePos];
+        const gp = s?.gp ?? 0;
+        if (gp < minGames) return false;
+
+        return true;
+      });
+
+    return [...filtered].sort((aObj, bObj) => {
+      let av = 0;
+      let bv = 0;
+
+      const sa = shadowByPlayer[aObj.player.id]?.[aObj.activePos];
+      const sb = shadowByPlayer[bObj.player.id]?.[bObj.activePos];
+
+      if (sortKey === 'total_points') {
+        av = sa ? sa.total_points : 0;
+        bv = sb ? sb.total_points : 0;
+      } else if (sortKey === 'ppg') {
+        av = sa && sa.gp > 0 ? sa.total_points / sa.gp : 0;
+        bv = sb && sb.gp > 0 ? sb.total_points / sb.gp : 0;
+      } else if (sortKey === 'avg_rating') {
+        av = sa ? sa.avg_rating : 0;
+        bv = sb ? sb.avg_rating : 0;
+      } else if (sortKey === 'market_value') {
+        av = aObj.player.market_value ?? 0;
+        bv = bObj.player.market_value ?? 0;
+      } else if (sortKey === 'form') {
+        av = aObj.player.form_rating ?? 0;
+        bv = bObj.player.form_rating ?? 0;
+      } else if (sortKey === 'total_minutes') {
+        av = sa ? sa.total_minutes : 0;
+        bv = sb ? sb.total_minutes : 0;
+      }
+
+      return sortDir === 'desc' ? bv - av : av - bv;
     });
-  }, [allPlayers, pickedPlayerIds, posFilter, search]);
+  }, [unpickedPlayers, search, posFilter, posType, shadowByPlayer, minGames, sortKey, sortDir]);
 
   const playerMap = useMemo(() => {
     const map = new Map<string, Player>();
@@ -451,16 +574,31 @@ export default function DraftRoom({
     return items;
   }, [currentPickNumber, isDraftComplete, totalPicks, numTeams, teams]);
 
+  function handleSort(key: SortKey) {
+    if (sortKey === key) {
+      setSortDir((d) => (d === 'desc' ? 'asc' : 'desc'));
+    } else {
+      setSortKey(key);
+      setSortDir('desc');
+    }
+  }
+
+  function sortIndicator(key: SortKey) {
+    if (sortKey !== key) return '↕';
+    return sortDir === 'desc' ? '↓' : '↑';
+  }
+
   const rowProps = useMemo<PlayerRowCustomProps>(() => ({
-    players: availablePlayers,
+    players: sortedAndFiltered,
     queue: draftQueue,
     myTurn: isMyTurn,
     picking: loadingPick,
     draftDone: isDraftComplete,
+    shadowByPlayer,
     onToggleQueue: toggleQueue,
     onMakePick: makePick,
     onSelectPlayer: setSelectedPlayer,
-  }), [availablePlayers, draftQueue, isMyTurn, loadingPick, isDraftComplete, toggleQueue, makePick]);
+  }), [sortedAndFiltered, draftQueue, isMyTurn, loadingPick, isDraftComplete, shadowByPlayer, toggleQueue, makePick]);
 
   const [listHeight, setListHeight] = useState(500);
   useEffect(() => {
@@ -704,20 +842,119 @@ export default function DraftRoom({
                   </button>
                 ))}
               </div>
+
+              {/* Advanced Filters Toggle */}
+              <div className={styles.advancedFiltersToggle}>
+                <button
+                  type="button"
+                  className={styles.advancedBtn}
+                  onClick={() => setAdvancedOpen(!advancedOpen)}
+                >
+                  ⚙️ {advancedOpen ? 'Hide Advanced Filters' : 'Show Advanced Filters'}
+                  <span className={styles.btnChevron}>{advancedOpen ? ' ▲' : ' ▼'}</span>
+                </button>
+              </div>
+
+              {/* Collapsible Advanced Filters Drawer */}
+              {advancedOpen && (
+                <div className={styles.advancedFiltersPanel}>
+                  <div className={styles.filterGroup}>
+                    <label className={styles.filterLabel}>Minutes Filter</label>
+                    <select
+                      className={styles.filterSelect}
+                      value={minMins}
+                      onChange={(e) => setMinMins(e.target.value as 'all' | 'gt45')}
+                    >
+                      <option value="all">All Played Games (&gt;0 mins)</option>
+                      <option value="gt45">Starter Games (&gt;45 mins only)</option>
+                    </select>
+                  </div>
+
+                  <div className={styles.filterGroup}>
+                    <span className={styles.filterLabel}>Min Games Played: <strong>{minGames}</strong></span>
+                    <input
+                      type="range"
+                      min="0"
+                      max="38"
+                      value={minGames}
+                      onChange={(e) => setMinGames(parseInt(e.target.value))}
+                      className={styles.sliderInput}
+                    />
+                  </div>
+
+                  <div className={styles.filterGroup}>
+                    <label className={styles.filterLabel}>Role Matching</label>
+                    <div className={styles.segmentedToggle}>
+                      <button
+                        type="button"
+                        className={`${styles.toggleButton} ${posType === 'primary' ? styles.activeToggle : ''}`}
+                        onClick={() => setPosType('primary')}
+                      >
+                        Primary
+                      </button>
+                      <button
+                        type="button"
+                        className={`${styles.toggleButton} ${posType === 'secondary' ? styles.activeToggle : ''}`}
+                        onClick={() => setPosType('secondary')}
+                      >
+                        Secondary
+                      </button>
+                      <button
+                        type="button"
+                        className={`${styles.toggleButton} ${posType === 'both' ? styles.activeToggle : ''}`}
+                        onClick={() => setPosType('both')}
+                      >
+                        Both
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {pickError && <p className={styles.pickError}>{pickError}</p>}
-              <div className={styles.playerList} ref={playerListRef}>
-                {availablePlayers.length > 0 ? (
-                  <List<PlayerRowCustomProps>
-                    rowComponent={PlayerRow}
-                    rowCount={availablePlayers.length}
-                    rowHeight={60}
-                    rowProps={rowProps}
-                    overscanCount={10}
-                    style={{ height: listHeight }}
-                  />
-                ) : (
-                  <p className={styles.emptyState}>No players match your filters.</p>
-                )}
+
+              {/* Premium Scrollable Stats Table */}
+              <div className={styles.tableScroller}>
+                <div className={styles.tableStatsLayout}>
+                  {/* Table Header Row */}
+                  <div className={styles.tableStatsHeader}>
+                    <div className={styles.thSticky}>Player</div>
+                    <div className={`${styles.th} ${sortKey === 'total_minutes' ? styles.thActive : ''}`} onClick={() => handleSort('total_minutes')}>
+                      GP {sortIndicator('total_minutes')}
+                    </div>
+                    <div className={`${styles.th} ${sortKey === 'total_points' ? styles.thActive : ''}`} onClick={() => handleSort('total_points')}>
+                      Pts {sortIndicator('total_points')}
+                    </div>
+                    <div className={`${styles.th} ${sortKey === 'ppg' ? styles.thActive : ''}`} onClick={() => handleSort('ppg')}>
+                      PPG {sortIndicator('ppg')}
+                    </div>
+                    <div className={`${styles.th} ${sortKey === 'avg_rating' ? styles.thActive : ''}`} onClick={() => handleSort('avg_rating')}>
+                      Avg {sortIndicator('avg_rating')}
+                    </div>
+                    <div className={`${styles.th} ${sortKey === 'form' ? styles.thActive : ''}`} onClick={() => handleSort('form')}>
+                      Form {sortIndicator('form')}
+                    </div>
+                    <div className={`${styles.th} ${sortKey === 'market_value' ? styles.thActive : ''}`} onClick={() => handleSort('market_value')}>
+                      Val {sortIndicator('market_value')}
+                    </div>
+                  </div>
+
+                  {/* Virtualized Player Rows */}
+                  <div className={styles.playerList} ref={playerListRef}>
+                    {sortedAndFiltered.length > 0 ? (
+                      <List<PlayerRowCustomProps>
+                        rowComponent={PlayerRow}
+                        rowCount={sortedAndFiltered.length}
+                        rowHeight={60}
+                        rowProps={rowProps}
+                        overscanCount={10}
+                        style={{ height: listHeight }}
+                      />
+                    ) : (
+                      <p className={styles.emptyState}>No players match your filters.</p>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
           )}
