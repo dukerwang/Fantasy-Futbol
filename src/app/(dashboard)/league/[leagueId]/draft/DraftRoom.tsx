@@ -329,6 +329,10 @@ export default function DraftRoom({
       setSecondsLeft(remain);
 
       if (remain === 0 && isMyTurn && !autoPickTriggeredRef.current) {
+        if (league.name?.toLowerCase().includes('demo') || league.name?.toLowerCase().includes('test')) {
+          setPickError('Timer expired! (Auto-pick disabled for Demo/Test leagues)');
+          return;
+        }
         autoPickTriggeredRef.current = true;
         setPickError('Time expired! Auto-picking...');
         fetch(`/api/leagues/${leagueId}/draft/auto-pick`, { method: 'POST' })
@@ -1095,17 +1099,18 @@ export default function DraftRoom({
           )}
 
           {/* Chat Tab */}
-          {sidebarTab === 'chat' && (
-            <div className={styles.tabContent}>
-              <div className={styles.draftChatWrapper}>
-                <SidebarChat
-                  leagueId={leagueId}
-                  currentUserId={myUserId}
-                  currentUsername={(myTeam as any)?.user?.username || (myTeam as any)?.user?.email?.split('@')[0] || 'Manager'}
-                />
-              </div>
+          <div
+            className={styles.tabContent}
+            style={{ display: sidebarTab === 'chat' ? 'block' : 'none' }}
+          >
+            <div className={styles.draftChatWrapper}>
+              <SidebarChat
+                leagueId={leagueId}
+                currentUserId={myUserId}
+                currentUsername={(myTeam as any)?.user?.username || (myTeam as any)?.user?.email?.split('@')[0] || 'Manager'}
+              />
             </div>
-          )}
+          </div>
         </aside>
       </div>
 

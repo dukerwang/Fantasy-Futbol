@@ -67,11 +67,13 @@ DECLARE
   v_player_rec RECORD;
   v_team_pick_ids UUID[];
 BEGIN
-  -- Find all leagues currently in 'drafting' status
+  -- Find all leagues currently in 'drafting' status (excluding Demo/Test leagues)
   FOR draft_record IN
     SELECT l.id AS league_id, l.roster_size
     FROM leagues l
     WHERE l.status = 'drafting'
+      AND l.name NOT ILIKE '%demo%'
+      AND l.name NOT ILIKE '%test%'
   LOOP
     -- Count teams in this league
     SELECT COUNT(*) INTO v_num_teams

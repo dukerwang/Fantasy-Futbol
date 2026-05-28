@@ -56,14 +56,14 @@ export default function SidebarChat({
       try {
         setLoading(true);
 
-        // 1. Fetch all teams/members in this league to get usernames and logos
-        const { data: teamsData } = await supabase
-          .from('teams')
-          .select('id, team_name, user_id, abbreviation, user:users(id, username, email)')
-          .eq('league_id', leagueId);
+        const res = await fetch(`/api/chat?league_id=${leagueId}`);
+        if (!res.ok) {
+          throw new Error(`Failed to fetch: ${res.status}`);
+        }
+        const data = await res.json();
 
         const m: Record<string, ManagerInfo> = {};
-        for (const t of teamsData ?? []) {
+        for (const t of data.teams ?? []) {
           const userObj: any = Array.isArray(t.user) ? t.user[0] : t.user;
           const name = userObj?.username || userObj?.email?.split('@')[0] || 'Manager';
           const initials = t.abbreviation || name.substring(0, 2).toUpperCase();
@@ -75,16 +75,9 @@ export default function SidebarChat({
         }
         setManagers(m);
 
-        // 2. Fetch lobby messages (excluding DMs)
-        const { data: msgsData } = await supabase
-          .from('chat_messages')
-          .select('id, sender_id, message, created_at')
-          .eq('league_id', leagueId)
-          .is('recipient_id', null)
-          .order('created_at', { ascending: true })
-          .limit(100);
-
-        setMessages(msgsData ?? []);
+        // Filter for public lobby messages (where recipient_id === null)
+        const lobbyMsgs = (data.messages ?? []).filter((msg: any) => msg.recipient_id === null);
+        setMessages(lobbyMsgs);
       } catch (err) {
         console.error('Failed to load lobby chat logs:', err);
       } finally {
@@ -94,7 +87,7 @@ export default function SidebarChat({
     };
 
     fetchData();
-  }, [leagueId, supabase]);
+  }, [leagueId]);
 
   // Connect to Supabase Realtime for Postgres Changes
   useEffect(() => {
