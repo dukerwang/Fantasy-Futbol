@@ -709,10 +709,13 @@ export default function DraftRoom({
             </p>
           </div>
           <div className={styles.boardScroll} ref={boardScrollRef}>
-            <table className={styles.boardTable}>
+            <table
+              className={styles.boardTable}
+              style={{ width: `min(100%, calc(34px + ${numTeams} * 140px))` } as React.CSSProperties}
+            >
               <thead>
                 <tr>
-                  <th className={styles.roundHeaderCell}>RD</th>
+                  <th className={styles.roundHeaderCell} style={{ width: '34px' }}>RD</th>
                   {sortedTeams.map((team) => (
                     <th
                       key={team.id}
@@ -721,6 +724,7 @@ export default function DraftRoom({
                         team.user_id === myUserId ? styles.myTeamHeader : '',
                         currentTeam?.id === team.id && !isDraftComplete ? styles.onClockHeader : '',
                       ].filter(Boolean).join(' ')}
+                      style={{ width: `calc((100% - 34px) / ${numTeams})` }}
                     >
                       <span className={styles.teamHeaderName}>{team.abbreviation ?? team.team_name}</span>
                     </th>
