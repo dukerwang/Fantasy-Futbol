@@ -474,6 +474,33 @@
   color: #d97706;
 }
 
+/* Chat Overrides for Pre-Draft Lobby */
+.rightPane :global([class*="Chat_sidebar"]) {
+  display: none !important;
+}
+
+.rightPane :global([class*="Chat_panelHeader"]) {
+  display: none !important;
+}
+
+.rightPane :global([class*="Chat_chatLayout"]) {
+  height: 100% !important;
+  border-top: none !important;
+}
+
+.rightPane :global([class*="Chat_mainPanel"]) {
+  height: 100% !important;
+}
+
+.rightPane :global([class*="Chat_messagesFeed"]) {
+  background: var(--color-bg-secondary) !important;
+  padding: 1.5rem !important;
+}
+
+.rightPane :global([class*="Chat_inputArea"]) {
+  padding: 1rem !important;
+}
+
 @media (max-width: 900px) {
   .lobbyLayout {
     flex-direction: column;
