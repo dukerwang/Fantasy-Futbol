@@ -82,18 +82,7 @@ export default function LoginPage() {
                   fill="currentColor"
                 />
               </svg>
-              <span>Google</span>
-            </button>
-            <button
-              onClick={() => handleOAuthSignIn('apple')}
-              type="button"
-              className={styles.providerBtn}
-              aria-label="Continue with Apple"
-            >
-              <svg viewBox="0 0 16 16" fill="currentColor" width="16" height="16" aria-hidden="true">
-                <path d="M11.18 8.5c-.02-1.97 1.61-2.92 1.69-2.97-.92-1.35-2.36-1.53-2.86-1.55-1.21-.13-2.38.71-3 .71-.62 0-1.58-.7-2.6-.68-1.34.02-2.58.78-3.27 1.98-1.4 2.42-.36 6 1.01 7.97.67.96 1.46 2.04 2.49 2 1-.04 1.38-.65 2.59-.65s1.55.65 2.6.63c1.07-.02 1.75-.98 2.4-1.94.76-1.11 1.07-2.18 1.09-2.24-.02-.01-2.09-.8-2.11-3.18zM9.4 2.78a3.07 3.07 0 00.71-2.21 3.13 3.13 0 00-2.04 1.06c-.45.5-.84 1.32-.74 2.13a2.6 2.6 0 002.07-.98z" />
-              </svg>
-              <span>Apple</span>
+              <span>Continue with Google</span>
             </button>
           </div>
 
