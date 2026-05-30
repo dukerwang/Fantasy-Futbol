@@ -166,10 +166,9 @@ export async function POST(req: NextRequest, { params }: Props) {
 
   if (!targetTeam) return NextResponse.json({ error: 'Target team not found in this league' }, { status: 404 });
 
-  // Validate proposer FAAB
   if (offeredFaab > myTeam.faab_budget) {
     return NextResponse.json(
-      { error: `You only have £${myTeam.faab_budget}m FAAB — cannot offer £${offeredFaab}m` },
+      { error: `You only have €${myTeam.faab_budget}m Club Balance — cannot offer €${offeredFaab}m` },
       { status: 400 },
     );
   }
@@ -241,8 +240,8 @@ export async function POST(req: NextRequest, { params }: Props) {
       const offeredNames = offeredPlayerIds.map(id => players?.find(p => p.id === id)?.name || 'Unknown Player');
       const requestedNames = requestedPlayerIds.map(id => players?.find(p => p.id === id)?.name || 'Unknown Player');
       
-      if (offeredFaab > 0) offeredNames.push(`£${offeredFaab}m FAAB`);
-      if (requestedFaab > 0) requestedNames.push(`£${requestedFaab}m FAAB`);
+      if (offeredFaab > 0) offeredNames.push(`€${offeredFaab}m`);
+      if (requestedFaab > 0) requestedNames.push(`€${requestedFaab}m`);
 
       const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://gaffa.live';
       const actionUrl = `${baseUrl}/league/${leagueId}/trades`;
@@ -263,16 +262,16 @@ export async function POST(req: NextRequest, { params }: Props) {
         url: `/league/${leagueId}/trades`
       });
 
-      // Broadcast trade proposal as a system chat message in league-lobby
+      // Send private DM to the target manager about the trade proposal
       const offeredNamesPlain = offeredPlayerIds.map(id => players?.find(p => p.id === id)?.name || 'Unknown Player');
       const requestedNamesPlain = requestedPlayerIds.map(id => players?.find(p => p.id === id)?.name || 'Unknown Player');
-      if (offeredFaab > 0) offeredNamesPlain.push(`£${offeredFaab}m FAAB`);
-      if (requestedFaab > 0) requestedNamesPlain.push(`£${requestedFaab}m FAAB`);
+      if (offeredFaab > 0) offeredNamesPlain.push(`€${offeredFaab}m`);
+      if (requestedFaab > 0) requestedNamesPlain.push(`€${requestedFaab}m`);
 
       await admin.from('chat_messages').insert({
         league_id: leagueId,
         sender_id: user.id,
-        recipient_id: null,
+        recipient_id: targetTeam.user_id, // Private DM to target manager only
         message: `[SYSTEM:TRADE_PROPOSAL:${JSON.stringify({
           tradeId: trade.id,
           proposerName: myTeam.team_name,

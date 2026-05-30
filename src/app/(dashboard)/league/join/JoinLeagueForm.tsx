@@ -7,7 +7,6 @@ import styles from './join.module.css';
 export default function JoinLeagueForm() {
   const router = useRouter();
   const [inviteCode, setInviteCode] = useState('');
-  const [teamName, setTeamName] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -19,7 +18,7 @@ export default function JoinLeagueForm() {
     const res = await fetch('/api/leagues/join', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ inviteCode, teamName }),
+      body: JSON.stringify({ inviteCode }),
     });
 
     const json = await res.json();
@@ -29,7 +28,7 @@ export default function JoinLeagueForm() {
       return;
     }
 
-    router.push(`/league/${json.leagueId}`);
+    router.push(`/league/${json.leagueId}/team-setup`);
     router.refresh();
   }
 
@@ -54,20 +53,7 @@ export default function JoinLeagueForm() {
         <p className={styles.hint}>Get this from your league commissioner.</p>
       </div>
 
-      <div className={styles.field}>
-        <label className={styles.label} htmlFor="team-name">
-          Your Team Name
-        </label>
-        <input
-          id="team-name"
-          type="text"
-          value={teamName}
-          onChange={(e) => setTeamName(e.target.value)}
-          className={styles.input}
-          placeholder="The Invincibles"
-          maxLength={50}
-        />
-      </div>
+
 
       {error && <p className={styles.error}>{error}</p>}
 

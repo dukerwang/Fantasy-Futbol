@@ -79,7 +79,7 @@ export default function PlayerCard({
 
         <div className={styles.value}>
           <span className={styles.valueAmount}>
-            £{player.market_value ?? 0}m
+            €{player.market_value ?? 0}m
           </span>
         </div>
 

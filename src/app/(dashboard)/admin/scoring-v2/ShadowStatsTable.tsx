@@ -416,7 +416,7 @@ export default function ShadowStatsTable({ statsSeason, players, shadowMaps }: P
                   <td className={`${styles.shadowTdNum} ${dAvgR != null ? (dAvgR >= 0 ? styles.cellNumPos : styles.cellNumNeg) : ''}`}>
                     {dAvgR != null ? `${dAvgR >= 0 ? '+' : ''}${dAvgR.toFixed(2)}` : '—'}
                   </td>
-                  <td className={styles.shadowTdNum}>£{Number(player.market_value ?? 0).toFixed(1)}m</td>
+                  <td className={styles.shadowTdNum}>€{Number(player.market_value ?? 0).toFixed(1)}m</td>
                 </tr>
               );
             })}

@@ -36,7 +36,7 @@ interface Props {
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-// Maps each tx type to its FAAB direction and category label
+// Maps each tx type to its Club Balance direction and category label
 const TX_META: Record<string, { direction: 'in' | 'out' | 'none'; label: string; category: string }> = {
   waiver_claim:         { direction: 'out', label: 'AUCTION WIN',      category: 'Signings'    },
   free_agent_pickup:    { direction: 'none', label: 'FREE SIGNING',    category: 'Signings'    },
@@ -177,8 +177,8 @@ function BreakdownBar({ breakdown, max }: { breakdown: BreakdownData; max: numbe
               />
             </div>
             <span className={styles.breakdownAmount}>
-              {vals.spent > 0 && <span className={styles.breakdownOut}>-£{vals.spent}</span>}
-              {vals.earned > 0 && <span className={styles.breakdownIn}>+£{vals.earned}</span>}
+              {vals.spent > 0 && <span className={styles.breakdownOut}>-€{vals.spent}</span>}
+              {vals.earned > 0 && <span className={styles.breakdownIn}>+€{vals.earned}</span>}
             </span>
           </div>
         );
@@ -208,7 +208,7 @@ function LedgerRow({ tx }: { tx: Transaction }) {
         {amount != null ? (
           <span className={`${styles.amountChip} ${dir === 'in' ? styles.amountIn : dir === 'out' ? styles.amountOut : styles.amountNone}`}>
             {dir === 'in' ? <IconArrowDown /> : dir === 'out' ? <IconArrowUp /> : <IconMinus />}
-            £{amount}m
+            €{amount}m
           </span>
         ) : (
           <span className={styles.ledgerDash}>—</span>
@@ -258,7 +258,7 @@ export default function FinanceClient({
         <div>
           <p className={styles.eyebrow}>{leagueName} · {season}</p>
           <h1 className={styles.title}>Finance Ledger</h1>
-          <p className={styles.subtitle}>{teamName} — full FAAB transaction history</p>
+          <p className={styles.subtitle}>{teamName} — full transaction history</p>
         </div>
       </header>
 
@@ -266,23 +266,23 @@ export default function FinanceClient({
       <div className={styles.summaryStrip}>
         <div className={styles.summaryCard}>
           <span className={styles.summaryLabel}>CURRENT BUDGET</span>
-          <span className={styles.summaryValue}>£{currentBudget}m</span>
+          <span className={styles.summaryValue}>€{currentBudget}m</span>
         </div>
         <div className={styles.summaryDivider} />
         <div className={styles.summaryCard}>
           <span className={styles.summaryLabel}>TOTAL SPENT</span>
-          <span className={`${styles.summaryValue} ${styles.summaryOut}`}>-£{breakdown.totalSpent}m</span>
+          <span className={`${styles.summaryValue} ${styles.summaryOut}`}>-€{breakdown.totalSpent}m</span>
         </div>
         <div className={styles.summaryDivider} />
         <div className={styles.summaryCard}>
           <span className={styles.summaryLabel}>TOTAL EARNED</span>
-          <span className={`${styles.summaryValue} ${styles.summaryIn}`}>+£{breakdown.totalEarned}m</span>
+          <span className={`${styles.summaryValue} ${styles.summaryIn}`}>+€{breakdown.totalEarned}m</span>
         </div>
         <div className={styles.summaryDivider} />
         <div className={styles.summaryCard}>
           <span className={styles.summaryLabel}>NET CHANGE</span>
           <span className={`${styles.summaryValue} ${netPositive ? styles.summaryIn : styles.summaryOut}`}>
-            {netPositive ? '+' : ''}£{net}m
+            {netPositive ? '+' : ''}€{net}m
           </span>
         </div>
       </div>
@@ -303,7 +303,7 @@ export default function FinanceClient({
         <div className={styles.sectionHeader}>
           <div>
             <span className={styles.sectionKicker}>ALL TRANSACTIONS</span>
-            <h2 className={styles.sectionTitle}>FAAB Ledger</h2>
+            <h2 className={styles.sectionTitle}>Club Ledger</h2>
           </div>
           {/* Filter tabs */}
           <div className={styles.filterTabs} role="tablist">

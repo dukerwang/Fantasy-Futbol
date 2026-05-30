@@ -331,13 +331,14 @@ export async function runSeasonReset(
     }
 
     // Also send a public system announcement chat message in the lobby
-    const announcerTeam = prizesPaid.find(p => p.prizeKey === 'season_1st') || prizesPaid[0];
-    if (announcerTeam && leagueChamp) {
+    if (leagueChamp) {
+      const shortSeason = seasonFrom.replace(/20(\d{2})-20(\d{2})/g, '$1/$2').replace(/20(\d{2})-(\d{2})/g, '$1/$2');
       await admin.from('chat_messages').insert({
         league_id: leagueId,
-        sender_id: announcerTeam.teamId, // attributed to the league champion's user profile!
+        sender_id: null,           // System-generated — no user attribution
+        is_system: true,
         recipient_id: null,
-        message: `🏆 **ALL HAIL THE CHAMPIONS** 🏆\n\n- **${leagueChamp}** are Gaffa's official **${shortSeason} League Champions**!\n${championsCupWinner ? `- **${championsCupWinner}** have won the **Champions Cup**!\n` : ''}${leagueCupWinner ? `- **${leagueCupWinner}** have won the **League Cup**!\n` : ''}${consolationCupWinner ? `- **${consolationCupWinner}** have won the **Consolation Cup**!\n` : ''}\nAll dynasty prizes and FAAB allocations are fully updated. Review historical archives at /league/${leagueId}/history!`,
+        message: `🏆 **ALL HAIL THE CHAMPIONS** 🏆\n\n- **${leagueChamp}** are Gaffa's official **${shortSeason} League Champions**!\n${championsCupWinner ? `- **${championsCupWinner}** have won the **Champions Cup**!\n` : ''}${leagueCupWinner ? `- **${leagueCupWinner}** have won the **League Cup**!\n` : ''}${consolationCupWinner ? `- **${consolationCupWinner}** have won the **Consolation Cup**!\n` : ''}\nAll dynasty standings and prize allocations are fully updated. Review historical archives at /league/${leagueId}/history!`,
       });
     }
   } catch (err) {

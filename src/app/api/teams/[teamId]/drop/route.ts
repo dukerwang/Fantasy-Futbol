@@ -76,16 +76,16 @@ export async function POST(req: NextRequest, { params }: Props) {
 
     if (severanceFee > 0 && team.faab_budget < severanceFee) {
         return NextResponse.json(
-            { error: `Insufficient FAAB to buy out this player's contract. Severance fee: £${severanceFee}m` },
+            { error: `Insufficient Club Balance to buy out this player's contract. Severance fee: €${severanceFee}m` },
             { status: 400 },
         );
     }
 
     let notes: string;
     if (actionType === 'transfer_out') {
-        notes = `Transferred ${player.name} out of PL, refunded £${marketValue}m FAAB`;
+        notes = `Transferred ${player.name} out of PL, refunded €${marketValue}m`;
     } else if (severanceFee > 0) {
-        notes = `Dropped ${player.name} — paid £${severanceFee}m contract severance`;
+        notes = `Dropped ${player.name} — paid €${severanceFee}m contract severance`;
     } else {
         notes = `Dropped ${player.name} to free agency`;
     }
@@ -161,7 +161,7 @@ export async function POST(req: NextRequest, { params }: Props) {
                         leagueId: team.league_id,
                         userId: t.user_id,
                         title: 'Waiver Alert: Player Dropped',
-                        content: `**${team.team_name}** dropped **${player.name}** to the waiver pool. A 48-hour FAAB waiver auction has automatically begun.`,
+                        content: `**${team.team_name}** dropped **${player.name}** to the waiver pool. A 48-hour transfer auction has automatically begun.`,
                         url: `/league/${team.league_id}/players`
                     });
                 }

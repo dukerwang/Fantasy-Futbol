@@ -107,7 +107,7 @@ function formatStat(val: number | null | undefined, decimals = 1): string {
 
 function formatMarketValue(val: number | null | undefined): string {
   if (val == null) return '—';
-  return `£${Number(val).toFixed(0)}M`;
+  return `€${Number(val).toFixed(0)}M`;
 }
 
 const ANTI_SNIPE_WINDOW_MS = 60 * 60 * 1_000;
@@ -245,12 +245,12 @@ export default function TransferMarketClient({
       return;
     }
     if (amount > myTeam.faab_budget) {
-      setSubmitError(`You only have £${myTeam.faab_budget}m FAAB remaining.`);
+      setSubmitError(`You only have €${myTeam.faab_budget}m Club Balance remaining.`);
       return;
     }
     const tmMin = Math.floor(Number(modal.player.market_value || 0) * 0.2);
     if (tmMin > 0 && amount < tmMin) {
-      setSubmitError(`Minimum bid for this player is £${tmMin}m (Transfermarkt floor).`);
+      setSubmitError(`Minimum bid for this player is €${tmMin}m (Transfermarkt floor).`);
       return;
     }
     if (rosterFull && !dropPlayerId && !sendToAcademyIfFull) {
@@ -320,8 +320,8 @@ export default function TransferMarketClient({
   // ── Confirm button label ─────────────────────────────────────────────────────
 
   const confirmLabel = modal.currentExpiry
-    ? `Confirm Bid — £${isNaN(bidNum) ? '?' : bidNum}m`
-    : `Start Auction — £${isNaN(bidNum) ? '?' : bidNum}m`;
+    ? `Confirm Bid — €${isNaN(bidNum) ? '?' : bidNum}m`
+    : `Start Auction — €${isNaN(bidNum) ? '?' : bidNum}m`;
 
   const playerAgeForAcademy = modal.player?.date_of_birth
     ? calculateAgeInYears(modal.player.date_of_birth)
@@ -346,8 +346,8 @@ export default function TransferMarketClient({
           </p>
         </div>
         <div className={styles.faabBadge}>
-          <span className={styles.faabLabel}>Your FAAB</span>
-          <span className={styles.faabAmount}>£{myTeam.faab_budget}m</span>
+          <span className={styles.faabLabel}>Club Balance</span>
+          <span className={styles.faabAmount}>€{myTeam.faab_budget}m</span>
         </div>
       </header>
 
@@ -497,7 +497,7 @@ export default function TransferMarketClient({
                     ? (item.player.web_name || item.player.name)
                     : '—';
                   const teamName = item.team?.team_name ?? '—';
-                  const bid = item.faab_bid != null ? `£${item.faab_bid}m` : '—';
+                  const bid = item.faab_bid != null ? `€${item.faab_bid}m` : '—';
                   const when = item.processed_at ? timeAgo(item.processed_at) : '';
                   return (
                     <div key={item.id} className={styles.activityItem}>
@@ -597,7 +597,7 @@ export default function TransferMarketClient({
                       <div className={styles.auctionInfoRow}>
                         <div>
                           <div className={styles.auctionInfoLabel}>Current Bid</div>
-                          <div className={styles.auctionInfoBid}>£{auction.highest_bid}m</div>
+                          <div className={styles.auctionInfoBid}>€{auction.highest_bid}m</div>
                           <div className={styles.auctionInfoLeader}>
                             {isLeading ? `You (${myTeam.team_name})` : auction.highest_bidder_team_name}
                           </div>
@@ -631,7 +631,7 @@ export default function TransferMarketClient({
                       </button>
 
                       {tmMin > 0 && (
-                        <p className={styles.auctionMinBid}>Min bid: £{tmMin}m</p>
+                        <p className={styles.auctionMinBid}>Min bid: €{tmMin}m</p>
                       )}
                     </div>
                   </div>
@@ -691,7 +691,7 @@ export default function TransferMarketClient({
                   <div className={styles.auctionStatusTop}>
                     <div className={styles.auctionStatusBidBlock}>
                       <div className={styles.auctionStatusBidLabel}>Current Bid</div>
-                      <div className={styles.auctionStatusBidAmount}>£{modal.currentHighest}m</div>
+                      <div className={styles.auctionStatusBidAmount}>€{modal.currentHighest}m</div>
                       <div className={styles.auctionStatusLeader}>
                         {modal.myCurrentBid === modal.currentHighest
                           ? `You (${myTeam.team_name})`
@@ -721,7 +721,7 @@ export default function TransferMarketClient({
                               <span className={`${styles.bidHistoryDot} ${i === 0 ? styles.bidHistoryDotLeading : styles.bidHistoryDotOther}`} />
                               {bid.team_name}
                             </span>
-                            <span className={styles.bidHistoryAmount}>£{bid.faab_bid}m</span>
+                            <span className={styles.bidHistoryAmount}>€{bid.faab_bid}m</span>
                             <span className={styles.bidHistoryTime}>{timeAgo(bid.created_at)}</span>
                           </div>
                         ))}
@@ -762,16 +762,16 @@ export default function TransferMarketClient({
                     onClick={() => adjustBid(1)}
                     aria-label="Increase bid"
                   >+</button>
-                  <span className={styles.stepperUnit}>£m</span>
+                  <span className={styles.stepperUnit}>€m</span>
                 </div>
 
                 <div className={styles.bidContextInfo}>
                   <span>
-                    Min bid: <strong>£{Math.max(auctionMin, tmMin)}m</strong>
-                    {tmMin > 0 && ` (£${tmMin}m Transfermarkt floor)`}
+                    Min bid: <strong>€{Math.max(auctionMin, tmMin)}m</strong>
+                    {tmMin > 0 && ` (€${tmMin}m Transfermarkt floor)`}
                   </span>
                   <span className={styles.bidContextInfoGreen}>
-                    Balance: <strong>£{myTeam.faab_budget}m</strong>
+                    Balance: <strong>€{myTeam.faab_budget}m</strong>
                   </span>
                 </div>
 
@@ -779,13 +779,13 @@ export default function TransferMarketClient({
                 {!isNaN(bidNum) && modal.currentExpiry && (
                   bidNum > modal.currentHighest ? (
                     <p className={styles.bidLeadMessage}>
-                      Your bid of £{bidNum}m would put you in the lead.
+                      Your bid of €{bidNum}m would put you in the lead.
                     </p>
                   ) : isLeadingBidder ? (
                     <p className={styles.bidLeadMessage}>You are currently the highest bidder.</p>
                   ) : (
                     <p className={styles.bidWarnMessage}>
-                      Bid above £{modal.currentHighest}m to take the lead.
+                      Bid above €{modal.currentHighest}m to take the lead.
                     </p>
                   )
                 )}
@@ -831,7 +831,7 @@ export default function TransferMarketClient({
                       return (
                         <option key={p.id} value={p.id}>
                           {formatPlayerName(p as any)} ({p.primary_position} · {p.pl_team})
-                          {fee > 0 ? ` — −£${fee}m severance` : ''}
+                          {fee > 0 ? ` — −€${fee}m severance` : ''}
                         </option>
                       );
                     })}

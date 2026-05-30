@@ -56,7 +56,7 @@ export async function POST(req: NextRequest, { params }: Props) {
 
   // Validate FAAB (simple check against current balance; cron will re-validate at resolution)
   if (bidAmount > myTeam.faab_budget) {
-    return NextResponse.json({ error: 'Insufficient FAAB budget' }, { status: 400 });
+    return NextResponse.json({ error: 'Insufficient Club Balance' }, { status: 400 });
   }
 
   // Enforce IR legality
@@ -118,7 +118,7 @@ export async function POST(req: NextRequest, { params }: Props) {
   const minimumBid = playerData ? Math.floor(Number(playerData.market_value || 0) * 0.2) : 0;
   if (minimumBid > 0 && bidAmount < minimumBid) {
     return NextResponse.json(
-      { error: `Minimum bid for this player is £${minimumBid}m (20% of Transfermarkt value)` },
+      { error: `Minimum bid for this player is €${minimumBid}m (20% of Transfermarkt value)` },
       { status: 400 },
     );
   }
@@ -211,14 +211,14 @@ export async function POST(req: NextRequest, { params }: Props) {
   // Bid must beat the current highest (unless the caller IS the current highest bidder)
   if (highestClaim && highestClaim.team_id !== myTeam.id && bidAmount <= highestClaim.faab_bid) {
     return NextResponse.json(
-      { error: `Bid must be greater than the current highest bid of £${highestClaim.faab_bid}m` },
+      { error: `Bid must be greater than the current highest bid of €${highestClaim.faab_bid}m` },
       { status: 400 },
     );
   }
   // If caller is already the highest bidder, they must raise their own bid
   if (myClaim && bidAmount <= myClaim.faab_bid) {
     return NextResponse.json(
-      { error: `Your new bid must be greater than your current bid of £${myClaim.faab_bid}m` },
+      { error: `Your new bid must be greater than your current bid of €${myClaim.faab_bid}m` },
       { status: 400 },
     );
   }
@@ -321,7 +321,7 @@ export async function POST(req: NextRequest, { params }: Props) {
           leagueId,
           userId: outbidTeam.user_id,
           title: 'Outbid Warning!',
-          content: `You have been outbid for **${playerData?.name ?? 'Unknown Player'}**. The new high bid is now **£${bidAmount}m**.`,
+          content: `You have been outbid for **${playerData?.name ?? 'Unknown Player'}**. The new high bid is now **€${bidAmount}m**.`,
           url: `/league/${leagueId}/players`
         });
       }

@@ -1233,8 +1233,8 @@ export default function PitchUI({
 
                     {/* ── BUDGET CARD ── */}
                     <div className={styles.budgetCard}>
-                        <span className={styles.budgetLabel}>FAAB Budget</span>
-                        <span className={styles.budgetValue}>£{faabBudget}m</span>
+                        <span className={styles.budgetLabel}>Club Balance</span>
+                        <span className={styles.budgetValue}>€{faabBudget}m</span>
                         <span className={styles.budgetSub}>remaining</span>
                     </div>
 

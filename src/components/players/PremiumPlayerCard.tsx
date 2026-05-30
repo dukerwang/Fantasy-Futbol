@@ -158,8 +158,8 @@ export default function PremiumPlayerCard({
         ? player.photo_url.replace('premierleague25/photos/players/110x140/', 'premierleague/photos/players/250x250/p')
         : null;
     const imgStored = player.photo_url ?? null;
-    const [imgSrc, setImgSrc] = useState<string | null>(img26_250 ?? imgStored);
-    const [imgStage, setImgStage] = useState<'hi26' | 'legacy' | 'stored'>('hi26');
+    const [imgSrc, setImgSrc] = useState<string | null>(imgStored);
+    const [imgStage, setImgStage] = useState<'hi26' | 'legacy' | 'stored'>('stored');
 
     useEffect(() => {
         fetch(`/api/players/${player.id}`)
@@ -367,7 +367,7 @@ export default function PremiumPlayerCard({
                     <div className={styles.statsStrip}>
                         <div className={styles.statCell}>
                             <span className={`${styles.statVal} ${styles.statGold}`}>
-                                {player.market_value != null ? `£${player.market_value}m` : '—'}
+                                {player.market_value != null ? `€${player.market_value}m` : '—'}
                             </span>
                             <span className={styles.statLbl}>Value</span>
                         </div>

@@ -26,13 +26,13 @@ export default function RosterManager({ teamId, rosterEntries }: Props) {
     ) {
         if (actionType === 'transfer_out') {
             const ok = window.confirm(
-                "Are you sure? This should only be used if the player has genuinely left the Premier League in real life. You will be refunded their market value in FAAB.",
+                "Are you sure? This should only be used if the player has genuinely left the Premier League in real life. You will be refunded their market value.",
             );
             if (!ok) return;
         } else {
             const severanceFee = Math.floor(marketValue * 0.1);
             const feeMsg = severanceFee > 0
-                ? `This will cost £${severanceFee}m FAAB in contract buyout fees.`
+                ? `This will cost €${severanceFee}m in contract buyout fees.`
                 : 'No severance fee applies (market value too low).';
             const ok = window.confirm(
                 `Are you sure you want to drop ${playerName}? ${feeMsg}`,
@@ -146,7 +146,7 @@ export default function RosterManager({ teamId, rosterEntries }: Props) {
                                 {entry.player.projected_points !== undefined && entry.player.projected_points !== null && (
                                     <span className={styles.rosterItemValue} style={{ color: 'var(--color-text-secondary)', marginRight: 'var(--space-2)' }}>Proj: {Number(entry.player.projected_points).toFixed(1)}</span>
                                 )}
-                                <span className={styles.rosterItemValue}>£{Number(entry.player.market_value || 0).toFixed(1)}m</span>
+                                <span className={styles.rosterItemValue}>€{Number(entry.player.market_value || 0).toFixed(1)}m</span>
                             </div>
                             <div className={styles.rosterItemActions}>
                                 {entry.status !== 'ir' && (

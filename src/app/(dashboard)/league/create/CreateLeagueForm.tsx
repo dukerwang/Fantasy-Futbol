@@ -7,12 +7,11 @@ import styles from './create.module.css';
 export default function CreateLeagueForm() {
   const router = useRouter();
   const [name, setName] = useState('');
-  const [maxTeams, setMaxTeams] = useState(12);
-  const [rosterSize, setRosterSize] = useState(15);
-  const [faabBudget, setFaabBudget] = useState(100);
+  const [maxTeams, setMaxTeams] = useState(10);
+  const [rosterSize, setRosterSize] = useState(20);
+  const [faabBudget, setFaabBudget] = useState(250);
   const [draftType, setDraftType] = useState<'snake' | 'auction'>('snake');
   const [isDynasty, setIsDynasty] = useState(true);
-  const [teamName, setTeamName] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -24,7 +23,7 @@ export default function CreateLeagueForm() {
     const res = await fetch('/api/leagues/create', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, teamName, maxTeams, rosterSize, faabBudget, draftType, isDynasty }),
+      body: JSON.stringify({ name, maxTeams, rosterSize, faabBudget, draftType, isDynasty }),
     });
 
     const json = await res.json();
@@ -34,7 +33,7 @@ export default function CreateLeagueForm() {
       return;
     }
 
-    router.push(`/league/${json.leagueId}`);
+    router.push(`/league/${json.leagueId}/team-setup`);
     router.refresh();
   }
 
@@ -59,20 +58,6 @@ export default function CreateLeagueForm() {
           />
         </div>
 
-        <div className={styles.field}>
-          <label className={styles.label} htmlFor="team-name">
-            Your Team Name
-          </label>
-          <input
-            id="team-name"
-            type="text"
-            value={teamName}
-            onChange={(e) => setTeamName(e.target.value)}
-            className={styles.input}
-            placeholder="The Invincibles"
-            maxLength={50}
-          />
-        </div>
       </div>
 
       <div className={styles.formSection}>
@@ -89,7 +74,7 @@ export default function CreateLeagueForm() {
               onChange={(e) => setMaxTeams(Number(e.target.value))}
               className={styles.select}
             >
-              {[8, 10, 12, 14, 16].map((n) => (
+              {[4, 5, 6, 7, 8, 9, 10, 11, 12].map((n) => (
                 <option key={n} value={n}>{n} teams</option>
               ))}
             </select>
@@ -105,7 +90,7 @@ export default function CreateLeagueForm() {
               onChange={(e) => setRosterSize(Number(e.target.value))}
               className={styles.select}
             >
-              {[12, 13, 15, 18, 20].map((n) => (
+              {[15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25].map((n) => (
                 <option key={n} value={n}>{n} players</option>
               ))}
             </select>
@@ -113,7 +98,7 @@ export default function CreateLeagueForm() {
 
           <div className={styles.field}>
             <label className={styles.label} htmlFor="faab">
-              FAAB Budget (£m)
+              Club Balance (€m)
             </label>
             <select
               id="faab"
@@ -121,8 +106,8 @@ export default function CreateLeagueForm() {
               onChange={(e) => setFaabBudget(Number(e.target.value))}
               className={styles.select}
             >
-              {[50, 100, 200, 500].map((n) => (
-                <option key={n} value={n}>£{n}m</option>
+              {[100, 150, 200, 250, 300, 350, 400, 450, 500].map((n) => (
+                <option key={n} value={n}>€{n}m</option>
               ))}
             </select>
           </div>
@@ -140,7 +125,7 @@ export default function CreateLeagueForm() {
               className={styles.select}
             >
               <option value="snake">Snake Draft</option>
-              <option value="auction">Auction Draft</option>
+              <option value="auction" disabled>Auction Draft (Waivers Only)</option>
             </select>
           </div>
 

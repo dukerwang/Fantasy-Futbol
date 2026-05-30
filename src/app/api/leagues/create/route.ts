@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
   const { data: league, error: leagueErr } = await admin.from('leagues').insert({
     name: name.trim(),
     commissioner_id: user.id,
-    max_teams: maxTeams ?? 12,
+    max_teams: maxTeams ?? 10,
     roster_size: rosterSize ?? 20,
     bench_size: 4,
     faab_budget: faabBudget ?? 250,
@@ -47,11 +47,19 @@ export async function POST(req: NextRequest) {
   if (memberErr) return NextResponse.json({ error: memberErr.message }, { status: 500 });
 
   // 3. Create the commissioner's team
-  const resolvedTeamName = teamName?.trim() || 'My Team';
+  const { data: profile } = await admin
+    .from('users')
+    .select('username')
+    .eq('id', user.id)
+    .single();
+  const username = profile?.username || user.user_metadata?.username || user.email?.split('@')[0] || 'Manager';
+  const resolvedTeamName = teamName?.trim() || `${username}'s Club`;
+
   const { error: teamErr } = await admin.from('teams').insert({
     league_id: league.id,
     user_id: user.id,
     team_name: resolvedTeamName,
+    abbreviation: null,
     faab_budget: faabBudget ?? 250,
   });
   if (teamErr) return NextResponse.json({ error: teamErr.message }, { status: 500 });

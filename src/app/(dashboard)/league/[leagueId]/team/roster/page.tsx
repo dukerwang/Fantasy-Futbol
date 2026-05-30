@@ -70,8 +70,8 @@ export default async function RosterPage({ params }: Props) {
         </div>
         <div className={styles.headerMeta}>
           <div className={styles.metaStat}>
-            <span className={styles.metaValue}>£{team.faab_budget}m</span>
-            <span className={styles.metaLabel}>FAAB Budget</span>
+            <span className={styles.metaValue}>€{team.faab_budget}m</span>
+            <span className={styles.metaLabel}>Club Balance</span>
           </div>
           <div className={styles.metaDivider} />
           <div className={styles.metaStat}>

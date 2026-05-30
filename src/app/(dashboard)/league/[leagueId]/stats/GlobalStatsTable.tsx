@@ -333,7 +333,7 @@ export default function GlobalStatsTable({ leagueId, leagueName, players, shadow
                     {player.form_rating != null ? Number(player.form_rating).toFixed(2) : '—'}
                   </td>
                   <td className={`${styles.td} ${styles.tdNum}`}>
-                    £{Number(player.market_value ?? 0).toFixed(1)}m
+                    €{Number(player.market_value ?? 0).toFixed(1)}m
                   </td>
                 </tr>
               );

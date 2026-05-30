@@ -374,7 +374,7 @@ function CardContent({ tx }: { tx: Transaction }) {
             )}
           </p>
           {tx.faab_bid != null && (
-            <p className={styles.cardMeta}>£{tx.faab_bid}m bid</p>
+            <p className={styles.cardMeta}>€{tx.faab_bid}m bid</p>
           )}
         </>
       );
@@ -383,7 +383,7 @@ function CardContent({ tx }: { tx: Transaction }) {
     case 'drop': {
       const dropCost =
         tx.compensation_amount && Number(tx.compensation_amount) > 0
-          ? `£${Number(tx.compensation_amount).toFixed(1)}m severance`
+          ? `€${Number(tx.compensation_amount).toFixed(1)}m severance`
           : null;
       return (
         <>
@@ -410,7 +410,7 @@ function CardContent({ tx }: { tx: Transaction }) {
     case 'transfer_out': {
       const amount =
         tx.compensation_amount && Number(tx.compensation_amount) > 0
-          ? `£${Number(tx.compensation_amount).toFixed(1)}m`
+          ? `€${Number(tx.compensation_amount).toFixed(1)}m`
           : null;
       return (
         <>
@@ -444,9 +444,9 @@ function CardContent({ tx }: { tx: Transaction }) {
     case 'rebate': {
       const amount =
         tx.compensation_amount && Number(tx.compensation_amount) > 0
-          ? `£${Number(tx.compensation_amount).toFixed(1)}m`
+          ? `€${Number(tx.compensation_amount).toFixed(1)}m`
           : tx.faab_bid != null
-          ? `£${tx.faab_bid}m`
+          ? `€${tx.faab_bid}m`
           : null;
       return (
         <p className={styles.cardMain}>
@@ -460,7 +460,7 @@ function CardContent({ tx }: { tx: Transaction }) {
     case 'transfer_compensation': {
       const amount =
         tx.compensation_amount && Number(tx.compensation_amount) > 0
-          ? `£${Number(tx.compensation_amount).toFixed(1)}m`
+          ? `€${Number(tx.compensation_amount).toFixed(1)}m`
           : null;
       return (
         <>
@@ -505,7 +505,7 @@ function CardContent({ tx }: { tx: Transaction }) {
           )}
           {tx.faab_bid != null && tx.faab_bid > 0 && (
             <span className={styles.cardMeta} style={{ color: 'var(--color-accent-green)', marginLeft: '8px', fontWeight: 'bold' }}>
-              (+£{tx.faab_bid}m FAAB)
+              (+€{tx.faab_bid}m Club Balance)
             </span>
           )}
         </p>
@@ -634,7 +634,7 @@ function BidCard({ claim, myTeamId }: { claim: WaiverClaim; myTeamId: string | n
         <p className={styles.cardMain}>
           <strong className={styles.cardTeam}>{claim.team?.team_name ?? 'Unknown'}</strong>
           <span className={styles.cardVerb}> bid </span>
-          <strong className={styles.cardPlayer}>£{claim.faab_bid}m</strong>
+          <strong className={styles.cardPlayer}>€{claim.faab_bid}m</strong>
           <span className={styles.cardVerb}> on </span>
           <strong className={styles.cardPlayer}>{playerName}</strong>
           {player && <PositionBadge position={player.primary_position} />}
@@ -717,7 +717,7 @@ function RightSidebar({
                       </div>
                       <div className={styles.auctionMeta}>
                         <span className={styles.auctionBid}>
-                          Top bid: £{a.topBid}m
+                          Top bid: €{a.topBid}m
                         </span>
                         <span className={styles.auctionTimer}>
                           {getTimeRemaining(a.expiresAt)}
@@ -776,7 +776,7 @@ function RightSidebar({
                     >
                       <td className={styles.faabTd}>{username}</td>
                       <td className={`${styles.faabTd} ${styles.faabTdRight}`}>
-                        £{t.faab_budget}m
+                        €{t.faab_budget}m
                       </td>
                     </tr>
                   );

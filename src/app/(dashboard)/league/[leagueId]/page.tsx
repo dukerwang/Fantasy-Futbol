@@ -100,12 +100,16 @@ export default async function LeaguePage({ params }: Props) {
   // ── My team ──────────────────────────────────────────────────────────────
   const { data: myTeam } = await admin
     .from('teams')
-    .select('id, team_name, faab_budget')
+    .select('id, team_name, faab_budget, abbreviation')
     .eq('league_id', leagueId)
     .eq('user_id', user.id)
     .single();
 
   const myTeamId = myTeam?.id ?? null;
+
+  if (myTeam && !myTeam.abbreviation) {
+    redirect(`/league/${leagueId}/team-setup`);
+  }
 
   // Check if league is active and ready for offseason reset
   let showSeasonCompleteBanner = false;
@@ -147,6 +151,7 @@ export default async function LeaguePage({ params }: Props) {
     taxiResult,
     tournamentsResult,
     recentMatchupsResult,
+    spentResult,
   ] = await Promise.all([
     // Full standings
     admin
@@ -215,7 +220,15 @@ export default async function LeaguePage({ params }: Props) {
       .eq('league_id', leagueId)
       .eq('status', 'completed')
       .order('gameweek', { ascending: false })
-      .limit(100)
+      .limit(100),
+
+    // Total spent this season (waiver_claim + drop severance) for my team
+    myTeamId ? admin
+      .from('transactions')
+      .select('faab_bid, compensation_amount')
+      .eq('league_id', leagueId)
+      .eq('team_id', myTeamId)
+      .in('type', ['waiver_claim', 'drop']) : Promise.resolve({ data: [] }),
   ]);
 
   const standings = standingsResult.data ?? [];
@@ -226,6 +239,14 @@ export default async function LeaguePage({ params }: Props) {
   const taxiSquad = taxiResult?.data ?? [];
   const tournaments = tournamentsResult?.data ?? [];
   let recentMatchups = recentMatchupsResult?.data ?? [];
+
+  // Compute total spent: sum faab_bid from waiver wins + compensation_amount from drops with severance
+  const spentTxs = (spentResult as any)?.data ?? [];
+  const totalSpentThisSeason = (spentTxs as any[]).reduce((sum: number, tx: any) => {
+    const bid = tx.faab_bid != null && tx.faab_bid > 0 ? tx.faab_bid : 0;
+    const sev = tx.compensation_amount != null && Number(tx.compensation_amount) > 0 ? Number(tx.compensation_amount) : 0;
+    return sum + bid + sev;
+  }, 0);
 
   // Self-healing: if the draft was auto-completed via SQL cron, matchups might not exist yet
   if (league.status === 'active' && recentMatchups.length === 0 && myMatchups.length === 0) {
@@ -469,8 +490,8 @@ export default async function LeaguePage({ params }: Props) {
             <h3>Season Complete! Ready for Offseason Reset</h3>
             <p>
               {league.commissioner_id === user.id
-                ? 'All regular season matchups and cup tournaments are finished. As the commissioner, you can now run the end-of-season reset to distribute FAAB prizes, process relegation compensations, and transition to the next season.'
-                : 'All matchups and cup tournaments have finished. The league is currently waiting for the commissioner to run the offseason reset and release FAAB prize compensations.'}
+                ? 'All regular season matchups and cup tournaments are finished. As the commissioner, you can now run the end-of-season reset to distribute standings prizes, process relegation compensations, and transition to the next season.'
+                : 'All matchups and cup tournaments have finished. The league is currently waiting for the commissioner to run the offseason reset and release prize payouts.'}
             </p>
           </div>
           {league.commissioner_id === user.id && (
@@ -515,16 +536,16 @@ export default async function LeaguePage({ params }: Props) {
             </div>
           </div>
 
-          {/* FAAB Balance Card */}
+          {/* Club Balance Card */}
           <div className={styles.faabCard}>
             <div className={styles.cardPadding}>
-              <span className={styles.kickerLabel}>BUDGET</span>
+              <span className={styles.kickerLabel}>CLUB BALANCE</span>
               <div className={styles.faabAmountRow}>
-                <span className={styles.faabAmount}>£{myTeam?.faab_budget ?? 0}</span>
-                <span className={styles.faabRemaining}>REMAINING</span>
+                <span className={styles.faabAmount}>€{myTeam?.faab_budget ?? 0}m</span>
+                <span className={styles.faabRemaining}>AVAILABLE</span>
               </div>
               <div className={styles.faabSpentLabel}>
-                <span>SPENT THIS SEASON: £{200 - (myTeam?.faab_budget ?? 0)}</span>
+                <span>SPENT THIS SEASON: €{totalSpentThisSeason}m</span>
               </div>
             </div>
           </div>
@@ -609,7 +630,7 @@ export default async function LeaguePage({ params }: Props) {
                     const cat = txCategoryStyle(tx.type);
                     const teamName = (tx.team as any)?.team_name ?? 'Unknown';
                     const playerName = formatPlayerName(tx.player as any, 'initial_last');
-                    const faab = tx.faab_bid ? ` for a fee of £${tx.faab_bid}m` : '';
+                    const faab = tx.faab_bid ? ` for a fee of €${tx.faab_bid}m` : '';
                     
                     let summaryText = <></>;
                     if (tx.type === 'trade') {

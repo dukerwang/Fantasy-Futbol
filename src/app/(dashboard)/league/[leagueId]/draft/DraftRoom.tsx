@@ -91,7 +91,7 @@ function PlayerRow({
   const ppg = s && s.gp > 0 ? (s.total_points / s.gp).toFixed(1) : '—';
   const avgRating = s && s.gp > 0 ? s.avg_rating.toFixed(1) : '—';
   const form = player.form_rating != null ? Number(player.form_rating).toFixed(1) : '—';
-  const value = player.market_value != null ? `£${Number(player.market_value).toFixed(1)}m` : '—';
+  const value = player.market_value != null ? `€${Number(player.market_value).toFixed(1)}m` : '—';
 
   return (
     <div style={style} className={styles.playerRow} onClick={() => onSelectPlayer(player)}>

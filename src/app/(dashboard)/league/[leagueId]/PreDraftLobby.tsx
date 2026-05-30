@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
@@ -61,8 +61,148 @@ export default function PreDraftLobby({
   const [cropY, setCropY] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const [naturalWidth, setNaturalWidth] = useState(0);
+  const [naturalHeight, setNaturalHeight] = useState(0);
 
   const supabase = createClient();
+
+  // Scheduling States
+  const [schedTimeInput, setSchedTimeInput] = useState(
+    league.draft_scheduled_at
+      ? (() => {
+          const d = new Date(league.draft_scheduled_at);
+          const tzoffset = d.getTimezoneOffset() * 60000;
+          return new Date(d.getTime() - tzoffset).toISOString().slice(0, 16);
+        })()
+      : ''
+  );
+  const [schedSaving, setSchedSaving] = useState(false);
+  const [schedError, setSchedError] = useState<string | null>(null);
+  const [schedSuccess, setSchedSuccess] = useState<string | null>(null);
+
+  // Dynamic Countdown Timer
+  const [timeLeft, setTimeLeft] = useState<{
+    days: number;
+    hours: number;
+    minutes: number;
+    seconds: number;
+    totalMs: number;
+  } | null>(null);
+
+  useEffect(() => {
+    if (!league.draft_scheduled_at) {
+      setTimeLeft(null);
+      return;
+    }
+
+    const scheduledMs = new Date(league.draft_scheduled_at).getTime();
+
+    function calculateTimeLeft() {
+      const now = Date.now();
+      const difference = scheduledMs - now;
+
+      if (difference <= 0) {
+        return { days: 0, hours: 0, minutes: 0, seconds: 0, totalMs: 0 };
+      }
+
+      return {
+        days: Math.floor(difference / (1000 * 60 * 60 * 24)),
+        hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
+        minutes: Math.floor((difference / 1000 / 60) % 60),
+        seconds: Math.floor((difference / 1000) % 60),
+        totalMs: difference,
+      };
+    }
+
+    setTimeLeft(calculateTimeLeft());
+
+    const timer = setInterval(() => {
+      const remaining = calculateTimeLeft();
+      setTimeLeft(remaining);
+      if (remaining.totalMs <= 0) {
+        clearInterval(timer);
+        router.refresh();
+      }
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [league.draft_scheduled_at, router]);
+
+  async function handleSaveSchedule(e: React.FormEvent) {
+    e.preventDefault();
+    if (!schedTimeInput) {
+      setSchedError('Please select a valid date and time.');
+      return;
+    }
+
+    const scheduledDate = new Date(schedTimeInput);
+    if (isNaN(scheduledDate.getTime())) {
+      setSchedError('Invalid date/time selected.');
+      return;
+    }
+
+    if (scheduledDate.getTime() <= Date.now()) {
+      setSchedError('Scheduled draft time must be in the future.');
+      return;
+    }
+
+    setSchedSaving(true);
+    setSchedError(null);
+    setSchedSuccess(null);
+
+    try {
+      const res = await fetch(`/api/leagues/${leagueId}/draft/schedule`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ scheduledAt: scheduledDate.toISOString() }),
+      });
+
+      const json = await res.json();
+      if (!res.ok) {
+        setSchedError(json.error ?? 'Failed to save schedule.');
+        return;
+      }
+
+      setSchedSuccess('Draft schedule updated successfully!');
+      router.refresh();
+    } catch (err: any) {
+      setSchedError(err.message ?? 'An error occurred while saving the schedule.');
+    } finally {
+      setSchedSaving(false);
+    }
+  }
+
+  async function handleCancelSchedule() {
+    if (!confirm('Are you sure you want to cancel the scheduled draft? This will clear the countdown.')) {
+      return;
+    }
+
+    setSchedSaving(true);
+    setSchedError(null);
+    setSchedSuccess(null);
+
+    try {
+      const res = await fetch(`/api/leagues/${leagueId}/draft/schedule`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ scheduledAt: null }),
+      });
+
+      const json = await res.json();
+      if (!res.ok) {
+        setSchedError(json.error ?? 'Failed to cancel schedule.');
+        return;
+      }
+
+      setSchedSuccess('Draft schedule cleared successfully.');
+      setSchedTimeInput('');
+      router.refresh();
+    } catch (err: any) {
+      setSchedError(err.message ?? 'An error occurred while clearing the schedule.');
+    } finally {
+      setSchedSaving(false);
+    }
+  }
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -85,6 +225,8 @@ export default function PreDraftLobby({
         setCropZoom(1);
         setCropX(0);
         setCropY(0);
+        setNaturalWidth(0);
+        setNaturalHeight(0);
         setError(null);
       }
     };
@@ -143,6 +285,18 @@ export default function PreDraftLobby({
     }
 
     const abbrClean = editAbbr.trim().substring(0, 4).toUpperCase();
+    if (!abbrClean) {
+      setError('Team abbreviation is required');
+      return;
+    }
+    if (abbrClean.length < 2) {
+      setError('Abbreviation must be at least 2 characters');
+      return;
+    }
+    if (!/^[A-Z0-9]+$/.test(abbrClean)) {
+      setError('Abbreviation must be alphanumeric (letters and numbers only)');
+      return;
+    }
 
     setLoading(true);
     setError(null);
@@ -151,7 +305,7 @@ export default function PreDraftLobby({
       .from('teams')
       .update({
         team_name: editName.trim(),
-        abbreviation: abbrClean || null,
+        abbreviation: abbrClean,
         logo_url: editLogo.trim() || null,
       })
       .eq('id', myTeam.id);
@@ -199,13 +353,50 @@ export default function PreDraftLobby({
         {/* Enter Draft Card */}
         <div className={styles.ctaCard}>
           <h2 className={styles.ctaTitle}>
-            {isActive ? '🚨 The Draft is Underway!' : '⏳ The Draft Room is Preparing'}
+            {isActive
+              ? '🚨 The Draft is Underway!'
+              : league.draft_scheduled_at
+              ? '📅 Draft Scheduled'
+              : '⏳ The Draft Room is Preparing'}
           </h2>
           <p className={styles.ctaDesc}>
             {isActive
               ? 'Picks are being made in real time. Enter the war room now to make selections, set your queue, and configure scouting lists!'
+              : league.draft_scheduled_at
+              ? 'The countdown has begun. Research players, configure your queue, and prepare your war room. Kickoff is automated.'
               : 'Join the lobby chat, customize your club credentials, and review the drafting pool. Once the commissioner randomizes the picks and launches the draft, the entry gate will open.'}
           </p>
+
+          {!isActive && league.draft_scheduled_at && timeLeft && (
+            timeLeft.totalMs > 0 ? (
+              <div className={styles.countdownContainer}>
+                <div className={styles.countdownSegment}>
+                  <span className={styles.countdownValue}>{timeLeft.days}</span>
+                  <span className={styles.countdownLabel}>DAYS</span>
+                </div>
+                <div className={styles.countdownDivider}>:</div>
+                <div className={styles.countdownSegment}>
+                  <span className={styles.countdownValue}>{timeLeft.hours.toString().padStart(2, '0')}</span>
+                  <span className={styles.countdownLabel}>HRS</span>
+                </div>
+                <div className={styles.countdownDivider}>:</div>
+                <div className={styles.countdownSegment}>
+                  <span className={styles.countdownValue}>{timeLeft.minutes.toString().padStart(2, '0')}</span>
+                  <span className={styles.countdownLabel}>MINS</span>
+                </div>
+                <div className={styles.countdownDivider}>:</div>
+                <div className={styles.countdownSegment}>
+                  <span className={styles.countdownValue}>{timeLeft.seconds.toString().padStart(2, '0')}</span>
+                  <span className={styles.countdownLabel}>SECS</span>
+                </div>
+              </div>
+            ) : (
+              <div className={styles.countdownStarting}>
+                🚨 Draft starting now! Entering War Room...
+              </div>
+            )
+          )}
+
           <Link href={`/league/${leagueId}/draft`} className={styles.ctaBtn}>
             {isActive ? 'Enter active draft room →' : 'Preview draft board →'}
           </Link>
@@ -289,6 +480,53 @@ export default function PreDraftLobby({
               <h2 className={`${styles.sectionTitle} ${styles.commTitle}`}>🛠️ Commissioner Controls</h2>
               <span className={styles.memberCount}>Setup Phase</span>
             </div>
+
+            {/* Scheduling Section */}
+            <div className={styles.schedulerSection}>
+              <h3 className={styles.schedulerTitle}>📅 Schedule Draft Kickoff</h3>
+              <p className={styles.schedulerHint}>
+                Set a date and time for the draft to automatically begin. A minimum of 4 managers must be joined.
+              </p>
+              
+              <form onSubmit={handleSaveSchedule} className={styles.schedulerForm}>
+                <div className={styles.scheduleInputWrapper}>
+                  <input
+                    type="datetime-local"
+                    value={schedTimeInput}
+                    onChange={(e) => setSchedTimeInput(e.target.value)}
+                    className={styles.scheduleInput}
+                    disabled={schedSaving}
+                  />
+                  
+                  <div className={styles.schedulerBtns}>
+                    <button
+                      type="submit"
+                      disabled={schedSaving}
+                      className={styles.saveScheduleBtn}
+                    >
+                      {schedSaving ? 'Saving...' : league.draft_scheduled_at ? 'Update Schedule' : 'Schedule Draft'}
+                    </button>
+                    
+                    {league.draft_scheduled_at && (
+                      <button
+                        type="button"
+                        onClick={handleCancelSchedule}
+                        disabled={schedSaving}
+                        className={styles.cancelScheduleBtn}
+                      >
+                        Cancel Schedule
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </form>
+              
+              {schedError && <p className={styles.schedulerError}>{schedError}</p>}
+              {schedSuccess && <p className={styles.schedulerSuccess}>{schedSuccess}</p>}
+            </div>
+
+            <div className={styles.sectionDivider} />
+
             <DraftOrderManager
               leagueId={leagueId}
               initialTeams={teams}
@@ -383,7 +621,18 @@ export default function PreDraftLobby({
                           src={imageToCrop}
                           alt="Crop preview"
                           className={styles.cropperImage}
+                          onLoad={(e) => {
+                            const img = e.currentTarget;
+                            setNaturalWidth(img.naturalWidth);
+                            setNaturalHeight(img.naturalHeight);
+                          }}
                           style={{
+                            width: naturalWidth > 0 && naturalHeight > 0 
+                              ? `${(naturalWidth / naturalHeight) >= 1 ? 200 * (naturalWidth / naturalHeight) : 200}px`
+                              : '200px',
+                            height: naturalWidth > 0 && naturalHeight > 0
+                              ? `${(naturalWidth / naturalHeight) >= 1 ? 200 : 200 / (naturalWidth / naturalHeight)}px`
+                              : '200px',
                             transform: `translate(${cropX}px, ${cropY}px) scale(${cropZoom})`,
                           }}
                           draggable={false}
@@ -474,6 +723,16 @@ export default function PreDraftLobby({
                 </div>
 
                 {error && <p className={styles.modalError}>{error}</p>}
+
+                <div className={styles.fullSetupLinkContainer}>
+                  <Link
+                    href={`/league/${leagueId}/team-setup`}
+                    className={styles.fullSetupLink}
+                    onClick={() => setModalOpen(false)}
+                  >
+                    ✨ Open Full-Screen Crest Creator Suite →
+                  </Link>
+                </div>
               </div>
 
               <div className={styles.modalFooter}>

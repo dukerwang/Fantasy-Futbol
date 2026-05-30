@@ -107,8 +107,8 @@ export default async function DashboardPage() {
                     <span className={styles.statLabel}>Rank</span>
                   </div>
                   <div className={styles.stat}>
-                    <span className={styles.statValue}>£{team.faab_budget}m</span>
-                    <span className={styles.statLabel}>FAAB</span>
+                    <span className={styles.statValue}>€{team.faab_budget}m</span>
+                    <span className={styles.statLabel}>Club Balance</span>
                   </div>
                   <div className={styles.stat}>
                     <span className={styles.statValue}>{team.league.season}</span>

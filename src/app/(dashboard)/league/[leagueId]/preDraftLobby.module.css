@@ -929,4 +929,234 @@
   opacity: 0.9;
 }
 
+.fullSetupLinkContainer {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px dashed var(--color-border);
+  display: flex;
+  justify-content: center;
+}
+
+.fullSetupLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-accent-green);
+  text-decoration: none;
+  background: rgba(58, 107, 74, 0.05);
+  padding: 0.6rem 1rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(58, 107, 74, 0.2);
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.fullSetupLink:hover {
+  background: rgba(58, 107, 74, 0.1);
+  border-color: var(--color-accent-green);
+  transform: translateY(-1px);
+}
+
+/* ── Scheduling & Countdown Timer Styles ── */
+.countdownContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 1.5rem 0;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  backdrop-filter: blur(10px);
+}
+
+.countdownSegment {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  min-width: 65px;
+  padding: 0.6rem 0.5rem;
+}
+
+.countdownValue {
+  font-family: var(--font-sans);
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--color-text-primary);
+  line-height: 1;
+}
+
+.countdownLabel {
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: var(--color-text-muted);
+  margin-top: 0.3rem;
+}
+
+.countdownDivider {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  animation: pulse 1s infinite alternate;
+  padding-bottom: 0.8rem;
+}
+
+.countdownStarting {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgba(230, 92, 92, 0.1);
+  border: 1px solid rgba(230, 92, 92, 0.2);
+  color: #e65c5c;
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-align: center;
+  margin: 1.5rem 0;
+}
+
+.schedulerSection {
+  padding: 1.25rem 0 1rem;
+}
+
+.schedulerTitle {
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-primary);
+  margin: 0 0 0.25rem;
+}
+
+.schedulerHint {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  line-height: 1.4;
+  margin: 0 0 1rem;
+}
+
+.schedulerForm {
+  width: 100%;
+}
+
+.scheduleInputWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.scheduleInput {
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-primary);
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.85rem;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.15s ease;
+  width: 100%;
+}
+
+.scheduleInput:focus {
+  border-color: var(--color-accent-green);
+}
+
+.schedulerBtns {
+  display: flex;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.saveScheduleBtn {
+  flex: 1;
+  background: var(--color-accent-green);
+  border: 1px solid var(--color-accent-green);
+  color: white;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.saveScheduleBtn:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.cancelScheduleBtn {
+  background: rgba(230, 92, 92, 0.1);
+  border: 1px solid rgba(230, 92, 92, 0.2);
+  color: #e65c5c;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.cancelScheduleBtn:hover:not(:disabled) {
+  background: rgba(230, 92, 92, 0.18);
+}
+
+.saveScheduleBtn:disabled,
+.cancelScheduleBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.schedulerError {
+  font-size: 0.75rem;
+  color: #e65c5c;
+  margin: 0.5rem 0 0;
+  font-weight: 500;
+}
+
+.schedulerSuccess {
+  font-size: 0.75rem;
+  color: var(--color-accent-green);
+  margin: 0.5rem 0 0;
+  font-weight: 500;
+}
+
+.sectionDivider {
+  height: 1px;
+  background: var(--color-border);
+  margin: 1.25rem 0;
+}
+
+@keyframes pulse {
+  0% { opacity: 0.3; }
+  100% { opacity: 1; }
+}
+
+@media (min-width: 600px) {
+  .scheduleInputWrapper {
+    flex-direction: row;
+    align-items: center;
+  }
+  
+  .scheduleInput {
+    flex: 2;
+  }
+  
+  .schedulerBtns {
+    flex: 3;
+  }
+}
+
+
+
 

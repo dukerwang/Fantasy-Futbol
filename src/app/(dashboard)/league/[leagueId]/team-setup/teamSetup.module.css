@@ -1,0 +1,566 @@
+/* teamSetup.module.css */
+
+.setupLayout {
+  display: flex;
+  min-height: calc(100vh - 56px); /* minus top bar */
+  background: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  font-family: var(--font-sans);
+  overflow-y: auto;
+}
+
+.setupContainer {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 3rem 2rem;
+  gap: 4rem;
+  align-items: start;
+}
+
+/* Left Panel - Form */
+.setupPanel {
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 2.5rem;
+  box-shadow: var(--shadow-md);
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  animation: slideInLeft 0.5s ease-out;
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.panelHeader {
+  border-bottom: 1px solid var(--color-border-subtle);
+  padding-bottom: 1.25rem;
+}
+
+.panelTitle {
+  font-family: var(--font-serif);
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--color-accent-green);
+  margin: 0 0 0.5rem;
+}
+
+.panelSubtitle {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+}
+
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.inputLabel {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-text-muted);
+}
+
+.requiredAsterisk {
+  color: #ef4444;
+  margin-left: 2px;
+}
+
+.textInput {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  font-size: 0.925rem;
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-primary);
+  outline: none;
+  transition: all 0.25s ease;
+}
+
+.textInput:focus {
+  border-color: var(--color-accent-green);
+  box-shadow: 0 0 0 3px rgba(58, 107, 74, 0.15);
+  background: var(--color-bg-secondary);
+}
+
+.inputHint {
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+/* Upload & Cropper Area */
+.uploadArea {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.uploadPreviewRow {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 1.25rem;
+}
+
+.uploadAvatarPreview {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid var(--color-border);
+  background: var(--color-bg-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: var(--shadow-sm);
+}
+
+.previewLogoImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.previewLogoFallback {
+  font-family: var(--font-sans);
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--color-text-secondary);
+}
+
+.uploadBtnCol {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.fileUploadLabel {
+  display: inline-block;
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-secondary);
+  padding: 0.5rem 1.25rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+  width: fit-content;
+}
+
+.fileUploadLabel:hover {
+  background: var(--color-border);
+  color: var(--color-text-primary);
+  border-color: var(--color-text-secondary);
+}
+
+.hiddenFileInput {
+  display: none;
+}
+
+.uploadRequirements {
+  font-size: 0.65rem;
+  color: var(--color-text-muted);
+}
+
+.removeLogoBtn {
+  background: transparent;
+  border: none;
+  color: #ef4444;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0;
+  cursor: pointer;
+  width: fit-content;
+  text-align: left;
+  transition: opacity 0.2s ease;
+}
+
+.removeLogoBtn:hover {
+  text-decoration: underline;
+  opacity: 0.8;
+}
+
+.urlInputFallback {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  border-top: 1px solid var(--color-border-subtle);
+  padding-top: 1rem;
+}
+
+.urlLabel {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--color-text-muted);
+}
+
+/* Cropper workspace */
+.cropperWorkspace {
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.cropperHint {
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+  margin: 0;
+  text-align: center;
+}
+
+.cropperContainer {
+  position: relative;
+  width: 200px;
+  height: 200px;
+  margin: 0 auto;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid var(--color-accent-green);
+  cursor: grab;
+  background: #000;
+  box-shadow: 0 0 20px rgba(58, 107, 74, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cropperContainer:active {
+  cursor: grabbing;
+}
+
+.cropperImage {
+  max-width: none;
+  user-select: none;
+  transform-origin: center;
+  -webkit-user-drag: none;
+  flex-shrink: 0;
+}
+
+.cropperOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  box-shadow: inset 0 0 0 4px rgba(255, 255, 255, 0.2);
+}
+
+.cropperControls {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.zoomRow {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.zoomLabel {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--color-text-secondary);
+}
+
+.zoomSlider {
+  flex: 1;
+  max-width: 200px;
+  accent-color: var(--color-accent-green);
+}
+
+.cropperButtons {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.cropCancelBtn {
+  padding: 0.5rem 1.25rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  background: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.cropCancelBtn:hover {
+  background: var(--color-bg-secondary);
+}
+
+.cropApplyBtn {
+  padding: 0.5rem 1.5rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  background: var(--color-accent-green);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: opacity 0.2s;
+  box-shadow: 0 2px 8px rgba(58, 107, 74, 0.2);
+}
+
+.cropApplyBtn:hover {
+  opacity: 0.9;
+}
+
+/* Submit Actions */
+.submitBtn {
+  width: 100%;
+  padding: 1rem;
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: var(--color-accent-green);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(58, 107, 74, 0.2);
+  transition: all 0.2s ease;
+  margin-top: 1rem;
+}
+
+.submitBtn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(58, 107, 74, 0.3);
+}
+
+.submitBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.errorText {
+  font-size: 0.8rem;
+  color: #ef4444;
+  margin: 0;
+  text-align: center;
+  font-weight: 600;
+}
+
+/* Right Panel - Preview Card */
+.previewPanel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: sticky;
+  top: 3rem;
+  gap: 1.5rem;
+  animation: slideInRight 0.5s ease-out;
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.previewTitle {
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-text-muted);
+}
+
+.glassCard {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.01));
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  width: 100%;
+  max-width: 380px;
+  padding: 3rem 2rem;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 2rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.glassCard::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(58, 107, 74, 0.08) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.crestOuter {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.02));
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+}
+
+.crestOuterActive {
+  border-color: var(--color-accent-green);
+  box-shadow: 0 0 30px rgba(58, 107, 74, 0.3);
+}
+
+.crestInner {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.crestFallback {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-serif);
+  font-size: 3rem;
+  font-weight: 700;
+  color: #fff;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  letter-spacing: -0.05em;
+  transition: all 0.3s ease;
+}
+
+.crestImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.previewDetails {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  z-index: 1;
+}
+
+.previewName {
+  font-family: var(--font-serif);
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin: 0;
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.previewAbbrBadge {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: var(--color-text-secondary);
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.previewDivider {
+  width: 40px;
+  height: 2px;
+  background: var(--color-accent-green);
+  border-radius: var(--radius-full);
+}
+
+.previewStatus {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--color-accent-green);
+}
+
+@media (max-width: 900px) {
+  .setupLayout {
+    overflow-y: auto;
+  }
+
+  .setupContainer {
+    grid-template-columns: 1fr;
+    padding: 1.5rem 1rem;
+    gap: 2.5rem;
+  }
+
+  .setupPanel {
+    padding: 1.5rem;
+  }
+
+  .previewPanel {
+    position: static;
+  }
+
+  .glassCard {
+    max-width: 100%;
+    padding: 2.5rem 1.5rem;
+  }
+}

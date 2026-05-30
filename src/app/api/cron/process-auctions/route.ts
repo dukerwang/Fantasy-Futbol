@@ -10,7 +10,7 @@
  *      their bid + drop-player severance fee (10% of drop player market value) is found.
  *   3. Process the winner: drop nominated player (charging severance), add won player,
  *      deduct total FAAB cost, log transactions.
- *   4. Award Scout's Rebate (20%, capped £5m) to the auction initiator if a different
+ *   4. Award Scout's Rebate (20%, capped €5m) to the auction initiator if a different
  *      team won.
  *   5. Approve winning claim, reject all others.
  */
@@ -179,9 +179,9 @@ export async function POST(req: NextRequest) {
         const totalRequired = candidate.faab_bid + severanceFee;
         if (freshTeam.faab_budget < totalRequired) {
           console.warn(
-            `[process-auctions] ${candidate.team_id} needs £${totalRequired}m ` +
-            `(bid £${candidate.faab_bid}m + £${severanceFee}m severance) ` +
-            `but only has £${freshTeam.faab_budget}m. Skipping to next bidder.`,
+            `[process-auctions] ${candidate.team_id} needs €${totalRequired}m ` +
+            `(bid €${candidate.faab_bid}m + €${severanceFee}m severance) ` +
+            `but only has €${freshTeam.faab_budget}m. Skipping to next bidder.`,
           );
           continue;
         }
@@ -347,7 +347,7 @@ export async function POST(req: NextRequest) {
           });
 
           const severanceNote = winnerSeveranceFee > 0
-            ? ` (£${winnerSeveranceFee}m severance paid)`
+            ? ` (€${winnerSeveranceFee}m severance paid)`
             : '';
           const dropName = (winner as any).drop_player_name || winner.drop_player_id;
           await admin.from('transactions').insert({
@@ -383,8 +383,8 @@ export async function POST(req: NextRequest) {
 
       // Log the winning transaction
       const winNote = winnerSeveranceFee > 0
-        ? `Won auction for ${(winner.player as any)?.name ?? player_id} with £${winner.faab_bid}m bid (+ £${winnerSeveranceFee}m drop severance)${winnerAcquireStatus === 'taxi' ? ' -> academy' : ''}`
-        : `Won auction for ${(winner.player as any)?.name ?? player_id} with £${winner.faab_bid}m bid${winnerAcquireStatus === 'taxi' ? ' -> academy' : ''}`;
+        ? `Won auction for ${(winner.player as any)?.name ?? player_id} with €${winner.faab_bid}m bid (+ €${winnerSeveranceFee}m drop severance)${winnerAcquireStatus === 'taxi' ? ' -> academy' : ''}`
+        : `Won auction for ${(winner.player as any)?.name ?? player_id} with €${winner.faab_bid}m bid${winnerAcquireStatus === 'taxi' ? ' -> academy' : ''}`;
       await admin.from('transactions').insert({
         league_id,
         team_id: winner.team_id,
@@ -427,7 +427,7 @@ export async function POST(req: NextRequest) {
               player_id,
               type: 'rebate',
               faab_bid: rebateAmount,
-              notes: `Scout's rebate: 20% of £${winner.faab_bid}m winning bid for ${(winner.player as any)?.name ?? player_id}`,
+              notes: `Scout's rebate: 20% of €${winner.faab_bid}m winning bid for ${(winner.player as any)?.name ?? player_id}`,
             });
           }
         }
@@ -487,7 +487,7 @@ export async function POST(req: NextRequest) {
             leagueId: league_id,
             userId: winnerTeam.user_id,
             title: 'Auction Won!',
-            content: `You secured **${(winner.player as any)?.name ?? 'Player'}** for **£${winner.faab_bid}m** in a ${realClaims.length}-bidder auction.${winner.drop_player_id ? ` **${(winner as any).drop_player_name}** was dropped to waivers to clear roster space.` : ''}`,
+            content: `You secured **${(winner.player as any)?.name ?? 'Player'}** for **€${winner.faab_bid}m** in a ${realClaims.length}-bidder auction.${winner.drop_player_id ? ` **${(winner as any).drop_player_name}** was dropped to waivers to clear roster space.` : ''}`,
             url: `/league/${league_id}/team`
           });
         }
@@ -501,7 +501,7 @@ export async function POST(req: NextRequest) {
               leagueId: league_id,
               userId: loserTeam.user_id,
               title: 'Waiver Auction Lost',
-              content: `Your waiver bid of **£${loser.faab_bid}m** for **${(winner!.player as any)?.name ?? 'Player'}** was unsuccessful. **${winnerTeam?.team_name ?? 'Another team'}** won the signature for **£${winner!.faab_bid}m**.`,
+              content: `Your waiver bid of **€${loser.faab_bid}m** for **${(winner!.player as any)?.name ?? 'Player'}** was unsuccessful. **${winnerTeam?.team_name ?? 'Another team'}** won the signature for **€${winner!.faab_bid}m**.`,
               url: `/league/${league_id}/players`
             });
           }

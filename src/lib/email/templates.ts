@@ -67,7 +67,7 @@ export const getTradeAcceptedEmail = (clubA: string, clubB: string, leagueUrl: s
 export const getPlayerDroppedEmail = (clubName: string, playerName: string, leagueUrl: string) => {
   const body = `
     <p><strong>${clubName}</strong> has dropped <strong>${playerName}</strong>.</p>
-    <p>A 48-hour FAAB waiver auction has automatically begun. If you want to claim this player, head to the Free Agency market to place your bid.</p>
+    <p>A 48-hour transfer auction has automatically begun. If you want to claim this player, head to the Free Agency market to place your bid.</p>
     <a href="${leagueUrl}/players" class="button">View Player Market</a>
   `;
   return baseTemplate('Player Dropped to Waivers', body);
@@ -76,15 +76,15 @@ export const getPlayerDroppedEmail = (clubName: string, playerName: string, leag
 export const getSystemAuctionsEmail = (players: { name: string; value: number }[], isSummerKickoff: boolean, leagueUrl: string) => {
   const title = isSummerKickoff ? 'The Season Has Begun!' : 'Transfer Window Alert';
   const preamble = isSummerKickoff 
-    ? `The commissioner has officially started the new season. <strong>${players.length} new players</strong> have been added to the FAAB Auction Block.`
-    : `FPL has added <strong>${players.length} new players</strong> to the database who meet the £40m valuation threshold. They have been placed on waivers.`;
+    ? `The commissioner has officially started the new season. <strong>${players.length} new players</strong> have been added to the Transfer Auction Block.`
+    : `FPL has added <strong>${players.length} new players</strong> to the database who meet the €40m valuation threshold. They have been placed on waivers.`;
     
   const body = `
     <p>${preamble}</p>
     <ul>
-      ${players.map(p => `<li>${p.name} (£${p.value}m)</li>`).join('')}
+      ${players.map(p => `<li>${p.name} (€${p.value}m)</li>`).join('')}
     </ul>
-    <p>You have 48 hours to place your FAAB bids on these players.</p>
+    <p>You have 48 hours to place your bids on these players.</p>
     <a href="${leagueUrl}/players" class="button">View Player Market</a>
   `;
   return baseTemplate(title, body);
@@ -126,7 +126,7 @@ export const getAuctionWonEmail = (
     <p>The deal is finalized. <strong>${playerName}</strong> has officially put pen to paper for <strong>${winnerClub}</strong>.</p>
     <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; border-left: 4px solid #1a1a1a; margin: 20px 0;">
       <p style="margin-top: 0; font-size: 0.9em; text-transform: uppercase; color: #666;">Auction Details</p>
-      <p><strong>Winning Bid:</strong> £${winningBid}m</p>
+      <p><strong>Winning Bid:</strong> €${winningBid}m</p>
       <p style="margin-bottom: 0;"><strong>Atmosphere:</strong> ${intensity}</p>
       <p style="font-size: 0.85em; color: #666; margin-top: 4px;">${intensityDesc} (${bidderCount} active bidder${bidderCount === 1 ? '' : 's'})</p>
     </div>
@@ -144,7 +144,7 @@ export const getAuctionWonEmail = (
 export const getOutbidEmail = (playerName: string, currentHighBid: number, leagueUrl: string) => {
   const body = `
     <p>You have been outbid for <strong>${playerName}</strong>.</p>
-    <p>The current high bid is now <strong>£${currentHighBid}m</strong>.</p>
+    <p>The current high bid is now <strong>€${currentHighBid}m</strong>.</p>
     <p>If you want to stay in the race, you'll need to increase your bid before the auction expires.</p>
     <a href="${leagueUrl}/players" class="button">Return to Auction</a>
   `;
@@ -200,3 +200,28 @@ export const getMatchweekSummaryEmail = (
   `;
   return baseTemplate(`GW${gameweek} Summary: ${leagueName}`, body);
 };
+
+export const getDraftScheduledEmail = (leagueName: string, scheduledTime: string, lobbyUrl: string) => {
+  const body = `
+    <p>The commissioner has scheduled the draft for <strong>${leagueName}</strong>!</p>
+    <div style="background-color: #F7F3ED; padding: 20px; border-radius: 8px; border: 2px solid #1a1a1a; text-align: center; margin: 24px 0;">
+      <p style="font-size: 0.9em; text-transform: uppercase; color: #666; margin-top: 0;">Scheduled Kickoff Time</p>
+      <p style="font-family: 'Georgia', serif; font-size: 1.4em; font-weight: bold; margin: 8px 0;">${scheduledTime}</p>
+      <a href="${lobbyUrl}" class="button" style="margin-top: 12px;">Enter Pre-Draft Lobby</a>
+    </div>
+    <p>Please review your queue, research players, and ensure you are in the War Room before the timer hits zero!</p>
+  `;
+  return baseTemplate(`Draft Scheduled for ${leagueName}`, body);
+};
+
+export const getDraftCancelledEmail = (leagueName: string, lobbyUrl: string) => {
+  const body = `
+    <p>The draft schedule for <strong>${leagueName}</strong> has been cancelled or postponed by the commissioner.</p>
+    <p>The league status remains in the Pre-Draft setup phase. A new scheduled time will be determined by your commissioner.</p>
+    <div style="text-align: center; margin: 24px 0;">
+      <a href="${lobbyUrl}" class="button">Go to League Lobby</a>
+    </div>
+  `;
+  return baseTemplate(`Draft Schedule Cancelled: ${leagueName}`, body);
+};
+

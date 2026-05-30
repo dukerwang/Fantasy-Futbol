@@ -54,9 +54,37 @@ export default async function FinancePage({ params }: Props) {
     .eq('team_id', myTeam.id)
     .order('processed_at', { ascending: false });
 
-  // Starting FAAB for this team: leagues.faab_budget is the starting value
-  // We compute net from transactions rather than trusting a static "starting" value
-  const startingBudget = league.faab_budget ?? 100;
+  // Derive starting budget algebraically from the transaction log:
+  //   startingBudget = currentBudget + totalSpent - totalEarned
+  // This is always correct regardless of the league's stored default, which may be
+  // stale for older leagues created before the budget default was updated.
+  const txList = transactions ?? [];
+  let totalSpent = 0;
+  let totalEarned = 0;
+  const TX_DIRECTIONS: Record<string, 'in' | 'out' | 'none'> = {
+    waiver_claim:          'out',
+    free_agent_pickup:     'none',
+    drop:                  'out',
+    trade:                 'none',
+    transfer_out:          'in',
+    transfer_compensation: 'in',
+    rebate:                'in',
+    draft_pick:            'none',
+    prize_payout:          'in',
+  };
+  for (const tx of txList) {
+    const dir = TX_DIRECTIONS[tx.type as string];
+    const amount = tx.faab_bid != null && tx.faab_bid > 0
+      ? tx.faab_bid
+      : tx.compensation_amount != null && Number(tx.compensation_amount) > 0
+        ? Number(tx.compensation_amount)
+        : 0;
+    if (amount > 0) {
+      if (dir === 'out') totalSpent += amount;
+      else if (dir === 'in') totalEarned += amount;
+    }
+  }
+  const startingBudget = myTeam.faab_budget + totalSpent - totalEarned;
 
   return (
     <FinanceClient
@@ -66,7 +94,7 @@ export default async function FinancePage({ params }: Props) {
       teamName={myTeam.team_name}
       currentBudget={myTeam.faab_budget}
       startingBudget={startingBudget}
-      transactions={(transactions ?? []) as any[]}
+      transactions={txList as any[]}
     />
   );
 }

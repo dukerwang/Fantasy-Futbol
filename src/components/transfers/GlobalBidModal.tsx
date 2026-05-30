@@ -59,7 +59,7 @@ export default function GlobalBidModal({ player, userTeams, onClose, onSuccess }
   const selectedTeam = userTeams.find((t) => t.id === selectedTeamId);
   const playerAgeForAcademy = player?.date_of_birth ? calculateAgeInYears(player.date_of_birth) : null;
 
-  // When team is selected, fetch their roster / FAAB info
+  // When team is selected, fetch their roster / Club Balance info
   const fetchTeamInfo = useCallback(async (teamId: string, leagueId: string) => {
     if (!player) return;
     setTeamInfoLoading(true);
@@ -127,7 +127,7 @@ export default function GlobalBidModal({ player, userTeams, onClose, onSuccess }
       return;
     }
     if (amount > teamInfo.faab_budget) {
-      setSubmitError(`${selectedTeam.team_name} only has £${teamInfo.faab_budget}m FAAB.`);
+      setSubmitError(`${selectedTeam.team_name} only has €${teamInfo.faab_budget}m in Club Balance.`);
       return;
     }
     if (teamInfo.rosterFull && !dropPlayerId && !sendToAcademyIfFull) {
@@ -202,7 +202,7 @@ export default function GlobalBidModal({ player, userTeams, onClose, onSuccess }
             <div className={styles.playerMeta}>
               <PositionBadge position={player.primary_position} size="sm" />
               <span className={styles.playerClub}>{player.pl_team}</span>
-              <span className={styles.playerValue}>£{Number(player.market_value ?? 0).toFixed(1)}m</span>
+              <span className={styles.playerValue}>€{Number(player.market_value ?? 0).toFixed(1)}m</span>
             </div>
           </div>
         </div>
@@ -255,12 +255,12 @@ export default function GlobalBidModal({ player, userTeams, onClose, onSuccess }
             {teamInfo && !teamInfo.alreadyRostered && !teamInfo.hasPendingBid && (
               <>
                 <div className={styles.faabRow}>
-                  <span className={styles.faabLabel}>Available FAAB:</span>
-                  <span className={styles.faabAmount}>£{teamInfo.faab_budget}m</span>
+                  <span className={styles.faabLabel}>Club Balance:</span>
+                  <span className={styles.faabAmount}>€{teamInfo.faab_budget}m</span>
                 </div>
 
                 <div className={styles.field}>
-                  <label className={styles.label}>Your bid (£m):</label>
+                  <label className={styles.label}>Your bid (€m):</label>
                   <input
                     type="number"
                     min={0}
@@ -271,7 +271,7 @@ export default function GlobalBidModal({ player, userTeams, onClose, onSuccess }
                     onChange={(e) => setBidAmount(e.target.value)}
                     autoFocus
                   />
-                  <span className={styles.hint}>Max: £{teamInfo.faab_budget}m</span>
+                  <span className={styles.hint}>Max: €{teamInfo.faab_budget}m</span>
                 </div>
 
                 {teamInfo.rosterFull && (

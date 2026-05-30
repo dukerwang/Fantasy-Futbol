@@ -129,13 +129,13 @@ export async function POST(req: NextRequest, { params }: Props) {
   // 3. Validate FAAB budgets
   if (trade.offered_faab > freshTeamA.faab_budget) {
     return NextResponse.json(
-      { error: `The proposing team only has £${freshTeamA.faab_budget}m FAAB but offered £${trade.offered_faab}m. The trade cannot be completed.` },
+      { error: `The proposing team only has €${freshTeamA.faab_budget}m FAAB but offered €${trade.offered_faab}m. The trade cannot be completed.` },
       { status: 400 },
     );
   }
   if (trade.requested_faab > freshTeamB.faab_budget) {
     return NextResponse.json(
-      { error: `You only have £${freshTeamB.faab_budget}m FAAB but the deal requires £${trade.requested_faab}m from your side.` },
+      { error: `You only have €${freshTeamB.faab_budget}m FAAB but the deal requires €${trade.requested_faab}m from your side.` },
       { status: 400 },
     );
   }

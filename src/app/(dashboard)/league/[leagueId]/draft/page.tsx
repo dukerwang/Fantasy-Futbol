@@ -38,9 +38,6 @@ export default async function DraftPage({ params }: Props) {
 
   if (!membership && league.commissioner_id !== user.id) redirect('/dashboard');
 
-  // Redirect if not yet drafting (and not complete — completed draft can still be viewed)
-  if (league.status === 'setup') redirect(`/league/${leagueId}`);
-
   // Fetch teams with draft_order
   const { data: teamsData } = await admin
     .from('teams')

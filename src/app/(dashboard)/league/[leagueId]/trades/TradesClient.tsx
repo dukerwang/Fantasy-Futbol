@@ -166,10 +166,10 @@ export default function TradesClient({
     const reqFaab = parseInt(requestedFaab, 10) || 0;
 
     if (offFaab > myTeam.faab_budget) {
-      setProposeError(`You only have £${myTeam.faab_budget}m FAAB — cannot offer £${offFaab}m.`); return;
+      setProposeError(`You only have €${myTeam.faab_budget}m in Club Balance — cannot offer €${offFaab}m.`); return;
     }
     if (targetTeam && reqFaab > targetTeam.faab_budget) {
-      setProposeError(`${targetTeam.team_name} only has £${targetTeam.faab_budget}m FAAB — cannot request £${reqFaab}m.`); return;
+      setProposeError(`${targetTeam.team_name} only has €${targetTeam.faab_budget}m in Club Balance — cannot request €${reqFaab}m.`); return;
     }
 
     setSubmitting(true);
@@ -279,8 +279,8 @@ export default function TradesClient({
           )}
         </div>
         <div className={styles.faabBadge}>
-          <span className={styles.faabLabel}>Your FAAB</span>
-          <span className={styles.faabAmount}>£{myTeam.faab_budget}m</span>
+          <span className={styles.faabLabel}>Club Balance</span>
+          <span className={styles.faabAmount}>€{myTeam.faab_budget}m</span>
         </div>
       </header>
 
@@ -436,7 +436,7 @@ export default function TradesClient({
               <option value="">— Select a team —</option>
               {allTeams.map((t) => (
                 <option key={t.id} value={t.id}>
-                  {t.team_name} (£{t.faab_budget}m FAAB)
+                  {t.team_name} (€{t.faab_budget}m Club Balance)
                 </option>
               ))}
             </select>
@@ -542,12 +542,12 @@ export default function TradesClient({
                           ) : null;
                         })}
                         {parseInt(offeredFaab) > 0 && (
-                          <div className={styles.dockFaab}>+ £{offeredFaab}m FAAB</div>
+                          <div className={styles.dockFaab}>+ €{offeredFaab}m Cash</div>
                         )}
                       </>
                     )}
                     <div className={styles.faabInput}>
-                      <label className={styles.fieldLabel}>Include FAAB (£m):</label>
+                      <label className={styles.fieldLabel}>Include Cash (€m):</label>
                       <input
                         type="number"
                         min={0}
@@ -578,12 +578,12 @@ export default function TradesClient({
                           ) : null;
                         })}
                         {parseInt(requestedFaab) > 0 && (
-                          <div className={styles.dockFaab}>+ £{requestedFaab}m FAAB</div>
+                          <div className={styles.dockFaab}>+ €{requestedFaab}m Cash</div>
                         )}
                       </>
                     )}
                     <div className={styles.faabInput}>
-                      <label className={styles.fieldLabel}>Request FAAB (£m):</label>
+                      <label className={styles.fieldLabel}>Request Cash (€m):</label>
                       <input
                         type="number"
                         min={0}
@@ -703,7 +703,7 @@ export default function TradesClient({
                             </span>
                           )) : <span className={styles.leagueFeedNone}>—</span>}
                           {trade.offered_faab > 0 && (
-                            <span className={styles.leagueFeedFaab}>+£{trade.offered_faab}m</span>
+                            <span className={styles.leagueFeedFaab}>+€{trade.offered_faab}m</span>
                           )}
                         </div>
                       </div>
@@ -722,7 +722,7 @@ export default function TradesClient({
                             </span>
                           )) : <span className={styles.leagueFeedNone}>—</span>}
                           {trade.requested_faab > 0 && (
-                            <span className={styles.leagueFeedFaab}>+£{trade.requested_faab}m</span>
+                            <span className={styles.leagueFeedFaab}>+€{trade.requested_faab}m</span>
                           )}
                         </div>
                       </div>
@@ -783,7 +783,7 @@ export default function TradesClient({
                           {p.market_value && (
                             <div className={styles.tbValueBlock}>
                               <span className={styles.tbValueLabel}>Value</span>
-                              <span className={styles.tbPlayerValue}>£{p.market_value.toFixed(0)}m</span>
+                              <span className={styles.tbPlayerValue}>€{p.market_value.toFixed(0)}m</span>
                             </div>
                           )}
                         </div>
@@ -932,12 +932,12 @@ function TradeCard({ trade, myTeamId, playerMap, onAction, onCounter, onViewPlay
           <div className={styles.tcSideCol}>
             <span className={styles.tcDealLabel}>{isProposer ? 'You gave' : 'You received'}</span>
             {givePlayers.map(renderPlayer)}
-            {giveFaab > 0 && <span className={styles.tcFaabLine}>+ £{giveFaab}m sweetener</span>}
+            {giveFaab > 0 && <span className={styles.tcFaabLine}>+ €{giveFaab}m sweetener</span>}
           </div>
           <div className={styles.tcSideCol}>
             <span className={styles.tcDealLabel}>{isProposer ? 'You received' : 'You gave'}</span>
             {receivePlayers.map(renderPlayer)}
-            {receiveFaab > 0 && <span className={styles.tcFaabLine}>+ £{receiveFaab}m sweetener</span>}
+            {receiveFaab > 0 && <span className={styles.tcFaabLine}>+ €{receiveFaab}m sweetener</span>}
           </div>
         </div>
         {error && <p className={styles.errorBanner}>{error}</p>}
@@ -962,12 +962,12 @@ function TradeCard({ trade, myTeamId, playerMap, onAction, onCounter, onViewPlay
           <div className={styles.tcSideCol}>
             <span className={styles.tcDealLabel}>You give</span>
             {givePlayers.map(renderPlayer)}
-            {giveFaab > 0 && <span className={styles.tcFaabLine}>+ £{giveFaab}m sweetener</span>}
+            {giveFaab > 0 && <span className={styles.tcFaabLine}>+ €{giveFaab}m sweetener</span>}
           </div>
           <div className={styles.tcSideCol}>
             <span className={styles.tcDealLabel}>You receive</span>
             {receivePlayers.map(renderPlayer)}
-            {receiveFaab > 0 && <span className={styles.tcFaabLine}>+ £{receiveFaab}m sweetener</span>}
+            {receiveFaab > 0 && <span className={styles.tcFaabLine}>+ €{receiveFaab}m sweetener</span>}
           </div>
         </div>
         {trade.message && <p className={styles.tradeMessage}>"{trade.message}"</p>}
@@ -993,12 +993,12 @@ function TradeCard({ trade, myTeamId, playerMap, onAction, onCounter, onViewPlay
         <div className={styles.tcSideCol}>
           <span className={styles.tcDealLabel}>You give</span>
           {givePlayers.map(renderPlayer)}
-          {giveFaab > 0 && <span className={styles.tcFaabLine}>+ £{giveFaab}m sweetener</span>}
+          {giveFaab > 0 && <span className={styles.tcFaabLine}>+ €{giveFaab}m sweetener</span>}
         </div>
         <div className={styles.tcSideCol}>
           <span className={styles.tcDealLabel}>You receive</span>
           {receivePlayers.map(renderPlayer)}
-          {receiveFaab > 0 && <span className={styles.tcFaabLine}>+ £{receiveFaab}m sweetener</span>}
+          {receiveFaab > 0 && <span className={styles.tcFaabLine}>+ €{receiveFaab}m sweetener</span>}
         </div>
       </div>
       {trade.message && <p className={styles.tradeMessage}>"{trade.message}"</p>}

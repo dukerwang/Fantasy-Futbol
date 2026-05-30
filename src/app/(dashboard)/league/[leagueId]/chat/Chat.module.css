@@ -290,6 +290,44 @@
   background: rgba(250, 245, 235, 0.5); /* warm cream hint */
 }
 
+/* System announcement messages (season resets, champions, etc.) */
+.msgRowSystem {
+  align-self: center;
+  max-width: 100%;
+  width: 100%;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.msgAvatarSystem {
+  background: linear-gradient(135deg, #b8943f 0%, #d4a843 50%, #c9a135 100%);
+  border-color: rgba(184, 148, 63, 0.4);
+  color: #fff;
+  font-size: 16px;
+  box-shadow: 0 2px 8px rgba(184, 148, 63, 0.3);
+}
+
+.msgSenderSystem {
+  font-weight: var(--font-bold);
+  color: #b8943f;
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.msgTextCardSystem {
+  background: linear-gradient(135deg, rgba(184, 148, 63, 0.06) 0%, rgba(212, 168, 67, 0.08) 100%);
+  border: 1px solid rgba(184, 148, 63, 0.25);
+  border-radius: var(--radius-sm);
+  text-align: center;
+  max-width: 540px;
+  white-space: pre-wrap;
+  line-height: 1.6;
+  box-shadow: 0 2px 12px rgba(184, 148, 63, 0.06);
+}
+
+
 /* Chat Input styling */
 .inputArea {
   padding: var(--space-4) var(--space-6);

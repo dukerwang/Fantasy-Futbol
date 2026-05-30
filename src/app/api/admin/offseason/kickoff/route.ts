@@ -224,7 +224,7 @@ export async function POST(req: NextRequest) {
           leagueId,
           userId: t.user_id,
           title: 'New Season Started!',
-          content: `The commissioner has officially kicked off the new season! Rosters are unlocked, and **${playersToAuction.length}** high-value summer arrivals have been added to the FAAB auction block.`,
+          content: `The commissioner has officially kicked off the new season! Rosters are unlocked, and **${playersToAuction.length}** high-value summer arrivals have been added to the transfer auction block.`,
           url: `/league/${leagueId}`
         });
       }
@@ -239,7 +239,7 @@ export async function POST(req: NextRequest) {
               leagueId,
               userId,
               title: '💸 Relegation Compensation Paid',
-              content: `**${r.playerName}** (${r.club}) has been dropped due to relegation. You have been compensated with **+£${r.compensationFaab}m** FAAB.`,
+              content: `**${r.playerName}** (${r.club}) has been dropped due to relegation. You have been compensated with **+€${r.compensationFaab}m**.`,
               url: `/league/${leagueId}/transactions`
             });
           }

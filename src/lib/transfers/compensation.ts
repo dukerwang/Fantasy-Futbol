@@ -115,7 +115,7 @@ export async function processPlayerTransferOut(
       player_id: playerId,
       type: 'transfer_compensation',
       compensation_amount: compensation,
-      notes: `${player.name} transferred out of PL. Compensation = £${compensation}m (${COMPENSATION_RATE * 100}% of £${player.market_value}m market value).`,
+      notes: `${player.name} transferred out of PL. Compensation = €${compensation}m (${COMPENSATION_RATE * 100}% of €${player.market_value}m market value).`,
     });
 
     if (txError) throw txError;

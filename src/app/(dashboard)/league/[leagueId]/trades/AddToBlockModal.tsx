@@ -86,7 +86,7 @@ export default function AddToBlockModal({ myTeamId, myRoster, onClose, onToggle 
                       </span>
                       <span className={styles.blockToggleClub}>
                         {p.pl_team ?? ''}
-                        {p.market_value ? ` · £${p.market_value.toFixed(1)}m` : ''}
+                        {p.market_value ? ` · €${p.market_value.toFixed(1)}m` : ''}
                       </span>
                     </div>
                     {isOn && (

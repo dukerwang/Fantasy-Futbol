@@ -89,6 +89,7 @@ export interface League {
   scoring_rules: ScoringRules;
   is_dynasty: boolean;
   status: 'setup' | 'drafting' | 'active' | 'completed';
+  draft_scheduled_at: string | null;
   created_at: string;
   updated_at: string;
 }

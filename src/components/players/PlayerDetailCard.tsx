@@ -187,7 +187,7 @@ export default function PlayerDetailCard({ player, totalPoints, recentForm, matc
                         <div className={styles.statsGrid}>
                             <div className={styles.statItem}>
                                 <span className={styles.statValue} data-gold="true">
-                                    {player.market_value != null ? `£${player.market_value}m` : '—'}
+                                    {player.market_value != null ? `€${player.market_value}m` : '—'}
                                 </span>
                                 <span className={styles.statLabel}>Value</span>
                             </div>

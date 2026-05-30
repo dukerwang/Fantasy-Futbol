@@ -122,7 +122,7 @@ function RosterRow({ entry, taxiAgeLimit, taxiSize, currentTaxiCount, loadingId,
             </td>
 
             <td className={styles.tdValue}>
-                £{Number(player.market_value ?? 0).toFixed(1)}m
+                €{Number(player.market_value ?? 0).toFixed(1)}m
             </td>
 
             <td className={styles.tdPpg}>
@@ -247,13 +247,13 @@ export default function RosterTable({ teamId, rosterEntries, taxiAgeLimit, taxiS
         if (action === 'drop') {
             const severanceFee = Math.floor(marketValue * 0.1);
             const feeMsg = severanceFee > 0
-                ? `This will cost £${severanceFee}m FAAB in severance.`
+                ? `This will cost €${severanceFee}m for severance.`
                 : 'No severance fee (market value too low).';
             setConfirmState({ playerId: entry.player.id, action: 'drop', playerName, message: `Drop ${playerName}? ${feeMsg}` });
             return;
         }
         if (action === 'transfer_out') {
-            setConfirmState({ playerId: entry.player.id, action: 'transfer_out', playerName, message: `Transfer ${playerName} out of the Premier League? You will receive their market value in FAAB. Only use if they have genuinely left the PL.` });
+            setConfirmState({ playerId: entry.player.id, action: 'transfer_out', playerName, message: `Transfer ${playerName} out of the Premier League? You will receive their market value. Only use if they have genuinely left the PL.` });
             return;
         }
 

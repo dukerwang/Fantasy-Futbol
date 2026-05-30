@@ -22,10 +22,11 @@ interface TeamInfo {
 interface ChatMessage {
   id: string;
   league_id: string;
-  sender_id: string;
+  sender_id: string | null;
   recipient_id: string | null;
   message: string;
   created_at: string;
+  is_system?: boolean;
   sender?: UserInfo;
 }
 
@@ -106,19 +107,19 @@ export default function ChatClient({
           setMessages((prev) => {
             if (prev.some((m) => m.id === newMsg.id)) return prev;
 
-            // Enrich sender data
-            const senderTeam = teams.find((t) => t.user_id === newMsg.sender_id);
+            // Enrich sender data (skip for system messages)
+            const senderTeam = newMsg.sender_id ? teams.find((t) => t.user_id === newMsg.sender_id) : undefined;
             const enriched: ChatMessage = {
               ...newMsg,
-              sender: {
+              sender: newMsg.sender_id ? {
                 id: newMsg.sender_id,
                 username: senderTeam?.user?.username || (newMsg.sender_id === currentUserId ? currentUsername : 'Unknown Manager'),
                 avatar_url: senderTeam?.user?.avatar_url || null
-              }
+              } : undefined
             };
 
             // Set unread DM dots if sent to us and not currently focused
-            if (newMsg.recipient_id === currentUserId) {
+            if (newMsg.recipient_id === currentUserId && newMsg.sender_id) {
               const senderId = newMsg.sender_id;
               if (activeTab.type !== 'dm' || activeTab.userId !== senderId) {
                 setUnreadDMs((prevSet) => {
@@ -336,13 +337,14 @@ export default function ChatClient({
             </div>
           ) : currentMessages.length > 0 ? (
             currentMessages.map((m) => {
-              const isSelf = m.sender_id === currentUserId;
+              const isSelf = !m.is_system && m.sender_id === currentUserId;
               const senderName = m.sender?.username || 'Unknown';
               const teamInfo = teams.find((t) => t.user_id === m.sender_id);
               const teamLabel = teamInfo ? teamInfo.team_name : (isSelf ? 'My Club' : '');
               const initial = senderName ? senderName[0].toUpperCase() : '?';
 
               const isSystemTrade = m.message.startsWith('[SYSTEM:TRADE_PROPOSAL:');
+              const isSystemAnnouncement = m.is_system === true;
               let tradeData: any = null;
               if (isSystemTrade) {
                 try {
@@ -356,20 +358,33 @@ export default function ChatClient({
               return (
                 <div
                   key={m.id}
-                  className={`${styles.msgRow} ${isSelf ? styles.msgRowSelf : ''}`}
+                  className={`${styles.msgRow} ${isSelf ? styles.msgRowSelf : ''} ${isSystemAnnouncement ? styles.msgRowSystem : ''}`}
                 >
                   {/* Sender Avatar */}
-                  <div className={`${styles.msgAvatar} ${isSelf ? styles.msgAvatarSelf : ''}`}>
-                    {initial}
-                  </div>
+                  {isSystemAnnouncement ? (
+                    <div className={`${styles.msgAvatar} ${styles.msgAvatarSystem}`}>
+                      🏆
+                    </div>
+                  ) : (
+                    <div className={`${styles.msgAvatar} ${isSelf ? styles.msgAvatarSelf : ''}`}>
+                      {initial}
+                    </div>
+                  )}
 
                   {/* Message Bubble & Meta */}
                   <div className={styles.msgBubble}>
-                    <div className={`${styles.msgMeta} ${isSelf ? styles.msgMetaSelf : ''}`}>
-                      <span className={styles.msgSender}>{senderName}</span>
-                      {teamLabel && <span className={styles.msgTeam}>({teamLabel})</span>}
-                      <span className={styles.msgTime}>{formatMsgTime(m.created_at)}</span>
-                    </div>
+                    {isSystemAnnouncement ? (
+                      <div className={styles.msgMeta}>
+                        <span className={styles.msgSenderSystem}>Gaffa</span>
+                        <span className={styles.msgTime}>{formatMsgTime(m.created_at)}</span>
+                      </div>
+                    ) : (
+                      <div className={`${styles.msgMeta} ${isSelf ? styles.msgMetaSelf : ''}`}>
+                        <span className={styles.msgSender}>{senderName}</span>
+                        {teamLabel && <span className={styles.msgTeam}>({teamLabel})</span>}
+                        <span className={styles.msgTime}>{formatMsgTime(m.created_at)}</span>
+                      </div>
+                    )}
 
                     {isSystemTrade && tradeData ? (
                       <div className={styles.tradeWidgetCard}>
@@ -409,6 +424,7 @@ export default function ChatClient({
                           ${styles.msgTextCard} 
                           ${isSelf ? styles.msgTextCardSelf : ''} 
                           ${m.recipient_id ? styles.msgTextCardDM : ''}
+                          ${isSystemAnnouncement ? styles.msgTextCardSystem : ''}
                         `}
                       >
                         {m.message}

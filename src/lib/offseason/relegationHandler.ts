@@ -133,7 +133,7 @@ export async function processRelegationCompensation(
         player_id: player.id,
         team_id: t.teamId,
         team_name: t.teamName,
-        notes: `${player.name} (${player.pl_team}) relegated. ${result.compensation} FAAB compensated.`,
+        notes: `${player.name} (${player.pl_team}) relegated. €${result.compensation}m compensation paid.`,
       }));
 
       const { error: transErr } = await admin.from('season_transitions').insert(transitionRows);
