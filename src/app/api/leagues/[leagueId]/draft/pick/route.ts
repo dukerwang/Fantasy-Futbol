@@ -131,6 +131,12 @@ export async function POST(req: NextRequest, { params }: Props) {
 
   if (rosterErr) return NextResponse.json({ error: rosterErr.message }, { status: 500 });
 
+  // Reset consecutive autopicks on manual pick
+  await admin
+    .from('teams')
+    .update({ consecutive_autopicks: 0 })
+    .eq('id', currentTeam.id);
+
   // Broadcast the pick to all connected clients via Supabase Broadcast
   const broadcastChannel = admin.channel(`draft:${leagueId}`);
   await broadcastChannel.send({

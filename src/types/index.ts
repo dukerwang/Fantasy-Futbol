@@ -471,6 +471,8 @@ export interface AuctionListing {
   my_drop_player_id: string | null;
   bid_count: number;
   bid_history: AuctionBid[];
+  is_promoted_exclusive?: boolean;
+  is_eligible?: boolean;
 }
 
 

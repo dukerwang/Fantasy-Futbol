@@ -438,6 +438,11 @@ export default async function LeaguePage({ params }: Props) {
   const userScore = heroMatchup ? (isUserTeamA ? heroMatchup.score_a : heroMatchup.score_b) : null;
   const oppScore = heroMatchup ? (isUserTeamA ? heroMatchup.score_b : heroMatchup.score_a) : null;
 
+  const userTeamFull = initialTeams.find((t: any) => t.id === userTeam?.id);
+  const oppTeamFull = initialTeams.find((t: any) => t.id === oppTeam?.id);
+  const userUsername = userTeamFull?.user?.username || 'MANAGER';
+  const oppUsername = oppTeamFull?.user?.username || 'OPPONENT';
+
   // ── Upcoming countdown pill for auctions ─────────────────────────────────
   function countdownMs(expiresAt: string): number {
     return new Date(expiresAt).getTime() - Date.now();
@@ -591,7 +596,7 @@ export default async function LeaguePage({ params }: Props) {
               <div className={styles.matchupTeam}>
                 <div className={styles.matchupShield}>{userTeam?.team_name?.charAt(0) ?? '?'}</div>
                 <span className={styles.matchupTeamName}>{userTeam?.team_name ?? '—'}</span>
-                <span className={styles.matchupManager}>MANAGER {user.user_metadata?.full_name?.split(' ').pop()?.toUpperCase() ?? 'NAME'}</span>
+                <span className={styles.matchupManager}>MANAGER {userUsername.toUpperCase()}</span>
               </div>
               
               <div className={styles.matchupCenter}>
@@ -607,7 +612,7 @@ export default async function LeaguePage({ params }: Props) {
               <div className={styles.matchupTeam}>
                 <div className={styles.matchupShield}>{oppTeam?.team_name?.charAt(0) ?? '?'}</div>
                 <span className={styles.matchupTeamName}>{oppTeam?.team_name ?? '—'}</span>
-                <span className={styles.matchupManager}>MANAGER OPPONENT</span>
+                <span className={styles.matchupManager}>MANAGER {oppUsername.toUpperCase()}</span>
               </div>
             </div>
           )}

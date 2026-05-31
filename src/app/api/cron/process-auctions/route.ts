@@ -332,8 +332,16 @@ export async function POST(req: NextRequest) {
             .eq('team_id', winner.team_id!)
             .eq('player_id', winner.drop_player_id);
 
-          // Start 48-hour waiver auction for the dropped player
-          const auctionExpiry = new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString();
+          // Start waiver auction for the dropped player (96 hours if >= €40m, 48 hours standard)
+          const { data: dropPlayerDetails } = await admin
+            .from('players')
+            .select('market_value')
+            .eq('id', winner.drop_player_id)
+            .single();
+          const isBigTransfer = dropPlayerDetails && Number(dropPlayerDetails.market_value || 0) >= 40.0;
+          const durationHours = isBigTransfer ? 96 : 48;
+          const auctionExpiry = new Date(Date.now() + durationHours * 60 * 60 * 1000).toISOString();
+
           await admin.from('waiver_claims').insert({
             league_id,
             team_id: null,

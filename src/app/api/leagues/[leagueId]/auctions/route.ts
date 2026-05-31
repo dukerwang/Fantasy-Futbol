@@ -29,7 +29,7 @@ export async function GET(_req: NextRequest, { params }: Props) {
   // League settings
   const { data: league } = await admin
     .from('leagues')
-    .select('roster_size, taxi_size, taxi_age_limit')
+    .select('roster_size, taxi_size, taxi_age_limit, previous_season')
     .eq('id', leagueId)
     .single();
 
@@ -40,6 +40,46 @@ export async function GET(_req: NextRequest, { params }: Props) {
     .eq('league_id', leagueId);
 
   const teamIds = (allTeams ?? []).map((t) => t.id);
+
+  // Compute bottom-half eligibility from previous season standings archive
+  const previousSeason = league?.previous_season ?? '2025-26';
+  const { data: standingsArchive } = await admin
+    .from('season_standings_archive')
+    .select('team_id, final_rank')
+    .eq('league_id', leagueId)
+    .eq('season', previousSeason);
+
+  const numTeamsInArchive = standingsArchive?.length ?? 0;
+  const bottomHalfThreshold = numTeamsInArchive > 0 ? Math.ceil(numTeamsInArchive / 2) : 0;
+  const bottomHalfTeamIds = new Set(
+    standingsArchive
+      ?.filter((s) => s.final_rank > bottomHalfThreshold)
+      .map((s) => s.team_id) ?? []
+  );
+
+  const isMyTeamEligible = bottomHalfTeamIds.size > 0 ? bottomHalfTeamIds.has(myTeam.id) : true;
+
+  // Determine newly promoted Premier League clubs dynamically
+  const { data: prevPlayers } = await admin
+    .from('players')
+    .select('pl_team')
+    .eq('pl_season', previousSeason);
+
+  const prevTeams = new Set(prevPlayers?.map((p) => p.pl_team).filter(Boolean) ?? []);
+
+  const { data: currPlayers } = await admin
+    .from('players')
+    .select('pl_team')
+    .eq('is_active', true);
+
+  const promotedClubs = new Set<string>();
+  if (prevTeams.size > 0) {
+    for (const p of currPlayers ?? []) {
+      if (p.pl_team && !prevTeams.has(p.pl_team)) {
+        promotedClubs.add(p.pl_team);
+      }
+    }
+  }
 
   // Pending auction claims for this league (highest bid first per player)
   const { data: claims } = await admin
@@ -64,6 +104,13 @@ export async function GET(_req: NextRequest, { params }: Props) {
       faab_bid: claim.faab_bid,
       created_at: claim.created_at,
     };
+
+    const hasSystemClaim = (claims ?? []).some(
+      (c) => c.player_id === claim.player_id && c.team_id === null
+    );
+    const playerClub = (claim.player as any)?.pl_team;
+    const isPromotedExclusive = hasSystemClaim && playerClub && promotedClubs.has(playerClub);
+
     if (!existing) {
       auctionMap.set(claim.player_id, {
         player: claim.player as Player,
@@ -75,6 +122,8 @@ export async function GET(_req: NextRequest, { params }: Props) {
         my_drop_player_id: claim.team_id && claim.team_id === myTeam.id ? claim.drop_player_id : null,
         bid_count: 1,
         bid_history: [bidEntry],
+        is_promoted_exclusive: !!isPromotedExclusive,
+        is_eligible: isMyTeamEligible,
       });
     } else {
       existing.bid_count++;
@@ -145,5 +194,7 @@ export async function GET(_req: NextRequest, { params }: Props) {
       max: league?.taxi_size ?? 3,
       age_limit: league?.taxi_age_limit ?? 21,
     },
+    isMyTeamEligible,
+    promotedClubs: Array.from(promotedClubs),
   });
 }

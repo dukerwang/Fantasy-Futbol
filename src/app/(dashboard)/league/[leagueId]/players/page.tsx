@@ -25,7 +25,7 @@ export default async function TransferMarketPage({ params, searchParams }: Props
   // Validate league membership
   const { data: league } = await admin
     .from('leagues')
-    .select('id, name, roster_size, taxi_size, taxi_age_limit')
+    .select('id, name, roster_size, taxi_size, taxi_age_limit, previous_season')
     .eq('id', leagueId)
     .single();
   if (!league) notFound();
@@ -54,6 +54,46 @@ export default async function TransferMarketPage({ params, searchParams }: Props
     .eq('is_auction', true)
     .order('faab_bid', { ascending: false });
 
+  // Compute bottom-half eligibility from previous season standings archive
+  const previousSeason = league.previous_season ?? '2025-26';
+  const { data: standingsArchive } = await admin
+    .from('season_standings_archive')
+    .select('team_id, final_rank')
+    .eq('league_id', leagueId)
+    .eq('season', previousSeason);
+
+  const numTeamsInArchive = standingsArchive?.length ?? 0;
+  const bottomHalfThreshold = numTeamsInArchive > 0 ? Math.ceil(numTeamsInArchive / 2) : 0;
+  const bottomHalfTeamIds = new Set(
+    standingsArchive
+      ?.filter((s: { final_rank: number }) => s.final_rank > bottomHalfThreshold)
+      .map((s: { team_id: string }) => s.team_id) ?? []
+  );
+
+  const isMyTeamEligible = bottomHalfTeamIds.size > 0 ? bottomHalfTeamIds.has(myTeam.id) : true;
+
+  // Determine newly promoted Premier League clubs dynamically
+  const { data: prevPlayers } = await admin
+    .from('players')
+    .select('pl_team')
+    .eq('pl_season', previousSeason);
+
+  const prevTeams = new Set(prevPlayers?.map((p: { pl_team: string }) => p.pl_team).filter(Boolean) ?? []);
+
+  const { data: currPlayers } = await admin
+    .from('players')
+    .select('pl_team')
+    .eq('is_active', true);
+
+  const promotedClubs = new Set<string>();
+  if (prevTeams.size > 0) {
+    for (const p of currPlayers ?? []) {
+      if (p.pl_team && !prevTeams.has(p.pl_team)) {
+        promotedClubs.add(p.pl_team);
+      }
+    }
+  }
+
   // Group by player to build AuctionListing[] with per-auction bid history
   const auctionMap = new Map<string, any>();
   for (const claim of rawClaims ?? []) {
@@ -63,6 +103,13 @@ export default async function TransferMarketPage({ params, searchParams }: Props
       faab_bid: claim.faab_bid,
       created_at: claim.created_at,
     };
+
+    const hasSystemClaim = (rawClaims ?? []).some(
+      (c) => c.player_id === claim.player_id && c.team_id === null
+    );
+    const playerClub = (claim.player as any)?.pl_team;
+    const isPromotedExclusive = hasSystemClaim && playerClub && promotedClubs.has(playerClub);
+
     if (!existing) {
       auctionMap.set(claim.player_id, {
         player: claim.player,
@@ -74,6 +121,8 @@ export default async function TransferMarketPage({ params, searchParams }: Props
         my_drop_player_id: claim.team_id && claim.team_id === myTeam.id ? claim.drop_player_id : null,
         bid_count: 1,
         bid_history: [bidEntry],
+        is_promoted_exclusive: !!isPromotedExclusive,
+        is_eligible: isMyTeamEligible,
       });
     } else {
       existing.bid_count++;
@@ -166,6 +215,8 @@ export default async function TransferMarketPage({ params, searchParams }: Props
       initialRosterFull={rosterFull}
       initialAcademy={{ current: academyCount, max: league.taxi_size ?? 3, age_limit: league.taxi_age_limit ?? 21 }}
       initialRecentActivity={(recentActivity ?? []) as any[]}
+      initialIsMyTeamEligible={isMyTeamEligible}
+      initialPromotedClubs={Array.from(promotedClubs)}
     />
   );
 }

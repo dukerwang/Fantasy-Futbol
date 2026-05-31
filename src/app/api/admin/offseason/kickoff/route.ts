@@ -40,7 +40,7 @@ export async function GET(req: NextRequest) {
 
   const AUCTION_THRESHOLD = 40.0;
 
-  // 2. Find all unowned players >= 40m
+  // 2. Find all unowned players
   const { data: ownedEntries } = await admin
     .from('roster_entries')
     .select('player_id')
@@ -58,14 +58,41 @@ export async function GET(req: NextRequest) {
 
   const auctionPlayerIds = new Set((pendingAuctions ?? []).map(a => a.player_id));
 
-  const { data: allHighValuePlayers } = await admin
+  // Determine newly promoted Premier League clubs dynamically
+  const previousSeason = league.previous_season ?? '2025-26';
+  const { data: prevPlayers } = await admin
     .from('players')
-    .select('id, web_name, market_value')
-    .gte('market_value', AUCTION_THRESHOLD);
+    .select('pl_team')
+    .eq('pl_season', previousSeason);
 
-  const playersToAuction = (allHighValuePlayers ?? []).filter(
-    p => !ownedPlayerIds.has(p.id) && !auctionPlayerIds.has(p.id)
-  );
+  const prevTeams = new Set(prevPlayers?.map(p => p.pl_team).filter(Boolean) ?? []);
+
+  const { data: currPlayers } = await admin
+    .from('players')
+    .select('pl_team')
+    .eq('is_active', true);
+
+  const promotedClubs = new Set<string>();
+  if (prevTeams.size > 0) {
+    for (const p of currPlayers ?? []) {
+      if (p.pl_team && !prevTeams.has(p.pl_team)) {
+        promotedClubs.add(p.pl_team);
+      }
+    }
+  }
+
+  // Find all unowned active players who are either high value or from promoted clubs
+  const { data: allCandidatePlayers } = await admin
+    .from('players')
+    .select('id, web_name, market_value, pl_team')
+    .eq('is_active', true);
+
+  const playersToAuction = (allCandidatePlayers ?? []).filter(p => {
+    if (ownedPlayerIds.has(p.id) || auctionPlayerIds.has(p.id)) return false;
+    const isHighValue = Number(p.market_value || 0) >= AUCTION_THRESHOLD;
+    const isPromoted = p.pl_team && promotedClubs.has(p.pl_team);
+    return isHighValue || isPromoted;
+  });
 
   // 3. Get relegation preview
   const relegationPreview = await previewRelegationCompensation(admin, leagueId);
@@ -80,7 +107,9 @@ export async function GET(req: NextRequest) {
       summerArrivals: playersToAuction.map(p => ({
         id: p.id,
         name: p.web_name,
-        marketValue: p.market_value
+        marketValue: p.market_value,
+        pl_team: p.pl_team,
+        isPromoted: p.pl_team && promotedClubs.has(p.pl_team),
       })),
     }
   });
@@ -125,14 +154,14 @@ export async function POST(req: NextRequest) {
   }
 
   const AUCTION_THRESHOLD = 40.0;
-  const AUCTION_WINDOW_HOURS = 48;
+  const AUCTION_WINDOW_HOURS = 96; // Extended kickoff auction duration to 96 hours (4 days)
 
   // 1b. Process Relegation/Transfer Compensation (Grace Period ends now!)
   const seasonFrom = league.previous_season ?? '2025-26';
   const seasonTo = league.current_season ?? '2026-27';
   const relegationResults = await processRelegationCompensation(admin, leagueId, seasonFrom, seasonTo);
 
-  // 2. Find all unowned players >= 40m for summer auctions
+  // 2. Find all unowned players
   const { data: ownedEntries } = await admin
     .from('roster_entries')
     .select('player_id')
@@ -150,14 +179,40 @@ export async function POST(req: NextRequest) {
 
   const auctionPlayerIds = new Set((pendingAuctions ?? []).map(a => a.player_id));
 
-  const { data: allHighValuePlayers } = await admin
+  // Determine newly promoted Premier League clubs dynamically
+  const { data: prevPlayers } = await admin
     .from('players')
-    .select('id, web_name, market_value')
-    .gte('market_value', AUCTION_THRESHOLD);
+    .select('pl_team')
+    .eq('pl_season', seasonFrom);
 
-  const playersToAuction = (allHighValuePlayers ?? []).filter(
-    p => !ownedPlayerIds.has(p.id) && !auctionPlayerIds.has(p.id)
-  );
+  const prevTeams = new Set(prevPlayers?.map(p => p.pl_team).filter(Boolean) ?? []);
+
+  const { data: currPlayers } = await admin
+    .from('players')
+    .select('pl_team')
+    .eq('is_active', true);
+
+  const promotedClubs = new Set<string>();
+  if (prevTeams.size > 0) {
+    for (const p of currPlayers ?? []) {
+      if (p.pl_team && !prevTeams.has(p.pl_team)) {
+        promotedClubs.add(p.pl_team);
+      }
+    }
+  }
+
+  // Find all unowned active players who are either high value or from promoted clubs
+  const { data: allCandidatePlayers } = await admin
+    .from('players')
+    .select('id, web_name, market_value, pl_team')
+    .eq('is_active', true);
+
+  const playersToAuction = (allCandidatePlayers ?? []).filter(p => {
+    if (ownedPlayerIds.has(p.id) || auctionPlayerIds.has(p.id)) return false;
+    const isHighValue = Number(p.market_value || 0) >= AUCTION_THRESHOLD;
+    const isPromoted = p.pl_team && promotedClubs.has(p.pl_team);
+    return isHighValue || isPromoted;
+  });
 
   // 3. Create the auctions
   if (playersToAuction.length > 0) {

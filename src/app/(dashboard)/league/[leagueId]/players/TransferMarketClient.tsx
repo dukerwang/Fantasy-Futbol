@@ -43,6 +43,8 @@ interface Props {
   initialRosterFull: boolean;
   initialAcademy?: { current: number; max: number; age_limit: number };
   initialRecentActivity: RecentActivityItem[];
+  initialIsMyTeamEligible?: boolean;
+  initialPromotedClubs?: string[];
 }
 
 function calculateAgeInYears(dobIso: string, referenceDate = new Date()): number {
@@ -63,6 +65,8 @@ interface ModalState {
   myCurrentBid: number | null;
   myCurrentDropId: string | null;
   bidHistory: AuctionListing['bid_history'];
+  isPromotedExclusive?: boolean;
+  isEligible?: boolean;
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -124,6 +128,8 @@ export default function TransferMarketClient({
   initialRosterFull,
   initialAcademy,
   initialRecentActivity,
+  initialIsMyTeamEligible,
+  initialPromotedClubs,
 }: Props) {
   const [auctions, setAuctions] = useState<AuctionListing[]>(initialAuctions);
   // Full unfiltered list — refreshed from API; search filters client-side
@@ -134,6 +140,8 @@ export default function TransferMarketClient({
   const [academy, setAcademy] = useState(initialAcademy ?? { current: 0, max: 3, age_limit: 21 });
   const [sendToAcademyIfFull, setSendToAcademyIfFull] = useState(false);
   const [activeTab, setActiveTab] = useState<'market' | 'auctions'>(initialTab);
+  const [isMyTeamEligible, setIsMyTeamEligible] = useState(initialIsMyTeamEligible ?? true);
+  const [promotedClubs, setPromotedClubs] = useState<string[]>(initialPromotedClubs ?? []);
 
   // Client-side search/filter state
   const [searchQ, setSearchQ] = useState('');
@@ -200,6 +208,8 @@ export default function TransferMarketClient({
       setMyRoster(data.myRoster ?? []);
       setRosterFull(data.rosterFull ?? false);
       setAcademy(data.academy ?? { current: 0, max: 3, age_limit: 21 });
+      setIsMyTeamEligible(data.isMyTeamEligible ?? true);
+      setPromotedClubs(data.promotedClubs ?? []);
     } finally {
       setRefreshing(false);
     }
@@ -214,8 +224,10 @@ export default function TransferMarketClient({
     myCurrentBid: number | null,
     myCurrentDropId: string | null,
     bidHistory: AuctionListing['bid_history'] = [],
+    isPromotedExclusive?: boolean,
+    isEligible?: boolean,
   ) {
-    setModal({ open: true, player, currentHighest, currentExpiry, myCurrentBid, myCurrentDropId, bidHistory });
+    setModal({ open: true, player, currentHighest, currentExpiry, myCurrentBid, myCurrentDropId, bidHistory, isPromotedExclusive, isEligible });
     const tmMin = Math.floor(Number(player.market_value || 0) * 0.2);
     const auctionMin = myCurrentBid !== null
       ? Math.max(currentHighest, myCurrentBid) + 1
@@ -227,7 +239,7 @@ export default function TransferMarketClient({
   }
 
   function closeModal() {
-    setModal((m) => ({ ...m, open: false, player: null }));
+    setModal((m) => ({ ...m, open: false, player: null, isPromotedExclusive: false, isEligible: true }));
     setBidAmount('');
     setDropPlayerId('');
     setSendToAcademyIfFull(false);
@@ -574,7 +586,14 @@ export default function TransferMarketClient({
                         >
                           {formatPlayerName(auction.player, 'initial_last')}
                         </button>
-                        <span className={styles.auctionPlayerClub}>{auction.player.pl_team}</span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                          <span className={styles.auctionPlayerClub}>{auction.player.pl_team}</span>
+                          {auction.is_promoted_exclusive && (
+                            <span className={styles.promotedExclusiveBadge} title="Exclusive to bottom-half teams from last season">
+                              Promoted Exclusive
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </div>
 
@@ -615,7 +634,12 @@ export default function TransferMarketClient({
 
                       <button
                         className={styles.auctionPlaceBidBtn}
-                        disabled={isExpired}
+                        disabled={isExpired || (auction.is_promoted_exclusive && !auction.is_eligible)}
+                        title={
+                          auction.is_promoted_exclusive && !auction.is_eligible
+                            ? "This kickoff auction is restricted to bottom-half teams from last season."
+                            : undefined
+                        }
                         onClick={() =>
                           openBidModal(
                             auction.player,
@@ -624,10 +648,18 @@ export default function TransferMarketClient({
                             auction.my_bid,
                             auction.my_drop_player_id,
                             auction.bid_history ?? [],
+                            auction.is_promoted_exclusive,
+                            auction.is_eligible,
                           )
                         }
                       >
-                        {isExpired ? 'Processing…' : isLeading ? 'Raise Bid' : 'Place Bid'}
+                        {isExpired
+                          ? 'Processing…'
+                          : auction.is_promoted_exclusive && !auction.is_eligible
+                          ? 'Excluded (Top-Half)'
+                          : isLeading
+                          ? 'Raise Bid'
+                          : 'Place Bid'}
                       </button>
 
                       {tmMin > 0 && (
@@ -658,6 +690,14 @@ export default function TransferMarketClient({
             </div>
 
             <div className={styles.modalBody}>
+
+              {/* Promoted exclusive kickoff banner */}
+              {modal.isPromotedExclusive && (
+                <div className={styles.promotedExclusiveBanner}>
+                  🏆 <strong>Promoted Club Exclusive Auction</strong>
+                  <p>Bidding on this player is restricted to bottom-half teams from last season to support competitive balance in the league.</p>
+                </div>
+              )}
 
               {/* Player info */}
               <div className={styles.modalPlayerPanel}>
@@ -849,15 +889,19 @@ export default function TransferMarketClient({
               <button
                 className={styles.submitBtn}
                 onClick={handleSubmitBid}
-                disabled={submitting}
+                disabled={submitting || (modal.isPromotedExclusive && !modal.isEligible)}
               >
-                {submitting ? 'Submitting…' : confirmLabel}
+                {submitting
+                  ? 'Submitting…'
+                  : modal.isPromotedExclusive && !modal.isEligible
+                  ? 'Excluded (Top-Half)'
+                  : confirmLabel}
               </button>
               <button className={styles.cancelBtn} onClick={closeModal} disabled={submitting}>
                 Cancel
               </button>
               <p className={styles.modalDisclaimer}>
-                By bidding you agree to pay if you win · Auction closes when the 48-hour window expires
+                By bidding you agree to pay if you win · Auction closes when the window expires
               </p>
             </div>
           </div>

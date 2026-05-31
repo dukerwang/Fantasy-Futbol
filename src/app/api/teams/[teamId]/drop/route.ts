@@ -121,10 +121,13 @@ export async function POST(req: NextRequest, { params }: Props) {
         notes,
     });
 
-    // 4. For plain drops (not PL transfers), auto-start a 48-hour system auction
+    // 4. For plain drops (not PL transfers), auto-start a system auction
     //    so all managers get a fair waiver window rather than a first-click free-for-all.
     if (actionType !== 'transfer_out') {
-        const auctionExpiry = new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString();
+        const isBigTransfer = marketValue >= 40.0;
+        const durationHours = isBigTransfer ? 96 : 48;
+        const auctionExpiry = new Date(Date.now() + durationHours * 60 * 60 * 1000).toISOString();
+
         await admin.from('waiver_claims').insert({
             league_id: team.league_id,
             team_id: null,
@@ -161,7 +164,7 @@ export async function POST(req: NextRequest, { params }: Props) {
                         leagueId: team.league_id,
                         userId: t.user_id,
                         title: 'Waiver Alert: Player Dropped',
-                        content: `**${team.team_name}** dropped **${player.name}** to the waiver pool. A 48-hour transfer auction has automatically begun.`,
+                        content: `**${team.team_name}** dropped **${player.name}** to the waiver pool. A ${durationHours}-hour transfer auction has automatically begun.`,
                         url: `/league/${team.league_id}/players`
                     });
                 }

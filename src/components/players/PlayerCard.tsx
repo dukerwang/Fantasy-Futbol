@@ -39,7 +39,6 @@ export default function PlayerCard({
               src={player.photo_url}
               alt={player.name}
               className={styles.photo}
-              loading="lazy"
             />
           ) : (
             <div className={styles.avatarPlaceholder}>

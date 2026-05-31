@@ -73,7 +73,7 @@ export async function POST(req: NextRequest, { params }: Props) {
   // League settings for roster/academy validations
   const { data: league } = await admin
     .from('leagues')
-    .select('roster_size, taxi_size, taxi_age_limit, roster_locked')
+    .select('roster_size, taxi_size, taxi_age_limit, roster_locked, previous_season')
     .eq('id', leagueId)
     .single();
 
@@ -111,9 +111,58 @@ export async function POST(req: NextRequest, { params }: Props) {
   // Transfermarkt minimum bid: 20% of the player's current market value
   const { data: playerData } = await admin
     .from('players')
-    .select('market_value, name, date_of_birth')
+    .select('market_value, name, date_of_birth, pl_team')
     .eq('id', playerId)
     .single();
+
+  // Promoted Club Exclusivity Check
+  if (playerData?.pl_team) {
+    const { data: systemClaim } = await admin
+      .from('waiver_claims')
+      .select('id')
+      .eq('league_id', leagueId)
+      .eq('player_id', playerId)
+      .eq('status', 'pending')
+      .eq('is_auction', true)
+      .is('team_id', null)
+      .maybeSingle();
+
+    if (systemClaim) {
+      const previousSeason = league?.previous_season ?? '2025-26';
+      
+      const { data: prevPlayers } = await admin
+        .from('players')
+        .select('pl_team')
+        .eq('pl_season', previousSeason);
+
+      const prevTeams = new Set(prevPlayers?.map((p) => p.pl_team).filter(Boolean) ?? []);
+
+      const isPromotedClub = prevTeams.size > 0 && !prevTeams.has(playerData.pl_team);
+
+      if (isPromotedClub) {
+        const { data: standingsArchive } = await admin
+          .from('season_standings_archive')
+          .select('team_id, final_rank')
+          .eq('league_id', leagueId)
+          .eq('season', previousSeason);
+
+        const numTeamsInArchive = standingsArchive?.length ?? 0;
+        const bottomHalfThreshold = numTeamsInArchive > 0 ? Math.ceil(numTeamsInArchive / 2) : 0;
+        const bottomHalfTeamIds = new Set(
+          standingsArchive
+            ?.filter((s) => s.final_rank > bottomHalfThreshold)
+            .map((s) => s.team_id) ?? []
+        );
+
+        if (bottomHalfTeamIds.size > 0 && !bottomHalfTeamIds.has(myTeam.id)) {
+          return NextResponse.json(
+            { error: `Bidding on newly promoted club players is restricted to bottom-half teams during the kickoff auction. Only bottom-half teams can bid on ${playerData.name} (${playerData.pl_team}) at this time.` },
+            { status: 403 }
+          );
+        }
+      }
+    }
+  }
 
   const minimumBid = playerData ? Math.floor(Number(playerData.market_value || 0) * 0.2) : 0;
   if (minimumBid > 0 && bidAmount < minimumBid) {
@@ -228,8 +277,11 @@ export async function POST(req: NextRequest, { params }: Props) {
   let expiresAt: string;
 
   if (!highestClaim) {
-    // First bid ever: start the 48-hour auction clock
-    expiresAt = new Date(now + AUCTION_DURATION_MS).toISOString();
+    // First bid ever: start the auction clock.
+    // 96 hours (4 days) for big IRL transfers (>= €40m), 48 hours standard.
+    const isBigTransfer = playerData && Number(playerData.market_value || 0) >= 40.0;
+    const durationMs = isBigTransfer ? 96 * 60 * 60 * 1000 : AUCTION_DURATION_MS;
+    expiresAt = new Date(now + durationMs).toISOString();
   } else {
     const currentExpiry = new Date(highestClaim.expires_at).getTime();
     const timeRemaining = currentExpiry - now;

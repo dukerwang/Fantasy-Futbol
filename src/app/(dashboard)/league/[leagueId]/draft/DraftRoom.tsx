@@ -223,6 +223,27 @@ export default function DraftRoom({
     }
   }, [leagueId, myTeam]);
 
+  useEffect(() => {
+    if (!myTeam?.id) return;
+    const supabase = createClient();
+    
+    // Set presence to true and reset consecutive autopicks on mount
+    supabase
+      .from('teams')
+      .update({ is_in_draft_room: true, consecutive_autopicks: 0 })
+      .eq('id', myTeam.id)
+      .then();
+
+    return () => {
+      // Set presence to false on clean unmount
+      supabase
+        .from('teams')
+        .update({ is_in_draft_room: false })
+        .eq('id', myTeam.id)
+        .then();
+    };
+  }, [myTeam?.id]);
+
   const toggleQueue = useCallback((playerId: string) => {
     saveDraftQueue(
       draftQueue.includes(playerId)
