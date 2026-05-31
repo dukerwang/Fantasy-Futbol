@@ -1,7 +1,7 @@
-import { NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { NextResponse, type NextRequest } from 'next/server';
+import { createServerClient } from '@supabase/ssr';
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   const requestUrl = new URL(request.url);
   const code = requestUrl.searchParams.get('code');
 
@@ -14,8 +14,28 @@ export async function GET(request: Request) {
     );
   }
 
+  // Create the redirect response object first so we can bind cookies to it directly
+  const response = NextResponse.redirect(requestUrl.origin);
+
   if (code) {
-    const supabase = await createClient();
+    const supabase = createServerClient(supabaseUrl, supabaseKey, {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll();
+        },
+        setAll(cookiesToSet) {
+          try {
+            cookiesToSet.forEach(({ name, value, options }) => {
+              request.cookies.set(name, value);
+              response.cookies.set(name, value, options);
+            });
+          } catch (error) {
+            console.error('Error writing cookies to response:', error);
+          }
+        },
+      },
+    });
+
     try {
       const { error } = await supabase.auth.exchangeCodeForSession(code);
       if (error) {
@@ -30,6 +50,6 @@ export async function GET(request: Request) {
     return NextResponse.redirect(`${requestUrl.origin}/login?error=No+authentication+code+received`);
   }
 
-  // URL to redirect to after sign in process completes
-  return NextResponse.redirect(requestUrl.origin);
+  // Return the redirect response containing the newly set cookies
+  return response;
 }
