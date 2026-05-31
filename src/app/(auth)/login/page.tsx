@@ -13,9 +13,18 @@ import { Icon } from '@/components/ui/Icon';
 function LoginCard() {
   const supabase = createClient();
   const searchParams = useSearchParams();
-  const error = searchParams.get('error');
+  const errorParam = searchParams.get('error');
+
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '';
+  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '';
+  const isEnvMissing = !supabaseUrl.startsWith('http') || !supabaseKey;
+
+  const error = isEnvMissing
+    ? 'Supabase environment variables are missing in Vercel. Please add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in your Vercel project settings.'
+    : errorParam;
 
   const handleOAuthSignIn = async (provider: 'google' | 'apple') => {
+    if (isEnvMissing) return;
     await supabase.auth.signInWithOAuth({
       provider,
       options: {

@@ -5,6 +5,15 @@ export async function GET(request: Request) {
   const requestUrl = new URL(request.url);
   const code = requestUrl.searchParams.get('code');
 
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '';
+  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '';
+
+  if (!supabaseUrl.startsWith('http') || !supabaseKey) {
+    return NextResponse.redirect(
+      `${requestUrl.origin}/login?error=Supabase+credentials+are+not+configured+in+your+Vercel+environment+variables.+Please+add+NEXT_PUBLIC_SUPABASE_URL+and+NEXT_PUBLIC_SUPABASE_ANON_KEY+in+Vercel.`
+    );
+  }
+
   if (code) {
     const supabase = await createClient();
     try {
