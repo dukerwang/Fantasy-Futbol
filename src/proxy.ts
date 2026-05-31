@@ -35,9 +35,10 @@ export async function proxy(request: NextRequest) {
   const isApiRoute = pathname.startsWith('/api/');
   const isGoogleVerification = pathname.startsWith('/google') && pathname.endsWith('.html');
   const isPublicRoute = pathname === '/terms' || pathname === '/privacy';
+  const isAuthCallback = pathname.startsWith('/auth/callback');
 
   // Redirect unauthenticated users away from protected routes (API routes handle their own auth)
-  if (!user && !isAuthRoute && !isApiRoute && pathname !== '/' && !isGoogleVerification && !isPublicRoute) {
+  if (!user && !isAuthRoute && !isApiRoute && pathname !== '/' && !isGoogleVerification && !isPublicRoute && !isAuthCallback) {
     const redirectUrl = request.nextUrl.clone();
     redirectUrl.pathname = '/login';
     return NextResponse.redirect(redirectUrl);
