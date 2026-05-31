@@ -8,14 +8,17 @@ export async function GET(request: Request) {
   if (code) {
     const supabase = await createClient();
     try {
-      await supabase.auth.exchangeCodeForSession(code);
-    } catch (error) {
+      const { error } = await supabase.auth.exchangeCodeForSession(code);
+      if (error) {
+        return NextResponse.redirect(`${requestUrl.origin}/login?error=${encodeURIComponent(error.message)}`);
+      }
+    } catch (error: any) {
       console.error('Error exchanging OAuth code for session:', error);
-      // The code might have already been exchanged (e.g. due to double-mount or refresh).
-      // We catch the error to prevent crashing, allowing the redirect to requestUrl.origin.
-      // If the exchange succeeded on a prior request, they will have a valid session cookie
-      // and be logged in successfully.
+      return NextResponse.redirect(`${requestUrl.origin}/login?error=${encodeURIComponent(error?.message || 'Unknown code exchange error')}`);
     }
+  } else {
+    // If no code is received, we redirect to login with error
+    return NextResponse.redirect(`${requestUrl.origin}/login?error=No+authentication+code+received`);
   }
 
   // URL to redirect to after sign in process completes
