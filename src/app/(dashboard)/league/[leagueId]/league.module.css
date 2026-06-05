@@ -5,32 +5,21 @@
 
 /* ── Shared typography helpers ── */
 .sectionLabel {
-  display: block;
-  font-family: 'Inter', sans-serif;
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--color-text-muted);
+  composes: ds-label from global;
   margin-bottom: 4px;
 }
 
 .sectionTitle {
-  font-family: 'Noto Serif', serif;
+  composes: ds-h3 from global;
   font-size: 18px;
-  font-weight: 700;
-  color: #2A5A3B;
+  color: var(--color-accent);
   margin: 0 0 16px;
   line-height: 1.2;
 }
 
 .cardLink {
-  font-family: 'Inter', sans-serif;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--color-accent-green);
+  composes: ds-label from global;
+  color: var(--color-accent);
   text-decoration: none;
 }
 
@@ -91,20 +80,12 @@
 }
 
 .heroTeamLabel {
-  font-family: 'Inter', sans-serif;
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--color-text-muted);
+  composes: ds-label from global;
 }
 
 .heroTeamName {
-  font-family: 'Noto Serif', serif;
+  composes: ds-h2 from global;
   font-size: 20px;
-  font-weight: 700;
-  color: var(--color-text-primary);
-  line-height: 1.2;
 }
 
 .heroTeamNameMuted {
@@ -112,21 +93,14 @@
 }
 
 .heroTeamRecord {
-  font-family: 'Inter', sans-serif;
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.05em;
-  color: var(--color-text-muted);
+  composes: ds-body-sm from global;
   font-variant-numeric: tabular-nums;
   margin-top: 4px;
 }
 
 .heroScore {
-  font-family: 'Noto Serif', serif;
+  composes: ds-display from global;
   font-size: 36px;
-  font-weight: 700;
-  line-height: 1;
-  letter-spacing: -0.02em;
   color: var(--color-text-muted);
 }
 
@@ -153,12 +127,7 @@
 }
 
 .heroCenterLabel {
-  font-family: 'Inter', sans-serif;
-  font-size: 10px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: var(--color-text-muted);
+  composes: ds-label from global;
 }
 
 .heroScoreGroup {
@@ -337,12 +306,7 @@
   align-items: center;
   padding: 0 12px 10px;
   border-bottom: 1px solid var(--color-border-subtle);
-  font-family: 'Inter', sans-serif;
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: var(--color-text-muted);
+  composes: ds-label from global;
 }
 
 .standingsRows {
@@ -384,9 +348,8 @@
   width: 22px;
   height: 22px;
   border-radius: 50%;
-  font-family: 'Noto Serif', serif;
+  composes: ds-stat from global;
   font-size: 12px;
-  font-weight: 700;
   font-style: italic;
   line-height: 1;      /* Center vertically */
   padding-right: 2px;  /* Optical balance for italic slant */
@@ -403,10 +366,8 @@
 }
 
 .standingsColTeam {
-  font-family: 'Noto Serif', serif;
+  composes: ds-h3 from global;
   font-size: 14px;
-  font-weight: 700;
-  color: var(--color-text-primary);
   display: flex;
   align-items: center;
   gap: 8px;
@@ -434,18 +395,14 @@
 }
 
 .standingsColRecord {
-  font-family: 'Inter', sans-serif;
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--color-text-muted);
+  composes: ds-body-sm from global;
   text-align: center;
   letter-spacing: 0.03em;
 }
 
 .standingsColPts {
-  font-family: 'Inter', sans-serif;
+  composes: ds-stat from global;
   font-size: 13px;
-  font-weight: 600;
   color: var(--color-text-secondary);
   text-align: right;
 }
@@ -567,10 +524,8 @@
 }
 
 .chipName {
-  font-family: 'Noto Serif', serif;
+  composes: ds-h3 from global;
   font-size: 14px;
-  font-weight: 700;
-  color: var(--color-text-primary);
   line-height: 1.25;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -579,12 +534,7 @@
 }
 
 .chipClub {
-  font-family: var(--font-sans);
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--color-text-muted);
+  composes: ds-label from global;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -600,9 +550,8 @@
 }
 
 .chipPoints {
-  font-family: 'Inter', sans-serif;
+  composes: ds-stat from global;
   font-size: 14px;
-  font-weight: 700;
   color: #fff;
   background: var(--color-accent-green);
   border-radius: var(--radius-sm);
@@ -648,9 +597,8 @@
 }
 
 .auctionBid {
-  font-family: 'Inter', sans-serif;
+  composes: ds-stat from global;
   font-size: 14px;
-  font-weight: 700;
   color: var(--color-accent-green);
 }
 
@@ -710,22 +658,14 @@
 }
 
 .gazetteTitle {
-  font-family: 'Noto Serif', serif;
+  composes: ds-h3 from global;
   font-size: 18px;
-  font-weight: 700;
-  color: var(--color-text-primary);
-  margin: 0;
   font-style: italic;
   flex: 1;
 }
 
 .gazetteEdition {
-  font-family: 'Inter', sans-serif;
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: var(--color-text-muted);
+  composes: ds-label from global;
 }
 
 .gazetteEntries {
@@ -748,11 +688,7 @@
 }
 
 .gazetteCategory {
-  font-family: 'Inter', sans-serif;
-  font-size: 8px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  composes: ds-label from global;
   padding: 3px 7px;
   border-radius: var(--radius-sm);
   text-align: center;
@@ -772,12 +708,7 @@
 }
 
 .gazetteTime {
-  font-family: 'Inter', sans-serif;
-  font-size: 9px;
-  font-weight: 500;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--color-text-muted);
+  composes: ds-label from global;
   text-align: right;
 }
 

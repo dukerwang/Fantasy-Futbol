@@ -78,29 +78,18 @@
 }
 
 .eyebrow {
-  font-size: var(--text-xs);
-  font-weight: var(--font-bold);
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--color-accent-green);
+  composes: ds-eyebrow from global;
   margin-bottom: var(--space-2);
 }
 
 .title {
-  font-family: var(--font-serif);
-  font-weight: var(--font-bold);
-  font-size: var(--text-3xl);
-  letter-spacing: -0.02em;
-  line-height: 1.1;
+  composes: ds-h1 from global;
   margin: 0;
-  color: var(--color-text-primary);
 }
 
 .desc {
+  composes: ds-body-sm from global;
   margin: var(--space-2) 0 0;
-  font-size: var(--text-sm);
-  line-height: 1.6;
-  color: var(--color-text-secondary);
   max-width: 46ch;
 }
 

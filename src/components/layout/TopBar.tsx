@@ -108,7 +108,7 @@ export default function TopBar() {
         label: 'Squad',
         items: [
           { label: 'Lineup', href: `${base}/team` },
-          { label: 'My Club', href: `${base}/roster` },
+          { label: 'My Club', href: `${base}/team/roster` },
         ],
       },
       {

@@ -109,19 +109,12 @@
 }
 
 .title {
-  font-family: var(--font-serif);
-  font-weight: var(--font-bold);
-  font-size: var(--text-3xl);
-  letter-spacing: -0.02em;
-  line-height: 1.1;
-  color: var(--color-text-primary);
+  composes: ds-h1 from global;
   margin: 0 0 var(--space-2) 0;
 }
 
 .subtitle {
-  font-size: var(--text-sm);
-  color: var(--color-text-secondary);
-  line-height: 1.5;
+  composes: ds-body-sm from global;
   margin: 0 0 var(--space-8) 0;
 }
 
