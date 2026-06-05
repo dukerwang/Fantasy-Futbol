@@ -852,7 +852,7 @@ export default function ActivityClient({
       <main className={styles.feed}>
         {/* Header */}
         <header className={styles.header}>
-          <p className={styles.eyebrow}>TRANSACTION HISTORY</p>
+          <p className={styles.eyebrow}>Transaction history</p>
           <h1 className={styles.title}>The Transfer Gazette</h1>
           <p className={styles.subtitle}>
             Every move, every deal — the full record of {leagueName}.

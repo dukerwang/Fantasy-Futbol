@@ -62,15 +62,14 @@
 }
 
 .actionBtnPrimary {
-  background: var(--color-accent-green);
-  color: #fff;
-  border-color: var(--color-accent-green);
+  background: var(--color-text-primary);
+  color: var(--color-bg-card);
+  border-color: var(--color-text-primary);
 }
 
 .actionBtnPrimary:hover {
-  background: var(--color-accent-blue-hover);
-  border-color: var(--color-accent-blue-hover);
-  box-shadow: 0 4px 14px rgba(58, 107, 74, 0.3);
+  background: var(--color-accent);
+  border-color: var(--color-accent);
 }
 
 /* --- Mobile Bottom Sheet UI --- */

@@ -83,7 +83,7 @@
   font-style: italic;
   font-size: 13px;
   font-weight: 500;
-  letter-spacing: 0.16em;
+  letter-spacing: 0;
   text-transform: none;
   color: var(--color-accent-green);
   margin-bottom: var(--space-2);
@@ -140,6 +140,24 @@
 
 .auctionCardUrgent {
   border-color: var(--color-accent-red) !important;
+}
+
+.ab-leading {
+  border-top: 2px solid var(--color-accent) !important;
+  border-left: 1px solid var(--color-border-subtle) !important;
+  border-right: 1px solid var(--color-border-subtle) !important;
+  border-bottom: 1px solid var(--color-border-subtle) !important;
+  background-color: var(--color-accent-dim) !important;
+}
+
+.ab-leading-indicator {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--color-accent);
+  margin-top: 2px;
+  line-height: 1.2;
 }
 
 .auctionCardTop {
@@ -291,18 +309,29 @@
   padding: 6px;
   border-radius: var(--radius-sm);
   border: none;
-  background: var(--color-accent-green);
+  background: var(--color-text-primary);
   color: #fff;
-  font-size: 9px;
-  font-weight: var(--font-bold);
-  text-transform: uppercase;
+  font-size: 11px;
+  font-weight: 500;
   cursor: pointer;
   text-align: center;
-  transition: opacity var(--transition-fast);
+  transition: background var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
 }
 
 .auctionBidBtnMini:hover {
-  opacity: 0.88;
+  background: var(--color-accent);
+}
+
+.ab-leading .auctionBidBtnMini {
+  background: transparent !important;
+  color: var(--color-text-secondary) !important;
+  border: 1px solid var(--color-border) !important;
+}
+
+.ab-leading .auctionBidBtnMini:hover {
+  background: rgba(58, 107, 74, 0.08) !important;
+  border-color: var(--color-accent) !important;
+  color: var(--color-accent) !important;
 }
 
 /* ============================================================

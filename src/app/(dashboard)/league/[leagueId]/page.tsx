@@ -477,6 +477,12 @@ export default async function LeaguePage({ params }: Props) {
   return (
     <div className={styles.page}>
 
+      {/* ── Page Header ── */}
+      <header className={styles.pageHeader}>
+        <p className={`${styles.eyebrow} eyebrow`}>League Home</p>
+        <h1 className={styles.pageTitle}>{league.name}</h1>
+      </header>
+
       {/* Setup banner — only shown while league is in setup */}
       {(league.status === 'setup' || league.status === 'drafting') && (
         <div className={styles.setupBanner}>

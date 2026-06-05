@@ -1,0 +1,7 @@
+/* ============================================================
+   Gaffa Design System — root entry point.
+   Consumers link this single file; it pulls in all tokens,
+   typography, and semantic type roles.
+   ============================================================ */
+
+@import './colors_and_type.css';

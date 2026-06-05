@@ -353,19 +353,17 @@
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  background: var(--color-accent-green);
-  color: #fff;
+  background: var(--color-text-primary);
+  color: var(--color-bg-card);
   border: none;
   border-radius: var(--radius-sm);
   cursor: pointer;
-  box-shadow: 0 4px 12px rgba(58, 107, 74, 0.2);
-  transition: all 0.2s ease;
+  transition: background var(--transition-fast);
   margin-top: 1rem;
 }
 
 .submitBtn:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(58, 107, 74, 0.3);
+  background: var(--color-accent);
 }
 
 .submitBtn:disabled {

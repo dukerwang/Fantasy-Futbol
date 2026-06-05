@@ -1,3 +1,4 @@
+import '../../styles.css';
 import type { Metadata } from 'next';
 import { ThemeProvider } from '@/context/ThemeContext';
 import './globals.css';

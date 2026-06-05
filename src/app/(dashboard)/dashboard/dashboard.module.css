@@ -35,8 +35,8 @@
 
 .createBtn {
   padding: var(--space-3) var(--space-5);
-  background: var(--color-accent-blue);
-  color: #fff;
+  background: var(--color-text-primary);
+  color: var(--color-bg-card);
   font-weight: var(--font-semibold);
   font-size: var(--text-sm);
   border-radius: var(--radius-md);
@@ -47,8 +47,8 @@
 }
 
 .createBtn:hover {
-  background: var(--color-accent-blue-hover);
-  color: #fff;
+  background: var(--color-accent);
+  color: var(--color-text-inverse);
 }
 
 .headerBtnGroup {
@@ -203,8 +203,8 @@
 
 .primaryBtn {
   padding: var(--space-3) var(--space-6);
-  background: var(--color-accent-blue);
-  color: #fff;
+  background: var(--color-text-primary);
+  color: var(--color-bg-card);
   font-weight: var(--font-semibold);
   border-radius: var(--radius-md);
   text-decoration: none;
@@ -212,8 +212,8 @@
 }
 
 .primaryBtn:hover {
-  background: var(--color-accent-blue-hover);
-  color: #fff;
+  background: var(--color-accent);
+  color: var(--color-text-inverse);
 }
 
 .secondaryBtn {

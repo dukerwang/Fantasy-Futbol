@@ -352,6 +352,7 @@ export default function TransferMarketClient({
       {/* ── Page Header ── */}
       <header className={styles.pageHeader}>
         <div className={styles.titleBlock}>
+          <p className={`${styles.eyebrow} eyebrow`}>Public Auctions</p>
           <h1 className={styles.pageTitle}>Player Market</h1>
           <p className={styles.pageSubtitle}>
             Free agents available for auction · 48-hour bidding window
@@ -574,7 +575,7 @@ export default function TransferMarketClient({
                 return (
                   <div
                     key={auction.player.id}
-                    className={`${styles.auctionCard} ${isUrgent ? styles.auctionCardUrgent : ''}`}
+                    className={`${styles.auctionCard} ${isUrgent ? styles.auctionCardUrgent : ''} ${isLeading ? `${styles['ab-leading']} ab-leading` : ''}`}
                   >
                     <div className={styles.auctionCardTop}>
                       <PosBadge position={auction.player.primary_position} />
@@ -616,7 +617,12 @@ export default function TransferMarketClient({
                       <div className={styles.auctionInfoRow}>
                         <div>
                           <div className={styles.auctionInfoLabel}>Current Bid</div>
-                          <div className={styles.auctionInfoBid}>€{auction.highest_bid}m</div>
+                          <div className={`${styles['ab-bid']} ab-bid`}>€{auction.highest_bid}m</div>
+                          {isLeading && (
+                            <div className={`${styles['ab-leading-indicator']} ab-leading-indicator`}>
+                              you're leading
+                            </div>
+                          )}
                           <div className={styles.auctionInfoLeader}>
                             {isLeading ? `You (${myTeam.team_name})` : auction.highest_bidder_team_name}
                           </div>
@@ -658,8 +664,8 @@ export default function TransferMarketClient({
                           : auction.is_promoted_exclusive && !auction.is_eligible
                           ? 'Excluded (Top-Half)'
                           : isLeading
-                          ? 'Raise Bid'
-                          : 'Place Bid'}
+                          ? 'Raise bid'
+                          : 'Place bid'}
                       </button>
 
                       {tmMin > 0 && (

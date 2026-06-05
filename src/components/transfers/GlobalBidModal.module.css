@@ -203,18 +203,19 @@
 
 .submitBtn {
   padding: var(--space-2) var(--space-6);
-  background: var(--color-accent-blue);
-  color: white;
+  background: var(--color-text-primary);
+  color: var(--color-bg-card);
   border: none;
   border-radius: var(--radius-sm);
   font-size: var(--text-sm);
   font-weight: var(--font-semibold);
   cursor: pointer;
-  transition: opacity var(--transition-fast);
+  transition: background var(--transition-fast), opacity var(--transition-fast);
 }
 
-.submitBtn:hover {
-  opacity: 0.85;
+.submitBtn:hover:not(:disabled) {
+  background: var(--color-accent);
+  color: var(--color-text-inverse);
 }
 
 .submitBtn:disabled {

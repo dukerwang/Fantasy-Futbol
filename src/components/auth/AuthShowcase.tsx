@@ -341,7 +341,7 @@ function LiveAuctionsVisual() {
         return (
           <div
             key={idx}
-            className={`${styles.auctionCard} ${auction.isUrgent ? styles.auctionCardUrgent : ''}`}
+            className={`${styles.auctionCard} ${auction.isUrgent ? styles.auctionCardUrgent : ''} ${auction.isLeading ? `${styles['ab-leading']} ab-leading` : ''}`}
           >
             <div className={styles.auctionCardTop}>
               <div className={styles.auctionAvatarContainer}>
@@ -383,7 +383,14 @@ function LiveAuctionsVisual() {
               <div className={styles.auctionInfoRow}>
                 <div>
                   <div className={styles.auctionLabelMini}>Current Bid</div>
-                  <div className={styles.auctionBidMini}>€{auction.highest_bid}m</div>
+                  <div className={styles.auctionBidMini} style={{ fontFamily: 'var(--font-serif)', fontVariantNumeric: 'tabular-nums' }}>
+                    €{auction.highest_bid}m
+                  </div>
+                  {auction.isLeading && (
+                    <div className={`${styles['ab-leading-indicator']} ab-leading-indicator`}>
+                      you're leading
+                    </div>
+                  )}
                   <div className={styles.auctionLeaderMini}>
                     {auction.highest_bidder_team_name}
                   </div>
@@ -401,7 +408,7 @@ function LiveAuctionsVisual() {
                 </div>
               </div>
               <button className={styles.auctionBidBtnMini}>
-                {auction.isLeading ? 'Raise Bid' : 'Place Bid'}
+                {auction.isLeading ? 'Raise bid' : 'Place bid'}
               </button>
             </div>
           </div>
