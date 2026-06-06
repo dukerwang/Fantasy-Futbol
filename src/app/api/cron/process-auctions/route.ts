@@ -18,6 +18,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { sendEmail } from '@/lib/email/client';
 import { getAuctionWonEmail } from '@/lib/email/templates';
+import { BIG_TRANSFER_THRESHOLD, initialAuctionExpiry } from '@/lib/auction/timer';
 
 export const maxDuration = 60; // 1 minute max for Vercel Hobby tier
 
@@ -338,20 +339,24 @@ export async function POST(req: NextRequest) {
             .select('market_value')
             .eq('id', winner.drop_player_id)
             .single();
-          const isBigTransfer = dropPlayerDetails && Number(dropPlayerDetails.market_value || 0) >= 40.0;
-          const durationHours = isBigTransfer ? 96 : 48;
-          const auctionExpiry = new Date(Date.now() + durationHours * 60 * 60 * 1000).toISOString();
+          const isBigTransfer = dropPlayerDetails &&
+            Number(dropPlayerDetails.market_value || 0) >= BIG_TRANSFER_THRESHOLD;
+          // Initial expires_at = MAX_DURATION from now (fallback for auctions with no bids).
+          // The bid route overwrites this with the activity formula on first real bid.
+          const auctionExpiry = initialAuctionExpiry(!!isBigTransfer);
 
           await admin.from('waiver_claims').insert({
             league_id,
-            team_id: null,
-            player_id: winner.drop_player_id,
-            faab_bid: 0,
-            priority: 999,
-            status: 'pending',
-            gameweek: 0,
-            is_auction: true,
-            expires_at: auctionExpiry,
+            team_id:      null,
+            player_id:    winner.drop_player_id,
+            faab_bid:     0,
+            priority:     999,
+            status:       'pending',
+            gameweek:     0,
+            is_auction:   true,
+            expires_at:   auctionExpiry,
+            first_bid_at: null,   // set when first real bid arrives
+            last_bid_at:  null,   // set when first real bid arrives
           });
 
           const severanceNote = winnerSeveranceFee > 0

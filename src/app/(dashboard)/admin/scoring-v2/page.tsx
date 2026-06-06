@@ -20,7 +20,6 @@ import { redirect } from 'next/navigation';
 import styles from './scoring-v2.module.css';
 import { FULL_PLAYER_SELECT } from '@/lib/constants/queries';
 import { calculateMatchRating } from '@/lib/scoring/matchRating';
-import { calculateMatchRatingV1 } from '@/lib/scoring/matchRatingV1Legacy';
 import type { GranularPosition } from '@/types';
 import { loadReferenceStats, calculateTeamScore } from '@/lib/scoring/matchups';
 import { normalizeMatchupLineup } from '@/lib/lineups/normalizeMatchupLineup';
@@ -191,7 +190,11 @@ export default async function ScoringV2Page() {
       const p = playerById.get(r.player_id);
       if (!p) continue;
 
-      const v1Result = calculateMatchRatingV1(r.stats as any, p.primary_position as GranularPosition);
+      // V1 is retired after Migration 040. Use V2 values as the baseline.
+      const v1Result = {
+        rating: r.match_rating !== null && r.match_rating !== undefined ? Number(r.match_rating) : 0,
+        fantasyPoints: r.fantasy_points !== null && r.fantasy_points !== undefined ? Number(r.fantasy_points) : 0,
+      };
       rows.push({
         id: r.id,
         player_id: r.player_id,

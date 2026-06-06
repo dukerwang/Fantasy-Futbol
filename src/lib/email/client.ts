@@ -1,9 +1,9 @@
 import { Resend } from 'resend';
 
 // Instantiate Resend client
-export const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
+const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 
-export const SENDER_EMAIL = 'Gaffa <noreply@gaffa.live>';
+const SENDER_EMAIL = 'Gaffa <noreply@gaffa.live>';
 
 /**
  * Sends an email, safely swallowing and logging errors if Resend is not configured or fails.
@@ -23,7 +23,7 @@ export async function sendEmail({
   }
 
   try {
-    const { data, error } = await resend.emails.send({
+    const { error } = await resend.emails.send({
       from: SENDER_EMAIL,
       to,
       subject,

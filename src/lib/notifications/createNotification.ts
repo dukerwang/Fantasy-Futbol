@@ -1,6 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 
-export interface CreateNotificationParams {
+interface CreateNotificationParams {
   leagueId: string;
   userId: string;
   title: string;

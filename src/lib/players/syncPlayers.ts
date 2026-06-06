@@ -14,7 +14,7 @@ import { processPlayerTransferOut } from '@/lib/transfers/compensation';
 
 const FPL_URL = 'https://fantasy.premierleague.com/api/bootstrap-static/';
 
-export interface SyncPlayersResult {
+interface SyncPlayersResult {
   synced: number;
   systemBidsSeeded: number;
   autoTransferOuts: { playerId: string; result: string }[];
@@ -96,8 +96,6 @@ export async function syncPlayersFromFpl(admin: SupabaseClient): Promise<SyncPla
   const { data: existingPlayers } = await admin
     .from('players')
     .select('id, fpl_id, is_active, primary_position, secondary_positions, market_value, name, date_of_birth');
-
-  const existingFplIds = new Set((existingPlayers ?? []).map((p) => p.fpl_id));
 
   const activeByFplId = new Map<number, string>(
     (existingPlayers ?? [])

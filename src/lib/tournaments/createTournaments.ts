@@ -28,7 +28,7 @@ export interface CreateTournamentResult {
   skipped?: boolean;
 }
 
-export interface CreateAllTournamentsResult {
+interface CreateAllTournamentsResult {
   matchupsGenerated: number;
   tournamentsCreated: CreateTournamentResult[];
 }

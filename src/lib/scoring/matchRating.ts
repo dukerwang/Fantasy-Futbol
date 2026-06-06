@@ -426,7 +426,7 @@ export function applyPositionWeights(
  */
 function computeScoringRating(composite: number, minutesPlayed: number): number {
     if (composite < 0 || minutesPlayed === 0) return 0;
-    let r = 1.0 + 9.0 * composite;
+    const r = 1.0 + 9.0 * composite;
     return Math.max(1.0, Math.min(10.0, r));
 }
 
@@ -440,7 +440,7 @@ export function curveFinalRating(composite: number, minutesPlayed: number): numb
 
     // Compressed scale: keeps the 6.5 median starter floor, cools the elite averagers
     // down to 8.0, and elevates the absolute floor to 3.5 (matching Fotmob/SofaScore).
-    let rating = 3.5 + 6.0 * composite;
+    const rating = 3.5 + 6.0 * composite;
 
     return Math.max(1.0, Math.min(10.0, rating));
 }

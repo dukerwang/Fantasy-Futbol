@@ -78,7 +78,7 @@ export const FPL_POSITION_OVERRIDES: Record<string, GranularPosition> = {
 /**
  * Default positions when FPL element_type has no override.
  */
-export const FPL_DEFAULT_POSITION: Record<number, GranularPosition> = {
+const FPL_DEFAULT_POSITION: Record<number, GranularPosition> = {
   1: 'GK',
   2: 'CB',
   3: 'CM',

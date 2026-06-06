@@ -10,7 +10,7 @@
  *
  * Returns an array of rounds, each round being an array of [teamA, teamB] pairs.
  */
-export function roundRobinRounds(teamIds: string[]): [string, string][][] {
+function roundRobinRounds(teamIds: string[]): [string, string][][] {
   const circle = [...teamIds];
 
   // Pad to even length with a BYE sentinel

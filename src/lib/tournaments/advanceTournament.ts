@@ -7,10 +7,10 @@
  */
 
 import { createAdminClient } from '@/lib/supabase/admin';
-import { calculateMatchRating, DEFAULT_REFERENCE_STATS } from '@/lib/scoring/engine';
+import { calculateMatchRating } from '@/lib/scoring/engine';
 import { resolveTiebreaker } from '@/lib/tournaments/engine';
 import { loadReferenceStats } from '@/lib/scoring/matchups';
-import type { GranularPosition, ReferenceStats, RatingComponent } from '@/types';
+import type { GranularPosition, ReferenceStats } from '@/types';
 
 type AdminClient = ReturnType<typeof createAdminClient>;
 type RefStatsMap = Record<string, ReferenceStats>;

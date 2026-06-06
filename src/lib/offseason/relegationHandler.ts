@@ -10,7 +10,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { processPlayerTransferOut } from '@/lib/transfers/compensation';
 
-export interface RelegationResult {
+interface RelegationResult {
   playerId: string;
   playerName: string;
   club: string;
@@ -23,7 +23,7 @@ export interface RelegationResult {
   }[];
 }
 
-export interface RelegationPreview {
+interface RelegationPreview {
   playerId: string;
   playerName: string;
   club: string;

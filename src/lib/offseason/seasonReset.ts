@@ -24,16 +24,15 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import { distributeAllPrizes, type PrizeEntry } from './prizeDistribution';
 import { insertMatchups } from '@/lib/schedule/insertMatchups';
 import { createAllTournaments, type CreateTournamentResult } from '@/lib/tournaments/createTournaments';
-import { syncPlayersFromFpl } from '@/lib/players/syncPlayers';
 
-export interface PreflightResult {
+interface PreflightResult {
   ready: boolean;
   issues: string[];
   incompleteMatchups: number;
   incompleteTournaments: { id: string; name: string }[];
 }
 
-export interface ResetResult {
+interface ResetResult {
   seasonFrom: string;
   seasonTo: string;
   prizesPaid: PrizeEntry[];

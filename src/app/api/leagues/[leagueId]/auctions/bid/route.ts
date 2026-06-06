@@ -3,9 +3,12 @@ import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { sendEmail } from '@/lib/email/client';
 import { getOutbidEmail } from '@/lib/email/templates';
-
-const AUCTION_DURATION_MS = 48 * 60 * 60 * 1000; // 48 hours
-const ANTI_SNIPE_WINDOW_MS = 60 * 60 * 1000;      // 1 hour
+import {
+  BIG_TRANSFER_THRESHOLD,
+  MAX_DURATION_BIG_MS,
+  MAX_DURATION_STD_MS,
+  calculateExpiresAt,
+} from '@/lib/auction/timer';
 
 interface Props {
   params: Promise<{ leagueId: string }>;
@@ -236,21 +239,27 @@ export async function POST(req: NextRequest, { params }: Props) {
     }
   }
 
-  // Current state of this auction (all pending bids for this player, highest first)
+  // Current state of this auction (all pending bids for this player, highest first).
+  // Include first_bid_at and last_bid_at which are stored on the system-seed anchor row.
   const { data: existingClaims } = await admin
     .from('waiver_claims')
-    .select('id, team_id, faab_bid, expires_at')
+    .select('id, team_id, faab_bid, expires_at, first_bid_at, last_bid_at')
     .eq('league_id', leagueId)
     .eq('player_id', playerId)
     .eq('status', 'pending')
     .eq('is_auction', true)
     .order('faab_bid', { ascending: false });
 
-  const highestClaim = existingClaims?.[0] ?? null;
+  // The system-seed row (team_id IS NULL) is the auction header that holds timing metadata.
+  const systemSeedClaim = existingClaims?.find((c) => c.team_id === null) ?? null;
+  // Highest real bid — system-seed has faab_bid=0 so it sorts last; first element is the true leader.
+  const highestClaim = existingClaims?.find((c) => c.team_id !== null) ?? null;
   const myClaim = existingClaims?.find((c) => c.team_id === myTeam.id) ?? null;
 
-  // Block bid if the auction has already expired (but is deferred in processing)
-  if (highestClaim && new Date().getTime() >= new Date(highestClaim.expires_at).getTime()) {
+  // Block bid if the auction has already expired (but is deferred in processing).
+  // Use the system-seed expires_at as the canonical clock if available.
+  const canonicalExpiry = systemSeedClaim?.expires_at ?? highestClaim?.expires_at ?? null;
+  if (canonicalExpiry && new Date().getTime() >= new Date(canonicalExpiry).getTime()) {
     return NextResponse.json(
       { error: 'This auction has already expired and is awaiting processing.' },
       { status: 400 },
@@ -272,27 +281,22 @@ export async function POST(req: NextRequest, { params }: Props) {
     );
   }
 
-  // Calculate the auction expiry
+  // ── Activity-based expiry calculation ────────────────────────────────────────
   const now = Date.now();
-  let expiresAt: string;
+  const isBigTransfer = playerData && Number(playerData.market_value || 0) >= BIG_TRANSFER_THRESHOLD;
 
-  if (!highestClaim) {
-    // First bid ever: start the auction clock.
-    // 96 hours (4 days) for big IRL transfers (>= €40m), 48 hours standard.
-    const isBigTransfer = playerData && Number(playerData.market_value || 0) >= 40.0;
-    const durationMs = isBigTransfer ? 96 * 60 * 60 * 1000 : AUCTION_DURATION_MS;
-    expiresAt = new Date(now + durationMs).toISOString();
+  // Determine when the first real bid on this auction was placed.
+  // - Normally: read from the system-seed's first_bid_at field.
+  // - First ever bid, OR no system-seed exists (new player never dropped): treat now as first bid.
+  let firstBidTime: number;
+  if (systemSeedClaim?.first_bid_at) {
+    firstBidTime = new Date(systemSeedClaim.first_bid_at).getTime();
   } else {
-    const currentExpiry = new Date(highestClaim.expires_at).getTime();
-    const timeRemaining = currentExpiry - now;
-    if (timeRemaining > 0 && timeRemaining < ANTI_SNIPE_WINDOW_MS) {
-      // Anti-snipe: a bid in the final hour resets the clock to 1 hour from now
-      expiresAt = new Date(now + ANTI_SNIPE_WINDOW_MS).toISOString();
-    } else {
-      // Keep the existing expiry
-      expiresAt = highestClaim.expires_at;
-    }
+    // Either this is the first bid or the system-seed is missing.
+    firstBidTime = now;
   }
+
+  const expiresAt = calculateExpiresAt(firstBidTime, now, !!isBigTransfer);
 
   // Upsert the bid
   if (myClaim) {
@@ -327,16 +331,52 @@ export async function POST(req: NextRequest, { params }: Props) {
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  // If the anti-snipe rule extended the expiry, propagate the new time to all bids for this player
-  if (highestClaim && expiresAt !== highestClaim.expires_at) {
+  // ── Update the auction header (system-seed row) ──────────────────────────────
+  // first_bid_at: set only once (when this is the very first real bid).
+  // last_bid_at: always updated to now.
+  // expires_at: always updated with the recalculated value.
+  if (systemSeedClaim) {
+    const headerUpdate: Record<string, unknown> = {
+      last_bid_at: new Date(now).toISOString(),
+      expires_at:  expiresAt,
+    };
+    if (!systemSeedClaim.first_bid_at) {
+      headerUpdate.first_bid_at = new Date(now).toISOString();
+    }
     await admin
       .from('waiver_claims')
-      .update({ expires_at: expiresAt })
-      .eq('league_id', leagueId)
-      .eq('player_id', playerId)
-      .eq('status', 'pending')
-      .eq('is_auction', true);
+      .update(headerUpdate)
+      .eq('id', systemSeedClaim.id);
+  } else {
+    // No system-seed exists (brand-new free agent never dropped by anyone).
+    // Insert a system-seed so future bids can read first_bid_at correctly.
+    console.warn(`[bid] No system-seed found for player ${playerId} in league ${leagueId}. Creating one.`);
+    const maxDurationMs = isBigTransfer ? MAX_DURATION_BIG_MS : MAX_DURATION_STD_MS;
+    await admin.from('waiver_claims').insert({
+      league_id:    leagueId,
+      team_id:      null,
+      player_id:    playerId,
+      faab_bid:     0,
+      priority:     999,
+      status:       'pending',
+      gameweek:     0,
+      is_auction:   true,
+      expires_at:   expiresAt,
+      first_bid_at: new Date(now).toISOString(),
+      last_bid_at:  new Date(now).toISOString(),
+    }).maybeSingle(); // ignore unique-constraint conflict if a concurrent bid just created it
   }
+
+  // Propagate the recalculated expiry to all pending real-bid rows for this player.
+  // (System-seed was already updated above.)
+  await admin
+    .from('waiver_claims')
+    .update({ expires_at: expiresAt })
+    .eq('league_id', leagueId)
+    .eq('player_id', playerId)
+    .eq('status', 'pending')
+    .eq('is_auction', true)
+    .not('team_id', 'is', null); // real bid rows only
 
   // ── SEND OUTBID NOTIFICATION ──
   if (highestClaim && highestClaim.team_id && highestClaim.team_id !== myTeam.id) {

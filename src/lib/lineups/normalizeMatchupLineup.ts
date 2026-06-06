@@ -1,4 +1,4 @@
-import type { Formation, GranularPosition, MatchupLineup } from '@/types';
+import type { GranularPosition, MatchupLineup } from '@/types';
 import { FORMATION_SLOTS, inferFormationFromStarterSlots } from '@/types';
 
 function sortedSlots(slots: GranularPosition[]): string {
@@ -25,9 +25,9 @@ export function normalizeMatchupLineup(lineup: MatchupLineup | null): MatchupLin
   if (!Array.isArray(lineup.starters) || lineup.starters.length !== 11) return lineup;
 
   // 1) Migrate legacy LM/RM slots to LW/RW
-  let starters = migrateLegacyWideMidfielders(lineup.starters);
+  const starters = migrateLegacyWideMidfielders(lineup.starters);
 
-  let next: MatchupLineup = { ...lineup, starters };
+  const next: MatchupLineup = { ...lineup, starters };
 
   const formation = next.formation;
   const expected = sortedSlots(FORMATION_SLOTS[formation]);

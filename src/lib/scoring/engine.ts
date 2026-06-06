@@ -6,7 +6,7 @@
  * compatibility during the migration from API-Football to FPL-based ratings.
  */
 
-import type { GranularPosition, RawStats } from '@/types';
+import type { RawStats } from '@/types';
 
 // ── Re-exports from the Match Rating Engine ─────────────────────────────
 export {
@@ -17,25 +17,6 @@ export {
 } from './matchRating';
 
 export type { MatchRating, RatingBreakdownItem } from '@/types';
-
-// ── Team Points (updated to use match rating) ───────────────────────────
-
-import { calculateMatchRating, DEFAULT_REFERENCE_STATS } from './matchRating';
-import type { ReferenceStats } from '@/types';
-
-/**
- * Calculate total fantasy points for a team lineup in a gameweek.
- * Uses the new match-rating-based scoring.
- */
-export function calculateTeamPoints(
-  players: { stats: RawStats; position: GranularPosition }[],
-  refStats: Record<GranularPosition | string, ReferenceStats> = DEFAULT_REFERENCE_STATS,
-): number {
-  return players.reduce((total, p) => {
-    const { fantasyPoints } = calculateMatchRating(p.stats, p.position, refStats as any);
-    return total + fantasyPoints;
-  }, 0);
-}
 
 // ── Legacy: Map FPL live stats to RawStats ──────────────────────────────
 
@@ -91,9 +72,4 @@ export function mapFplLiveToRawStats(
   };
 }
 
-/**
- * Extract a specific stat value from FPL's 'explain' stats array.
- */
-export function getFplExplainStat(explainStats: { identifier: string; value: number }[], identifier: string): number {
-  return explainStats.find((s) => s.identifier === identifier)?.value ?? 0;
-}
+

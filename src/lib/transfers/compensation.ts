@@ -13,7 +13,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 
 const COMPENSATION_RATE = 0.8;
 
-export interface TransferCompensationResult {
+interface TransferCompensationResult {
   playerId: string;
   playerName: string;
   marketValue: number;
