@@ -283,6 +283,20 @@ export async function POST(req: NextRequest) {
         }
       }
 
+      // Idempotency guard: if a previous run already approved this winner's claim
+      // (i.e. it succeeded past the FAAB deduction but crashed before marking approved),
+      // skip re-processing to prevent double-deducting FAAB or duplicate transactions.
+      const { data: alreadyApproved } = await admin
+        .from('waiver_claims')
+        .select('id')
+        .eq('id', winner.id)
+        .eq('status', 'approved')
+        .maybeSingle();
+      if (alreadyApproved) {
+        processed++;
+        continue;
+      }
+
       const losers = claims.filter((c) => c.id !== winner!.id);
 
       // Drop the nominated player (charging severance if applicable).
@@ -505,9 +519,9 @@ export async function POST(req: NextRequest) {
           });
         }
 
-        // 2. Notify the losing bidders
+        // 2. Notify the losing bidders (parallel — one DB insert each, no ordering dependency)
         const losingBidders = realClaims.filter(c => c.team_id !== winner!.team_id);
-        for (const loser of losingBidders) {
+        await Promise.all(losingBidders.map(async (loser) => {
           const loserTeam = leagueTeams?.find(t => t.id === loser.team_id);
           if (loserTeam) {
             await createNotification(admin, {
@@ -518,7 +532,7 @@ export async function POST(req: NextRequest) {
               url: `/league/${league_id}/players`
             });
           }
-        }
+        }));
       } catch (emailErr) {
         console.error('[process-auctions] Failed to send auction result notifications:', emailErr);
       }
