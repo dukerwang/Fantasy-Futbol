@@ -5,6 +5,7 @@ import { insertMatchups } from '@/lib/schedule/insertMatchups';
 export const maxDuration = 60;
 
 export async function POST() {
+    if (process.env.NODE_ENV === 'production') return NextResponse.json({ error: 'Not Found' }, { status: 404 });
     const admin = createAdminClient();
 
     // 1. Get real user

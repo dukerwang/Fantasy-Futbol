@@ -1,15 +1,10 @@
-import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { NextRequest, NextResponse } from 'next/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 import * as fs from 'fs';
 import * as path from 'path';
 import stringSimilarity from 'string-similarity';
 
 export const maxDuration = 60;
-
-const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
 
 function normalizeMatchName(name: string) {
     return name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
@@ -22,7 +17,10 @@ function wordsMatch(tmName: string, dbName: string) {
     return tmParts.every((part) => normDB.includes(part));
 }
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+    const secret = req.headers.get('x-cron-secret') ?? req.headers.get('authorization')?.replace('Bearer ', '');
+    if (!secret || secret !== process.env.CRON_SECRET) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const supabase = createAdminClient();
     const rawData = fs.readFileSync(path.join(process.cwd(), 'players.json'), 'utf-8');
     const tmPlayers = JSON.parse(rawData);
 
