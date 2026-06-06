@@ -25,7 +25,7 @@ export async function POST(_req: NextRequest, { params }: Props) {
 
   const { data: league } = await admin
     .from('leagues')
-    .select('roster_size, status')
+    .select('roster_size, status, current_season')
     .eq('id', leagueId)
     .single();
 
@@ -40,6 +40,20 @@ export async function POST(_req: NextRequest, { params }: Props) {
   if (isComplete && league?.status === 'active') {
     // Attempt schedule generation (idempotent, won't duplicate if cron beat us)
     await insertMatchups(admin, leagueId).catch(console.error);
+
+    // Seed cup tournaments if they don't exist yet (brand new league)
+    const { data: tourneys } = await admin
+      .from('tournaments')
+      .select('id')
+      .eq('league_id', leagueId)
+      .limit(1);
+
+    if (!tourneys || tourneys.length === 0) {
+      const { createAllTournaments } = await import('@/lib/tournaments/createTournaments');
+      const { getCurrentFplSeason } = await import('@/lib/season/currentSeason');
+      const season = league.current_season ?? await getCurrentFplSeason();
+      await createAllTournaments(admin, leagueId, season).catch(console.error);
+    }
   }
 
   return NextResponse.json({ ok: true, draft_complete: isComplete, status: league?.status });

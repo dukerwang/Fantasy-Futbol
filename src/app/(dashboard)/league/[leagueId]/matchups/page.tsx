@@ -47,7 +47,7 @@ export default async function MatchupsPage({ params, searchParams }: Props) {
 
     const { data: league } = await admin
         .from('leagues')
-        .select('id, name, commissioner_id, status')
+        .select('id, name, commissioner_id, status, current_season')
         .eq('id', leagueId)
         .single();
 
@@ -84,6 +84,20 @@ export default async function MatchupsPage({ params, searchParams }: Props) {
     if (gameweeks.length === 0 && league.status === 'active') {
         const { insertMatchups } = await import('@/lib/schedule/insertMatchups');
         await insertMatchups(admin, leagueId).catch(console.error);
+
+        // Also seed cup tournaments if they don't exist yet (brand new league)
+        const { data: tourneys } = await admin
+            .from('tournaments')
+            .select('id')
+            .eq('league_id', leagueId)
+            .limit(1);
+
+        if (!tourneys || tourneys.length === 0) {
+            const { createAllTournaments } = await import('@/lib/tournaments/createTournaments');
+            const { getCurrentFplSeason } = await import('@/lib/season/currentSeason');
+            const season = league.current_season ?? await getCurrentFplSeason();
+            await createAllTournaments(admin, leagueId, season).catch(console.error);
+        }
         
         // Re-fetch gameweeks after generation
         const { data: refreshedGws } = await admin
@@ -243,13 +257,15 @@ export default async function MatchupsPage({ params, searchParams }: Props) {
     const closestMatch = matchups.length > 0
         ? [...matchups].sort((a, b) => Math.abs(a.score_a - a.score_b) - Math.abs(b.score_a - b.score_b))[0]
         : null;
+    const displaySeason = league.current_season ?? '2025-26';
+    const formattedSeason = displaySeason.replace(/^\d{2}(\d{2})-(\d{2})$/, '$1/$2');
 
     return (
         <div className={styles.container}>
             {/* Header */}
             <header className={styles.pageHeader}>
                 <div className={styles.pageTitleGroup}>
-                    <span className={styles.pageSupertitle}>Premier League Season 25/26</span>
+                    <span className={styles.pageSupertitle}>Premier League Season {formattedSeason}</span>
                     <h1 className={styles.pageTitle}>Gameweek {targetGw}</h1>
                 </div>
                 {gameweeks.length > 0 && (

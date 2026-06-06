@@ -256,6 +256,20 @@ export default async function LeaguePage({ params }: Props) {
       const { insertMatchups } = await import('@/lib/schedule/insertMatchups');
       await insertMatchups(admin, leagueId).catch(console.error);
       
+      // Also seed cup tournaments if they don't exist yet (brand new league)
+      const { data: tourneys } = await admin
+        .from('tournaments')
+        .select('id')
+        .eq('league_id', leagueId)
+        .limit(1);
+
+      if (!tourneys || tourneys.length === 0) {
+        const { createAllTournaments } = await import('@/lib/tournaments/createTournaments');
+        const { getCurrentFplSeason } = await import('@/lib/season/currentSeason');
+        const season = league.current_season ?? await getCurrentFplSeason();
+        await createAllTournaments(admin, leagueId, season).catch(console.error);
+      }
+
       // Refresh myMatchups if they were just created
       if (myTeamId) {
         const { data: freshMyMatchups } = await admin

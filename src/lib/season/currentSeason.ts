@@ -37,30 +37,42 @@ let _cachedRefStatsSeason: string | null = null;
  *
  * Example: GW1 deadline 2025-08-16 → "2025-26"
  */
-export async function getCurrentFplSeason(fallback = '2025-26'): Promise<string> {
+export async function getCurrentFplSeason(fallback?: string): Promise<string> {
   if (_cachedFplSeason) return _cachedFplSeason;
+
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  // June or later is the start of the offseason/lead-up to the next season
+  const startYear = now.getMonth() >= 5 ? currentYear : currentYear - 1;
+  const dynamicFallback = fallback ?? `${startYear}-${String(startYear + 1).slice(2)}`;
 
   try {
     const res = await fetch(
       'https://fantasy.premierleague.com/api/bootstrap-static/',
       { next: { revalidate: 3600 } },
     );
-    if (!res.ok) return fallback;
+    if (!res.ok) return dynamicFallback;
 
     const data = await res.json();
-    const events = (data.events ?? []) as { id: number; deadline_time: string }[];
+    const events = (data.events ?? []) as { id: number; deadline_time: string; finished?: boolean }[];
 
     // GW1 has the earliest deadline — its year determines the season
     const gw1 = events.find((e) => e.id === 1);
-    if (!gw1?.deadline_time) return fallback;
+    if (!gw1?.deadline_time) return dynamicFallback;
 
-    const startYear = new Date(gw1.deadline_time).getFullYear();
-    const season = `${startYear}-${String(startYear + 1).slice(2)}`; // e.g. "2025-26"
+    const gw1Year = new Date(gw1.deadline_time).getFullYear();
+    let season = `${gw1Year}-${String(gw1Year + 1).slice(2)}`; // e.g. "2025-26"
+
+    // If the retrieved season is already finished (GW38 completed), we are in the offseason preparing for the next one
+    const lastEvent = events[events.length - 1];
+    if (lastEvent?.finished) {
+      season = nextSeason(season);
+    }
 
     _cachedFplSeason = season;
     return season;
   } catch {
-    return fallback;
+    return dynamicFallback;
   }
 }
 

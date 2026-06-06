@@ -34,7 +34,15 @@ import { readFileSync, existsSync } from 'node:fs';
 const args = process.argv.slice(2);
 const dryRun = args.includes('--dry-run');
 const force = args.includes('--force');
+const clonePrior = args.includes('--clone-prior');
 const seasonArg = args.find((a) => a.startsWith('--season='))?.split('=')[1]
+
+function getPreviousSeason(curr) {
+  const match = curr.match(/^(\d{4})-(\d{2})$/);
+  if (!match) return null;
+  const startYear = parseInt(match[1], 10) - 1;
+  return `${startYear}-${String(startYear + 1).slice(-2)}`;
+}
   ?? (() => {
     const idx = args.indexOf('--season');
     return idx >= 0 ? args[idx + 1] : null;
@@ -173,12 +181,73 @@ async function main() {
   console.log(`Season: ${season}`);
 
   const completed = await detectCompletedGameweeks();
+
+  const runCloning = async () => {
+    const prevSeason = getPreviousSeason(season);
+    if (!prevSeason) {
+      console.error(`Invalid season format: ${season}`);
+      process.exit(1);
+    }
+    console.log(`Cloning reference stats from previous season ${prevSeason} to ${season}...`);
+    
+    const { data: prevStats, error: prevErr } = await supabase
+      .from('rating_reference_stats')
+      .select('*')
+      .eq('season', prevSeason);
+      
+    if (prevErr) {
+      console.error(`Failed to fetch previous season stats: ${prevErr.message}`);
+      process.exit(1);
+    }
+    
+    if (!prevStats || prevStats.length === 0) {
+      console.warn(`No reference stats found for previous season ${prevSeason}. Aborting.`);
+      return;
+    }
+    
+    const newRows = prevStats.map(row => {
+      const { id, created_at, ...rest } = row;
+      return {
+        ...rest,
+        season,
+      };
+    });
+    
+    if (dryRun) {
+      console.log(`[Dry Run] Would insert ${newRows.length} cloned rows for season ${season}.`);
+      return;
+    }
+    
+    console.log(`Deleting existing rows for season ${season}...`);
+    const { error: delErr } = await supabase
+      .from('rating_reference_stats')
+      .delete()
+      .eq('season', season);
+    if (delErr) throw new Error(`Delete failed: ${delErr.message}`);
+
+    console.log(`Inserting ${newRows.length} cloned rows...`);
+    const { error: insErr } = await supabase
+      .from('rating_reference_stats')
+      .insert(newRows);
+    if (insErr) throw new Error(`Insert failed: ${insErr.message}`);
+
+    console.log('Done cloning.');
+  };
+
   if (completed.length < 5 && !force) {
-    console.warn(`Only ${completed.length} completed gameweeks found. A minimum of 5 completed gameweeks is required to recompute baseline stats to prevent early-season volatility. Run with --force to override. Aborting.`);
+    if (clonePrior) {
+      await runCloning();
+      return;
+    }
+    console.warn(`Only ${completed.length} completed gameweeks found. A minimum of 5 completed gameweeks is required to recompute baseline stats to prevent early-season volatility. Run with --clone-prior to seed/clone from the previous season, or run with --force to override. Aborting.`);
     return;
   }
   if (completed.length === 0) {
-    console.warn('No completed gameweeks yet; aborting.');
+    if (clonePrior) {
+      await runCloning();
+      return;
+    }
+    console.warn('No completed gameweeks yet. Run with --clone-prior to seed reference stats from the previous season. Aborting.');
     return;
   }
   console.log(`Completed gameweeks: ${completed.join(', ')}`);

@@ -81,11 +81,20 @@ async function getStartGw(): Promise<number> {
     const events: Array<{ id: number; is_current: boolean; finished: boolean }> =
       data.events ?? [];
 
+    if (events.length === 0) return 1;
+
+    // If the last event in the list is finished, the entire season is complete (offseason)
+    const lastEvent = events[events.length - 1];
+    if (lastEvent?.finished) return 1;
+
     const current = events.find((e) => e.is_current);
     if (!current) return 1; // pre-season
 
-    // GW fully finished → start next
-    if (current.finished) return Math.min(current.id + 1, 39);
+    // GW fully finished → start next (rollover to 1 if we somehow get 39)
+    if (current.finished) {
+      const nextGw = current.id + 1;
+      return nextGw > 38 ? 1 : nextGw;
+    }
 
     // GW in progress — check if any fixtures have already kicked off
     const fixturesRes = await fetch(
@@ -98,7 +107,10 @@ async function getStartGw(): Promise<number> {
       const anyStarted = fixtures.some(
         (f) => f.started || (f.kickoff_time != null && new Date(f.kickoff_time) <= new Date()),
       );
-      if (anyStarted) return Math.min(current.id + 1, 39);
+      if (anyStarted) {
+        const nextGw = current.id + 1;
+        return nextGw > 38 ? 1 : nextGw;
+      }
     }
 
     return current.id; // GW in progress, no fixtures started yet — include it

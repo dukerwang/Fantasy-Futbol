@@ -19,21 +19,29 @@ export async function getFplStatus(): Promise<FplStatus> {
     }
 
     const fplData = await fplRes.json();
+    const events = (fplData.events ?? []) as any[];
+
+    // If the last event in the list is finished, the entire season is complete (offseason)
+    const lastEvent = events[events.length - 1];
+    if (lastEvent?.finished) {
+      return { currentGw: 1, isFinished: false, nextGwIsClose: false };
+    }
+
     const now = new Date();
     let currentGw = 1;
 
     // Find latest gameweek that has passed the deadline
-    for (const ev of fplData.events as any[]) {
+    for (const ev of events) {
       if (ev.deadline_time && new Date(ev.deadline_time) <= now) {
         currentGw = Math.max(currentGw, ev.id);
       }
     }
 
-    const currentEvent = (fplData.events as any[]).find((e: any) => e.id === currentGw);
+    const currentEvent = events.find((e: any) => e.id === currentGw);
     const isFinished = currentEvent?.finished ?? false;
 
     let nextGwIsClose = false;
-    const nextGW = (fplData.events as any[]).find((e: any) => !e.finished && e.is_next);
+    const nextGW = events.find((e: any) => !e.finished && e.is_next);
     if (nextGW) {
       const daysUntil = (new Date(nextGW.deadline_time).getTime() - Date.now()) / 86400000;
       if (daysUntil <= 3) nextGwIsClose = true;
