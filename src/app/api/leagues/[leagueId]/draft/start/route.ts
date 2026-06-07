@@ -46,6 +46,17 @@ export async function POST(req: NextRequest, { params }: Props) {
     return NextResponse.json({ error: 'Draft order does not match team count' }, { status: 400 });
   }
 
+  // Enforce 4-team minimum capacity constraint unless demo/test league
+  if (teams.length < 4) {
+    const isDemoOrTest = league.name?.toLowerCase().includes('demo') || league.name?.toLowerCase().includes('test');
+    if (!isDemoOrTest) {
+      return NextResponse.json(
+        { error: `Leagues require at least 4 registered managers to start drafting. Currently only ${teams.length} teams have joined.` },
+        { status: 400 }
+      );
+    }
+  }
+
   // Update each team's draft_order
   for (const { teamId, draftOrder } of order) {
     const { error } = await admin

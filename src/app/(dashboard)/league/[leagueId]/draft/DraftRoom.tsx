@@ -224,21 +224,57 @@ export default function DraftRoom({
   }, [leagueId, myTeam]);
 
   useEffect(() => {
+    if (!myUserId || !leagueId || !myTeam) return;
+
+    const handler = setTimeout(async () => {
+      const supabase = createClient();
+      
+      // Delete existing queue rows for this user in this league
+      await supabase
+        .from('draft_queues')
+        .delete()
+        .eq('user_id', myUserId)
+        .eq('league_id', leagueId);
+        
+      // Insert new queue list in order
+      if (draftQueue.length > 0) {
+        const records = draftQueue.map((playerId, index) => ({
+          user_id: myUserId,
+          league_id: leagueId,
+          player_id: playerId,
+          rank: index + 1,
+        }));
+        await supabase.from('draft_queues').insert(records);
+      }
+    }, 1500); // 1.5-second debounce
+
+    return () => clearTimeout(handler);
+  }, [draftQueue, myUserId, leagueId, myTeam]);
+
+  useEffect(() => {
     if (!myTeam?.id) return;
     const supabase = createClient();
     
-    // Set presence to true and reset consecutive autopicks on mount
-    supabase
-      .from('teams')
-      .update({ is_in_draft_room: true, consecutive_autopicks: 0 })
-      .eq('id', myTeam.id)
-      .then();
-
-    return () => {
-      // Set presence to false on clean unmount
+    const sendHeartbeat = () => {
       supabase
         .from('teams')
-        .update({ is_in_draft_room: false })
+        .update({ last_seen_at: new Date().toISOString(), consecutive_autopicks: 0 })
+        .eq('id', myTeam.id)
+        .then();
+    };
+
+    // Initial heartbeat on mount
+    sendHeartbeat();
+
+    // Heartbeat interval
+    const interval = setInterval(sendHeartbeat, 10000);
+
+    return () => {
+      clearInterval(interval);
+      // Clean up on unmount
+      supabase
+        .from('teams')
+        .update({ last_seen_at: null })
         .eq('id', myTeam.id)
         .then();
     };

@@ -117,7 +117,19 @@ export async function POST(req: NextRequest, { params }: Props) {
     .select('*, player:players(*), team:teams(*)')
     .single();
 
-  if (pickErr) return NextResponse.json({ error: pickErr.message }, { status: 500 });
+  if (pickErr) {
+    if (pickErr.code === '23505') {
+      const isPlayerConflict = 
+        pickErr.message?.includes('player_id') || 
+        pickErr.message?.includes('unique_league_player') ||
+        (pickErr.details && (pickErr.details.includes('player_id') || pickErr.details.includes('unique_league_player')));
+      if (isPlayerConflict) {
+        return NextResponse.json({ error: 'This player has already been drafted by another team.' }, { status: 409 });
+      }
+      return NextResponse.json({ error: 'This pick slot has already been processed.' }, { status: 409 });
+    }
+    return NextResponse.json({ error: pickErr.message }, { status: 500 });
+  }
 
   // Insert into roster_entries
   const { error: rosterErr } = await admin

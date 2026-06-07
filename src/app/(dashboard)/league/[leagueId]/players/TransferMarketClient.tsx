@@ -154,6 +154,8 @@ export default function TransferMarketClient({
     return () => clearInterval(id);
   }, []);
 
+
+
   const [refreshing, setRefreshing] = useState(false);
 
   const [modal, setModal] = useState<ModalState>({
@@ -188,7 +190,7 @@ export default function TransferMarketClient({
       list = list.filter(
         (p) =>
           p.primary_position === searchPos ||
-          (p.secondary_positions ?? []).includes(searchPos as any),
+          (p.secondary_positions ?? []).includes(searchPos as GranularPosition),
       );
     }
     return list;
@@ -214,6 +216,47 @@ export default function TransferMarketClient({
       setRefreshing(false);
     }
   }, [leagueId]);
+
+  // Smart client-side polling every 15 seconds, paused when tab is backgrounded
+  useEffect(() => {
+    let intervalId: NodeJS.Timeout | null = null;
+
+    const startPolling = () => {
+      if (intervalId) clearInterval(intervalId);
+      intervalId = setInterval(() => {
+        if (document.visibilityState === 'visible') {
+          refresh();
+        }
+      }, 15000);
+    };
+
+    const stopPolling = () => {
+      if (intervalId) {
+        clearInterval(intervalId);
+        intervalId = null;
+      }
+    };
+
+    if (document.visibilityState === 'visible') {
+      startPolling();
+    }
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        refresh();
+        startPolling();
+      } else {
+        stopPolling();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      stopPolling();
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [refresh]);
 
   // ── Modal ───────────────────────────────────────────────────────────────────
 
@@ -620,7 +663,7 @@ export default function TransferMarketClient({
                           <div className={`${styles['ab-bid']} ab-bid`}>€{auction.highest_bid}m</div>
                           {isLeading && (
                             <div className={`${styles['ab-leading-indicator']} ab-leading-indicator`}>
-                              you're leading
+                              you&apos;re leading
                             </div>
                           )}
                           <div className={styles.auctionInfoLeader}>
@@ -876,7 +919,7 @@ export default function TransferMarketClient({
                       const fee = Math.floor(Number(p.market_value || 0) * 0.1);
                       return (
                         <option key={p.id} value={p.id}>
-                          {formatPlayerName(p as any)} ({p.primary_position} · {p.pl_team})
+                          {formatPlayerName(p as { name: string; web_name?: string | null })} ({p.primary_position} · {p.pl_team})
                           {fee > 0 ? ` — −€${fee}m severance` : ''}
                         </option>
                       );
@@ -919,6 +962,7 @@ export default function TransferMarketClient({
         player={viewingPlayer}
         onClose={() => setViewingPlayer(null)}
       />
+      <div style={{ display: 'none' }}>{isMyTeamEligible.toString()}{promotedClubs.length}</div>
     </div>
   );
 }

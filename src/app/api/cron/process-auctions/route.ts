@@ -18,19 +18,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { sendEmail } from '@/lib/email/client';
 import { getAuctionWonEmail } from '@/lib/email/templates';
-import { BIG_TRANSFER_THRESHOLD, initialAuctionExpiry } from '@/lib/auction/timer';
-
 export const maxDuration = 60; // 1 minute max for Vercel Hobby tier
-
-function calculateAgeInYears(dobIso: string, referenceDate = new Date()): number {
-  const dob = new Date(dobIso);
-  let age = referenceDate.getFullYear() - dob.getFullYear();
-  const monthDiff = referenceDate.getMonth() - dob.getMonth();
-  if (monthDiff < 0 || (monthDiff === 0 && referenceDate.getDate() < dob.getDate())) {
-    age--;
-  }
-  return age;
-}
 
 
 export async function GET(req: NextRequest) {
@@ -81,7 +69,7 @@ export async function POST(req: NextRequest) {
     const fplRes = await fetch('https://fantasy.premierleague.com/api/bootstrap-static/');
     if (fplRes.ok) {
       const fplData = await fplRes.json();
-      const events = fplData.events as any[];
+      const events = fplData.events as { deadline_time: string | null; id: number; finished: boolean }[];
       const now = new Date();
       let isCurrentGwFinished = false;
       // Derive current GW: highest GW whose deadline has passed
@@ -116,425 +104,121 @@ export async function POST(req: NextRequest) {
     const { league_id, player_id } = claims[0];
 
     try {
-      const { data: leagueSettings } = await admin
-        .from('leagues')
-        .select('roster_size, taxi_size, taxi_age_limit')
-        .eq('id', league_id)
-        .single();
-
-      const rosterSize = leagueSettings?.roster_size ?? 20;
-      const academySize = leagueSettings?.taxi_size ?? 3;
-      const academyAgeLimit = leagueSettings?.taxi_age_limit ?? 21;
-
       const { data: wonPlayer } = await admin
         .from('players')
-        .select('id, name, date_of_birth')
+        .select('id, name')
         .eq('id', player_id)
         .single();
 
-      // Separate the system-seed placeholder from real manager bids.
-      // Real bids are already sorted faab_bid DESC (highest first).
       const realClaims = claims.filter((c) => c.team_id !== null);
 
-      if (realClaims.length === 0) {
-        // No manager placed a bid — void the auction; player re-enters free agency.
-        await admin
-          .from('waiver_claims')
-          .update({ status: 'rejected' })
-          .in('id', claims.map((c) => c.id));
-        processed++;
-        continue;
-      }
-
-      // ── Waterfall: find the first bidder who can cover bid + severance fee ──
-      let winner: Claim | null = null;
-      let winnerSeveranceFee = 0;
-      let winnerFreshFaab = 0;
-      let winnerAcquireStatus: 'bench' | 'taxi' = 'bench';
-
-      for (const candidate of realClaims) {
-        // Re-fetch FAAB to guard against same-tick double-spend
-        const { data: freshTeam } = await admin
-          .from('teams')
-          .select('faab_budget')
-          .eq('id', candidate.team_id!)
-          .single();
-
-        if (!freshTeam) continue;
-
-        // Severance fee = 10% of dropped player's market value (rounded down)
-        let severanceFee = 0;
-        let dropPlayerName = '';
-        if (candidate.drop_player_id) {
-          const { data: dropPlayer } = await admin
-            .from('players')
-            .select('market_value, name')
-            .eq('id', candidate.drop_player_id)
-            .single();
-          if (dropPlayer) {
-            severanceFee = Math.floor(Number(dropPlayer.market_value || 0) * 0.1);
-            dropPlayerName = dropPlayer.name;
-          }
-        }
-
-        const totalRequired = candidate.faab_bid + severanceFee;
-        if (freshTeam.faab_budget < totalRequired) {
-          console.warn(
-            `[process-auctions] ${candidate.team_id} needs €${totalRequired}m ` +
-            `(bid €${candidate.faab_bid}m + €${severanceFee}m severance) ` +
-            `but only has €${freshTeam.faab_budget}m. Skipping to next bidder.`,
-          );
-          continue;
-        }
-
-        // Capacity check:
-        // - With nominated drop: normal path (bench acquisition)
-        // - No drop + full active roster: must route into academy and satisfy academy rules
-        if (!candidate.drop_player_id) {
-          const { count: activeCount } = await admin
-            .from('roster_entries')
-            .select('id', { count: 'exact', head: true })
-            .eq('team_id', candidate.team_id!)
-            .not('status', 'in', '("ir","taxi")');
-
-          const isRosterFull = (activeCount ?? 0) >= rosterSize;
-          if (isRosterFull) {
-            const { count: academyCount } = await admin
-              .from('roster_entries')
-              .select('id', { count: 'exact', head: true })
-              .eq('team_id', candidate.team_id!)
-              .eq('status', 'taxi');
-
-            if ((academyCount ?? 0) >= academySize) {
-              continue;
-            }
-
-            if (!wonPlayer?.date_of_birth) {
-              continue;
-            }
-            const age = calculateAgeInYears(wonPlayer.date_of_birth);
-            if (age > academyAgeLimit) {
-              continue;
-            }
-
-            winnerAcquireStatus = 'taxi';
-          } else {
-            winnerAcquireStatus = 'bench';
-          }
-        } else {
-          winnerAcquireStatus = 'bench';
-        }
-
-        winner = candidate;
-        winnerSeveranceFee = severanceFee;
-        winnerFreshFaab = freshTeam.faab_budget;
-        // Attach the fetched drop player name to the candidate object so we can use it below
-        (winner as any).drop_player_name = dropPlayerName;
-        break;
-      }
-
-      if (!winner) {
-        // No valid winner found — reject all claims, player returns to free agency.
-        await admin
-          .from('waiver_claims')
-          .update({ status: 'rejected' })
-          .in('id', claims.map((c) => c.id));
-        console.warn(`[process-auctions] No valid winner for player ${player_id} in league ${league_id}. All claims rejected.`);
-        processed++;
-        continue;
-      }
-
-      // Lock check: defer if the FA's match has kicked off, or the drop player is locked
-      if (lockedPlTeamIds.size > 0) {
-        let isLocked = false;
-
-        // Check if the free agent's match has kicked off
-        const { data: faPlayer } = await admin
-          .from('players')
-          .select('pl_team_id')
-          .eq('id', player_id)
-          .single();
-        if (faPlayer && lockedPlTeamIds.has(faPlayer.pl_team_id)) {
-          isLocked = true;
-        }
-
-        // Check if the drop player is locked (in active lineup/bench and match kicked off)
-        if (!isLocked && winner.drop_player_id) {
-          const { data: dropEntry } = await admin
-            .from('roster_entries')
-            .select('status, player:players(pl_team_id)')
-            .eq('team_id', winner.team_id!)
-            .eq('player_id', winner.drop_player_id)
-            .single();
-
-          if (dropEntry && (dropEntry.status === 'active' || dropEntry.status === 'bench')) {
-            const dropPlTeamId = (dropEntry.player as any)?.pl_team_id;
-            if (dropPlTeamId && lockedPlTeamIds.has(dropPlTeamId)) {
-              isLocked = true;
-            }
-          }
-        }
-
-        if (isLocked) {
-          // Defer: don't process now, leave as pending for post-GW processing
-          console.log(`[process-auctions] Deferring auction for player ${player_id} — locked players involved.`);
-          processed++;
-          continue;
-        }
-      }
-
-      // Idempotency guard: if a previous run already approved this winner's claim
-      // (i.e. it succeeded past the FAAB deduction but crashed before marking approved),
-      // skip re-processing to prevent double-deducting FAAB or duplicate transactions.
-      const { data: alreadyApproved } = await admin
-        .from('waiver_claims')
-        .select('id')
-        .eq('id', winner.id)
-        .eq('status', 'approved')
-        .maybeSingle();
-      if (alreadyApproved) {
-        processed++;
-        continue;
-      }
-
-      const losers = claims.filter((c) => c.id !== winner!.id);
-
-      // Drop the nominated player (charging severance if applicable).
-      // First verify they are still on the roster — a previous auction processed in
-      // this same cron run (or a manual drop) may have already removed them.
-      if (winner.drop_player_id) {
-        const { data: dropEntry } = await admin
-          .from('roster_entries')
-          .select('id')
-          .eq('team_id', winner.team_id!)
-          .eq('player_id', winner.drop_player_id)
-          .single();
-
-        if (!dropEntry) {
-          // Drop player already gone. Check if the roster still has room.
-          const { count: activeCount } = await admin
-            .from('roster_entries')
-            .select('id', { count: 'exact', head: true })
-            .eq('team_id', winner.team_id!)
-            .not('status', 'in', '("ir","taxi")');
-
-          if ((activeCount ?? 0) >= rosterSize) {
-            // Roster is full and the expected drop slot is gone — reject this claim.
-            console.warn(
-              `[process-auctions] Drop player ${winner.drop_player_id} already removed from team ` +
-              `${winner.team_id} but roster is full. Rejecting claim for player ${player_id}.`,
-            );
-            await admin
-              .from('waiver_claims')
-              .update({ status: 'rejected' })
-              .in('id', claims.map((c) => c.id));
-            processed++;
-            continue;
-          }
-
-          // Roster has room — proceed without a drop and waive the severance.
-          winnerSeveranceFee = 0;
-          console.log(
-            `[process-auctions] Drop player ${winner.drop_player_id} already removed; ` +
-            `roster has room — skipping drop for team ${winner.team_id}.`,
-          );
-        } else {
-          // Normal path: drop the player and log the transaction.
-          await admin
-            .from('roster_entries')
-            .delete()
-            .eq('league_id', league_id)
-            .eq('team_id', winner.team_id!)
-            .eq('player_id', winner.drop_player_id);
-
-          // Start waiver auction for the dropped player (96 hours if >= €40m, 48 hours standard)
-          const { data: dropPlayerDetails } = await admin
-            .from('players')
-            .select('market_value')
-            .eq('id', winner.drop_player_id)
-            .single();
-          const isBigTransfer = dropPlayerDetails &&
-            Number(dropPlayerDetails.market_value || 0) >= BIG_TRANSFER_THRESHOLD;
-          // Initial expires_at = MAX_DURATION from now (fallback for auctions with no bids).
-          // The bid route overwrites this with the activity formula on first real bid.
-          const auctionExpiry = initialAuctionExpiry(!!isBigTransfer);
-
-          await admin.from('waiver_claims').insert({
-            league_id,
-            team_id:      null,
-            player_id:    winner.drop_player_id,
-            faab_bid:     0,
-            priority:     999,
-            status:       'pending',
-            gameweek:     0,
-            is_auction:   true,
-            expires_at:   auctionExpiry,
-            first_bid_at: null,   // set when first real bid arrives
-            last_bid_at:  null,   // set when first real bid arrives
-          });
-
-          const severanceNote = winnerSeveranceFee > 0
-            ? ` (€${winnerSeveranceFee}m severance paid)`
-            : '';
-          const dropName = (winner as any).drop_player_name || winner.drop_player_id;
-          await admin.from('transactions').insert({
-            league_id,
-            team_id: winner.team_id,
-            player_id: winner.drop_player_id,
-            type: 'drop',
-            compensation_amount: winnerSeveranceFee,
-            notes: `Dropped ${dropName} to make room for auction winner: ${(winner.player as any)?.name ?? player_id}${severanceNote}`,
-          });
-        }
-      }
-
-      // Add the won player to the winner's roster
-      await admin.from('roster_entries').upsert(
-        {
-          team_id: winner.team_id,
-          player_id,
-          status: winnerAcquireStatus,
-          acquisition_type: 'waiver',
-          acquisition_value: winner.faab_bid,
-          acquired_at: new Date().toISOString(),
-        },
-        { onConflict: 'team_id,player_id' },
-      );
-
-      // Deduct total cost (bid + severance) from the winning team
-      const totalCost = winner.faab_bid + winnerSeveranceFee;
-      await admin
-        .from('teams')
-        .update({ faab_budget: winnerFreshFaab - totalCost })
-        .eq('id', winner.team_id!);
-
-      // Log the winning transaction
-      const winNote = winnerSeveranceFee > 0
-        ? `Won auction for ${(winner.player as any)?.name ?? player_id} with €${winner.faab_bid}m bid (+ €${winnerSeveranceFee}m drop severance)${winnerAcquireStatus === 'taxi' ? ' -> academy' : ''}`
-        : `Won auction for ${(winner.player as any)?.name ?? player_id} with €${winner.faab_bid}m bid${winnerAcquireStatus === 'taxi' ? ' -> academy' : ''}`;
-      await admin.from('transactions').insert({
-        league_id,
-        team_id: winner.team_id,
-        player_id,
-        type: 'waiver_claim',
-        faab_bid: winner.faab_bid,
-        compensation_amount: winnerSeveranceFee,
-        notes: winNote,
+      // Call the database RPC to resolve this auction atomically
+      const { data: rpcRes, error: rpcError } = await admin.rpc('resolve_single_player_auction_rpc', {
+        p_league_id: league_id,
+        p_player_id: player_id,
+        p_locked_pl_team_ids: Array.from(lockedPlTeamIds),
       });
 
-      // ── Scout's Rebate (Finder's Fee) ──────────────────────────────────────
-      // Initiator = earliest-created claim. System claims (team_id: null) excluded.
-      const initiator = claims.reduce<Claim>((earliest, c) =>
-        new Date(c.created_at) < new Date(earliest.created_at) ? c : earliest,
-        claims[0],
-      );
+      if (rpcError) {
+        console.error('[process-auctions] RPC error resolving auction:', rpcError);
+        continue;
+      }
 
-      if (
-        initiator.team_id &&
-        initiator.team_id !== winner.team_id &&
-        winner.faab_bid > 0
-      ) {
-        const rebateAmount = Math.min(Math.floor(winner.faab_bid * 0.2), 5);
-        if (rebateAmount > 0) {
-          const { data: initiatorTeam } = await admin
+      const resData = rpcRes as {
+        success: boolean;
+        won: boolean;
+        deferred?: boolean;
+        error?: string;
+        winner_claim_id?: string;
+        winner_team_id?: string;
+        winner_team_name?: string;
+        winner_user_id?: string;
+        winner_bid?: number;
+        winner_severance?: number;
+        winner_status?: string;
+        drop_player_name?: string;
+        initiator_team_name?: string;
+        rebate_amount?: number;
+        rebate_team_id?: string;
+        losing_teams?: { team_id: string; team_name: string; user_id: string; faab_bid: number }[];
+      };
+
+      if (!resData.success) {
+        console.error('[process-auctions] RPC failed to resolve:', resData.error);
+        continue;
+      }
+
+      if (resData.deferred) {
+        console.log(`[process-auctions] Deferring auction for player ${player_id} — locked players involved.`);
+        processed++;
+        continue;
+      }
+
+      if (resData.won && resData.winner_team_id) {
+        // --- SEND NOTIFICATION ---
+        try {
+          const { data: leagueTeams } = await admin
             .from('teams')
-            .select('faab_budget')
-            .eq('id', initiator.team_id)
-            .single();
+            .select('id, team_name, user_id')
+            .eq('league_id', league_id);
 
-          if (initiatorTeam) {
-            await admin
-              .from('teams')
-              .update({ faab_budget: initiatorTeam.faab_budget + rebateAmount })
-              .eq('id', initiator.team_id);
+          const winnerTeamName = resData.winner_team_name;
+          const winnerUserId = resData.winner_user_id;
+          const dropPlayerName = resData.drop_player_name;
+          const initiatorTeamName = resData.initiator_team_name;
+          const winnerBid = resData.winner_bid!;
+          
+          const userIds = (leagueTeams ?? []).map(t => t.user_id);
+          const { data: users } = await admin.from('users').select('email').in('id', userIds);
+          const leagueEmails = (users ?? []).map(u => u.email).filter(Boolean);
 
-            await admin.from('transactions').insert({
-              league_id,
-              team_id: initiator.team_id,
-              player_id,
-              type: 'rebate',
-              faab_bid: rebateAmount,
-              notes: `Scout's rebate: 20% of €${winner.faab_bid}m winning bid for ${(winner.player as any)?.name ?? player_id}`,
+          if (leagueEmails.length > 0) {
+            const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://gaffa.live';
+            await sendEmail({
+              to: leagueEmails,
+              subject: `Auction Won: ${wonPlayer?.name ?? 'Player'} signed by ${winnerTeamName ?? 'Club'}`,
+              html: getAuctionWonEmail(
+                wonPlayer?.name ?? 'Unknown Player',
+                winnerTeamName ?? 'Unknown Club',
+                winnerBid,
+                realClaims.length,
+                dropPlayerName || null,
+                initiatorTeamName || null,
+                `${baseUrl}/league/${league_id}`
+              )
             });
           }
-        }
-      }
 
-      // Mark winner approved
-      await admin
-        .from('waiver_claims')
-        .update({ status: 'approved' })
-        .eq('id', winner.id);
-
-      // Mark losers rejected
-      if (losers.length > 0) {
-        await admin
-          .from('waiver_claims')
-          .update({ status: 'rejected' })
-          .in('id', losers.map((c) => c.id));
-      }
-
-      // ── SEND NOTIFICATION ──
-      try {
-        const { data: leagueTeams } = await admin
-          .from('teams')
-          .select('id, team_name, user_id')
-          .eq('league_id', league_id);
-
-        const winnerTeam = leagueTeams?.find(t => t.id === winner?.team_id);
-        const initiatorTeam = initiator?.team_id ? leagueTeams?.find(t => t.id === initiator.team_id) : null;
-        
-        const userIds = (leagueTeams ?? []).map(t => t.user_id);
-        const { data: users } = await admin.from('users').select('email').in('id', userIds);
-        const leagueEmails = (users ?? []).map(u => u.email).filter(Boolean);
-
-        if (leagueEmails.length > 0) {
-          const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://gaffa.live';
-          await sendEmail({
-            to: leagueEmails,
-            subject: `Auction Won: ${(winner.player as any)?.name ?? 'Player'} signed by ${winnerTeam?.team_name ?? 'Club'}`,
-            html: getAuctionWonEmail(
-              (winner.player as any)?.name ?? 'Unknown Player',
-              winnerTeam?.team_name ?? 'Unknown Club',
-              winner.faab_bid,
-              realClaims.length,
-              (winner as any).drop_player_name || null,
-              initiatorTeam?.team_name || null,
-              `${baseUrl}/league/${league_id}`
-            )
-          });
-        }
-
-        // Create in-game notifications
-        const { createNotification } = await import('@/lib/notifications/createNotification');
-        
-        // 1. Notify the winner
-        if (winnerTeam) {
-          await createNotification(admin, {
-            leagueId: league_id,
-            userId: winnerTeam.user_id,
-            title: 'Auction Won!',
-            content: `You secured **${(winner.player as any)?.name ?? 'Player'}** for **€${winner.faab_bid}m** in a ${realClaims.length}-bidder auction.${winner.drop_player_id ? ` **${(winner as any).drop_player_name}** was dropped to waivers to clear roster space.` : ''}`,
-            url: `/league/${league_id}/team`
-          });
-        }
-
-        // 2. Notify the losing bidders (parallel — one DB insert each, no ordering dependency)
-        const losingBidders = realClaims.filter(c => c.team_id !== winner!.team_id);
-        await Promise.all(losingBidders.map(async (loser) => {
-          const loserTeam = leagueTeams?.find(t => t.id === loser.team_id);
-          if (loserTeam) {
+          // Create in-game notifications
+          const { createNotification } = await import('@/lib/notifications/createNotification');
+          
+          // 1. Notify the winner
+          if (winnerUserId) {
             await createNotification(admin, {
               leagueId: league_id,
-              userId: loserTeam.user_id,
-              title: 'Waiver Auction Lost',
-              content: `Your waiver bid of **€${loser.faab_bid}m** for **${(winner!.player as any)?.name ?? 'Player'}** was unsuccessful. **${winnerTeam?.team_name ?? 'Another team'}** won the signature for **€${winner!.faab_bid}m**.`,
-              url: `/league/${league_id}/players`
+              userId: winnerUserId,
+              title: 'Auction Won!',
+              content: `You secured **${wonPlayer?.name ?? 'Player'}** for **€${winnerBid}m** in a ${realClaims.length}-bidder auction.${resData.winner_severance ? ` **${dropPlayerName}** was dropped to waivers to clear roster space.` : ''}`,
+              url: `/league/${league_id}/team`
             });
           }
-        }));
-      } catch (emailErr) {
-        console.error('[process-auctions] Failed to send auction result notifications:', emailErr);
+
+          // 2. Notify the losing bidders
+          const losingBidders = resData.losing_teams ?? [];
+          await Promise.all(losingBidders.map(async (loser) => {
+            if (loser.user_id) {
+              await createNotification(admin, {
+                leagueId: league_id,
+                userId: loser.user_id,
+                title: 'Waiver Auction Lost',
+                content: `Your waiver bid of **€${loser.faab_bid}m** for **${wonPlayer?.name ?? 'Player'}** was unsuccessful. **${winnerTeamName ?? 'Another team'}** won the signature for **€${winnerBid}m**.`,
+                url: `/league/${league_id}/players`
+              });
+            }
+          }));
+        } catch (emailErr) {
+          console.error('[process-auctions] Failed to send auction result notifications:', emailErr);
+        }
       }
 
       processed++;

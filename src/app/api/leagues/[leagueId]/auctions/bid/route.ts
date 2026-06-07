@@ -5,8 +5,6 @@ import { sendEmail } from '@/lib/email/client';
 import { getOutbidEmail } from '@/lib/email/templates';
 import {
   BIG_TRANSFER_THRESHOLD,
-  MAX_DURATION_BIG_MS,
-  MAX_DURATION_STD_MS,
   calculateExpiresAt,
 } from '@/lib/auction/timer';
 
@@ -69,7 +67,7 @@ export async function POST(req: NextRequest, { params }: Props) {
     .eq('team_id', myTeam.id)
     .eq('status', 'ir');
 
-  if (illegalIr?.some(e => (e.player as any)?.fpl_status === 'a')) {
+  if (illegalIr?.some(e => (e.player as unknown as { fpl_status: string } | null)?.fpl_status === 'a')) {
     return NextResponse.json({ error: 'Cannot place a bid while you have a healthy player occupying an IR slot. Please activate them first.' }, { status: 400 });
   }
 
@@ -98,13 +96,14 @@ export async function POST(req: NextRequest, { params }: Props) {
     .select('player:players(name, date_of_birth)')
     .eq('team_id', myTeam.id)
     .eq('status', 'taxi');
-  const agedOut = (academyRows ?? []).find((r: any) => {
-    const dob = r.player?.date_of_birth as string | null | undefined;
+  const agedOut = (academyRows ?? []).find((r) => {
+    const player = r.player as unknown as { name: string; date_of_birth: string | null } | null;
+    const dob = player?.date_of_birth;
     if (!dob) return false;
     return calculateAgeInYears(dob) > ageLimit;
   });
   if (agedOut) {
-    const agedOutName = (agedOut as any).player?.name ?? 'A player';
+    const agedOutName = (agedOut.player as unknown as { name: string } | null)?.name ?? 'A player';
     return NextResponse.json(
       { error: `Academy compliance required: ${agedOutName} has aged out. Promote or drop aged-out academy players before placing new bids.` },
       { status: 400 },
@@ -239,44 +238,20 @@ export async function POST(req: NextRequest, { params }: Props) {
     }
   }
 
-  // Current state of this auction (all pending bids for this player, highest first).
-  // Include first_bid_at and last_bid_at which are stored on the system-seed anchor row.
-  const { data: existingClaims } = await admin
+  // Fetch system seed claim to check expiry and first bid time
+  const { data: systemSeedClaim } = await admin
     .from('waiver_claims')
-    .select('id, team_id, faab_bid, expires_at, first_bid_at, last_bid_at')
+    .select('expires_at, first_bid_at')
     .eq('league_id', leagueId)
     .eq('player_id', playerId)
     .eq('status', 'pending')
     .eq('is_auction', true)
-    .order('faab_bid', { ascending: false });
+    .is('team_id', null)
+    .maybeSingle();
 
-  // The system-seed row (team_id IS NULL) is the auction header that holds timing metadata.
-  const systemSeedClaim = existingClaims?.find((c) => c.team_id === null) ?? null;
-  // Highest real bid — system-seed has faab_bid=0 so it sorts last; first element is the true leader.
-  const highestClaim = existingClaims?.find((c) => c.team_id !== null) ?? null;
-  const myClaim = existingClaims?.find((c) => c.team_id === myTeam.id) ?? null;
-
-  // Block bid if the auction has already expired (but is deferred in processing).
-  // Use the system-seed expires_at as the canonical clock if available.
-  const canonicalExpiry = systemSeedClaim?.expires_at ?? highestClaim?.expires_at ?? null;
-  if (canonicalExpiry && new Date().getTime() >= new Date(canonicalExpiry).getTime()) {
+  if (systemSeedClaim?.expires_at && new Date().getTime() >= new Date(systemSeedClaim.expires_at).getTime()) {
     return NextResponse.json(
       { error: 'This auction has already expired and is awaiting processing.' },
-      { status: 400 },
-    );
-  }
-
-  // Bid must beat the current highest (unless the caller IS the current highest bidder)
-  if (highestClaim && highestClaim.team_id !== myTeam.id && bidAmount <= highestClaim.faab_bid) {
-    return NextResponse.json(
-      { error: `Bid must be greater than the current highest bid of €${highestClaim.faab_bid}m` },
-      { status: 400 },
-    );
-  }
-  // If caller is already the highest bidder, they must raise their own bid
-  if (myClaim && bidAmount <= myClaim.faab_bid) {
-    return NextResponse.json(
-      { error: `Your new bid must be greater than your current bid of €${myClaim.faab_bid}m` },
       { status: 400 },
     );
   }
@@ -284,143 +259,67 @@ export async function POST(req: NextRequest, { params }: Props) {
   // ── Activity-based expiry calculation ────────────────────────────────────────
   const now = Date.now();
   const isBigTransfer = playerData && Number(playerData.market_value || 0) >= BIG_TRANSFER_THRESHOLD;
-
-  // Determine when the first real bid on this auction was placed.
-  // - Normally: read from the system-seed's first_bid_at field.
-  // - First ever bid, OR no system-seed exists (new player never dropped): treat now as first bid.
-  let firstBidTime: number;
-  if (systemSeedClaim?.first_bid_at) {
-    firstBidTime = new Date(systemSeedClaim.first_bid_at).getTime();
-  } else {
-    // Either this is the first bid or the system-seed is missing.
-    firstBidTime = now;
-  }
-
+  const firstBidTime = systemSeedClaim?.first_bid_at ? new Date(systemSeedClaim.first_bid_at).getTime() : now;
   const expiresAt = calculateExpiresAt(firstBidTime, now, !!isBigTransfer);
 
-  // Upsert the bid
-  if (myClaim) {
-    // Manager is raising their existing bid
-    const { error } = await admin
-      .from('waiver_claims')
-      .update({
-        faab_bid: bidAmount,
-        drop_player_id: dropPlayerId ?? null,
-        expires_at: expiresAt,
-      })
-      .eq('id', myClaim.id);
+  // Call the database RPC to place/upsert the bid atomically
+  const { data: rpcRes, error: rpcError } = await admin.rpc('place_auction_bid_rpc', {
+    p_league_id: leagueId,
+    p_team_id: myTeam.id,
+    p_player_id: playerId,
+    p_drop_player_id: dropPlayerId || null,
+    p_bid_amount: bidAmount,
+    p_expires_at: new Date(expiresAt).toISOString(),
+    p_now: new Date(now).toISOString(),
+  });
 
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  } else {
-    // New bid from this manager
-    const { error } = await admin
-      .from('waiver_claims')
-      .insert({
-        league_id: leagueId,
-        team_id: myTeam.id,
-        player_id: playerId,
-        drop_player_id: dropPlayerId ?? null,
-        faab_bid: bidAmount,
-        priority: 999,
-        status: 'pending',
-        gameweek: 0, // auction bids are not gameweek-specific
-        expires_at: expiresAt,
-        is_auction: true,
-      });
-
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (rpcError) {
+    return NextResponse.json({ error: rpcError.message }, { status: 500 });
   }
 
-  // ── Update the auction header (system-seed row) ──────────────────────────────
-  // first_bid_at: set only once (when this is the very first real bid).
-  // last_bid_at: always updated to now.
-  // expires_at: always updated with the recalculated value.
-  if (systemSeedClaim) {
-    const headerUpdate: Record<string, unknown> = {
-      last_bid_at: new Date(now).toISOString(),
-      expires_at:  expiresAt,
-    };
-    if (!systemSeedClaim.first_bid_at) {
-      headerUpdate.first_bid_at = new Date(now).toISOString();
-    }
-    await admin
-      .from('waiver_claims')
-      .update(headerUpdate)
-      .eq('id', systemSeedClaim.id);
-  } else {
-    // No system-seed exists (brand-new free agent never dropped by anyone).
-    // Insert a system-seed so future bids can read first_bid_at correctly.
-    console.warn(`[bid] No system-seed found for player ${playerId} in league ${leagueId}. Creating one.`);
-    const maxDurationMs = isBigTransfer ? MAX_DURATION_BIG_MS : MAX_DURATION_STD_MS;
-    await admin.from('waiver_claims').insert({
-      league_id:    leagueId,
-      team_id:      null,
-      player_id:    playerId,
-      faab_bid:     0,
-      priority:     999,
-      status:       'pending',
-      gameweek:     0,
-      is_auction:   true,
-      expires_at:   expiresAt,
-      first_bid_at: new Date(now).toISOString(),
-      last_bid_at:  new Date(now).toISOString(),
-    }).maybeSingle(); // ignore unique-constraint conflict if a concurrent bid just created it
-  }
+  const resData = rpcRes as {
+    success: boolean;
+    error?: string;
+    outbid_team_id?: string;
+    outbid_team_name?: string;
+    outbid_team_user_id?: string;
+    outbid_user_email?: string;
+    previous_highest_bid?: number;
+  };
 
-  // Propagate the recalculated expiry to all pending real-bid rows for this player.
-  // (System-seed was already updated above.)
-  await admin
-    .from('waiver_claims')
-    .update({ expires_at: expiresAt })
-    .eq('league_id', leagueId)
-    .eq('player_id', playerId)
-    .eq('status', 'pending')
-    .eq('is_auction', true)
-    .not('team_id', 'is', null); // real bid rows only
+  if (!resData.success) {
+    return NextResponse.json({ error: resData.error || 'Failed to place bid' }, { status: 400 });
+  }
 
   // ── SEND OUTBID NOTIFICATION ──
-  if (highestClaim && highestClaim.team_id && highestClaim.team_id !== myTeam.id) {
+  if (resData.outbid_team_id && resData.outbid_team_user_id) {
     try {
-      const { data: outbidTeam } = await admin
-        .from('teams')
-        .select('team_name, user_id')
-        .eq('id', highestClaim.team_id)
-        .single();
-
-      if (outbidTeam) {
-        const { data: outbidUser } = await admin
-          .from('users')
-          .select('email')
-          .eq('id', outbidTeam.user_id)
-          .single();
-
-        if (outbidUser?.email) {
-          const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://gaffa.live';
-          await sendEmail({
-            to: [outbidUser.email],
-            subject: `Outbid! ${playerData?.name ?? 'A player'} auction update`,
-            html: getOutbidEmail(
-              playerData?.name ?? 'Unknown Player',
-              bidAmount,
-              `${baseUrl}/league/${leagueId}`
-            )
-          });
-        }
-
-        // Create in-game notification
-        const { createNotification } = await import('@/lib/notifications/createNotification');
-        await createNotification(admin, {
-          leagueId,
-          userId: outbidTeam.user_id,
-          title: 'Outbid Warning!',
-          content: `You have been outbid for **${playerData?.name ?? 'Unknown Player'}**. The new high bid is now **€${bidAmount}m**.`,
-          url: `/league/${leagueId}/players`
+      if (resData.outbid_user_email) {
+        const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://gaffa.live';
+        await sendEmail({
+          to: [resData.outbid_user_email],
+          subject: `Outbid! ${playerData?.name ?? 'A player'} auction update`,
+          html: getOutbidEmail(
+            playerData?.name ?? 'Unknown Player',
+            bidAmount,
+            `${baseUrl}/league/${leagueId}`
+          )
         });
       }
+
+      // Create in-game notification
+      const { createNotification } = await import('@/lib/notifications/createNotification');
+      await createNotification(admin, {
+        leagueId,
+        userId: resData.outbid_team_user_id,
+        title: 'Outbid Warning!',
+        content: `You have been outbid for **${playerData?.name ?? 'Unknown Player'}**. The new high bid is now **€${bidAmount}m**.`,
+        url: `/league/${leagueId}/players`
+      });
     } catch (err) {
       console.error('[bid] Failed to send outbid notifications:', err);
     }
   }
 
-  return NextResponse.json({ ok: true, expires_at: expiresAt });
+  return NextResponse.json({ ok: true, expires_at: new Date(expiresAt).toISOString() });
 }

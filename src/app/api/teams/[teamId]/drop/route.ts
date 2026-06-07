@@ -81,9 +81,11 @@ export async function POST(req: NextRequest, { params }: Props) {
         );
     }
 
+    const refundAmount = actionType === 'transfer_out' ? Math.round(marketValue * 0.8) : 0;
     let notes: string;
+
     if (actionType === 'transfer_out') {
-        notes = `Transferred ${player.name} out of PL, refunded €${marketValue}m`;
+        notes = `Transferred ${player.name} out of PL, refunded €${refundAmount}m`;
     } else if (severanceFee > 0) {
         notes = `Dropped ${player.name} — paid €${severanceFee}m contract severance`;
     } else {
@@ -102,7 +104,7 @@ export async function POST(req: NextRequest, { params }: Props) {
     if (actionType === 'transfer_out') {
         await admin
             .from('teams')
-            .update({ faab_budget: team.faab_budget + marketValue })
+            .update({ faab_budget: team.faab_budget + refundAmount })
             .eq('id', teamId);
     } else if (severanceFee > 0) {
         await admin
@@ -117,7 +119,7 @@ export async function POST(req: NextRequest, { params }: Props) {
         team_id: teamId,
         player_id: playerId,
         type: actionType === 'transfer_out' ? 'transfer_out' : 'drop',
-        compensation_amount: actionType === 'transfer_out' ? marketValue : severanceFee,
+        compensation_amount: actionType === 'transfer_out' ? refundAmount : severanceFee,
         notes,
     });
 
