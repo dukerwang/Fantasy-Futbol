@@ -33,6 +33,16 @@ export const DEFAULT_PRIZE_CONFIG: PrizeConfig = {
   season_8th: 57,
   season_9th: 54,
   season_10th: 52,
+  season_11th: 50,
+  season_12th: 48,
+  season_13th: 46,
+  season_14th: 44,
+  season_15th: 42,
+  season_16th: 40,
+  season_17th: 38,
+  season_18th: 36,
+  season_19th: 34,
+  season_20th: 32,
   champions_cup_winner: 60,
   champions_cup_runner_up: 20,
   consolation_cup_winner: 60,
@@ -44,6 +54,8 @@ export const DEFAULT_PRIZE_CONFIG: PrizeConfig = {
 const ORDINAL_KEYS = [
   'season_1st', 'season_2nd', 'season_3rd', 'season_4th', 'season_5th',
   'season_6th', 'season_7th', 'season_8th', 'season_9th', 'season_10th',
+  'season_11th', 'season_12th', 'season_13th', 'season_14th', 'season_15th',
+  'season_16th', 'season_17th', 'season_18th', 'season_19th', 'season_20th',
 ];
 const ORDINAL_LABELS = [
   '1st Place (Regular Season)', '2nd Place (Regular Season)',
@@ -51,7 +63,26 @@ const ORDINAL_LABELS = [
   '5th Place (Regular Season)', '6th Place (Regular Season)',
   '7th Place (Regular Season)', '8th Place (Regular Season)',
   '9th Place (Regular Season)', '10th Place (Regular Season)',
+  '11th Place (Regular Season)', '12th Place (Regular Season)',
+  '13th Place (Regular Season)', '14th Place (Regular Season)',
+  '15th Place (Regular Season)', '16th Place (Regular Season)',
+  '17th Place (Regular Season)', '18th Place (Regular Season)',
+  '19th Place (Regular Season)', '20th Place (Regular Season)',
 ];
+
+function getOrdinalSuffix(i: number): string {
+  const j = i % 10, k = i % 100;
+  if (j === 1 && k !== 11) {
+    return i + "st";
+  }
+  if (j === 2 && k !== 12) {
+    return i + "nd";
+  }
+  if (j === 3 && k !== 13) {
+    return i + "rd";
+  }
+  return i + "th";
+}
 
 /**
  * Builds the prize list for regular season standings.
@@ -73,12 +104,13 @@ export async function buildSeasonPrizes(
 
   const entries: PrizeEntry[] = [];
   for (const row of standings) {
-    const rankIdx = (row.rank ?? 1) - 1; // 0-indexed
-    const key = ORDINAL_KEYS[rankIdx];
-    if (!key) continue; // league has >10 teams (shouldn't happen, but guard)
-
-    const amount = prizeConfig[key] ?? DEFAULT_PRIZE_CONFIG[key] ?? 52;
-    const label = ORDINAL_LABELS[rankIdx];
+    const rank = row.rank ?? 1;
+    const rankIdx = rank - 1; // 0-indexed
+    
+    // Fall back dynamically for ranks beyond the array boundaries (e.g. rank 21+)
+    const key = ORDINAL_KEYS[rankIdx] ?? `season_${getOrdinalSuffix(rank)}`;
+    const label = ORDINAL_LABELS[rankIdx] ?? `${getOrdinalSuffix(rank)} Place (Regular Season)`;
+    const amount = prizeConfig[key] ?? DEFAULT_PRIZE_CONFIG[key] ?? 30; // Fallback minimum for bottom-table teams
 
     entries.push({
       teamId: row.team_id,

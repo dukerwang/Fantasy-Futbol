@@ -3,6 +3,7 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { sendEmail } from '@/lib/email/client';
 import { getSystemAuctionsEmail } from '@/lib/email/templates';
 import { previewRelegationCompensation, processRelegationCompensation } from '@/lib/offseason/relegationHandler';
+import { syncPlayersFromFpl } from '@/lib/players/syncPlayers';
 
 export const maxDuration = 300;
 
@@ -156,9 +157,33 @@ export async function POST(req: NextRequest) {
   const AUCTION_THRESHOLD = 40.0;
   const AUCTION_WINDOW_HOURS = 96; // Extended kickoff auction duration to 96 hours (4 days)
 
-  // 1b. Process Relegation/Transfer Compensation (Grace Period ends now!)
   const seasonFrom = league.previous_season ?? '2025-26';
   const seasonTo = league.current_season ?? '2026-27';
+
+  // 1b. Determine previous Premier League clubs BEFORE we sync players
+  const { data: prevPlayers } = await admin
+    .from('players')
+    .select('pl_team')
+    .eq('pl_season', seasonFrom);
+
+  const prevTeams = new Set(prevPlayers?.map(p => p.pl_team).filter(Boolean) ?? []);
+
+  // Fetch current active teams before sync as a robust fallback
+  const { data: activePlayersBeforeSync } = await admin
+    .from('players')
+    .select('pl_team')
+    .eq('is_active', true);
+
+  const fallbackPrevTeams = new Set(activePlayersBeforeSync?.map(p => p.pl_team).filter(Boolean) ?? []);
+
+  // 1c. Automatically run player sync to ensure database has the latest Premier League squad list
+  const syncResult = await syncPlayersFromFpl(admin);
+  if (syncResult.error) {
+    console.error('[kickoff] Player sync failed:', syncResult.error);
+    return NextResponse.json({ error: `Player sync failed: ${syncResult.error}` }, { status: 502 });
+  }
+
+  // 1d. Process Relegation/Transfer Compensation (Grace Period ends now!)
   const relegationResults = await processRelegationCompensation(admin, leagueId, seasonFrom, seasonTo);
 
   // 2. Find all unowned players
@@ -180,12 +205,7 @@ export async function POST(req: NextRequest) {
   const auctionPlayerIds = new Set((pendingAuctions ?? []).map(a => a.player_id));
 
   // Determine newly promoted Premier League clubs dynamically
-  const { data: prevPlayers } = await admin
-    .from('players')
-    .select('pl_team')
-    .eq('pl_season', seasonFrom);
-
-  const prevTeams = new Set(prevPlayers?.map(p => p.pl_team).filter(Boolean) ?? []);
+  const finalPrevTeams = prevTeams.size > 0 ? prevTeams : fallbackPrevTeams;
 
   const { data: currPlayers } = await admin
     .from('players')
@@ -193,9 +213,9 @@ export async function POST(req: NextRequest) {
     .eq('is_active', true);
 
   const promotedClubs = new Set<string>();
-  if (prevTeams.size > 0) {
+  if (finalPrevTeams.size > 0) {
     for (const p of currPlayers ?? []) {
-      if (p.pl_team && !prevTeams.has(p.pl_team)) {
+      if (p.pl_team && !finalPrevTeams.has(p.pl_team)) {
         promotedClubs.add(p.pl_team);
       }
     }
@@ -237,21 +257,6 @@ export async function POST(req: NextRequest) {
       console.error('[kickoff] Failed to insert summer auctions:', insertErr);
       return NextResponse.json({ error: 'Failed to create summer auctions' }, { status: 500 });
     }
-  }
-
-  // 4. Unlock rosters and set status to active
-  const { error: updateErr } = await admin
-    .from('leagues')
-    .update({
-      status: 'active',
-      roster_locked: false,
-      updated_at: new Date().toISOString(),
-    })
-    .eq('id', leagueId);
-
-  if (updateErr) {
-    console.error('[kickoff] Failed to activate league:', updateErr);
-    return NextResponse.json({ error: 'Failed to activate league' }, { status: 500 });
   }
 
   // --- SEND EMAIL & IN-GAME NOTIFICATIONS ---
@@ -303,6 +308,21 @@ export async function POST(req: NextRequest) {
     }
   } catch (err) {
     console.error('[kickoff] Failed to send kickoff notifications:', err);
+  }
+
+  // 4. Unlock rosters and set status to active (Decommissioned to final step)
+  const { error: updateErr } = await admin
+    .from('leagues')
+    .update({
+      status: 'active',
+      roster_locked: false,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', leagueId);
+
+  if (updateErr) {
+    console.error('[kickoff] Failed to activate league:', updateErr);
+    return NextResponse.json({ error: 'Failed to activate league' }, { status: 500 });
   }
 
   return NextResponse.json({

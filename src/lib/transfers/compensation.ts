@@ -39,7 +39,17 @@ export async function processPlayerTransferOut(
   supabase: SupabaseClient,
   playerId: string
 ): Promise<TransferCompensationResult> {
-  // 1. Fetch the player
+  // Call the atomic and idempotent database RPC
+  const { data, error } = await supabase.rpc('process_player_transfer_out_rpc', {
+    p_player_id: playerId,
+    p_compensation_rate: COMPENSATION_RATE,
+  });
+
+  if (error) {
+    throw new Error(`Failed to process player transfer out: ${error.message}`);
+  }
+
+  // Fetch player details to construct the final output object
   const { data: player, error: playerError } = await supabase
     .from('players')
     .select('id, name, market_value')
@@ -50,84 +60,25 @@ export async function processPlayerTransferOut(
     throw new Error(`Player not found: ${playerId}`);
   }
 
-  if (!player.market_value || player.market_value <= 0) {
-    console.warn(`[compensation] Player ${player.name} has no market_value — skipping compensation payout.`);
-    // Still mark inactive and remove from rosters, but issue no FAAB
-  }
   const compensation = player.market_value
     ? Math.round(player.market_value * COMPENSATION_RATE * 100) / 100
     : 0;
 
-  // 2. Mark player as inactive
-  const { error: inactiveError } = await supabase
-    .from('players')
-    .update({ is_active: false, updated_at: new Date().toISOString() })
-    .eq('id', playerId);
-
-  if (inactiveError) throw inactiveError;
-
-  // 3. Find all roster entries for this player across all active leagues
-  const { data: rosterEntries, error: rosterError } = await supabase
-    .from('roster_entries')
-    .select(
-      `
-      id, team_id,
-      team:teams(id, team_name, faab_budget, league_id,
-        league:leagues(status))
-    `
-    )
-    .eq('player_id', playerId);
-
-  if (rosterError) throw rosterError;
-
-  const affectedTeams: TransferCompensationResult['affectedTeams'] = [];
-
-  for (const entry of rosterEntries ?? []) {
-    const team = entry.team as any;
-    if (!team) continue;
-
-    // Only process for active leagues
-    if (team.league?.status !== 'active') continue;
-
-    const previousFaab = team.faab_budget;
-    const newFaab = previousFaab + compensation;
-
-    // 4a. Credit FAAB budget
-    const { error: faabError } = await supabase
-      .from('teams')
-      .update({ faab_budget: newFaab, updated_at: new Date().toISOString() })
-      .eq('id', team.id);
-
-    if (faabError) throw faabError;
-
-    // 4b. Remove from roster
-    const { error: dropError } = await supabase
-      .from('roster_entries')
-      .delete()
-      .eq('id', entry.id);
-
-    if (dropError) throw dropError;
-
-    // 4c. Record transaction
-    const { error: txError } = await supabase.from('transactions').insert({
-      league_id: team.league_id,
-      team_id: team.id,
-      player_id: playerId,
-      type: 'transfer_compensation',
-      compensation_amount: compensation,
-      notes: `${player.name} transferred out of PL. Compensation = €${compensation}m (${COMPENSATION_RATE * 100}% of €${player.market_value}m market value).`,
-    });
-
-    if (txError) throw txError;
-
-    affectedTeams.push({
-      teamId: team.id,
-      teamName: team.team_name,
-      leagueId: team.league_id,
-      previousFaab,
-      newFaab,
-    });
+  interface RpcTransferTeamRow {
+    team_id: string;
+    team_name: string;
+    league_id: string;
+    previous_faab: number;
+    new_faab: number;
   }
+
+  const affectedTeams = (data as RpcTransferTeamRow[] ?? []).map((row) => ({
+    teamId: row.team_id,
+    teamName: row.team_name,
+    leagueId: row.league_id,
+    previousFaab: row.previous_faab,
+    newFaab: row.new_faab,
+  }));
 
   return {
     playerId,

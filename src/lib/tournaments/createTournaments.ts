@@ -49,6 +49,23 @@ export async function createTournament(
   startGw: number,
   season: string,
 ): Promise<CreateTournamentResult> {
+  // --- Idempotency check ---
+  const { data: existingTournament } = await admin
+    .from('tournaments')
+    .select('id')
+    .eq('league_id', leagueId)
+    .eq('type', type)
+    .eq('season', season)
+    .maybeSingle();
+
+  if (existingTournament) {
+    return {
+      ok: true,
+      skipped: true,
+      tournament_id: existingTournament.id,
+    };
+  }
+
   // Fetch teams
   const { data: allTeams, error: teamsErr } = await admin
     .from('teams')

@@ -202,71 +202,21 @@ async function resetTeamSeasonStats(
  * - Calling runPreflightChecks() first and aborting if not ready
  * - Running POST /api/sync/players after this to pull in promoted club players
  */
-export async function runSeasonReset(
+function getPrizeKeyFromNotes(notes: string): string {
+  const label = notes.split(' — ')[0];
+  if (label.includes('1st Place')) return 'season_1st';
+  if (label.includes('Champions Cup Winner')) return 'champions_cup_winner';
+  if (label.includes('League Cup Winner')) return 'league_cup_winner';
+  if (label.includes('Consolation Cup Winner')) return 'consolation_cup_winner';
+  return '';
+}
+
+async function sendChampionsNotifications(
   admin: SupabaseClient,
   leagueId: string,
   seasonFrom: string,
-  seasonTo: string,
-): Promise<ResetResult> {
-  // Guard: only run once per season
-  const { data: league } = await admin
-    .from('leagues')
-    .select('status, current_season')
-    .eq('id', leagueId)
-    .single();
-
-  if (!league) throw new Error('League not found');
-  if (league.status === 'offseason') {
-    throw new Error(`League is already in offseason mode (season: ${league.current_season}). Reset already ran.`);
-  }
-
-  // Step 1: Lock rosters immediately
-  await admin
-    .from('leagues')
-    .update({ roster_locked: true, updated_at: new Date().toISOString() })
-    .eq('id', leagueId);
-
-  // Step 2: Archive standings
-  const standingsArchived = await archiveStandings(admin, leagueId, seasonFrom);
-
-  // Step 3: Distribute prizes
-  const { paid: prizesPaid, totalFaab: totalPrizeFaab } = await distributeAllPrizes(admin, leagueId, seasonFrom);
-
-  // Step 4: Reset matchup schedule
-  const matchupsReset = await resetMatchups(admin, leagueId);
-
-  // Step 6: Reset tournaments
-  const tournamentsReset = await resetTournaments(admin, leagueId);
-
-  // Step 7: Reset team season stats (NOT FAAB — that persists)
-  await resetTeamSeasonStats(admin, leagueId);
-
-  // Step 8: Advance league metadata
-  await admin
-    .from('leagues')
-    .update({
-      status: 'offseason',
-      current_season: seasonTo,
-      previous_season: seasonFrom,
-      updated_at: new Date().toISOString(),
-    })
-    .eq('id', leagueId);
-
-  // Step 9: Generate new matchup schedule for the upcoming season.
-  // insertMatchups fetches the current FPL GW to determine the start GW
-  // (pre-season → GW1, mid-season → next GW). It's idempotent.
-  const scheduleResult = await insertMatchups(admin, leagueId).catch((err) => {
-    console.error('[seasonReset] insertMatchups failed:', err);
-    return { ok: true as const, matchups: 0, gameweeks: 0, skipped: true };
-  });
-
-  // Step 10: Generate all three tournament brackets for the new season.
-  const tournamentResult = await createAllTournaments(admin, leagueId, seasonTo).catch((err) => {
-    console.error('[seasonReset] createAllTournaments failed:', err);
-    return { matchupsGenerated: 0, tournamentsCreated: [] };
-  });
-
-  // Step 11: Send League and Cup Champions notifications to all managers
+  prizesPaid: { prizeKey: string; teamName: string }[],
+): Promise<void> {
   try {
     const { createNotification } = await import('@/lib/notifications/createNotification');
     const { data: leagueTeams } = await admin
@@ -343,6 +293,146 @@ export async function runSeasonReset(
   } catch (err) {
     console.error('[seasonReset] Failed to generate champions notifications:', err);
   }
+}
+
+/**
+ * Main entry point — runs the full offseason reset for one league.
+ *
+ * Caller is responsible for:
+ * - Verifying CRON_SECRET auth
+ * - Calling runPreflightChecks() first and aborting if not ready
+ * - Running POST /api/sync/players after this to pull in promoted club players
+ */
+export async function runSeasonReset(
+  admin: SupabaseClient,
+  leagueId: string,
+  seasonFrom: string,
+  seasonTo: string,
+): Promise<ResetResult> {
+  // Guard: only run once per season
+  const { data: league } = await admin
+    .from('leagues')
+    .select('status, current_season')
+    .eq('id', leagueId)
+    .single();
+
+  if (!league) throw new Error('League not found');
+
+  if (league.status === 'offseason') {
+    // Check if matchups or tournaments are missing
+    const { count: matchupCount } = await admin
+      .from('matchups')
+      .select('id', { count: 'exact', head: true })
+      .eq('league_id', leagueId);
+
+    const { count: tournamentCount } = await admin
+      .from('tournaments')
+      .select('id', { count: 'exact', head: true })
+      .eq('league_id', leagueId)
+      .eq('season', league.current_season);
+
+    if ((matchupCount ?? 0) > 0 && (tournamentCount ?? 0) >= 3) {
+      throw new Error(`League is already in offseason mode (season: ${league.current_season}). Reset already ran.`);
+    }
+
+    console.warn(`[seasonReset] League is in offseason but has missing schedule (${matchupCount}) or tournaments (${tournamentCount}). Retrying generation steps.`);
+    
+    // Step 9: Generate new matchup schedule for the upcoming season.
+    const scheduleResult = await insertMatchups(admin, leagueId);
+    if (!scheduleResult.ok) {
+      throw new Error('Failed to generate matchup schedule during retry.');
+    }
+
+    // Step 10: Generate all three tournament brackets for the new season.
+    const tournamentResult = await createAllTournaments(admin, leagueId, league.current_season);
+
+    // Reconstruct prizes list from transactions table to send notifications
+    const { data: txs } = await admin
+      .from('transactions')
+      .select('notes, team:teams(id, team_name)')
+      .eq('league_id', leagueId)
+      .eq('type', 'prize_payout')
+      .like('notes', `% — ${seasonFrom}`);
+
+    const prizesPaid = ((txs as unknown) as { notes: string; team: { id: string; team_name: string }[] | { id: string; team_name: string } | null }[] ?? []).map((t) => {
+      const teamObj = Array.isArray(t.team) ? t.team[0] : t.team;
+      return {
+        teamId: teamObj?.id ?? '',
+        teamName: teamObj?.team_name ?? 'Unknown',
+        prizeKey: getPrizeKeyFromNotes(t.notes),
+        prizeLabel: t.notes.split(' — ')[0],
+        amount: 0,
+      };
+    });
+
+    await sendChampionsNotifications(admin, leagueId, seasonFrom, prizesPaid);
+
+    return {
+      seasonFrom,
+      seasonTo,
+      prizesPaid,
+      totalPrizeFaab: 0,
+      matchupsReset: 0,
+      tournamentsReset: 0,
+      standingsArchived: 0,
+      matchupsGenerated: scheduleResult.matchups ?? 0,
+      tournamentsCreated: tournamentResult.tournamentsCreated,
+    };
+  }
+
+  // Step 1: Lock rosters immediately
+  await admin
+    .from('leagues')
+    .update({ roster_locked: true, updated_at: new Date().toISOString() })
+    .eq('id', leagueId);
+
+  // Step 2: Archive standings
+  const standingsArchived = await archiveStandings(admin, leagueId, seasonFrom);
+
+  // Step 3: Distribute prizes
+  const { paid: prizesPaid, totalFaab: totalPrizeFaab } = await distributeAllPrizes(admin, leagueId, seasonFrom);
+
+  // Step 4: Reset matchup schedule
+  const matchupsReset = await resetMatchups(admin, leagueId);
+
+  // Step 6: Reset tournaments
+  const tournamentsReset = await resetTournaments(admin, leagueId);
+
+  // Step 7: Reset team season stats (NOT FAAB — that persists)
+  await resetTeamSeasonStats(admin, leagueId);
+
+  // Step 7.5: Update active players' season tag to seasonFrom
+  const { error: playersSeasonErr } = await admin
+    .from('players')
+    .update({ pl_season: seasonFrom, updated_at: new Date().toISOString() })
+    .eq('is_active', true);
+
+  if (playersSeasonErr) {
+    console.error('[seasonReset] Failed to update players season tags:', playersSeasonErr);
+  }
+
+  // Step 8: Advance league metadata
+  await admin
+    .from('leagues')
+    .update({
+      status: 'offseason',
+      current_season: seasonTo,
+      previous_season: seasonFrom,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', leagueId);
+
+  // Step 9: Generate new matchup schedule for the upcoming season.
+  const scheduleResult = await insertMatchups(admin, leagueId);
+  if (!scheduleResult.ok) {
+    throw new Error('Failed to generate matchup schedule.');
+  }
+
+  // Step 10: Generate all three tournament brackets for the new season.
+  const tournamentResult = await createAllTournaments(admin, leagueId, seasonTo);
+
+  // Step 11: Send notifications
+  await sendChampionsNotifications(admin, leagueId, seasonFrom, prizesPaid);
 
   return {
     seasonFrom,
@@ -352,7 +442,7 @@ export async function runSeasonReset(
     matchupsReset,
     tournamentsReset,
     standingsArchived,
-    matchupsGenerated: (scheduleResult as any).matchups ?? 0,
+    matchupsGenerated: scheduleResult.matchups ?? 0,
     tournamentsCreated: tournamentResult.tournamentsCreated,
   };
 }
