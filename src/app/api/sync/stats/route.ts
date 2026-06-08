@@ -14,7 +14,6 @@
 import { calculateMatchRating, mapFplLiveToRawStats } from '@/lib/scoring/engine';
 import { loadReferenceStats } from '@/lib/scoring/matchups';
 import { resolveAllStalledGameweeks } from '@/lib/scoring/matchupProcessor';
-import { createAdminClient } from '@/lib/supabase/admin';
 import { getCurrentFplSeason, getLatestReferenceStatsSeason } from '@/lib/season/currentSeason';
 import type { GranularPosition, FplLivePlayerStats } from '@/types';
 import { createClient } from '@supabase/supabase-js';
@@ -98,8 +97,30 @@ async function syncFplLiveRatings(gameweek: number): Promise<NextResponse> {
   // 3. Fetch fixtures to map teams to fixture IDs (for DGW support)
   const fixturesRes = await fetch(`${FPL_BASE}/fixtures/?event=${gameweek}`);
   const fixtures = await fixturesRes.json();
+
+  interface FplFixtureRaw {
+    id: number;
+    event: number | null;
+    team_h: number;
+    team_a: number;
+    kickoff_time: string | null;
+  }
+
+  // Save/upsert fixtures into public.pl_fixtures
+  const plFixturesPayload = (fixtures ?? []).map((f: FplFixtureRaw) => ({
+      id: f.id,
+      gameweek: f.event || gameweek,
+      team_h: f.team_h,
+      team_a: f.team_a,
+      kickoff_time: f.kickoff_time,
+  })).filter((f: { kickoff_time: string | null }) => f.kickoff_time);
+
+  if (plFixturesPayload.length > 0) {
+      await supabase.from('pl_fixtures').upsert(plFixturesPayload, { onConflict: 'id' });
+  }
+
   const teamFixtures: Record<number, number[]> = {};
-  fixtures.forEach((f: any) => {
+  fixtures.forEach((f: FplFixtureRaw) => {
     if (!teamFixtures[f.team_h]) teamFixtures[f.team_h] = [];
     if (!teamFixtures[f.team_a]) teamFixtures[f.team_a] = [];
     teamFixtures[f.team_h].push(f.id);
@@ -258,6 +279,37 @@ async function syncFplForm(): Promise<NextResponse> {
 
   const elements = fplData.elements as FplFormElement[];
   let updated = 0;
+
+  // Sync all season fixtures into pl_fixtures
+  try {
+    const fixturesRes = await fetch(`${FPL_BASE}/fixtures/`, {
+      headers: { 'User-Agent': 'FantasyFutbol/1.0' },
+      next: { revalidate: 0 },
+    });
+    if (fixturesRes.ok) {
+      const allFixtures = await fixturesRes.json();
+      interface FplFixtureRaw {
+        id: number;
+        event: number | null;
+        team_h: number;
+        team_a: number;
+        kickoff_time: string | null;
+      }
+      const plFixturesPayload = (allFixtures ?? []).map((f: FplFixtureRaw) => ({
+        id: f.id,
+        gameweek: f.event,
+        team_h: f.team_h,
+        team_a: f.team_a,
+        kickoff_time: f.kickoff_time,
+      })).filter((f: { kickoff_time: string | null; gameweek: number | null }) => f.kickoff_time && f.gameweek);
+
+      if (plFixturesPayload.length > 0) {
+        await supabase.from('pl_fixtures').upsert(plFixturesPayload, { onConflict: 'id' });
+      }
+    }
+  } catch (err) {
+    console.error('Failed to sync PL fixtures in fpl_form mode:', err);
+  }
 
   for (let i = 0; i < elements.length; i += 50) {
     const chunk = elements.slice(i, i + 50);

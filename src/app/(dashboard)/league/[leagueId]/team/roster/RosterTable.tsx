@@ -37,7 +37,7 @@ const SECTION_ORDER = ['active', 'bench', 'taxi', 'ir'];
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type RosterEntryWithPlayer = RosterEntry & { player: Player };
+type RosterEntryWithPlayer = RosterEntry & { player: Player; on_trade_block?: boolean; is_pending_drop?: boolean };
 
 interface Props {
     teamId: string;
@@ -92,6 +92,7 @@ interface RowProps {
 function RosterRow({ entry, taxiAgeLimit, taxiSize, currentTaxiCount, loadingId, onAction, onViewPlayer }: RowProps) {
     const { player, status } = entry;
     const isLoading = loadingId === entry.player.id;
+    const isPendingDrop = !!entry.is_pending_drop;
     const u21 = isU21Eligible(player, taxiAgeLimit);
     const agedOutAcademy = status === 'taxi' && !u21;
     const irEligible = isIrEligible(player);
@@ -118,6 +119,7 @@ function RosterRow({ entry, taxiAgeLimit, taxiSize, currentTaxiCount, loadingId,
                     )}
                     {u21 && <span className={styles.u21Tag}>U21</span>}
                     {agedOutAcademy && <span className={styles.agedOutTag}>AGED OUT</span>}
+                    {isPendingDrop && <span className={styles.pendingDropBadge}>DROP QUEUED</span>}
                 </div>
             </td>
 
@@ -136,78 +138,84 @@ function RosterRow({ entry, taxiAgeLimit, taxiSize, currentTaxiCount, loadingId,
             </td>
 
             <td className={styles.tdActions}>
-                {/* Trade block toggle */}
-                {status !== 'ir' && status !== 'taxi' && (
-                    <button
-                        type="button"
-                        className={`${styles.actionBtn} ${(entry as any).on_trade_block ? styles.actionBtnActive : ''}`}
-                        onClick={() => onAction('trade_block', entry)}
-                        disabled={isLoading}
-                        title={`${(entry as any).on_trade_block ? 'Remove from' : 'Add to'} trade block`}
-                    >
-                        {(entry as any).on_trade_block ? 'On Block' : 'Trade Block'}
-                    </button>
-                )}
+                {isPendingDrop ? (
+                    <span className={styles.pendingDropText}>Drop Queued</span>
+                ) : (
+                    <>
+                        {/* Trade block toggle */}
+                        {status !== 'ir' && status !== 'taxi' && (
+                            <button
+                                type="button"
+                                className={`${styles.actionBtn} ${entry.on_trade_block ? styles.actionBtnActive : ''}`}
+                                onClick={() => onAction('trade_block', entry)}
+                                disabled={isLoading}
+                                title={`${entry.on_trade_block ? 'Remove from' : 'Add to'} trade block`}
+                            >
+                                {entry.on_trade_block ? 'On Block' : 'Trade Block'}
+                            </button>
+                        )}
 
-                {/* Move to academy (U21 only, non-IR, non-taxi, slots available) */}
-                {status !== 'taxi' && status !== 'ir' && u21 && (
-                    <button
-                        type="button"
-                        className={styles.actionBtn}
-                        onClick={() => onAction('move_to_taxi', entry)}
-                        disabled={isLoading || taxiFull}
-                        title={taxiFull ? 'Academy is full' : 'Move to academy'}
-                    >
-                        → Academy
-                    </button>
-                )}
+                        {/* Move to academy (U21 only, non-IR, non-taxi, slots available) */}
+                        {status !== 'taxi' && status !== 'ir' && u21 && (
+                            <button
+                                type="button"
+                                className={styles.actionBtn}
+                                onClick={() => onAction('move_to_taxi', entry)}
+                                disabled={isLoading || taxiFull}
+                                title={taxiFull ? 'Academy is full' : 'Move to academy'}
+                            >
+                                → Academy
+                            </button>
+                        )}
 
-                {/* Activate from academy */}
-                {status === 'taxi' && (
-                    <button
-                        type="button"
-                        className={`${styles.actionBtn} ${styles.actionBtnGreen}`}
-                        onClick={() => onAction('activate_taxi', entry)}
-                        disabled={isLoading}
-                    >
-                        Activate
-                    </button>
-                )}
+                        {/* Activate from academy */}
+                        {status === 'taxi' && (
+                            <button
+                                type="button"
+                                className={`${styles.actionBtn} ${styles.actionBtnGreen}`}
+                                onClick={() => onAction('activate_taxi', entry)}
+                                disabled={isLoading}
+                            >
+                                Activate
+                            </button>
+                        )}
 
-                {/* Move to IR (only if injured/doubtful and not already on IR) */}
-                {status !== 'ir' && status !== 'taxi' && irEligible && (
-                    <button
-                        type="button"
-                        className={styles.actionBtn}
-                        onClick={() => onAction('move_to_ir', entry)}
-                        disabled={isLoading}
-                        title="Move injured player to IR"
-                    >
-                        → IR
-                    </button>
-                )}
+                        {/* Move to IR (only if injured/doubtful and not already on IR) */}
+                        {status !== 'ir' && status !== 'taxi' && irEligible && (
+                            <button
+                                type="button"
+                                className={styles.actionBtn}
+                                onClick={() => onAction('move_to_ir', entry)}
+                                disabled={isLoading}
+                                title="Move injured player to IR"
+                            >
+                                → IR
+                            </button>
+                        )}
 
-                {/* Activate from IR */}
-                {status === 'ir' && (
-                    <button
-                        type="button"
-                        className={`${styles.actionBtn} ${styles.actionBtnGreen}`}
-                        onClick={() => onAction('activate_ir', entry)}
-                        disabled={isLoading}
-                    >
-                        Activate
-                    </button>
-                )}
+                        {/* Activate from IR */}
+                        {status === 'ir' && (
+                            <button
+                                type="button"
+                                className={`${styles.actionBtn} ${styles.actionBtnGreen}`}
+                                onClick={() => onAction('activate_ir', entry)}
+                                disabled={isLoading}
+                            >
+                                Activate
+                            </button>
+                        )}
 
-                {/* Drop */}
-                <button
-                    type="button"
-                    className={`${styles.actionBtn} ${styles.actionBtnRed}`}
-                    onClick={() => onAction('drop', entry)}
-                    disabled={isLoading}
-                >
-                    Drop
-                </button>
+                        {/* Drop */}
+                        <button
+                            type="button"
+                            className={`${styles.actionBtn} ${styles.actionBtnRed}`}
+                            onClick={() => onAction('drop', entry)}
+                            disabled={isLoading}
+                        >
+                            Drop
+                        </button>
+                    </>
+                )}
             </td>
         </tr>
     );
@@ -300,7 +308,7 @@ export default function RosterTable({ teamId, rosterEntries, taxiAgeLimit, taxiS
                 });
             } else if (action === 'trade_block') {
                 const entry = rosterEntries.find((e) => e.player.id === playerId);
-                const currentStatus = !!(entry as any)?.on_trade_block;
+                const currentStatus = !!entry?.on_trade_block;
                 res = await fetch(`/api/teams/${teamId}/trade-block`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },

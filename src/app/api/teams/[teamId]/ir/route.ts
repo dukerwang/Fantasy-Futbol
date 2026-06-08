@@ -35,14 +35,39 @@ export async function POST(req: NextRequest, { params }: Props) {
     // Get current roster entry
     const { data: entry } = await admin
         .from('roster_entries')
-        .select(`id, status, player:players(fpl_status)`)
+        .select(`id, status, player:players(id, name, fpl_status, pl_team_id, web_name)`)
         .eq('team_id', teamId)
         .eq('player_id', playerId)
         .single();
 
     if (!entry) return NextResponse.json({ error: 'Player not on roster' }, { status: 400 });
 
-    const fplStatus = (entry.player as any)?.fpl_status;
+    const player = entry.player as unknown as { id: string; name: string; fpl_status: string | null; pl_team_id: number | null; web_name: string | null };
+    const fplStatus = player?.fpl_status;
+
+    // Kickoff lock check (block moves if player's match has already started)
+    if (player?.pl_team_id) {
+        // Find the current gameweek matchup for this team
+        const { data: matchup } = await admin
+            .from('matchups')
+            .select('gameweek')
+            .or(`team_a_id.eq.${teamId},team_b_id.eq.${teamId}`)
+            .in('status', ['scheduled', 'live'])
+            .order('gameweek', { ascending: true })
+            .limit(1)
+            .maybeSingle();
+
+        if (matchup) {
+            const { getLockedPlTeamIds } = await import('@/lib/fixtures/lockout');
+            const lockedTeamIds = await getLockedPlTeamIds(admin, matchup.gameweek);
+            if (lockedTeamIds.has(player.pl_team_id)) {
+                return NextResponse.json(
+                    { error: `Cannot change IR status for ${player.web_name ?? player.name} — their match has already kicked off.` },
+                    { status: 400 },
+                );
+            }
+        }
+    }
 
     if (action === 'move_to_ir') {
         if (entry.status === 'ir') {
@@ -54,49 +79,6 @@ export async function POST(req: NextRequest, { params }: Props) {
         // "Validate FPL status ('i' or 'u') before allowing IR placement"
         if (fplStatus !== 'i' && fplStatus !== 'u' && fplStatus !== 'd') {
             return NextResponse.json({ error: 'Player is not eligible for IR. They must be officially Injured (i) or Unavailable (u).' }, { status: 400 });
-        }
-
-        // Lock check: block if player is in active lineup/bench and their match has kicked off
-        if (entry.status === 'active' || entry.status === 'bench') {
-            const { data: playerData } = await admin
-                .from('players')
-                .select('pl_team_id, web_name')
-                .eq('id', playerId)
-                .single();
-
-            if (playerData?.pl_team_id) {
-                // Find the current gameweek matchup for this team
-                const { data: matchup } = await admin
-                    .from('matchups')
-                    .select('gameweek')
-                    .or(`team_a_id.eq.${teamId},team_b_id.eq.${teamId}`)
-                    .in('status', ['scheduled', 'live'])
-                    .order('gameweek', { ascending: true })
-                    .limit(1)
-                    .single();
-
-                if (matchup) {
-                    try {
-                        const res = await fetch(`https://fantasy.premierleague.com/api/fixtures/?event=${matchup.gameweek}`, {
-                            next: { revalidate: 60 },
-                        });
-                        if (res.ok) {
-                            const fixtures = await res.json();
-                            const now = new Date();
-                            for (const f of fixtures) {
-                                if (f.kickoff_time && new Date(f.kickoff_time) <= now) {
-                                    if (f.team_h === playerData.pl_team_id || f.team_a === playerData.pl_team_id) {
-                                        return NextResponse.json(
-                                            { error: `Cannot move ${playerData.web_name ?? 'this player'} to IR — their match has already kicked off.` },
-                                            { status: 400 },
-                                        );
-                                    }
-                                }
-                            }
-                        }
-                    } catch { /* Fail open if FPL API is down */ }
-                }
-            }
         }
 
         const { error } = await admin

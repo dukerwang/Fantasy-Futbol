@@ -248,9 +248,63 @@ export async function processMatchupsForGameweek(gameweek: number, finished: boo
         }
     }
 
-    // 6. Send summary emails
+    // 6. Send summary emails & Process deferred transactions (drops/trades)
     if (finished && leagueSummaryData.size > 0) {
         for (const [leagueId, summary] of Array.from(leagueSummaryData.entries())) {
+            // A. Execute any pending drops queued during the gameweek
+            try {
+                const { data: pendingDrops } = await admin
+                    .from('pending_drops')
+                    .select('*')
+                    .eq('league_id', leagueId);
+
+                if (pendingDrops && pendingDrops.length > 0) {
+                    const { executeDrop } = await import('@/lib/roster/executeDrop');
+                    for (const pd of pendingDrops) {
+                        try {
+                            await executeDrop(admin, pd.team_id, pd.player_id, pd.action_type as 'drop' | 'transfer_out');
+                        } catch (err) {
+                            console.error(`[matchupProcessor] Failed to execute pending drop ${pd.id}:`, err);
+                        }
+                    }
+                    await admin.from('pending_drops').delete().in('id', pendingDrops.map(pd => pd.id));
+                }
+            } catch (dropErr) {
+                console.error('[matchupProcessor] Error handling pending drops:', dropErr);
+            }
+
+            // B. Execute any accepted_deferred trades
+            try {
+                const { data: deferredTrades } = await admin
+                    .from('trade_proposals')
+                    .select('id')
+                    .eq('league_id', leagueId)
+                    .eq('status', 'accepted_deferred');
+
+                if (deferredTrades && deferredTrades.length > 0) {
+                    const { data: leagueInfo } = await admin
+                        .from('leagues')
+                        .select('roster_size')
+                        .eq('id', leagueId)
+                        .single();
+                    const rosterSize = leagueInfo?.roster_size ?? 20;
+
+                    for (const trade of deferredTrades) {
+                        const { data: rpcRes, error: rpcError } = await admin.rpc('execute_trade_transaction_rpc', {
+                            p_trade_id: trade.id,
+                            p_roster_size: rosterSize,
+                            p_min_roster_size: 15,
+                        });
+                        if (rpcError || !rpcRes?.success) {
+                            console.error(`[matchupProcessor] Failed to execute deferred trade ${trade.id}:`, rpcError || rpcRes?.error);
+                            await admin.from('trade_proposals').update({ status: 'rejected' }).eq('id', trade.id);
+                        }
+                    }
+                }
+            } catch (tradeErr) {
+                console.error('[matchupProcessor] Error handling deferred trades:', tradeErr);
+            }
+
             try {
                 const { data: allTeams } = await admin
                     .from('teams')

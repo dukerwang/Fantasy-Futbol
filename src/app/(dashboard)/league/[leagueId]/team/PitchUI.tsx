@@ -863,8 +863,19 @@ export default function PitchUI({
     }
 
     const canSave = !saving && slots.every((_, i) => assignments[i] != null) && BENCH_SLOT_NAMES.every((s) => benchAssignments[s] != null);
-    // Formation changes are locked once any match in the gameweek has kicked off
-    const isMatchweekLocked = (lockedTeamIds?.size ?? 0) > 0;
+    const isFormationLocked = useMemo(() => {
+        const initialPids = new Set([
+            ...Object.values(initialAssignments).filter((v): v is string => !!v),
+            ...Object.values(initialBench).filter((v): v is string => !!v),
+        ]);
+        for (const pid of initialPids) {
+            const entry = playerMap.get(pid);
+            if (entry && isPlMatchLocked(entry.player, lockedTeamIds)) {
+                return true;
+            }
+        }
+        return false;
+    }, [initialAssignments, initialBench, playerMap, lockedTeamIds]);
 
     // Hint text for current selection state
     const selectionHint = lineupSelection
@@ -894,19 +905,19 @@ export default function PitchUI({
                             className={[
                                 styles.formationPill,
                                 formation === f ? styles.formationPillActive : '',
-                                isMatchweekLocked ? styles.formationPillDisabled : '',
+                                isFormationLocked ? styles.formationPillDisabled : '',
                             ].filter(Boolean).join(' ')}
                             onClick={() => handleFormationChange(f)}
-                            disabled={isMatchweekLocked}
-                            title={isMatchweekLocked ? 'Formation locked — matches in progress' : undefined}
+                            disabled={isFormationLocked}
+                            title={isFormationLocked ? 'Formation locked — squad player match in progress' : undefined}
                         >
                             {f}
                         </button>
                     ))}
                 </div>
-                {isMatchweekLocked && (
+                {isFormationLocked && (
                     <span className={styles.formationLockedNote}>
-                        <Icon name="lock" size={14} style={{ marginRight: '4px' }} /> Locked during matchweek
+                        <Icon name="lock" size={14} style={{ marginRight: '4px' }} /> Locked — squad match in progress
                     </span>
                 )}
             </div>

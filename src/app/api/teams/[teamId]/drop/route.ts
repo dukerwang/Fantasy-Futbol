@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
-import { sendEmail } from '@/lib/email/client';
-import { getPlayerDroppedEmail } from '@/lib/email/templates';
+import { executeDrop } from '@/lib/roster/executeDrop';
 
 interface Props {
     params: Promise<{ teamId: string }>;
@@ -81,100 +80,50 @@ export async function POST(req: NextRequest, { params }: Props) {
         );
     }
 
-    const refundAmount = actionType === 'transfer_out' ? Math.round(marketValue * 0.8) : 0;
-    let notes: string;
+    // Check if there is an active/scheduled matchup for the team to defer the drop
+    const { data: activeMatchup } = await admin
+        .from('matchups')
+        .select('id, gameweek, status')
+        .or(`team_a_id.eq.${teamId},team_b_id.eq.${teamId}`)
+        .in('status', ['scheduled', 'live'])
+        .order('gameweek', { ascending: true })
+        .limit(1)
+        .maybeSingle();
 
-    if (actionType === 'transfer_out') {
-        notes = `Transferred ${player.name} out of PL, refunded €${refundAmount}m`;
-    } else if (severanceFee > 0) {
-        notes = `Dropped ${player.name} — paid €${severanceFee}m contract severance`;
-    } else {
-        notes = `Dropped ${player.name} to free agency`;
-    }
+    if (activeMatchup) {
+        // Queue the drop in pending_drops
+        const { error: insertErr } = await admin
+            .from('pending_drops')
+            .insert({
+                league_id: team.league_id,
+                team_id: teamId,
+                player_id: playerId,
+                action_type: actionType,
+            });
 
-    // 1. Delete roster entry
-    const { error: dropError } = await admin
-        .from('roster_entries')
-        .delete()
-        .eq('id', entry.id);
+        if (insertErr) return NextResponse.json({ error: insertErr.message }, { status: 500 });
 
-    if (dropError) return NextResponse.json({ error: dropError.message }, { status: 500 });
-
-    // 2. Update FAAB (refund for transfer_out; deduct severance for plain drop)
-    if (actionType === 'transfer_out') {
-        await admin
-            .from('teams')
-            .update({ faab_budget: team.faab_budget + refundAmount })
-            .eq('id', teamId);
-    } else if (severanceFee > 0) {
-        await admin
-            .from('teams')
-            .update({ faab_budget: team.faab_budget - severanceFee })
-            .eq('id', teamId);
-    }
-
-    // 3. Log transaction
-    await admin.from('transactions').insert({
-        league_id: team.league_id,
-        team_id: teamId,
-        player_id: playerId,
-        type: actionType === 'transfer_out' ? 'transfer_out' : 'drop',
-        compensation_amount: actionType === 'transfer_out' ? refundAmount : severanceFee,
-        notes,
-    });
-
-    // 4. For plain drops (not PL transfers), auto-start a system auction
-    //    so all managers get a fair waiver window rather than a first-click free-for-all.
-    if (actionType !== 'transfer_out') {
-        const isBigTransfer = marketValue >= 40.0;
-        const durationHours = isBigTransfer ? 96 : 48;
-        const auctionExpiry = new Date(Date.now() + durationHours * 60 * 60 * 1000).toISOString();
-
-        await admin.from('waiver_claims').insert({
-            league_id: team.league_id,
-            team_id: null,
-            player_id: playerId,
-            faab_bid: 0,
-            priority: 999,
-            status: 'pending',
-            gameweek: 0,
-            is_auction: true,
-            expires_at: auctionExpiry,
-        });
-
-        // --- SEND EMAIL NOTIFICATION ---
         try {
-            const { data: allTeams } = await admin.from('teams').select('user_id').eq('league_id', team.league_id);
-            if (allTeams && allTeams.length > 0) {
-                const userIds = allTeams.map(t => t.user_id);
-                const { data: users } = await admin.from('users').select('email').in('id', userIds);
-                const emails = (users ?? []).map(u => u.email).filter(Boolean);
-
-                if (emails.length > 0) {
-                    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://gaffa.live';
-                    await sendEmail({
-                        to: emails,
-                        subject: `Waiver Alert: ${player.name} Dropped`,
-                        html: getPlayerDroppedEmail(team.team_name, player.name, `${baseUrl}/league/${team.league_id}`)
-                    });
-                }
-
-                // Create in-game notifications
-                const { createNotification } = await import('@/lib/notifications/createNotification');
-                for (const t of allTeams) {
-                    await createNotification(admin, {
-                        leagueId: team.league_id,
-                        userId: t.user_id,
-                        title: 'Waiver Alert: Player Dropped',
-                        content: `**${team.team_name}** dropped **${player.name}** to the waiver pool. A ${durationHours}-hour transfer auction has automatically begun.`,
-                        url: `/league/${team.league_id}/players`
-                    });
-                }
-            }
+            const { createNotification } = await import('@/lib/notifications/createNotification');
+            await createNotification(admin, {
+                leagueId: team.league_id,
+                userId: user.id,
+                title: 'Drop Queued',
+                content: `Your request to drop **${player.name}** has been queued. They will remain on your roster and lineup until the end of Gameweek ${activeMatchup.gameweek}.`,
+                url: `/league/${team.league_id}/team/roster`
+            });
         } catch (err) {
-            console.error('Failed to send drop notifications:', err);
+            console.error('Failed to send drop queued notification:', err);
         }
+
+        return NextResponse.json({ ok: true, deferred: true, message: `Drop queued until the end of Gameweek ${activeMatchup.gameweek}.` });
     }
 
-    return NextResponse.json({ ok: true });
+    try {
+        await executeDrop(admin, teamId, playerId, actionType);
+        return NextResponse.json({ ok: true });
+    } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : 'Unknown error';
+        return NextResponse.json({ error: message }, { status: 500 });
+    }
 }

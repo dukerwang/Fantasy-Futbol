@@ -3,6 +3,7 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { FULL_PLAYER_SELECT } from '@/lib/constants/queries';
+import type { Player, RosterStatus } from '@/types';
 import RosterTable from './RosterTable';
 import styles from './roster.module.css';
 
@@ -40,6 +41,10 @@ export default async function RosterPage({ params }: Props) {
     );
   }
 
+  // Fetch all player rankings for mapping
+  const { data: rankings } = await admin.from('player_rankings').select('*');
+  const rankMap = new Map((rankings ?? []).map((r: { player_id: string; overall_rank?: number; position_ranks?: string }) => [r.player_id, r]));
+
   const { data: rosterRaw } = await admin
     .from('roster_entries')
     .select(`
@@ -49,10 +54,36 @@ export default async function RosterPage({ params }: Props) {
     .eq('team_id', team.id)
     .order('status', { ascending: true });
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const rosterData = (rosterRaw ?? []) as any[];
+  const { data: pendingDrops } = await admin
+    .from('pending_drops')
+    .select('player_id')
+    .eq('team_id', team.id);
 
-  const league = team.league as any;
+  const pendingDropPlayerIds = new Set((pendingDrops ?? []).map((d: { player_id: string }) => d.player_id));
+
+  const rosterData = (rosterRaw as unknown as {
+    id: string;
+    team_id: string;
+    player_id: string;
+    status: RosterStatus;
+    acquisition_type: 'draft' | 'waiver' | 'free_agent' | 'trade';
+    acquisition_value: number | null;
+    acquired_at: string;
+    on_trade_block: boolean;
+    player: Player;
+    is_pending_drop?: boolean;
+  }[] ?? []).map((e) => {
+    const player = e.player;
+    if (player) {
+      const ranks = rankMap.get(player.id);
+      player.overall_rank = ranks?.overall_rank;
+      player.position_ranks = ranks?.position_ranks as unknown as { position: string; rank: number; }[] | null | undefined;
+    }
+    e.is_pending_drop = pendingDropPlayerIds.has(e.player_id);
+    return e;
+  });
+
+  const league = team.league as { taxi_age_limit?: number; taxi_size?: number } | null;
   const taxiAgeLimit: number = league?.taxi_age_limit ?? 21;
   const taxiSize: number = league?.taxi_size ?? 3;
 

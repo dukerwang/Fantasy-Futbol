@@ -243,27 +243,10 @@ export async function POST(req: NextRequest, { params }: Props) {
   if (matchup) {
     const targetGameweek = (matchup as any).gameweek;
     const isTeamA = (matchup as any).team_a_id === teamId;
-    const prevLineup = (isTeamA ? (matchup as any).lineup_a : (matchup as any).lineup_b) as MatchupLineup | null;
+    let prevLineup = (isTeamA ? (matchup as any).lineup_a : (matchup as any).lineup_b) as MatchupLineup | null;
 
-    let startedTeamIds = new Set<number>();
-    try {
-      const res = await fetch(`https://fantasy.premierleague.com/api/fixtures/?event=${targetGameweek}`, {
-        headers: { 'User-Agent': 'FantasyFutbol/1.0' },
-        next: { revalidate: 0 }, // Always get fresh fixture status for lock enforcement
-      });
-      if (res.ok) {
-        const fixtures = await res.json();
-        const now = new Date();
-        for (const f of fixtures) {
-          if (f.kickoff_time && new Date(f.kickoff_time) <= now) {
-            startedTeamIds.add(f.team_h);
-            startedTeamIds.add(f.team_a);
-          }
-        }
-      }
-    } catch (err) {
-      console.error('[lineup] Failed to fetch FPL fixtures for lock check:', err);
-    }
+    const { getLockedPlTeamIds } = await import('@/lib/fixtures/lockout');
+    const startedTeamIds = await getLockedPlTeamIds(admin, targetGameweek);
 
     if (startedTeamIds.size > 0) {
       const plStarted = (pid: string) => {
@@ -271,7 +254,68 @@ export async function POST(req: NextRequest, { params }: Props) {
         return pl && pl.pl_team_id != null && startedTeamIds.has(pl.pl_team_id);
       };
 
-      if (prevLineup && prevLineup.formation !== formation) {
+      if (!prevLineup) {
+        // Construct a virtual previous lineup using the same auto-assignment rules as the UI
+        const startersFromRoster = entries.filter((e) => e.status === 'active');
+        const benchFromRoster = entries.filter((e) => e.status === 'bench');
+
+        const virtualFormation: Formation = '4-3-3';
+        const slots = FORMATION_SLOTS[virtualFormation];
+        
+        const virtualStarters: { player_id: string; slot: GranularPosition }[] = [];
+        const used = new Set<string>();
+
+        for (let i = 0; i < slots.length; i++) {
+          const slotPos = slots[i];
+          const allowed = POSITION_FLEX_MAP[slotPos];
+          const candidate = startersFromRoster.find((e) => {
+            if (used.has(e.player_id)) return false;
+            const player = playerMap.get(e.player_id);
+            if (!player) return false;
+            const positions: GranularPosition[] = [
+              player.primary_position,
+              ...(player.secondary_positions ?? []),
+            ];
+            return positions.some((p) => allowed.includes(p));
+          });
+          if (candidate) {
+            virtualStarters.push({ player_id: candidate.player_id, slot: slotPos });
+            used.add(candidate.player_id);
+          } else {
+            virtualStarters.push({ player_id: '', slot: slotPos });
+          }
+        }
+
+        const virtualBench: { player_id: string; slot: BenchSlot }[] = [];
+        const benchUsed = new Set<string>();
+        for (const slot of ['DEF', 'MID', 'ATT', 'FLEX'] as BenchSlot[]) {
+          const allowed = BENCH_FLEX_MAP[slot];
+          const candidate = benchFromRoster.find((e) => {
+            if (benchUsed.has(e.player_id)) return false;
+            const player = playerMap.get(e.player_id);
+            if (!player) return false;
+            const positions: GranularPosition[] = [
+              player.primary_position,
+              ...(player.secondary_positions ?? []),
+            ];
+            return positions.some((p) => allowed.includes(p));
+          });
+          if (candidate) {
+            virtualBench.push({ player_id: candidate.player_id, slot });
+            benchUsed.add(candidate.player_id);
+          } else {
+            virtualBench.push({ player_id: '', slot });
+          }
+        }
+
+        prevLineup = {
+          formation: virtualFormation,
+          starters: virtualStarters,
+          bench: virtualBench,
+        };
+      }
+
+      if (prevLineup.formation !== formation) {
         for (const pid of placementMapFromLineup(prevLineup).keys()) {
           if (plStarted(pid)) {
             return NextResponse.json(
@@ -285,54 +329,26 @@ export async function POST(req: NextRequest, { params }: Props) {
         }
       }
 
-      if (prevLineup) {
-        const prevMap = placementMapFromLineup(prevLineup);
-        const newMap = placementMapFromPayload(starters, bench);
-        const touched = new Set<string>([...prevMap.keys(), ...newMap.keys()]);
-        const lockedNames: string[] = [];
-        for (const pid of touched) {
-          if (!plStarted(pid)) continue;
-          const prevKey = placementKey(prevMap.get(pid));
-          const nextKey = placementKey(newMap.get(pid));
-          if (prevKey !== nextKey) {
-            const pl = playerMap.get(pid) as any;
-            lockedNames.push((pl?.web_name || pl?.full_name || pid) as string);
-          }
+      const prevMap = placementMapFromLineup(prevLineup);
+      const newMap = placementMapFromPayload(starters, bench);
+      const touched = new Set<string>([...prevMap.keys(), ...newMap.keys()]);
+      const lockedNames: string[] = [];
+      for (const pid of touched) {
+        if (!plStarted(pid)) continue;
+        const prevKey = placementKey(prevMap.get(pid));
+        const nextKey = placementKey(newMap.get(pid));
+        if (prevKey !== nextKey) {
+          const pl = playerMap.get(pid) as any;
+          lockedNames.push((pl?.web_name || pl?.full_name || pid) as string);
         }
-        if (lockedNames.length > 0) {
-          return NextResponse.json(
-            {
-              error: `Cannot change lineup for players whose club has already kicked off: ${[...new Set(lockedNames)].join(', ')}`,
-            },
-            { status: 400 },
-          );
-        }
-      } else {
-        const currentStatusMap = new Map<string, string>(
-          entries.map((e: any) => [e.player_id as string, e.status as string]),
+      }
+      if (lockedNames.length > 0) {
+        return NextResponse.json(
+          {
+            error: `Cannot change lineup for players whose club has already kicked off: ${[...new Set(lockedNames)].join(', ')}`,
+          },
+          { status: 400 },
         );
-        const movedPlayerIds = allPlayerIds.filter((pid) => {
-          const currentStatus = currentStatusMap.get(pid);
-          const newStatus = starterSet.has(pid) ? 'active' : 'bench';
-          return currentStatus !== newStatus;
-        });
-
-        if (movedPlayerIds.length > 0) {
-          const lockedNames = movedPlayerIds
-            .filter((pid) => plStarted(pid))
-            .map((pid) => {
-              const pl = playerMap.get(pid) as any;
-              return pl.web_name || pl.full_name || pid;
-            });
-          if (lockedNames.length > 0) {
-            return NextResponse.json(
-              {
-                error: `Cannot move players whose club has already kicked off: ${lockedNames.join(', ')}`,
-              },
-              { status: 400 },
-            );
-          }
-        }
       }
     }
   }

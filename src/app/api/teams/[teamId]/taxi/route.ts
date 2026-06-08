@@ -58,14 +58,38 @@ export async function POST(req: NextRequest, { params }: Props) {
     // Fetch the roster entry
     const { data: entry } = await admin
         .from('roster_entries')
-        .select('id, status, player:players(id, name, date_of_birth)')
+        .select('id, status, player:players(id, name, date_of_birth, pl_team_id, web_name)')
         .eq('team_id', teamId)
         .eq('player_id', playerId)
         .single();
 
     if (!entry) return NextResponse.json({ error: 'Player not on roster' }, { status: 400 });
 
-    const player = entry.player as unknown as { id: string; name: string; date_of_birth: string | null };
+    const player = entry.player as unknown as { id: string; name: string; date_of_birth: string | null; pl_team_id: number | null; web_name: string | null };
+
+    // Kickoff lock check (block moves if player's match has already started)
+    if (player.pl_team_id) {
+        // Find the current gameweek matchup for this team
+        const { data: matchup } = await admin
+            .from('matchups')
+            .select('gameweek')
+            .or(`team_a_id.eq.${teamId},team_b_id.eq.${teamId}`)
+            .in('status', ['scheduled', 'live'])
+            .order('gameweek', { ascending: true })
+            .limit(1)
+            .maybeSingle();
+
+        if (matchup) {
+            const { getLockedPlTeamIds } = await import('@/lib/fixtures/lockout');
+            const lockedTeamIds = await getLockedPlTeamIds(admin, matchup.gameweek);
+            if (lockedTeamIds.has(player.pl_team_id)) {
+                return NextResponse.json(
+                    { error: `Cannot change academy status for ${player.web_name ?? player.name} — their match has already kicked off.` },
+                    { status: 400 },
+                );
+            }
+        }
+    }
 
     // ── MOVE TO TAXI ────────────────────────────────────────────────────────────
 
@@ -98,13 +122,13 @@ export async function POST(req: NextRequest, { params }: Props) {
             .eq('status', 'taxi');
         if (academyErr) return NextResponse.json({ error: academyErr.message }, { status: 500 });
 
-        const agedOut = (academyRows ?? []).find((r: any) => {
-            const dob = r.player?.date_of_birth as string | null | undefined;
+        const agedOut = (academyRows as unknown as { player: { name: string; date_of_birth: string | null } | null }[] ?? []).find((r) => {
+            const dob = r.player?.date_of_birth;
             if (!dob) return false;
             return calculateAgeInYears(dob, new Date()) > taxiAgeLimit;
         });
         if (agedOut) {
-            const agedOutName = (agedOut as any).player?.name ?? 'an academy player';
+            const agedOutName = agedOut.player?.name ?? 'an academy player';
             return NextResponse.json(
                 { error: `Resolve aged-out academy player ${agedOutName} before adding another player to academy.` },
                 { status: 400 },

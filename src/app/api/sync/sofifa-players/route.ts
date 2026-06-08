@@ -58,7 +58,7 @@ const SOFIFA_ID_TO_RAW_STRING: Partial<Record<number, string>> = {
   // 28=SUB, 29=RES → intentionally omitted (map to undefined → null)
 };
 
-const POS_MAP: Record<string, GranularPosition | 'LM' | 'RM'> = {
+const POS_MAP: Record<string, GranularPosition> = {
   GK: 'GK',
   SW: 'CB',   // sweeper
   RWB: 'RWB',
@@ -71,11 +71,11 @@ const POS_MAP: Record<string, GranularPosition | 'LM' | 'RM'> = {
   RDM: 'DM',
   CDM: 'DM',
   LDM: 'DM',
-  RM: 'RM',
+  RM: 'RW',
   RCM: 'CM',
   CM: 'CM',
   LCM: 'CM',
-  LM: 'LM',
+  LM: 'LW',
   RAM: 'AM',
   CAM: 'AM',
   LAM: 'AM',

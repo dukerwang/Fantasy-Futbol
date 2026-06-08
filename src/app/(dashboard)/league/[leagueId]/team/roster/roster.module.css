@@ -490,3 +490,22 @@
   align-items: center;
   gap: var(--space-4, 1rem);
 }
+
+.pendingDropBadge {
+  font-size: 0.58rem;
+  font-weight: 800;
+  background: #f59e0b;
+  color: #fff;
+  border-radius: 2px;
+  padding: 1px 4px;
+  letter-spacing: 0.04em;
+}
+
+.pendingDropText {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #b45309;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 0.2rem 0.5rem;
+}

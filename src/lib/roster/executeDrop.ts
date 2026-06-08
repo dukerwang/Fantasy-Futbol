@@ -1,0 +1,136 @@
+import { SupabaseClient } from '@supabase/supabase-js';
+import { sendEmail } from '@/lib/email/client';
+import { getPlayerDroppedEmail } from '@/lib/email/templates';
+
+export async function executeDrop(
+    admin: SupabaseClient,
+    teamId: string,
+    playerId: string,
+    actionType: 'drop' | 'transfer_out'
+) {
+    // Get team details
+    const { data: team } = await admin
+        .from('teams')
+        .select('*')
+        .eq('id', teamId)
+        .single();
+
+    if (!team) throw new Error('Team not found');
+
+    // Get roster entry to verify they actually own the player
+    const { data: entry } = await admin
+        .from('roster_entries')
+        .select('id')
+        .eq('team_id', teamId)
+        .eq('player_id', playerId)
+        .single();
+
+    if (!entry) throw new Error('Player not on roster');
+
+    // Get player details
+    const { data: player } = await admin
+        .from('players')
+        .select('id, market_value, name, is_active')
+        .eq('id', playerId)
+        .single();
+
+    if (!player) throw new Error('Player not found');
+
+    const marketValue = Number(player.market_value || 0);
+
+    // Severance fee: 10% of market value (rounded down) — charged on plain drops only
+    const severanceFee = actionType === 'drop' ? Math.floor(marketValue * 0.1) : 0;
+    const refundAmount = actionType === 'transfer_out' ? Math.round(marketValue * 0.8) : 0;
+
+    let notes: string;
+    if (actionType === 'transfer_out') {
+        notes = `Transferred ${player.name} out of PL, refunded €${refundAmount}m`;
+    } else if (severanceFee > 0) {
+        notes = `Dropped ${player.name} — paid €${severanceFee}m contract severance`;
+    } else {
+        notes = `Dropped ${player.name} to free agency`;
+    }
+
+    // 1. Delete roster entry
+    const { error: dropError } = await admin
+        .from('roster_entries')
+        .delete()
+        .eq('id', entry.id);
+
+    if (dropError) throw new Error(dropError.message);
+
+    // 2. Update FAAB (refund for transfer_out; deduct severance for plain drop)
+    if (actionType === 'transfer_out') {
+        await admin
+            .from('teams')
+            .update({ faab_budget: team.faab_budget + refundAmount })
+            .eq('id', teamId);
+    } else if (severanceFee > 0) {
+        await admin
+            .from('teams')
+            .update({ faab_budget: Math.max(0, team.faab_budget - severanceFee) })
+            .eq('id', teamId);
+    }
+
+    // 3. Log transaction
+    await admin.from('transactions').insert({
+        league_id: team.league_id,
+        team_id: teamId,
+        player_id: playerId,
+        type: actionType === 'transfer_out' ? 'transfer_out' : 'drop',
+        compensation_amount: actionType === 'transfer_out' ? refundAmount : severanceFee,
+        notes,
+    });
+
+    // 4. For plain drops (not PL transfers), auto-start a system auction
+    if (actionType !== 'transfer_out') {
+        const isBigTransfer = marketValue >= 40.0;
+        const durationHours = isBigTransfer ? 96 : 48;
+        const auctionExpiry = new Date(Date.now() + durationHours * 60 * 60 * 1000).toISOString();
+
+        await admin.from('waiver_claims').insert({
+            league_id: team.league_id,
+            team_id: null,
+            player_id: playerId,
+            faab_bid: 0,
+            priority: 999,
+            status: 'pending',
+            gameweek: 0,
+            is_auction: true,
+            expires_at: auctionExpiry,
+        });
+
+        // --- SEND EMAIL NOTIFICATION ---
+        try {
+            const { data: allTeams } = await admin.from('teams').select('user_id, team_name').eq('league_id', team.league_id);
+            if (allTeams && allTeams.length > 0) {
+                const userIds = allTeams.map(t => t.user_id);
+                const { data: users } = await admin.from('users').select('email').in('id', userIds);
+                const emails = (users ?? []).map(u => u.email).filter(Boolean);
+
+                if (emails.length > 0) {
+                    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://gaffa.live';
+                    await sendEmail({
+                        to: emails,
+                        subject: `Waiver Alert: ${player.name} Dropped`,
+                        html: getPlayerDroppedEmail(team.team_name, player.name, `${baseUrl}/league/${team.league_id}`)
+                    });
+                }
+
+                // Create in-game notifications
+                const { createNotification } = await import('@/lib/notifications/createNotification');
+                for (const t of allTeams) {
+                    await createNotification(admin, {
+                        leagueId: team.league_id,
+                        userId: t.user_id,
+                        title: 'Waiver Alert: Player Dropped',
+                        content: `**${team.team_name}** dropped **${player.name}** to the waiver pool. A ${durationHours}-hour transfer auction has automatically begun.`,
+                        url: `/league/${team.league_id}/players`
+                    });
+                }
+            }
+        } catch (err) {
+            console.error('Failed to send drop notifications:', err);
+        }
+    }
+}

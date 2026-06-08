@@ -116,11 +116,18 @@ export function calculateTeamScore(
     let total = 0;
     for (const fix of record.fixtures) {
       if (fix.minutes <= 0) continue;
-      if (finished && fix.stats) {
-        total += rateAtSlot(fix.stats, slot, refStats, primaryPosition);
+      let points = 0;
+      if (fix.stats) {
+        points = rateAtSlot(fix.stats, slot, refStats, primaryPosition);
       } else {
-        total += fix.fantasyPoints;
+        points = fix.fantasyPoints;
+        const isMidOrAtt = ['DM', 'CM', 'AM', 'LW', 'RW', 'ST'].includes(primaryPosition || '');
+        const isDefSlot = ['CB', 'LB', 'RB', 'LWB', 'RWB'].includes(slot);
+        if (primaryPosition && isMidOrAtt && isDefSlot) {
+          points = points * 0.80;
+        }
       }
+      total += points;
     }
     return total;
   }
