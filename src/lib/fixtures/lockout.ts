@@ -34,7 +34,7 @@ export async function getLockedPlTeamIds(admin: SupabaseClient, gameweek: number
     try {
         const res = await fetch(`https://fantasy.premierleague.com/api/fixtures/?event=${gameweek}`, {
             headers: { 'User-Agent': 'FantasyFutbol/1.0' },
-            next: { revalidate: 60 },
+            next: { revalidate: 0 },
         });
         if (res.ok) {
             const fixtures = await res.json();
