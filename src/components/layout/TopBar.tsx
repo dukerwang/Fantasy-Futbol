@@ -125,6 +125,8 @@ export default function TopBar() {
         items: [
           { label: 'Free Agency', href: `${base}/players` },
           { label: 'Trades', href: `${base}/trades` },
+          { label: 'Player Sales', href: `${base}/trades?tab=listings` },
+          { label: 'Player Loans', href: `${base}/trades?tab=loans` },
         ],
       },
       {

@@ -5,10 +5,12 @@ import TradesClient from './TradesClient';
 
 interface Props {
   params: Promise<{ leagueId: string }>;
+  searchParams: Promise<Record<string, string>>;
 }
 
-export default async function TradesPage({ params }: Props) {
+export default async function TradesPage({ params, searchParams }: Props) {
   const { leagueId } = await params;
+  const { tab: tabParam } = await searchParams;
 
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -220,6 +222,30 @@ export default async function TradesPage({ params }: Props) {
     }
   }
 
+  // Determine current FPL gameweek for the loan modal GW pickers
+  let currentGameweek = 1;
+  try {
+    const fplRes = await fetch('https://fantasy.premierleague.com/api/bootstrap-static/', {
+      next: { revalidate: 3600 },
+    });
+    if (fplRes.ok) {
+      const fplData = await fplRes.json();
+      const now = new Date();
+      for (const ev of fplData.events as any[]) {
+        if (ev.deadline_time && new Date(ev.deadline_time) <= now) {
+          currentGameweek = Math.max(currentGameweek, ev.id);
+        }
+      }
+    }
+  } catch {
+    // Silently fall back to GW1
+  }
+
+  // Determine initial tab from searchParam
+  const VALID_TABS = ['trades', 'league-feed', 'listings', 'loans'] as const;
+  type ValidTab = typeof VALID_TABS[number];
+  const initialTab: ValidTab = VALID_TABS.includes(tabParam as ValidTab) ? (tabParam as ValidTab) : 'trades';
+
   return (
     <TradesClient
       leagueId={leagueId}
@@ -235,6 +261,8 @@ export default async function TradesPage({ params }: Props) {
       initialListings={listings ?? []}
       listingHighestBids={highestBids}
       initialLoans={loans ?? []}
+      currentGameweek={currentGameweek}
+      initialTab={initialTab}
       leagueSettings={{
         loan_slot_buyback_fee: league.loan_slot_buyback_fee ?? 25,
         loan_bonus_cap_default: league.loan_bonus_cap_default ?? 0,

@@ -117,8 +117,11 @@ export async function POST(req: NextRequest, { params }: Props) {
 
   // 3. Parse and validate body
   const body = await req.json();
-  const { borrowerTeamId, playerId, loanFee, startGameweek, endGameweek, bonusRate, hasRecall, message } = body as {
-    borrowerTeamId: string;
+  // requestMode = true means the CALLER is the borrower requesting a player from lenderTeamId.
+  // Classic mode (requestMode = false/undefined): caller is the lender proposing to borrowerTeamId.
+  const { borrowerTeamId, lenderTeamId, playerId, loanFee, startGameweek, endGameweek, bonusRate, hasRecall, message, requestMode } = body as {
+    borrowerTeamId?: string;
+    lenderTeamId?: string;
     playerId: string;
     loanFee: number;
     startGameweek: number;
@@ -126,14 +129,24 @@ export async function POST(req: NextRequest, { params }: Props) {
     bonusRate: number;
     hasRecall: boolean;
     message?: string;
+    requestMode?: boolean;
   };
 
-  if (!borrowerTeamId || !playerId || loanFee === undefined || startGameweek === undefined || endGameweek === undefined || bonusRate === undefined || hasRecall === undefined) {
+  // Resolve effective lender/borrower based on mode
+  const effectiveLenderTeamId = requestMode ? (lenderTeamId ?? '') : myTeam.id;
+  const effectiveBorrowerTeamId = requestMode ? myTeam.id : (borrowerTeamId ?? '');
+  const proposedBy: 'lender' | 'borrower' = requestMode ? 'borrower' : 'lender';
+
+  if (!effectiveLenderTeamId || !effectiveBorrowerTeamId || !playerId || loanFee === undefined || startGameweek === undefined || endGameweek === undefined || bonusRate === undefined || hasRecall === undefined) {
     return NextResponse.json({ error: 'Missing required loan terms parameters' }, { status: 400 });
   }
 
-  if (myTeam.id === borrowerTeamId) {
+  if (effectiveLenderTeamId === effectiveBorrowerTeamId) {
     return NextResponse.json({ error: 'Cannot loan a player to yourself' }, { status: 400 });
+  }
+
+  if (requestMode && effectiveLenderTeamId === myTeam.id) {
+    return NextResponse.json({ error: 'Cannot request a loan of your own player — use Propose Loan instead' }, { status: 400 });
   }
 
   if (!Number.isInteger(loanFee) || loanFee < 0) {
@@ -200,16 +213,18 @@ export async function POST(req: NextRequest, { params }: Props) {
     return NextResponse.json({ error: `Loan end GW${endGameweek} exceeds this season's ${totalGws} total GWs.` }, { status: 400 });
   }
 
-  // 6. Player ownership and status checks
+  // 6. Player ownership and status checks (ownership is always on lender's roster)
   const { data: rosterEntry } = await admin
     .from('roster_entries')
     .select('id, status')
-    .eq('team_id', myTeam.id)
+    .eq('team_id', effectiveLenderTeamId)
     .eq('player_id', playerId)
     .maybeSingle();
 
   if (!rosterEntry) {
-    return NextResponse.json({ error: 'Player is not on your roster' }, { status: 400 });
+    return NextResponse.json({
+      error: requestMode ? 'The requested player is not on that team\'s roster' : 'Player is not on your roster'
+    }, { status: 400 });
   }
 
   if (['ir', 'taxi', 'loan_in', 'loan_out'].includes(rosterEntry.status)) {
@@ -229,23 +244,25 @@ export async function POST(req: NextRequest, { params }: Props) {
     return NextResponse.json({ error: 'This player is already involved in an active or pending loan' }, { status: 409 });
   }
 
-  // 8. Check active loan limits
+  // 8. Check active loan limits (count active + deferred + pending_activation)
+  const ACTIVE_LOAN_STATUSES = ['active', 'accepted_deferred', 'pending_activation'];
+
   const { count: lenderActiveLoans } = await admin
     .from('player_loans')
     .select('id', { count: 'exact', head: true })
-    .eq('lender_team_id', myTeam.id)
-    .eq('status', 'active');
+    .eq('lender_team_id', effectiveLenderTeamId)
+    .in('status', ACTIVE_LOAN_STATUSES);
 
   const maxOuts = league.max_loan_outs ?? 1;
   if ((lenderActiveLoans ?? 0) >= maxOuts) {
-    return NextResponse.json({ error: `You have reached the maximum number of active loan-outs (${maxOuts})` }, { status: 400 });
+    return NextResponse.json({ error: `The lender has reached the maximum number of active loan-outs (${maxOuts})` }, { status: 400 });
   }
 
   const { count: borrowerActiveLoans } = await admin
     .from('player_loans')
     .select('id', { count: 'exact', head: true })
-    .eq('borrower_team_id', borrowerTeamId)
-    .eq('status', 'active');
+    .eq('borrower_team_id', effectiveBorrowerTeamId)
+    .in('status', ACTIVE_LOAN_STATUSES);
 
   const maxIns = league.max_loan_ins ?? 2;
   if ((borrowerActiveLoans ?? 0) >= maxIns) {
@@ -268,15 +285,16 @@ export async function POST(req: NextRequest, { params }: Props) {
     }
   }
 
-  // Verify borrower team is in this league
-  const { data: borrowerTeam } = await admin
+  // Verify the counterparty team is in this league
+  const counterpartyTeamId = requestMode ? effectiveLenderTeamId : effectiveBorrowerTeamId;
+  const { data: counterpartyTeam } = await admin
     .from('teams')
     .select('id, team_name, user_id')
-    .eq('id', borrowerTeamId)
+    .eq('id', counterpartyTeamId)
     .eq('league_id', leagueId)
     .single();
 
-  if (!borrowerTeam) return NextResponse.json({ error: 'Borrower team not found in this league' }, { status: 404 });
+  if (!counterpartyTeam) return NextResponse.json({ error: 'Target team not found in this league' }, { status: 404 });
 
   // 10. Fetch player details
   const { data: player } = await admin
@@ -287,13 +305,13 @@ export async function POST(req: NextRequest, { params }: Props) {
 
   if (!player) return NextResponse.json({ error: 'Player not found' }, { status: 404 });
 
-  // 11. Create the loan proposal
+  // 11. Create the loan proposal/request
   const { data: loan, error: insertError } = await admin
     .from('player_loans')
     .insert({
       league_id: leagueId,
-      lender_team_id: myTeam.id,
-      borrower_team_id: borrowerTeamId,
+      lender_team_id: effectiveLenderTeamId,
+      borrower_team_id: effectiveBorrowerTeamId,
       player_id: playerId,
       loan_fee: loanFee,
       start_gameweek: startGameweek,
@@ -302,6 +320,7 @@ export async function POST(req: NextRequest, { params }: Props) {
       bonus_cap: bonusCap,
       has_recall: hasRecall,
       status: 'pending',
+      proposed_by: proposedBy,
       message: message ?? null
     })
     .select()
@@ -311,43 +330,62 @@ export async function POST(req: NextRequest, { params }: Props) {
     return NextResponse.json({ error: insertError.message }, { status: 500 });
   }
 
-  // 12. Send notifications & private DM
+  // 12. Send notifications & private DM to the counterparty (the one who needs to accept)
   try {
-    const { data: targetUser } = await admin.from('users').select('email').eq('id', borrowerTeam.user_id).single();
-    if (targetUser?.email) {
-      const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://gaffa.live';
-      const actionUrl = `${baseUrl}/league/${leagueId}/trades`;
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://gaffa.live';
+    const actionUrl = `${baseUrl}/league/${leagueId}/trades`;
 
-      await sendEmail({
-        to: targetUser.email,
-        subject: `New Loan Proposal from ${myTeam.team_name}`,
-        html: getLoanProposedEmail(myTeam.team_name, player.name, loanFee, startGameweek, endGameweek, actionUrl)
+    const { data: targetUser } = await admin.from('users').select('email').eq('id', counterpartyTeam.user_id).single();
+    if (targetUser?.email) {
+      if (requestMode) {
+        await sendEmail({
+          to: targetUser.email,
+          subject: `Loan Request from ${myTeam.team_name}`,
+          html: getLoanProposedEmail(myTeam.team_name, player.name, loanFee, startGameweek, endGameweek, actionUrl)
+        });
+      } else {
+        await sendEmail({
+          to: targetUser.email,
+          subject: `New Loan Proposal from ${myTeam.team_name}`,
+          html: getLoanProposedEmail(myTeam.team_name, player.name, loanFee, startGameweek, endGameweek, actionUrl)
+        });
+      }
+    }
+
+    // Create in-game notification for the counterparty
+    const { createNotification } = await import('@/lib/notifications/createNotification');
+    if (requestMode) {
+      await createNotification(admin, {
+        leagueId,
+        userId: counterpartyTeam.user_id,
+        title: 'Loan Request Received!',
+        content: `**${myTeam.team_name}** is requesting to loan **${player.name}** for GW${startGameweek}-GW${endGameweek}. Proposed fee: €${loanFee}m.${message ? ` Message: "${message}"` : ''}`,
+        url: `/league/${leagueId}/trades`
+      });
+    } else {
+      await createNotification(admin, {
+        leagueId,
+        userId: counterpartyTeam.user_id,
+        title: 'New Loan Proposal!',
+        content: `**${myTeam.team_name}** has proposed to loan **${player.name}** to your club for GW${startGameweek}-GW${endGameweek}. Fee: €${loanFee}m.${message ? ` Message: "${message}"` : ''}`,
+        url: `/league/${leagueId}/trades`
       });
     }
 
-    // Create in-game notification
-    const { createNotification } = await import('@/lib/notifications/createNotification');
-    await createNotification(admin, {
-      leagueId,
-      userId: borrowerTeam.user_id,
-      title: 'New Loan Proposal!',
-      content: `**${myTeam.team_name}** has proposed to loan **${player.name}** to your club for GW${startGameweek}-GW${endGameweek}. Fee: €${loanFee}m.${message ? ` Message: "${message}"` : ''}`,
-      url: `/league/${leagueId}/trades`
-    });
-
-    // Private DM to borrower manager
+    // Private DM to counterparty manager
     await admin.from('chat_messages').insert({
       league_id: leagueId,
       sender_id: user.id,
-      recipient_id: borrowerTeam.user_id,
+      recipient_id: counterpartyTeam.user_id,
       message: `[SYSTEM:LOAN_PROPOSAL:${JSON.stringify({
         loanId: loan.id,
-        lenderName: myTeam.team_name,
-        borrowerName: borrowerTeam.team_name,
+        lenderName: requestMode ? counterpartyTeam.team_name : myTeam.team_name,
+        borrowerName: requestMode ? myTeam.team_name : counterpartyTeam.team_name,
         playerName: player.name,
         loanFee: loanFee,
         startGw: startGameweek,
-        endGw: endGameweek
+        endGw: endGameweek,
+        isRequest: requestMode ?? false
       })}]`
     });
 

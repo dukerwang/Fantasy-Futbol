@@ -6,6 +6,7 @@ import PositionBadge from '@/components/players/PositionBadge';
 import PlayerDetailsModal from '@/components/players/PlayerDetailsModal';
 import ListPlayerModal from './ListPlayerModal';
 import ProposeLoanModal from './ProposeLoanModal';
+import RequestLoanModal from './RequestLoanModal';
 import { formatPlayerName } from '@/lib/formatName';
 import styles from './trades.module.css';
 
@@ -61,6 +62,7 @@ interface PlayerLoanRecord {
   recall_penalty: number | null;
   slot_buyback_used: boolean;
   slot_buyback_fee_paid: number | null;
+  proposed_by?: 'lender' | 'borrower';
   status: 'pending' | 'active' | 'accepted_deferred' | 'recalled' | 'expired' | 'pending_activation' | 'rejected' | 'cancelled';
   message: string | null;
   created_at: string;
@@ -84,6 +86,8 @@ interface Props {
   listingHighestBids: Record<string, number>;
   rosterSize?: number;
   initialLoans?: PlayerLoanRecord[];
+  currentGameweek?: number;
+  initialTab?: 'trades' | 'league-feed' | 'listings' | 'loans';
   leagueSettings?: {
     loan_slot_buyback_fee: number;
     loan_bonus_cap_default: number;
@@ -94,7 +98,7 @@ interface Props {
   };
 }
 
-type Tab = 'my-trades' | 'propose' | 'league-feed' | 'listings' | 'loans';
+type Tab = 'trades' | 'league-feed' | 'listings' | 'loans';
 
 function playerDisplayName(p: SimplePlayer) {
   return formatPlayerName(p, 'initial_last');
@@ -115,6 +119,8 @@ export default function TradesClient({
   listingHighestBids,
   rosterSize = 20,
   initialLoans = [],
+  currentGameweek = 1,
+  initialTab = 'trades',
   leagueSettings = {
     loan_slot_buyback_fee: 25,
     loan_bonus_cap_default: 0,
@@ -124,18 +130,24 @@ export default function TradesClient({
     roster_locked: false,
   },
 }: Props) {
-  const [tab, setTab] = useState<Tab>('my-trades');
+  const [tab, setTab] = useState<Tab>(initialTab);
   const [trades, setTrades] = useState<TradeRecord[]>(initialTrades);
   const [playerMap, setPlayerMap] = useState<Record<string, SimplePlayer>>(initialPlayerMap);
   const [viewingPlayer, setViewingPlayer] = useState<SimplePlayer | null>(null);
   const [localMyRoster, setLocalMyRoster] = useState<any[]>(myRoster);
+
+  // Player Market
   const [showListModal, setShowListModal] = useState(false);
   const [listings, setListings] = useState<any[]>(initialListings);
   const [highestBids, setHighestBids] = useState<Record<string, number>>(listingHighestBids);
+
+  // Loans
   const [loans, setLoans] = useState<PlayerLoanRecord[]>(initialLoans);
   const [showLoanModal, setShowLoanModal] = useState(false);
+  const [showRequestLoanModal, setShowRequestLoanModal] = useState(false);
 
-  // Propose Trade state
+  // Propose Trade state (inline within Trades tab)
+  const [showProposeForm, setShowProposeForm] = useState(false);
   const [selectedTeamId, setSelectedTeamId] = useState('');
   const [offeredPlayerIds, setOfferedPlayerIds] = useState<Set<string>>(new Set());
   const [requestedPlayerIds, setRequestedPlayerIds] = useState<Set<string>>(new Set());
@@ -154,7 +166,7 @@ export default function TradesClient({
   const targetTeam = allTeams.find((t) => t.id === selectedTeamId);
   const targetRoster: SimplePlayer[] = selectedTeamId ? (allRosters[selectedTeamId] ?? []) : [];
 
-  // ── Trade action (accept / reject / cancel) ──────────────────────────────
+  // ── Trade Actions ─────────────────────────────────────────────────────────
 
   const handleTradeAction = useCallback(async (tradeId: string, action: 'accept' | 'reject' | 'cancel') => {
     setActionLoading((prev) => ({ ...prev, [tradeId]: true }));
@@ -174,7 +186,6 @@ export default function TradesClient({
       return;
     }
 
-    // Refresh trade list
     const refreshRes = await fetch(`/api/leagues/${leagueId}/trades`);
     if (refreshRes.ok) {
       const refreshData = await refreshRes.json();
@@ -184,12 +195,9 @@ export default function TradesClient({
     setActionLoading((prev) => ({ ...prev, [tradeId]: false }));
   }, [leagueId]);
 
-  // ── Counter Offer ────────────────────────────────────────────────────────
-
   const handleCounter = useCallback((trade: TradeRecord) => {
     const isProposer = trade.team_a_id === myTeam.id;
     const targetTeamId = isProposer ? trade.team_b_id : trade.team_a_id;
-
     const myOfferPlayers = isProposer ? trade.offered_players : trade.requested_players;
     const myRequestPlayers = isProposer ? trade.requested_players : trade.offered_players;
     const myOfferFaab = isProposer ? trade.offered_faab : trade.requested_faab;
@@ -202,11 +210,9 @@ export default function TradesClient({
     setRequestedFaab(String(myRequestFaab));
     setTradeMessage('');
     setParentTradeId(trade.id);
-    setTab('propose');
+    setShowProposeForm(true);
     setProposeSuccess('');
   }, [myTeam.id]);
-
-  // ── Propose trade submission ─────────────────────────────────────────────
 
   const handlePropose = useCallback(async () => {
     setProposeError('');
@@ -224,7 +230,7 @@ export default function TradesClient({
       setProposeError(`You only have €${myTeam.faab_budget}m in Club Balance — cannot offer €${offFaab}m.`); return;
     }
     if (targetTeam && reqFaab > targetTeam.faab_budget) {
-      setProposeError(`${targetTeam.team_name} only has €${targetTeam.faab_budget}m in Club Balance — cannot request €${reqFaab}m.`); return;
+      setProposeError(`${targetTeam.team_name} only has €${targetTeam.faab_budget}m in Club Balance.`); return;
     }
 
     setSubmitting(true);
@@ -251,13 +257,7 @@ export default function TradesClient({
       return;
     }
 
-    setOfferedPlayerIds(new Set());
-    setRequestedPlayerIds(new Set());
-    setOfferedFaab('0');
-    setRequestedFaab('0');
-    setTradeMessage('');
-    setSelectedTeamId('');
-    setParentTradeId(null);
+    resetProposeForm();
     setProposeSuccess('Trade proposal sent!');
 
     const refreshRes = await fetch(`/api/leagues/${leagueId}/trades`);
@@ -268,10 +268,19 @@ export default function TradesClient({
     }
 
     setSubmitting(false);
-    setTab('my-trades');
+    setShowProposeForm(false);
   }, [leagueId, selectedTeamId, offeredPlayerIds, requestedPlayerIds, offeredFaab, requestedFaab, tradeMessage, parentTradeId, myTeam, targetTeam]);
 
-  // ── Toggle player selection ──────────────────────────────────────────────
+  function resetProposeForm() {
+    setOfferedPlayerIds(new Set());
+    setRequestedPlayerIds(new Set());
+    setOfferedFaab('0');
+    setRequestedFaab('0');
+    setTradeMessage('');
+    setProposeError('');
+    setParentTradeId(null);
+    setSelectedTeamId('');
+  }
 
   function toggleOffered(playerId: string) {
     setOfferedPlayerIds((prev) => {
@@ -291,7 +300,7 @@ export default function TradesClient({
     });
   }
 
-  // ── Player Market listings local update ───────────────────────────────────
+  // ── Listings Callbacks ────────────────────────────────────────────────────
 
   function handleListingChange(playerId: string, listing: any | null) {
     setLocalMyRoster((prev) =>
@@ -304,7 +313,7 @@ export default function TradesClient({
     }
   }
 
-  // ── Player Loans Callbacks ────────────────────────────────────────────────
+  // ── Loan Callbacks ────────────────────────────────────────────────────────
 
   const refreshLoans = useCallback(async () => {
     try {
@@ -338,7 +347,7 @@ export default function TradesClient({
         if (data.deferred) {
           setProposeSuccess('Loan accepted but deferred until gameweek ends — player is locked.');
         } else {
-          setProposeSuccess(`Loan proposal successfully ${action}ed!`);
+          setProposeSuccess(`Loan ${action}ed successfully!`);
         }
         await refreshLoans();
       }
@@ -358,20 +367,18 @@ export default function TradesClient({
       const res = await fetch(`/api/leagues/${leagueId}/loans/${loanId}/recall`, {
         method: 'POST',
       });
-
       const data = await res.json();
 
       if (!res.ok) {
         setActionError((prev) => ({ ...prev, [loanId]: data.error ?? 'Something went wrong.' }));
       } else {
-        let msg = `Loan recalled successfully! Penalty paid: €${data.penalty}m.`;
-        if (data.bonusPaid > 0) msg += ` Performance bonus paid: €${data.bonusPaid}m.`;
-        if (data.pendingActivation) msg += ` Player is returning but roster is full (pending drop).`;
+        let msg = `Loan recalled! Penalty paid: €${data.penalty}m.`;
+        if (data.bonusPaid > 0) msg += ` Bonus paid: €${data.bonusPaid}m.`;
+        if (data.pendingActivation) msg += ` Player returning — roster full (pending drop).`;
         setProposeSuccess(msg);
         await refreshLoans();
       }
-    } catch (err) {
-      console.error(err);
+    } catch {
       setActionError((prev) => ({ ...prev, [loanId]: 'An unexpected error occurred.' }));
     } finally {
       setActionLoading((prev) => ({ ...prev, [loanId]: false }));
@@ -386,17 +393,15 @@ export default function TradesClient({
       const res = await fetch(`/api/leagues/${leagueId}/loans/${loanId}/slot-buyback`, {
         method: 'POST',
       });
-
       const data = await res.json();
 
       if (!res.ok) {
         setActionError((prev) => ({ ...prev, [loanId]: data.error ?? 'Something went wrong.' }));
       } else {
-        setProposeSuccess(`Slot buyback activated successfully! Paid €${data.feePaid}m fee.`);
+        setProposeSuccess(`Slot buyback activated! Paid €${data.feePaid}m.`);
         await refreshLoans();
       }
-    } catch (err) {
-      console.error(err);
+    } catch {
       setActionError((prev) => ({ ...prev, [loanId]: 'An unexpected error occurred.' }));
     } finally {
       setActionLoading((prev) => ({ ...prev, [loanId]: false }));
@@ -410,11 +415,29 @@ export default function TradesClient({
   const sentTrades = pendingTrades.filter((t) => t.team_a_id === myTeam.id);
   const pastTrades = trades.filter((t) => t.status !== 'pending');
 
-  const pendingInboundLoans = loans.filter((l) => l.borrower_team_id === myTeam.id && l.status === 'pending');
-  const pendingOutboundLoans = loans.filter((l) => l.lender_team_id === myTeam.id && l.status === 'pending');
+  // Pending inbound = loans I need to respond to:
+  //   - lender-proposed loans where I'm the borrower
+  //   - borrower-requested loans (request mode) where I'm the lender
+  const pendingInboundLoans = loans.filter((l) => l.status === 'pending' && (
+    ((l.proposed_by ?? 'lender') === 'lender' && l.borrower_team_id === myTeam.id) ||
+    (l.proposed_by === 'borrower' && l.lender_team_id === myTeam.id)
+  ));
+
+  // Pending outbound = loans I'm waiting for a response on:
+  //   - lender-proposed loans where I'm the lender
+  //   - borrower-requested loans where I'm the borrower
+  const pendingOutboundLoans = loans.filter((l) => l.status === 'pending' && (
+    ((l.proposed_by ?? 'lender') === 'lender' && l.lender_team_id === myTeam.id) ||
+    (l.proposed_by === 'borrower' && l.borrower_team_id === myTeam.id)
+  ));
+
   const activeLoansOut = loans.filter((l) => l.lender_team_id === myTeam.id && ['active', 'accepted_deferred', 'pending_activation'].includes(l.status));
   const activeLoansIn = loans.filter((l) => l.borrower_team_id === myTeam.id && ['active', 'accepted_deferred', 'pending_activation'].includes(l.status));
   const historicalLoans = loans.filter((l) => ['expired', 'recalled', 'rejected', 'cancelled'].includes(l.status));
+
+  // Loan slot info
+  const remainingLoanOuts = Math.max(0, leagueSettings.max_loan_outs - activeLoansOut.length);
+  const remainingLoanIns = Math.max(0, leagueSettings.max_loan_ins - activeLoansIn.length);
 
   // ── Render ────────────────────────────────────────────────────────────────
 
@@ -423,13 +446,13 @@ export default function TradesClient({
       <header className={styles.header}>
         <div>
           <p className={styles.breadcrumb}>
-            <Link href={`/league/${leagueId}`}>{leagueName}</Link> / Trades
+            <Link href={`/league/${leagueId}`}>{leagueName}</Link> / Transfers
           </p>
-          <h1 className={styles.title}>Trades</h1>
+          <h1 className={styles.title}>Transfers Hub</h1>
           {pendingTrades.length > 0 && (
             <p className={styles.pendingHint}>
               {incomingTrades.length > 0
-                ? `${incomingTrades.length} incoming proposal${incomingTrades.length > 1 ? 's' : ''} awaiting your response`
+                ? `${incomingTrades.length} incoming trade${incomingTrades.length > 1 ? 's' : ''} awaiting your response`
                 : `${sentTrades.length} proposal${sentTrades.length > 1 ? 's' : ''} awaiting response`}
             </p>
           )}
@@ -440,22 +463,16 @@ export default function TradesClient({
         </div>
       </header>
 
-      {/* ── Tab Bar ── */}
+      {/* ── Tab Bar (4 tabs) ── */}
       <div className={styles.tabs}>
         <button
-          className={`${styles.tab} ${tab === 'my-trades' ? styles.tabActive : ''}`}
-          onClick={() => setTab('my-trades')}
+          className={`${styles.tab} ${tab === 'trades' ? styles.tabActive : ''}`}
+          onClick={() => { setTab('trades'); setProposeSuccess(''); }}
         >
-          My Trades
+          Trades
           {pendingTrades.length > 0 && (
             <span className={styles.tabBadge}>{pendingTrades.length}</span>
           )}
-        </button>
-        <button
-          className={`${styles.tab} ${tab === 'propose' ? styles.tabActive : ''}`}
-          onClick={() => { setTab('propose'); setProposeSuccess(''); }}
-        >
-          Propose a Trade
         </button>
         <button
           className={`${styles.tab} ${tab === 'league-feed' ? styles.tabActive : ''}`}
@@ -471,7 +488,7 @@ export default function TradesClient({
         </button>
         <button
           className={`${styles.tab} ${tab === 'loans' ? styles.tabActive : ''}`}
-          onClick={() => { setTab('loans'); setProposeSuccess(''); }}
+          onClick={() => { setTab('loans'); setProposeSuccess(''); setShowProposeForm(false); }}
         >
           Player Loans
           {pendingInboundLoans.length > 0 && (
@@ -480,325 +497,331 @@ export default function TradesClient({
         </button>
       </div>
 
-      {/* ── My Trades Tab ── */}
-      {tab === 'my-trades' && (
+      {/* ── Trades Tab ── */}
+      {tab === 'trades' && (
         <div className={styles.tradesSection}>
-          {proposeSuccess && (
+          {proposeSuccess && !showProposeForm && (
             <div className={styles.successBanner}>{proposeSuccess}</div>
           )}
 
-          {trades.length === 0 ? (
-            <div className={styles.emptyState}>
-              <p>No trades yet.</p>
-              <button className={styles.proposeBtn} onClick={() => setTab('propose')}>
-                Propose a Trade
-              </button>
+          {/* Inline Propose Trade Form */}
+          {showProposeForm ? (
+            <div className={styles.proposeSection}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                <h2 style={{ margin: 0, fontSize: '16px', fontWeight: 700 }}>Propose a Trade</h2>
+                <button
+                  className={styles.inlineLinkBtn}
+                  onClick={() => { resetProposeForm(); setShowProposeForm(false); }}
+                >
+                  ← Back to trades
+                </button>
+              </div>
+
+              {/* Team selector */}
+              <div className={styles.teamSelector}>
+                <label className={styles.fieldLabel}>Trade with:</label>
+                <select
+                  className={styles.select}
+                  value={selectedTeamId}
+                  onChange={(e) => {
+                    setSelectedTeamId(e.target.value);
+                    setOfferedPlayerIds(new Set());
+                    setRequestedPlayerIds(new Set());
+                  }}
+                >
+                  <option value="">— Select a team —</option>
+                  {allTeams.map((t) => (
+                    <option key={t.id} value={t.id}>
+                      {t.team_name} (€{t.faab_budget}m)
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {selectedTeamId && (
+                <>
+                  <div className={styles.splitScreen}>
+                    {/* My Roster */}
+                    <div className={styles.rosterPanel}>
+                      <div className={styles.rosterHeader}>
+                        <h3 className={styles.rosterTitle}>Your Roster</h3>
+                        <span className={styles.rosterHint}>Click to offer</span>
+                      </div>
+                      <div className={styles.rosterList}>
+                        {localMyRoster.length === 0 ? (
+                          <p className={styles.emptyRoster}>No players on your roster.</p>
+                        ) : (
+                          localMyRoster.map((p) => (
+                            <div
+                              key={p.id}
+                              className={`${styles.rosterPlayer} ${offeredPlayerIds.has(p.id) ? styles.rosterPlayerSelected : ''}`}
+                              onClick={() => toggleOffered(p.id)}
+                              style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+                            >
+                              <PositionBadge position={p.primary_position as any} size="sm" />
+                              <span
+                                onClick={(e) => { e.stopPropagation(); setViewingPlayer(p); }}
+                                className={styles.tradePlayerNameLink}
+                              >
+                                {playerDisplayName(p)}
+                              </span>
+                              <span className={styles.rosterPlayerClub}>
+                                {p.pl_team}
+                                {p.projected_points != null && (
+                                  <span style={{ color: 'var(--color-text-secondary)', marginLeft: '8px' }}>
+                                    Proj: {Number(p.projected_points).toFixed(1)}
+                                  </span>
+                                )}
+                              </span>
+                              {offeredPlayerIds.has(p.id) && <span className={styles.checkmark}>✓</span>}
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Target Roster */}
+                    <div className={styles.rosterPanel}>
+                      <div className={styles.rosterHeader}>
+                        <h3 className={styles.rosterTitle}>{targetTeam?.team_name}</h3>
+                        <span className={styles.rosterHint}>Click to request</span>
+                      </div>
+                      <div className={styles.rosterList}>
+                        {targetRoster.length === 0 ? (
+                          <p className={styles.emptyRoster}>No players on this roster.</p>
+                        ) : (
+                          targetRoster.map((p) => (
+                            <div
+                              key={p.id}
+                              className={`${styles.rosterPlayer} ${requestedPlayerIds.has(p.id) ? styles.rosterPlayerSelected : ''}`}
+                              onClick={() => toggleRequested(p.id)}
+                              style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+                            >
+                              <PositionBadge position={p.primary_position as any} size="sm" />
+                              <span
+                                onClick={(e) => { e.stopPropagation(); setViewingPlayer(p); }}
+                                className={styles.tradePlayerNameLink}
+                              >
+                                {playerDisplayName(p)}
+                              </span>
+                              <span className={styles.rosterPlayerClub}>
+                                {p.pl_team}
+                                {p.projected_points != null && (
+                                  <span style={{ color: 'var(--color-text-secondary)', marginLeft: '8px' }}>
+                                    Proj: {Number(p.projected_points).toFixed(1)}
+                                  </span>
+                                )}
+                              </span>
+                              {requestedPlayerIds.has(p.id) && <span className={styles.checkmark}>✓</span>}
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Trade Dock */}
+                  <div className={styles.dock}>
+                    <h3 className={styles.dockTitle}>Trade Proposal</h3>
+                    <div className={styles.dockSides}>
+                      <div className={styles.dockSide}>
+                        <p className={styles.dockSideLabel}>You send:</p>
+                        {offeredPlayerIds.size === 0 && parseInt(offeredFaab) === 0 ? (
+                          <p className={styles.dockEmpty}>Nothing selected</p>
+                        ) : (
+                          <>
+                            {Array.from(offeredPlayerIds).map((id) => {
+                              const p = localMyRoster.find((r) => r.id === id);
+                              return p ? (
+                                <div key={id} className={styles.dockPlayer}>
+                                  <PositionBadge position={p.primary_position as any} size="sm" />
+                                  <span>{playerDisplayName(p)}</span>
+                                </div>
+                              ) : null;
+                            })}
+                            {parseInt(offeredFaab) > 0 && (
+                              <div className={styles.dockFaab}>+ €{offeredFaab}m Cash</div>
+                            )}
+                          </>
+                        )}
+                        <div className={styles.faabInput}>
+                          <label className={styles.fieldLabel}>Include Cash (€m):</label>
+                          <input
+                            type="number" min={0} max={myTeam.faab_budget} step={1}
+                            className={styles.numInput}
+                            value={offeredFaab}
+                            onChange={(e) => setOfferedFaab(e.target.value)}
+                          />
+                        </div>
+                      </div>
+
+                      <div className={styles.dockArrow}>⇄</div>
+
+                      <div className={styles.dockSide}>
+                        <p className={styles.dockSideLabel}>You receive:</p>
+                        {requestedPlayerIds.size === 0 && parseInt(requestedFaab) === 0 ? (
+                          <p className={styles.dockEmpty}>Nothing selected</p>
+                        ) : (
+                          <>
+                            {Array.from(requestedPlayerIds).map((id) => {
+                              const p = targetRoster.find((r) => r.id === id);
+                              return p ? (
+                                <div key={id} className={styles.dockPlayer}>
+                                  <PositionBadge position={p.primary_position as any} size="sm" />
+                                  <span>{playerDisplayName(p)}</span>
+                                </div>
+                              ) : null;
+                            })}
+                            {parseInt(requestedFaab) > 0 && (
+                              <div className={styles.dockFaab}>+ €{requestedFaab}m Cash</div>
+                            )}
+                          </>
+                        )}
+                        <div className={styles.faabInput}>
+                          <label className={styles.fieldLabel}>Request Cash (€m):</label>
+                          <input
+                            type="number" min={0} max={targetTeam?.faab_budget ?? 0} step={1}
+                            className={styles.numInput}
+                            value={requestedFaab}
+                            onChange={(e) => setRequestedFaab(e.target.value)}
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className={styles.dockMessage}>
+                      <label className={styles.fieldLabel}>Message (optional):</label>
+                      <textarea
+                        className={styles.messageInput}
+                        placeholder="Add a note to your trade offer…"
+                        rows={2}
+                        value={tradeMessage}
+                        onChange={(e) => setTradeMessage(e.target.value)}
+                      />
+                    </div>
+
+                    {proposeError && <p className={styles.errorBanner}>{proposeError}</p>}
+
+                    <div className={styles.dockActions}>
+                      <button
+                        className={styles.resetBtn}
+                        onClick={resetProposeForm}
+                      >
+                        Reset
+                      </button>
+                      <button
+                        className={styles.submitTradeBtn}
+                        onClick={handlePropose}
+                        disabled={submitting}
+                      >
+                        {submitting ? 'Sending…' : 'Send Trade Proposal'}
+                      </button>
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
           ) : (
+            /* Trades list view */
             <>
-              {/* Incoming */}
-              {incomingTrades.length > 0 && (
-                <div className={styles.tradeGroup}>
-                  <div className={styles.tradeSubGroupHeader}>
-                    <span className={styles.tradeSubGroupIcon}>↙</span>
-                    <h2 className={styles.tradeGroupTitle}>Incoming Proposals</h2>
-                    <span className={styles.tradeSubGroupHint}>Awaiting your response</span>
-                  </div>
-                  <div className={styles.pendingGrid}>
-                    {incomingTrades.map((trade) => (
-                      <TradeCard
-                        key={trade.id}
-                        trade={trade}
-                        myTeamId={myTeam.id}
-                        playerMap={playerMap}
-                        onAction={handleTradeAction}
-                        onCounter={handleCounter}
-                        onViewPlayer={setViewingPlayer}
-                        error={actionError[trade.id] ?? ''}
-                        loading={!!actionLoading[trade.id]}
-                      />
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Sent */}
-              {sentTrades.length > 0 && (
-                <div className={styles.tradeGroup}>
-                  <div className={styles.tradeSubGroupHeader}>
-                    <span className={styles.tradeSubGroupIcon}>↗</span>
-                    <h2 className={styles.tradeGroupTitle}>Sent</h2>
-                    <span className={styles.tradeSubGroupHint}>Awaiting their response</span>
-                  </div>
-                  {sentTrades.map((trade) => (
-                    <TradeCard
-                      key={trade.id}
-                      trade={trade}
-                      myTeamId={myTeam.id}
-                      playerMap={playerMap}
-                      onAction={handleTradeAction}
-                      onCounter={handleCounter}
-                      onViewPlayer={setViewingPlayer}
-                      error={actionError[trade.id] ?? ''}
-                      loading={!!actionLoading[trade.id]}
-                    />
-                  ))}
-                </div>
-              )}
-
-              {/* No pending but there are trades */}
-              {pendingTrades.length === 0 && (
-                <p className={styles.noPendingHint}>
-                  No active proposals.{' '}
-                  <button className={styles.inlineLinkBtn} onClick={() => setTab('propose')}>
-                    Propose one →
+              {trades.length === 0 ? (
+                <div className={styles.emptyState}>
+                  <p>No trades yet.</p>
+                  <button className={styles.proposeBtn} onClick={() => setShowProposeForm(true)}>
+                    Propose a Trade
                   </button>
-                </p>
-              )}
-
-              {/* History */}
-              {pastTrades.length > 0 && (
-                <div className={styles.tradeGroup}>
-                  <div className={styles.tradeSubGroupHeader}>
-                    <span className={styles.tradeSubGroupIcon}>◷</span>
-                    <h2 className={styles.tradeGroupTitle}>History</h2>
-                  </div>
-                  {pastTrades.map((trade) => (
-                    <TradeCard
-                      key={trade.id}
-                      trade={trade}
-                      myTeamId={myTeam.id}
-                      playerMap={playerMap}
-                      onAction={handleTradeAction}
-                      onCounter={handleCounter}
-                      onViewPlayer={setViewingPlayer}
-                      error={actionError[trade.id] ?? ''}
-                      loading={!!actionLoading[trade.id]}
-                    />
-                  ))}
                 </div>
-              )}
-            </>
-          )}
-        </div>
-      )}
-
-      {/* ── Propose Trade Tab ── */}
-      {tab === 'propose' && (
-        <div className={styles.proposeSection}>
-          {/* Team selector */}
-          <div className={styles.teamSelector}>
-            <label className={styles.fieldLabel}>Trade with:</label>
-            <select
-              className={styles.select}
-              value={selectedTeamId}
-              onChange={(e) => {
-                setSelectedTeamId(e.target.value);
-                setOfferedPlayerIds(new Set());
-                setRequestedPlayerIds(new Set());
-              }}
-            >
-              <option value="">— Select a team —</option>
-              {allTeams.map((t) => (
-                <option key={t.id} value={t.id}>
-                  {t.team_name} (€{t.faab_budget}m Club Balance)
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Split-screen rosters */}
-          {selectedTeamId && (
-            <>
-              <div className={styles.splitScreen}>
-                {/* My Roster (left) */}
-                <div className={styles.rosterPanel}>
-                  <div className={styles.rosterHeader}>
-                    <h3 className={styles.rosterTitle}>Your Roster</h3>
-                    <span className={styles.rosterHint}>Click to offer</span>
+              ) : (
+                <>
+                  <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px' }}>
+                    <button className={styles.addToBlockBtn} onClick={() => { resetProposeForm(); setShowProposeForm(true); }}>
+                      + Propose a Trade
+                    </button>
                   </div>
-                  <div className={styles.rosterList}>
-                    {localMyRoster.length === 0 ? (
-                      <p className={styles.emptyRoster}>No players on your roster.</p>
-                    ) : (
-                      localMyRoster.map((p) => (
-                        <div
-                          key={p.id}
-                          className={`${styles.rosterPlayer} ${offeredPlayerIds.has(p.id) ? styles.rosterPlayerSelected : ''}`}
-                          onClick={() => toggleOffered(p.id)}
-                          style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}
-                        >
-                          <PositionBadge position={p.primary_position as any} size="sm" />
-                          <span
-                            onClick={(e) => { e.stopPropagation(); setViewingPlayer(p); }}
-                            className={styles.tradePlayerNameLink}
-                          >
-                            {playerDisplayName(p)}
-                          </span>
-                          <span className={styles.rosterPlayerClub}>
-                            {p.pl_team}
-                            {p.projected_points !== undefined && p.projected_points !== null && (
-                              <span style={{ color: 'var(--color-text-secondary)', marginLeft: '8px' }}>Proj: {Number(p.projected_points).toFixed(1)}</span>
-                            )}
-                          </span>
-                          {offeredPlayerIds.has(p.id) && <span className={styles.checkmark}>✓</span>}
-                        </div>
-                      ))
-                    )}
-                  </div>
-                </div>
 
-                {/* Target Roster (right) */}
-                <div className={styles.rosterPanel}>
-                  <div className={styles.rosterHeader}>
-                    <h3 className={styles.rosterTitle}>{targetTeam?.team_name}</h3>
-                    <span className={styles.rosterHint}>Click to request</span>
-                  </div>
-                  <div className={styles.rosterList}>
-                    {targetRoster.length === 0 ? (
-                      <p className={styles.emptyRoster}>No players on this roster.</p>
-                    ) : (
-                      targetRoster.map((p) => (
-                        <div
-                          key={p.id}
-                          className={`${styles.rosterPlayer} ${requestedPlayerIds.has(p.id) ? styles.rosterPlayerSelected : ''}`}
-                          onClick={() => toggleRequested(p.id)}
-                          style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}
-                        >
-                          <PositionBadge position={p.primary_position as any} size="sm" />
-                          <span
-                            onClick={(e) => { e.stopPropagation(); setViewingPlayer(p); }}
-                            className={styles.tradePlayerNameLink}
-                          >
-                            {playerDisplayName(p)}
-                          </span>
-                          <span className={styles.rosterPlayerClub}>
-                            {p.pl_team}
-                            {p.projected_points !== undefined && p.projected_points !== null && (
-                              <span style={{ color: 'var(--color-text-secondary)', marginLeft: '8px' }}>Proj: {Number(p.projected_points).toFixed(1)}</span>
-                            )}
-                          </span>
-                          {requestedPlayerIds.has(p.id) && <span className={styles.checkmark}>✓</span>}
-                        </div>
-                      ))
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {/* Trade Proposal Dock */}
-              <div className={styles.dock}>
-                <h3 className={styles.dockTitle}>Trade Proposal</h3>
-
-                <div className={styles.dockSides}>
-                  <div className={styles.dockSide}>
-                    <p className={styles.dockSideLabel}>You send:</p>
-                    {offeredPlayerIds.size === 0 && parseInt(offeredFaab) === 0 ? (
-                      <p className={styles.dockEmpty}>Nothing selected</p>
-                    ) : (
-                      <>
-                        {Array.from(offeredPlayerIds).map((id) => {
-                          const p = localMyRoster.find((r) => r.id === id);
-                          return p ? (
-                            <div key={id} className={styles.dockPlayer}>
-                              <PositionBadge position={p.primary_position as any} size="sm" />
-                              <span>{playerDisplayName(p)}</span>
-                            </div>
-                          ) : null;
-                        })}
-                        {parseInt(offeredFaab) > 0 && (
-                          <div className={styles.dockFaab}>+ €{offeredFaab}m Cash</div>
-                        )}
-                      </>
-                    )}
-                    <div className={styles.faabInput}>
-                      <label className={styles.fieldLabel}>Include Cash (€m):</label>
-                      <input
-                        type="number"
-                        min={0}
-                        max={myTeam.faab_budget}
-                        step={1}
-                        className={styles.numInput}
-                        value={offeredFaab}
-                        onChange={(e) => setOfferedFaab(e.target.value)}
-                      />
+                  {/* Incoming */}
+                  {incomingTrades.length > 0 && (
+                    <div className={styles.tradeGroup}>
+                      <div className={styles.tradeSubGroupHeader}>
+                        <span className={styles.tradeSubGroupIcon}>↙</span>
+                        <h2 className={styles.tradeGroupTitle}>Incoming Proposals</h2>
+                        <span className={styles.tradeSubGroupHint}>Awaiting your response</span>
+                      </div>
+                      <div className={styles.pendingGrid}>
+                        {incomingTrades.map((trade) => (
+                          <TradeCard
+                            key={trade.id}
+                            trade={trade}
+                            myTeamId={myTeam.id}
+                            playerMap={playerMap}
+                            onAction={handleTradeAction}
+                            onCounter={handleCounter}
+                            onViewPlayer={setViewingPlayer}
+                            error={actionError[trade.id] ?? ''}
+                            loading={!!actionLoading[trade.id]}
+                          />
+                        ))}
+                      </div>
                     </div>
-                  </div>
+                  )}
 
-                  <div className={styles.dockArrow}>⇄</div>
-
-                  <div className={styles.dockSide}>
-                    <p className={styles.dockSideLabel}>You receive:</p>
-                    {requestedPlayerIds.size === 0 && parseInt(requestedFaab) === 0 ? (
-                      <p className={styles.dockEmpty}>Nothing selected</p>
-                    ) : (
-                      <>
-                        {Array.from(requestedPlayerIds).map((id) => {
-                          const p = targetRoster.find((r) => r.id === id);
-                          return p ? (
-                            <div key={id} className={styles.dockPlayer}>
-                              <PositionBadge position={p.primary_position as any} size="sm" />
-                              <span>{playerDisplayName(p)}</span>
-                            </div>
-                          ) : null;
-                        })}
-                        {parseInt(requestedFaab) > 0 && (
-                          <div className={styles.dockFaab}>+ €{requestedFaab}m Cash</div>
-                        )}
-                      </>
-                    )}
-                    <div className={styles.faabInput}>
-                      <label className={styles.fieldLabel}>Request Cash (€m):</label>
-                      <input
-                        type="number"
-                        min={0}
-                        max={targetTeam?.faab_budget ?? 0}
-                        step={1}
-                        className={styles.numInput}
-                        value={requestedFaab}
-                        onChange={(e) => setRequestedFaab(e.target.value)}
-                      />
+                  {/* Sent */}
+                  {sentTrades.length > 0 && (
+                    <div className={styles.tradeGroup}>
+                      <div className={styles.tradeSubGroupHeader}>
+                        <span className={styles.tradeSubGroupIcon}>↗</span>
+                        <h2 className={styles.tradeGroupTitle}>Sent</h2>
+                        <span className={styles.tradeSubGroupHint}>Awaiting their response</span>
+                      </div>
+                      {sentTrades.map((trade) => (
+                        <TradeCard
+                          key={trade.id}
+                          trade={trade}
+                          myTeamId={myTeam.id}
+                          playerMap={playerMap}
+                          onAction={handleTradeAction}
+                          onCounter={handleCounter}
+                          onViewPlayer={setViewingPlayer}
+                          error={actionError[trade.id] ?? ''}
+                          loading={!!actionLoading[trade.id]}
+                        />
+                      ))}
                     </div>
-                  </div>
-                </div>
+                  )}
 
-                <div className={styles.dockMessage}>
-                  <label className={styles.fieldLabel}>Message (optional):</label>
-                  <textarea
-                    className={styles.messageInput}
-                    placeholder="Add a note to your trade offer…"
-                    rows={2}
-                    value={tradeMessage}
-                    onChange={(e) => setTradeMessage(e.target.value)}
-                  />
-                </div>
+                  {pendingTrades.length === 0 && (
+                    <p className={styles.noPendingHint}>
+                      No active proposals.{' '}
+                      <button className={styles.inlineLinkBtn} onClick={() => { resetProposeForm(); setShowProposeForm(true); }}>
+                        Propose one →
+                      </button>
+                    </p>
+                  )}
 
-                {proposeError && <p className={styles.errorBanner}>{proposeError}</p>}
-
-                <div className={styles.dockActions}>
-                  <button
-                    className={styles.resetBtn}
-                    onClick={() => {
-                      setOfferedPlayerIds(new Set());
-                      setRequestedPlayerIds(new Set());
-                      setOfferedFaab('0');
-                      setRequestedFaab('0');
-                      setTradeMessage('');
-                      setProposeError('');
-                      setParentTradeId(null);
-                    }}
-                  >
-                    Reset
-                  </button>
-                  <button
-                    className={styles.submitTradeBtn}
-                    onClick={handlePropose}
-                    disabled={submitting}
-                  >
-                    {submitting ? 'Sending…' : 'Send Trade Proposal'}
-                  </button>
-                </div>
-              </div>
+                  {/* History */}
+                  {pastTrades.length > 0 && (
+                    <div className={styles.tradeGroup}>
+                      <div className={styles.tradeSubGroupHeader}>
+                        <span className={styles.tradeSubGroupIcon}>◷</span>
+                        <h2 className={styles.tradeGroupTitle}>History</h2>
+                      </div>
+                      {pastTrades.map((trade) => (
+                        <TradeCard
+                          key={trade.id}
+                          trade={trade}
+                          myTeamId={myTeam.id}
+                          playerMap={playerMap}
+                          onAction={handleTradeAction}
+                          onCounter={handleCounter}
+                          onViewPlayer={setViewingPlayer}
+                          error={actionError[trade.id] ?? ''}
+                          loading={!!actionLoading[trade.id]}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </>
+              )}
             </>
           )}
         </div>
@@ -810,9 +833,7 @@ export default function TradesClient({
           <div className={styles.leagueFeedHeader}>
             <span className={styles.leagueFeedLabel}>SEASON-LONG TRADES</span>
             <h2 className={styles.tradeGroupTitle}>League Trade Feed</h2>
-            <p className={styles.leagueFeedSubtitle}>
-              All completed trades across the league, most recent first.
-            </p>
+            <p className={styles.leagueFeedSubtitle}>All completed trades across the league, most recent first.</p>
           </div>
 
           {leagueTrades.length === 0 ? (
@@ -831,16 +852,11 @@ export default function TradesClient({
 
                 return (
                   <div key={trade.id} className={`${styles.leagueFeedRow} ${isInvolved ? styles.leagueFeedRowMine : ''}`}>
-                    {/* Header row */}
                     <div className={styles.leagueFeedRowHeader}>
                       <div className={styles.leagueFeedTeams}>
-                        <span className={`${styles.leagueFeedTeamName} ${trade.team_a_id === myTeam.id ? styles.myTeamHighlight : ''}`}>
-                          {teamAName}
-                        </span>
+                        <span className={`${styles.leagueFeedTeamName} ${trade.team_a_id === myTeam.id ? styles.myTeamHighlight : ''}`}>{teamAName}</span>
                         <span className={styles.leagueFeedSwap}>⇄</span>
-                        <span className={`${styles.leagueFeedTeamName} ${trade.team_b_id === myTeam.id ? styles.myTeamHighlight : ''}`}>
-                          {teamBName}
-                        </span>
+                        <span className={`${styles.leagueFeedTeamName} ${trade.team_b_id === myTeam.id ? styles.myTeamHighlight : ''}`}>{teamBName}</span>
                         {isInvolved && <span className={styles.leagueFeedMineTag}>YOUR DEAL</span>}
                       </div>
                       <div className={styles.leagueFeedRowMeta}>
@@ -850,26 +866,19 @@ export default function TradesClient({
                         </span>
                       </div>
                     </div>
-
-                    {/* Players exchanged */}
                     <div className={styles.leagueFeedDeal}>
                       <div className={styles.leagueFeedSide}>
                         <span className={styles.leagueFeedSideLabel}>{teamAName} sent:</span>
                         <div className={styles.leagueFeedPlayers}>
                           {offeredPlayers.length > 0 ? offeredPlayers.map((p: SimplePlayer) => (
                             <span key={p.id} className={styles.leagueFeedPlayerChip}>
-                              <span
-                                className={styles.leagueFeedPosBadge}
-                                style={{ background: positionColor(p.primary_position) }}
-                              >
+                              <span className={styles.leagueFeedPosBadge} style={{ background: positionColor(p.primary_position) }}>
                                 {p.primary_position}
                               </span>
                               {p.web_name ?? p.name}
                             </span>
                           )) : <span className={styles.leagueFeedNone}>—</span>}
-                          {trade.offered_faab > 0 && (
-                            <span className={styles.leagueFeedFaab}>+€{trade.offered_faab}m</span>
-                          )}
+                          {trade.offered_faab > 0 && <span className={styles.leagueFeedFaab}>+€{trade.offered_faab}m</span>}
                         </div>
                       </div>
                       <div className={styles.leagueFeedSide}>
@@ -877,18 +886,13 @@ export default function TradesClient({
                         <div className={styles.leagueFeedPlayers}>
                           {requestedPlayers.length > 0 ? requestedPlayers.map((p: SimplePlayer) => (
                             <span key={p.id} className={styles.leagueFeedPlayerChip}>
-                              <span
-                                className={styles.leagueFeedPosBadge}
-                                style={{ background: positionColor(p.primary_position) }}
-                              >
+                              <span className={styles.leagueFeedPosBadge} style={{ background: positionColor(p.primary_position) }}>
                                 {p.primary_position}
                               </span>
                               {p.web_name ?? p.name}
                             </span>
                           )) : <span className={styles.leagueFeedNone}>—</span>}
-                          {trade.requested_faab > 0 && (
-                            <span className={styles.leagueFeedFaab}>+€{trade.requested_faab}m</span>
-                          )}
+                          {trade.requested_faab > 0 && <span className={styles.leagueFeedFaab}>+€{trade.requested_faab}m</span>}
                         </div>
                       </div>
                     </div>
@@ -900,7 +904,7 @@ export default function TradesClient({
         </div>
       )}
 
-      {/* ── Player Market Listings Tab ── */}
+      {/* ── Player Market Tab ── */}
       {tab === 'listings' && (
         <div className={styles.tradesSection}>
           <div className={styles.tradeBlockSectionHeader}>
@@ -908,13 +912,10 @@ export default function TradesClient({
               <span className={styles.leagueFeedLabel}>AVAILABLE FOR DEALS & AUCTION</span>
               <h2 className={styles.tradeGroupTitle}>Player Market</h2>
               <p className={styles.leagueFeedSubtitle}>
-                Bidding or proposing trades on players listed by other managers.
+                Bid on or propose trades for players listed by other managers.
               </p>
             </div>
-            <button
-              className={styles.addToBlockBtn}
-              onClick={() => setShowListModal(true)}
-            >
+            <button className={styles.addToBlockBtn} onClick={() => setShowListModal(true)}>
               + List a Player
             </button>
           </div>
@@ -950,7 +951,6 @@ export default function TradesClient({
                         const refreshData = await refreshRes.json();
                         setListings(refreshData.listings);
                         setHighestBids(refreshData.highestBids);
-                        // Also update localMyRoster listings
                         const myPlayerListings: Record<string, any> = {};
                         for (const listEntry of refreshData.listings) {
                           if (listEntry.seller_team_id === myTeam.id) {
@@ -958,10 +958,7 @@ export default function TradesClient({
                           }
                         }
                         setLocalMyRoster((prev) =>
-                          prev.map((r) => ({
-                            ...r,
-                            listing: myPlayerListings[r.id] ?? null,
-                          }))
+                          prev.map((r) => ({ ...r, listing: myPlayerListings[r.id] ?? null }))
                         );
                       }
                     }}
@@ -969,7 +966,8 @@ export default function TradesClient({
                       setSelectedTeamId(l.seller_team_id);
                       setOfferedPlayerIds(new Set());
                       setRequestedPlayerIds(new Set([p.id]));
-                      setTab('propose');
+                      setShowProposeForm(true);
+                      setTab('trades');
                     }}
                     onCancelListing={() => handleListingChange(p.id, null)}
                     onViewPlayer={setViewingPlayer}
@@ -990,37 +988,54 @@ export default function TradesClient({
 
           <div className={styles.tradeBlockSectionHeader}>
             <div>
-              <span className={styles.leagueFeedLabel}>STRATEGIC TEMPORARY TRANSFERS</span>
+              <span className={styles.leagueFeedLabel}>TEMPORARY TRANSFERS</span>
               <h2 className={styles.tradeGroupTitle}>Player Loans</h2>
               <p className={styles.leagueFeedSubtitle}>
-                Propose temporary player loans, manage active loans-out and slot buybacks, or accept incoming proposals.
+                Propose or request player loans, manage active deals, and track performance bonuses.
               </p>
             </div>
-            <button
-              className={styles.addToBlockBtn}
-              onClick={() => setShowLoanModal(true)}
-            >
-              + Propose a Loan
-            </button>
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+              <button
+                className={styles.addToBlockBtn}
+                onClick={() => setShowRequestLoanModal(true)}
+                style={{ background: 'none', borderColor: 'var(--color-accent-blue)', color: 'var(--color-accent-blue)' }}
+                title="Request a loan of a player from another club"
+              >
+                ← Request a Loan
+              </button>
+              <button
+                className={styles.addToBlockBtn}
+                onClick={() => setShowLoanModal(true)}
+                title="Propose to loan one of your players to another club"
+              >
+                → Propose a Loan
+              </button>
+            </div>
           </div>
 
           {loans.length === 0 ? (
             <div className={styles.emptyState}>
-              <p>No active or pending loans in this league.</p>
-              <button className={styles.proposeBtn} onClick={() => setShowLoanModal(true)}>
-                Propose a Loan
-              </button>
+              <p>No active or pending loans.</p>
+              <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', marginTop: '12px' }}>
+                <button className={styles.proposeBtn} style={{ background: 'none', borderColor: 'var(--color-accent-blue)', color: 'var(--color-accent-blue)' }} onClick={() => setShowRequestLoanModal(true)}>
+                  Request a Loan
+                </button>
+                <button className={styles.proposeBtn} onClick={() => setShowLoanModal(true)}>
+                  Propose a Loan
+                </button>
+              </div>
             </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
-              {/* 1. Pending Inbound Proposals */}
+
+              {/* 1. Pending Inbound */}
               {pendingInboundLoans.length > 0 && (
                 <div className={styles.tradeGroup}>
                   <div className={styles.tradeSubGroupHeader}>
                     <span className={styles.tradeSubGroupIcon}>📥</span>
-                    <h3 className={styles.tradeGroupTitle}>Pending Inbound Proposals</h3>
+                    <h3 className={styles.tradeGroupTitle}>Awaiting Your Response</h3>
                     <span className={styles.tradeSubGroupHint}>
-                      Loans proposed to your club by other managers
+                      Loan proposals or requests that need your decision
                     </span>
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -1042,14 +1057,14 @@ export default function TradesClient({
                 </div>
               )}
 
-              {/* 2. Pending Outbound Proposals */}
+              {/* 2. Pending Outbound */}
               {pendingOutboundLoans.length > 0 && (
                 <div className={styles.tradeGroup}>
                   <div className={styles.tradeSubGroupHeader}>
                     <span className={styles.tradeSubGroupIcon}>📤</span>
-                    <h3 className={styles.tradeGroupTitle}>Pending Outbound Proposals</h3>
+                    <h3 className={styles.tradeGroupTitle}>Pending — Awaiting Response</h3>
                     <span className={styles.tradeSubGroupHint}>
-                      Loans you proposed to other clubs
+                      Loans or requests you initiated, awaiting the other club
                     </span>
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -1077,9 +1092,7 @@ export default function TradesClient({
                   <div className={styles.tradeSubGroupHeader}>
                     <span className={styles.tradeSubGroupIcon}>🤝</span>
                     <h3 className={styles.tradeGroupTitle}>Active Loans In (Borrowed)</h3>
-                    <span className={styles.tradeSubGroupHint}>
-                      Players temporarily joining your squad
-                    </span>
+                    <span className={styles.tradeSubGroupHint}>Players temporarily on your squad</span>
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                     {activeLoansIn.map((loan) => (
@@ -1106,9 +1119,7 @@ export default function TradesClient({
                   <div className={styles.tradeSubGroupHeader}>
                     <span className={styles.tradeSubGroupIcon}>✈️</span>
                     <h3 className={styles.tradeGroupTitle}>Active Loans Out (Loaned Out)</h3>
-                    <span className={styles.tradeSubGroupHint}>
-                      Your players temporarily playing for other clubs
-                    </span>
+                    <span className={styles.tradeSubGroupHint}>Your players temporarily at other clubs</span>
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                     {activeLoansOut.map((loan) => (
@@ -1129,15 +1140,13 @@ export default function TradesClient({
                 </div>
               )}
 
-              {/* 5. Historical Loans */}
+              {/* 5. Historical */}
               {historicalLoans.length > 0 && (
                 <div className={styles.tradeGroup}>
                   <div className={styles.tradeSubGroupHeader}>
                     <span className={styles.tradeSubGroupIcon}>📜</span>
-                    <h3 className={styles.tradeGroupTitle}>Historical Loans</h3>
-                    <span className={styles.tradeSubGroupHint}>
-                      Past loan agreements in this league
-                    </span>
+                    <h3 className={styles.tradeGroupTitle}>Loan History</h3>
+                    <span className={styles.tradeSubGroupHint}>Past loan agreements</span>
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                     {historicalLoans.map((loan) => (
@@ -1162,7 +1171,7 @@ export default function TradesClient({
         </div>
       )}
 
-      {/* Modals */}
+      {/* ── Modals ── */}
       <PlayerDetailsModal
         player={viewingPlayer as any}
         onClose={() => setViewingPlayer(null)}
@@ -1184,9 +1193,28 @@ export default function TradesClient({
           leagueId={leagueId}
           myRoster={localMyRoster}
           allTeams={allTeams}
+          currentGameweek={currentGameweek}
+          loanSlotsRemaining={remainingLoanOuts}
+          bonusCapDefault={leagueSettings.loan_bonus_cap_default}
           onClose={() => setShowLoanModal(false)}
           onProposed={async (newLoan) => {
-            setProposeSuccess('Loan proposal successfully submitted!');
+            setProposeSuccess('Loan proposal submitted successfully!');
+            await refreshLoans();
+          }}
+        />
+      )}
+
+      {showRequestLoanModal && (
+        <RequestLoanModal
+          leagueId={leagueId}
+          allTeams={allTeams}
+          allRosters={allRosters}
+          currentGameweek={currentGameweek}
+          loanSlotsRemaining={remainingLoanIns}
+          bonusCapDefault={leagueSettings.loan_bonus_cap_default}
+          onClose={() => setShowRequestLoanModal(false)}
+          onRequested={async (newLoan) => {
+            setProposeSuccess('Loan request sent! They will be notified to review your terms.');
             await refreshLoans();
           }}
         />
@@ -1215,7 +1243,7 @@ function positionColor(pos: string): string {
   return map[pos] ?? 'var(--color-text-muted)';
 }
 
-// ── TradeCard sub-component (prototype-faithful redesign) ──────────────────
+// ── TradeCard ─────────────────────────────────────────────────────────────
 
 interface TradeCardProps {
   trade: TradeRecord;
@@ -1233,7 +1261,6 @@ function TradeCard({ trade, myTeamId, playerMap, onAction, onCounter, onViewPlay
   const teamAName = (trade.team_a as any)?.team_name ?? 'Team A';
   const teamBName = (trade.team_b as any)?.team_name ?? 'Team B';
 
-  // From viewer's perspective
   const givePlayers    = isProposer ? trade.offered_players   : trade.requested_players;
   const receivePlayers = isProposer ? trade.requested_players : trade.offered_players;
   const giveFaab       = isProposer ? trade.offered_faab      : trade.requested_faab;
@@ -1267,7 +1294,6 @@ function TradeCard({ trade, myTeamId, playerMap, onAction, onCounter, onViewPlay
     );
   }
 
-  // ── History card ──
   if (trade.status !== 'pending') {
     const statusKey = trade.status as 'accepted' | 'rejected' | 'cancelled';
     const statusCss = statusKey === 'accepted' ? styles.tcHistoryStatusAccepted : styles.tcHistoryStatusRejected;
@@ -1301,7 +1327,6 @@ function TradeCard({ trade, myTeamId, playerMap, onAction, onCounter, onViewPlay
     );
   }
 
-  // ── Outgoing / sent card ──
   if (isProposer) {
     return (
       <div className={styles.tcCard}>
@@ -1332,7 +1357,6 @@ function TradeCard({ trade, myTeamId, playerMap, onAction, onCounter, onViewPlay
     );
   }
 
-  // ── Incoming card ──
   return (
     <div className={styles.tcCard}>
       <div className={styles.tcIncomingHeader}>
@@ -1374,7 +1398,7 @@ function TradeCard({ trade, myTeamId, playerMap, onAction, onCounter, onViewPlay
   );
 }
 
-// ── LoanCard sub-component ──────────────────
+// ── LoanCard ──────────────────────────────────────────────────────────────
 
 function LoanCard({
   loan,
@@ -1399,10 +1423,10 @@ function LoanCard({
 }) {
   const isLender = loan.lender_team_id === myTeamId;
   const isBorrower = loan.borrower_team_id === myTeamId;
+  const proposedBy = loan.proposed_by ?? 'lender';
 
   const lenderName = loan.lender_team?.team_name ?? 'Lender';
   const borrowerName = loan.borrower_team?.team_name ?? 'Borrower';
-
   const p = loan.player;
 
   const dateStr = new Date(loan.created_at).toLocaleDateString('en-GB', {
@@ -1412,36 +1436,50 @@ function LoanCard({
   const duration = loan.end_gameweek - loan.start_gameweek;
   const currentAccrued = Math.min(loan.bonus_cap, loan.bonus_points_scored * loan.bonus_rate);
 
-  // Status Styling
-  let statusText = loan.status.toUpperCase();
-  let statusClass = styles.statusPending;
-
-  if (loan.status === 'active') {
-    statusText = 'ACTIVE';
-    statusClass = styles.statusAccepted;
-  } else if (loan.status === 'accepted_deferred') {
-    statusText = 'DEFERRED (PENDING)';
-    statusClass = styles.statusPending;
-  } else if (loan.status === 'pending_activation') {
-    statusText = 'PENDING ACTIVATION';
-    statusClass = styles.statusPending;
-  } else if (loan.status === 'rejected' || loan.status === 'cancelled' || loan.status === 'recalled') {
-    statusClass = styles.statusRejected;
-  } else if (loan.status === 'expired') {
-    statusClass = styles.statusCancelled;
+  // Determine direction label
+  let directionLabel: string;
+  if (proposedBy === 'borrower') {
+    directionLabel = isLender ? `Loan Request from ${borrowerName}` : `Your Loan Request to ${lenderName}`;
+  } else {
+    directionLabel = isLender ? `Loan Out to ${borrowerName}` : `Loan In from ${lenderName}`;
   }
 
+  // Status styling
+  let statusText = loan.status.toUpperCase();
+  let statusClass = styles.statusPending;
+  if (loan.status === 'active') { statusText = 'ACTIVE'; statusClass = styles.statusAccepted; }
+  else if (loan.status === 'accepted_deferred') { statusText = 'DEFERRED'; statusClass = styles.statusPending; }
+  else if (loan.status === 'pending_activation') { statusText = 'PENDING ACTIVATION'; statusClass = styles.statusPending; }
+  else if (['rejected', 'cancelled', 'recalled'].includes(loan.status)) { statusClass = styles.statusRejected; }
+  else if (loan.status === 'expired') { statusClass = styles.statusCancelled; }
+
+  // Border color: blue = I'm the lender or I requested, green = I'm the borrower getting a loan
+  const borderColor = (isLender && proposedBy === 'lender') || (isBorrower && proposedBy === 'borrower')
+    ? 'var(--color-accent-blue)'
+    : 'var(--color-accent-green)';
+
+  // Who can action this pending loan?
+  const proposerTeamId = proposedBy === 'borrower' ? loan.borrower_team_id : loan.lender_team_id;
+  const responderTeamId = proposedBy === 'borrower' ? loan.lender_team_id : loan.borrower_team_id;
+  const iAmProposer = proposerTeamId === myTeamId;
+  const iAmResponder = responderTeamId === myTeamId;
+
   return (
-    <div className={styles.tcCard} style={{ display: 'flex', flexDirection: 'column', gap: '16px', borderLeft: isLender ? '4px solid var(--color-accent-blue)' : '4px solid var(--color-accent-green)' }}>
+    <div className={styles.tcCard} style={{ display: 'flex', flexDirection: 'column', gap: '16px', borderLeft: `4px solid ${borderColor}` }}>
       {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <div>
-          <span style={{ fontSize: '9px', fontWeight: 700, color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-            {isLender ? `Loan Out to ${borrowerName}` : `Loan In from ${lenderName}`}
+          <span style={{ fontSize: '9px', fontWeight: 700, color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block' }}>
+            {directionLabel}
+            {proposedBy === 'borrower' && (
+              <span style={{ marginLeft: '6px', background: 'rgba(99,135,255,0.15)', color: 'var(--color-accent-blue)', padding: '1px 5px', borderRadius: '3px', fontSize: '8px' }}>
+                REQUEST
+              </span>
+            )}
           </span>
           <h4 style={{ margin: '4px 0 0 0', fontSize: '15px', fontWeight: 600, color: 'var(--color-text-primary)' }}>
             {p ? (
-              <button 
+              <button
                 onClick={() => onViewPlayer(p)}
                 style={{ background: 'none', border: 'none', padding: 0, font: 'inherit', color: 'inherit', cursor: 'pointer', textDecoration: 'underline', textAlign: 'left' }}
               >
@@ -1456,15 +1494,16 @@ function LoanCard({
         </div>
       </div>
 
-      {/* Main Stats Block */}
+      {/* Stats Grid */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '12px', background: 'var(--color-bg-elevated)', padding: '12px', borderRadius: '4px' }}>
         <div>
           <span style={{ display: 'block', fontSize: '9px', fontWeight: 700, color: 'var(--color-text-muted)', textTransform: 'uppercase' }}>Loan Fee</span>
-          <span style={{ fontSize: '14px', fontWeight: 600, color: 'var(--color-text-primary)' }}>€{loan.loan_fee}m</span>
+          <span style={{ fontSize: '14px', fontWeight: 600 }}>€{loan.loan_fee}m</span>
         </div>
         <div>
           <span style={{ display: 'block', fontSize: '9px', fontWeight: 700, color: 'var(--color-text-muted)', textTransform: 'uppercase' }}>Duration</span>
-          <span style={{ fontSize: '14px', fontWeight: 600, color: 'var(--color-text-primary)' }}>{duration} GWs <span style={{ fontSize: '11px', color: 'var(--color-text-muted)' }}>(GW{loan.start_gameweek}-GW{loan.end_gameweek})</span></span>
+          <span style={{ fontSize: '14px', fontWeight: 600 }}>{duration} GWs</span>
+          <span style={{ fontSize: '11px', color: 'var(--color-text-muted)', display: 'block' }}>GW{loan.start_gameweek}–GW{loan.end_gameweek}</span>
         </div>
         <div>
           <span style={{ display: 'block', fontSize: '9px', fontWeight: 700, color: 'var(--color-text-muted)', textTransform: 'uppercase' }}>Recall Clause</span>
@@ -1473,8 +1512,8 @@ function LoanCard({
           </span>
         </div>
         <div>
-          <span style={{ display: 'block', fontSize: '9px', fontWeight: 700, color: 'var(--color-text-muted)', textTransform: 'uppercase' }}>Performance Bonus</span>
-          <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--color-text-primary)', display: 'block' }}>
+          <span style={{ display: 'block', fontSize: '9px', fontWeight: 700, color: 'var(--color-text-muted)', textTransform: 'uppercase' }}>Perf. Bonus</span>
+          <span style={{ fontSize: '13px', fontWeight: 600 }}>
             {loan.bonus_rate > 0 ? `€${loan.bonus_rate}m / pt` : 'None'}
           </span>
           {loan.bonus_rate > 0 && (
@@ -1485,16 +1524,16 @@ function LoanCard({
         </div>
       </div>
 
-      {/* Bonus Tracker (if active and has bonus rate) */}
+      {/* Bonus Tracker */}
       {loan.status === 'active' && loan.bonus_rate > 0 && (
-        <div style={{ padding: '8px 12px', background: 'rgba(99, 135, 255, 0.08)', borderLeft: '3px solid var(--color-accent-blue)', borderRadius: '4px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ padding: '8px 12px', background: 'rgba(99,135,255,0.08)', borderLeft: '3px solid var(--color-accent-blue)', borderRadius: '4px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
             <span style={{ fontSize: '11px', fontWeight: 600, color: 'var(--color-text-secondary)', display: 'block' }}>Performance Tracker</span>
             <span style={{ fontSize: '11px', color: 'var(--color-text-muted)' }}>Points Scored: {loan.bonus_points_scored} pts</span>
           </div>
-          <div style={{ textShadow: 'none', textAlign: 'right' }}>
+          <div style={{ textAlign: 'right' }}>
             <span style={{ fontSize: '11px', fontWeight: 600, color: 'var(--color-accent-green)', display: 'block' }}>Accrued Bonus</span>
-            <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--color-text-primary)' }}>
+            <span style={{ fontSize: '12px', fontWeight: 700 }}>
               €{currentAccrued.toFixed(2)}m
               {currentAccrued >= loan.bonus_cap && <span style={{ fontSize: '9px', color: 'var(--color-accent-red)', marginLeft: '4px' }}>(MAXED)</span>}
             </span>
@@ -1502,86 +1541,58 @@ function LoanCard({
         </div>
       )}
 
-      {/* Message */}
       {loan.message && (
-        <p className={styles.tradeMessage} style={{ margin: 0 }}>
-          "{loan.message}"
-        </p>
+        <p className={styles.tradeMessage} style={{ margin: 0 }}>"{loan.message}"</p>
       )}
 
-      {/* Errors */}
       {error && <p className={styles.errorBanner} style={{ margin: 0 }}>{error}</p>}
 
-      {/* Actions */}
-      {/* 1. Pending Inbound (Borrower accepts/rejects) */}
-      {loan.status === 'pending' && isBorrower && (
+      {/* Actions for pending loans */}
+      {loan.status === 'pending' && iAmResponder && (
         <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-          <button 
-            className={styles.acceptBtn} 
-            onClick={() => onAction(loan.id, 'accept')} 
-            disabled={loading}
-            style={{ fontSize: '12px', padding: '6px 16px' }}
-          >
-            {loading ? '…' : 'Accept Proposal'}
+          <button className={styles.acceptBtn} onClick={() => onAction(loan.id, 'accept')} disabled={loading}
+            style={{ fontSize: '12px', padding: '6px 16px' }}>
+            {loading ? '…' : 'Accept'}
           </button>
-          <button 
-            className={styles.rejectBtn} 
-            onClick={() => onAction(loan.id, 'reject')} 
-            disabled={loading}
-            style={{ fontSize: '12px', padding: '6px 16px' }}
-          >
+          <button className={styles.rejectBtn} onClick={() => onAction(loan.id, 'reject')} disabled={loading}
+            style={{ fontSize: '12px', padding: '6px 16px' }}>
             Reject
           </button>
         </div>
       )}
 
-      {/* 2. Pending Outbound (Lender cancels) */}
-      {loan.status === 'pending' && isLender && (
+      {loan.status === 'pending' && iAmProposer && (
         <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-          <button 
-            className={styles.cancelBtn} 
-            onClick={() => onAction(loan.id, 'cancel')} 
-            disabled={loading}
-            style={{ fontSize: '12px', padding: '6px 16px' }}
-          >
-            {loading ? '…' : 'Cancel Proposal'}
+          <button className={styles.cancelBtn} onClick={() => onAction(loan.id, 'cancel')} disabled={loading}
+            style={{ fontSize: '12px', padding: '6px 16px' }}>
+            {loading ? '…' : 'Cancel'}
           </button>
         </div>
       )}
 
-      {/* 3. Active Loans Out (Lender recall / slot buyback) */}
+      {/* Actions for active loans out (lender) */}
       {loan.status === 'active' && isLender && (
         <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', alignItems: 'center' }}>
-          {/* Slot Buyback Action */}
           {!loan.slot_buyback_used ? (
-            <button
-              onClick={() => onSlotBuyback(loan.id)}
-              disabled={loading}
-              className={styles.counterBtn}
+            <button onClick={() => onSlotBuyback(loan.id)} disabled={loading} className={styles.counterBtn}
               style={{ fontSize: '11px', padding: '6px 12px' }}
-              title={`Pay €${buybackFee}m to unlock a signing slot during this loan.`}
-            >
-              🔑 Buy Back Slot (Fee: €{buybackFee}m)
+              title={`Pay €${buybackFee}m to unlock a signing slot during this loan.`}>
+              🔑 Buy Back Slot (€{buybackFee}m)
             </button>
           ) : (
-            <span style={{ fontSize: '11px', fontWeight: 600, color: 'var(--color-accent-green)' }}>
-              ✓ Roster Slot Bought Back
-            </span>
+            <span style={{ fontSize: '11px', fontWeight: 600, color: 'var(--color-accent-green)' }}>✓ Slot Bought Back</span>
           )}
 
-          {/* Recall Action */}
           {loan.has_recall && (
             <button
               onClick={() => {
                 const penalty = Math.max(25, loan.loan_fee);
-                if (confirm(`Are you sure you want to recall ${p ? p.name : 'this player'} early? You will pay a penalty of €${penalty}m to the borrower.`)) {
+                if (confirm(`Recall ${p ? formatPlayerName(p, 'full') : 'this player'} early? You will pay €${penalty}m penalty to the borrower.`)) {
                   onRecall(loan.id);
                 }
               }}
-              disabled={loading}
-              className={styles.rejectBtn}
-              style={{ fontSize: '11px', padding: '6px 12px', border: '1px solid var(--color-accent-red)', background: 'none', color: 'var(--color-accent-red)' }}
-            >
+              disabled={loading} className={styles.rejectBtn}
+              style={{ fontSize: '11px', padding: '6px 12px', border: '1px solid var(--color-accent-red)', background: 'none', color: 'var(--color-accent-red)' }}>
               Recall Player
             </button>
           )}
@@ -1591,7 +1602,7 @@ function LoanCard({
   );
 }
 
-// ── ListingCard sub-component ──────────────────
+// ── ListingCard ───────────────────────────────────────────────────────────
 
 function ListingCard({
   listing,
@@ -1629,37 +1640,23 @@ function ListingCard({
   const [dropId, setDropId] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  // Time remaining countdown for live auctions
   const [timeLeft, setTimeLeft] = useState('');
 
   useEffect(() => {
     if (!isLive || !listing.auction_expires_at) return;
-
     function updateTimer() {
       const diff = new Date(listing.auction_expires_at).getTime() - Date.now();
-      if (diff <= 0) {
-        setTimeLeft('Ended');
-        return;
-      }
+      if (diff <= 0) { setTimeLeft('Ended'); return; }
       const hours = Math.floor(diff / (1000 * 60 * 60));
       const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
       const secs = Math.floor((diff % (1000 * 60)) / 1000);
-      if (hours > 0) {
-        setTimeLeft(`${hours}h ${mins}m`);
-      } else if (mins > 0) {
-        setTimeLeft(`${mins}m ${secs}s`);
-      } else {
-        setTimeLeft(`${secs}s`);
-      }
+      setTimeLeft(hours > 0 ? `${hours}h ${mins}m` : mins > 0 ? `${mins}m ${secs}s` : `${secs}s`);
     }
-
     updateTimer();
     const interval = setInterval(updateTimer, 1000);
     return () => clearInterval(interval);
   }, [isLive, listing.auction_expires_at]);
 
-  // Active roster count to check if drop is required
   const activeCount = localMyRoster.filter((r) => r.status !== 'ir' && r.status !== 'taxi').length;
   const showDropSelect = activeCount >= rosterSize;
   const eligibleDrops = localMyRoster.filter((r) => r.status !== 'ir' && r.status !== 'taxi');
@@ -1670,59 +1667,23 @@ function ListingCard({
     setLoading(true);
 
     const bidNum = parseInt(bidValue, 10);
-    if (isNaN(bidNum) || bidNum < 0) {
-      setError('Bid must be a non-negative integer.');
-      setLoading(false);
-      return;
-    }
-
-    if (isLive && bidNum <= highestBid) {
-      setError(`Bid must beat the current highest bid of €${highestBid}m.`);
-      setLoading(false);
-      return;
-    }
-
-    if (bidNum < minBid) {
-      setError(`Bid must be at least the minimum bid of €${minBid}m.`);
-      setLoading(false);
-      return;
-    }
-
-    if (bidNum > myTeam.faab_budget) {
-      setError('Insufficient Club Balance.');
-      setLoading(false);
-      return;
-    }
-
-    if (showDropSelect && !dropId) {
-      setError('Your roster is full. You must select a player to drop.');
-      setLoading(false);
-      return;
-    }
+    if (isNaN(bidNum) || bidNum < 0) { setError('Bid must be a non-negative integer.'); setLoading(false); return; }
+    if (isLive && bidNum <= highestBid) { setError(`Bid must beat €${highestBid}m.`); setLoading(false); return; }
+    if (bidNum < minBid) { setError(`Minimum bid is €${minBid}m.`); setLoading(false); return; }
+    if (bidNum > myTeam.faab_budget) { setError('Insufficient Club Balance.'); setLoading(false); return; }
+    if (showDropSelect && !dropId) { setError('Roster full — select a player to drop.'); setLoading(false); return; }
 
     try {
       const res = await fetch(`/api/leagues/${leagueId}/listings/${listing.id}/bid`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          bidAmount: bidNum,
-          dropPlayerId: dropId || undefined,
-        }),
+        body: JSON.stringify({ bidAmount: bidNum, dropPlayerId: dropId || undefined }),
       });
-
       const data = await res.json();
-      if (res.ok) {
-        setIsBidding(false);
-        onBidSuccess();
-      } else {
-        setError(data.error ?? 'Failed to place bid.');
-      }
-    } catch (err) {
-      console.error(err);
-      setError('An unexpected error occurred.');
-    } finally {
-      setLoading(false);
-    }
+      if (res.ok) { setIsBidding(false); onBidSuccess(); }
+      else { setError(data.error ?? 'Failed to place bid.'); }
+    } catch { setError('An unexpected error occurred.'); }
+    finally { setLoading(false); }
   }
 
   return (
@@ -1741,9 +1702,7 @@ function ListingCard({
             </span>
             <div className={styles.tbValueBlock}>
               <span className={styles.tbValueLabel}>{isLive ? 'Current Bid' : 'Min Bid'}</span>
-              <span className={styles.tbPlayerValue}>
-                €{isLive ? highestBid : minBid}m
-              </span>
+              <span className={styles.tbPlayerValue}>€{isLive ? highestBid : minBid}m</span>
             </div>
           </div>
           <span className={styles.tbPlayerClub}>
@@ -1769,58 +1728,28 @@ function ListingCard({
       {isBidding && (
         <form onSubmit={handleBid} style={{ padding: '16px 24px', borderTop: '1px solid var(--color-border-subtle)', background: 'var(--color-bg-elevated)', display: 'flex', flexDirection: 'column', gap: '12px' }}>
           {error && <span className={styles.blockToggleError}>{error}</span>}
-          
           <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-            <label style={{ fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', color: 'var(--color-text-secondary)' }}>
-              Bid Amount (€m)
-            </label>
+            <label style={{ fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', color: 'var(--color-text-secondary)' }}>Bid Amount (€m)</label>
             <input
-              type="number"
-              min={isLive ? highestBid + 1 : minBid}
-              value={bidValue}
-              onChange={(e) => setBidValue(e.target.value)}
-              required
-              style={{
-                padding: '8px',
-                borderRadius: 'var(--radius-sm)',
-                border: '1px solid var(--color-border)',
-                background: 'var(--color-bg-card)',
-                color: 'var(--color-text-primary)',
-              }}
+              type="number" min={isLive ? highestBid + 1 : minBid} value={bidValue}
+              onChange={(e) => setBidValue(e.target.value)} required
+              style={{ padding: '8px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--color-border)', background: 'var(--color-bg-card)', color: 'var(--color-text-primary)' }}
             />
           </div>
-
           {showDropSelect && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-              <label style={{ fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', color: 'var(--color-text-secondary)' }}>
-                Nominate Drop Player (Roster Full)
-              </label>
-              <select
-                value={dropId}
-                onChange={(e) => setDropId(e.target.value)}
-                required
-                style={{
-                  padding: '8px',
-                  borderRadius: 'var(--radius-sm)',
-                  border: '1px solid var(--color-border)',
-                  background: 'var(--color-bg-card)',
-                  color: 'var(--color-text-primary)',
-                }}
-              >
-                <option value="">— Select a player to drop —</option>
+              <label style={{ fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', color: 'var(--color-text-secondary)' }}>Nominate Drop (Roster Full)</label>
+              <select value={dropId} onChange={(e) => setDropId(e.target.value)} required
+                style={{ padding: '8px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--color-border)', background: 'var(--color-bg-card)', color: 'var(--color-text-primary)' }}>
+                <option value="">— Select player to drop —</option>
                 {eligibleDrops.map((d) => (
-                  <option key={d.id} value={d.id}>
-                    {formatPlayerName(d, 'initial_last')} ({d.primary_position})
-                  </option>
+                  <option key={d.id} value={d.id}>{formatPlayerName(d, 'initial_last')} ({d.primary_position})</option>
                 ))}
               </select>
             </div>
           )}
-
           <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-            <button type="button" className={styles.blockToggleBtn} onClick={() => setIsBidding(false)} disabled={loading}>
-              Cancel
-            </button>
+            <button type="button" className={styles.blockToggleBtn} onClick={() => setIsBidding(false)} disabled={loading}>Cancel</button>
             <button type="submit" className={styles.blockToggleBtn} style={{ background: 'var(--color-accent-green)', borderColor: 'var(--color-accent-green)', color: '#fff' }} disabled={loading}>
               {loading ? '…' : 'Submit Bid'}
             </button>

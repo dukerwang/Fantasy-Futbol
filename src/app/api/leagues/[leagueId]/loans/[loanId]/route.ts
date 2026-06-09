@@ -53,14 +53,20 @@ export async function POST(req: NextRequest, { params }: Props) {
   }
 
   // 5. Auth check for action
-  if (action === 'cancel' && loan.lender_team_id !== myTeam.id) {
-    return NextResponse.json({ error: 'Only the lender can cancel a loan proposal' }, { status: 403 });
+  // For lender-proposed loans: lender cancels, borrower accepts/rejects
+  // For borrower-requested loans: borrower cancels, lender accepts/rejects
+  const proposedBy = loan.proposed_by ?? 'lender';
+  const proposerTeamId = proposedBy === 'borrower' ? loan.borrower_team_id : loan.lender_team_id;
+  const responderTeamId = proposedBy === 'borrower' ? loan.lender_team_id : loan.borrower_team_id;
+
+  if (action === 'cancel' && proposerTeamId !== myTeam.id) {
+    return NextResponse.json({ error: 'Only the team that initiated this loan can cancel it' }, { status: 403 });
   }
-  if (action === 'reject' && loan.borrower_team_id !== myTeam.id) {
-    return NextResponse.json({ error: 'Only the borrower can reject a loan proposal' }, { status: 403 });
+  if (action === 'reject' && responderTeamId !== myTeam.id) {
+    return NextResponse.json({ error: 'Only the responding team can reject this loan' }, { status: 403 });
   }
-  if (action === 'accept' && loan.borrower_team_id !== myTeam.id) {
-    return NextResponse.json({ error: 'Only the borrower can accept a loan proposal' }, { status: 403 });
+  if (action === 'accept' && responderTeamId !== myTeam.id) {
+    return NextResponse.json({ error: 'Only the responding team can accept this loan' }, { status: 403 });
   }
 
   // Fetch teams and player details for emails/messages
@@ -136,12 +142,14 @@ export async function POST(req: NextRequest, { params }: Props) {
       return NextResponse.json({ error: 'Rosters are locked. Loan acceptance is not permitted.' }, { status: 403 });
     }
 
-    // Proposer (lender) active loan-outs check
+    // Proposer (lender) active loan-outs check (active + deferred + pending_activation)
+    const ACTIVE_LOAN_STATUSES = ['active', 'accepted_deferred', 'pending_activation'];
+
     const { count: lenderActiveLoans } = await admin
       .from('player_loans')
       .select('id', { count: 'exact', head: true })
       .eq('lender_team_id', loan.lender_team_id)
-      .eq('status', 'active');
+      .in('status', ACTIVE_LOAN_STATUSES);
 
     const maxOuts = league.max_loan_outs ?? 1;
     if ((lenderActiveLoans ?? 0) >= maxOuts) {
@@ -153,7 +161,7 @@ export async function POST(req: NextRequest, { params }: Props) {
       .from('player_loans')
       .select('id', { count: 'exact', head: true })
       .eq('borrower_team_id', loan.borrower_team_id)
-      .eq('status', 'active');
+      .in('status', ACTIVE_LOAN_STATUSES);
 
     const maxIns = league.max_loan_ins ?? 2;
     if ((borrowerActiveLoans ?? 0) >= maxIns) {
