@@ -121,7 +121,7 @@ export async function POST(req: NextRequest, { params }: Props) {
     .from('roster_entries')
     .select('id, player_id, status, player:players(id, primary_position, secondary_positions, pl_team_id, web_name, full_name)')
     .eq('team_id', teamId)
-    .not('status', 'in', '("ir","taxi")');
+    .not('status', 'in', '("ir","taxi","loan_out")');
 
   if (!entries) {
     return NextResponse.json({ error: 'Failed to fetch roster' }, { status: 500 });
@@ -355,13 +355,13 @@ export async function POST(req: NextRequest, { params }: Props) {
 
   // Bulk update roster_entries status (IR entries untouched since we only fetched non-IR)
   const starterEntryIds = entries
-    .filter((e: any) => starterSet.has(e.player_id as string))
+    .filter((e: any) => starterSet.has(e.player_id as string) && e.status !== 'loan_in')
     .map((e: any) => e.id as string);
   const benchEntryIds = entries
-    .filter((e: any) => benchSet.has(e.player_id as string))
+    .filter((e: any) => benchSet.has(e.player_id as string) && e.status !== 'loan_in')
     .map((e: any) => e.id as string);
   const unassignedEntryIds = entries
-    .filter((e: any) => !starterSet.has(e.player_id as string) && !benchSet.has(e.player_id as string))
+    .filter((e: any) => !starterSet.has(e.player_id as string) && !benchSet.has(e.player_id as string) && e.status !== 'loan_in')
     .map((e: any) => e.id as string);
 
   if (starterEntryIds.length > 0) {

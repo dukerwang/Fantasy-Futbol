@@ -133,4 +133,69 @@ export async function executeDrop(
             console.error('Failed to send drop notifications:', err);
         }
     }
+
+    // 5. Check and activate pending return loans
+    try {
+        const { data: pendingLoan } = await admin
+            .from('player_loans')
+            .select(`
+                *,
+                player:players(id, name)
+            `)
+            .eq('lender_team_id', teamId)
+            .eq('status', 'pending_activation')
+            .order('created_at', { ascending: true }) // oldest first
+            .limit(1)
+            .maybeSingle();
+
+        if (pendingLoan) {
+            const { data: league } = await admin
+                .from('leagues')
+                .select('roster_size')
+                .eq('id', team.league_id)
+                .single();
+            const rosterSize = league?.roster_size ?? 20;
+
+            const { count: activeCount } = await admin
+                .from('roster_entries')
+                .select('id', { count: 'exact', head: true })
+                .eq('team_id', teamId)
+                .not('status', 'in', '("ir","taxi","loan_in")');
+
+            if ((activeCount ?? 0) < rosterSize) {
+                // Return player to bench
+                await admin
+                    .from('roster_entries')
+                    .update({ status: 'bench' })
+                    .eq('team_id', teamId)
+                    .eq('player_id', pendingLoan.player_id)
+                    .eq('status', 'loan_out');
+
+                // Mark loan as expired / recalled
+                const finalStatus = pendingLoan.recall_activated ? 'recalled' : 'expired';
+                await admin
+                    .from('player_loans')
+                    .update({ status: finalStatus, updated_at: new Date().toISOString() })
+                    .eq('id', pendingLoan.id);
+
+                // Notify lender
+                const { createNotification } = await import('@/lib/notifications/createNotification');
+                await createNotification(admin, {
+                    leagueId: team.league_id,
+                    userId: team.user_id,
+                    title: 'Returned Loan Activated!',
+                    content: `Roster capacity restored. **${(pendingLoan.player as any)?.name}** has returned to your bench.`,
+                    url: `/league/${team.league_id}/team`
+                });
+
+                // Send a chat message
+                await admin.from('chat_messages').insert({
+                    league_id: team.league_id,
+                    message: `📢 [SYSTEM:ANNOUNCEMENT] Returned loan activated! **${(pendingLoan.player as any)?.name}** has returned to the bench of **${team.team_name}**.`,
+                });
+            }
+        }
+    } catch (err) {
+        console.error('Failed to auto-activate pending loan return:', err);
+    }
 }

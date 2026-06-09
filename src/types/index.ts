@@ -203,7 +203,7 @@ export interface Team {
   user?: User;
 }
 
-export type RosterStatus = 'active' | 'bench' | 'ir' | 'taxi';
+export type RosterStatus = 'active' | 'bench' | 'ir' | 'taxi' | 'loan_in' | 'loan_out' | 'pending_activation';
 
 export interface RosterEntry {
   id: string;

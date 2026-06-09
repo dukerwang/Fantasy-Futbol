@@ -151,6 +151,17 @@ export async function POST(req: NextRequest, { params }: Props) {
       return NextResponse.json({ error: 'Trade was already processed or is no longer pending.' }, { status: 400 });
     }
 
+    // Cancel any pending listings for traded players
+    const transferredPlayerIds = [...(trade.offered_players || []), ...(trade.requested_players || [])];
+    if (transferredPlayerIds.length > 0) {
+      await admin
+        .from('player_sale_listings')
+        .update({ status: 'cancelled', updated_at: new Date().toISOString() })
+        .eq('league_id', leagueId)
+        .in('player_id', transferredPlayerIds)
+        .eq('status', 'pending');
+    }
+
     // --- SEND EMAIL NOTIFICATION ---
     try {
       const { data: allTeams } = await admin.from('teams').select('user_id').eq('league_id', leagueId);
@@ -193,6 +204,17 @@ export async function POST(req: NextRequest, { params }: Props) {
 
   if (!resData.success) {
     return NextResponse.json({ error: resData.error || 'Failed to execute trade' }, { status: 400 });
+  }
+
+  // Cancel any pending listings for traded players
+  const transferredPlayerIds = [...(trade.offered_players || []), ...(trade.requested_players || [])];
+  if (transferredPlayerIds.length > 0) {
+    await admin
+      .from('player_sale_listings')
+      .update({ status: 'cancelled', updated_at: new Date().toISOString() })
+      .eq('league_id', leagueId)
+      .in('player_id', transferredPlayerIds)
+      .eq('status', 'pending');
   }
 
   // --- SEND EMAIL NOTIFICATION ---

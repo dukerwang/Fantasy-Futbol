@@ -34,6 +34,18 @@ export async function POST(req: NextRequest) {
 
   const admin = createAdminClient();
 
+  // Expire 14-day pre-bid listings
+  try {
+    const staleCutoff = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString();
+    await admin
+      .from('player_sale_listings')
+      .update({ status: 'expired', updated_at: new Date().toISOString() })
+      .eq('status', 'pending')
+      .lt('created_at', staleCutoff);
+  } catch (err) {
+    console.error('[process-auctions] Failed to expire stale listings:', err);
+  }
+
   // Find all expired pending auction claims
   const { data: expiredClaims, error: fetchError } = await admin
     .from('waiver_claims')
@@ -201,6 +213,40 @@ export async function POST(req: NextRequest) {
               content: `You secured **${wonPlayer?.name ?? 'Player'}** for **€${winnerBid}m** in a ${realClaims.length}-bidder auction.${resData.winner_severance ? ` **${dropPlayerName}** was dropped to waivers to clear roster space.` : ''}`,
               url: `/league/${league_id}/team`
             });
+          }
+
+          // 1b. Notify the seller (if player sale)
+          if ((resData as any).sale_listing_id && (resData as any).seller_team_id) {
+            const { data: sellerTeam } = await admin
+              .from('teams')
+              .select('user_id, team_name')
+              .eq('id', (resData as any).seller_team_id)
+              .single();
+
+            if (sellerTeam && sellerTeam.user_id) {
+              await createNotification(admin, {
+                leagueId: league_id,
+                userId: sellerTeam.user_id,
+                title: 'Player Sold!',
+                content: `**${wonPlayer?.name ?? 'Player'}** has been sold to **${winnerTeamName}** for **€${winnerBid}m**.`,
+                url: `/league/${league_id}/team`
+              });
+
+              const { data: sellerUser } = await admin
+                .from('users')
+                .select('email')
+                .eq('id', sellerTeam.user_id)
+                .single();
+
+              if (sellerUser?.email) {
+                const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://gaffa.live';
+                await sendEmail({
+                  to: [sellerUser.email],
+                  subject: `Player Sold! ${wonPlayer?.name ?? 'Player'} transfer complete`,
+                  html: `<p>Your player <strong>${wonPlayer?.name ?? 'Player'}</strong> has been sold to <strong>${winnerTeamName}</strong> for <strong>€${winnerBid}m</strong>.</p><p>View your team: <a href="${baseUrl}/league/${league_id}/team">${baseUrl}/league/${league_id}/team</a></p>`
+                });
+              }
+            }
           }
 
           // 2. Notify the losing bidders

@@ -18,7 +18,7 @@ export default async function TradesPage({ params }: Props) {
 
   const { data: league } = await admin
     .from('leagues')
-    .select('id, name, roster_size, status')
+    .select('id, name, roster_size, status, loan_slot_buyback_fee, loan_bonus_cap_default, max_loan_outs, max_loan_ins, total_gameweeks, roster_locked')
     .eq('id', leagueId)
     .single();
 
@@ -53,6 +53,44 @@ export default async function TradesPage({ params }: Props) {
     .eq('league_id', leagueId)
     .neq('id', myTeam.id);
 
+  // Fetch active listings for this league
+  const { data: listings } = await admin
+    .from('player_sale_listings')
+    .select(`
+      id, seller_team_id, player_id, min_bid, buy_now_price, status,
+      auction_expires_at, created_at,
+      seller_team:teams!seller_team_id(id, team_name),
+      player:players(id, fpl_id, api_football_id, web_name, name, full_name, date_of_birth, nationality, pl_team, pl_team_id, primary_position, secondary_positions, market_value, market_value_updated_at, projected_points, photo_url, height_cm, fpl_status, fpl_news, total_points, form_rating, ppg, is_active, transfermarkt_id, created_at, updated_at)
+    `)
+    .eq('league_id', leagueId)
+    .in('status', ['pending', 'active'])
+    .order('created_at', { ascending: false });
+
+  // Fetch current highest bid for each active listing
+  const listingIds = (listings ?? []).filter(l => l.status === 'active').map(l => l.id);
+  const highestBids: Record<string, number> = {};
+  if (listingIds.length > 0) {
+    const { data: claims } = await admin
+      .from('waiver_claims')
+      .select('sale_listing_id, faab_bid')
+      .in('sale_listing_id', listingIds)
+      .eq('status', 'pending')
+      .eq('is_auction', true)
+      .order('faab_bid', { ascending: false });
+
+    for (const c of claims ?? []) {
+      if (c.sale_listing_id && !(c.sale_listing_id in highestBids)) {
+        highestBids[c.sale_listing_id] = c.faab_bid;
+      }
+    }
+  }
+
+  // Build a lookup map of listing by player id
+  const playerListingsMap: Record<string, any> = {};
+  for (const l of listings ?? []) {
+    playerListingsMap[l.player_id] = l;
+  }
+
   // Fetch rosters for all other teams (for propose UI)
   const allTeamIds = (allTeams ?? []).map((t) => t.id);
   const allRosters: Record<string, any[]> = {};
@@ -64,7 +102,11 @@ export default async function TradesPage({ params }: Props) {
 
     for (const e of entries ?? []) {
       if (!allRosters[e.team_id]) allRosters[e.team_id] = [];
-      allRosters[e.team_id].push({ ...(e.player as any), on_trade_block: e.on_trade_block });
+      allRosters[e.team_id].push({
+        ...(e.player as any),
+        on_trade_block: e.on_trade_block,
+        listing: playerListingsMap[(e.player as any)?.id] ?? null
+      });
     }
   }
 
@@ -73,7 +115,11 @@ export default async function TradesPage({ params }: Props) {
     .select('on_trade_block, player:players(id, fpl_id, api_football_id, web_name, name, full_name, date_of_birth, nationality, pl_team, pl_team_id, primary_position, secondary_positions, market_value, market_value_updated_at, projected_points, photo_url, height_cm, fpl_status, fpl_news, total_points, form_rating, ppg, is_active, transfermarkt_id, created_at, updated_at)')
     .eq('team_id', myTeam.id);
 
-  const myRoster = (myRosterEntries ?? []).map((e) => ({ ...(e.player as any), on_trade_block: e.on_trade_block }));
+  const myRoster = (myRosterEntries ?? []).map((e) => ({
+    ...(e.player as any),
+    on_trade_block: e.on_trade_block,
+    listing: playerListingsMap[(e.player as any)?.id] ?? null
+  }));
 
   // ── League Feed — all accepted trades across the whole league ──────────────
   const { data: leagueTrades } = await admin
@@ -152,6 +198,28 @@ export default async function TradesPage({ params }: Props) {
     }
   }
 
+  // Fetch loans for this league
+  const { data: loans } = await admin
+    .from('player_loans')
+    .select(`
+      *,
+      lender_team:teams!lender_team_id(id, team_name, user_id),
+      borrower_team:teams!borrower_team_id(id, team_name, user_id),
+      player:players(id, fpl_id, api_football_id, web_name, name, full_name, date_of_birth, nationality, pl_team, pl_team_id, primary_position, secondary_positions, market_value, market_value_updated_at, projected_points, photo_url, height_cm, fpl_status, fpl_news, total_points, form_rating, ppg, is_active, transfermarkt_id, created_at, updated_at)
+    `)
+    .eq('league_id', leagueId)
+    .order('created_at', { ascending: false });
+
+  for (const l of loans ?? []) {
+    if (l.player) {
+      const r = rankMap.get(l.player.id);
+      if (r) {
+        l.player.overall_rank = r.overall_rank;
+        l.player.position_ranks = r.position_ranks;
+      }
+    }
+  }
+
   return (
     <TradesClient
       leagueId={leagueId}
@@ -164,6 +232,17 @@ export default async function TradesPage({ params }: Props) {
       initialTrades={trades ?? []}
       leagueTrades={(leagueTrades ?? []) as unknown as any[]}
       initialPlayerMap={playerMap}
+      initialListings={listings ?? []}
+      listingHighestBids={highestBids}
+      initialLoans={loans ?? []}
+      leagueSettings={{
+        loan_slot_buyback_fee: league.loan_slot_buyback_fee ?? 25,
+        loan_bonus_cap_default: league.loan_bonus_cap_default ?? 0,
+        max_loan_outs: league.max_loan_outs ?? 1,
+        max_loan_ins: league.max_loan_ins ?? 2,
+        total_gameweeks: league.total_gameweeks ?? 38,
+        roster_locked: league.roster_locked ?? false
+      }}
     />
   );
 }

@@ -1,10 +1,11 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import Link from 'next/link';
 import PositionBadge from '@/components/players/PositionBadge';
 import PlayerDetailsModal from '@/components/players/PlayerDetailsModal';
-import AddToBlockModal from './AddToBlockModal';
+import ListPlayerModal from './ListPlayerModal';
+import ProposeLoanModal from './ProposeLoanModal';
 import { formatPlayerName } from '@/lib/formatName';
 import styles from './trades.module.css';
 
@@ -42,20 +43,58 @@ interface TradeRecord {
   team_b?: { id: string; team_name: string };
 }
 
+interface PlayerLoanRecord {
+  id: string;
+  league_id: string;
+  lender_team_id: string;
+  borrower_team_id: string;
+  player_id: string;
+  loan_fee: number;
+  start_gameweek: number;
+  end_gameweek: number;
+  bonus_rate: number;
+  bonus_cap: number;
+  bonus_points_scored: number;
+  bonus_settled: boolean;
+  has_recall: boolean;
+  recall_activated: boolean;
+  recall_penalty: number | null;
+  slot_buyback_used: boolean;
+  slot_buyback_fee_paid: number | null;
+  status: 'pending' | 'active' | 'accepted_deferred' | 'recalled' | 'expired' | 'pending_activation' | 'rejected' | 'cancelled';
+  message: string | null;
+  created_at: string;
+  lender_team?: { id: string; team_name: string };
+  borrower_team?: { id: string; team_name: string };
+  player?: any;
+}
+
 interface Props {
   leagueId: string;
   leagueName: string;
   myTeam: SimpleTeam;
-  myRoster: SimplePlayer[];
+  myRoster: any[];
   allTeams: SimpleTeam[];
   allTeamsIncludingMine: SimpleTeam[];
-  allRosters: Record<string, SimplePlayer[]>;
+  allRosters: Record<string, any[]>;
   initialTrades: TradeRecord[];
   leagueTrades: any[];
   initialPlayerMap: Record<string, SimplePlayer>;
+  initialListings: any[];
+  listingHighestBids: Record<string, number>;
+  rosterSize?: number;
+  initialLoans?: PlayerLoanRecord[];
+  leagueSettings?: {
+    loan_slot_buyback_fee: number;
+    loan_bonus_cap_default: number;
+    max_loan_outs: number;
+    max_loan_ins: number;
+    total_gameweeks: number;
+    roster_locked: boolean;
+  };
 }
 
-type Tab = 'my-trades' | 'propose' | 'league-feed' | 'trade-block';
+type Tab = 'my-trades' | 'propose' | 'league-feed' | 'listings' | 'loans';
 
 function playerDisplayName(p: SimplePlayer) {
   return formatPlayerName(p, 'initial_last');
@@ -72,13 +111,29 @@ export default function TradesClient({
   initialTrades,
   leagueTrades,
   initialPlayerMap,
+  initialListings,
+  listingHighestBids,
+  rosterSize = 20,
+  initialLoans = [],
+  leagueSettings = {
+    loan_slot_buyback_fee: 25,
+    loan_bonus_cap_default: 0,
+    max_loan_outs: 1,
+    max_loan_ins: 2,
+    total_gameweeks: 38,
+    roster_locked: false,
+  },
 }: Props) {
   const [tab, setTab] = useState<Tab>('my-trades');
   const [trades, setTrades] = useState<TradeRecord[]>(initialTrades);
   const [playerMap, setPlayerMap] = useState<Record<string, SimplePlayer>>(initialPlayerMap);
   const [viewingPlayer, setViewingPlayer] = useState<SimplePlayer | null>(null);
-  const [localMyRoster, setLocalMyRoster] = useState<SimplePlayer[]>(myRoster);
-  const [showBlockModal, setShowBlockModal] = useState(false);
+  const [localMyRoster, setLocalMyRoster] = useState<any[]>(myRoster);
+  const [showListModal, setShowListModal] = useState(false);
+  const [listings, setListings] = useState<any[]>(initialListings);
+  const [highestBids, setHighestBids] = useState<Record<string, number>>(listingHighestBids);
+  const [loans, setLoans] = useState<PlayerLoanRecord[]>(initialLoans);
+  const [showLoanModal, setShowLoanModal] = useState(false);
 
   // Propose Trade state
   const [selectedTeamId, setSelectedTeamId] = useState('');
@@ -236,13 +291,117 @@ export default function TradesClient({
     });
   }
 
-  // ── Trade block local update ──────────────────────────────────────────────
+  // ── Player Market listings local update ───────────────────────────────────
 
-  function handleBlockToggle(playerId: string, isOnBlock: boolean) {
+  function handleListingChange(playerId: string, listing: any | null) {
     setLocalMyRoster((prev) =>
-      prev.map((p) => (p.id === playerId ? { ...p, on_trade_block: isOnBlock } : p))
+      prev.map((p) => (p.id === playerId ? { ...p, listing } : p))
     );
+    if (listing) {
+      setListings((prev) => [...prev.filter((l) => l.player_id !== playerId), listing]);
+    } else {
+      setListings((prev) => prev.filter((l) => l.player_id !== playerId));
+    }
   }
+
+  // ── Player Loans Callbacks ────────────────────────────────────────────────
+
+  const refreshLoans = useCallback(async () => {
+    try {
+      const res = await fetch(`/api/leagues/${leagueId}/loans`);
+      if (res.ok) {
+        const data = await res.json();
+        const merged = [...(data.loansOut ?? []), ...(data.loansIn ?? [])];
+        setLoans(merged);
+      }
+    } catch (err) {
+      console.error('Failed to refresh loans:', err);
+    }
+  }, [leagueId]);
+
+  const handleLoanAction = useCallback(async (loanId: string, action: 'accept' | 'reject' | 'cancel') => {
+    setActionLoading((prev) => ({ ...prev, [loanId]: true }));
+    setActionError((prev) => ({ ...prev, [loanId]: '' }));
+
+    try {
+      const res = await fetch(`/api/leagues/${leagueId}/loans/${loanId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setActionError((prev) => ({ ...prev, [loanId]: data.error ?? 'Something went wrong.' }));
+      } else {
+        if (data.deferred) {
+          setProposeSuccess('Loan accepted but deferred until gameweek ends — player is locked.');
+        } else {
+          setProposeSuccess(`Loan proposal successfully ${action}ed!`);
+        }
+        await refreshLoans();
+      }
+    } catch (err) {
+      console.error(err);
+      setActionError((prev) => ({ ...prev, [loanId]: 'An unexpected error occurred.' }));
+    } finally {
+      setActionLoading((prev) => ({ ...prev, [loanId]: false }));
+    }
+  }, [leagueId, refreshLoans]);
+
+  const handleLoanRecall = useCallback(async (loanId: string) => {
+    setActionLoading((prev) => ({ ...prev, [loanId]: true }));
+    setActionError((prev) => ({ ...prev, [loanId]: '' }));
+
+    try {
+      const res = await fetch(`/api/leagues/${leagueId}/loans/${loanId}/recall`, {
+        method: 'POST',
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setActionError((prev) => ({ ...prev, [loanId]: data.error ?? 'Something went wrong.' }));
+      } else {
+        let msg = `Loan recalled successfully! Penalty paid: €${data.penalty}m.`;
+        if (data.bonusPaid > 0) msg += ` Performance bonus paid: €${data.bonusPaid}m.`;
+        if (data.pendingActivation) msg += ` Player is returning but roster is full (pending drop).`;
+        setProposeSuccess(msg);
+        await refreshLoans();
+      }
+    } catch (err) {
+      console.error(err);
+      setActionError((prev) => ({ ...prev, [loanId]: 'An unexpected error occurred.' }));
+    } finally {
+      setActionLoading((prev) => ({ ...prev, [loanId]: false }));
+    }
+  }, [leagueId, refreshLoans]);
+
+  const handleLoanSlotBuyback = useCallback(async (loanId: string) => {
+    setActionLoading((prev) => ({ ...prev, [loanId]: true }));
+    setActionError((prev) => ({ ...prev, [loanId]: '' }));
+
+    try {
+      const res = await fetch(`/api/leagues/${leagueId}/loans/${loanId}/slot-buyback`, {
+        method: 'POST',
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setActionError((prev) => ({ ...prev, [loanId]: data.error ?? 'Something went wrong.' }));
+      } else {
+        setProposeSuccess(`Slot buyback activated successfully! Paid €${data.feePaid}m fee.`);
+        await refreshLoans();
+      }
+    } catch (err) {
+      console.error(err);
+      setActionError((prev) => ({ ...prev, [loanId]: 'An unexpected error occurred.' }));
+    } finally {
+      setActionLoading((prev) => ({ ...prev, [loanId]: false }));
+    }
+  }, [leagueId, refreshLoans]);
 
   // ── Derived data ──────────────────────────────────────────────────────────
 
@@ -251,14 +410,11 @@ export default function TradesClient({
   const sentTrades = pendingTrades.filter((t) => t.team_a_id === myTeam.id);
   const pastTrades = trades.filter((t) => t.status !== 'pending');
 
-  const myOnBlock = localMyRoster.filter((p) => p.on_trade_block);
-  const othersOnBlock = Object.entries(allRosters).flatMap(([teamId, roster]) =>
-    roster.filter((p) => p.on_trade_block).map((p) => ({ ...p, team_id: teamId }))
-  );
-  const allBlockPlayers = [
-    ...myOnBlock.map((p) => ({ ...p, team_id: myTeam.id })),
-    ...othersOnBlock,
-  ];
+  const pendingInboundLoans = loans.filter((l) => l.borrower_team_id === myTeam.id && l.status === 'pending');
+  const pendingOutboundLoans = loans.filter((l) => l.lender_team_id === myTeam.id && l.status === 'pending');
+  const activeLoansOut = loans.filter((l) => l.lender_team_id === myTeam.id && ['active', 'accepted_deferred', 'pending_activation'].includes(l.status));
+  const activeLoansIn = loans.filter((l) => l.borrower_team_id === myTeam.id && ['active', 'accepted_deferred', 'pending_activation'].includes(l.status));
+  const historicalLoans = loans.filter((l) => ['expired', 'recalled', 'rejected', 'cancelled'].includes(l.status));
 
   // ── Render ────────────────────────────────────────────────────────────────
 
@@ -308,10 +464,19 @@ export default function TradesClient({
           League Feed
         </button>
         <button
-          className={`${styles.tab} ${tab === 'trade-block' ? styles.tabActive : ''}`}
-          onClick={() => { setTab('trade-block'); setProposeSuccess(''); }}
+          className={`${styles.tab} ${tab === 'listings' ? styles.tabActive : ''}`}
+          onClick={() => { setTab('listings'); setProposeSuccess(''); }}
         >
-          Trade Block
+          Player Market
+        </button>
+        <button
+          className={`${styles.tab} ${tab === 'loans' ? styles.tabActive : ''}`}
+          onClick={() => { setTab('loans'); setProposeSuccess(''); }}
+        >
+          Player Loans
+          {pendingInboundLoans.length > 0 && (
+            <span className={styles.tabBadge}>{pendingInboundLoans.length}</span>
+          )}
         </button>
       </div>
 
@@ -735,87 +900,263 @@ export default function TradesClient({
         </div>
       )}
 
-      {/* ── Trade Block Tab ── */}
-      {tab === 'trade-block' && (
+      {/* ── Player Market Listings Tab ── */}
+      {tab === 'listings' && (
         <div className={styles.tradesSection}>
           <div className={styles.tradeBlockSectionHeader}>
             <div>
-              <span className={styles.leagueFeedLabel}>AVAILABLE FOR DEALS</span>
-              <h2 className={styles.tradeGroupTitle}>Trade Block</h2>
+              <span className={styles.leagueFeedLabel}>AVAILABLE FOR DEALS & AUCTION</span>
+              <h2 className={styles.tradeGroupTitle}>Player Market</h2>
               <p className={styles.leagueFeedSubtitle}>
-                Players whose managers have signalled they're open to offers.
+                Bidding or proposing trades on players listed by other managers.
               </p>
             </div>
             <button
               className={styles.addToBlockBtn}
-              onClick={() => setShowBlockModal(true)}
+              onClick={() => setShowListModal(true)}
             >
-              + Manage My Block
+              + List a Player
             </button>
           </div>
 
-          {allBlockPlayers.length === 0 ? (
+          {listings.length === 0 ? (
             <div className={styles.emptyState}>
-              <p>No players are currently on the trade block.</p>
-              <button className={styles.proposeBtn} onClick={() => setShowBlockModal(true)}>
-                Add your players
+              <p>No players are currently listed on the market.</p>
+              <button className={styles.proposeBtn} onClick={() => setShowListModal(true)}>
+                List your players
               </button>
             </div>
           ) : (
             <div className={styles.tradeBlockGrid}>
-              {allBlockPlayers.map((p, i) => {
-                const isMe = p.team_id === myTeam.id;
+              {listings.map((l) => {
+                const p = l.player;
+                if (!p) return null;
+                const isMe = l.seller_team_id === myTeam.id;
+                const highestBid = highestBids[l.id] ?? 0;
+
                 return (
-                  <div
-                    key={`${p.id}-${i}`}
-                    className={`${styles.tbCard} ${isMe ? styles.tbCardMine : ''}`}
-                  >
-                    <div className={styles.tbCardBody}>
-                      {(p as any).photo_url ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={(p as any).photo_url} alt={p.name} className={styles.tbPlayerPhoto} />
-                      ) : (
-                        <div className={styles.tbPlayerPhotoPlaceholder}>⚽</div>
-                      )}
-                      <div className={styles.tbCardInfo}>
-                        <div className={styles.tbCardInfoTop}>
-                          <span className={styles.tbPlayerName}>{playerDisplayName(p)}</span>
-                          {p.market_value && (
-                            <div className={styles.tbValueBlock}>
-                              <span className={styles.tbValueLabel}>Value</span>
-                              <span className={styles.tbPlayerValue}>€{p.market_value.toFixed(0)}m</span>
-                            </div>
-                          )}
-                        </div>
-                        <span className={styles.tbPlayerClub}>
-                          <span className={styles.tcPosDot} style={{ background: positionColor(p.primary_position), margin: 0 }} />
-                          {p.pl_team} · {p.primary_position}
-                        </span>
-                        {isMe && <span className={styles.tbOwnerTag}>Your Player</span>}
-                      </div>
-                    </div>
-                    <div className={styles.tbCardAction}>
-                      {isMe ? (
-                        <button className={styles.tbManageBtn} onClick={() => setShowBlockModal(true)}>
-                          Update Status
-                        </button>
-                      ) : (
-                        <button
-                          className={styles.tbProposeBtn}
-                          onClick={() => {
-                            setSelectedTeamId(p.team_id);
-                            setOfferedPlayerIds(new Set());
-                            setRequestedPlayerIds(new Set([p.id]));
-                            setTab('propose');
-                          }}
-                        >
-                          Propose Trade
-                        </button>
-                      )}
-                    </div>
-                  </div>
+                  <ListingCard
+                    key={l.id}
+                    listing={l}
+                    highestBid={highestBid}
+                    isMe={isMe}
+                    leagueId={leagueId}
+                    myTeam={myTeam}
+                    localMyRoster={localMyRoster}
+                    rosterSize={rosterSize}
+                    onBidSuccess={async () => {
+                      const refreshRes = await fetch(`/api/leagues/${leagueId}/listings`);
+                      if (refreshRes.ok) {
+                        const refreshData = await refreshRes.json();
+                        setListings(refreshData.listings);
+                        setHighestBids(refreshData.highestBids);
+                        // Also update localMyRoster listings
+                        const myPlayerListings: Record<string, any> = {};
+                        for (const listEntry of refreshData.listings) {
+                          if (listEntry.seller_team_id === myTeam.id) {
+                            myPlayerListings[listEntry.player_id] = listEntry;
+                          }
+                        }
+                        setLocalMyRoster((prev) =>
+                          prev.map((r) => ({
+                            ...r,
+                            listing: myPlayerListings[r.id] ?? null,
+                          }))
+                        );
+                      }
+                    }}
+                    onProposeTrade={() => {
+                      setSelectedTeamId(l.seller_team_id);
+                      setOfferedPlayerIds(new Set());
+                      setRequestedPlayerIds(new Set([p.id]));
+                      setTab('propose');
+                    }}
+                    onCancelListing={() => handleListingChange(p.id, null)}
+                    onViewPlayer={setViewingPlayer}
+                  />
                 );
               })}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── Player Loans Tab ── */}
+      {tab === 'loans' && (
+        <div className={styles.tradesSection}>
+          {proposeSuccess && (
+            <div className={styles.successBanner}>{proposeSuccess}</div>
+          )}
+
+          <div className={styles.tradeBlockSectionHeader}>
+            <div>
+              <span className={styles.leagueFeedLabel}>STRATEGIC TEMPORARY TRANSFERS</span>
+              <h2 className={styles.tradeGroupTitle}>Player Loans</h2>
+              <p className={styles.leagueFeedSubtitle}>
+                Propose temporary player loans, manage active loans-out and slot buybacks, or accept incoming proposals.
+              </p>
+            </div>
+            <button
+              className={styles.addToBlockBtn}
+              onClick={() => setShowLoanModal(true)}
+            >
+              + Propose a Loan
+            </button>
+          </div>
+
+          {loans.length === 0 ? (
+            <div className={styles.emptyState}>
+              <p>No active or pending loans in this league.</p>
+              <button className={styles.proposeBtn} onClick={() => setShowLoanModal(true)}>
+                Propose a Loan
+              </button>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+              {/* 1. Pending Inbound Proposals */}
+              {pendingInboundLoans.length > 0 && (
+                <div className={styles.tradeGroup}>
+                  <div className={styles.tradeSubGroupHeader}>
+                    <span className={styles.tradeSubGroupIcon}>📥</span>
+                    <h3 className={styles.tradeGroupTitle}>Pending Inbound Proposals</h3>
+                    <span className={styles.tradeSubGroupHint}>
+                      Loans proposed to your club by other managers
+                    </span>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                    {pendingInboundLoans.map((loan) => (
+                      <LoanCard
+                        key={loan.id}
+                        loan={loan}
+                        myTeamId={myTeam.id}
+                        onAction={handleLoanAction}
+                        onRecall={handleLoanRecall}
+                        onSlotBuyback={handleLoanSlotBuyback}
+                        onViewPlayer={setViewingPlayer}
+                        error={actionError[loan.id] ?? ''}
+                        loading={actionLoading[loan.id] ?? false}
+                        buybackFee={leagueSettings.loan_slot_buyback_fee}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* 2. Pending Outbound Proposals */}
+              {pendingOutboundLoans.length > 0 && (
+                <div className={styles.tradeGroup}>
+                  <div className={styles.tradeSubGroupHeader}>
+                    <span className={styles.tradeSubGroupIcon}>📤</span>
+                    <h3 className={styles.tradeGroupTitle}>Pending Outbound Proposals</h3>
+                    <span className={styles.tradeSubGroupHint}>
+                      Loans you proposed to other clubs
+                    </span>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                    {pendingOutboundLoans.map((loan) => (
+                      <LoanCard
+                        key={loan.id}
+                        loan={loan}
+                        myTeamId={myTeam.id}
+                        onAction={handleLoanAction}
+                        onRecall={handleLoanRecall}
+                        onSlotBuyback={handleLoanSlotBuyback}
+                        onViewPlayer={setViewingPlayer}
+                        error={actionError[loan.id] ?? ''}
+                        loading={actionLoading[loan.id] ?? false}
+                        buybackFee={leagueSettings.loan_slot_buyback_fee}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* 3. Active Loans In */}
+              {activeLoansIn.length > 0 && (
+                <div className={styles.tradeGroup}>
+                  <div className={styles.tradeSubGroupHeader}>
+                    <span className={styles.tradeSubGroupIcon}>🤝</span>
+                    <h3 className={styles.tradeGroupTitle}>Active Loans In (Borrowed)</h3>
+                    <span className={styles.tradeSubGroupHint}>
+                      Players temporarily joining your squad
+                    </span>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                    {activeLoansIn.map((loan) => (
+                      <LoanCard
+                        key={loan.id}
+                        loan={loan}
+                        myTeamId={myTeam.id}
+                        onAction={handleLoanAction}
+                        onRecall={handleLoanRecall}
+                        onSlotBuyback={handleLoanSlotBuyback}
+                        onViewPlayer={setViewingPlayer}
+                        error={actionError[loan.id] ?? ''}
+                        loading={actionLoading[loan.id] ?? false}
+                        buybackFee={leagueSettings.loan_slot_buyback_fee}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* 4. Active Loans Out */}
+              {activeLoansOut.length > 0 && (
+                <div className={styles.tradeGroup}>
+                  <div className={styles.tradeSubGroupHeader}>
+                    <span className={styles.tradeSubGroupIcon}>✈️</span>
+                    <h3 className={styles.tradeGroupTitle}>Active Loans Out (Loaned Out)</h3>
+                    <span className={styles.tradeSubGroupHint}>
+                      Your players temporarily playing for other clubs
+                    </span>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                    {activeLoansOut.map((loan) => (
+                      <LoanCard
+                        key={loan.id}
+                        loan={loan}
+                        myTeamId={myTeam.id}
+                        onAction={handleLoanAction}
+                        onRecall={handleLoanRecall}
+                        onSlotBuyback={handleLoanSlotBuyback}
+                        onViewPlayer={setViewingPlayer}
+                        error={actionError[loan.id] ?? ''}
+                        loading={actionLoading[loan.id] ?? false}
+                        buybackFee={leagueSettings.loan_slot_buyback_fee}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* 5. Historical Loans */}
+              {historicalLoans.length > 0 && (
+                <div className={styles.tradeGroup}>
+                  <div className={styles.tradeSubGroupHeader}>
+                    <span className={styles.tradeSubGroupIcon}>📜</span>
+                    <h3 className={styles.tradeGroupTitle}>Historical Loans</h3>
+                    <span className={styles.tradeSubGroupHint}>
+                      Past loan agreements in this league
+                    </span>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                    {historicalLoans.map((loan) => (
+                      <LoanCard
+                        key={loan.id}
+                        loan={loan}
+                        myTeamId={myTeam.id}
+                        onAction={handleLoanAction}
+                        onRecall={handleLoanRecall}
+                        onSlotBuyback={handleLoanSlotBuyback}
+                        onViewPlayer={setViewingPlayer}
+                        error={actionError[loan.id] ?? ''}
+                        loading={actionLoading[loan.id] ?? false}
+                        buybackFee={leagueSettings.loan_slot_buyback_fee}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -827,12 +1168,27 @@ export default function TradesClient({
         onClose={() => setViewingPlayer(null)}
       />
 
-      {showBlockModal && (
-        <AddToBlockModal
+      {showListModal && (
+        <ListPlayerModal
+          leagueId={leagueId}
           myTeamId={myTeam.id}
           myRoster={localMyRoster}
-          onClose={() => setShowBlockModal(false)}
-          onToggle={handleBlockToggle}
+          onClose={() => setShowListModal(false)}
+          onListed={(playerId, listing) => handleListingChange(playerId, listing)}
+          onCancelled={(playerId) => handleListingChange(playerId, null)}
+        />
+      )}
+
+      {showLoanModal && (
+        <ProposeLoanModal
+          leagueId={leagueId}
+          myRoster={localMyRoster}
+          allTeams={allTeams}
+          onClose={() => setShowLoanModal(false)}
+          onProposed={async (newLoan) => {
+            setProposeSuccess('Loan proposal successfully submitted!');
+            await refreshLoans();
+          }}
         />
       )}
     </div>
@@ -1014,6 +1370,490 @@ function TradeCard({ trade, myTeamId, playerMap, onAction, onCounter, onViewPlay
           Reject
         </button>
       </div>
+    </div>
+  );
+}
+
+// ── LoanCard sub-component ──────────────────
+
+function LoanCard({
+  loan,
+  myTeamId,
+  onAction,
+  onRecall,
+  onSlotBuyback,
+  onViewPlayer,
+  error,
+  loading,
+  buybackFee
+}: {
+  loan: PlayerLoanRecord;
+  myTeamId: string;
+  onAction: (loanId: string, action: 'accept' | 'reject' | 'cancel') => Promise<void>;
+  onRecall: (loanId: string) => Promise<void>;
+  onSlotBuyback: (loanId: string) => Promise<void>;
+  onViewPlayer: (player: any) => void;
+  error: string;
+  loading: boolean;
+  buybackFee: number;
+}) {
+  const isLender = loan.lender_team_id === myTeamId;
+  const isBorrower = loan.borrower_team_id === myTeamId;
+
+  const lenderName = loan.lender_team?.team_name ?? 'Lender';
+  const borrowerName = loan.borrower_team?.team_name ?? 'Borrower';
+
+  const p = loan.player;
+
+  const dateStr = new Date(loan.created_at).toLocaleDateString('en-GB', {
+    day: 'numeric', month: 'short', year: 'numeric',
+  });
+
+  const duration = loan.end_gameweek - loan.start_gameweek;
+  const currentAccrued = Math.min(loan.bonus_cap, loan.bonus_points_scored * loan.bonus_rate);
+
+  // Status Styling
+  let statusText = loan.status.toUpperCase();
+  let statusClass = styles.statusPending;
+
+  if (loan.status === 'active') {
+    statusText = 'ACTIVE';
+    statusClass = styles.statusAccepted;
+  } else if (loan.status === 'accepted_deferred') {
+    statusText = 'DEFERRED (PENDING)';
+    statusClass = styles.statusPending;
+  } else if (loan.status === 'pending_activation') {
+    statusText = 'PENDING ACTIVATION';
+    statusClass = styles.statusPending;
+  } else if (loan.status === 'rejected' || loan.status === 'cancelled' || loan.status === 'recalled') {
+    statusClass = styles.statusRejected;
+  } else if (loan.status === 'expired') {
+    statusClass = styles.statusCancelled;
+  }
+
+  return (
+    <div className={styles.tcCard} style={{ display: 'flex', flexDirection: 'column', gap: '16px', borderLeft: isLender ? '4px solid var(--color-accent-blue)' : '4px solid var(--color-accent-green)' }}>
+      {/* Header */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div>
+          <span style={{ fontSize: '9px', fontWeight: 700, color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+            {isLender ? `Loan Out to ${borrowerName}` : `Loan In from ${lenderName}`}
+          </span>
+          <h4 style={{ margin: '4px 0 0 0', fontSize: '15px', fontWeight: 600, color: 'var(--color-text-primary)' }}>
+            {p ? (
+              <button 
+                onClick={() => onViewPlayer(p)}
+                style={{ background: 'none', border: 'none', padding: 0, font: 'inherit', color: 'inherit', cursor: 'pointer', textDecoration: 'underline', textAlign: 'left' }}
+              >
+                {formatPlayerName(p, 'full')}
+              </button>
+            ) : 'Unknown Player'}
+          </h4>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <span className={`${styles.statusTag} ${statusClass}`}>{statusText}</span>
+          <span style={{ fontSize: '11px', color: 'var(--color-text-muted)' }}>{dateStr}</span>
+        </div>
+      </div>
+
+      {/* Main Stats Block */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '12px', background: 'var(--color-bg-elevated)', padding: '12px', borderRadius: '4px' }}>
+        <div>
+          <span style={{ display: 'block', fontSize: '9px', fontWeight: 700, color: 'var(--color-text-muted)', textTransform: 'uppercase' }}>Loan Fee</span>
+          <span style={{ fontSize: '14px', fontWeight: 600, color: 'var(--color-text-primary)' }}>€{loan.loan_fee}m</span>
+        </div>
+        <div>
+          <span style={{ display: 'block', fontSize: '9px', fontWeight: 700, color: 'var(--color-text-muted)', textTransform: 'uppercase' }}>Duration</span>
+          <span style={{ fontSize: '14px', fontWeight: 600, color: 'var(--color-text-primary)' }}>{duration} GWs <span style={{ fontSize: '11px', color: 'var(--color-text-muted)' }}>(GW{loan.start_gameweek}-GW{loan.end_gameweek})</span></span>
+        </div>
+        <div>
+          <span style={{ display: 'block', fontSize: '9px', fontWeight: 700, color: 'var(--color-text-muted)', textTransform: 'uppercase' }}>Recall Clause</span>
+          <span style={{ fontSize: '14px', fontWeight: 600, color: loan.has_recall ? 'var(--color-accent-green)' : 'var(--color-text-muted)' }}>
+            {loan.has_recall ? 'Enabled' : 'Disabled'}
+          </span>
+        </div>
+        <div>
+          <span style={{ display: 'block', fontSize: '9px', fontWeight: 700, color: 'var(--color-text-muted)', textTransform: 'uppercase' }}>Performance Bonus</span>
+          <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--color-text-primary)', display: 'block' }}>
+            {loan.bonus_rate > 0 ? `€${loan.bonus_rate}m / pt` : 'None'}
+          </span>
+          {loan.bonus_rate > 0 && (
+            <span style={{ fontSize: '10px', color: 'var(--color-text-muted)', display: 'block' }}>
+              Cap: €{loan.bonus_cap}m
+            </span>
+          )}
+        </div>
+      </div>
+
+      {/* Bonus Tracker (if active and has bonus rate) */}
+      {loan.status === 'active' && loan.bonus_rate > 0 && (
+        <div style={{ padding: '8px 12px', background: 'rgba(99, 135, 255, 0.08)', borderLeft: '3px solid var(--color-accent-blue)', borderRadius: '4px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div>
+            <span style={{ fontSize: '11px', fontWeight: 600, color: 'var(--color-text-secondary)', display: 'block' }}>Performance Tracker</span>
+            <span style={{ fontSize: '11px', color: 'var(--color-text-muted)' }}>Points Scored: {loan.bonus_points_scored} pts</span>
+          </div>
+          <div style={{ textShadow: 'none', textAlign: 'right' }}>
+            <span style={{ fontSize: '11px', fontWeight: 600, color: 'var(--color-accent-green)', display: 'block' }}>Accrued Bonus</span>
+            <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--color-text-primary)' }}>
+              €{currentAccrued.toFixed(2)}m
+              {currentAccrued >= loan.bonus_cap && <span style={{ fontSize: '9px', color: 'var(--color-accent-red)', marginLeft: '4px' }}>(MAXED)</span>}
+            </span>
+          </div>
+        </div>
+      )}
+
+      {/* Message */}
+      {loan.message && (
+        <p className={styles.tradeMessage} style={{ margin: 0 }}>
+          "{loan.message}"
+        </p>
+      )}
+
+      {/* Errors */}
+      {error && <p className={styles.errorBanner} style={{ margin: 0 }}>{error}</p>}
+
+      {/* Actions */}
+      {/* 1. Pending Inbound (Borrower accepts/rejects) */}
+      {loan.status === 'pending' && isBorrower && (
+        <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+          <button 
+            className={styles.acceptBtn} 
+            onClick={() => onAction(loan.id, 'accept')} 
+            disabled={loading}
+            style={{ fontSize: '12px', padding: '6px 16px' }}
+          >
+            {loading ? '…' : 'Accept Proposal'}
+          </button>
+          <button 
+            className={styles.rejectBtn} 
+            onClick={() => onAction(loan.id, 'reject')} 
+            disabled={loading}
+            style={{ fontSize: '12px', padding: '6px 16px' }}
+          >
+            Reject
+          </button>
+        </div>
+      )}
+
+      {/* 2. Pending Outbound (Lender cancels) */}
+      {loan.status === 'pending' && isLender && (
+        <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+          <button 
+            className={styles.cancelBtn} 
+            onClick={() => onAction(loan.id, 'cancel')} 
+            disabled={loading}
+            style={{ fontSize: '12px', padding: '6px 16px' }}
+          >
+            {loading ? '…' : 'Cancel Proposal'}
+          </button>
+        </div>
+      )}
+
+      {/* 3. Active Loans Out (Lender recall / slot buyback) */}
+      {loan.status === 'active' && isLender && (
+        <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', alignItems: 'center' }}>
+          {/* Slot Buyback Action */}
+          {!loan.slot_buyback_used ? (
+            <button
+              onClick={() => onSlotBuyback(loan.id)}
+              disabled={loading}
+              className={styles.counterBtn}
+              style={{ fontSize: '11px', padding: '6px 12px' }}
+              title={`Pay €${buybackFee}m to unlock a signing slot during this loan.`}
+            >
+              🔑 Buy Back Slot (Fee: €{buybackFee}m)
+            </button>
+          ) : (
+            <span style={{ fontSize: '11px', fontWeight: 600, color: 'var(--color-accent-green)' }}>
+              ✓ Roster Slot Bought Back
+            </span>
+          )}
+
+          {/* Recall Action */}
+          {loan.has_recall && (
+            <button
+              onClick={() => {
+                const penalty = Math.max(25, loan.loan_fee);
+                if (confirm(`Are you sure you want to recall ${p ? p.name : 'this player'} early? You will pay a penalty of €${penalty}m to the borrower.`)) {
+                  onRecall(loan.id);
+                }
+              }}
+              disabled={loading}
+              className={styles.rejectBtn}
+              style={{ fontSize: '11px', padding: '6px 12px', border: '1px solid var(--color-accent-red)', background: 'none', color: 'var(--color-accent-red)' }}
+            >
+              Recall Player
+            </button>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── ListingCard sub-component ──────────────────
+
+function ListingCard({
+  listing,
+  highestBid,
+  isMe,
+  leagueId,
+  myTeam,
+  localMyRoster,
+  rosterSize,
+  onBidSuccess,
+  onProposeTrade,
+  onCancelListing,
+  onViewPlayer,
+}: {
+  listing: any;
+  highestBid: number;
+  isMe: boolean;
+  leagueId: string;
+  myTeam: any;
+  localMyRoster: any[];
+  rosterSize: number;
+  onBidSuccess: () => void;
+  onProposeTrade: () => void;
+  onCancelListing: () => void;
+  onViewPlayer: (player: any) => void;
+}) {
+  const p = listing.player;
+  const isPending = listing.status === 'pending';
+  const isLive = listing.status === 'active';
+  const minBid = listing.min_bid;
+  const buyNow = listing.buy_now_price;
+
+  const [isBidding, setIsBidding] = useState(false);
+  const [bidValue, setBidValue] = useState(isLive ? String(highestBid + 1) : String(minBid));
+  const [dropId, setDropId] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Time remaining countdown for live auctions
+  const [timeLeft, setTimeLeft] = useState('');
+
+  useEffect(() => {
+    if (!isLive || !listing.auction_expires_at) return;
+
+    function updateTimer() {
+      const diff = new Date(listing.auction_expires_at).getTime() - Date.now();
+      if (diff <= 0) {
+        setTimeLeft('Ended');
+        return;
+      }
+      const hours = Math.floor(diff / (1000 * 60 * 60));
+      const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const secs = Math.floor((diff % (1000 * 60)) / 1000);
+      if (hours > 0) {
+        setTimeLeft(`${hours}h ${mins}m`);
+      } else if (mins > 0) {
+        setTimeLeft(`${mins}m ${secs}s`);
+      } else {
+        setTimeLeft(`${secs}s`);
+      }
+    }
+
+    updateTimer();
+    const interval = setInterval(updateTimer, 1000);
+    return () => clearInterval(interval);
+  }, [isLive, listing.auction_expires_at]);
+
+  // Active roster count to check if drop is required
+  const activeCount = localMyRoster.filter((r) => r.status !== 'ir' && r.status !== 'taxi').length;
+  const showDropSelect = activeCount >= rosterSize;
+  const eligibleDrops = localMyRoster.filter((r) => r.status !== 'ir' && r.status !== 'taxi');
+
+  async function handleBid(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
+    setLoading(true);
+
+    const bidNum = parseInt(bidValue, 10);
+    if (isNaN(bidNum) || bidNum < 0) {
+      setError('Bid must be a non-negative integer.');
+      setLoading(false);
+      return;
+    }
+
+    if (isLive && bidNum <= highestBid) {
+      setError(`Bid must beat the current highest bid of €${highestBid}m.`);
+      setLoading(false);
+      return;
+    }
+
+    if (bidNum < minBid) {
+      setError(`Bid must be at least the minimum bid of €${minBid}m.`);
+      setLoading(false);
+      return;
+    }
+
+    if (bidNum > myTeam.faab_budget) {
+      setError('Insufficient Club Balance.');
+      setLoading(false);
+      return;
+    }
+
+    if (showDropSelect && !dropId) {
+      setError('Your roster is full. You must select a player to drop.');
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/leagues/${leagueId}/listings/${listing.id}/bid`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          bidAmount: bidNum,
+          dropPlayerId: dropId || undefined,
+        }),
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        setIsBidding(false);
+        onBidSuccess();
+      } else {
+        setError(data.error ?? 'Failed to place bid.');
+      }
+    } catch (err) {
+      console.error(err);
+      setError('An unexpected error occurred.');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <div className={`${styles.tbCard} ${isMe ? styles.tbCardMine : ''}`}>
+      <div className={styles.tbCardBody}>
+        {p.photo_url ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={p.photo_url} alt={p.name} className={styles.tbPlayerPhoto} />
+        ) : (
+          <div className={styles.tbPlayerPhotoPlaceholder}>⚽</div>
+        )}
+        <div className={styles.tbCardInfo}>
+          <div className={styles.tbCardInfoTop}>
+            <span className={styles.tbPlayerName} style={{ cursor: 'pointer' }} onClick={() => onViewPlayer(p)}>
+              {formatPlayerName(p, 'initial_last')}
+            </span>
+            <div className={styles.tbValueBlock}>
+              <span className={styles.tbValueLabel}>{isLive ? 'Current Bid' : 'Min Bid'}</span>
+              <span className={styles.tbPlayerValue}>
+                €{isLive ? highestBid : minBid}m
+              </span>
+            </div>
+          </div>
+          <span className={styles.tbPlayerClub}>
+            <span className={styles.tcPosDot} style={{ background: positionColor(p.primary_position), margin: 0 }} />
+            {p.pl_team} · {p.primary_position}
+          </span>
+          {buyNow !== null && (
+            <span style={{ fontSize: '11px', fontWeight: 600, color: 'var(--color-text-secondary)', display: 'block', marginTop: '4px' }}>
+              Buy Now: €{buyNow}m
+            </span>
+          )}
+          <span className={styles.tbOwnerTag}>
+            {isMe ? 'Your Player' : `Listed by ${listing.seller_team?.team_name}`}
+          </span>
+          {isLive && (
+            <span style={{ fontSize: '11px', color: 'var(--color-accent-green)', display: 'block', marginTop: '4px', fontWeight: 'bold' }}>
+              ⏳ {timeLeft || 'Auction Live'}
+            </span>
+          )}
+        </div>
+      </div>
+
+      {isBidding && (
+        <form onSubmit={handleBid} style={{ padding: '16px 24px', borderTop: '1px solid var(--color-border-subtle)', background: 'var(--color-bg-elevated)', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          {error && <span className={styles.blockToggleError}>{error}</span>}
+          
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+            <label style={{ fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', color: 'var(--color-text-secondary)' }}>
+              Bid Amount (€m)
+            </label>
+            <input
+              type="number"
+              min={isLive ? highestBid + 1 : minBid}
+              value={bidValue}
+              onChange={(e) => setBidValue(e.target.value)}
+              required
+              style={{
+                padding: '8px',
+                borderRadius: 'var(--radius-sm)',
+                border: '1px solid var(--color-border)',
+                background: 'var(--color-bg-card)',
+                color: 'var(--color-text-primary)',
+              }}
+            />
+          </div>
+
+          {showDropSelect && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+              <label style={{ fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', color: 'var(--color-text-secondary)' }}>
+                Nominate Drop Player (Roster Full)
+              </label>
+              <select
+                value={dropId}
+                onChange={(e) => setDropId(e.target.value)}
+                required
+                style={{
+                  padding: '8px',
+                  borderRadius: 'var(--radius-sm)',
+                  border: '1px solid var(--color-border)',
+                  background: 'var(--color-bg-card)',
+                  color: 'var(--color-text-primary)',
+                }}
+              >
+                <option value="">— Select a player to drop —</option>
+                {eligibleDrops.map((d) => (
+                  <option key={d.id} value={d.id}>
+                    {formatPlayerName(d, 'initial_last')} ({d.primary_position})
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+            <button type="button" className={styles.blockToggleBtn} onClick={() => setIsBidding(false)} disabled={loading}>
+              Cancel
+            </button>
+            <button type="submit" className={styles.blockToggleBtn} style={{ background: 'var(--color-accent-green)', borderColor: 'var(--color-accent-green)', color: '#fff' }} disabled={loading}>
+              {loading ? '…' : 'Submit Bid'}
+            </button>
+          </div>
+        </form>
+      )}
+
+      {!isBidding && (
+        <div className={styles.tbCardAction}>
+          {isMe ? (
+            isPending ? (
+              <button className={styles.tbManageBtn} style={{ background: 'var(--color-accent-red)' }} onClick={onCancelListing}>
+                Cancel Listing
+              </button>
+            ) : (
+              <div style={{ padding: '12px', fontSize: '10px', fontWeight: 700, textAlign: 'center', color: 'var(--color-text-muted)', textTransform: 'uppercase' }}>
+                🔒 Live Auction — Cannot Cancel
+              </div>
+            )
+          ) : (
+            <div style={{ display: 'flex' }}>
+              {isPending && (
+                <button className={styles.tbProposeBtn} onClick={onProposeTrade} style={{ borderRight: '1px solid var(--color-border-subtle)', flex: 1 }}>
+                  Propose Trade
+                </button>
+              )}
+              <button className={styles.tbProposeBtn} onClick={() => setIsBidding(true)} style={{ flex: 1, color: 'var(--color-accent-green)' }}>
+                Place Bid
+              </button>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

@@ -181,8 +181,18 @@ export async function POST(req: NextRequest, { params }: Props) {
     .from('roster_entries')
     .select('id', { count: 'exact', head: true })
     .eq('team_id', myTeam.id)
-    .not('status', 'in', '("ir","taxi")');
-  const rosterFull = (activeRosterCount ?? 0) >= (league.roster_size ?? 20);
+    .not('status', 'in', '("ir","taxi","loan_in")');
+
+  // Count active buybacks for this team
+  const { count: buybackCount } = await admin
+    .from('player_loans')
+    .select('id', { count: 'exact', head: true })
+    .eq('lender_team_id', myTeam.id)
+    .eq('status', 'active')
+    .eq('slot_buyback_used', true);
+
+  const effectiveRosterLimit = (league.roster_size ?? 20) + (buybackCount ?? 0);
+  const rosterFull = (activeRosterCount ?? 0) >= effectiveRosterLimit;
 
   if (rosterFull && !dropPlayerId) {
     const { count: academyCount } = await admin

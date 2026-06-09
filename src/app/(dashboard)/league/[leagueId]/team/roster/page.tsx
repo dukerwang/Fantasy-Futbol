@@ -45,6 +45,15 @@ export default async function RosterPage({ params }: Props) {
   const { data: rankings } = await admin.from('player_rankings').select('*');
   const rankMap = new Map((rankings ?? []).map((r: { player_id: string; overall_rank?: number; position_ranks?: string }) => [r.player_id, r]));
 
+  // Fetch active listings for this league to inject listing state into roster entries
+  const { data: listings } = await admin
+    .from('player_sale_listings')
+    .select('id, player_id, status, min_bid, buy_now_price')
+    .eq('league_id', leagueId)
+    .in('status', ['pending', 'active']);
+
+  const listingsMap = new Map((listings ?? []).map((l: any) => [l.player_id, l]));
+
   const { data: rosterRaw } = await admin
     .from('roster_entries')
     .select(`
@@ -80,14 +89,24 @@ export default async function RosterPage({ params }: Props) {
       player.position_ranks = ranks?.position_ranks as unknown as { position: string; rank: number; }[] | null | undefined;
     }
     e.is_pending_drop = pendingDropPlayerIds.has(e.player_id);
+    (e as any).listing = listingsMap.get(e.player_id) ?? null;
     return e;
   });
 
-  const league = team.league as { taxi_age_limit?: number; taxi_size?: number } | null;
+  const league = team.league as { taxi_age_limit?: number; taxi_size?: number; roster_size?: number } | null;
   const taxiAgeLimit: number = league?.taxi_age_limit ?? 21;
   const taxiSize: number = league?.taxi_size ?? 3;
+  const maxRosterSize: number = league?.roster_size ?? 20;
 
   const currentTaxiCount = rosterData.filter((e) => e.status === 'taxi').length;
+  const loanInCount = rosterData.filter((e) => e.status === 'loan_in').length;
+  const activeRosterCount = rosterData.filter((e) => e.status !== 'ir' && e.status !== 'taxi' && e.status !== 'loan_in').length;
+
+  const { data: pendingActivations } = await admin
+    .from('player_loans')
+    .select('id, player:players(name)')
+    .eq('lender_team_id', team.id)
+    .eq('status', 'pending_activation');
 
   return (
     <div className={styles.page}>
@@ -97,7 +116,10 @@ export default async function RosterPage({ params }: Props) {
             ← My Team
           </Link>
           <h1 className={styles.pageTitle}>Roster Management</h1>
-          <p className={styles.pageSub}>{team.team_name} · {(rosterData ?? []).length} players</p>
+          <p className={styles.pageSub}>
+            {team.team_name} · {activeRosterCount} active
+            {loanInCount > 0 && ` (+${loanInCount} loan${loanInCount > 1 ? 's' : ''})`} / {maxRosterSize} limit
+          </p>
         </div>
         <div className={styles.headerMeta}>
           <div className={styles.metaStat}>
@@ -106,11 +128,37 @@ export default async function RosterPage({ params }: Props) {
           </div>
           <div className={styles.metaDivider} />
           <div className={styles.metaStat}>
+            <span className={styles.metaValue}>{activeRosterCount}/{maxRosterSize}</span>
+            <span className={styles.metaLabel}>Active Roster</span>
+          </div>
+          <div className={styles.metaDivider} />
+          <div className={styles.metaStat}>
             <span className={styles.metaValue}>{currentTaxiCount}/{taxiSize}</span>
             <span className={styles.metaLabel}>Academy Slots</span>
           </div>
         </div>
       </div>
+
+      {pendingActivations && pendingActivations.length > 0 && (
+        <div style={{
+          background: 'rgba(239, 68, 68, 0.1)',
+          border: '1px solid rgba(239, 68, 68, 0.3)',
+          borderRadius: '4px',
+          padding: '12px 16px',
+          marginBottom: '20px',
+          color: '#ef4444',
+          fontSize: '14px',
+          fontWeight: 600,
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px'
+        }}>
+          <span>⚠️</span>
+          <span>
+            Roster Over Capacity. Drop a player to activate returned loan: {pendingActivations.map(p => (p.player as any)?.name).join(', ')}.
+          </span>
+        </div>
+      )}
 
       <RosterTable
         teamId={team.id}

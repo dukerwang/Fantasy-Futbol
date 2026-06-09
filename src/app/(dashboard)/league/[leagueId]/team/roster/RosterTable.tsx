@@ -31,13 +31,16 @@ const STATUS_LABEL: Record<string, string> = {
     bench: 'Bench',
     ir: 'IR',
     taxi: 'Academy',
+    loan_in: 'Loan In',
+    loan_out: 'Loan Out',
+    pending_activation: 'Pending Activation',
 };
 
-const SECTION_ORDER = ['active', 'bench', 'taxi', 'ir'];
+const SECTION_ORDER = ['active', 'bench', 'taxi', 'ir', 'loan_in', 'loan_out', 'pending_activation'];
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type RosterEntryWithPlayer = RosterEntry & { player: Player; on_trade_block?: boolean; is_pending_drop?: boolean };
+type RosterEntryWithPlayer = RosterEntry & { player: Player; on_trade_block?: boolean; is_pending_drop?: boolean; listing?: any };
 
 interface Props {
     teamId: string;
@@ -97,6 +100,9 @@ function RosterRow({ entry, taxiAgeLimit, taxiSize, currentTaxiCount, loadingId,
     const agedOutAcademy = status === 'taxi' && !u21;
     const irEligible = isIrEligible(player);
     const taxiFull = currentTaxiCount >= taxiSize;
+    const listing = (entry as any).listing;
+    const hasActiveListing = listing?.status === 'active';
+    const hasPendingListing = listing?.status === 'pending';
 
     return (
         <tr className={`${styles.dataRow} ${isLoading ? styles.dataRowLoading : ''}`}>
@@ -120,6 +126,11 @@ function RosterRow({ entry, taxiAgeLimit, taxiSize, currentTaxiCount, loadingId,
                     {u21 && <span className={styles.u21Tag}>U21</span>}
                     {agedOutAcademy && <span className={styles.agedOutTag}>AGED OUT</span>}
                     {isPendingDrop && <span className={styles.pendingDropBadge}>DROP QUEUED</span>}
+                    {hasActiveListing && <span style={{ fontSize: '10px', padding: '1px 4px', background: 'rgba(16,185,129,0.1)', border: '1px solid #10b981', color: '#10b981', borderRadius: '2px', marginLeft: '4px', fontWeight: 'bold' }}>🔒 Auction Live</span>}
+                    {hasPendingListing && <span style={{ fontSize: '10px', padding: '1px 4px', background: 'rgba(59,130,246,0.1)', border: '1px solid #3b82f6', color: '#3b82f6', borderRadius: '2px', marginLeft: '4px', fontWeight: 'bold' }}>Listed</span>}
+                    {status === 'loan_in' && <span style={{ fontSize: '10px', padding: '1px 4px', background: 'rgba(16,185,129,0.1)', border: '1px solid #10b981', color: '#10b981', borderRadius: '2px', marginLeft: '4px', fontWeight: 'bold' }}>LOAN</span>}
+                    {status === 'loan_out' && <span style={{ fontSize: '10px', padding: '1px 4px', background: 'rgba(59,130,246,0.1)', border: '1px solid #3b82f6', color: '#3b82f6', borderRadius: '2px', marginLeft: '4px', fontWeight: 'bold' }}>LOANED OUT</span>}
+                    {status === 'pending_activation' && <span style={{ fontSize: '10px', padding: '1px 4px', background: 'rgba(251,191,36,0.1)', border: '1px solid #fbbf24', color: '#fbbf24', borderRadius: '2px', marginLeft: '4px', fontWeight: 'bold' }}>RETURNED (PENDING DROP)</span>}
                 </div>
             </td>
 
@@ -142,27 +153,16 @@ function RosterRow({ entry, taxiAgeLimit, taxiSize, currentTaxiCount, loadingId,
                     <span className={styles.pendingDropText}>Drop Queued</span>
                 ) : (
                     <>
-                        {/* Trade block toggle */}
-                        {status !== 'ir' && status !== 'taxi' && (
-                            <button
-                                type="button"
-                                className={`${styles.actionBtn} ${entry.on_trade_block ? styles.actionBtnActive : ''}`}
-                                onClick={() => onAction('trade_block', entry)}
-                                disabled={isLoading}
-                                title={`${entry.on_trade_block ? 'Remove from' : 'Add to'} trade block`}
-                            >
-                                {entry.on_trade_block ? 'On Block' : 'Trade Block'}
-                            </button>
-                        )}
+                        {/* Trade block toggle removed */}
 
                         {/* Move to academy (U21 only, non-IR, non-taxi, slots available) */}
-                        {status !== 'taxi' && status !== 'ir' && u21 && (
+                        {status !== 'taxi' && status !== 'ir' && status !== 'loan_in' && status !== 'loan_out' && status !== 'pending_activation' && u21 && (
                             <button
                                 type="button"
                                 className={styles.actionBtn}
                                 onClick={() => onAction('move_to_taxi', entry)}
-                                disabled={isLoading || taxiFull}
-                                title={taxiFull ? 'Academy is full' : 'Move to academy'}
+                                disabled={isLoading || taxiFull || hasActiveListing}
+                                title={hasActiveListing ? 'Cannot move to academy — live auction' : (taxiFull ? 'Academy is full' : 'Move to academy')}
                             >
                                 → Academy
                             </button>
@@ -181,13 +181,13 @@ function RosterRow({ entry, taxiAgeLimit, taxiSize, currentTaxiCount, loadingId,
                         )}
 
                         {/* Move to IR (only if injured/doubtful and not already on IR) */}
-                        {status !== 'ir' && status !== 'taxi' && irEligible && (
+                        {status !== 'ir' && status !== 'taxi' && status !== 'loan_in' && status !== 'loan_out' && status !== 'pending_activation' && irEligible && (
                             <button
                                 type="button"
                                 className={styles.actionBtn}
                                 onClick={() => onAction('move_to_ir', entry)}
-                                disabled={isLoading}
-                                title="Move injured player to IR"
+                                disabled={isLoading || hasActiveListing}
+                                title={hasActiveListing ? 'Cannot move to IR — live auction' : 'Move injured player to IR'}
                             >
                                 → IR
                             </button>
@@ -210,7 +210,8 @@ function RosterRow({ entry, taxiAgeLimit, taxiSize, currentTaxiCount, loadingId,
                             type="button"
                             className={`${styles.actionBtn} ${styles.actionBtnRed}`}
                             onClick={() => onAction('drop', entry)}
-                            disabled={isLoading}
+                            disabled={isLoading || hasActiveListing || status === 'loan_out' || status === 'pending_activation'}
+                            title={hasActiveListing ? 'Cannot drop — live auction' : (status === 'loan_out' || status === 'pending_activation') ? 'Cannot drop loaned-out or returning player' : ''}
                         >
                             Drop
                         </button>
@@ -305,14 +306,6 @@ export default function RosterTable({ teamId, rosterEntries, taxiAgeLimit, taxiS
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ playerId, action: 'activate' }),
-                });
-            } else if (action === 'trade_block') {
-                const entry = rosterEntries.find((e) => e.player.id === playerId);
-                const currentStatus = !!entry?.on_trade_block;
-                res = await fetch(`/api/teams/${teamId}/trade-block`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ playerId, onTradeBlock: !currentStatus }),
                 });
             } else {
                 return;

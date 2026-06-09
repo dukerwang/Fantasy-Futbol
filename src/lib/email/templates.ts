@@ -225,3 +225,31 @@ export const getDraftCancelledEmail = (leagueName: string, lobbyUrl: string) => 
   return baseTemplate(`Draft Schedule Cancelled: ${leagueName}`, body);
 };
 
+export const getLoanProposedEmail = (lenderName: string, playerName: string, loanFee: number, startGw: number, endGw: number, leagueUrl: string) => {
+  const body = `
+    <h2 style="font-family: 'Georgia', serif; font-size: 1.5em; margin-top: 0;">Loan Proposal from ${lenderName}</h2>
+    <p>A loan proposal has been submitted. <strong>${lenderName}</strong> offers to loan out <strong>${playerName}</strong> to your club.</p>
+    
+    <div style="background-color: #F7F3ED; padding: 20px; border-radius: 8px; border-left: 4px solid #1a1a1a; margin: 20px 0;">
+      <p style="margin-top: 0; font-size: 0.9em; text-transform: uppercase; color: #666;">Loan Details</p>
+      <p><strong>Player:</strong> ${playerName}</p>
+      <p><strong>Term:</strong> GW${startGw} to GW${endGw} (${endGw - startGw} gameweeks)</p>
+      <p style="margin-bottom: 0;"><strong>Loan Fee:</strong> €${loanFee}m</p>
+    </div>
+
+    <p>Please review the details and accept or reject the proposal.</p>
+    <a href="${leagueUrl}/trades" class="button">Review Loan Offer</a>
+  `;
+  return baseTemplate('Player Loan Proposal Received', body);
+};
+
+export const getLoanAcceptedEmail = (lenderName: string, borrowerName: string, playerName: string, startGw: number, endGw: number, leagueUrl: string) => {
+  const body = `
+    <p>The loan agreement for <strong>${playerName}</strong> has been signed and finalized.</p>
+    <p><strong>${playerName}</strong> has joined <strong>${borrowerName}</strong> on loan from <strong>${lenderName}</strong> for the term GW${startGw} to GW${endGw}.</p>
+    <a href="${leagueUrl}/trades" class="button">View Active Loans</a>
+  `;
+  return baseTemplate('Loan Agreement Finalized', body);
+};
+
+

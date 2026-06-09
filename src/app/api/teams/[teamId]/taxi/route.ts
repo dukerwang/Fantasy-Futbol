@@ -94,6 +94,9 @@ export async function POST(req: NextRequest, { params }: Props) {
     // ── MOVE TO TAXI ────────────────────────────────────────────────────────────
 
     if (action === 'move_to_taxi') {
+        if (entry.status === 'loan_in' || entry.status === 'loan_out') {
+            return NextResponse.json({ error: 'Cannot move loaned players to the academy' }, { status: 400 });
+        }
         if (entry.status === 'taxi') {
             return NextResponse.json({ error: 'Player is already in the academy' }, { status: 400 });
         }
@@ -167,16 +170,26 @@ export async function POST(req: NextRequest, { params }: Props) {
             return NextResponse.json({ error: 'Player is not currently in the academy' }, { status: 400 });
         }
 
-        // Check active roster space (excludes IR and taxi)
+        // Check active roster space (excludes IR, taxi, and loan_in)
         const { data: activeRoster, error: rosterErr } = await admin
             .from('roster_entries')
             .select('id')
             .eq('team_id', teamId)
-            .not('status', 'in', '("ir","taxi")');
+            .not('status', 'in', '("ir","taxi","loan_in")');
 
         if (rosterErr) return NextResponse.json({ error: rosterErr.message }, { status: 500 });
 
-        if ((activeRoster?.length ?? 0) >= maxActive) {
+        // Count active buybacks for this team
+        const { count: buybackCount } = await admin
+            .from('player_loans')
+            .select('id', { count: 'exact', head: true })
+            .eq('lender_team_id', teamId)
+            .eq('status', 'active')
+            .eq('slot_buyback_used', true);
+
+        const effectiveMaxActive = maxActive + (buybackCount ?? 0);
+
+        if ((activeRoster?.length ?? 0) >= effectiveMaxActive) {
             return NextResponse.json(
                 { error: 'Active roster is full. Drop a player before promoting from the academy.' },
                 { status: 400 }

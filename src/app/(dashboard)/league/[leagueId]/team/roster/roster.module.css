@@ -255,6 +255,9 @@
 .dot_bench   { background: #8b5cf6; }
 .dot_taxi    { background: var(--color-accent-green, #3A6B4A); }
 .dot_ir      { background: #ef4444; }
+.dot_loan_in { background: var(--color-accent-green, #3A6B4A); }
+.dot_loan_out { background: var(--color-accent-blue, #3b82f6); }
+.dot_pending_activation { background: #f59e0b; }
 
 /* Data rows */
 .dataRow td {
@@ -429,6 +432,9 @@
 .status_bench  { background: rgba(139,92,246,0.1); color: #7c3aed; }
 .status_taxi   { background: rgba(58, 107, 74, 0.08); color: var(--color-accent-green, #3A6B4A); border: 1px dashed rgba(58,107,74,0.4); }
 .status_ir     { background: rgba(239,68,68,0.1); color: #ef4444; }
+.status_loan_in { background: rgba(58, 107, 74, 0.1); color: var(--color-accent-green, #3A6B4A); }
+.status_loan_out { background: rgba(59, 130, 246, 0.1); color: var(--color-accent-blue, #3b82f6); }
+.status_pending_activation { background: rgba(245, 158, 11, 0.1); color: #b45309; }
 
 /* ── Action buttons ── */
 .actionBtn {

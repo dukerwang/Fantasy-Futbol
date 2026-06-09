@@ -116,7 +116,7 @@ export async function processMatchupsForGameweek(gameweek: number, finished: boo
     for (const e of allRosterEntries ?? []) {
         if (!teamRosterMap.has(e.team_id)) teamRosterMap.set(e.team_id, new Set());
         teamRosterMap.get(e.team_id)!.add(e.player_id);
-        if (e.status === 'ir') {
+        if (e.status === 'ir' || e.status === 'loan_out') {
             if (!teamIrMap.has(e.team_id)) teamIrMap.set(e.team_id, new Set());
             teamIrMap.get(e.team_id)!.add(e.player_id);
         }
@@ -305,6 +305,50 @@ export async function processMatchupsForGameweek(gameweek: number, finished: boo
                 console.error('[matchupProcessor] Error handling deferred trades:', tradeErr);
             }
 
+            // C. Execute any accepted_deferred loans
+            try {
+                const { data: deferredLoans } = await admin
+                    .from('player_loans')
+                    .select('*')
+                    .eq('league_id', leagueId)
+                    .eq('status', 'accepted_deferred');
+
+                if (deferredLoans && deferredLoans.length > 0) {
+                    const { data: leagueInfo } = await admin
+                        .from('leagues')
+                        .select('roster_size')
+                        .eq('id', leagueId)
+                        .single();
+                    const rosterSize = leagueInfo?.roster_size ?? 20;
+
+                    for (const loan of deferredLoans) {
+                        const { data: rpcRes, error: rpcError } = await admin.rpc('execute_loan_acceptance_rpc', {
+                            p_loan_id: loan.id,
+                            p_lender_team_id: loan.lender_team_id,
+                            p_borrower_team_id: loan.borrower_team_id,
+                            p_player_id: loan.player_id,
+                            p_loan_fee: loan.loan_fee,
+                            p_league_id: leagueId
+                        });
+
+                        if (rpcError || !rpcRes?.success) {
+                            console.error(`[matchupProcessor] Failed to execute deferred loan ${loan.id}:`, rpcError || rpcRes?.error);
+                            await admin.from('player_loans').update({ status: 'rejected' }).eq('id', loan.id);
+                        } else {
+                            // Cancel any pending listings
+                            await admin
+                                .from('player_sale_listings')
+                                .update({ status: 'cancelled', updated_at: new Date().toISOString() })
+                                .eq('league_id', leagueId)
+                                .eq('player_id', loan.player_id)
+                                .eq('status', 'pending');
+                        }
+                    }
+                }
+            } catch (loanErr) {
+                console.error('[matchupProcessor] Error handling deferred loans:', loanErr);
+            }
+
             try {
                 const { data: allTeams } = await admin
                     .from('teams')
@@ -346,6 +390,21 @@ export async function processMatchupsForGameweek(gameweek: number, finished: boo
             } catch (err) {
                 console.error(`[matchupProcessor] Failed to send summary for league ${leagueId}:`, err);
             }
+        }
+    }
+
+    // 7. Accumulate loan performance bonus points if finished
+    if (finished) {
+        try {
+            const { error: rpcError } = await admin.rpc('accumulate_loan_bonus_points', {
+                p_gameweek: gameweek,
+                p_season: season
+            });
+            if (rpcError) {
+                console.error('[matchupProcessor] Failed to accumulate loan bonus points:', rpcError.message);
+            }
+        } catch (err) {
+            console.error('[matchupProcessor] Failed to execute accumulate_loan_bonus_points RPC:', err);
         }
     }
 

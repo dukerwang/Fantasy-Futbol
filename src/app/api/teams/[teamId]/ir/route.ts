@@ -70,6 +70,10 @@ export async function POST(req: NextRequest, { params }: Props) {
     }
 
     if (action === 'move_to_ir') {
+        if (entry.status === 'loan_in' || entry.status === 'loan_out') {
+            return NextResponse.json({ error: 'Cannot move loaned players to IR' }, { status: 400 });
+        }
+
         if (entry.status === 'ir') {
             return NextResponse.json({ error: 'Player is already on IR' }, { status: 400 });
         }
@@ -101,7 +105,7 @@ export async function POST(req: NextRequest, { params }: Props) {
             .from('roster_entries')
             .select('id')
             .eq('team_id', teamId)
-            .not('status', 'in', '("ir","taxi")');
+            .not('status', 'in', '("ir","taxi","loan_in")');
             
         const { data: league } = await admin
             .from('leagues')
@@ -109,7 +113,15 @@ export async function POST(req: NextRequest, { params }: Props) {
             .eq('id', team.league_id)
             .single();
 
-        const maxActive = league?.roster_size ?? 20;
+        // Count active buybacks for this team
+        const { count: buybackCount } = await admin
+            .from('player_loans')
+            .select('id', { count: 'exact', head: true })
+            .eq('lender_team_id', teamId)
+            .eq('status', 'active')
+            .eq('slot_buyback_used', true);
+
+        const maxActive = (league?.roster_size ?? 20) + (buybackCount ?? 0);
 
         if (roster && roster.length >= maxActive) {
             return NextResponse.json({ error: 'Active roster is full. You must drop a player before activating from IR.' }, { status: 400 });

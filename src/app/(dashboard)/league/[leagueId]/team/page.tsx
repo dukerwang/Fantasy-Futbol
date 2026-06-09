@@ -31,7 +31,7 @@ export default async function MyTeamPage({ params }: Props) {
     .from('teams')
     .select(`
       id, team_name, faab_budget, league_id,
-      league:leagues(id, name, season, status, scoring_rules, bench_size, taxi_size, taxi_age_limit)
+      league:leagues(id, name, season, status, scoring_rules, bench_size, taxi_size, taxi_age_limit, roster_size)
     `)
     .eq('league_id', leagueId)
     .eq('user_id', user.id)
@@ -64,6 +64,14 @@ export default async function MyTeamPage({ params }: Props) {
   const { data: rankings } = await admin.from('player_rankings').select('*');
   const rankMap = new Map((rankings ?? []).map((r: any) => [r.player_id, r]));
 
+  // Fetch active listings for this league to inject listing state into roster entries
+  const { data: listings } = await admin
+    .from('player_sale_listings')
+    .select('id, player_id, status, min_bid, buy_now_price')
+    .eq('league_id', leagueId)
+    .in('status', ['pending', 'active']);
+
+  const listingsMap = new Map((listings ?? []).map((l: any) => [l.player_id, l]));
 
   // Fetch roster entries with full player data (including rankings)
   const { data: rosterData } = await admin
@@ -84,6 +92,7 @@ export default async function MyTeamPage({ params }: Props) {
       player.overall_rank = ranks?.overall_rank;
       player.position_ranks = ranks?.position_ranks;
     }
+    e.listing = listingsMap.get(e.player_id) ?? null;
     return e;
   });
   const starters = rosterEntries.filter((e) => e.status === 'active');
@@ -92,6 +101,16 @@ export default async function MyTeamPage({ params }: Props) {
   const taxi = rosterEntries.filter((e) => e.status === 'taxi');
   // Lineup pool: active + bench status only (excludes IR and taxi — neither can be slotted into the lineup)
   const nonIrEntries = rosterEntries.filter((e) => e.status === 'active' || e.status === 'bench');
+
+  const maxRosterSize = (team.league as any)?.roster_size ?? 20;
+  const loanInCount = rosterEntries.filter((e) => e.status === 'loan_in').length;
+  const activeRosterCount = rosterEntries.filter((e) => e.status !== 'ir' && e.status !== 'taxi' && e.status !== 'loan_in').length;
+
+  const { data: pendingActivations } = await admin
+    .from('player_loans')
+    .select('id, player:players(name)')
+    .eq('lender_team_id', team.id)
+    .eq('status', 'pending_activation');
 
   // Fetch current GW player points for score overlay
   let currentFplGw = 0;
@@ -291,8 +310,11 @@ export default async function MyTeamPage({ params }: Props) {
             </div>
             <div className={styles.statDivider} />
             <div className={styles.stat}>
-              <span className={styles.statValue}>{rosterEntries.length}</span>
-              <span className={styles.statLabel}>Players</span>
+              <span className={styles.statValue}>
+                {activeRosterCount}/{maxRosterSize}
+                {loanInCount > 0 && <span style={{ fontSize: '11px', color: 'var(--color-accent-green)', marginLeft: '4px' }}>+{loanInCount}L</span>}
+              </span>
+              <span className={styles.statLabel}>Active Roster</span>
             </div>
           </div>
           <Link href={`/league/${leagueId}/team/roster`} className={styles.rosterLink}>
@@ -300,6 +322,30 @@ export default async function MyTeamPage({ params }: Props) {
           </Link>
         </div>
       </header>
+
+      {pendingActivations && pendingActivations.length > 0 && (
+        <div style={{
+          background: 'rgba(239, 68, 68, 0.1)',
+          border: '1px solid rgba(239, 68, 68, 0.3)',
+          borderRadius: '4px',
+          padding: '12px 16px',
+          marginBottom: '20px',
+          color: '#ef4444',
+          fontSize: '14px',
+          fontWeight: 600,
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px'
+        }}>
+          <span>⚠️</span>
+          <span>
+            Roster Over Capacity. Drop a player to activate returned loan: {pendingActivations.map(p => (p.player as any)?.name).join(', ')}.
+          </span>
+          <Link href={`/league/${leagueId}/team/roster`} style={{ marginLeft: 'auto', textDecoration: 'underline', color: 'inherit' }}>
+            Go to Roster →
+          </Link>
+        </div>
+      )}
 
       <PitchUI
         teamId={team.id}

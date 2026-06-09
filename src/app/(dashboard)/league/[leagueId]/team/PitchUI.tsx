@@ -132,12 +132,13 @@ interface PitchNodeProps {
     isEmpty: boolean;
     isInvalid?: boolean;
     isLocked?: boolean;
+    isLoan?: boolean;
     onClick: () => void;
     onViewDetails?: () => void;
     points?: number;
 }
 
-function PitchNode({ slotPos, player, isSelected, isValidTarget, isEmpty, isInvalid, isLocked, onClick, onViewDetails, points }: PitchNodeProps) {
+function PitchNode({ slotPos, player, isSelected, isValidTarget, isEmpty, isInvalid, isLocked, isLoan, onClick, onViewDetails, points }: PitchNodeProps) {
     const frameColor = isInvalid ? '#ef4444' : POS_COLOR[slotPos];
     const wrapCls = [
         styles.pitchNodeWrap,
@@ -978,6 +979,7 @@ export default function PitchUI({
                                                         isEmpty={!playerId}
                                                         isInvalid={isInvalid}
                                                         isLocked={isLocked}
+                                                        isLoan={entry?.status === 'loan_in'}
                                                         onClick={() => handleStarterClick(slotIndex)}
                                                         onViewDetails={entry ? () => setViewingPlayer(entry.player) : undefined}
                                                         points={playerId && scoreMap ? scoreMap[playerId] : undefined}
@@ -1044,6 +1046,11 @@ export default function PitchUI({
                                                 >
                                                     {displayName(entry.player)}
                                                 </span>
+                                                {entry.status === 'loan_in' && (
+                                                    <span style={{ fontSize: '9px', padding: '1px 4px', background: 'rgba(16,185,129,0.15)', border: '1px solid var(--color-accent-green)', color: 'var(--color-accent-green)', borderRadius: '2px', fontWeight: 'bold', marginLeft: '6px' }}>
+                                                        LOAN
+                                                    </span>
+                                                )}
                                                 {scoreMap && pid && scoreMap[pid] !== undefined && (
                                                     <span className={styles.benchPts}>{scoreMap[pid].toFixed(2)}</span>
                                                 )}
@@ -1115,6 +1122,11 @@ export default function PitchUI({
                                             >
                                                 {displayName(entry.player)}
                                             </span>
+                                            {entry.status === 'loan_in' && (
+                                                <span style={{ fontSize: '9px', padding: '1px 4px', background: 'rgba(16,185,129,0.15)', border: '1px solid var(--color-accent-green)', color: 'var(--color-accent-green)', borderRadius: '2px', fontWeight: 'bold', marginLeft: '6px' }}>
+                                                    LOAN
+                                                </span>
+                                            )}
                                             <span className={styles.reserveClub}>{entry.player.pl_team}</span>
                                             {isU21 && sidebarSelection?.type === 'taxi' && (
                                                 <span className={styles.u21Badge}>U21</span>

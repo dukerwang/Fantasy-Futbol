@@ -199,6 +199,30 @@ export async function POST(req: NextRequest, { params }: Props) {
     }
   }
 
+  // Enforce player lock: cannot trade players with an active (locked) sale listing
+  const allPlayerIds = [...offeredPlayerIds, ...requestedPlayerIds];
+  if (allPlayerIds.length > 0) {
+    const { data: lockedListings } = await admin
+      .from('player_sale_listings')
+      .select('player_id')
+      .eq('league_id', leagueId)
+      .eq('status', 'active')
+      .in('player_id', allPlayerIds);
+
+    if (lockedListings && lockedListings.length > 0) {
+      const lockedIds = lockedListings.map(l => l.player_id);
+      const { data: lockedPlayers } = await admin
+        .from('players')
+        .select('name')
+        .in('id', lockedIds);
+      const lockedNames = (lockedPlayers ?? []).map(p => p.name);
+      return NextResponse.json(
+        { error: `Cannot include locked players in a trade proposal: ${lockedNames.join(', ')} — bidding is live.` },
+        { status: 400 }
+      );
+    }
+  }
+
   if (parentTradeId) {
     const { data: parentTrade } = await admin
       .from('trade_proposals')

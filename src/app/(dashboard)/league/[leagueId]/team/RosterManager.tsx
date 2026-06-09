@@ -91,23 +91,7 @@ export default function RosterManager({ teamId, rosterEntries }: Props) {
         }
     }
 
-    async function handleTradeBlockToggle(playerId: string, currentStatus: boolean) {
-        setLoadingId(playerId);
-        setError(null);
-        try {
-            const res = await fetch(`/api/teams/${teamId}/trade-block`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ playerId, onTradeBlock: !currentStatus }),
-            });
-            if (!res.ok) throw new Error();
-            router.refresh();
-        } catch {
-            setError('Failed to update Trade Block status. Make sure you applied the DB migration.');
-        } finally {
-            setLoadingId(null);
-        }
-    }
+    // Trade Block toggle function removed — replaced by player market listings
 
     const sortedEntries = [...rosterEntries].sort((a, b) => {
         return formatPlayerName(a.player, 'full').localeCompare(formatPlayerName(b.player, 'full'));
@@ -125,97 +109,115 @@ export default function RosterManager({ teamId, rosterEntries }: Props) {
                 {error && <p className={styles.errorText} style={{ marginBottom: '1rem' }}>{error}</p>}
 
                 <div className={styles.rosterList}>
-                    {sortedEntries.map((entry) => (
-                        <div key={entry.id} className={styles.rosterItem}>
-                            <div
-                                className={styles.rosterItemInfo}
-                                onClick={() => setViewingPlayer(entry.player)}
-                                style={{ cursor: 'pointer' }}
-                            >
-                                <span className={styles.posBadge} style={{ background: 'var(--color-bg-secondary)', border: '1px solid var(--color-border)', color: 'var(--color-text-muted)' }}>
-                                    {entry.player.primary_position}
-                                </span>
-                                <button
-                                    type="button"
-                                    className={styles.rosterItemNameBtn}
-                                    title="View player details"
+                    {sortedEntries.map((entry) => {
+                        const listing = (entry as any).listing;
+                        const hasActiveListing = listing?.status === 'active';
+                        const hasPendingListing = listing?.status === 'pending';
+                        const isLoanIn = entry.status === 'loan_in';
+                        const isLoanOut = entry.status === 'loan_out';
+                        const isPendingActivation = entry.status === 'pending_activation';
+                        return (
+                            <div key={entry.id} className={styles.rosterItem}>
+                                <div
+                                    className={styles.rosterItemInfo}
+                                    onClick={() => setViewingPlayer(entry.player)}
+                                    style={{ cursor: 'pointer' }}
                                 >
-                                    {formatPlayerName(entry.player, 'full')}
-                                </button>
-                                <span className={styles.rosterItemClub}>{entry.player.pl_team}</span>
-                                {entry.player.projected_points !== undefined && entry.player.projected_points !== null && (
-                                    <span className={styles.rosterItemValue} style={{ color: 'var(--color-text-secondary)', marginRight: 'var(--space-2)' }}>Proj: {Number(entry.player.projected_points).toFixed(1)}</span>
-                                )}
-                                <span className={styles.rosterItemValue}>€{Number(entry.player.market_value || 0).toFixed(1)}m</span>
-                            </div>
-                            <div className={styles.rosterItemActions}>
-                                {entry.status !== 'ir' && (
+                                    <span className={styles.posBadge} style={{ background: 'var(--color-bg-secondary)', border: '1px solid var(--color-border)', color: 'var(--color-text-muted)' }}>
+                                        {entry.player.primary_position}
+                                    </span>
                                     <button
-                                        className={styles.transferOutBtn}
-                                        style={{
-                                            border: (entry as any).on_trade_block ? '1px solid #10b981' : '1px solid var(--color-border)',
-                                            color: (entry as any).on_trade_block ? '#10b981' : 'var(--color-text-muted)',
-                                            background: (entry as any).on_trade_block ? 'rgba(16,185,129,0.1)' : 'transparent',
-                                            marginRight: '0.5rem'
-                                        }}
-                                        onClick={() => handleTradeBlockToggle(entry.player.id, !!(entry as any).on_trade_block)}
-                                        disabled={loadingId !== null}
-                                        title="Mark this player as actively available for trade"
+                                        type="button"
+                                        className={styles.rosterItemNameBtn}
+                                        title="View player details"
                                     >
-                                        {(entry as any).on_trade_block ? 'On Block' : 'Trade Block'}
+                                        {formatPlayerName(entry.player, 'full')}
                                     </button>
-                                )}
-                                <button
-                                    className={styles.dropBtn}
-                                    onClick={() => handleAction(
-                                        entry.player.id,
-                                        'drop',
-                                        formatPlayerName(entry.player, 'full'),
-                                        Number(entry.player.market_value || 0),
+                                    <span className={styles.rosterItemClub}>{entry.player.pl_team}</span>
+                                    {entry.player.projected_points !== undefined && entry.player.projected_points !== null && (
+                                        <span className={styles.rosterItemValue} style={{ color: 'var(--color-text-secondary)', marginRight: 'var(--space-2)' }}>Proj: {Number(entry.player.projected_points).toFixed(1)}</span>
                                     )}
-                                    disabled={loadingId !== null}
-                                >
-                                    {loadingId === entry.player.id ? '...' : 'Drop'}
-                                </button>
-                                <button
-                                    className={styles.transferOutBtn}
-                                    onClick={() => handleAction(
-                                        entry.player.id,
-                                        'transfer_out',
-                                        formatPlayerName(entry.player, 'full'),
-                                        Number(entry.player.market_value || 0),
+                                    <span className={styles.rosterItemValue}>€{Number(entry.player.market_value || 0).toFixed(1)}m</span>
+                                </div>
+                                <div className={styles.rosterItemActions} style={{ display: 'flex', alignItems: 'center' }}>
+                                    {hasActiveListing && (
+                                        <span style={{ border: '1px solid #10b981', color: '#10b981', background: 'rgba(16,185,129,0.1)', padding: '4px 8px', borderRadius: '4px', fontSize: '11px', marginRight: '0.5rem', alignSelf: 'center', fontWeight: 'bold' }}>
+                                            🔒 Auction Live
+                                        </span>
                                     )}
-                                    disabled={loadingId !== null}
-                                    title="Only use if player transferred out of the Premier League"
-                                >
-                                    Transfer Out
-                                </button>
-                                {entry.status === 'ir' ? (
+                                    {hasPendingListing && (
+                                        <span style={{ border: '1px solid #3b82f6', color: '#3b82f6', background: 'rgba(59,130,246,0.1)', padding: '4px 8px', borderRadius: '4px', fontSize: '11px', marginRight: '0.5rem', alignSelf: 'center', fontWeight: 'bold' }}>
+                                            Listed
+                                        </span>
+                                    )}
+                                    {isLoanIn && (
+                                        <span style={{ border: '1px solid var(--color-accent-green)', color: 'var(--color-accent-green)', background: 'rgba(16,185,129,0.1)', padding: '4px 8px', borderRadius: '4px', fontSize: '11px', marginRight: '0.5rem', alignSelf: 'center', fontWeight: 'bold' }}>
+                                            LOAN
+                                        </span>
+                                    )}
+                                    {isLoanOut && (
+                                        <span style={{ border: '1px solid var(--color-accent-blue)', color: 'var(--color-accent-blue)', background: 'rgba(59,130,246,0.1)', padding: '4px 8px', borderRadius: '4px', fontSize: '11px', marginRight: '0.5rem', alignSelf: 'center', fontWeight: 'bold' }}>
+                                            LOANED OUT
+                                        </span>
+                                    )}
+                                    {isPendingActivation && (
+                                        <span style={{ border: '1px solid #fbbf24', color: '#fbbf24', background: 'rgba(251,191,36,0.1)', padding: '4px 8px', borderRadius: '4px', fontSize: '11px', marginRight: '0.5rem', alignSelf: 'center', fontWeight: 'bold' }}>
+                                            RETURNED (PENDING DROP)
+                                        </span>
+                                    )}
                                     <button
                                         className={styles.dropBtn}
-                                        style={{ backgroundColor: 'var(--color-bg-tertiary)', borderColor: 'var(--color-border)', color: 'var(--color-text)' }}
-                                        onClick={() => handleIrAction(entry.player.id, 'activate')}
-                                        disabled={loadingId !== null}
-                                        title="Activate player from Injured Reserve to the Bench"
+                                        onClick={() => handleAction(
+                                            entry.player.id,
+                                            'drop',
+                                            formatPlayerName(entry.player, 'full'),
+                                            Number(entry.player.market_value || 0),
+                                        )}
+                                        disabled={loadingId !== null || hasActiveListing || isLoanOut || isPendingActivation}
+                                        title={hasActiveListing ? "Cannot drop a player with a live auction" : (isLoanOut || isPendingActivation) ? "Cannot drop returning or loaned player" : ""}
                                     >
-                                        {loadingId === entry.player.id ? '...' : 'Activate'}
+                                        {loadingId === entry.player.id ? '...' : 'Drop'}
                                     </button>
-                                ) : (
-                                    entry.player.fpl_status === 'i' || entry.player.fpl_status === 'u' ? (
+                                    <button
+                                        className={styles.transferOutBtn}
+                                        onClick={() => handleAction(
+                                            entry.player.id,
+                                            'transfer_out',
+                                            formatPlayerName(entry.player, 'full'),
+                                            Number(entry.player.market_value || 0),
+                                        )}
+                                        disabled={loadingId !== null || hasActiveListing || isLoanIn || isLoanOut || isPendingActivation}
+                                        title={hasActiveListing ? "Cannot transfer out a player with a live auction" : (isLoanIn || isLoanOut || isPendingActivation) ? "Cannot transfer out loaned/returning player" : "Only use if player transferred out of the Premier League"}
+                                    >
+                                        Transfer Out
+                                    </button>
+                                    {entry.status === 'ir' ? (
                                         <button
                                             className={styles.dropBtn}
                                             style={{ backgroundColor: 'var(--color-bg-tertiary)', borderColor: 'var(--color-border)', color: 'var(--color-text)' }}
-                                            onClick={() => handleIrAction(entry.player.id, 'move_to_ir')}
+                                            onClick={() => handleIrAction(entry.player.id, 'activate')}
                                             disabled={loadingId !== null}
-                                            title="Move injured player to IR to open up a roster spot"
+                                            title="Activate player from Injured Reserve to the Bench"
                                         >
-                                            {loadingId === entry.player.id ? '...' : 'Move to IR'}
+                                            {loadingId === entry.player.id ? '...' : 'Activate'}
                                         </button>
-                                    ) : null
-                                )}
+                                    ) : (
+                                        (entry.player.fpl_status === 'i' || entry.player.fpl_status === 'u') && !isLoanIn && !isLoanOut && !isPendingActivation ? (
+                                            <button
+                                                className={styles.dropBtn}
+                                                style={{ backgroundColor: 'var(--color-bg-tertiary)', borderColor: 'var(--color-border)', color: 'var(--color-text)' }}
+                                                onClick={() => handleIrAction(entry.player.id, 'move_to_ir')}
+                                                disabled={loadingId !== null || hasActiveListing}
+                                                title={hasActiveListing ? "Cannot move a player with a live auction to IR" : "Move injured player to IR to open up a roster spot"}
+                                            >
+                                                {loadingId === entry.player.id ? '...' : 'Move to IR'}
+                                            </button>
+                                        ) : null
+                                    )}
+                                </div>
                             </div>
-                        </div>
-                    ))}
+                        );
+                    })}
                 </div>
             </div>
 

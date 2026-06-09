@@ -60,6 +60,7 @@ export async function generateValidLineup(
     (e) =>
       e.status !== 'ir' &&
       e.status !== 'taxi' &&
+      e.status !== 'loan_out' &&
       e.player?.primary_position,
   );
 
