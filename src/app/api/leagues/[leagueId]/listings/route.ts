@@ -131,7 +131,7 @@ export async function POST(req: NextRequest, { params }: Props) {
 
   const totalGws = league.total_gameweeks ?? 38;
   const lastAllowedGw = totalGws - 8;
-  if (currentFplGw > lastAllowedGw) {
+  if (currentFplGw > lastAllowedGw && currentFplGw <= totalGws) {
     return NextResponse.json(
       { error: `Player sales are locked in the final 8 gameweeks of the season (after GW${lastAllowedGw}).` },
       { status: 403 }
