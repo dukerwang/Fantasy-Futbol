@@ -71,6 +71,11 @@
    ══════════════════════════════════════════════════════════════ */
 
 .front {
+  /* translateZ(0) gives .front its own GPU compositing layer, matching
+     .back which already has translateZ(0). Without this, parent opacity
+     animations (modal fadeIn, Framer Motion carousel) flatten the 3D
+     hierarchy and break backface-visibility:hidden on this face. */
+  transform: translateZ(0);
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -614,6 +619,12 @@
   border-radius: 18px;
   overflow: hidden;
   transition: opacity 200ms ease;
+  /* mix-blend-mode is applied only when hovering via .holoActive —
+     keeping it always-on forces a GPU blend compositing context
+     that can break backface-visibility during the flip animation */
+}
+
+.holoActive {
   mix-blend-mode: color-dodge;
 }
 

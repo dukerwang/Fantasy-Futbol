@@ -146,6 +146,9 @@ export default function PremiumPlayerCard({
     const cardRef = useRef<HTMLDivElement>(null);
     const holoRef = useRef<HTMLDivElement>(null);
     const [flipped, setFlipped] = useState(false);
+    // Ref mirrors flipped state so mouse callbacks always read the latest value
+    // without needing to be re-created on every flip (avoids stale closures).
+    const flippedRef = useRef(false);
     const [tab, setTab] = useState<'log' | 'breakdown'>('log');
     const [hovering, setHovering] = useState(false);
     const [gamelog, setGamelog] = useState<GamelogEntry[]>([]);
@@ -204,7 +207,7 @@ export default function PremiumPlayerCard({
         const rx = (0.5 - py) * 12;
         const ry = (px - 0.5) * 16;
 
-        card.style.transform = `rotateX(${rx}deg) rotateY(${flipped ? 180 + ry : ry}deg)`;
+        card.style.transform = `rotateX(${rx}deg) rotateY(${flippedRef.current ? 180 + ry : ry}deg)`;
 
         if (holo) {
             holo.style.setProperty('--mx', `${px * 100}%`);
@@ -213,23 +216,24 @@ export default function PremiumPlayerCard({
             holo.style.setProperty('--gy', `${(py - 0.5) * 30}%`);
             holo.style.setProperty('--rot', `${45 + (px - 0.5) * 30}deg`);
         }
-    }, [flipped]);
+    }, []);
 
     const onMouseLeave = useCallback(() => {
         if (cardRef.current) {
-            cardRef.current.style.transform = `rotateX(0deg) rotateY(${flipped ? 180 : 0}deg)`;
+            cardRef.current.style.transform = `rotateX(0deg) rotateY(${flippedRef.current ? 180 : 0}deg)`;
         }
         setHovering(false);
-    }, [flipped]);
+    }, []);
 
     const handleFlip = useCallback((e: React.MouseEvent) => {
         e.stopPropagation();
-        const next = !flipped;
+        const next = !flippedRef.current;
+        flippedRef.current = next;
         setFlipped(next);
         if (cardRef.current) {
             cardRef.current.style.transform = `rotateX(0deg) rotateY(${next ? 180 : 0}deg)`;
         }
-    }, [flipped]);
+    }, []);
 
     const cardVars = {
         '--team-color': teamColor,
@@ -414,7 +418,7 @@ export default function PremiumPlayerCard({
 
                     {/* Holographic overlay */}
                     <div
-                        className={styles.holo}
+                        className={`${styles.holo} ${hovering ? styles.holoActive : ''}`}
                         ref={holoRef}
                         style={{ opacity: hovering ? 0.85 : 0 }}
                     >
