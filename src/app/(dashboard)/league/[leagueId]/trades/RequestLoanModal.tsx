@@ -14,6 +14,8 @@ interface SimplePlayer {
   full_name?: string | null;
   pl_team?: string | null;
   market_value?: number | null;
+  ppg?: number | null;
+  form_rating?: number | null;
   primary_position: string;
   status?: string;
 }
@@ -266,6 +268,7 @@ export default function RequestLoanModal({
               <label style={labelStyle}>Loan Fee you&apos;re offering</label>
               <LoanFeeSlider
                 value={loanFee}
+                ppg={selectedPlayer.ppg}
                 marketValue={selectedPlayer.market_value}
                 onChange={setLoanFee}
               />

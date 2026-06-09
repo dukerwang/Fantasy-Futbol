@@ -18,6 +18,8 @@ interface SimplePlayer {
   pl_team?: string | null;
   projected_points?: number | null;
   market_value?: number | null;
+  ppg?: number | null;
+  form_rating?: number | null;
   primary_position: string;
   on_trade_block?: boolean;
 }
@@ -484,7 +486,7 @@ export default function TradesClient({
           className={`${styles.tab} ${tab === 'listings' ? styles.tabActive : ''}`}
           onClick={() => { setTab('listings'); setProposeSuccess(''); }}
         >
-          Player Market
+          Player Sales
         </button>
         <button
           className={`${styles.tab} ${tab === 'loans' ? styles.tabActive : ''}`}
@@ -910,7 +912,7 @@ export default function TradesClient({
           <div className={styles.tradeBlockSectionHeader}>
             <div>
               <span className={styles.leagueFeedLabel}>AVAILABLE FOR DEALS & AUCTION</span>
-              <h2 className={styles.tradeGroupTitle}>Player Market</h2>
+              <h2 className={styles.tradeGroupTitle}>Player Sales</h2>
               <p className={styles.leagueFeedSubtitle}>
                 Bid on or propose trades for players listed by other managers.
               </p>
@@ -996,9 +998,8 @@ export default function TradesClient({
             </div>
             <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
               <button
-                className={styles.addToBlockBtn}
+                className={`${styles.addToBlockBtn} ${styles.addToBlockBtnBlue}`}
                 onClick={() => setShowRequestLoanModal(true)}
-                style={{ background: 'none', borderColor: 'var(--color-accent-blue)', color: 'var(--color-accent-blue)' }}
                 title="Request a loan of a player from another club"
               >
                 ← Request a Loan
@@ -1017,7 +1018,7 @@ export default function TradesClient({
             <div className={styles.emptyState}>
               <p>No active or pending loans.</p>
               <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', marginTop: '12px' }}>
-                <button className={styles.proposeBtn} style={{ background: 'none', borderColor: 'var(--color-accent-blue)', color: 'var(--color-accent-blue)' }} onClick={() => setShowRequestLoanModal(true)}>
+                <button className={styles.proposeBtnOutlineBlue} onClick={() => setShowRequestLoanModal(true)}>
                   Request a Loan
                 </button>
                 <button className={styles.proposeBtn} onClick={() => setShowLoanModal(true)}>

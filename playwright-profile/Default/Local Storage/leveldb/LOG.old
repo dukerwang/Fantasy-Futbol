@@ -1,0 +1,6 @@
+2026/05/18-19:34:24.599 102ec54 Reusing MANIFEST /Users/dukewang/Fantasy Futbol/playwright-profile/Default/Local Storage/leveldb/MANIFEST-000001
+2026/05/18-19:34:24.602 102ec54 Recovering log #8
+2026/05/18-19:34:24.603 102ec54 Reusing old log /Users/dukewang/Fantasy Futbol/playwright-profile/Default/Local Storage/leveldb/000008.log 
+2026/05/18-19:35:24.607 102ec57 Level-0 table #12: started
+2026/05/18-19:35:24.611 102ec57 Level-0 table #12: 27627 bytes OK
+2026/05/18-19:35:24.614 102ec57 Delete type=0 #8

@@ -13,6 +13,8 @@ export interface LoanablePlayer {
   web_name: string | null;
   pl_team?: string | null;
   market_value?: number | null;
+  ppg?: number | null;
+  form_rating?: number | null;
   primary_position: string;
   status: string;
 }
@@ -254,6 +256,7 @@ export default function ProposeLoanModal({
               <label style={labelStyle}>Loan Fee (paid by borrower on acceptance)</label>
               <LoanFeeSlider
                 value={loanFee}
+                ppg={selectedPlayer.ppg}
                 marketValue={selectedPlayer.market_value}
                 onChange={setLoanFee}
               />
