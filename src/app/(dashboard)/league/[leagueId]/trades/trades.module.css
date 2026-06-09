@@ -1735,6 +1735,112 @@
 }
 .tbManageBtn:hover { opacity: 0.88; }
 
+/* ── Loan Sliders ──────────────────────────────────────────────────────────── */
+
+/* Fee slider — single handle, gradient track */
+.feeRangeInput {
+  -webkit-appearance: none;
+  appearance: none;
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 26px;
+  background: transparent;
+  outline: none;
+  cursor: pointer;
+  margin: 0;
+  padding: 0;
+  display: block;
+}
+
+.feeRangeInput::-webkit-slider-runnable-track {
+  height: 6px;
+  background: transparent;
+  border-radius: 3px;
+}
+
+.feeRangeInput::-moz-range-track {
+  height: 6px;
+  background: transparent;
+  border-radius: 3px;
+  border: none;
+}
+
+.feeRangeInput::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--color-bg-card);
+  border: 3px solid #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+  margin-top: -8px;
+  transition: transform 0.1s;
+}
+
+.feeRangeInput::-webkit-slider-thumb:hover { transform: scale(1.1); }
+.feeRangeInput::-webkit-slider-thumb:active { transform: scale(1.05); }
+
+.feeRangeInput::-moz-range-thumb {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--color-bg-card);
+  border: 3px solid #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+}
+
+/* GW range slider — dual overlapping handles */
+.gwRangeInput {
+  -webkit-appearance: none;
+  appearance: none;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 100%;
+  height: 0;
+  background: transparent;
+  pointer-events: none;
+  outline: none;
+  margin: 0;
+  padding: 0;
+}
+
+.gwRangeInput::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  pointer-events: all;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--color-bg-card);
+  border: 2px solid var(--color-accent-blue);
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.22);
+  cursor: pointer;
+  transition: transform 0.1s, box-shadow 0.1s;
+}
+
+.gwRangeInput::-webkit-slider-thumb:hover {
+  transform: scale(1.12);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.gwRangeInput::-webkit-slider-thumb:active { transform: scale(1.05); }
+
+.gwRangeInput::-moz-range-thumb {
+  pointer-events: all;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--color-bg-card);
+  border: 2px solid var(--color-accent-blue);
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.22);
+  cursor: pointer;
+}
+
 /* Incoming pending proposals 2-col grid */
 .pendingGrid {
   display: grid;
