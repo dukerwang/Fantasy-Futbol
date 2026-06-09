@@ -111,6 +111,7 @@ export async function POST(req: NextRequest, { params }: Props) {
 
   // 5. Fetch current gameweek from FPL to enforce season timing (blocked in final 8 GWs)
   let currentFplGw = 0;
+  let isCurrentGwFinished = false;
   try {
     const fplRes = await fetch('https://fantasy.premierleague.com/api/bootstrap-static/', {
       headers: { 'User-Agent': 'FantasyFutbol/1.0' },
@@ -121,7 +122,10 @@ export async function POST(req: NextRequest, { params }: Props) {
       const now = new Date();
       for (const ev of fplData.events as any[]) {
         if (ev.deadline_time && new Date(ev.deadline_time) <= now) {
-          currentFplGw = Math.max(currentFplGw, ev.id);
+          if (ev.id > currentFplGw) {
+            currentFplGw = ev.id;
+            isCurrentGwFinished = !!ev.finished;
+          }
         }
       }
     }
@@ -131,7 +135,10 @@ export async function POST(req: NextRequest, { params }: Props) {
 
   const totalGws = league.total_gameweeks ?? 38;
   const lastAllowedGw = totalGws - 8;
-  if (currentFplGw > lastAllowedGw && currentFplGw <= totalGws) {
+  const isSeasonOver = currentFplGw >= totalGws && isCurrentGwFinished;
+  const isLockedWeek = currentFplGw > lastAllowedGw && currentFplGw <= totalGws;
+
+  if (isLockedWeek && !isSeasonOver) {
     return NextResponse.json(
       { error: `Player sales are locked in the final 8 gameweeks of the season (after GW${lastAllowedGw}).` },
       { status: 403 }

@@ -95,13 +95,17 @@ export async function POST(req: NextRequest, { params }: Props) {
       const fplData = await fplRes.json();
       const now = new Date();
       let currentGw = 0;
+      let isCurrentGwFinished = false;
       for (const ev of fplData.events as { deadline_time: string | null; id: number; finished: boolean }[]) {
         if (ev.deadline_time && new Date(ev.deadline_time) <= now) {
-          currentGw = Math.max(currentGw, ev.id);
+          if (ev.id > currentGw) {
+            currentGw = ev.id;
+            isCurrentGwFinished = !!ev.finished;
+          }
         }
       }
 
-      if (currentGw) {
+      if (currentGw && !isCurrentGwFinished) {
         const fixRes = await fetch(`https://fantasy.premierleague.com/api/fixtures/?event=${currentGw}`, { next: { revalidate: 60 } });
         if (fixRes.ok) {
           const fixtures = await fixRes.json();
