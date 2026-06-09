@@ -137,7 +137,7 @@
 }
 
 .heroScoreDivider {
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-sans);
   font-size: 24px;
   color: var(--color-border);
   font-weight: 300;
@@ -175,7 +175,7 @@
 .heroBadgeFinalWin,
 .heroBadgeFinalLoss,
 .heroBadgeFinalDraw {
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-sans);
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.12em;
@@ -389,7 +389,7 @@
   color: var(--color-text-muted);
   background: transparent;
   font-style: italic;
-  font-family: 'Noto Serif', serif;
+  font-family: var(--font-serif);
   font-weight: 700;
 }
 
@@ -410,7 +410,7 @@
 }
 
 .youTag {
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-sans);
   font-size: 8px;
   font-weight: 700;
   letter-spacing: 0.1em;
@@ -631,7 +631,7 @@
 }
 
 .auctionCountdown {
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-sans);
   font-size: 9px;
   font-weight: 700;
   letter-spacing: 0.05em;
@@ -673,7 +673,7 @@
 }
 
 .breakingPill {
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-sans);
   font-size: 8px;
   font-weight: 700;
   letter-spacing: 0.2em;
@@ -723,7 +723,7 @@
 }
 
 .gazetteText {
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-sans);
   font-size: 13px;
   color: var(--color-text-secondary);
   margin: 0;
@@ -771,7 +771,7 @@
 }
 
 .leagueName {
-  font-family: 'Noto Serif', serif;
+  font-family: var(--font-serif);
   font-size: 28px;
   font-weight: 700;
   color: var(--color-text-primary);
@@ -800,7 +800,7 @@
   text-transform: uppercase;
   padding: 4px 10px;
   border-radius: var(--radius-sm);
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-sans);
 }
 
 .actionBtn {
@@ -835,7 +835,7 @@
 }
 
 .kickerLabel {
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-sans);
   font-size: 10px;
   font-weight: 700;
   text-transform: uppercase;
@@ -846,7 +846,7 @@
 }
 
 .managerName {
-  font-family: 'Noto Serif', serif;
+  font-family: var(--font-serif);
   font-size: 24px;
   font-weight: 700;
   color: var(--color-text-primary);
@@ -854,7 +854,7 @@
 }
 
 .managerOwner {
-  font-family: 'Noto Serif', serif;
+  font-family: var(--font-serif);
   font-size: 13px;
   font-style: italic;
   color: var(--color-text-muted);
@@ -877,7 +877,7 @@
 }
 
 .managerStatValue {
-  font-family: 'Noto Serif', serif;
+  font-family: var(--font-serif);
   font-size: 18px;
   font-weight: 700;
   color: var(--color-text-primary);
@@ -889,7 +889,7 @@
 }
 
 .managerRecord {
-  font-family: 'Noto Serif', serif;
+  font-family: var(--font-serif);
   font-size: 16px;
   color: var(--color-text-primary);
 }
@@ -902,7 +902,7 @@
 }
 
 .faabAmount {
-  font-family: 'Noto Serif', serif;
+  font-family: var(--font-serif);
   font-size: 40px;
   font-weight: 700;
   color: var(--color-accent-green);
@@ -910,7 +910,7 @@
 }
 
 .faabRemaining {
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-sans);
   font-size: 11px;
   font-weight: 600;
   color: var(--color-text-muted);
@@ -934,7 +934,7 @@
 .faabProgressLabels {
   display: flex;
   justify-content: space-between;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-sans);
   font-size: 10px;
   font-weight: 600;
   color: var(--color-text-muted);
@@ -942,7 +942,7 @@
 }
 
 .faabSpentLabel {
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-sans);
   font-size: 10px;
   font-weight: 600;
   color: var(--color-text-muted);
@@ -959,7 +959,7 @@
 .u21Badge {
   background: rgba(43, 108, 176, 0.1);
   color: #2b6cb0;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-sans);
   font-size: 10px;
   font-weight: 700;
   padding: 2px 6px;
@@ -987,7 +987,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-sans);
   font-size: 10px;
   font-weight: 600;
   color: var(--color-text-muted);
@@ -999,14 +999,14 @@
 }
 
 .taxiName {
-  font-family: 'Noto Serif', serif;
+  font-family: var(--font-serif);
   font-size: 13px;
   font-weight: 600;
   color: var(--color-text-primary);
 }
 
 .taxiPosClub {
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-sans);
   font-size: 9px;
   font-weight: 600;
   color: var(--color-text-muted);
@@ -1044,21 +1044,21 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: 'Noto Serif', serif;
+  font-family: var(--font-serif);
   font-size: 28px;
   color: var(--color-text-muted);
   margin-bottom: 12px;
 }
 
 .matchupTeamName {
-  font-family: 'Noto Serif', serif;
+  font-family: var(--font-serif);
   font-size: 18px;
   font-weight: 700;
   color: var(--color-text-primary);
 }
 
 .matchupManager {
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-sans);
   font-size: 9px;
   font-weight: 700;
   letter-spacing: 0.1em;
@@ -1078,7 +1078,7 @@
   right: 16px;
   background: #E57373;
   color: white;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-sans);
   font-size: 9px;
   font-weight: 700;
   padding: 3px 8px;
@@ -1094,21 +1094,21 @@
 }
 
 .matchupScore {
-  font-family: 'Noto Serif', serif;
+  font-family: var(--font-serif);
   font-size: 48px;
   font-weight: 700;
   color: var(--color-text-primary);
 }
 
 .matchupScoreDash {
-  font-family: 'Noto Serif', serif;
+  font-family: var(--font-serif);
   font-size: 32px;
   font-weight: 700;
   color: var(--color-text-muted);
 }
 
 .matchupGwLabel {
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-sans);
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.2em;
@@ -1125,7 +1125,7 @@
 }
 
 .gazetteTitle {
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-sans);
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.15em;
@@ -1135,7 +1135,7 @@
 }
 
 .gazetteDate {
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-sans);
   font-size: 10px;
   color: rgba(255,255,255,0.7);
 }
@@ -1170,7 +1170,7 @@
 }
 
 .gazetteRowKicker {
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-sans);
   font-size: 10px;
   font-weight: 700;
   color: var(--color-accent-green);
@@ -1179,13 +1179,13 @@
 }
 
 .gazetteRowTime {
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-sans);
   font-size: 10px;
   color: var(--color-text-muted);
 }
 
 .gazetteHeadline {
-  font-family: 'Noto Serif', serif;
+  font-family: var(--font-serif);
   font-size: 16px;
   color: var(--color-text-primary);
   line-height: 1.4;
@@ -1206,7 +1206,7 @@
   column-gap: 20px;
   padding-bottom: 8px;
   border-bottom: 1px solid var(--color-border-subtle);
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-sans);
   font-size: 9px;
   font-weight: 700;
   color: var(--color-text-muted);
@@ -1238,14 +1238,14 @@
 }
 
 .stRankValue {
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-sans);
   font-size: 12px;
   font-weight: 700;
   color: var(--color-text-muted);
 }
 
 .stTeamName {
-  font-family: 'Noto Serif', serif;
+  font-family: var(--font-serif);
   font-size: 14px;
   font-style: italic;
   color: var(--color-text-primary);
@@ -1260,7 +1260,7 @@
 }
 
 .stPtsValue {
-  font-family: 'Noto Serif', serif;
+  font-family: var(--font-serif);
   font-size: 14px;
   font-weight: 700;
   text-align: left;
@@ -1301,7 +1301,7 @@
 }
 
 .cardLink {
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-sans);
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.1em;
@@ -1352,7 +1352,7 @@
 }
 
 .perfPhotoFallback {
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-sans);
   font-size: 20px;
   font-weight: 700;
   color: var(--color-text-muted);
@@ -1379,7 +1379,7 @@
 }
 
 .perfBadge {
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-sans);
   font-size: 9px;
   font-weight: 800;
   padding: 1px 4px;
@@ -1388,7 +1388,7 @@
 }
 
 .perfName {
-  font-family: 'Noto Serif', serif;
+  font-family: var(--font-serif);
   font-size: 15px;
   font-weight: 700;
   color: var(--color-text-primary);
@@ -1396,7 +1396,7 @@
 }
 
 .perfTeamName {
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-sans);
   font-size: 10px;
   font-weight: 700;
   color: var(--color-text-muted);
@@ -1413,14 +1413,14 @@
 }
 
 .perfPtsValue {
-  font-family: 'Noto Serif', serif;
+  font-family: var(--font-serif);
   font-size: 18px;
   font-weight: 700;
   color: var(--color-text-primary);
 }
 
 .perfPtsUnit {
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-sans);
   font-size: 10px;
   font-weight: 700;
   color: var(--color-text-muted);
@@ -1452,14 +1452,14 @@
 }
 
 .tournName {
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-sans);
   font-size: 11px;
   font-weight: 700;
   color: var(--color-text-primary);
 }
 
 .tournDesc {
-  font-family: 'Noto Serif', serif;
+  font-family: var(--font-serif);
   font-size: 13px;
   color: var(--color-text-muted);
 }
@@ -1489,7 +1489,7 @@
 }
 
 .bannerContent h3 {
-  font-family: 'Noto Serif', serif;
+  font-family: var(--font-serif);
   font-size: 18px;
   font-weight: 700;
   color: #92400e;
@@ -1497,7 +1497,7 @@
 }
 
 .bannerContent p {
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-sans);
   font-size: 13px;
   line-height: 1.5;
   color: var(--color-text-secondary);
@@ -1508,7 +1508,7 @@
   background: #d97706;
   color: #fff;
   border: none;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-sans);
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.05em;
