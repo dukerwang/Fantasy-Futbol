@@ -132,7 +132,7 @@ export default function TopBar() {
       {
         label: 'Fixtures',
         items: [
-          { label: 'Matchups', href: `${base}/matchups` },
+          { label: 'Gameweeks', href: `${base}/matchups` },
           { label: 'Cups', href: `${base}/tournaments` },
           ...(isDraftVisible ? [{ label: 'Draft', href: `${base}/draft` }] : []),
         ],

@@ -115,8 +115,8 @@ export default async function MatchupDetailPage({ params }: Props) {
 
     return (
         <div className={styles.container}>
-            <Link href={`/league/${leagueId}/matchups`} className={styles.backLink}>
-                ← Matchups
+            <Link href={`/league/${leagueId}/matchups?gw=${matchup.gameweek}`} className={styles.backLink}>
+                ← Gameweeks
             </Link>
 
             {/* Score banner */}
