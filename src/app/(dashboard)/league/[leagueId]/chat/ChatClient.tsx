@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { Icon } from '@/components/ui/Icon';
+import FormattedText from '@/components/ui/FormattedText';
 import styles from './Chat.module.css';
 
 interface UserInfo {
@@ -427,7 +428,7 @@ export default function ChatClient({
                           ${isSystemAnnouncement ? styles.msgTextCardSystem : ''}
                         `}
                       >
-                        {m.message}
+                        <FormattedText text={m.message} />
                       </div>
                     )}
                   </div>

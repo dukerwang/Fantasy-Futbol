@@ -135,7 +135,8 @@
   border: 1px solid var(--color-border-subtle);
   border-radius: var(--radius-sm);
   box-shadow: 0 8px 24px rgba(28, 28, 28, 0.10);
-  padding: var(--space-1) 0;
+  padding: 0;
+  overflow: hidden;
   z-index: 200;
 }
 

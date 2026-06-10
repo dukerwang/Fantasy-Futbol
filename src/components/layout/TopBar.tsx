@@ -130,9 +130,9 @@ export default function TopBar() {
         ],
       },
       {
-        label: 'Competitions',
+        label: 'Fixtures',
         items: [
-          { label: 'Fixtures', href: `${base}/matchups` },
+          { label: 'Matchups', href: `${base}/matchups` },
           { label: 'Cups', href: `${base}/tournaments` },
           ...(isDraftVisible ? [{ label: 'Draft', href: `${base}/draft` }] : []),
         ],

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Icon } from '@/components/ui/Icon';
+import FormattedText from '@/components/ui/FormattedText';
 import styles from './Inbox.module.css';
 
 interface Notification {
@@ -220,7 +221,9 @@ export default function InboxClient({ leagueId, leagueName }: InboxClientProps) 
                     <span className={styles.rowTitle}>{n.title}</span>
                     <span className={styles.rowTime}>{formatFullTime(n.created_at)}</span>
                   </div>
-                  <p className={styles.rowBody}>{n.content}</p>
+                  <p className={styles.rowBody}>
+                    <FormattedText text={n.content} />
+                  </p>
 
                   <div className={styles.rowFooter}>
                     {n.url ? (

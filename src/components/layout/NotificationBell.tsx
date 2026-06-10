@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Icon } from '@/components/ui/Icon';
+import FormattedText from '@/components/ui/FormattedText';
 import styles from './NotificationBell.module.css';
 
 interface Notification {
@@ -159,7 +160,9 @@ export default function NotificationBell({ leagueId }: NotificationBellProps) {
                     <span className={styles.itemTitle}>{n.title}</span>
                     <span className={styles.itemTime}>{formatTime(n.created_at)}</span>
                   </div>
-                  <p className={styles.itemContent}>{n.content}</p>
+                  <p className={styles.itemContent}>
+                    <FormattedText text={n.content} />
+                  </p>
                 </button>
               ))
             ) : (

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { createClient } from '@/lib/supabase/client';
+import FormattedText from '@/components/ui/FormattedText';
 import styles from './sidebarChat.module.css';
 
 interface Props {
@@ -213,7 +214,7 @@ export default function SidebarChat({
                     <span className={styles.msgTime}>{formatMsgTime(m.created_at)}</span>
                   </div>
                   <div className={`${styles.msgText} ${isSelf ? styles.msgTextSelf : ''}`}>
-                    {m.message}
+                    <FormattedText text={m.message} />
                   </div>
                 </div>
               </div>
