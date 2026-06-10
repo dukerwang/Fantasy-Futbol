@@ -7,7 +7,7 @@
  * Logic per expired (league_id, player_id) auction group:
  *   1. Separate system placeholder claims from real manager bids.
  *   2. Waterfall through real bids (highest first) until a manager who can afford
- *      their bid + drop-player severance fee (10% of drop player market value) is found.
+ *      their bid + drop-player severance fee (20% of drop player market value, min €2m) is found.
  *   3. Process the winner: drop nominated player (charging severance), add won player,
  *      deduct total FAAB cost, log transactions.
  *   4. Award Scout's Rebate (20%, capped €5m) to the auction initiator if a different

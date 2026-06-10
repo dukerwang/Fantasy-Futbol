@@ -2,7 +2,7 @@
  * Gaffa — Prize Distribution
  *
  * Distributes end-of-season FAAB prizes to teams for:
- * - Regular season standings (ranks 1–N, compressed distribution)
+ * - Regular season standings (exponential curve: €85m 1st → €50m last, N-team agnostic)
  * - Cup winners/runners-up (Champions Cup, League Cup, Consolation Cup)
  *
  * FAAB is a permanent dynasty currency — prizes compound across seasons.
@@ -21,28 +21,12 @@ export interface PrizeEntry {
 
 export type PrizeConfig = Record<string, number>;
 
-/** Default prize config — overridden per-league via leagues.prize_config */
+/**
+ * Cup prize defaults — season standing prizes are computed dynamically
+ * via computeSeasonPrize() and are not stored here.
+ * Per-league overrides for any key (including season_Nth) live in leagues.prize_config.
+ */
 export const DEFAULT_PRIZE_CONFIG: PrizeConfig = {
-  season_1st: 90,
-  season_2nd: 80,
-  season_3rd: 73,
-  season_4th: 68,
-  season_5th: 64,
-  season_6th: 62,
-  season_7th: 59,
-  season_8th: 57,
-  season_9th: 54,
-  season_10th: 52,
-  season_11th: 50,
-  season_12th: 48,
-  season_13th: 46,
-  season_14th: 44,
-  season_15th: 42,
-  season_16th: 40,
-  season_17th: 38,
-  season_18th: 36,
-  season_19th: 34,
-  season_20th: 32,
   champions_cup_winner: 60,
   champions_cup_runner_up: 20,
   consolation_cup_winner: 60,
@@ -51,43 +35,38 @@ export const DEFAULT_PRIZE_CONFIG: PrizeConfig = {
   league_cup_runner_up: 10,
 };
 
-const ORDINAL_KEYS = [
-  'season_1st', 'season_2nd', 'season_3rd', 'season_4th', 'season_5th',
-  'season_6th', 'season_7th', 'season_8th', 'season_9th', 'season_10th',
-  'season_11th', 'season_12th', 'season_13th', 'season_14th', 'season_15th',
-  'season_16th', 'season_17th', 'season_18th', 'season_19th', 'season_20th',
-];
-const ORDINAL_LABELS = [
-  '1st Place (Regular Season)', '2nd Place (Regular Season)',
-  '3rd Place (Regular Season)', '4th Place (Regular Season)',
-  '5th Place (Regular Season)', '6th Place (Regular Season)',
-  '7th Place (Regular Season)', '8th Place (Regular Season)',
-  '9th Place (Regular Season)', '10th Place (Regular Season)',
-  '11th Place (Regular Season)', '12th Place (Regular Season)',
-  '13th Place (Regular Season)', '14th Place (Regular Season)',
-  '15th Place (Regular Season)', '16th Place (Regular Season)',
-  '17th Place (Regular Season)', '18th Place (Regular Season)',
-  '19th Place (Regular Season)', '20th Place (Regular Season)',
-];
+/**
+ * Exponential prize curve for regular season standings.
+ * Always returns €85m for 1st and €50m for last, regardless of league size.
+ * Formula: 85 × (50/85)^((rank−1)/(N−1)), rounded to nearest integer.
+ */
+export function computeSeasonPrize(rank: number, totalTeams: number): number {
+  if (totalTeams <= 1) return 85;
+  const t = (rank - 1) / (totalTeams - 1);
+  return Math.round(85 * Math.pow(50 / 85, t));
+}
 
 function getOrdinalSuffix(i: number): string {
   const j = i % 10, k = i % 100;
-  if (j === 1 && k !== 11) {
-    return i + "st";
-  }
-  if (j === 2 && k !== 12) {
-    return i + "nd";
-  }
-  if (j === 3 && k !== 13) {
-    return i + "rd";
-  }
-  return i + "th";
+  if (j === 1 && k !== 11) return i + 'st';
+  if (j === 2 && k !== 12) return i + 'nd';
+  if (j === 3 && k !== 13) return i + 'rd';
+  return i + 'th';
+}
+
+function ordinalKey(rank: number): string {
+  return `season_${getOrdinalSuffix(rank)}`;
+}
+
+function ordinalLabel(rank: number): string {
+  return `${getOrdinalSuffix(rank)} Place (Regular Season)`;
 }
 
 /**
  * Builds the prize list for regular season standings.
- * Ranks are pulled from the league_standings view.
- * Every team gets a prize (minimum = the Nth rank prize).
+ * Prize amounts follow an exponential curve (€85m 1st → €50m last) scaled to
+ * however many teams are in the league. Per-league prize_config overrides
+ * for individual rank keys are still respected.
  */
 export async function buildSeasonPrizes(
   admin: SupabaseClient,
@@ -102,15 +81,15 @@ export async function buildSeasonPrizes(
 
   if (error || !standings) throw new Error(`Failed to fetch standings: ${error?.message}`);
 
+  const totalTeams = standings.length;
   const entries: PrizeEntry[] = [];
+
   for (const row of standings) {
     const rank = row.rank ?? 1;
-    const rankIdx = rank - 1; // 0-indexed
-    
-    // Fall back dynamically for ranks beyond the array boundaries (e.g. rank 21+)
-    const key = ORDINAL_KEYS[rankIdx] ?? `season_${getOrdinalSuffix(rank)}`;
-    const label = ORDINAL_LABELS[rankIdx] ?? `${getOrdinalSuffix(rank)} Place (Regular Season)`;
-    const amount = prizeConfig[key] ?? DEFAULT_PRIZE_CONFIG[key] ?? 30; // Fallback minimum for bottom-table teams
+    const key = ordinalKey(rank);
+    const label = ordinalLabel(rank);
+    // Per-league config can override any individual rank; otherwise use the curve.
+    const amount = prizeConfig[key] ?? computeSeasonPrize(rank, totalTeams);
 
     entries.push({
       teamId: row.team_id,

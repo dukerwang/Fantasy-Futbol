@@ -998,7 +998,7 @@ export default function TradesClient({
             </div>
             <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
               <button
-                className={`${styles.addToBlockBtn} ${styles.addToBlockBtnBlue}`}
+                className={styles.addToBlockBtn}
                 onClick={() => setShowRequestLoanModal(true)}
                 title="Request a loan of a player from another club"
               >
@@ -1018,10 +1018,10 @@ export default function TradesClient({
             <div className={styles.emptyState}>
               <p>No active or pending loans.</p>
               <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', marginTop: '12px' }}>
-                <button className={styles.proposeBtnOutlineBlue} onClick={() => setShowRequestLoanModal(true)}>
+                <button className={styles.addToBlockBtn} onClick={() => setShowRequestLoanModal(true)}>
                   Request a Loan
                 </button>
-                <button className={styles.proposeBtn} onClick={() => setShowLoanModal(true)}>
+                <button className={styles.addToBlockBtn} onClick={() => setShowLoanModal(true)}>
                   Propose a Loan
                 </button>
               </div>

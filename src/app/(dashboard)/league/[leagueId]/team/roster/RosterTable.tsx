@@ -254,10 +254,8 @@ export default function RosterTable({ teamId, rosterEntries, taxiAgeLimit, taxiS
 
         // Inline confirm for destructive actions
         if (action === 'drop') {
-            const severanceFee = Math.floor(marketValue * 0.1);
-            const feeMsg = severanceFee > 0
-                ? `This will cost €${severanceFee}m for severance.`
-                : 'No severance fee (market value too low).';
+            const severanceFee = Math.max(2, Math.floor(marketValue * 0.2));
+            const feeMsg = `This will cost €${severanceFee}m for severance.`;
             setConfirmState({ playerId: entry.player.id, action: 'drop', playerName, message: `Drop ${playerName}? ${feeMsg}` });
             return;
         }

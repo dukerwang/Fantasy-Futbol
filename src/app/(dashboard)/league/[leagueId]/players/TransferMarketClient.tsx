@@ -396,7 +396,7 @@ export default function TransferMarketClient({
       <header className={styles.pageHeader}>
         <div className={styles.titleBlock}>
           <p className={`${styles.eyebrow} eyebrow`}>Public Auctions</p>
-          <h1 className={styles.pageTitle}>Player Market</h1>
+          <h1 className={styles.pageTitle}>Free Agents</h1>
           <p className={styles.pageSubtitle}>
             Free agents available for auction · 48-hour bidding window
           </p>
@@ -413,7 +413,7 @@ export default function TransferMarketClient({
           className={`${styles.tab} ${activeTab === 'market' ? styles.tabActive : ''}`}
           onClick={() => setActiveTab('market')}
         >
-          Player Market
+          Free Agents
         </button>
         <button
           className={`${styles.tab} ${activeTab === 'auctions' ? styles.tabActive : ''}`}
@@ -605,7 +605,7 @@ export default function TransferMarketClient({
                 <p className={styles.auctionsEmptyTitle}>No active auctions</p>
                 <p className={styles.auctionsEmptyHint}>
                   Drop a player from your roster to start a 48-hour bidding window,
-                  or make an offer on a free agent in the Player Market tab.
+                  or make an offer on a free agent in the Free Agents tab.
                 </p>
               </div>
             ) : (
@@ -916,11 +916,11 @@ export default function TransferMarketClient({
                   >
                     <option value="">— Select player to release —</option>
                     {myRoster.map((p) => {
-                      const fee = Math.floor(Number(p.market_value || 0) * 0.1);
+                      const fee = Math.max(2, Math.floor(Number(p.market_value || 0) * 0.2));
                       return (
                         <option key={p.id} value={p.id}>
                           {formatPlayerName(p as { name: string; web_name?: string | null })} ({p.primary_position} · {p.pl_team})
-                          {fee > 0 ? ` — −€${fee}m severance` : ''}
+                          {` — −€${fee}m severance`}
                         </option>
                       );
                     })}

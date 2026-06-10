@@ -30,10 +30,8 @@ export default function RosterManager({ teamId, rosterEntries }: Props) {
             );
             if (!ok) return;
         } else {
-            const severanceFee = Math.floor(marketValue * 0.1);
-            const feeMsg = severanceFee > 0
-                ? `This will cost €${severanceFee}m in contract buyout fees.`
-                : 'No severance fee applies (market value too low).';
+            const severanceFee = Math.max(2, Math.floor(marketValue * 0.2));
+            const feeMsg = `This will cost €${severanceFee}m in contract buyout fees.`;
             const ok = window.confirm(
                 `Are you sure you want to drop ${playerName}? ${feeMsg}`,
             );

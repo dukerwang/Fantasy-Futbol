@@ -38,8 +38,8 @@ export async function executeDrop(
 
     const marketValue = Number(player.market_value || 0);
 
-    // Severance fee: 10% of market value (rounded down) — charged on plain drops only
-    const severanceFee = actionType === 'drop' ? Math.floor(marketValue * 0.1) : 0;
+    // Severance fee: 20% of market value (rounded down), minimum €2m — charged on plain drops only
+    const severanceFee = actionType === 'drop' ? Math.max(2, Math.floor(marketValue * 0.2)) : 0;
     const refundAmount = actionType === 'transfer_out' ? Math.round(marketValue * 0.8) : 0;
 
     let notes: string;

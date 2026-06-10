@@ -70,8 +70,8 @@ export async function POST(req: NextRequest, { params }: Props) {
 
     const marketValue = Number(player.market_value || 0);
 
-    // Severance fee: 10% of market value (rounded down) — charged on plain drops only
-    const severanceFee = actionType === 'drop' ? Math.floor(marketValue * 0.1) : 0;
+    // Severance fee: 20% of market value (rounded down), minimum €2m — charged on plain drops only
+    const severanceFee = actionType === 'drop' ? Math.max(2, Math.floor(marketValue * 0.2)) : 0;
 
     if (severanceFee > 0 && team.faab_budget < severanceFee) {
         return NextResponse.json(

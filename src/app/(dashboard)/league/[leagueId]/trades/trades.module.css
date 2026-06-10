@@ -958,35 +958,6 @@
   color: #fff;
 }
 
-/* Blue variant for request-loan buttons */
-.addToBlockBtnBlue {
-  border-color: var(--color-accent-blue);
-  color: var(--color-accent-blue);
-}
-
-.addToBlockBtnBlue:hover {
-  background: var(--color-accent-blue) !important;
-  border-color: var(--color-accent-blue) !important;
-  color: #fff !important;
-}
-
-.proposeBtnOutlineBlue {
-  background: none;
-  border: 1px solid var(--color-accent-blue);
-  color: var(--color-accent-blue);
-  padding: var(--space-3) var(--space-6);
-  border-radius: var(--radius-sm);
-  font-size: var(--text-sm);
-  font-weight: var(--font-semibold);
-  cursor: pointer;
-  transition: background var(--transition-fast), color var(--transition-fast);
-}
-
-.proposeBtnOutlineBlue:hover {
-  background: var(--color-accent-blue);
-  color: #fff;
-}
-
 /* ── Trade Block Card Grid ── */
 .tradeBlockGrid {
   display: grid;

@@ -9,7 +9,7 @@ export default function CreateLeagueForm() {
   const [name, setName] = useState('');
   const [maxTeams, setMaxTeams] = useState(10);
   const [rosterSize, setRosterSize] = useState(20);
-  const [faabBudget, setFaabBudget] = useState(250);
+  const [faabBudget, setFaabBudget] = useState(150);
   const [draftType, setDraftType] = useState<'snake' | 'auction'>('snake');
   const [isDynasty, setIsDynasty] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -106,7 +106,7 @@ export default function CreateLeagueForm() {
               onChange={(e) => setFaabBudget(Number(e.target.value))}
               className={styles.select}
             >
-              {[100, 150, 200, 250, 300, 350, 400, 450, 500].map((n) => (
+              {[50, 100, 150, 200, 250, 300, 350, 400, 450, 500].map((n) => (
                 <option key={n} value={n}>€{n}m</option>
               ))}
             </select>
