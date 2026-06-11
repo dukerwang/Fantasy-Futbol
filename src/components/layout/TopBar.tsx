@@ -341,7 +341,9 @@ export default function TopBar() {
           <NotificationBell leagueId={currentLeagueId} />
 
           {/* Theme Toggle */}
-          <ThemeToggle />
+          <div className={styles.desktopThemeToggle}>
+            <ThemeToggle />
+          </div>
 
           {/* User Avatar */}
           <div className={styles.userAvatar}>
@@ -436,6 +438,22 @@ export default function TopBar() {
               >
                 Activity
               </Link>
+            </div>
+
+            {/* Mobile User Section */}
+            <div className={styles.mobileDrawerUserSection}>
+              <div className={styles.mobileDrawerUserDetail}>
+                <div className={styles.mobileDrawerAvatar}>
+                  {username ? username[0].toUpperCase() : '?'}
+                </div>
+                <span className={styles.mobileDrawerUsername}>{username || 'Manager'}</span>
+              </div>
+              <div className={styles.mobileDrawerActions}>
+                <ThemeToggle />
+                <button onClick={handleSignOut} className={styles.mobileDrawerSignOut} type="button">
+                  Sign out
+                </button>
+              </div>
             </div>
           </div>
         </div>

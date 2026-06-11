@@ -215,6 +215,10 @@
   font-weight: var(--font-medium);
   color: var(--color-text-primary);
   line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 180px;
 }
 
 .leagueSwitcherChevron {
@@ -352,8 +356,17 @@
     display: none;
   }
 
+  .inner {
+    padding: 0 var(--space-3);
+    gap: var(--space-2);
+  }
+
   .brandName {
-    font-size: 12px;
+    display: none;
+  }
+
+  .leagueLabel {
+    display: none;
   }
 
   .leagueSwitcherBtn {
@@ -362,6 +375,19 @@
 
   .leagueName {
     font-size: 12px;
+    max-width: 110px;
+  }
+
+  .signOut {
+    display: none;
+  }
+
+  .userAvatar {
+    display: none;
+  }
+
+  .desktopThemeToggle {
+    display: none;
   }
 }
 
@@ -507,6 +533,69 @@
 .mobileDrawerSubLinkDisabled {
   opacity: 0.4;
   pointer-events: none;
+}
+
+/* --- Mobile Drawer User Section --- */
+.mobileDrawerUserSection {
+  margin-top: var(--space-8);
+  border-top: 1px solid var(--color-border-subtle);
+  padding-top: var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.mobileDrawerUserDetail {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.mobileDrawerAvatar {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-full);
+  background: var(--color-accent-green);
+  color: var(--color-text-inverse);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: var(--font-bold);
+  font-size: var(--text-base);
+}
+
+.mobileDrawerUsername {
+  font-family: var(--font-serif);
+  font-size: 16px;
+  font-weight: var(--font-semibold);
+  color: var(--color-text-primary);
+}
+
+.mobileDrawerActions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.mobileDrawerSignOut {
+  flex: 1;
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: var(--font-medium);
+  color: var(--color-text-secondary);
+  background: transparent;
+  border: 1px solid var(--color-border);
+  text-align: center;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.mobileDrawerSignOut:hover {
+  color: var(--color-text-primary);
+  border-color: var(--color-text-muted);
+  background: var(--color-bg-card-hover);
 }
 
 @media (max-width: 768px) {

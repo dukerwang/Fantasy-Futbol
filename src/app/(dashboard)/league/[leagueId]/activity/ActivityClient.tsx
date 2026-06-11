@@ -161,18 +161,21 @@ function getRelativeTime(processed_at: string): string {
   const diffMs = now.getTime() - date.getTime();
   const diffMins = Math.floor(diffMs / 60000);
   const diffHours = Math.floor(diffMins / 60);
-  const diffDays = Math.floor(diffHours / 24);
 
   if (diffMins < 1) return 'JUST NOW';
   if (diffMins < 60) return `${diffMins} MIN AGO`;
   if (diffHours < 24) return `${diffHours} HR${diffHours > 1 ? 'S' : ''} AGO`;
-  if (diffDays === 1)
-    return `YESTERDAY, ${date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}`;
-  return (
-    date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) +
-    ', ' +
-    date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
-  );
+
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
+  const txDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+
+  const timeStr = date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+  if (txDate.getTime() === yesterday.getTime()) {
+    return `YESTERDAY, ${timeStr}`;
+  }
+  return timeStr;
 }
 
 function getTimeRemaining(expiresAt: string): string {
@@ -576,17 +579,20 @@ function groupAuctions(liveAuctions: WaiverClaim[], myTeamId: string | null): Au
     if (!claim.player) continue;
     const pid = claim.player.id;
     const existing = map.get(pid);
+    const isRealBid = claim.team_id !== null;
 
     if (!existing) {
       map.set(pid, {
         player: claim.player,
         topBid: claim.faab_bid,
         expiresAt: claim.expires_at,
-        bidCount: 1,
+        bidCount: isRealBid ? 1 : 0,
         myBid: claim.team_id === myTeamId ? claim.faab_bid : null,
       });
     } else {
-      existing.bidCount++;
+      if (isRealBid) {
+        existing.bidCount++;
+      }
       existing.topBid = Math.max(existing.topBid, claim.faab_bid);
       // Keep the earliest expiry in case of any discrepancy
       if (new Date(claim.expires_at) < new Date(existing.expiresAt)) {
@@ -821,7 +827,7 @@ export default function ActivityClient({
     // Pending bids — shown in "all" and "bids" views
     if (filter === 'all' || filter === 'bids') {
       for (const claim of liveAuctions) {
-        if (!claim.player) continue;
+        if (!claim.player || claim.team_id === null) continue;
         items.push({ kind: 'bid', ts: claim.created_at, data: claim });
       }
     }

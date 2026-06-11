@@ -28,7 +28,7 @@ DECLARE
   v_winner_user_id UUID := NULL;
   v_winner_bid INT := 0;
   v_winner_severance INT := 0;
-  v_winner_status TEXT := 'bench';
+  v_winner_status public.roster_status := 'bench';
   v_drop_player_name TEXT := '';
   v_initiator_team_id UUID := NULL;
   v_initiator_team_name TEXT := '';
@@ -224,8 +224,7 @@ BEGIN
     -- Drop player if they are still on roster
     IF v_winner_claim.drop_player_id IS NOT NULL AND v_drop_player_name <> '' THEN
       DELETE FROM public.roster_entries
-      WHERE league_id = p_league_id
-        AND team_id = v_winner_team_id
+      WHERE team_id = v_winner_team_id
         AND player_id = v_winner_claim.drop_player_id;
 
       -- Seed summer/waiver auction for the dropped player

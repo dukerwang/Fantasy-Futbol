@@ -99,11 +99,12 @@ export async function GET(_req: NextRequest, { params }: Props) {
   const auctionMap = new Map<string, AuctionListing>();
   for (const claim of claims ?? []) {
     const existing = auctionMap.get(claim.player_id);
-    const bidEntry = {
-      team_name: claim.team ? (claim.team as any).team_name : 'System',
+    const isRealBid = claim.team_id !== null;
+    const bidEntry = isRealBid ? {
+      team_name: claim.team ? (claim.team as any).team_name : 'Unknown',
       faab_bid: claim.faab_bid,
       created_at: claim.created_at,
-    };
+    } : null;
 
     const hasSystemClaim = (claims ?? []).some(
       (c) => c.player_id === claim.player_id && c.team_id === null
@@ -115,19 +116,28 @@ export async function GET(_req: NextRequest, { params }: Props) {
       auctionMap.set(claim.player_id, {
         player: claim.player as Player,
         expires_at: claim.expires_at,
-        highest_bid: claim.faab_bid,
-        highest_bidder_team_name: claim.team ? (claim.team as any).team_name : 'System',
-        highest_bidder_team_id: claim.team_id,
+        highest_bid: isRealBid ? claim.faab_bid : 0,
+        highest_bidder_team_name: isRealBid && claim.team ? (claim.team as any).team_name : null,
+        highest_bidder_team_id: isRealBid ? claim.team_id : null,
         my_bid: claim.team_id && claim.team_id === myTeam.id ? claim.faab_bid : null,
         my_drop_player_id: claim.team_id && claim.team_id === myTeam.id ? claim.drop_player_id : null,
-        bid_count: 1,
-        bid_history: [bidEntry],
+        bid_count: isRealBid ? 1 : 0,
+        bid_history: bidEntry ? [bidEntry] : [],
         is_promoted_exclusive: !!isPromotedExclusive,
         is_eligible: isMyTeamEligible,
       });
     } else {
-      existing.bid_count++;
-      existing.bid_history.push(bidEntry);
+      if (isRealBid) {
+        existing.bid_count++;
+        if (bidEntry) {
+          existing.bid_history.push(bidEntry);
+        }
+        if (claim.faab_bid > existing.highest_bid) {
+          existing.highest_bid = claim.faab_bid;
+          existing.highest_bidder_team_name = claim.team ? (claim.team as any).team_name : null;
+          existing.highest_bidder_team_id = claim.team_id;
+        }
+      }
       if (claim.team_id && claim.team_id === myTeam.id) {
         existing.my_bid = claim.faab_bid;
         existing.my_drop_player_id = claim.drop_player_id;

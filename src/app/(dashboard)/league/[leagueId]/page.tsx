@@ -613,26 +613,41 @@ export default async function LeaguePage({ params }: Props) {
           {/* Matchup Hero */}
           {heroMatchup && heroState && (
             <div className={styles.matchupHero}>
-              <div className={styles.matchupTeam}>
-                <div className={styles.matchupShield}>{userTeam?.team_name?.charAt(0) ?? '?'}</div>
-                <span className={styles.matchupTeamName}>{userTeam?.team_name ?? '—'}</span>
-                <span className={styles.matchupManager}>MANAGER {userUsername.toUpperCase()}</span>
-              </div>
-              
-              <div className={styles.matchupCenter}>
-                {heroState === 'live' && <span className={styles.matchupLiveBadge}>LIVE</span>}
-                <div className={styles.matchupScoreRow}>
-                  <span className={styles.matchupScore}>{heroState === 'upcoming' ? '-' : (userScore?.toFixed(2) ?? '0.00')}</span>
-                  <span className={styles.matchupScoreDash}>-</span>
-                  <span className={styles.matchupScore}>{heroState === 'upcoming' ? '-' : (oppScore?.toFixed(2) ?? '0.00')}</span>
-                </div>
+              <div className={styles.matchupHeader}>
                 <span className={styles.matchupGwLabel}>MATCHWEEK {heroMatchup.gameweek}</span>
+                {heroState === 'live' && <span className={styles.matchupLiveBadge}>LIVE</span>}
               </div>
+              <div className={styles.matchupBody}>
+                {/* Team A Row */}
+                <div className={styles.matchupTeamRow}>
+                  <div className={styles.matchupTeamInfo}>
+                    <div className={styles.matchupShield}>{userTeam?.team_name?.charAt(0) ?? '?'}</div>
+                    <div className={styles.matchupTeamDetails}>
+                      <span className={styles.matchupTeamName}>{userTeam?.team_name ?? '—'}</span>
+                      <span className={styles.matchupManager}>MANAGER {userUsername.toUpperCase()}</span>
+                    </div>
+                  </div>
+                  <span className={styles.matchupTeamScore}>
+                    {heroState === 'upcoming' ? '-' : (userScore?.toFixed(2) ?? '0.00')}
+                  </span>
+                </div>
 
-              <div className={styles.matchupTeam}>
-                <div className={styles.matchupShield}>{oppTeam?.team_name?.charAt(0) ?? '?'}</div>
-                <span className={styles.matchupTeamName}>{oppTeam?.team_name ?? '—'}</span>
-                <span className={styles.matchupManager}>MANAGER {oppUsername.toUpperCase()}</span>
+                {/* Divider */}
+                <div className={styles.matchupScoreDivider} />
+
+                {/* Team B Row */}
+                <div className={styles.matchupTeamRow}>
+                  <div className={styles.matchupTeamInfo}>
+                    <div className={styles.matchupShield}>{oppTeam?.team_name?.charAt(0) ?? '?'}</div>
+                    <div className={styles.matchupTeamDetails}>
+                      <span className={styles.matchupTeamName}>{oppTeam?.team_name ?? '—'}</span>
+                      <span className={styles.matchupManager}>MANAGER {oppUsername.toUpperCase()}</span>
+                    </div>
+                  </div>
+                  <span className={styles.matchupTeamScore}>
+                    {heroState === 'upcoming' ? '-' : (oppScore?.toFixed(2) ?? '0.00')}
+                  </span>
+                </div>
               </div>
             </div>
           )}
