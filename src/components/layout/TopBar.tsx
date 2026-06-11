@@ -447,13 +447,14 @@ export default function TopBar() {
                   {username ? username[0].toUpperCase() : '?'}
                 </div>
                 <span className={styles.mobileDrawerUsername}>{username || 'Manager'}</span>
+                <div className={styles.mobileDrawerThemeToggle}>
+                  <ThemeToggle />
+                </div>
               </div>
-              <div className={styles.mobileDrawerActions}>
-                <ThemeToggle />
-                <button onClick={handleSignOut} className={styles.mobileDrawerSignOut} type="button">
-                  Sign out
-                </button>
-              </div>
+              <div className={styles.mobileDrawerUserDivider} />
+              <button onClick={handleSignOut} className={styles.mobileDrawerSignOut} type="button">
+                Sign out
+              </button>
             </div>
           </div>
         </div>

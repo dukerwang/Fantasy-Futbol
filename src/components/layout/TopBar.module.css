@@ -475,14 +475,14 @@
 }
 
 .mobileDrawerLink {
-  font-family: var(--font-serif);
-  font-size: 18px;
+  font-family: var(--font-sans);
+  font-size: 14px;
   font-weight: var(--font-bold);
   color: var(--color-text-primary);
   text-decoration: none;
   display: block;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
 }
 
 .mobileDrawerLinkActive {
@@ -537,23 +537,26 @@
 
 /* --- Mobile Drawer User Section --- */
 .mobileDrawerUserSection {
-  margin-top: var(--space-8);
-  border-top: 1px solid var(--color-border-subtle);
-  padding-top: var(--space-6);
+  margin-top: var(--space-6);
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
+  gap: var(--space-3);
 }
 
 .mobileDrawerUserDetail {
   display: flex;
   align-items: center;
   gap: var(--space-3);
+  width: 100%;
 }
 
 .mobileDrawerAvatar {
-  width: 40px;
-  height: 40px;
+  width: 32px;
+  height: 32px;
   border-radius: var(--radius-full);
   background: var(--color-accent-green);
   color: var(--color-text-inverse);
@@ -561,27 +564,31 @@
   align-items: center;
   justify-content: center;
   font-weight: var(--font-bold);
-  font-size: var(--text-base);
+  font-size: var(--text-sm);
+  flex-shrink: 0;
 }
 
 .mobileDrawerUsername {
-  font-family: var(--font-serif);
-  font-size: 16px;
+  font-family: var(--font-sans);
+  font-size: 14px;
   font-weight: var(--font-semibold);
   color: var(--color-text-primary);
 }
 
-.mobileDrawerActions {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-4);
+.mobileDrawerThemeToggle {
+  margin-left: auto;
+}
+
+.mobileDrawerUserDivider {
+  height: 1px;
+  background: var(--color-border-subtle);
 }
 
 .mobileDrawerSignOut {
-  flex: 1;
-  padding: 8px 16px;
+  width: 100%;
+  padding: var(--space-2) var(--space-4);
   border-radius: var(--radius-sm);
+  font-family: var(--font-sans);
   font-size: 13px;
   font-weight: var(--font-medium);
   color: var(--color-text-secondary);

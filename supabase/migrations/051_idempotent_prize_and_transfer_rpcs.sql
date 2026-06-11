@@ -107,11 +107,11 @@ BEGIN
   LOOP
     -- Idempotency check: verify if transfer_compensation transaction already recorded for this player and team
     IF EXISTS (
-      SELECT 1 FROM public.transactions
-      WHERE league_id = r.l_id
-        AND team_id = r.t_id
-        AND player_id = p_player_id
-        AND type = 'transfer_compensation'
+      SELECT 1 FROM public.transactions tx
+      WHERE tx.league_id = r.l_id
+        AND tx.team_id = r.t_id
+        AND tx.player_id = p_player_id
+        AND tx.type = 'transfer_compensation'
     ) THEN
       -- Already processed for this team, just delete the roster entry if it still exists
       DELETE FROM public.roster_entries WHERE id = r.entry_id;

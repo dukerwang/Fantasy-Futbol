@@ -223,3 +223,15 @@
   color: var(--color-text-primary);
   background: var(--color-bg-card-hover);
 }
+
+@media (max-width: 768px) {
+  .dropdown {
+    position: fixed;
+    top: calc(var(--nav-height) + 4px);
+    left: var(--space-4);
+    right: var(--space-4);
+    width: auto;
+    max-width: calc(100vw - (var(--space-4) * 2));
+    z-index: 300;
+  }
+}

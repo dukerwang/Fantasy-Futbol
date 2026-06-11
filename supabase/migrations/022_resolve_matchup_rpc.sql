@@ -17,13 +17,13 @@ CREATE OR REPLACE FUNCTION public.resolve_matchup(
 )
 RETURNS boolean AS $$
 DECLARE
-    v_new_status text;
+    v_new_status public.matchup_status;
 BEGIN
     -- Determine status
     IF p_finished THEN
-        v_new_status := 'completed';
+        v_new_status := 'completed'::public.matchup_status;
     ELSE
-        v_new_status := 'live';
+        v_new_status := 'live'::public.matchup_status;
     END IF;
 
     -- Update matchup scores and status
@@ -31,8 +31,7 @@ BEGIN
     SET
         score_a = p_score_a,
         score_b = p_score_b,
-        status  = v_new_status,
-        updated_at = now()
+        status  = v_new_status
     WHERE id = p_matchup_id;
 
     RETURN true;
