@@ -1197,6 +1197,7 @@ export default function TradesClient({
           currentGameweek={currentGameweek}
           loanSlotsRemaining={remainingLoanOuts}
           bonusCapDefault={leagueSettings.loan_bonus_cap_default}
+          totalGameweeks={leagueSettings.total_gameweeks}
           onClose={() => setShowLoanModal(false)}
           onProposed={async (newLoan) => {
             setProposeSuccess('Loan proposal submitted successfully!');
@@ -1213,6 +1214,7 @@ export default function TradesClient({
           currentGameweek={currentGameweek}
           loanSlotsRemaining={remainingLoanIns}
           bonusCapDefault={leagueSettings.loan_bonus_cap_default}
+          totalGameweeks={leagueSettings.total_gameweeks}
           onClose={() => setShowRequestLoanModal(false)}
           onRequested={async (newLoan) => {
             setProposeSuccess('Loan request sent! They will be notified to review your terms.');

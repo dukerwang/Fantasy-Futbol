@@ -26,110 +26,165 @@ export default function GwRangeSlider({
   maxDuration = 16,
   onChange,
 }: Props) {
-  const visualRange = maxEnd - min;
-  const startPct = visualRange > 0 ? ((startGw - min) / visualRange) * 100 : 0;
-  const endPct   = visualRange > 0 ? ((endGw   - min) / visualRange) * 100 : 100;
-  const duration = endGw - startGw;
+  // Clamp maxStart to ensure it is at least min (preventing min > max in inputs)
+  const effectiveMaxStart = Math.max(min, maxStart);
 
-  // Give the start handle a higher z-index when it's at its ceiling so the
-  // user can still drag it left (prevents the end handle from blocking it).
-  const startZ = startGw >= maxStart ? 5 : 3;
-  const endZ   = startGw >= maxStart ? 3 : 4;
+  // Bounds for End Gameweek slider
+  const minEnd = startGw + minDuration;
+  const maxEndBound = Math.min(startGw + maxDuration, maxEnd);
 
-  function handleStart(e: React.ChangeEvent<HTMLInputElement>) {
-    const raw = parseInt(e.target.value, 10);
-    const newStart = Math.min(raw, maxStart);
-    // Keep end within [newStart + minDuration, newStart + maxDuration, maxEnd]
-    const newEnd = Math.min(endGw, Math.min(newStart + maxDuration, maxEnd));
-    onChange(newStart, Math.max(newEnd, newStart + minDuration));
+  function handleStartChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const newStart = parseInt(e.target.value, 10);
+    // Keep end within [newStart + minDuration, newStart + maxDuration]
+    const nextMinEnd = newStart + minDuration;
+    const nextMaxEnd = Math.min(newStart + maxDuration, maxEnd);
+    let newEnd = endGw;
+    if (newEnd < nextMinEnd) {
+      newEnd = nextMinEnd;
+    } else if (newEnd > nextMaxEnd) {
+      newEnd = nextMaxEnd;
+    }
+    onChange(newStart, newEnd);
   }
 
-  function handleEnd(e: React.ChangeEvent<HTMLInputElement>) {
-    const raw    = parseInt(e.target.value, 10);
-    const newEnd = Math.min(raw, Math.min(startGw + maxDuration, maxEnd));
-    onChange(startGw, Math.max(newEnd, startGw + minDuration));
+  function handleEndChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const newEnd = parseInt(e.target.value, 10);
+    onChange(startGw, newEnd);
   }
+
+  // Calculate percentages for visual track fills
+  const startPct = ((startGw - min) / (effectiveMaxStart - min || 1)) * 100;
+  const endPct = ((endGw - minEnd) / (maxEndBound - minEnd || 1)) * 100;
+
+  const sliderContainerStyle = {
+    display: 'flex',
+    flexDirection: 'column' as const,
+    gap: '16px',
+    marginTop: '10px',
+  };
+
+  const sliderRowStyle = {
+    display: 'flex',
+    flexDirection: 'column' as const,
+    gap: '6px',
+  };
+
+  const sliderHeaderStyle = {
+    display: 'flex',
+    justifyContent: 'space-between',
+    fontSize: '11px',
+    fontWeight: 700,
+    color: 'var(--color-text-secondary)',
+  };
+
+  const sliderLabelStyle = {
+    fontSize: '9px',
+    fontWeight: 700,
+    textTransform: 'uppercase' as const,
+    letterSpacing: '0.08em',
+    color: 'var(--color-text-muted)',
+  };
+
+  const valueDisplayStyle = {
+    fontWeight: 700,
+    color: 'var(--color-accent-blue)',
+    fontSize: '12px',
+  };
 
   return (
     <div>
-      {/* GW display row */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '10px' }}>
-        <div style={{ textAlign: 'center', minWidth: '52px' }}>
-          <div style={{ fontSize: '9px', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--color-text-muted)' }}>
-            From
-          </div>
-          <div style={{ fontSize: '22px', fontWeight: 700, fontFamily: "'Noto Serif', serif", color: 'var(--color-accent-blue)', lineHeight: 1.1 }}>
+      {/* GW summary display row */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', borderBottom: '1px dashed var(--color-border)', paddingBottom: '12px' }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={sliderLabelStyle}>Start Week</div>
+          <div style={{ fontSize: '20px', fontWeight: 700, fontFamily: "'Noto Serif', serif", color: 'var(--color-accent-blue)' }}>
             GW{startGw}
           </div>
         </div>
 
-        <div style={{ textAlign: 'center', flex: 1 }}>
-          <div style={{ fontSize: '18px', fontWeight: 700, fontFamily: "'Noto Serif', serif", color: 'var(--color-text-secondary)', lineHeight: 1.1 }}>
-            {duration} GW{duration !== 1 ? 's' : ''}
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ fontSize: '18px', fontWeight: 700, fontFamily: "'Noto Serif', serif", color: 'var(--color-text-secondary)' }}>
+            {endGw - startGw} GWs
           </div>
-          <div style={{ fontSize: '10px', color: 'var(--color-text-muted)' }}>duration</div>
+          <div style={sliderLabelStyle}>Duration</div>
         </div>
 
-        <div style={{ textAlign: 'center', minWidth: '52px' }}>
-          <div style={{ fontSize: '9px', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--color-text-muted)' }}>
-            To
-          </div>
-          <div style={{ fontSize: '22px', fontWeight: 700, fontFamily: "'Noto Serif', serif", color: 'var(--color-accent-blue)', lineHeight: 1.1 }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={sliderLabelStyle}>End Week</div>
+          <div style={{ fontSize: '20px', fontWeight: 700, fontFamily: "'Noto Serif', serif", color: 'var(--color-accent-blue)' }}>
             GW{endGw}
           </div>
         </div>
       </div>
 
-      {/* Dual-handle slider track */}
-      <div style={{ position: 'relative', height: '44px' }}>
-        {/* Background track (full range) */}
-        <div style={{
-          position: 'absolute', top: '50%', transform: 'translateY(-50%)',
-          left: 0, right: 0,
-          height: '6px', borderRadius: '3px',
-          background: 'var(--color-border)',
-        }} />
+      <div style={sliderContainerStyle}>
+        {/* Slider 1: Start Gameweek */}
+        <div style={sliderRowStyle}>
+          <div style={sliderHeaderStyle}>
+            <span>Start Gameweek</span>
+            <span style={valueDisplayStyle}>GW{startGw}</span>
+          </div>
+          <div style={{ position: 'relative' }}>
+            <div style={{
+              position: 'absolute', top: '10px', left: 0, right: 0,
+              height: '6px', borderRadius: '3px',
+              background: 'var(--color-border)',
+            }} />
+            <div style={{
+              position: 'absolute', top: '10px', left: 0,
+              width: `${startPct}%`,
+              height: '6px', borderRadius: '3px 0 0 3px',
+              background: 'var(--color-accent-blue)',
+            }} />
+            <input
+              type="range"
+              min={min}
+              max={effectiveMaxStart}
+              step={1}
+              value={startGw}
+              onChange={handleStartChange}
+              className={styles.feeRangeInput}
+            />
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '9px', color: 'var(--color-text-muted)' }}>
+            <span>GW{min}</span>
+            <span>Latest allowed start: GW{effectiveMaxStart}</span>
+          </div>
+        </div>
 
-        {/* Highlighted fill between handles */}
-        <div style={{
-          position: 'absolute', top: '50%', transform: 'translateY(-50%)',
-          left: `${startPct}%`,
-          width: `${Math.max(0, endPct - startPct)}%`,
-          height: '6px', borderRadius: '3px',
-          background: 'var(--color-accent-blue)',
-          transition: 'left 0.05s, width 0.05s',
-        }} />
-
-        {/* Start handle */}
-        <input
-          type="range"
-          min={min}
-          max={maxStart}
-          step={1}
-          value={startGw}
-          onChange={handleStart}
-          className={styles.gwRangeInput}
-          style={{ zIndex: startZ }}
-        />
-
-        {/* End handle */}
-        <input
-          type="range"
-          min={min}
-          max={maxEnd}
-          step={1}
-          value={endGw}
-          onChange={handleEnd}
-          className={styles.gwRangeInput}
-          style={{ zIndex: endZ }}
-        />
-      </div>
-
-      {/* Floor / ceiling labels */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', color: 'var(--color-text-muted)', marginTop: '4px' }}>
-        <span>GW{min}</span>
-        <span>Min {minDuration} · Max {maxDuration} GWs</span>
-        <span>GW{maxEnd}</span>
+        {/* Slider 2: End Gameweek */}
+        <div style={sliderRowStyle}>
+          <div style={sliderHeaderStyle}>
+            <span>End Gameweek</span>
+            <span style={valueDisplayStyle}>GW{endGw}</span>
+          </div>
+          <div style={{ position: 'relative' }}>
+            <div style={{
+              position: 'absolute', top: '10px', left: 0, right: 0,
+              height: '6px', borderRadius: '3px',
+              background: 'var(--color-border)',
+            }} />
+            <div style={{
+              position: 'absolute', top: '10px', left: 0,
+              width: `${endPct}%`,
+              height: '6px', borderRadius: '3px 0 0 3px',
+              background: 'var(--color-accent-blue)',
+            }} />
+            <input
+              type="range"
+              min={minEnd}
+              max={maxEndBound}
+              step={1}
+              value={endGw}
+              onChange={handleEndChange}
+              className={styles.feeRangeInput}
+            />
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '9px', color: 'var(--color-text-muted)' }}>
+            <span>Min: GW{minEnd} (4 GWs)</span>
+            <span>Max: GW{maxEndBound} (16 GWs)</span>
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -12,12 +12,11 @@ const ZONE_MULTIPLES = {
   // Steep = anything above premiumEnd
 };
 
-// PPG multiplier: 1 PPG ~ €0.5m "anchor unit"
-// e.g. 8 PPG → anchor = 4 → Fair zone = €1–3m
-const PPG_TO_ANCHOR = 0.5;
+// PPG weekly anchor: 1 PPG ~ €0.08m (High Value tier)
+const PPG_TO_ANCHOR = 0.08;
 
-// MV fallback: anchor = MV × 0.18  (so "Fair" ≈ 9–13.5% of MV, typical range)
-const MV_TO_ANCHOR = 0.18;
+// MV weekly anchor fallback: MV * 0.008 (approx 0.8% of MV per week)
+const MV_TO_ANCHOR = 0.008;
 
 type ZoneLabel = 'Free' | 'Low' | 'Fair' | 'Premium' | 'Steep';
 
@@ -39,9 +38,12 @@ interface ZoneThresholds {
 function computeThresholds(
   ppg: number | null | undefined,
   mv: number | null | undefined,
+  duration: number,
 ): ZoneThresholds {
+  const effectiveDuration = Math.max(1, duration);
   if (ppg && ppg > 0) {
-    const base = ppg * PPG_TO_ANCHOR;
+    const weeklyBase = ppg * PPG_TO_ANCHOR;
+    const base = weeklyBase * effectiveDuration;
     return {
       lowEnd:     base * ZONE_MULTIPLES.lowEnd,
       fairEnd:    base * ZONE_MULTIPLES.fairEnd,
@@ -50,7 +52,8 @@ function computeThresholds(
     };
   }
   if (mv && mv > 0) {
-    const base = mv * MV_TO_ANCHOR;
+    const weeklyBase = mv * MV_TO_ANCHOR;
+    const base = weeklyBase * effectiveDuration;
     return {
       lowEnd:     base * ZONE_MULTIPLES.lowEnd,
       fairEnd:    base * ZONE_MULTIPLES.fairEnd,
@@ -58,8 +61,14 @@ function computeThresholds(
       anchor:     'mv',
     };
   }
-  // Bare fallback — no player context
-  return { lowEnd: 0.5, fairEnd: 2, premiumEnd: 4, anchor: 'default' };
+  // Bare fallback — no player context (assuming €1.0m base weekly anchor)
+  const base = 1.0 * effectiveDuration;
+  return {
+    lowEnd:     base * ZONE_MULTIPLES.lowEnd,
+    fairEnd:    base * ZONE_MULTIPLES.fairEnd,
+    premiumEnd: base * ZONE_MULTIPLES.premiumEnd,
+    anchor:     'default',
+  };
 }
 
 function getZoneLabel(value: number, t: ZoneThresholds): ZoneLabel {
@@ -76,11 +85,13 @@ interface Props {
   ppg?: number | null;
   /** Market value in €m — fallback anchor when PPG is unavailable */
   marketValue?: number | null;
+  /** Duration of the loan in weeks */
+  duration: number;
   onChange: (value: number) => void;
 }
 
-export default function LoanFeeSlider({ value, ppg, marketValue: mv, onChange }: Props) {
-  const t = computeThresholds(ppg, mv);
+export default function LoanFeeSlider({ value, ppg, marketValue: mv, duration, onChange }: Props) {
+  const t = computeThresholds(ppg, mv, duration);
 
   // Slider ceiling: a bit above "Steep" threshold, min €8m
   const maxFee = Math.max(8, Math.ceil(t.premiumEnd * 2));
@@ -91,7 +102,9 @@ export default function LoanFeeSlider({ value, ppg, marketValue: mv, onChange }:
   // Show a secondary context line (PPG or % of MV)
   const contextLine = (() => {
     if (t.anchor === 'ppg' && ppg && ppg > 0) {
-      return value > 0 ? `${(value / (ppg * PPG_TO_ANCHOR)).toFixed(1)}× PPG anchor` : null;
+      const weeklyBase = ppg * PPG_TO_ANCHOR;
+      const base = weeklyBase * duration;
+      return value > 0 ? `${(value / base).toFixed(1)}× base anchor` : null;
     }
     if (t.anchor === 'mv' && mv && mv > 0 && value > 0) {
       return `${Math.round((value / mv) * 100)}% of market value`;
@@ -111,6 +124,12 @@ export default function LoanFeeSlider({ value, ppg, marketValue: mv, onChange }:
       #f59e0b ${premium}%,
       #ef4444 100%)`;
   })();
+
+  // Percentages for label rendering
+  const lowPct = (t.lowEnd / maxFee) * 100;
+  const fairPct = ((t.fairEnd - t.lowEnd) / maxFee) * 100;
+  const premiumPct = ((t.premiumEnd - t.fairEnd) / maxFee) * 100;
+  const steepPct = ((maxFee - t.premiumEnd) / maxFee) * 100;
 
   return (
     <div>
@@ -158,24 +177,61 @@ export default function LoanFeeSlider({ value, ppg, marketValue: mv, onChange }:
         />
       </div>
 
-      {/* Zone legend */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '6px' }}>
-        {(['Free', 'Low', 'Fair', 'Premium', 'Steep'] as ZoneLabel[]).map((z) => (
-          <span key={z} style={{
-            fontSize: '8px', fontWeight: 700, letterSpacing: '0.06em',
-            textTransform: 'uppercase', color: ZONE_COLORS[z],
+      {/* Zone legend with mathematically aligned absolute positioning */}
+      <div style={{ position: 'relative', height: '14px', marginTop: '6px', fontSize: '8px', fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase' }}>
+        <span style={{ position: 'absolute', left: '0%', transform: 'translateX(0%)', color: ZONE_COLORS.Free }}>Free</span>
+        
+        {lowPct > 8 && (
+          <span style={{ 
+            position: 'absolute', 
+            left: `${((t.lowEnd / 2) / maxFee * 100).toFixed(1)}%`, 
+            transform: 'translateX(-50%)', 
+            color: ZONE_COLORS.Low 
           }}>
-            {z}
+            Low
           </span>
-        ))}
+        )}
+        
+        {fairPct > 8 && (
+          <span style={{ 
+            position: 'absolute', 
+            left: `${(((t.lowEnd + t.fairEnd) / 2) / maxFee * 100).toFixed(1)}%`, 
+            transform: 'translateX(-50%)', 
+            color: ZONE_COLORS.Fair 
+          }}>
+            Fair
+          </span>
+        )}
+        
+        {premiumPct > 8 && (
+          <span style={{ 
+            position: 'absolute', 
+            left: `${(((t.fairEnd + t.premiumEnd) / 2) / maxFee * 100).toFixed(1)}%`, 
+            transform: 'translateX(-50%)', 
+            color: ZONE_COLORS.Premium 
+          }}>
+            Premium
+          </span>
+        )}
+        
+        {steepPct > 8 && (
+          <span style={{ 
+            position: 'absolute', 
+            left: `${(((t.premiumEnd + maxFee) / 2) / maxFee * 100).toFixed(1)}%`, 
+            transform: 'translateX(-50%)', 
+            color: ZONE_COLORS.Steep 
+          }}>
+            Steep
+          </span>
+        )}
       </div>
 
       {/* Context line: what's driving zones */}
-      <div style={{ marginTop: '6px', fontSize: '10px', color: 'var(--color-text-muted)' }}>
+      <div style={{ marginTop: '8px', fontSize: '10px', color: 'var(--color-text-muted)' }}>
         {t.anchor === 'ppg' && ppg && ppg > 0 ? (
-          <>Zones based on <strong>{ppg.toFixed(1)} PPG</strong> — Fair ≈ €{t.fairEnd.toFixed(1)}m{t.anchor === 'ppg' ? '' : ''}</>
+          <>Zones based on <strong>{ppg.toFixed(1)} PPG</strong> over {duration} GWs — Fair ≈ €{t.fairEnd.toFixed(1)}m</>
         ) : t.anchor === 'mv' && mv && mv > 0 ? (
-          <>Zones based on <strong>€{mv.toFixed(1)}m market value</strong> — limited match data</>
+          <>Zones based on <strong>€{mv.toFixed(1)}m market value</strong> over {duration} GWs</>
         ) : (
           <>Zones are estimates — no player data available</>
         )}
