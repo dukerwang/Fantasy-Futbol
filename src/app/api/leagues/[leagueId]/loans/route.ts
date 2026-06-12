@@ -40,10 +40,6 @@ export async function GET(req: NextRequest, { params }: Props) {
     .eq('league_id', leagueId)
     .order('created_at', { ascending: false });
 
-  // Split loans into loansOut (myTeam is lender) and loansIn (myTeam is borrower)
-  const loansOut = (loans ?? []).filter(l => l.lender_team_id === myTeam.id);
-  const loansIn = (loans ?? []).filter(l => l.borrower_team_id === myTeam.id);
-
   // Fetch all teams in the league (except caller's team)
   const { data: allTeams } = await admin
     .from('teams')
@@ -57,14 +53,75 @@ export async function GET(req: NextRequest, { params }: Props) {
     .select('status, player:players(id, fpl_id, api_football_id, web_name, name, full_name, date_of_birth, nationality, pl_team, pl_team_id, primary_position, secondary_positions, market_value, market_value_updated_at, projected_points, photo_url, height_cm, fpl_status, fpl_news, total_points, form_rating, ppg, is_active, transfermarkt_id, created_at, updated_at)')
     .eq('team_id', myTeam.id);
 
+  // Gather player IDs to fetch stats
+  const playerIds = new Set<string>();
+  (myRosterEntries ?? []).forEach(e => {
+    const p = e.player as any;
+    if (p?.id) playerIds.add(p.id);
+  });
+  (loans ?? []).forEach(l => {
+    const p = l.player as any;
+    if (p?.id) playerIds.add(p.id);
+  });
+
+  // Fetch recent PPG (last 10 gameweeks) for all players
+  let recentPpgMap: Record<string, number> = {};
+  if (playerIds.size > 0) {
+    const { data: stats } = await admin
+      .from('player_stats')
+      .select('player_id, fantasy_points, gameweek')
+      .in('player_id', Array.from(playerIds))
+      .order('gameweek', { ascending: false });
+
+    const playerGroups: Record<string, number[]> = {};
+    for (const s of stats ?? []) {
+      if (!playerGroups[s.player_id]) {
+        playerGroups[s.player_id] = [];
+      }
+      if (playerGroups[s.player_id].length < 10) {
+        playerGroups[s.player_id].push(Number(s.fantasy_points) || 0);
+      }
+    }
+
+    for (const id of playerIds) {
+      const points = playerGroups[id] || [];
+      if (points.length === 0) {
+        recentPpgMap[id] = 3.0;
+      } else {
+        const avg = points.reduce((sum, p) => sum + p, 0) / points.length;
+        recentPpgMap[id] = Math.max(3.0, avg);
+      }
+    }
+  }
+
+  // Enrich player objects with recent_ppg
+  const enrichedLoans = (loans ?? []).map((l) => {
+    if (l.player) {
+      return {
+        ...l,
+        player: {
+          ...l.player,
+          recent_ppg: recentPpgMap[l.player.id] ?? Math.max(3.0, l.player.ppg ?? 3.0)
+        }
+      };
+    }
+    return l;
+  });
+
+  const loansOut = enrichedLoans.filter(l => l.lender_team_id === myTeam.id);
+  const loansIn = enrichedLoans.filter(l => l.borrower_team_id === myTeam.id);
+
   const myRoster = (myRosterEntries ?? []).map((e) => ({
     ...e,
-    player: e.player as any
+    player: e.player ? {
+      ...(e.player as any),
+      recent_ppg: recentPpgMap[(e.player as any).id] ?? Math.max(3.0, (e.player as any).ppg ?? 3.0)
+    } : null
   }));
 
   // Map of players involved in loans
   const playerMap: Record<string, any> = {};
-  for (const l of loans ?? []) {
+  for (const l of enrichedLoans) {
     if (l.player) {
       playerMap[l.player.id] = l.player;
     }
@@ -119,7 +176,7 @@ export async function POST(req: NextRequest, { params }: Props) {
   const body = await req.json();
   // requestMode = true means the CALLER is the borrower requesting a player from lenderTeamId.
   // Classic mode (requestMode = false/undefined): caller is the lender proposing to borrowerTeamId.
-  const { borrowerTeamId, lenderTeamId, playerId, loanFee, startGameweek, endGameweek, bonusRate, hasRecall, message, requestMode } = body as {
+  const { borrowerTeamId, lenderTeamId, playerId, loanFee, startGameweek, endGameweek, bonusRate, bonusCap: clientBonusCap, hasRecall, message, requestMode } = body as {
     borrowerTeamId?: string;
     lenderTeamId?: string;
     playerId: string;
@@ -127,6 +184,7 @@ export async function POST(req: NextRequest, { params }: Props) {
     startGameweek: number;
     endGameweek: number;
     bonusRate: number;
+    bonusCap?: number;
     hasRecall: boolean;
     message?: string;
     requestMode?: boolean;
@@ -272,13 +330,15 @@ export async function POST(req: NextRequest, { params }: Props) {
   // 9. Determine bonus cap
   let bonusCap = 0;
   if (bonusRate > 0) {
-    if (league.loan_bonus_cap_default > 0) {
+    if (clientBonusCap !== undefined) {
+      bonusCap = clientBonusCap;
+    } else if (league.loan_bonus_cap_default > 0) {
       bonusCap = league.loan_bonus_cap_default;
     } else {
       bonusCap = loanFee * 3;
     }
 
-    if (loanFee === 0 && league.loan_bonus_cap_default === 0) {
+    if (loanFee === 0 && bonusCap === 0) {
       return NextResponse.json({
         error: 'A performance bonus clause on a €0-fee loan is invalid because the bonus cap is calculated as 3x the loan fee (€0). Please set a loan fee of at least €1m or ask the commissioner to configure a default flat cap.'
       }, { status: 400 });

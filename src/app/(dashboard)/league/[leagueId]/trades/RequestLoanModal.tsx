@@ -3,7 +3,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import PositionBadge from '@/components/players/PositionBadge';
 import { formatPlayerName } from '@/lib/formatName';
-import LoanFeeSlider from './LoanFeeSlider';
 import GwRangeSlider from './GwRangeSlider';
 import styles from './trades.module.css';
 
@@ -18,6 +17,7 @@ interface SimplePlayer {
   form_rating?: number | null;
   primary_position: string;
   status?: string;
+  recent_ppg?: number | null;
 }
 
 interface Team {
@@ -46,7 +46,6 @@ export default function RequestLoanModal({
   allRosters,
   currentGameweek = 1,
   loanSlotsRemaining,
-  bonusCapDefault = 0,
   totalGameweeks = 38,
   onClose,
   onRequested,
@@ -63,85 +62,18 @@ export default function RequestLoanModal({
   const [selectedTeamId, setSelectedTeamId] = useState('');
   const [selectedPlayer, setSelectedPlayer] = useState<SimplePlayer | null>(null);
 
-  const [loanFee, setLoanFee] = useState(0);
+  // Period Selection
   const [startGameweek, setStartGameweek] = useState(effectiveCurrentGw);
   const [endGameweek, setEndGameweek] = useState(Math.min(effectiveCurrentGw + 6, totalGws));
+  const duration = endGameweek - startGameweek;
 
-  // Performance Bonus State
-  const [bonusRate, setBonusRate] = useState<number>(0);
-  const [bonusMode, setBonusMode] = useState<'none' | 'low' | 'med' | 'high' | 'custom'>('none');
+  // Template & Adjustment State
+  const [selectedTemplate, setSelectedTemplate] = useState<'fixed' | 'balanced' | 'performance'>('balanced');
+  const [adjustment, setAdjustment] = useState<number>(0); // ranges from -0.20 to +0.20
 
-  const [hasRecall, setHasRecall] = useState(false);
   const [message, setMessage] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  const duration = endGameweek - startGameweek;
-
-  // 1. Dynamic Economic Anchors (High Value Tier)
-  const baseWeeklyValue = useMemo(() => {
-    if (!selectedPlayer) return 1.0;
-    if (selectedPlayer.ppg && selectedPlayer.ppg > 0) {
-      return selectedPlayer.ppg * 0.08;
-    }
-    if (selectedPlayer.market_value && selectedPlayer.market_value > 0) {
-      return selectedPlayer.market_value * 0.008;
-    }
-    return 1.0; // fallback
-  }, [selectedPlayer]);
-
-  // Compute points-based rate tiers dynamically
-  const bonusLevels = useMemo(() => {
-    if (!selectedPlayer) return { low: 0.01, med: 0.02, high: 0.03 };
-    const ppg = selectedPlayer.ppg || 8;
-    return {
-      low: parseFloat(Math.max(0.01, (baseWeeklyValue * 0.2) / ppg).toFixed(2)),
-      med: parseFloat(Math.max(0.02, (baseWeeklyValue * 0.4) / ppg).toFixed(2)),
-      high: parseFloat(Math.max(0.03, (baseWeeklyValue * 0.6) / ppg).toFixed(2)),
-    };
-  }, [selectedPlayer, baseWeeklyValue]);
-
-  // 2. Preset Deal Templates
-  const presetDeals = useMemo(() => {
-    if (!selectedPlayer) return [];
-    const stdTotal = baseWeeklyValue * duration;
-    return [
-      {
-        id: 'fixed',
-        name: '💼 Fixed',
-        fee: Math.round(stdTotal),
-        rate: 0,
-        mode: 'none' as const,
-        desc: 'Single upfront fee. No performance tracking or bonus payouts.',
-      },
-      {
-        id: 'hybrid',
-        name: '🤝 Balanced',
-        fee: Math.round(stdTotal * 0.6),
-        rate: bonusLevels.med,
-        mode: 'med' as const,
-        desc: 'Moderate upfront fee. Splits risk between upfront and points scored.',
-      },
-      {
-        id: 'performance',
-        name: '🚀 Performance Heavy',
-        // Clamp to €1m to satisfy cap (3x fee) rule
-        fee: Math.max(1, Math.round(stdTotal * 0.2)),
-        rate: bonusLevels.high,
-        mode: 'high' as const,
-        desc: 'Low upfront fee. You pay based on actual player scoring.',
-      },
-    ];
-  }, [selectedPlayer, baseWeeklyValue, duration, bonusLevels]);
-
-  const [activePreset, setActivePreset] = useState<string | null>(null);
-
-  const applyPreset = (preset: typeof presetDeals[0]) => {
-    setLoanFee(preset.fee);
-    setBonusRate(preset.rate);
-    setBonusMode(preset.mode);
-    setActivePreset(preset.id);
-  };
 
   // Sync start GW default when effectiveCurrentGw changes
   useEffect(() => {
@@ -149,56 +81,88 @@ export default function RequestLoanModal({
     setEndGameweek(Math.min(effectiveCurrentGw + 6, totalGws));
   }, [effectiveCurrentGw, totalGws]);
 
-  // Default initial presets on player selection
+  // Reset adjustment when duration or player changes
   useEffect(() => {
-    if (selectedPlayer) {
-      const stdTotal = baseWeeklyValue * 6; // default 6 GW duration
-      setLoanFee(Math.round(stdTotal * 0.6)); // default to balanced
-      setBonusRate(bonusLevels.med);
-      setBonusMode('med');
-      setActivePreset('hybrid');
-    } else {
-      setLoanFee(0);
-      setBonusRate(0);
-      setBonusMode('none');
-      setActivePreset(null);
-    }
-  }, [selectedPlayer, baseWeeklyValue, bonusLevels]);
+    setAdjustment(0);
+  }, [selectedPlayer, duration]);
 
   const teamRoster: SimplePlayer[] = selectedTeamId ? (allRosters[selectedTeamId] ?? []) : [];
   const eligibleRoster = teamRoster.filter(
     (p) => !p.status || !['ir', 'taxi', 'loan_in', 'loan_out'].includes(p.status)
   );
 
-  const previewBonusCap = useMemo(() => {
-    if (bonusRate <= 0) return 0;
-    if (bonusCapDefault > 0) return bonusCapDefault;
-    return loanFee * 3;
-  }, [bonusRate, bonusCapDefault, loanFee]);
-
-  const maxPossibleCost = loanFee + previewBonusCap;
-
-  // Real-time Payout Estimations
-  const estPoints = Math.round(duration * (selectedPlayer?.ppg || 0));
-  const estBonusPayout = Math.min(previewBonusCap, estPoints * bonusRate);
-
   function handleSelectPlayer(p: SimplePlayer) {
     setSelectedPlayer(p);
     setStep(2);
   }
 
-  const handleBonusModeChange = (mode: typeof bonusMode) => {
-    setBonusMode(mode);
-    if (mode === 'none') {
-      setBonusRate(0);
-    } else if (mode === 'low') {
-      setBonusRate(bonusLevels.low);
-    } else if (mode === 'med') {
-      setBonusRate(bonusLevels.med);
-    } else if (mode === 'high') {
-      setBonusRate(bonusLevels.high);
-    }
-  };
+  // ─── Loan Calculations ───────────────────────────────────────────────────
+  
+  // recentPPG = average fantasy points over last 10 GWs, floored at 3.
+  const recentPPG = useMemo(() => {
+    if (!selectedPlayer) return 3.0;
+    const statsPPG = selectedPlayer.recent_ppg ?? selectedPlayer.ppg ?? 3.0;
+    return Math.max(3.0, statsPPG);
+  }, [selectedPlayer]);
+
+  // baseFee = round(0.5 × sqrt(recentPPG) × loanWeeks)
+  const baseFee = useMemo(() => {
+    if (!selectedPlayer) return 0;
+    return Math.round(0.5 * Math.sqrt(recentPPG) * duration);
+  }, [selectedPlayer, recentPPG, duration]);
+
+  // Compute template terms based on baseFee and formula rules
+  const templateTerms = useMemo(() => {
+    if (!selectedPlayer) return { fixed: { fee: 0, rate: 0, cap: 0 }, balanced: { fee: 0, rate: 0, cap: 0 }, performance: { fee: 0, rate: 0, cap: 0 } };
+    
+    // Fixed: fee = baseFee, no bonus
+    const fixedFee = baseFee;
+    
+    // Balanced: fee = baseFee × 0.55, bonusRate = (baseFee × 0.45) / (recentPPG × loanWeeks)
+    const balancedFee = baseFee * 0.55;
+    const balancedRate = (baseFee * 0.45) / (recentPPG * duration);
+    const balancedCap = 2 * (baseFee - balancedFee);
+    
+    // Performance Heavy: fee = baseFee × 0.2, bonusRate = (baseFee × 0.9) / (recentPPG × loanWeeks)
+    const perfFee = baseFee * 0.20;
+    const perfRate = (baseFee * 0.90) / (recentPPG * duration);
+    const perfCap = 2 * (baseFee - perfFee);
+
+    return {
+      fixed: {
+        fee: fixedFee,
+        rate: 0,
+        cap: 0,
+      },
+      balanced: {
+        fee: balancedFee,
+        rate: balancedRate,
+        cap: balancedCap,
+      },
+      performance: {
+        fee: perfFee,
+        rate: perfRate,
+        cap: perfCap,
+      },
+    };
+  }, [selectedPlayer, baseFee, recentPPG, duration]);
+
+  // Apply ±20% adjustment to the selected template
+  const finalTerms = useMemo(() => {
+    const terms = templateTerms[selectedTemplate];
+    const multiplier = 1 + adjustment;
+    return {
+      fee: Math.round(terms.fee * multiplier),
+      rate: parseFloat((terms.rate * multiplier).toFixed(3)),
+      cap: Math.round(terms.cap * multiplier),
+    };
+  }, [templateTerms, selectedTemplate, adjustment]);
+
+  const maxPossibleCost = finalTerms.fee + finalTerms.cap;
+
+  // Expected Points & Bonus Payout Estimates
+  const estPoints = Math.round(duration * (selectedPlayer?.ppg || 0));
+  const estBonusPayout = Math.min(finalTerms.cap, estPoints * finalTerms.rate);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -213,11 +177,12 @@ export default function RequestLoanModal({
           requestMode: true,
           lenderTeamId: selectedTeamId,
           playerId: selectedPlayer.id,
-          loanFee,
+          loanFee: finalTerms.fee,
           startGameweek,
           endGameweek,
-          bonusRate,
-          hasRecall,
+          bonusRate: finalTerms.rate,
+          bonusCap: finalTerms.cap,
+          hasRecall: true, // flat recall is mandatory
           message: message || undefined,
         }),
       });
@@ -334,6 +299,7 @@ export default function RequestLoanModal({
                           <span className={styles.blockToggleClub}>
                             {p.pl_team ?? ''}
                             {p.market_value ? ` · €${p.market_value.toFixed(1)}m` : ''}
+                            {p.ppg ? ` · ${p.ppg.toFixed(1)} PPG` : ''}
                           </span>
                         </div>
                       </div>
@@ -363,6 +329,7 @@ export default function RequestLoanModal({
                   {allTeams.find(t => t.id === selectedTeamId)?.team_name} · {selectedPlayer.pl_team ?? ''}
                   {selectedPlayer.market_value ? ` · €${selectedPlayer.market_value.toFixed(1)}m MV` : ''}
                   {selectedPlayer.ppg ? ` · ${selectedPlayer.ppg.toFixed(1)} PPG` : ''}
+                  {recentPPG !== selectedPlayer.ppg && ` · ${recentPPG.toFixed(1)} L10 PPG`}
                 </div>
               </div>
               <button
@@ -378,7 +345,7 @@ export default function RequestLoanModal({
               These are your <strong>proposed terms</strong>. The other manager can accept or negotiate.
             </div>
 
-            {/* GW Range slider */}
+            {/* 1. Duration Slider */}
             <div style={sectionStyle}>
               <label style={labelStyle}>Requested Loan Period</label>
               <GwRangeSlider
@@ -392,191 +359,193 @@ export default function RequestLoanModal({
                 onChange={(s, e) => {
                   setStartGameweek(s);
                   setEndGameweek(e);
-                  setActivePreset(null); // break preset
                 }}
               />
             </div>
 
-            {/* Preset Templates */}
+            {/* 2. Three Template Cards */}
             <div>
-              <label style={labelStyle}>Quick Deal Templates</label>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '8px', marginTop: '6px' }}>
-                {presetDeals.map((preset) => {
-                  const isActive = activePreset === preset.id;
-                  return (
-                    <button
-                      key={preset.id}
-                      type="button"
-                      onClick={() => applyPreset(preset)}
-                      style={{
-                        padding: '10px',
-                        borderRadius: 'var(--radius-sm)',
-                        border: isActive ? '2px solid var(--color-accent-blue)' : '1px solid var(--color-border)',
-                        background: isActive ? 'rgba(59,130,246,0.06)' : 'var(--color-bg-elevated)',
-                        textAlign: 'left',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: '4px',
-                        transition: 'all 0.15s ease',
-                      }}
-                    >
-                      <span style={{ fontSize: '11px', fontWeight: 700, color: isActive ? 'var(--color-accent-blue)' : 'var(--color-text-primary)' }}>
-                        {preset.name}
-                      </span>
-                      <span style={{ fontSize: '10px', color: 'var(--color-text-secondary)', fontWeight: 600 }}>
-                        Fee: €{preset.fee}m {preset.rate > 0 ? `+ €${preset.rate}m/pt` : '(Fixed)'}
-                      </span>
-                      <span style={{ fontSize: '9px', color: 'var(--color-text-muted)', lineHeight: '1.2' }}>
-                        {preset.desc}
-                      </span>
-                    </button>
-                  );
-                })}
+              <label style={labelStyle}>Select Template Deal (Base Fee: €{baseFee}m)</label>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '8px', marginTop: '6px' }}>
+                
+                {/* Fixed Template */}
+                <button
+                  type="button"
+                  onClick={() => setSelectedTemplate('fixed')}
+                  style={{
+                    padding: '12px',
+                    borderRadius: 'var(--radius-sm)',
+                    border: selectedTemplate === 'fixed' ? '2px solid var(--color-accent-blue)' : '1px solid var(--color-border)',
+                    background: selectedTemplate === 'fixed' ? 'rgba(59,130,246,0.06)' : 'var(--color-bg-elevated)',
+                    textAlign: 'left',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '4px',
+                    transition: 'all 0.15s ease',
+                  }}
+                >
+                  <span style={{ fontSize: '12px', fontWeight: 700, color: selectedTemplate === 'fixed' ? 'var(--color-accent-blue)' : 'var(--color-text-primary)' }}>
+                    💼 Fixed
+                  </span>
+                  <span style={{ fontSize: '11px', color: 'var(--color-text-secondary)', fontWeight: 600 }}>
+                    Fee: €{Math.round(templateTerms.fixed.fee)}m
+                  </span>
+                  <span style={{ fontSize: '9px', color: 'var(--color-text-muted)', lineHeight: '1.2' }}>
+                    Standard upfront fee. No performance bonus.
+                  </span>
+                </button>
+
+                {/* Balanced Template */}
+                <button
+                  type="button"
+                  onClick={() => setSelectedTemplate('balanced')}
+                  style={{
+                    padding: '12px',
+                    borderRadius: 'var(--radius-sm)',
+                    border: selectedTemplate === 'balanced' ? '2px solid var(--color-accent-blue)' : '1px solid var(--color-border)',
+                    background: selectedTemplate === 'balanced' ? 'rgba(59,130,246,0.06)' : 'var(--color-bg-elevated)',
+                    textAlign: 'left',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '4px',
+                    transition: 'all 0.15s ease',
+                  }}
+                >
+                  <span style={{ fontSize: '12px', fontWeight: 700, color: selectedTemplate === 'balanced' ? 'var(--color-accent-blue)' : 'var(--color-text-primary)' }}>
+                    🤝 Balanced
+                  </span>
+                  <span style={{ fontSize: '11px', color: 'var(--color-text-secondary)', fontWeight: 600 }}>
+                    Fee: €{Math.round(templateTerms.balanced.fee)}m
+                    <br />
+                    Bonus: €{templateTerms.balanced.rate.toFixed(3)}m/pt
+                  </span>
+                  <span style={{ fontSize: '9px', color: 'var(--color-text-muted)', lineHeight: '1.2' }}>
+                    Moderate upfront fee + points payouts (Cap: €{Math.round(templateTerms.balanced.cap)}m).
+                  </span>
+                </button>
+
+                {/* Performance Heavy Template */}
+                <button
+                  type="button"
+                  onClick={() => setSelectedTemplate('performance')}
+                  style={{
+                    padding: '12px',
+                    borderRadius: 'var(--radius-sm)',
+                    border: selectedTemplate === 'performance' ? '2px solid var(--color-accent-blue)' : '1px solid var(--color-border)',
+                    background: selectedTemplate === 'performance' ? 'rgba(59,130,246,0.06)' : 'var(--color-bg-elevated)',
+                    textAlign: 'left',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '4px',
+                    transition: 'all 0.15s ease',
+                  }}
+                >
+                  <span style={{ fontSize: '12px', fontWeight: 700, color: selectedTemplate === 'performance' ? 'var(--color-accent-blue)' : 'var(--color-text-primary)' }}>
+                    🚀 Performance Heavy
+                  </span>
+                  <span style={{ fontSize: '11px', color: 'var(--color-text-secondary)', fontWeight: 600 }}>
+                    Fee: €{Math.round(templateTerms.performance.fee)}m
+                    <br />
+                    Bonus: €{templateTerms.performance.rate.toFixed(3)}m/pt
+                  </span>
+                  <span style={{ fontSize: '9px', color: 'var(--color-text-muted)', lineHeight: '1.2' }}>
+                    Low upfront fee + high points payouts (Cap: €{Math.round(templateTerms.performance.cap)}m).
+                  </span>
+                </button>
+
               </div>
             </div>
 
-            {/* Loan Fee slider */}
+            {/* 3. Price Adjustment Slider */}
             <div style={sectionStyle}>
-              <label style={labelStyle}>Loan Fee you&apos;re offering</label>
-              <LoanFeeSlider
-                value={loanFee}
-                ppg={selectedPlayer.ppg}
-                marketValue={selectedPlayer.market_value}
-                duration={duration}
-                onChange={(val) => {
-                  setLoanFee(val);
-                  setActivePreset(null); // break preset
-                }}
-              />
-            </div>
-
-            {/* Performance Bonus */}
-            <div style={sectionStyle}>
-              <label style={labelStyle}>Performance Bonus you&apos;re offering (€m / fantasy point)</label>
-              
-              {/* Segmented control */}
-              <div style={{ display: 'flex', gap: '6px', marginBottom: '10px', flexWrap: 'wrap' }}>
-                {(['none', 'low', 'med', 'high', 'custom'] as const).map((mode) => {
-                  const isActive = bonusMode === mode;
-                  const labelMap = {
-                    none: 'None',
-                    low: `Low (€${bonusLevels.low}/pt)`,
-                    med: `Mid (€${bonusLevels.med}/pt)`,
-                    high: `High (€${bonusLevels.high}/pt)`,
-                    custom: 'Custom',
-                  };
-                  return (
-                    <button
-                      key={mode}
-                      type="button"
-                      onClick={() => handleBonusModeChange(mode)}
-                      style={{
-                        padding: '6px 12px',
-                        borderRadius: '16px',
-                        border: '1px solid var(--color-border)',
-                        background: isActive ? 'var(--color-accent-blue)' : 'var(--color-bg-card)',
-                        color: isActive ? '#fff' : 'var(--color-text-secondary)',
-                        fontSize: '10px',
-                        fontWeight: 600,
-                        cursor: 'pointer',
-                        transition: 'all 0.1s ease',
-                      }}
-                    >
-                      {labelMap[mode]}
-                    </button>
-                  );
-                })}
-              </div>
-
-              {bonusMode === 'custom' && (
-                <div style={{ marginBottom: '10px' }}>
-                  <input
-                    type="number" min="0" step="0.01" style={inputStyle}
-                    value={bonusRate}
-                    onChange={(e) => {
-                      setBonusRate(Math.max(0, parseFloat(e.target.value) || 0));
-                      setActivePreset(null);
-                    }}
-                    placeholder="Enter rate (€m / pt)"
-                  />
-                </div>
-              )}
-
-              {bonusRate > 0 && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', padding: '10px', background: 'rgba(99,135,255,0.06)', borderRadius: '4px', fontSize: '11px', color: 'var(--color-text-secondary)', borderLeft: '3px solid var(--color-accent-blue)' }}>
-                  <div>
-                    Bonus Rate: <strong>€{bonusRate}m / fantasy point</strong>
-                  </div>
-                  <div>
-                    Bonus Cap: <strong>€{previewBonusCap}m</strong>
-                    {bonusCapDefault > 0 ? ' (league flat cap)' : ` (3× loan fee)`}
-                  </div>
-                  {selectedPlayer?.ppg && selectedPlayer.ppg > 0 && (
-                    <div style={{ borderTop: '1px solid var(--color-border)', marginTop: '4px', paddingTop: '4px', color: 'var(--color-text-muted)' }}>
-                      📈 Expected points: <strong>~{estPoints} pts</strong> over {duration} GWs
-                      <br />
-                      💰 Expected bonus cost: <strong>€{estBonusPayout.toFixed(1)}m</strong>
-                    </div>
-                  )}
-                  {loanFee === 0 && bonusCapDefault === 0 && (
-                    <span style={{ color: 'var(--color-accent-red)', display: 'block', marginTop: '2px', fontWeight: 600 }}>
-                      ⚠ Set a loan fee ≥ €1m to enable performance bonuses.
-                    </span>
-                  )}
-                </div>
-              )}
-
-              {bonusRate === 0 && (
-                <span style={{ fontSize: '10px', color: 'var(--color-text-muted)' }}>
-                  You pay only the upfront fee. No point-based bonuses.
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '8px' }}>
+                <label style={{ ...labelStyle, marginBottom: 0 }}>Price Adjustment Selector</label>
+                <span style={{ fontSize: '12px', fontWeight: 700, color: adjustment === 0 ? 'var(--color-text-muted)' : adjustment > 0 ? 'var(--color-accent-green)' : 'var(--color-accent-red)' }}>
+                  {adjustment === 0 ? 'Standard (0%)' : `${adjustment > 0 ? '+' : ''}${Math.round(adjustment * 100)}%`}
                 </span>
-              )}
-            </div>
-
-            {/* Recall Clause */}
-            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', padding: '12px', background: 'var(--color-bg-elevated)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--color-border)' }}>
-              <input
-                type="checkbox" id="hasRecallReq"
-                checked={hasRecall} onChange={(e) => setHasRecall(e.target.checked)}
-                style={{ width: '16px', height: '16px', cursor: 'pointer', marginTop: '1px', flexShrink: 0 }}
-              />
-              <div>
-                <label htmlFor="hasRecallReq" style={{ fontSize: '13px', fontWeight: 600, color: 'var(--color-text-primary)', cursor: 'pointer' }}>
-                  Grant lender an early recall option
-                </label>
-                <p style={{ margin: '2px 0 0', fontSize: '11px', color: 'var(--color-text-muted)' }}>
-                  Allows the lending club to cancel early. They must pay MAX(€25m, loan fee) to you as a penalty.
-                </p>
+              </div>
+              <div style={{ position: 'relative' }}>
+                <div style={{
+                  position: 'absolute', top: '10px', left: 0, right: 0,
+                  height: '6px', borderRadius: '3px',
+                  background: 'var(--color-border)',
+                }} />
+                {/* Highlight fill from center (0%) to current value */}
+                <div style={{
+                  position: 'absolute', top: '10px',
+                  left: adjustment >= 0 ? '50%' : `${50 + (adjustment * 100 * 2.5)}%`,
+                  width: `${Math.abs(adjustment) * 100 * 2.5}%`,
+                  height: '6px', borderRadius: '3px',
+                  background: adjustment >= 0 ? 'var(--color-accent-green)' : 'var(--color-accent-red)',
+                }} />
+                <input
+                  type="range"
+                  min={-0.20}
+                  max={0.20}
+                  step={0.05}
+                  value={adjustment}
+                  onChange={(e) => setAdjustment(parseFloat(e.target.value))}
+                  className={styles.feeRangeInput}
+                />
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '9px', color: 'var(--color-text-muted)', marginTop: '4px' }}>
+                <span>-20% discount</span>
+                <span>Standard (0%)</span>
+                <span>+20% premium</span>
               </div>
             </div>
 
-            {/* Cost Summary */}
+            {/* Flat Recall Clause (Display standard terms) */}
+            <div style={{ padding: '12px', background: 'var(--color-bg-elevated)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--color-border)', fontSize: '11px', color: 'var(--color-text-secondary)' }}>
+              <strong style={{ display: 'block', marginBottom: '4px', color: 'var(--color-text-primary)' }}>Standard Contract Clauses:</strong>
+              • <strong>Early Recall:</strong> Lender can cancel the loan early with 1 week notice. Pay €25m penalty flat to the borrowing club. All accrued performance bonuses are kept by the lender.
+            </div>
+
+            {/* Cost Summary (Final terms shown to borrower) */}
             <div style={{ background: 'rgba(59,130,246,0.06)', border: '1px solid rgba(59,130,246,0.18)', borderRadius: 'var(--radius-sm)', padding: '14px 16px' }}>
               <div style={{ fontSize: '9px', fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--color-accent-blue)', marginBottom: '10px' }}>
-                Your Cost Summary
+                Final Proposing Terms
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px' }}>
-                  <span style={{ color: 'var(--color-text-muted)' }}>Loan fee (upfront, on acceptance)</span>
+                  <span style={{ color: 'var(--color-text-muted)' }}>Loan fee (upfront, adjusted)</span>
                   <span style={{ fontWeight: 700, color: 'var(--color-text-primary)' }}>
-                    {loanFee > 0 ? `€${loanFee}m` : 'Free'}
+                    {finalTerms.fee > 0 ? `€${finalTerms.fee}m` : 'Free'}
                   </span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px' }}>
                   <span style={{ color: 'var(--color-text-muted)' }}>Period</span>
                   <span style={{ fontWeight: 600, color: 'var(--color-text-secondary)' }}>
-                    GW{startGameweek}–GW{endGameweek} ({duration} GW{duration !== 1 ? 's' : ''})
+                    GW{startGameweek}–GW{endGameweek} ({duration} GWs)
                   </span>
                 </div>
-                {bonusRate > 0 && (
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px' }}>
-                    <span style={{ color: 'var(--color-text-muted)' }}>Est. performance bonus (Expected total)</span>
-                    <span style={{ fontWeight: 600, color: 'var(--color-text-secondary)' }}>
-                      €{estBonusPayout.toFixed(1)}m <span style={{ fontSize: '10px', color: 'var(--color-text-muted)' }}>(Max €{previewBonusCap}m)</span>
-                    </span>
-                  </div>
+                
+                {selectedTemplate !== 'fixed' && (
+                  <>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px' }}>
+                      <span style={{ color: 'var(--color-text-muted)' }}>Performance bonus rate</span>
+                      <span style={{ fontWeight: 600, color: 'var(--color-text-secondary)' }}>
+                        €{finalTerms.rate.toFixed(3)}m / fantasy point
+                      </span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px' }}>
+                      <span style={{ color: 'var(--color-text-muted)' }}>Performance bonus cap</span>
+                      <span style={{ fontWeight: 600, color: 'var(--color-text-secondary)' }}>
+                        €{finalTerms.cap}m
+                      </span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', borderTop: '1px dashed var(--color-border)', paddingTop: '4px', marginTop: '2px' }}>
+                      <span style={{ color: 'var(--color-text-muted)' }}>Est. performance bonus payout</span>
+                      <span style={{ fontWeight: 600, color: 'var(--color-text-secondary)' }}>
+                        €{estBonusPayout.toFixed(2)}m <span style={{ fontSize: '10px', color: 'var(--color-text-muted)' }}>(based on {selectedPlayer.ppg?.toFixed(1) || 0} PPG)</span>
+                      </span>
+                    </div>
+                  </>
                 )}
+                
                 <div style={{ borderTop: '1px solid rgba(59,130,246,0.18)', marginTop: '4px', paddingTop: '8px', display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}>
                   <span style={{ fontWeight: 700, color: 'var(--color-text-primary)' }}>You pay at most</span>
                   <span style={{ fontWeight: 700, color: 'var(--color-accent-blue)', fontSize: '15px' }}>

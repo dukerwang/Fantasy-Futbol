@@ -96,20 +96,13 @@ export default async function TradesPage({ params, searchParams }: Props) {
   // Fetch rosters for all other teams (for propose UI)
   const allTeamIds = (allTeams ?? []).map((t) => t.id);
   const allRosters: Record<string, any[]> = {};
+  let entries: any[] = [];
   if (allTeamIds.length > 0) {
-    const { data: entries } = await admin
+    const { data: dbEntries } = await admin
       .from('roster_entries')
       .select('team_id, on_trade_block, player:players(id, fpl_id, api_football_id, web_name, name, full_name, date_of_birth, nationality, pl_team, pl_team_id, primary_position, secondary_positions, market_value, market_value_updated_at, projected_points, photo_url, height_cm, fpl_status, fpl_news, total_points, form_rating, ppg, is_active, transfermarkt_id, created_at, updated_at)')
       .in('team_id', allTeamIds);
-
-    for (const e of entries ?? []) {
-      if (!allRosters[e.team_id]) allRosters[e.team_id] = [];
-      allRosters[e.team_id].push({
-        ...(e.player as any),
-        on_trade_block: e.on_trade_block,
-        listing: playerListingsMap[(e.player as any)?.id] ?? null
-      });
-    }
+    entries = dbEntries ?? [];
   }
 
   const { data: myRosterEntries } = await admin
@@ -117,11 +110,70 @@ export default async function TradesPage({ params, searchParams }: Props) {
     .select('on_trade_block, player:players(id, fpl_id, api_football_id, web_name, name, full_name, date_of_birth, nationality, pl_team, pl_team_id, primary_position, secondary_positions, market_value, market_value_updated_at, projected_points, photo_url, height_cm, fpl_status, fpl_news, total_points, form_rating, ppg, is_active, transfermarkt_id, created_at, updated_at)')
     .eq('team_id', myTeam.id);
 
-  const myRoster = (myRosterEntries ?? []).map((e) => ({
-    ...(e.player as any),
-    on_trade_block: e.on_trade_block,
-    listing: playerListingsMap[(e.player as any)?.id] ?? null
-  }));
+  // Compute recent_ppg (last 10 gameweeks) for all players on the rosters
+  const playerIds = new Set<string>();
+  for (const e of entries) {
+    const p = e.player as any;
+    if (p?.id) playerIds.add(p.id);
+  }
+  for (const e of myRosterEntries ?? []) {
+    const p = e.player as any;
+    if (p?.id) playerIds.add(p.id);
+  }
+
+  let recentPpgMap: Record<string, number> = {};
+  if (playerIds.size > 0) {
+    const { data: stats } = await admin
+      .from('player_stats')
+      .select('player_id, fantasy_points, gameweek')
+      .in('player_id', Array.from(playerIds))
+      .order('gameweek', { ascending: false });
+
+    const playerGroups: Record<string, number[]> = {};
+    for (const s of stats ?? []) {
+      if (!playerGroups[s.player_id]) {
+        playerGroups[s.player_id] = [];
+      }
+      if (playerGroups[s.player_id].length < 10) {
+        playerGroups[s.player_id].push(Number(s.fantasy_points) || 0);
+      }
+    }
+
+    for (const id of playerIds) {
+      const points = playerGroups[id] || [];
+      if (points.length === 0) {
+        recentPpgMap[id] = 3.0;
+      } else {
+        const avg = points.reduce((sum, p) => sum + p, 0) / points.length;
+        recentPpgMap[id] = Math.max(3.0, avg);
+      }
+    }
+  }
+
+  // Populate allRosters with recent_ppg
+  for (const e of entries) {
+    if (!allRosters[e.team_id]) allRosters[e.team_id] = [];
+    const p = e.player as any;
+    if (p) {
+      allRosters[e.team_id].push({
+        ...p,
+        recent_ppg: recentPpgMap[p.id] ?? Math.max(3.0, p.ppg ?? 3.0),
+        on_trade_block: e.on_trade_block,
+        listing: playerListingsMap[p.id] ?? null
+      });
+    }
+  }
+
+  const myRoster = (myRosterEntries ?? []).map((e) => {
+    const p = e.player as any;
+    if (!p) return null;
+    return {
+      ...p,
+      recent_ppg: recentPpgMap[p.id] ?? Math.max(3.0, p.ppg ?? 3.0),
+      on_trade_block: e.on_trade_block,
+      listing: playerListingsMap[p.id] ?? null
+    };
+  }).filter(Boolean);
 
   // ── League Feed — all accepted trades across the whole league ──────────────
   const { data: leagueTrades } = await admin
