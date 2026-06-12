@@ -28,6 +28,18 @@ export async function GET(req: NextRequest, { params }: Props) {
 
   if (!myTeam) return NextResponse.json({ error: 'No team in this league' }, { status: 403 });
 
+  // Fetch league settings
+  const { data: league } = await admin
+    .from('leagues')
+    .select('loan_slot_buyback_fee, loan_bonus_cap_default, max_loan_outs, max_loan_ins, total_gameweeks, roster_locked, current_season, previous_season')
+    .eq('id', leagueId)
+    .single();
+
+  if (!league) return NextResponse.json({ error: 'League not found' }, { status: 404 });
+
+  const currentSeason = league.current_season || '2025-26';
+  const previousSeason = league.previous_season || '2024-25';
+
   // Fetch all loans in the league
   const { data: loans } = await admin
     .from('player_loans')
@@ -64,16 +76,33 @@ export async function GET(req: NextRequest, { params }: Props) {
     if (p?.id) playerIds.add(p.id);
   });
 
-  // Fetch recent PPG and season PPG (excluding DNPs) for all players
+  // Build a lookup of player market values
+  const playerMarketValueMap: Record<string, number> = {};
+  (myRosterEntries ?? []).forEach(e => {
+    const p = e.player as any;
+    if (p?.id) playerMarketValueMap[p.id] = Number(p.market_value) || 0;
+  });
+  (loans ?? []).forEach(l => {
+    const p = l.player as any;
+    if (p?.id) playerMarketValueMap[p.id] = Number(p.market_value) || 0;
+  });
+
+  // Fetch recent PPG and season PPG (excluding DNPs) for all players using the fallback chain
   let recentPpgMap: Record<string, number> = {};
   if (playerIds.size > 0) {
     const { data: stats } = await admin
       .from('player_stats')
-      .select('player_id, fantasy_points, gameweek, stats')
+      .select('player_id, fantasy_points, gameweek, stats, season')
       .in('player_id', Array.from(playerIds))
+      .in('season', [currentSeason, previousSeason])
+      .order('season', { ascending: false })
       .order('gameweek', { ascending: false });
 
-    const playerGroups: Record<string, { points: number }[]> = {};
+    const playerGroups: Record<string, {
+      currentSeasonStats: { points: number; minutes: number }[];
+      previousSeasonStats: { points: number; minutes: number }[];
+    }> = {};
+
     for (const s of stats ?? []) {
       const rawStats = (s.stats as any) || {};
       const minutes = Number(rawStats.minutes_played ?? 0);
@@ -82,28 +111,89 @@ export async function GET(req: NextRequest, { params }: Props) {
       if (minutes <= 0) continue;
 
       if (!playerGroups[s.player_id]) {
-        playerGroups[s.player_id] = [];
+        playerGroups[s.player_id] = {
+          currentSeasonStats: [],
+          previousSeasonStats: []
+        };
       }
-      playerGroups[s.player_id].push({
-        points: Number(s.fantasy_points) || 0,
-      });
+
+      const points = Number(s.fantasy_points) || 0;
+      if (s.season === currentSeason) {
+        playerGroups[s.player_id].currentSeasonStats.push({ points, minutes });
+      } else if (s.season === previousSeason) {
+        playerGroups[s.player_id].previousSeasonStats.push({ points, minutes });
+      }
     }
 
-    for (const id of playerIds) {
-      const playedMatches = playerGroups[id] || [];
-      if (playedMatches.length === 0) {
-        recentPpgMap[id] = 3.0;
-      } else {
-        // seasonPPG = average over all played matches
-        const seasonPPG = playedMatches.reduce((sum, m) => sum + m.points, 0) / playedMatches.length;
+    const calculateEffectivePPG = (
+      currStats: { points: number; minutes: number }[],
+      prevStats: { points: number; minutes: number }[],
+      marketValue: number
+    ): number => {
+      const N = currStats.length;
+      let effectivePPG = 3.0;
 
-        // recentPPG = average over the last 10 played matches
-        const recentMatches = playedMatches.slice(0, 10);
+      // 1. Mid-Season (N >= 10 appearances)
+      if (N >= 10) {
+        const seasonPPG = currStats.reduce((sum, m) => sum + m.points, 0) / N;
+        const recentMatches = currStats.slice(0, 10);
         const recentPPG = recentMatches.reduce((sum, m) => sum + m.points, 0) / recentMatches.length;
-
-        // combinedPPG = 0.6 * recentPPG + 0.4 * seasonPPG, floored at 3.0
-        recentPpgMap[id] = Math.max(3.0, 0.6 * recentPPG + 0.4 * seasonPPG);
+        effectivePPG = 0.6 * recentPPG + 0.4 * seasonPPG;
       }
+      // 2. Early Season (1 <= N < 10 appearances)
+      else if (N >= 1) {
+        const seasonPPG_this_season = currStats.reduce((sum, m) => sum + m.points, 0) / N;
+        const hasHistoricalData = prevStats.length > 0;
+
+        if (hasHistoricalData) {
+          const M_last = prevStats.reduce((sum, m) => sum + m.minutes, 0);
+          const PPG_last_season = prevStats.reduce((sum, m) => sum + m.points, 0) / prevStats.length;
+          const reliability = Math.min(1.0, M_last / 1500);
+          const adjustedPPG_last_season = (reliability * PPG_last_season) + ((1 - reliability) * 4.0);
+
+          const weight_this = N / 10;
+          const weight_last = 1 - weight_this;
+          effectivePPG = (weight_this * seasonPPG_this_season) + (weight_last * adjustedPPG_last_season);
+        } else {
+          // Brand new player
+          let proxyPPG = 3.0;
+          if (marketValue >= 80) proxyPPG = 10.0;
+          else if (marketValue >= 40) proxyPPG = 8.0;
+          else if (marketValue >= 20) proxyPPG = 6.0;
+          else if (marketValue >= 10) proxyPPG = 4.5;
+          else proxyPPG = 3.0;
+
+          const weight_actual = Math.min(1.0, N / 5);
+          effectivePPG = (weight_actual * seasonPPG_this_season) + ((1 - weight_actual) * proxyPPG);
+        }
+      }
+      // 3. Preseason / GW1 (N == 0 appearances)
+      else {
+        const hasHistoricalData = prevStats.length > 0;
+        if (hasHistoricalData) {
+          const M_last = prevStats.reduce((sum, m) => sum + m.minutes, 0);
+          const PPG_last_season = prevStats.reduce((sum, m) => sum + m.points, 0) / prevStats.length;
+          const reliability = Math.min(1.0, M_last / 1500);
+          const adjustedPPG_last_season = (reliability * PPG_last_season) + ((1 - reliability) * 4.0);
+          effectivePPG = adjustedPPG_last_season;
+        } else {
+          let proxyPPG = 3.0;
+          if (marketValue >= 80) proxyPPG = 10.0;
+          else if (marketValue >= 40) proxyPPG = 8.0;
+          else if (marketValue >= 20) proxyPPG = 6.0;
+          else if (marketValue >= 10) proxyPPG = 4.5;
+          else proxyPPG = 3.0;
+          effectivePPG = proxyPPG;
+        }
+      }
+
+      return Math.max(3.0, effectivePPG);
+    };
+
+    for (const id of playerIds) {
+      const group = playerGroups[id] || { currentSeasonStats: [], previousSeasonStats: [] };
+      const mv = playerMarketValueMap[id] ?? 0;
+      recentPpgMap[id] = calculateEffectivePPG(group.currentSeasonStats, group.previousSeasonStats, mv);
     }
   }
 
@@ -139,13 +229,6 @@ export async function GET(req: NextRequest, { params }: Props) {
       playerMap[l.player.id] = l.player;
     }
   }
-
-  // Fetch league settings
-  const { data: league } = await admin
-    .from('leagues')
-    .select('loan_slot_buyback_fee, loan_bonus_cap_default, max_loan_outs, max_loan_ins, total_gameweeks, roster_locked')
-    .eq('id', leagueId)
-    .single();
 
   return NextResponse.json({
     myTeam,
