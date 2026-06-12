@@ -125,27 +125,40 @@ export default async function TradesPage({ params, searchParams }: Props) {
   if (playerIds.size > 0) {
     const { data: stats } = await admin
       .from('player_stats')
-      .select('player_id, fantasy_points, gameweek')
+      .select('player_id, fantasy_points, gameweek, stats')
       .in('player_id', Array.from(playerIds))
       .order('gameweek', { ascending: false });
 
-    const playerGroups: Record<string, number[]> = {};
+    const playerGroups: Record<string, { points: number }[]> = {};
     for (const s of stats ?? []) {
+      const rawStats = (s.stats as any) || {};
+      const minutes = Number(rawStats.minutes_played ?? 0);
+      
+      // Exclude DNPs (minutes_played <= 0)
+      if (minutes <= 0) continue;
+
       if (!playerGroups[s.player_id]) {
         playerGroups[s.player_id] = [];
       }
-      if (playerGroups[s.player_id].length < 10) {
-        playerGroups[s.player_id].push(Number(s.fantasy_points) || 0);
-      }
+      playerGroups[s.player_id].push({
+        points: Number(s.fantasy_points) || 0,
+      });
     }
 
     for (const id of playerIds) {
-      const points = playerGroups[id] || [];
-      if (points.length === 0) {
+      const playedMatches = playerGroups[id] || [];
+      if (playedMatches.length === 0) {
         recentPpgMap[id] = 3.0;
       } else {
-        const avg = points.reduce((sum, p) => sum + p, 0) / points.length;
-        recentPpgMap[id] = Math.max(3.0, avg);
+        // seasonPPG = average over all played matches
+        const seasonPPG = playedMatches.reduce((sum, m) => sum + m.points, 0) / playedMatches.length;
+
+        // recentPPG = average over the last 10 played matches
+        const recentMatches = playedMatches.slice(0, 10);
+        const recentPPG = recentMatches.reduce((sum, m) => sum + m.points, 0) / recentMatches.length;
+
+        // combinedPPG = 0.6 * recentPPG + 0.4 * seasonPPG, floored at 3.0
+        recentPpgMap[id] = Math.max(3.0, 0.6 * recentPPG + 0.4 * seasonPPG);
       }
     }
   }

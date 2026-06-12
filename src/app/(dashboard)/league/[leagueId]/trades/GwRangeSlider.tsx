@@ -26,56 +26,50 @@ export default function GwRangeSlider({
   maxDuration = 16,
   onChange,
 }: Props) {
-  // Clamp maxStart to ensure it is at least min (preventing min > max in inputs)
-  const effectiveMaxStart = Math.max(min, maxStart);
-
-  // Bounds for End Gameweek slider
-  const minEnd = startGw + minDuration;
-  const maxEndBound = Math.min(startGw + maxDuration, maxEnd);
-
   function handleStartChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const newStart = parseInt(e.target.value, 10);
-    // Keep end within [newStart + minDuration, newStart + maxDuration]
-    const nextMinEnd = newStart + minDuration;
-    const nextMaxEnd = Math.min(newStart + maxDuration, maxEnd);
+    const val = parseInt(e.target.value, 10);
+    let newStart = Math.max(min, Math.min(val, maxStart));
+    
+    if (newStart > maxEnd - minDuration) {
+      newStart = maxEnd - minDuration;
+    }
+
     let newEnd = endGw;
-    if (newEnd < nextMinEnd) {
-      newEnd = nextMinEnd;
-    } else if (newEnd > nextMaxEnd) {
-      newEnd = nextMaxEnd;
+    if (newEnd - newStart < minDuration) {
+      newEnd = Math.min(newStart + minDuration, maxEnd);
+      if (newEnd - newStart < minDuration) {
+        newStart = newEnd - minDuration;
+      }
+    }
+    if (newEnd - newStart > maxDuration) {
+      newEnd = newStart + maxDuration;
     }
     onChange(newStart, newEnd);
   }
 
   function handleEndChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const newEnd = parseInt(e.target.value, 10);
-    onChange(startGw, newEnd);
+    const val = parseInt(e.target.value, 10);
+    let newEnd = Math.max(min + minDuration, Math.min(val, maxEnd));
+    
+    let newStart = startGw;
+    if (newEnd - newStart < minDuration) {
+      newStart = Math.max(newEnd - minDuration, min);
+      if (newEnd - newStart < minDuration) {
+        newEnd = newStart + minDuration;
+      }
+    }
+    if (newEnd - newStart > maxDuration) {
+      newStart = newEnd - maxDuration;
+      if (newStart > maxStart) {
+        newStart = maxStart;
+        newEnd = newStart + maxDuration;
+      }
+    }
+    onChange(newStart, newEnd);
   }
 
-  // Calculate percentages for visual track fills
-  const startPct = ((startGw - min) / (effectiveMaxStart - min || 1)) * 100;
-  const endPct = ((endGw - minEnd) / (maxEndBound - minEnd || 1)) * 100;
-
-  const sliderContainerStyle = {
-    display: 'flex',
-    flexDirection: 'column' as const,
-    gap: '16px',
-    marginTop: '10px',
-  };
-
-  const sliderRowStyle = {
-    display: 'flex',
-    flexDirection: 'column' as const,
-    gap: '6px',
-  };
-
-  const sliderHeaderStyle = {
-    display: 'flex',
-    justifyContent: 'space-between',
-    fontSize: '11px',
-    fontWeight: 700,
-    color: 'var(--color-text-secondary)',
-  };
+  const startPct = ((startGw - min) / (maxEnd - min || 1)) * 100;
+  const widthPct = ((endGw - startGw) / (maxEnd - min || 1)) * 100;
 
   const sliderLabelStyle = {
     fontSize: '9px',
@@ -83,12 +77,6 @@ export default function GwRangeSlider({
     textTransform: 'uppercase' as const,
     letterSpacing: '0.08em',
     color: 'var(--color-text-muted)',
-  };
-
-  const valueDisplayStyle = {
-    fontWeight: 700,
-    color: 'var(--color-accent-blue)',
-    fontSize: '12px',
   };
 
   return (
@@ -117,74 +105,63 @@ export default function GwRangeSlider({
         </div>
       </div>
 
-      <div style={sliderContainerStyle}>
-        {/* Slider 1: Start Gameweek */}
-        <div style={sliderRowStyle}>
-          <div style={sliderHeaderStyle}>
-            <span>Start Gameweek</span>
-            <span style={valueDisplayStyle}>GW{startGw}</span>
-          </div>
-          <div style={{ position: 'relative' }}>
-            <div style={{
-              position: 'absolute', top: '10px', left: 0, right: 0,
-              height: '6px', borderRadius: '3px',
-              background: 'var(--color-border)',
-            }} />
-            <div style={{
-              position: 'absolute', top: '10px', left: 0,
-              width: `${startPct}%`,
-              height: '6px', borderRadius: '3px 0 0 3px',
-              background: 'var(--color-accent-blue)',
-            }} />
-            <input
-              type="range"
-              min={min}
-              max={effectiveMaxStart}
-              step={1}
-              value={startGw}
-              onChange={handleStartChange}
-              className={styles.feeRangeInput}
-            />
-          </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '9px', color: 'var(--color-text-muted)' }}>
-            <span>GW{min}</span>
-            <span>Latest allowed start: GW{effectiveMaxStart}</span>
-          </div>
-        </div>
+      {/* Dual overlapping range slider */}
+      <div style={{ position: 'relative', height: '36px', marginTop: '10px', width: '100%' }}>
+        {/* Track background */}
+        <div style={{
+          position: 'absolute',
+          top: '50%',
+          left: 0,
+          right: 0,
+          height: '6px',
+          borderRadius: '3px',
+          background: 'var(--color-border)',
+          transform: 'translateY(-50%)',
+          zIndex: 0
+        }} />
 
-        {/* Slider 2: End Gameweek */}
-        <div style={sliderRowStyle}>
-          <div style={sliderHeaderStyle}>
-            <span>End Gameweek</span>
-            <span style={valueDisplayStyle}>GW{endGw}</span>
-          </div>
-          <div style={{ position: 'relative' }}>
-            <div style={{
-              position: 'absolute', top: '10px', left: 0, right: 0,
-              height: '6px', borderRadius: '3px',
-              background: 'var(--color-border)',
-            }} />
-            <div style={{
-              position: 'absolute', top: '10px', left: 0,
-              width: `${endPct}%`,
-              height: '6px', borderRadius: '3px 0 0 3px',
-              background: 'var(--color-accent-blue)',
-            }} />
-            <input
-              type="range"
-              min={minEnd}
-              max={maxEndBound}
-              step={1}
-              value={endGw}
-              onChange={handleEndChange}
-              className={styles.feeRangeInput}
-            />
-          </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '9px', color: 'var(--color-text-muted)' }}>
-            <span>Min: GW{minEnd} (4 GWs)</span>
-            <span>Max: GW{maxEndBound} (16 GWs)</span>
-          </div>
-        </div>
+        {/* Selected range highlight */}
+        <div style={{
+          position: 'absolute',
+          top: '50%',
+          left: `${startPct}%`,
+          width: `${widthPct}%`,
+          height: '6px',
+          borderRadius: '3px',
+          background: 'var(--color-accent-blue)',
+          transform: 'translateY(-50%)',
+          zIndex: 1
+        }} />
+
+        {/* Left handle for startGw */}
+        <input
+          type="range"
+          min={min}
+          max={maxEnd}
+          step={1}
+          value={startGw}
+          onChange={handleStartChange}
+          className={styles.gwRangeInput}
+          style={{ zIndex: startGw > (min + maxEnd) / 2 ? 3 : 2 }}
+        />
+
+        {/* Right handle for endGw */}
+        <input
+          type="range"
+          min={min}
+          max={maxEnd}
+          step={1}
+          value={endGw}
+          onChange={handleEndChange}
+          className={styles.gwRangeInput}
+          style={{ zIndex: startGw > (min + maxEnd) / 2 ? 2 : 3 }}
+        />
+      </div>
+
+      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '9px', color: 'var(--color-text-muted)', marginTop: '4px' }}>
+        <span>GW{min}</span>
+        <span>Min Duration: 4 GWs · Max: 16 GWs</span>
+        <span>GW{maxEnd}</span>
       </div>
     </div>
   );

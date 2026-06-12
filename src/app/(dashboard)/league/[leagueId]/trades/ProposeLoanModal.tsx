@@ -68,6 +68,7 @@ export default function ProposeLoanModal({
   // Template & Adjustment State
   const [selectedTemplate, setSelectedTemplate] = useState<'fixed' | 'balanced' | 'performance'>('balanced');
   const [adjustment, setAdjustment] = useState<number>(0); // ranges from -0.20 to +0.20
+  const [hasRecall, setHasRecall] = useState<boolean>(true);
 
   const [message, setMessage] = useState<string>('');
   const [submitting, setSubmitting] = useState(false);
@@ -176,7 +177,7 @@ export default function ProposeLoanModal({
           endGameweek,
           bonusRate: finalTerms.rate,
           bonusCap: finalTerms.cap,
-          hasRecall: true, // flat recall is mandatory
+          hasRecall,
           message: message || undefined,
         }),
       });
@@ -305,7 +306,7 @@ export default function ProposeLoanModal({
                   {selectedPlayer.pl_team ?? ''}
                   {selectedPlayer.market_value ? ` · €${selectedPlayer.market_value.toFixed(1)}m MV` : ''}
                   {selectedPlayer.ppg ? ` · ${selectedPlayer.ppg.toFixed(1)} PPG` : ''}
-                  {recentPPG !== selectedPlayer.ppg && ` · ${recentPPG.toFixed(1)} L10 PPG`}
+                  {recentPPG !== selectedPlayer.ppg && ` · ${recentPPG.toFixed(1)} Weighted PPG`}
                 </div>
               </div>
               <button
@@ -369,7 +370,7 @@ export default function ProposeLoanModal({
                   }}
                 >
                   <span style={{ fontSize: '12px', fontWeight: 700, color: selectedTemplate === 'fixed' ? 'var(--color-accent-blue)' : 'var(--color-text-primary)' }}>
-                    💼 Fixed
+                    Fixed
                   </span>
                   <span style={{ fontSize: '11px', color: 'var(--color-text-secondary)', fontWeight: 600 }}>
                     Fee: €{Math.round(templateTerms.fixed.fee)}m
@@ -397,7 +398,7 @@ export default function ProposeLoanModal({
                   }}
                 >
                   <span style={{ fontSize: '12px', fontWeight: 700, color: selectedTemplate === 'balanced' ? 'var(--color-accent-blue)' : 'var(--color-text-primary)' }}>
-                    🤝 Balanced
+                    Balanced
                   </span>
                   <span style={{ fontSize: '11px', color: 'var(--color-text-secondary)', fontWeight: 600 }}>
                     Fee: €{Math.round(templateTerms.balanced.fee)}m
@@ -427,7 +428,7 @@ export default function ProposeLoanModal({
                   }}
                 >
                   <span style={{ fontSize: '12px', fontWeight: 700, color: selectedTemplate === 'performance' ? 'var(--color-accent-blue)' : 'var(--color-text-primary)' }}>
-                    🚀 Performance Heavy
+                    Performance Heavy
                   </span>
                   <span style={{ fontSize: '11px', color: 'var(--color-text-secondary)', fontWeight: 600 }}>
                     Fee: €{Math.round(templateTerms.performance.fee)}m
@@ -450,19 +451,11 @@ export default function ProposeLoanModal({
                   {adjustment === 0 ? 'Standard (0%)' : `${adjustment > 0 ? '+' : ''}${Math.round(adjustment * 100)}%`}
                 </span>
               </div>
-              <div style={{ position: 'relative' }}>
+              <div style={{ position: 'relative', height: '26px' }}>
                 <div style={{
                   position: 'absolute', top: '10px', left: 0, right: 0,
                   height: '6px', borderRadius: '3px',
-                  background: 'var(--color-border)',
-                }} />
-                {/* Highlight fill from center (0%) to current value */}
-                <div style={{
-                  position: 'absolute', top: '10px',
-                  left: adjustment >= 0 ? '50%' : `${50 + (adjustment * 100 * 2.5)}%`,
-                  width: `${Math.abs(adjustment) * 100 * 2.5}%`,
-                  height: '6px', borderRadius: '3px',
-                  background: adjustment >= 0 ? 'var(--color-accent-green)' : 'var(--color-accent-red)',
+                  background: 'linear-gradient(to right, #22c55e 0%, #3b82f6 50%, #ef4444 100%)',
                 }} />
                 <input
                   type="range"
@@ -472,6 +465,7 @@ export default function ProposeLoanModal({
                   value={adjustment}
                   onChange={(e) => setAdjustment(parseFloat(e.target.value))}
                   className={styles.feeRangeInput}
+                  style={{ position: 'absolute', width: '100%', top: 0, margin: 0 }}
                 />
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '9px', color: 'var(--color-text-muted)', marginTop: '4px' }}>
@@ -481,10 +475,27 @@ export default function ProposeLoanModal({
               </div>
             </div>
 
-            {/* Flat Recall Clause (Display standard terms) */}
-            <div style={{ padding: '12px', background: 'var(--color-bg-elevated)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--color-border)', fontSize: '11px', color: 'var(--color-text-secondary)' }}>
-              <strong style={{ display: 'block', marginBottom: '4px', color: 'var(--color-text-primary)' }}>Standard Contract Clauses:</strong>
-              • <strong>Early Recall:</strong> Lender can cancel the loan early with 1 week notice. Pay €25m penalty flat to the borrowing club. All accrued performance bonuses are kept by the lender.
+            {/* Optional Recall Clause Checkbox */}
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', padding: '12px', background: 'var(--color-bg-elevated)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--color-border)' }}>
+              <input
+                type="checkbox" id="hasRecall"
+                checked={hasRecall} onChange={(e) => setHasRecall(e.target.checked)}
+                style={{ width: '16px', height: '16px', cursor: 'pointer', marginTop: '1px', flexShrink: 0 }}
+              />
+              <div>
+                <label htmlFor="hasRecall" style={{ fontSize: '13px', fontWeight: 600, color: 'var(--color-text-primary)', cursor: 'pointer' }}>
+                  Include Early Recall Clause
+                </label>
+                {hasRecall ? (
+                  <p style={{ margin: '2px 0 0', fontSize: '11px', color: 'var(--color-text-muted)', lineHeight: '1.4' }}>
+                    Lender can cancel the loan early with 1 week notice. Pay €25m penalty flat to the borrowing club. No bonus refund.
+                  </p>
+                ) : (
+                  <p style={{ margin: '2px 0 0', fontSize: '11px', color: 'var(--color-text-muted)', lineHeight: '1.4' }}>
+                    No early recall allowed. The player remains at the borrowing club for the full duration of the loan.
+                  </p>
+                )}
+              </div>
             </div>
 
             {/* Cost Summary (Final terms shown to borrower) */}
@@ -503,6 +514,12 @@ export default function ProposeLoanModal({
                   <span style={{ color: 'var(--color-text-muted)' }}>Period</span>
                   <span style={{ fontWeight: 600, color: 'var(--color-text-secondary)' }}>
                     GW{startGameweek}–GW{endGameweek} ({duration} GWs)
+                  </span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px' }}>
+                  <span style={{ color: 'var(--color-text-muted)' }}>Recall Clause</span>
+                  <span style={{ fontWeight: 600, color: hasRecall ? 'var(--color-accent-green)' : 'var(--color-text-muted)' }}>
+                    {hasRecall ? 'Enabled (€25m flat penalty)' : 'Disabled'}
                   </span>
                 </div>
                 
