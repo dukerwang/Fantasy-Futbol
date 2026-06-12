@@ -1589,7 +1589,7 @@ function LoanCard({
           {loan.has_recall && (
             <button
               onClick={() => {
-                const penalty = Math.max(25, loan.loan_fee);
+                const penalty = 25;
                 if (confirm(`Recall ${p ? formatPlayerName(p, 'full') : 'this player'} early? You will pay €${penalty}m penalty to the borrower.`)) {
                   onRecall(loan.id);
                 }

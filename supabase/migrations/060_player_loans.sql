@@ -378,8 +378,7 @@ BEGIN
   PERFORM 1 FROM public.teams WHERE id = v_borrower_team_id FOR UPDATE;
 
   -- 3. Calculate recall penalty
-  SELECT loan_slot_buyback_fee INTO v_slot_buyback_fee FROM public.leagues WHERE id = p_league_id;
-  v_recall_penalty := GREATEST(COALESCE(v_slot_buyback_fee, 25), v_loan_fee);
+  v_recall_penalty := 25;
 
   -- Check lender FAAB
   SELECT faab_budget INTO v_lender_faab FROM public.teams WHERE id = v_lender_team_id;
