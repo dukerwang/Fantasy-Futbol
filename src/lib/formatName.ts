@@ -43,6 +43,9 @@ export function formatPlayerName(
         if (dbName.toLowerCase() === fullName.toLowerCase() ||
             webName.toLowerCase() === fullName.toLowerCase() ||
             dbName.toLowerCase() === mononym.toLowerCase()) {
+            if (format === 'split') {
+                return { first: '', last: mononym };
+            }
             return mononym;
         }
     }

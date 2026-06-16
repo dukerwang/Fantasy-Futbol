@@ -14,6 +14,7 @@ import { formatPlayerName } from '@/lib/formatName';
 import { plTeamThreeLetter } from '@/lib/plTeamAbbrev';
 import styles from './pitch.module.css';
 import { Icon } from '@/components/ui/Icon';
+import { getScoreIntensityColor } from '@/lib/utils/scoreColor';
 
 
 // ─── Constants ──────────────────────────────────────────────────────────────
@@ -153,6 +154,8 @@ function PitchNode({ slotPos, player, isSelected, isValidTarget, isEmpty, isInva
         isEmpty ? styles.nodeChipEmpty : '',
     ].filter(Boolean).join(' ');
 
+    const scoreColor = points !== undefined ? getScoreIntensityColor(points) : null;
+
     return (
         <button
             type="button"
@@ -192,7 +195,15 @@ function PitchNode({ slotPos, player, isSelected, isValidTarget, isEmpty, isInva
 
             <div className={chipCls}>
                 {points !== undefined && (
-                    <span className={styles.nodePtsBadge}>{points.toFixed(2)}</span>
+                    <span
+                        className={styles.nodePtsBadge}
+                        style={{
+                            backgroundColor: scoreColor?.bg,
+                            color: scoreColor?.text,
+                        }}
+                    >
+                        {points.toFixed(2)}
+                    </span>
                 )}
                 {isLocked && player && (
                     <span className={styles.nodeLockCorner} title="Locked">
