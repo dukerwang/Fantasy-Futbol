@@ -357,12 +357,7 @@
     cursor: pointer;
     box-shadow: none;
     text-align: center;
-    transition: transform var(--transition-fast, 150ms) var(--ease-out-expo, cubic-bezier(0.22, 1, 0.36, 1)),
-                filter 0.12s;
-}
-
-.pitchNodeWrap:hover {
-    transform: translateY(-4px);
+    transition: filter 0.12s;
 }
 
 .pitchNodeWrap:hover .pitchNode {
@@ -372,9 +367,10 @@
 
 .pitchNodeWrap:hover .nodePhotoMount {
     box-shadow: 
-        0 4px 16px -1px color-mix(in srgb, var(--pos-color, transparent) 25%, transparent),
-        0 2px 4px rgba(0, 0, 0, 0.12);
-    border-color: color-mix(in srgb, var(--pos-color, var(--color-border)) 90%, var(--color-border) 10%);
+        0 4px 12px rgba(28, 28, 28, 0.12),
+        0 1px 3px rgba(0, 0, 0, 0.06);
+    /* Subtly deepen position border color on hover */
+    border-color: color-mix(in srgb, var(--pos-color, var(--color-border)) 60%, var(--color-border) 40%);
 }
 
 .nodeWrapSelected {
@@ -392,6 +388,7 @@
 .nodeWrapEmpty .nodePhotoMount {
     border-style: dashed;
     background: transparent;
+    box-shadow: none !important;
 }
 
 .nodeWrapEmpty .nodePhotoPlaceholder {
@@ -415,20 +412,42 @@
     padding: 0;
     box-sizing: border-box;
     border-radius: 6px;
-    /* Premium thin border that mixes the position color with standard border */
-    border: 1.5px solid color-mix(in srgb, var(--pos-color, var(--color-border)) 70%, var(--color-border) 30%);
-    /* Dynamic background gradient showing the position color behind the player cutout */
-    background: linear-gradient(135deg, 
-        color-mix(in srgb, var(--pos-color, var(--color-bg-secondary)) 12%, var(--color-bg-secondary)), 
-        var(--color-bg-secondary) 85%
-    );
+    position: relative;
+    /* Subtly tinted position border (40% pos color, 60% border) for a classy outline */
+    border: 1.5px solid color-mix(in srgb, var(--pos-color, var(--color-border)) 40%, var(--color-border) 60%);
+    /* Elegant, neutral studio backdrop (no colored tint behind player image) */
+    background: linear-gradient(to bottom, #FDFCF9, var(--color-bg-secondary));
     overflow: hidden;
     transition: border-color var(--transition-fast, 150ms),
                 box-shadow var(--transition-fast, 150ms);
-    /* Soft colored glow */
+    /* Soft neutral shadow */
     box-shadow: 
-        0 2px 8px -1px color-mix(in srgb, var(--pos-color, transparent) 15%, transparent),
-        0 1px 3px rgba(0, 0, 0, 0.08);
+        0 2px 6px rgba(28, 28, 28, 0.06),
+        0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+/* Elegant diagonal shine sweep on hover */
+.nodePhotoMount::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -150%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.45),
+        transparent
+    );
+    transform: skewX(-20deg);
+    transition: left 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+    z-index: 2;
+    pointer-events: none;
+}
+
+.pitchNodeWrap:not(.nodeWrapEmpty):hover .nodePhotoMount::before {
+    left: 150%;
 }
 
 .nodePhotoImg {
