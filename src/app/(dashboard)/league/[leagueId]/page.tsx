@@ -621,27 +621,31 @@ export default async function LeaguePage({ params }: Props) {
                   {heroState === 'live' && <span className={styles.matchupLiveBadge}>LIVE</span>}
                 </div>
                 <div className={styles.matchupBody}>
-                  {/* Team A */}
-                  <div className={styles.matchupTeamA}>
+                  {/* Team A: [shield] [details] */}
+                  <div className={styles.matchupTeamInfoA}>
                     <div className={styles.matchupShield}>{userTeam?.team_name?.charAt(0) ?? '?'}</div>
                     <div className={styles.matchupTeamDetails}>
                       <span className={styles.matchupTeamName}>{userTeam?.team_name ?? '—'}</span>
                       <span className={styles.matchupManager}>MANAGER {userUsername.toUpperCase()}</span>
                     </div>
-                    <span className={styles.matchupTeamScore}>
-                      {heroState === 'upcoming' ? '-' : (userScore?.toFixed(2) ?? '0.00')}
-                    </span>
                   </div>
+
+                  {/* Score A */}
+                  <span className={styles.matchupTeamScore}>
+                    {heroState === 'upcoming' ? '-' : (userScore?.toFixed(2) ?? '0.00')}
+                  </span>
 
                   {/* Divider */}
                   <div className={styles.matchupScoreDivider} />
 
-                  {/* Team B */}
-                  <div className={styles.matchupTeamB}>
-                    <span className={styles.matchupTeamScore}>
-                      {heroState === 'upcoming' ? '-' : (oppScore?.toFixed(2) ?? '0.00')}
-                    </span>
-                    <div className={`${styles.matchupTeamDetails} ${styles.matchupDetailsB}`}>
+                  {/* Score B */}
+                  <span className={styles.matchupTeamScore}>
+                    {heroState === 'upcoming' ? '-' : (oppScore?.toFixed(2) ?? '0.00')}
+                  </span>
+
+                  {/* Team B: [details] [shield] */}
+                  <div className={styles.matchupTeamInfoB}>
+                    <div className={styles.matchupTeamDetails}>
                       <span className={styles.matchupTeamName}>{oppTeam?.team_name ?? '—'}</span>
                       <span className={styles.matchupManager}>MANAGER {oppUsername.toUpperCase()}</span>
                     </div>
