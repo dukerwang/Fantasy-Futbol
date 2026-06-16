@@ -1087,9 +1087,8 @@
   font-size: 16px;
   font-weight: 700;
   color: var(--color-text-primary);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  line-height: 1.2;
+  word-break: break-word;
 }
 
 .matchupManager {
