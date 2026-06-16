@@ -169,7 +169,10 @@ function PitchNode({ slotPos, player, isSelected, isValidTarget, isEmpty, isInva
         >
             <div
                 className={styles.nodePhotoMount}
-                style={{ borderColor: isEmpty ? 'rgba(255,255,255,0.35)' : frameColor }}
+                style={{
+                    borderColor: isEmpty ? 'rgba(255,255,255,0.35)' : undefined,
+                    ['--pos-color' as any]: frameColor,
+                }}
                 onClick={(e) => {
                     if (player && !isLocked) {
                         e.stopPropagation();

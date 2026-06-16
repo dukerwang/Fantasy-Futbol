@@ -156,6 +156,16 @@
     overflow: hidden;
 }
 
+/* Subtle stadium lighting vignette */
+.pitchField::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at center, transparent 30%, rgba(24, 43, 31, 0.22) 100%);
+    pointer-events: none;
+    z-index: 1;
+}
+
 /* Halfway line — horizontal at midfield (lineup runs top → bottom with play direction) */
 .pitchHalftimeLine {
     position: absolute;
@@ -347,21 +357,36 @@
     cursor: pointer;
     box-shadow: none;
     text-align: center;
-    transition: filter 0.12s;
+    transition: transform var(--transition-fast, 150ms) var(--ease-out-expo, cubic-bezier(0.22, 1, 0.36, 1)),
+                filter 0.12s;
+}
+
+.pitchNodeWrap:hover {
+    transform: translateY(-4px);
 }
 
 .pitchNodeWrap:hover .pitchNode {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+    box-shadow: var(--shadow-md, 0 4px 12px rgba(28, 28, 28, 0.1));
+    border-color: var(--color-border);
+}
+
+.pitchNodeWrap:hover .nodePhotoMount {
+    box-shadow: 
+        0 4px 16px -1px color-mix(in srgb, var(--pos-color, transparent) 25%, transparent),
+        0 2px 4px rgba(0, 0, 0, 0.12);
+    border-color: color-mix(in srgb, var(--pos-color, var(--color-border)) 90%, var(--color-border) 10%);
 }
 
 .nodeWrapSelected {
     outline: 2px solid var(--color-accent-green, #3A6B4A) !important;
-    outline-offset: 2px;
+    outline-offset: 3px;
+    border-radius: var(--radius-sm, 4px);
 }
 
 .nodeWrapValidTarget {
-    outline: 2px solid rgba(58, 107, 74, 0.65) !important;
-    outline-offset: 2px;
+    outline: 2px dashed rgba(58, 107, 74, 0.65) !important;
+    outline-offset: 3px;
+    border-radius: var(--radius-sm, 4px);
 }
 
 .nodeWrapEmpty .nodePhotoMount {
@@ -379,7 +404,8 @@
 
 .nodeWrapInvalid {
     outline: 2px solid #ef4444 !important;
-    outline-offset: 2px;
+    outline-offset: 3px;
+    border-radius: var(--radius-sm, 4px);
 }
 
 .nodePhotoMount {
@@ -389,9 +415,20 @@
     padding: 0;
     box-sizing: border-box;
     border-radius: 6px;
-    border: 3px solid var(--color-border, #c8c3bc);
-    background: var(--color-bg-secondary);
+    /* Premium thin border that mixes the position color with standard border */
+    border: 1.5px solid color-mix(in srgb, var(--pos-color, var(--color-border)) 70%, var(--color-border) 30%);
+    /* Dynamic background gradient showing the position color behind the player cutout */
+    background: linear-gradient(135deg, 
+        color-mix(in srgb, var(--pos-color, var(--color-bg-secondary)) 12%, var(--color-bg-secondary)), 
+        var(--color-bg-secondary) 85%
+    );
     overflow: hidden;
+    transition: border-color var(--transition-fast, 150ms),
+                box-shadow var(--transition-fast, 150ms);
+    /* Soft colored glow */
+    box-shadow: 
+        0 2px 8px -1px color-mix(in srgb, var(--pos-color, transparent) 15%, transparent),
+        0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
 .nodePhotoImg {
@@ -400,6 +437,13 @@
     object-fit: cover;
     object-position: top center;
     display: block;
+    /* Soft entrance transition */
+    animation: fadeIn 0.3s var(--ease-out-expo, cubic-bezier(0.22, 1, 0.36, 1));
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.96); }
+    to { opacity: 1; transform: scale(1); }
 }
 
 .nodePhotoPlaceholder {
@@ -420,10 +464,10 @@
     padding: 0;
     background: var(--color-bg-card, #fdfcf9);
     border: 1px solid rgba(210, 196, 183, 0.65);
-    border-radius: 0;
+    border-radius: var(--radius-sm, 4px);
     overflow: visible;
-    transition: box-shadow 0.12s;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.22);
+    transition: box-shadow var(--transition-fast, 150ms), border-color var(--transition-fast, 150ms);
+    box-shadow: var(--shadow-sm, 0 1px 3px rgba(28, 28, 28, 0.08));
 }
 
 .nodeChipEmpty {
@@ -440,12 +484,12 @@
     font-family: var(--font-sans);
     font-size: 0.48rem;
     font-weight: 800;
-    padding: 2px 4px;
+    padding: 2px 5px;
     line-height: 1.2;
-    letter-spacing: 0.01em;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+    letter-spacing: 0.03em;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
     z-index: 5;
-    border-radius: 0;
+    border-radius: 3px;
     background: var(--color-accent-green, #3A6B4A);
     color: #fff;
 }

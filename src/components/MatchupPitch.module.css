@@ -52,6 +52,16 @@
     min-height: 0;
 }
 
+/* Subtle stadium lighting vignette */
+.halfField::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at center, transparent 30%, rgba(24, 43, 31, 0.22) 100%);
+    pointer-events: none;
+    z-index: 1;
+}
+
 /* Top byline only — single 2px stroke */
 .halfTopLine {
     position: absolute;
