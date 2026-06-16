@@ -363,21 +363,17 @@
 
 .pitchNodeWrap:hover .pitchNode {
     box-shadow: var(--shadow-md, 0 4px 12px rgba(28, 28, 28, 0.1));
-    border-color: var(--color-border);
+    /* Subtly tint the card border with position color on hover */
+    border-color: color-mix(in srgb, var(--pos-color, var(--color-border)) 40%, var(--color-border) 60%);
 }
 
 .pitchNodeWrap:hover .nodePhotoMount {
-    /* Classy, permanent glowing shadow using the position color on hover */
+    /* Solid position color border on hover */
+    border-color: var(--pos-color, var(--color-border));
+    /* Classy glowing halo ring using the position color on hover */
     box-shadow: 
-        0 6px 16px -2px color-mix(in srgb, var(--pos-color, transparent) 22%, transparent),
-        0 2px 4px rgba(28, 28, 28, 0.08);
-    /* Subtly saturate and deepen position border color on hover */
-    border-color: color-mix(in srgb, var(--pos-color, var(--color-border)) 75%, var(--color-border) 25%);
-}
-
-/* Smooth zoom of player photo on hover */
-.pitchNodeWrap:not(.nodeWrapEmpty):hover .nodePhotoImg {
-    transform: scale(1.06);
+        0 0 0 2.5px color-mix(in srgb, var(--pos-color, transparent) 25%, transparent),
+        0 4px 12px rgba(28, 28, 28, 0.15);
 }
 
 .nodeWrapSelected {
@@ -439,8 +435,6 @@
     object-fit: cover;
     object-position: top center;
     display: block;
-    /* Smooth transition for hover zoom and entrance */
-    transition: transform var(--transition-base, 200ms) var(--ease-out-expo, cubic-bezier(0.22, 1, 0.36, 1));
     /* Soft entrance transition */
     animation: fadeIn 0.3s var(--ease-out-expo, cubic-bezier(0.22, 1, 0.36, 1));
 }
