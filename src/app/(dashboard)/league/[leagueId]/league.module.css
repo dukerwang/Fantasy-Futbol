@@ -1036,35 +1036,23 @@
   display: grid;
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  gap: 20px;
+  gap: 24px;
 }
 
-.matchupTeamRow {
-  display: flex;
+.matchupTeamA {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
+  gap: 16px;
   min-width: 0;
 }
 
-.matchupBody > .matchupTeamRow:first-child {
-  flex-direction: row;
-}
-
-.matchupBody > .matchupTeamRow:last-child {
-  flex-direction: row-reverse;
-  text-align: right;
-}
-
-.matchupTeamInfo {
-  display: flex;
+.matchupTeamB {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
   align-items: center;
-  gap: 12px;
+  gap: 16px;
   min-width: 0;
-}
-
-.matchupBody > .matchupTeamRow:last-child .matchupTeamInfo {
-  flex-direction: row-reverse;
 }
 
 .matchupShield {
@@ -1089,6 +1077,11 @@
   min-width: 0;
 }
 
+.matchupDetailsB {
+  text-align: right;
+  align-items: flex-end;
+}
+
 .matchupTeamName {
   font-family: var(--font-serif);
   font-size: 16px;
@@ -1097,6 +1090,7 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  max-width: 100%;
 }
 
 .matchupManager {
@@ -1109,6 +1103,7 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  max-width: 100%;
 }
 
 .matchupTeamScore {
@@ -1123,6 +1118,7 @@
   width: 1px;
   height: 40px;
   background-color: var(--color-border);
+  flex-shrink: 0;
 }
 
 .gazetteHeaderBar {
@@ -1214,7 +1210,9 @@
   display: grid;
   grid-template-columns: 32px 1fr 48px 64px;
   column-gap: 20px;
-  padding-bottom: 8px;
+  align-items: center;
+  padding: 8px 24px;
+  margin: 0 -24px;
   border-bottom: 1px solid var(--color-border-subtle);
   font-family: var(--font-sans);
   font-size: 9px;
@@ -1232,8 +1230,10 @@
   grid-template-columns: 32px 1fr 48px 64px;
   column-gap: 20px;
   align-items: center;
-  padding: 12px 0;
+  padding: 12px 24px;
+  margin: 0 -24px;
   border-bottom: 1px solid var(--color-border-subtle);
+  transition: background 0.15s;
 }
 
 .standingsRow:last-child {
@@ -1582,13 +1582,7 @@
     margin-bottom: 16px;
   }
 
-  /* --- Active Row Flush Alignment --- */
-  .stRowActive {
-    margin: 0 -16px;
-    padding: 12px 20px;
-    grid-template-columns: 28px minmax(0, 1fr) 60px 50px;
-    column-gap: 12px;
-  }
+  /* --- Active Row Flush Alignment (inherited from standingsRow) --- */
 
   /* --- Season Complete Banner Mobile Stack --- */
   .seasonCompleteBanner {
@@ -1615,22 +1609,33 @@
     gap: 16px;
   }
 
-  .matchupTeamRow {
-    flex-direction: row;
+  .matchupTeamA,
+  .matchupTeamB {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+  }
+
+  .matchupTeamA > .matchupTeamScore,
+  .matchupTeamB > .matchupTeamScore {
+    font-size: 28px;
+    margin-left: auto;
+  }
+
+  .matchupTeamB > .matchupShield {
+    order: 1;
+  }
+
+  .matchupTeamB > .matchupTeamDetails {
+    order: 2;
     text-align: left;
+    align-items: flex-start;
   }
 
-  .matchupBody > .matchupTeamRow:last-child {
-    flex-direction: row;
-    text-align: left;
-  }
-
-  .matchupTeamInfo {
-    flex-direction: row;
-  }
-
-  .matchupBody > .matchupTeamRow:last-child .matchupTeamInfo {
-    flex-direction: row;
+  .matchupTeamB > .matchupTeamScore {
+    order: 3;
   }
 
   .matchupShield {
@@ -1641,11 +1646,6 @@
 
   .matchupTeamName {
     font-size: 14px;
-  }
-
-  .matchupTeamScore {
-    font-size: 28px;
-    margin-left: auto;
   }
 
   .matchupScoreDivider {
@@ -1659,7 +1659,8 @@
   .standingsRow {
     grid-template-columns: 28px minmax(0, 1fr) 60px 50px;
     column-gap: 12px;
-    padding: 10px 4px;
+    padding: 10px 16px;
+    margin: 0 -16px;
   }
   .standingsColTeam {
     font-size: 13px;
