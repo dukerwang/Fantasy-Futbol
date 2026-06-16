@@ -338,7 +338,10 @@ export default function TopBar() {
           )}
 
           {/* Notification Bell */}
-          <NotificationBell leagueId={currentLeagueId} />
+          <NotificationBell
+            leagueId={currentLeagueId}
+            onNavigate={() => setIsNavigating(true)}
+          />
 
           {/* Theme Toggle */}
           <div className={styles.desktopThemeToggle}>

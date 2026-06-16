@@ -20,9 +20,10 @@ interface Notification {
 
 interface NotificationBellProps {
   leagueId: string | null;
+  onNavigate?: () => void;
 }
 
-export default function NotificationBell({ leagueId }: NotificationBellProps) {
+export default function NotificationBell({ leagueId, onNavigate }: NotificationBellProps) {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -97,6 +98,7 @@ export default function NotificationBell({ leagueId }: NotificationBellProps) {
       }
     }
     if (n.url) {
+      if (onNavigate) onNavigate();
       router.push(n.url);
     }
   };
@@ -177,7 +179,10 @@ export default function NotificationBell({ leagueId }: NotificationBellProps) {
             <Link
               href={leagueId ? `/league/${leagueId}/inbox` : '/dashboard'}
               className={styles.footerLink}
-              onClick={() => setIsOpen(false)}
+              onClick={() => {
+                setIsOpen(false);
+                if (onNavigate) onNavigate();
+              }}
             >
               View All Inbox
             </Link>
