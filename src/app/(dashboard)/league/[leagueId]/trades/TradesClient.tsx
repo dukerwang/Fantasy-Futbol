@@ -1519,11 +1519,18 @@ function LoanCard({
           <span style={{ fontSize: '13px', fontWeight: 600 }}>
             {loan.bonus_rate > 0 ? `€${loan.bonus_rate}m / pt` : 'None'}
           </span>
-          {loan.bonus_rate > 0 && (
-            <span style={{ fontSize: '10px', color: 'var(--color-text-muted)', display: 'block' }}>
-              Cap: €{loan.bonus_cap}m
-            </span>
-          )}
+          {loan.bonus_rate > 0 && (() => {
+            const rate = Number(loan.bonus_rate) || 0;
+            const maxPoints = rate > 0 ? loan.bonus_cap / rate : 0;
+            const maxAvgPpg = duration > 0 ? maxPoints / duration : 0;
+            const baseline = loan.player?.recent_ppg ?? 3.0;
+            const headroom = maxAvgPpg - baseline;
+            return (
+              <span style={{ fontSize: '10px', color: 'var(--color-text-muted)', display: 'block' }}>
+                Cap: €{loan.bonus_cap}m (max {maxAvgPpg.toFixed(1)} PPG / +{headroom.toFixed(1)} headroom)
+              </span>
+            );
+          })()}
         </div>
       </div>
 

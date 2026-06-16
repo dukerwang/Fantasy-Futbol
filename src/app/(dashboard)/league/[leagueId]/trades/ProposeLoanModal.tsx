@@ -140,6 +140,17 @@ export default function ProposeLoanModal({
     };
   }, [selectedPlayer, baseFee, recentPPG, duration]);
 
+  const { balancedMaxPpg, balancedHeadroom, perfMaxPpg, perfHeadroom } = useMemo(() => {
+    const bMax = templateTerms.balanced.rate > 0 ? (templateTerms.balanced.cap / templateTerms.balanced.rate) / duration : 0;
+    const pMax = templateTerms.performance.rate > 0 ? (templateTerms.performance.cap / templateTerms.performance.rate) / duration : 0;
+    return {
+      balancedMaxPpg: bMax,
+      balancedHeadroom: bMax - recentPPG,
+      perfMaxPpg: pMax,
+      perfHeadroom: pMax - recentPPG,
+    };
+  }, [templateTerms, duration, recentPPG]);
+
   // Apply ±20% adjustment to the selected template
   const finalTerms = useMemo(() => {
     const terms = templateTerms[selectedTemplate];
@@ -153,8 +164,11 @@ export default function ProposeLoanModal({
 
   const maxPossibleCost = finalTerms.fee + finalTerms.cap;
 
+  const finalMaxAveragePpg = finalTerms.rate > 0 ? (finalTerms.cap / finalTerms.rate) / duration : 0;
+  const finalOverperformanceHeadroom = finalMaxAveragePpg - recentPPG;
+
   // Expected Points & Bonus Payout Estimates
-  const estPoints = Math.round(duration * (selectedPlayer?.ppg || 0));
+  const estPoints = Math.round(duration * recentPPG);
   const estBonusPayout = Math.min(finalTerms.cap, estPoints * finalTerms.rate);
 
   async function handleProposeLoan(e: React.FormEvent) {
@@ -305,8 +319,7 @@ export default function ProposeLoanModal({
                 <div style={{ fontSize: '11px', color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginTop: '2px' }}>
                   {selectedPlayer.pl_team ?? ''}
                   {selectedPlayer.market_value ? ` · €${selectedPlayer.market_value.toFixed(1)}m MV` : ''}
-                  {selectedPlayer.ppg ? ` · ${selectedPlayer.ppg.toFixed(1)} PPG` : ''}
-                  {recentPPG !== selectedPlayer.ppg && ` · ${recentPPG.toFixed(1)} Weighted PPG`}
+                  {` · ${recentPPG.toFixed(1)} Projected PPG`}
                 </div>
               </div>
               <button
@@ -406,7 +419,7 @@ export default function ProposeLoanModal({
                     Bonus: €{templateTerms.balanced.rate.toFixed(3)}m/pt
                   </span>
                   <span style={{ fontSize: '9px', color: 'var(--color-text-muted)', lineHeight: '1.2' }}>
-                    Moderate upfront fee + points payouts (Cap: €{Math.round(templateTerms.balanced.cap)}m).
+                    Moderate upfront fee. Capped at {balancedMaxPpg.toFixed(1)} PPG average (+{balancedHeadroom.toFixed(1)} over baseline).
                   </span>
                 </button>
 
@@ -436,7 +449,7 @@ export default function ProposeLoanModal({
                     Bonus: €{templateTerms.performance.rate.toFixed(3)}m/pt
                   </span>
                   <span style={{ fontSize: '9px', color: 'var(--color-text-muted)', lineHeight: '1.2' }}>
-                    Low upfront fee + high points payouts (Cap: €{Math.round(templateTerms.performance.cap)}m).
+                    Low upfront fee. Capped at {perfMaxPpg.toFixed(1)} PPG average (+{perfHeadroom.toFixed(1)} over baseline).
                   </span>
                 </button>
 
@@ -533,14 +546,14 @@ export default function ProposeLoanModal({
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px' }}>
                       <span style={{ color: 'var(--color-text-muted)' }}>Performance bonus cap</span>
-                      <span style={{ fontWeight: 600, color: 'var(--color-text-secondary)' }}>
-                        €{finalTerms.cap}m
+                      <span style={{ fontWeight: 600, color: 'var(--color-text-secondary)', textAlign: 'right' }}>
+                        €{finalTerms.cap}m <span style={{ fontSize: '10px', color: 'var(--color-text-muted)', fontWeight: 'normal', display: 'block' }}>(max {finalMaxAveragePpg.toFixed(1)} PPG / +{finalOverperformanceHeadroom.toFixed(1)} headroom)</span>
                       </span>
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', borderTop: '1px dashed var(--color-border)', paddingTop: '4px', marginTop: '2px' }}>
                       <span style={{ color: 'var(--color-text-muted)' }}>Est. performance bonus payout</span>
-                      <span style={{ fontWeight: 600, color: 'var(--color-text-secondary)' }}>
-                        €{estBonusPayout.toFixed(2)}m <span style={{ fontSize: '10px', color: 'var(--color-text-muted)' }}>(based on {selectedPlayer.ppg?.toFixed(1) || 0} PPG)</span>
+                      <span style={{ fontWeight: 600, color: 'var(--color-text-secondary)', textAlign: 'right' }}>
+                        €{estBonusPayout.toFixed(2)}m <span style={{ fontSize: '10px', color: 'var(--color-text-muted)', fontWeight: 'normal', display: 'block' }}>(based on {recentPPG.toFixed(1)} Projected PPG)</span>
                       </span>
                     </div>
                   </>

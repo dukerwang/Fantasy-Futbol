@@ -365,6 +365,7 @@ export default async function TradesPage({ params, searchParams }: Props) {
         l.player.overall_rank = r.overall_rank;
         l.player.position_ranks = r.position_ranks;
       }
+      l.player.recent_ppg = recentPpgMap[l.player.id] ?? Math.max(3.0, l.player.ppg ?? 3.0);
     }
   }
 
