@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { redirect, notFound } from 'next/navigation';
 import Link from 'next/link';
+import NavigationLink from '@/components/ui/NavigationLink';
 import { formatPlayerName } from '@/lib/formatName';
 import styles from './league.module.css';
 import DraftOrderManager from './DraftOrderManager';
@@ -562,7 +563,7 @@ export default async function LeaguePage({ params }: Props) {
           </div>
 
           {/* Club Balance Card */}
-          <Link href={`/league/${leagueId}/finance`} className={styles.faabCardLink}>
+          <NavigationLink href={`/league/${leagueId}/finance`} className={styles.faabCardLink}>
             <div className={styles.faabCard}>
               <div className={styles.cardPadding}>
                 <span className={styles.kickerLabel}>CLUB BALANCE</span>
@@ -575,7 +576,7 @@ export default async function LeaguePage({ params }: Props) {
                 </div>
               </div>
             </div>
-          </Link>
+          </NavigationLink>
 
           {/* Taxi Squad */}
           <div className={styles.taxiCard}>
@@ -614,7 +615,7 @@ export default async function LeaguePage({ params }: Props) {
         <div className={styles.centerCol}>
           {/* Matchup Hero */}
           {heroMatchup && heroState && (
-            <Link href={`/league/${leagueId}/matchups/${heroMatchup.id}`} className={styles.matchupHeroLink}>
+            <NavigationLink href={`/league/${leagueId}/matchups/${heroMatchup.id}`} className={styles.matchupHeroLink}>
               <div className={styles.matchupHero}>
                 <div className={styles.matchupHeader}>
                   <span className={styles.matchupGwLabel}>MATCHWEEK {heroMatchup.gameweek}</span>
@@ -641,19 +642,19 @@ export default async function LeaguePage({ params }: Props) {
                     </div>
                   </div>
 
-                  {/* Row 2: Scores centered */}
+                  {/* Row 2: Scores anchored under each team */}
                   <div className={styles.matchupScoresRow}>
-                    <span className={styles.matchupTeamScore}>
+                    <span className={styles.matchupScoreA}>
                       {heroState === 'upcoming' ? '—' : (userScore?.toFixed(2) ?? '0.00')}
                     </span>
                     <div className={styles.matchupScoreDivider} />
-                    <span className={styles.matchupTeamScore}>
+                    <span className={styles.matchupScoreB}>
                       {heroState === 'upcoming' ? '—' : (oppScore?.toFixed(2) ?? '0.00')}
                     </span>
                   </div>
                 </div>
               </div>
-            </Link>
+            </NavigationLink>
           )}
 
           {/* Transfer Gazette */}
@@ -747,7 +748,7 @@ export default async function LeaguePage({ params }: Props) {
                 })}
               </div>
               <div className={styles.standingsFooter}>
-                <Link href={`/league/${leagueId}/standings`} className={styles.cardLink}>VIEW FULL STANDINGS</Link>
+                <NavigationLink href={`/league/${leagueId}/standings`} className={styles.cardLink}>VIEW FULL STANDINGS</NavigationLink>
               </div>
             </div>
           </div>

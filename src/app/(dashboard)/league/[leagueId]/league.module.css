@@ -1110,22 +1110,32 @@
   text-overflow: ellipsis;
 }
 
-/* Bottom row: scores + divider centered */
+/* Bottom row: 3-column grid mirrors the teams row so scores anchor under their team */
 .matchupScoresRow {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  justify-content: center;
-  gap: 20px;
-  padding-top: 4px;
+  padding-top: 14px;
   border-top: 1px solid var(--color-border-subtle);
 }
 
-.matchupTeamScore {
+/* Score A — left-aligned under Team A */
+.matchupScoreA {
   font-family: var(--font-serif);
   font-size: 36px;
   font-weight: 700;
   color: var(--color-text-primary);
   white-space: nowrap;
+}
+
+/* Score B — right-aligned under Team B */
+.matchupScoreB {
+  font-family: var(--font-serif);
+  font-size: 36px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  text-align: right;
 }
 
 .matchupScoreDivider {
@@ -1635,7 +1645,8 @@
     font-size: 15px;
   }
 
-  .matchupTeamScore {
+  .matchupScoreA,
+  .matchupScoreB {
     font-size: 30px;
   }
 

@@ -57,6 +57,13 @@ export default function TopBar() {
     setMobileMenuOpen(false);
   }, [pathname]);
 
+  // Listen for global navigation-start events fired by NavigationLink
+  useEffect(() => {
+    function handleNavStart() { setIsNavigating(true); }
+    window.addEventListener('navigation-start', handleNavStart);
+    return () => window.removeEventListener('navigation-start', handleNavStart);
+  }, []);
+
   // Fetch user's teams + leagues via server API (bypasses RLS)
   useEffect(() => {
     fetch('/api/user/leagues')
