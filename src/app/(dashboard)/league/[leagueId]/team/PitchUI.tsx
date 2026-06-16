@@ -191,9 +191,6 @@ function PitchNode({ slotPos, player, isSelected, isValidTarget, isEmpty, isInva
                         {player ? displayName(player).charAt(0) : slotPos.charAt(0)}
                     </span>
                 )}
-            </div>
-
-            <div className={chipCls}>
                 {points !== undefined && (
                     <span
                         className={styles.nodePtsBadge}
@@ -205,6 +202,9 @@ function PitchNode({ slotPos, player, isSelected, isValidTarget, isEmpty, isInva
                         {points.toFixed(2)}
                     </span>
                 )}
+            </div>
+
+            <div className={chipCls}>
                 {isLocked && player && (
                     <span className={styles.nodeLockCorner} title="Locked">
                         <Icon name="lock" size={12} />
