@@ -1032,36 +1032,41 @@
   letter-spacing: 0.1em;
 }
 
-/* 5-column flat grid: [team-info-a] [score-a] [divider] [score-b] [team-info-b] */
+/* Row layout: teams on top, scores centered below */
 .matchupBody {
-  display: grid;
-  grid-template-columns: 1fr auto auto auto 1fr;
-  align-items: center;
+  display: flex;
+  flex-direction: column;
   gap: 16px;
 }
 
-/* Team A: shield on left, details fill remaining space */
+/* Top row: two teams, each getting half the width */
+.matchupTeamsRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  align-items: center;
+}
+
+/* Team A: shield left, text right */
 .matchupTeamInfoA {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
   min-width: 0;
-  overflow: hidden;
 }
 
-/* Team B: details fill space, shield on right */
+/* Team B: text left, shield right */
 .matchupTeamInfoB {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
   min-width: 0;
-  overflow: hidden;
   justify-content: flex-end;
 }
 
 .matchupShield {
-  width: 48px;
-  height: 48px;
+  width: 44px;
+  height: 44px;
   background-color: var(--color-bg-secondary);
   border: 1px solid var(--color-border-subtle);
   border-radius: var(--radius-md);
@@ -1069,7 +1074,7 @@
   align-items: center;
   justify-content: center;
   font-family: var(--font-serif);
-  font-size: 20px;
+  font-size: 18px;
   color: var(--color-text-muted);
   flex-shrink: 0;
 }
@@ -1079,16 +1084,18 @@
   flex-direction: column;
   gap: 2px;
   min-width: 0;
-  overflow: hidden;
 }
 
 .matchupTeamName {
   font-family: var(--font-serif);
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 700;
   color: var(--color-text-primary);
   line-height: 1.2;
-  word-break: break-word;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
 }
 
 .matchupManager {
@@ -1103,6 +1110,16 @@
   text-overflow: ellipsis;
 }
 
+/* Bottom row: scores + divider centered */
+.matchupScoresRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding-top: 4px;
+  border-top: 1px solid var(--color-border-subtle);
+}
+
 .matchupTeamScore {
   font-family: var(--font-serif);
   font-size: 36px;
@@ -1113,10 +1130,11 @@
 
 .matchupScoreDivider {
   width: 1px;
-  height: 40px;
-  align-self: center;
+  height: 36px;
   background-color: var(--color-border);
+  flex-shrink: 0;
 }
+
 
 .gazetteHeaderBar {
   background: var(--color-accent-green);
@@ -1600,43 +1618,25 @@
     text-align: center;
   }
 
-  /* --- Matchup Hero Mobile Stack --- */
-  /* Collapse to vertical: each row is [shield] [details] [score] */
-  .matchupBody {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
+  /* --- Matchup Hero Mobile --- */
+  .matchupTeamsRow {
+    grid-template-columns: 1fr;
+    gap: 8px;
   }
 
-  .matchupTeamInfoA,
   .matchupTeamInfoB {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    min-width: 0;
     justify-content: flex-start;
-  }
-
-  /* On mobile, team B info reverses so shield comes last */
-  .matchupTeamInfoB {
     flex-direction: row-reverse;
-    justify-content: flex-start;
-  }
-
-  /* Pair each team row with its score using an inner wrapper (handled by flex order via body being a column) */
-  /* Score elements sit between the two team rows on mobile */
-  .matchupTeamScore {
-    font-size: 28px;
   }
 
   .matchupShield {
     width: 36px;
     height: 36px;
-    font-size: 16px;
+    font-size: 15px;
   }
 
-  .matchupTeamName {
-    font-size: 14px;
+  .matchupTeamScore {
+    font-size: 30px;
   }
 
   .matchupScoreDivider {
