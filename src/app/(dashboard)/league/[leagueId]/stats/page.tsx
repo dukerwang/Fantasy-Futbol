@@ -192,7 +192,7 @@ export default async function StatsPage({ params }: Props) {
   }
 
   const shadowMaps = {
-    all: buildStatsAgg(0),
+    all: buildStatsAgg(15),
     gt45: buildStatsAgg(45),
   };
 

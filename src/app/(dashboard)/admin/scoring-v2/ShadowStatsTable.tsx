@@ -264,7 +264,7 @@ export default function ShadowStatsTable({ statsSeason, players, shadowMaps }: P
           value={minMins}
           onChange={(e) => setMinMins(e.target.value as 'all' | 'gt45')}
         >
-          <option value="all">All Played Games (&gt;0 mins)</option>
+          <option value="all">All Played Games (&ge;15 mins)</option>
           <option value="gt45">Starter Games (&gt;45 mins only)</option>
         </select>
 

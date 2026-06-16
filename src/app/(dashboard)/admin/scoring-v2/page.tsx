@@ -366,7 +366,7 @@ export default async function ScoringV2Page() {
     return result;
   }
 
-  const shadowByPlayerAll = buildShadowAgg(0);
+  const shadowByPlayerAll = buildShadowAgg(15);
   const shadowByPlayer45 = buildShadowAgg(45);
 
   const shadowTablePlayers = (allActiveForShadow ?? []) as unknown as ShadowStatsPlayer[];
