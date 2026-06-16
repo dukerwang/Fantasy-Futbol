@@ -562,18 +562,20 @@ export default async function LeaguePage({ params }: Props) {
           </div>
 
           {/* Club Balance Card */}
-          <div className={styles.faabCard}>
-            <div className={styles.cardPadding}>
-              <span className={styles.kickerLabel}>CLUB BALANCE</span>
-              <div className={styles.faabAmountRow}>
-                <span className={styles.faabAmount}>€{myTeam?.faab_budget ?? 0}m</span>
-                <span className={styles.faabRemaining}>AVAILABLE</span>
-              </div>
-              <div className={styles.faabSpentLabel}>
-                <span>SPENT THIS SEASON: €{totalSpentThisSeason}m</span>
+          <Link href={`/league/${leagueId}/finance`} className={styles.faabCardLink}>
+            <div className={styles.faabCard}>
+              <div className={styles.cardPadding}>
+                <span className={styles.kickerLabel}>CLUB BALANCE</span>
+                <div className={styles.faabAmountRow}>
+                  <span className={styles.faabAmount}>€{myTeam?.faab_budget ?? 0}m</span>
+                  <span className={styles.faabRemaining}>AVAILABLE</span>
+                </div>
+                <div className={styles.faabSpentLabel}>
+                  <span>SPENT THIS SEASON: €{totalSpentThisSeason}m</span>
+                </div>
               </div>
             </div>
-          </div>
+          </Link>
 
           {/* Taxi Squad */}
           <div className={styles.taxiCard}>
@@ -612,44 +614,46 @@ export default async function LeaguePage({ params }: Props) {
         <div className={styles.centerCol}>
           {/* Matchup Hero */}
           {heroMatchup && heroState && (
-            <div className={styles.matchupHero}>
-              <div className={styles.matchupHeader}>
-                <span className={styles.matchupGwLabel}>MATCHWEEK {heroMatchup.gameweek}</span>
-                {heroState === 'live' && <span className={styles.matchupLiveBadge}>LIVE</span>}
-              </div>
-              <div className={styles.matchupBody}>
-                {/* Team A Row */}
-                <div className={styles.matchupTeamRow}>
-                  <div className={styles.matchupTeamInfo}>
-                    <div className={styles.matchupShield}>{userTeam?.team_name?.charAt(0) ?? '?'}</div>
-                    <div className={styles.matchupTeamDetails}>
-                      <span className={styles.matchupTeamName}>{userTeam?.team_name ?? '—'}</span>
-                      <span className={styles.matchupManager}>MANAGER {userUsername.toUpperCase()}</span>
-                    </div>
-                  </div>
-                  <span className={styles.matchupTeamScore}>
-                    {heroState === 'upcoming' ? '-' : (userScore?.toFixed(2) ?? '0.00')}
-                  </span>
+            <Link href={`/league/${leagueId}/matchups/${heroMatchup.id}`} className={styles.matchupHeroLink}>
+              <div className={styles.matchupHero}>
+                <div className={styles.matchupHeader}>
+                  <span className={styles.matchupGwLabel}>MATCHWEEK {heroMatchup.gameweek}</span>
+                  {heroState === 'live' && <span className={styles.matchupLiveBadge}>LIVE</span>}
                 </div>
-
-                {/* Divider */}
-                <div className={styles.matchupScoreDivider} />
-
-                {/* Team B Row */}
-                <div className={styles.matchupTeamRow}>
-                  <div className={styles.matchupTeamInfo}>
-                    <div className={styles.matchupShield}>{oppTeam?.team_name?.charAt(0) ?? '?'}</div>
-                    <div className={styles.matchupTeamDetails}>
-                      <span className={styles.matchupTeamName}>{oppTeam?.team_name ?? '—'}</span>
-                      <span className={styles.matchupManager}>MANAGER {oppUsername.toUpperCase()}</span>
+                <div className={styles.matchupBody}>
+                  {/* Team A Row */}
+                  <div className={styles.matchupTeamRow}>
+                    <div className={styles.matchupTeamInfo}>
+                      <div className={styles.matchupShield}>{userTeam?.team_name?.charAt(0) ?? '?'}</div>
+                      <div className={styles.matchupTeamDetails}>
+                        <span className={styles.matchupTeamName}>{userTeam?.team_name ?? '—'}</span>
+                        <span className={styles.matchupManager}>MANAGER {userUsername.toUpperCase()}</span>
+                      </div>
                     </div>
+                    <span className={styles.matchupTeamScore}>
+                      {heroState === 'upcoming' ? '-' : (userScore?.toFixed(2) ?? '0.00')}
+                    </span>
                   </div>
-                  <span className={styles.matchupTeamScore}>
-                    {heroState === 'upcoming' ? '-' : (oppScore?.toFixed(2) ?? '0.00')}
-                  </span>
+
+                  {/* Divider */}
+                  <div className={styles.matchupScoreDivider} />
+
+                  {/* Team B Row */}
+                  <div className={styles.matchupTeamRow}>
+                    <div className={styles.matchupTeamInfo}>
+                      <div className={styles.matchupShield}>{oppTeam?.team_name?.charAt(0) ?? '?'}</div>
+                      <div className={styles.matchupTeamDetails}>
+                        <span className={styles.matchupTeamName}>{oppTeam?.team_name ?? '—'}</span>
+                        <span className={styles.matchupManager}>MANAGER {oppUsername.toUpperCase()}</span>
+                      </div>
+                    </div>
+                    <span className={styles.matchupTeamScore}>
+                      {heroState === 'upcoming' ? '-' : (oppScore?.toFixed(2) ?? '0.00')}
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
+            </Link>
           )}
 
           {/* Transfer Gazette */}
@@ -743,7 +747,7 @@ export default async function LeaguePage({ params }: Props) {
                 })}
               </div>
               <div className={styles.standingsFooter}>
-                <Link href={`/league/${leagueId}/standings`} className={styles.cardLink}>VIEW FULL LEDGER</Link>
+                <Link href={`/league/${leagueId}/standings`} className={styles.cardLink}>VIEW FULL STANDINGS</Link>
               </div>
             </div>
           </div>

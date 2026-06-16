@@ -780,6 +780,22 @@
   margin-bottom: 24px;
 }
 
+.faabCardLink {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+.faabCard {
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.faabCardLink:hover .faabCard {
+  border-color: var(--color-accent-green);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  transform: translateY(-2px);
+}
+
 .cardPadding {
   padding: 32px;
 }
@@ -964,6 +980,12 @@
   letter-spacing: 0.05em;
 }
 
+.matchupHeroLink {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
 .matchupHero {
   background: var(--color-bg-card);
   border: 1px solid var(--color-border-subtle);
@@ -973,6 +995,13 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.matchupHeroLink:hover .matchupHero {
+  border-color: var(--color-accent-green);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  transform: translateY(-2px);
 }
 
 .matchupHeader {
@@ -1007,14 +1036,15 @@
   display: grid;
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  gap: 32px;
+  gap: 20px;
 }
 
 .matchupTeamRow {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
+  gap: 12px;
+  min-width: 0;
 }
 
 .matchupBody > .matchupTeamRow:first-child {
@@ -1029,7 +1059,8 @@
 .matchupTeamInfo {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
+  min-width: 0;
 }
 
 .matchupBody > .matchupTeamRow:last-child .matchupTeamInfo {
@@ -1048,12 +1079,14 @@
   font-family: var(--font-serif);
   font-size: 20px;
   color: var(--color-text-muted);
+  flex-shrink: 0;
 }
 
 .matchupTeamDetails {
   display: flex;
   flex-direction: column;
   gap: 2px;
+  min-width: 0;
 }
 
 .matchupTeamName {
@@ -1061,6 +1094,9 @@
   font-size: 16px;
   font-weight: 700;
   color: var(--color-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .matchupManager {
@@ -1070,6 +1106,9 @@
   letter-spacing: 0.1em;
   color: var(--color-text-muted);
   text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .matchupTeamScore {
@@ -1077,6 +1116,7 @@
   font-size: 36px;
   font-weight: 700;
   color: var(--color-text-primary);
+  flex-shrink: 0;
 }
 
 .matchupScoreDivider {
@@ -1204,7 +1244,6 @@
   background: #F3EFEB;
   margin: 0 -24px;
   padding: 12px 24px;
-  grid-template-columns: 24px 1fr 40px 60px;
 }
 
 .stRankValue {
