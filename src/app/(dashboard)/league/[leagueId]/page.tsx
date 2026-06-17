@@ -644,13 +644,23 @@ export default async function LeaguePage({ params }: Props) {
 
                   {/* Row 2: Scores anchored under each team */}
                   <div className={styles.matchupScoresRow}>
-                    <span className={styles.matchupScoreA}>
-                      {heroState === 'upcoming' ? '—' : (userScore?.toFixed(2) ?? '0.00')}
-                    </span>
+                    {/* Score A stack */}
+                    <div className={`${styles.matchupScoreStack} ${heroState !== 'upcoming' && (userScore ?? 0) > (oppScore ?? 0) ? styles.matchupScoreWin : heroState !== 'upcoming' && (userScore ?? 0) < (oppScore ?? 0) ? styles.matchupScoreLose : ''}`}>
+                      <span className={styles.matchupScoreNum}>
+                        {heroState === 'upcoming' ? '—' : (userScore?.toFixed(2) ?? '0.00')}
+                      </span>
+                      <span className={styles.matchupScoreLabel}>PTS</span>
+                    </div>
+
                     <div className={styles.matchupScoreDivider} />
-                    <span className={styles.matchupScoreB}>
-                      {heroState === 'upcoming' ? '—' : (oppScore?.toFixed(2) ?? '0.00')}
-                    </span>
+
+                    {/* Score B stack */}
+                    <div className={`${styles.matchupScoreStack} ${styles.matchupScoreStackB} ${heroState !== 'upcoming' && (oppScore ?? 0) > (userScore ?? 0) ? styles.matchupScoreWin : heroState !== 'upcoming' && (oppScore ?? 0) < (userScore ?? 0) ? styles.matchupScoreLose : ''}`}>
+                      <span className={styles.matchupScoreNum}>
+                        {heroState === 'upcoming' ? '—' : (oppScore?.toFixed(2) ?? '0.00')}
+                      </span>
+                      <span className={styles.matchupScoreLabel}>PTS</span>
+                    </div>
                   </div>
                 </div>
               </div>

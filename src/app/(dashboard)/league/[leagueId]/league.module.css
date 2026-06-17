@@ -1120,22 +1120,49 @@
 }
 
 /* Score A — left-aligned under Team A */
-.matchupScoreA {
-  font-family: var(--font-serif);
-  font-size: 36px;
-  font-weight: 700;
-  color: var(--color-text-primary);
-  white-space: nowrap;
+.matchupScoreStack {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
 /* Score B — right-aligned under Team B */
-.matchupScoreB {
+.matchupScoreStackB {
+  align-items: flex-end;
+}
+
+.matchupScoreNum {
   font-family: var(--font-serif);
   font-size: 36px;
   font-weight: 700;
   color: var(--color-text-primary);
   white-space: nowrap;
-  text-align: right;
+  line-height: 1;
+  transition: color 0.2s ease;
+}
+
+.matchupScoreLabel {
+  font-family: var(--font-sans);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+}
+
+/* Win state — score turns accent green */
+.matchupScoreWin .matchupScoreNum {
+  color: var(--color-accent-green);
+}
+
+.matchupScoreWin .matchupScoreLabel {
+  color: var(--color-accent-green);
+  opacity: 0.8;
+}
+
+/* Lose state — score goes more muted */
+.matchupScoreLose .matchupScoreNum {
+  color: var(--color-text-muted);
 }
 
 .matchupScoreDivider {
@@ -1645,8 +1672,7 @@
     font-size: 15px;
   }
 
-  .matchupScoreA,
-  .matchupScoreB {
+  .matchupScoreNum {
     font-size: 30px;
   }
 
