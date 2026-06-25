@@ -26,11 +26,11 @@ export default function MatchReportCard({ report }: { report: MatchReport }) {
           <div className={styles.reportGrid}>
             <div className={styles.reportCol}>
               <h4 className={styles.reportSectionHeader}>🌟 STAR OF THE MATCH</h4>
-              <p className={styles.reportDetailText} dangerouslySetInnerHTML={{ __html: report.starHighlight.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') }} />
+              <p className={styles.reportDetailText}>{report.starHighlight}</p>
             </div>
             <div className={styles.reportCol}>
               <h4 className={styles.reportSectionHeader}>⚠️ BOARDROOM NOTES</h4>
-              <p className={styles.reportDetailText} dangerouslySetInnerHTML={{ __html: report.disappointmentHighlight.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') }} />
+              <p className={styles.reportDetailText}>{report.disappointmentHighlight}</p>
             </div>
           </div>
         </div>

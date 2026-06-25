@@ -43,30 +43,30 @@ export function generateTransactionHeadline(tx: MiniTx): string {
     case 'waiver_claim': {
       if (faab >= 40) {
         const templates = [
-          `BLOCKBUSTER: ${teamName} smashes contract records to sign ${playerName}!`,
-          `MEGA DEAL: ${teamName} splurges €${faab}m to secure ${playerName}`,
-          `BOARDROOM STRIKE: ${teamName} wins intense race for ${playerName} in €${faab}m coup`,
-          `BIG SPENDER: ${playerName} puts pen to paper on €${tx.faab_bid}m move to ${teamName}`,
-          `MARQUEE MOVE: ${teamName} pulls off massive signing, welcoming ${playerName}`,
-          `LUCRATIVE BID: ${teamName} prevails in bidding war for superstar ${playerName}`,
-          `STATEMENT SIGNING: ${teamName} adds defensive/offensive reinforcement ${playerName} for €${faab}m`,
-          `TREASURY DEPLOYED: ${teamName} splashes cash to bring in ${playerName}`,
-          `HIGH VALUATION: ${playerName} seals big-money transfer to ${teamName}`,
-          `CAPITAL VENTURE: ${teamName} wins high-stakes bidding for ${playerName}`
+          `${teamName} smashes contract records to sign ${playerName}!`,
+          `${teamName} splurges €${faab}m to secure ${playerName}`,
+          `${teamName} wins intense race for ${playerName} in €${faab}m coup`,
+          `${playerName} puts pen to paper on €${tx.faab_bid}m move to ${teamName}`,
+          `${teamName} pulls off massive signing, welcoming ${playerName}`,
+          `${teamName} prevails in bidding war for superstar ${playerName}`,
+          `${teamName} adds defensive/offensive reinforcement ${playerName} for €${faab}m`,
+          `${teamName} splashes cash to bring in ${playerName}`,
+          `${playerName} seals big-money transfer to ${teamName}`,
+          `${teamName} wins high-stakes bidding for ${playerName}`
         ];
         return templates[hash % templates.length];
       } else {
         const templates = [
-          `OFFICIAL: ${teamName} secures the signature of ${playerName} (€${faab}m)`,
-          `AUCTION CAPTURE: ${playerName} joins ${teamName} after board approval`,
-          `ACQUISITION: ${teamName} adds roster depth with ${playerName} (€${faab}m)`,
-          `BOARDROOM DECISION: ${teamName} secures ${playerName} in auction process`,
-          `DEAL SIGNED: ${playerName} finalized by ${teamName} on a €${faab}m deal`,
-          `AUCTION CONCLUDED: ${playerName} makes the switch to ${teamName}`,
-          `CONTRACT AGREED: ${teamName} completes deal for ${playerName}`,
-          `MARKET MOVE: ${playerName} drafted into ${teamName} starting pool`,
-          `TRANSFER COMPLETED: ${playerName} headed to ${teamName} following auction`,
-          `WAIVER SUCCESS: ${teamName} welcomes ${playerName} after successful waiver claim`
+          `${teamName} secures the signature of ${playerName} (€${faab}m)`,
+          `${playerName} joins ${teamName} after board approval`,
+          `${teamName} adds roster depth with ${playerName} (€${faab}m)`,
+          `${teamName} secures ${playerName} in auction process`,
+          `${playerName} finalized by ${teamName} on a €${faab}m deal`,
+          `${playerName} makes the switch to ${teamName}`,
+          `${teamName} completes deal for ${playerName}`,
+          `${playerName} drafted into ${teamName} starting pool`,
+          `${playerName} headed to ${teamName} following auction`,
+          `${teamName} welcomes ${playerName} after successful waiver claim`
         ];
         return templates[hash % templates.length];
       }
@@ -74,16 +74,16 @@ export function generateTransactionHeadline(tx: MiniTx): string {
 
     case 'free_agent_pickup': {
       const templates = [
-        `BARGAIN HUNT: ${teamName} snaps up ${playerName} on a free transfer`,
-        `FREE ACQUISITION: ${playerName} joins ${teamName} to bolster bench strength`,
-        `ROSTER UPGRADE: ${teamName} secures free agent ${playerName}`,
-        `SQUAD DEPTH: ${playerName} signs deal with ${teamName} out of free agency`,
-        `BARGAIN SIGNING: ${teamName} adds ${playerName} on a free deal`,
-        `TACTICAL ADDITION: ${teamName} welcomes free agent ${playerName} to the squad`,
-        `FREE TRANSFER: ${playerName} seals move to ${teamName} roster`,
-        `OPPORTUNISTIC SIGNING: ${teamName} picks up ${playerName} from free agency`,
-        `BENCH REINFORCEMENT: ${playerName} completes free transfer to ${teamName}`,
-        `SIGNING ANNOUNCED: Free agent ${playerName} puts pen to paper for ${teamName}`
+        `${teamName} snaps up ${playerName} on a free transfer`,
+        `${playerName} joins ${teamName} to bolster bench strength`,
+        `${teamName} secures free agent ${playerName}`,
+        `${playerName} signs deal with ${teamName} out of free agency`,
+        `${teamName} adds ${playerName} on a free deal`,
+        `${teamName} welcomes free agent ${playerName} to the squad`,
+        `${playerName} seals move to ${teamName} roster`,
+        `${teamName} picks up ${playerName} from free agency`,
+        `${playerName} completes free transfer to ${teamName}`,
+        `Free agent ${playerName} puts pen to paper for ${teamName}`
       ];
       return templates[hash % templates.length];
     }
@@ -91,30 +91,30 @@ export function generateTransactionHeadline(tx: MiniTx): string {
     case 'drop': {
       if (comp > 0) {
         const templates = [
-          `CONTRACT TERMINATION: ${playerName} released by ${teamName} (Paid €${comp}m)`,
-          `ROSTER PURGE: ${teamName} cuts ties with ${playerName} at €${comp}m severance cost`,
-          `SHOCK DEPARTURE: ${playerName} shown the exit door at ${teamName} after severance payout`,
-          `MUTUAL RELEASE: ${teamName} terminates contract for ${playerName}, paying contract clause`,
-          `BOARD ACTIONS: ${teamName} clears roster spot, paying €${comp}m severance for ${playerName}`,
-          `EXPENSIVE CLEARANCE: ${teamName} pays €${comp}m to release ${playerName} to waivers`,
-          `SQUAD SHUFFLE: ${playerName} released from ${teamName} duties after buyout fee`,
-          `ROSTER CUT: ${playerName} waived by ${teamName} following €${comp}m severance agreement`,
-          `OFFICIAL RELEASE: ${teamName} releases ${playerName} into waiver pool, absorbing buyout`,
-          `DEAL LIQUIDATED: ${teamName} pays contract severance to release ${playerName}`
+          `${playerName} released by ${teamName} (Paid €${comp}m)`,
+          `${teamName} cuts ties with ${playerName} at €${comp}m severance cost`,
+          `${playerName} shown the exit door at ${teamName} after severance payout`,
+          `${teamName} terminates contract for ${playerName}, paying contract clause`,
+          `${teamName} clears roster spot, paying €${comp}m severance for ${playerName}`,
+          `${teamName} pays €${comp}m to release ${playerName} to waivers`,
+          `${playerName} released from ${teamName} duties after buyout fee`,
+          `${playerName} waived by ${teamName} following €${comp}m severance agreement`,
+          `${teamName} releases ${playerName} into waiver pool, absorbing buyout`,
+          `${teamName} pays contract severance to release ${playerName}`
         ];
         return templates[hash % templates.length];
       } else {
         const templates = [
-          `WAIVED: ${playerName} released by ${teamName} to free agency`,
-          `ROSTER ADJUSTMENT: ${teamName} cuts ties with ${playerName}`,
-          `SQUAD REDUCTION: ${playerName} parted ways with ${teamName}`,
-          `INTO THE MARKET: ${teamName} drops ${playerName} to the waiver pool`,
-          `OFFICIAL DEPARTURE: ${playerName} released from ${teamName} roster`,
-          `ROSTER CLEARANCE: ${teamName} waives backup player ${playerName}`,
-          `SQUAD VACANCY: ${playerName} shown exit door by ${teamName}`,
-          `CONTRACT RELEASE: ${playerName} sent to free agency by ${teamName}`,
-          `TACTICAL SHIFT: ${teamName} drops defender/midfielder ${playerName}`,
-          `DROPPED: ${playerName} released into waivers by ${teamName}`
+          `${playerName} released by ${teamName} to free agency`,
+          `${teamName} cuts ties with ${playerName}`,
+          `${playerName} parted ways with ${teamName}`,
+          `${teamName} drops ${playerName} to the waiver pool`,
+          `${playerName} released from ${teamName} roster`,
+          `${teamName} waives backup player ${playerName}`,
+          `${playerName} shown exit door by ${teamName}`,
+          `${playerName} sent to free agency by ${teamName}`,
+          `${teamName} drops defender/midfielder ${playerName}`,
+          `${playerName} released into waivers by ${teamName}`
         ];
         return templates[hash % templates.length];
       }
@@ -122,66 +122,66 @@ export function generateTransactionHeadline(tx: MiniTx): string {
 
     case 'transfer_out': {
       const templates = [
-        `CONTINENTAL MOVE: ${playerName} departs PL; ${teamName} recovers €${comp}m`,
-        `DEPARTURE: ${playerName} leaves the league, returning budget to ${teamName}`,
-        `PL EXIT: ${playerName} transferred out of Premier League; €${comp}m refunded`,
-        `ROSTER DEPARTURE: ${playerName} departs; ${teamName} collects €${comp}m compensation`,
-        `OFFICIAL EXIT: ${playerName} leaves division, returning €${comp}m to ${teamName} vault`,
-        `BUDGET RECOVERED: ${playerName} transfers abroad; ${teamName} receives €${comp}m`,
-        `SQUAD LEAVETAKING: ${playerName} bids farewell to PL; €${comp}m returned to ${teamName}`,
-        `COMPENSATED EXIT: ${playerName} departs the league, returning contract equity`,
-        `TRANSFERRED OUT: ${playerName} exits English top flight; €${comp}m refunded`,
-        `PL TRANSFER: ${playerName} transferred out; ${teamName} pockets €${comp}m return`
+        `${playerName} departs PL; ${teamName} recovers €${comp}m`,
+        `${playerName} leaves the league, returning budget to ${teamName}`,
+        `${playerName} transferred out of Premier League; €${comp}m refunded`,
+        `${playerName} departs; ${teamName} collects €${comp}m compensation`,
+        `${playerName} leaves division, returning €${comp}m to ${teamName} vault`,
+        `${playerName} transfers abroad; ${teamName} receives €${comp}m`,
+        `${playerName} bids farewell to PL; €${comp}m returned to ${teamName}`,
+        `${playerName} departs the league, returning contract equity`,
+        `${playerName} exits English top flight; €${comp}m refunded`,
+        `${playerName} transferred out; ${teamName} pockets €${comp}m return`
       ];
       return templates[hash % templates.length];
     }
 
     case 'trade': {
       const templates = [
-        `BLOCKBUSTER TRADE: ${teamName} completes player swap deal`,
-        `BOARDROOM HANDSHAKE: Managers finalize roster swap involving ${teamName}`,
-        `TRADE AGREEMENT: Swap deal resolved for ${teamName}`,
-        `ROSTER SHAKEUP: ${teamName} executes trade to rebuild starting depth`,
-        `COMPLETED TRANSACTION: Trade paperwork signed for ${teamName}`,
-        `OFFICIAL SWAP: ${teamName} completes trade negotiations`,
-        `BOARD AGREEMENT: Trade confirmed for ${teamName}`,
-        `MUTUAL AGREEMENT: Teams finalize trade package`,
-        `SWAP DEAL: ${teamName} executes trade swap`,
-        `NEGOTIATIONS FINALIZED: Trade completed by ${teamName}`
+        `${teamName} completes player swap deal`,
+        `Managers finalize roster swap involving ${teamName}`,
+        `Trade agreement resolved for ${teamName}`,
+        `${teamName} executes trade to rebuild starting depth`,
+        `Trade paperwork signed for ${teamName}`,
+        `${teamName} completes trade negotiations`,
+        `Trade confirmed for ${teamName}`,
+        `Mutual agreement: teams finalize trade package`,
+        `${teamName} executes trade swap`,
+        `Negotiations finalized: trade completed by ${teamName}`
       ];
       return templates[hash % templates.length];
     }
 
     case 'transfer_compensation': {
-      return `COMPENSATION: ${teamName} received €${comp}m budget return for ${playerName}`;
+      return `${teamName} received €${comp}m budget return for ${playerName}`;
     }
 
     case 'rebate': {
-      return `SCOUT REBATE: ${teamName} refunded €${comp || faab}m for player release`;
+      return `${teamName} refunded €${comp || faab}m for player release`;
     }
 
     case 'draft_pick': {
       const templates = [
-        `DRAFT PICK: ${teamName} selects ${playerName}`,
-        `WAR ROOM CHOICE: ${teamName} locks in ${playerName} during draft`,
-        `OFFICIAL PICK: ${playerName} selected by ${teamName}`,
-        `DRAFT BOARD UPDATE: ${teamName} recruits prospect ${playerName}`,
-        `ROSTER ENTRY: ${playerName} drafted by ${teamName} board`,
-        `DRAFT SELECTION: ${teamName} registers ${playerName} into active squad`,
-        `SQUAD INITIATION: ${playerName} joins ${teamName} via draft system`,
-        `DRAFT SELECTION COMPLETE: ${playerName} added to ${teamName}`,
-        `ROSTER SEEDING: ${teamName} locks in draft choice ${playerName}`,
-        `NEW TALENT: ${playerName} joins ${teamName} following draft selection`
+        `${teamName} selects ${playerName}`,
+        `${teamName} locks in ${playerName} during draft`,
+        `${playerName} selected by ${teamName}`,
+        `${teamName} recruits prospect ${playerName}`,
+        `${playerName} drafted by ${teamName} board`,
+        `${teamName} registers ${playerName} into active squad`,
+        `${playerName} joins ${teamName} via draft system`,
+        `${playerName} added to ${teamName}`,
+        `${teamName} locks in draft choice ${playerName}`,
+        `${playerName} joins ${teamName} following draft selection`
       ];
       return templates[hash % templates.length];
     }
 
     case 'prize_payout': {
-      return `FINANCIAL WINDFALL: ${teamName} received prize payout (+€${faab}m)`;
+      return `${teamName} received prize payout (+€${faab}m)`;
     }
 
     default: {
-      return tx.notes || `TRANSACTION: ${teamName} processed type ${tx.type}`;
+      return tx.notes || `${teamName} processed type ${tx.type}`;
     }
   }
 }

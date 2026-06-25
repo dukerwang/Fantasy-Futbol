@@ -47,16 +47,16 @@ export function generateMatchReport(
   // 1. Preview State
   if (matchup.status === 'scheduled' || (matchup.status !== 'completed' && matchup.status !== 'live')) {
     const headlines = [
-      `PREVIEW: High Stakes as ${teamAName} Prepare to Face ${teamBName}`,
-      `WEEKLY CLASH: Tactical Duel Looming Between ${teamAName} and ${teamBName}`,
-      `MATCHWEEK ${gw}: ${teamAName} and ${teamBName} Battle for Boardroom Supremacy`,
-      `TACTICAL PREVIEW: Can ${teamAName} Outmaneuver ${teamBName} in Gameweek ${gw}?`,
-      `PREVIEW: ${teamBName} Face Tough Road Test Against ${teamAName}`,
-      `MATCH PREVIEW: Roster Selections Key for ${teamAName} vs ${teamBName}`,
-      `MATCHWEEK ${gw} PREVIEW: Managers Refine Roster Strategies for Big Clash`,
-      `BOARDROOM DRAFT: ${teamAName} vs ${teamBName} Matchday Preview`,
-      `WAR ROOM TALK: Tactical Setup Crucial for ${teamAName} and ${teamBName}`,
-      `PREVIEW: League Standings at Stake in ${teamAName} vs ${teamBName}`
+      `High Stakes Loom as ${teamAName} Prepare to Face ${teamBName}`,
+      `Tactical Duel Looming Between ${teamAName} and ${teamBName}`,
+      `${teamAName} and ${teamBName} Battle for Boardroom Supremacy`,
+      `Can ${teamAName} Outmaneuver ${teamBName} in Gameweek ${gw}?`,
+      `${teamBName} Face Tough Road Test Against ${teamAName}`,
+      `Roster Selections Key for ${teamAName} vs ${teamBName}`,
+      `Managers Refine Roster Strategies for Big ${teamAName} vs ${teamBName} Clash`,
+      `${teamAName} vs ${teamBName} Matchday Preview`,
+      `Tactical Setup Crucial for ${teamAName} and ${teamBName}`,
+      `League Standings at Stake in ${teamAName} vs ${teamBName}`
     ];
     const leads = [
       `Anticipation is building in the league office as ${teamAName} prepares to host ${teamBName} for their Gameweek ${gw} matchup. Both boards have been active in waiver training all week.`,
@@ -71,7 +71,7 @@ export function generateMatchReport(
       byline,
       leadParagraph: leads[hash % leads.length],
       starHighlight: 'Scouts are monitoring team selections. Key starter ratings will be tracked live once the match kickoff begins.',
-      disappointmentHighlight: ' Roster managers must watch for late injury alerts and taxi-squad adjustments before locks go into effect.'
+      disappointmentHighlight: 'Roster managers must watch for late injury alerts and taxi-squad adjustments before locks go into effect.'
     };
   }
 
@@ -171,26 +171,26 @@ export function generateMatchReport(
 
   // Generate highlight summaries
   const starHighlight = starPlayerId 
-    ? `Man of the Match honors go to **${starPlayerName}** of **${starPlayerTeamName}**, who delivered a sterling performance, scoring **${starPlayerPoints.toFixed(1)} points** to anchor the team sheet.`
+    ? `Man of the Match honors go to ${starPlayerName} of ${starPlayerTeamName}, who delivered a sterling performance, scoring ${starPlayerPoints.toFixed(1)} points to anchor the team sheet.`
     : `A balanced team effort was key, as no single player dominated the scores.`;
 
   const disappointmentHighlight = flopPlayerId
-    ? `Conversely, **${flopPlayerTeamName}** suffered from a difficult outing by **${flopPlayerName}**, who returned just **${flopPlayerPoints.toFixed(1)} points**, leaving the board to regret the starting selection.`
+    ? `Conversely, ${flopPlayerTeamName} suffered from a difficult outing by ${flopPlayerName}, who returned just ${flopPlayerPoints.toFixed(1)} points, leaving the board to regret the starting selection.`
     : `Roster managers kept errors to a minimum, with no major lineup errors reported on either team sheet.`;
 
   // Live Matchup
   if (isLive) {
     const headlines = [
-      `LIVE: Tense Battle Unfolding Between ${teamAName} and ${teamBName}`,
-      `IN PROGRESS: Roster Scores Active for ${teamAName} vs ${teamBName}`,
-      `LIVE AUDIT: ${teamAName} and ${teamBName} locked in Tight Matchweek Duel`,
-      `LIVE COVERAGE: Star Performance Dictates Play for ${teamAName} vs ${teamBName}`,
-      `ONGOING: ${teamAName} Holding Narrow Lead Over ${teamBName}`,
-      `LIVE REPORT: Boards Watch Tensly as ${teamAName} Clashes with ${teamBName}`,
-      `LIVE ACTION: ${teamBName} Mounted Fightback Against ${teamAName}`,
-      `IN PROGRESS: High Stakes in Gameweek ${gw} Matchup`,
-      `LIVE UPDATE: Roster Points Fluctuating in ${teamAName} vs ${teamBName}`,
-      `ON THE PITCH: Real-Time Scores updating for ${teamAName} and ${teamBName}`
+      `Tense Battle Unfolding Between ${teamAName} and ${teamBName}`,
+      `Roster Scores Active for ${teamAName} vs ${teamBName}`,
+      `${teamAName} and ${teamBName} Locked in Tight Matchweek Duel`,
+      `Star Performance Dictates Play for ${teamAName} vs ${teamBName}`,
+      `${teamAName} Holding Narrow Lead Over ${teamBName}`,
+      `Boards Watch Tensely as ${teamAName} Clashes with ${teamBName}`,
+      `${teamBName} Mounts Fightback Against ${teamAName}`,
+      `High Stakes in Gameweek ${gw} Matchup`,
+      `Roster Points Fluctuating in ${teamAName} vs ${teamBName}`,
+      `Real-Time Scores Updating for ${teamAName} and ${teamBName}`
     ];
     
     const leadVerb = scoreA > scoreB ? `leads` : (scoreB > scoreA ? `trail` : `are locked in a stalemate with`);
@@ -198,11 +198,11 @@ export function generateMatchReport(
     const currentDiff = Math.abs(scoreA - scoreB).toFixed(2);
 
     const leads = [
-      `The action is underway and points are updating in real-time. Currently, **${teamAName}** ${leadVerb} **${leadTarget || teamBName}** in a fluid Gameweek ${gw} matchup, with a margin of **${currentDiff} points** separating them.`,
-      `Matches are updating live. **${teamAName}** and **${teamBName}** are locked in a closely-contested battle, with scoreboard shifts expected as bonus point calculations finalize.`,
-      `Roster points are compiling as matches progress. **${teamAName}**'s board is celebrating early point hauls, while **${teamBName}** relies on late fixtures to close the gap.`,
-      `The matchday is live. Managers are monitoring the benches closely as the live score stands at **${scoreA.toFixed(2)} - ${scoreB.toFixed(2)}** in favor of ${scoreA > scoreB ? teamAName : teamBName}.`,
-      `A thrilling afternoon of football sees **${teamAName}** and **${teamBName}** trading blow-for-blow. Current gap: **${currentDiff} points**.`
+      `The action is underway and points are updating in real-time. Currently, ${teamAName} ${leadVerb} ${leadTarget || teamBName} in a fluid Gameweek ${gw} matchup, with a margin of ${currentDiff} points separating them.`,
+      `Matches are updating live. ${teamAName} and ${teamBName} are locked in a closely-contested battle, with scoreboard shifts expected as bonus point calculations finalize.`,
+      `Roster points are compiling as matches progress. ${teamAName}'s board is celebrating early point hauls, while ${teamBName} relies on late fixtures to close the gap.`,
+      `The matchday is live. Managers are monitoring the benches closely as the live score stands at ${scoreA.toFixed(2)} - ${scoreB.toFixed(2)} in favor of ${scoreA > scoreB ? teamAName : teamBName}.`,
+      `A thrilling afternoon sees ${teamAName} and ${teamBName} trading blow-for-blow. Current gap: ${currentDiff} points.`
     ];
 
     return {
@@ -210,10 +210,10 @@ export function generateMatchReport(
       byline,
       leadParagraph: leads[hash % leads.length],
       starHighlight: starPlayerId 
-        ? `Live standout **${starPlayerName}** of **${starPlayerTeamName}** is currently setting the pace with **${starPlayerPoints.toFixed(1)} points**.`
+        ? `Live standout ${starPlayerName} of ${starPlayerTeamName} is currently setting the pace with ${starPlayerPoints.toFixed(1)} points.`
         : starHighlight,
       disappointmentHighlight: flopPlayerId
-        ? `Manager adjustments may be needed as **${flopPlayerName}** struggles to return value, sitting on just **${flopPlayerPoints.toFixed(1)} points**.`
+        ? `Manager adjustments may be needed as ${flopPlayerName} struggles to return value, sitting on just ${flopPlayerPoints.toFixed(1)} points.`
         : disappointmentHighlight
     };
   }
@@ -221,24 +221,24 @@ export function generateMatchReport(
   // 3. Completed State
   if (isDraw) {
     const headlines = [
-      `SPOILS SHARED: Tense Stalemate Between ${teamAName} and ${teamBName}`,
-      `TIGHT AFFAIRS: ${teamAName} and ${teamBName} Split points in Stalemate`,
-      `BOARDROOM DEADLOCK: ${teamAName} and ${teamBName} Draw ${scoreA.toFixed(1)} - ${scoreB.toFixed(1)}`,
-      `STALEMATE: Tactic Clashes End in Draw for ${teamAName} and ${teamBName}`,
-      `SQUAD SPLIT: Points Divided After Grinding Match at Gaffa Desk`,
-      `NO SEPARATION: ${teamAName} and ${teamBName} Split Gameweek ${gw} Spoils`,
-      `TACTICAL DRAW: Scoreboards Finalize on Stalemate for ${teamAName} vs ${teamBName}`,
-      `LEVEL PEGGING: Both Boards Collect Draw Point in Tight Roster Duel`,
-      ` stalemate: ${teamAName} and ${teamBName} Finish Even in Gameweek ${gw}`,
-      `EVEN STEVENS: Deadlock Unbroken Between ${teamAName} and ${teamBName}`
+      `Tense Stalemate Between ${teamAName} and ${teamBName}`,
+      `${teamAName} and ${teamBName} Split Points in Stalemate`,
+      `${teamAName} and ${teamBName} Draw ${scoreA.toFixed(1)} - ${scoreB.toFixed(1)}`,
+      `Tactical Clashes End in Draw for ${teamAName} and ${teamBName}`,
+      `Points Divided After Grinding Match at Gaffa Desk`,
+      `No Separation: ${teamAName} and ${teamBName} Split Gameweek ${gw} Spoils`,
+      `Tactical Draw: Scoreboards Finalize on Stalemate for ${teamAName} vs ${teamBName}`,
+      `Both Boards Collect Draw Point in Tight Roster Duel`,
+      `${teamAName} and ${teamBName} Finish Even in Gameweek ${gw}`,
+      `Deadlock Unbroken Between ${teamAName} and ${teamBName}`
     ];
     
     const leads = [
-      `A grueling Gameweek ${gw} battle has ended without a victor, as **${teamAName}** and **${teamBName}** finalized a hard-fought stalemate with the final board reading **${scoreA.toFixed(2)} to ${scoreB.toFixed(2)}**.`,
-      `Neither manager could secure the decisive breakthrough this weekend, resulting in a tense **${scoreA.toFixed(2)} - ${scoreB.toFixed(2)}** draw that leaves both boardrooms reflecting on missed opportunities.`,
-      `The points are shared at the whistle. **${teamAName}** and **${teamBName}** finished level on points, ending a match that fluctuated with every clean sheet confirmation.`,
-      `A tactical stalemate ended in a draw, with the margin separating **${teamAName}** and **${teamBName}** settling at a narrow **${margin.toFixed(2)} points**—well within the league's draw parameters.`,
-      `Gameweek ${gw} concludes with a division of spoils. The final tally finished **${scoreA.toFixed(2)} - ${scoreB.toFixed(2)}**, leaving both clubs to collect one point in the standings.`
+      `A grueling Gameweek ${gw} battle has ended without a victor, as ${teamAName} and ${teamBName} finalized a hard-fought stalemate with the final board reading ${scoreA.toFixed(2)} to ${scoreB.toFixed(2)}.`,
+      `Neither manager could secure the decisive breakthrough this weekend, resulting in a tense ${scoreA.toFixed(2)} - ${scoreB.toFixed(2)} draw that leaves both boardrooms reflecting on missed opportunities.`,
+      `The points are shared at the whistle. ${teamAName} and ${teamBName} finished level on points, ending a match that fluctuated with every clean sheet confirmation.`,
+      `A tactical stalemate ended in a draw, with the margin separating ${teamAName} and ${teamBName} settling at a narrow ${margin.toFixed(2)} points—well within the league's draw parameters.`,
+      `Gameweek ${gw} concludes with a division of spoils. The final tally finished ${scoreA.toFixed(2)} - ${scoreB.toFixed(2)}, leaving both clubs to collect one point in the standings.`
     ];
 
     return {
@@ -254,24 +254,24 @@ export function generateMatchReport(
   if (margin > 30) {
     // Blowout
     const headlines = [
-      `ABSOLUTE ROUT: ${winner} Dismantles ${loser} in Masterclass`,
-      `DOMINATION: ${winner} Outclasses ${loser} in Blowout Victory`,
-      `CLINIC: ${winner} Crushes ${loser} with Massive GW Performance`,
-      `ROUT: No Mercy as ${winner} dismantle ${loser} in Gameweek ${gw}`,
-      `STATEMENT MADE: ${winner} Demolishes ${loser} by ${margin.toFixed(0)} Points`,
-      `BOARDROOM MASTERCLASS: ${winner} Leaves ${loser} in the Dust`,
-      `ROSTER RUNAWAY: ${winner} Cruises to Comfortable Blowout Over ${loser}`,
-      `ONE-SIDED CLASH: ${winner} Dominates Roster Sheet Against ${loser}`,
-      `FANTASY FORCE: ${winner} Runs Riot in Huge Win Over ${loser}`,
-      `VICTORY DECLARED: ${winner} dismantle ${loser} in Blockbuster Showing`
+      `${winner} Dismantles ${loser} in Boardroom Masterclass`,
+      `${winner} Outclasses ${loser} in Blowout Victory`,
+      `${winner} Crushes ${loser} with Massive Gameweek Performance`,
+      `No Mercy as ${winner} Dismantle ${loser} in Gameweek ${gw}`,
+      `${winner} Demolishes ${loser} by ${margin.toFixed(0)} Points`,
+      `${winner} Leaves ${loser} in the Dust after Scoreboard Surge`,
+      `${winner} Cruises to Comfortable Blowout Over ${loser}`,
+      `${winner} Dominates Roster Sheet Against ${loser}`,
+      `${winner} Runs Riot in Huge Win Over ${loser}`,
+      `${winner} Dismantle ${loser} in Blockbuster Showing`
     ];
     
     const leads = [
-      `It was a total mismatch at the boardroom level this week. **${winner}** put on a masterclass in roster management, completely outclassing **${loser}** in a convincing **${winnerScore.toFixed(2)} to ${loserScore.toFixed(2)}** rout.`,
-      `The boardrooms are silent at **${loser}** following a comprehensive dismantling by **${winner}**, who claimed the three points with an emphatic **${margin.toFixed(2)}-point** margin of victory.`,
-      `**${winner}** ran riot in Gameweek ${gw}, posting a massive score of **${winnerScore.toFixed(2)}** and leaving a shell-shocked **${loser}** board with massive questions to answer.`,
-      `A dominant performance from starting sheets secured a comfortable victory for **${winner}** as they completely overmatched **${loser}** from kickoff to final bonus calculations.`,
-      `Roster selections clicked perfectly for **${winner}** as they cruised to a commanding **${winnerScore.toFixed(2)} - ${loserScore.toFixed(2)}** blowout victory over rival **${loser}**.`
+      `It was a total mismatch at the boardroom level this week. ${winner} put on a masterclass in roster management, completely outclassing ${loser} in a convincing ${winnerScore.toFixed(2)} to ${loserScore.toFixed(2)} rout.`,
+      `The boardrooms are silent at ${loser} following a comprehensive dismantling by ${winner}, who claimed the three points with an emphatic ${margin.toFixed(2)}-point margin of victory.`,
+      `${winner} ran riot in Gameweek ${gw}, posting a massive score of ${winnerScore.toFixed(2)} and leaving a shell-shocked ${loser} board with massive questions to answer.`,
+      `A dominant performance from starting sheets secured a comfortable victory for ${winner} as they completely overmatched ${loser} from kickoff to final bonus calculations.`,
+      `Roster selections clicked perfectly for ${winner} as they cruised to a commanding ${winnerScore.toFixed(2)} - ${loserScore.toFixed(2)} blowout victory over rival ${loser}.`
     ];
 
     return {
@@ -284,24 +284,24 @@ export function generateMatchReport(
   } else if (margin > 15) {
     // Comfortable Win
     const headlines = [
-      `CONVINCING VICTORY: ${winner} Outpaces ${loser} Comfortably`,
-      `COMFORTABLE WIN: ${winner} Claims Crucial Points Against ${loser}`,
-      `ROSTER COMMAND: ${winner} Controls the Play to Defeat ${loser}`,
-      `THREE POINTS SECURED: ${winner} Cruises Past ${loser} in Gameweek ${gw}`,
-      `DECISIVE CLASH: ${winner} Outmaneuvers ${loser} in comfortable Fashion`,
-      `COMFORTABLE DISPATCH: ${winner} Defeats ${loser} ${winnerScore.toFixed(0)} - ${loserScore.toFixed(0)}`,
-      `CLIMBING STANDINGS: ${winner} Secures Clinical Victory Over ${loser}`,
-      `SUPERIOR SQUAD: ${winner} Starters Deliver in Win Over ${loser}`,
-      `SOLID DISPATCH: ${winner} Outscores ${loser} by Comfortable Margin`,
-      `POINTS SECURED: ${winner} Records comfortable Victory Over ${loser}`
+      `${winner} Outpaces ${loser} Comfortably in Roster Duel`,
+      `${winner} Claims Crucial Points Against ${loser}`,
+      `${winner} Controls the Play to Defeat ${loser}`,
+      `${winner} Cruises Past ${loser} in Gameweek ${gw}`,
+      `${winner} Outmaneuvers ${loser} in Comfortable Fashion`,
+      `${winner} Defeats ${loser} ${winnerScore.toFixed(0)} - ${loserScore.toFixed(0)}`,
+      `${winner} Secures Clinical Victory Over ${loser}`,
+      `${winner} Starters Deliver in Win Over ${loser}`,
+      `${winner} Outscores ${loser} by Comfortable Margin`,
+      `${winner} Records Comfortable Victory Over ${loser}`
     ];
     
     const leads = [
-      `A professional and calculated display saw **${winner}** secure all three points, defeating **${loser}** in a convincing **${winnerScore.toFixed(2)} - ${loserScore.toFixed(2)}** showing in Gameweek ${gw}.`,
-      `Manager tactics paid dividends for **${winner}**, who maintained a comfortable cushion throughout the weekend to seal a **${margin.toFixed(2)}-point** win over **${loser}**.`,
-      `**${winner}** collected a vital victory in their campaign, outpacing **${loser}** comfortably with a final score of **${winnerScore.toFixed(2)}** points to their rival's **${loserScore.toFixed(2)}**.`,
-      `There were few nervous moments for **${winner}** as they dispatched **${loser}** in comfortable fashion, demonstrating superior lineup optimization.`,
-      `A solid foundation of starting returns guided **${winner}** to a comfortable dispatch of **${loser}** in their weekly boardroom duel.`
+      `A professional and calculated display saw ${winner} secure all three points, defeating ${loser} in a convincing ${winnerScore.toFixed(2)} - ${loserScore.toFixed(2)} showing in Gameweek ${gw}.`,
+      `Manager tactics paid dividends for ${winner}, who maintained a comfortable cushion throughout the weekend to seal a ${margin.toFixed(2)}-point win over ${loser}.`,
+      `${winner} collected a vital victory in their campaign, outpacing ${loser} comfortably with a final score of ${winnerScore.toFixed(2)} points to their rival's ${loserScore.toFixed(2)}.`,
+      `There were few nervous moments for ${winner} as they dispatched ${loser} in comfortable fashion, demonstrating superior lineup optimization.`,
+      `A solid foundation of starting returns guided ${winner} to a comfortable dispatch of ${loser} in their weekly boardroom duel.`
     ];
 
     return {
@@ -314,24 +314,24 @@ export function generateMatchReport(
   } else {
     // Narrow Win
     const headlines = [
-      `NAIL-BITER: ${winner} Edges Out ${loser} in Nerve-Wracking Finish`,
-      `SLIM MARGINS: ${winner} Squeaks Past ${loser} in Gameweek ${gw} Thriller`,
-      `NARROW ESCAPE: ${winner} Survives Late Surge to Defeat ${loser}`,
-      `BOARDROOM DRAMA: ${winner} Wins Tight Encounter Against ${loser}`,
-      `THIN ICE: ${winner} Defeats ${loser} by a Mere ${margin.toFixed(1)} Points`,
-      `NARROW CLASH: ${winner} Secures Narrow Victory Over Rival ${loser}`,
-      `DOWN TO THE WIRE: ${winner} Edges ${loser} in Nerve-Wracking Finish`,
-      `AT THE DEATH: Late Bonus Points Seal Victory for ${winner} Over ${loser}`,
-      `TIGHT SQUEEZE: ${winner} Outscores ${loser} in Gameweek ${gw} Close Call`,
-      `CLOSE RUN: ${winner} Claims Tight Win in Hard-Fought Duel Against ${loser}`
+      `${winner} Edges Out ${loser} in Nerve-Wracking Finish`,
+      `${winner} Squeaks Past ${loser} in Gameweek ${gw} Thriller`,
+      `${winner} Survives Late Surge to Defeat ${loser}`,
+      `${winner} Wins Tight Encounter Against ${loser}`,
+      `${winner} Defeats ${loser} by a Mere ${margin.toFixed(1)} Points`,
+      `${winner} Secures Narrow Victory Over Rival ${loser}`,
+      `${winner} Edges ${loser} in Nerve-Wracking Finish`,
+      `Late Bonus Points Seal Victory for ${winner} Over ${loser}`,
+      `${winner} Outscores ${loser} in Gameweek ${gw} Close Call`,
+      `${winner} Claims Tight Win in Hard-Fought Duel Against ${loser}`
     ];
     
     const leads = [
-      `A dramatic Gameweek ${gw} encounter went down to the final whistle as **${winner}** narrowly edged out **${loser}** in a nerve-wracking **${winnerScore.toFixed(2)} - ${loserScore.toFixed(2)}** finish.`,
-      `Only **${margin.toFixed(2)} points** separated the two sides in the end, as **${winner}** survived a late scoring surge from **${loser}** to secure a vital close-run victory.`,
-      `Supporters were on the edge of their seats as **${winner}** squeaked past **${loser}** in a close-run matchup that could have gone either way depending on late substitution choices.`,
-      `A highly contested boardroom battle ended in celebrations for **${winner}**, who claimed a narrow **${winnerScore.toFixed(2)} - ${loserScore.toFixed(2)}** win over a disappointed **${loser}** squad.`,
-      `Roster optimizations proved decisive as **${winner}** managed to scratch out a narrow victory over **${loser}** in a game decided by thin margins.`
+      `A dramatic Gameweek ${gw} encounter went down to the final whistle as ${winner} narrowly edged out ${loser} in a nerve-wracking ${winnerScore.toFixed(2)} - ${loserScore.toFixed(2)} finish.`,
+      `Only ${margin.toFixed(2)} points separated the two sides in the end, as ${winner} survived a late scoring surge from ${loser} to secure a vital close-run victory.`,
+      `Supporters were on the edge of their seats as ${winner} squeaked past ${loser} in a close-run matchup that could have gone either way depending on late substitution choices.`,
+      `A highly contested boardroom battle ended in celebrations for ${winner} , who claimed a narrow ${winnerScore.toFixed(2)} - ${loserScore.toFixed(2)} win over a disappointed ${loser} squad.`,
+      `Roster optimizations proved decisive as ${winner} managed to scratch out a narrow victory over ${loser} in a game decided by thin margins.`
     ];
 
     return {
