@@ -6,7 +6,7 @@ import LiveMatchupCard from './LiveMatchupCard';
 import GameweekSelector from './GameweekSelector';
 import { getFplStatus } from '@/lib/fpl/api';
 import { processMatchupsForGameweek } from '@/lib/scoring/matchupProcessor';
-import { renderBoldedText } from '@/lib/narrative/boldText';
+import RoundupGazetteBanner from './RoundupGazetteBanner';
 import styles from './matchups.module.css';
 
 export const dynamic = 'force-dynamic';
@@ -306,10 +306,7 @@ export default async function MatchupsPage({ params, searchParams }: Props) {
             ) : (
                 <>
                     {/* Gazette Roundup Banner */}
-                    <div className={styles.gazetteBanner}>
-                        <span className={styles.gazetteBannerTitle}>ROUNDUP GAZETTE</span>
-                        <p className={styles.gazetteBannerText}>{renderBoldedText(summaryText)}</p>
-                    </div>
+                    <RoundupGazetteBanner summaryText={summaryText} />
 
                     {/* Featured hero matchup */}
                     {myMatchup && (

@@ -242,7 +242,7 @@ export default function OffseasonClient({ leagueId, league, cronSecret }: Props)
               </div>
             ) : (
               <div className={styles.alertBox} data-type="error">
-                <span className={styles.alertIcon}>⚠️</span>
+                <span className={styles.alertIcon} style={{ display: 'flex', alignItems: 'center' }}><Icon name="alert" size={16} /></span>
                 <div>
                   <strong>Season is not ready to reset:</strong>
                   <ul className={styles.issueList}>
@@ -340,11 +340,14 @@ export default function OffseasonClient({ leagueId, league, cronSecret }: Props)
 
           {phase === 'confirming' && (
             <div className={styles.confirmBox}>
-              <p className={styles.confirmText}>
-                ⚠️ <strong>Are you absolutely sure?</strong><br />
-                This will permanently close the <strong>{preflightData.seasonFrom}</strong> season
-                and cannot be undone. All prizes will be paid, rosters will be locked,
-                and matchup/cup data will be cleared.
+              <p className={styles.confirmText} style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+                <Icon name="alert" size={20} style={{ color: 'var(--color-accent-red, #ef4444)', flexShrink: 0, marginTop: '2px' }} />
+                <span>
+                  <strong>Are you absolutely sure?</strong><br />
+                  This will permanently close the <strong>{preflightData.seasonFrom}</strong> season
+                  and cannot be undone. All prizes will be paid, rosters will be locked,
+                  and matchup/cup data will be cleared.
+                </span>
               </p>
               <div className={styles.confirmButtons}>
                 <button className={styles.btnDanger} onClick={runReset}>
@@ -468,7 +471,7 @@ export default function OffseasonClient({ leagueId, league, cronSecret }: Props)
       {phase === 'done' && result?.isKickoff && (
         <div className={styles.resultSection}>
           <div className={styles.alertBox} data-type="success">
-            <span className={styles.alertIcon}>🎉</span>
+            <span className={styles.alertIcon} style={{ display: 'flex', alignItems: 'center' }}><Icon name="star" size={16} /></span>
             <span>
               The new season has officially begun! Rosters are unlocked.
             </span>
@@ -520,7 +523,7 @@ export default function OffseasonClient({ leagueId, league, cronSecret }: Props)
       {phase === 'done' && result && !result.isKickoff && (
         <div className={styles.resultSection}>
           <div className={styles.alertBox} data-type="success">
-            <span className={styles.alertIcon}>🎉</span>
+            <span className={styles.alertIcon} style={{ display: 'flex', alignItems: 'center' }}><Icon name="star" size={16} /></span>
             <span>
               Season <strong>{result.seasonFrom}</strong> has been closed.
               League is now in offseason mode for <strong>{result.seasonTo}</strong>.

@@ -238,7 +238,7 @@ async function sendChampionsNotifications(
           await createNotification(admin, {
             leagueId,
             userId: t.user_id,
-            title: '🏆 League Champions Crowned!',
+            title: 'League Champions Crowned!',
             content: `**${leagueChamp}** are your ${shortSeason} League Champions!`,
             url: `/league/${leagueId}/history`
           });
@@ -249,7 +249,7 @@ async function sendChampionsNotifications(
           await createNotification(admin, {
             leagueId,
             userId: t.user_id,
-            title: '🏆 Champions Cup Winner!',
+            title: 'Champions Cup Winner!',
             content: `**${championsCupWinner}** have won the Champions Cup!`,
             url: `/league/${leagueId}/tournaments`
           });
@@ -260,7 +260,7 @@ async function sendChampionsNotifications(
           await createNotification(admin, {
             leagueId,
             userId: t.user_id,
-            title: '🏆 League Cup Winner!',
+            title: 'League Cup Winner!',
             content: `**${leagueCupWinner}** have won the League Cup!`,
             url: `/league/${leagueId}/tournaments`
           });
@@ -271,7 +271,7 @@ async function sendChampionsNotifications(
           await createNotification(admin, {
             leagueId,
             userId: t.user_id,
-            title: '🏆 Consolation Cup Winner!',
+            title: 'Consolation Cup Winner!',
             content: `**${consolationCupWinner}** have won the Consolation Cup!`,
             url: `/league/${leagueId}/tournaments`
           });
@@ -287,7 +287,7 @@ async function sendChampionsNotifications(
         sender_id: null,           // System-generated — no user attribution
         is_system: true,
         recipient_id: null,
-        message: `🏆 **ALL HAIL THE CHAMPIONS** 🏆\n\n- **${leagueChamp}** are Gaffa's official **${shortSeason} League Champions**!\n${championsCupWinner ? `- **${championsCupWinner}** have won the **Champions Cup**!\n` : ''}${leagueCupWinner ? `- **${leagueCupWinner}** have won the **League Cup**!\n` : ''}${consolationCupWinner ? `- **${consolationCupWinner}** have won the **Consolation Cup**!\n` : ''}\nAll dynasty standings and prize allocations are fully updated. Review historical archives at /league/${leagueId}/history!`,
+        message: `**ALL HAIL THE CHAMPIONS**\n\n- **${leagueChamp}** are Gaffa's official **${shortSeason} League Champions**!\n${championsCupWinner ? `- **${championsCupWinner}** have won the **Champions Cup**!\n` : ''}${leagueCupWinner ? `- **${leagueCupWinner}** have won the **League Cup**!\n` : ''}${consolationCupWinner ? `- **${consolationCupWinner}** have won the **Consolation Cup**!\n` : ''}\nAll dynasty standings and prize allocations are fully updated. Review historical archives at /league/${leagueId}/history!`,
       });
     }
   } catch (err) {

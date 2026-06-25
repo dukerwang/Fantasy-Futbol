@@ -115,7 +115,7 @@ export function generateMatchReport(
   if (lineupB?.starters) scanStarters(lineupB.starters, teamBName);
 
   const starPlayer = starPlayerId ? playerMap[starPlayerId] : null;
-  const starPlayerName = starPlayer ? `**${formatPlayerName(starPlayer as any, 'full')}**` : 'a standout performer';
+  const starPlayerName = starPlayer ? `**p:${starPlayerId}:${formatPlayerName(starPlayer as any, 'full')}**` : 'a standout performer';
 
   // Identify Disappointment (starter on losing team or draw team with lowest score, prioritizing who actually played)
   let flopPlayerId = '';
@@ -167,7 +167,7 @@ export function generateMatchReport(
   }
 
   const flopPlayer = flopPlayerId ? playerMap[flopPlayerId] : null;
-  const flopPlayerName = flopPlayer ? `**${formatPlayerName(flopPlayer as any, 'full')}**` : 'underperforming starter';
+  const flopPlayerName = flopPlayer ? `**p:${flopPlayerId}:${formatPlayerName(flopPlayer as any, 'full')}**` : 'underperforming starter';
 
   // Generate highlight summaries
   const starHighlight = starPlayerId 

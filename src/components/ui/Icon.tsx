@@ -20,7 +20,9 @@ type IconName =
   | 'repeat'
   | 'bell'
   | 'message-square'
-  | 'mail';
+  | 'mail'
+  | 'star'
+  | 'soccer';
 
 interface IconProps extends React.SVGProps<SVGSVGElement> {
   name: IconName;
@@ -136,6 +138,19 @@ export const Icon: React.FC<IconProps> = ({
       <>
         <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
         <polyline points="22,6 12,13 2,6" />
+      </>
+    ),
+    star: (
+      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+    ),
+    soccer: (
+      <>
+        <circle cx="12" cy="12" r="10" />
+        <path d="m12 12-4-3 1-4H13l1 4Z" />
+        <path d="m12 12 4-3-1-4" />
+        <path d="m12 12v5h-4l-1-4" />
+        <path d="m12 12v5h4l1-4" />
+        <path d="m9 5-3 1M15 5l3 1M5 11l-3 1M19 11l3 1M8 17l-2 3M16 17l2 3" />
       </>
     ),
   };

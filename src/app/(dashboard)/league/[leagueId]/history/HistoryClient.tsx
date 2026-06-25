@@ -1,5 +1,6 @@
 'use client';
 
+import { Icon } from '@/components/ui/Icon';
 import styles from './history.module.css';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -37,11 +38,10 @@ interface Props {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-const MEDALS = ['🥇', '🥈', '🥉'];
-const CUP_ICONS: Record<string, string> = {
-  'Champions Cup': '🏆',
-  'Consolation Cup': '🎖️',
-  'League Cup': '🏅',
+const CUP_COLORS: Record<string, string> = {
+  'Champions Cup': '#D4AF37',   // Gold
+  'League Cup': '#A8A9AD',      // Silver
+  'Consolation Cup': '#CD7F32', // Bronze
 };
 
 function medalStyle(rank: number) {
@@ -67,8 +67,8 @@ function SeasonPanel({ entry }: { entry: SeasonEntry }) {
           <div>
             <h2 className={styles.seasonTitle}>Season {entry.season}</h2>
             {champion && (
-              <p className={styles.seasonChampion}>
-                🥇 Champion: <strong>{champion.team?.team_name ?? 'Unknown'}</strong>
+              <p className={styles.seasonChampion} style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <Icon name="trophy" size={14} style={{ color: '#D4AF37' }} /> Champion: <strong>{champion.team?.team_name ?? 'Unknown'}</strong>
                 {champion.team?.user?.username ? ` · ${champion.team.user.username}` : ''}
               </p>
             )}
@@ -80,7 +80,9 @@ function SeasonPanel({ entry }: { entry: SeasonEntry }) {
           <div className={styles.cupRow}>
             {Object.entries(entry.cupWinners).map(([cupName, winner]) => (
               <div key={cupName} className={styles.cupBadge}>
-                <span className={styles.cupIcon}>{CUP_ICONS[cupName] ?? '🏆'}</span>
+                <span className={styles.cupIcon} style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Icon name="trophy" size={16} style={{ color: CUP_COLORS[cupName] ?? 'var(--color-text-muted)' }} />
+                </span>
                 <div>
                   <span className={styles.cupName}>{cupName}</span>
                   <span className={styles.cupWinner}>{winner}</span>
@@ -95,10 +97,22 @@ function SeasonPanel({ entry }: { entry: SeasonEntry }) {
       {top3.length > 0 && (
         <div className={styles.podium}>
           {top3.map(row => {
-            const medal = MEDALS[row.final_rank - 1] ?? `#${row.final_rank}`;
             return (
               <div key={row.final_rank} className={`${styles.podiumCard} ${row.final_rank === 1 ? styles.podiumCardFirst : ''}`} style={medalStyle(row.final_rank)}>
-                <span className={styles.podiumMedal}>{medal}</span>
+                <span className={styles.podiumMedal} style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Icon
+                    name="trophy"
+                    size={20}
+                    style={{
+                      color:
+                        row.final_rank === 1
+                          ? '#D4AF37'
+                          : row.final_rank === 2
+                          ? '#A8A9AD'
+                          : '#CD7F32',
+                    }}
+                  />
+                </span>
                 <span className={styles.podiumTeam}>{row.team?.team_name ?? 'Unknown'}</span>
                 <span className={styles.podiumManager}>{row.team?.user?.username ?? ''}</span>
                 <span className={styles.podiumPts}>{row.total_points?.toLocaleString()} pts</span>
@@ -125,7 +139,20 @@ function SeasonPanel({ entry }: { entry: SeasonEntry }) {
                 <tr key={row.final_rank} className={`${styles.tableRow} ${row.final_rank <= 3 ? styles.tableRowMedal : ''}`}>
                   <td className={styles.tdRank}>
                     {row.final_rank <= 3 ? (
-                      <span className={styles.medalBadge}>{MEDALS[row.final_rank - 1]}</span>
+                      <span className={styles.medalBadge} style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <Icon
+                          name="trophy"
+                          size={14}
+                          style={{
+                            color:
+                              row.final_rank === 1
+                                ? '#D4AF37'
+                                : row.final_rank === 2
+                                ? '#A8A9AD'
+                                : '#CD7F32',
+                          }}
+                        />
+                      </span>
                     ) : (
                       <span className={styles.rankNum}>{row.final_rank}</span>
                     )}
@@ -167,7 +194,9 @@ export default function HistoryClient({ leagueName, currentSeason, seasons, high
           <span className={styles.recordsKicker}>ALL-TIME RECORDS</span>
           <div className={styles.recordsGrid}>
             <div className={styles.recordCard}>
-              <span className={styles.recordIcon}>⚡</span>
+              <span className={styles.recordIcon} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Icon name="activity" size={20} style={{ color: 'var(--color-accent-green)' }} />
+              </span>
               <div>
                 <span className={styles.recordLabel}>Highest Single GW Score</span>
                 <span className={styles.recordValue}>{highestGwScore.score.toFixed(1)} pts</span>
@@ -175,7 +204,9 @@ export default function HistoryClient({ leagueName, currentSeason, seasons, high
               </div>
             </div>
             <div className={styles.recordCard}>
-              <span className={styles.recordIcon}>📖</span>
+              <span className={styles.recordIcon} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Icon name="layout" size={20} style={{ color: 'var(--color-accent-blue)' }} />
+              </span>
               <div>
                 <span className={styles.recordLabel}>Seasons Played</span>
                 <span className={styles.recordValue}>{seasons.length}</span>
@@ -189,7 +220,9 @@ export default function HistoryClient({ leagueName, currentSeason, seasons, high
       {/* ── Content ── */}
       {!hasHistory ? (
         <div className={styles.emptyState}>
-          <div className={styles.emptyIcon}>📜</div>
+          <div className={styles.emptyIcon} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
+            <Icon name="layout" size={48} style={{ color: 'var(--color-text-muted)' }} />
+          </div>
           <h2 className={styles.emptyTitle}>The History Books Are Empty</h2>
           <p className={styles.emptyDesc}>
             Season archives will appear here once a season is completed and saved.

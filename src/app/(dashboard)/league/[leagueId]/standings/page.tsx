@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { redirect, notFound } from 'next/navigation';
+import { Icon } from '@/components/ui/Icon';
 import styles from './standings.module.css';
 
 export const dynamic = 'force-dynamic';
@@ -26,7 +27,7 @@ interface StandingRow {
 
 type FormResult = 'W' | 'D' | 'L';
 
-const MEDALS = ['🥇', '🥈', '🥉'];
+// Medals are rendered using custom-colored trophy SVGs
 const DRAW_MARGIN = 10;
 
 function formatRank(n: number): string {
@@ -153,7 +154,20 @@ export default async function StandingsPage({ params }: Props) {
                 key={row.teamId}
                 className={`${styles.podiumCard} ${isLeader ? styles.podiumCardLeader : ''}`}
               >
-                <span className={styles.podiumEmoji}>{MEDALS[row.rank - 1]}</span>
+                <span className={styles.podiumEmoji} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Icon
+                    name="trophy"
+                    size={row.rank === 1 ? 48 : 36}
+                    style={{
+                      color:
+                        row.rank === 1
+                          ? '#D4AF37'
+                          : row.rank === 2
+                          ? '#A8A9AD'
+                          : '#CD7F32',
+                    }}
+                  />
+                </span>
 
                 {isLeader && (
                   <div className={styles.podiumLeaderBadge}>★ League Leader</div>

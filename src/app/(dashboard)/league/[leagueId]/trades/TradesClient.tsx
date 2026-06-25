@@ -4,6 +4,7 @@ import { useState, useCallback, useEffect } from 'react';
 import Link from 'next/link';
 import PositionBadge from '@/components/players/PositionBadge';
 import PlayerDetailsModal from '@/components/players/PlayerDetailsModal';
+import { Icon } from '@/components/ui/Icon';
 import ListPlayerModal from './ListPlayerModal';
 import ProposeLoanModal from './ProposeLoanModal';
 import RequestLoanModal from './RequestLoanModal';
@@ -743,8 +744,8 @@ export default function TradesClient({
                   {/* Incoming */}
                   {incomingTrades.length > 0 && (
                     <div className={styles.tradeGroup}>
-                      <div className={styles.tradeSubGroupHeader}>
-                        <span className={styles.tradeSubGroupIcon}>↙</span>
+                      <div className={styles.tradeSubGroupHeader} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span className={styles.tradeSubGroupIcon} style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}><Icon name="chevron-left" size={16} /></span>
                         <h2 className={styles.tradeGroupTitle}>Incoming Proposals</h2>
                         <span className={styles.tradeSubGroupHint}>Awaiting your response</span>
                       </div>
@@ -769,8 +770,8 @@ export default function TradesClient({
                   {/* Sent */}
                   {sentTrades.length > 0 && (
                     <div className={styles.tradeGroup}>
-                      <div className={styles.tradeSubGroupHeader}>
-                        <span className={styles.tradeSubGroupIcon}>↗</span>
+                      <div className={styles.tradeSubGroupHeader} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span className={styles.tradeSubGroupIcon} style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}><Icon name="chevron-right" size={16} /></span>
                         <h2 className={styles.tradeGroupTitle}>Sent</h2>
                         <span className={styles.tradeSubGroupHint}>Awaiting their response</span>
                       </div>
@@ -802,8 +803,8 @@ export default function TradesClient({
                   {/* History */}
                   {pastTrades.length > 0 && (
                     <div className={styles.tradeGroup}>
-                      <div className={styles.tradeSubGroupHeader}>
-                        <span className={styles.tradeSubGroupIcon}>◷</span>
+                      <div className={styles.tradeSubGroupHeader} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span className={styles.tradeSubGroupIcon} style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}><Icon name="activity" size={16} /></span>
                         <h2 className={styles.tradeGroupTitle}>History</h2>
                       </div>
                       {pastTrades.map((trade) => (
@@ -1031,8 +1032,8 @@ export default function TradesClient({
               {/* 1. Pending Inbound */}
               {pendingInboundLoans.length > 0 && (
                 <div className={styles.tradeGroup}>
-                  <div className={styles.tradeSubGroupHeader}>
-                    <span className={styles.tradeSubGroupIcon}>📥</span>
+                  <div className={styles.tradeSubGroupHeader} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span className={styles.tradeSubGroupIcon} style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}><Icon name="mail" size={16} /></span>
                     <h3 className={styles.tradeGroupTitle}>Awaiting Your Response</h3>
                     <span className={styles.tradeSubGroupHint}>
                       Loan proposals or requests that need your decision
@@ -1060,8 +1061,8 @@ export default function TradesClient({
               {/* 2. Pending Outbound */}
               {pendingOutboundLoans.length > 0 && (
                 <div className={styles.tradeGroup}>
-                  <div className={styles.tradeSubGroupHeader}>
-                    <span className={styles.tradeSubGroupIcon}>📤</span>
+                  <div className={styles.tradeSubGroupHeader} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span className={styles.tradeSubGroupIcon} style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}><Icon name="chevron-right" size={16} /></span>
                     <h3 className={styles.tradeGroupTitle}>Pending — Awaiting Response</h3>
                     <span className={styles.tradeSubGroupHint}>
                       Loans or requests you initiated, awaiting the other club
@@ -1089,8 +1090,8 @@ export default function TradesClient({
               {/* 3. Active Loans In */}
               {activeLoansIn.length > 0 && (
                 <div className={styles.tradeGroup}>
-                  <div className={styles.tradeSubGroupHeader}>
-                    <span className={styles.tradeSubGroupIcon}>🤝</span>
+                  <div className={styles.tradeSubGroupHeader} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span className={styles.tradeSubGroupIcon} style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}><Icon name="users" size={16} /></span>
                     <h3 className={styles.tradeGroupTitle}>Active Loans In (Borrowed)</h3>
                     <span className={styles.tradeSubGroupHint}>Players temporarily on your squad</span>
                   </div>
@@ -1116,8 +1117,8 @@ export default function TradesClient({
               {/* 4. Active Loans Out */}
               {activeLoansOut.length > 0 && (
                 <div className={styles.tradeGroup}>
-                  <div className={styles.tradeSubGroupHeader}>
-                    <span className={styles.tradeSubGroupIcon}>✈️</span>
+                  <div className={styles.tradeSubGroupHeader} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span className={styles.tradeSubGroupIcon} style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}><Icon name="repeat" size={16} /></span>
                     <h3 className={styles.tradeGroupTitle}>Active Loans Out (Loaned Out)</h3>
                     <span className={styles.tradeSubGroupHint}>Your players temporarily at other clubs</span>
                   </div>
@@ -1143,8 +1144,8 @@ export default function TradesClient({
               {/* 5. Historical */}
               {historicalLoans.length > 0 && (
                 <div className={styles.tradeGroup}>
-                  <div className={styles.tradeSubGroupHeader}>
-                    <span className={styles.tradeSubGroupIcon}>📜</span>
+                  <div className={styles.tradeSubGroupHeader} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span className={styles.tradeSubGroupIcon} style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}><Icon name="layout" size={16} /></span>
                     <h3 className={styles.tradeGroupTitle}>Loan History</h3>
                     <span className={styles.tradeSubGroupHint}>Past loan agreements</span>
                   </div>
@@ -1702,7 +1703,9 @@ function ListingCard({
           // eslint-disable-next-line @next/next/no-img-element
           <img src={p.photo_url} alt={p.name} className={styles.tbPlayerPhoto} />
         ) : (
-          <div className={styles.tbPlayerPhotoPlaceholder}>⚽</div>
+          <div className={styles.tbPlayerPhotoPlaceholder} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Icon name="soccer" size={16} />
+          </div>
         )}
         <div className={styles.tbCardInfo}>
           <div className={styles.tbCardInfoTop}>

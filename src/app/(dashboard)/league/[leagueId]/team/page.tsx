@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
+import { Icon } from '@/components/ui/Icon';
 import type { Formation, GranularPosition, MatchupLineup, BenchSlot } from '@/types';
 import { FORMATION_SLOTS, POSITION_FLEX_MAP, BENCH_FLEX_MAP } from '@/types';
 import PitchUI from './PitchUI';
@@ -337,7 +338,7 @@ export default async function MyTeamPage({ params }: Props) {
           alignItems: 'center',
           gap: '8px'
         }}>
-          <span>⚠️</span>
+          <span style={{ display: 'flex', alignItems: 'center' }}><Icon name="alert" size={16} /></span>
           <span>
             Roster Over Capacity. Drop a player to activate returned loan: {pendingActivations.map(p => (p.player as any)?.name).join(', ')}.
           </span>

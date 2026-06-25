@@ -7,6 +7,7 @@ import { formatPlayerName } from '@/lib/formatName';
 import styles from './transfers.module.css';
 import PosBadge from '@/components/players/PositionBadge';
 import PlayerDetailsModal from '@/components/players/PlayerDetailsModal';
+import { Icon } from '@/components/ui/Icon';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -742,8 +743,8 @@ export default function TransferMarketClient({
 
               {/* Promoted exclusive kickoff banner */}
               {modal.isPromotedExclusive && (
-                <div className={styles.promotedExclusiveBanner}>
-                  🏆 <strong>Promoted Club Exclusive Auction</strong>
+                <div className={styles.promotedExclusiveBanner} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Icon name="trophy" size={16} /> <strong>Promoted Club Exclusive Auction</strong>
                   <p>Bidding on this player is restricted to bottom-half teams from last season to support competitive balance in the league.</p>
                 </div>
               )}

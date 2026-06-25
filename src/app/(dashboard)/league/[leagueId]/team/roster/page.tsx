@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { FULL_PLAYER_SELECT } from '@/lib/constants/queries';
 import type { Player, RosterStatus } from '@/types';
 import RosterTable from './RosterTable';
+import { Icon } from '@/components/ui/Icon';
 import styles from './roster.module.css';
 
 export const dynamic = 'force-dynamic';
@@ -153,7 +154,7 @@ export default async function RosterPage({ params }: Props) {
           alignItems: 'center',
           gap: '8px'
         }}>
-          <span>⚠️</span>
+          <span style={{ display: 'flex', alignItems: 'center' }}><Icon name="alert" size={16} /></span>
           <span>
             Roster Over Capacity. Drop a player to activate returned loan: {pendingActivations.map(p => (p.player as any)?.name).join(', ')}.
           </span>

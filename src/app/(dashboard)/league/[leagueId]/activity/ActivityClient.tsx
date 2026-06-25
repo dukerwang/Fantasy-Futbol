@@ -4,6 +4,11 @@ import { useState, useMemo } from 'react';
 import { formatPlayerName } from '@/lib/formatName';
 import { generateTransactionHeadline, generateTransactionBody } from '@/lib/narrative/generators';
 import { renderBoldedText } from '@/lib/narrative/boldText';
+import { createClient } from '@/lib/supabase/client';
+import { FULL_PLAYER_SELECT } from '@/lib/constants/queries';
+import PlayerDetailsModal from '@/components/players/PlayerDetailsModal';
+import { Icon } from '@/components/ui/Icon';
+import type { Player as FullPlayer } from '@/types';
 import styles from './activity.module.css';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -343,8 +348,8 @@ function TypeIcon({ type, player }: { type: string; player: Player | null }) {
       );
     case 'prize_payout':
       return (
-        <div className={`${styles.iconSlot} ${styles.iconSlotAmber}`} style={{ fontSize: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          🏆
+        <div className={`${styles.iconSlot} ${styles.iconSlotAmber}`} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <Icon name="trophy" size={20} />
         </div>
       );
     default:
@@ -532,7 +537,7 @@ function CardContent({ tx }: { tx: Transaction }) {
 
 // ─── Transaction Card ─────────────────────────────────────────────────────────
 
-function TransactionCard({ tx }: { tx: Transaction }) {
+function TransactionCard({ tx, onPlayerClick }: { tx: Transaction; onPlayerClick?: (playerId: string) => void }) {
   const cfg: TypeCfg = TYPE_CONFIG[tx.type] ?? {
     label: tx.type.toUpperCase().replace(/_/g, ' '),
     borderColor: 'var(--color-text-muted)',
@@ -563,13 +568,13 @@ function TransactionCard({ tx }: { tx: Transaction }) {
         </div>
         
         {/* Dynamic Sports Headline */}
-        <h3 className={styles.narrativeHeadline}>{renderBoldedText(headline)}</h3>
+        <h3 className={styles.narrativeHeadline}>{renderBoldedText(headline, onPlayerClick)}</h3>
 
         <CardContent tx={tx} />
 
         {/* Dynamic Narrative Body */}
         {narrative && (
-          <p className={styles.narrativeBody}>{renderBoldedText(narrative)}</p>
+          <p className={styles.narrativeBody}>{renderBoldedText(narrative, onPlayerClick)}</p>
         )}
       </div>
     </article>
@@ -821,6 +826,29 @@ export default function ActivityClient({
   liveAuctions,
 }: Props) {
   const [filter, setFilter] = useState<FilterKey>('all');
+  const [viewingPlayer, setViewingPlayer] = useState<FullPlayer | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handlePlayerClick = async (playerId: string) => {
+    if (isLoading) return;
+    setIsLoading(true);
+    try {
+      const supabase = createClient();
+      const { data, error } = await supabase
+        .from('players')
+        .select(FULL_PLAYER_SELECT)
+        .eq('id', playerId)
+        .single();
+      if (error) throw error;
+      if (data) {
+        setViewingPlayer(data as any);
+      }
+    } catch (err) {
+      console.error('Failed to fetch player details:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   type FeedItem =
     | { kind: 'tx'; ts: string; data: Transaction }
@@ -909,7 +937,7 @@ export default function ActivityClient({
                 <div className={styles.cards}>
                   {group.items.map((item) =>
                     item.kind === 'tx' ? (
-                      <TransactionCard key={item.data.id} tx={item.data} />
+                      <TransactionCard key={item.data.id} tx={item.data} onPlayerClick={handlePlayerClick} />
                     ) : (
                       <BidCard key={item.data.id} claim={item.data} myTeamId={myTeamId} />
                     ),
@@ -928,6 +956,8 @@ export default function ActivityClient({
         teams={teams}
         myTeamId={myTeamId}
       />
+
+      <PlayerDetailsModal player={viewingPlayer} onClose={() => setViewingPlayer(null)} />
     </div>
   );
 }

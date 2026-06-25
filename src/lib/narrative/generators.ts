@@ -11,6 +11,7 @@ function hashId(id: string): number {
 }
 
 interface MiniPlayer {
+  id: string;
   web_name: string | null;
   name: string;
   primary_position?: string;
@@ -35,7 +36,7 @@ export function generateTransactionHeadline(tx: MiniTx): string {
   const hash = hashId(tx.id);
   const teamName = tx.team?.team_name ? `**${tx.team.team_name}**` : 'Unknown Club';
   const player = tx.player;
-  const playerName = player ? `**${formatPlayerName(player as any, 'initial_last')}**` : 'Unknown Player';
+  const playerName = player ? `**p:${player.id}:${formatPlayerName(player as any, 'initial_last')}**` : 'Unknown Player';
   const faab = tx.faab_bid ?? 0;
   const comp = tx.compensation_amount ? Number(tx.compensation_amount) : 0;
 
@@ -190,7 +191,7 @@ export function generateTransactionBody(tx: MiniTx): string {
   const hash = hashId(tx.id);
   const teamName = tx.team?.team_name ? `**${tx.team.team_name}**` : 'the club';
   const player = tx.player;
-  const playerName = player ? `**${formatPlayerName(player as any, 'full')}**` : 'the player';
+  const playerName = player ? `**p:${player.id}:${formatPlayerName(player as any, 'full')}**` : 'the player';
   const pos = player?.primary_position ?? 'player';
   const plTeam = player?.pl_team ?? 'PL club';
   const faab = tx.faab_bid ?? 0;

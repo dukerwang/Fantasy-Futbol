@@ -11,8 +11,8 @@ import PreDraftLobby from './PreDraftLobby';
 
 import { getFplStatus } from '@/lib/fpl/api';
 import { processMatchupsForGameweek } from '@/lib/scoring/matchupProcessor';
-import { generateTransactionHeadline } from '@/lib/narrative/generators';
-import { renderBoldedText } from '@/lib/narrative/boldText';
+import TransferGazette from './TransferGazette';
+import { Icon } from '@/components/ui/Icon';
 
 export const dynamic = 'force-dynamic';
 
@@ -456,7 +456,9 @@ export default async function LeaguePage({ params }: Props) {
       {/* Season Complete Banner */}
       {showSeasonCompleteBanner && (
         <div className={styles.seasonCompleteBanner}>
-          <div className={styles.bannerIcon}>🏆</div>
+          <div className={styles.bannerIcon} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Icon name="trophy" size={28} />
+          </div>
           <div className={styles.bannerContent}>
             <h3>Season Complete! Ready for Offseason Reset</h3>
             <p>
@@ -613,37 +615,7 @@ export default async function LeaguePage({ params }: Props) {
           )}
 
           {/* Transfer Gazette */}
-          <div className={styles.gazetteCard}>
-            <div className={styles.gazetteHeaderBar}>
-              <span className={styles.gazetteTitle}>TRANSFER GAZETTE & FEED</span>
-              <span className={styles.gazetteDate}>Edition: {new Date().toLocaleDateString('en-GB').replace(/\//g, '.')}</span>
-            </div>
-            
-            <div className={styles.gazetteContent}>
-              {activity.length === 0 ? (
-                <div className={styles.emptyStateBox}>
-                  <p className={styles.emptyHint}>No activity yet this season.</p>
-                </div>
-              ) : (
-                <div className={styles.gazetteList}>
-                  {activity.map((tx: any) => {
-                    const cat = txCategoryStyle(tx.type);
-                    const headlineText = generateTransactionHeadline(tx);
-
-                    return (
-                      <div key={tx.id} className={styles.gazetteRow}>
-                        <div className={styles.gazetteRowHeader}>
-                          <span className={styles.gazetteRowKicker}>{cat.label}</span>
-                          <span className={styles.gazetteRowTime}>{timeAgo(tx.processed_at)}</span>
-                        </div>
-                        <p className={styles.gazetteHeadline}>{renderBoldedText(headlineText)}</p>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-          </div>
+          <TransferGazette activity={activity} />
         </div>
 
         {/* ── Right Column ── */}
@@ -752,7 +724,9 @@ export default async function LeaguePage({ params }: Props) {
               <div className={styles.tournList}>
                 {tournaments.map((t: any) => (
                   <div key={t.id} className={styles.tournRow}>
-                    <div className={styles.tournIcon}>🏆</div>
+                    <div className={styles.tournIcon} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <Icon name="trophy" size={16} />
+                    </div>
                     <div className={styles.tournInfo}>
                       <span className={styles.tournName}>{t.name}</span>
                       <span className={styles.tournDesc}>{t.status === 'active' ? `Round ${t.current_round ?? 1}` : t.status}</span>

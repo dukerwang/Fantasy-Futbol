@@ -5,6 +5,7 @@ import PositionBadge from '@/components/players/PositionBadge';
 import { formatPlayerName } from '@/lib/formatName';
 import GwRangeSlider from './GwRangeSlider';
 import styles from './trades.module.css';
+import { Icon } from '@/components/ui/Icon';
 
 interface SimplePlayer {
   id: string;
@@ -254,7 +255,7 @@ export default function RequestLoanModal({
             </h2>
             {isMocked && (
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', background: 'rgba(245,158,11,0.15)', color: '#d97706', padding: '2px 8px', borderRadius: '10px', fontSize: '9px', fontWeight: 600, marginTop: '4px' }}>
-                ⚠️ preview mode: season at GW{currentGameweek} (mocked to GW10 for testing sliders)
+                <Icon name="alert" size={10} /> preview mode: season at GW{currentGameweek} (mocked to GW10 for testing sliders)
               </div>
             )}
             {loanSlotsRemaining !== undefined && !selectedPlayer && (
