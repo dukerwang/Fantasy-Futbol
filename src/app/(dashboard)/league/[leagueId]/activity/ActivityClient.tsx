@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import { formatPlayerName } from '@/lib/formatName';
+import { generateTransactionHeadline, generateTransactionBody } from '@/lib/narrative/generators';
 import styles from './activity.module.css';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -537,6 +538,9 @@ function TransactionCard({ tx }: { tx: Transaction }) {
     badgeVariant: 'gray',
   };
 
+  const headline = generateTransactionHeadline(tx as any);
+  const narrative = generateTransactionBody(tx as any);
+
   return (
     <article
       className={styles.card}
@@ -556,7 +560,16 @@ function TransactionCard({ tx }: { tx: Transaction }) {
             {getRelativeTime(tx.processed_at)}
           </span>
         </div>
+        
+        {/* Dynamic Sports Headline */}
+        <h3 className={styles.narrativeHeadline}>{headline}</h3>
+
         <CardContent tx={tx} />
+
+        {/* Dynamic Narrative Body */}
+        {narrative && (
+          <p className={styles.narrativeBody}>{narrative}</p>
+        )}
       </div>
     </article>
   );

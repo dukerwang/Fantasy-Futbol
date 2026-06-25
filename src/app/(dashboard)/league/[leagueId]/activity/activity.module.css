@@ -147,7 +147,7 @@
 
 .card {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: var(--space-4);
   padding: 32px;
   background: var(--color-bg-card);
@@ -688,4 +688,27 @@
     flex: 1;
     min-width: 280px;
   }
+}
+
+/* ── Narrative Enhancements ── */
+.narrativeHeadline {
+  font-family: var(--font-serif);
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin: 4px 0;
+  line-height: 1.25;
+}
+
+.narrativeBody {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--color-text-secondary);
+  font-style: italic;
+  margin: 8px 0 0;
+  background: var(--color-bg-elevated);
+  padding: 8px 12px;
+  border-left: 2px solid var(--color-border);
+  border-radius: 2px;
 }

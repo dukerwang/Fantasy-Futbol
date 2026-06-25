@@ -11,6 +11,7 @@ import PreDraftLobby from './PreDraftLobby';
 
 import { getFplStatus } from '@/lib/fpl/api';
 import { processMatchupsForGameweek } from '@/lib/scoring/matchupProcessor';
+import { generateTransactionHeadline } from '@/lib/narrative/generators';
 
 export const dynamic = 'force-dynamic';
 
@@ -626,20 +627,7 @@ export default async function LeaguePage({ params }: Props) {
                 <div className={styles.gazetteList}>
                   {activity.map((tx: any) => {
                     const cat = txCategoryStyle(tx.type);
-                    const teamName = (tx.team as any)?.team_name ?? 'Unknown';
-                    const playerName = formatPlayerName(tx.player as any, 'initial_last');
-                    const faab = tx.faab_bid ? ` for a fee of €${tx.faab_bid}m` : '';
-                    
-                    let summaryText = <></>;
-                    if (tx.type === 'trade') {
-                      summaryText = <>Trade completed by {teamName}.</>;
-                    } else if (tx.type === 'drop') {
-                      summaryText = <>{playerName} dropped by {teamName}.</>;
-                    } else if (tx.type === 'prize_payout') {
-                      summaryText = <>{tx.notes || `${teamName} received a prize payout.`}</>;
-                    } else {
-                      summaryText = <>{playerName} moves to {teamName}{faab}.</>;
-                    }
+                    const headlineText = generateTransactionHeadline(tx);
 
                     return (
                       <div key={tx.id} className={styles.gazetteRow}>
@@ -647,7 +635,7 @@ export default async function LeaguePage({ params }: Props) {
                           <span className={styles.gazetteRowKicker}>{cat.label}</span>
                           <span className={styles.gazetteRowTime}>{timeAgo(tx.processed_at)}</span>
                         </div>
-                        <p className={styles.gazetteHeadline}>{summaryText}</p>
+                        <p className={styles.gazetteHeadline}>{headlineText}</p>
                       </div>
                     );
                   })}

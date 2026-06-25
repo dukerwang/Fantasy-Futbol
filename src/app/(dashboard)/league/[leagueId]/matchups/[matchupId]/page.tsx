@@ -6,6 +6,8 @@ import type { Matchup, MatchupLineup, Player } from '@/types';
 import MatchupPitch from '@/components/MatchupPitch';
 import { FULL_PLAYER_SELECT } from '@/lib/constants/queries';
 import { normalizeMatchupLineup } from '@/lib/lineups/normalizeMatchupLineup';
+import { generateMatchReport } from '@/lib/narrative/matchReport';
+import MatchReportCard from './MatchReportCard';
 import styles from './matchup-detail.module.css';
 
 export const dynamic = 'force-dynamic';
@@ -113,6 +115,8 @@ export default async function MatchupDetailPage({ params }: Props) {
     const teamAName   = matchup.team_a?.team_name ?? 'Team A';
     const teamBName   = matchup.team_b?.team_name ?? 'Team B';
 
+    const report = generateMatchReport(matchup, lineupA, lineupB, playerMap, detailMap);
+
     return (
         <div className={styles.container}>
             <Link href={`/league/${leagueId}/matchups?gw=${matchup.gameweek}`} className={styles.backLink}>
@@ -149,6 +153,8 @@ export default async function MatchupDetailPage({ params }: Props) {
                     <span className={styles.gwLabel}>Game Week {matchup.gameweek}</span>
                 </div>
             </div>
+
+            <MatchReportCard report={report} />
 
             <MatchupPitch
                 lineupA={lineupA}
