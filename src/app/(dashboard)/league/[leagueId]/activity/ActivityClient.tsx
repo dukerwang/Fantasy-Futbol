@@ -3,6 +3,7 @@
 import { useState, useMemo } from 'react';
 import { formatPlayerName } from '@/lib/formatName';
 import { generateTransactionHeadline, generateTransactionBody } from '@/lib/narrative/generators';
+import { renderBoldedText } from '@/lib/narrative/boldText';
 import styles from './activity.module.css';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -562,13 +563,13 @@ function TransactionCard({ tx }: { tx: Transaction }) {
         </div>
         
         {/* Dynamic Sports Headline */}
-        <h3 className={styles.narrativeHeadline}>{headline}</h3>
+        <h3 className={styles.narrativeHeadline}>{renderBoldedText(headline)}</h3>
 
         <CardContent tx={tx} />
 
         {/* Dynamic Narrative Body */}
         {narrative && (
-          <p className={styles.narrativeBody}>{narrative}</p>
+          <p className={styles.narrativeBody}>{renderBoldedText(narrative)}</p>
         )}
       </div>
     </article>

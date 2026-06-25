@@ -12,6 +12,7 @@ import PreDraftLobby from './PreDraftLobby';
 import { getFplStatus } from '@/lib/fpl/api';
 import { processMatchupsForGameweek } from '@/lib/scoring/matchupProcessor';
 import { generateTransactionHeadline } from '@/lib/narrative/generators';
+import { renderBoldedText } from '@/lib/narrative/boldText';
 
 export const dynamic = 'force-dynamic';
 
@@ -635,7 +636,7 @@ export default async function LeaguePage({ params }: Props) {
                           <span className={styles.gazetteRowKicker}>{cat.label}</span>
                           <span className={styles.gazetteRowTime}>{timeAgo(tx.processed_at)}</span>
                         </div>
-                        <p className={styles.gazetteHeadline}>{headlineText}</p>
+                        <p className={styles.gazetteHeadline}>{renderBoldedText(headlineText)}</p>
                       </div>
                     );
                   })}

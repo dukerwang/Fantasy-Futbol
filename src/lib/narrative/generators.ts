@@ -33,9 +33,9 @@ interface MiniTx {
 
 export function generateTransactionHeadline(tx: MiniTx): string {
   const hash = hashId(tx.id);
-  const teamName = tx.team?.team_name ?? 'Unknown Club';
+  const teamName = tx.team?.team_name ? `**${tx.team.team_name}**` : 'Unknown Club';
   const player = tx.player;
-  const playerName = player ? formatPlayerName(player as any, 'initial_last') : 'Unknown Player';
+  const playerName = player ? `**${formatPlayerName(player as any, 'initial_last')}**` : 'Unknown Player';
   const faab = tx.faab_bid ?? 0;
   const comp = tx.compensation_amount ? Number(tx.compensation_amount) : 0;
 
@@ -188,9 +188,9 @@ export function generateTransactionHeadline(tx: MiniTx): string {
 
 export function generateTransactionBody(tx: MiniTx): string {
   const hash = hashId(tx.id);
-  const teamName = tx.team?.team_name ?? 'the club';
+  const teamName = tx.team?.team_name ? `**${tx.team.team_name}**` : 'the club';
   const player = tx.player;
-  const playerName = player ? formatPlayerName(player as any, 'full') : 'the player';
+  const playerName = player ? `**${formatPlayerName(player as any, 'full')}**` : 'the player';
   const pos = player?.primary_position ?? 'player';
   const plTeam = player?.pl_team ?? 'PL club';
   const faab = tx.faab_bid ?? 0;
@@ -295,7 +295,7 @@ export function generateTransactionBody(tx: MiniTx): string {
     }
 
     default: {
-      return tx.notes || `Roster transaction of type ${tx.type} processed for ${teamName}.`;
+      return tx.notes || `${teamName} processed type ${tx.type}`;
     }
   }
 }

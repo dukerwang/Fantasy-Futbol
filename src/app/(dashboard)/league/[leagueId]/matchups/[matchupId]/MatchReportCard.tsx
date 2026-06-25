@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import type { MatchReport } from '@/lib/narrative/matchReport';
+import { renderBoldedText } from '@/lib/narrative/boldText';
 import styles from './matchup-detail.module.css';
 
 export default function MatchReportCard({ report }: { report: MatchReport }) {
@@ -14,11 +15,11 @@ export default function MatchReportCard({ report }: { report: MatchReport }) {
         <span className={styles.reportByline}>{report.byline}</span>
       </div>
       
-      <h2 className={styles.reportHeadline}>{report.headline}</h2>
+      <h2 className={styles.reportHeadline}>{renderBoldedText(report.headline)}</h2>
       
       {/* Lead Paragraph */}
       <p className={styles.reportLead}>
-        {report.leadParagraph}
+        {renderBoldedText(report.leadParagraph)}
       </p>
 
       {expanded && (
@@ -26,11 +27,11 @@ export default function MatchReportCard({ report }: { report: MatchReport }) {
           <div className={styles.reportGrid}>
             <div className={styles.reportCol}>
               <h4 className={styles.reportSectionHeader}>🌟 STAR OF THE MATCH</h4>
-              <p className={styles.reportDetailText}>{report.starHighlight}</p>
+              <p className={styles.reportDetailText}>{renderBoldedText(report.starHighlight)}</p>
             </div>
             <div className={styles.reportCol}>
               <h4 className={styles.reportSectionHeader}>⚠️ BOARDROOM NOTES</h4>
-              <p className={styles.reportDetailText}>{report.disappointmentHighlight}</p>
+              <p className={styles.reportDetailText}>{renderBoldedText(report.disappointmentHighlight)}</p>
             </div>
           </div>
         </div>

@@ -6,6 +6,7 @@ import LiveMatchupCard from './LiveMatchupCard';
 import GameweekSelector from './GameweekSelector';
 import { getFplStatus } from '@/lib/fpl/api';
 import { processMatchupsForGameweek } from '@/lib/scoring/matchupProcessor';
+import { renderBoldedText } from '@/lib/narrative/boldText';
 import styles from './matchups.module.css';
 
 export const dynamic = 'force-dynamic';
@@ -44,12 +45,12 @@ function generateGameweekSummaryText(
         return `Gameweek ${gw} is scheduled. Managers are finalizing lineups, and scouts are preparing player ratings.`;
     }
 
-    const highestScoreStr = `${highestThisGw.team} set the pace in Gameweek ${gw} with a massive ${highestThisGw.score.toFixed(2)} points.`;
+    const highestScoreStr = `**${highestThisGw.team}** set the pace in Gameweek ${gw} with a massive ${highestThisGw.score.toFixed(2)} points.`;
     
     let closestStr = '';
     if (closestMatch) {
-        const teamA = closestMatch.team_a?.team_name ?? 'Team A';
-        const teamB = closestMatch.team_b?.team_name ?? 'Team B';
+        const teamA = closestMatch.team_a?.team_name ? `**${closestMatch.team_a.team_name}**` : 'Team A';
+        const teamB = closestMatch.team_b?.team_name ? `**${closestMatch.team_b.team_name}**` : 'Team B';
         const diff = Math.abs(closestMatch.score_a - closestMatch.score_b);
         if (diff <= 10) {
             closestStr = ` Meanwhile, ${teamA} and ${teamB} played out a nail-biting ${diff.toFixed(2)}-point stalemate.`;
@@ -307,7 +308,7 @@ export default async function MatchupsPage({ params, searchParams }: Props) {
                     {/* Gazette Roundup Banner */}
                     <div className={styles.gazetteBanner}>
                         <span className={styles.gazetteBannerTitle}>ROUNDUP GAZETTE</span>
-                        <p className={styles.gazetteBannerText}>{summaryText}</p>
+                        <p className={styles.gazetteBannerText}>{renderBoldedText(summaryText)}</p>
                     </div>
 
                     {/* Featured hero matchup */}
