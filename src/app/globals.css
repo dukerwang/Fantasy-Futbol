@@ -344,47 +344,24 @@ svg {
   letter-spacing: 0;
 }
 
-/* Clickable inline player name styled as a premium player-card/badge */
+/* Clickable inline player name styled as a simple underline link */
 .playercard-clickable-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  background-color: rgba(58, 107, 74, 0.07);
-  border: 1px solid rgba(58, 107, 74, 0.2);
-  border-radius: 6px;
-  padding: 1px 6px;
-  margin: 0 2px;
-  color: var(--color-accent-green, #3A6B4A);
-  font-family: inherit;
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font: inherit;
   font-weight: 700;
-  font-size: 0.92em;
+  color: inherit;
   cursor: pointer;
-  transition: all 0.15s ease-in-out;
-  vertical-align: middle;
+  display: inline;
   text-decoration: none;
-}
-
-.playercard-clickable-btn::before {
-  content: "";
-  display: inline-block;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background-color: var(--color-accent-green, #3A6B4A);
-  opacity: 0.6;
-  transition: opacity 0.15s ease-in-out;
+  transition: color 0.15s ease-in-out;
 }
 
 .playercard-clickable-btn:hover {
-  background-color: var(--color-accent-green, #3A6B4A);
-  color: #ffffff;
-  border-color: var(--color-accent-green, #3A6B4A);
-  box-shadow: var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.1));
-}
-
-.playercard-clickable-btn:hover::before {
-  background-color: #ffffff;
-  opacity: 1;
+  color: var(--color-accent-green, #3A6B4A);
+  text-decoration: underline;
 }
 
 
