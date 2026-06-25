@@ -314,13 +314,6 @@ export async function processMatchupsForGameweek(gameweek: number, finished: boo
                     .eq('status', 'accepted_deferred');
 
                 if (deferredLoans && deferredLoans.length > 0) {
-                    const { data: leagueInfo } = await admin
-                        .from('leagues')
-                        .select('roster_size')
-                        .eq('id', leagueId)
-                        .single();
-                    const rosterSize = leagueInfo?.roster_size ?? 20;
-
                     for (const loan of deferredLoans) {
                         const { data: rpcRes, error: rpcError } = await admin.rpc('execute_loan_acceptance_rpc', {
                             p_loan_id: loan.id,

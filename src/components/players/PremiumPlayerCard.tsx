@@ -136,7 +136,6 @@ function FlipIcon() {
 
 export default function PremiumPlayerCard({
     player,
-    totalPoints,
     recentForm,
     matchRating,
     ratingBreakdown,
@@ -153,10 +152,7 @@ export default function PremiumPlayerCard({
     const [hovering, setHovering] = useState(false);
     const [gamelog, setGamelog] = useState<GamelogEntry[]>([]);
 
-    // 3-step image fallback: current-season large → last-season large → stored small
-    const img26_250 = player.photo_url
-        ? player.photo_url.replace('premierleague25/photos/players/110x140/', 'premierleague26/photos/players/250x250/')
-        : null;
+    // 2-step image fallback: last-season large → stored small
     const imgLegacy250 = player.photo_url
         ? player.photo_url.replace('premierleague25/photos/players/110x140/', 'premierleague/photos/players/250x250/p')
         : null;

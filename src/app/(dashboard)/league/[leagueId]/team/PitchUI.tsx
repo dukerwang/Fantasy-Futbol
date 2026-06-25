@@ -46,7 +46,7 @@ const POS_COLOR: Record<GranularPosition, string> = {
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 // Matches MatchupPitch's 6-zone approach so DM/CM/AM render as distinct rows
-function getZone(pos: GranularPosition, formation: Formation): PitchZone {
+function getZone(pos: GranularPosition): PitchZone {
     if (pos === 'GK') return 'GK';
     if (pos === 'LWB' || pos === 'RWB') return 'CMZ';
     if (pos === 'CB' || pos === 'LB' || pos === 'RB') return 'DEF';
@@ -139,7 +139,7 @@ interface PitchNodeProps {
     points?: number;
 }
 
-function PitchNode({ slotPos, player, isSelected, isValidTarget, isEmpty, isInvalid, isLocked, isLoan, onClick, onViewDetails, points }: PitchNodeProps) {
+function PitchNode({ slotPos, player, isSelected, isValidTarget, isEmpty, isInvalid, isLocked, onClick, onViewDetails, points }: PitchNodeProps) {
     const frameColor = isInvalid ? '#ef4444' : POS_COLOR[slotPos];
     const wrapCls = [
         styles.pitchNodeWrap,
@@ -160,7 +160,7 @@ function PitchNode({ slotPos, player, isSelected, isValidTarget, isEmpty, isInva
         <button
             type="button"
             className={wrapCls}
-            onClick={(e) => {
+            onClick={() => {
                 if (player && onViewDetails) {
                     onViewDetails();
                 } else if (!isLocked) {
@@ -324,7 +324,7 @@ export default function PitchUI({
 
     // Zone layout for pitch rendering — 6 zones matching MatchupPitch structure
     const zonedSlots = useMemo(() => {
-        const list = slots.map((pos, i) => ({ slotIndex: i, pos, zone: getZone(pos, formation) }));
+        const list = slots.map((pos, i) => ({ slotIndex: i, pos, zone: getZone(pos) }));
         return {
             ATT: list.filter((s) => s.zone === 'ATT'),
             AMZ: list.filter((s) => s.zone === 'AMZ'),

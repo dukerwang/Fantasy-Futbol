@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import styles from './history.module.css';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -57,7 +56,6 @@ function medalStyle(rank: number) {
 function SeasonPanel({ entry }: { entry: SeasonEntry }) {
   const champion = entry.standings.find(s => s.final_rank === 1);
   const top3 = entry.standings.slice(0, 3);
-  const rest = entry.standings.slice(3);
   const hasCups = Object.keys(entry.cupWinners).length > 0;
 
   return (

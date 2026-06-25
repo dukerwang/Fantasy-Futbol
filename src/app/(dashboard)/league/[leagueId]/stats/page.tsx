@@ -6,7 +6,6 @@ import type { Player } from '@/types';
 import { FULL_PLAYER_SELECT } from '@/lib/constants/queries';
 import { getCurrentFplSeason, getLatestReferenceStatsSeason } from '@/lib/season/currentSeason';
 import { calculateMatchRating, DEFAULT_REFERENCE_STATS } from '@/lib/scoring/matchRating';
-import type { GranularPosition } from '@/types';
 
 export const dynamic = 'force-dynamic';
 

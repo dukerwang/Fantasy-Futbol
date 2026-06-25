@@ -14,13 +14,11 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
-import type { SupabaseClient } from '@supabase/supabase-js';
 import { getCurrentFplSeason, getLatestReferenceStatsSeason } from '@/lib/season/currentSeason';
 import { redirect } from 'next/navigation';
 import styles from './scoring-v2.module.css';
 import { FULL_PLAYER_SELECT } from '@/lib/constants/queries';
 import { calculateMatchRating } from '@/lib/scoring/matchRating';
-import type { GranularPosition } from '@/types';
 import { loadReferenceStats, calculateTeamScore } from '@/lib/scoring/matchups';
 import { normalizeMatchupLineup } from '@/lib/lineups/normalizeMatchupLineup';
 import ShadowStatsTable, {
@@ -67,16 +65,7 @@ function isPlayedFixture(row: PlayerStatsRow): boolean {
   return fixtureMinutes(row) > 0;
 }
 
-interface MatchupRow {
-  id: string;
-  gameweek: number;
-  score_a: number | null;
-  score_b: number | null;
-  team_a_id: string;
-  team_b_id: string;
-  lineup_a: any;
-  lineup_b: any;
-}
+
 
 function fmt(n: number | null | undefined, digits = 2): string {
   if (n == null || Number.isNaN(n)) return '—';
@@ -86,28 +75,6 @@ function fmt(n: number | null | undefined, digits = 2): string {
 function safeDelta(v2: number | null, v1: number | null): number | null {
   if (v2 == null || v1 == null) return null;
   return v2 - v1;
-}
-
-const PLAYER_CHUNK = 120;
-
-async function fetchPlayersByIds(
-  admin: SupabaseClient,
-  ids: string[],
-): Promise<Map<string, { id: string; primary_position: string; secondary_positions: string[] | null; web_name: string | null; name: string | null; full_name: string | null }>> {
-  const map = new Map<string, { id: string; primary_position: string; secondary_positions: string[] | null; web_name: string | null; name: string | null; full_name: string | null }>();
-  const unique = Array.from(new Set(ids));
-  for (let i = 0; i < unique.length; i += PLAYER_CHUNK) {
-    const slice = unique.slice(i, i + PLAYER_CHUNK);
-    const { data, error } = await admin
-      .from('players')
-      .select('id, primary_position, secondary_positions, name, full_name, web_name')
-      .in('id', slice);
-    if (error) throw new Error(`players chunk ${i}: ${error.message}`);
-    for (const p of data ?? []) {
-      map.set(p.id, p as { id: string; primary_position: string; secondary_positions: string[] | null; web_name: string | null; name: string | null; full_name: string | null });
-    }
-  }
-  return map;
 }
 
 /**

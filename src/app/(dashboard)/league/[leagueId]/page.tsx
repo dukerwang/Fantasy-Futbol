@@ -20,27 +20,6 @@ interface Props {
 
 // ── Helpers ───────────────────────────────────────────────────────────────
 
-function positionColor(pos: string): string {
-  const map: Record<string, string> = {
-    GK: 'var(--color-pos-gk)',
-    CB: 'var(--color-pos-cb)', LB: 'var(--color-pos-fb)', RB: 'var(--color-pos-fb)',
-    LWB: 'var(--color-pos-wb)', RWB: 'var(--color-pos-wb)',
-    DM: 'var(--color-pos-dm)',
-    CM: 'var(--color-pos-cm)',
-    AM: 'var(--color-pos-am)',
-    LW: 'var(--color-pos-lw)', RW: 'var(--color-pos-rw)',
-    ST: 'var(--color-pos-st)',
-  };
-  return map[pos] ?? 'var(--color-text-muted)';
-}
-
-function pointsBadgeColor(pts: number): string {
-  if (pts >= 16) return 'var(--color-accent-green)';
-  if (pts >= 10) return '#5a8a6a';
-  if (pts >= 6) return 'var(--color-accent-yellow)';
-  return 'var(--color-text-muted)';
-}
-
 function timeAgo(iso: string): string {
   const diff = Date.now() - new Date(iso).getTime();
   const hrs = Math.floor(diff / 3600000);
@@ -61,13 +40,6 @@ function txCategoryStyle(type: string): { label: string; color: string; bg: stri
     case 'prize_payout': return { label: 'PRIZE PAYOUT', color: '#fff', bg: '#d97706' };
     default: return { label: type.toUpperCase().replace(/_/g, ' '), color: '#fff', bg: 'var(--color-text-muted)' };
   }
-}
-
-function rankMedalStyle(rank: number): { bg: string; color: string } {
-  if (rank === 1) return { bg: '#D4AF37', color: '#fff' };
-  if (rank === 2) return { bg: '#A8A9AD', color: '#fff' };
-  if (rank === 3) return { bg: '#CD7F32', color: '#fff' };
-  return { bg: 'transparent', color: 'var(--color-text-muted)' };
 }
 
 // ── Page ─────────────────────────────────────────────────────────────────
@@ -146,7 +118,6 @@ export default async function LeaguePage({ params }: Props) {
   const [
     standingsResult,
     myMatchupsResult,
-    auctionsResult,
     teamsResult,
     activityResult,
     taxiResult,
@@ -168,20 +139,6 @@ export default async function LeaguePage({ params }: Props) {
       .eq('league_id', leagueId)
       .or(`team_a_id.eq.${myTeamId},team_b_id.eq.${myTeamId}`)
       .order('gameweek', { ascending: true }) : Promise.resolve({ data: null }),
-
-    // Live auctions
-    admin
-      .from('waiver_claims')
-      .select(`
-        id, team_id, faab_bid, expires_at,
-        player:players!player_id(id, web_name, name, primary_position, pl_team, photo_url),
-        team:teams(id, team_name)
-      `)
-      .eq('league_id', leagueId)
-      .eq('status', 'pending')
-      .eq('is_auction', true)
-      .order('faab_bid', { ascending: false })
-      .limit(4),
 
     // All teams
     admin
@@ -234,7 +191,6 @@ export default async function LeaguePage({ params }: Props) {
 
   const standings = standingsResult.data ?? [];
   let myMatchups = myMatchupsResult.data ?? [];
-  const auctions = auctionsResult.data ?? [];
   const activity = activityResult.data ?? [];
   const initialTeams = (teamsResult.data ?? []) as any[];
   const taxiSquad = taxiResult?.data ?? [];
@@ -397,13 +353,7 @@ export default async function LeaguePage({ params }: Props) {
     }
   }
 
-  // ── Derive result for final state ─────────────────────────────────────────
-  let heroResult: 'win' | 'loss' | 'draw' | null = null;
-  if (heroState === 'final' && heroMatchup && myTeamId) {
-    if (heroMatchup.winner_team_id === null) heroResult = 'draw';
-    else if (heroMatchup.winner_team_id === myTeamId) heroResult = 'win';
-    else heroResult = 'loss';
-  }
+
 
   // ── Top GW performers ────────────────────────────────────────────────────
   // Find most recently completed GW
@@ -458,16 +408,9 @@ export default async function LeaguePage({ params }: Props) {
   const userUsername = userTeamFull?.user?.username || 'MANAGER';
   const oppUsername = oppTeamFull?.user?.username || 'OPPONENT';
 
-  // ── Upcoming countdown pill for auctions ─────────────────────────────────
-  function countdownMs(expiresAt: string): number {
-    return new Date(expiresAt).getTime() - Date.now();
-  }
-
   // ── Compute Team Records from Standings ──────────────────────────────────
   const userStanding = standings.find((s: any) => s.team_id === userTeam?.id);
-  const oppStanding = standings.find((s: any) => s.team_id === oppTeam?.id);
   const userRecord = userStanding ? `${userStanding.wins}W · ${userStanding.draws}D · ${userStanding.losses}L` : '0W · 0D · 0L';
-  const oppRecord = oppStanding ? `${oppStanding.wins}W · ${oppStanding.draws}D · ${oppStanding.losses}L` : '0W · 0D · 0L';
 
   // If the league is in setup or drafting phase, render the dedicated Pre-Draft waiting room lobby
   if (league.status === 'setup' || league.status === 'drafting') {

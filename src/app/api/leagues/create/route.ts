@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient as createServerClient } from '@/lib/supabase/server';
 import { createClient as createAdminClient } from '@supabase/supabase-js';
 import { DEFAULT_SCORING_RULES } from '@/types';
-import { getCurrentFplSeason, nextSeason } from '@/lib/season/currentSeason';
+import { getCurrentFplSeason } from '@/lib/season/currentSeason';
 
 export async function POST(req: NextRequest) {
   // Verify the requesting user is authenticated
@@ -22,7 +22,6 @@ export async function POST(req: NextRequest) {
 
   // 1. Create the league
   const currentSeason = await getCurrentFplSeason();
-  const previousSeason = nextSeason(currentSeason) === currentSeason ? null : currentSeason; // set prev to null on first create
   const { data: league, error: leagueErr } = await admin.from('leagues').insert({
     name: name.trim(),
     commissioner_id: user.id,

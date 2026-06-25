@@ -68,14 +68,6 @@ function getDirection(tx: Transaction): 'in' | 'out' | 'none' {
   return TX_META[tx.type]?.direction ?? 'none';
 }
 
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString('en-GB', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-  });
-}
-
 function formatShortDate(iso: string): string {
   return new Date(iso).toLocaleDateString('en-GB', {
     day: 'numeric',
@@ -221,7 +213,6 @@ function LedgerRow({ tx }: { tx: Transaction }) {
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export default function FinanceClient({
-  leagueId,
   leagueName,
   season,
   teamName,

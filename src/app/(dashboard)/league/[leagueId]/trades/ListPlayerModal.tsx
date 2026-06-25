@@ -31,7 +31,6 @@ interface Props {
 
 export default function ListPlayerModal({
   leagueId,
-  myTeamId,
   myRoster,
   onClose,
   onListed,

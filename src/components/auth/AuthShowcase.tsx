@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import PremiumPlayerCard from '@/components/players/PremiumPlayerCard';
 import type { Player, GranularPosition } from '@/types';
 import { Icon } from '@/components/ui/Icon';

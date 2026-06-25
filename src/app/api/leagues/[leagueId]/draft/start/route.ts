@@ -93,7 +93,7 @@ export async function POST(req: NextRequest, { params }: Props) {
           await sendEmail({
             to: emails,
             subject: 'Gaffa Draft: THE DRAFT HAS BEGUN!',
-            html: getDraftStartedEmail(league.name ?? 'Your League', `\${baseUrl}/league/\${leagueId}/draft`)
+            html: getDraftStartedEmail(league.name ?? 'Your League', `${baseUrl}/league/${leagueId}/draft`)
           });
         }
 

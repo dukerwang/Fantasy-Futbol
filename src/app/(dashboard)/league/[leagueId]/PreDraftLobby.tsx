@@ -7,7 +7,7 @@ import { createClient } from '@/lib/supabase/client';
 import SidebarChat from './SidebarChat';
 import DraftOrderManager from './DraftOrderManager';
 import styles from './preDraftLobby.module.css';
-import type { League, Team } from '@/types';
+import type { League } from '@/types';
 
 interface Props {
   leagueId: string;

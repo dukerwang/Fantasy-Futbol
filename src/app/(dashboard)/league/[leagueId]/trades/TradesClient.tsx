@@ -112,7 +112,6 @@ export default function TradesClient({
   myTeam,
   myRoster,
   allTeams,
-  allTeamsIncludingMine,
   allRosters,
   initialTrades,
   leagueTrades,
@@ -1199,7 +1198,7 @@ export default function TradesClient({
           bonusCapDefault={leagueSettings.loan_bonus_cap_default}
           totalGameweeks={leagueSettings.total_gameweeks}
           onClose={() => setShowLoanModal(false)}
-          onProposed={async (newLoan) => {
+          onProposed={async () => {
             setProposeSuccess('Loan proposal submitted successfully!');
             await refreshLoans();
           }}
@@ -1216,7 +1215,7 @@ export default function TradesClient({
           bonusCapDefault={leagueSettings.loan_bonus_cap_default}
           totalGameweeks={leagueSettings.total_gameweeks}
           onClose={() => setShowRequestLoanModal(false)}
-          onRequested={async (newLoan) => {
+          onRequested={async () => {
             setProposeSuccess('Loan request sent! They will be notified to review your terms.');
             await refreshLoans();
           }}
