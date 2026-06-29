@@ -84,20 +84,21 @@ export default async function DashboardPage() {
                 <p className={styles.teamName}>{team.team_name}</p>
                 <div className={styles.leagueStats}>
                   <div className={styles.stat}>
-                    <span 
-                      className={styles.statValue} 
-                      style={{ color: team.rank === 1 ? '#f59e0b' : 'var(--text-primary)', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+                    <span
+                      className={`${styles.statValue} ${styles.statValueRank} ${team.rank === 1 ? styles.statRankGold : ''}`}
                     >
                       {team.rank ? (
                         <>
                           {team.rank <= 3 && (
-                            <Icon 
-                              name="trophy" 
-                              size={14} 
+                            <Icon
+                              name="trophy"
+                              size={14}
                               strokeWidth={2}
-                              style={{ 
-                                color: team.rank === 1 ? '#f59e0b' : team.rank === 2 ? '#94a3b8' : '#92400e' 
-                              }} 
+                              className={
+                                team.rank === 1 ? styles.trophyGold
+                                : team.rank === 2 ? styles.trophySilver
+                                : styles.trophyBronze
+                              }
                             />
                           )}
                           {team.rank}{team.rank === 1 ? 'st' : team.rank === 2 ? 'nd' : team.rank === 3 ? 'rd' : 'th'}

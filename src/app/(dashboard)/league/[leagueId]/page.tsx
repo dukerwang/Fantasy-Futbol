@@ -31,18 +31,7 @@ function timeAgo(iso: string): string {
   return days === 1 ? '1d ago' : `${days}d ago`;
 }
 
-function txCategoryStyle(type: string): { label: string; color: string; bg: string } {
-  switch (type) {
-    case 'waiver_win':
-    case 'faab_signing': return { label: 'SIGNING', color: '#fff', bg: 'var(--color-accent-green)' };
-    case 'drop': return { label: 'DROP', color: '#fff', bg: 'var(--color-accent-red)' };
-    case 'trade': return { label: 'TRADE', color: '#fff', bg: '#3b82f6' };
-    case 'bid': return { label: 'BID', color: '#92400e', bg: '#fde68a' };
-    case 'ir': return { label: 'IR', color: '#fff', bg: '#6b7280' };
-    case 'prize_payout': return { label: 'PRIZE PAYOUT', color: '#fff', bg: '#d97706' };
-    default: return { label: type.toUpperCase().replace(/_/g, ' '), color: '#fff', bg: 'var(--color-text-muted)' };
-  }
-}
+
 
 // ── Page ─────────────────────────────────────────────────────────────────
 

@@ -46,6 +46,8 @@
   --color-success:      #3A6B4A;
   --color-warning:      #f59e0b;  --color-warning-dim: rgba(245, 158, 11, 0.15);
   --color-danger:       #ef4444;  --color-danger-dim:  rgba(239, 68, 68, 0.15);
+  --color-danger-dark:  #dc2626;
+  --color-defeat:       #9B2C3A;
   --color-gold:         #B8893E;  /* leader / #1 figures, medals */
 
   /* --- Position Colors (The Football Spine) --- */
@@ -299,6 +301,19 @@ svg {
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--color-accent);
+}
+
+/* Editorial serif eyebrow — italic, mixed-case, accent-colored */
+.ds-eyebrow-serif {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--color-accent);
+  margin-bottom: var(--space-2);
+  display: block;
 }
 
 /* Section label — like eyebrow but neutral, slightly smaller */

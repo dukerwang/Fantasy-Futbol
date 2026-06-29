@@ -132,7 +132,7 @@
 }
 
 .status_drafting {
-  background: var(--color-accent-blue) / 0.15;
+  background: var(--color-accent-dim);
   color: var(--color-accent-blue);
 }
 
@@ -168,6 +168,23 @@
   composes: ds-stat from global;
   font-size: var(--text-lg);
 }
+
+/* Rank stat: flex layout to accommodate the trophy icon */
+.statValueRank {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+/* Rank 1 — gold */
+.statRankGold {
+  color: var(--color-accent-yellow);
+}
+
+/* Trophy icon colors — rank 1/2/3 */
+.trophyGold   { color: var(--color-accent-yellow); }
+.trophySilver { color: #94a3b8; } /* TODO: add --color-silver token to globals.css */
+.trophyBronze { color: #92400e; } /* TODO: add --color-bronze token to globals.css */
 
 .statLabel {
   composes: ds-label from global;

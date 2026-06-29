@@ -33,7 +33,7 @@
     font-family: var(--font-serif);
     font-size: 3rem;
     font-weight: 700;
-    color: #2A5A3B;
+    color: var(--color-accent-green);
     margin: 0;
     line-height: 1.1;
 }

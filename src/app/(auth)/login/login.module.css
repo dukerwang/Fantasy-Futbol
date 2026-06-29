@@ -62,7 +62,7 @@
 }
 
 .topNavLink:hover {
-  color: var(--color-accent-green-hover);
+  color: var(--color-accent-hover);
   text-decoration: underline;
 }
 

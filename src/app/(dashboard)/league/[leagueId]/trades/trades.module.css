@@ -32,7 +32,7 @@
   font-family: 'Noto Serif', Georgia, serif;
   font-size: 52px;
   font-weight: 700;
-  color: #2A5A3B; /* prototype's text-primary is darker than our accent-green */
+  color: var(--color-accent-green);
   letter-spacing: -0.02em;
   line-height: 1;
   margin-bottom: 4px;

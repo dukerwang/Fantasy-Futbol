@@ -22,21 +22,14 @@
 
 
 .eyebrow {
-  font-family: var(--font-serif);
-  font-style: italic;
-  font-size: 13px;
-  font-weight: 500;
-  letter-spacing: 0;
-  text-transform: none;
-  color: var(--color-accent);
-  margin-bottom: var(--space-2);
+  composes: ds-eyebrow-serif from global;
 }
 
 .pageTitle {
   font-family: var(--font-serif);
   font-size: 2rem;
   font-weight: 700;
-  color: #2A5A3B; /* prototype primary */
+  color: var(--color-accent-green);
   letter-spacing: -0.02em;
   margin: 0 0 4px;
 }
