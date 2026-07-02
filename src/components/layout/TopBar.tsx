@@ -38,6 +38,7 @@ export default function TopBar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const leagueSwitcherRef = useRef<HTMLDivElement>(null);
+  const pageNavRef = useRef<HTMLDivElement>(null);
   const dropdownTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Extract current leagueId from URL — exclude static segments like 'create', 'join'
@@ -85,15 +86,31 @@ export default function TopBar() {
     });
   }, []);
 
-  // Close league switcher on outside click
+  // Close switcher or dropdowns on outside click & Escape key
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
       if (leagueSwitcherRef.current && !leagueSwitcherRef.current.contains(e.target as Node)) {
         setLeagueSwitcherOpen(false);
       }
+      if (pageNavRef.current && !pageNavRef.current.contains(e.target as Node)) {
+        setOpenDropdown(null);
+      }
     }
+
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Escape') {
+        setOpenDropdown(null);
+        setLeagueSwitcherOpen(false);
+      }
+    }
+
     document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      window.removeEventListener('keydown', handleKeyDown);
+    };
   }, []);
 
   async function handleSignOut() {
@@ -195,7 +212,7 @@ export default function TopBar() {
 
         {/* --- Page Navigation (only when in a league) --- */}
         {currentLeagueId && (
-          <div className={styles.pageNav}>
+          <div className={styles.pageNav} ref={pageNavRef}>
             {/* Home (standalone) */}
             <div className={styles.navItem}>
               <Link
@@ -218,6 +235,11 @@ export default function TopBar() {
                 <button
                   className={`${styles.navLink} ${isGroupActive(group) ? styles.navLinkActive : ''}`}
                   type="button"
+                  onClick={() => {
+                    setOpenDropdown(prev => prev === group.label ? null : group.label);
+                  }}
+                  aria-expanded={openDropdown === group.label}
+                  aria-haspopup="true"
                 >
                   {group.label}
                   <span className={`${styles.chevron} ${openDropdown === group.label ? styles.chevronOpen : ''}`}>
