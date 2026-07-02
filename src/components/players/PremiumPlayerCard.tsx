@@ -177,12 +177,8 @@ export default function PremiumPlayerCard({
         return !isDNP;
     });
     const recentGames = playedGames.slice(0, 8).reverse();
-    const l3Games = playedGames.slice(0, 3);
-    const calculatedForm = l3Games.length > 0 
-        ? l3Games.reduce((acc, g) => acc + (g.match_rating ?? 0), 0) / l3Games.length
-        : null;
 
-    const displayForm = calculatedForm ?? player.form_rating ?? recentForm ?? player.form;
+    const displayForm = player.form_rating ?? recentForm ?? player.form;
     const rating = matchRating;
 
 
