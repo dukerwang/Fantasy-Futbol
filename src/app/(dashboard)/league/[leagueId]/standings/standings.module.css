@@ -45,9 +45,9 @@
 .podiumCard {
   background: var(--color-bg-card);
   padding: var(--space-8);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-lg);
   border: 1px solid var(--color-border-subtle);
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-card);
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
@@ -56,11 +56,11 @@
   height: 240px;
 }
 
-/* 1st place — taller, green border accent */
+/* 1st place — taller, gold ring accent (leader gold stays a ring, never a fill) */
 .podiumCardLeader {
   height: 280px;
-  border: 2px solid rgba(58, 107, 74, 0.3);
-  box-shadow: var(--shadow-md), 0 0 0 6px rgba(58, 107, 74, 0.05);
+  border: 1.5px solid var(--color-gold);
+  box-shadow: var(--shadow-card);
 }
 
 /* Emoji top-right */
@@ -79,18 +79,11 @@
 }
 
 .podiumLeaderBadge {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-1);
-  padding: 3px var(--space-3);
-  border-radius: var(--radius-sm);
-  background: rgba(58, 107, 74, 0.1);
-  color: var(--color-accent-green);
-  font-family: var(--font-sans);
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--color-gold);
   margin-bottom: var(--space-4);
   align-self: flex-start;
 }
@@ -163,9 +156,9 @@
   /* Use the header color as the section background so rounded-corner
      clipping never reveals a white bleed behind the thead */
   background: var(--color-bg-secondary);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-lg);
   overflow: hidden;
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-card);
   border: 1px solid var(--color-border-subtle);
 }
 
@@ -218,7 +211,7 @@
 }
 
 .tableRow:nth-child(odd) {
-  background: #f9f6f1;
+  background: var(--color-bg-card-alt);
 }
 
 .tableRow:hover {
@@ -226,16 +219,16 @@
 }
 
 /* Own team */
-.ownRow {
-  background: rgba(58, 107, 74, 0.05) !important;
+.tableRow.ownRow {
+  background: rgba(58, 107, 74, 0.05);
 }
 
-.ownRow:hover {
-  background: rgba(58, 107, 74, 0.09) !important;
+.tableRow.ownRow:hover {
+  background: rgba(58, 107, 74, 0.09);
 }
 
 /* Inset shadow accent — no box-model impact, no border-collapse conflict */
-.ownRow td:first-child {
+.tableRow.ownRow td:first-child {
   box-shadow: inset 4px 0 0 var(--color-accent-green);
 }
 
@@ -249,22 +242,22 @@
 }
 
 /* Rank */
-.rankCell {
-  text-align: center !important;
+.tableRow td.rankCell {
+  text-align: center;
   font-family: var(--font-serif);
-  font-size: var(--text-xl) !important;
-  font-weight: 700 !important;
-  color: var(--color-text-muted) !important;
+  font-size: var(--text-xl);
+  font-weight: 700;
+  color: var(--color-text-muted);
   width: 60px;
 }
 
-.ownRow .rankCell {
-  color: var(--color-accent-green) !important;
+.tableRow.ownRow td.rankCell {
+  color: var(--color-accent-green);
 }
 
 /* Team */
-.teamCell {
-  text-align: left !important;
+.tableRow td.teamCell {
+  text-align: left;
   min-width: 150px;
 }
 
@@ -277,35 +270,35 @@
 }
 
 /* Manager */
-.managerCell {
-  text-align: left !important;
+.tableRow td.managerCell {
+  text-align: left;
   min-width: 110px;
-  color: var(--color-text-muted) !important;
-  font-size: var(--text-sm) !important;
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
 }
 
 /* Pts — bold, larger */
-.ptsCell {
-  font-family: var(--font-sans) !important;
-  font-size: var(--text-lg) !important;
-  font-weight: 700 !important;
-  color: var(--color-text-primary) !important;
+.tableRow td.ptsCell {
+  font-family: var(--font-sans);
+  font-size: var(--text-lg);
+  font-weight: 700;
+  color: var(--color-text-primary);
 }
 
 /* GD */
-.gdPos {
-  font-weight: 600 !important;
-  color: var(--color-accent-green) !important;
+.tableRow td.gdPos {
+  font-weight: 600;
+  color: var(--color-accent-green);
 }
 
-.gdNeg {
-  font-weight: 600 !important;
-  color: #c0392b !important;
+.tableRow td.gdNeg {
+  font-weight: 600;
+  color: #c0392b;
 }
 
 /* Form dots */
-.formCell {
-  text-align: center !important;
+.tableRow td.formCell {
+  text-align: center;
 }
 
 .formDots {

@@ -12,13 +12,14 @@
   --color-bg-secondary:  #EDE8DE;   /* nav bar, rails — warm cream anchor */
   --color-bg-card:       #FDFCF9;   /* card surfaces — near white */
   --color-bg-card-hover: #EDE8E0;   /* card hover / pressed */
+  --color-bg-card-alt:   #f9f6f1;   /* alternating row background */
   --color-bg-elevated:   #EDE8DE;   /* inset: inputs, secondary buttons */
   --color-bg-overlay:    rgba(237, 232, 216, 0.95);
 
   /* --- Borders --- */
   --color-border:         #C8C3BC;  /* standard hairline */
   --color-border-subtle:  #D9D4CD;  /* faint separator */
-  --color-border-accent:  rgba(58, 107, 74, 0.40);
+  --color-border-accent:  rgba(20, 107, 64, 0.40);
 
   /* --- Ink / Text --- */
   --color-text-primary:   #1C1C1C;  /* headlines, key figures */
@@ -26,14 +27,18 @@
   --color-text-muted:     #9A9488;  /* labels, captions, meta */
   --color-text-inverse:   #FFFFFF;
 
-  /* --- Accents & Semantic Colors --- */
-  --color-accent:             #3A6B4A;
-  --color-accent-hover:       #4D8A61;
-  --color-accent-dim:         rgba(58, 107, 74, 0.12);
-  --color-accent-green:       #3A6B4A;
-  --color-accent-green-dim:   rgba(58, 107, 74, 0.12);
-  --color-accent-blue:        #3A6B4A;
-  --color-accent-blue-hover:  #4D8A61;
+  /* --- Accents & Semantic Colors ---
+     Deepened (round-3 design review) for more confident color
+     usage — the accent now also carries "yours"/live/heading
+     surface area, not just stat figures. A second (gold-blended)
+     accent was tried and rejected as muddy; stays single-accent. */
+  --color-accent:             #146B40;
+  --color-accent-hover:       #1B8350;
+  --color-accent-dim:         rgba(20, 107, 64, 0.10);
+  --color-accent-green:       #146B40;
+  --color-accent-green-dim:   rgba(20, 107, 64, 0.10);
+  --color-accent-blue:        #146B40;
+  --color-accent-blue-hover:  #1B8350;
   
   /* Legacy/Additional accents used in app */
   --color-accent-red:         #ef4444;
@@ -43,12 +48,14 @@
   --color-accent-purple:      #a855f7;
 
   /* --- Semantic Status --- */
-  --color-success:      #3A6B4A;
+  --color-success:      #146B40;
   --color-warning:      #f59e0b;  --color-warning-dim: rgba(245, 158, 11, 0.15);
   --color-danger:       #ef4444;  --color-danger-dim:  rgba(239, 68, 68, 0.15);
   --color-danger-dark:  #dc2626;
   --color-defeat:       #9B2C3A;
-  --color-gold:         #B8893E;  /* leader / #1 figures, medals */
+  --color-gold:         #93702F;  /* leader / #1 figures only — a thin ring/text color, never a filled badge, never blended with accent */
+  --color-silver:       #94a3b8;  /* #2 figures, silver medals */
+  --color-bronze:       #92400e;  /* #3 figures, bronze medals */
 
   /* --- Position Colors (The Football Spine) --- */
   --color-pos-gk: #D4A017;  /* Amber          — Goalkeeper */
@@ -58,8 +65,8 @@
   --color-pos-dm: #7450A1;  /* Muted Purple   — Defensive Mid */
   --color-pos-cm: #9D81C1;  /* Lavender       — Central Mid */
   --color-pos-am: #B54E7F;  /* Rose / Plum    — Attacking Mid */
-  --color-pos-lw: #4D8A61;  /* Deep Sage      — Left Wing */
-  --color-pos-rw: #4D8A61;  /* Deep Sage      — Right Wing */
+  --color-pos-lw: #2F7A4E;  /* Deep Sage      — Left Wing */
+  --color-pos-rw: #2F7A4E;  /* Deep Sage      — Right Wing */
   --color-pos-st: #A62626;  /* Deep Red       — Striker */
 
   /* --- Typography --- */
@@ -93,7 +100,11 @@
   --space-8: 2rem;     --space-10: 2.5rem;  --space-12: 3rem;
   --space-16: 4rem;    --space-20: 5rem;
 
-  /* --- Border Radius --- */
+  /* --- Border Radius ---
+     Cards default to --radius-lg (12px), not --radius-sm — most
+     card CSS in this codebase used --radius-sm, which read boxy.
+     Reserve --radius-sm for inputs/ticks/small tags. --radius-full
+     is for true toggle/switch controls, not badges/pills. */
   --radius-sm:   4px;
   --radius-md:   8px;
   --radius-lg:   12px;
@@ -101,17 +112,24 @@
   --radius-2xl:  24px;
   --radius-full: 9999px;
 
-  /* --- Shadows --- */
+  /* --- Shadows ---
+     Elevation is quiet but present: cards get --shadow-card by
+     default (previously most cards had no shadow at all — border
+     only, which is why the app read flatter than intended). */
   --shadow-sm: 0 1px 3px rgba(28, 28, 28, 0.08);
   --shadow-md: 0 4px 12px rgba(28, 28, 28, 0.10);
   --shadow-lg: 0 8px 24px rgba(28, 28, 28, 0.14);
   --shadow-xl: 0 16px 48px rgba(28, 28, 28, 0.18);
-  --shadow-glow: 0 0 20px rgba(58, 107, 74, 0.15);
-  --shadow-glow-blue: 0 0 20px rgba(58, 107, 74, 0.15);
-  --shadow-glow-green: 0 0 20px rgba(58, 107, 74, 0.15);
-  
-  /* Premium trading-card stack */
-  --shadow-card:
+  --shadow-glow: 0 0 20px rgba(20, 107, 64, 0.15);
+  --shadow-glow-blue: 0 0 20px rgba(20, 107, 64, 0.15);
+  --shadow-glow-green: 0 0 20px rgba(20, 107, 64, 0.15);
+
+  /* Standard card elevation — apply to every card by default */
+  --shadow-card: 0 1px 2px rgba(23, 20, 15, .05), 0 14px 30px -16px rgba(23, 20, 15, .20);
+  --shadow-card-lift: 0 1px 2px rgba(23, 20, 15, .06), 0 22px 40px -18px rgba(23, 20, 15, .26); /* hover state */
+
+  /* Premium trading-card stack — reserved for the player card only, not general cards */
+  --shadow-trading-card:
     0 1px 0 rgba(255, 255, 255, 0.55) inset,
     0 0 0 1px var(--color-border) inset,
     0 24px 56px -16px rgba(28, 28, 28, 0.28),
@@ -133,6 +151,7 @@
   --color-bg-secondary:  #161b22;
   --color-bg-card:       #0d1117;
   --color-bg-card-hover: #21262d;
+  --color-bg-card-alt:   #161b22;
   --color-bg-elevated:   #21262d;
   --color-bg-overlay:    rgba(13, 17, 23, 0.95);
 
@@ -316,6 +335,19 @@ svg {
   display: block;
 }
 
+/* Card / section heading — italic accent serif, sentence case.
+   Use this for card/section titles (Standings, Gameweek Stars,
+   Club Balance...) instead of an uppercase eyebrow + rule bar —
+   the eyebrow is reserved for genuine metadata/datelines. */
+.ds-heading {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0;
+  color: var(--color-accent);
+}
+
 /* Section label — like eyebrow but neutral, slightly smaller */
 .ds-label {
   font-family: var(--font-sans);
@@ -375,8 +407,98 @@ svg {
 }
 
 .playercard-clickable-btn:hover {
-  color: var(--color-accent-green, #3A6B4A);
+  color: var(--color-accent-green, #146B40);
   text-decoration: underline;
 }
 
+/* ============================================================
+   INDICATOR LANGUAGE (Gaffa Design System, round-3 review)
+
+   Replaces the generic filled-pill/badge default (status chips,
+   "LIVE" badges, "you" tags, position tags, avatar circles,
+   rounded progress bars) — the single most common tell of
+   generic/unstyled UI — with treatments specific to Gaffa: the
+   italic serif accent, the position-color spine, and hairline/
+   tick structure instead of filled shapes. Don't reintroduce a
+   plain `border-radius: 999px; background: <color>` badge.
+   ============================================================ */
+
+/* Live / now — a pulsing dot + italic serif accent text, no pill container */
+.ds-live {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 600;
+  font-size: 13.5px;
+  color: var(--color-accent);
+}
+.ds-live::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  flex-shrink: 0;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .ds-live::before { animation: ds-pulse 1.8s ease-in-out infinite; }
+}
+@keyframes ds-pulse { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }
+
+/* Possessive / clarifying suffix — replaces a "You" chip. Quiet italic serif run-in text. */
+.ds-suffix-tag {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 500;
+  font-size: 0.9em;
+  color: var(--color-text-muted);
+}
+
+/* Position tag — replaces a filled 2-letter chip. Colored left tick + small-caps
+   colored text; pass the position hue via inline style="--pc: var(--color-pos-st)" */
+.ds-tick-tag {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--font-sans);
+  font-size: 10px;
+  font-weight: 800;
+  font-variant-caps: all-small-caps;
+  letter-spacing: 0.02em;
+  color: var(--pc, var(--color-text-muted));
+  border-left: 3px solid var(--pc, var(--color-border));
+  padding-left: 9px;
+}
+
+/* Meter — replaces a rounded gradient progress bar (FAAB / budget / countdown fills).
+   Flat, hard-edged, ticked at 25/50/75% like a broadcast stats bar. */
+.ds-meter {
+  position: relative;
+  height: 8px;
+  border-radius: 2px;
+  background: var(--color-border-subtle);
+  overflow: hidden;
+}
+.ds-meter-fill {
+  height: 100%;
+  background: var(--color-accent);
+}
+.ds-meter::after {
+  content: "";
+  position: absolute; inset: 0; z-index: 2; pointer-events: none;
+  background-image: linear-gradient(to right,
+    transparent 24.3%, var(--color-bg-card) 24.3% 25.7%,
+    transparent 25.7% 49.3%, var(--color-bg-card) 49.3% 50.7%,
+    transparent 50.7% 74.3%, var(--color-bg-card) 74.3% 75.7%,
+    transparent 75.7%);
+}
+
+/* Identity mark — replaces a circle-with-initial avatar. Clips to a shield,
+   matching the app's own club-crest / matchupShield convention. */
+.ds-shield {
+  clip-path: polygon(0 0, 100% 0, 100% 62%, 50% 100%, 0 62%);
+  border-radius: 5px;
+  padding-bottom: 4px;
+}
 

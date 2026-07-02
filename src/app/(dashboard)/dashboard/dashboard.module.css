@@ -120,29 +120,25 @@
 
 .status {
   font-size: var(--text-xs);
-  font-weight: var(--font-medium);
-  padding: 2px var(--space-2);
-  border-radius: var(--radius-full);
+  font-weight: var(--font-semibold);
+  padding-left: var(--space-2);
+  border-left: 2px solid currentColor;
   text-transform: capitalize;
 }
 
 .status_setup {
-  background: var(--color-accent-yellow-dim);
   color: var(--color-accent-yellow);
 }
 
 .status_drafting {
-  background: var(--color-accent-dim);
-  color: var(--color-accent-blue);
+  color: var(--color-accent-green);
 }
 
 .status_active {
-  background: var(--color-accent-green-dim);
   color: var(--color-accent-green);
 }
 
 .status_completed {
-  background: var(--color-bg-secondary);
   color: var(--color-text-muted);
 }
 
@@ -183,8 +179,8 @@
 
 /* Trophy icon colors — rank 1/2/3 */
 .trophyGold   { color: var(--color-accent-yellow); }
-.trophySilver { color: #94a3b8; } /* TODO: add --color-silver token to globals.css */
-.trophyBronze { color: #92400e; } /* TODO: add --color-bronze token to globals.css */
+.trophySilver { color: var(--color-silver); }
+.trophyBronze { color: var(--color-bronze); }
 
 .statLabel {
   composes: ds-label from global;

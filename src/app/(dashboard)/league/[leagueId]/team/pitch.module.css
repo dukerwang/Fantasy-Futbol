@@ -865,10 +865,9 @@
 .u21Badge {
     font-size: 0.55rem;
     font-weight: 800;
-    background: var(--color-accent-green, #3A6B4A);
-    color: #fff;
-    border-radius: 2px;
-    padding: 1px 4px;
+    color: var(--color-text-muted, #9A9488);
+    border-left: 2px solid var(--color-border, #C8C3BC);
+    padding-left: 4px;
     flex-shrink: 0;
     letter-spacing: 0.04em;
 }
@@ -876,11 +875,9 @@
 .agedOutBadge {
     font-size: 0.55rem;
     font-weight: 800;
-    background: rgba(239, 68, 68, 0.12);
     color: #ef4444;
-    border: 1px solid rgba(239, 68, 68, 0.5);
-    border-radius: 2px;
-    padding: 1px 4px;
+    border-left: 2px solid #ef4444;
+    padding-left: 4px;
     flex-shrink: 0;
     letter-spacing: 0.04em;
 }
@@ -888,10 +885,9 @@
 .injuryBadge {
     font-size: 0.55rem;
     font-weight: 800;
-    background: #ef4444;
-    color: #fff;
-    border-radius: 2px;
-    padding: 1px 4px;
+    color: #ef4444;
+    border-left: 2px solid #ef4444;
+    padding-left: 4px;
     flex-shrink: 0;
 }
 
@@ -1035,10 +1031,9 @@
 .irBadge {
     font-size: 0.55rem;
     font-weight: 800;
-    background: #ef4444;
-    color: #fff;
-    border-radius: 2px;
-    padding: 1px 4px;
+    color: #ef4444;
+    border-left: 2px solid #ef4444;
+    padding-left: 4px;
     flex-shrink: 0;
     letter-spacing: 0.04em;
 }

@@ -555,7 +555,7 @@ export default async function LeaguePage({ params }: Props) {
               <div className={styles.matchupHero}>
                 <div className={styles.matchupHeader}>
                   <span className={styles.matchupGwLabel}>MATCHWEEK {heroMatchup.gameweek}</span>
-                  {heroState === 'live' && <span className={styles.matchupLiveBadge}>LIVE</span>}
+                  {heroState === 'live' && <span className={styles.matchupLiveBadge}>Live</span>}
                 </div>
                 <div className={styles.matchupBody}>
                   {/* Row 1: Teams side by side */}

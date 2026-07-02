@@ -108,17 +108,17 @@
     display: flex;
     align-items: center;
     gap: var(--space-8);
-    box-shadow: var(--shadow-sm);
+    box-shadow: var(--shadow-card);
     position: relative;
     text-decoration: none;
     color: inherit;
     transition: box-shadow var(--transition-base);
     margin-top: var(--space-2);
-    border-radius: var(--radius-sm);
+    border-radius: var(--radius-lg);
 }
 
 .heroCard:hover {
-    box-shadow: var(--shadow-md);
+    box-shadow: var(--shadow-card-lift);
 }
 
 .heroSectionLabelCentered {
@@ -206,30 +206,27 @@
 }
 
 .heroWinBadge {
-    font-family: var(--font-sans);
-    font-size: 10px;
-    font-weight: 800;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    padding: var(--space-1) var(--space-3);
-    background: var(--color-accent-green);
-    color: #fff;
-    border-radius: var(--radius-sm);
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--color-accent-green);
     white-space: nowrap;
 }
 
 .heroWinBadge.loss {
-    background: var(--color-defeat);
+    color: var(--color-defeat);
 }
 
 .heroWinBadge.draw {
-    background: var(--color-bg-elevated);
     color: var(--color-text-secondary);
-    border: 1px solid var(--color-border);
 }
 
 .heroWinBadge.live {
-    background: #B5651D;
+    color: var(--color-accent-green);
 }
 
 /* ── Section Label ── */
@@ -368,7 +365,7 @@
 .sideBadgeWin  { background: var(--color-accent-green); color: #fff; }
 .sideBadgeLoss { background: var(--color-defeat); color: #fff; }
 .sideBadgeDraw { background: var(--color-bg-elevated); color: var(--color-text-secondary); border: 1px solid var(--color-border); }
-.sideBadgeLive { background: #B5651D; color: #fff; }
+.sideBadgeLive { background: var(--color-accent-green); color: #fff; }
 .sideBadgeEmpty { background: transparent; }
 
 /* Live pulse dot */
