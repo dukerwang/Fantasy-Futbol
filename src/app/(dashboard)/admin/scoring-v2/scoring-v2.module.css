@@ -469,11 +469,9 @@
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.04em;
-  color: #3A6B4A;
-  background: #EDE8DE;
-  border: 1px solid #DDD5C7;
-  padding: 1px 5px;
-  border-radius: 0px;
+  color: var(--color-accent-green, #3A6B4A);
+  border-left: 2px solid var(--color-accent-green, #3A6B4A);
+  padding-left: 5px;
   display: inline-block;
   text-transform: uppercase;
 }

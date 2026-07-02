@@ -874,7 +874,7 @@ export default function TradesClient({
                         <div className={styles.leagueFeedPlayers}>
                           {offeredPlayers.length > 0 ? offeredPlayers.map((p: SimplePlayer) => (
                             <span key={p.id} className={styles.leagueFeedPlayerChip}>
-                              <span className={styles.leagueFeedPosBadge} style={{ background: positionColor(p.primary_position) }}>
+                              <span className={styles.leagueFeedPosBadge} style={{ color: positionColor(p.primary_position) }}>
                                 {p.primary_position}
                               </span>
                               {p.web_name ?? p.name}
@@ -888,7 +888,7 @@ export default function TradesClient({
                         <div className={styles.leagueFeedPlayers}>
                           {requestedPlayers.length > 0 ? requestedPlayers.map((p: SimplePlayer) => (
                             <span key={p.id} className={styles.leagueFeedPlayerChip}>
-                              <span className={styles.leagueFeedPosBadge} style={{ background: positionColor(p.primary_position) }}>
+                              <span className={styles.leagueFeedPosBadge} style={{ color: positionColor(p.primary_position) }}>
                                 {p.primary_position}
                               </span>
                               {p.web_name ?? p.name}

@@ -229,7 +229,8 @@
   padding: var(--space-3) var(--space-4);
   background: var(--color-bg-card);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
 }
 
 @media (max-width: 600px) {
@@ -512,13 +513,14 @@
 .slotPosBadge {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 24px;
-  font-size: 0.7rem;
-  font-weight: 700;
-  color: #fff;
-  border-radius: var(--radius-sm);
+  font-family: var(--font-sans);
+  font-size: 0.65rem;
+  font-weight: 800;
+  font-variant-caps: all-small-caps;
+  letter-spacing: 0.02em;
+  color: var(--pc, var(--color-text-muted));
+  border-left: 3px solid var(--pc, var(--color-border));
+  padding-left: 8px;
   flex-shrink: 0;
 }
 
@@ -675,7 +677,8 @@
   padding: var(--space-3) var(--space-4);
   background: var(--color-bg-card);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
   opacity: 0.6;
 }
 

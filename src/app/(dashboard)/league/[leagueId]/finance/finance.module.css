@@ -44,7 +44,8 @@
   display: flex;
   background: var(--color-bg-card);
   border: 1px solid var(--color-border-subtle);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
   overflow: hidden;
 }
 
@@ -132,7 +133,8 @@
 .breakdown {
   background: var(--color-bg-card);
   border: 1px solid var(--color-border-subtle);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
   padding: 24px 28px;
   display: flex;
   flex-direction: column;
@@ -223,7 +225,8 @@
 .tableWrap {
   background: var(--color-bg-card);
   border: 1px solid var(--color-border-subtle);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
   overflow: hidden;
 }
 
@@ -286,25 +289,21 @@
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  padding: 3px 8px;
-  border-radius: 2px;
   white-space: nowrap;
+  border-left: 2px solid currentColor;
+  padding-left: 7px;
 }
 
 .typePill_in {
-  background: rgba(58, 107, 74, 0.1);
   color: var(--color-accent-green);
 }
 
 .typePill_out {
-  background: rgba(220, 38, 38, 0.08);
-  color: #dc2626;
+  color: var(--color-danger-dark);
 }
 
 .typePill_none {
-  background: var(--color-bg-elevated);
   color: var(--color-text-muted);
-  border: 1px solid var(--color-border-subtle);
 }
 
 .ledgerPlayer {
@@ -390,7 +389,8 @@
 .emptyState {
   background: var(--color-bg-card);
   border: 1px solid var(--color-border-subtle);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
   padding: 48px 32px;
   text-align: center;
 }

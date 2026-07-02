@@ -51,7 +51,9 @@ export default function PlayerCard({
           <div className={styles.nameRow}>
             <span className={styles.name}>{nameToDisplay}</span>
             {player.fpl_status && player.fpl_status !== 'a' && (
-              <span className={styles.statusBadge}>
+              <span
+                className={`${styles.statusBadge} ${player.fpl_status === 'd' ? styles.statusBadgeDoubtful : ''}`}
+              >
                 {player.fpl_status.toUpperCase()}
               </span>
             )}

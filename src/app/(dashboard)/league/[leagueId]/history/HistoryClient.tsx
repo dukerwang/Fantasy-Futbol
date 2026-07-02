@@ -79,7 +79,7 @@ function SeasonPanel({ entry }: { entry: SeasonEntry }) {
         {hasCups && (
           <div className={styles.cupRow}>
             {Object.entries(entry.cupWinners).map(([cupName, winner]) => (
-              <div key={cupName} className={styles.cupBadge}>
+              <div key={cupName} className={styles.cupBadge} style={{ borderLeftColor: CUP_COLORS[cupName] ?? 'var(--color-border)' }}>
                 <span className={styles.cupIcon} style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
                   <Icon name="trophy" size={16} style={{ color: CUP_COLORS[cupName] ?? 'var(--color-text-muted)' }} />
                 </span>

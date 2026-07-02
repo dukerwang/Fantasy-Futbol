@@ -122,7 +122,7 @@ const TYPE_CONFIG: Record<string, TypeCfg> = {
   trade: { label: 'TRADE', borderColor: '#f59e0b', badgeVariant: 'amber' },
   transfer_compensation: {
     label: 'COMPENSATION',
-    borderColor: '#a855f7',
+    borderColor: 'var(--color-accent-green)',
     badgeVariant: 'purple',
   },
   rebate: {
@@ -200,7 +200,7 @@ function getTimeRemaining(expiresAt: string): string {
 function PositionBadge({ position }: { position: string }) {
   const color = POS_COLOR_MAP[position] ?? 'var(--color-text-muted)';
   return (
-    <span className={styles.posBadge} style={{ backgroundColor: color }}>
+    <span className={styles.posBadge} style={{ color }}>
       {position}
     </span>
   );
@@ -735,7 +735,7 @@ function RightSidebar({
                         </span>
                         <span
                           className={styles.auctionPosBadge}
-                          style={{ backgroundColor: posColor }}
+                          style={{ color: posColor }}
                         >
                           {a.player.primary_position}
                         </span>

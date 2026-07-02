@@ -297,30 +297,37 @@
   position: absolute;
   top: 14px;
   right: 18px;
-  padding: 4px 8px;
-  border-radius: 4px;
+  padding: 4px 10px 4px 8px;
   backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
   gap: 4px;
   max-width: 200px;
   z-index: 10;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(20, 20, 20, 0.45);
+  border-left: 2px solid;
 }
 
 .injuryOut {
-  background: rgba(139, 26, 26, 0.85); /* Crimson */
+  border-left-color: var(--color-accent-red);
+}
+
+.injuryOut .injuryText {
+  color: var(--color-accent-red);
 }
 
 .injuryDoubtful {
-  background: rgba(212, 160, 23, 0.85); /* Amber */
+  border-left-color: var(--color-accent-yellow);
+}
+
+.injuryDoubtful .injuryText {
+  color: var(--color-accent-yellow);
 }
 
 .injuryText {
   font-family: var(--font-sans);
   font-size: 9px;
   font-weight: 700;
-  color: #fff;
   line-height: 1.2;
   text-transform: uppercase;
   letter-spacing: 0.05em;

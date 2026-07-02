@@ -139,27 +139,27 @@ export default function RosterManager({ teamId, rosterEntries }: Props) {
                                 </div>
                                 <div className={styles.rosterItemActions} style={{ display: 'flex', alignItems: 'center' }}>
                                     {hasActiveListing && (
-                                        <span style={{ border: '1px solid #10b981', color: '#10b981', background: 'rgba(16,185,129,0.1)', padding: '4px 8px', borderRadius: '4px', fontSize: '11px', marginRight: '0.5rem', alignSelf: 'center', fontWeight: 'bold' }}>
-                                            🔒 Auction Live
+                                        <span style={{ borderLeft: '2px solid var(--color-accent-green)', color: 'var(--color-accent-green)', paddingLeft: '8px', fontSize: '11px', marginRight: '0.5rem', alignSelf: 'center', fontWeight: 'bold' }}>
+                                            Auction Live
                                         </span>
                                     )}
                                     {hasPendingListing && (
-                                        <span style={{ border: '1px solid #3b82f6', color: '#3b82f6', background: 'rgba(59,130,246,0.1)', padding: '4px 8px', borderRadius: '4px', fontSize: '11px', marginRight: '0.5rem', alignSelf: 'center', fontWeight: 'bold' }}>
+                                        <span style={{ borderLeft: '2px solid var(--color-text-secondary)', color: 'var(--color-text-secondary)', paddingLeft: '8px', fontSize: '11px', marginRight: '0.5rem', alignSelf: 'center', fontWeight: 'bold' }}>
                                             Listed
                                         </span>
                                     )}
                                     {isLoanIn && (
-                                        <span style={{ border: '1px solid var(--color-accent-green)', color: 'var(--color-accent-green)', background: 'rgba(16,185,129,0.1)', padding: '4px 8px', borderRadius: '4px', fontSize: '11px', marginRight: '0.5rem', alignSelf: 'center', fontWeight: 'bold' }}>
+                                        <span style={{ borderLeft: '2px solid var(--color-accent-green)', color: 'var(--color-accent-green)', paddingLeft: '8px', fontSize: '11px', marginRight: '0.5rem', alignSelf: 'center', fontWeight: 'bold' }}>
                                             LOAN
                                         </span>
                                     )}
                                     {isLoanOut && (
-                                        <span style={{ border: '1px solid var(--color-accent-blue)', color: 'var(--color-accent-blue)', background: 'rgba(59,130,246,0.1)', padding: '4px 8px', borderRadius: '4px', fontSize: '11px', marginRight: '0.5rem', alignSelf: 'center', fontWeight: 'bold' }}>
+                                        <span style={{ borderLeft: '2px solid var(--color-accent-blue)', color: 'var(--color-accent-blue)', paddingLeft: '8px', fontSize: '11px', marginRight: '0.5rem', alignSelf: 'center', fontWeight: 'bold' }}>
                                             LOANED OUT
                                         </span>
                                     )}
                                     {isPendingActivation && (
-                                        <span style={{ border: '1px solid #fbbf24', color: '#fbbf24', background: 'rgba(251,191,36,0.1)', padding: '4px 8px', borderRadius: '4px', fontSize: '11px', marginRight: '0.5rem', alignSelf: 'center', fontWeight: 'bold' }}>
+                                        <span style={{ borderLeft: '2px solid var(--color-warning)', color: 'var(--color-warning)', paddingLeft: '8px', fontSize: '11px', marginRight: '0.5rem', alignSelf: 'center', fontWeight: 'bold' }}>
                                             RETURNED (PENDING DROP)
                                         </span>
                                     )}

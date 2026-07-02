@@ -141,10 +141,14 @@
   font-weight: var(--font-bold);
   letter-spacing: 0.05em;
   text-transform: uppercase;
-  color: var(--color-text-muted);
-  background: var(--color-bg-elevated);
-  padding: 2px 8px;
-  border-radius: var(--radius-full);
+  color: var(--color-accent-red);
+  border-left: 2px solid var(--color-accent-red);
+  padding-left: 6px;
+}
+
+.statusBadgeDoubtful {
+  color: var(--color-accent-yellow);
+  border-left-color: var(--color-accent-yellow);
 }
 
 .meta {

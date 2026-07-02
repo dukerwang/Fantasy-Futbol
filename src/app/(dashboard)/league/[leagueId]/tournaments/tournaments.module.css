@@ -298,16 +298,28 @@
 }
 
 .roundLiveBadge {
-    display: inline-block;
-    font-family: var(--font-sans);
-    font-size: 0.65rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.15em;
-    background-color: #2D6A4F;
-    color: #FFF;
-    padding: 0.15rem 0.6rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-weight: 600;
+    font-size: 0.8rem;
+    color: #3A6B4A;
     vertical-align: middle;
+}
+
+.roundLiveBadge::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+    flex-shrink: 0;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .roundLiveBadge::before { animation: ds-pulse 1.8s ease-in-out infinite; }
 }
 
 .matchupLive {
@@ -400,7 +412,8 @@
     background-color: #FDFCF9;
     padding: 2rem;
     border: 1px solid rgba(0, 0, 0, 0.1);
-    border-radius: var(--radius-sm);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
 }
 
 .overviewTitle {
