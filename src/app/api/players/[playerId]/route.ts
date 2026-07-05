@@ -34,6 +34,13 @@ export async function GET(
     .eq('player_id', playerId);
 
   const statsMap = new Map(dbStats?.map((s: any) => [Number(s.match_id), s]) ?? []);
+
+  // 2.5 Fetch player career history from season_player_stats_archive
+  const { data: historyData } = await supabase
+    .from('season_player_stats_archive')
+    .select('season, total_points, ppg, form_rating, overall_rank, position_ranks')
+    .eq('player_id', playerId)
+    .order('season', { ascending: false });
   
   let teamMap = new Map<number, { name: string, short: string }>();
   let fixtureMap = new Map<number, any>();
@@ -146,7 +153,7 @@ export async function GET(
     }
 
     enrichedLog.sort((a: any, b: any) => b.gameweek - a.gameweek);
-    return NextResponse.json({ gamelog: enrichedLog });
+    return NextResponse.json({ gamelog: enrichedLog, history: historyData ?? [] });
 
   } catch (err) {
     console.error('Critical failure in player game log generation', err);
@@ -160,6 +167,6 @@ export async function GET(
       isDNP: (s.stats?.minutes_played === 0),
     }));
     fallback.sort((a: any, b: any) => b.gameweek - a.gameweek);
-    return NextResponse.json({ gamelog: fallback });
+    return NextResponse.json({ gamelog: fallback, history: historyData ?? [] });
   }
 }

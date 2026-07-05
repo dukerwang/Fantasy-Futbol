@@ -117,6 +117,104 @@ async function archiveStandings(
 }
 
 /**
+ * Archives all regular-season matchups of the completed season.
+ */
+async function archiveMatchups(
+  admin: SupabaseClient,
+  leagueId: string,
+  seasonFrom: string,
+): Promise<number> {
+  const { data: matchups, error } = await admin
+    .from('matchups')
+    .select('gameweek, team_a_id, team_b_id, score_a, score_b, lineup_a, lineup_b')
+    .eq('league_id', leagueId);
+
+  if (error) throw new Error(`Failed to fetch matchups for archive: ${error.message}`);
+  if (!matchups || matchups.length === 0) return 0;
+
+  const rows = matchups.map((m) => ({
+    league_id: leagueId,
+    season: seasonFrom,
+    gameweek: m.gameweek,
+    team_a_id: m.team_a_id,
+    team_b_id: m.team_b_id,
+    score_a: m.score_a,
+    score_b: m.score_b,
+    lineup_a: m.lineup_a,
+    lineup_b: m.lineup_b,
+  }));
+
+  const { error: insertErr } = await admin
+    .from('season_matchups_archive')
+    .upsert(rows, { onConflict: 'league_id,season,gameweek,team_a_id,team_b_id' });
+
+  if (insertErr) throw new Error(`Failed to archive matchups: ${insertErr.message}`);
+  return rows.length;
+}
+
+/**
+ * Resolves cup winners of the completed season and archives them.
+ */
+async function archiveCupWinners(
+  admin: SupabaseClient,
+  leagueId: string,
+  seasonFrom: string,
+): Promise<number> {
+  const { data: tournaments, error: fetchErr } = await admin
+    .from('tournaments')
+    .select('id, name, type, season')
+    .eq('league_id', leagueId)
+    .eq('season', seasonFrom)
+    .eq('status', 'completed');
+
+  if (fetchErr) throw new Error(`Failed to fetch tournaments for winner archive: ${fetchErr.message}`);
+  if (!tournaments || tournaments.length === 0) return 0;
+
+  const rows: any[] = [];
+
+  for (const t of tournaments) {
+    // Find the final round (highest round_number)
+    const { data: finalRound, error: rErr } = await admin
+      .from('tournament_rounds')
+      .select('id')
+      .eq('tournament_id', t.id)
+      .order('round_number', { ascending: false })
+      .limit(1)
+      .single();
+
+    if (rErr || !finalRound) continue;
+
+    // Find completed matchup in that round with a winner
+    const { data: matchups, error: mErr } = await admin
+      .from('tournament_matchups')
+      .select('winner_id')
+      .eq('round_id', finalRound.id)
+      .eq('status', 'completed')
+      .not('winner_id', 'is', null)
+      .limit(1);
+
+    const finalMatchup = matchups?.[0];
+    if (mErr || !finalMatchup?.winner_id) continue;
+
+    rows.push({
+      league_id: leagueId,
+      season: seasonFrom,
+      tournament_name: t.name,
+      winner_id: finalMatchup.winner_id,
+    });
+  }
+
+  if (rows.length === 0) return 0;
+
+  const { error: insertErr } = await admin
+    .from('season_cup_winners_archive')
+    .upsert(rows, { onConflict: 'league_id,season,tournament_name' });
+
+  if (insertErr) throw new Error(`Failed to archive cup winners: ${insertErr.message}`);
+  return rows.length;
+}
+
+/**
  * Deletes all matchups for the league (to regenerate for new season).
  * Preserves tournament matchups — those are handled separately.
  */
@@ -388,6 +486,18 @@ export async function runSeasonReset(
 
   // Step 2: Archive standings
   const standingsArchived = await archiveStandings(admin, leagueId, seasonFrom);
+
+  // Step 2.2: Archive matchups
+  await archiveMatchups(admin, leagueId, seasonFrom);
+
+  // Step 2.4: Archive cup winners
+  await archiveCupWinners(admin, leagueId, seasonFrom);
+
+  // Step 2.6: Archive player season stats and ranks
+  const { error: playerStatsArchErr } = await admin.rpc('archive_player_season_stats', { p_season: seasonFrom });
+  if (playerStatsArchErr) {
+    throw new Error(`Failed to archive player season stats: ${playerStatsArchErr.message}`);
+  }
 
   // Step 3: Distribute prizes
   const { paid: prizesPaid, totalFaab: totalPrizeFaab } = await distributeAllPrizes(admin, leagueId, seasonFrom);

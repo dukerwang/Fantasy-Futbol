@@ -244,10 +244,10 @@ async function syncFplLiveRatings(gameweek: number): Promise<NextResponse> {
   }
 
   // Recalculate total_points and form for all players from player_stats
-  await supabase.rpc('update_player_fantasy_scores');
+  await supabase.rpc('update_player_fantasy_scores', { p_season: fplSeason });
 
   // Recompute pre-computed form_rating (avg match_rating over last 3 appearances)
-  await supabase.rpc('update_player_form_ratings');
+  await supabase.rpc('update_player_form_ratings', { p_season: fplSeason });
 
   // Resolve all stalled GWs — not just the one being synced.
   // This catches GWs that were left as 'live' once getCurrentGameweek() rolled forward.

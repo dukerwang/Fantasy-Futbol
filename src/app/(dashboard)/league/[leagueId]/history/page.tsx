@@ -37,7 +37,7 @@ export default async function HistoryPage({ params }: Props) {
   if (!membership && league.commissioner_id !== user.id) redirect('/dashboard');
 
   // ── Parallel data fetches ──────────────────────────────────────────────────
-  const [archiveResult, allMatchupsResult, tournsResult] = await Promise.all([
+  const [archiveResult, allMatchupsResult, cupWinnersResult] = await Promise.all([
     // Season standings archive
     admin
       .from('season_standings_archive')
@@ -49,65 +49,29 @@ export default async function HistoryPage({ params }: Props) {
       .order('season', { ascending: false })
       .order('final_rank', { ascending: true }),
 
-    // All completed matchups for all-time records
+    // All completed matchups for all-time records from archives
     admin
-      .from('matchups')
+      .from('season_matchups_archive')
       .select('score_a, score_b, gameweek, team_a:teams!team_a_id(team_name), team_b:teams!team_b_id(team_name)')
-      .eq('league_id', leagueId)
-      .eq('status', 'completed'),
+      .eq('league_id', leagueId),
 
-    // Completed tournaments for cup winners
+    // Completed tournament cup winners from archives
     admin
-      .from('tournaments')
-      .select('id, name, season, status')
-      .eq('league_id', leagueId)
-      .eq('status', 'completed'),
+      .from('season_cup_winners_archive')
+      .select('tournament_name, season, winner:teams!winner_id(team_name)')
+      .eq('league_id', leagueId),
   ]);
 
   const archive = archiveResult.data ?? [];
   const allMatchups = allMatchupsResult.data ?? [];
-  const tournaments = tournsResult.data ?? [];
+  const cupWinners = cupWinnersResult.data ?? [];
 
-  // ── Resolve cup winners by walking tournament → rounds → final matchup ────
-  const cupWinnerData: Array<{ tournament_name: string; season: string; winner_name: string }> = [];
-
-  for (const t of tournaments as any[]) {
-    // Find the final round (highest round_number)
-    const { data: finalRound } = await admin
-      .from('tournament_rounds')
-      .select('id')
-      .eq('tournament_id', t.id)
-      .order('round_number', { ascending: false })
-      .limit(1)
-      .single();
-
-    if (!finalRound) continue;
-
-    // Find completed matchup in that round with a winner
-    const { data: matchups } = await admin
-      .from('tournament_matchups')
-      .select('winner_id, team_a:teams!team_a_id(id, team_name), team_b:teams!team_b_id(id, team_name)')
-      .eq('round_id', finalRound.id)
-      .eq('status', 'completed')
-      .not('winner_id', 'is', null)
-      .limit(1);
-
-    const finalMatchup = matchups?.[0];
-    if (!finalMatchup?.winner_id) continue;
-
-    const teamA = finalMatchup.team_a as any;
-    const teamB = finalMatchup.team_b as any;
-    const winnerName =
-      finalMatchup.winner_id === teamA?.id ? (teamA?.team_name ?? 'Unknown') :
-      finalMatchup.winner_id === teamB?.id ? (teamB?.team_name ?? 'Unknown') :
-      'Unknown';
-
-    cupWinnerData.push({
-      tournament_name: t.name,
-      season: t.season ?? league.current_season ?? league.season,
-      winner_name: winnerName,
-    });
-  }
+  // ── Resolve cup winners from archive ──────────────────────────────────────
+  const cupWinnerData = cupWinners.map((cw: any) => ({
+    tournament_name: cw.tournament_name,
+    season: cw.season,
+    winner_name: cw.winner?.team_name ?? 'Unknown',
+  }));
 
   // ── Compute all-time record: highest single-GW score ──────────────────────
   let highestGwScore: { teamName: string; score: number; gameweek: number } | null = null;

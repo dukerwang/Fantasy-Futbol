@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useCallback, useEffect } from 'react';
-import type { Player, RatingBreakdownItem } from '@/types';
+import type { Player, RatingBreakdownItem, PlayerSeasonArchive } from '@/types';
 import { formatPlayerName } from '@/lib/formatName';
 import styles from './PremiumPlayerCard.module.css';
 
@@ -148,9 +148,10 @@ export default function PremiumPlayerCard({
     // Ref mirrors flipped state so mouse callbacks always read the latest value
     // without needing to be re-created on every flip (avoids stale closures).
     const flippedRef = useRef(false);
-    const [tab, setTab] = useState<'log' | 'breakdown'>('log');
+    const [tab, setTab] = useState<'log' | 'breakdown' | 'history'>('log');
     const [hovering, setHovering] = useState(false);
     const [gamelog, setGamelog] = useState<GamelogEntry[]>([]);
+    const [history, setHistory] = useState<PlayerSeasonArchive[]>([]);
 
     // 2-step image fallback: last-season large → stored small
     const imgLegacy250 = player.photo_url
@@ -163,9 +164,15 @@ export default function PremiumPlayerCard({
     useEffect(() => {
         fetch(`/api/players/${player.id}`)
             .then(r => r.json())
-            .then(d => setGamelog(d.gamelog ?? []))
+            .then(d => {
+                setGamelog(d.gamelog ?? []);
+                setHistory(d.history ?? []);
+            })
             .catch(() => {});
-        return () => setGamelog([]);
+        return () => {
+            setGamelog([]);
+            setHistory([]);
+        };
     }, [player.id]);
 
     const teamColor = getTeamColor(player.pl_team);
@@ -477,6 +484,12 @@ export default function PremiumPlayerCard({
                                     Rating
                                 </button>
                             )}
+                            <button
+                                className={`${styles.backTab} ${tab === 'history' ? styles.backTabActive : ''}`}
+                                onClick={() => setTab('history')}
+                            >
+                                History
+                            </button>
                         </div>
 
                         {/* Tab content */}
@@ -547,6 +560,50 @@ export default function PremiumPlayerCard({
                                         </table>
                                     ) : (
                                         <div className={styles.emptyState}>No game log records found.</div>
+                                    )}
+                                </div>
+                            )}
+                            {tab === 'history' && (
+                                <div className={styles.glWrap} onWheel={(e) => e.stopPropagation()}>
+                                    {history.length > 0 ? (
+                                        <table className={styles.glTable}>
+                                            <thead>
+                                                <tr>
+                                                    <th className={styles.gwTh}>Season</th>
+                                                    <th className={styles.ctrTh}>Points</th>
+                                                    <th className={styles.ctrTh}>PPG</th>
+                                                    <th className={styles.ctrTh}>Form</th>
+                                                    <th className={styles.ctrTh}>OVR</th>
+                                                    <th>Pos Rank</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {history.map((h, index) => {
+                                                    const bestPosRank = h.position_ranks && h.position_ranks.length > 0
+                                                        ? h.position_ranks.sort((a: any, b: any) => a.rank - b.rank)[0]
+                                                        : null;
+
+                                                    return (
+                                                        <tr key={h.season ?? index}>
+                                                            <td className={styles.gwTd}>{h.season.replace('-', '/')}</td>
+                                                            <td className={styles.ctrTd}>{Number(h.total_points).toFixed(1)}</td>
+                                                            <td className={styles.ctrTd}>{Number(h.ppg).toFixed(1)}</td>
+                                                            <td className={styles.ctrTd}>{Number(h.form_rating).toFixed(1)}</td>
+                                                            <td className={styles.ctrTd}>#{h.overall_rank}</td>
+                                                            <td>
+                                                                {bestPosRank ? (
+                                                                    <span className={styles.resTag} style={{ color: 'var(--color-accent-green)' }}>
+                                                                        {bestPosRank.position} #{bestPosRank.rank}
+                                                                    </span>
+                                                                ) : '—'}
+                                                            </td>
+                                                        </tr>
+                                                    );
+                                                })}
+                                            </tbody>
+                                        </table>
+                                    ) : (
+                                        <div className={styles.emptyState}>No past season stats available.</div>
                                     )}
                                 </div>
                             )}

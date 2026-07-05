@@ -638,3 +638,13 @@ export interface FplLivePlayerStats {
     stats: { identifier: string; value: number }[];
   }[];
 }
+
+export interface PlayerSeasonArchive {
+  season: string;
+  total_points: number;
+  ppg: number;
+  form_rating: number;
+  overall_rank: number;
+  position_ranks: { position: string; rank: number }[];
+}
+
