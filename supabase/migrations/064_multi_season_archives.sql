@@ -121,6 +121,9 @@ RETURNS void
 LANGUAGE plpgsql
 AS $$
 BEGIN
+  -- Reset all players to 0 for these metrics first (so players with no games in p_season are cleared)
+  UPDATE public.players SET form_rating = 0, ppg = 0;
+
   -- 1. Update form_rating (average of last 3 match_ratings where minutes >= 15)
   UPDATE players p
   SET form_rating = sub.avg_rating
