@@ -2,6 +2,7 @@ export interface FplStatus {
   currentGw: number;
   isFinished: boolean;
   nextGwIsClose: boolean;
+  nextDeadline: string | null;
 }
 
 /**
@@ -15,7 +16,7 @@ export async function getFplStatus(): Promise<FplStatus> {
     });
     
     if (!fplRes.ok) {
-      return { currentGw: 1, isFinished: false, nextGwIsClose: false };
+      return { currentGw: 1, isFinished: false, nextGwIsClose: false, nextDeadline: null };
     }
 
     const fplData = await fplRes.json();
@@ -24,7 +25,7 @@ export async function getFplStatus(): Promise<FplStatus> {
     // If the last event in the list is finished, the entire season is complete (offseason)
     const lastEvent = events[events.length - 1];
     if (lastEvent?.finished) {
-      return { currentGw: 1, isFinished: false, nextGwIsClose: false };
+      return { currentGw: 1, isFinished: false, nextGwIsClose: false, nextDeadline: null };
     }
 
     const now = new Date();
@@ -47,9 +48,9 @@ export async function getFplStatus(): Promise<FplStatus> {
       if (daysUntil <= 3) nextGwIsClose = true;
     }
 
-    return { currentGw, isFinished, nextGwIsClose };
+    return { currentGw, isFinished, nextGwIsClose, nextDeadline: nextGW?.deadline_time ?? null };
   } catch (error) {
     console.error('Error fetching FPL status:', error);
-    return { currentGw: 1, isFinished: false, nextGwIsClose: false };
+    return { currentGw: 1, isFinished: false, nextGwIsClose: false, nextDeadline: null };
   }
 }
