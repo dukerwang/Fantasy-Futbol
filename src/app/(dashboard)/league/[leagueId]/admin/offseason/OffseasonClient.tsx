@@ -165,8 +165,8 @@ export default function OffseasonClient({ leagueId, league, cronSecret }: Props)
         <h1 className={styles.title}>Season Transition Panel</h1>
         <p className={styles.subtitle}>
           Transition from <strong>{league.current_season}</strong> to the next season.
-          First close the active season with a **Season Reset** to archive results and distribute standings balance awards,
-          then execute the **Season Kickoff** later in the summer to process permanent relegation drops and open the transfer market.
+          First close the active season with a <strong>Season Reset</strong> to archive results and distribute standings balance awards,
+          then execute the <strong>Season Kickoff</strong> later in the summer to process permanent relegation drops and open the transfer market.
         </p>
       </header>
 
@@ -180,10 +180,10 @@ export default function OffseasonClient({ leagueId, league, cronSecret }: Props)
           )}
         </div>
         <div className={styles.statusBadge}>
-          Status: <strong>{league.status}</strong>
+          Status:{' '}<strong>{league.status}</strong>
         </div>
         <div className={styles.statusBadge}>
-          Season: <strong>{league.current_season}</strong>
+          Season:{' '}<strong>{league.current_season}</strong>
         </div>
       </div>
 
@@ -264,7 +264,7 @@ export default function OffseasonClient({ leagueId, league, cronSecret }: Props)
               <div className={`${styles.seasonBadge} ${styles.seasonBadgeNext}`}>{preflightData.seasonTo}</div>
             </div>
             <p className={styles.cardDesc} style={{ marginTop: '10px' }}>
-              ℹ️ Relegated and departed players remain on rosters throughout the summer as a **Grace Period** in case they secure transfers back to a Premier League team before kickoff!
+              ℹ️ Relegated and departed players remain on rosters throughout the summer as a <strong>Grace Period</strong> in case they secure transfers back to a Premier League team before kickoff!
             </p>
           </section>
 
@@ -372,7 +372,7 @@ export default function OffseasonClient({ leagueId, league, cronSecret }: Props)
               <span className={styles.sectionBadge}>{kickoffPreviewData.preview.relegationPlayers.length} players</span>
             </h2>
             <p className={styles.cardDesc} style={{ marginBottom: '15px' }}>
-              These players have officially departed the Premier League (either via team relegation or permanent transfer abroad) and did not secure a transfer back to the Prem during the summer grace period. They will be dropped from fantasy rosters and their managers compensated with **80% of their market value**.
+              These players have officially departed the Premier League (either via team relegation or permanent transfer abroad) and did not secure a transfer back to the Prem during the summer grace period. They will be dropped from fantasy rosters and their managers compensated with <strong>80% of their market value</strong>.
             </p>
             {kickoffPreviewData.preview.relegationPlayers.length === 0 ? (
               <p className={styles.emptyState}>No relegated or departed players are rostered — no payouts needed.</p>
@@ -418,7 +418,7 @@ export default function OffseasonClient({ leagueId, league, cronSecret }: Props)
               <span className={styles.sectionBadge}>{kickoffPreviewData.preview.summerArrivals.length} players</span>
             </h2>
             <p className={styles.cardDesc} style={{ marginBottom: '15px' }}>
-              These are brand-new high-value arrivals (Transfermarkt value **&gt;= €40m**) who entered the league over the summer. To ensure fairness, they will be placed on the **48-hour transfer auction block** immediately upon kickoff, rather than being claimable via standard first-come-first-served free agency.
+              These are brand-new high-value arrivals (Transfermarkt value <strong>&gt;= €40m</strong>) who entered the league over the summer. To ensure fairness, they will be placed on the <strong>48-hour transfer auction block</strong> immediately upon kickoff, rather than being claimable via standard first-come-first-served free agency.
             </p>
             {kickoffPreviewData.preview.summerArrivals.length === 0 ? (
               <p className={styles.emptyState}>No high-value summer arrivals detected.</p>
@@ -450,7 +450,7 @@ export default function OffseasonClient({ leagueId, league, cronSecret }: Props)
           <div className={styles.actionCard} data-type="danger">
             <h2 className={styles.cardTitle}>Confirm & Kickoff Season</h2>
             <p className={styles.cardDesc}>
-              This will officially begin the new season! Rosters will be **unlocked**, the league status will be updated to **active**, all pending relegated/departed players will be permanently dropped with cash payouts, and the 48-hour summer auctions will be created.
+              This will officially begin the new season! Rosters will be <strong>unlocked</strong>, the league status will be updated to <strong>active</strong>, all pending relegated/departed players will be permanently dropped with cash payouts, and the 48-hour summer auctions will be created.
             </p>
             <button className={styles.btnPrimary} onClick={runKickoff}>
               Yes — Start New Season
@@ -504,7 +504,7 @@ export default function OffseasonClient({ leagueId, league, cronSecret }: Props)
           <div className={styles.nextStepsCard}>
             <h2 className={styles.cardTitle}>Summer Auction Block Activated</h2>
             <p className={styles.cardDesc}>
-              Managers have **48 hours** to place their initial bids on the following new marquee arrivals:
+              Managers have <strong>48 hours</strong> to place their initial bids on the following new marquee arrivals:
             </p>
             {result.auctionedPlayers?.length > 0 ? (
               <ul className={styles.nextStepsList}>
@@ -558,7 +558,7 @@ export default function OffseasonClient({ leagueId, league, cronSecret }: Props)
             <p className={styles.cardDesc}>
               The old season has been archived, prizes paid, and new schedules/brackets have been generated for <strong>{result.seasonTo}</strong>.
               Rosters are locked. Relegated players will remain on rosters as a grace period. 
-              Run the **Kickoff** later in the summer when you are ready to process final relegation drops and activate the league!
+              Run the <strong>Kickoff</strong> later in the summer when you are ready to process final relegation drops and activate the league!
             </p>
           </div>
         </div>
