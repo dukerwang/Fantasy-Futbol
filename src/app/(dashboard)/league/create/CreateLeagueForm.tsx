@@ -54,8 +54,11 @@ export default function CreateLeagueForm() {
             className={styles.input}
             placeholder="Premier Fantasy Dynasty"
             required
-            maxLength={80}
+            maxLength={40}
           />
+          <span className={`${styles.charCount} ${name.length >= 36 ? styles.charCountWarn : ''}`}>
+            {name.length} / 40
+          </span>
         </div>
 
       </div>

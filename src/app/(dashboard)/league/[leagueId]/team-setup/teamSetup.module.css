@@ -112,6 +112,26 @@
   margin: 0;
 }
 
+.inputFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.charCount {
+  font-size: 0.7rem;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: color 0.2s ease;
+}
+
+.charCountWarn {
+  color: #ef4444;
+  font-weight: 700;
+}
+
 /* Upload & Cropper Area */
 .uploadArea {
   display: flex;

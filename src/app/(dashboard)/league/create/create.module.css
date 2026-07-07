@@ -67,6 +67,19 @@
   color: var(--color-text-secondary);
 }
 
+.charCount {
+  font-size: var(--text-xs, 0.75rem);
+  color: var(--color-text-muted);
+  text-align: right;
+  line-height: 1;
+  transition: color var(--transition-fast);
+}
+
+.charCountWarn {
+  color: var(--color-accent-red, #ef4444);
+  font-weight: var(--font-semibold);
+}
+
 .input,
 .select {
   width: 100%;

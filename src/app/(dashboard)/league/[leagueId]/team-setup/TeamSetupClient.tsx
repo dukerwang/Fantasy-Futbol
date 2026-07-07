@@ -198,14 +198,19 @@ export default function TeamSetupClient({ leagueId, leagueName, team, username }
                 id="club-name"
                 type="text"
                 className={styles.textInput}
-                placeholder="e.g. Duke's Destroyers"
+                placeholder="e.g. Duke's FC"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
-                maxLength={50}
+                maxLength={20}
                 autoComplete="off"
               />
-              <p className={styles.inputHint}>Your full franchise name displayed across the league.</p>
+              <div className={styles.inputFooter}>
+                <p className={styles.inputHint}>Your full franchise name displayed across the league.</p>
+                <span className={`${styles.charCount} ${name.length >= 18 ? styles.charCountWarn : ''}`}>
+                  {name.length} / 20
+                </span>
+              </div>
             </div>
 
             {/* Abbreviation */}
