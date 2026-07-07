@@ -572,7 +572,6 @@ export default function PremiumPlayerCard({
                                                     <th className={styles.gwTh}>Season</th>
                                                     <th className={styles.ctrTh}>Points</th>
                                                     <th className={styles.ctrTh}>PPG</th>
-                                                    <th className={styles.ctrTh}>Form</th>
                                                     <th className={styles.ctrTh}>OVR</th>
                                                     <th>Pos Rank</th>
                                                 </tr>
@@ -588,7 +587,6 @@ export default function PremiumPlayerCard({
                                                             <td className={styles.gwTd}>{h.season.replace('-', '/')}</td>
                                                             <td className={styles.ctrTd}>{Number(h.total_points).toFixed(1)}</td>
                                                             <td className={styles.ctrTd}>{Number(h.ppg).toFixed(1)}</td>
-                                                            <td className={styles.ctrTd}>{Number(h.form_rating).toFixed(1)}</td>
                                                             <td className={styles.ctrTd}>#{h.overall_rank}</td>
                                                             <td>
                                                                 {bestPosRank ? (
