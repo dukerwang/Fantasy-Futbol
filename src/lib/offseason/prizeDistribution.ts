@@ -148,7 +148,7 @@ export async function buildCupPrizes(
     if (!prizeKeys) continue;
 
     // Find the final round (highest round_number)
-    const { data: finalRound } = await admin
+    const { data: finalRound, error: rErr } = await admin
       .from('tournament_rounds')
       .select('id')
       .eq('tournament_id', t.id)
@@ -156,10 +156,10 @@ export async function buildCupPrizes(
       .limit(1)
       .single();
 
-    if (!finalRound) continue;
+    if (rErr || !finalRound) continue;
 
     // Find the completed final matchup
-    const { data: finalMatchup } = await admin
+    const { data: finalMatchup, error: mErr } = await admin
       .from('tournament_matchups')
       .select('team_a_id, team_b_id, winner_id, team_a:teams!team_a_id(team_name), team_b:teams!team_b_id(team_name)')
       .eq('round_id', finalRound.id)
@@ -167,7 +167,7 @@ export async function buildCupPrizes(
       .limit(1)
       .single();
 
-    if (!finalMatchup?.winner_id) continue;
+    if (mErr || !finalMatchup?.winner_id) continue;
 
     const loserId = finalMatchup.winner_id === finalMatchup.team_a_id
       ? finalMatchup.team_b_id
