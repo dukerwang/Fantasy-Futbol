@@ -94,7 +94,7 @@ async function archiveStandings(
 ): Promise<number> {
   const { data: standings, error } = await admin
     .from('league_standings')
-    .select('team_id, rank, points_for')
+    .select('team_id, rank, league_points')
     .eq('league_id', leagueId)
     .order('rank', { ascending: true });
 
@@ -105,7 +105,7 @@ async function archiveStandings(
     season: seasonFrom,
     team_id: s.team_id,
     final_rank: s.rank,
-    total_points: s.points_for,
+    total_points: s.league_points,
   }));
 
   const { error: insertErr } = await admin
