@@ -22,7 +22,9 @@ type IconName =
   | 'message-square'
   | 'mail'
   | 'star'
-  | 'soccer';
+  | 'soccer'
+  | 'gaffa'
+  | 'plus';
 
 interface IconProps extends React.SVGProps<SVGSVGElement> {
   name: IconName;
@@ -153,6 +155,31 @@ export const Icon: React.FC<IconProps> = ({
         <path d="m9 5-3 1M15 5l3 1M5 11l-3 1M19 11l3 1M8 17l-2 3M16 17l2 3" />
       </>
     ),
+    gaffa: (
+      <g transform="scale(0.1875)">
+        {/* Outer border ring */}
+        <circle cx="64" cy="64" r="56" strokeWidth={4.2} />
+        
+
+        {/* Soccer Ball (Floating, centered at 64, 54, radius 24 — ~4px gap above collar at y=82) */}
+        <g transform="translate(35.2, 82.8) scale(0.06)">
+          <path fill="currentColor" stroke="none" d="M480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm200-500 54-18 16-54q-32-48-77-82.5T574-786l-54 38v56l160 112Zm-400 0 160-112v-56l-54-38q-54 17-99 51.5T210-652l16 54 54 18Zm-42 308 46-4 30-54-58-174-56-20-40 30q0 65 18 118.5T238-272Zm242 112q26 0 51-4t49-12l28-60-26-44H378l-26 44 28 60q24 8 49 12t51 4Zm-90-200h180l56-160-146-102-144 102 54 160Zm332 88q42-50 60-103.5T800-494l-40-28-56 18-58 174 30 54 46 4Z" />
+        </g>
+
+        {/* Suit shoulders */}
+        <path strokeWidth={4.2} d="M 24.8 104 C 34 88, 42 82, 50 82 M 103.2 104 C 94 88, 86 82, 78 82" />
+        
+        {/* Collar & Lapels */}
+        <path strokeWidth={4.2} fill="none" d="M 50 82 L 44 94 H 49 L 64 116 L 79 94 H 84 L 78 82" />
+
+        {/* Shirt V-neck */}
+        <path strokeWidth={4.2} d="M 54 82 L 64 96 L 74 82" />
+        
+        {/* Necktie — solid fill so shirt V-neck lines don't bleed through */}
+        <path fill="currentColor" stroke="none" d="M 61 82 H 67 L 66 90 L 67.5 106 L 64 111 L 60.5 106 L 62 90 Z" />
+      </g>
+    ),
+    plus: <path d="M12 5v14M5 12h14" />,
   };
 
   return (
