@@ -54,8 +54,12 @@
 }
 
 .brandIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-size: var(--text-lg);
   line-height: 1;
+  transform: translateY(-2px);
 }
 
 .brandName {

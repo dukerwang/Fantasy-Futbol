@@ -39,6 +39,7 @@
   color: var(--color-accent-green);
   display: grid;
   place-items: center;
+  transform: translateY(-2px);
 }
 
 .brandName {
