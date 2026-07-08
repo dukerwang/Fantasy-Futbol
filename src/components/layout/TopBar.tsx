@@ -206,7 +206,7 @@ export default function TopBar() {
       <div className={styles.inner}>
         {/* --- Wordmark --- */}
         <Link href="/dashboard" className={styles.brand} onClick={() => setIsNavigating(true)}>
-          <span className={styles.brandIcon}><Icon name="activity" size={20} strokeWidth={2} /></span>
+          <span className={styles.brandIcon}><Icon name="gaffa" size={20} strokeWidth={2} /></span>
           <span className={styles.brandName}>Gaffa</span>
         </Link>
 

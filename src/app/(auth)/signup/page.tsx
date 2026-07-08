@@ -40,7 +40,7 @@ export default function SignupPage() {
         {/* Brand stamp for mobile only */}
         <div className={styles.mobileBrand}>
           <span className={styles.brandIcon}>
-            <Icon name="activity" size={24} strokeWidth={2.5} />
+            <Icon name="gaffa" size={24} strokeWidth={2.5} />
           </span>
           <span className={styles.brandName}>Gaffa</span>
         </div>
