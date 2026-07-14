@@ -162,10 +162,12 @@ export default function PremiumPlayerCard({
     const leagueId = params?.leagueId as string | undefined;
 
     useEffect(() => {
+        let active = true;
         const query = leagueId ? `?leagueId=${leagueId}` : '';
         fetch(`/api/players/${player.id}${query}`)
             .then(r => r.json())
             .then(d => {
+                if (!active) return;
                 setGamelog(d.gamelog ?? []);
                 setHistory(d.history ?? []);
                 // Override with authoritative full player data from the API
@@ -175,6 +177,7 @@ export default function PremiumPlayerCard({
             })
             .catch(() => {});
         return () => {
+            active = false;
             setGamelog([]);
             setHistory([]);
             setResolvedPlayer(player);

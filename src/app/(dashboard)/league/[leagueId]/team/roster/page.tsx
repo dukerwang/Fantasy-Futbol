@@ -69,7 +69,7 @@ export default async function RosterPage({ params }: Props) {
       .order('status', { ascending: true }),
     admin
       .from('season_player_stats_archive')
-      .select('player_id, ppg, form_rating')
+      .select('player_id, ppg, form_rating, overall_rank, position_ranks')
       .eq('season', season)
   ]);
 
@@ -98,8 +98,8 @@ export default async function RosterPage({ params }: Props) {
     if (player) {
       const ranks = rankMap.get(player.id);
       const arch = archiveMap.get(player.id);
-      player.overall_rank = ranks?.overall_rank;
-      player.position_ranks = ranks?.position_ranks as unknown as { position: string; rank: number; }[] | null | undefined;
+      player.overall_rank = arch ? arch.overall_rank : ranks?.overall_rank;
+      player.position_ranks = (arch ? arch.position_ranks : ranks?.position_ranks) as unknown as { position: string; rank: number; }[] | null | undefined;
       player.ppg = arch ? Number(arch.ppg) : player.ppg;
       player.form_rating = arch ? Number(arch.form_rating) : player.form_rating;
     }
