@@ -6,6 +6,7 @@ import { FULL_PLAYER_SELECT } from '@/lib/constants/queries';
 import type { Player, RosterStatus } from '@/types';
 import RosterTable from './RosterTable';
 import { Icon } from '@/components/ui/Icon';
+import { getCurrentFplSeason } from '@/lib/season/currentSeason';
 import styles from './roster.module.css';
 
 export const dynamic = 'force-dynamic';
@@ -55,14 +56,24 @@ export default async function RosterPage({ params }: Props) {
 
   const listingsMap = new Map((listings ?? []).map((l: any) => [l.player_id, l]));
 
-  const { data: rosterRaw } = await admin
-    .from('roster_entries')
-    .select(`
-      id, team_id, player_id, status, acquisition_type, acquisition_value, acquired_at, on_trade_block,
-      player:players(${FULL_PLAYER_SELECT})
-    `)
-    .eq('team_id', team.id)
-    .order('status', { ascending: true });
+  const season = (team.league as any).season ?? await getCurrentFplSeason();
+
+  const [{ data: rosterRaw }, { data: archives }] = await Promise.all([
+    admin
+      .from('roster_entries')
+      .select(`
+        id, team_id, player_id, status, acquisition_type, acquisition_value, acquired_at, on_trade_block,
+        player:players(${FULL_PLAYER_SELECT})
+      `)
+      .eq('team_id', team.id)
+      .order('status', { ascending: true }),
+    admin
+      .from('season_player_stats_archive')
+      .select('player_id, ppg, form_rating')
+      .eq('season', season)
+  ]);
+
+  const archiveMap = new Map((archives ?? []).map((a: any) => [a.player_id, a]));
 
   const { data: pendingDrops } = await admin
     .from('pending_drops')
@@ -86,8 +97,11 @@ export default async function RosterPage({ params }: Props) {
     const player = e.player;
     if (player) {
       const ranks = rankMap.get(player.id);
+      const arch = archiveMap.get(player.id);
       player.overall_rank = ranks?.overall_rank;
       player.position_ranks = ranks?.position_ranks as unknown as { position: string; rank: number; }[] | null | undefined;
+      player.ppg = arch ? Number(arch.ppg) : player.ppg;
+      player.form_rating = arch ? Number(arch.form_rating) : player.form_rating;
     }
     e.is_pending_drop = pendingDropPlayerIds.has(e.player_id);
     (e as any).listing = listingsMap.get(e.player_id) ?? null;

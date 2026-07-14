@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { getCurrentFplSeason } from '@/lib/season/currentSeason';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { FULL_PLAYER_SELECT } from '@/lib/constants/queries';
 
@@ -19,44 +20,98 @@ export async function GET(
   const supabase = await createClient();
 
   const admin = createAdminClient();
+  const { searchParams } = new URL(_req.url);
+  const leagueId = searchParams.get('leagueId');
+  let targetSeason = searchParams.get('season');
 
-  // 1. Fetch full player record + rankings in parallel
-  const [{ data: fullPlayer, error: pError }, { data: rankRow }] = await Promise.all([
-    admin
-      .from('players')
-      .select(FULL_PLAYER_SELECT)
-      .eq('id', playerId)
-      .single(),
-    admin
-      .from('player_rankings')
-      .select('overall_rank, position_ranks')
-      .eq('player_id', playerId)
-      .maybeSingle(),
-  ]);
+  // 1. Resolve season from leagueId if provided
+  if (leagueId) {
+    const { data: lg } = await admin
+      .from('leagues')
+      .select('current_season')
+      .eq('id', leagueId)
+      .single();
+    if (lg?.current_season) {
+      targetSeason = lg.current_season;
+    }
+  }
+
+  const currentFplSeason = await getCurrentFplSeason();
+  if (!targetSeason) {
+    targetSeason = currentFplSeason;
+  }
+
+  const isCurrentFplSeason = targetSeason === currentFplSeason;
+
+  // 2. Fetch full player record
+  const { data: fullPlayer, error: pError } = await admin
+    .from('players')
+    .select(FULL_PLAYER_SELECT)
+    .eq('id', playerId)
+    .single();
 
   if (pError || !fullPlayer) {
     return NextResponse.json({ error: pError?.message ?? 'Player not found' }, { status: 404 });
   }
 
-  // Merge rankings into the player record
+  // 3. Fetch rankings (from player_rankings if current FPL season, otherwise from archive)
+  let overallRank = null;
+  let posRanks = null;
+  let seasonPpg = fullPlayer.ppg;
+  let seasonFormRating = fullPlayer.form_rating;
+
+  if (isCurrentFplSeason) {
+    const { data: rankRow } = await admin
+      .from('player_rankings')
+      .select('overall_rank, position_ranks')
+      .eq('player_id', playerId)
+      .maybeSingle();
+    overallRank = rankRow?.overall_rank ?? null;
+    posRanks = rankRow?.position_ranks ?? null;
+  } else {
+    // Past season: load metrics and rankings from the archive
+    const { data: archRow } = await admin
+      .from('season_player_stats_archive')
+      .select('ppg, form_rating, overall_rank, position_ranks')
+      .eq('player_id', playerId)
+      .eq('season', targetSeason)
+      .maybeSingle();
+
+    if (archRow) {
+      overallRank = archRow.overall_rank;
+      posRanks = archRow.position_ranks;
+      seasonPpg = Number(archRow.ppg);
+      seasonFormRating = Number(archRow.form_rating);
+    } else {
+      overallRank = null;
+      posRanks = null;
+      seasonPpg = 0;
+      seasonFormRating = 0;
+    }
+  }
+
+  // Merge rankings + resolved stats into the player record
   const playerRecord = {
     ...fullPlayer,
-    overall_rank: rankRow?.overall_rank ?? null,
-    position_ranks: rankRow?.position_ranks ?? null,
+    ppg: seasonPpg,
+    form_rating: seasonFormRating,
+    overall_rank: overallRank,
+    position_ranks: posRanks,
   };
 
   // Slim record still needed for gamelog lookups
   const dbPlayer = { fpl_id: fullPlayer.fpl_id, pl_team_id: fullPlayer.pl_team_id, name: fullPlayer.name };
 
-  // 2. Fetch our custom fantasy_points and ratings
+  // 4. Fetch our custom fantasy_points and ratings (filtered by targetSeason)
   const { data: dbStats } = await supabase
     .from('player_stats')
     .select('match_id, gameweek, fantasy_points, match_rating, stats')
-    .eq('player_id', playerId);
+    .eq('player_id', playerId)
+    .eq('season', targetSeason);
 
   const statsMap = new Map(dbStats?.map((s: any) => [Number(s.match_id), s]) ?? []);
 
-  // 2.5 Fetch player career history from season_player_stats_archive
+  // 4.5 Fetch player career history from season_player_stats_archive
   const { data: historyData } = await supabase
     .from('season_player_stats_archive')
     .select('season, total_points, ppg, form_rating, overall_rank, position_ranks')
@@ -92,7 +147,7 @@ export async function GET(
     let enrichedLog: any[] = [];
     let historyFetched = false;
 
-    if (dbPlayer.fpl_id) {
+    if (isCurrentFplSeason && dbPlayer.fpl_id) {
       const histRes = await fetch(`${FPL_BASE}/element-summary/${dbPlayer.fpl_id}/`, {
         headers: { 'User-Agent': USER_AGENT },
         next: { revalidate: 300 }

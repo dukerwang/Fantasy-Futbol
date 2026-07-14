@@ -147,29 +147,56 @@
 }
 
 [data-theme="dark"] {
-  --color-bg-primary:    #0a0c10;
-  --color-bg-secondary:  #161b22;
-  --color-bg-card:       #0d1117;
-  --color-bg-card-hover: #21262d;
-  --color-bg-card-alt:   #161b22;
-  --color-bg-elevated:   #21262d;
-  --color-bg-overlay:    rgba(13, 17, 23, 0.95);
+  /* Charcoal-navy surface ramp (Futbolpedia's charcoal/charcoal-surface/
+     charcoal-light/charcoal-border, adopted literally) instead of a
+     near-black GitHub-dark ramp — it has hue, so it holds light instead
+     of going flat. */
+  --color-bg-primary:    #1A1F2E;
+  --color-bg-secondary:  #232A3D;
+  --color-bg-card:       #252B3D;
+  --color-bg-card-hover: #2C3344;
+  --color-bg-card-alt:   #1F2436;
+  --color-bg-elevated:   #2C3344;
+  --color-bg-overlay:    rgba(26, 31, 46, 0.95);
 
-  --color-border:        #30363d;
-  --color-border-subtle: #21262d;
-  --color-border-accent: rgba(77, 138, 97, 0.40);
+  --color-border:        #3E4559;
+  --color-border-subtle: #2C3344;
+  --color-border-accent: rgba(31, 163, 95, 0.35);
 
-  --color-text-primary:   #e8eaf0;
-  --color-text-secondary: #b1babf;
-  --color-text-muted:     #8b949e;
-  --color-text-inverse:   #0a0c10;
+  /* Warmed toward cream rather than cool blue-gray — ties dark mode back
+     to the light theme's own cream identity instead of borrowing a
+     colder off-white. */
+  --color-text-primary:   #EDEAE2;
+  --color-text-secondary: #B7B2A8;
+  --color-text-muted:     #8C8982;
+  --color-text-inverse:   #1A1F2E;
 
-  --color-accent-hover:   #5b9e72;
+  /* Same accent hue as the light theme's forest green, lifted in
+     lightness/saturation so it doesn't read muddy on a dark surface —
+     lands next to Futbolpedia's emerald-500 without forking their
+     brand color outright. */
+  --color-accent:            #1FA35F;
+  --color-accent-hover:      #18814D;
+  --color-accent-dim:        rgba(31, 163, 95, 0.14);
+  --color-accent-green:      #1FA35F;
+  --color-accent-green-dim:  rgba(31, 163, 95, 0.14);
+  --color-accent-blue:       #1FA35F;
+  --color-accent-blue-hover: #18814D;
+
+  --color-success: #1FA35F;
 
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.30);
   --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.40);
-  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.50);
-  --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.60);
+  --shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.42);
+  --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.55);
+  --shadow-glow:       0 0 20px rgba(31, 163, 95, 0.20);
+  --shadow-glow-blue:  0 0 20px rgba(31, 163, 95, 0.20);
+  --shadow-glow-green: 0 0 20px rgba(31, 163, 95, 0.20);
+
+  /* Bigger, softer diffusion than the light theme's tight card shadow —
+     a tight shadow all but disappears against a dark page. */
+  --shadow-card:      0 2px 6px rgba(0, 0, 0, .30), 0 16px 40px -12px rgba(0, 0, 0, .45);
+  --shadow-card-lift: 0 4px 10px rgba(0, 0, 0, .35), 0 24px 56px -14px rgba(0, 0, 0, .50), 0 0 0 1px rgba(31, 163, 95, .14) inset;
 }
 
 /* --- Reset & Base --- */

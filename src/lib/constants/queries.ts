@@ -32,4 +32,4 @@ export const FULL_PLAYER_SELECT = `
   transfermarkt_id,
   created_at,
   updated_at
-`.replace(/\s+/g, ' ').trim();
+` as const;

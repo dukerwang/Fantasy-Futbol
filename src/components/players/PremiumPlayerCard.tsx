@@ -3,6 +3,7 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import type { Player, PlayerSeasonArchive } from '@/types';
 import { formatPlayerName } from '@/lib/formatName';
+import { useParams } from 'next/navigation';
 import styles from './PremiumPlayerCard.module.css';
 
 const TEAM_COLORS: Record<string, string> = {
@@ -157,8 +158,12 @@ export default function PremiumPlayerCard({
     const [imgSrc, setImgSrc] = useState<string | null>(imgStored);
     const [imgStage, setImgStage] = useState<'hi26' | 'legacy' | 'stored'>('stored');
 
+    const params = useParams();
+    const leagueId = params?.leagueId as string | undefined;
+
     useEffect(() => {
-        fetch(`/api/players/${player.id}`)
+        const query = leagueId ? `?leagueId=${leagueId}` : '';
+        fetch(`/api/players/${player.id}${query}`)
             .then(r => r.json())
             .then(d => {
                 setGamelog(d.gamelog ?? []);
@@ -174,7 +179,7 @@ export default function PremiumPlayerCard({
             setHistory([]);
             setResolvedPlayer(player);
         };
-    }, [player.id]);
+    }, [player.id, leagueId]);
 
     const teamColor = getTeamColor(resolvedPlayer.pl_team);
     const posLong = POS_LONG[resolvedPlayer.primary_position] ?? resolvedPlayer.primary_position;

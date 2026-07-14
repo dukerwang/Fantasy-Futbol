@@ -11,6 +11,45 @@
   position: relative;
 }
 
+/* The trading card stays on the light/cream palette even when the app is
+   in dark mode — pins every token this component reads back to its :root
+   (light-theme) value so descendants asking for var(--color-*) never see
+   the [data-theme="dark"] override. Covers .stage/.card and the sibling
+   .cardActionsOverlay, both children of .container. */
+[data-theme="dark"] .container {
+  --color-bg-primary:    #F7F3ED;
+  --color-bg-secondary:  #EDE8DE;
+  --color-bg-card:       #FDFCF9;
+  --color-bg-card-hover: #EDE8E0;
+  --color-bg-card-alt:   #f9f6f1;
+  --color-bg-elevated:   #EDE8DE;
+  --color-bg-overlay:    rgba(237, 232, 216, 0.95);
+
+  --color-border:         #C8C3BC;
+  --color-border-subtle:  #D9D4CD;
+  --color-border-accent:  rgba(20, 107, 64, 0.40);
+
+  --color-text-primary:   #1C1C1C;
+  --color-text-secondary: #4A4A4A;
+  --color-text-muted:     #9A9488;
+  --color-text-inverse:   #FFFFFF;
+
+  --color-accent:             #146B40;
+  --color-accent-hover:       #1B8350;
+  --color-accent-dim:         rgba(20, 107, 64, 0.10);
+  --color-accent-green:       #146B40;
+  --color-accent-green-dim:   rgba(20, 107, 64, 0.10);
+  --color-accent-blue:        #146B40;
+  --color-accent-blue-hover:  #1B8350;
+
+  --color-success: #146B40;
+
+  --shadow-sm: 0 1px 3px rgba(28, 28, 28, 0.08);
+  --shadow-md: 0 4px 12px rgba(28, 28, 28, 0.10);
+  --shadow-lg: 0 8px 24px rgba(28, 28, 28, 0.14);
+  --shadow-xl: 0 16px 48px rgba(28, 28, 28, 0.18);
+}
+
 .stage {
   perspective: 1800px;
   width: 360px;

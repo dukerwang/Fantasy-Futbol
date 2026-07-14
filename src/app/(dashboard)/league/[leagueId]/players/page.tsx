@@ -4,6 +4,7 @@ import { redirect, notFound } from 'next/navigation';
 import TransferMarketClient from './TransferMarketClient';
 import { FULL_PLAYER_SELECT } from '@/lib/constants/queries';
 import type { Player } from '@/types';
+import { getCurrentFplSeason } from '@/lib/season/currentSeason';
 
 export const dynamic = 'force-dynamic';
 
@@ -25,7 +26,7 @@ export default async function TransferMarketPage({ params, searchParams }: Props
   // Validate league membership
   const { data: league } = await admin
     .from('leagues')
-    .select('id, name, roster_size, taxi_size, taxi_age_limit, previous_season')
+    .select('id, name, roster_size, taxi_size, taxi_age_limit, previous_season, current_season')
     .eq('id', leagueId)
     .single();
   if (!league) notFound();
@@ -158,19 +159,26 @@ export default async function TransferMarketPage({ params, searchParams }: Props
     rosteredPlayerIds = (rostered ?? []).map((r) => r.player_id);
   }
 
-  // Fetch all active players and rankings separately for merging
-  const [{ data: playersData }, { data: rankingsData }] = await Promise.all([
+  const season = (league as any).current_season ?? await getCurrentFplSeason();
+
+  // Fetch all active players, rankings, and archives separately for merging
+  const [{ data: playersData }, { data: rankingsData }, { data: archives }] = await Promise.all([
     admin.from('players').select(FULL_PLAYER_SELECT).eq('is_active', true).order('total_points', { ascending: false, nullsFirst: false }),
-    admin.from('player_rankings').select('*')
+    admin.from('player_rankings').select('*'),
+    admin.from('season_player_stats_archive').select('player_id, ppg, form_rating').eq('season', season)
   ]);
 
+  const archiveMap = new Map((archives ?? []).map((a: any) => [a.player_id, a]));
   const rankMap = new Map((rankingsData ?? []).map((r: any) => [r.player_id, r]));
 
-  // Merge rankings into the master player list
+  // Merge rankings and archive stats into the master player list
   const allActivePlayersWithRanks: Player[] = (playersData ?? []).map((p: any) => {
     const ranks = rankMap.get(p.id);
+    const arch = archiveMap.get(p.id);
     return {
       ...p,
+      ppg: arch ? Number(arch.ppg) : p.ppg,
+      form_rating: arch ? Number(arch.form_rating) : p.form_rating,
       overall_rank: ranks?.overall_rank,
       position_ranks: ranks?.position_ranks
     } as Player;

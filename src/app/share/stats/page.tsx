@@ -18,18 +18,23 @@ export default async function GlobalPublicStatsPage() {
   const season = await getCurrentFplSeason();
   const refSeason = await getLatestReferenceStatsSeason(admin);
 
-  // Fetch all active players, rankings, and reference stats
-  const [{ data: playersData }, { data: rankings }, { data: refData }] = await Promise.all([
+  // Fetch all active players, rankings, archives, and reference stats
+  const [{ data: playersData }, { data: rankings }, { data: refData }, { data: archives }] = await Promise.all([
     admin.from('players').select(FULL_PLAYER_SELECT).eq('is_active', true).order('total_points', { ascending: false, nullsFirst: false }) as any,
     admin.from('player_rankings').select('*'),
     admin.from('rating_reference_stats').select('*').eq('season', refSeason),
+    admin.from('season_player_stats_archive').select('player_id, ppg, form_rating').eq('season', season),
   ]);
 
+  const archiveMap = new Map((archives ?? []).map((a: any) => [a.player_id, a]));
   const rankMap = new Map((rankings ?? []).map((r: any) => [r.player_id, r]));
   const players = (playersData ?? []).map((p: any) => {
     const ranks = rankMap.get(p.id);
+    const arch = archiveMap.get(p.id);
     return {
       ...p,
+      ppg: arch ? Number(arch.ppg) : p.ppg,
+      form_rating: arch ? Number(arch.form_rating) : p.form_rating,
       overall_rank: ranks?.overall_rank,
       position_ranks: ranks?.position_ranks
     };
