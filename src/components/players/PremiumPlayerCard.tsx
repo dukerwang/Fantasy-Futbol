@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useCallback, useEffect } from 'react';
-import type { Player, RatingBreakdownItem, PlayerSeasonArchive } from '@/types';
+import type { Player, PlayerSeasonArchive } from '@/types';
 import { formatPlayerName } from '@/lib/formatName';
 import styles from './PremiumPlayerCard.module.css';
 
@@ -86,10 +86,6 @@ interface GamelogEntry {
 
 interface Props {
     player: Player;
-    totalPoints?: number;
-    recentForm?: number;
-    matchRating?: number | null;
-    ratingBreakdown?: RatingBreakdownItem[] | null;
     onClose?: () => void;
 }
 
@@ -136,9 +132,6 @@ function FlipIcon() {
 
 export default function PremiumPlayerCard({
     player,
-    recentForm,
-    matchRating,
-    ratingBreakdown,
     onClose,
 }: Props) {
     const stageRef = useRef<HTMLDivElement>(null);
@@ -148,10 +141,13 @@ export default function PremiumPlayerCard({
     // Ref mirrors flipped state so mouse callbacks always read the latest value
     // without needing to be re-created on every flip (avoids stale closures).
     const flippedRef = useRef(false);
-    const [tab, setTab] = useState<'log' | 'breakdown' | 'history'>('log');
+    const [tab, setTab] = useState<'log' | 'history'>('log');
     const [hovering, setHovering] = useState(false);
     const [gamelog, setGamelog] = useState<GamelogEntry[]>([]);
     const [history, setHistory] = useState<PlayerSeasonArchive[]>([]);
+    // Authoritative player data — starts with the prop and is replaced by the
+    // API response which always includes ppg, rankings, etc.
+    const [resolvedPlayer, setResolvedPlayer] = useState<Player>(player);
 
     // 2-step image fallback: last-season large → stored small
     const imgLegacy250 = player.photo_url
@@ -167,17 +163,22 @@ export default function PremiumPlayerCard({
             .then(d => {
                 setGamelog(d.gamelog ?? []);
                 setHistory(d.history ?? []);
+                // Override with authoritative full player data from the API
+                if (d.player) {
+                    setResolvedPlayer(d.player as Player);
+                }
             })
             .catch(() => {});
         return () => {
             setGamelog([]);
             setHistory([]);
+            setResolvedPlayer(player);
         };
     }, [player.id]);
 
-    const teamColor = getTeamColor(player.pl_team);
-    const posLong = POS_LONG[player.primary_position] ?? player.primary_position;
-    const posVar = POS_CSS_VAR[player.primary_position] ?? 'var(--color-accent-green)';
+    const teamColor = getTeamColor(resolvedPlayer.pl_team);
+    const posLong = POS_LONG[resolvedPlayer.primary_position] ?? resolvedPlayer.primary_position;
+    const posVar = POS_CSS_VAR[resolvedPlayer.primary_position] ?? 'var(--color-accent-green)';
 
     const playedGames = gamelog.filter(g => {
         const isDNP = g.isDNP ?? (g.stats?.minutes_played === 0);
@@ -185,12 +186,12 @@ export default function PremiumPlayerCard({
     });
     const recentGames = playedGames.slice(0, 8).reverse();
 
-    const displayForm = player.form_rating ?? recentForm ?? player.form;
-    const rating = matchRating;
+    const displayForm = resolvedPlayer.form_rating ?? resolvedPlayer.form;
+    const rating = resolvedPlayer.form_rating;
 
 
-    const resolvedTeamId = player.pl_team_id ?? TEAM_TO_ID[player.pl_team];
-    const { first: firstName, last: webName } = formatPlayerName(player, 'split');
+    const resolvedTeamId = resolvedPlayer.pl_team_id ?? TEAM_TO_ID[resolvedPlayer.pl_team];
+    const { first: firstName, last: webName } = formatPlayerName(resolvedPlayer, 'split');
 
 
 
@@ -280,17 +281,17 @@ export default function PremiumPlayerCard({
                             {resolvedTeamId ? (
                                 <img
                                     src={`/team-logos/${resolvedTeamId}.png`}
-                                    alt={player.pl_team}
+                                    alt={resolvedPlayer.pl_team}
                                     className={styles.crestImg}
                                 />
                             ) : (
                                 <div className={styles.crest} style={{ background: teamColor }}>
-                                    {player.pl_team.charAt(0)}
+                                    {resolvedPlayer.pl_team.charAt(0)}
                                 </div>
                             )}
                             <div className={styles.clubMeta}>
-                                <span className={styles.mastheadName}>{formatPlayerName(player, 'full')}</span>
-                                <span className={styles.mastheadClub}>{player.pl_team}</span>
+                                <span className={styles.mastheadName}>{formatPlayerName(resolvedPlayer, 'full')}</span>
+                                <span className={styles.mastheadClub}>{resolvedPlayer.pl_team}</span>
                             </div>
                         </div>
                     </div>
@@ -302,11 +303,11 @@ export default function PremiumPlayerCard({
 
                     {/* Hero — player photo */}
                     <div className={styles.hero}>
-                        {player.fpl_status !== 'a' && player.fpl_status !== null && player.fpl_status !== undefined && (
-                            <div className={`${styles.injuryOverlay} ${player.fpl_status === 'd' ? styles.injuryDoubtful : styles.injuryOut}`}>
+                        {resolvedPlayer.fpl_status !== 'a' && resolvedPlayer.fpl_status !== null && resolvedPlayer.fpl_status !== undefined && (
+                            <div className={`${styles.injuryOverlay} ${resolvedPlayer.fpl_status === 'd' ? styles.injuryDoubtful : styles.injuryOut}`}>
                                 <span className={styles.injuryText}>
-                                    {player.fpl_status === 'd' ? 'DOUBTFUL' : player.fpl_status === 'i' ? 'OUT' : player.fpl_status === 's' ? 'SUSPENDED' : 'UNAVAILABLE'}
-                                    {player.fpl_news ? ` · ${player.fpl_news}` : ''}
+                                    {resolvedPlayer.fpl_status === 'd' ? 'DOUBTFUL' : resolvedPlayer.fpl_status === 'i' ? 'OUT' : resolvedPlayer.fpl_status === 's' ? 'SUSPENDED' : 'UNAVAILABLE'}
+                                    {resolvedPlayer.fpl_news ? ` · ${resolvedPlayer.fpl_news}` : ''}
                                 </span>
                             </div>
                         )}
@@ -314,7 +315,7 @@ export default function PremiumPlayerCard({
                             // eslint-disable-next-line @next/next/no-img-element
                             <img
                                 src={imgSrc}
-                                alt={formatPlayerName(player, 'full')}
+                                alt={formatPlayerName(resolvedPlayer, 'full')}
                                 className={styles.photo}
                                 loading="eager"
                                 onError={() => {
@@ -329,7 +330,7 @@ export default function PremiumPlayerCard({
                             />
                         ) : (
                             <div className={styles.photoPlaceholder}>
-                                {player.name.charAt(0).toUpperCase()}
+                                {resolvedPlayer.name.charAt(0).toUpperCase()}
                             </div>
                         )}
                     </div>
@@ -348,20 +349,20 @@ export default function PremiumPlayerCard({
                         {firstName && <span className={styles.firstName}>{firstName}</span>}
                         <span className={styles.lastName}>{webName}</span>
                         <div className={styles.idMeta}>
-                            <span className={styles.posTag} style={{ background: posVar }}>{player.primary_position}</span>
-                            {player.secondary_positions?.map(pos => (
+                            <span className={styles.posTag} style={{ background: posVar }}>{resolvedPlayer.primary_position}</span>
+                            {resolvedPlayer.secondary_positions?.map(pos => (
                                 <span key={pos} className={styles.posTag} style={{ background: POS_CSS_VAR[pos] || 'var(--color-bg-elevated)' }}>
                                     {pos}
                                 </span>
                             ))}
-                            {player.nationality && (
-                                <><span className={styles.dot}>·</span><span>{player.nationality}</span></>
+                            {resolvedPlayer.nationality && (
+                                <><span className={styles.dot}>·</span><span>{resolvedPlayer.nationality}</span></>
                             )}
-                            {player.date_of_birth && (
-                                <><span className={styles.dot}>·</span><span>Age {calcAge(player.date_of_birth)}</span></>
+                            {resolvedPlayer.date_of_birth && (
+                                <><span className={styles.dot}>·</span><span>Age {calcAge(resolvedPlayer.date_of_birth)}</span></>
                             )}
-                            {player.height_cm && (
-                                <><span className={styles.dot}>·</span><span>{cmToFeet(player.height_cm)}</span></>
+                            {resolvedPlayer.height_cm && (
+                                <><span className={styles.dot}>·</span><span>{cmToFeet(resolvedPlayer.height_cm)}</span></>
                             )}
                         </div>
                     </div>
@@ -370,13 +371,13 @@ export default function PremiumPlayerCard({
                     <div className={styles.statsStrip}>
                         <div className={styles.statCell}>
                             <span className={`${styles.statVal} ${styles.statGold}`}>
-                                {player.market_value != null ? `€${player.market_value}m` : '—'}
+                                {resolvedPlayer.market_value != null ? `€${resolvedPlayer.market_value}m` : '—'}
                             </span>
                             <span className={styles.statLbl}>Value</span>
                         </div>
                         <div className={styles.statCell}>
                             <span className={styles.statVal}>
-                                {player.ppg != null ? player.ppg.toFixed(1) : '—'}
+                                {resolvedPlayer.ppg != null ? resolvedPlayer.ppg.toFixed(1) : '—'}
                             </span>
                             <span className={styles.statLbl}>PPG</span>
                         </div>
@@ -388,7 +389,7 @@ export default function PremiumPlayerCard({
                         </div>
                         <div className={styles.statCell}>
                             <span className={styles.statVal}>
-                                {player.overall_rank != null ? `#${player.overall_rank}` : '—'}
+                                {resolvedPlayer.overall_rank != null ? `#${resolvedPlayer.overall_rank}` : '—'}
                             </span>
                             <span className={styles.statLbl}>OVR</span>
                         </div>
@@ -398,8 +399,8 @@ export default function PremiumPlayerCard({
                     <div className={styles.rankStrip}>
                         <span className={styles.rankLbl}>Pos Rank</span>
                         <div className={styles.rankChips}>
-                            {player.position_ranks && player.position_ranks.length > 0 ? (
-                                player.position_ranks.sort((a, b) => a.rank - b.rank).map((r, i) => (
+                            {resolvedPlayer.position_ranks && resolvedPlayer.position_ranks.length > 0 ? (
+                                resolvedPlayer.position_ranks.sort((a, b) => a.rank - b.rank).map((r, i) => (
                                     <span
                                         key={r.position}
                                         className={`${styles.rankChip} ${i === 0 ? styles.rankChipPrimary : ''}`}
@@ -476,14 +477,6 @@ export default function PremiumPlayerCard({
                             >
                                 Game Log
                             </button>
-                            {ratingBreakdown && ratingBreakdown.length > 0 && (
-                                <button
-                                    className={`${styles.backTab} ${tab === 'breakdown' ? styles.backTabActive : ''}`}
-                                    onClick={() => setTab('breakdown')}
-                                >
-                                    Rating
-                                </button>
-                            )}
                             <button
                                 className={`${styles.backTab} ${tab === 'history' ? styles.backTabActive : ''}`}
                                 onClick={() => setTab('history')}
@@ -603,28 +596,6 @@ export default function PremiumPlayerCard({
                                     ) : (
                                         <div className={styles.emptyState}>No past season stats available.</div>
                                     )}
-                                </div>
-                            )}
-                            {tab === 'breakdown' && ratingBreakdown && (
-                                <div className={styles.bdList}>
-                                    {ratingBreakdown.map(item => (
-                                        <div key={item.key} className={styles.bdRow}>
-                                            <div className={styles.bdTop}>
-                                                <span className={styles.bdName}>{item.component}</span>
-                                                <span className={styles.bdWt}>{(item.weight * 100).toFixed(0)}% WT</span>
-                                            </div>
-                                            <div className={styles.bdTrack}>
-                                                <div
-                                                    className={styles.bdFill}
-                                                    style={{
-                                                        width: `${Math.round(item.score * 100)}%`,
-                                                        background: ratingHex(1 + 9 * item.score),
-                                                    }}
-                                                />
-                                            </div>
-                                            <span className={styles.bdDetail}>{item.detail}</span>
-                                        </div>
-                                    ))}
                                 </div>
                             )}
                         </div>

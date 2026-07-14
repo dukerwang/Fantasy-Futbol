@@ -8,8 +8,6 @@ import styles from './PlayerDetailsModal.module.css';
 interface Props {
     player: Player | null;
     onClose: () => void;
-    totalPoints?: number;
-    recentForm?: number;
     /** If provided, shows a "Pick" action button inside the modal */
     onPick?: (player: Player) => void;
     /** If provided, shows a "Nominate" action button inside the modal */
@@ -19,8 +17,6 @@ interface Props {
 export default function PlayerDetailsModal({
     player,
     onClose,
-    totalPoints,
-    recentForm,
     onPick,
     onNominate,
 }: Props) {
@@ -49,8 +45,6 @@ export default function PlayerDetailsModal({
                 <div className={styles.cardScaler}>
                     <PremiumPlayerCard
                         player={player}
-                        totalPoints={totalPoints}
-                        recentForm={recentForm}
                         onClose={onClose}
                     />
                 </div>

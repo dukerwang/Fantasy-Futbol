@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
+import { FULL_PLAYER_SELECT } from '@/lib/constants/queries';
 
 const FPL_BASE = 'https://fantasy.premierleague.com/api';
 
@@ -16,16 +18,35 @@ export async function GET(
   const { playerId } = await params;
   const supabase = await createClient();
 
-  // 1. Fetch player to get fpl_id and team_id for cross-referencing
-  const { data: dbPlayer, error: pError } = await supabase
-    .from('players')
-    .select('fpl_id, pl_team_id, name')
-    .eq('id', playerId)
-    .single();
+  const admin = createAdminClient();
 
-  if (pError || !dbPlayer) {
+  // 1. Fetch full player record + rankings in parallel
+  const [{ data: fullPlayer, error: pError }, { data: rankRow }] = await Promise.all([
+    admin
+      .from('players')
+      .select(FULL_PLAYER_SELECT)
+      .eq('id', playerId)
+      .single(),
+    admin
+      .from('player_rankings')
+      .select('overall_rank, position_ranks')
+      .eq('player_id', playerId)
+      .maybeSingle(),
+  ]);
+
+  if (pError || !fullPlayer) {
     return NextResponse.json({ error: pError?.message ?? 'Player not found' }, { status: 404 });
   }
+
+  // Merge rankings into the player record
+  const playerRecord = {
+    ...fullPlayer,
+    overall_rank: rankRow?.overall_rank ?? null,
+    position_ranks: rankRow?.position_ranks ?? null,
+  };
+
+  // Slim record still needed for gamelog lookups
+  const dbPlayer = { fpl_id: fullPlayer.fpl_id, pl_team_id: fullPlayer.pl_team_id, name: fullPlayer.name };
 
   // 2. Fetch our custom fantasy_points and ratings
   const { data: dbStats } = await supabase
@@ -153,7 +174,7 @@ export async function GET(
     }
 
     enrichedLog.sort((a: any, b: any) => b.gameweek - a.gameweek);
-    return NextResponse.json({ gamelog: enrichedLog, history: historyData ?? [] });
+    return NextResponse.json({ player: playerRecord, gamelog: enrichedLog, history: historyData ?? [] });
 
   } catch (err) {
     console.error('Critical failure in player game log generation', err);
@@ -167,6 +188,6 @@ export async function GET(
       isDNP: (s.stats?.minutes_played === 0),
     }));
     fallback.sort((a: any, b: any) => b.gameweek - a.gameweek);
-    return NextResponse.json({ gamelog: fallback, history: historyData ?? [] });
+    return NextResponse.json({ player: playerRecord, gamelog: fallback, history: historyData ?? [] });
   }
 }
