@@ -123,7 +123,7 @@ export default async function ScoringV2Page() {
   // Must match sync + backfill (`getCurrentFplSeason`). Using `rating_reference_stats`
   // season alone can mismatch (e.g. empty table fallback vs DB convention) and yield
   // zero rows here while v2 rows exist.
-  const statsSeason = await getCurrentFplSeason();
+  const statsSeason = await getCurrentFplSeason(undefined, true);
 
   // 1. Fetch ALL active players first so we have position mapping for the dynamic V1 calculations
   const { data: allActiveForShadow } = await admin

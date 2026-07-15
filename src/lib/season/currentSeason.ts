@@ -21,6 +21,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 
 // ── Module-level cache (lives for the duration of one serverless invocation) ──
 let _cachedFplSeason: string | null = null;
+let _cachedRawFplSeason: string | null = null;
 let _cachedRefStatsSeason: string | null = null;
 
 /**
@@ -37,8 +38,9 @@ let _cachedRefStatsSeason: string | null = null;
  *
  * Example: GW1 deadline 2025-08-16 → "2025-26"
  */
-export async function getCurrentFplSeason(fallback?: string): Promise<string> {
-  if (_cachedFplSeason) return _cachedFplSeason;
+export async function getCurrentFplSeason(fallback?: string, useRawSeason = false): Promise<string> {
+  if (useRawSeason && _cachedRawFplSeason) return _cachedRawFplSeason;
+  if (!useRawSeason && _cachedFplSeason) return _cachedFplSeason;
 
   const now = new Date();
   const currentYear = now.getFullYear();
@@ -63,6 +65,11 @@ export async function getCurrentFplSeason(fallback?: string): Promise<string> {
     const gw1Year = new Date(gw1.deadline_time).getFullYear();
     let season = `${gw1Year}-${String(gw1Year + 1).slice(2)}`; // e.g. "2025-26"
 
+    if (useRawSeason) {
+      _cachedRawFplSeason = season;
+      return season;
+    }
+
     // If the retrieved season is already finished (GW38 completed), we are in the offseason preparing for the next one
     const lastEvent = events[events.length - 1];
     if (lastEvent?.finished) {
@@ -73,6 +80,32 @@ export async function getCurrentFplSeason(fallback?: string): Promise<string> {
     return season;
   } catch {
     return dynamicFallback;
+  }
+}
+
+/**
+ * Checks if the current FPL season has kicked off (i.e. GW1 has started).
+ */
+export async function isFplSeasonKickedOff(): Promise<boolean> {
+  try {
+    const res = await fetch(
+      'https://fantasy.premierleague.com/api/bootstrap-static/',
+      { next: { revalidate: 3600 } },
+    );
+    if (!res.ok) return false;
+
+    const data = await res.json();
+    const events = (data.events ?? []) as { id: number; deadline_time: string; finished?: boolean }[];
+
+    const gw1 = events.find((e) => e.id === 1);
+    if (!gw1?.deadline_time) return false;
+
+    const gw1Deadline = new Date(gw1.deadline_time);
+    const now = new Date();
+
+    return now >= gw1Deadline;
+  } catch {
+    return false;
   }
 }
 
@@ -116,3 +149,14 @@ export function nextSeason(current: string): string {
   const startYear = parseInt(match[1], 10) + 1;
   return `${startYear}-${String(startYear + 1).slice(2)}`;
 }
+
+/**
+ * Helper to get the previous season from a "YYYY-YY" season string.
+ */
+export function previousSeason(current: string): string {
+  const match = current.match(/^(\d{4})-(\d{2})$/);
+  if (!match) return current;
+  const startYear = parseInt(match[1], 10) - 1;
+  return `${startYear}-${String(startYear + 1).slice(2)}`;
+}
+

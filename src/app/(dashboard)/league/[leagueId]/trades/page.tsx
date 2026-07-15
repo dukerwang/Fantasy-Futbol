@@ -2,7 +2,7 @@ import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { notFound, redirect } from 'next/navigation';
 import TradesClient from './TradesClient';
-import { getCurrentFplSeason } from '@/lib/season/currentSeason';
+import { getCurrentFplSeason, isFplSeasonKickedOff } from '@/lib/season/currentSeason';
 
 interface Props {
   params: Promise<{ leagueId: string }>;
@@ -122,7 +122,13 @@ export default async function TradesPage({ params, searchParams }: Props) {
     if (p?.id) playerIds.add(p.id);
   }
 
-  const currentSeason = league.current_season || '2025-26';
+  const currentFpl = await getCurrentFplSeason();
+  const kickedOff = await isFplSeasonKickedOff();
+
+  let currentSeason = league.current_season || currentFpl;
+  if (currentSeason === currentFpl && !kickedOff) {
+    currentSeason = league.previous_season || currentSeason;
+  }
   const previousSeason = league.previous_season || '2024-25';
 
   // Build a lookup of player market values

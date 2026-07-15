@@ -6,7 +6,7 @@ import { FULL_PLAYER_SELECT } from '@/lib/constants/queries';
 import type { Player, RosterStatus } from '@/types';
 import RosterTable from './RosterTable';
 import { Icon } from '@/components/ui/Icon';
-import { getCurrentFplSeason } from '@/lib/season/currentSeason';
+import { getCurrentFplSeason, isFplSeasonKickedOff } from '@/lib/season/currentSeason';
 import styles from './roster.module.css';
 
 export const dynamic = 'force-dynamic';
@@ -28,7 +28,7 @@ export default async function RosterPage({ params }: Props) {
     .from('teams')
     .select(`
       id, team_name, faab_budget, league_id,
-      league:leagues(id, name, season, status, roster_size, taxi_size, taxi_age_limit)
+      league:leagues(id, name, season, current_season, previous_season, status, roster_size, taxi_size, taxi_age_limit)
     `)
     .eq('league_id', leagueId)
     .eq('user_id', user.id)
@@ -56,7 +56,13 @@ export default async function RosterPage({ params }: Props) {
 
   const listingsMap = new Map((listings ?? []).map((l: any) => [l.player_id, l]));
 
-  const season = (team.league as any).season ?? await getCurrentFplSeason();
+  const currentFpl = await getCurrentFplSeason();
+  const kickedOff = await isFplSeasonKickedOff();
+
+  let season = (team.league as any).current_season ?? (team.league as any).season ?? currentFpl;
+  if (season === currentFpl && !kickedOff) {
+    season = (team.league as any).previous_season ?? season;
+  }
 
   const [{ data: rosterRaw }, { data: archives }] = await Promise.all([
     admin

@@ -84,7 +84,7 @@ export async function POST(req: NextRequest) {
   const toArg = parseInt(searchParams.get('to') ?? '0', 10);
 
   const supabase = createAdminClient();
-  const fplSeason = await getCurrentFplSeason();
+  const fplSeason = await getCurrentFplSeason(undefined, true);
   const refStatsSeason = await getLatestReferenceStatsSeason(supabase);
   const refStats = await loadReferenceStats(supabase, refStatsSeason);
 

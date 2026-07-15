@@ -50,3 +50,10 @@ tmp_*.js
 
 # context backups
 backup_docs/
+
+# design-sync (claude.ai/design) — staged converter + generated build output
+.ds-sync/
+ds-bundle/
+.design-sync/.cache/
+.design-sync/learnings/
+.design-sync/node_modules

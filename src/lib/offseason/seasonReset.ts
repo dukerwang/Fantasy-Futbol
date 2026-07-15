@@ -523,6 +523,7 @@ export async function runSeasonReset(
     .from('leagues')
     .update({
       status: 'offseason',
+      season: seasonTo,
       current_season: seasonTo,
       previous_season: seasonFrom,
       updated_at: new Date().toISOString(),

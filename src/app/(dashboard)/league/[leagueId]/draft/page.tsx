@@ -4,7 +4,7 @@ import { redirect, notFound } from 'next/navigation';
 import DraftRoom from './DraftRoom';
 import { FULL_PLAYER_SELECT } from '@/lib/constants/queries';
 import type { League, Team, Player, DraftPick } from '@/types';
-import { getCurrentFplSeason, getLatestReferenceStatsSeason } from '@/lib/season/currentSeason';
+import { getCurrentFplSeason, getLatestReferenceStatsSeason, isFplSeasonKickedOff } from '@/lib/season/currentSeason';
 import { calculateMatchRating, DEFAULT_REFERENCE_STATS } from '@/lib/scoring/matchRating';
 
 interface Props {
@@ -56,7 +56,13 @@ export default async function DraftPage({ params }: Props) {
 
   const picks = (picksData ?? []) as DraftPick[];
 
-  const season = (league as any).current_season ?? await getCurrentFplSeason();
+  const currentFpl = await getCurrentFplSeason();
+  const kickedOff = await isFplSeasonKickedOff();
+
+  let season = (league as any).current_season ?? currentFpl;
+  if (season === currentFpl && !kickedOff) {
+    season = (league as any).previous_season ?? season;
+  }
   const refSeason = await getLatestReferenceStatsSeason(admin);
 
   // Fetch all active players for the picker (using centralized FULL_PLAYER_SELECT for consistency)

@@ -4,7 +4,7 @@ import { redirect, notFound } from 'next/navigation';
 import GlobalStatsTable from './GlobalStatsTable';
 import type { Player } from '@/types';
 import { FULL_PLAYER_SELECT } from '@/lib/constants/queries';
-import { getCurrentFplSeason, getLatestReferenceStatsSeason } from '@/lib/season/currentSeason';
+import { getCurrentFplSeason, getLatestReferenceStatsSeason, isFplSeasonKickedOff } from '@/lib/season/currentSeason';
 import { calculateMatchRating, DEFAULT_REFERENCE_STATS } from '@/lib/scoring/matchRating';
 
 export const dynamic = 'force-dynamic';
@@ -32,12 +32,18 @@ export default async function StatsPage({ params }: Props) {
   // Validate league
   const { data: league } = await admin
     .from('leagues')
-    .select('id, name, current_season')
+    .select('id, name, current_season, previous_season')
     .eq('id', leagueId)
     .single();
   if (!league) notFound();
 
-  const season = (league as any).current_season ?? await getCurrentFplSeason();
+  const currentFpl = await getCurrentFplSeason();
+  const kickedOff = await isFplSeasonKickedOff();
+
+  let season = (league as any).current_season ?? currentFpl;
+  if (season === currentFpl && !kickedOff) {
+    season = (league as any).previous_season ?? season;
+  }
   const refSeason = await getLatestReferenceStatsSeason(admin);
 
   // All teams in this league

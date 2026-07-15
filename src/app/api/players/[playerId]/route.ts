@@ -24,21 +24,30 @@ export async function GET(
   const leagueId = searchParams.get('leagueId');
   let targetSeason = searchParams.get('season');
 
+  const currentFplSeason = await getCurrentFplSeason();
+  const { isFplSeasonKickedOff, previousSeason } = await import('@/lib/season/currentSeason');
+  const kickedOff = await isFplSeasonKickedOff();
+
   // 1. Resolve season from leagueId if provided
   if (leagueId) {
     const { data: lg } = await admin
       .from('leagues')
-      .select('current_season')
+      .select('current_season, previous_season')
       .eq('id', leagueId)
       .single();
     if (lg?.current_season) {
       targetSeason = lg.current_season;
+      if (targetSeason === currentFplSeason && !kickedOff) {
+        targetSeason = lg.previous_season ?? targetSeason;
+      }
     }
   }
 
-  const currentFplSeason = await getCurrentFplSeason();
   if (!targetSeason) {
     targetSeason = currentFplSeason;
+    if (targetSeason === currentFplSeason && !kickedOff) {
+      targetSeason = previousSeason(targetSeason);
+    }
   }
 
   const isCurrentFplSeason = targetSeason === currentFplSeason;

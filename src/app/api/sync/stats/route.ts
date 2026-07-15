@@ -92,7 +92,7 @@ async function syncFplLiveRatings(gameweek: number): Promise<NextResponse> {
   // 2. Load Reference Stats once for the entire batch
   const refStatsSeason = await getLatestReferenceStatsSeason(supabase as any);
   const refStats = await loadReferenceStats(supabase as any, refStatsSeason);
-  const fplSeason = await getCurrentFplSeason();
+  const fplSeason = await getCurrentFplSeason(undefined, true);
 
   // 3. Fetch fixtures to map teams to fixture IDs (for DGW support)
   const fixturesRes = await fetch(`${FPL_BASE}/fixtures/?event=${gameweek}`);

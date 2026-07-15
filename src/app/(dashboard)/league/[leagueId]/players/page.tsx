@@ -4,7 +4,7 @@ import { redirect, notFound } from 'next/navigation';
 import TransferMarketClient from './TransferMarketClient';
 import { FULL_PLAYER_SELECT } from '@/lib/constants/queries';
 import type { Player } from '@/types';
-import { getCurrentFplSeason } from '@/lib/season/currentSeason';
+import { getCurrentFplSeason, isFplSeasonKickedOff } from '@/lib/season/currentSeason';
 
 export const dynamic = 'force-dynamic';
 
@@ -159,7 +159,13 @@ export default async function TransferMarketPage({ params, searchParams }: Props
     rosteredPlayerIds = (rostered ?? []).map((r) => r.player_id);
   }
 
-  const season = (league as any).current_season ?? await getCurrentFplSeason();
+  const currentFpl = await getCurrentFplSeason();
+  const kickedOff = await isFplSeasonKickedOff();
+
+  let season = (league as any).current_season ?? currentFpl;
+  if (season === currentFpl && !kickedOff) {
+    season = (league as any).previous_season ?? season;
+  }
 
   // Fetch all active players, rankings, and archives separately for merging
   const [{ data: playersData }, { data: rankingsData }, { data: archives }] = await Promise.all([

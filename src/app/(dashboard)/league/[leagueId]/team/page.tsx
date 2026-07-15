@@ -7,7 +7,7 @@ import type { Formation, GranularPosition, MatchupLineup, BenchSlot } from '@/ty
 import { FORMATION_SLOTS, POSITION_FLEX_MAP, BENCH_FLEX_MAP } from '@/types';
 import PitchUI from './PitchUI';
 import { FULL_PLAYER_SELECT } from '@/lib/constants/queries';
-import { getCurrentFplSeason } from '@/lib/season/currentSeason';
+import { getCurrentFplSeason, isFplSeasonKickedOff } from '@/lib/season/currentSeason';
 import styles from './my-team.module.css';
 
 export const dynamic = 'force-dynamic';
@@ -33,7 +33,7 @@ export default async function MyTeamPage({ params }: Props) {
     .from('teams')
     .select(`
       id, team_name, faab_budget, league_id,
-      league:leagues(id, name, season, status, scoring_rules, bench_size, taxi_size, taxi_age_limit, roster_size)
+      league:leagues(id, name, season, current_season, previous_season, status, scoring_rules, bench_size, taxi_size, taxi_age_limit, roster_size)
     `)
     .eq('league_id', leagueId)
     .eq('user_id', user.id)
@@ -62,7 +62,13 @@ export default async function MyTeamPage({ params }: Props) {
 
   const teamRank = standingData?.rank;
 
-  const season = (team.league as any).season ?? await getCurrentFplSeason();
+  const currentFpl = await getCurrentFplSeason();
+  const kickedOff = await isFplSeasonKickedOff();
+
+  let season = (team.league as any).current_season ?? (team.league as any).season ?? currentFpl;
+  if (season === currentFpl && !kickedOff) {
+    season = (team.league as any).previous_season ?? season;
+  }
 
   // Fetch all player rankings and archives in parallel
   const [{ data: rankings }, { data: archives }, { data: listings }] = await Promise.all([
