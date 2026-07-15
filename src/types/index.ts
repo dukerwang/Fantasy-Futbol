@@ -176,8 +176,8 @@ export interface Player {
   fpl_status: string | null; // 'a'=available, 'i'=injured, 'd'=doubtful, 's'=suspended, 'u'=unavailable
   fpl_news: string | null;
   total_points: number | null; // custom scoring engine: SUM fantasy_points this season
-  form: number | null;         // custom scoring engine: avg fantasy_points over last 3 GWs
-  form_rating: number | null;  // custom match rating: avg match_rating over last 3 appearances
+  form: number | null;         // custom scoring engine: avg fantasy_points over last 5 GWs
+  form_rating: number | null;  // custom match rating: avg match_rating over last 5 appearances
   ppg: number | null;          // custom scoring engine: total_points / matches_played
   is_active: boolean; // still in the PL
   transfermarkt_id: string | null;

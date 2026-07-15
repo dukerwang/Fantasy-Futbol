@@ -125,7 +125,7 @@ BEGIN
         AND match_rating IS NOT NULL
         AND (stats->>'minutes_played')::int >= 15
     ) ranked
-    WHERE rn <= 3
+    WHERE rn <= 5
     GROUP BY player_id
   ) form_agg ON p.id = form_agg.player_id
   LEFT JOIN (
@@ -199,9 +199,9 @@ LANGUAGE plpgsql
 AS $$
 BEGIN
   -- Reset all players to 0 for these metrics first (so players with no games in p_season are cleared)
-  UPDATE public.players SET form_rating = 0, ppg = 0;
+  UPDATE public.players SET form_rating = 0, ppg = 0 WHERE id IS NOT NULL;
 
-  -- 1. Update form_rating (average of last 3 match_ratings where minutes >= 15)
+  -- 1. Update form_rating (average of last 5 match_ratings where minutes >= 15)
   UPDATE players p
   SET form_rating = sub.avg_rating
   FROM (
@@ -218,7 +218,7 @@ BEGIN
         AND match_rating IS NOT NULL
         AND (stats->>'minutes_played')::int >= 15
     ) ranked
-    WHERE rn <= 3
+    WHERE rn <= 5
     GROUP BY player_id
   ) sub
   WHERE p.id = sub.player_id
@@ -261,7 +261,7 @@ BEGIN
       ),
       0
     ),
-    -- 2. form averages the last 3 gameweeks where the player played >= 15 minutes
+    -- 2. form averages the last 5 gameweeks where the player played >= 15 minutes
     form = COALESCE(
       (
         SELECT AVG(gw_pts)
@@ -273,8 +273,8 @@ BEGIN
             AND (ps2.stats->>'minutes_played')::int >= 15
           GROUP BY ps2.gameweek
           ORDER BY ps2.gameweek DESC
-          LIMIT 3
-        ) last3
+          LIMIT 5
+        ) last5
       ),
       0
     )
