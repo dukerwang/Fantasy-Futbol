@@ -96,14 +96,91 @@ BEGIN
   SELECT 
     p.id AS player_id,
     p_season AS season,
-    COALESCE(p.total_points, 0) AS total_points,
-    COALESCE(p.ppg, 0) AS ppg,
-    COALESCE(p.form_rating, 0) AS form_rating,
+    COALESCE(agg.total_points, 0) AS total_points,
+    COALESCE(agg.ppg, 0) AS ppg,
+    COALESCE(form_agg.avg_rating, 0) AS form_rating,
     COALESCE(r.overall_rank, 9999) AS overall_rank,
     COALESCE(r.position_ranks, '[]'::jsonb) AS position_ranks
   FROM public.players p
-  LEFT JOIN public.player_rankings r ON p.id = r.player_id
+  LEFT JOIN (
+    SELECT 
+      player_id,
+      COALESCE(SUM(fantasy_points), 0) AS total_points,
+      COALESCE(ROUND(AVG(case when (stats->>'minutes_played')::int >= 15 then fantasy_points end)::numeric, 1), 0) AS ppg
+    FROM public.player_stats
+    WHERE season = p_season
+    GROUP BY player_id
+  ) agg ON p.id = agg.player_id
+  LEFT JOIN (
+    SELECT
+      player_id,
+      ROUND(AVG(match_rating)::numeric, 1) AS avg_rating
+    FROM (
+      SELECT
+        player_id,
+        match_rating,
+        ROW_NUMBER() OVER (PARTITION BY player_id ORDER BY gameweek DESC) AS rn
+      FROM player_stats
+      WHERE season = p_season
+        AND match_rating IS NOT NULL
+        AND (stats->>'minutes_played')::int >= 15
+    ) ranked
+    WHERE rn <= 3
+    GROUP BY player_id
+  ) form_agg ON p.id = form_agg.player_id
+  LEFT JOIN (
+    WITH season_players AS (
+      SELECT 
+        p2.id AS player_id,
+        p2.primary_position,
+        p2.secondary_positions,
+        COALESCE(agg2.total_points, 0) AS total_points
+      FROM public.players p2
+      JOIN (
+        SELECT 
+          player_id,
+          SUM(fantasy_points) AS total_points
+        FROM public.player_stats
+        WHERE season = p_season
+        GROUP BY player_id
+      ) agg2 ON p2.id = agg2.player_id
+    ),
+    overall_ranks AS (
+      SELECT
+        player_id,
+        RANK() OVER (ORDER BY total_points DESC) as overall_rank
+      FROM season_players
+    ),
+    flattened_positions AS (
+      SELECT 
+        player_id,
+        total_points,
+        UNNEST(ARRAY[primary_position] || COALESCE(secondary_positions, '{}'::granular_position[])) as granular_pos
+      FROM season_players
+    ),
+    positional_ranks AS (
+      SELECT
+        player_id,
+        granular_pos,
+        RANK() OVER (PARTITION BY granular_pos ORDER BY total_points DESC) as pos_rank
+      FROM flattened_positions
+    ),
+    agg_positional_ranks AS (
+      SELECT
+        player_id,
+        jsonb_agg(jsonb_build_object('position', granular_pos, 'rank', pos_rank)) as position_ranks
+      FROM positional_ranks
+      GROUP BY player_id
+    )
+    SELECT 
+      o.player_id,
+      o.overall_rank,
+      COALESCE(apr.position_ranks, '[]'::jsonb) as position_ranks
+    FROM overall_ranks o
+    LEFT JOIN agg_positional_ranks apr ON o.player_id = apr.player_id
+  ) r ON p.id = r.player_id
   WHERE p.is_active = true
+    AND agg.total_points > 0
   ON CONFLICT (player_id, season) DO UPDATE SET
     total_points   = EXCLUDED.total_points,
     ppg            = EXCLUDED.ppg,
