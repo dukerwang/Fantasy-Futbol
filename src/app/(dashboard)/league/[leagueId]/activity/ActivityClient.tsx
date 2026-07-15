@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { useParams } from 'next/navigation';
+
 import { formatPlayerName } from '@/lib/formatName';
 import { generateTransactionHeadline, generateTransactionBody } from '@/lib/narrative/generators';
 import { renderBoldedText } from '@/lib/narrative/boldText';
@@ -830,8 +830,6 @@ export default function ActivityClient({
   const [viewingPlayer, setViewingPlayer] = useState<FullPlayer | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const params = useParams();
-  const leagueId = params?.leagueId as string | undefined;
 
   const handlePlayerClick = async (playerId: string) => {
     if (isLoading) return;
