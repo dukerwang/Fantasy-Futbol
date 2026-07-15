@@ -1,10 +1,9 @@
 'use client';
 
 import { useState } from 'react';
+import { useParams } from 'next/navigation';
 import type { MatchReport } from '@/lib/narrative/matchReport';
 import { renderBoldedText } from '@/lib/narrative/boldText';
-import { createClient } from '@/lib/supabase/client';
-import { FULL_PLAYER_SELECT } from '@/lib/constants/queries';
 import PlayerDetailsModal from '@/components/players/PlayerDetailsModal';
 import { Icon } from '@/components/ui/Icon';
 import type { Player } from '@/types';
@@ -15,19 +14,19 @@ export default function MatchReportCard({ report }: { report: MatchReport }) {
   const [viewingPlayer, setViewingPlayer] = useState<Player | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
+  const params = useParams();
+  const leagueId = params?.leagueId as string | undefined;
+
   const handlePlayerClick = async (playerId: string) => {
     if (isLoading) return;
     setIsLoading(true);
     try {
-      const supabase = createClient();
-      const { data, error } = await supabase
-        .from('players')
-        .select(FULL_PLAYER_SELECT)
-        .eq('id', playerId)
-        .single();
-      if (error) throw error;
-      if (data) {
-        setViewingPlayer(data as any);
+      const query = leagueId ? `?leagueId=${leagueId}` : '';
+      const res = await fetch(`/api/players/${playerId}${query}`);
+      if (!res.ok) throw new Error('Failed to fetch details');
+      const data = await res.json();
+      if (data.player) {
+        setViewingPlayer(data.player as Player);
       }
     } catch (err) {
       console.error('Failed to fetch player details:', err);
