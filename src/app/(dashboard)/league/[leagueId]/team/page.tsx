@@ -7,6 +7,7 @@ import type { Formation, GranularPosition, MatchupLineup, BenchSlot } from '@/ty
 import { FORMATION_SLOTS, POSITION_FLEX_MAP, BENCH_FLEX_MAP } from '@/types';
 import PitchUI from './PitchUI';
 import { FULL_PLAYER_SELECT } from '@/lib/constants/queries';
+import { getCurrentFplSeason } from '@/lib/season/currentSeason';
 import styles from './my-team.module.css';
 
 export const dynamic = 'force-dynamic';
@@ -61,17 +62,21 @@ export default async function MyTeamPage({ params }: Props) {
 
   const teamRank = standingData?.rank;
 
-  // Fetch all player rankings for mapping
-  const { data: rankings } = await admin.from('player_rankings').select('*');
+  const season = (team.league as any).season ?? await getCurrentFplSeason();
+
+  // Fetch all player rankings and archives in parallel
+  const [{ data: rankings }, { data: archives }, { data: listings }] = await Promise.all([
+    admin.from('player_rankings').select('*'),
+    admin.from('season_player_stats_archive').select('player_id, ppg, form_rating, overall_rank, position_ranks').eq('season', season),
+    admin
+      .from('player_sale_listings')
+      .select('id, player_id, status, min_bid, buy_now_price')
+      .eq('league_id', leagueId)
+      .in('status', ['pending', 'active'])
+  ]);
+
+  const archiveMap = new Map((archives ?? []).map((a: any) => [a.player_id, a]));
   const rankMap = new Map((rankings ?? []).map((r: any) => [r.player_id, r]));
-
-  // Fetch active listings for this league to inject listing state into roster entries
-  const { data: listings } = await admin
-    .from('player_sale_listings')
-    .select('id, player_id, status, min_bid, buy_now_price')
-    .eq('league_id', leagueId)
-    .in('status', ['pending', 'active']);
-
   const listingsMap = new Map((listings ?? []).map((l: any) => [l.player_id, l]));
 
   // Fetch roster entries with full player data (including rankings)
@@ -90,8 +95,11 @@ export default async function MyTeamPage({ params }: Props) {
     const player = e.player as any;
     if (player) {
       const ranks = rankMap.get(player.id);
-      player.overall_rank = ranks?.overall_rank;
-      player.position_ranks = ranks?.position_ranks;
+      const arch = archiveMap.get(player.id);
+      player.overall_rank = arch ? arch.overall_rank : ranks?.overall_rank;
+      player.position_ranks = arch ? arch.position_ranks : ranks?.position_ranks;
+      player.ppg = arch ? Number(arch.ppg) : player.ppg;
+      player.form_rating = arch ? Number(arch.form_rating) : player.form_rating;
     }
     e.listing = listingsMap.get(e.player_id) ?? null;
     return e;

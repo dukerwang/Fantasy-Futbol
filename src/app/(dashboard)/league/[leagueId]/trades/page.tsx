@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { notFound, redirect } from 'next/navigation';
 import TradesClient from './TradesClient';
+import { getCurrentFplSeason } from '@/lib/season/currentSeason';
 
 interface Props {
   params: Promise<{ leagueId: string }>;
@@ -313,37 +314,40 @@ export default async function TradesPage({ params, searchParams }: Props) {
     }
   }
 
-  // Fetch all player rankings and map globally
-  const { data: rankings } = await admin.from('player_rankings').select('*');
-  const rankMap = new Map((rankings ?? []).map((r: any) => [r.player_id, r]));
+  // Fetch rankings and archives in parallel
+  const [{ data: rankings }, { data: archives }] = await Promise.all([
+    admin.from('player_rankings').select('*'),
+    admin.from('season_player_stats_archive').select('player_id, ppg, form_rating, overall_rank, position_ranks').eq('season', currentSeason)
+  ]);
 
-  // Inject rank into myRoster
+  const rankMap = new Map((rankings ?? []).map((r: any) => [r.player_id, r]));
+  const archiveMap = new Map((archives ?? []).map((a: any) => [a.player_id, a]));
+
+  const mergePlayerSeasonStats = (p: any) => {
+    if (!p) return;
+    const r = rankMap.get(p.id);
+    const arch = archiveMap.get(p.id);
+    p.overall_rank = arch ? arch.overall_rank : r?.overall_rank;
+    p.position_ranks = arch ? arch.position_ranks : r?.position_ranks;
+    p.ppg = arch ? Number(arch.ppg) : p.ppg;
+    p.form_rating = arch ? Number(arch.form_rating) : p.form_rating;
+  };
+
+  // Inject rank and stats into myRoster
   for (const player of myRoster) {
-    const r = rankMap.get(player.id);
-    if (r) {
-      player.overall_rank = r.overall_rank;
-      player.position_ranks = r.position_ranks;
-    }
+    mergePlayerSeasonStats(player);
   }
 
-  // Inject rank into allRosters
+  // Inject rank and stats into allRosters
   for (const teamId in allRosters) {
     for (const player of allRosters[teamId]) {
-      const r = rankMap.get(player.id);
-      if (r) {
-        player.overall_rank = r.overall_rank;
-        player.position_ranks = r.position_ranks;
-      }
+      mergePlayerSeasonStats(player);
     }
   }
 
-  // Inject rank into playerMap
+  // Inject rank and stats into playerMap
   for (const pid in playerMap) {
-    const r = rankMap.get(pid);
-    if (r) {
-      playerMap[pid].overall_rank = r.overall_rank;
-      playerMap[pid].position_ranks = r.position_ranks;
-    }
+    mergePlayerSeasonStats(playerMap[pid]);
   }
 
   // Fetch loans for this league
@@ -360,11 +364,7 @@ export default async function TradesPage({ params, searchParams }: Props) {
 
   for (const l of loans ?? []) {
     if (l.player) {
-      const r = rankMap.get(l.player.id);
-      if (r) {
-        l.player.overall_rank = r.overall_rank;
-        l.player.position_ranks = r.position_ranks;
-      }
+      mergePlayerSeasonStats(l.player);
       l.player.recent_ppg = recentPpgMap[l.player.id] ?? Math.max(3.0, l.player.ppg ?? 3.0);
     }
   }
