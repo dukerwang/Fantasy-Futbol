@@ -7,6 +7,7 @@ import { DIVISIONS } from './divisions';
 import { CURATED_ICONS } from './icons';
 import { CREST_PALETTE } from './palette';
 import CrestBadge from './CrestBadge';
+import { Icon } from '@/components/ui/Icon';
 import styles from './crest.module.css';
 
 interface CrestBuilderProps {
@@ -100,7 +101,7 @@ export default function CrestBuilder({
             onClick={handleRandomise} 
             className={styles.shuffleBtn}
           >
-            <span>🎲</span> Shuffle Design
+            <Icon name="repeat" size={13} /> Shuffle Design
           </button>
         </div>
 
@@ -322,10 +323,6 @@ export default function CrestBuilder({
         <div className={styles.previewDetails}>
           <h3 className={styles.previewTeamName}>{teamName || 'My Club'}</h3>
           <span className={styles.previewAbbr}>{abbreviation || 'CLUB'}</span>
-          <div className={styles.previewDivider} />
-          <span style={{ fontSize: '12px', color: 'var(--color-accent-green)', fontWeight: 600 }}>
-            SVG Vector Crest
-          </span>
         </div>
 
         <div className={styles.actionButtons}>

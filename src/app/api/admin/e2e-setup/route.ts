@@ -57,8 +57,7 @@ export async function POST() {
         // Member
         await admin.from('league_members').insert({
             league_id: league.id,
-            user: userId,
-            role: i === 0 ? 'commissioner' : 'member'
+            user_id: userId,
         });
 
         // Team
