@@ -7,32 +7,42 @@ export interface ShieldShape {
 export const SHIELDS: ShieldShape[] = [
   {
     id: 'classic',
-    label: 'Classic English',
-    path: 'M 10 10 L 90 10 C 90 45, 90 80, 50 115 C 10 80, 10 45, 10 10 Z'
+    label: 'Classic Shield',
+    path: 'M 10 10 L 90 10 C 90 45, 90 80, 50 110 C 10 80, 10 45, 10 10 Z'
   },
   {
     id: 'continental',
-    label: 'Continental',
-    path: 'M 10 10 L 90 10 L 90 70 C 90 100, 75 115, 50 115 C 25 115, 10 100, 10 70 Z'
+    label: 'Continental Shield',
+    path: 'M 10 10 L 90 10 L 90 70 C 90 95, 75 110, 50 110 C 25 110, 10 95, 10 70 Z'
   },
   {
     id: 'heraldic',
-    label: 'Heraldic Pointed',
-    path: 'M 10 25 C 10 25, 25 15, 50 20 C 75 15, 90 25, 90 25 L 85 60 C 85 90, 70 110, 50 115 C 30 110, 15 90, 15 60 Z'
+    label: 'Pointed Heraldic',
+    path: 'M 10 20 L 50 12 L 90 20 L 88 65 C 88 92, 72 110, 50 110 C 28 110, 12 92, 12 65 Z'
   },
   {
     id: 'arch',
     label: 'Crest Arch',
-    path: 'M 10 40 C 10 15, 90 15, 90 40 L 90 80 C 90 102, 72 115, 50 115 C 28 115, 10 102, 10 80 Z'
+    path: 'M 10 38 C 10 12, 90 12, 90 38 L 90 78 C 90 100, 72 110, 50 110 C 28 110, 10 100, 10 78 Z'
   },
   {
-    id: 'round',
-    label: 'Rounded Badge',
-    path: 'M 50 10 C 77.6 10, 90 32.4, 90 60 C 90 87.6, 77.6 110, 50 110 C 22.4 110, 10 87.6, 10 60 C 10 32.4, 22.4 10, 50 10 Z'
+    id: 'circle',
+    label: 'Circular Badge',
+    path: 'M 50 12 A 48 48 0 1 0 50 108 A 48 48 0 1 0 50 12 Z'
   },
   {
     id: 'pennant',
-    label: 'Pennant',
-    path: 'M 15 10 L 85 10 L 75 75 L 50 115 L 25 75 Z'
+    label: 'Pennant Banner',
+    path: 'M 12 10 L 88 10 L 78 72 L 50 110 L 22 72 Z'
+  },
+  {
+    id: 'diamond',
+    label: 'Diamond Badge',
+    path: 'M 50 10 L 95 60 L 50 110 L 5 60 Z'
+  },
+  {
+    id: 'hexagon',
+    label: 'Hexagon Badge',
+    path: 'M 50 10 L 90 32 L 90 88 L 50 110 L 10 88 L 10 32 Z'
   }
 ];
