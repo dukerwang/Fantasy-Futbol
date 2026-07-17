@@ -509,7 +509,7 @@
     font-weight: 700;
     line-height: 1.2;
     letter-spacing: 0.01em;
-    color: #1c1c19;
+    color: var(--color-text-primary, #1c1c19);
     text-align: center;
     width: 100%;
     word-break: break-word;

@@ -9,7 +9,7 @@
     aspect-ratio: 1.6 / 1;
     max-height: 720px;
     padding: 14px;
-    background: #ede8de;
+    background: var(--color-bg-secondary, #ede8de);
     border: 1px solid rgba(210, 196, 183, 0.45);
     border-radius: 6px;
 }
@@ -185,7 +185,7 @@
 /* ── Player chip — card style from prototype ──────────────────────── */
 .chip {
     position: relative;
-    background: white;
+    background: var(--color-bg-card, white);
     padding: 8px;
     width: 100px;
     flex-shrink: 0;
@@ -218,7 +218,7 @@
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.02em;
-    color: #1c1c19;
+    color: var(--color-text-primary, #1c1c19);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -244,7 +244,7 @@
     top: -6px;
     left: -6px;
     z-index: 6;
-    background: white;
+    background: var(--color-bg-card, white);
     border-radius: 50%;
     box-shadow: 0 1px 3px rgba(0,0,0,0.3);
     color: #16a34a;
@@ -256,7 +256,7 @@
 
 /* ── Bench ────────────────────────────────────────────────────────── */
 .benchSection {
-    background: #EDE8DE;
+    background: var(--color-bg-secondary, #EDE8DE);
     padding: 12px 16px;
     border-top: 1px solid rgba(210,196,183,0.5);
     border-left: 1px solid var(--color-border, rgba(210,196,183,0.5));
@@ -294,7 +294,7 @@
 
 .benchChip {
     position: relative;
-    background: white;
+    background: var(--color-bg-card, white);
     padding: 7px;
     width: 84px;
     flex-shrink: 0;
@@ -310,7 +310,7 @@
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.02em;
-    color: #1c1c19;
+    color: var(--color-text-primary, #1c1c19);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -335,7 +335,7 @@
     top: -6px;
     left: -6px;
     z-index: 6;
-    background: white;
+    background: var(--color-bg-card, white);
     border-radius: 50%;
     box-shadow: 0 1px 3px rgba(0,0,0,0.3);
     color: #dc2626;
@@ -400,10 +400,10 @@
     align-items: center;
     justify-content: space-between;
     padding: 10px 12px;
-    background: #f7f3ee;
+    background: var(--color-bg-primary, #f7f3ee);
 }
 
-.breakdownRowAlt { background: rgba(247,243,238,0.5); }
+.breakdownRowAlt { background: var(--color-bg-card-alt, rgba(247,243,238,0.5)); }
 
 .breakdownLeft {
     display: flex;
