@@ -419,7 +419,7 @@
     /* Subtly tinted position border (40% pos color, 60% border) for a classy outline */
     border: 1.5px solid color-mix(in srgb, var(--pos-color, var(--color-border)) 40%, var(--color-border) 60%);
     /* Elegant, neutral studio backdrop (no colored tint behind player image) */
-    background: linear-gradient(to bottom, #FDFCF9, var(--color-bg-secondary));
+    background: linear-gradient(to bottom, #FDFCF9, #EDE8DE);
     overflow: hidden;
     transition: border-color var(--transition-fast, 150ms),
                 box-shadow var(--transition-fast, 150ms);
@@ -460,7 +460,7 @@
     width: 100%;
     min-width: 100px;
     padding: 0;
-    background: var(--color-bg-card, #fdfcf9);
+    background: #fdfcf9;
     border: 1px solid rgba(210, 196, 183, 0.65);
     border-radius: var(--radius-sm, 4px);
     overflow: visible;
@@ -509,7 +509,7 @@
     font-weight: 700;
     line-height: 1.2;
     letter-spacing: 0.01em;
-    color: var(--color-text-primary, #1c1c19);
+    color: #1c1c19;
     text-align: center;
     width: 100%;
     word-break: break-word;

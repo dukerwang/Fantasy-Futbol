@@ -185,7 +185,7 @@
 /* ── Player chip — card style from prototype ──────────────────────── */
 .chip {
     position: relative;
-    background: var(--color-bg-card, white);
+    background: white;
     padding: 8px;
     width: 100px;
     flex-shrink: 0;
@@ -218,7 +218,7 @@
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.02em;
-    color: var(--color-text-primary, #1c1c19);
+    color: #1c1c19;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -244,7 +244,7 @@
     top: -6px;
     left: -6px;
     z-index: 6;
-    background: var(--color-bg-card, white);
+    background: white;
     border-radius: 50%;
     box-shadow: 0 1px 3px rgba(0,0,0,0.3);
     color: #16a34a;
@@ -294,7 +294,7 @@
 
 .benchChip {
     position: relative;
-    background: var(--color-bg-card, white);
+    background: white;
     padding: 7px;
     width: 84px;
     flex-shrink: 0;
@@ -310,7 +310,7 @@
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.02em;
-    color: var(--color-text-primary, #1c1c19);
+    color: #1c1c19;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -335,7 +335,7 @@
     top: -6px;
     left: -6px;
     z-index: 6;
-    background: var(--color-bg-card, white);
+    background: white;
     border-radius: 50%;
     box-shadow: 0 1px 3px rgba(0,0,0,0.3);
     color: #dc2626;
