@@ -7,6 +7,7 @@ import { createClient } from '@/lib/supabase/client';
 import ThemeToggle from './ThemeToggle';
 import NotificationBell from './NotificationBell';
 import { Icon } from '@/components/ui/Icon';
+import CrestBadge from '@/components/crest/CrestBadge';
 import styles from './TopBar.module.css';
 
 interface LeagueInfo {
@@ -19,6 +20,8 @@ interface LeagueInfo {
 interface UserTeam {
   id: string;
   team_name: string;
+  abbreviation?: string | null;
+  crest_config?: any;
   league: LeagueInfo;
 }
 
@@ -32,12 +35,12 @@ export default function TopBar() {
   const router = useRouter();
   const [teams, setTeams] = useState<UserTeam[]>([]);
   const [username, setUsername] = useState<string | null>(null);
-  const [leagueSwitcherOpen, setLeagueSwitcherOpen] = useState(false);
+  const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [isNavigating, setIsNavigating] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  const leagueSwitcherRef = useRef<HTMLDivElement>(null);
+  const userDropdownRef = useRef<HTMLDivElement>(null);
   const pageNavRef = useRef<HTMLDivElement>(null);
   const dropdownTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -50,12 +53,14 @@ export default function TopBar() {
   // Find the current league's status for conditional nav items
   const currentTeam = teams.find(t => t.league.id === currentLeagueId);
   const currentLeague = currentTeam?.league;
+  const currentCrestConfig = currentTeam?.crest_config;
 
   // Clear loading bar when navigation completes (pathname changed)
   useEffect(() => {
     setIsNavigating(false);
     setOpenDropdown(null);
     setMobileMenuOpen(false);
+    setUserDropdownOpen(false);
   }, [pathname]);
 
   // Listen for global navigation-start events fired by NavigationLink
@@ -89,8 +94,8 @@ export default function TopBar() {
   // Close switcher or dropdowns on outside click & Escape key
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
-      if (leagueSwitcherRef.current && !leagueSwitcherRef.current.contains(e.target as Node)) {
-        setLeagueSwitcherOpen(false);
+      if (userDropdownRef.current && !userDropdownRef.current.contains(e.target as Node)) {
+        setUserDropdownOpen(false);
       }
       if (pageNavRef.current && !pageNavRef.current.contains(e.target as Node)) {
         setOpenDropdown(null);
@@ -100,7 +105,7 @@ export default function TopBar() {
     function handleKeyDown(e: KeyboardEvent) {
       if (e.key === 'Escape') {
         setOpenDropdown(null);
-        setLeagueSwitcherOpen(false);
+        setUserDropdownOpen(false);
       }
     }
 
@@ -292,67 +297,6 @@ export default function TopBar() {
 
         {/* --- Right Section --- */}
         <div className={styles.rightSection}>
-          {/* League Switcher */}
-          <div className={styles.leagueSwitcher} ref={leagueSwitcherRef}>
-            <button
-              className={styles.leagueSwitcherBtn}
-              onClick={() => setLeagueSwitcherOpen(!leagueSwitcherOpen)}
-              type="button"
-            >
-              <div>
-                <div className={styles.leagueLabel}>League</div>
-                <div className={styles.leagueName}>
-                  {currentLeague ? currentLeague.name : 'Select League'}
-                </div>
-              </div>
-              <span className={`${styles.leagueSwitcherChevron} ${leagueSwitcherOpen ? styles.leagueSwitcherChevronOpen : ''}`}>
-                ▾
-              </span>
-            </button>
-
-            {leagueSwitcherOpen && (
-              <div className={styles.leagueDropdown}>
-                {teams.length > 0 ? (
-                  <>
-                    {teams.map((team) => (
-                      <Link
-                        key={team.league.id}
-                        href={`/league/${team.league.id}`}
-                        className={`${styles.leagueDropdownItem} ${team.league.id === currentLeagueId ? styles.leagueDropdownItemActive : ''}`}
-                        onClick={() => { setLeagueSwitcherOpen(false); setIsNavigating(true); }}
-                      >
-                        <span
-                          className={`${styles.leagueDot} ${team.league.id === currentLeagueId ? styles.leagueDotActive : styles.leagueDotInactive}`}
-                        />
-                        <span className={styles.leagueDropdownName}>{team.league.name}</span>
-                        <span className={styles.leagueDropdownSeason}>{team.league.season}</span>
-                      </Link>
-                    ))}
-                    <div className={styles.leagueDropdownDivider} />
-                  </>
-                ) : (
-                  <div style={{ padding: '8px 16px', fontSize: '13px', color: 'var(--color-text-muted)' }}>
-                    No leagues yet
-                  </div>
-                )}
-                <Link
-                  href="/league/create"
-                  className={styles.leagueDropdownAction}
-                  onClick={() => { setLeagueSwitcherOpen(false); setIsNavigating(true); }}
-                >
-                  + Create League
-                </Link>
-                <Link
-                  href="/league/join"
-                  className={styles.leagueDropdownAction}
-                  onClick={() => { setLeagueSwitcherOpen(false); setIsNavigating(true); }}
-                >
-                  ↳ Join League
-                </Link>
-              </div>
-            )}
-          </div>
-
           {/* Persistent League Chat */}
           {currentLeagueId && (
             <Link
@@ -372,20 +316,118 @@ export default function TopBar() {
             onNavigate={() => setIsNavigating(true)}
           />
 
-          {/* Theme Toggle */}
+          {/* Theme Toggle (Desktop Desktop) */}
           <div className={styles.desktopThemeToggle}>
             <ThemeToggle />
           </div>
 
-          {/* User Avatar */}
-          <div className={styles.userAvatar}>
-            {username ? username[0].toUpperCase() : '?'}
-          </div>
+          {/* Consolidated User Profile Dropdown */}
+          <div className={styles.userDropdownContainer} ref={userDropdownRef}>
+            <button
+              className={styles.avatarBtn}
+              onClick={() => setUserDropdownOpen(!userDropdownOpen)}
+              type="button"
+              aria-label="User menu"
+              aria-expanded={userDropdownOpen}
+              aria-haspopup="true"
+            >
+              <CrestBadge
+                config={currentCrestConfig}
+                size={32}
+                teamName={currentTeam?.team_name || username}
+              />
+            </button>
 
-          {/* Sign Out */}
-          <button onClick={handleSignOut} className={styles.signOut} type="button">
-            Sign out
-          </button>
+            {userDropdownOpen && (
+              <div className={styles.userDropdown}>
+                {/* Header Profile Identity */}
+                <div className={styles.dropdownHeader}>
+                  <div style={{ marginRight: '12px', flexShrink: 0 }}>
+                    <CrestBadge
+                      config={currentCrestConfig}
+                      size={40}
+                      teamName={currentTeam?.team_name || username}
+                    />
+                  </div>
+                  <div className={styles.dropdownHeaderDetails}>
+                    <div className={styles.dropdownClubName}>
+                      {currentTeam?.team_name || 'My Club'}
+                    </div>
+                    <div className={styles.dropdownUsername}>
+                      @{username || 'manager'}
+                    </div>
+                    {currentLeagueId && (
+                      <Link
+                        href={`/league/${currentLeagueId}/crest`}
+                        className={styles.editCrestLink}
+                        onClick={() => setUserDropdownOpen(false)}
+                      >
+                        Edit Crest →
+                      </Link>
+                    )}
+                  </div>
+                </div>
+
+                <div className={styles.dropdownDivider} />
+
+                {/* League Switcher Section */}
+                <div className={styles.dropdownSection}>
+                  <div className={styles.dropdownSectionLabel}>Switch League</div>
+                  {teams.length > 0 ? (
+                    <div className={styles.leagueList}>
+                      {teams.map((team) => (
+                        <Link
+                          key={team.league.id}
+                          href={`/league/${team.league.id}`}
+                          className={`${styles.dropdownItem} ${team.league.id === currentLeagueId ? styles.dropdownItemActive : ''}`}
+                          onClick={() => {
+                            setUserDropdownOpen(false);
+                            setIsNavigating(true);
+                          }}
+                        >
+                          <span
+                            className={`${styles.leagueDot} ${team.league.id === currentLeagueId ? styles.leagueDotActive : styles.leagueDotInactive}`}
+                          />
+                          <span className={styles.dropdownItemName}>{team.league.name}</span>
+                          <span className={styles.dropdownItemSeason}>{team.league.season}</span>
+                        </Link>
+                      ))}
+                    </div>
+                  ) : (
+                    <div style={{ padding: '8px 16px', fontSize: '13px', color: 'var(--color-text-muted)' }}>
+                      No leagues yet
+                    </div>
+                  )}
+
+                  <div className={styles.dropdownDivider} style={{ margin: '8px 0' }} />
+
+                  <Link
+                    href="/league/create"
+                    className={styles.dropdownActionLink}
+                    onClick={() => { setUserDropdownOpen(false); setIsNavigating(true); }}
+                  >
+                    + Create League
+                  </Link>
+                  <Link
+                    href="/league/join"
+                    className={styles.dropdownActionLink}
+                    onClick={() => { setUserDropdownOpen(false); setIsNavigating(true); }}
+                  >
+                    ↳ Join League
+                  </Link>
+                </div>
+
+                <div className={styles.dropdownDivider} />
+
+                {/* Mobile settings / Sign out */}
+                <div style={{ padding: '4px 0' }}>
+                  <button onClick={handleSignOut} className={styles.dropdownSignOutBtn} type="button">
+                    Sign out
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
 
           {/* Hamburger Menu Toggle (Mobile Only) */}
           {currentLeagueId && (
@@ -475,10 +517,25 @@ export default function TopBar() {
             {/* Mobile User Section */}
             <div className={styles.mobileDrawerUserSection}>
               <div className={styles.mobileDrawerUserDetail}>
-                <div className={styles.mobileDrawerAvatar}>
-                  {username ? username[0].toUpperCase() : '?'}
+                <div className={styles.mobileDrawerCrest}>
+                  <CrestBadge
+                    config={currentCrestConfig}
+                    size={36}
+                    teamName={currentTeam?.team_name || username}
+                  />
                 </div>
-                <span className={styles.mobileDrawerUsername}>{username || 'Manager'}</span>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                  <span className={styles.mobileDrawerUsername}>{currentTeam?.team_name || 'My Club'}</span>
+                  {currentLeagueId && (
+                    <Link
+                      href={`/league/${currentLeagueId}/crest`}
+                      className={styles.mobileEditCrestLink}
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      Edit Crest →
+                    </Link>
+                  )}
+                </div>
                 <div className={styles.mobileDrawerThemeToggle}>
                   <ThemeToggle />
                 </div>

@@ -609,3 +609,193 @@
   }
 }
 
+/* --- User Profile Dropdown Styles --- */
+.userDropdownContainer {
+  position: relative;
+}
+
+.avatarBtn {
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  border-radius: var(--radius-full);
+  outline: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform var(--transition-fast);
+}
+
+.avatarBtn:hover {
+  transform: scale(1.05);
+}
+
+.userDropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 280px;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  padding: var(--space-2) 0;
+  z-index: 200;
+  animation: dropdownFadeIn 0.15s ease-out;
+}
+
+@keyframes dropdownFadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.dropdownHeader {
+  display: flex;
+  align-items: center;
+  padding: var(--space-3) var(--space-4);
+}
+
+.dropdownHeaderDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.dropdownClubName {
+  font-family: var(--font-serif);
+  font-size: 15px;
+  font-weight: var(--font-bold);
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dropdownUsername {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.editCrestLink {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: var(--font-semibold);
+  color: var(--color-accent-green);
+  text-decoration: none;
+  width: fit-content;
+  margin-top: 2px;
+}
+
+.editCrestLink:hover {
+  text-decoration: underline;
+}
+
+.dropdownDivider {
+  height: 1px;
+  background: var(--color-border-subtle);
+  margin: var(--space-2) 0;
+}
+
+.dropdownSection {
+  padding: var(--space-2) 0;
+}
+
+.dropdownSectionLabel {
+  font-family: var(--font-sans);
+  font-size: 10px;
+  font-weight: var(--font-bold);
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  padding: 0 var(--space-4) var(--space-2);
+}
+
+.leagueList {
+  display: flex;
+  flex-direction: column;
+  max-height: 160px;
+  overflow-y: auto;
+}
+
+.dropdownItem {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-4);
+  text-decoration: none;
+  transition: background var(--transition-fast);
+  cursor: pointer;
+}
+
+.dropdownItem:hover {
+  background: var(--color-bg-card-hover);
+}
+
+.dropdownItemActive {
+  background: rgba(20, 107, 64, 0.05);
+}
+
+.dropdownItemName {
+  font-family: var(--font-serif);
+  font-size: 13px;
+  font-weight: var(--font-medium);
+  color: var(--color-text-primary);
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dropdownItemSeason {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  color: var(--color-text-muted);
+}
+
+.dropdownActionLink {
+  display: block;
+  padding: var(--space-1) var(--space-4);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  text-decoration: none;
+}
+
+.dropdownActionLink:hover {
+  color: var(--color-accent-green);
+}
+
+.dropdownSignOutBtn {
+  width: 100%;
+  padding: var(--space-2) var(--space-4);
+  background: transparent;
+  border: none;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: var(--font-semibold);
+  color: var(--color-danger);
+  text-align: left;
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+
+.dropdownSignOutBtn:hover {
+  background: var(--color-bg-card-hover);
+}
+
+.mobileDrawerCrest {
+  flex-shrink: 0;
+}
+
+.mobileEditCrestLink {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: var(--font-semibold);
+  color: var(--color-accent-green);
+  text-decoration: none;
+}
+
+

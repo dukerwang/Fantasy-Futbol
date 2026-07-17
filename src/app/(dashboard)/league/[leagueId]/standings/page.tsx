@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { redirect, notFound } from 'next/navigation';
 import { Icon } from '@/components/ui/Icon';
+import CrestBadge from '@/components/crest/CrestBadge';
 import styles from './standings.module.css';
 
 export const dynamic = 'force-dynamic';
@@ -23,6 +24,7 @@ interface StandingRow {
   gd: number;    // goal difference (pf - pa)
   played: number;
   rank: number;
+  crestConfig?: any;
 }
 
 type FormResult = 'W' | 'D' | 'L';
@@ -87,8 +89,8 @@ export default async function StandingsPage({ params }: Props) {
 
   if (!membership && league.commissioner_id !== user.id) redirect('/dashboard');
 
-  // Fetch standings and recent matchups in parallel
-  const [{ data: standingsRaw }, { data: recentMatchups }] = await Promise.all([
+  // Fetch standings, recent matchups, and team crest configs in parallel
+  const [{ data: standingsRaw }, { data: recentMatchups }, { data: teamsRaw }] = await Promise.all([
     admin
       .from('league_standings')
       .select('*')
@@ -101,7 +103,13 @@ export default async function StandingsPage({ params }: Props) {
       .eq('status', 'completed')
       .order('gameweek', { ascending: false })
       .limit(100),
+    admin
+      .from('teams')
+      .select('id, crest_config')
+      .eq('league_id', leagueId),
   ]);
+
+  const crestMap = new Map((teamsRaw ?? []).map((t: any) => [t.id, t.crest_config]));
 
   const standings: StandingRow[] = (standingsRaw ?? []).map((row: any) => ({
     teamId: row.team_id,
@@ -116,6 +124,7 @@ export default async function StandingsPage({ params }: Props) {
     gd: row.goal_difference ?? 0,
     pts: row.league_points ?? 0,
     rank: row.rank,
+    crestConfig: crestMap.get(row.team_id)
   }));
 
   // Build form map: teamId → last 5 results
@@ -154,10 +163,11 @@ export default async function StandingsPage({ params }: Props) {
                 key={row.teamId}
                 className={`${styles.podiumCard} ${isLeader ? styles.podiumCardLeader : ''}`}
               >
-                <span className={styles.podiumEmoji} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                  <CrestBadge config={row.crestConfig} size={64} teamName={row.teamName} />
                   <Icon
                     name="trophy"
-                    size={row.rank === 1 ? 48 : 36}
+                    size={20}
                     style={{
                       color:
                         row.rank === 1
@@ -167,7 +177,7 @@ export default async function StandingsPage({ params }: Props) {
                           : '#CD7F32',
                     }}
                   />
-                </span>
+                </div>
 
                 {isLeader && (
                   <div className={styles.podiumLeaderBadge}>★ League Leader</div>
@@ -225,7 +235,10 @@ export default async function StandingsPage({ params }: Props) {
                   >
                     <td className={styles.rankCell}>{formatRank(i + 1)}</td>
                     <td className={styles.teamCell}>
-                      <span className={styles.teamCellName}>{row.teamName}</span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <CrestBadge config={row.crestConfig} size={28} teamName={row.teamName} />
+                        <span className={styles.teamCellName}>{row.teamName}</span>
+                      </div>
                     </td>
                     <td className={styles.managerCell}>{row.username}</td>
                     <td className={styles.ptsCell}>{row.pts}</td>

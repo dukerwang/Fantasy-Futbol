@@ -30,7 +30,7 @@ export default async function TeamSetupPage({ params }: Props) {
   // Fetch current user's team in this league
   const { data: team } = await admin
     .from('teams')
-    .select('id, team_name, abbreviation, logo_url')
+    .select('id, team_name, abbreviation, logo_url, crest_config')
     .eq('league_id', leagueId)
     .eq('user_id', user.id)
     .single();

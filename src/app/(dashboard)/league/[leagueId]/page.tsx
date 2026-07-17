@@ -8,6 +8,7 @@ import styles from './league.module.css';
 import DraftOrderManager from './DraftOrderManager';
 import LeaveLeagueButton from './LeaveLeagueButton';
 import PreDraftLobby from './PreDraftLobby';
+import CrestBadge from '@/components/crest/CrestBadge';
 
 import { getFplStatus } from '@/lib/fpl/api';
 import { processMatchupsForGameweek } from '@/lib/scoring/matchupProcessor';
@@ -134,7 +135,7 @@ export default async function LeaguePage({ params }: Props) {
     // All teams
     admin
       .from('teams')
-      .select('id, team_name, draft_order, abbreviation, logo_url, user_id, user:users(id, username, email)')
+      .select('id, team_name, draft_order, abbreviation, logo_url, crest_config, user_id, user:users(id, username, email)')
       .eq('league_id', leagueId),
 
     // Recent activity
@@ -184,6 +185,7 @@ export default async function LeaguePage({ params }: Props) {
   let myMatchups = myMatchupsResult.data ?? [];
   const activity = activityResult.data ?? [];
   const initialTeams = (teamsResult.data ?? []) as any[];
+  const crestMap = new Map(initialTeams.map((t: any) => [t.id, t.crest_config]));
   const taxiSquad = taxiResult?.data ?? [];
   const tournaments = tournamentsResult?.data ?? [];
   let recentMatchups = recentMatchupsResult?.data ?? [];
@@ -396,6 +398,8 @@ export default async function LeaguePage({ params }: Props) {
 
   const userTeamFull = initialTeams.find((t: any) => t.id === userTeam?.id);
   const oppTeamFull = initialTeams.find((t: any) => t.id === oppTeam?.id);
+  const userCrest = userTeamFull?.crest_config;
+  const oppCrest = oppTeamFull?.crest_config;
   const userUsername = userTeamFull?.user?.username || 'MANAGER';
   const oppUsername = oppTeamFull?.user?.username || 'OPPONENT';
 
@@ -562,7 +566,9 @@ export default async function LeaguePage({ params }: Props) {
                   <div className={styles.matchupTeamsRow}>
                     {/* Team A */}
                     <div className={styles.matchupTeamInfoA}>
-                      <div className={styles.matchupShield}>{userTeam?.team_name?.charAt(0) ?? '?'}</div>
+                      <div style={{ marginRight: '12px', display: 'flex', alignItems: 'center' }}>
+                        <CrestBadge config={userCrest} size={40} teamName={userTeam?.team_name} />
+                      </div>
                       <div className={styles.matchupTeamDetails}>
                         <span className={styles.matchupTeamName}>{userTeam?.team_name ?? '—'}</span>
                         <span className={styles.matchupManager}>MANAGER {userUsername.toUpperCase()}</span>
@@ -574,7 +580,9 @@ export default async function LeaguePage({ params }: Props) {
                         <span className={styles.matchupTeamName}>{oppTeam?.team_name ?? '—'}</span>
                         <span className={styles.matchupManager}>MANAGER {oppUsername.toUpperCase()}</span>
                       </div>
-                      <div className={styles.matchupShield}>{oppTeam?.team_name?.charAt(0) ?? '?'}</div>
+                      <div style={{ marginLeft: '12px', display: 'flex', alignItems: 'center' }}>
+                        <CrestBadge config={oppCrest} size={40} teamName={oppTeam?.team_name} />
+                      </div>
                     </div>
                   </div>
 
@@ -624,10 +632,14 @@ export default async function LeaguePage({ params }: Props) {
                 {standings.slice(0, 5).map((s: any) => {
                   const isMe = s.team_id === myTeamId;
                   const form = formMap.get(s.team_id) ?? [];
+                  const crestConfig = crestMap.get(s.team_id);
                   return (
                     <div key={s.team_id} className={`${styles.standingsRow} ${isMe ? styles.stRowActive : ''}`}>
                       <span className={styles.stRankValue}>{s.rank}</span>
-                      <span className={`${styles.stTeamName} ${isMe ? styles.stTeamNameBold : ''}`}>{s.team_name}</span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flex: 1, minWidth: 0 }}>
+                        <CrestBadge config={crestConfig} size={20} teamName={s.team_name} />
+                        <span className={`${styles.stTeamName} ${isMe ? styles.stTeamNameBold : ''}`} style={{ flex: 1 }}>{s.team_name}</span>
+                      </div>
                       <span className={styles.stPtsValue}>{s.league_points.toLocaleString()}</span>
                       <div className={styles.formDots}>
                         {form.map((result, idx) => (
