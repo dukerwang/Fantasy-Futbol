@@ -364,12 +364,12 @@
 .pitchNodeWrap:hover .pitchNode {
     box-shadow: var(--shadow-md, 0 4px 12px rgba(28, 28, 28, 0.1));
     /* Subtly tint the card border with position color on hover */
-    border-color: color-mix(in srgb, var(--pos-color, var(--color-border)) 40%, var(--color-border) 60%);
+    border-color: color-mix(in srgb, var(--pos-color, #C8C3BC) 40%, #C8C3BC 60%);
 }
 
 .pitchNodeWrap:hover .nodePhotoMount {
     /* Solid position color border on hover */
-    border-color: var(--pos-color, var(--color-border));
+    border-color: var(--pos-color, #C8C3BC);
     /* Classy glowing halo ring using the position color on hover */
     box-shadow: 
         0 0 0 2.5px color-mix(in srgb, var(--pos-color, transparent) 25%, transparent),
@@ -417,7 +417,7 @@
     border-radius: 6px;
     position: relative;
     /* Subtly tinted position border (40% pos color, 60% border) for a classy outline */
-    border: 1.5px solid color-mix(in srgb, var(--pos-color, var(--color-border)) 40%, var(--color-border) 60%);
+    border: 1.5px solid color-mix(in srgb, var(--pos-color, #C8C3BC) 40%, #C8C3BC 60%);
     /* Elegant, neutral studio backdrop (no colored tint behind player image) */
     background: linear-gradient(to bottom, #FDFCF9, #EDE8DE);
     overflow: hidden;
