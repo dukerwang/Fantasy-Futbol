@@ -1,30 +1,20 @@
+/* ── Page header ── */
 .header {
   display: flex;
+  flex-direction: column;
   align-items: flex-start;
-  justify-content: space-between;
-  margin-bottom: var(--space-10);
-  gap: var(--space-6);
+  gap: var(--space-1);
+  margin-bottom: var(--space-5);
+  padding-bottom: var(--space-4);
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+/* Meta row: league label · rank · roster count */
+.headerMeta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
   flex-wrap: wrap;
-}
-
-.headerTop {
-  display: flex;
-  align-items: center;
-  gap: var(--space-4);
-  margin-bottom: var(--space-1);
-}
-
-@media (max-width: 600px) {
-  .headerTop {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-}
-
-.headerRight {
-  display: flex;
-  align-items: center;
-  gap: var(--space-4);
 }
 
 .leagueName {
@@ -35,95 +25,46 @@
   letter-spacing: 0.08em;
 }
 
+.metaDot {
+  color: var(--color-border);
+  font-size: var(--text-xs);
+  user-select: none;
+  line-height: 1;
+}
+
+.metaChip {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.3em;
+}
+
+.metaValue {
+  font-family: var(--font-serif);
+  font-size: var(--text-sm);
+  font-weight: var(--font-bold);
+  color: var(--color-text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.metaLabel {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+.loanBadge {
+  font-size: 10px;
+  font-weight: var(--font-semibold);
+  color: var(--color-accent-green);
+  margin-left: 2px;
+}
+
 .teamName {
   font-family: var(--font-serif);
   font-size: var(--text-3xl);
   font-weight: var(--font-bold);
   color: var(--color-text-primary);
   letter-spacing: -0.02em;
-}
-
-.headerStats {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  /* allow wrapping on small screens */
-  gap: var(--space-5);
-  background: var(--color-bg-card);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  padding: var(--space-4) var(--space-6);
-}
-
-@media (max-width: 600px) {
-  .headerStats {
-    gap: var(--space-3);
-    padding: var(--space-3) var(--space-4);
-    justify-content: center;
-  }
-}
-
-.editToggleBtn {
-  padding: var(--space-2) var(--space-4);
-  background: var(--color-accent-blue, #3A6B4A);
-  color: #fff;
-  border: none;
-  border-radius: var(--radius-sm);
-  font-size: var(--text-sm);
-  font-weight: var(--font-semibold);
-  cursor: pointer;
-  white-space: nowrap;
-}
-
-.editToggleBtn:hover {
-  opacity: 0.9;
-}
-
-.stat {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-}
-
-.statValue {
-  font-family: var(--font-serif);
-  font-size: var(--text-xl);
-  font-weight: var(--font-bold);
-  color: var(--color-text-primary);
-  font-variant-numeric: tabular-nums;
-}
-
-.statLabel {
-  font-size: var(--text-xs);
-  color: var(--color-text-muted);
-  white-space: nowrap;
-}
-
-.statDivider {
-  width: 1px;
-  height: 32px;
-  background: var(--color-border);
-}
-
-.rosterLink {
-  display: inline-flex;
-  align-items: center;
-  padding: var(--space-2) var(--space-4);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  font-size: var(--text-sm);
-  font-weight: var(--font-semibold);
-  color: var(--color-text-secondary);
-  text-decoration: none;
-  transition: border-color 0.15s, color 0.15s, background 0.15s;
-  white-space: nowrap;
-}
-
-.rosterLink:hover {
-  border-color: var(--color-accent-green);
-  color: var(--color-accent-green);
-  background: rgba(58, 107, 74, 0.05);
+  line-height: 1.1;
 }
 
 .sections {

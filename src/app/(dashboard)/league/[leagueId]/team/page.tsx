@@ -309,33 +309,27 @@ export default async function MyTeamPage({ params }: Props) {
   return (
     <div>
       <header className={styles.header}>
-        <div>
-          <div className={styles.headerTop}>
-            <p className={styles.leagueName}>{league.name}</p>
-          </div>
-          <h1 className={styles.teamName}>{team.team_name}</h1>
-        </div>
-        <div className={styles.headerRight}>
-          <div className={styles.headerStats}>
-            <div className={styles.stat}>
-              <span className={styles.statValue}>
-                {teamRank ? (teamRank === 1 ? '1st' : teamRank === 2 ? '2nd' : teamRank === 3 ? '3rd' : `${teamRank}th`) : '—'}
+        <div className={styles.headerMeta}>
+          <span className={styles.leagueName}>{league.name}</span>
+          {teamRank && (
+            <>
+              <span className={styles.metaDot}>·</span>
+              <span className={styles.metaChip}>
+                <span className={styles.metaValue}>
+                  {teamRank === 1 ? '1st' : teamRank === 2 ? '2nd' : teamRank === 3 ? '3rd' : `${teamRank}th`}
+                </span>
+                <span className={styles.metaLabel}>League Rank</span>
               </span>
-              <span className={styles.statLabel}>League Rank</span>
-            </div>
-            <div className={styles.statDivider} />
-            <div className={styles.stat}>
-              <span className={styles.statValue}>
-                {activeRosterCount}/{maxRosterSize}
-                {loanInCount > 0 && <span style={{ fontSize: '11px', color: 'var(--color-accent-green)', marginLeft: '4px' }}>+{loanInCount}L</span>}
-              </span>
-              <span className={styles.statLabel}>Active Roster</span>
-            </div>
-          </div>
-          <Link href={`/league/${leagueId}/team/roster`} className={styles.rosterLink}>
-            Manage Roster →
-          </Link>
+            </>
+          )}
+          <span className={styles.metaDot}>·</span>
+          <span className={styles.metaChip}>
+            <span className={styles.metaValue}>{activeRosterCount}/{maxRosterSize}</span>
+            <span className={styles.metaLabel}>Active Roster</span>
+            {loanInCount > 0 && <span className={styles.loanBadge}>+{loanInCount}L</span>}
+          </span>
         </div>
+        <h1 className={styles.teamName}>{team.team_name}</h1>
       </header>
 
       {pendingActivations && pendingActivations.length > 0 && (
