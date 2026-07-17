@@ -52,15 +52,6 @@ export default async function MyTeamPage({ params }: Props) {
     );
   }
 
-  // Fetch rank separately from view
-  // Fetch rank separately from view
-  const { data: standingData } = await admin
-    .from('league_standings')
-    .select('rank')
-    .eq('team_id', team.id)
-    .single();
-
-  const teamRank = standingData?.rank;
 
   const currentFpl = await getCurrentFplSeason();
   const kickedOff = await isFplSeasonKickedOff();
@@ -261,6 +252,22 @@ export default async function MyTeamPage({ params }: Props) {
     } catch { /* Fail open */ }
   }
 
+  // Fetch opponent team name for header context
+  let opponentTeamName: string | null = null;
+  if (matchup) {
+    const isTeamA = (matchup as any).team_a_id === team.id;
+    const opponentId = isTeamA ? (matchup as any).team_b_id : (matchup as any).team_a_id;
+    if (opponentId) {
+      const { data: oppTeam } = await admin
+        .from('teams')
+        .select('team_name')
+        .eq('id', opponentId)
+        .single();
+      opponentTeamName = oppTeam?.team_name ?? null;
+    }
+  }
+  const isMatchupLive = lockedTeamIds.size > 0;
+
   // If no existing lineup, auto-assign starters based on current roster statuses
   if (Object.keys(initialAssignments).length === 0 && starters.length > 0) {
     const slots = FORMATION_SLOTS[initialFormation];
@@ -311,23 +318,26 @@ export default async function MyTeamPage({ params }: Props) {
       <header className={styles.header}>
         <div className={styles.headerMeta}>
           <span className={styles.leagueName}>{league.name}</span>
-          {teamRank && (
+          {matchup ? (
             <>
               <span className={styles.metaDot}>·</span>
               <span className={styles.metaChip}>
-                <span className={styles.metaValue}>
-                  {teamRank === 1 ? '1st' : teamRank === 2 ? '2nd' : teamRank === 3 ? '3rd' : `${teamRank}th`}
-                </span>
-                <span className={styles.metaLabel}>League Rank</span>
+                <span className={styles.metaValue}>GW{(matchup as any).gameweek}</span>
               </span>
+              {opponentTeamName && (
+                <>
+                  <span className={styles.metaDot}>vs</span>
+                  <span className={styles.metaValue}>{opponentTeamName}</span>
+                </>
+              )}
+              {isMatchupLive && (
+                <>
+                  <span className={styles.metaDot}>·</span>
+                  <span className={styles.liveBadge}>Live</span>
+                </>
+              )}
             </>
-          )}
-          <span className={styles.metaDot}>·</span>
-          <span className={styles.metaChip}>
-            <span className={styles.metaValue}>{activeRosterCount}/{maxRosterSize}</span>
-            <span className={styles.metaLabel}>Active Roster</span>
-            {loanInCount > 0 && <span className={styles.loanBadge}>+{loanInCount}L</span>}
-          </span>
+          ) : null}
         </div>
         <h1 className={styles.teamName}>{team.team_name}</h1>
       </header>
