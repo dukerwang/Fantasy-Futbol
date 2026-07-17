@@ -175,7 +175,7 @@ export default async function LeaguePage({ params }: Props) {
     // Total spent this season (waiver_claim + drop severance) for my team
     myTeamId ? admin
       .from('transactions')
-      .select('faab_bid, compensation_amount')
+      .select('faab_bid, compensation_amount, type')
       .eq('league_id', leagueId)
       .eq('team_id', myTeamId)
       .in('type', ['waiver_claim', 'drop']) : Promise.resolve({ data: [] }),
@@ -193,9 +193,14 @@ export default async function LeaguePage({ params }: Props) {
   // Compute total spent: sum faab_bid from waiver wins + compensation_amount from drops with severance
   const spentTxs = (spentResult as any)?.data ?? [];
   const totalSpentThisSeason = (spentTxs as any[]).reduce((sum: number, tx: any) => {
-    const bid = tx.faab_bid != null && tx.faab_bid > 0 ? tx.faab_bid : 0;
-    const sev = tx.compensation_amount != null && Number(tx.compensation_amount) > 0 ? Number(tx.compensation_amount) : 0;
-    return sum + bid + sev;
+    if (tx.type === 'waiver_claim') {
+      const bid = tx.faab_bid != null && tx.faab_bid > 0 ? tx.faab_bid : 0;
+      return sum + bid;
+    } else if (tx.type === 'drop') {
+      const sev = tx.compensation_amount != null && Number(tx.compensation_amount) > 0 ? Number(tx.compensation_amount) : 0;
+      return sum + sev;
+    }
+    return sum;
   }, 0);
 
   // Self-healing: if the draft was auto-completed via SQL cron, matchups might not exist yet
