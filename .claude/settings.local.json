@@ -51,7 +51,12 @@
       "Bash(git pull *)",
       "Bash(git stash *)",
       "Bash(git rebase *)",
-      "Bash(git checkout *)"
+      "Bash(git checkout *)",
+      "Bash(find . -maxdepth 1 -iname \"CLAUDE.md\" -o -iname \".cursorrules\" -maxdepth 1)",
+      "Bash(ls -la .cursor)",
+      "Bash(ls -la .github)",
+      "Bash(xargs -I{} sh -c 'echo \"=== {} ===\"; cat \"{}\"')",
+      "Skill(design-sync)"
     ]
   }
 }
