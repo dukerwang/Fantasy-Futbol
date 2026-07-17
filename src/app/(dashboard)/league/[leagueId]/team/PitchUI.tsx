@@ -1051,7 +1051,7 @@ export default function PitchUI({
                                         title={isLocked ? 'Match started (Locked)' : undefined}
                                     >
                                         <span className={styles.benchSlotBadge}>{slot}</span>
-                                        <span className={styles.benchSlotDesc}>{BENCH_SLOT_LABELS[slot]}</span>
+
                                         {entry ? (
                                             <>
                                                 <span
