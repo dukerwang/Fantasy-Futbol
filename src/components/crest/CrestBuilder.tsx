@@ -244,7 +244,7 @@ export default function CrestBuilder({
                   onClick={() => updateField('icon', icon.id)}
                   title={icon.label}
                 >
-                  <svg viewBox="0 0 50 50" className={styles.optionBtnSvg}>
+                  <svg viewBox={icon.viewBox} className={styles.optionBtnSvg}>
                     <path d={icon.path} fill="currentColor" />
                   </svg>
                 </button>

@@ -34,15 +34,5 @@ export const SHIELDS: ShieldShape[] = [
     id: 'pennant',
     label: 'Pennant Banner',
     path: 'M 12 10 L 88 10 L 78 72 L 50 110 L 22 72 Z'
-  },
-  {
-    id: 'diamond',
-    label: 'Diamond Badge',
-    path: 'M 50 10 L 95 60 L 50 110 L 5 60 Z'
-  },
-  {
-    id: 'hexagon',
-    label: 'Hexagon Badge',
-    path: 'M 50 10 L 90 32 L 90 88 L 50 110 L 10 88 L 10 32 Z'
   }
 ];
