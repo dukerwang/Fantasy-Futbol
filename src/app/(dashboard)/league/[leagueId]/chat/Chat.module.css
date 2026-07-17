@@ -78,19 +78,27 @@
   color: var(--color-text-primary);
 }
 
-.sidebarBtnActive {
+.sidebarBtnActive,
+.sidebarBtnActive:hover {
   background: var(--color-text-primary);
   color: var(--color-bg-primary) !important;
   font-weight: var(--font-medium);
 }
 
+.sidebarBtnActive:hover {
+  opacity: 0.95;
+}
+
 .sidebarBtnActive .icon,
-.sidebarBtnActive .managerAvatar {
+.sidebarBtnActive:hover .icon,
+.sidebarBtnActive .managerAvatar,
+.sidebarBtnActive:hover .managerAvatar {
   color: var(--color-bg-primary);
   border-color: rgba(255, 255, 255, 0.2);
 }
 
-.sidebarBtnActive .managerDot {
+.sidebarBtnActive .managerDot,
+.sidebarBtnActive:hover .managerDot {
   border-color: var(--color-text-primary);
 }
 

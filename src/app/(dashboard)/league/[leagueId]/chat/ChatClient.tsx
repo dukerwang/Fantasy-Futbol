@@ -250,7 +250,7 @@ export default function ChatClient({
             >
               <Icon name="message-square" className={styles.icon} size={16} />
               <span style={{ flex: 1, fontWeight: activeTab.type === 'lobby' ? 'bold' : 'normal' }}>
-                📢 league-lobby
+                league-lobby
               </span>
             </button>
           </div>
@@ -364,7 +364,7 @@ export default function ChatClient({
                   {/* Sender Avatar */}
                   {isSystemAnnouncement ? (
                     <div className={`${styles.msgAvatar} ${styles.msgAvatarSystem}`}>
-                      🏆
+                      <Icon name="trophy" size={16} />
                     </div>
                   ) : (
                     <div className={`${styles.msgAvatar} ${isSelf ? styles.msgAvatarSelf : ''}`}>
@@ -428,7 +428,13 @@ export default function ChatClient({
                           ${isSystemAnnouncement ? styles.msgTextCardSystem : ''}
                         `}
                       >
-                        <FormattedText text={m.message} />
+                        <FormattedText
+                          text={
+                            isSystemAnnouncement
+                              ? m.message.replace(/^📢\s*\[SYSTEM:ANNOUNCEMENT\]\s*/i, '').replace(/^📢\s*/, '')
+                              : m.message
+                          }
+                        />
                       </div>
                     )}
                   </div>
