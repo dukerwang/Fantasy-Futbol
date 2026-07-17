@@ -118,22 +118,18 @@ export default function CrestBadge({ config, size = 40, teamName }: CrestBadgePr
         {iconObj && (() => {
           const iconSize = config.showText ? 36 : 48;
           const translateX = 50 - (iconSize / 2);
-          const translateY = config.showText ? 26 : 60 - (iconSize / 2);
-          const iconViewBox = iconObj.viewBox || '0 0 50 50';
+          const translateY = config.showText ? 34 : 62 - (iconSize / 2);
+          const scale = iconSize / 24;
           return (
-            <svg 
-              x={translateX}
-              y={translateY}
-              width={iconSize}
-              height={iconSize}
-              viewBox={iconViewBox}
+            <g 
+              transform={`translate(${translateX}, ${translateY}) scale(${scale})`}
               className={styles.iconLayer}
             >
               <path 
                 d={iconObj.path} 
                 fill={config.iconColor} 
               />
-            </svg>
+            </g>
           );
         })()}
 
@@ -141,7 +137,7 @@ export default function CrestBadge({ config, size = 40, teamName }: CrestBadgePr
         {config.showText && (
           <text
             x="50"
-            y={iconObj ? 88 : 61}
+            y={iconObj ? 80 : 61}
             fill={config.textColor}
             className={styles.textOverlay}
             style={{ fontSize: iconObj ? '16px' : '26px' }}
