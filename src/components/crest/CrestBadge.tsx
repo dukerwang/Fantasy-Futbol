@@ -115,25 +115,30 @@ export default function CrestBadge({ config, size = 40, teamName }: CrestBadgePr
         />
 
         {/* Centered Motif Icon */}
-        {iconObj && (
-          <g 
-            transform="translate(34, 36)" 
-            className={styles.iconLayer}
-          >
-            {/* Scales a 50x50 icon path down to 32x32 (scale = 32/50 = 0.64) */}
-            <path 
-              d={iconObj.path} 
-              fill={config.iconColor} 
-              transform="scale(0.64)"
-            />
-          </g>
-        )}
+        {iconObj && (() => {
+          const iconSize = config.showText ? 36 : 48;
+          const scale = iconSize / 50;
+          const translateX = 50 - (iconSize / 2);
+          const translateY = config.showText ? 28 : 58 - (iconSize / 2);
+          return (
+            <g 
+              transform={`translate(${translateX}, ${translateY})`} 
+              className={styles.iconLayer}
+            >
+              <path 
+                d={iconObj.path} 
+                fill={config.iconColor} 
+                transform={`scale(${scale})`}
+              />
+            </g>
+          );
+        })()}
 
         {/* Text Overlay */}
         {config.showText && (
           <text
             x="50"
-            y={iconObj ? 86 : 65}
+            y={iconObj ? 88 : 65}
             fill={config.textColor}
             className={styles.textOverlay}
             style={{ fontSize: iconObj ? '16px' : '26px' }}
