@@ -117,20 +117,23 @@ export default function CrestBadge({ config, size = 40, teamName }: CrestBadgePr
         {/* Centered Motif Icon */}
         {iconObj && (() => {
           const iconSize = config.showText ? 36 : 48;
-          const scale = iconSize / 50;
           const translateX = 50 - (iconSize / 2);
           const translateY = config.showText ? 28 : 58 - (iconSize / 2);
+          const iconViewBox = iconObj.viewBox || '0 0 50 50';
           return (
-            <g 
-              transform={`translate(${translateX}, ${translateY})`} 
+            <svg 
+              x={translateX}
+              y={translateY}
+              width={iconSize}
+              height={iconSize}
+              viewBox={iconViewBox}
               className={styles.iconLayer}
             >
               <path 
                 d={iconObj.path} 
                 fill={config.iconColor} 
-                transform={`scale(${scale})`}
               />
-            </g>
+            </svg>
           );
         })()}
 
