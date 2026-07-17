@@ -3,7 +3,7 @@
 import { useState, useMemo } from 'react';
 
 import { formatPlayerName } from '@/lib/formatName';
-import { generateTransactionHeadline, generateTransactionBody } from '@/lib/narrative/generators';
+import { generateTransactionHeadline } from '@/lib/narrative/generators';
 import { renderBoldedText } from '@/lib/narrative/boldText';
 import { createClient } from '@/lib/supabase/client';
 import { FULL_PLAYER_SELECT } from '@/lib/constants/queries';
@@ -362,178 +362,74 @@ function TypeIcon({ type, player }: { type: string; player: Player | null }) {
   }
 }
 
-// ─── Card Content ─────────────────────────────────────────────────────────────
+// ─── Card Content Metadata Helper ─────────────────────────────────────────────
 
-function CardContent({ tx }: { tx: Transaction }) {
-  const team = tx.team;
+function getTransactionMetadata(tx: Transaction) {
+  const parts: string[] = [];
   const player = tx.player;
-  const teamName = team?.team_name ?? 'Unknown';
-  const playerName = player ? formatPlayerName(player) : null;
+
+  if (player) {
+    if (player.primary_position) parts.push(player.primary_position);
+    if (player.pl_team) parts.push(player.pl_team);
+  }
 
   switch (tx.type) {
     case 'waiver_claim':
-    case 'free_agent_pickup': {
-      return (
-        <>
-          <p className={styles.cardMain}>
-            <strong className={styles.cardTeam}>{teamName}</strong>
-            <span className={styles.cardVerb}> signed </span>
-            <strong className={styles.cardPlayer}>{playerName ?? '—'}</strong>
-            {player && <PositionBadge position={player.primary_position} />}
-            {player?.pl_team && (
-              <span className={styles.cardClub}>· {player.pl_team}</span>
-            )}
-          </p>
-          {tx.faab_bid != null && (
-            <p className={styles.cardMeta}>€{tx.faab_bid}m bid</p>
-          )}
-        </>
-      );
-    }
-
+      if (tx.faab_bid != null) {
+        parts.push(`€${tx.faab_bid}m bid`);
+      }
+      break;
+    case 'free_agent_pickup':
+      parts.push('Free transfer');
+      break;
     case 'drop': {
-      const dropCost =
-        tx.compensation_amount && Number(tx.compensation_amount) > 0
-          ? `€${Number(tx.compensation_amount).toFixed(1)}m severance`
-          : null;
-      return (
-        <>
-          <p className={styles.cardMain}>
-            <strong className={styles.cardTeam}>{teamName}</strong>
-            <span className={styles.cardVerb}> released </span>
-            <span className={`${styles.cardPlayer} ${styles.strikethrough}`}>
-              {playerName ?? '—'}
-            </span>
-            {player && <PositionBadge position={player.primary_position} />}
-            {player?.pl_team && (
-              <span className={styles.cardClub}>· {player.pl_team}</span>
-            )}
-          </p>
-          {dropCost && (
-            <p className={`${styles.cardMeta} ${styles.metaRed}`}>
-              Drop cost: {dropCost}
-            </p>
-          )}
-        </>
-      );
+      const dropCost = tx.compensation_amount && Number(tx.compensation_amount) > 0
+        ? `€${Number(tx.compensation_amount).toFixed(1)}m severance`
+        : 'No severance';
+      parts.push(dropCost);
+      break;
     }
-
-    case 'transfer_out': {
-      const amount =
-        tx.compensation_amount && Number(tx.compensation_amount) > 0
-          ? `€${Number(tx.compensation_amount).toFixed(1)}m`
-          : null;
-      return (
-        <>
-          <p className={styles.cardMain}>
-            <strong className={styles.cardPlayer}>{playerName ?? '—'}</strong>
-            {player && <PositionBadge position={player.primary_position} />}
-            <span className={styles.cardVerb}>
-              {' '}transferred out of the Premier League
-            </span>
-          </p>
-          {amount && (
-            <p className={styles.cardMeta}>
-              {teamName} received {amount} compensation
-            </p>
-          )}
-        </>
-      );
-    }
-
-    case 'trade': {
-      return (
-        <p className={styles.cardMain}>
-          <strong className={styles.cardTeam}>{teamName}</strong>
-          {tx.notes && (
-            <span className={styles.cardNotes}> — {tx.notes}</span>
-          )}
-        </p>
-      );
-    }
-
-    case 'rebate': {
-      const amount =
-        tx.compensation_amount && Number(tx.compensation_amount) > 0
-          ? `€${Number(tx.compensation_amount).toFixed(1)}m`
-          : tx.faab_bid != null
-          ? `€${tx.faab_bid}m`
-          : null;
-      return (
-        <p className={styles.cardMain}>
-          <strong className={styles.cardTeam}>{teamName}</strong>
-          <span className={styles.cardVerb}> received Scout's Rebate</span>
-          {amount && <span className={styles.cardMeta}> · {amount}</span>}
-        </p>
-      );
-    }
-
+    case 'transfer_out':
     case 'transfer_compensation': {
-      const amount =
-        tx.compensation_amount && Number(tx.compensation_amount) > 0
-          ? `€${Number(tx.compensation_amount).toFixed(1)}m`
-          : null;
-      return (
-        <>
-          <p className={styles.cardMain}>
-            <strong className={styles.cardTeam}>{teamName}</strong>
-            <span className={styles.cardVerb}> received transfer compensation</span>
-            {player && (
-              <>
-                <span className={styles.cardVerb}> for </span>
-                <strong className={styles.cardPlayer}>{playerName}</strong>
-                <PositionBadge position={player.primary_position} />
-              </>
-            )}
-          </p>
-          {amount && (
-            <p className={styles.cardMeta}>{amount} budget returned</p>
-          )}
-        </>
-      );
+      const comp = tx.compensation_amount ? Number(tx.compensation_amount) : 0;
+      if (comp > 0) {
+        parts.push(`€${comp.toFixed(1)}m compensation`);
+      }
+      break;
     }
-
-    case 'draft_pick': {
-      return (
-        <p className={styles.cardMain}>
-          <strong className={styles.cardTeam}>{teamName}</strong>
-          <span className={styles.cardVerb}> drafted </span>
-          <strong className={styles.cardPlayer}>{playerName ?? '—'}</strong>
-          {player && <PositionBadge position={player.primary_position} />}
-          {player?.pl_team && (
-            <span className={styles.cardClub}>· {player.pl_team}</span>
-          )}
-        </p>
-      );
+    case 'rebate': {
+      const comp = tx.compensation_amount ? Number(tx.compensation_amount) : 0;
+      const amt = comp > 0 ? comp : tx.faab_bid ?? 0;
+      if (amt > 0) {
+        parts.push(`€${amt.toFixed(1)}m rebate`);
+      }
+      break;
     }
-
-    case 'prize_payout': {
-      return (
-        <p className={styles.cardMain}>
-          <strong className={styles.cardTeam}>{teamName}</strong>
-          {tx.notes && (
-            <span className={styles.cardNotes}> — {tx.notes}</span>
-          )}
-          {tx.faab_bid != null && tx.faab_bid > 0 && (
-            <span className={styles.cardMeta} style={{ color: 'var(--color-accent-green)', marginLeft: '8px', fontWeight: 'bold' }}>
-              (+€{tx.faab_bid}m Club Balance)
-            </span>
-          )}
-        </p>
-      );
-    }
-
-    default: {
-      return (
-        <p className={styles.cardMain}>
-          <strong className={styles.cardTeam}>{teamName}</strong>
-          {tx.notes && (
-            <span className={styles.cardNotes}> — {tx.notes}</span>
-          )}
-        </p>
-      );
-    }
+    case 'prize_payout':
+      if (tx.faab_bid != null && tx.faab_bid > 0) {
+        parts.push(`+€${tx.faab_bid}m club balance`);
+      }
+      if (tx.notes) {
+        parts.push(tx.notes);
+      }
+      break;
+    case 'trade':
+      parts.push('Roster swap');
+      if (tx.notes) {
+        parts.push(tx.notes);
+      }
+      break;
+    case 'draft_pick':
+      parts.push('Draft Pick');
+      break;
+    default:
+      if (tx.notes) {
+        parts.push(tx.notes);
+      }
+      break;
   }
+
+  return parts.join(' · ');
 }
 
 // ─── Transaction Card ─────────────────────────────────────────────────────────
@@ -546,13 +442,9 @@ function TransactionCard({ tx, onPlayerClick }: { tx: Transaction; onPlayerClick
   };
 
   const headline = generateTransactionHeadline(tx as any);
-  const narrative = generateTransactionBody(tx as any);
 
   return (
-    <article
-      className={styles.card}
-      style={{ borderLeftColor: cfg.borderColor }}
-    >
+    <article className={styles.card}>
       <div className={styles.cardIconWrap}>
         <TypeIcon type={tx.type} player={tx.player} />
       </div>
@@ -571,12 +463,8 @@ function TransactionCard({ tx, onPlayerClick }: { tx: Transaction; onPlayerClick
         {/* Dynamic Sports Headline */}
         <h3 className={styles.narrativeHeadline}>{renderBoldedText(headline, onPlayerClick)}</h3>
 
-        <CardContent tx={tx} />
-
-        {/* Dynamic Narrative Body */}
-        {narrative && (
-          <p className={styles.narrativeBody}>{renderBoldedText(narrative, onPlayerClick)}</p>
-        )}
+        {/* Unified Metadata Sub-row */}
+        <span className={styles.metadataSubRow}>{getTransactionMetadata(tx)}</span>
       </div>
     </article>
   );
@@ -634,11 +522,11 @@ function groupAuctions(liveAuctions: WaiverClaim[], myTeamId: string | null): Au
 function BidCard({ claim, myTeamId }: { claim: WaiverClaim; myTeamId: string | null }) {
   const player = claim.player;
   const isMe = claim.team_id === myTeamId;
-  const playerName = player ? (player.web_name ?? formatPlayerName(player)) : '—';
+  const playerName = player ? formatPlayerName(player, 'full') : '—';
   const posColor = player ? (POS_COLOR_MAP[player.primary_position] ?? 'var(--color-text-muted)') : undefined;
 
   return (
-    <article className={styles.card} style={{ borderLeftColor: '#d97706' }}>
+    <article className={styles.card}>
       <div className={styles.cardIconWrap}>
         {player?.photo_url ? (
           <img src={player.photo_url} alt={playerName} className={styles.playerPhoto} />
@@ -657,16 +545,23 @@ function BidCard({ claim, myTeamId }: { claim: WaiverClaim; myTeamId: string | n
           </span>
           <span className={styles.timestamp}>{getRelativeTime(claim.created_at)}</span>
         </div>
-        <p className={styles.cardMain}>
+        <h3 className={styles.narrativeHeadline}>
           <strong className={styles.cardTeam}>{claim.team?.team_name ?? 'Unknown'}</strong>
-          <span className={styles.cardVerb}> bid </span>
+          <span className={styles.cardVerb}> placed a </span>
           <strong className={styles.cardPlayer}>€{claim.faab_bid}m</strong>
-          <span className={styles.cardVerb}> on </span>
+          <span className={styles.cardVerb}> bid on </span>
           <strong className={styles.cardPlayer}>{playerName}</strong>
-          {player && <PositionBadge position={player.primary_position} />}
-          {player?.pl_team && <span className={styles.cardClub}>· {player.pl_team}</span>}
-        </p>
-        <p className={styles.cardMeta}>{getTimeRemaining(claim.expires_at)} · Pending</p>
+        </h3>
+        
+        {/* Unified Metadata Sub-row */}
+        <span className={styles.metadataSubRow}>
+          {[
+            player?.primary_position,
+            player?.pl_team,
+            getTimeRemaining(claim.expires_at),
+            'Pending'
+          ].filter(Boolean).join(' · ')}
+        </span>
       </div>
     </article>
   );
@@ -899,7 +794,6 @@ export default function ActivityClient({
       <main className={styles.feed}>
         {/* Header */}
         <header className={styles.header}>
-          <p className={styles.eyebrow}>Transaction history</p>
           <h1 className={styles.title}>The Transfer Gazette</h1>
           <p className={styles.subtitle}>
             Every move, every deal — the full record of {leagueName}.

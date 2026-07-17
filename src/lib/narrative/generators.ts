@@ -36,7 +36,7 @@ export function generateTransactionHeadline(tx: MiniTx): string {
   const hash = hashId(tx.id);
   const teamName = tx.team?.team_name ? `**${tx.team.team_name}**` : 'Unknown Club';
   const player = tx.player;
-  const playerName = player ? `**p:${player.id}:${formatPlayerName(player as any, 'initial_last')}**` : 'Unknown Player';
+  const playerName = player ? `**p:${player.id}:${formatPlayerName(player as any, 'full')}**` : 'Unknown Player';
   const faab = tx.faab_bid ?? 0;
   const comp = tx.compensation_amount ? Number(tx.compensation_amount) : 0;
 
