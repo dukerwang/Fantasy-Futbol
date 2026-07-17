@@ -54,6 +54,7 @@ export default function TopBar() {
   const currentTeam = teams.find(t => t.league.id === currentLeagueId);
   const currentLeague = currentTeam?.league;
   const currentCrestConfig = currentTeam?.crest_config;
+  const initials = (username || 'Manager').trim().substring(0, 2).toUpperCase();
 
   // Clear loading bar when navigation completes (pathname changed)
   useEffect(() => {
@@ -331,11 +332,17 @@ export default function TopBar() {
               aria-expanded={userDropdownOpen}
               aria-haspopup="true"
             >
-              <CrestBadge
-                config={currentCrestConfig}
-                size={32}
-                teamName={currentTeam?.team_name || username}
-              />
+              {currentLeagueId && currentCrestConfig ? (
+                <CrestBadge
+                  config={currentCrestConfig}
+                  size={32}
+                  teamName={currentTeam?.team_name || username}
+                />
+              ) : (
+                <div className={styles.userInitialsAvatar} style={{ width: '32px', height: '32px', fontSize: '11px' }}>
+                  {initials}
+                </div>
+              )}
             </button>
 
             {userDropdownOpen && (
@@ -343,11 +350,17 @@ export default function TopBar() {
                 {/* Header Profile Identity */}
                 <div className={styles.dropdownHeader}>
                   <div style={{ marginRight: '12px', flexShrink: 0 }}>
-                    <CrestBadge
-                      config={currentCrestConfig}
-                      size={40}
-                      teamName={currentTeam?.team_name || username}
-                    />
+                    {currentLeagueId && currentCrestConfig ? (
+                      <CrestBadge
+                        config={currentCrestConfig}
+                        size={40}
+                        teamName={currentTeam?.team_name || username}
+                      />
+                    ) : (
+                      <div className={styles.userInitialsAvatar} style={{ width: '40px', height: '40px', fontSize: '13px' }}>
+                        {initials}
+                      </div>
+                    )}
                   </div>
                   <div className={styles.dropdownHeaderDetails}>
                     <div className={styles.dropdownClubName}>

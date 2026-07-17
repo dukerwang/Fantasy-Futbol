@@ -798,4 +798,18 @@
   text-decoration: none;
 }
 
+.userInitialsAvatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--color-bg-secondary);
+  border: 1.5px solid var(--color-border);
+  color: var(--color-text-primary);
+  font-family: var(--font-sans);
+  font-weight: var(--font-bold);
+  text-transform: uppercase;
+  user-select: none;
+}
+
 
