@@ -338,6 +338,12 @@ export default async function MyTeamPage({ params }: Props) {
               )}
             </>
           ) : null}
+          <span className={styles.metaDot}>·</span>
+          <span className={styles.metaChip}>
+            <span className={styles.metaValue}>{activeRosterCount}/{maxRosterSize}</span>
+            <span className={styles.metaLabel}>Active Roster</span>
+            {loanInCount > 0 && <span className={styles.loanBadge}>+{loanInCount}L</span>}
+          </span>
         </div>
         <h1 className={styles.teamName}>{team.team_name}</h1>
       </header>
