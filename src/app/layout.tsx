@@ -5,10 +5,10 @@ import './globals.css';
 export const metadata: Metadata = {
   metadataBase: new URL('https://gaffa.live'),
   title: 'Gaffa — Dynasty Fantasy Football',
-  description: 'Dynasty-style Fantasy Premier League with granular positions and real transfer values.',
+  description: 'Dynasty Fantasy Football for the Premier League with granular positions and real transfer values.',
   openGraph: {
     title: 'Gaffa — Dynasty Fantasy Football',
-    description: 'Dynasty-style Fantasy Premier League with granular positions and real transfer values.',
+    description: 'Dynasty Fantasy Football for the Premier League with granular positions and real transfer values.',
     url: 'https://gaffa.live',
     siteName: 'Gaffa',
     locale: 'en_US',
@@ -17,7 +17,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'Gaffa — Dynasty Fantasy Football',
-    description: 'Dynasty-style Fantasy Premier League with granular positions and real transfer values.',
+    description: 'Dynasty Fantasy Football for the Premier League with granular positions and real transfer values.',
   },
   icons: {
     icon: [
