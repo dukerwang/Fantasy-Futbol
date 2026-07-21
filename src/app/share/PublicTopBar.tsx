@@ -16,7 +16,6 @@ export default function PublicTopBar() {
             </span>
             <span className={styles.brandName}>Gaffa</span>
           </Link>
-          <span className={styles.publicBadge}>Global Stats</span>
         </div>
 
         <div className={styles.rightNav}>

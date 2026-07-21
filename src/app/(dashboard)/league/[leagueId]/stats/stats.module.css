@@ -245,6 +245,10 @@
   background: var(--color-bg-secondary);
 }
 
+th.thNum {
+  text-align: right;
+}
+
 /* Sticky first column (Player badge + name) for mobile swipe clarity */
 .thPlayer {
   position: sticky;

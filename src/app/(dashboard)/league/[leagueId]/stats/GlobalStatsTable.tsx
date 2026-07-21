@@ -175,15 +175,11 @@ export default function GlobalStatsTable({ leagueId, leagueName, players, shadow
       {/* Header */}
       <header className={styles.header}>
         <div>
-          <p className={styles.breadcrumb}>
-            {leagueId ? (
-              <>
-                <Link href={`/league/${leagueId}`}>{leagueName}</Link> / Stats
-              </>
-            ) : (
-              <>{leagueName} / Stats</>
-            )}
-          </p>
+          {leagueId && (
+            <p className={styles.breadcrumb}>
+              <Link href={`/league/${leagueId}`}>{leagueName}</Link> / Stats
+            </p>
+          )}
           <h1 className={styles.title}>Player Stats</h1>
           <p className={styles.subtitle}>
             {players.length} players · season totals · click a row to scout
@@ -267,22 +263,22 @@ export default function GlobalStatsTable({ leagueId, leagueName, players, shadow
             <tr>
               <th className={styles.thPlayer}>Player</th>
               <th className={styles.th}>Owner</th>
-              <th className={`${styles.th} ${styles.sortable}`} onClick={() => handleSort('total_minutes')}>
+              <th className={`${styles.th} ${styles.thNum} ${styles.sortable}`} onClick={() => handleSort('total_minutes')}>
                 GP {sortIndicator('total_minutes')}
               </th>
-              <th className={`${styles.th} ${styles.sortable}`} onClick={() => handleSort('total_points')}>
+              <th className={`${styles.th} ${styles.thNum} ${styles.sortable}`} onClick={() => handleSort('total_points')}>
                 Pts {sortIndicator('total_points')}
               </th>
-              <th className={`${styles.th} ${styles.sortable}`} onClick={() => handleSort('ppg')}>
+              <th className={`${styles.th} ${styles.thNum} ${styles.sortable}`} onClick={() => handleSort('ppg')}>
                 PPG {sortIndicator('ppg')}
               </th>
-              <th className={`${styles.th} ${styles.sortable}`} onClick={() => handleSort('avg_rating')}>
+              <th className={`${styles.th} ${styles.thNum} ${styles.sortable}`} onClick={() => handleSort('avg_rating')}>
                 Avg Rating {sortIndicator('avg_rating')}
               </th>
-              <th className={`${styles.th} ${styles.sortable}`} onClick={() => handleSort('form')}>
+              <th className={`${styles.th} ${styles.thNum} ${styles.sortable}`} onClick={() => handleSort('form')}>
                 Form {sortIndicator('form')}
               </th>
-              <th className={`${styles.th} ${styles.sortable}`} onClick={() => handleSort('market_value')}>
+              <th className={`${styles.th} ${styles.thNum} ${styles.sortable}`} onClick={() => handleSort('market_value')}>
                 Value {sortIndicator('market_value')}
               </th>
             </tr>
