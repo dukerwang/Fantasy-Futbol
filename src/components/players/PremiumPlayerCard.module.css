@@ -616,32 +616,35 @@
 
 
 .actionIconBtn {
-  width: 34px;
-  height: 34px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
-  border: 1px solid var(--color-border);
-  background: var(--color-bg-card);
-  color: var(--color-text-secondary);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(20, 20, 20, 0.65);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: #FFFFFF;
   cursor: pointer;
-  pointer-events: auto; /* Re-enable for the buttons themselves */
+  pointer-events: auto;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: border-color var(--transition-base), color var(--transition-base), transform var(--transition-base);
-  box-shadow: 0 2px 8px rgba(28, 28, 28, 0.10);
+  transition: border-color var(--transition-base), color var(--transition-base), transform var(--transition-base), background var(--transition-base);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
   font-size: 20px;
   line-height: 1;
 }
 
 .actionIconBtn:hover {
-  border-color: var(--color-accent-green);
-  color: var(--color-accent-green);
+  border-color: #FFFFFF;
+  background: rgba(30, 30, 30, 0.85);
+  color: #FFFFFF;
 }
 
 .actionIconBtn[aria-label="Close"]:hover {
-  border-color: var(--color-accent-red);
-  color: var(--color-accent-red);
-  transform: none; /* No rotation for close button */
+  border-color: #EF4444;
+  color: #EF4444;
+  transform: none;
 }
 
 .actionIconBtn[aria-label^="Flip"]:hover {
@@ -1047,10 +1050,9 @@
 
 /* ── Mobile scale ───────────────────────────────────────────── */
 
-@media (max-width: 400px) {
+@media (max-width: 380px) {
   .stage {
-    transform: scale(0.86);
-    transform-origin: top center;
-    margin-bottom: -74px;
+    transform: scale(0.92);
+    transform-origin: center center;
   }
 }

@@ -6,13 +6,16 @@
   position: fixed;
   inset: 0;
   z-index: 200;
-  background: rgba(10, 12, 16, 0.82);
-  backdrop-filter: blur(6px);
+  background: rgba(10, 12, 16, 0.85);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   display: flex;
   align-items: center;
   justify-content: center;
   padding: var(--space-4);
   animation: fadeIn 0.15s ease;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 @keyframes fadeIn {
@@ -26,55 +29,15 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--space-3);
-  animation: slideUp 0.22s ease;
+  gap: var(--space-4);
+  animation: scaleIn 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  max-width: 100%;
+  padding: var(--space-2);
 }
 
-@keyframes slideUp {
-  from { transform: translateY(18px); opacity: 0; }
-  to   { transform: translateY(0);    opacity: 1; }
-}
-
-
-
-/* ── Optional action buttons below the card ─────────────────── */
-
-.actions {
-  display: flex;
-  gap: var(--space-3);
-  width: 360px;
-}
-
-.actionBtn {
-  flex: 1;
-  padding: var(--space-3) var(--space-4);
-  border-radius: var(--radius-sm);
-  font-family: var(--font-sans);
-  font-size: 11px;
-  font-weight: var(--font-semibold);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: background var(--transition-fast), box-shadow var(--transition-fast);
-  border: 1px solid var(--color-border);
-  background: var(--color-bg-card);
-  color: var(--color-text-primary);
-}
-
-.actionBtnPrimary {
-  background: var(--color-text-primary);
-  color: var(--color-bg-card);
-  border-color: var(--color-text-primary);
-}
-
-.actionBtnPrimary:hover {
-  background: var(--color-accent);
-  border-color: var(--color-accent);
-}
-
-/* --- Mobile Bottom Sheet UI --- */
-.dragHandle {
-  display: none;
+@keyframes scaleIn {
+  from { transform: scale(0.94); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
 }
 
 .cardScaler {
@@ -83,58 +46,47 @@
   justify-content: center;
 }
 
+/* ── Optional action buttons below the card ─────────────────── */
+
+.actions {
+  display: flex;
+  gap: var(--space-3);
+  width: 360px;
+  max-width: 90vw;
+}
+
+.actionBtn {
+  flex: 1;
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: var(--font-semibold);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background var(--transition-fast), box-shadow var(--transition-fast);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: #ffffff;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+}
+
+.actionBtnPrimary {
+  background: var(--color-accent-green, #146B40);
+  color: #ffffff;
+  border-color: var(--color-accent-green, #146B40);
+}
+
+.actionBtnPrimary:hover {
+  background: #1B8350;
+  border-color: #1B8350;
+}
+
 @media (max-width: 768px) {
   .overlay {
-    align-items: flex-end;
-    justify-content: center;
-    padding: 0;
+    padding: var(--space-3);
   }
-
-  .box {
-    width: 100vw;
-    background: var(--color-bg-card);
-    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-    box-shadow: 0 -8px 32px rgba(10, 12, 16, 0.18);
-    padding: var(--space-4) var(--space-4) var(--space-8);
-    animation: slideUpMobile 0.28s cubic-bezier(0.16, 1, 0.3, 1);
-    border-top: 1px solid var(--color-border-subtle);
-  }
-
-  .dragHandle {
-    display: block;
-    width: 36px;
-    height: 4px;
-    background: var(--color-border);
-    border-radius: var(--radius-full);
-    margin: 0 auto var(--space-4) auto;
-    flex-shrink: 0;
-  }
-
-  .actions {
-    width: 100%;
-    max-width: 360px;
-    margin: 0 auto;
-    padding: 0 var(--space-2);
-  }
-}
-
-@media (max-width: 400px) {
-  .cardScaler {
-    transform: scale(0.9);
-    transform-origin: center top;
-    margin-bottom: -52px;
-  }
-}
-
-@media (max-width: 350px) {
-  .cardScaler {
-    transform: scale(0.78);
-    transform-origin: center top;
-    margin-bottom: -114px;
-  }
-}
-
-@keyframes slideUpMobile {
-  from { transform: translateY(100%); }
-  to   { transform: translateY(0); }
 }

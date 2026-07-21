@@ -41,7 +41,6 @@ export default function PlayerDetailsModal({
             aria-label={`Player details: ${player.name}`}
         >
             <div className={styles.box} onClick={(e) => e.stopPropagation()}>
-                <div className={styles.dragHandle} />
                 <div className={styles.cardScaler}>
                     <PremiumPlayerCard
                         player={player}
