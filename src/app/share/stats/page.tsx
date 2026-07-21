@@ -2,7 +2,7 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import GlobalStatsTable from '@/app/(dashboard)/league/[leagueId]/stats/GlobalStatsTable';
 import type { Player } from '@/types';
 import { FULL_PLAYER_SELECT } from '@/lib/constants/queries';
-import { getCurrentFplSeason, getLatestReferenceStatsSeason } from '@/lib/season/currentSeason';
+import { getCurrentFplSeason, getLatestReferenceStatsSeason, isFplSeasonKickedOff, previousSeason } from '@/lib/season/currentSeason';
 import { calculateMatchRating, DEFAULT_REFERENCE_STATS } from '@/lib/scoring/matchRating';
 
 export const dynamic = 'force-dynamic';
@@ -15,7 +15,13 @@ export interface StatPlayer extends Player {
 export default async function GlobalPublicStatsPage() {
   const admin = createAdminClient();
 
-  const season = await getCurrentFplSeason();
+  const currentFpl = await getCurrentFplSeason();
+  const kickedOff = await isFplSeasonKickedOff();
+
+  let season = currentFpl;
+  if (!kickedOff) {
+    season = previousSeason(season);
+  }
   const refSeason = await getLatestReferenceStatsSeason(admin);
 
   // Fetch all active players, rankings, archives, and reference stats

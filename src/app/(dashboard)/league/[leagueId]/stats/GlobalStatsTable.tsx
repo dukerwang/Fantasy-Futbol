@@ -176,7 +176,13 @@ export default function GlobalStatsTable({ leagueId, leagueName, players, shadow
       <header className={styles.header}>
         <div>
           <p className={styles.breadcrumb}>
-            <Link href={`/league/${leagueId}`}>{leagueName}</Link> / Stats
+            {leagueId ? (
+              <>
+                <Link href={`/league/${leagueId}`}>{leagueName}</Link> / Stats
+              </>
+            ) : (
+              <>{leagueName} / Stats</>
+            )}
           </p>
           <h1 className={styles.title}>Player Stats</h1>
           <p className={styles.subtitle}>
