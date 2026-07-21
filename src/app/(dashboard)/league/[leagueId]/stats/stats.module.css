@@ -1,11 +1,12 @@
 /* ============================================================
-   Global Stats Page — Styles
+   Global Stats Page — Styles & Mobile Responsiveness
    ============================================================ */
 
 .page {
   display: flex;
   flex-direction: column;
   gap: var(--space-5);
+  width: 100%;
 }
 
 /* ── Header ── */
@@ -18,21 +19,31 @@
 }
 
 .breadcrumb {
-  font-size: var(--text-sm);
-  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+  font-weight: var(--font-semibold);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--color-accent);
   margin-bottom: var(--space-1);
 }
 
 .breadcrumb a {
-  color: var(--color-accent-blue);
+  color: var(--color-accent);
   text-decoration: none;
 }
 
+.breadcrumb a:hover {
+  text-decoration: underline;
+}
+
 .title {
-  font-size: var(--text-2xl);
+  font-family: var(--font-serif);
+  font-size: var(--text-3xl);
   font-weight: var(--font-bold);
+  letter-spacing: -0.02em;
   color: var(--color-text-primary);
   margin: 0;
+  line-height: var(--leading-tight);
 }
 
 .subtitle {
@@ -41,50 +52,168 @@
   margin: var(--space-1) 0 0;
 }
 
-/* ── Controls ── */
+/* ── Controls Bar ── */
 .controls {
   display: flex;
   align-items: center;
   gap: var(--space-3);
   flex-wrap: wrap;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-3) var(--space-4);
+  box-shadow: var(--shadow-sm);
 }
 
 .searchInput {
-  flex: 1;
+  flex: 1 1 200px;
   min-width: 180px;
-  max-width: 300px;
-  padding: var(--space-2) var(--space-3);
+  padding: 8px 12px;
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  background: var(--color-bg-card);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-primary);
   color: var(--color-text-primary);
   font-size: var(--text-sm);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .searchInput:focus {
   outline: none;
-  border-color: var(--color-accent-blue);
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px var(--color-accent-dim);
 }
 
 .posSelect {
-  padding: var(--space-2) var(--space-3);
+  padding: 8px 12px;
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  background: var(--color-bg-card);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-primary);
   color: var(--color-text-primary);
   font-size: var(--text-sm);
   cursor: pointer;
+  transition: border-color var(--transition-fast);
+}
+
+.posSelect:focus {
+  outline: none;
+  border-color: var(--color-accent);
 }
 
 .resultCount {
-  font-size: var(--text-sm);
+  font-size: var(--text-xs);
+  font-weight: var(--font-semibold);
   color: var(--color-text-muted);
   margin-left: auto;
+  white-space: nowrap;
 }
 
-/* ── Table ── */
+/* ── Slider (Games Played) ── */
+.sliderContainer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border);
+  padding: 6px 12px;
+  border-radius: var(--radius-md);
+}
+
+.sliderLabel {
+  font-size: var(--text-xs);
+  font-weight: var(--font-medium);
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+}
+
+.sliderLabel strong {
+  font-family: var(--font-mono, monospace);
+  color: var(--color-accent);
+  font-size: var(--text-xs);
+}
+
+.sliderInput {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 90px;
+  height: 4px;
+  background: var(--color-border);
+  outline: none;
+  margin: 0;
+  padding: 0;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+}
+
+.sliderInput::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  background: var(--color-accent);
+  border: 2px solid var(--color-bg-card);
+  border-radius: 50%;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.1s ease;
+}
+
+.sliderInput::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+}
+
+.sliderInput::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  background: var(--color-accent);
+  border: 2px solid var(--color-bg-card);
+  border-radius: 50%;
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  transition: transform 0.1s ease;
+}
+
+.sliderInput::-moz-range-thumb:hover {
+  transform: scale(1.2);
+}
+
+/* ── Segmented Toggle (Primary / Secondary / Both) ── */
+.segmentedToggle {
+  display: inline-flex;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--color-bg-primary);
+}
+
+.toggleButton {
+  background: transparent;
+  border: none;
+  border-right: 1px solid var(--color-border);
+  padding: 6px 12px;
+  font-size: var(--text-xs);
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.toggleButton:last-child {
+  border-right: none;
+}
+
+.toggleButton:hover {
+  background: var(--color-bg-secondary);
+  color: var(--color-text-primary);
+}
+
+.activeToggle {
+  background: var(--color-accent) !important;
+  color: #FFFFFF !important;
+}
+
+/* ── Table Wrapper & Responsive Sticky Columns ── */
 .tableWrapper {
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-card);
@@ -93,25 +222,49 @@
 
 .table {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
   font-size: var(--text-sm);
 }
 
 .table thead {
-  background: var(--color-bg-surface, var(--color-bg-card));
-  border-bottom: 1px solid var(--color-border);
+  background: var(--color-bg-secondary);
 }
 
 .th,
 .thPlayer {
   padding: var(--space-3) var(--space-4);
   text-align: left;
-  font-size: var(--text-xs);
-  font-weight: var(--font-semibold);
+  font-size: 11px;
+  font-weight: var(--font-bold);
   color: var(--color-text-muted);
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.05em;
   white-space: nowrap;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-bg-secondary);
+}
+
+/* Sticky first column (Player badge + name) for mobile swipe clarity */
+.thPlayer {
+  position: sticky;
+  left: 0;
+  z-index: 15;
+  border-right: 1px solid var(--color-border-subtle);
+  background: var(--color-bg-secondary);
+}
+
+.tdPlayer {
+  position: sticky;
+  left: 0;
+  z-index: 5;
+  background: var(--color-bg-card);
+  border-right: 1px solid var(--color-border-subtle);
+  transition: background 0.1s ease;
+}
+
+.row:hover .tdPlayer {
+  background: var(--color-bg-card-hover, var(--color-bg-secondary));
 }
 
 .sortable {
@@ -130,23 +283,18 @@
 }
 
 .sortActive {
-  color: var(--color-accent-blue);
+  color: var(--color-accent);
   margin-left: var(--space-1);
 }
 
-/* ── Rows ── */
+/* ── Table Rows ── */
 .row {
-  border-bottom: 1px solid var(--color-border);
   cursor: pointer;
-  transition: background 0.1s;
-}
-
-.row:last-child {
-  border-bottom: none;
+  transition: background 0.1s ease;
 }
 
 .row:hover {
-  background: var(--color-bg-hover, rgba(255, 255, 255, 0.03));
+  background: var(--color-bg-card-hover, var(--color-bg-secondary));
 }
 
 .td,
@@ -154,19 +302,27 @@
   padding: var(--space-3) var(--space-4);
   color: var(--color-text-primary);
   vertical-align: middle;
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.row:last-child .td,
+.row:last-child .tdPlayer {
+  border-bottom: none;
 }
 
 .tdPlayer {
   display: flex;
   align-items: center;
-  gap: var(--space-2);
-  min-width: 180px;
+  gap: var(--space-3);
+  min-width: 220px;
 }
 
 .tdNum {
   text-align: right;
   font-variant-numeric: tabular-nums;
+  font-family: var(--font-sans);
   color: var(--color-text-secondary);
+  font-weight: 500;
 }
 
 /* ── Player info cell ── */
@@ -177,8 +333,10 @@
 }
 
 .playerName {
-  font-weight: var(--font-medium);
+  font-weight: var(--font-bold);
   color: var(--color-text-primary);
+  font-size: var(--text-sm);
+  line-height: 1.2;
 }
 
 .playerClub {
@@ -240,101 +398,81 @@
   text-transform: uppercase;
 }
 
-/* ── Slider (Games Played) ── */
-.sliderContainer {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background: var(--color-bg-surface, var(--color-bg-card));
-  border: 1px solid var(--color-border);
-  padding: 6px 12px;
-  border-radius: var(--radius-sm);
+/* ============================================================
+   MOBILE RESPONSIVENESS (Screens <= 768px & <= 480px)
+   ============================================================ */
+
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-2);
+  }
+
+  .title {
+    font-size: var(--text-2xl);
+  }
+
+  .controls {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-3);
+    padding: var(--space-3);
+  }
+
+  .searchInput {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .posSelect {
+    width: 100%;
+  }
+
+  .sliderContainer {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .sliderInput {
+    flex: 1;
+    max-width: 160px;
+  }
+
+  .segmentedToggle {
+    width: 100%;
+    display: flex;
+  }
+
+  .toggleButton {
+    flex: 1;
+    text-align: center;
+    padding: 8px 6px;
+  }
+
+  .resultCount {
+    margin-left: 0;
+    align-self: flex-end;
+  }
+
+  .th,
+  .td {
+    padding: var(--space-2) var(--space-3);
+    font-size: var(--text-xs);
+  }
+
+  .tdPlayer {
+    min-width: 170px;
+    padding: var(--space-2) var(--space-3);
+  }
 }
 
-.sliderLabel {
-  font-size: var(--text-sm);
-  color: var(--color-text-primary);
-  white-space: nowrap;
-}
+@media (max-width: 480px) {
+  .tdPlayer {
+    min-width: 150px;
+  }
 
-.sliderLabel strong {
-  font-family: var(--font-mono, monospace);
-  color: var(--color-accent-blue);
-  font-size: var(--text-sm);
-}
-
-.sliderInput {
-  -webkit-appearance: none;
-  width: 100px;
-  height: 4px;
-  background: var(--color-border);
-  outline: none;
-  margin: 0;
-  padding: 0;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-}
-
-.sliderInput::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 12px;
-  height: 12px;
-  background: var(--color-accent-blue);
-  border: none;
-  border-radius: 50%;
-  transition: transform 0.1s ease;
-}
-
-.sliderInput::-webkit-slider-thumb:hover {
-  transform: scale(1.2);
-}
-
-.sliderInput::-moz-range-thumb {
-  width: 12px;
-  height: 12px;
-  background: var(--color-accent-blue);
-  border: none;
-  border-radius: 50%;
-  cursor: pointer;
-  transition: transform 0.1s ease;
-}
-
-.sliderInput::-moz-range-thumb:hover {
-  transform: scale(1.2);
-}
-
-/* ── Segmented Toggle (Primary / Secondary / Both) ── */
-.segmentedToggle {
-  display: inline-flex;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  overflow: hidden;
-  background: var(--color-bg-card);
-}
-
-.toggleButton {
-  background: transparent;
-  border: none;
-  border-right: 1px solid var(--color-border);
-  padding: 8px 14px;
-  font-size: var(--text-sm);
-  font-weight: 500;
-  color: var(--color-text-secondary);
-  cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease;
-}
-
-.toggleButton:last-child {
-  border-right: none;
-}
-
-.toggleButton:hover {
-  background: var(--color-bg-secondary);
-  color: var(--color-text-primary);
-}
-
-.activeToggle {
-  background: var(--color-accent-blue) !important;
-  color: #FFFFFF !important;
+  .playerName {
+    font-size: 13px;
+  }
 }
