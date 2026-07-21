@@ -4,11 +4,11 @@ import './globals.css';
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://gaffa.live'),
-  title: 'Gaffa — Dynasty Fantasy Football',
-  description: 'Dynasty Fantasy Football for the Premier League with granular positions and real transfer values.',
+  title: 'Gaffa — Tactical Fantasy Football',
+  description: 'Twelve real tactical positions, a live transfer market, and a scoring engine that judges every player against the role they actually played.',
   openGraph: {
-    title: 'Gaffa — Dynasty Fantasy Football',
-    description: 'Dynasty Fantasy Football for the Premier League with granular positions and real transfer values.',
+    title: 'Gaffa — Tactical Fantasy Football',
+    description: 'Twelve real tactical positions, a live transfer market, and a scoring engine that judges every player against the role they actually played.',
     url: 'https://gaffa.live',
     siteName: 'Gaffa',
     locale: 'en_US',
@@ -16,8 +16,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Gaffa — Dynasty Fantasy Football',
-    description: 'Dynasty Fantasy Football for the Premier League with granular positions and real transfer values.',
+    title: 'Gaffa — Tactical Fantasy Football',
+    description: 'Twelve real tactical positions, a live transfer market, and a scoring engine that judges every player against the role they actually played.',
   },
   icons: {
     icon: [
