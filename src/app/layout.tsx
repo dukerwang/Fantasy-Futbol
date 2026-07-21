@@ -4,8 +4,8 @@ import './globals.css';
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://gaffa.live'),
-  title: 'Gaffa — Tactical Fantasy Football',
-  description: 'Twelve real tactical positions, a live transfer market, and a scoring engine that judges every player against the role they actually played.',
+  title: 'Gaffa — Dynasty Fantasy Football',
+  description: 'Dynasty fantasy football for the Premier League, with granular tactical positions, a live transfer market, and a scoring engine that judges every player against the role they actually played.',
   openGraph: {
     title: 'Gaffa — Tactical Fantasy Football',
     description: 'Twelve real tactical positions, a live transfer market, and a scoring engine that judges every player against the role they actually played.',
