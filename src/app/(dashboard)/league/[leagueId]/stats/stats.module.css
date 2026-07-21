@@ -66,14 +66,15 @@
 }
 
 .searchInput {
-  flex: 1 1 200px;
-  min-width: 180px;
-  padding: 8px 12px;
+  height: 38px;
+  padding: 0 12px;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   background: var(--color-bg-primary);
   color: var(--color-text-primary);
   font-size: var(--text-sm);
+  flex: 1 1 auto;
+  max-width: 300px;
   transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
@@ -84,7 +85,8 @@
 }
 
 .posSelect {
-  padding: 8px 12px;
+  height: 38px;
+  padding: 0 12px;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   background: var(--color-bg-primary);
@@ -112,9 +114,10 @@
   display: flex;
   align-items: center;
   gap: 10px;
+  height: 38px;
   background: var(--color-bg-primary);
   border: 1px solid var(--color-border);
-  padding: 6px 12px;
+  padding: 0 12px;
   border-radius: var(--radius-md);
 }
 
@@ -178,6 +181,7 @@
 /* ── Segmented Toggle (Primary / Secondary / Both) ── */
 .segmentedToggle {
   display: inline-flex;
+  height: 38px;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   overflow: hidden;
@@ -188,7 +192,11 @@
   background: transparent;
   border: none;
   border-right: 1px solid var(--color-border);
-  padding: 6px 12px;
+  padding: 0 12px;
+  height: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   font-size: var(--text-xs);
   font-weight: 600;
   color: var(--color-text-secondary);
@@ -427,6 +435,8 @@ th.thNum {
   .searchInput {
     width: 100%;
     min-width: 0;
+    height: 38px;
+    flex: none;
   }
 
   .posSelect {
