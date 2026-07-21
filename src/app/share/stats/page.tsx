@@ -4,6 +4,7 @@ import type { Player } from '@/types';
 import { FULL_PLAYER_SELECT } from '@/lib/constants/queries';
 import { getCurrentFplSeason, getLatestReferenceStatsSeason, isFplSeasonKickedOff, previousSeason } from '@/lib/season/currentSeason';
 import { calculateMatchRating, DEFAULT_REFERENCE_STATS } from '@/lib/scoring/matchRating';
+import { PRECOMPUTED_STATS_2025_26 } from '@/lib/season/archived_stats_2025_26';
 
 export const dynamic = 'force-dynamic';
 
@@ -13,8 +14,6 @@ export interface StatPlayer extends Player {
 }
 
 export default async function GlobalPublicStatsPage() {
-  const admin = createAdminClient();
-
   const currentFpl = await getCurrentFplSeason();
   const kickedOff = await isFplSeasonKickedOff();
 
@@ -22,6 +21,20 @@ export default async function GlobalPublicStatsPage() {
   if (!kickedOff) {
     season = previousSeason(season);
   }
+
+  // Instant response for completed 2025-26 archived season
+  if (season === '2025-26') {
+    return (
+      <GlobalStatsTable
+        leagueId=""
+        leagueName="Global Leaderboard"
+        players={PRECOMPUTED_STATS_2025_26.players as StatPlayer[]}
+        shadowMaps={PRECOMPUTED_STATS_2025_26.shadowMaps}
+      />
+    );
+  }
+
+  const admin = createAdminClient();
   const refSeason = await getLatestReferenceStatsSeason(admin);
 
   // Fetch all active players, rankings, archives, and reference stats
