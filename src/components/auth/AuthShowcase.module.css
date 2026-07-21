@@ -124,7 +124,7 @@
 }
 
 .auctionCard {
-  background: var(--color-bg-card);
+  background: var(--color-bg-elevated);
   border: 1px solid var(--color-border-subtle);
   border-radius: var(--radius-sm);
   overflow: hidden;
@@ -148,6 +148,10 @@
   border-left: 1px solid var(--color-border-subtle) !important;
   border-right: 1px solid var(--color-border-subtle) !important;
   border-bottom: 1px solid var(--color-border-subtle) !important;
+  background-color: var(--color-bg-elevated) !important;
+}
+
+.ab-leading .auctionCardTop {
   background-color: var(--color-accent-dim) !important;
 }
 
@@ -166,6 +170,8 @@
   align-items: center;
   gap: var(--space-3);
   padding: var(--space-4) var(--space-4) var(--space-3);
+  background: var(--color-bg-card);
+  border-bottom: 1px solid var(--color-border-subtle);
 }
 
 .auctionAvatarContainer {
@@ -185,7 +191,8 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: center 35%;
+  object-position: center top;
+  transform: translateY(4px);
 }
 
 .auctionPlayerInfo {
