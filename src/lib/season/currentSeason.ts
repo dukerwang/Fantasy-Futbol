@@ -97,6 +97,12 @@ export async function isFplSeasonKickedOff(): Promise<boolean> {
     const data = await res.json();
     const events = (data.events ?? []) as { id: number; deadline_time: string; finished?: boolean }[];
 
+    // If the retrieved season has already finished (GW38 completed), we are in the offseason preparing for the next season
+    const lastEvent = events[events.length - 1];
+    if (lastEvent?.finished) {
+      return false;
+    }
+
     const gw1 = events.find((e) => e.id === 1);
     if (!gw1?.deadline_time) return false;
 
