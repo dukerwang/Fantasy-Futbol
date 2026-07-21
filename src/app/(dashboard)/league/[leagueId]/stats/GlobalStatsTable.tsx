@@ -7,6 +7,7 @@ import type { StatPlayer } from './page';
 import PlayerDetailsModal from '@/components/players/PlayerDetailsModal';
 import PosBadge from '@/components/players/PositionBadge';
 import { formatPlayerName } from '@/lib/formatName';
+import { Icon } from '@/components/ui/Icon';
 import styles from './stats.module.css';
 
 interface PositionStats {
@@ -166,8 +167,25 @@ export default function GlobalStatsTable({ leagueId, leagueName, players, shadow
   }, [filtered, shadowByPlayer, sortKey, sortDir]);
 
   function sortIndicator(key: SortKey) {
-    if (sortKey !== key) return <span className={styles.sortNeutral}>↕</span>;
-    return <span className={styles.sortActive}>{sortDir === 'desc' ? '↓' : '↑'}</span>;
+    if (sortKey !== key) {
+      return (
+        <span className={styles.sortNeutral}>
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="m7 15 5 5 5-5" />
+            <path d="m7 9 5-5 5 5" />
+          </svg>
+        </span>
+      );
+    }
+    return (
+      <span className={styles.sortActive}>
+        {sortDir === 'desc' ? (
+          <Icon name="arrow-down" size={12} strokeWidth={2.5} />
+        ) : (
+          <Icon name="arrow-up" size={12} strokeWidth={2.5} />
+        )}
+      </span>
+    );
   }
 
   return (

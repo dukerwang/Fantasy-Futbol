@@ -292,11 +292,17 @@ th.thNum {
   color: var(--color-text-muted);
   margin-left: var(--space-1);
   opacity: 0.4;
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
 }
 
 .sortActive {
   color: var(--color-accent);
   margin-left: var(--space-1);
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
 }
 
 /* ── Table Rows ── */
