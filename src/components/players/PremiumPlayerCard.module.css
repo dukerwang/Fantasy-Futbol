@@ -619,31 +619,30 @@
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  background: rgba(20, 20, 20, 0.65);
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-card);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  color: #FFFFFF;
+  color: var(--color-text-secondary);
   cursor: pointer;
   pointer-events: auto;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: border-color var(--transition-base), color var(--transition-base), transform var(--transition-base), background var(--transition-base);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
   font-size: 20px;
   line-height: 1;
 }
 
 .actionIconBtn:hover {
-  border-color: #FFFFFF;
-  background: rgba(30, 30, 30, 0.85);
-  color: #FFFFFF;
+  border-color: var(--color-accent-green);
+  color: var(--color-accent-green);
 }
 
 .actionIconBtn[aria-label="Close"]:hover {
-  border-color: #EF4444;
-  color: #EF4444;
+  border-color: var(--color-accent-red);
+  color: var(--color-accent-red);
   transform: none;
 }
 
