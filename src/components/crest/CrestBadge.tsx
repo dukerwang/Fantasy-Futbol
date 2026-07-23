@@ -65,8 +65,12 @@ export default function CrestBadge({ config, size = 40, teamName }: CrestBadgePr
   const division = DIVISIONS.find(d => d.id === config.division) || DIVISIONS[0];
   const iconObj = config.icon ? CURATED_ICONS.find(i => i.id === config.icon) : null;
 
-  // Render division HTML layers
-  const divisionHtml = division.renderLayers(config.secondaryColor, config.borderColor);
+  // Render division HTML layers (fall back to border color for crests saved before tertiaryColor existed)
+  const divisionHtml = division.renderLayers(
+    config.secondaryColor,
+    config.borderColor,
+    config.tertiaryColor ?? config.borderColor
+  );
 
   return (
     <div 

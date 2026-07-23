@@ -32,12 +32,19 @@
     flex-wrap: wrap;
 }
 
+.formationBarTrailer {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-left: auto;
+    flex-wrap: wrap;
+}
+
 .formationLockedNote {
     font-size: 0.68rem;
     color: var(--color-text-muted, #9A9488);
     font-weight: 600;
     white-space: nowrap;
-    margin-left: auto;
 }
 
 .formationPill {
@@ -69,33 +76,51 @@
     pointer-events: none;
 }
 
-/* ── Selection hint banner ── */
-.selectionHint {
+/* ── Selection indicator — lives inside the formation bar row, no extra row added ── */
+.selectionIndicator {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    padding: 0.5rem 1rem;
-    background: rgba(58, 107, 74, 0.08);
-    border: 1px solid rgba(58, 107, 74, 0.25);
-    border-radius: var(--radius-sm, 4px);
-    font-size: 0.8rem;
-    color: var(--color-text-primary, #1C1C1C);
+    gap: 0.4rem;
 }
 
-.cancelBtn {
-    padding: 0.2rem 0.625rem;
-    background: transparent;
-    border: 1px solid var(--color-border, #C8C3BC);
-    border-radius: 4px;
-    color: var(--color-text-secondary, #4A4A4A);
-    font-size: 0.72rem;
-    cursor: pointer;
-    white-space: nowrap;
+.selectionDot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--color-accent-green, #3A6B4A);
     flex-shrink: 0;
 }
 
-.cancelBtn:hover {
+.selectionLabel {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--color-text-primary, #1C1C1C);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: default;
+}
+
+.selectionCancelBtn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    padding: 0;
+    background: transparent;
+    border: 1px solid var(--color-border, #C8C3BC);
+    border-radius: 50%;
+    color: var(--color-text-secondary, #4A4A4A);
+    font-size: 0.75rem;
+    line-height: 1;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.selectionCancelBtn:hover {
+    border-color: var(--color-accent-green, #3A6B4A);
+    color: var(--color-accent-green, #3A6B4A);
     background: var(--color-bg-card-hover, #EDE8E0);
 }
 
@@ -285,13 +310,14 @@
     left: 0;
     right: 0;
     display: flex;
-    justify-content: flex-start;
+    justify-content: space-between;
     padding: 0 16px;
     pointer-events: none;
     z-index: 2;
 }
 
-.pitchLabelLeft {
+.pitchLabelLeft,
+.pitchLabelRight {
     font-family: var(--font-sans);
     font-size: 0.58rem;
     font-weight: 700;
@@ -734,16 +760,17 @@
 }
 
 .benchPlayerName {
-    font-family: var(--font-serif, 'Noto Serif', Georgia, serif);
     font-size: 0.8rem;
-    font-weight: 700;
+    font-weight: 600;
     color: var(--color-text-primary, #1C1C1C);
-    flex: 1;
+    flex: 0 1 auto;
+    max-width: 50%;
     min-width: 0;
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
     cursor: pointer;
+    padding: 4px 0;
 }
 
 .benchPlayerName:hover {
@@ -753,7 +780,6 @@
 .benchPts {
     font-size: 0.7rem;
     font-weight: 700;
-    color: var(--color-text-muted, #9A9488);
     flex-shrink: 0;
     white-space: nowrap;
 }
@@ -814,6 +840,12 @@
     outline-offset: -1px;
 }
 
+.reserveRowSelected {
+    background: rgba(58, 107, 74, 0.08) !important;
+    outline: 2px solid var(--color-accent-green, #3A6B4A);
+    outline-offset: -2px;
+}
+
 .reserveRowDimmed {
     opacity: 0.35;
     pointer-events: none;
@@ -841,16 +873,23 @@
     font-size: 0.8rem;
     font-weight: 600;
     color: var(--color-text-primary, #1C1C1C);
-    flex: 1;
+    flex: 0 1 auto;
+    max-width: 50%;
     min-width: 0;
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
     cursor: pointer;
+    padding: 4px 0;
 }
 
 .reserveName:hover {
     text-decoration: underline;
+}
+
+.rowSpacer {
+    flex: 1;
+    min-width: 0;
 }
 
 .reserveClub {
@@ -867,16 +906,6 @@
     font-weight: 800;
     color: var(--color-text-muted, #9A9488);
     border-left: 2px solid var(--color-border, #C8C3BC);
-    padding-left: 4px;
-    flex-shrink: 0;
-    letter-spacing: 0.04em;
-}
-
-.agedOutBadge {
-    font-size: 0.55rem;
-    font-weight: 800;
-    color: #ef4444;
-    border-left: 2px solid #ef4444;
     padding-left: 4px;
     flex-shrink: 0;
     letter-spacing: 0.04em;
@@ -931,12 +960,14 @@
     font-size: 0.8rem;
     font-weight: 600;
     color: var(--color-text-primary, #1C1C1C);
-    flex: 1;
+    flex: 0 1 auto;
+    max-width: 50%;
     min-width: 0;
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
     cursor: pointer;
+    padding: 4px 0;
 }
 
 .taxiName:hover {
@@ -1028,27 +1059,19 @@
     outline-offset: -1px;
 }
 
-.irBadge {
-    font-size: 0.55rem;
-    font-weight: 800;
-    color: #ef4444;
-    border-left: 2px solid #ef4444;
-    padding-left: 4px;
-    flex-shrink: 0;
-    letter-spacing: 0.04em;
-}
-
 .irName {
     font-size: 0.8rem;
     font-weight: 600;
     color: var(--color-text-primary, #1C1C1C);
-    flex: 1;
+    flex: 0 1 auto;
+    max-width: 50%;
     min-width: 0;
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
     cursor: pointer;
     opacity: 0.7;
+    padding: 4px 0;
 }
 
 .irName:hover {
@@ -1114,39 +1137,6 @@
 .irActivateBtn:hover {
     background: #ef4444;
     color: #fff;
-}
-
-/* ── Budget card ── */
-.budgetCard {
-    background: var(--color-bg-card, #FDFCF9);
-    border: 1px solid var(--color-border, #C8C3BC);
-    border-radius: var(--radius-sm, 4px);
-    padding: 0.875rem 1rem;
-    display: flex;
-    align-items: baseline;
-    gap: 0.5rem;
-}
-
-.budgetLabel {
-    font-size: 0.65rem;
-    font-weight: 700;
-    color: var(--color-text-muted, #9A9488);
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    flex-shrink: 0;
-}
-
-.budgetValue {
-    font-family: var(--font-serif, 'Noto Serif', Georgia, serif);
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: var(--color-accent-green, #3A6B4A);
-    line-height: 1;
-}
-
-.budgetSub {
-    font-size: 0.65rem;
-    color: var(--color-text-muted, #9A9488);
 }
 
 /* ── Sidebar error banner ── */

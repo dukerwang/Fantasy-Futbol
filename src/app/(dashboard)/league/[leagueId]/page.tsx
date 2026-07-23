@@ -13,6 +13,7 @@ import CrestBadge from '@/components/crest/CrestBadge';
 import { getFplStatus } from '@/lib/fpl/api';
 import { processMatchupsForGameweek } from '@/lib/scoring/matchupProcessor';
 import TransferGazette from './TransferGazette';
+import TopPerformers from './TopPerformers';
 import { Icon } from '@/components/ui/Icon';
 
 export const dynamic = 'force-dynamic';
@@ -674,50 +675,7 @@ export default async function LeaguePage({ params }: Props) {
           </div>
 
           {/* Top Performers */}
-          <div className={styles.rightCard}>
-            <span className={styles.kickerLabel}>TOP PERFORMERS (GW {latestCompletedGW ?? '—'})</span>
-            {topPerformers.length === 0 ? (
-               <p className={styles.emptyHint}>Not available.</p>
-            ) : (
-              <div className={styles.perfList}>
-                {topPerformers.map((perf: any, i: number) => {
-                  const player = perf.player;
-                  if (!player) return null;
-                  const pts = Number(perf.fantasy_points ?? 0);
-                  const posMap: Record<string, string> = {
-                    GK: 'var(--color-pos-gk)', CB: 'var(--color-pos-cb)', LB: 'var(--color-pos-fb)', RB: 'var(--color-pos-fb)',
-                    LWB: 'var(--color-pos-wb)', RWB: 'var(--color-pos-wb)',
-                    DM: 'var(--color-pos-dm)', CM: 'var(--color-pos-cm)',
-                    AM: 'var(--color-pos-am)', LW: 'var(--color-pos-lw)', RW: 'var(--color-pos-rw)', ST: 'var(--color-pos-st)',
-                  };
-                  const posColor = posMap[player.primary_position] ?? 'var(--color-bg-secondary)';
-
-                  return (
-                    <div key={i} className={styles.perfRow}>
-                      <div className={styles.perfPhotoMount}>
-                        {player.photo_url ? (
-                          <img src={player.photo_url} alt="" className={styles.perfPhoto} />
-                        ) : (
-                          <div className={styles.perfPhotoFallback}>
-                            {formatPlayerName(player, 'initial_last').charAt(0)}
-                          </div>
-                        )}
-                      </div>
-                      <span className={styles.perfBadge} style={{ backgroundColor: posColor, color: 'white' }}>{player.primary_position}</span>
-                      <div className={styles.perfDetails}>
-                        <span className={styles.perfName}>{formatPlayerName(player, 'initial_last')}</span>
-                        <span className={styles.perfTeamName}>{player.pl_team}</span>
-                      </div>
-                      <div className={styles.perfScoreBadge}>
-                        <span className={styles.perfPtsValue}>{pts.toFixed(2)}</span>
-                        <span className={styles.perfPtsUnit}>pts</span>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </div>
+          <TopPerformers latestCompletedGW={latestCompletedGW} topPerformers={topPerformers} />
 
           {/* Tournament Status */}
           <div className={styles.rightCard}>

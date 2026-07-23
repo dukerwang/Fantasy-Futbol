@@ -11,7 +11,7 @@ import RequestLoanModal from './RequestLoanModal';
 import { formatPlayerName } from '@/lib/formatName';
 import styles from './trades.module.css';
 
-interface SimplePlayer {
+export interface SimplePlayer {
   id: string;
   name: string;
   web_name: string | null;
@@ -31,7 +31,7 @@ interface SimpleTeam {
   faab_budget: number;
 }
 
-interface TradeRecord {
+export interface TradeRecord {
   id: string;
   team_a_id: string;
   team_b_id: string;
@@ -47,7 +47,7 @@ interface TradeRecord {
   team_b?: { id: string; team_name: string };
 }
 
-interface PlayerLoanRecord {
+export interface PlayerLoanRecord {
   id: string;
   league_id: string;
   lender_team_id: string;
@@ -874,9 +874,7 @@ export default function TradesClient({
                         <div className={styles.leagueFeedPlayers}>
                           {offeredPlayers.length > 0 ? offeredPlayers.map((p: SimplePlayer) => (
                             <span key={p.id} className={styles.leagueFeedPlayerChip}>
-                              <span className={styles.leagueFeedPosBadge} style={{ color: positionColor(p.primary_position) }}>
-                                {p.primary_position}
-                              </span>
+                              <PositionBadge position={p.primary_position as any} size="sm" />
                               {p.web_name ?? p.name}
                             </span>
                           )) : <span className={styles.leagueFeedNone}>—</span>}
@@ -888,9 +886,7 @@ export default function TradesClient({
                         <div className={styles.leagueFeedPlayers}>
                           {requestedPlayers.length > 0 ? requestedPlayers.map((p: SimplePlayer) => (
                             <span key={p.id} className={styles.leagueFeedPlayerChip}>
-                              <span className={styles.leagueFeedPosBadge} style={{ color: positionColor(p.primary_position) }}>
-                                {p.primary_position}
-                              </span>
+                              <PositionBadge position={p.primary_position as any} size="sm" />
                               {p.web_name ?? p.name}
                             </span>
                           )) : <span className={styles.leagueFeedNone}>—</span>}
@@ -1248,7 +1244,7 @@ function positionColor(pos: string): string {
 
 // ── TradeCard ─────────────────────────────────────────────────────────────
 
-interface TradeCardProps {
+export interface TradeCardProps {
   trade: TradeRecord;
   myTeamId: string;
   playerMap: Record<string, SimplePlayer>;
@@ -1259,7 +1255,7 @@ interface TradeCardProps {
   loading: boolean;
 }
 
-function TradeCard({ trade, myTeamId, playerMap, onAction, onCounter, onViewPlayer, error, loading }: TradeCardProps) {
+export function TradeCard({ trade, myTeamId, playerMap, onAction, onCounter, onViewPlayer, error, loading }: TradeCardProps) {
   const isProposer = trade.team_a_id === myTeamId;
   const teamAName = (trade.team_a as any)?.team_name ?? 'Team A';
   const teamBName = (trade.team_b as any)?.team_name ?? 'Team B';
@@ -1403,7 +1399,7 @@ function TradeCard({ trade, myTeamId, playerMap, onAction, onCounter, onViewPlay
 
 // ── LoanCard ──────────────────────────────────────────────────────────────
 
-function LoanCard({
+export function LoanCard({
   loan,
   myTeamId,
   onAction,

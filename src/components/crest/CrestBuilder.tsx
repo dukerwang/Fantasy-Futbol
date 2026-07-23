@@ -34,6 +34,10 @@ function getRandomConfig(): CrestConfig {
   while (bCol === pCol || bCol === sCol) {
     bCol = CREST_PALETTE[Math.floor(Math.random() * CREST_PALETTE.length)].hex;
   }
+  let tCol = CREST_PALETTE[Math.floor(Math.random() * CREST_PALETTE.length)].hex;
+  while (tCol === pCol || tCol === sCol || tCol === bCol) {
+    tCol = CREST_PALETTE[Math.floor(Math.random() * CREST_PALETTE.length)].hex;
+  }
 
   // Icons
   const randomIcon = Math.random() > 0.15 
@@ -59,6 +63,7 @@ function getRandomConfig(): CrestConfig {
     primaryColor: pCol,
     secondaryColor: sCol,
     borderColor: bCol,
+    tertiaryColor: tCol,
     icon: randomIcon,
     iconColor: iconCol,
     showText,
@@ -89,6 +94,8 @@ export default function CrestBuilder({
       [field]: value
     }));
   };
+
+  const selectedDivision = DIVISIONS.find(d => d.id === config.division);
 
   return (
     <div className={styles.builderLayout}>
@@ -145,7 +152,7 @@ export default function CrestBuilder({
                   </defs>
                   <g clipPath={`url(#min-clip-${div.id})`}>
                     <rect width="100" height="120" fill="#E8E2D5" />
-                    <g dangerouslySetInnerHTML={{ __html: div.renderLayers('#8C6212', '#4E2A1E') }} />
+                    <g dangerouslySetInnerHTML={{ __html: div.renderLayers('#8C6212', '#4E2A1E', '#2E4E3F') }} />
                   </g>
                   <path d={SHIELDS[0].path} fill="none" stroke="currentColor" strokeWidth="4" />
                 </svg>
@@ -217,6 +224,27 @@ export default function CrestBuilder({
                 ))}
               </div>
             </div>
+
+            {/* Tertiary (only for patterns with a third band, e.g. Fess Tierced) */}
+            {selectedDivision?.usesTertiary && (
+              <div>
+                <div style={{ fontSize: '12px', fontWeight: 600, marginBottom: '6px', color: 'var(--color-text-secondary)' }}>
+                  Tertiary (Third Band)
+                </div>
+                <div className={styles.colorGrid}>
+                  {CREST_PALETTE.map((c) => (
+                    <button
+                      key={`t-${c.hex}`}
+                      type="button"
+                      className={`${styles.colorBtn} ${(config.tertiaryColor ?? config.borderColor) === c.hex ? styles.colorBtnActive : ''}`}
+                      style={{ background: c.hex }}
+                      onClick={() => updateField('tertiaryColor', c.hex)}
+                      title={c.label}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
 

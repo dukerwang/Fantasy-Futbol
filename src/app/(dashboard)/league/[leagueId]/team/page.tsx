@@ -32,7 +32,7 @@ export default async function MyTeamPage({ params }: Props) {
     const { data: team } = await admin
     .from('teams')
     .select(`
-      id, team_name, faab_budget, league_id,
+      id, team_name, league_id,
       league:leagues(id, name, season, current_season, previous_season, status, scoring_rules, bench_size, taxi_size, taxi_age_limit, roster_size)
     `)
     .eq('league_id', leagueId)
@@ -378,13 +378,14 @@ export default async function MyTeamPage({ params }: Props) {
         allEntries={nonIrEntries}
         irEntries={ir}
         taxiEntries={taxi}
-        faabBudget={team.faab_budget}
         taxiAgeLimit={taxiAgeLimit}
         initialFormation={initialFormation}
         initialAssignments={initialAssignments}
         initialBench={initialBench as Record<BenchSlot, string | null>}
         scoreMap={scoreMap}
         lockedTeamIds={lockedTeamIds}
+        activeRosterCount={activeRosterCount}
+        maxRosterSize={maxRosterSize}
       />
     </div>
   );

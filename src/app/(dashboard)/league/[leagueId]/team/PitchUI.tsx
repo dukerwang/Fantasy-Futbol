@@ -19,7 +19,7 @@ import { getScoreIntensityColor } from '@/lib/utils/scoreColor';
 
 // ─── Constants ──────────────────────────────────────────────────────────────
 
-const FORMATIONS: Formation[] = ['4-3-3', '4-2-1-3', '4-2-2-2', '3-4-3', '3-4-1-2', '3-5-2', '5-3-2'];
+const FORMATIONS: Formation[] = ['4-3-3', '4-2-1-3', '4-2-2-2', '3-4-3', '3-4-1-2', '3-5-2', '5-3-2', '3-4-2-1', '4-3-1-2', '4-3-2-1'];
 
 type PitchZone = 'ATT' | 'AMZ' | 'CMZ' | 'DMZ' | 'DEF' | 'GK';
 // Zone order: attackers at top, GK at bottom (same vertical flow as MatchupPitch)
@@ -103,13 +103,15 @@ interface Props {
     allEntries: (RosterEntry & { player: Player })[];   // active + bench status (excludes ir, taxi)
     irEntries: (RosterEntry & { player: Player })[];
     taxiEntries: (RosterEntry & { player: Player })[];
-    faabBudget: number;
     taxiAgeLimit?: number;
     initialFormation: Formation;
     initialAssignments: Record<number, string>;
     initialBench: Record<BenchSlot, string | null>;
     scoreMap?: Record<string, number>;
     lockedTeamIds?: Set<number>;
+    /** Active roster count / cap, shown on the pitch header strip */
+    activeRosterCount?: number;
+    maxRosterSize?: number;
 }
 
 type LineupSelection =
@@ -261,13 +263,14 @@ export default function PitchUI({
     allEntries,
     irEntries,
     taxiEntries,
-    faabBudget,
     taxiAgeLimit = DEFAULT_TAXI_AGE_LIMIT,
     initialFormation,
     initialAssignments,
     initialBench,
     scoreMap,
     lockedTeamIds,
+    activeRosterCount,
+    maxRosterSize,
 }: Props) {
     const router = useRouter();
 
@@ -892,7 +895,7 @@ export default function PitchUI({
         return false;
     }, [initialAssignments, initialBench, playerMap, lockedTeamIds]);
 
-    // Hint text for current selection state
+    // Hint text for current selection state (shown as a tooltip on the compact indicator)
     const selectionHint = lineupSelection
         ? lineupSelection.type === 'starter'
             ? 'Starter selected — click a reserve, another slot, or a bench slot to swap. Click the Reserves header to drop to reserves.'
@@ -903,6 +906,19 @@ export default function PitchUI({
         ? sidebarSelection.type === 'taxi'
             ? 'Academy player selected - click an eligible U21 reserve to swap in.'
             : 'IR player selected — click an injured/unavailable reserve to swap in.'
+        : null;
+
+    // Short label for the compact indicator itself
+    const selectionLabel = lineupSelection
+        ? lineupSelection.type === 'starter'
+            ? 'Starter selected'
+            : lineupSelection.type === 'bench-slot'
+            ? `Bench (${lineupSelection.slot}) selected`
+            : 'Reserve selected'
+        : sidebarSelection
+        ? sidebarSelection.type === 'taxi'
+            ? 'Academy player selected'
+            : 'IR player selected'
         : null;
 
     // ─── Render ───────────────────────────────────────────────────────────────
@@ -930,20 +946,31 @@ export default function PitchUI({
                         </button>
                     ))}
                 </div>
-                {isFormationLocked && (
-                    <span className={styles.formationLockedNote}>
-                        <Icon name="lock" size={14} style={{ marginRight: '4px' }} /> Locked — squad match in progress
-                    </span>
-                )}
-            </div>
-
-            {/* ── Selection hint banner ── */}
-            {selectionHint && (
-                <div className={styles.selectionHint}>
-                    <span>{selectionHint}</span>
-                    <button type="button" className={styles.cancelBtn} onClick={clearAll}>Cancel</button>
+                <div className={styles.formationBarTrailer}>
+                    {isFormationLocked && (
+                        <span className={styles.formationLockedNote}>
+                            <Icon name="lock" size={14} style={{ marginRight: '4px' }} /> Locked — squad match in progress
+                        </span>
+                    )}
+                    {selectionLabel && (
+                        <span className={styles.selectionIndicator}>
+                            <span className={styles.selectionDot} aria-hidden />
+                            <span className={styles.selectionLabel} title={selectionHint ?? undefined}>
+                                {selectionLabel}
+                            </span>
+                            <button
+                                type="button"
+                                className={styles.selectionCancelBtn}
+                                onClick={clearAll}
+                                aria-label="Cancel selection"
+                                title="Cancel"
+                            >
+                                ×
+                            </button>
+                        </span>
+                    )}
                 </div>
-            )}
+            </div>
 
             {/* ── 2-column layout: Pitch (left) + Sidebar (right) ── */}
             <div className={styles.pitchLayout}>
@@ -964,9 +991,14 @@ export default function PitchUI({
                         <div className={styles.pitchBottomPenaltyBox} />
                         <div className={styles.pitchBottomSixBox} />
                         <div className={styles.pitchBottomPenaltyArc} />
-                        {teamName && (
+                        {(teamName || activeRosterCount !== undefined) && (
                             <div className={styles.pitchLabels}>
-                                <span className={styles.pitchLabelLeft}>{teamName}</span>
+                                {teamName && <span className={styles.pitchLabelLeft}>{teamName}</span>}
+                                {activeRosterCount !== undefined && (
+                                    <span className={styles.pitchLabelRight}>
+                                        {activeRosterCount}/{maxRosterSize} Active Roster
+                                    </span>
+                                )}
                             </div>
                         )}
 
@@ -1055,19 +1087,33 @@ export default function PitchUI({
                                         {entry ? (
                                             <>
                                                 <span
+                                                    className={styles.reservePosBadge}
+                                                    style={{ background: POS_COLOR[entry.player.primary_position] }}
+                                                >
+                                                    {entry.player.primary_position}
+                                                </span>
+                                                <span
                                                     className={styles.benchPlayerName}
                                                     onClick={(e) => { e.stopPropagation(); setViewingPlayer(entry.player); }}
                                                 >
                                                     {displayName(entry.player)}
                                                 </span>
+                                                <span className={styles.rowSpacer} />
                                                 {entry.status === 'loan_in' && (
                                                     <span style={{ fontSize: '9px', padding: '1px 4px', background: 'rgba(16,185,129,0.15)', border: '1px solid var(--color-accent-green)', color: 'var(--color-accent-green)', borderRadius: '2px', fontWeight: 'bold', marginLeft: '6px' }}>
                                                         LOAN
                                                     </span>
                                                 )}
-                                                {scoreMap && pid && scoreMap[pid] !== undefined && (
-                                                    <span className={styles.benchPts}>{scoreMap[pid].toFixed(2)}</span>
-                                                )}
+                                                <span className={styles.reserveClub}>{entry.player.pl_team}</span>
+                                                {scoreMap && pid && scoreMap[pid] !== undefined && (() => {
+                                                    const pts = scoreMap[pid];
+                                                    const sc = getScoreIntensityColor(pts);
+                                                    return (
+                                                        <span className={styles.benchPts} style={{ color: sc.bg }}>
+                                                            {pts.toFixed(2)}
+                                                        </span>
+                                                    );
+                                                })()}
                                                 {isLocked && <span className={styles.lockIcon}><Icon name="lock" size={14} /></span>}
                                             </>
                                         ) : (
@@ -1110,6 +1156,7 @@ export default function PitchUI({
                                     const isLineupTarget = validLineupTargets.has(`pool-${entry.player.id}`);
                                     const isSidebarTarget = validSidebarTargets.has(`pool-${entry.player.id}`);
                                     const isHighlighted = isLineupTarget || isSidebarTarget;
+                                    const isSelected = lineupSelection?.type === 'pool' && lineupSelection.playerId === entry.player.id;
                                     const isU21 = isU21Eligible(entry.player, academyAgeLimit);
                                     const isInjured = isIrEligible(entry.player);
                                     // Grey out non-eligible players when sidebar selection is active
@@ -1120,7 +1167,7 @@ export default function PitchUI({
                                         <button
                                             key={entry.id}
                                             type="button"
-                                            className={`${styles.reserveRow} ${isLocked ? styles.reserveRowLocked : ''} ${isHighlighted ? styles.reserveRowTarget : ''} ${isDimmed ? styles.reserveRowDimmed : ''}`}
+                                            className={`${styles.reserveRow} ${isLocked ? styles.reserveRowLocked : ''} ${isHighlighted ? styles.reserveRowTarget : ''} ${isSelected ? styles.reserveRowSelected : ''} ${isDimmed ? styles.reserveRowDimmed : ''}`}
                                             onClick={isLocked ? () => setViewingPlayer(entry.player) : () => handlePoolClick(entry.player.id)}
                                             title={isLocked ? 'Match started (Locked)' : undefined}
                                         >
@@ -1136,6 +1183,7 @@ export default function PitchUI({
                                             >
                                                 {displayName(entry.player)}
                                             </span>
+                                            <span className={styles.rowSpacer} />
                                             {entry.status === 'loan_in' && (
                                                 <span style={{ fontSize: '9px', padding: '1px 4px', background: 'rgba(16,185,129,0.15)', border: '1px solid var(--color-accent-green)', color: 'var(--color-accent-green)', borderRadius: '2px', fontWeight: 'bold', marginLeft: '6px' }}>
                                                     LOAN
@@ -1174,11 +1222,13 @@ export default function PitchUI({
                                 <div className={styles.taxiList}>
                                     {taxiEntries.map((entry) => {
                                         const isSelected = sidebarSelection?.type === 'taxi' && sidebarSelection.playerId === entry.player.id;
-                                        const isU21 = isU21Eligible(entry.player, academyAgeLimit);
                                         return (
                                             <div key={entry.id} className={`${styles.taxiRow} ${isSelected ? styles.taxiRowSelected : ''}`}>
-                                                <span className={isU21 ? styles.u21Badge : styles.agedOutBadge}>
-                                                    {isU21 ? 'U21' : 'AGED OUT'}
+                                                <span
+                                                    className={styles.reservePosBadge}
+                                                    style={{ background: POS_COLOR[entry.player.primary_position] }}
+                                                >
+                                                    {entry.player.primary_position}
                                                 </span>
                                                 <span
                                                     className={styles.taxiName}
@@ -1186,6 +1236,7 @@ export default function PitchUI({
                                                 >
                                                     {displayName(entry.player)}
                                                 </span>
+                                                <span className={styles.rowSpacer} />
                                                 <span className={styles.taxiClub}>{entry.player.pl_team}</span>
                                                 <div className={styles.taxiActions}>
                                                     <button
@@ -1230,13 +1281,19 @@ export default function PitchUI({
                                     const isSelected = sidebarSelection?.type === 'ir' && sidebarSelection.playerId === entry.player.id;
                                     return (
                                         <div key={entry.id} className={`${styles.irRow} ${isSelected ? styles.irRowSelected : ''}`}>
-                                            <span className={styles.irBadge}>IR</span>
+                                            <span
+                                                className={styles.reservePosBadge}
+                                                style={{ background: POS_COLOR[entry.player.primary_position] }}
+                                            >
+                                                {entry.player.primary_position}
+                                            </span>
                                             <span
                                                 className={styles.irName}
                                                 onClick={() => setViewingPlayer(entry.player)}
                                             >
                                                 {displayName(entry.player)}
                                             </span>
+                                            <span className={styles.rowSpacer} />
                                             <span className={styles.irClub}>{entry.player.pl_team}</span>
                                             <div className={styles.irActions}>
                                                 <button
@@ -1267,13 +1324,6 @@ export default function PitchUI({
                             </div>
                         </div>
                     )}
-
-                    {/* ── BUDGET CARD ── */}
-                    <div className={styles.budgetCard}>
-                        <span className={styles.budgetLabel}>Club Balance</span>
-                        <span className={styles.budgetValue}>€{faabBudget}m</span>
-                        <span className={styles.budgetSub}>remaining</span>
-                    </div>
 
                 </div>
             </div>

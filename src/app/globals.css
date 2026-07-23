@@ -483,8 +483,9 @@ svg {
   color: var(--color-text-muted);
 }
 
-/* Position tag — replaces a filled 2-letter chip. Colored left tick + small-caps
-   colored text; pass the position hue via inline style="--pc: var(--color-pos-st)" */
+/* Tick tag — colored left tick + small-caps colored text; pass the hue via inline
+   style="--pc: ...". Status/meta text only — NEVER for player positions: those must
+   use the filled <PositionBadge> component, placed before the player name. */
 .ds-tick-tag {
   display: inline-flex;
   align-items: center;

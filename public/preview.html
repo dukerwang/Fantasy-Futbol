@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Logo Preview</title>
+  <style>
+    body {
+      background-color: #0a0c10;
+      color: #e8eaf0;
+      font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px;
+    }
+    .grid {
+      display: flex;
+      gap: 28px;
+      margin-top: 20px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .card {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 210px;
+    }
+    .card h3 { margin: 0 0 12px; font-size: 11px; text-align: center; color: #8b949e; }
+    .preview-large { width: 180px; height: 180px; color: #e8eaf0; }
+    svg { width: 100%; height: 100%; }
+  </style>
+</head>
+<body>
+  <h2>AR Slimmed Down</h2>
+  <div class="grid">
+
+    <!-- AR: original 4.8 (reference) -->
+    <div class="card">
+      <h3>AR — suit 4.8 (original)</h3>
+      <div class="preview-large">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128"
+             fill="none" stroke="currentColor" stroke-width="4.8"
+             stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="64" cy="64" r="56" />
+          <g transform="translate(35.2, 82.8) scale(0.06)">
+            <path fill="currentColor" stroke="none" d="M480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm200-500 54-18 16-54q-32-48-77-82.5T574-786l-54 38v56l160 112Zm-400 0 160-112v-56l-54-38q-54 17-99 51.5T210-652l16 54 54 18Zm-42 308 46-4 30-54-58-174-56-20-40 30q0 65 18 118.5T238-272Zm242 112q26 0 51-4t49-12l28-60-26-44H378l-26 44 28 60q24 8 49 12t51 4Zm-90-200h180l56-160-146-102-144 102 54 160Zm332 88q42-50 60-103.5T800-494l-40-28-56 18-58 174 30 54 46 4Z" />
+          </g>
+          <path d="M 24.8 104 C 34 88, 42 82, 50 82 M 103.2 104 C 94 88, 86 82, 78 82" />
+          <path d="M 50 82 L 44 94 H 49 L 64 116 L 79 94 H 84 L 78 82" />
+          <path d="M 54 82 L 64 96 L 74 82" />
+          <path d="M 61 82 H 67 L 66 90 L 67.5 106 L 64 111 L 60.5 106 L 62 90 Z" fill="currentColor" stroke="none" />
+        </svg>
+      </div>
+    </div>
+
+    <!-- AS: suit 4.2 -->
+    <div class="card">
+      <h3>AS — suit 4.2</h3>
+      <div class="preview-large">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128"
+             fill="none" stroke="currentColor" stroke-width="4.2"
+             stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="64" cy="64" r="56" />
+          <g transform="translate(35.2, 82.8) scale(0.06)">
+            <path fill="currentColor" stroke="none" d="M480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm200-500 54-18 16-54q-32-48-77-82.5T574-786l-54 38v56l160 112Zm-400 0 160-112v-56l-54-38q-54 17-99 51.5T210-652l16 54 54 18Zm-42 308 46-4 30-54-58-174-56-20-40 30q0 65 18 118.5T238-272Zm242 112q26 0 51-4t49-12l28-60-26-44H378l-26 44 28 60q24 8 49 12t51 4Zm-90-200h180l56-160-146-102-144 102 54 160Zm332 88q42-50 60-103.5T800-494l-40-28-56 18-58 174 30 54 46 4Z" />
+          </g>
+          <path d="M 24.8 104 C 34 88, 42 82, 50 82 M 103.2 104 C 94 88, 86 82, 78 82" />
+          <path d="M 50 82 L 44 94 H 49 L 64 116 L 79 94 H 84 L 78 82" />
+          <path d="M 54 82 L 64 96 L 74 82" />
+          <path d="M 61 82 H 67 L 66 90 L 67.5 106 L 64 111 L 60.5 106 L 62 90 Z" fill="currentColor" stroke="none" />
+        </svg>
+      </div>
+    </div>
+
+    <!-- AT: suit 3.9 -->
+    <div class="card">
+      <h3>AT — suit 3.9</h3>
+      <div class="preview-large">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128"
+             fill="none" stroke="currentColor" stroke-width="3.9"
+             stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="64" cy="64" r="56" />
+          <g transform="translate(35.2, 82.8) scale(0.06)">
+            <path fill="currentColor" stroke="none" d="M480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm200-500 54-18 16-54q-32-48-77-82.5T574-786l-54 38v56l160 112Zm-400 0 160-112v-56l-54-38q-54 17-99 51.5T210-652l16 54 54 18Zm-42 308 46-4 30-54-58-174-56-20-40 30q0 65 18 118.5T238-272Zm242 112q26 0 51-4t49-12l28-60-26-44H378l-26 44 28 60q24 8 49 12t51 4Zm-90-200h180l56-160-146-102-144 102 54 160Zm332 88q42-50 60-103.5T800-494l-40-28-56 18-58 174 30 54 46 4Z" />
+          </g>
+          <path d="M 24.8 104 C 34 88, 42 82, 50 82 M 103.2 104 C 94 88, 86 82, 78 82" />
+          <path d="M 50 82 L 44 94 H 49 L 64 116 L 79 94 H 84 L 78 82" />
+          <path d="M 54 82 L 64 96 L 74 82" />
+          <path d="M 61 82 H 67 L 66 90 L 67.5 106 L 64 111 L 60.5 106 L 62 90 Z" fill="currentColor" stroke="none" />
+        </svg>
+      </div>
+    </div>
+
+    <!-- AU: suit 3.6 (original, for comparison) -->
+    <div class="card">
+      <h3>AU — suit 3.6 (original thin)</h3>
+      <div class="preview-large">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128"
+             fill="none" stroke="currentColor" stroke-width="3.6"
+             stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="64" cy="64" r="56" />
+          <g transform="translate(35.2, 82.8) scale(0.06)">
+            <path fill="currentColor" stroke="none" d="M480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm200-500 54-18 16-54q-32-48-77-82.5T574-786l-54 38v56l160 112Zm-400 0 160-112v-56l-54-38q-54 17-99 51.5T210-652l16 54 54 18Zm-42 308 46-4 30-54-58-174-56-20-40 30q0 65 18 118.5T238-272Zm242 112q26 0 51-4t49-12l28-60-26-44H378l-26 44 28 60q24 8 49 12t51 4Zm-90-200h180l56-160-146-102-144 102 54 160Zm332 88q42-50 60-103.5T800-494l-40-28-56 18-58 174 30 54 46 4Z" />
+          </g>
+          <path d="M 24.8 104 C 34 88, 42 82, 50 82 M 103.2 104 C 94 88, 86 82, 78 82" />
+          <path d="M 50 82 L 44 94 H 49 L 64 116 L 79 94 H 84 L 78 82" />
+          <path d="M 54 82 L 64 96 L 74 82" />
+          <path d="M 61 82 H 67 L 66 90 L 67.5 106 L 64 111 L 60.5 106 L 62 90 Z" fill="currentColor" stroke="none" />
+        </svg>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>

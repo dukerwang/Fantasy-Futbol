@@ -8,8 +8,9 @@ import { renderBoldedText } from '@/lib/narrative/boldText';
 import { createClient } from '@/lib/supabase/client';
 import { FULL_PLAYER_SELECT } from '@/lib/constants/queries';
 import PlayerDetailsModal from '@/components/players/PlayerDetailsModal';
+import PositionBadge from '@/components/players/PositionBadge';
 import { Icon } from '@/components/ui/Icon';
-import type { Player as FullPlayer } from '@/types';
+import type { GranularPosition, Player as FullPlayer } from '@/types';
 import styles from './activity.module.css';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -197,15 +198,6 @@ function getTimeRemaining(expiresAt: string): string {
 }
 
 // ─── Small Sub-Components ─────────────────────────────────────────────────────
-
-function PositionBadge({ position }: { position: string }) {
-  const color = POS_COLOR_MAP[position] ?? 'var(--color-text-muted)';
-  return (
-    <span className={styles.posBadge} style={{ color }}>
-      {position}
-    </span>
-  );
-}
 
 function PlayerPhoto({ player }: { player: Player | null }) {
   if (!player) return <div className={`${styles.iconSlot} ${styles.iconSlotGray}`}><IconQuestion /></div>;
@@ -626,14 +618,12 @@ function RightSidebar({
                     </div>
                     <div className={styles.auctionBody}>
                       <div className={styles.auctionPlayerRow}>
+                        <PositionBadge
+                          position={a.player.primary_position as GranularPosition}
+                          size="sm"
+                        />
                         <span className={styles.auctionPlayerName}>
                           {a.player.web_name ?? formatPlayerName(a.player)}
-                        </span>
-                        <span
-                          className={styles.auctionPosBadge}
-                          style={{ color: posColor }}
-                        >
-                          {a.player.primary_position}
                         </span>
                       </div>
                       <div className={styles.auctionMeta}>

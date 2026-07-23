@@ -622,7 +622,21 @@ export default function TransferMarketClient({
                     className={`${styles.auctionCard} ${isUrgent ? styles.auctionCardUrgent : ''} ${isLeading ? `${styles['ab-leading']} ab-leading` : ''}`}
                   >
                     <div className={styles.auctionCardTop}>
-                      <PosBadge position={auction.player.primary_position} />
+                      <div className={styles.auctionAvatarContainer}>
+                        {auction.player.photo_url ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={auction.player.photo_url}
+                            alt={auction.player.web_name ?? auction.player.name}
+                            className={styles.auctionAvatar}
+                            draggable="false"
+                          />
+                        ) : (
+                          <span className={styles.auctionAvatarInitial}>
+                            {(auction.player.web_name ?? auction.player.name).charAt(0).toUpperCase()}
+                          </span>
+                        )}
+                      </div>
                       <div className={styles.auctionPlayerInfo}>
                         <button
                           type="button"
@@ -632,6 +646,7 @@ export default function TransferMarketClient({
                           {formatPlayerName(auction.player, 'initial_last')}
                         </button>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                          <PosBadge position={auction.player.primary_position} size="sm" />
                           <span className={styles.auctionPlayerClub}>{auction.player.pl_team}</span>
                           {auction.is_promoted_exclusive && (
                             <span className={styles.promotedExclusiveBadge} title="Exclusive to bottom-half teams from last season">

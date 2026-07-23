@@ -1409,6 +1409,15 @@
   font-weight: 700;
   color: var(--color-text-primary);
   line-height: 1.2;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  text-align: left;
+}
+
+.perfName:hover {
+  text-decoration: underline;
 }
 
 .perfTeamName {

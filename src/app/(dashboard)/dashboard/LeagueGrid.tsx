@@ -40,6 +40,17 @@ function capitalize(s: string): string {
   return s.charAt(0).toUpperCase() + s.slice(1);
 }
 
+const STATUS_COLOR: Record<string, string> = {
+  setup: 'var(--color-warning)',
+  drafting: 'var(--color-accent-purple)',
+  active: 'var(--color-accent)',
+  offseason: 'var(--color-text-muted)',
+};
+
+function statusColor(status: string): string {
+  return STATUS_COLOR[status] ?? 'var(--color-text-muted)';
+}
+
 export default function LeagueGrid({ leagues }: { leagues: LeagueCardData[] }) {
   const [sort, setSort] = useState<SortMode>('recent');
 
@@ -84,7 +95,7 @@ export default function LeagueGrid({ leagues }: { leagues: LeagueCardData[] }) {
                 <h3 className={styles.cardName}>{league.name}</h3>
                 <span
                   className={styles.cardStatus}
-                  style={{ '--pc': league.status === 'setup' ? 'var(--color-warning)' : 'var(--color-accent)' } as CSSProperties}
+                  style={{ '--pc': statusColor(league.status) } as CSSProperties}
                 >
                   {capitalize(league.status)}
                 </span>

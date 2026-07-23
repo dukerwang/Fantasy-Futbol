@@ -13,7 +13,7 @@ export async function GET() {
 
   const { data: teams } = await admin
     .from('teams')
-    .select('id, team_name, abbreviation, crest_config, league_id')
+    .select('id, team_name, abbreviation, crest_config, faab_budget, league_id')
     .eq('user_id', user.id)
     .order('created_at', { ascending: false });
 
@@ -32,6 +32,7 @@ export async function GET() {
     team_name: t.team_name,
     abbreviation: t.abbreviation,
     crest_config: t.crest_config,
+    faab_budget: t.faab_budget,
     league: leagueMap.get(t.league_id) ?? { id: t.league_id, name: 'Unknown', status: 'active', season: '' },
   }));
 

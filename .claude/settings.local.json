@@ -56,7 +56,19 @@
       "Bash(ls -la .cursor)",
       "Bash(ls -la .github)",
       "Bash(xargs -I{} sh -c 'echo \"=== {} ===\"; cat \"{}\"')",
-      "Skill(design-sync)"
+      "Skill(design-sync)",
+      "mcp__claude-design__list_projects",
+      "Bash(sips -g pixelWidth -g pixelHeight og-2x.png)",
+      "Bash(sips -z 630 1200 og-2x.png --out og-final.png)",
+      "Bash(sips -g pixelWidth -g pixelHeight og-final.png)",
+      "Bash(cp /private/tmp/claude-501/-Users-dukewang-Fantasy-Futbol/8d51a9b3-5f3b-413d-a951-13baf964e2a8/scratchpad/og-final.png \"/Users/dukewang/Fantasy Futbol/src/app/opengraph-image.png\")",
+      "Bash(sips -g pixelWidth -g pixelHeight src/app/opengraph-image.png)",
+      "Bash(node -e ' *)",
+      "Bash(sips -z 630 1200 /private/tmp/claude-501/-Users-dukewang-Fantasy-Futbol/8d51a9b3-5f3b-413d-a951-13baf964e2a8/scratchpad/og-2x.png --out /private/tmp/claude-501/-Users-dukewang-Fantasy-Futbol/8d51a9b3-5f3b-413d-a951-13baf964e2a8/scratchpad/og-final.png)",
+      "Bash(sips -c 160 400 -x 0 -y 0 og-final.png --out crop-logo.png)",
+      "Bash(rm -f /private/tmp/claude-501/-Users-dukewang-Fantasy-Futbol/8d51a9b3-5f3b-413d-a951-13baf964e2a8/scratchpad/crop-logo.png /private/tmp/claude-501/-Users-dukewang-Fantasy-Futbol/8d51a9b3-5f3b-413d-a951-13baf964e2a8/scratchpad/crop-card.png)",
+      "Bash(rm -f /private/tmp/claude-501/-Users-dukewang-Fantasy-Futbol/8d51a9b3-5f3b-413d-a951-13baf964e2a8/scratchpad/crop-mid.png)",
+      "Bash(sips -g pixelWidth -g pixelHeight caicedo.png)"
     ]
   }
 }

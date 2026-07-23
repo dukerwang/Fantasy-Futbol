@@ -478,20 +478,6 @@
   border-style: dashed;
 }
 
-.slotPosBadge {
-  display: inline-flex;
-  align-items: center;
-  font-family: var(--font-sans);
-  font-size: 0.65rem;
-  font-weight: 800;
-  font-variant-caps: all-small-caps;
-  letter-spacing: 0.02em;
-  color: var(--pc, var(--color-text-muted));
-  border-left: 3px solid var(--pc, var(--color-border));
-  padding-left: 8px;
-  flex-shrink: 0;
-}
-
 .slotPlayerInfo {
   display: flex;
   flex-direction: column;

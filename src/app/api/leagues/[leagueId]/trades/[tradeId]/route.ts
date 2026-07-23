@@ -50,6 +50,19 @@ export async function POST(req: NextRequest, { params }: Props) {
       return NextResponse.json({ error: 'Only the trade proposer can cancel it' }, { status: 403 });
     }
     await admin.from('trade_proposals').update({ status: 'cancelled' }).eq('id', tradeId);
+    // Notify team B that the pending offer was withdrawn
+    try {
+      const { createNotification } = await import('@/lib/notifications/createNotification');
+      await createNotification(admin, {
+        leagueId,
+        userId: teamB.user_id,
+        title: 'Trade Proposal Withdrawn',
+        content: `**${teamA.team_name}** has withdrawn their trade proposal to you.`,
+        url: `/league/${leagueId}/trades`
+      });
+    } catch (err) {
+      console.error('[trade/cancel] Failed to create notification:', err);
+    }
     return NextResponse.json({ ok: true });
   }
 

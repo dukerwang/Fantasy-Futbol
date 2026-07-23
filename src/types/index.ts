@@ -26,7 +26,7 @@ export const POSITION_FLEX_MAP: Record<GranularPosition, GranularPosition[]> = {
 
 // Supported formations (slot lists)
 // Slots are ordered left-to-right within each zone row for direct visual rendering.
-export type Formation = '4-3-3' | '4-2-1-3' | '4-2-2-2' | '3-4-1-2' | '3-5-2' | '3-4-3' | '5-3-2';
+export type Formation = '4-3-3' | '4-2-1-3' | '4-2-2-2' | '3-4-1-2' | '3-5-2' | '3-4-3' | '5-3-2' | '3-4-2-1' | '4-3-1-2' | '4-3-2-1';
 
 export const FORMATION_SLOTS: Record<Formation, GranularPosition[]> = {
   // Slots ordered left-to-right within each zone so PitchUI renders them correctly without re-sorting.
@@ -43,6 +43,12 @@ export const FORMATION_SLOTS: Record<Formation, GranularPosition[]> = {
   '5-3-2': ['GK', 'LB', 'CB', 'CB', 'CB', 'RB', 'CM', 'DM', 'CM', 'ST', 'ST'],
   // 3-4-3: 3 CBs, 2 WBs, 2 CMs, wingers + ST
   '3-4-3': ['GK', 'CB', 'CB', 'CB', 'LWB', 'CM', 'CM', 'RWB', 'LW', 'ST', 'RW'],
+  // 3-4-2-1: 3-4-3 with the wingers swapped for two AMs
+  '3-4-2-1': ['GK', 'CB', 'CB', 'CB', 'LWB', 'CM', 'CM', 'RWB', 'AM', 'AM', 'ST'],
+  // 4-3-1-2: diamond midfield (DM, 2 CMs, AM) + 2 STs
+  '4-3-1-2': ['GK', 'LB', 'CB', 'CB', 'RB', 'DM', 'CM', 'CM', 'AM', 'ST', 'ST'],
+  // 4-3-2-1: Christmas tree — 4-3-3 with the wingers swapped for two AMs
+  '4-3-2-1': ['GK', 'LB', 'CB', 'CB', 'RB', 'CM', 'DM', 'CM', 'AM', 'AM', 'ST'],
 };
 
 export const ALL_FORMATIONS: Formation[] = Object.keys(FORMATION_SLOTS) as Formation[];

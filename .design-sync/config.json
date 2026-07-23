@@ -1,0 +1,39 @@
+{
+  "projectId": "e670448c-c75d-427b-8aad-eaa1c3ae3ca1",
+  "shape": "package",
+  "pkg": "gaffa",
+  "globalName": "Gaffa",
+  "srcDir": "src/components",
+  "tsconfig": "tsconfig.json",
+  "cssEntry": "src/app/globals.css",
+  "entry": ".design-sync/entry.mjs",
+  "componentSrcMap": {
+    "AuthShowcase": null,
+    "FormattedText": null,
+    "Icon": null,
+    "LoginForm": null,
+    "MatchupPitch": null,
+    "NavigationLink": null,
+    "NotificationBell": null,
+    "PageSkeleton": null,
+    "PlayerDetailsModal": null,
+    "SignupForm": null,
+    "TopBar": null,
+    "PlayerCard": "src/components/players/PlayerCard.tsx",
+    "PositionBadge": "src/components/players/PositionBadge.tsx",
+    "PremiumPlayerCard": "src/components/players/PremiumPlayerCard.tsx",
+    "ThemeToggle": "src/components/layout/ThemeToggle.tsx"
+  },
+  "provider": {
+    "component": "ThemeProvider"
+  },
+  "readmeHeader": ".design-sync/conventions.md",
+  "overrides": {
+    "PremiumPlayerCard": {
+      "cardMode": "column"
+    },
+    "PlayerCard": {
+      "cardMode": "column"
+    }
+  }
+}

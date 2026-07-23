@@ -355,19 +355,6 @@
 
 /* ── Position Badge (inline in card text) ── */
 
-.posBadge {
-  display: inline-flex;
-  align-items: center;
-  font-family: var(--font-sans);
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  vertical-align: middle;
-  line-height: 1.4;
-  border-left: 2px solid currentColor;
-  padding-left: 4px;
-}
-
 /* ── Empty State ── */
 
 .emptyState {
@@ -539,17 +526,6 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-
-.auctionPosBadge {
-  display: inline-flex;
-  align-items: center;
-  font-family: var(--font-sans);
-  font-size: 8px;
-  font-weight: 700;
-  flex-shrink: 0;
-  border-left: 2px solid currentColor;
-  padding-left: 3px;
 }
 
 .auctionMeta {

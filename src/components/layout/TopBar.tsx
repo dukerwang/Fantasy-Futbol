@@ -22,6 +22,7 @@ interface UserTeam {
   team_name: string;
   abbreviation?: string | null;
   crest_config?: any;
+  faab_budget?: number | null;
   league: LeagueInfo;
 }
 
@@ -298,6 +299,18 @@ export default function TopBar() {
 
         {/* --- Right Section --- */}
         <div className={styles.rightSection}>
+          {/* Club Balance */}
+          {currentLeagueId && currentTeam && (
+            <Link
+              href={`/league/${currentLeagueId}/finance`}
+              className={styles.balancePill}
+              title="Club Balance"
+              onClick={() => setIsNavigating(true)}
+            >
+              <span className={styles.balancePillAmount}>€{currentTeam.faab_budget ?? 0}m</span>
+            </Link>
+          )}
+
           {/* Persistent League Chat */}
           {currentLeagueId && (
             <Link
@@ -539,6 +552,15 @@ export default function TopBar() {
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
                   <span className={styles.mobileDrawerUsername}>{currentTeam?.team_name || 'My Club'}</span>
+                  {currentTeam && (
+                    <Link
+                      href={`/league/${currentLeagueId}/finance`}
+                      className={styles.mobileBalanceLink}
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      Club Balance: €{currentTeam.faab_budget ?? 0}m
+                    </Link>
+                  )}
                   {currentLeagueId && (
                     <Link
                       href={`/league/${currentLeagueId}/crest`}

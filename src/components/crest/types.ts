@@ -4,6 +4,7 @@ export interface CrestConfig {
   primaryColor: string;
   secondaryColor: string;
   borderColor: string;
+  tertiaryColor?: string;
   icon: string | null;
   iconColor: string;
   showText: boolean;

@@ -1,9 +1,10 @@
 export interface DivisionPattern {
   id: string;
   label: string;
+  // Whether this pattern uses a third (tertiary) color layer, distinct from the shield border.
+  usesTertiary?: boolean;
   // A function that returns SVG elements representing the layers of the pattern.
-  // It takes the secondary and border (tertiary) colors.
-  renderLayers: (secondaryColor: string, borderColor: string) => string;
+  renderLayers: (secondaryColor: string, borderColor: string, tertiaryColor: string) => string;
 }
 
 export const DIVISIONS: DivisionPattern[] = [
@@ -40,9 +41,10 @@ export const DIVISIONS: DivisionPattern[] = [
   {
     id: 'thirds',
     label: 'Fess Tierced (Horizontal Thirds)',
-    renderLayers: (secondary, border) => `
+    usesTertiary: true,
+    renderLayers: (secondary, _border, tertiary) => `
       <rect x="0" y="40" width="110" height="40" fill="${secondary}" />
-      <rect x="0" y="80" width="110" height="50" fill="${border}" />
+      <rect x="0" y="80" width="110" height="50" fill="${tertiary}" />
     `
   }
 ];
