@@ -57,3 +57,8 @@ ds-bundle/
 .design-sync/.cache/
 .design-sync/learnings/
 .design-sync/node_modules
+
+# Playwright persistent browser profile used by the SoFIFA/Transfermarkt
+# scrapers (chromium.launchPersistentContext). Pure runtime cache — ~130MB
+# that churns on every scraper run. Playwright recreates it automatically.
+playwright-profile/
