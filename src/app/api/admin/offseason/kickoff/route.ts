@@ -1,9 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/admin';
-import { sendEmail } from '@/lib/email/client';
-import { getSystemAuctionsEmail } from '@/lib/email/templates';
-import { previewRelegationCompensation, processRelegationCompensation } from '@/lib/offseason/relegationHandler';
-import { syncPlayersFromFpl } from '@/lib/players/syncPlayers';
+import { previewSeasonKickoff, runSeasonKickoff } from '@/lib/offseason/seasonKickoff';
 
 export const maxDuration = 300;
 
@@ -14,7 +11,7 @@ function authorize(req: NextRequest): boolean {
   return !!secret && !!process.env.CRON_SECRET && secret === process.env.CRON_SECRET;
 }
 
-/** GET: preview summer auctions and pending relegation drops before kickoff */
+/** GET: preview summer auctions and pending relegation drops before kickoff, for one league */
 export async function GET(req: NextRequest) {
   if (!authorize(req)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -28,95 +25,25 @@ export async function GET(req: NextRequest) {
 
   const admin = createAdminClient();
 
-  // 1. Fetch league info
-  const { data: league, error: leagueErr } = await admin
-    .from('leagues')
-    .select('status, current_season, previous_season, roster_locked')
-    .eq('id', leagueId)
-    .single();
-
-  if (leagueErr || !league) {
-    return NextResponse.json({ error: 'League not found' }, { status: 404 });
+  try {
+    const preview = await previewSeasonKickoff(admin, leagueId);
+    return NextResponse.json({
+      leagueId,
+      leagueStatus: preview.leagueStatus,
+      rosterLocked: preview.rosterLocked,
+      preview: {
+        relegationPlayers: preview.relegationPlayers,
+        totalRelegationFaab: preview.totalRelegationFaab,
+        summerArrivals: preview.summerArrivals,
+      },
+    });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err);
+    return NextResponse.json({ error: message }, { status: 404 });
   }
-
-  const AUCTION_THRESHOLD = 40.0;
-
-  // 2. Find all unowned players
-  const { data: ownedEntries } = await admin
-    .from('roster_entries')
-    .select('player_id')
-    .eq('league_id', leagueId)
-    .not('player_id', 'is', null);
-
-  const ownedPlayerIds = new Set((ownedEntries ?? []).map(e => e.player_id));
-
-  const { data: pendingAuctions } = await admin
-    .from('waiver_claims')
-    .select('player_id')
-    .eq('league_id', leagueId)
-    .eq('is_auction', true)
-    .eq('status', 'pending');
-
-  const auctionPlayerIds = new Set((pendingAuctions ?? []).map(a => a.player_id));
-
-  // Determine newly promoted Premier League clubs dynamically
-  const previousSeason = league.previous_season ?? '2025-26';
-  const { data: prevPlayers } = await admin
-    .from('players')
-    .select('pl_team')
-    .eq('pl_season', previousSeason);
-
-  const prevTeams = new Set(prevPlayers?.map(p => p.pl_team).filter(Boolean) ?? []);
-
-  const { data: currPlayers } = await admin
-    .from('players')
-    .select('pl_team')
-    .eq('is_active', true);
-
-  const promotedClubs = new Set<string>();
-  if (prevTeams.size > 0) {
-    for (const p of currPlayers ?? []) {
-      if (p.pl_team && !prevTeams.has(p.pl_team)) {
-        promotedClubs.add(p.pl_team);
-      }
-    }
-  }
-
-  // Find all unowned active players who are either high value or from promoted clubs
-  const { data: allCandidatePlayers } = await admin
-    .from('players')
-    .select('id, web_name, market_value, pl_team')
-    .eq('is_active', true);
-
-  const playersToAuction = (allCandidatePlayers ?? []).filter(p => {
-    if (ownedPlayerIds.has(p.id) || auctionPlayerIds.has(p.id)) return false;
-    const isHighValue = Number(p.market_value || 0) >= AUCTION_THRESHOLD;
-    const isPromoted = p.pl_team && promotedClubs.has(p.pl_team);
-    return isHighValue || isPromoted;
-  });
-
-  // 3. Get relegation preview
-  const relegationPreview = await previewRelegationCompensation(admin, leagueId);
-
-  return NextResponse.json({
-    leagueId,
-    leagueStatus: league.status,
-    rosterLocked: league.roster_locked,
-    preview: {
-      relegationPlayers: relegationPreview,
-      totalRelegationFaab: relegationPreview.reduce((s, p) => s + p.compensationFaab, 0),
-      summerArrivals: playersToAuction.map(p => ({
-        id: p.id,
-        name: p.web_name,
-        marketValue: p.market_value,
-        pl_team: p.pl_team,
-        isPromoted: p.pl_team && promotedClubs.has(p.pl_team),
-      })),
-    }
-  });
 }
 
-/** POST: execute season kickoff (process relegations + seed summer auctions + activate) */
+/** POST: execute season kickoff for one league (process relegations + seed summer auctions + activate) */
 export async function POST(req: NextRequest) {
   if (!authorize(req)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -136,200 +63,19 @@ export async function POST(req: NextRequest) {
 
   const admin = createAdminClient();
 
-  // 1. Fetch league and verify it's in offseason
-  const { data: league, error: leagueErr } = await admin
-    .from('leagues')
-    .select('status, roster_locked, previous_season, current_season')
-    .eq('id', leagueId)
-    .single();
-
-  if (leagueErr || !league) {
-    return NextResponse.json({ error: 'League not found' }, { status: 404 });
-  }
-
-  if (league.status !== 'offseason') {
-    return NextResponse.json(
-      { error: 'League is not in offseason. Cannot kickoff season.' },
-      { status: 400 }
-    );
-  }
-
-  const AUCTION_THRESHOLD = 40.0;
-  const AUCTION_WINDOW_HOURS = 96; // Extended kickoff auction duration to 96 hours (4 days)
-
-  const seasonFrom = league.previous_season ?? '2025-26';
-  const seasonTo = league.current_season ?? '2026-27';
-
-  // 1b. Determine previous Premier League clubs BEFORE we sync players
-  const { data: prevPlayers } = await admin
-    .from('players')
-    .select('pl_team')
-    .eq('pl_season', seasonFrom);
-
-  const prevTeams = new Set(prevPlayers?.map(p => p.pl_team).filter(Boolean) ?? []);
-
-  // Fetch current active teams before sync as a robust fallback
-  const { data: activePlayersBeforeSync } = await admin
-    .from('players')
-    .select('pl_team')
-    .eq('is_active', true);
-
-  const fallbackPrevTeams = new Set(activePlayersBeforeSync?.map(p => p.pl_team).filter(Boolean) ?? []);
-
-  // 1c. Automatically run player sync to ensure database has the latest Premier League squad list
-  const syncResult = await syncPlayersFromFpl(admin);
-  if (syncResult.error) {
-    console.error('[kickoff] Player sync failed:', syncResult.error);
-    return NextResponse.json({ error: `Player sync failed: ${syncResult.error}` }, { status: 502 });
-  }
-
-  // 1d. Process Relegation/Transfer Compensation (Grace Period ends now!)
-  const relegationResults = await processRelegationCompensation(admin, leagueId, seasonFrom, seasonTo);
-
-  // 2. Find all unowned players
-  const { data: ownedEntries } = await admin
-    .from('roster_entries')
-    .select('player_id')
-    .eq('league_id', leagueId)
-    .not('player_id', 'is', null);
-
-  const ownedPlayerIds = new Set((ownedEntries ?? []).map(e => e.player_id));
-
-  const { data: pendingAuctions } = await admin
-    .from('waiver_claims')
-    .select('player_id')
-    .eq('league_id', leagueId)
-    .eq('is_auction', true)
-    .eq('status', 'pending');
-
-  const auctionPlayerIds = new Set((pendingAuctions ?? []).map(a => a.player_id));
-
-  // Determine newly promoted Premier League clubs dynamically
-  const finalPrevTeams = prevTeams.size > 0 ? prevTeams : fallbackPrevTeams;
-
-  const { data: currPlayers } = await admin
-    .from('players')
-    .select('pl_team')
-    .eq('is_active', true);
-
-  const promotedClubs = new Set<string>();
-  if (finalPrevTeams.size > 0) {
-    for (const p of currPlayers ?? []) {
-      if (p.pl_team && !finalPrevTeams.has(p.pl_team)) {
-        promotedClubs.add(p.pl_team);
-      }
-    }
-  }
-
-  // Find all unowned active players who are either high value or from promoted clubs
-  const { data: allCandidatePlayers } = await admin
-    .from('players')
-    .select('id, web_name, market_value, pl_team')
-    .eq('is_active', true);
-
-  const playersToAuction = (allCandidatePlayers ?? []).filter(p => {
-    if (ownedPlayerIds.has(p.id) || auctionPlayerIds.has(p.id)) return false;
-    const isHighValue = Number(p.market_value || 0) >= AUCTION_THRESHOLD;
-    const isPromoted = p.pl_team && promotedClubs.has(p.pl_team);
-    return isHighValue || isPromoted;
-  });
-
-  // 3. Create the auctions
-  if (playersToAuction.length > 0) {
-    const expiresAt = new Date();
-    expiresAt.setHours(expiresAt.getHours() + AUCTION_WINDOW_HOURS);
-
-    const auctionInserts = playersToAuction.map(p => ({
-      league_id: leagueId,
-      player_id: p.id,
-      is_auction: true,
-      status: 'pending',
-      expires_at: expiresAt.toISOString(),
-      amount: 0,
-      team_id: null, // System generated
-    }));
-
-    const { error: insertErr } = await admin
-      .from('waiver_claims')
-      .insert(auctionInserts);
-
-    if (insertErr) {
-      console.error('[kickoff] Failed to insert summer auctions:', insertErr);
-      return NextResponse.json({ error: 'Failed to create summer auctions' }, { status: 500 });
-    }
-  }
-
-  // --- SEND EMAIL & IN-GAME NOTIFICATIONS ---
   try {
-    const { data: allTeams } = await admin.from('teams').select('id, user_id').eq('league_id', leagueId);
-    if (allTeams && allTeams.length > 0) {
-      const userIds = allTeams.map(t => t.user_id);
-      const { data: users } = await admin.from('users').select('email').in('id', userIds);
-      const emails = (users ?? []).map(u => u.email).filter(Boolean);
-
-      if (emails.length > 0) {
-        const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://gaffa.live';
-        const playerInfo = playersToAuction.map(p => ({ name: p.web_name ?? 'Unknown', value: p.market_value as number }));
-        await sendEmail({
-          to: emails,
-          subject: 'The Season Has Begun!',
-          html: getSystemAuctionsEmail(playerInfo, true, `${baseUrl}/league/${leagueId}`)
-        });
-      }
-
-      // Create in-game notifications
-      const { createNotification } = await import('@/lib/notifications/createNotification');
-      for (const t of allTeams) {
-        await createNotification(admin, {
-          leagueId,
-          userId: t.user_id,
-          title: 'New Season Started!',
-          content: `The commissioner has officially kicked off the new season! Rosters are unlocked, and **${playersToAuction.length}** high-value summer arrivals have been added to the transfer auction block.`,
-          url: `/league/${leagueId}`
-        });
-      }
-
-      // Send individual notifications for managers who got relegated player payouts
-      const userIdByTeamId = new Map(allTeams.map(t => [t.id, t.user_id]));
-      for (const r of relegationResults) {
-        for (const affected of r.affectedRosters) {
-          const userId = userIdByTeamId.get(affected.teamId);
-          if (userId) {
-            await createNotification(admin, {
-              leagueId,
-              userId,
-              title: '💸 Relegation Compensation Paid',
-              content: `**${r.playerName}** (${r.club}) has been dropped due to relegation. You have been compensated with **+€${r.compensationFaab}m**.`,
-              url: `/league/${leagueId}/transactions`
-            });
-          }
-        }
-      }
-    }
-  } catch (err) {
-    console.error('[kickoff] Failed to send kickoff notifications:', err);
+    const result = await runSeasonKickoff(admin, leagueId);
+    return NextResponse.json({
+      ok: true,
+      message: 'Season started successfully.',
+      relegationResults: result.relegationResults,
+      auctionsCreated: result.auctionsCreated,
+      auctionedPlayers: result.auctionedPlayers,
+    });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err);
+    console.error('[kickoff] Failed:', message);
+    const status = message.includes('not found') ? 404 : message.includes('not in offseason') ? 400 : 500;
+    return NextResponse.json({ error: message }, { status });
   }
-
-  // 4. Unlock rosters and set status to active (Decommissioned to final step)
-  const { error: updateErr } = await admin
-    .from('leagues')
-    .update({
-      status: 'active',
-      roster_locked: false,
-      updated_at: new Date().toISOString(),
-    })
-    .eq('id', leagueId);
-
-  if (updateErr) {
-    console.error('[kickoff] Failed to activate league:', updateErr);
-    return NextResponse.json({ error: 'Failed to activate league' }, { status: 500 });
-  }
-
-  return NextResponse.json({
-    ok: true,
-    message: 'Season started successfully.',
-    relegationResults,
-    auctionsCreated: playersToAuction.length,
-    auctionedPlayers: playersToAuction.map(p => p.web_name),
-  });
 }

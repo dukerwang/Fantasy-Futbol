@@ -8,7 +8,7 @@
  */
 
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { processPlayerTransferOut } from '@/lib/transfers/compensation';
+import { processPlayerTransferOut, COMPENSATION_RATE } from '@/lib/transfers/compensation';
 
 interface RelegationResult {
   playerId: string;
@@ -36,29 +36,34 @@ interface RelegationPreview {
  * Returns a preview of all relegated players on fantasy rosters in a given league.
  * Used by the admin UI to show the commissioner what will happen before they confirm.
  *
- * A "relegated player" is: is_active=false AND pl_status='active' (not yet processed).
+ * A "relegated player" is any `is_active=false` player still sitting on a
+ * roster in this league. Membership on a roster is the guard: once processed
+ * the roster entry is deleted, so a processed player can never show up twice.
+ * (`pl_status` is written as an audit marker but is deliberately NOT used to
+ * exclude — it's a global column, so using it as the guard meant the first
+ * league processed consumed the flag for every other league.)
  */
 export async function previewRelegationCompensation(
   admin: SupabaseClient,
   leagueId: string,
 ): Promise<RelegationPreview[]> {
-  // Find all inactive, unprocessed players
   const { data: relegatedPlayers, error: playersErr } = await admin
     .from('players')
     .select('id, name, pl_team, market_value')
-    .eq('is_active', false)
-    .eq('pl_status', 'active');
+    .eq('is_active', false);
 
   if (playersErr || !relegatedPlayers || relegatedPlayers.length === 0) return [];
 
   const playerIds = relegatedPlayers.map((p) => p.id);
 
-  // Find which of these are on rosters in this league
+  // Find which of these are on rosters in this league. `!inner` is required —
+  // without it PostgREST keeps every row and merely nulls the embed, so the
+  // league filter silently did nothing and other leagues' entries leaked in.
   const { data: rosterEntries } = await admin
     .from('roster_entries')
-    .select('player_id, team:teams(id, team_name, league_id)')
+    .select('player_id, team:teams!inner(id, team_name, league_id)')
     .in('player_id', playerIds)
-    .eq('teams.league_id', leagueId);
+    .eq('team.league_id', leagueId);
 
   if (!rosterEntries || rosterEntries.length === 0) return [];
 
@@ -68,7 +73,9 @@ export async function previewRelegationCompensation(
     const owned = (rosterEntries ?? []).filter((r) => r.player_id === player.id);
     if (owned.length === 0) continue;
 
-    const comp = Math.round(player.market_value * 0.8 * 100) / 100;
+    // Same constant the payout uses — a hardcoded rate here meant the preview
+    // could quote a figure the RPC never actually paid.
+    const comp = Math.round(player.market_value * COMPENSATION_RATE * 100) / 100;
     results.push({
       playerId: player.id,
       playerName: player.name,
@@ -88,13 +95,15 @@ export async function previewRelegationCompensation(
 /**
  * Processes relegation compensation for all relegated players owned in a league.
  *
- * For each inactive (pl_status='active') player on a fantasy roster:
+ * For each inactive player on a fantasy roster in THIS league:
  * - Owner receives 80% of market_value as FAAB (via processPlayerTransferOut)
  * - Player removed from roster
- * - pl_status set to 'relegated' (idempotency guard)
+ * - pl_status set to 'relegated' (audit marker)
  * - season_transitions record written
  *
- * Idempotent: pl_status='relegated' prevents double-processing.
+ * Idempotent on two levels: the RPC skips any (team, player) that already has
+ * a `transfer_compensation` transaction, and processing deletes the roster
+ * entry, so a second run finds nothing left to select.
  */
 export async function processRelegationCompensation(
   admin: SupabaseClient,
@@ -102,11 +111,34 @@ export async function processRelegationCompensation(
   seasonFrom: string,
   seasonTo: string,
 ): Promise<RelegationResult[]> {
+  // Scope to players actually rostered in this league. The previous version
+  // scanned `players` globally and used pl_status as the guard, which meant a
+  // batch run (kickoff-all) stamped every inactive player 'relegated' while
+  // processing the first league — starving every league after it.
+  const { data: leagueTeams, error: teamsErr } = await admin
+    .from('teams')
+    .select('id')
+    .eq('league_id', leagueId);
+  if (teamsErr) throw new Error(`Failed to load league teams: ${teamsErr.message}`);
+
+  const teamIds = (leagueTeams ?? []).map((t) => t.id);
+  if (teamIds.length === 0) return [];
+
+  const { data: entries, error: entriesErr } = await admin
+    .from('roster_entries')
+    .select('player_id')
+    .in('team_id', teamIds)
+    .not('player_id', 'is', null);
+  if (entriesErr) throw new Error(`Failed to load rostered players: ${entriesErr.message}`);
+
+  const rosteredIds = [...new Set((entries ?? []).map((e) => e.player_id))];
+  if (rosteredIds.length === 0) return [];
+
   const { data: relegatedPlayers, error: playersErr } = await admin
     .from('players')
     .select('id, name, pl_team, market_value')
     .eq('is_active', false)
-    .eq('pl_status', 'active');
+    .in('id', rosteredIds);
 
   if (playersErr) throw new Error(`Failed to fetch relegated players: ${playersErr.message}`);
   if (!relegatedPlayers || relegatedPlayers.length === 0) return [];
@@ -114,18 +146,20 @@ export async function processRelegationCompensation(
   const results: RelegationResult[] = [];
 
   for (const player of relegatedPlayers) {
-    // processPlayerTransferOut checks for roster entries internally — skip if free agent
+    // The RPC pays out across every league that rosters this player — correct,
+    // since the player has left the PL for all of them. But the audit trail and
+    // the returned result belong to the league being kicked off, so scope them.
     const result = await processPlayerTransferOut(admin, player.id);
+    const inThisLeague = result.affectedTeams.filter((t) => t.leagueId === leagueId);
 
     if (result.affectedTeams.length > 0) {
-      // Mark player as processed so we don't double-pay
       await admin
         .from('players')
         .update({ pl_status: 'relegated', pl_season: seasonFrom, updated_at: new Date().toISOString() })
         .eq('id', player.id);
 
-      // Write season_transitions record per team affected
-      const transitionRows = result.affectedTeams.map((t) => ({
+      // Write season_transitions record per team affected in THIS league
+      const transitionRows = inThisLeague.map((t) => ({
         league_id: leagueId,
         season_from: seasonFrom,
         season_to: seasonTo,
@@ -136,9 +170,11 @@ export async function processRelegationCompensation(
         notes: `${player.name} (${player.pl_team}) relegated. €${result.compensation}m compensation paid.`,
       }));
 
-      const { error: transErr } = await admin.from('season_transitions').insert(transitionRows);
-      if (transErr) {
-        console.error(`[relegation] Failed to write season_transitions for ${player.name}:`, transErr);
+      if (transitionRows.length > 0) {
+        const { error: transErr } = await admin.from('season_transitions').insert(transitionRows);
+        if (transErr) {
+          console.error(`[relegation] Failed to write season_transitions for ${player.name}:`, transErr);
+        }
       }
 
       results.push({
@@ -146,7 +182,7 @@ export async function processRelegationCompensation(
         playerName: player.name,
         club: player.pl_team,
         compensationFaab: result.compensation,
-        affectedRosters: result.affectedTeams.map((t) => ({
+        affectedRosters: inThisLeague.map((t) => ({
           teamId: t.teamId,
           teamName: t.teamName,
           leagueId: t.leagueId,
@@ -154,7 +190,8 @@ export async function processRelegationCompensation(
         })),
       });
     } else {
-      // Free agent — just mark as relegated, no compensation needed
+      // Nothing paid out — league isn't in a payable state. Still mark the
+      // player so the audit trail reflects that they've left the PL.
       await admin
         .from('players')
         .update({ pl_status: 'relegated', pl_season: seasonFrom, updated_at: new Date().toISOString() })

@@ -88,7 +88,11 @@ function PlayerRow({
   const s = shadowByPlayer[player.id]?.[activePos];
   const gp = s ? s.gp : 0;
   const totalPoints = s ? s.total_points : 0;
-  const ppg = s && s.gp > 0 ? (s.total_points / s.gp).toFixed(1) : '—';
+  // Primary position: use archive PPG (authoritative end-of-season value).
+  // Secondary position: dynamically re-scored with different position weights — must use shadow map.
+  const ppg = (activePos === player.primary_position && player.ppg != null)
+    ? Number(player.ppg).toFixed(1)
+    : (s && s.gp > 0 ? (s.total_points / s.gp).toFixed(1) : '—');
   const avgRating = s && s.gp > 0 ? s.avg_rating.toFixed(1) : '—';
   const form = player.form_rating != null ? Number(player.form_rating).toFixed(1) : '—';
   const value = player.market_value != null ? `€${Number(player.market_value).toFixed(1)}m` : '—';
@@ -99,14 +103,14 @@ function PlayerRow({
       <div className={styles.tdPlayerSticky}>
         <div className={styles.playerRowLeft}>
           <div className={styles.posRow}>
-            <span className={`${styles.posBadge} ${styles[`pos${player.primary_position}` as keyof typeof styles]}`}>
-              {player.primary_position}
+            <span className={`${styles.posBadge} ${styles[`pos${activePos}` as keyof typeof styles]}`}>
+              {activePos}
             </span>
             {player.primary_position !== activePos && (
               <>
-                <span className={styles.secArrow}>→</span>
-                <span className={styles.activeSecBadge} title={`Secondary role: ${activePos}`}>
-                  {activePos}
+                <span className={styles.secArrow} title={`Primary position: ${player.primary_position} — evaluated as ${activePos}`}>→</span>
+                <span className={`${styles.posBadge} ${styles[`pos${player.primary_position}` as keyof typeof styles]}`}>
+                  {player.primary_position}
                 </span>
               </>
             )}

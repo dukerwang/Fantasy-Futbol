@@ -123,7 +123,7 @@ Signing players who aren't already on a roster runs through your **Club Balance*
 - **Your Club Balance never resets between seasons** — it's a permanent dynasty asset. It carries over year to year and can be traded away like any other asset.
 - To sign an available player, you submit a **blind bid** from your Club Balance. Bidding windows run for **48 hours**; you won't see what others have bid until it closes.
 - If you're already at your roster limit, you nominate a player to **drop** as part of your bid. Dropping a rostered player to make room charges you a **severance fee** — currently 20% of that dropped player's market value (minimum £2m) — on top of your winning bid, so roster churn isn't free.
-- **Big-name arrivals trigger an automatic auction:** any player who newly enters the pool (e.g. a fresh transfer into the Premier League) with a market value of **£40m or more** kicks off a system-run auction automatically, and every manager in the league gets notified by email so nobody misses out.
+- **Big-name arrivals trigger an automatic auction:** any player who newly enters the pool (e.g. a fresh transfer into the Premier League) with a market value of **£50m or more** kicks off a system-run auction automatically, and every manager in the league gets notified by email so nobody misses out.
 
 ### Selling your own players
 You're not limited to trading or dropping a player outright — you can also **list one of your rostered players for sale**. Set a minimum bid and, optionally, an instant "buy now" price. Other managers bid on it through the same blind-auction mechanism as free agency (you can't bid on your own listing). When it sells, the winning bid is paid to *you* as Club Balance income rather than disappearing — it's a genuine transfer fee, not a release. A player can't be traded away while they have an active sale listing running.
@@ -176,8 +176,8 @@ The catch: once a taxi-squad player **ages past the limit**, they no longer qual
 
 Dynasty rosters mean players sometimes leave the picture entirely — and Gaffa compensates you rather than just deleting the asset:
 
-- If a rostered player **permanently leaves the Premier League** (transfers to a non-PL club, retires, etc.), they're deactivated and dropped from your roster, and you're paid **80% of their market value into your Club Balance**.
-- The same 80%-of-market-value compensation applies automatically during the **Offseason Reset** for any rostered player whose Premier League club gets **relegated** (see below).
+- If a rostered player **permanently leaves the Premier League** (transfers to a non-PL club, retires, etc.), they're deactivated and dropped from your roster, and you're paid **100% of their market value into your Club Balance**.
+- The same full-market-value compensation applies automatically during the **Offseason Reset** for any rostered player whose Premier League club gets **relegated** (see below).
 
 ---
 
@@ -188,7 +188,7 @@ At the end of the season, once every gameweek and cup fixture is complete, the c
 1. **Preflight check** — confirms every matchup and cup tie has actually finished before anything else runs.
 2. **Archive the season** — final standings, total points, and team ranks are locked into the league's permanent History page.
 3. **Prizes paid out** — Club Balance is credited to teams based on league and cup finishes, per your league's configured prize structure.
-4. **Relegation compensation** — any rostered player on a club relegated from the Premier League is automatically dropped, with the owner paid 80% of market value into their Club Balance (same mechanic as transfer-out compensation above).
+4. **Relegation compensation** — any rostered player on a club relegated from the Premier League is automatically dropped, with the owner paid 100% of market value into their Club Balance (same mechanic as transfer-out compensation above).
 5. **Records reset, budgets don't** — wins/losses/draws/points reset to zero for the new season, but every club's Club Balance carries over untouched.
 6. **New season, new schedule** — the league's season counter advances, and a fresh head-to-head schedule plus empty cup brackets are generated automatically, ready to go.
 

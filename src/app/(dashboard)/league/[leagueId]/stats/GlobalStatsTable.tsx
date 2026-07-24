@@ -146,8 +146,13 @@ export default function GlobalStatsTable({ leagueId, leagueName, players, shadow
         av = sa ? sa.total_points : 0;
         bv = sb ? sb.total_points : 0;
       } else if (sortKey === 'ppg') {
-        av = sa && sa.gp > 0 ? sa.total_points / sa.gp : 0;
-        bv = sb && sb.gp > 0 ? sb.total_points / sb.gp : 0;
+        // For primary position: use archive PPG (authoritative). For secondary: use shadow map recompute.
+        av = (aObj.activePos === aObj.player.primary_position && aObj.player.ppg != null)
+          ? Number(aObj.player.ppg)
+          : (sa && sa.gp > 0 ? sa.total_points / sa.gp : 0);
+        bv = (bObj.activePos === bObj.player.primary_position && bObj.player.ppg != null)
+          ? Number(bObj.player.ppg)
+          : (sb && sb.gp > 0 ? sb.total_points / sb.gp : 0);
       } else if (sortKey === 'avg_rating') {
         av = sa ? sa.avg_rating : 0;
         bv = sb ? sb.avg_rating : 0;
@@ -306,7 +311,11 @@ export default function GlobalStatsTable({ leagueId, leagueName, players, shadow
               const s = shadowByPlayer[player.id]?.[activePos];
               const gp = s ? s.gp : 0;
               const totalPoints = s ? s.total_points : 0;
-              const ppg = s && s.gp > 0 ? (s.total_points / s.gp).toFixed(2) : '—';
+              // Primary position: use archive PPG (authoritative end-of-season value).
+              // Secondary position: dynamically re-scored with different position weights — must use shadow map.
+              const ppg = (activePos === player.primary_position && player.ppg != null)
+                ? Number(player.ppg).toFixed(2)
+                : (s && s.gp > 0 ? (s.total_points / s.gp).toFixed(2) : '—');
               const avgRating = s && s.gp > 0 ? s.avg_rating.toFixed(2) : '—';
               const isOwned = player.owner_team_name !== null;
 
@@ -319,13 +328,11 @@ export default function GlobalStatsTable({ leagueId, leagueName, players, shadow
                 >
                   <td className={styles.tdPlayer}>
                     <div className={styles.badgeWrapper}>
-                      <PosBadge position={player.primary_position} />
+                      <PosBadge position={activePos} />
                       {player.primary_position !== activePos && (
                         <>
-                          <span className={styles.secArrow}>→</span>
-                          <span className={styles.activeSecBadge} title={`Evaluated at secondary role: ${activePos}`}>
-                            {activePos}
-                          </span>
+                          <span className={styles.secArrow} title={`Primary position: ${player.primary_position} — evaluated as ${activePos}`}>→</span>
+                          <PosBadge position={player.primary_position as GranularPosition} />
                         </>
                       )}
                     </div>

@@ -39,6 +39,7 @@ export default function PlayerCard({
               src={player.photo_url}
               alt={player.name}
               className={styles.photo}
+              referrerPolicy="no-referrer"
             />
           ) : (
             <div className={styles.avatarPlaceholder}>

@@ -10,6 +10,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { syncPlayersFromFpl } from "@/lib/players/syncPlayers";
+import { seedHighValueAuctions } from "@/lib/auctions/seedHighValueAuctions";
 
 export const maxDuration = 60;
 
@@ -30,5 +31,15 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: result.error }, { status: 502 });
   }
 
-  return NextResponse.json({ ok: true, ...result });
+  // Sweep every active league for newly high-value / promoted-club arrivals
+  // and open a 48h system auction — closes the gap Kickoff (a one-time,
+  // season-start-only scan) leaves for in-season transfers.
+  let auctionSweep: Awaited<ReturnType<typeof seedHighValueAuctions>> = [];
+  try {
+    auctionSweep = await seedHighValueAuctions(admin);
+  } catch (err) {
+    console.error("[sync/players] Auction sweep failed:", err);
+  }
+
+  return NextResponse.json({ ok: true, ...result, auctionSweep });
 }

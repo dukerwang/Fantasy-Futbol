@@ -54,12 +54,13 @@
         "roles": []
       },
       {
-        "id": 256197,
-        "commonName": "P. Hincapié",
-        "fullName": "Piero Hincapie",
+        "id": 257711,
+        "commonName": "R. Calafiori",
+        "fullName": "Riccardo Calafiori",
         "positions": [
           "LB",
-          "CB"
+          "CB",
+          "CM"
         ],
         "roles": []
       },
@@ -129,7 +130,8 @@
         "fullName": "Gabriel Teodoro Martinelli Silva",
         "positions": [
           "LW",
-          "LM"
+          "LM",
+          "CM"
         ],
         "roles": []
       },
@@ -164,22 +166,21 @@
         "roles": []
       },
       {
+        "id": 256197,
+        "commonName": "P. Hincapié",
+        "fullName": "Piero Hincapie",
+        "positions": [
+          "LB",
+          "CB"
+        ],
+        "roles": []
+      },
+      {
         "id": 231936,
         "commonName": "B. White",
         "fullName": "Benjamin White",
         "positions": [
           "RB",
-          "CM"
-        ],
-        "roles": []
-      },
-      {
-        "id": 257711,
-        "commonName": "R. Calafiori",
-        "fullName": "Riccardo Calafiori",
-        "positions": [
-          "LB",
-          "CB",
           "CM"
         ],
         "roles": []
@@ -413,7 +414,8 @@
         "fullName": "Mohamed Salah",
         "positions": [
           "RM",
-          "RW"
+          "RW",
+          "AM"
         ],
         "roles": []
       },
@@ -2071,6 +2073,15 @@
         "roles": []
       },
       {
+        "id": 77540,
+        "commonName": "S. Mheuka",
+        "fullName": "Shumaira Mheuka",
+        "positions": [
+          "ST"
+        ],
+        "roles": []
+      },
+      {
         "id": 248158,
         "commonName": "G. Slonina",
         "fullName": "Gabriel Slonina",
@@ -2838,6 +2849,7 @@
         "positions": [
           "RB",
           "CB",
+          "LB",
           "RM"
         ],
         "roles": [
@@ -4291,6 +4303,7 @@
         "positions": [
           "LM",
           "RM",
+          "ST",
           "LW"
         ],
         "roles": []
@@ -4595,22 +4608,22 @@
         ]
       },
       {
+        "id": 193474,
+        "commonName": "I. Gueye",
+        "fullName": "Idrissa Gueye",
+        "positions": [
+          "DM",
+          "CM"
+        ],
+        "roles": []
+      },
+      {
         "id": 243657,
         "commonName": "J. Garner",
         "fullName": "James Garner",
         "positions": [
           "DM",
           "RB",
-          "CM"
-        ],
-        "roles": []
-      },
-      {
-        "id": 193474,
-        "commonName": "I. Gueye",
-        "fullName": "Idrissa Gueye",
-        "positions": [
-          "DM",
           "CM"
         ],
         "roles": []
@@ -4936,9 +4949,9 @@
         "roles": []
       },
       {
-        "id": 225863,
-        "commonName": "O. Boscagli",
-        "fullName": "Olivier Boscagli",
+        "id": 199915,
+        "commonName": "L. Dunk",
+        "fullName": "Lewis Dunk",
         "positions": [
           "CB"
         ],
@@ -5033,25 +5046,24 @@
         "roles": []
       },
       {
+        "id": 240734,
+        "commonName": "M. O'Riley",
+        "fullName": "Matt Oriley",
+        "positions": [
+          "AM",
+          "CM",
+          "DM"
+        ],
+        "roles": []
+      },
+      {
         "id": 269278,
         "commonName": "D. Gómez",
         "fullName": "Diego Gomez",
         "positions": [
           "DM",
-          "AM",
-          "LM",
-          "CM"
-        ],
-        "roles": []
-      },
-      {
-        "id": 138412,
-        "commonName": "J. Milner",
-        "fullName": "James Milner",
-        "positions": [
-          "DM",
           "CM",
-          "RB"
+          "LM"
         ],
         "roles": []
       },
@@ -5092,9 +5104,9 @@
         ]
       },
       {
-        "id": 199915,
-        "commonName": "L. Dunk",
-        "fullName": "Lewis Dunk",
+        "id": 225863,
+        "commonName": "O. Boscagli",
+        "fullName": "Olivier Boscagli",
         "positions": [
           "CB"
         ],
@@ -5127,17 +5139,6 @@
           "ST",
           "AM",
           "RM"
-        ],
-        "roles": []
-      },
-      {
-        "id": 240734,
-        "commonName": "M. O'Riley",
-        "fullName": "Matt Oriley",
-        "positions": [
-          "AM",
-          "CM",
-          "DM"
         ],
         "roles": []
       },
@@ -5870,14 +5871,16 @@
         "roles": []
       },
       {
-        "id": 235883,
-        "commonName": "R. Sessegnon",
-        "fullName": "Ryan Sessegnon",
+        "id": 229348,
+        "commonName": "A. Robinson",
+        "fullName": "Antonee Robinson",
         "positions": [
           "LB",
           "LM"
         ],
         "roles": [
+          "Attacking wingback +",
+          "SupportAttack",
           "Wingback +",
           "BalancedSupport",
           "Layout 1",
@@ -5982,24 +5985,6 @@
         "roles": []
       },
       {
-        "id": 229348,
-        "commonName": "A. Robinson",
-        "fullName": "Antonee Robinson",
-        "positions": [
-          "LB",
-          "LM"
-        ],
-        "roles": [
-          "Attacking wingback +",
-          "SupportAttack",
-          "Wingback +",
-          "BalancedSupport",
-          "Layout 1",
-          "2",
-          "3"
-        ]
-      },
-      {
         "id": 216266,
         "commonName": "K. Tete",
         "fullName": "Kenny Tete",
@@ -6007,6 +5992,22 @@
           "RB"
         ],
         "roles": []
+      },
+      {
+        "id": 235883,
+        "commonName": "R. Sessegnon",
+        "fullName": "Ryan Sessegnon",
+        "positions": [
+          "LB",
+          "LM"
+        ],
+        "roles": [
+          "Wingback +",
+          "BalancedSupport",
+          "Layout 1",
+          "2",
+          "3"
+        ]
       },
       {
         "id": 237522,
@@ -6914,14 +6915,11 @@
         "roles": []
       },
       {
-        "id": 266400,
-        "commonName": "T. Hume",
-        "fullName": "Trai Hume",
+        "id": 236045,
+        "commonName": "Reinildo",
+        "fullName": "Reinildo Isnard Mandava",
         "positions": [
-          "RB",
-          "LB",
-          "CB",
-          "CM"
+          "LB"
         ],
         "roles": []
       },
@@ -6947,6 +6945,26 @@
         "roles": []
       },
       {
+        "id": 266400,
+        "commonName": "T. Hume",
+        "fullName": "Trai Hume",
+        "positions": [
+          "RB",
+          "LB",
+          "RM",
+          "CM"
+        ],
+        "roles": [
+          "Inverted wingback +",
+          "Build-upAttack",
+          "Winger +",
+          "BalancedAttack",
+          "Layout 1",
+          "2",
+          "3"
+        ]
+      },
+      {
         "id": 275048,
         "commonName": "C. Talbi",
         "fullName": "Chemsdine Talbi",
@@ -6969,6 +6987,15 @@
         "roles": []
       },
       {
+        "id": 251810,
+        "commonName": "B. Brobbey",
+        "fullName": "Brian Brobbey",
+        "positions": [
+          "ST"
+        ],
+        "roles": []
+      },
+      {
         "id": 264293,
         "commonName": "H. Diarra",
         "fullName": "Habib Diarra",
@@ -6976,15 +7003,6 @@
           "CM",
           "AM",
           "DM"
-        ],
-        "roles": []
-      },
-      {
-        "id": 251810,
-        "commonName": "B. Brobbey",
-        "fullName": "Brian Brobbey",
-        "positions": [
-          "ST"
         ],
         "roles": []
       },
@@ -7017,15 +7035,6 @@
         "positions": [
           "RM",
           "RW"
-        ],
-        "roles": []
-      },
-      {
-        "id": 236045,
-        "commonName": "Reinildo",
-        "fullName": "Reinildo Isnard Mandava",
-        "positions": [
-          "LB"
         ],
         "roles": []
       },
@@ -7368,12 +7377,10 @@
         ]
       },
       {
-        "id": 231554,
-        "commonName": "J. Justin",
-        "fullName": "James Justin",
+        "id": 229266,
+        "commonName": "J. Rodon",
+        "fullName": "Joe Rodon",
         "positions": [
-          "RB",
-          "LB",
           "CB"
         ],
         "roles": []
@@ -7412,6 +7419,8 @@
           "BalancedSupport",
           "Wide back +",
           "DefendAggressiveSupport",
+          "Inside forward +",
+          "BalancedAttack",
           "Layout 1",
           "2",
           "3"
@@ -7429,22 +7438,22 @@
         "roles": []
       },
       {
-        "id": 236764,
-        "commonName": "A. Tanaka",
-        "fullName": "Ao Tanaka",
-        "positions": [
-          "DM",
-          "CM"
-        ],
-        "roles": []
-      },
-      {
         "id": 257191,
         "commonName": "A. Stach",
         "fullName": "Anton Stach",
         "positions": [
           "CM",
           "DM"
+        ],
+        "roles": []
+      },
+      {
+        "id": 236764,
+        "commonName": "A. Tanaka",
+        "fullName": "Ao Tanaka",
+        "positions": [
+          "DM",
+          "CM"
         ],
         "roles": []
       },
@@ -7512,10 +7521,12 @@
         "roles": []
       },
       {
-        "id": 229266,
-        "commonName": "J. Rodon",
-        "fullName": "Joe Rodon",
+        "id": 231554,
+        "commonName": "J. Justin",
+        "fullName": "James Justin",
         "positions": [
+          "RB",
+          "LB",
           "CB"
         ],
         "roles": []
@@ -7792,11 +7803,12 @@
         "roles": []
       },
       {
-        "id": 235619,
-        "commonName": "M. Edwards",
-        "fullName": "Marcus Edwards",
+        "id": 264880,
+        "commonName": "L. Tchaouna",
+        "fullName": "Loum Tchaouna",
         "positions": [
           "RM",
+          "ST",
           "RW"
         ],
         "roles": []
@@ -7833,12 +7845,23 @@
         "roles": []
       },
       {
+        "id": 235619,
+        "commonName": "M. Edwards",
+        "fullName": "Marcus Edwards",
+        "positions": [
+          "RM",
+          "RW"
+        ],
+        "roles": []
+      },
+      {
         "id": 258171,
         "commonName": "Hannibal",
         "fullName": "Hannibal Mejbri",
         "positions": [
           "CM",
-          "AM"
+          "AM",
+          "LM"
         ],
         "roles": []
       },
@@ -7861,17 +7884,6 @@
           "LM",
           "RM",
           "LW"
-        ],
-        "roles": []
-      },
-      {
-        "id": 264880,
-        "commonName": "L. Tchaouna",
-        "fullName": "Loum Tchaouna",
-        "positions": [
-          "RM",
-          "ST",
-          "RW"
         ],
         "roles": []
       },

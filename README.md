@@ -60,9 +60,9 @@ Matchup outcomes are determined by a draw threshold: if the difference between t
 ### Auction & Waiver Economy
 Gaffa features a virtual transfer economy driven by Free Agent Acquisition Budget (FAAB) bidding. Each team starts with a league-configured budget (defaulting to 250). FAAB is a permanent dynasty asset; it does not reset between seasons and can be traded.
 
-Managers sign players via a waiver system featuring a 48-hour blind bidding window. High-value players (defined as having a Transfermarkt market value $\ge \text{£40m}$) who enter the player pool automatically trigger a system auction. The system seeds the auction, locks the bidding window, and sends notification emails via Resend to all league managers.
+Managers sign players via a waiver system featuring a 48-hour blind bidding window. High-value players (defined as having a Transfermarkt market value $\ge \text{£50m}$) who enter the player pool automatically trigger a system auction. The system seeds the auction, locks the bidding window, and sends notification emails via Resend to all league managers.
 
-If a player permanently departs the Premier League or their club is relegated, the owning team receives *Transfer Out Compensation*. The player is deactivated, dropped from the roster, and the owner is reimbursed in FAAB at 80% of the player's Transfermarkt market value.
+If a player permanently departs the Premier League or their club is relegated, the owning team receives *Transfer Out Compensation*. The player is deactivated, dropped from the roster, and the owner is reimbursed in FAAB at 100% of the player's Transfermarkt market value.
 
 ### Dynasty Format & Offseason Reset
 Unlike standard redraft leagues, Gaffa teams carry their rosters and FAAB assets over from season to season. Roster allocations are split into Active, Bench, IR (Injured Reserve), and a Taxi Squad for stashing young prospects (configured per league, defaulting to a size of 3 and an age limit of 21).
@@ -71,7 +71,7 @@ At the conclusion of the season, the commissioner triggers the *Offseason Reset*
 1. **Preflight Check**: Verifies that all GW38 matchups and tournament cup brackets are completed.
 2. **Archive Standings**: Records final standings, total points, and team ranks in the `season_standings_archive` table.
 3. **Distribute Prizes**: Credits FAAB prizes to teams based on their league and cup finish configurations.
-4. **Relegation Compensation**: Processes automatic compensation (80% of market value in FAAB) for rostered players on relegated Premier League clubs, dropping the players and marking them as relegated.
+4. **Relegation Compensation**: Processes automatic compensation (100% of market value in FAAB) for rostered players on relegated Premier League clubs, dropping the players and marking them as relegated.
 5. **Team Stat Reset**: Resets wins, losses, draws, and seasonal points for all teams to 0 (while preserving FAAB budgets).
 6. **Metadata Progression**: Advances the league's current season value and transitions the league status to `offseason`.
 7. **Schedule & Tournament Generation**: Generates a new head-to-head match schedule and initializes empty cup brackets for the upcoming season.
@@ -114,6 +114,6 @@ graph TD
 
 1. **Player Synchronization**: Running `/api/sync/players` pulls down Premier League player metadata from FPL. It updates names, clubs, and injury status while preserving manual overrides.
 2. **Tactical Mapping**: `/api/sync/sofifa-players` runs to query the SoFIFA API. It matches players to EA FC squads and updates their primary and secondary positions.
-3. **Market Valuations**: The Transfermarkt scraper compares player names against the database using a word-subset and fuzzy matching threshold (minimum 0.72 similarity). It updates player market values and, if a new high-value arrival ($\ge \text{£40m}$) is detected, seeds system auctions.
+3. **Market Valuations**: The Transfermarkt scraper compares player names against the database using a word-subset and fuzzy matching threshold (minimum 0.72 similarity). It updates player market values and, if a new high-value arrival ($\ge \text{£50m}$) is detected, seeds system auctions.
 4. **Live Ingestion**: Vercel Cron routes trigger `/api/sync/stats?mode=fpl_live` during live gameweeks. The route fetches live events, maps them to Gaffa's internal `RawStats` structure, computes match ratings and points via the scoring engine, and inserts records into `player_stats`.
 5. **Gameweek Resolution**: When FPL flags a gameweek as finished or provisionally finished, the matchup processor updates matchups to `completed`, resolves head-to-head scores, triggers cup progressions, and archives standings.

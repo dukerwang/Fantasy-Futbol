@@ -404,18 +404,6 @@ th.thNum {
   user-select: none;
 }
 
-.activeSecBadge {
-  font-family: var(--font-mono, monospace);
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  color: var(--color-accent-green);
-  border-left: 2px solid var(--color-accent-green);
-  padding-left: 5px;
-  display: inline-block;
-  text-transform: uppercase;
-}
-
 /* ============================================================
    MOBILE RESPONSIVENESS (Screens <= 768px & <= 480px)
    ============================================================ */

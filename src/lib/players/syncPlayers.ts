@@ -92,76 +92,205 @@ export async function syncPlayersFromFpl(admin: SupabaseClient): Promise<SyncPla
       };
     });
 
+  interface DbPlayer {
+    id: string;
+    fpl_id: number | null;
+    is_active: boolean;
+    primary_position: string;
+    secondary_positions: string[];
+    market_value: number | null;
+    name: string;
+    web_name: string | null;
+    pl_team: string | null;
+    date_of_birth: string | null;
+  }
+
   // Snapshot existing players to preserve manual overrides and detect transfer-outs
-  const { data: existingPlayers } = await admin
+  const { data: rawPlayers } = await admin
     .from('players')
-    .select('id, fpl_id, is_active, primary_position, secondary_positions, market_value, name, date_of_birth');
+    .select('id, fpl_id, is_active, primary_position, secondary_positions, market_value, name, web_name, pl_team, date_of_birth');
+
+  const existingPlayers: DbPlayer[] = (rawPlayers as DbPlayer[]) ?? [];
 
   const activeByFplId = new Map<number, string>(
-    (existingPlayers ?? [])
+    existingPlayers
       .filter((p) => p.is_active && p.fpl_id != null)
-      .map((p) => [p.fpl_id as number, p.id as string]),
+      .map((p) => [p.fpl_id as number, p.id]),
   );
 
-  const primaryPositionMap = new Map<number, string>(
-    (existingPlayers ?? [])
-      .filter((p) => p.fpl_id != null && p.primary_position != null)
-      .map((p) => [p.fpl_id as number, p.primary_position]),
-  );
+  const existingByFplId = new Map<number, DbPlayer>();
+  const existingByNormName = new Map<string, DbPlayer>();
+  const existingByWebAndTeam = new Map<string, DbPlayer>();
 
-  const secondaryPositionsMap = new Map<number, string[]>(
-    (existingPlayers ?? [])
-      .filter((p) => p.fpl_id != null)
-      .map((p) => [p.fpl_id as number, p.secondary_positions ?? []]),
-  );
+  function normalizeName(str: string | null | undefined): string {
+    if (!str) return '';
+    return str
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .replace(/ß/g, 'ss')
+      .replace(/-/g, ' ')
+      .replace(/[^a-z0-9 ]/g, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
 
-  const marketValueMap = new Map<number, number | null>(
-    (existingPlayers ?? [])
-      .filter((p) => p.fpl_id != null)
-      .map((p) => [p.fpl_id as number, p.market_value]),
-  );
+  const ALIAS_TO_CLEAN_NAME: Record<string, string> = {
+    'bruno miguel borges fernandes': 'bruno fernandes',
+    'bruno borges fernandes': 'bruno fernandes',
+    'alejandro garnacho ferreyra': 'alejandro garnacho',
+    'alisson becker': 'alisson',
+    'andrey nascimento dos santos': 'andrey santos',
+    'benoit badiashile mukinayi': 'benoit badiashile',
+    'bruno guimaraes rodriguez moura': 'bruno guimaraes',
+    'diogo dalot teixeira': 'diogo dalot',
+    'dominic solanke mitchell': 'dominic solanke',
+    'emiliano buendia stati': 'emiliano buendia',
+    'emiliano martinez romero': 'emiliano martinez',
+    'estevao almeida de oliveira goncalves': 'estevao',
+    'francisco evanilson de lima barbosa': 'evanilson',
+    'ezri konsa ngoyo': 'ezri konsa',
+    'fabio freitas gouveia carvalho': 'fabio carvalho',
+    'gabriel dos santos magalhaes': 'gabriel magalhaes',
+    'jefferson lerma solis': 'jefferson lerma',
+    'joao pedro junqueira de jesus': 'joao pedro',
+    'julio soler barreto': 'julio soler',
+    'levi samuels colwill': 'levi colwill',
+    'manuel ugarte ribeiro': 'manuel ugarte',
+    'marcos senesi baron': 'marcos senesi',
+    'martin zubimendi ibanez': 'martin zubimendi',
+    'matheus santos carneiro da cunha': 'matheus cunha',
+    'mikel merino zazon': 'mikel merino',
+    'moises caicedo corozo': 'moises caicedo',
+    'nico gonzalez iglesias': 'nico gonzalez',
+    'pedro lomba neto': 'pedro neto',
+    'richarlison de andrade': 'richarlison',
+    'robert lynch sanchez': 'robert sanchez',
+    'rodrigo muniz carvalho': 'rodrigo muniz',
+    'ruben dos santos gato alves dias': 'ruben dias',
+    'daniel munoz mejia': 'daniel munoz'
+  };
 
-  const nameMap = new Map<number, string>(
-    (existingPlayers ?? [])
-      .filter((p) => p.fpl_id != null && p.name != null)
-      .map((p) => [p.fpl_id as number, p.name]),
-  );
+  existingPlayers.forEach((p) => {
+    if (p.fpl_id != null) existingByFplId.set(p.fpl_id, p);
+    if (p.name) existingByNormName.set(normalizeName(p.name), p);
+    if (p.web_name && p.pl_team) {
+      existingByWebAndTeam.set(`${normalizeName(p.web_name)}_${normalizeName(p.pl_team)}`, p);
+    }
+  });
 
-  // Re-map rows, preserving manually-set overrides
+  const matchedDbIds = new Set<string>();
+
+  // Particles carry no identifying signal — "de"/"van"/"dos" matching across two
+  // unrelated names is not evidence they're the same person.
+  const NAME_PARTICLES = new Set([
+    'de', 'da', 'do', 'dos', 'das', 'van', 'von', 'del', 'della', 'di', 'la', 'le',
+    'el', 'al', 'bin', 'ibn', 'den', 'der', 'ter', 'dos', 'santos', 'silva', 'junior',
+  ]);
+
+  function significantTokens(str: string): Set<string> {
+    return new Set(
+      normalizeName(str)
+        .split(' ')
+        .filter((t) => t.length >= 3 && !NAME_PARTICLES.has(t)),
+    );
+  }
+
+  /**
+   * Does a stored row plausibly describe the same human as this FPL element?
+   *
+   * Name-based matching (passes 2 and 3) is fuzzy, and a wrong match is far
+   * worse than no match: the stored row keeps its old `name` while inheriting
+   * the new player's club and web_name, producing rows like
+   * `name: "Ibrahima Konaté", web_name: "Endo", pl_team: "Liverpool"` — and
+   * the old player's market value rides along, so relegation compensation
+   * later pays out the wrong figure under the wrong name.
+   *
+   * Requiring one shared significant name token is a cheap, conservative
+   * guard: legitimate simplifications ("Bruno Fernandes" vs "Bruno Miguel
+   * Borges Fernandes", "Alisson" vs "Alisson Ramses Becker") always share one;
+   * two unrelated players essentially never do.
+   */
+  function isSameIdentity(existing: DbPlayer, fplFullName: string): boolean {
+    const a = significantTokens(existing.name ?? '');
+    const b = significantTokens(fplFullName);
+    for (const tok of a) if (b.has(tok)) return true;
+    return false;
+  }
+
+  // Re-map rows, preserving manually-set overrides matched by player identity
   const finalRows = rows.map((row) => {
-    const existingPos = primaryPositionMap.get(row.fpl_id);
-    
-    // Check if this player has an explicit override in our mapping file
-    const firstName = row.name.split(' ')[0];
-    const secondName = row.name.split(' ').slice(1).join(' ');
-    const fullKey = `${firstName} ${secondName}`.toLowerCase();
-    const webKey = row.web_name.toLowerCase();
-    const isExplicitOverride = !!(FPL_POSITION_OVERRIDES[fullKey] || FPL_POSITION_OVERRIDES[webKey]);
+    const rawFplNorm = normalizeName(row.name);
+    const aliasNorm = ALIAS_TO_CLEAN_NAME[rawFplNorm] || rawFplNorm;
+    const webTeamKey = `${normalizeName(row.web_name)}_${normalizeName(row.pl_team)}`;
+
+    // Pass 1: fpl_id match — authoritative. FPL owns this id, so trust it even
+    // if the name looks unfamiliar (they do rename players mid-season).
+    let existing = existingByFplId.get(row.fpl_id);
+
+    if (!existing) {
+      // Pass 2: canonical / normalized name match (including alias mapping)
+      const byName = existingByNormName.get(aliasNorm) || existingByNormName.get(rawFplNorm);
+      if (byName && !matchedDbIds.has(byName.id) && isSameIdentity(byName, row.name)) {
+        existing = byName;
+      }
+    }
+
+    if (!existing) {
+      // Pass 3: web_name + team match
+      const candidate = existingByWebAndTeam.get(webTeamKey);
+      if (candidate && !matchedDbIds.has(candidate.id) && isSameIdentity(candidate, row.name)) {
+        existing = candidate;
+      }
+    }
+
+    if (existing) {
+      matchedDbIds.add(existing.id);
+    }
+
+    const primaryPosition = existing?.primary_position ?? row.primary_position;
+
+    // Keep a manually-simplified name only when it still describes this player.
+    // A row matched by fpl_id whose name no longer resembles the FPL name means
+    // FPL reassigned the id — take their name rather than mislabel the row.
+    const keepExistingName = !!existing?.name && isSameIdentity(existing, row.name);
 
     return {
+      ...(existing ? { id: existing.id } : {}),
       ...row,
-      name: nameMap.get(row.fpl_id) ?? row.name,
-      // PRIORITY:
-      // 1. Existing DB position (Preserves SoFIFA/Manual overrides already in DB)
-      // 2. Explicit manual override file (Fallback for new players)
-      // 3. Generic FPL mapping (Last resort)
-      primary_position: existingPos ?? (isExplicitOverride ? row.primary_position : row.primary_position),
-      secondary_positions: (secondaryPositionsMap.get(row.fpl_id) ?? []).filter(
-        (p) => p !== (existingPos ?? (isExplicitOverride ? row.primary_position : row.primary_position))
-      ),
+      name: keepExistingName ? (existing as DbPlayer).name : row.name,
+      primary_position: primaryPosition,
+      secondary_positions: (existing?.secondary_positions ?? []).filter((p: string) => p !== primaryPosition),
       market_value:
-        marketValueMap.has(row.fpl_id) && marketValueMap.get(row.fpl_id) !== null
-          ? marketValueMap.get(row.fpl_id)
+        existing?.market_value != null && existing.market_value !== 0
+          ? existing.market_value
           : row.market_value,
     };
   });
 
-  const { error } = await admin
-    .from('players')
-    .upsert(finalRows, { onConflict: 'fpl_id', ignoreDuplicates: false });
+  const updateRows = finalRows.filter((r) => 'id' in r && r.id != null);
+  const insertRows = finalRows.filter((r) => !('id' in r) || r.id == null);
 
-  if (error) {
-    return { synced: 0, systemBidsSeeded: 0, autoTransferOuts: [], error: error.message };
+  for (let i = 0; i < updateRows.length; i += 100) {
+    const chunk = updateRows.slice(i, i + 100);
+    const { error: updateErr } = await admin
+      .from('players')
+      .upsert(chunk, { onConflict: 'id', ignoreDuplicates: false });
+
+    if (updateErr) {
+      return { synced: 0, systemBidsSeeded: 0, autoTransferOuts: [], error: updateErr.message };
+    }
+  }
+
+  for (let i = 0; i < insertRows.length; i += 100) {
+    const chunk = insertRows.slice(i, i + 100);
+    const { error: insertErr } = await admin
+      .from('players')
+      .insert(chunk);
+
+    if (insertErr) {
+      return { synced: 0, systemBidsSeeded: 0, autoTransferOuts: [], error: insertErr.message };
+    }
   }
 
   // --- Auto Transfer-Out: detect permanent PL departures and trigger compensation ---
@@ -188,9 +317,14 @@ export async function syncPlayersFromFpl(admin: SupabaseClient): Promise<SyncPla
   }
 
   // ── Deactivate players no longer present in FPL API (Relegations / Permanent Departures) ──
-  const activeFplIdsInIncoming = new Set(finalRows.map((r) => r.fpl_id));
+  //
+  // Membership is decided by `matchedDbIds`, not by fpl_id. `existingPlayers` is
+  // a pre-upsert snapshot holding LAST season's fpl_ids, while the incoming rows
+  // carry this season's — and FPL reassigns element ids every season. Comparing
+  // the two sets marked players as departed purely because their id had changed,
+  // even though the sync had just matched and updated them a few lines earlier.
   const missingPlayers = (existingPlayers ?? []).filter(
-    (p) => p.is_active && p.fpl_id != null && !activeFplIdsInIncoming.has(p.fpl_id)
+    (p) => p.is_active && !matchedDbIds.has(p.id)
   );
 
   if (missingPlayers.length > 0) {
@@ -204,6 +338,26 @@ export async function syncPlayersFromFpl(admin: SupabaseClient): Promise<SyncPla
       console.error(`[syncPlayers] Failed to deactivate ${missingIds.length} missing players:`, deactivateError.message);
     } else {
       console.log(`[syncPlayers] Deactivated ${missingIds.length} players missing from FPL API: ${missingPlayers.map(p => p.name).join(', ')}`);
+    }
+
+    // A player who has left the PL must not stay on the auction block. A drop
+    // opens a system auction for whoever was released; if that player then
+    // departs the league before the window closes, the auction outlives them —
+    // managers are left bidding on someone who can no longer score. Close the
+    // system-seeded rows (team_id IS NULL); real bids are handled by the
+    // auction resolver, which refunds when there's nothing to award.
+    // 'rejected' rather than 'cancelled': waiver_claim_status is an enum of
+    // ('pending','approved','rejected') and has no cancelled member.
+    const { error: cancelErr } = await admin
+      .from('waiver_claims')
+      .update({ status: 'rejected' })
+      .in('player_id', missingIds)
+      .eq('is_auction', true)
+      .eq('status', 'pending')
+      .is('team_id', null);
+
+    if (cancelErr) {
+      console.error('[syncPlayers] Failed to cancel auctions for departed players:', cancelErr.message);
     }
   }
 

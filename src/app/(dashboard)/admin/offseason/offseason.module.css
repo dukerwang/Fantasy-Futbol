@@ -30,34 +30,6 @@
   margin: 0;
 }
 
-/* ── Status row ──────────────────────────────────────────── */
-.statusRow {
-  display: flex;
-  gap: 20px;
-  flex-wrap: wrap;
-  margin-bottom: 32px;
-}
-
-.statusBadge {
-  display: inline-flex;
-  align-items: center;
-  padding-left: 10px;
-  border-left: 2px solid var(--color-border-subtle, #e0dbd0);
-  font-size: 0.8rem;
-  font-weight: 500;
-  color: var(--color-text-secondary, #555);
-}
-
-.statusLocked {
-  border-left-color: var(--color-warning, #f59e0b);
-  color: var(--color-warning, #f59e0b);
-}
-
-.statusOpen {
-  border-left-color: var(--color-accent-green, #2d6a4f);
-  color: var(--color-accent-green, #2d6a4f);
-}
-
 /* ── Section ─────────────────────────────────────────────── */
 .section {
   margin-bottom: 36px;
@@ -177,7 +149,7 @@
   background: var(--color-bg-hover, rgba(0,0,0,0.02));
 }
 
-.playerName, .teamName {
+.playerName, .teamName, .leagueName {
   font-weight: 600;
 }
 
@@ -190,32 +162,14 @@
   color: #065f46;
 }
 
-/* ── Season transition ───────────────────────────────────── */
-.transitionRow {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 20px 0;
+.statusOk {
+  color: #065f46;
+  font-weight: 600;
 }
 
-.seasonBadge {
-  font-family: var(--font-serif);
-  font-weight: 700;
-  font-size: 1.3rem;
-  color: var(--color-text-primary, #1a1a1a);
-  padding-bottom: 4px;
-  border-bottom: 2px solid var(--color-border-subtle, #e0dbd0);
-}
-
-.seasonBadgeNext {
-  font-style: italic;
-  color: var(--color-accent-green, #2d6a4f);
-  border-bottom-color: var(--color-accent-green, #2d6a4f);
-}
-
-.arrow {
-  font-size: 1.4rem;
-  color: var(--color-text-muted, #888);
+.statusFail {
+  color: #991b1b;
+  font-weight: 600;
 }
 
 /* ── Action cards ────────────────────────────────────────── */
@@ -262,6 +216,11 @@
 
 .btnPrimary:hover {
   background: var(--color-accent);
+}
+
+.btnPrimary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .btnDanger {
@@ -404,14 +363,6 @@
   font-size: 0.875rem;
   color: var(--color-text-secondary, #555);
   line-height: 2;
-}
-
-.nextStepsList code {
-  font-family: 'Courier New', monospace;
-  background: rgba(0,0,0,0.06);
-  padding: 1px 6px;
-  border-radius: 3px;
-  font-size: 0.8em;
 }
 
 .emptyState {

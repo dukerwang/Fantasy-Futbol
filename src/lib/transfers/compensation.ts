@@ -11,7 +11,20 @@
 
 import type { SupabaseClient } from '@supabase/supabase-js';
 
-const COMPENSATION_RATE = 0.8;
+/**
+ * Fraction of market value refunded when a player leaves the Premier League.
+ *
+ * 1.0 (full market value): Transfermarkt valuations sit below what clubs
+ * actually pay in real transfers, so paying "100%" of a TM figure is still
+ * conservative against a real fee. It also removes a rounding artefact —
+ * `teams.faab_budget` is an INT column and the RPC casts the payout to it, so
+ * a fractional rate turned round market values into fractional payouts that
+ * silently rounded (€6m at 0.8 credited €5m, not €4.8m). At 1.0 the payout is
+ * the market value itself, which is nearly always whole.
+ *
+ * Exported so the preview path can't drift from what actually gets paid.
+ */
+export const COMPENSATION_RATE = 1.0;
 
 interface TransferCompensationResult {
   playerId: string;

@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
     FORMATION_SLOTS,
@@ -142,6 +142,10 @@ interface PitchNodeProps {
 }
 
 function PitchNode({ slotPos, player, isSelected, isValidTarget, isEmpty, isInvalid, isLocked, onClick, onViewDetails, points }: PitchNodeProps) {
+    const [imgError, setImgError] = useState(false);
+    useEffect(() => {
+        setImgError(false);
+    }, [player?.id, player?.photo_url]);
     const frameColor = isInvalid ? '#ef4444' : POS_COLOR[slotPos];
     const wrapCls = [
         styles.pitchNodeWrap,
@@ -185,9 +189,15 @@ function PitchNode({ slotPos, player, isSelected, isValidTarget, isEmpty, isInva
                     }
                 }}
             >
-                {player?.photo_url ? (
+                {player?.photo_url && !imgError ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={player.photo_url} alt={pitchFullName(player)} className={styles.nodePhotoImg} />
+                    <img
+                        src={player.photo_url}
+                        alt={pitchFullName(player)}
+                        className={styles.nodePhotoImg}
+                        referrerPolicy="no-referrer"
+                        onError={() => setImgError(true)}
+                    />
                 ) : (
                     <span className={styles.nodePhotoPlaceholder} aria-hidden>
                         {player ? displayName(player).charAt(0) : slotPos.charAt(0)}

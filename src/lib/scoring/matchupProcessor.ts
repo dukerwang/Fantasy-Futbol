@@ -1,7 +1,7 @@
 import { createAdminClient } from '@/lib/supabase/admin';
 import { calculateTeamScore, loadReferenceStats, type PlayerScoreRecord } from '@/lib/scoring/matchups';
 import { normalizeMatchupLineup } from '@/lib/lineups/normalizeMatchupLineup';
-import { getLatestReferenceStatsSeason } from '@/lib/season/currentSeason';
+import { getCurrentFplSeason, getLatestReferenceStatsSeason } from '@/lib/season/currentSeason';
 import { sendEmail } from '@/lib/email/client';
 import { getMatchweekSummaryEmail } from '@/lib/email/templates';
 import { executeAdvanceTournament } from '@/lib/tournaments/advanceTournament';
@@ -9,11 +9,21 @@ import { executeAdvanceTournament } from '@/lib/tournaments/advanceTournament';
 export async function processMatchupsForGameweek(gameweek: number, finished: boolean) {
     const admin = createAdminClient();
 
-    // 1. Fetch incomplete matchups for this GW
+    // Match stats are keyed by (season, gameweek), but a gameweek number repeats every
+    // season — so a schedule for the upcoming season must never be scored against last
+    // season's rows. Everything below is scoped to the season FPL is currently serving.
+    // Use the RAW season (no offseason bump) so this always matches the string the stats
+    // writer in /api/sync/stats stamps onto player_stats.
+    const statsSeason = await getCurrentFplSeason(undefined, true);
+
+    // 1. Fetch incomplete matchups for this GW.
+    // Only leagues that are actually playing: a league still in setup/drafting/offseason
+    // has a full GW1-38 schedule on the books, and scoring it would invent results.
     const { data: matchups, error: fetchErr } = await admin
         .from('matchups')
-        .select('*, team_a:teams!matchups_team_a_id_fkey(*), team_b:teams!matchups_team_b_id_fkey(*), league:leagues(name)')
+        .select('*, team_a:teams!matchups_team_a_id_fkey(*), team_b:teams!matchups_team_b_id_fkey(*), league:leagues!inner(name, status)')
         .eq('gameweek', gameweek)
+        .eq('league.status', 'active')
         .neq('status', 'completed');
 
     if (fetchErr) {
@@ -22,6 +32,24 @@ export async function processMatchupsForGameweek(gameweek: number, finished: boo
 
     if (!matchups || matchups.length === 0) {
         return { ok: true, message: `No incomplete matchups found for GW ${gameweek}`, gameweek };
+    }
+
+    // Bail before touching anything if this gameweek has no stats for the current season.
+    // Without this the scorer would happily write 0-0 "live" results for a GW that has
+    // not been played yet, and those land in the standings table.
+    const { count: seasonStatCount } = await admin
+        .from('player_stats')
+        .select('id', { count: 'exact', head: true })
+        .eq('season', statsSeason)
+        .eq('gameweek', gameweek);
+
+    if (!seasonStatCount) {
+        return {
+            ok: true,
+            message: `No ${statsSeason} stats recorded for GW ${gameweek} yet — nothing to score`,
+            gameweek,
+            season: statsSeason,
+        };
     }
 
     // Fetch FPL fixture data to know which PL teams' matches are finished
@@ -93,10 +121,11 @@ export async function processMatchupsForGameweek(gameweek: number, finished: boo
     const refStats = await loadReferenceStats(admin, season);
 
 
-    // 3. Fetch player stats for this GW
+    // 3. Fetch player stats for this GW (current season only — see statsSeason above)
     const { data: statsData } = await admin
         .from('player_stats')
         .select('player_id, fantasy_points, stats')
+        .eq('season', statsSeason)
         .eq('gameweek', gameweek)
         .in('player_id', Array.from(playerIds));
 

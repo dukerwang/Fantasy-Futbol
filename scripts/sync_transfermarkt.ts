@@ -251,8 +251,16 @@ async function main() {
 
   console.log(`\n[done] Successfully updated ${written} player market values from Transfermarkt.`);
 
-  // Step 5: Seed system FAAB auctions for newly arriving players
-  // (previous value was null) whose initial market value is >= £40m.
+  // Step 5: Seed system FAAB auctions for players who just crossed the
+  // £40m threshold in this run.
+  //
+  // NOTE: this checks "was below £40m before, now >= £40m" rather than
+  // "had no market_value before" — new players always get a market_value
+  // immediately on insert (a fallback derived from FPL's now_cost, see
+  // syncPlayersFromFpl), so it's never actually null by the time this
+  // script runs. The real signal that a player just became a high-value
+  // arrival is Transfermarkt correcting that low fallback value upward
+  // past the threshold.
 
   const AUCTION_THRESHOLD = 40.0; // £40m Transfermarkt value
   const AUCTION_WINDOW_HOURS = 48;
@@ -261,11 +269,11 @@ async function main() {
   // `dbPlayers` was fetched at the top of the script — it has the old values.
   const prevValueById = new Map(dbPlayers.map(p => [p.id, p.market_value as number | null]));
 
-  // Find players whose market_value was just populated for the first time and is >= 40m
+  // Find players who just crossed £40m in this run (previously null/below threshold)
   const newArrivals = updates.filter(u => {
     if (u.market_value < AUCTION_THRESHOLD) return false;
     const prev = prevValueById.get(u.id) ?? null;
-    return prev == null; // Must be a brand new market_value
+    return prev == null || prev < AUCTION_THRESHOLD;
   });
 
   if (newArrivals.length === 0) {

@@ -31,10 +31,11 @@ const TEAM_COLORS: Record<string, string> = {
 
 const TEAM_TO_ID: Record<string, number> = {
     'Arsenal': 1, 'Aston Villa': 2, 'Bournemouth': 3, 'Brentford': 4,
-    'Brighton': 5, 'Chelsea': 6, 'Crystal Palace': 7, 'Everton': 8,
-    'Fulham': 9, 'Ipswich': 10, 'Leicester': 11, 'Liverpool': 12,
-    'Man City': 13, 'Man Utd': 14, 'Newcastle': 15, 'Nottm Forest': 16,
-    'Southampton': 17, 'Spurs': 18, 'West Ham': 19, 'Wolves': 20
+    'Brighton': 5, 'Chelsea': 6, 'Coventry City': 7, 'Coventry': 7,
+    'Crystal Palace': 8, 'Everton': 9, 'Fulham': 10, 'Hull City': 11, 'Hull': 11,
+    'Ipswich Town': 12, 'Ipswich': 12, 'Leeds': 13, 'Liverpool': 14,
+    'Man City': 15, 'Man Utd': 16, 'Newcastle': 17, "Nott'm Forest": 18, 'Nottm Forest': 18,
+    'Spurs': 19, 'Sunderland': 20
 };
 
 function getTeamColor(teamName: string): string {
@@ -150,13 +151,12 @@ export default function PremiumPlayerCard({
     // API response which always includes ppg, rankings, etc.
     const [resolvedPlayer, setResolvedPlayer] = useState<Player>(player);
 
-    // 2-step image fallback: last-season large → stored small
-    const imgLegacy250 = player.photo_url
-        ? player.photo_url.replace('premierleague25/photos/players/110x140/', 'premierleague/photos/players/250x250/p')
-        : null;
-    const imgStored = player.photo_url ?? null;
-    const [imgSrc, setImgSrc] = useState<string | null>(imgStored);
-    const [imgStage, setImgStage] = useState<'hi26' | 'legacy' | 'stored'>('stored');
+    const displayPhotoUrl = resolvedPlayer?.photo_url || player?.photo_url || null;
+    const [imgSrc, setImgSrc] = useState<string | null>(displayPhotoUrl);
+
+    useEffect(() => {
+        setImgSrc(resolvedPlayer?.photo_url || player?.photo_url || null);
+    }, [resolvedPlayer?.photo_url, player?.photo_url, player?.id]);
 
     const params = useParams();
     const leagueId = params?.leagueId as string | undefined;
@@ -326,15 +326,8 @@ export default function PremiumPlayerCard({
                                 alt={formatPlayerName(resolvedPlayer, 'full')}
                                 className={styles.photo}
                                 loading="eager"
-                                onError={() => {
-                                    if (imgStage === 'hi26' && imgLegacy250) {
-                                        setImgStage('legacy');
-                                        setImgSrc(imgLegacy250);
-                                    } else if (imgStage === 'legacy' && imgStored) {
-                                        setImgStage('stored');
-                                        setImgSrc(imgStored);
-                                    }
-                                }}
+                                referrerPolicy="no-referrer"
+                                onError={() => setImgSrc(null)}
                             />
                         ) : (
                             <div className={styles.photoPlaceholder}>

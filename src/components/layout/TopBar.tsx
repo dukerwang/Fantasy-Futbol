@@ -36,6 +36,7 @@ export default function TopBar() {
   const router = useRouter();
   const [teams, setTeams] = useState<UserTeam[]>([]);
   const [username, setUsername] = useState<string | null>(null);
+  const [isSiteAdmin, setIsSiteAdmin] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [isNavigating, setIsNavigating] = useState(false);
@@ -79,6 +80,11 @@ export default function TopBar() {
       .then(({ teams: data }) => {
         if (data) setTeams(data);
       });
+
+    // Platform admin status — distinct from any league's commissioner
+    fetch('/api/user/admin-status')
+      .then(r => r.json())
+      .then(({ isSiteAdmin: admin }) => setIsSiteAdmin(!!admin));
 
     // Also fetch username
     const supabase = createClient();
@@ -321,6 +327,19 @@ export default function TopBar() {
               onClick={() => setIsNavigating(true)}
             >
               <Icon name="message-square" size={18} strokeWidth={1.5} />
+            </Link>
+          )}
+
+          {/* Platform Admin — site admin only, not scoped to any one league */}
+          {isSiteAdmin && (
+            <Link
+              href="/admin/offseason"
+              className={`${styles.iconBtn} ${pathname?.startsWith('/admin/offseason') ? styles.iconBtnActive : ''}`}
+              title="Platform Admin"
+              aria-label="Platform Admin"
+              onClick={() => setIsNavigating(true)}
+            >
+              <Icon name="settings" size={18} strokeWidth={1.5} />
             </Link>
           )}
 

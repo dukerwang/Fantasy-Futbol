@@ -1,6 +1,7 @@
 import { SupabaseClient } from '@supabase/supabase-js';
 import { sendEmail } from '@/lib/email/client';
 import { getPlayerDroppedEmail } from '@/lib/email/templates';
+import { AUCTION_THRESHOLD } from '@/lib/offseason/seasonKickoff';
 
 export async function executeDrop(
     admin: SupabaseClient,
@@ -84,7 +85,9 @@ export async function executeDrop(
 
     // 4. For plain drops (not PL transfers), auto-start a system auction
     if (actionType !== 'transfer_out') {
-        const isBigTransfer = marketValue >= 40.0;
+        // Shares the high-value threshold with Kickoff and the nightly sweep so
+        // the three can't drift apart on what counts as a marquee player.
+        const isBigTransfer = marketValue >= AUCTION_THRESHOLD;
         const durationHours = isBigTransfer ? 96 : 48;
         const auctionExpiry = new Date(Date.now() + durationHours * 60 * 60 * 1000).toISOString();
 

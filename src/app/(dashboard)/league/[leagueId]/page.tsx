@@ -77,8 +77,10 @@ export default async function LeaguePage({ params }: Props) {
     redirect(`/league/${leagueId}/team-setup`);
   }
 
-  // Check if league is active and ready for offseason reset
+  // Check if league is active and ready for offseason reset, or already
+  // reset and waiting on the commissioner to run the season kickoff.
   let showSeasonCompleteBanner = false;
+  const showKickoffBanner = league.status === 'offseason';
   if (league.status === 'active') {
     const [incompleteMatchupsRes, incompleteTourneysRes] = await Promise.all([
       admin
@@ -452,25 +454,36 @@ export default async function LeaguePage({ params }: Props) {
         </div>
       )}
 
-      {/* Season Complete Banner */}
+      {/* Season Complete Banner — informational only. Reset/Kickoff are */}
+      {/* platform-admin actions now (see /admin/offseason), not something */}
+      {/* league commissioners trigger themselves. */}
       {showSeasonCompleteBanner && (
         <div className={styles.seasonCompleteBanner}>
           <div className={styles.bannerIcon} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <Icon name="trophy" size={28} />
           </div>
           <div className={styles.bannerContent}>
-            <h3>Season Complete! Ready for Offseason Reset</h3>
+            <h3>Season Complete!</h3>
             <p>
-              {league.commissioner_id === user.id
-                ? 'All regular season matchups and cup tournaments are finished. As the commissioner, you can now run the end-of-season reset to distribute standings prizes, process relegation compensations, and transition to the next season.'
-                : 'All matchups and cup tournaments have finished. The league is currently waiting for the commissioner to run the offseason reset and release prize payouts.'}
+              All regular season matchups and cup tournaments have finished. The league is waiting on the Gaffa admin to run the end-of-season reset and release prize payouts.
             </p>
           </div>
-          {league.commissioner_id === user.id && (
-            <Link href={`/league/${leagueId}/admin/offseason`} className={styles.bannerButton}>
-              Go to Offseason Panel
-            </Link>
-          )}
+        </div>
+      )}
+
+      {/* Kickoff Pending Banner — shown once Reset has run; awaiting the */}
+      {/* platform admin to process relegations & summer auctions. */}
+      {showKickoffBanner && (
+        <div className={styles.seasonCompleteBanner}>
+          <div className={styles.bannerIcon} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Icon name="lock" size={28} />
+          </div>
+          <div className={styles.bannerContent}>
+            <h3>Offseason Reset Complete — Awaiting Kickoff</h3>
+            <p>
+              {`Rosters are locked while the league transitions to ${league.current_season}. Waiting on the Gaffa admin to run Kickoff — that's when relegation/transfer compensation is paid out and the summer auctions for high-value and promoted-club arrivals are seeded.`}
+            </p>
+          </div>
         </div>
       )}
 
