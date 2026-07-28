@@ -57,7 +57,9 @@
   display: flex;
   align-items: center;
   gap: var(--space-3);
-  flex-wrap: wrap;
+  /* Desktop stays one row — wrapping left "647 players" alone on a second
+     line with margin-left:auto, which reads as an empty overflowed row. */
+  flex-wrap: nowrap;
   background: var(--color-bg-card);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
@@ -73,8 +75,9 @@
   background: var(--color-bg-primary);
   color: var(--color-text-primary);
   font-size: var(--text-sm);
-  flex: 1 1 auto;
-  max-width: 300px;
+  flex: 1 1 140px;
+  min-width: 110px;
+  max-width: 220px;
   transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
@@ -93,6 +96,9 @@
   color: var(--color-text-primary);
   font-size: var(--text-sm);
   cursor: pointer;
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 200px;
   transition: border-color var(--transition-fast);
 }
 
@@ -106,6 +112,7 @@
   font-weight: var(--font-semibold);
   color: var(--color-text-muted);
   margin-left: auto;
+  flex: 0 0 auto;
   white-space: nowrap;
 }
 
@@ -137,7 +144,8 @@
 .sliderInput {
   -webkit-appearance: none;
   appearance: none;
-  width: 90px;
+  width: 72px;
+  flex-shrink: 0;
   height: 4px;
   background: var(--color-border);
   outline: none;
@@ -420,6 +428,7 @@ th.thNum {
   }
 
   .controls {
+    flex-wrap: wrap;
     flex-direction: column;
     align-items: stretch;
     gap: var(--space-3);
@@ -429,12 +438,14 @@ th.thNum {
   .searchInput {
     width: 100%;
     min-width: 0;
+    max-width: none;
     height: 38px;
     flex: none;
   }
 
   .posSelect {
     width: 100%;
+    max-width: none;
   }
 
   .sliderContainer {

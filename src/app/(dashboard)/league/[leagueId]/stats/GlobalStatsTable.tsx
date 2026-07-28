@@ -1,12 +1,13 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import Link from 'next/link';
-import type { GranularPosition } from '@/types';
+import type { GranularPosition, Player } from '@/types';
 import type { StatPlayer } from './page';
 import PlayerDetailsModal from '@/components/players/PlayerDetailsModal';
 import PosBadge from '@/components/players/PositionBadge';
-import { formatPlayerName } from '@/lib/formatName';
+import FormArrow from '@/components/players/FormArrow';
+import { getPlayerDisplayName } from '@/lib/players/displayName';
 import { Icon } from '@/components/ui/Icon';
 import styles from './stats.module.css';
 
@@ -22,6 +23,8 @@ interface Props {
   leagueName: string;
   players: StatPlayer[];
   shadowMaps: {
+    // Optional: archived/precomputed snapshots predate this bucket and fall back to `all`.
+    played?: Record<string, Record<string, PositionStats>>;
     all: Record<string, Record<string, PositionStats>>;
     gt45: Record<string, Record<string, PositionStats>>;
   };
@@ -37,18 +40,22 @@ type SortKey =
 
 type SortDir = 'desc' | 'asc';
 
-type PosFilter = 'ALL' | 'GK' | 'DEF' | 'MID' | 'ATT' | GranularPosition;
+type PosFilter = 'ALL' | 'GK' | 'DEF' | 'MID' | 'ATT' | 'WIDE_DEF' | 'WING' | GranularPosition;
 
 const DEF_POSITIONS: GranularPosition[] = ['CB', 'LB', 'RB', 'LWB', 'RWB'];
 const MID_POSITIONS: GranularPosition[] = ['DM', 'CM', 'AM'];
 const ATT_POSITIONS: GranularPosition[] = ['LW', 'RW', 'ST'];
+const WIDE_DEF_POSITIONS: GranularPosition[] = ['LB', 'RB', 'LWB', 'RWB'];
+const WING_POSITIONS: GranularPosition[] = ['LW', 'RW'];
 
 const POS_FILTER_OPTIONS: { label: string; value: PosFilter }[] = [
   { label: 'All Positions', value: 'ALL' },
   { label: 'GK', value: 'GK' },
   { label: 'DEF (CB/LB/RB/LWB/RWB)', value: 'DEF' },
+  { label: 'Wide Defenders (LB/RB/LWB/RWB)', value: 'WIDE_DEF' },
   { label: 'MID (DM/CM/AM)', value: 'MID' },
   { label: 'ATT (LW/RW/ST)', value: 'ATT' },
+  { label: 'Wingers (LW/RW)', value: 'WING' },
   ...(['CB', 'LB', 'RB', 'LWB', 'RWB', 'DM', 'CM', 'AM', 'LW', 'RW', 'ST'] as GranularPosition[]).map((p) => ({
     label: p,
     value: p as PosFilter,
@@ -61,6 +68,8 @@ function groupContains(group: PosFilter, pos: GranularPosition): boolean {
   if (group === 'DEF') return DEF_POSITIONS.includes(pos);
   if (group === 'MID') return MID_POSITIONS.includes(pos);
   if (group === 'ATT') return ATT_POSITIONS.includes(pos);
+  if (group === 'WIDE_DEF') return WIDE_DEF_POSITIONS.includes(pos);
+  if (group === 'WING') return WING_POSITIONS.includes(pos);
   return pos === group;
 }
 
@@ -92,14 +101,20 @@ function resolveActivePosition(
 export default function GlobalStatsTable({ leagueId, leagueName, players, shadowMaps }: Props) {
   const [search, setSearch] = useState('');
   const [posFilter, setPosFilter] = useState<PosFilter>('ALL');
-  const [minMins, setMinMins] = useState<'all' | 'gt45'>('all');
+  const [minMins, setMinMins] = useState<'played' | 'all' | 'gt45'>('all');
   const [minGames, setMinGames] = useState<number>(0);
-  const [posType, setPosType] = useState<'primary' | 'secondary' | 'both'>('primary');
+  // 'both' by default so a position's table lists everyone who plays there,
+  // which is the pool the card's "ST #4" pill ranks over. Under the ALL filter
+  // it behaves identically to 'primary' — it only differs once a position is
+  // picked, which is exactly when hiding secondaries made the rank unreadable.
+  const [posType, setPosType] = useState<'primary' | 'secondary' | 'both'>('both');
   const [sortKey, setSortKey] = useState<SortKey>('total_points');
   const [sortDir, setSortDir] = useState<SortDir>('desc');
+  // Own modal so /share/stats works on public share pages without the dashboard card provider.
   const [viewingPlayer, setViewingPlayer] = useState<StatPlayer | null>(null);
 
-  const shadowByPlayer = minMins === 'all' ? shadowMaps.all : shadowMaps.gt45;
+  const shadowByPlayer =
+    minMins === 'played' ? (shadowMaps.played ?? shadowMaps.all) : minMins === 'all' ? shadowMaps.all : shadowMaps.gt45;
 
   function handleSort(key: SortKey) {
     if (sortKey === key) {
@@ -122,7 +137,7 @@ export default function GlobalStatsTable({ leagueId, leagueName, players, shadow
         if (!activePos) return false;
 
         if (q) {
-          const full = formatPlayerName(p, 'full').toLowerCase();
+          const full = getPlayerDisplayName(p, 'full').toLowerCase();
           if (!full.includes(q) && !p.name.toLowerCase().includes(q)) return false;
         }
 
@@ -146,13 +161,10 @@ export default function GlobalStatsTable({ leagueId, leagueName, players, shadow
         av = sa ? sa.total_points : 0;
         bv = sb ? sb.total_points : 0;
       } else if (sortKey === 'ppg') {
-        // For primary position: use archive PPG (authoritative). For secondary: use shadow map recompute.
-        av = (aObj.activePos === aObj.player.primary_position && aObj.player.ppg != null)
-          ? Number(aObj.player.ppg)
-          : (sa && sa.gp > 0 ? sa.total_points / sa.gp : 0);
-        bv = (bObj.activePos === bObj.player.primary_position && bObj.player.ppg != null)
-          ? Number(bObj.player.ppg)
-          : (sb && sb.gp > 0 ? sb.total_points / sb.gp : 0);
+        // Always Pts/GP for the active minutes filter — never a frozen archive
+        // column, or PPG drifts from the Pts and GP cells in the same row.
+        av = sa && sa.gp > 0 ? sa.total_points / sa.gp : 0;
+        bv = sb && sb.gp > 0 ? sb.total_points / sb.gp : 0;
       } else if (sortKey === 'avg_rating') {
         av = sa ? sa.avg_rating : 0;
         bv = sb ? sb.avg_rating : 0;
@@ -232,10 +244,11 @@ export default function GlobalStatsTable({ leagueId, leagueName, players, shadow
         <select
           className={styles.posSelect}
           value={minMins}
-          onChange={(e) => setMinMins(e.target.value as 'all' | 'gt45')}
+          onChange={(e) => setMinMins(e.target.value as 'played' | 'all' | 'gt45')}
         >
-          <option value="all">All Played Games (&ge;15 mins)</option>
-          <option value="gt45">Starter Games (&gt;45 mins only)</option>
+          <option value="played">Played (&gt;0 mins)</option>
+          <option value="all">Meaningful (&ge;15 mins)</option>
+          <option value="gt45">Starters (&gt;45 mins)</option>
         </select>
 
         {/* Dynamic Games Played Slider */}
@@ -311,12 +324,9 @@ export default function GlobalStatsTable({ leagueId, leagueName, players, shadow
               const s = shadowByPlayer[player.id]?.[activePos];
               const gp = s ? s.gp : 0;
               const totalPoints = s ? s.total_points : 0;
-              // Primary position: use archive PPG (authoritative end-of-season value).
-              // Secondary position: dynamically re-scored with different position weights — must use shadow map.
-              const ppg = (activePos === player.primary_position && player.ppg != null)
-                ? Number(player.ppg).toFixed(2)
-                : (s && s.gp > 0 ? (s.total_points / s.gp).toFixed(2) : '—');
-              const avgRating = s && s.gp > 0 ? s.avg_rating.toFixed(2) : '—';
+              // PPG must equal Pts/GP under the active minutes filter.
+              const ppg = s && s.gp > 0 ? (s.total_points / s.gp).toFixed(2) : 'n/a';
+              const avgRating = s && s.gp > 0 ? s.avg_rating.toFixed(2) : 'n/a';
               const isOwned = player.owner_team_name !== null;
 
               return (
@@ -328,17 +338,17 @@ export default function GlobalStatsTable({ leagueId, leagueName, players, shadow
                 >
                   <td className={styles.tdPlayer}>
                     <div className={styles.badgeWrapper}>
-                      <PosBadge position={activePos} />
+                      <PosBadge position={player.primary_position as GranularPosition} />
                       {player.primary_position !== activePos && (
                         <>
                           <span className={styles.secArrow} title={`Primary position: ${player.primary_position} — evaluated as ${activePos}`}>→</span>
-                          <PosBadge position={player.primary_position as GranularPosition} />
+                          <PosBadge position={activePos} />
                         </>
                       )}
                     </div>
                     <div className={styles.playerInfo}>
                       <span className={styles.playerName}>
-                        {formatPlayerName(player, 'full')}
+                        {getPlayerDisplayName(player, 'full')}
                       </span>
                       <span className={styles.playerClub}>{player.pl_team}</span>
                     </div>
@@ -350,17 +360,17 @@ export default function GlobalStatsTable({ leagueId, leagueName, players, shadow
                       <span className={styles.freeAgentTag}>Free Agent</span>
                     )}
                   </td>
-                  <td className={`${styles.td} ${styles.tdNum}`}>{gp}</td>
+                  <td className={`${styles.td} ${styles.tdNum}`}>{s ? gp : 'n/a'}</td>
                   <td className={`${styles.td} ${styles.tdNum}`}>
-                    {s ? totalPoints.toFixed(2) : '—'}
+                    {s ? totalPoints.toFixed(2) : 'n/a'}
                   </td>
                   <td className={`${styles.td} ${styles.tdNum}`}>{ppg}</td>
                   <td className={`${styles.td} ${styles.tdNum}`}>{avgRating}</td>
                   <td className={`${styles.td} ${styles.tdNum}`}>
-                    {player.form_rating != null ? Number(player.form_rating).toFixed(2) : '—'}
+                    <FormArrow rating={player.form_rating} size={14} />
                   </td>
                   <td className={`${styles.td} ${styles.tdNum}`}>
-                    €{Number(player.market_value ?? 0).toFixed(1)}m
+                    {player.market_value != null ? `€${Number(player.market_value).toFixed(1)}m` : 'n/a'}
                   </td>
                 </tr>
               );
@@ -377,7 +387,7 @@ export default function GlobalStatsTable({ leagueId, leagueName, players, shadow
       </div>
 
       <PlayerDetailsModal
-        player={viewingPlayer}
+        player={viewingPlayer as unknown as Player | null}
         onClose={() => setViewingPlayer(null)}
       />
     </div>
