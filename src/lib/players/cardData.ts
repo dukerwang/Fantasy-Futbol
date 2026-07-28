@@ -333,7 +333,7 @@ export async function fetchPlayerBack(
         stats: s.stats,
         opponent: 'Unknown',
         result: '',
-        isDNP: s.stats?.minutes_played === 0,
+        isDNP: Number(s.stats?.minutes_played ?? 0) <= 0,
       }))
       .sort((a, b) => b.gameweek - a.gameweek);
 
@@ -348,81 +348,101 @@ export async function fetchPlayerBack(
     // players.pl_team is the player's CURRENT club, not their club in the
     // archived season — the table gets re-synced each rollover, so anyone who
     // transferred over the summer would be joined against the wrong club's
-    // fixtures and shown a confidently wrong opponent. Until a per-season club
-    // is stored, only resolve when the two are known to agree.
+    // fixtures and shown a confidently wrong opponent.
     const clubName = await resolveArchivedClub(admin, playerId, season.targetSeason);
     const fixtureLog: ClubFixtureLog = clubName
       ? await getClubFixtureLog(admin, season.targetSeason, clubName)
       : { byFixture: new Map(), byGameweek: new Map() };
 
-    // Rows carry the real FPL fixture id where the sync recorded one; older
-    // backfilled rows carry a synthetic id, or a placeholder pointing at
-    // another club's match, and can only be placed by gameweek.
-    //
-    // Every exact match is claimed before any fallback runs. Resolving row by
-    // row let a placeholder take the gameweek's only fixture and then handed
-    // the same one to the row that actually names it, so a card showed the
-    // same opponent twice.
-    const orderedStats = stats
-      .filter((s) => {
-        const played = Number(s.stats?.minutes_played ?? 0) > 0;
-        // A club with no fixture in a gameweek had a blank one, and its
-        // placeholder row describes a match that was never played.
-        return played || (fixtureLog.byGameweek.get(s.gameweek)?.length ?? 0) > 0;
-      })
-      .sort((a, b) => a.gameweek - b.gameweek || Number(a.match_id) - Number(b.match_id));
+    const fixtures = Array.from(fixtureLog.byFixture.values()).sort(
+      (a, b) => a.gameweek - b.gameweek || a.fixtureId - b.fixtureId,
+    );
 
-    const resolved = new Map<string, ReturnType<typeof fixtureLog.byFixture.get>>();
-    const claimed = new Set<number>();
+    // Drive the log from the club's fixtures so every matchweek appears. Stats
+    // rows are optional — many DNPs were never written to player_stats at all,
+    // and filtering to existing rows is what made the card skip them.
+    const statsByMatchId = new Map(stats.map((s) => [Number(s.match_id), s]));
+    const claimedStats = new Set<any>();
+    const fixtureStats = new Map<number, any>();
 
-    for (const s of orderedStats) {
-      const exact = fixtureLog.byFixture.get(Number(s.match_id));
-      if (exact) {
-        resolved.set(String(s.match_id), exact);
-        claimed.add(exact.fixtureId);
+    for (const fx of fixtures) {
+      const exact = statsByMatchId.get(fx.fixtureId);
+      if (exact && !claimedStats.has(exact)) {
+        fixtureStats.set(fx.fixtureId, exact);
+        claimedStats.add(exact);
       }
     }
-    for (const s of orderedStats) {
-      if (resolved.has(String(s.match_id))) continue;
-      const free = (fixtureLog.byGameweek.get(s.gameweek) ?? []).find((c) => !claimed.has(c.fixtureId));
+    for (const fx of fixtures) {
+      if (fixtureStats.has(fx.fixtureId)) continue;
+      const free = stats
+        .filter((s) => s.gameweek === fx.gameweek && !claimedStats.has(s))
+        .sort((a, b) => Number(b.stats?.minutes_played ?? 0) - Number(a.stats?.minutes_played ?? 0))[0];
       if (free) {
-        resolved.set(String(s.match_id), free);
-        claimed.add(free.fixtureId);
+        fixtureStats.set(fx.fixtureId, free);
+        claimedStats.add(free);
       }
     }
 
-    const gamelog = orderedStats
-      .map((s) => {
-        const fx = resolved.get(String(s.match_id)) ?? null;
-        let opponent = 'Unknown';
-        let result = '';
+    const formatFixture = (fx: NonNullable<ReturnType<typeof fixtureLog.byFixture.get>>) => {
+      const opponent = `${fx.opponentShortName} (${fx.isHome ? 'H' : 'A'})`;
+      let result = '';
+      if (fx.finished && fx.scoreFor != null && fx.scoreAgainst != null) {
+        const outcome =
+          fx.scoreFor > fx.scoreAgainst ? 'W' : fx.scoreFor < fx.scoreAgainst ? 'L' : 'D';
+        const [h, a] = fx.isHome
+          ? [fx.scoreFor, fx.scoreAgainst]
+          : [fx.scoreAgainst, fx.scoreFor];
+        result = `${outcome} ${h}-${a}`;
+      }
+      return { opponent, result };
+    };
 
-        if (fx) {
-          opponent = `${fx.opponentShortName} (${fx.isHome ? 'H' : 'A'})`;
-          if (fx.finished && fx.scoreFor != null && fx.scoreAgainst != null) {
-            const outcome =
-              fx.scoreFor > fx.scoreAgainst ? 'W' : fx.scoreFor < fx.scoreAgainst ? 'L' : 'D';
-            // Rendered home-first, matching the current-season format the card
-            // already parses.
-            const [h, a] = fx.isHome
-              ? [fx.scoreFor, fx.scoreAgainst]
-              : [fx.scoreAgainst, fx.scoreFor];
-            result = `${outcome} ${h}-${a}`;
-          }
-        }
+    const gamelog: GamelogEntry[] = fixtures.map((fx) => {
+      const s = fixtureStats.get(fx.fixtureId) ?? null;
+      const minutes = Number(s?.stats?.minutes_played ?? 0);
+      const isDNP = !s || minutes <= 0;
+      const { opponent, result } = formatFixture(fx);
 
+      if (isDNP) {
         return {
-          gameweek: s.gameweek,
-          fantasy_points: Number(s.fantasy_points),
-          match_rating: s.match_rating != null ? Number(s.match_rating) : null,
-          stats: s.stats,
+          gameweek: fx.gameweek,
+          fantasy_points: 0,
+          match_rating: null,
+          stats: { minutes_played: 0, goals: 0, assists: 0 },
           opponent,
           result,
-          isDNP: s.stats?.minutes_played === 0,
+          isDNP: true,
         };
-      })
-      .sort((a, b) => b.gameweek - a.gameweek);
+      }
 
+      return {
+        gameweek: fx.gameweek,
+        fantasy_points: Number(s.fantasy_points),
+        match_rating: s.match_rating != null ? Number(s.match_rating) : null,
+        stats: s.stats,
+        opponent,
+        result,
+        isDNP: false,
+      };
+    });
+
+    // Keep any played row that somehow didn't attach to a fixture rather than
+    // silently dropping points from the log.
+    for (const s of stats) {
+      if (claimedStats.has(s)) continue;
+      if (Number(s.stats?.minutes_played ?? 0) <= 0) continue;
+      gamelog.push({
+        gameweek: s.gameweek,
+        fantasy_points: Number(s.fantasy_points),
+        match_rating: s.match_rating != null ? Number(s.match_rating) : null,
+        stats: s.stats,
+        opponent: 'Unknown',
+        result: '',
+        isDNP: false,
+      });
+    }
+
+    gamelog.sort((a, b) => b.gameweek - a.gameweek);
     return { gamelog, history, season: season.targetSeason };
   }
 
@@ -531,7 +551,7 @@ export async function fetchPlayerBack(
           gameweek: s.gameweek,
           opponent: opponent !== 'Unknown' ? `${opponent} (${isHome ? 'H' : 'A'})` : opponent,
           result,
-          isDNP: s.stats?.minutes_played === 0,
+          isDNP: Number(s.stats?.minutes_played ?? 0) <= 0,
           fantasy_points: Number(s.fantasy_points),
           match_rating: s.match_rating != null ? Number(s.match_rating) : null,
           stats: s.stats,
