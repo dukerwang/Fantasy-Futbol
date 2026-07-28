@@ -10,8 +10,7 @@
 
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { resolvePosition, FPL_POSITION_OVERRIDES } from '@/lib/fpl/positionMap';
-import { recordDepartures, midseasonDecideBy } from '@/lib/departures/detect';
-import { getCurrentFplSeason } from '@/lib/season/currentSeason';
+import { processPlayerTransferOut } from '@/lib/transfers/compensation';
 
 const FPL_URL = 'https://fantasy.premierleague.com/api/bootstrap-static/';
 
@@ -19,8 +18,6 @@ interface SyncPlayersResult {
   synced: number;
   systemBidsSeeded: number;
   autoTransferOuts: { playerId: string; result: string }[];
-  /** Departure decisions opened for managers, per league. */
-  departuresRecorded?: { leagueId: string; count: number }[];
   error?: string;
 }
 
@@ -79,7 +76,6 @@ export async function syncPlayersFromFpl(admin: SupabaseClient): Promise<SyncPla
 
       return {
         fpl_id: el.id,
-        fplCode: photoCode,
         name: `${el.first_name} ${el.second_name}`,
         web_name: el.web_name,
         pl_team: teamMap.get(el.team) ?? 'Unknown',
@@ -105,16 +101,14 @@ export async function syncPlayersFromFpl(admin: SupabaseClient): Promise<SyncPla
     market_value: number | null;
     name: string;
     web_name: string | null;
-    full_name: string | null;
     pl_team: string | null;
     date_of_birth: string | null;
-    photo_url: string | null;
   }
 
   // Snapshot existing players to preserve manual overrides and detect transfer-outs
   const { data: rawPlayers } = await admin
     .from('players')
-    .select('id, fpl_id, is_active, primary_position, secondary_positions, market_value, name, web_name, full_name, pl_team, date_of_birth, photo_url');
+    .select('id, fpl_id, is_active, primary_position, secondary_positions, market_value, name, web_name, pl_team, date_of_birth');
 
   const existingPlayers: DbPlayer[] = (rawPlayers as DbPlayer[]) ?? [];
 
@@ -177,26 +171,7 @@ export async function syncPlayersFromFpl(admin: SupabaseClient): Promise<SyncPla
     'daniel munoz mejia': 'daniel munoz'
   };
 
-  /**
-   * FPL's stable per-player code, which we store inside photo_url
-   * (.../110x140/{code}.png) because it is the filename FPL itself uses.
-   *
-   * This — not fpl_id — is the identity key. Element ids are handed out fresh
-   * every season exactly like team ids and fixture ids, so matching on one
-   * across a rollover hands an existing row to whoever inherited the number,
-   * along with all of that row's history. It did: 19 rows changed person at the
-   * 2026-27 rollover, and our "Dominic Solanke" carried Igor Jesus's first
-   * twenty-one gameweeks.
-   */
-  function fplCodeOf(photoUrl: string | null | undefined): string | null {
-    return /\/(\d+)\.(?:png|jpg)$/i.exec(photoUrl ?? '')?.[1] ?? null;
-  }
-
-  const existingByFplCode = new Map<string, DbPlayer>();
-
   existingPlayers.forEach((p) => {
-    const code = fplCodeOf(p.photo_url);
-    if (code) existingByFplCode.set(code, p);
     if (p.fpl_id != null) existingByFplId.set(p.fpl_id, p);
     if (p.name) existingByNormName.set(normalizeName(p.name), p);
     if (p.web_name && p.pl_team) {
@@ -249,27 +224,9 @@ export async function syncPlayersFromFpl(admin: SupabaseClient): Promise<SyncPla
     const aliasNorm = ALIAS_TO_CLEAN_NAME[rawFplNorm] || rawFplNorm;
     const webTeamKey = `${normalizeName(row.web_name)}_${normalizeName(row.pl_team)}`;
 
-    // Pass 1: stable code — the only identifier FPL never reassigns, so a row
-    // matched here is the same human it was last season.
-    //
-    // The name still has to agree, because some stored codes are themselves
-    // wrong: the old fpl_id-keyed sync rewrote photo_url from whichever element
-    // it mismatched a row to, leaving our Konaté row carrying Endo Wataru's
-    // code. Insisting on agreement makes those rows fall through to the name
-    // passes, which reunites them with their real element and overwrites the
-    // bad photo — so each one self-heals on the next sync.
-    let existing = row.fplCode ? existingByFplCode.get(row.fplCode) : undefined;
-    if (existing && !isSameIdentity(existing, row.name)) existing = undefined;
-
-    if (!existing) {
-      // Pass 1b: fpl_id, but only when it still describes the same person.
-      // Within a season the id is a fine shortcut for a row we have no code
-      // for; across one it is a trap, so the name has to agree.
-      const byFplId = existingByFplId.get(row.fpl_id);
-      if (byFplId && !fplCodeOf(byFplId.photo_url) && isSameIdentity(byFplId, row.name)) {
-        existing = byFplId;
-      }
-    }
+    // Pass 1: fpl_id match — authoritative. FPL owns this id, so trust it even
+    // if the name looks unfamiliar (they do rename players mid-season).
+    let existing = existingByFplId.get(row.fpl_id);
 
     if (!existing) {
       // Pass 2: canonical / normalized name match (including alias mapping)
@@ -306,70 +263,22 @@ export async function syncPlayersFromFpl(admin: SupabaseClient): Promise<SyncPla
     // A row matched by fpl_id whose name no longer resembles the FPL name means
     // FPL reassigned the id — take their name rather than mislabel the row.
     const keepExistingName = !!existing?.name && isSameIdentity(existing, row.name);
-    const finalName = keepExistingName ? (existing as DbPlayer).name : row.name;
-
-    // full_name is a legacy display column the sync doesn't otherwise write —
-    // it holds a richer registered name for ~30 players (David Raya → "David
-    // Raya Martín") and formatName() prefers it over `name`. A bad match in an
-    // earlier sync left four rows with another player's full_name bleeding
-    // through (Mbeumo showing "João Pedro Loureiro da Costa"). Self-heal: if the
-    // stored full_name shares no significant token with the row's real name,
-    // clear it so display falls back to the correct `name`. Only clears clearly
-    // wrong values — coherent ones are left untouched, and we never fabricate.
-    const clearBadFullName =
-      !!existing?.full_name && !isSameIdentity({ name: existing.full_name } as DbPlayer, finalName);
-
-    // fplCode is a matching key derived from el.photo, not a column.
-    const { fplCode: _fplCode, ...dbRow } = row;
 
     return {
       ...(existing ? { id: existing.id } : {}),
-      ...dbRow,
-      name: finalName,
-      ...(clearBadFullName ? { full_name: null } : {}),
+      ...row,
+      name: keepExistingName ? (existing as DbPlayer).name : row.name,
       primary_position: primaryPosition,
       secondary_positions: (existing?.secondary_positions ?? []).filter((p: string) => p !== primaryPosition),
       market_value:
         existing?.market_value != null && existing.market_value !== 0
           ? existing.market_value
           : row.market_value,
-      // FPL's bootstrap API never actually sends birth_date (row.date_of_birth
-      // is always null) — don't let this upsert clobber whatever a slower,
-      // separate source (api-football sync) has already populated.
-      date_of_birth: existing?.date_of_birth ?? row.date_of_birth,
     };
   });
 
   const updateRows = finalRows.filter((r) => 'id' in r && r.id != null);
   const insertRows = finalRows.filter((r) => !('id' in r) || r.id == null);
-
-  // players.fpl_id is UNIQUE, and FPL permutes element ids every summer: the id
-  // a row is about to receive is frequently still held by another row that has
-  // not been written yet. Because these writes go out in chunks, each its own
-  // transaction, that shows up as "duplicate key value violates unique
-  // constraint players_fpl_id_key" and aborts the whole sync — no rows of the
-  // permutation land at all.
-  //
-  // Releasing every contested id first makes the permutation representable. The
-  // gap is momentary and invisible: matching for this run is already done, and
-  // every id is reassigned by the writes immediately below.
-  const desiredFplIds = new Set(finalRows.map((r) => r.fpl_id).filter((id): id is number => id != null));
-  const toRelease = new Set<string>();
-  for (const r of updateRows) toRelease.add(r.id as string);
-  for (const p of existingPlayers) {
-    if (p.fpl_id != null && desiredFplIds.has(p.fpl_id)) toRelease.add(p.id);
-  }
-
-  const releaseIds = [...toRelease];
-  for (let i = 0; i < releaseIds.length; i += 100) {
-    const { error: releaseErr } = await admin
-      .from('players')
-      .update({ fpl_id: null })
-      .in('id', releaseIds.slice(i, i + 100));
-    if (releaseErr) {
-      return { synced: 0, systemBidsSeeded: 0, autoTransferOuts: [], error: `release: ${releaseErr.message} | ${releaseErr.details ?? ""}` };
-    }
-  }
 
   for (let i = 0; i < updateRows.length; i += 100) {
     const chunk = updateRows.slice(i, i + 100);
@@ -378,7 +287,7 @@ export async function syncPlayersFromFpl(admin: SupabaseClient): Promise<SyncPla
       .upsert(chunk, { onConflict: 'id', ignoreDuplicates: false });
 
     if (updateErr) {
-      return { synced: 0, systemBidsSeeded: 0, autoTransferOuts: [], error: `update: ${updateErr.message} | ${updateErr.details ?? ""}` };
+      return { synced: 0, systemBidsSeeded: 0, autoTransferOuts: [], error: updateErr.message };
     }
   }
 
@@ -389,17 +298,11 @@ export async function syncPlayersFromFpl(admin: SupabaseClient): Promise<SyncPla
       .insert(chunk);
 
     if (insertErr) {
-      return { synced: 0, systemBidsSeeded: 0, autoTransferOuts: [], error: `insert: ${insertErr.message} | ${insertErr.details ?? ""}` };
+      return { synced: 0, systemBidsSeeded: 0, autoTransferOuts: [], error: insertErr.message };
     }
   }
 
-  // --- Permanent PL departures ---
-  //
-  // These used to be paid out on the spot. They are now recorded as pending
-  // decisions instead (below, once deactivation has run), so the owner chooses
-  // between the compensation and retaining the player's rights. The upsert
-  // above has already set is_active = false for anyone FPL marks 'u', which is
-  // the signal `recordDepartures` keys off, so this block only reports.
+  // --- Auto Transfer-Out: detect permanent PL departures and trigger compensation ---
   const permanentDepartures = (fplData.elements as FplElement[]).filter((el) => {
     if (el.status !== 'u') return false;
     if (!activeByFplId.has(el.id)) return false;
@@ -407,10 +310,20 @@ export async function syncPlayersFromFpl(admin: SupabaseClient): Promise<SyncPla
     return (news.includes('transfer') || news.includes('joined')) && !news.includes('loan');
   });
 
-  const autoTransferOuts: { playerId: string; result: string }[] = permanentDepartures.map((el) => ({
-    playerId: activeByFplId.get(el.id)!,
-    result: 'departed the Premier League — decision opened for the owning manager',
-  }));
+  const autoTransferOuts: { playerId: string; result: string }[] = [];
+  for (const el of permanentDepartures) {
+    const playerId = activeByFplId.get(el.id)!;
+    try {
+      const result = await processPlayerTransferOut(admin, playerId);
+      autoTransferOuts.push({
+        playerId,
+        result: `${result.playerName} transferred out — ${result.affectedTeams.length} team(s) compensated`,
+      });
+    } catch (err) {
+      console.error(`[syncPlayers] Failed to process transfer out for player ${playerId}:`, err);
+      autoTransferOuts.push({ playerId, result: `error: ${String(err)}` });
+    }
+  }
 
   // ── Deactivate players no longer present in FPL API (Relegations / Permanent Departures) ──
   //
@@ -457,46 +370,5 @@ export async function syncPlayersFromFpl(admin: SupabaseClient): Promise<SyncPla
     }
   }
 
-  // ── Open departure decisions for every league holding a departed player ──
-  //
-  // Runs after deactivation so both routes out of the league are covered: FPL
-  // marking a player 'u', and FPL dropping him from the bootstrap entirely.
-  // In-season departures carry a hard deadline because there is no admin action
-  // to wait for; offseason leagues use Kickoff as their deadline instead, so
-  // their decisions are opened without one.
-  const departuresRecorded: { leagueId: string; count: number }[] = [];
-  try {
-    const { data: leagues } = await admin
-      .from('leagues')
-      .select('id, status, current_season, previous_season')
-      .in('status', ['active', 'offseason']);
-
-    // A league is only genuinely mid-season if its season matches the live FPL
-    // one. A league still marked `active` on last season's string has not had
-    // Season Reset run yet — the real world has rolled over and it hasn't
-    // caught up. Its "departures" are the entire summer's worth of players who
-    // left the division, and putting a 72h auto-release timer on those would
-    // pay out the whole backlog before an admin ever saw it. Those wait for
-    // Kickoff, like any other offseason departure.
-    const liveSeason = await getCurrentFplSeason();
-
-    for (const league of leagues ?? []) {
-      try {
-        const inSeason = league.status === 'active' && league.current_season === liveSeason;
-        const recorded = await recordDepartures(admin, league.id, {
-          seasonFrom: (inSeason ? league.current_season : league.previous_season) ?? league.current_season ?? '',
-          decideBy: inSeason ? midseasonDecideBy() : null,
-        });
-        if (recorded.length > 0) {
-          departuresRecorded.push({ leagueId: league.id, count: recorded.length });
-        }
-      } catch (err) {
-        console.error(`[syncPlayers] Failed to record departures for league ${league.id}:`, err);
-      }
-    }
-  } catch (err) {
-    console.error('[syncPlayers] Failed to load leagues for departure recording:', err);
-  }
-
-  return { synced: rows.length, systemBidsSeeded: 0, autoTransferOuts, departuresRecorded };
+  return { synced: rows.length, systemBidsSeeded: 0, autoTransferOuts };
 }
