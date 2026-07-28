@@ -654,3 +654,21 @@ export interface PlayerSeasonArchive {
   position_ranks: { position: string; rank: number }[];
 }
 
+/** A fantasy club identified well enough to render its crest. */
+export interface OwnerClub {
+  teamId: string;
+  teamName: string;
+  abbreviation: string | null;
+  crestConfig: unknown | null;
+}
+
+/**
+ * Who holds a player in a given league. `owner` is the team that holds the
+ * contract — during an active loan that stays with the lender, and
+ * `loanedTo` names the borrower fielding him. Null means free agent.
+ */
+export interface PlayerOwnership {
+  owner: OwnerClub;
+  loanedTo: OwnerClub | null;
+}
+
