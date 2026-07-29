@@ -813,6 +813,26 @@
   text-align: right;
 }
 
+/* The loan ledger earns its divider — itemised rows run right up to it. An
+   offer's left side is a headline and one sentence, so the line would float in
+   whitespace and read as an accident. */
+.ledgerPlain .ledgerTotal { border-left: none; }
+
+.dealHead {
+  font-family: var(--font-serif);
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--color-text-primary);
+  margin-bottom: 0.3rem;
+}
+
+.dealLine {
+  margin: 0;
+  font-size: 0.78rem;
+  line-height: 1.5;
+  color: var(--color-text-secondary);
+}
+
 .ledgerKicker {
   font-size: 0.53rem;
   font-weight: 700;

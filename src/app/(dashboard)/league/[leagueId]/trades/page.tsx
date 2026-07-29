@@ -3,6 +3,7 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { notFound, redirect } from 'next/navigation';
 import TradesClient from './TradesClient';
 import { getCurrentFplSeason, isFplSeasonKickedOff } from '@/lib/season/currentSeason';
+import { FULL_PLAYER_SELECT } from '@/lib/constants/queries';
 
 interface Props {
   params: Promise<{ leagueId: string }>;
@@ -57,20 +58,20 @@ export default async function TradesPage({ params, searchParams }: Props) {
     .neq('id', myTeam.id);
 
   // Fetch active listings for this league
-  const { data: listings } = await admin
+  const { data: listings } = await (admin
     .from('player_sale_listings')
     .select(`
       id, seller_team_id, player_id, min_bid, buy_now_price, status,
       auction_expires_at, created_at,
       seller_team:teams!seller_team_id(id, team_name),
-      player:players(id, fpl_id, api_football_id, web_name, name, full_name, date_of_birth, nationality, pl_team, pl_team_id, primary_position, secondary_positions, market_value, market_value_updated_at, projected_points, photo_url, height_cm, fpl_status, fpl_news, total_points, form_rating, ppg, is_active, transfermarkt_id, created_at, updated_at)
+      player:players(${FULL_PLAYER_SELECT})
     `)
     .eq('league_id', leagueId)
     .in('status', ['pending', 'active'])
-    .order('created_at', { ascending: false });
+    .order('created_at', { ascending: false }) as any);
 
   // Fetch current highest bid for each active listing
-  const listingIds = (listings ?? []).filter(l => l.status === 'active').map(l => l.id);
+  const listingIds = (listings ?? []).filter((l: any) => l.status === 'active').map((l: any) => l.id);
   const highestBids: Record<string, number> = {};
   if (listingIds.length > 0) {
     const { data: claims } = await admin
@@ -99,17 +100,17 @@ export default async function TradesPage({ params, searchParams }: Props) {
   const allRosters: Record<string, any[]> = {};
   let entries: any[] = [];
   if (allTeamIds.length > 0) {
-    const { data: dbEntries } = await admin
+    const { data: dbEntries } = await (admin
       .from('roster_entries')
-      .select('team_id, on_trade_block, player:players(id, fpl_id, api_football_id, web_name, name, full_name, date_of_birth, nationality, pl_team, pl_team_id, primary_position, secondary_positions, market_value, market_value_updated_at, projected_points, photo_url, height_cm, fpl_status, fpl_news, total_points, form_rating, ppg, is_active, transfermarkt_id, created_at, updated_at)')
-      .in('team_id', allTeamIds);
+      .select(`team_id, on_trade_block, player:players(${FULL_PLAYER_SELECT})`)
+      .in('team_id', allTeamIds) as any);
     entries = dbEntries ?? [];
   }
 
-  const { data: myRosterEntries } = await admin
+  const { data: myRosterEntries } = await (admin
     .from('roster_entries')
-    .select('on_trade_block, player:players(id, fpl_id, api_football_id, web_name, name, full_name, date_of_birth, nationality, pl_team, pl_team_id, primary_position, secondary_positions, market_value, market_value_updated_at, projected_points, photo_url, height_cm, fpl_status, fpl_news, total_points, form_rating, ppg, is_active, transfermarkt_id, created_at, updated_at)')
-    .eq('team_id', myTeam.id);
+    .select(`on_trade_block, player:players(${FULL_PLAYER_SELECT})`)
+    .eq('team_id', myTeam.id) as any);
 
   // Compute recent_ppg (last 10 gameweeks) for all players on the rosters
   const playerIds = new Set<string>();
@@ -265,7 +266,7 @@ export default async function TradesPage({ params, searchParams }: Props) {
     }
   }
 
-  const myRoster = (myRosterEntries ?? []).map((e) => {
+  const myRoster = (myRosterEntries ?? []).map((e: any) => {
     const p = e.player as any;
     if (!p) return null;
     return {
@@ -313,7 +314,7 @@ export default async function TradesPage({ params, searchParams }: Props) {
   if (allPlayerIds.size > 0) {
     const { data: players } = await admin
       .from('players')
-      .select('id, fpl_id, api_football_id, web_name, name, full_name, date_of_birth, nationality, pl_team, pl_team_id, primary_position, secondary_positions, market_value, market_value_updated_at, projected_points, photo_url, height_cm, fpl_status, fpl_news, total_points, form_rating, ppg, is_active, transfermarkt_id, created_at, updated_at')
+      .select(FULL_PLAYER_SELECT)
       .in('id', Array.from(allPlayerIds));
     for (const p of players ?? []) {
       playerMap[p.id] = p;
@@ -357,16 +358,16 @@ export default async function TradesPage({ params, searchParams }: Props) {
   }
 
   // Fetch loans for this league
-  const { data: loans } = await admin
+  const { data: loans } = await (admin
     .from('player_loans')
     .select(`
       *,
       lender_team:teams!lender_team_id(id, team_name, user_id),
       borrower_team:teams!borrower_team_id(id, team_name, user_id),
-      player:players(id, fpl_id, api_football_id, web_name, name, full_name, date_of_birth, nationality, pl_team, pl_team_id, primary_position, secondary_positions, market_value, market_value_updated_at, projected_points, photo_url, height_cm, fpl_status, fpl_news, total_points, form_rating, ppg, is_active, transfermarkt_id, created_at, updated_at)
+      player:players(${FULL_PLAYER_SELECT})
     `)
     .eq('league_id', leagueId)
-    .order('created_at', { ascending: false });
+    .order('created_at', { ascending: false }) as any);
 
   for (const l of loans ?? []) {
     if (l.player) {

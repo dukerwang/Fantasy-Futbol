@@ -214,7 +214,7 @@ export function getPlayerDisplayName(
 ): string | { first: string; last: string } {
   if (!player) return format === 'split' ? { first: '', last: '—' } : '—';
 
-  const dbName = (player.full_name || player.name)?.trim() || player.web_name?.trim() || '';
+  const dbName = (player.name || player.full_name)?.trim() || player.web_name?.trim() || '';
   if (!dbName && !player.sofifa_common_name) return format === 'split' ? { first: '', last: '—' } : '—';
 
   const webName = player.web_name?.trim() || '';

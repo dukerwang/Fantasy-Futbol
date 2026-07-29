@@ -269,7 +269,7 @@ export default function ListingsClient({
               }}
               onBid={(x) => setBid({ listing: x, mode: 'bid' })}
               onClause={(x) => setBid({ listing: x, mode: 'clause' })}
-              onOffer={(x) => setPropose({ listing: x, mode: x.open_to_sale ? 'buy' : 'trade' })}
+              onOffer={(x) => setPropose({ listing: x, mode: 'offer' })}
               onLoan={(x) => setPropose({ listing: x, mode: 'loan' })}
               onEdit={(x) => setEditing(x)}
               onReview={() => router.push(`/league/${leagueId}/transfers/deals`)}

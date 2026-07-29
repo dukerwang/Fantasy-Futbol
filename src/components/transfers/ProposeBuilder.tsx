@@ -16,16 +16,22 @@ import Modal from './Modal';
 import GwRangeSlider from './GwRangeSlider';
 import styles from './ProposeBuilder.module.css';
 import { getPlayerDisplayName } from '@/lib/players/displayName';
+import { describeDeal } from '@/lib/transfers/describeDeal';
 
 /**
- * One builder for all three deal types.
+ * One builder for both deal types.
  *
- * The club strip and the two-sided body never change. Only the mode row and
- * what sits beneath it does — so a manager learns one screen, not three:
+ *   Offer  players and/or cash   ⇄   players and/or cash
+ *   Loan   one player plus a contract (a stacked sheet, not a two-sided table)
  *
- *   Trade        you give players + cash   ⇄   they give players + cash
- *   Offer to buy you give cash             ⇄   they give one player
- *   Loan         either direction, full terms builder (below)
+ * "Trade" and "Offer to buy" used to be separate modes, which was a fiction:
+ * buy was trade with `offeredPlayerIds` forced empty and `requestedFaab` forced
+ * to zero, hitting the same endpoint and the same table. Worse, it made the
+ * manager pick a category before knowing what they wanted to put up, and
+ * switching category wiped their selections. Now both sides simply hold players
+ * and cash, and what the deal is CALLED is read off the payload afterwards by
+ * `describeDeal` — a cash-for-one-player offer is a bid because of its shape,
+ * not because anybody said so.
  *
  * It works on ANY player in the league. A listing is an advertisement, never
  * the only route in — `listing` merely pre-selects the counterparty and player
@@ -41,7 +47,7 @@ import { getPlayerDisplayName } from '@/lib/players/displayName';
  * capped per-point bonus, and a ±20% adjustment on top.
  */
 
-export type ProposeMode = 'trade' | 'buy' | 'loan';
+export type ProposeMode = 'offer' | 'loan';
 export type LoanDirection = 'lend' | 'borrow';
 
 interface Props {
@@ -66,8 +72,7 @@ interface Props {
 const money = (n: number) => `€${n}m`;
 
 const MODES: { key: ProposeMode; label: string }[] = [
-  { key: 'trade', label: 'Trade' },
-  { key: 'buy', label: 'Offer to buy' },
+  { key: 'offer', label: 'Offer' },
   { key: 'loan', label: 'Loan' },
 ];
 
@@ -258,6 +263,22 @@ export default function ProposeBuilder({
     return total > 0 ? (t.fee / total) * 100 : 100;
   };
 
+  const named = (id: string) => { const r = byId.get(id); return r ? getPlayerDisplayName(r, 'full') : '?'; };
+  const namedRight = (id: string) => {
+    const r = rightById.get(id);
+    return r?.player ? `${getPlayerDisplayName(r.player, 'full')}'s rights` : 'a retained right';
+  };
+
+  // What this offer is, read off what is on the table. Drives the headline, the
+  // footer sentence and whether Send is live — one derivation, so the label and
+  // the button can never disagree about what has been built.
+  const deal = describeDeal({
+    offered: [...give.map(named), ...giveRights.map(namedRight)],
+    requested: [...want.map(named), ...wantRights.map(namedRight)],
+    offeredFaab: myCash,
+    requestedFaab: theirCash,
+  });
+
   const budget = model.myTeam.faab_budget;
   // Only "borrow" spends my own budget up front — as lender I receive the fee,
   // so there is nothing of mine to check against.
@@ -270,12 +291,11 @@ export default function ProposeBuilder({
     if (mode === 'loan') {
       return Boolean(loanPlayer) && duration >= LOAN_MIN_DURATION && duration <= LOAN_MAX_DURATION && startGw <= lastLoanStart;
     }
-    if (mode === 'buy') return want.length === 1 && myCash > 0;
-    return (
-      give.length + want.length + giveRights.length + wantRights.length > 0 ||
-      myCash > 0 ||
-      theirCash > 0
-    );
+    // `deal.sendable` is false for an empty table and for cash-both-ways with no
+    // bodies. `POST /trades` refuses the latter outright ("A trade must include
+    // at least one player or retained right"); mirroring it here means you find
+    // out while building rather than after pressing send.
+    return deal.sendable;
   })();
 
   const send = async () => {
@@ -320,12 +340,16 @@ export default function ProposeBuilder({
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             targetTeamId: targetId,
-            offeredPlayerIds: mode === 'buy' ? [] : give,
+            offeredPlayerIds: give,
             requestedPlayerIds: want,
-            offeredFaab: myCash,
-            requestedFaab: mode === 'buy' ? 0 : theirCash,
-            offeredRightIds: mode === 'trade' ? giveRights : [],
-            requestedRightIds: mode === 'trade' ? wantRights : [],
+            // Cash is netted before it is stored. €30m out against €10m back is
+            // €20m out — the same deal, and the only form that classifies
+            // cleanly. It also spares the target from having to cover a €10m
+            // leg they were never really paying.
+            offeredFaab: Math.max(0, deal.netFaab),
+            requestedFaab: Math.max(0, -deal.netFaab),
+            offeredRightIds: giveRights,
+            requestedRightIds: wantRights,
             message: message || undefined,
             saleListingId: initialListing?.id ?? null,
           }),
@@ -400,27 +424,16 @@ export default function ProposeBuilder({
     </button>
   );
 
+  // Offers are named by the band above the footer, so only a loan needs a line
+  // here — and it states the shape, not the money, since the loan ledger owns
+  // the money and the two must not disagree about whether "cost" means the fee
+  // or the fee plus the cap.
   const summary = (() => {
-    if (mode === 'loan') {
-      if (!loanPlayer) return 'Choose a player.';
-      // The ledger above owns the money; this states the shape only, so the two
-      // do not disagree about whether "cost" means the fee or the fee plus cap.
-      return loanDirection === 'lend'
-        ? `${getPlayerDisplayName(loanPlayer, 'full')} out to ${target?.team_name ?? 'them'}, GW${startGw}–${endGw}.`
-        : `${getPlayerDisplayName(loanPlayer, 'full')} in from ${target?.team_name ?? 'them'}, GW${startGw}–${endGw}.`;
-    }
-    if (mode === 'buy') {
-      const p = byId.get(want[0] ?? '');
-      return p ? `You offer €${myCash}m for ${getPlayerDisplayName(p, 'initial_last')}.` : 'Choose a player to bid for.';
-    }
-    const named = (id: string) => { const r = byId.get(id); return r ? getPlayerDisplayName(r, 'full') : '?'; };
-    const namedRight = (id: string) => {
-      const r = rightById.get(id);
-      return r?.player ? `${getPlayerDisplayName(r.player, 'full')}'s rights` : 'a retained right';
-    };
-    const gives = [...give.map(named), ...giveRights.map(namedRight), ...(myCash ? [`€${myCash}m`] : [])];
-    const gets = [...want.map(named), ...wantRights.map(namedRight), ...(theirCash ? [`€${theirCash}m`] : [])];
-    return `You send ${gives.join(' + ') || 'nothing'} · you receive ${gets.join(' + ') || 'nothing'}`;
+    if (mode !== 'loan') return '';
+    if (!loanPlayer) return 'Choose a player.';
+    return loanDirection === 'lend'
+      ? `${getPlayerDisplayName(loanPlayer, 'full')} out to ${target?.team_name ?? 'them'}, GW${startGw}–${endGw}.`
+      : `${getPlayerDisplayName(loanPlayer, 'full')} in from ${target?.team_name ?? 'them'}, GW${startGw}–${endGw}.`;
   })();
 
   // Loan mode picks from my roster when lending, theirs when borrowing — both
@@ -492,12 +505,17 @@ export default function ProposeBuilder({
             className={`${styles.mode} ${mode === m.key ? styles.modeOn : ''}`}
             onClick={() => {
               setMode(m.key);
-              // Buy and loan are single-player asks; a multi-player selection
-              // carried over from trade mode would silently send only the first.
-              if (m.key !== 'trade') setWant((w) => w.slice(0, 1));
-              if (m.key !== 'trade') setGive([]);
-              // Rights only trade in `trade` mode.
-              if (m.key !== 'trade') { setGiveRights([]); setWantRights([]); }
+              // A loan moves exactly one player, so a multi-player selection
+              // carried in from an offer would silently send only the first.
+              // Nothing is cleared going the other way: an offer can hold
+              // whatever the loan had, and losing your work to a tab click was
+              // the worst thing about the old three-mode row.
+              if (m.key === 'loan') {
+                setWant((w) => w.slice(0, 1));
+                setGive([]);
+                setGiveRights([]);
+                setWantRights([]);
+              }
             }}
           >
             {m.label}
@@ -798,35 +816,33 @@ export default function ProposeBuilder({
           {/* ── Left: what you put up ─────────────────────── */}
           <div className={styles.side}>
             <div className={styles.sideLabel}>
-              <span>{mode === 'buy' ? 'What you pay' : 'You give'}</span>
+              <span>You put up</span>
               <span>
                 Squad {myRoster.length} / {model.league.roster_size ?? 20}
               </span>
             </div>
 
-            {mode === 'trade' && (
-              <div className={styles.list}>
-                {myRoster.map((p) => (
-                  <PlayerRow
-                    key={p.id}
-                    p={p}
-                    selected={give.includes(p.id)}
-                    onPick={() => toggle(give, setGive, p.id, false)}
-                  />
-                ))}
-                {myRights.map((r) => (
-                  <RightRow
-                    key={r.id}
-                    r={r}
-                    selected={giveRights.includes(r.id)}
-                    onPick={() => toggle(giveRights, setGiveRights, r.id, false)}
-                  />
-                ))}
-              </div>
-            )}
+            <div className={styles.list}>
+              {myRoster.map((p) => (
+                <PlayerRow
+                  key={p.id}
+                  p={p}
+                  selected={give.includes(p.id)}
+                  onPick={() => toggle(give, setGive, p.id, false)}
+                />
+              ))}
+              {myRights.map((r) => (
+                <RightRow
+                  key={r.id}
+                  r={r}
+                  selected={giveRights.includes(r.id)}
+                  onPick={() => toggle(giveRights, setGiveRights, r.id, false)}
+                />
+              ))}
+            </div>
 
             <div className={styles.cash}>
-              <div className={styles.cashLabel}>{mode === 'buy' ? 'Your offer' : 'Cash you add'}</div>
+              <div className={styles.cashLabel}>Cash you put up</div>
               <div className={styles.cashRow}>
                 <input
                   className={styles.cashInput}
@@ -854,13 +870,13 @@ export default function ProposeBuilder({
           {/* ── Right: what comes back ────────────────────── */}
           <div className={`${styles.side} ${styles.sideThem}`}>
             <div className={styles.sideLabel}>
-              <span>{mode === 'buy' ? 'Player you want' : 'They give'}</span>
+              <span>They put up</span>
               <span>
                 {target?.team_name} · {money(target?.faab_budget ?? 0)}
               </span>
             </div>
 
-            {theirRoster.length === 0 && (mode !== 'trade' || theirRights.length === 0) && (
+            {theirRoster.length === 0 && theirRights.length === 0 && (
               <p className={styles.emptyNote}>Pick a club above.</p>
             )}
 
@@ -870,10 +886,10 @@ export default function ProposeBuilder({
                   key={p.id}
                   p={p}
                   selected={want.includes(p.id)}
-                  onPick={() => toggle(want, setWant, p.id, mode === 'buy')}
+                  onPick={() => toggle(want, setWant, p.id, false)}
                 />
               ))}
-              {mode === 'trade' && theirRights.map((r) => (
+              {theirRights.map((r) => (
                 <RightRow
                   key={r.id}
                   r={r}
@@ -883,23 +899,44 @@ export default function ProposeBuilder({
               ))}
             </div>
 
-            {mode === 'trade' && (
-              <div className={styles.cash}>
-                <div className={styles.cashLabel}>Cash they add</div>
-                <div className={styles.cashRow}>
-                  <input
-                    className={styles.cashInput}
-                    type="number"
-                    min={0}
-                    value={theirCash}
-                    onChange={(e) => setTheirCash(Math.max(0, parseInt(e.target.value, 10) || 0))}
-                  />
-                  <span className={styles.cashOf}>of {money(target?.faab_budget ?? 0)} available</span>
-                </div>
-                <div className={styles.hint}>They must be able to cover it when they accept.</div>
+            <div className={styles.cash}>
+              <div className={styles.cashLabel}>Cash they put up</div>
+              <div className={styles.cashRow}>
+                <input
+                  className={styles.cashInput}
+                  type="number"
+                  min={0}
+                  value={theirCash}
+                  onChange={(e) => setTheirCash(Math.max(0, parseInt(e.target.value, 10) || 0))}
+                />
+                <span className={styles.cashOf}>of {money(target?.faab_budget ?? 0)} available</span>
               </div>
-            )}
+              <div className={styles.hint}>They must be able to cover it when they accept.</div>
+            </div>
           </div>
+        </div>
+      )}
+
+      {/* What you have built, named by its shape. */}
+      {mode === 'offer' && deal.kind !== 'empty' && (
+        <div className={`${styles.ledger} ${styles.ledgerPlain}`}>
+          <div className={styles.ledgerItems}>
+            <div className={styles.dealHead}>{deal.headline}</div>
+            <p className={styles.dealLine}>{deal.sentence}</p>
+          </div>
+          {deal.netFaab !== 0 && (
+            <div className={styles.ledgerTotal}>
+              <span className={styles.ledgerKicker}>
+                {deal.netFaab > 0 ? 'Cash out' : 'Cash in'}
+              </span>
+              <span className={styles.ledgerBig}>{money(Math.abs(deal.netFaab))}</span>
+              <span className={styles.ledgerSub}>
+                {deal.netFaab > 0
+                  ? `Leaves ${money(Math.max(0, budget - deal.netFaab))} of ${money(budget)}`
+                  : `Takes you to ${money(budget - deal.netFaab)}`}
+              </span>
+            </div>
+          )}
         </div>
       )}
 

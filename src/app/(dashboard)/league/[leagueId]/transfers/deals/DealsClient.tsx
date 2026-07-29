@@ -20,6 +20,7 @@ import ListingEditor from '@/components/transfers/ListingEditor';
 import { setServerClock } from '@/components/transfers/useTick';
 import styles from './deals.module.css';
 import { getPlayerDisplayName } from '@/lib/players/displayName';
+import { describeDeal } from '@/lib/transfers/describeDeal';
 
 /**
  * Deals — your business only.
@@ -153,6 +154,21 @@ export default function DealsClient({
     const theirCash = incoming ? p.offered_faab : p.requested_faab;
     const yourCash = incoming ? p.requested_faab : p.offered_faab;
 
+    // What to call it comes off the payload, always from the proposer's side
+    // (team_a offers), so the tag reads the same on both managers' screens.
+    const naming = describeDeal({
+      offered: [
+        ...assetNames(p.offered_players).map((x) => getPlayerDisplayName(x, 'initial_last')),
+        ...rightAssets(p.offered_rights).map((x) => `${getPlayerDisplayName(x, 'initial_last')}'s rights`),
+      ],
+      requested: [
+        ...assetNames(p.requested_players).map((x) => getPlayerDisplayName(x, 'initial_last')),
+        ...rightAssets(p.requested_rights).map((x) => `${getPlayerDisplayName(x, 'initial_last')}'s rights`),
+      ],
+      offeredFaab: p.offered_faab,
+      requestedFaab: p.requested_faab,
+    });
+
     return (
       <article className={`${styles.deal} ${incoming ? styles.dealActive : ''}`}>
         <header className={styles.dealHead}>
@@ -163,7 +179,7 @@ export default function DealsClient({
             className={styles.dealTag}
             style={{ background: p.sale_listing_id ? 'var(--color-accent)' : 'var(--color-pos-cb)' }}
           >
-            {p.sale_listing_id ? 'Offer on your listing' : 'Trade'}
+            {naming.headline}{p.sale_listing_id ? ' · on your listing' : ''}
           </span>
         </header>
 
@@ -210,7 +226,7 @@ export default function DealsClient({
                   setProposeRightId(null);
                   setProposeTeamId(p.team_a_id);
                   setProposePlayerId(p.requested_players?.[0] ?? null);
-                  setPropose('trade');
+                  setPropose('offer');
                 }}
               >
                 Counter
@@ -385,17 +401,9 @@ export default function DealsClient({
               type="button"
               className={styles.proposeBtn}
               style={{ background: 'var(--color-pos-cb)' }}
-              onClick={() => { setProposeRightId(null); setProposeTeamId(null); setProposePlayerId(null); setPropose('trade'); }}
+              onClick={() => { setProposeRightId(null); setProposeTeamId(null); setProposePlayerId(null); setPropose('offer'); }}
             >
-              Propose a trade
-            </button>
-            <button
-              type="button"
-              className={styles.proposeBtn}
-              style={{ background: 'var(--color-accent)' }}
-              onClick={() => { setProposeTeamId(null); setProposePlayerId(null); setPropose('buy'); }}
-            >
-              Offer to buy
+              Make an offer
             </button>
             <button
               type="button"
@@ -556,7 +564,7 @@ export default function DealsClient({
       </div>
 
       <Suspense fallback={null}>
-        <ProposeRightReader onFound={(id) => { setProposeRightId(id); setPropose('trade'); }} />
+        <ProposeRightReader onFound={(id) => { setProposeRightId(id); setPropose('offer'); }} />
       </Suspense>
 
       {propose && (

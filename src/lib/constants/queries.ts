@@ -10,6 +10,7 @@ export const FULL_PLAYER_SELECT = `
   fpl_id,
   api_football_id,
   web_name,
+  sofifa_common_name,
   name,
   full_name,
   date_of_birth,

@@ -3,6 +3,8 @@ import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { sendEmail } from '@/lib/email/client';
 import { getTradeProposedEmail } from '@/lib/email/templates';
+import { describeDeal } from '@/lib/transfers/describeDeal';
+import { FULL_PLAYER_SELECT } from '@/lib/constants/queries';
 
 interface Props {
   params: Promise<{ leagueId: string }>;
@@ -55,7 +57,7 @@ export async function GET(_req: NextRequest, { params }: Props) {
   if (allTeamIds.length > 0) {
     const { data: rosterEntries } = await admin
       .from('roster_entries')
-      .select('team_id, player:players(id, fpl_id, api_football_id, web_name, name, full_name, date_of_birth, nationality, pl_team, pl_team_id, primary_position, secondary_positions, market_value, market_value_updated_at, projected_points, photo_url, height_cm, fpl_status, fpl_news, total_points, form_rating, ppg, is_active, transfermarkt_id, created_at, updated_at)')
+      .select(`team_id, player:players(${FULL_PLAYER_SELECT})`)
       .in('team_id', allTeamIds);
 
     for (const entry of rosterEntries ?? []) {
@@ -67,7 +69,7 @@ export async function GET(_req: NextRequest, { params }: Props) {
   // My roster
   const { data: myRosterEntries } = await admin
     .from('roster_entries')
-    .select('player:players(id, fpl_id, api_football_id, web_name, name, full_name, date_of_birth, nationality, pl_team, pl_team_id, primary_position, secondary_positions, market_value, market_value_updated_at, projected_points, photo_url, height_cm, fpl_status, fpl_news, total_points, form_rating, ppg, is_active, transfermarkt_id, created_at, updated_at)')
+    .select(`player:players(${FULL_PLAYER_SELECT})`)
     .eq('team_id', myTeam.id);
 
   const myRoster = (myRosterEntries ?? []).map((e) => e.player as unknown as RosterPlayerLite);
@@ -83,7 +85,7 @@ export async function GET(_req: NextRequest, { params }: Props) {
   if (allPlayerIds.size > 0) {
     const { data: players } = await admin
       .from('players')
-      .select('id, fpl_id, api_football_id, web_name, name, full_name, date_of_birth, nationality, pl_team, pl_team_id, primary_position, secondary_positions, market_value, market_value_updated_at, projected_points, photo_url, height_cm, fpl_status, fpl_news, total_points, form_rating, ppg, is_active, transfermarkt_id, created_at, updated_at')
+      .select(FULL_PLAYER_SELECT)
       .in('id', Array.from(allPlayerIds));
 
     for (const p of players ?? []) {
@@ -402,17 +404,31 @@ export async function POST(req: NextRequest, { params }: Props) {
       
       const offeredNames = offeredPlayerIds.map(id => players?.find(p => p.id === id)?.name || 'Unknown Player');
       const requestedNames = requestedPlayerIds.map(id => players?.find(p => p.id === id)?.name || 'Unknown Player');
-      
+
+      // Named before the cash is folded into the lists below, and with rights
+      // counted so a rights-for-player deal is not mistaken for a cash sale.
+      const { headline: dealName } = describeDeal({
+        offered: [...offeredNames, ...offeredRightIds.map(() => 'retained rights')],
+        requested: [...requestedNames, ...requestedRightIds.map(() => 'retained rights')],
+        offeredFaab,
+        requestedFaab,
+      });
+
       if (offeredFaab > 0) offeredNames.push(`€${offeredFaab}m`);
       if (requestedFaab > 0) requestedNames.push(`€${requestedFaab}m`);
 
       const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://gaffa.live';
-      const actionUrl = `${baseUrl}/league/${leagueId}/trades`;
+      // The template appends its own path, so this is the league root. It used
+      // to carry a trailing `/trades`, producing `/league/<id>/trades/trades`.
+      const actionUrl = `${baseUrl}/league/${leagueId}`;
 
       await sendEmail({
         to: targetUser.email,
-        subject: `New Trade Proposal from ${myTeam.team_name}`,
-        html: getTradeProposedEmail(myTeam.team_name, requestedNames, offeredNames, actionUrl) // Notice flip: offered by me = received by them
+        subject: `${dealName} from ${myTeam.team_name}`,
+        // The recipient receives what I offered and gives up what I requested.
+        // These were the wrong way round, so every proposal email showed each
+        // manager the opposite side of the deal.
+        html: getTradeProposedEmail(myTeam.team_name, offeredNames, requestedNames, actionUrl, dealName)
       });
 
       // Create in-game notification for recipient manager
@@ -420,9 +436,9 @@ export async function POST(req: NextRequest, { params }: Props) {
       await createNotification(admin, {
         leagueId,
         userId: targetTeam.user_id,
-        title: 'New Trade Proposal!',
-        content: `**${myTeam.team_name}** has proposed a new trade. They are offering: **${requestedNames.join(', ')}** in exchange for: **${offeredNames.join(', ')}**.${message ? ` Message: "${message}"` : ''}`,
-        url: `/league/${leagueId}/trades`
+        title: `${dealName} from ${myTeam.team_name}`,
+        content: `**${myTeam.team_name}** are offering: **${offeredNames.join(', ')}** in exchange for: **${requestedNames.join(', ')}**.${message ? ` Message: "${message}"` : ''}`,
+        url: `/league/${leagueId}/transfers/deals`
       });
 
       // Send private DM to the target manager about the trade proposal

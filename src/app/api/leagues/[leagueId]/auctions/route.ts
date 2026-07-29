@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import type { AuctionListing, Player } from '@/types';
+import { FULL_PLAYER_SELECT } from '@/lib/constants/queries';
 
 interface Props {
   params: Promise<{ leagueId: string }>;
@@ -165,7 +166,7 @@ export async function GET(_req: NextRequest, { params }: Props) {
   // My current roster (for the "drop player" selector in the bid modal)
   const { data: myRosterEntries } = await admin
     .from('roster_entries')
-    .select('player_id, status, player:players(id, fpl_id, api_football_id, web_name, name, full_name, date_of_birth, nationality, pl_team, pl_team_id, primary_position, secondary_positions, market_value, market_value_updated_at, projected_points, photo_url, height_cm, fpl_status, fpl_news, total_points, form_rating, ppg, is_active, transfermarkt_id, created_at, updated_at)')
+    .select(`player_id, status, player:players(${FULL_PLAYER_SELECT})`)
     .eq('team_id', myTeam.id);
 
   const myRoster = (myRosterEntries ?? []).map((e) => ({ ...e.player as any, status: e.status }));
@@ -179,7 +180,7 @@ export async function GET(_req: NextRequest, { params }: Props) {
 
   let freeAgentQuery = admin
     .from('players')
-    .select('id, fpl_id, api_football_id, web_name, name, full_name, date_of_birth, nationality, pl_team, pl_team_id, primary_position, secondary_positions, market_value, market_value_updated_at, projected_points, photo_url, height_cm, fpl_status, fpl_news, total_points, form_rating, ppg, is_active, transfermarkt_id, created_at, updated_at')
+    .select(FULL_PLAYER_SELECT)
     .eq('is_active', true)
     .order('total_points', { ascending: false, nullsFirst: false });
 

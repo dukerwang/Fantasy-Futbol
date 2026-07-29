@@ -33,11 +33,20 @@ const baseTemplate = (title: string, body: string) => `
 </html>
 `;
 
-export const getTradeProposedEmail = (proposerName: string, giving: string[], receiving: string[], leagueUrl: string) => {
+/** `dealName` is the derived shape of the offer — "A bid", "A part-exchange" —
+ *  from `describeDeal`, so the subject line matches what the Deals page will
+ *  call the same proposal when they open it. */
+export const getTradeProposedEmail = (
+  proposerName: string,
+  giving: string[],
+  receiving: string[],
+  leagueUrl: string,
+  dealName = 'An offer',
+) => {
   const body = `
-    <h2 style="font-family: 'Georgia', serif; font-size: 1.5em; margin-top: 0;">New Proposal from ${proposerName}</h2>
-    <p>The boardroom is buzzing. <strong>${proposerName}</strong> has submitted a formal trade proposal for your consideration.</p>
-    
+    <h2 style="font-family: 'Georgia', serif; font-size: 1.5em; margin-top: 0;">${dealName} from ${proposerName}</h2>
+    <p>The boardroom is buzzing. <strong>${proposerName}</strong> has put ${dealName.toLowerCase()} on the table for your consideration.</p>
+
     <div style="display: flex; gap: 20px; margin: 24px 0;">
       <div style="flex: 1; background-color: #F7F3ED; padding: 15px; border-radius: 8px;">
         <p style="font-size: 0.8em; text-transform: uppercase; color: #666; margin-top: 0;">You Receive</p>
@@ -50,7 +59,7 @@ export const getTradeProposedEmail = (proposerName: string, giving: string[], re
     </div>
 
     <p>A response is expected. Review the terms and decide the future of your squad.</p>
-    <a href="${leagueUrl}/trades" class="button">Enter Negotiations</a>
+    <a href="${leagueUrl}/transfers/deals" class="button">Enter Negotiations</a>
   `;
   return baseTemplate('Formal Trade Proposal Received', body);
 };
@@ -238,7 +247,7 @@ export const getLoanProposedEmail = (lenderName: string, playerName: string, loa
     </div>
 
     <p>Please review the details and accept or reject the proposal.</p>
-    <a href="${leagueUrl}/trades" class="button">Review Loan Offer</a>
+    <a href="${leagueUrl}/transfers/deals" class="button">Review Loan Offer</a>
   `;
   return baseTemplate('Player Loan Proposal Received', body);
 };
@@ -247,7 +256,7 @@ export const getLoanAcceptedEmail = (lenderName: string, borrowerName: string, p
   const body = `
     <p>The loan agreement for <strong>${playerName}</strong> has been signed and finalized.</p>
     <p><strong>${playerName}</strong> has joined <strong>${borrowerName}</strong> on loan from <strong>${lenderName}</strong> for the term GW${startGw} to GW${endGw}.</p>
-    <a href="${leagueUrl}/trades" class="button">View Active Loans</a>
+    <a href="${leagueUrl}/transfers/deals" class="button">View Active Loans</a>
   `;
   return baseTemplate('Loan Agreement Finalized', body);
 };

@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { sendEmail } from '@/lib/email/client';
 import { getLoanProposedEmail } from '@/lib/email/templates';
+import { FULL_PLAYER_SELECT } from '@/lib/constants/queries';
 
 interface Props {
   params: Promise<{ leagueId: string }>;
@@ -47,7 +48,7 @@ export async function GET(req: NextRequest, { params }: Props) {
       *,
       lender_team:teams!lender_team_id(id, team_name),
       borrower_team:teams!borrower_team_id(id, team_name),
-      player:players(id, fpl_id, api_football_id, web_name, name, full_name, date_of_birth, nationality, pl_team, pl_team_id, primary_position, secondary_positions, market_value, market_value_updated_at, projected_points, photo_url, height_cm, fpl_status, fpl_news, total_points, form_rating, ppg, is_active, transfermarkt_id, created_at, updated_at)
+      player:players(${FULL_PLAYER_SELECT})
     `)
     .eq('league_id', leagueId)
     .order('created_at', { ascending: false });
@@ -62,7 +63,7 @@ export async function GET(req: NextRequest, { params }: Props) {
   // Fetch my roster entries with player details
   const { data: myRosterEntries } = await admin
     .from('roster_entries')
-    .select('status, player:players(id, fpl_id, api_football_id, web_name, name, full_name, date_of_birth, nationality, pl_team, pl_team_id, primary_position, secondary_positions, market_value, market_value_updated_at, projected_points, photo_url, height_cm, fpl_status, fpl_news, total_points, form_rating, ppg, is_active, transfermarkt_id, created_at, updated_at)')
+    .select(`status, player:players(${FULL_PLAYER_SELECT})`)
     .eq('team_id', myTeam.id);
 
   // Gather player IDs to fetch stats

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { FULL_PLAYER_SELECT } from '@/lib/constants/queries';
 
 interface Props {
   params: Promise<{ leagueId: string }>;
@@ -23,7 +24,7 @@ export async function GET(req: NextRequest, { params }: Props) {
       id, seller_team_id, player_id, min_bid, buy_now_price, status,
       auction_expires_at, created_at,
       seller_team:teams!seller_team_id(id, team_name),
-      player:players(id, fpl_id, api_football_id, web_name, name, full_name, date_of_birth, nationality, pl_team, pl_team_id, primary_position, secondary_positions, market_value, market_value_updated_at, projected_points, photo_url, height_cm, fpl_status, fpl_news, total_points, form_rating, ppg, is_active, transfermarkt_id, created_at, updated_at)
+      player:players(${FULL_PLAYER_SELECT})
     `)
     .eq('league_id', leagueId)
     .in('status', ['pending', 'active'])

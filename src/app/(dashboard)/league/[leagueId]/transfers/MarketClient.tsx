@@ -270,7 +270,7 @@ export default function MarketClient({
                     const a = auctionByListing.get(x.id);
                     if (a) setBid({ auction: a, mode: 'clause' });
                   }}
-                  onOffer={(x) => setPropose({ listing: x, mode: x.open_to_sale ? 'buy' : 'trade' })}
+                  onOffer={(x) => setPropose({ listing: x, mode: 'offer' })}
                   onLoan={(x) => setPropose({ listing: x, mode: 'loan' })}
                   onEdit={(x) => setEditing(x)}
                   onReview={() => router.push(`/league/${leagueId}/transfers/deals`)}

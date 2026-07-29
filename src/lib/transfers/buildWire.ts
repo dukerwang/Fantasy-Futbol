@@ -21,6 +21,7 @@
 
 import type { TransfersModel } from './buildTransfersModel';
 import { getPlayerDisplayName } from '@/lib/players/displayName';
+import { describeDeal } from './describeDeal';
 
 export type WireKind = 'bid' | 'offer' | 'trade' | 'loan' | 'listing';
 
@@ -45,6 +46,30 @@ export function buildWire(model: TransfersModel, limit = 12): WireEvent[] {
   const nameOf = (id: string | null) =>
     id === myTeamId ? 'You' : model.allTeams.find((t) => t.id === id)?.team_name ?? 'A club';
 
+  /** A proposal's name, off its payload — the same derivation the composer and
+   *  the Deals inbox use, so the wire cannot call a deal something else. */
+  const nameDeal = (t: {
+    offered_players?: string[] | null;
+    requested_players?: string[] | null;
+    offered_rights?: string[] | null;
+    requested_rights?: string[] | null;
+    offered_faab: number;
+    requested_faab: number;
+  }) => {
+    const players = (ids: string[] | null | undefined) =>
+      (ids ?? []).map((id) => model.playerMap[id]).filter(Boolean)
+        .map((p) => getPlayerDisplayName(p));
+    const rights = (ids: string[] | null | undefined) =>
+      (ids ?? []).map((id) => model.rightsMap[id]?.player).filter(Boolean)
+        .map((p) => `${getPlayerDisplayName(p!)}'s rights`);
+    return describeDeal({
+      offered: [...players(t.offered_players), ...rights(t.offered_rights)],
+      requested: [...players(t.requested_players), ...rights(t.requested_rights)],
+      offeredFaab: t.offered_faab,
+      requestedFaab: t.requested_faab,
+    });
+  };
+
   // Bids, from the projection's own history.
   for (const a of model.auctions) {
     const player = a.player ? getPlayerDisplayName(a.player) : 'a player';
@@ -65,9 +90,6 @@ export function buildWire(model: TransfersModel, limit = 12): WireEvent[] {
   for (const o of model.myOffers) {
     const mine = o.team_a_id === myTeamId;
     const them = mine ? o.team_b?.team_name ?? 'a club' : o.team_a?.team_name ?? 'a club';
-    const players = [...(o.requested_players ?? []), ...(o.offered_players ?? [])];
-    const first = players[0] ? model.playerMap[players[0]] : null;
-    const subject = first ? getPlayerDisplayName(first) : 'a deal';
 
     if (o.status === 'pending') {
       events.push({
@@ -75,9 +97,11 @@ export function buildWire(model: TransfersModel, limit = 12): WireEvent[] {
         kind: 'offer',
         at: o.updated_at ?? o.created_at,
         who: mine ? 'You' : them,
-        mid: o.sale_listing_id ? 'offered' : 'proposed a trade —',
-        amount: o.offered_faab ? money(o.offered_faab) : subject,
-        tail: mine ? `to ${them}` : 'to you',
+        mid: mine ? 'sent' : 'sent you',
+        // "a bid", "a part-exchange" — the shape of the deal reads better than
+        // a bare cash figure, which said nothing about a player-for-player swap.
+        amount: nameDeal(o).headline.toLowerCase(),
+        tail: mine ? `to ${them}` : '',
       });
     }
   }
@@ -89,9 +113,9 @@ export function buildWire(model: TransfersModel, limit = 12): WireEvent[] {
       kind: 'trade',
       at: t.updated_at ?? t.created_at,
       who: t.team_a?.team_name ?? 'A club',
-      mid: `and ${t.team_b?.team_name ?? 'another club'} agreed a trade —`,
-      amount: `${(t.offered_players?.length ?? 0) + (t.requested_players?.length ?? 0)} players`,
-      tail: t.offered_faab || t.requested_faab ? `+ ${money(t.offered_faab || t.requested_faab)}` : '',
+      mid: `and ${t.team_b?.team_name ?? 'another club'} agreed`,
+      amount: nameDeal(t).headline.toLowerCase(),
+      tail: '',
     });
   }
 
