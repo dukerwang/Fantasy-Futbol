@@ -113,7 +113,7 @@ export async function POST(req: NextRequest, { params }: Props) {
         userId: lenderTeam.user_id,
         title: 'Loan Proposal Rejected',
         content: `**${borrowerTeam.team_name}** has rejected your proposal to loan **${player.name}**.`,
-        url: `/league/${leagueId}/trades`
+        url: `/league/${leagueId}/transfers/deals`
       });
     } catch (err) {
       console.error('Failed to notify rejection:', err);
@@ -184,6 +184,34 @@ export async function POST(req: NextRequest, { params }: Props) {
       return NextResponse.json({ error: `Player is currently in status '${rosterEntry.status}' and cannot be loaned` }, { status: 400 });
     }
 
+    // Listing check — the auction may have gone live since this loan was proposed.
+    //
+    // POST /loans permits a proposal against a 'pending' listing whose loan gate
+    // is open, on the understanding that acceptance cancels that listing (steps D
+    // and the deferred branch below) and 080's withdraw trigger rejects its
+    // auction anchor. Both of those cancels are scoped `.eq('status','pending')`,
+    // so an auction that went live in the meantime would survive them silently:
+    // the player would move to the borrower's squad while bidding continued on
+    // him, and the resolver would later hand a player sitting in a third club's
+    // lineup to the winner.
+    //
+    // Refuse instead. The loan stays 'pending' and can be accepted if the auction
+    // expires without a sale.
+    const { data: listingForPlayer } = await admin
+      .from('player_sale_listings')
+      .select('id, status')
+      .eq('league_id', leagueId)
+      .eq('player_id', loan.player_id)
+      .eq('status', 'active')
+      .maybeSingle();
+
+    if (listingForPlayer) {
+      return NextResponse.json(
+        { error: 'Bidding has started on this player since the loan was proposed. The loan cannot be accepted while the auction is live.' },
+        { status: 409 },
+      );
+    }
+
     // FAAB budget check
     if (borrowerTeam.faab_budget < loan.loan_fee) {
       return NextResponse.json({ error: `Insufficient Club Balance. You need €${loan.loan_fee}m, but only have €${borrowerTeam.faab_budget}m.` }, { status: 400 });
@@ -249,7 +277,7 @@ export async function POST(req: NextRequest, { params }: Props) {
           userId: lenderTeam.user_id,
           title: 'Loan Agreed (Pending GW End)',
           content: `Loan of **${player.name}** has been agreed but deferred until the current gameweek completes because the player is locked.`,
-          url: `/league/${leagueId}/trades`
+          url: `/league/${leagueId}/transfers/deals`
         });
       } catch (err) {
         console.error('Failed to notify deferred loan acceptance:', err);
@@ -312,7 +340,7 @@ export async function POST(req: NextRequest, { params }: Props) {
         userId: lenderTeam.user_id,
         title: 'Loan Proposal Accepted!',
         content: `**${borrowerTeam.team_name}** has accepted your proposal to loan **${player.name}** for GW${loan.start_gameweek}-GW${loan.end_gameweek}.`,
-        url: `/league/${leagueId}/trades`
+        url: `/league/${leagueId}/transfers/deals`
       });
 
       // Send a public chat message to the league lobby

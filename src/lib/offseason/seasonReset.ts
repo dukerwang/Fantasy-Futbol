@@ -24,6 +24,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import { distributeAllPrizes, type PrizeEntry } from './prizeDistribution';
 import { insertMatchups } from '@/lib/schedule/insertMatchups';
 import { createAllTournaments, type CreateTournamentResult } from '@/lib/tournaments/createTournaments';
+import { recomputePositionRanks } from '@/lib/stats/seasonStats';
 
 interface PreflightResult {
   ready: boolean;
@@ -495,6 +496,10 @@ export async function runSeasonReset(
   if (playerStatsArchErr) {
     throw new Error(`Failed to archive player season stats: ${playerStatsArchErr.message}`);
   }
+
+  // Positional ranks are re-scored per position by the TypeScript engine, so
+  // the archive RPC leaves them empty for this pass to fill (migration 085).
+  await recomputePositionRanks(admin, seasonFrom);
 
   // Step 3: Distribute prizes
   const { paid: prizesPaid, totalFaab: totalPrizeFaab } = await distributeAllPrizes(admin, leagueId, seasonFrom);

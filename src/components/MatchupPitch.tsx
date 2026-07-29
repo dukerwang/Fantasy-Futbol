@@ -1,11 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import type { MatchupLineup, Player, GranularPosition } from '@/types';
 import { POSITION_FLEX_MAP } from '@/types';
-import { formatPlayerName } from '@/lib/formatName';
+import { getPlayerDisplayName } from '@/lib/players/displayName';
 import { getScoreIntensityColor } from '@/lib/utils/scoreColor';
-import PlayerDetailsModal from './players/PlayerDetailsModal';
+import { usePlayerCard } from './players/PlayerCardProvider';
 import { Icon } from './ui/Icon';
 import styles from './MatchupPitch.module.css';
 
@@ -106,7 +106,7 @@ function PlayerChip({ slot, player, detail, isSubIn, onClick }: {
             </div>
             {/* Line 2: name */}
             <p className={styles.chipName}>
-                {player ? formatPlayerName(player) : '—'}
+                {player ? getPlayerDisplayName(player) : '—'}
             </p>
         </div>
     );
@@ -136,7 +136,7 @@ function BenchChip({ slotType, player, detail, isSubOut, onClick }: {
                 </span>
             </div>
             <p className={styles.benchChipName}>
-                {player ? formatPlayerName(player) : '—'}
+                {player ? getPlayerDisplayName(player) : '—'}
             </p>
         </div>
     );
@@ -223,7 +223,13 @@ interface Props {
 export default function MatchupPitch({
     lineupA, lineupB, playerMap, detailMap, teamAName, teamBName, matchupStatus = 'live',
 }: Props) {
-    const [viewingPlayer, setViewingPlayer] = useState<Partial<Player> | null>(null);
+    // Pitch tiles hold only a partial player, so the card resolves by id off
+    // the shared cache rather than painting a half-filled front.
+    const { openPlayerById, prefetchPlayer } = usePlayerCard();
+    const setViewingPlayer = useCallback(
+        (p: Partial<Player> | null) => { if (p?.id) openPlayerById(p.id); },
+        [openPlayerById],
+    );
 
     const resolvedA = resolveSubs(lineupA, detailMap, playerMap, matchupStatus);
     const resolvedB = resolveSubs(lineupB, detailMap, playerMap, matchupStatus);
@@ -357,7 +363,7 @@ export default function MatchupPitch({
                                             <span className={styles.breakdownBar} style={{ background: bar }} />
                                             <div>
                                                 <p className={styles.breakdownName}>
-                                                    {p ? formatPlayerName(p) : '—'}
+                                                    {p ? getPlayerDisplayName(p) : '—'}
                                                     {s.isSubIn && <span title="Auto-subbed in" className={styles.breakdownSubIcon}><Icon name="arrow-up" size={14} strokeWidth={2} /></span>}
                                                 </p>
                                                 {detail?.stats && (
@@ -391,12 +397,7 @@ export default function MatchupPitch({
                 </div>
             </div>
             
-            {viewingPlayer && (
-                <PlayerDetailsModal
-                    player={viewingPlayer as Player}
-                    onClose={() => setViewingPlayer(null)}
-                />
-            )}
+            {/* The player card modal is owned by PlayerCardProvider in the dashboard layout. */}
         </div>
     );
 }

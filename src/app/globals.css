@@ -1,4 +1,7 @@
-@import url('https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;0,6..72,700;1,6..72,400;1,6..72,500;1,6..72,600;1,6..72,700&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
+/* Fonts are loaded by next/font in src/app/layout.tsx — self-hosted, preloaded,
+   and paired with a size-adjusted fallback so the swap causes no reflow. Do not
+   re-add an @import or <link> here; it would reintroduce the render-blocking
+   round trip and the FOUT that goes with it. */
 
 /* ============================================================
    Gaffa — Global CSS Design System
@@ -69,10 +72,13 @@
   --color-pos-rw: #2F7A4E;  /* Deep Sage      — Right Wing */
   --color-pos-st: #A62626;  /* Deep Red       — Striker */
 
-  /* --- Typography --- */
-  --font-serif: 'Newsreader', Georgia, 'Times New Roman', serif;   /* display / editorial */
-  --font-sans:  'Hanken Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; /* body / UI */
-  --font-mono:  'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
+  /* --- Typography ---
+     The --font-*-* vars are injected by next/font (see layout.tsx) and already
+     carry their own metric-matched fallback; the families after them only
+     matter if the font files fail outright. */
+  --font-serif: var(--font-newsreader), Georgia, 'Times New Roman', serif;   /* display / editorial */
+  --font-sans:  var(--font-hanken-grotesk), -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; /* body / UI */
+  --font-mono:  var(--font-jetbrains-mono), 'Fira Code', ui-monospace, monospace;
 
   /* Type scale (1rem = 16px) */
   --text-xs:   0.75rem;   /* 12 */

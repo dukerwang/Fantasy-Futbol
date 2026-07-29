@@ -489,7 +489,7 @@ function ScoutingDeckVisual() {
                 exit="exit"
                 className={styles.deckCard}
               >
-                <PremiumPlayerCard player={activePlayer} />
+                <PremiumPlayerCard player={activePlayer} staticOnly />
               </motion.div>
             </AnimatePresence>
           </div>
@@ -580,6 +580,7 @@ function LiveAuctionsVisual() {
         photo_url: 'https://resources.premierleague.com/premierleague25/photos/players/110x140/475168.png',
         ppg: 14.1,
         form_rating: 7.0,
+        total_points: 352,
         market_value: 65,
       },
       highest_bid: 34,
@@ -598,6 +599,7 @@ function LiveAuctionsVisual() {
         photo_url: 'https://resources.premierleague.com/premierleague25/photos/players/110x140/510663.png',
         ppg: 12.1,
         form_rating: 6.4,
+        total_points: 287,
         market_value: 85,
       },
       highest_bid: 52,
@@ -641,8 +643,8 @@ function LiveAuctionsVisual() {
                 <span className={styles.statValueMini}>{auction.player.ppg.toFixed(1)}</span>
               </div>
               <div className={styles.statColMini}>
-                <span className={styles.statLabelMini}>Form</span>
-                <span className={styles.statValueMini}>{auction.player.form_rating.toFixed(1)}</span>
+                <span className={styles.statLabelMini}>Pts</span>
+                <span className={styles.statValueMini}>{Math.round(auction.player.total_points)}</span>
               </div>
               <div className={styles.statColMini}>
                 <span className={styles.statLabelMini}>Mkt Val</span>

@@ -69,6 +69,8 @@ export async function seedHighValueAuctions(admin: SupabaseClient): Promise<Seed
         gameweek: 0,
         is_auction: true,
         expires_at: expiresAt,
+        // Reference price for the auction premium — see migration 070.
+        market_value_at_auction: p.marketValue,
       }));
 
       const { error: insertErr } = await admin.from('waiver_claims').insert(auctionRows);

@@ -1,0 +1,425 @@
+.page { min-height: 100%; }
+
+/* ── Masthead ───────────────────────────────────────────── */
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 1.5rem;
+  padding: 1.125rem 1.75rem 0.9rem;
+  flex-wrap: wrap;
+}
+
+.kicker {
+  font-size: 0.59rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.title {
+  font-family: var(--font-serif);
+  font-weight: 800;
+  font-size: 2.0625rem;
+  letter-spacing: -0.035em;
+  line-height: 1;
+  margin-top: 0.25rem;
+  color: var(--color-text-primary);
+}
+
+.stats { display: flex; gap: 1.5rem; }
+.stat { text-align: right; }
+
+.statValue {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 1.1875rem;
+  line-height: 1;
+  color: var(--color-text-primary);
+}
+
+.statAccent { color: var(--color-accent); }
+.statWarn   { color: var(--color-warning); }
+
+.statLabel {
+  font-size: 0.5625rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  margin-top: 0.2rem;
+}
+
+/* ── Live auctions ──────────────────────────────────────── */
+
+.auctions {
+  padding: 0.875rem 1.75rem;
+  border-top: 1px solid var(--color-border);
+  background: var(--color-bg-card);
+}
+
+.auctionsTitle {
+  font-family: var(--font-serif);
+  font-weight: 700;
+  font-size: 1.0625rem;
+  color: var(--color-text-primary);
+  margin: 0 0 0.55rem;
+}
+
+.auctionsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0.55rem;
+}
+
+.chip {
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 8px;
+  background: var(--color-bg-primary);
+  padding: 0.55rem 0.7rem;
+}
+
+.chipHot {
+  background: color-mix(in srgb, var(--color-warning) 7%, var(--color-bg-primary));
+  border-color: color-mix(in srgb, var(--color-warning) 45%, var(--color-border));
+}
+
+.chipTop {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-width: 0;
+}
+
+.chipName {
+  font-family: var(--font-serif);
+  font-weight: 700;
+  font-size: 0.9375rem;
+  color: var(--color-text-primary);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+.chipName:hover { text-decoration: underline; }
+
+.chipMeta {
+  font-size: 0.59rem;
+  color: var(--color-text-muted);
+  margin-top: 0.15rem;
+}
+
+.chipBottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-top: 0.4rem;
+}
+
+.chipPrice {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 1.0625rem;
+  line-height: 1;
+  color: var(--color-text-primary);
+}
+
+.chipClock {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+}
+
+.chipClockHot { color: var(--color-warning); }
+
+.chipGo {
+  display: block;
+  width: 100%;
+  margin-top: 0.45rem;
+  padding: 0.35rem;
+  border-radius: 4px;
+  border: 1px solid var(--color-accent);
+  background: var(--color-accent);
+  color: #FFFFFF;
+  font-family: var(--font-sans);
+  font-size: 0.575rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.chipGo:hover { background: var(--color-accent-hover); }
+
+.chipGoGhost { background: transparent; color: var(--color-accent); }
+.chipGoGhost:hover { background: var(--color-accent-dim); }
+
+/* ── Tools ──────────────────────────────────────────────── */
+
+.tools {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.75rem 1.75rem 0.5rem;
+  border-top: 1px solid var(--color-border);
+  flex-wrap: wrap;
+}
+
+.input {
+  flex: 1;
+  min-width: 200px;
+  padding: 0.6rem 0.8rem;
+  border: 1px solid var(--color-border);
+  border-radius: 5px;
+  background: var(--color-bg-card);
+  font-family: var(--font-sans);
+  font-size: 0.8125rem;
+  color: var(--color-text-primary);
+}
+
+.input::placeholder { color: var(--color-text-muted); }
+
+.select {
+  padding: 0.6rem 0.8rem;
+  border: 1px solid var(--color-border);
+  border-radius: 5px;
+  background: var(--color-bg-card);
+  font-family: var(--font-sans);
+  font-size: 0.78rem;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+}
+
+.positions {
+  display: flex;
+  gap: 0.25rem;
+  padding: 0 1.75rem 0.75rem;
+  flex-wrap: wrap;
+}
+
+.pos {
+  font-family: var(--font-sans);
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 0.3rem 0.5rem;
+  border-radius: 3px;
+  border: 1px solid var(--color-border-subtle);
+  background: var(--color-bg-card);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  min-width: 2.1rem;
+}
+
+.pos:hover { background: var(--color-bg-card-hover); }
+
+.posOn,
+.posOn:hover {
+  background: var(--color-text-primary);
+  border-color: var(--color-text-primary);
+  color: var(--color-bg-primary);
+}
+
+/* ── Table ──────────────────────────────────────────────── */
+
+.tableWrap {
+  padding: 0 1.75rem;
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8125rem;
+  /* Fixed layout so the widths below are honoured exactly. Auto layout lets the
+     player column swallow the slack and strands the figures far from their
+     headers, which is what made the columns look unrelated to each other. */
+  table-layout: fixed;
+}
+
+.table thead th {
+  text-align: left;
+  font-size: 0.53rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  padding: 0.5rem 0.6rem;
+  border-bottom: 1px solid var(--color-border);
+  white-space: nowrap;
+}
+
+.table tbody td {
+  padding: 0.5rem 0.6rem;
+  border-bottom: 1px solid var(--color-border-subtle);
+  color: var(--color-text-secondary);
+  /* One rule across the whole row. Any cell that opts out of `table-cell`
+     display breaks this — see the note on .playerCell. */
+  vertical-align: middle;
+}
+
+.table tbody tr:hover { background: var(--color-bg-card-hover); }
+
+.loading { opacity: 0.45; }
+
+/* Column widths. The four figures sit together in a right-hand block rather
+   than being spread across the table, so they can be compared by eye. */
+.thPlayer  { width: auto; min-width: 170px; }
+.thClub    { width: 15%; }
+.thNum     { width: 8.5%; }
+.thAction  { width: 68px; }
+
+.tdPlayer { overflow: hidden; }
+
+.playerCell {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-width: 0;
+}
+
+.playerName {
+  font-family: var(--font-serif);
+  font-weight: 600;
+  font-size: 0.9375rem;
+  color: var(--color-text-primary);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+.playerName:hover { text-decoration: underline; }
+
+.club {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Figures are right-aligned and tabular so digits line up down the column.
+   The header must match the cell — `.table thead th` sets text-align: left and
+   outranks a bare `.num`, which is why these are qualified. */
+.num,
+.table thead th.num,
+.table tbody td.num {
+  text-align: right;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.table thead th.thAction,
+.tdAction { text-align: right; }
+
+.bidBtn {
+  padding: 0.3rem 0.7rem;
+  border-radius: 4px;
+  border: 1px solid var(--color-accent);
+  background: transparent;
+  color: var(--color-accent);
+  font-family: var(--font-sans);
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.bidBtn:hover { background: var(--color-accent); color: #FFFFFF; }
+
+/* The action column's header is empty on screen but must not be empty to a
+   screen reader reading the row. */
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.empty,
+.error {
+  padding: 2rem 0;
+  text-align: center;
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+}
+
+.error { color: var(--color-danger); }
+
+/* ── Pager ──────────────────────────────────────────────── */
+
+.pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 1rem 1.75rem 1.75rem;
+  flex-wrap: wrap;
+}
+
+.pageBtn {
+  padding: 0.5rem 0.9rem;
+  border-radius: 5px;
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-card);
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+}
+
+.pageBtn:hover:not(:disabled) { background: var(--color-bg-card-hover); }
+.pageBtn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.pageOf {
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+}
+
+/* ── Responsive ─────────────────────────────────────────── */
+
+@media (max-width: 640px) {
+  .header {
+    padding: 1rem 1rem 0.75rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .title { font-size: 1.75rem; }
+  .stats { gap: 1.25rem; width: 100%; }
+  .stat { text-align: left; }
+
+  .auctions,
+  .tools { padding-left: 1rem; padding-right: 1rem; }
+  .positions { padding-left: 1rem; padding-right: 1rem; }
+  .tableWrap { padding: 0 1rem; }
+
+  /* Form and PPG are the first things to go on a phone — value and total points
+     are what a manager scans for, and the card behind the name carries the rest. */
+  .table th:nth-child(5),
+  .table td:nth-child(5),
+  .table th:nth-child(6),
+  .table td:nth-child(6) { display: none; }
+
+  .pager { padding: 1rem 1rem 1.5rem; }
+}

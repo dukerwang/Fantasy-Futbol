@@ -165,6 +165,7 @@ export interface Player {
   fpl_id: number | null;
   api_football_id: number | null;
   web_name: string | null;
+  sofifa_common_name?: string | null;
   name: string;
   full_name: string | null;
   date_of_birth: string | null;
@@ -416,6 +417,8 @@ export interface TradeProposal {
   team_b_id: string;   // receiver
   offered_players: string[];    // player IDs from team A
   requested_players: string[];  // player IDs from team B
+  offered_rights: string[];     // departure_decisions IDs from team A — retained player rights
+  requested_rights: string[];   // departure_decisions IDs from team B
   offered_faab: number;
   requested_faab: number;
   status: TradeProposalStatus;
@@ -652,5 +655,23 @@ export interface PlayerSeasonArchive {
   form_rating: number;
   overall_rank: number;
   position_ranks: { position: string; rank: number }[];
+}
+
+/** A fantasy club identified well enough to render its crest. */
+export interface OwnerClub {
+  teamId: string;
+  teamName: string;
+  abbreviation: string | null;
+  crestConfig: unknown | null;
+}
+
+/**
+ * Who holds a player in a given league. `owner` is the team that holds the
+ * contract — during an active loan that stays with the lender, and
+ * `loanedTo` names the borrower fielding him. Null means free agent.
+ */
+export interface PlayerOwnership {
+  owner: OwnerClub;
+  loanedTo: OwnerClub | null;
 }
 

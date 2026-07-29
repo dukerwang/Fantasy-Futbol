@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { formatPlayerName } from '@/lib/formatName';
+import { getPlayerDisplayName } from '@/lib/players/displayName';
 import styles from './finance.module.css';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -185,7 +185,7 @@ function LedgerRow({ tx }: { tx: Transaction }) {
   const meta = TX_META[tx.type] ?? { direction: 'none' as const, label: tx.type.toUpperCase().replace(/_/g, ' '), category: 'Other' };
   const amount = getAmount(tx);
   const dir = getDirection(tx);
-  const playerName = tx.player ? formatPlayerName(tx.player, 'initial_last') : null;
+  const playerName = tx.player ? getPlayerDisplayName(tx.player, 'initial_last') : null;
 
   return (
     <tr className={styles.ledgerRow}>

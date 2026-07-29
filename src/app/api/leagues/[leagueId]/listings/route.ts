@@ -73,10 +73,14 @@ export async function POST(req: NextRequest, { params }: Props) {
 
   // 3. Parse and validate body
   const body = await req.json();
-  const { playerId, minBid, buyNowPrice } = body as {
+  const { playerId, minBid, buyNowPrice, openToTrade, openToSale, openToLoan, askPrice } = body as {
     playerId: string;
     minBid: number;
     buyNowPrice?: number | null;
+    openToTrade?: boolean;
+    openToSale?: boolean;
+    openToLoan?: boolean;
+    askPrice?: number | null;
   };
 
   if (!playerId || minBid === undefined || minBid === null) {
@@ -87,9 +91,45 @@ export async function POST(req: NextRequest, { params }: Props) {
     return NextResponse.json({ error: 'minBid must be a non-negative integer' }, { status: 400 });
   }
 
+  const gateTrade = !!openToTrade;
+  const gateSale = !!openToSale;
+  const gateLoan = !!openToLoan;
+
+  // Enforced by player_sale_listings_gate_not_inert (082, widened to include the
+  // loan gate in 083); repeated here so the seller gets a sentence rather than a
+  // constraint violation.
+  if (!gateTrade && !gateSale && !gateLoan) {
+    return NextResponse.json(
+      { error: 'Choose at least one kind of approach to accept: player offers, cash offers, or loans. The auction runs either way.' },
+      { status: 400 },
+    );
+  }
+
   if (buyNowPrice !== undefined && buyNowPrice !== null) {
     if (!Number.isInteger(buyNowPrice) || buyNowPrice <= minBid) {
       return NextResponse.json({ error: 'buyNowPrice must be an integer greater than minBid' }, { status: 400 });
+    }
+  }
+
+  if (gateSale && (askPrice === undefined || askPrice === null)) {
+    return NextResponse.json(
+      { error: 'An asking price is required when you accept cash offers.' },
+      { status: 400 },
+    );
+  }
+
+  if (askPrice !== undefined && askPrice !== null) {
+    if (!Number.isInteger(askPrice) || askPrice < minBid) {
+      return NextResponse.json(
+        { error: `Asking price must be a whole number of at least your minimum bid (€${minBid}m).` },
+        { status: 400 },
+      );
+    }
+    if (buyNowPrice !== undefined && buyNowPrice !== null && askPrice >= buyNowPrice) {
+      return NextResponse.json(
+        { error: 'Asking price must be below the Buy Now price — otherwise nobody would negotiate.' },
+        { status: 400 },
+      );
     }
   }
 
@@ -181,7 +221,38 @@ export async function POST(req: NextRequest, { params }: Props) {
     );
   }
 
-  // 8. Create the listing
+  // 8. Pre-check the 80% floor.
+  //
+  // The trigger from 077 is the real enforcement — it re-reads market_value
+  // inside the transaction, so a Transfermarkt sync landing mid-request cannot
+  // slip a lowball through. This check exists purely so the seller sees the
+  // actual number instead of a raised exception.
+  const { data: playerRow } = await admin
+    .from('players')
+    .select('name, market_value')
+    .eq('id', playerId)
+    .single();
+
+  const marketValue = Number(playerRow?.market_value ?? 0);
+  if (marketValue > 0) {
+    const floor = Math.floor(marketValue * 0.8);
+    if (minBid < floor) {
+      return NextResponse.json(
+        {
+          error: `Minimum bid must be at least €${floor}m — 80% of ${playerRow?.name ?? 'this player'}'s €${marketValue}m market value.`,
+          floor,
+          marketValue,
+        },
+        { status: 400 },
+      );
+    }
+  }
+
+  // 9. Create the listing.
+  //
+  // No anchor insert here: the trigger added in 080 seeds the auction claim on
+  // this INSERT, so every listing is a live auction from creation. Doing it in
+  // the route as well would race with the trigger and double-seed.
   const { data: listing, error: insertError } = await admin
     .from('player_sale_listings')
     .insert({
@@ -190,6 +261,10 @@ export async function POST(req: NextRequest, { params }: Props) {
       player_id: playerId,
       min_bid: minBid,
       buy_now_price: buyNowPrice ?? null,
+      ask_price: askPrice ?? null,
+      open_to_trade: gateTrade,
+      open_to_sale: gateSale,
+      open_to_loan: gateLoan,
       status: 'pending',
     })
     .select()

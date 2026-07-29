@@ -60,19 +60,19 @@ Instead of flat points for goals/assists/tackles like most fantasy games, Gaffa 
 
 Each match, a player earns a **rating from roughly 1.0 to 10.0** (calibrated so an average Premier League starter sits around 6.5, just like you'd see on a match-rating site), built from a blend of:
 
-- **Overall match impact** (a general influence-on-the-game score, with goals/assists stripped out so they aren't double-counted elsewhere)
-- **Creativity and attacking threat** (chances created, shots, dangerous touches)
-- **Defensive work** (tackles, interceptions, clearances, blocks, recoveries) — this matters a lot more for defenders and defensive midfielders than for wingers
-- **Clean sheets** — a big bonus for goalkeepers and defenders who play 60+ minutes and keep it clean, a smaller bonus for central midfielders, and none for attacking players
-- **Goals conceded** — costly for goalkeepers, and outfield players are judged relative to how many goals their team's underlying performance suggested they "should" have conceded, not just the scoreline
-- **Goals and assists** — scored on the same scale regardless of position, plus a bonus for outperforming your expected-goals numbers
+- **Overall match impact** — how much influence a player had on the game beyond just the box score: pressing, positioning, involvement in build-up play, and general contribution
+- **Creativity and attacking threat** — chances created, shots, dangerous touches, and attacking intent
+- **Defensive work** — tackles, interceptions, clearances, blocks, and recoveries; this matters a lot more for defenders and defensive midfielders than for wingers
+- **Clean sheets** — a big bonus for goalkeepers and defenders who play 60+ minutes and keep a clean sheet, a smaller bonus for central midfielders, and none for attacking players
+- **Goals conceded** — costly for goalkeepers; for outfield players, the penalty is calibrated against how many goals the team's performance suggested they should have allowed, not just the final scoreline
+- **Goals and assists** — rewarded the same regardless of position, with a bonus for outperforming your expected-goals numbers
 - **Saves** (goalkeepers only) — including a bigger bonus for penalty saves
 
 A player's best-fitting standout stat for their position also gets a small extra boost, so a defender who has an outstanding attacking game, or a winger who has an outstanding defensive game, gets rewarded for the "flex" contribution rather than being capped by their normal role.
 
 That match rating is then converted into your **fantasy points** for the gameweek. The conversion is deliberately front-loaded toward good performances: a merely average game earns modest points, but a genuinely good game (well above the position's average) is worth disproportionately more — so one standout performance can matter more than several mediocre ones. A truly poor match rating (well below average) can actually cost you a small points penalty rather than just scoring zero.
 
-**One quirk worth knowing:** a midfielder or attacker fielded in a defensive slot (CB/LB/RB/LWB/RWB) — say, as an emergency cover option — takes a **20% penalty** to both their match rating and fantasy points that week. Defenders filling in out of position elsewhere don't get penalized the same way; this rule specifically discourages stacking attack-minded players into defensive slots to farm easy defensive baselines.
+**One quirk worth knowing:** some players are listed at both an attacking or midfield position *and* a defensive position — for example, a player registered as both AM and RB. If you field such a player in their defensive slot, they take a **20% penalty** to both their match rating and fantasy points that week. This doesn't apply in reverse — defenders who are also listed in a midfield or attacking role don't get penalized for filling those slots.
 
 ---
 
@@ -219,7 +219,7 @@ The History page is your league's permanent record book: for every past season, 
 | **Severance fee** | The cost charged when you drop a rostered player to make room for a new signing. |
 | **Auto-sub** | An automatic bench replacement when a starter records zero minutes. |
 | **Bench Depth Bonus** | Extra team points from bench players who played but weren't needed as auto-subs. |
-| **OOP penalty** | The 20% rating/points penalty for playing an attacking or midfield player in a defensive slot. |
+| **OOP penalty** | The 20% rating/points penalty applied when a dual-position player (listed at both an attacking/midfield and a defensive position) is fielded in their defensive slot. |
 | **Taxi Squad** | A stash for young prospects that doesn't count against your active roster. |
 | **IR** | Injured Reserve — a stash for long-term injuries. |
 | **Transfer-out compensation** | Club Balance paid to you when a rostered player permanently leaves the Premier League. |

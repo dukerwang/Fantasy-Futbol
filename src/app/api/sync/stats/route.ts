@@ -15,6 +15,8 @@ import { calculateMatchRating, mapFplLiveToRawStats } from '@/lib/scoring/engine
 import { loadReferenceStats } from '@/lib/scoring/matchups';
 import { resolveAllStalledGameweeks } from '@/lib/scoring/matchupProcessor';
 import { getCurrentFplSeason, getLatestReferenceStatsSeason } from '@/lib/season/currentSeason';
+import { snapshotCurrentFplFixtures } from '@/lib/fixtures/upsertFixtures';
+import { recomputePositionRanks } from '@/lib/stats/seasonStats';
 import type { GranularPosition, FplLivePlayerStats } from '@/types';
 import { createClient } from '@supabase/supabase-js';
 import { NextRequest, NextResponse } from 'next/server';
@@ -22,6 +24,13 @@ import { NextRequest, NextResponse } from 'next/server';
 export const maxDuration = 300;
 
 const FPL_BASE = 'https://fantasy.premierleague.com/api';
+
+/**
+ * Real FPL fixture ids for a season are 1-380. Anything at or above this is a
+ * placeholder this route minted for a player with no fixture to attach to
+ * (gameweek * 1000 + element id), and is safe to delete once a real one lands.
+ */
+const SYNTHETIC_MATCH_ID_FLOOR = 1000;
 
 
 async function getCurrentGameweek(): Promise<number> {
@@ -106,17 +115,16 @@ async function syncFplLiveRatings(gameweek: number): Promise<NextResponse> {
     kickoff_time: string | null;
   }
 
-  // Save/upsert fixtures into public.pl_fixtures
-  const plFixturesPayload = (fixtures ?? []).map((f: FplFixtureRaw) => ({
-      id: f.id,
-      gameweek: f.event || gameweek,
-      team_h: f.team_h,
-      team_a: f.team_a,
-      kickoff_time: f.kickoff_time,
-  })).filter((f: { kickoff_time: string | null }) => f.kickoff_time);
-
-  if (plFixturesPayload.length > 0) {
-      await supabase.from('pl_fixtures').upsert(plFixturesPayload, { onConflict: 'id' });
+  // Snapshot this gameweek's fixtures, season-stamped and slug-keyed. Without
+  // the season stamp these rows are overwritten by next season's at the same
+  // fixture ids, which is what erased the 2025-26 fixture list.
+  try {
+    const snap = await snapshotCurrentFplFixtures(supabase, fplSeason, gameweek);
+    if (snap.skipped > 0) {
+      console.warn(`pl_fixtures: skipped ${snap.skipped} fixture(s) with unrecognised clubs`);
+    }
+  } catch (err) {
+    console.error('Failed to snapshot PL fixtures:', err);
   }
 
   const teamFixtures: Record<number, number[]> = {};
@@ -149,9 +157,32 @@ async function syncFplLiveRatings(gameweek: number): Promise<NextResponse> {
         if (!dbPlayer) return;
 
         const playerFixIds = teamFixtures[dbPlayer.pl_team_id || 0] || [];
-        
+
         // If player has played or is in squad, FPL provides 'explain' per match
         if (el.explain && el.explain.length > 0) {
+          // The gameweek's real fixtures for THIS player, straight from the
+          // payload describing them. The old code asked teamFixtures for them,
+          // keyed on players.pl_team_id — a seasonal id the player sync
+          // overwrites — and when that lookup came back short it treated a
+          // double gameweek as a single one and deleted the first match while
+          // writing the second. 156 appearances were lost that way in 2025-26.
+          const realFixtureIds = el.explain
+            .map((ex: { fixture: number }) => ex.fixture)
+            .filter((id: number) => id < SYNTHETIC_MATCH_ID_FLOOR);
+
+          if (realFixtureIds.length > 0) {
+            // One delete per player per gameweek, clearing only rows that no
+            // longer describe a match they featured in — synthetic placeholders
+            // and stale fixture ids — and never a sibling of a double gameweek.
+            await supabase
+              .from('player_stats')
+              .delete()
+              .eq('player_id', dbPlayer.id)
+              .eq('season', fplSeason)
+              .eq('gameweek', gameweek)
+              .not('match_id', 'in', `(${realFixtureIds.join(',')})`);
+          }
+
           for (const ex of el.explain) {
             const fixtureId = ex.fixture;
             const fixtureMinutes = ex.stats.find((s: any) => s.identifier === 'minutes')?.value ?? 0;
@@ -217,13 +248,25 @@ async function syncFplLiveRatings(gameweek: number): Promise<NextResponse> {
           }
         } else {
           // Fallback for players who didn't play (DNP)
-          const fixtureId = playerFixIds[0] || (gameweek * 1000 + el.id);
+          const fixtureId = playerFixIds[0] || (gameweek * SYNTHETIC_MATCH_ID_FLOOR + el.id);
           const rawStats = mapFplLiveToRawStats(el.stats);
           const v2 = calculateMatchRating(
             rawStats,
             dbPlayer.primary_position as GranularPosition,
             refStats as any
           );
+
+          // Clear stale placeholders only. A real fixture row here means an
+          // earlier sync recorded an appearance FPL is momentarily not
+          // explaining; deleting it would erase a match that was played.
+          await supabase
+            .from('player_stats')
+            .delete()
+            .eq('player_id', dbPlayer.id)
+            .eq('season', fplSeason)
+            .eq('gameweek', gameweek)
+            .gte('match_id', SYNTHETIC_MATCH_ID_FLOOR)
+            .neq('match_id', fixtureId);
 
           await supabase.from('player_stats').upsert(
             {
@@ -249,11 +292,21 @@ async function syncFplLiveRatings(gameweek: number): Promise<NextResponse> {
   // Recompute pre-computed form_rating (avg match_rating over last 5 appearances)
   await supabase.rpc('update_player_form_ratings', { p_season: fplSeason });
 
+  // Positional ranks are re-scored per position (migration 085) and so must be
+  // recomputed here, once totals are settled, rather than derived in the view.
+  let positionRanks: unknown = null;
+  try {
+    positionRanks = await recomputePositionRanks(supabase, fplSeason);
+  } catch (err) {
+    // A rank refresh failing must not lose the stats that were just written.
+    console.error('recomputePositionRanks failed:', err);
+  }
+
   // Resolve all stalled GWs — not just the one being synced.
   // This catches GWs that were left as 'live' once getCurrentGameweek() rolled forward.
   const resolution = await resolveAllStalledGameweeks();
 
-  return NextResponse.json({ ok: true, mode: 'fpl_live', gameweek, saved, resolution });
+  return NextResponse.json({ ok: true, mode: 'fpl_live', gameweek, saved, resolution, positionRanks });
 }
 
 // tryResolveGameweekIfFinished replaced by resolveAllStalledGameweeks in matchupProcessor.ts
@@ -280,32 +333,12 @@ async function syncFplForm(): Promise<NextResponse> {
   const elements = fplData.elements as FplFormElement[];
   let updated = 0;
 
-  // Sync all season fixtures into pl_fixtures
+  // Snapshot the whole season's fixtures, season-stamped and slug-keyed.
   try {
-    const fixturesRes = await fetch(`${FPL_BASE}/fixtures/`, {
-      headers: { 'User-Agent': 'FantasyFutbol/1.0' },
-      next: { revalidate: 0 },
-    });
-    if (fixturesRes.ok) {
-      const allFixtures = await fixturesRes.json();
-      interface FplFixtureRaw {
-        id: number;
-        event: number | null;
-        team_h: number;
-        team_a: number;
-        kickoff_time: string | null;
-      }
-      const plFixturesPayload = (allFixtures ?? []).map((f: FplFixtureRaw) => ({
-        id: f.id,
-        gameweek: f.event,
-        team_h: f.team_h,
-        team_a: f.team_a,
-        kickoff_time: f.kickoff_time,
-      })).filter((f: { kickoff_time: string | null; gameweek: number | null }) => f.kickoff_time && f.gameweek);
-
-      if (plFixturesPayload.length > 0) {
-        await supabase.from('pl_fixtures').upsert(plFixturesPayload, { onConflict: 'id' });
-      }
+    const season = await getCurrentFplSeason(undefined, true);
+    const snap = await snapshotCurrentFplFixtures(supabase, season);
+    if (snap.skipped > 0) {
+      console.warn(`pl_fixtures: skipped ${snap.skipped} fixture(s) with unrecognised clubs`);
     }
   } catch (err) {
     console.error('Failed to sync PL fixtures in fpl_form mode:', err);

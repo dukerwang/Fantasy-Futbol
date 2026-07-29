@@ -12,19 +12,47 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 
 /**
- * Fraction of market value refunded when a player leaves the Premier League.
+ * Fallback fraction of market value refunded when a player leaves the Premier
+ * League. The live value is per-league: `leagues.departure_compensation_rate`
+ * (migration 069) — read it with `getDepartureCompensationRate()`. This
+ * constant is only the default for callers that have no league in hand.
  *
- * 1.0 (full market value): Transfermarkt valuations sit below what clubs
- * actually pay in real transfers, so paying "100%" of a TM figure is still
- * conservative against a real fee. It also removes a rounding artefact —
+ * The rate is a balance dial, not an implementation detail. It decides whether
+ * a manager should ever keep a departed player's rights instead of taking the
+ * cash: retaining is rational only when P(player returns to the PL) exceeds
+ * rate / auction premium. At 1.0 no premium is high enough, and retention is
+ * never the right call.
+ *
+ * A previous version set this to 1.0 to dodge a rounding artefact —
  * `teams.faab_budget` is an INT column and the RPC casts the payout to it, so
- * a fractional rate turned round market values into fractional payouts that
- * silently rounded (€6m at 0.8 credited €5m, not €4.8m). At 1.0 the payout is
- * the market value itself, which is nearly always whole.
+ * €6m at 0.8 credits €5m rather than €4.8m. That is a ±€0.5m rounding on a
+ * currency denominated in millions; it is not worth distorting the economy to
+ * avoid. Payouts round to the nearest whole million and that is intended.
  *
  * Exported so the preview path can't drift from what actually gets paid.
  */
-export const COMPENSATION_RATE = 1.0;
+export const COMPENSATION_RATE = 0.8;
+
+/**
+ * Resolves the departure compensation rate for one league, falling back to
+ * COMPENSATION_RATE if the league row or column is unreadable. Every payout
+ * path should price off this rather than a literal, so the manual transfer-out
+ * and the relegation sweep can never quote different figures for the same
+ * event again (they previously disagreed: 0.8 inline vs 1.0 here).
+ */
+export async function getDepartureCompensationRate(
+  supabase: SupabaseClient,
+  leagueId: string,
+): Promise<number> {
+  const { data } = await supabase
+    .from('leagues')
+    .select('departure_compensation_rate')
+    .eq('id', leagueId)
+    .single();
+
+  const rate = Number(data?.departure_compensation_rate);
+  return Number.isFinite(rate) ? rate : COMPENSATION_RATE;
+}
 
 interface TransferCompensationResult {
   playerId: string;
@@ -37,6 +65,8 @@ interface TransferCompensationResult {
     leagueId: string;
     previousFaab: number;
     newFaab: number;
+    /** What this league actually paid — leagues can be on different rates. */
+    compensation: number;
   }[];
 }
 
@@ -47,6 +77,15 @@ interface TransferCompensationResult {
  * - Credits each team's FAAB budget
  * - Removes player from all rosters
  * - Records transactions
+ *
+ * @deprecated Superseded by the departure decision flow (src/lib/departures).
+ * Nothing calls this any more and new code must not: it pays compensation
+ * immediately across every league at once, which skips the manager's
+ * retain-or-release choice entirely and leaves no `departure_decisions` row —
+ * so the player would be silently released without ever reaching the Retained
+ * List, and the per-departure idempotency key would not exist. Use
+ * `recordDepartures` to open a decision and `releaseDeparture` to pay one out.
+ * Kept only because the underlying RPC still exists in the database.
  */
 export async function processPlayerTransferOut(
   supabase: SupabaseClient,
@@ -73,25 +112,35 @@ export async function processPlayerTransferOut(
     throw new Error(`Player not found: ${playerId}`);
   }
 
-  const compensation = player.market_value
-    ? Math.round(player.market_value * COMPENSATION_RATE * 100) / 100
-    : 0;
-
   interface RpcTransferTeamRow {
     team_id: string;
     team_name: string;
     league_id: string;
     previous_faab: number;
     new_faab: number;
+    compensation: number;
   }
 
-  const affectedTeams = (data as RpcTransferTeamRow[] ?? []).map((row) => ({
+  const rows = (data as RpcTransferTeamRow[]) ?? [];
+
+  const affectedTeams = rows.map((row) => ({
     teamId: row.team_id,
     teamName: row.team_name,
     leagueId: row.league_id,
     previousFaab: row.previous_faab,
     newFaab: row.new_faab,
+    compensation: Number(row.compensation ?? 0),
   }));
+
+  // Since migration 071 each league pays at its own configured rate, so there
+  // is no single figure for the call. Report the first row's — callers that
+  // care about a specific league must read it off that league's row. Falls back
+  // to the default rate only when the RPC paid nobody (nothing to report).
+  const compensation = rows.length
+    ? Number(rows[0].compensation ?? 0)
+    : player.market_value
+      ? Math.round(player.market_value * COMPENSATION_RATE * 100) / 100
+      : 0;
 
   return {
     playerId,

@@ -9,8 +9,8 @@ import {
     BENCH_SLOT_LABELS,
 } from '@/types';
 import type { Formation, GranularPosition, Player, BenchSlot, RosterEntry } from '@/types';
-import PlayerDetailsModal from '@/components/players/PlayerDetailsModal';
-import { formatPlayerName } from '@/lib/formatName';
+import { usePlayerCard } from '@/components/players/PlayerCardProvider';
+import { getPlayerDisplayName } from '@/lib/players/displayName';
 import { plTeamThreeLetter } from '@/lib/plTeamAbbrev';
 import styles from './pitch.module.css';
 import { Icon } from '@/components/ui/Icon';
@@ -67,11 +67,11 @@ function canPlayBenchSlot(player: Player, slot: BenchSlot): boolean {
 }
 
 function displayName(player: Player): string {
-    return formatPlayerName(player, 'initial_last');
+    return getPlayerDisplayName(player, 'initial_last');
 }
 
 function pitchFullName(player: Player): string {
-    return formatPlayerName(player, 'full');
+    return getPlayerDisplayName(player, 'full');
 }
 
 function isU21Eligible(player: Player, academyAgeLimit: number): boolean {
@@ -309,7 +309,7 @@ export default function PitchUI({
     const [sidebarError, setSidebarError] = useState<string | null>(null);
 
     // ── Modal ──
-    const [viewingPlayer, setViewingPlayer] = useState<Player | null>(null);
+    const { openPlayer: setViewingPlayer, prefetchPlayer } = usePlayerCard();
 
     const slots = FORMATION_SLOTS[formation];
     const academyAgeLimit = taxiAgeLimit;
@@ -1338,10 +1338,7 @@ export default function PitchUI({
                 </div>
             </div>
 
-            <PlayerDetailsModal
-                player={viewingPlayer}
-                onClose={() => setViewingPlayer(null)}
-            />
+            {/* The player card modal is owned by PlayerCardProvider in the dashboard layout. */}
         </div>
     );
 }

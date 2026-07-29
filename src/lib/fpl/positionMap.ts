@@ -22,6 +22,9 @@ export const FPL_POSITION_OVERRIDES: Record<string, GranularPosition> = {
   'josh nichols': 'RB',
   'tommy setford': 'GK',
   'max dowman': 'AM',
+  'martín zubimendi ibáñez': 'DM',
+  'martin zubimendi ibanez': 'DM',
+  zubimendi: 'DM',
 
   // Aston Villa
   'james wright': 'GK',

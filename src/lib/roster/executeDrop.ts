@@ -2,6 +2,7 @@ import { SupabaseClient } from '@supabase/supabase-js';
 import { sendEmail } from '@/lib/email/client';
 import { getPlayerDroppedEmail } from '@/lib/email/templates';
 import { AUCTION_THRESHOLD } from '@/lib/offseason/seasonKickoff';
+import { getDepartureCompensationRate } from '@/lib/transfers/compensation';
 
 export async function executeDrop(
     admin: SupabaseClient,
@@ -37,11 +38,28 @@ export async function executeDrop(
 
     if (!player) throw new Error('Player not found');
 
+    // Transfer-out compensation only applies once the sync marks the player as
+    // having actually left the PL (is_active = false). Without this guard any
+    // still-active player could be "transferred out" for 80% of market value
+    // instead of paying the 20% drop severance — the only prior gate was a
+    // client-side confirm() dialog, which a direct API call bypasses.
+    if (actionType === 'transfer_out' && player.is_active) {
+        throw new Error(`${player.name} is still active in the Premier League and cannot be transferred out. Use Drop instead.`);
+    }
+
     const marketValue = Number(player.market_value || 0);
 
     // Severance fee: 20% of market value (rounded down), minimum €2m — charged on plain drops only
     const severanceFee = actionType === 'drop' ? Math.max(2, Math.floor(marketValue * 0.2)) : 0;
-    const refundAmount = actionType === 'transfer_out' ? Math.round(marketValue * 0.8) : 0;
+
+    // Priced off the league's configured rate, not a literal. This path used to
+    // hardcode 0.8 while the relegation sweep used COMPENSATION_RATE = 1.0, so
+    // the same real-world event paid differently depending on who triggered it.
+    const compensationRate =
+        actionType === 'transfer_out'
+            ? await getDepartureCompensationRate(admin, team.league_id)
+            : 0;
+    const refundAmount = actionType === 'transfer_out' ? Math.round(marketValue * compensationRate) : 0;
 
     let notes: string;
     if (actionType === 'transfer_out') {
@@ -101,6 +119,8 @@ export async function executeDrop(
             gameweek: 0,
             is_auction: true,
             expires_at: auctionExpiry,
+            // Reference price for the auction premium — see migration 070.
+            market_value_at_auction: marketValue,
         });
 
         // --- SEND EMAIL NOTIFICATION ---

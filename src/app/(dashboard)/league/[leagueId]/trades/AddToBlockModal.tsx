@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import PositionBadge from '@/components/players/PositionBadge';
-import { formatPlayerName } from '@/lib/formatName';
+import { getPlayerDisplayName } from '@/lib/players/displayName';
 import styles from './trades.module.css';
 
 interface SimplePlayer {
@@ -82,7 +82,7 @@ export default function AddToBlockModal({ myTeamId, myRoster, onClose, onToggle 
                     <PositionBadge position={p.primary_position as any} size="sm" />
                     <div className={styles.blockToggleInfo}>
                       <span className={styles.blockToggleName}>
-                        {formatPlayerName(p, 'initial_last')}
+                        {getPlayerDisplayName(p, 'initial_last')}
                       </span>
                       <span className={styles.blockToggleClub}>
                         {p.pl_team ?? ''}

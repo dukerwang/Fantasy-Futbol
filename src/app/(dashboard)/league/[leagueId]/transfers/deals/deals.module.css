@@ -1,0 +1,443 @@
+.page { min-height: 100%; }
+
+/* ── Masthead ───────────────────────────────────────────── */
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 1.5rem;
+  padding: 1.125rem 1.75rem 0.9rem;
+  flex-wrap: wrap;
+}
+
+.kicker {
+  font-size: 0.59rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.title {
+  font-family: var(--font-serif);
+  font-weight: 800;
+  font-size: 2.0625rem;
+  letter-spacing: -0.035em;
+  line-height: 1;
+  margin-top: 0.25rem;
+  color: var(--color-text-primary);
+}
+
+.stats { display: flex; gap: 1.5rem; }
+.stat { text-align: right; }
+
+.statValue {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 1.1875rem;
+  line-height: 1;
+  color: var(--color-text-primary);
+}
+
+.statAccent { color: var(--color-accent); }
+.statRed    { color: var(--color-defeat); }
+.statTeal   { color: var(--color-pos-wb); }
+
+.statLabel {
+  font-size: 0.5625rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  margin-top: 0.2rem;
+}
+
+/* ── Layout ─────────────────────────────────────────────── */
+
+.body {
+  display: grid;
+  grid-template-columns: 1fr 316px;
+  border-top: 1px solid var(--color-border);
+}
+
+.main {
+  padding: 1rem 1.375rem 1.5rem 1.75rem;
+  border-right: 1px solid var(--color-border);
+  min-width: 0;
+}
+
+.sect {
+  display: flex;
+  align-items: baseline;
+  gap: 0.625rem;
+  margin-bottom: 0.625rem;
+  flex-wrap: wrap;
+}
+
+.sectSpaced { margin-top: 1.25rem; }
+
+.sectTitle {
+  font-family: var(--font-serif);
+  font-weight: 700;
+  font-size: 1.25rem;
+  letter-spacing: -0.015em;
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.sectHint { font-size: 0.69rem; color: var(--color-text-muted); }
+
+.sectMore {
+  margin-left: auto;
+  font-family: var(--font-sans);
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+  background: none;
+  border: none;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.empty {
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+  padding: 1rem 0 1.25rem;
+}
+
+.error {
+  margin-bottom: 0.875rem;
+  padding: 0.55rem 0.75rem;
+  border-radius: 6px;
+  background: var(--color-danger-dim);
+  color: var(--color-danger);
+  font-size: 0.78rem;
+}
+
+/* ── Propose bar ────────────────────────────────────────── */
+
+.proposeBar {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.7rem 0.75rem;
+  border: 1px dashed var(--color-border);
+  border-radius: 9px;
+  background: var(--color-bg-card);
+  align-items: center;
+  margin-bottom: 0.9rem;
+  flex-wrap: wrap;
+}
+
+.proposeText {
+  font-size: 0.72rem;
+  color: var(--color-text-secondary);
+  flex: 1;
+  min-width: 200px;
+}
+
+.proposeText b { color: var(--color-text-primary); }
+
+.proposeBtn {
+  font-family: var(--font-sans);
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.45rem 0.75rem;
+  border-radius: 4px;
+  border: none;
+  color: #FFFFFF;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.proposeBtn:hover { opacity: 0.88; }
+
+/* ── Deal cards ─────────────────────────────────────────── */
+
+.deal {
+  border: 1px solid var(--color-border);
+  border-radius: 9px;
+  overflow: hidden;
+  margin-bottom: 0.625rem;
+  background: var(--color-bg-card);
+}
+
+/* Needs your answer — full border + tint, no edge sliver. */
+.dealActive {
+  border-color: var(--color-border-accent);
+  background: var(--color-accent-dim);
+}
+
+.dealHead {
+  padding: 0.55rem 0.75rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  border-bottom: 1px solid var(--color-border-subtle);
+  flex-wrap: wrap;
+}
+
+.dealTitle {
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-text-primary);
+}
+
+.dealTag {
+  font-size: 0.53rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 0.19rem 0.44rem;
+  border-radius: 3px;
+  color: #FFFFFF;
+  white-space: nowrap;
+}
+
+.dealSides {
+  display: grid;
+  grid-template-columns: 1fr 34px 1fr;
+}
+
+.dealSide { padding: 0.7rem 0.75rem; min-width: 0; }
+.dealSideRight { text-align: right; }
+
+.dealSwap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-muted);
+  border-left: 1px solid var(--color-border-subtle);
+  border-right: 1px solid var(--color-border-subtle);
+}
+
+.dealLabel {
+  font-size: 0.5rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  margin-bottom: 0.375rem;
+}
+
+.assets {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.assetsRight { align-items: flex-end; }
+
+.asset {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.assetName {
+  font-family: var(--font-serif);
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: var(--color-text-primary);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.assetName:hover { text-decoration: underline; }
+
+.dealCash {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.875rem;
+  color: var(--color-accent);
+  margin-top: 0.25rem;
+}
+
+.dealCap {
+  font-weight: 400;
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+}
+
+.dealNone { color: var(--color-text-muted); font-size: 0.8125rem; }
+
+.dealNote {
+  padding: 0 0.75rem 0.625rem;
+  font-size: 0.75rem;
+  font-style: italic;
+  color: var(--color-text-secondary);
+}
+
+.dealActions {
+  display: flex;
+  border-top: 1px solid var(--color-border-subtle);
+  background: var(--color-bg-elevated);
+}
+
+.dealBtn {
+  flex: 1;
+  text-align: center;
+  padding: 0.55rem;
+  font-family: var(--font-sans);
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border: none;
+  border-right: 1px solid var(--color-border-subtle);
+  background: none;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+}
+
+.dealBtn:last-child { border-right: none; }
+.dealBtn:hover:not(:disabled) { background: var(--color-bg-card-hover); }
+.dealBtn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.dealBtnYes {
+  background: var(--color-accent);
+  color: #FFFFFF;
+}
+
+.dealBtnYes:hover:not(:disabled) { background: var(--color-accent-hover); }
+
+.dealStatus {
+  flex: 1;
+  padding: 0.55rem 0.75rem;
+  font-size: 0.69rem;
+  color: var(--color-text-muted);
+}
+
+.listingGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 0.625rem;
+}
+
+/* ── Club rail ──────────────────────────────────────────── */
+
+.rail { background: var(--color-bg-card); min-width: 0; }
+
+.railHead { padding: 0.8rem 1.125rem 0.5rem; }
+
+.railTitle {
+  font-family: var(--font-serif);
+  font-weight: 700;
+  font-size: 1.0625rem;
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.clubList { padding: 0 1.125rem; }
+
+.club {
+  display: grid;
+  grid-template-columns: 24px 1fr auto auto;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.55rem 0;
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.clubBody { min-width: 0; }
+
+.clubName {
+  font-family: var(--font-serif);
+  font-weight: 600;
+  font-size: 0.84rem;
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.clubMeta { font-size: 0.625rem; color: var(--color-text-muted); }
+
+.clubBal {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.75rem;
+  color: var(--color-text-primary);
+}
+
+.clubTag {
+  font-size: 0.5rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.19rem 0.3rem;
+  border-radius: 3px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.clubTagThem { background: var(--color-warning); color: #1C1C1C; }
+.clubTagYou  { background: var(--color-accent);  color: #FFFFFF; }
+
+.clubTagIdle {
+  border: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+}
+
+.desk {
+  border-top: 2px solid var(--color-text-primary);
+  padding: 0.7rem 1.125rem 0.95rem;
+  margin-top: 0.625rem;
+}
+
+.deskRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.375rem 0;
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.deskLast { border-bottom: none; }
+
+.deskLabel { font-size: 0.72rem; color: var(--color-text-secondary); }
+
+.deskValue {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.8125rem;
+  color: var(--color-text-primary);
+}
+
+/* ── Responsive ─────────────────────────────────────────── */
+
+@media (max-width: 1080px) {
+  .body { grid-template-columns: 1fr; }
+  .main { border-right: none; border-bottom: 1px solid var(--color-border); }
+}
+
+@media (max-width: 640px) {
+  .header {
+    padding: 1rem 1rem 0.75rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .title { font-size: 1.75rem; }
+  .stats { gap: 1.25rem; width: 100%; flex-wrap: wrap; }
+  .stat { text-align: left; }
+
+  .main { padding: 1rem 1rem 1.25rem; }
+
+  /* Two sides plus an arrow will not fit; they stack, and the right side stops
+     being right-aligned since there is nothing to align against. */
+  .dealSides { grid-template-columns: 1fr; }
+  .dealSwap { display: none; }
+  .dealSideRight { text-align: left; border-top: 1px solid var(--color-border-subtle); }
+  .assetsRight { align-items: flex-start; }
+}

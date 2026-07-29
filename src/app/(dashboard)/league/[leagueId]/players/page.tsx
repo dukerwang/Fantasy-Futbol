@@ -171,7 +171,7 @@ export default async function TransferMarketPage({ params, searchParams }: Props
   const [{ data: playersData }, { data: rankingsData }, { data: archives }] = await Promise.all([
     admin.from('players').select(FULL_PLAYER_SELECT).eq('is_active', true).order('total_points', { ascending: false, nullsFirst: false }),
     admin.from('player_rankings').select('*'),
-    admin.from('season_player_stats_archive').select('player_id, ppg, form_rating, overall_rank, position_ranks').eq('season', season)
+    admin.from('season_player_stats_archive').select('player_id, total_points, ppg, form_rating, overall_rank, position_ranks').eq('season', season)
   ]);
 
   const archiveMap = new Map((archives ?? []).map((a: any) => [a.player_id, a]));
@@ -183,6 +183,7 @@ export default async function TransferMarketPage({ params, searchParams }: Props
     const arch = archiveMap.get(p.id);
     return {
       ...p,
+      total_points: arch ? Number(arch.total_points) : p.total_points,
       ppg: arch ? Number(arch.ppg) : p.ppg,
       form_rating: arch ? Number(arch.form_rating) : p.form_rating,
       overall_rank: arch ? arch.overall_rank : ranks?.overall_rank,
@@ -203,11 +204,19 @@ export default async function TransferMarketPage({ params, searchParams }: Props
   const myRoster = (myRosterEntries ?? []).map((e: any) => {
     const p = e.player;
     const ranks = rankMap.get(p.id);
+    // Same archive-first merge as the free agent list above: in the offseason
+    // the resolved season is the archived one, and reading live ranks here put
+    // a different rank on a rostered player than on the same player as a free
+    // agent — now more visible, since live ranks are empty until GW1.
+    const arch = archiveMap.get(p.id);
     return {
       ...p,
       status: e.status,
-      overall_rank: ranks?.overall_rank,
-      position_ranks: ranks?.position_ranks
+      total_points: arch ? Number(arch.total_points) : p.total_points,
+      ppg: arch ? Number(arch.ppg) : p.ppg,
+      form_rating: arch ? Number(arch.form_rating) : p.form_rating,
+      overall_rank: arch ? arch.overall_rank : ranks?.overall_rank,
+      position_ranks: arch ? arch.position_ranks : ranks?.position_ranks
     };
   });
 

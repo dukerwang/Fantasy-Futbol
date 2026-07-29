@@ -1,0 +1,54 @@
+{
+  "_comment": "Authoritative gameweek assignments for 2025-26 rounds that cannot be derived from a football-data.co.uk CSV, because rescheduled matches desync any date-order derivation. Transcribed from the official Premier League matchweek pages. Keyed home|away using club slugs from src/lib/clubs/clubs.json. Scores and kickoff times still come from the CSV; only the round number is overridden here.",
+  "season": "2025-26",
+  "rounds": {
+    "27": [
+      "aston-villa|leeds",
+      "brentford|brighton",
+      "chelsea|burnley",
+      "west-ham|bournemouth",
+      "man-city|newcastle",
+      "crystal-palace|wolves",
+      "nottingham-forest|liverpool",
+      "sunderland|fulham",
+      "spurs|arsenal",
+      "everton|man-utd"
+    ],
+    "28": [
+      "wolves|aston-villa",
+      "bournemouth|sunderland",
+      "burnley|brentford",
+      "liverpool|west-ham",
+      "newcastle|everton",
+      "leeds|man-city",
+      "brighton|nottingham-forest",
+      "fulham|spurs",
+      "man-utd|crystal-palace",
+      "arsenal|chelsea"
+    ],
+    "29": [
+      "bournemouth|brentford",
+      "everton|burnley",
+      "leeds|sunderland",
+      "wolves|liverpool",
+      "aston-villa|chelsea",
+      "brighton|arsenal",
+      "fulham|west-ham",
+      "man-city|nottingham-forest",
+      "newcastle|man-utd",
+      "spurs|crystal-palace"
+    ],
+    "30": [
+      "burnley|bournemouth",
+      "sunderland|brighton",
+      "arsenal|everton",
+      "chelsea|newcastle",
+      "west-ham|man-city",
+      "crystal-palace|leeds",
+      "man-utd|aston-villa",
+      "nottingham-forest|fulham",
+      "liverpool|spurs",
+      "brentford|wolves"
+    ]
+  }
+}

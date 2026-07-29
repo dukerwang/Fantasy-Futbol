@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { fetchPLTeams, fetchPlayersByTeam, ApiPlayer } from '@/lib/api-football/client';
+import { resolveClub } from '@/lib/clubs/registry';
 import stringSimilarity from 'string-similarity';
 
 export const maxDuration = 60; // 1 minute max for Vercel Hobby tier
@@ -18,13 +19,13 @@ function normalizeName(name: string): string {
         .trim();
 }
 
+export async function GET(req: NextRequest) { return POST(req); }
+
 export async function POST(req: NextRequest) {
-    const secret = req.headers.get('x-cron-secret');
-    if (secret !== process.env.CRON_SECRET && req.headers.get('host') !== 'localhost:3000' && !req.url.includes('localhost')) {
-        // Allow localhost access for dev without secret
-        if (process.env.NODE_ENV === 'production') {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-        }
+    const secret = req.headers.get('x-cron-secret') ??
+        req.headers.get('authorization')?.replace('Bearer ', '');
+    if (!secret || !process.env.CRON_SECRET || secret !== process.env.CRON_SECRET) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const admin = createAdminClient();
@@ -32,11 +33,29 @@ export async function POST(req: NextRequest) {
     // 1. Fetch all players from our db to match against
     const { data: dbPlayers, error: fetchError } = await admin
         .from('players')
-        .select('id, name, web_name, primary_position, pl_team, api_football_id')
+        .select('id, name, web_name, primary_position, pl_team, api_football_id, date_of_birth, nationality, height_cm')
         .eq('is_active', true);
 
     if (fetchError || !dbPlayers) {
         return NextResponse.json({ error: 'Failed to fetch existing players' }, { status: 500 });
+    }
+
+    // Clubs whose active roster still has a player missing biographical data
+    // this route fills in (date_of_birth / nationality / height_cm). Once a
+    // club's whole roster is complete, there's nothing left to gain by paying
+    // its rate-limited fetch cost on every run — only newly-added players
+    // (transfers, academy call-ups) reopen a club here. A player whose club
+    // name we can't resolve to a slug is treated as "unknown club needs a
+    // check" rather than silently dropped, so a registry gap never turns into
+    // a permanently-skipped team.
+    let anyUnresolvedClub = false;
+    const clubsNeedingFetch = new Set<string>();
+    for (const p of dbPlayers) {
+        const incomplete = !p.date_of_birth || !p.nationality || !p.height_cm;
+        if (!incomplete) continue;
+        const slug = resolveClub(p.pl_team)?.slug;
+        if (slug) clubsNeedingFetch.add(slug);
+        else anyUnresolvedClub = true;
     }
 
     // Store mapping for string similarity 
@@ -64,11 +83,16 @@ export async function POST(req: NextRequest) {
         const teamsResult = await fetchPLTeams();
         await new Promise((resolve) => setTimeout(resolve, 6500)); // Respect 10/min rate limit
 
-        const teamIds = teamsResult.map(t => t.team.id);
-        console.log(`Found ${teamIds.length} teams. Fetching players per team...`);
+        const teamsToFetch = anyUnresolvedClub
+            ? teamsResult
+            : teamsResult.filter((t) => {
+                const slug = resolveClub(t.team.name)?.slug;
+                return !slug || clubsNeedingFetch.has(slug);
+            });
+        console.log(`Found ${teamsResult.length} teams, ${teamsToFetch.length} need a fetch. Fetching players per team...`);
 
         // 3. Fetch players per team to bypass the 3-page limit on free tier
-        for (const teamId of teamIds) {
+        for (const { team: { id: teamId } } of teamsToFetch) {
             let currentPage = 1;
             let continueFetching = true;
 

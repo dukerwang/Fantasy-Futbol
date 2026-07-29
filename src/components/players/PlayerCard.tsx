@@ -2,7 +2,7 @@
 
 import type { Player } from '@/types';
 import PositionBadge from './PositionBadge';
-import { formatPlayerName } from '@/lib/formatName';
+import { getPlayerDisplayName, playerInitial } from '@/lib/players/displayName';
 import styles from './PlayerCard.module.css';
 
 interface Props {
@@ -24,7 +24,7 @@ export default function PlayerCard({
   action,
 }: Props) {
   const statusClass = styles[`status_${status}`] || '';
-  const nameToDisplay = formatPlayerName(player, 'initial_last');
+  const nameToDisplay = getPlayerDisplayName(player, 'initial_last');
 
   return (
     <div
@@ -43,7 +43,7 @@ export default function PlayerCard({
             />
           ) : (
             <div className={styles.avatarPlaceholder}>
-              {player.name.charAt(0).toUpperCase()}
+              {playerInitial(player)}
             </div>
           )}
         </div>
@@ -69,7 +69,7 @@ export default function PlayerCard({
       <div className={styles.right}>
         <div className={styles.pointsContainer}>
           <span className={styles.pointsValue}>
-            {(player.total_points ?? 0).toFixed(1)}
+            {player.total_points != null ? player.total_points.toFixed(1) : 'n/a'}
           </span>
           <span className={styles.pointsLabel}>Points</span>
           {!isCompact && player.ppg != null && player.ppg > 0 && (
@@ -81,7 +81,7 @@ export default function PlayerCard({
 
         <div className={styles.value}>
           <span className={styles.valueAmount}>
-            €{player.market_value ?? 0}m
+            {player.market_value != null ? `€${player.market_value}m` : 'n/a'}
           </span>
         </div>
 

@@ -1,11 +1,8 @@
 'use client';
 
-import { useState } from 'react';
-import { useParams } from 'next/navigation';
 import { generateTransactionHeadline } from '@/lib/narrative/generators';
 import { renderBoldedText } from '@/lib/narrative/boldText';
-import PlayerDetailsModal from '@/components/players/PlayerDetailsModal';
-import type { Player } from '@/types';
+import { usePlayerCard } from '@/components/players/PlayerCardProvider';
 import styles from './league.module.css';
 
 interface TransferGazetteProps {
@@ -48,29 +45,7 @@ function getTxKickerClass(type: string): string {
 }
 
 export default function TransferGazette({ activity }: TransferGazetteProps) {
-  const [viewingPlayer, setViewingPlayer] = useState<Player | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-
-  const params = useParams();
-  const leagueId = params?.leagueId as string | undefined;
-
-  const handlePlayerClick = async (playerId: string) => {
-    if (isLoading) return;
-    setIsLoading(true);
-    try {
-      const query = leagueId ? `?leagueId=${leagueId}` : '';
-      const res = await fetch(`/api/players/${playerId}${query}`);
-      if (!res.ok) throw new Error('Failed to fetch details');
-      const data = await res.json();
-      if (data.player) {
-        setViewingPlayer(data.player as Player);
-      }
-    } catch (err) {
-      console.error('Failed to fetch player details:', err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const { openPlayerById: handlePlayerClick } = usePlayerCard();
 
   return (
     <>
@@ -109,7 +84,6 @@ export default function TransferGazette({ activity }: TransferGazetteProps) {
         </div>
       </div>
 
-      <PlayerDetailsModal player={viewingPlayer} onClose={() => setViewingPlayer(null)} />
     </>
   );
 }

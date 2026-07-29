@@ -67,6 +67,17 @@ Every `/api/sync/*`, `/api/cron/*`, and `/api/admin/*` route gates on the `x-cro
 ### Scoring engine (read `README.md` § "Scoring Engine" before touching this)
 `src/lib/scoring/engine.ts` normalizes raw FPL stats into 8 rating components (match_impact, influence, creativity, threat, defensive, goal_involvement, finishing, save_score) via a sigmoid transform against position-specific medians/stddevs stored in the `rating_reference_stats` table. Component scores combine into a composite via positional weights + a "flex" boost on the highest-scoring flex component, then map to a display rating (Fotmob-calibrated) and a separately-calibrated fantasy points scale via a convex curve. Out-of-position defenders take a 20% penalty. Changing weights, K, or the point curve affects historical comparability — check `scripts/backfill-scoring-v2.mjs` and `scripts/recompute_reference_stats.mjs` when doing so, and note migrations `038`–`040` cover the "scoring v2" shadow/promotion rollout pattern used previously.
 
+### Club identity (never key anything on an FPL team id)
+
+FPL's `teams[].id` is 1–20 assigned **alphabetically over whichever 20 clubs are in the division that season**, so it is reassigned every summer. The same is true of `fixtures[].id`, which restarts at 1 each season. Keying durable data on either silently corrupts history at the rollover — it already destroyed the 2025-26 fixture list and turned `team-logos/19.png` from West Ham's badge into Spurs'.
+
+- **The stable key is the slug** in `src/lib/clubs/clubs.json`, surfaced by `src/lib/clubs/registry.ts`. Resolve clubs by name via `resolveClub()`, which handles every feed spelling. Badges are `/team-logos/{slug}.png`. Relegated clubs keep their entry; add a new one when a club is promoted.
+- `fplCode` in that registry is FPL's *other* identifier — genuinely stable per club (Man Utd is always 1) — and is used only to fetch badge art. `slugMapFromBootstrapTeams()` is the one sanctioned place to interpret a seasonal team id, and only against the payload it arrived in.
+- `pl_fixtures` is keyed `(season, fpl_fixture_id)` with clubs as slugs; write to it only through `src/lib/fixtures/upsertFixtures.ts`.
+- **`players.pl_team` / `pl_team_id` describe the player's club TODAY**, not in any past season — the table is overwritten by every sync, and its `pl_season` column is not reliably updated with it. For anything archived, join `player_season_clubs (player_id, season) → club_slug` instead, or you will attribute every summer transfer to the wrong club.
+
+`clubs.json` is deliberately data, not TypeScript, so `scripts/download-pl-team-logos.mjs` and the app read identical bytes. Do not reintroduce parsing of the `.ts` file — an earlier version did, and mispaired a slug with the next club's code the moment a name needed double quotes.
+
 ### Position taxonomy
 12 tactical positions (GK, CB, LB, RB, LWB, RWB, DM, CM, AM, LW, RW, ST) — no generic DEF/MID/FWD buckets, no LM/RM (mapped to LW/RW). This taxonomy is enforced across roster validation, lineup eligibility, and scoring weights, so a change to position handling usually touches all three. Formations are restricted to 7 supported layouts (see README for the list).
 

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { getPlayerDisplayName } from '@/lib/players/displayName';
 
 interface Props {
     params: Promise<{ teamId: string }>;
@@ -84,7 +85,7 @@ export async function POST(req: NextRequest, { params }: Props) {
             const lockedTeamIds = await getLockedPlTeamIds(admin, matchup.gameweek);
             if (lockedTeamIds.has(player.pl_team_id)) {
                 return NextResponse.json(
-                    { error: `Cannot change academy status for ${player.web_name ?? player.name} — their match has already kicked off.` },
+                    { error: `Cannot change academy status for ${getPlayerDisplayName(player, 'full')} — their match has already kicked off.` },
                     { status: 400 },
                 );
             }

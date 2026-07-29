@@ -156,7 +156,7 @@ export async function POST(req: NextRequest, { params }: Props) {
         userId: borrowerTeam.user_id,
         title: 'Loan Recalled Early',
         content: `**${myTeam.team_name}** has recalled **${player.name}** early. You received €${resData.penalty}m recall penalty.${resData.bonus_paid && resData.bonus_paid > 0 ? ` Paid €${resData.bonus_paid}m performance bonus.` : ''}`,
-        url: `/league/${leagueId}/trades`
+        url: `/league/${leagueId}/transfers/deals`
       });
 
       // Send league lobby announcement

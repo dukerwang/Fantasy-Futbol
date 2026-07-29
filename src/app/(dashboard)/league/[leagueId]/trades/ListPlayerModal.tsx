@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import PositionBadge from '@/components/players/PositionBadge';
-import { formatPlayerName } from '@/lib/formatName';
+import { getPlayerDisplayName } from '@/lib/players/displayName';
 import styles from './trades.module.css';
 
 export interface ListablePlayer {
@@ -159,7 +159,7 @@ export default function ListPlayerModal({
                         <PositionBadge position={p.primary_position as any} size="sm" />
                         <div className={styles.blockToggleInfo}>
                           <span className={styles.blockToggleName}>
-                            {formatPlayerName(p, 'initial_last')}
+                            {getPlayerDisplayName(p, 'initial_last')}
                           </span>
                           <span className={styles.blockToggleClub}>
                             {p.pl_team ?? ''}
@@ -199,7 +199,7 @@ export default function ListPlayerModal({
               <PositionBadge position={selectedPlayer.primary_position as any} size="md" />
               <div>
                 <h3 style={{ margin: 0, fontFamily: 'Noto Serif, serif', fontSize: '16px', fontWeight: 700, color: 'var(--color-text-primary)' }}>
-                  {formatPlayerName(selectedPlayer, 'full')}
+                  {getPlayerDisplayName(selectedPlayer, 'full')}
                 </h3>
                 <span style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-text-muted)', fontWeight: 600 }}>
                   {selectedPlayer.pl_team ?? ''} {selectedPlayer.market_value ? `· €${selectedPlayer.market_value.toFixed(1)}m MV` : ''}

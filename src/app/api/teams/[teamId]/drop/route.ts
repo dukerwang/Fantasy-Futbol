@@ -68,6 +68,17 @@ export async function POST(req: NextRequest, { params }: Props) {
 
     if (!player) return NextResponse.json({ error: 'Player not found' }, { status: 404 });
 
+    // Transfer-out compensation is only valid once the player has actually left
+    // the PL (is_active = false, set by the sync job). Re-checked authoritatively
+    // in executeDrop for the deferred/queued path — this is just a fast, clear
+    // rejection for the direct request.
+    if (actionType === 'transfer_out' && player.is_active) {
+        return NextResponse.json(
+            { error: `${player.name} is still active in the Premier League. Use Drop instead of Transfer Out.` },
+            { status: 400 },
+        );
+    }
+
     const marketValue = Number(player.market_value || 0);
 
     // Severance fee: 20% of market value (rounded down), minimum €2m — charged on plain drops only

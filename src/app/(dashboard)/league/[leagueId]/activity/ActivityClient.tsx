@@ -2,12 +2,12 @@
 
 import { useState, useMemo } from 'react';
 
-import { formatPlayerName } from '@/lib/formatName';
+import { getPlayerDisplayName } from '@/lib/players/displayName';
 import { generateTransactionHeadline } from '@/lib/narrative/generators';
 import { renderBoldedText } from '@/lib/narrative/boldText';
 import { createClient } from '@/lib/supabase/client';
 import { FULL_PLAYER_SELECT } from '@/lib/constants/queries';
-import PlayerDetailsModal from '@/components/players/PlayerDetailsModal';
+import { usePlayerCard } from '@/components/players/PlayerCardProvider';
 import PositionBadge from '@/components/players/PositionBadge';
 import { Icon } from '@/components/ui/Icon';
 import type { GranularPosition, Player as FullPlayer } from '@/types';
@@ -205,7 +205,7 @@ function PlayerPhoto({ player }: { player: Player | null }) {
     return (
       <img
         src={player.photo_url}
-        alt={player.web_name ?? player.name}
+        alt={getPlayerDisplayName(player, 'full')}
         className={styles.playerPhoto}
       />
     );
@@ -514,7 +514,7 @@ function groupAuctions(liveAuctions: WaiverClaim[], myTeamId: string | null): Au
 function BidCard({ claim, myTeamId }: { claim: WaiverClaim; myTeamId: string | null }) {
   const player = claim.player;
   const isMe = claim.team_id === myTeamId;
-  const playerName = player ? formatPlayerName(player, 'full') : '—';
+  const playerName = player ? getPlayerDisplayName(player, 'full') : '—';
   const posColor = player ? (POS_COLOR_MAP[player.primary_position] ?? 'var(--color-text-muted)') : undefined;
 
   return (
@@ -604,7 +604,7 @@ function RightSidebar({
                       {a.player.photo_url ? (
                         <img
                           src={a.player.photo_url}
-                          alt={a.player.web_name ?? a.player.name}
+                          alt={getPlayerDisplayName(a.player, 'full')}
                           className={styles.auctionPhoto}
                         />
                       ) : (
@@ -623,7 +623,7 @@ function RightSidebar({
                           size="sm"
                         />
                         <span className={styles.auctionPlayerName}>
-                          {a.player.web_name ?? formatPlayerName(a.player)}
+                          {getPlayerDisplayName(a.player, 'initial_last')}
                         </span>
                       </div>
                       <div className={styles.auctionMeta}>
@@ -712,27 +712,7 @@ export default function ActivityClient({
   liveAuctions,
 }: Props) {
   const [filter, setFilter] = useState<FilterKey>('all');
-  const [viewingPlayer, setViewingPlayer] = useState<FullPlayer | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-
-
-  const handlePlayerClick = async (playerId: string) => {
-    if (isLoading) return;
-    setIsLoading(true);
-    try {
-      const query = leagueId ? `?leagueId=${leagueId}` : '';
-      const res = await fetch(`/api/players/${playerId}${query}`);
-      if (!res.ok) throw new Error('Failed to fetch details');
-      const data = await res.json();
-      if (data.player) {
-        setViewingPlayer(data.player as FullPlayer);
-      }
-    } catch (err) {
-      console.error('Failed to fetch player details:', err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const { openPlayerById: handlePlayerClick } = usePlayerCard();
 
   type FeedItem =
     | { kind: 'tx'; ts: string; data: Transaction }
@@ -840,7 +820,7 @@ export default function ActivityClient({
         myTeamId={myTeamId}
       />
 
-      <PlayerDetailsModal player={viewingPlayer} onClose={() => setViewingPlayer(null)} />
+      {/* The player card modal is owned by PlayerCardProvider in the dashboard layout. */}
     </div>
   );
 }

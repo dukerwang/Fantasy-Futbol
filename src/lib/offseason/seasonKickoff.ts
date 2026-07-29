@@ -20,6 +20,7 @@ import { getSystemAuctionsEmail } from '@/lib/email/templates';
 import { previewRelegationCompensation, processRelegationCompensation } from '@/lib/offseason/relegationHandler';
 import { syncPlayersFromFpl } from '@/lib/players/syncPlayers';
 import { createNotification } from '@/lib/notifications/createNotification';
+import { getPlayerDisplayName } from '@/lib/players/displayName';
 
 export const AUCTION_THRESHOLD = 50.0;
 const AUCTION_WINDOW_HOURS = 96;
@@ -96,6 +97,15 @@ export async function findPromotedClubsAndArrivals(
     ownedPlayerIds = new Set((ownedEntries ?? []).map((e) => e.player_id));
   }
 
+  // Retained players have no roster entry — the whole point is that they are
+  // not squad members — so a roster-only ownership check reads them as free
+  // agents and puts them on the block out from under the manager who paid for
+  // them with forgone compensation. Rights are ownership for this purpose.
+  const { getRightsHeldPlayerIds } = await import('@/lib/departures/decisions');
+  for (const id of await getRightsHeldPlayerIds(admin, leagueId)) {
+    ownedPlayerIds.add(id);
+  }
+
   // Every system auction this league has EVER opened, not just the live ones.
   // Filtering on status='pending' meant a player whose auction expired unsold
   // became eligible again on the next sweep, re-auctioning the same free agents
@@ -134,7 +144,7 @@ export async function findPromotedClubsAndArrivals(
 
   const { data: allCandidatePlayers } = await admin
     .from('players')
-    .select('id, web_name, market_value, pl_team')
+    .select('id, name, web_name, market_value, pl_team')
     .eq('is_active', true);
 
   const candidates = (allCandidatePlayers ?? [])
@@ -146,7 +156,7 @@ export async function findPromotedClubsAndArrivals(
     })
     .map((p) => ({
       id: p.id,
-      name: p.web_name ?? 'Unknown',
+      name: getPlayerDisplayName(p, 'full'),
       marketValue: p.market_value as number,
       pl_team: p.pl_team,
       isPromoted: !!(p.pl_team && promotedClubs.has(p.pl_team)),
@@ -164,6 +174,17 @@ export async function previewSeasonKickoff(admin: SupabaseClient, leagueId: stri
 
   if (error || !league) throw new Error('League not found');
   const l = league as LeagueRow;
+
+  // Open decisions for any departure the sync has detected but not yet
+  // recorded, so the preview reflects the full bill rather than only what last
+  // night's cron happened to catch. Idempotent, and opening a pending decision
+  // is not itself destructive — it is what the nightly sync would do anyway.
+  const { recordDepartures } = await import('@/lib/departures/detect');
+  await recordDepartures(admin, leagueId, {
+    seasonFrom: l.previous_season ?? l.current_season,
+    decideBy: null,
+    notify: false,
+  });
 
   const { candidates } = await findPromotedClubsAndArrivals(admin, leagueId, l.previous_season);
   const relegationPreview = await previewRelegationCompensation(admin, leagueId);
@@ -249,6 +270,8 @@ export async function runSeasonKickoff(admin: SupabaseClient, leagueId: string):
       gameweek: 0,
       is_auction: true,
       expires_at: expiresAt.toISOString(),
+      // Reference price for the auction premium — see migration 070.
+      market_value_at_auction: p.marketValue,
     }));
 
     const { error: insertErr } = await admin.from('waiver_claims').insert(auctionInserts);

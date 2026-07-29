@@ -6,9 +6,10 @@ import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { List } from 'react-window';
 import { createClient } from '@/lib/supabase/client';
-import { formatPlayerName } from '@/lib/formatName';
-import type { League, Team, Player, DraftPick } from '@/types';
-import PlayerDetailsModal from '@/components/players/PlayerDetailsModal';
+import { getPlayerDisplayName } from '@/lib/players/displayName';
+import type { League, Team, Player, DraftPick, PlayerOwnership } from '@/types';
+import { usePlayerCard } from '@/components/players/PlayerCardProvider';
+import FormArrow from '@/components/players/FormArrow';
 import SidebarChat from '../SidebarChat';
 import styles from './draft.module.css';
 
@@ -64,6 +65,7 @@ interface PlayerRowCustomProps {
   onToggleQueue: (id: string) => void;
   onMakePick: (id: string) => void;
   onSelectPlayer: (p: Player) => void;
+  onPrefetchPlayer: (p: { id: string; photo_url?: string | null }) => void;
 }
 
 function PlayerRow({
@@ -78,6 +80,7 @@ function PlayerRow({
   onToggleQueue,
   onMakePick,
   onSelectPlayer,
+  onPrefetchPlayer,
 }: { index: number; style: React.CSSProperties; ariaAttributes: Record<string, unknown> } & PlayerRowCustomProps) {
   const item = players[index];
   if (!item) return null;
@@ -88,35 +91,36 @@ function PlayerRow({
   const s = shadowByPlayer[player.id]?.[activePos];
   const gp = s ? s.gp : 0;
   const totalPoints = s ? s.total_points : 0;
-  // Primary position: use archive PPG (authoritative end-of-season value).
-  // Secondary position: dynamically re-scored with different position weights — must use shadow map.
-  const ppg = (activePos === player.primary_position && player.ppg != null)
-    ? Number(player.ppg).toFixed(1)
-    : (s && s.gp > 0 ? (s.total_points / s.gp).toFixed(1) : '—');
+  // PPG = Pts/GP for the active minutes filter (not a frozen archive column).
+  const ppg = s && s.gp > 0 ? (s.total_points / s.gp).toFixed(1) : '—';
   const avgRating = s && s.gp > 0 ? s.avg_rating.toFixed(1) : '—';
-  const form = player.form_rating != null ? Number(player.form_rating).toFixed(1) : '—';
   const value = player.market_value != null ? `€${Number(player.market_value).toFixed(1)}m` : '—';
 
   return (
-    <div style={style} className={styles.playerRow} onClick={() => onSelectPlayer(player)}>
+    <div
+      style={style}
+      className={styles.playerRow}
+      onClick={() => onSelectPlayer(player)}
+      onPointerEnter={() => onPrefetchPlayer(player)}
+    >
       {/* Sticky Player + Actions Column */}
       <div className={styles.tdPlayerSticky}>
         <div className={styles.playerRowLeft}>
           <div className={styles.posRow}>
-            <span className={`${styles.posBadge} ${styles[`pos${activePos}` as keyof typeof styles]}`}>
-              {activePos}
+            <span className={`${styles.posBadge} ${styles[`pos${player.primary_position}` as keyof typeof styles]}`}>
+              {player.primary_position}
             </span>
             {player.primary_position !== activePos && (
               <>
                 <span className={styles.secArrow} title={`Primary position: ${player.primary_position} — evaluated as ${activePos}`}>→</span>
-                <span className={`${styles.posBadge} ${styles[`pos${player.primary_position}` as keyof typeof styles]}`}>
-                  {player.primary_position}
+                <span className={`${styles.posBadge} ${styles[`pos${activePos}` as keyof typeof styles]}`}>
+                  {activePos}
                 </span>
               </>
             )}
           </div>
           <div className={styles.playerInfo}>
-            <span className={styles.playerName}>{formatPlayerName(player, 'initial_last')}</span>
+            <span className={styles.playerName}>{getPlayerDisplayName(player, 'initial_last')}</span>
             <span className={styles.playerClub}>{player.pl_team}</span>
           </div>
         </div>
@@ -145,7 +149,7 @@ function PlayerRow({
       <div className={styles.tdNum}>{totalPoints.toFixed(1)}</div>
       <div className={styles.tdNum}>{ppg}</div>
       <div className={styles.tdNum}>{avgRating}</div>
-      <div className={styles.tdNum}>{form}</div>
+      <div className={styles.tdNum}><FormArrow rating={player.form_rating} size={14} /></div>
       <div className={styles.tdNum}>{value}</div>
     </div>
   );
@@ -194,7 +198,7 @@ export default function DraftRoom({
   const [loadingPick, setLoadingPick] = useState(false);
   const [pickError, setPickError] = useState<string | null>(null);
   const [secondsLeft, setSecondsLeft] = useState(TIMER_SECONDS);
-  const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null);
+  const { openPlayer, prefetchPlayer } = usePlayerCard();
   const [sidebarTab, setSidebarTab] = useState<'players' | 'roster' | 'queue' | 'chat'>('players');
   const [rosterSortMode, setRosterSortMode] = useState<'draft' | 'position'>('draft');
 
@@ -618,6 +622,26 @@ export default function DraftRoom({
     }
   }, [isMyTurn, loadingPick, currentTeam, myTeam, playerMap, leagueId, currentRound, currentPickNumber, activeQueuePlayers, draftQueue, saveDraftQueue, router]);
 
+  // Picker rows are fully hydrated server-side (ranks + archive stats), so the
+  // card opens straight from the row with nothing to fetch. Undrafted players
+  // have no owner by definition — saying so explicitly skips a crest lookup.
+  const selectPlayer = useCallback(
+    (p: Player | null, ownership?: PlayerOwnership | null) => {
+      if (!p) return;
+      openPlayer(p, {
+        ownership,
+        onPick:
+          isMyTurn && !loadingPick && !isDraftComplete ? (picked) => makePick(picked.id) : undefined,
+      });
+    },
+    [openPlayer, isMyTurn, loadingPick, isDraftComplete, makePick],
+  );
+
+  const selectAvailablePlayer = useCallback(
+    (p: Player | null) => selectPlayer(p, null),
+    [selectPlayer],
+  );
+
   const timerPct = (secondsLeft / TIMER_SECONDS) * 100;
   const timerColor =
     timerPct > 50 ? 'var(--color-accent-green)' : timerPct > 25 ? '#f59e0b' : '#ef4444';
@@ -670,8 +694,9 @@ export default function DraftRoom({
     shadowByPlayer,
     onToggleQueue: toggleQueue,
     onMakePick: makePick,
-    onSelectPlayer: setSelectedPlayer,
-  }), [sortedAndFiltered, draftQueue, isMyTurn, loadingPick, isDraftComplete, shadowByPlayer, toggleQueue, makePick]);
+    onSelectPlayer: selectAvailablePlayer,
+    onPrefetchPlayer: prefetchPlayer,
+  }), [sortedAndFiltered, draftQueue, isMyTurn, loadingPick, isDraftComplete, shadowByPlayer, toggleQueue, makePick, selectAvailablePlayer, prefetchPlayer]);
 
   const [listHeight, setListHeight] = useState(500);
   useEffect(() => {
@@ -833,7 +858,7 @@ export default function DraftRoom({
                                 initial={shouldAnimate ? 'hidden' : 'visible'}
                                 animate="visible"
                                 style={{ cursor: 'pointer' }}
-                                onClick={() => pick.player && setSelectedPlayer(pick.player)}
+                                onClick={() => pick.player && selectPlayer(pick.player)}
                                 onAnimationComplete={() => {
                                   if (shouldAnimate) {
                                     setAnimatedPickIds((prev) => new Set(prev).add(pick.id));
@@ -846,7 +871,7 @@ export default function DraftRoom({
                                   {pick.player?.primary_position}
                                 </span>
                                 <span className={styles.pickedName}>
-                                  {formatPlayerName(pick.player, 'initial_last')}
+                                  {getPlayerDisplayName(pick.player, 'initial_last')}
                                 </span>
                                 {isOptimistic && (
                                   <span className={styles.confirmingLabel}>…</span>
@@ -1091,7 +1116,7 @@ export default function DraftRoom({
                           </span>
                           <div className={styles.rosterPlayerInfo}>
                             <span className={styles.rosterPlayerName}>
-                              {formatPlayerName(pick.player, 'initial_last')}
+                              {getPlayerDisplayName(pick.player, 'initial_last')}
                             </span>
                             <span className={styles.rosterPlayerClub}>{pick.player?.pl_team}</span>
                           </div>
@@ -1139,7 +1164,7 @@ export default function DraftRoom({
                           </span>
                           <div className={styles.queuePlayerInfo}>
                             <span className={styles.queuePlayerName}>
-                              {formatPlayerName(player, 'initial_last')}
+                              {getPlayerDisplayName(player, 'initial_last')}
                             </span>
                             <span className={styles.queuePlayerClub}>{player.pl_team}</span>
                           </div>
@@ -1203,17 +1228,7 @@ export default function DraftRoom({
         </aside>
       </div>
 
-      {selectedPlayer && (
-        <PlayerDetailsModal
-          player={selectedPlayer}
-          onClose={() => setSelectedPlayer(null)}
-          onPick={
-            isMyTurn && !loadingPick && !isDraftComplete
-              ? (p) => makePick(p.id)
-              : undefined
-          }
-        />
-      )}
+      {/* The player card modal is owned by PlayerCardProvider in the dashboard layout. */}
     </div>
   );
 }

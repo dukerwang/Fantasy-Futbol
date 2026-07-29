@@ -7,6 +7,7 @@ import {
   BIG_TRANSFER_THRESHOLD,
   calculateExpiresAt,
 } from '@/lib/auction/timer';
+import { getLockedPlTeamIds } from '@/lib/auction/lockedClubs';
 
 interface Props {
   params: Promise<{ leagueId: string }>;
@@ -30,10 +31,17 @@ export async function POST(req: NextRequest, { params }: Props) {
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const body = await req.json();
-  const { playerId, bidAmount, dropPlayerId } = body as {
+  const { playerId, bidAmount, dropPlayerId, saleListingId } = body as {
     playerId: string;
     bidAmount: number;
     dropPlayerId?: string | null;
+    /**
+     * Optional. The listing the CLIENT believes it is bidding on. The RPC
+     * resolves the listing itself and only uses this to fail loudly when the two
+     * disagree — e.g. the listing sold a second ago and a new one was created
+     * for the same player. Never trusted as the source of truth.
+     */
+    saleListingId?: string | null;
   };
 
   if (!playerId || bidAmount === undefined || bidAmount === null) {
@@ -74,12 +82,49 @@ export async function POST(req: NextRequest, { params }: Props) {
   // League settings for roster/academy validations
   const { data: league } = await admin
     .from('leagues')
-    .select('roster_size, taxi_size, taxi_age_limit, roster_locked, previous_season')
+    .select('roster_size, taxi_size, taxi_age_limit, roster_locked, previous_season, current_season')
     .eq('id', leagueId)
     .single();
 
   if (!league) {
     return NextResponse.json({ error: 'League not found' }, { status: 404 });
+  }
+
+  // Buy-back exclusion. A manager who took compensation for this player and
+  // then sees him return to the PL would otherwise arrive at the auction with a
+  // budget inflated by exactly that player's value — a free option nobody else
+  // in the league has, and their downside is bounded at "back where I started".
+  // Having chosen the cash over his rights, they sit this one out.
+  //
+  // Keyed on original_team_id, not team_id, so trading rights away cannot
+  // launder the restriction. Lapses with the season cycle: a release from two
+  // summers ago is ancient history, not a permanent ban.
+  const seasonScope = [league.current_season, league.previous_season].filter(Boolean);
+  if (seasonScope.length > 0) {
+    const { data: released } = await admin
+      .from('departure_decisions')
+      .select('id')
+      .eq('league_id', leagueId)
+      .eq('player_id', playerId)
+      .eq('original_team_id', myTeam.id)
+      .eq('status', 'released')
+      .in('season_from', seasonScope)
+      // limit before maybeSingle: a player released in both the previous and
+      // current season yields two rows, and maybeSingle() throws on more than
+      // one — which would have failed the bid with a database error instead of
+      // the intended refusal.
+      .limit(1)
+      .maybeSingle();
+
+    if (released) {
+      return NextResponse.json(
+        {
+          error:
+            'You took compensation when this player left the Premier League, so you cannot bid on his return this season. You had the option to retain his rights instead.',
+        },
+        { status: 403 },
+      );
+    }
   }
 
   if (league.roster_locked) {
@@ -117,61 +162,36 @@ export async function POST(req: NextRequest, { params }: Props) {
     .eq('id', playerId)
     .single();
 
-  // Promoted Club Exclusivity Check
-  if (playerData?.pl_team) {
-    const { data: systemClaim } = await admin
-      .from('waiver_claims')
-      .select('id')
-      .eq('league_id', leagueId)
-      .eq('player_id', playerId)
-      .eq('status', 'pending')
-      .eq('is_auction', true)
-      .is('team_id', null)
-      .maybeSingle();
+  // Is this a manager's listing or an open free agent? The RPC resolves this
+  // authoritatively under FOR UPDATE; this read only decides which price floor
+  // to pre-check so the caller gets a specific message instead of a generic one.
+  const { data: openListing } = await admin
+    .from('player_sale_listings')
+    .select('id, min_bid, seller_team_id')
+    .eq('league_id', leagueId)
+    .eq('player_id', playerId)
+    .in('status', ['pending', 'active'])
+    .maybeSingle();
 
-    if (systemClaim) {
-      const previousSeason = league?.previous_season ?? '2025-26';
-      
-      const { data: prevPlayers } = await admin
-        .from('players')
-        .select('pl_team')
-        .eq('pl_season', previousSeason);
-
-      const prevTeams = new Set(prevPlayers?.map((p) => p.pl_team).filter(Boolean) ?? []);
-
-      const isPromotedClub = prevTeams.size > 0 && !prevTeams.has(playerData.pl_team);
-
-      if (isPromotedClub) {
-        const { data: standingsArchive } = await admin
-          .from('season_standings_archive')
-          .select('team_id, final_rank')
-          .eq('league_id', leagueId)
-          .eq('season', previousSeason);
-
-        const numTeamsInArchive = standingsArchive?.length ?? 0;
-        const bottomHalfThreshold = numTeamsInArchive > 0 ? Math.ceil(numTeamsInArchive / 2) : 0;
-        const bottomHalfTeamIds = new Set(
-          standingsArchive
-            ?.filter((s) => s.final_rank > bottomHalfThreshold)
-            .map((s) => s.team_id) ?? []
-        );
-
-        if (bottomHalfTeamIds.size > 0 && !bottomHalfTeamIds.has(myTeam.id)) {
-          return NextResponse.json(
-            { error: `Bidding on newly promoted club players is restricted to bottom-half teams during the kickoff auction. Only bottom-half teams can bid on ${playerData.name} (${playerData.pl_team}) at this time.` },
-            { status: 403 }
-          );
-        }
-      }
+  if (openListing) {
+    // The seller's own floor governs, and 077 already guarantees it is at least
+    // 80% of market value. Applying the free-agent 20% rule on top would be
+    // both redundant and, for a cheap player under an ambitious ask, wrong.
+    if (bidAmount < openListing.min_bid) {
+      return NextResponse.json(
+        { error: `Bid must be at least the seller's minimum of €${openListing.min_bid}m.` },
+        { status: 400 },
+      );
     }
-  }
-
-  const minimumBid = playerData ? Math.floor(Number(playerData.market_value || 0) * 0.2) : 0;
-  if (minimumBid > 0 && bidAmount < minimumBid) {
-    return NextResponse.json(
-      { error: `Minimum bid for this player is €${minimumBid}m (20% of Transfermarkt value)` },
-      { status: 400 },
-    );
+  } else {
+    // Free agent: the Transfermarkt floor of 20% of market value.
+    const minimumBid = playerData ? Math.floor(Number(playerData.market_value || 0) * 0.2) : 0;
+    if (minimumBid > 0 && bidAmount < minimumBid) {
+      return NextResponse.json(
+        { error: `Minimum bid for this player is €${minimumBid}m (20% of Transfermarkt value)` },
+        { status: 400 },
+      );
+    }
   }
 
   // Roster capacity check.
@@ -281,6 +301,7 @@ export async function POST(req: NextRequest, { params }: Props) {
     p_bid_amount: bidAmount,
     p_expires_at: new Date(expiresAt).toISOString(),
     p_now: new Date(now).toISOString(),
+    p_expect_sale_listing_id: saleListingId || null,
   });
 
   if (rpcError) {
@@ -290,6 +311,11 @@ export async function POST(req: NextRequest, { params }: Props) {
   const resData = rpcRes as {
     success: boolean;
     error?: string;
+    is_listing?: boolean;
+    sale_listing_id?: string | null;
+    is_buy_now?: boolean;
+    expires_at?: string;
+    cancelled_trade_count?: number;
     outbid_team_id?: string;
     outbid_team_name?: string;
     outbid_team_user_id?: string;
@@ -301,8 +327,42 @@ export async function POST(req: NextRequest, { params }: Props) {
     return NextResponse.json({ error: resData.error || 'Failed to place bid' }, { status: 400 });
   }
 
+  // ── BUY NOW: resolve inline ──
+  //
+  // The RPC has already set every pending claim to expire, so the auction is
+  // decided; it just needs someone to run the resolver. Waiting for the sweep
+  // would be wrong — `process-auctions` is NOT in vercel.json, it is driven by
+  // pg_cron every 10 minutes (019_auction_pgcron.sql), and an "instant" purchase
+  // that takes up to ten minutes to show up is a bug users will report.
+  //
+  // Resolution failure is deliberately NOT fatal to the request: the bid itself
+  // committed, and the sweep remains a correct (if slower) fallback. Reporting a
+  // failure here would invite the user to buy again.
+  let resolved = false;
+  if (resData.is_buy_now) {
+    try {
+      const { lockedPlTeamIds } = await getLockedPlTeamIds();
+      const { error: resolveErr } = await admin.rpc('resolve_single_player_auction_rpc', {
+        p_league_id: leagueId,
+        p_player_id: playerId,
+        p_locked_pl_team_ids: lockedPlTeamIds,
+      });
+      if (resolveErr) {
+        console.error('[bid] Buy Now inline resolution failed, leaving to sweep:', resolveErr);
+      } else {
+        resolved = true;
+      }
+    } catch (err) {
+      console.error('[bid] Buy Now inline resolution threw, leaving to sweep:', err);
+    }
+  }
+
   // ── SEND OUTBID NOTIFICATION ──
-  if (resData.outbid_team_id && resData.outbid_team_user_id) {
+  //
+  // Skipped on Buy Now. The previous leader did lose, but "Outbid Warning! bid
+  // again" is the wrong message for an auction that no longer exists — the
+  // resolver sends them a proper "auction lost" notice instead.
+  if (!resData.is_buy_now && resData.outbid_team_id && resData.outbid_team_user_id) {
     try {
       if (resData.outbid_user_email) {
         const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://gaffa.live';
@@ -331,5 +391,15 @@ export async function POST(req: NextRequest, { params }: Props) {
     }
   }
 
-  return NextResponse.json({ ok: true, expires_at: new Date(expiresAt).toISOString() });
+  return NextResponse.json({
+    ok: true,
+    expires_at: resData.expires_at ?? new Date(expiresAt).toISOString(),
+    is_listing: !!resData.is_listing,
+    sale_listing_id: resData.sale_listing_id ?? null,
+    is_buy_now: !!resData.is_buy_now,
+    // False on a Buy Now whose inline resolution failed — the client should say
+    // "completing…" rather than "you signed him", and wait for the sweep.
+    resolved,
+    cancelled_offers: resData.cancelled_trade_count ?? 0,
+  });
 }

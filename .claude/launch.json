@@ -5,19 +5,22 @@
       "name": "gaffa-dev",
       "runtimeExecutable": "/opt/homebrew/bin/node",
       "runtimeArgs": ["node_modules/next/dist/bin/next", "dev"],
-      "port": 3000
+      "port": 3000,
+      "autoPort": true
     },
     {
       "name": "gaffa-dev-3010",
       "runtimeExecutable": "/opt/homebrew/bin/node",
-      "runtimeArgs": ["node_modules/next/dist/bin/next", "dev", "-p", "3010"],
-      "port": 3010
+      "runtimeArgs": ["node_modules/next/dist/bin/next", "dev"],
+      "port": 3010,
+      "autoPort": true
     },
     {
       "name": "gaffa-start-3005",
       "runtimeExecutable": "/opt/homebrew/bin/node",
-      "runtimeArgs": ["node_modules/next/dist/bin/next", "start", "-p", "3005"],
-      "port": 3005
+      "runtimeArgs": ["node_modules/next/dist/bin/next", "start"],
+      "port": 3005,
+      "autoPort": true
     }
   ]
 }

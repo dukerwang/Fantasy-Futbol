@@ -13,6 +13,10 @@
             "schedule": "0 0 * * *"
         },
         {
+            "path": "/api/cron/process-loans",
+            "schedule": "0 0 * * *"
+        },
+        {
             "path": "/api/sync/tournaments?action=resolve_stalled",
             "schedule": "0 19 * * *"
         },
@@ -23,6 +27,10 @@
         {
             "path": "/api/sync/players",
             "schedule": "0 2 * * *"
+        },
+        {
+            "path": "/api/sync/api-football-players",
+            "schedule": "0 4 * * 0"
         },
         {
             "path": "/api/cron/set-bot-lineups",

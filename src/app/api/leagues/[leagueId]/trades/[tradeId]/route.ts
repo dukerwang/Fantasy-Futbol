@@ -223,16 +223,12 @@ export async function POST(req: NextRequest, { params }: Props) {
     return NextResponse.json({ error: resData.error || 'Failed to execute trade' }, { status: 400 });
   }
 
-  // Cancel any pending listings for traded players
-  const transferredPlayerIds = [...(trade.offered_players || []), ...(trade.requested_players || [])];
-  if (transferredPlayerIds.length > 0) {
-    await admin
-      .from('player_sale_listings')
-      .update({ status: 'cancelled', updated_at: new Date().toISOString() })
-      .eq('league_id', leagueId)
-      .in('player_id', transferredPlayerIds)
-      .eq('status', 'pending');
-  }
+  // Listing cleanup for traded players used to happen here. It now runs inside
+  // the transaction, in trg_guard_trade_against_listings (migration 079), which
+  // additionally rejects each cancelled listing's auction anchor — something
+  // this block never did, leaving the cron free to later resolve an auction for
+  // a player who had already changed clubs. The trigger also blocks the trade
+  // outright if bidding is live on anyone in it.
 
   // --- SEND EMAIL NOTIFICATION ---
   try {

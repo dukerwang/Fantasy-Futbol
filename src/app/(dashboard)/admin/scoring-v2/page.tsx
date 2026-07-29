@@ -21,6 +21,7 @@ import { FULL_PLAYER_SELECT } from '@/lib/constants/queries';
 import { calculateMatchRating } from '@/lib/scoring/matchRating';
 import { loadReferenceStats, calculateTeamScore } from '@/lib/scoring/matchups';
 import { normalizeMatchupLineup } from '@/lib/lineups/normalizeMatchupLineup';
+import { getPlayerDisplayName } from '@/lib/players/displayName';
 import ShadowStatsTable, {
   type ShadowStatsPayload,
   type ShadowStatsPlayer,
@@ -180,7 +181,7 @@ export default async function ScoringV2Page() {
   }
 
   const displayName = (p: { web_name: string | null; full_name: string | null; name: string | null } | undefined): string => {
-    return p?.web_name || p?.full_name || p?.name || '—';
+    return getPlayerDisplayName(p, 'full');
   };
 
   // 3. Per-position summary: avg rating delta and avg fantasy_points delta.

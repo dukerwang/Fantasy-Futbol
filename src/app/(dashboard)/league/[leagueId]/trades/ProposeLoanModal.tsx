@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import PositionBadge from '@/components/players/PositionBadge';
-import { formatPlayerName } from '@/lib/formatName';
+import { getPlayerDisplayName } from '@/lib/players/displayName';
 import GwRangeSlider from './GwRangeSlider';
 import styles from './trades.module.css';
 import { Icon } from '@/components/ui/Icon';
@@ -290,7 +290,7 @@ export default function ProposeLoanModal({
                     <div className={styles.blockToggleLeft}>
                       <PositionBadge position={p.primary_position as any} size="sm" />
                       <div className={styles.blockToggleInfo}>
-                        <span className={styles.blockToggleName}>{formatPlayerName(p, 'initial_last')}</span>
+                        <span className={styles.blockToggleName}>{getPlayerDisplayName(p, 'initial_last')}</span>
                         <span className={styles.blockToggleClub}>
                           {p.pl_team ?? ''}
                           {p.market_value ? ` · €${p.market_value.toFixed(1)}m` : ''}
@@ -315,7 +315,7 @@ export default function ProposeLoanModal({
               <PositionBadge position={selectedPlayer.primary_position as any} size="md" />
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--color-text-primary)' }}>
-                  {formatPlayerName(selectedPlayer, 'full')}
+                  {getPlayerDisplayName(selectedPlayer, 'full')}
                 </div>
                 <div style={{ fontSize: '11px', color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginTop: '2px' }}>
                   {selectedPlayer.pl_team ?? ''}

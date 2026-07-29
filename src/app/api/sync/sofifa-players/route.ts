@@ -270,6 +270,7 @@ async function runSync(preloadedTeams: SoFifaTeamDetail[] | null) {
     id: string;
     primary_position: GranularPosition;
     secondary_positions: GranularPosition[];
+    sofifa_common_name: string | null;
   }> = [];
   let matched = 0;
 
@@ -455,7 +456,12 @@ async function runSync(preloadedTeams: SoFifaTeamDetail[] | null) {
 
       if (dbMatch) {
         matched++;
-        updates.push({ id: dbMatch.id, primary_position: primary as GranularPosition, secondary_positions: finalSecondary as GranularPosition[] });
+        updates.push({
+          id: dbMatch.id,
+          primary_position: primary as GranularPosition,
+          secondary_positions: finalSecondary as GranularPosition[],
+          sofifa_common_name: common || null,
+        });
       }
 
     }
@@ -474,6 +480,7 @@ async function runSync(preloadedTeams: SoFifaTeamDetail[] | null) {
             .update({
               primary_position: u.primary_position,
               secondary_positions: u.secondary_positions,
+              sofifa_common_name: u.sofifa_common_name,
             })
             .eq('id', u.id)
         )

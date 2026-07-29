@@ -1,39 +1,15 @@
 'use client';
 
 import { useState } from 'react';
-import { useParams } from 'next/navigation';
 import type { MatchReport } from '@/lib/narrative/matchReport';
 import { renderBoldedText } from '@/lib/narrative/boldText';
-import PlayerDetailsModal from '@/components/players/PlayerDetailsModal';
+import { usePlayerCard } from '@/components/players/PlayerCardProvider';
 import { Icon } from '@/components/ui/Icon';
-import type { Player } from '@/types';
 import styles from './matchup-detail.module.css';
 
 export default function MatchReportCard({ report }: { report: MatchReport }) {
   const [expanded, setExpanded] = useState(false);
-  const [viewingPlayer, setViewingPlayer] = useState<Player | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-
-  const params = useParams();
-  const leagueId = params?.leagueId as string | undefined;
-
-  const handlePlayerClick = async (playerId: string) => {
-    if (isLoading) return;
-    setIsLoading(true);
-    try {
-      const query = leagueId ? `?leagueId=${leagueId}` : '';
-      const res = await fetch(`/api/players/${playerId}${query}`);
-      if (!res.ok) throw new Error('Failed to fetch details');
-      const data = await res.json();
-      if (data.player) {
-        setViewingPlayer(data.player as Player);
-      }
-    } catch (err) {
-      console.error('Failed to fetch player details:', err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const { openPlayerById: handlePlayerClick } = usePlayerCard();
 
   return (
     <>
@@ -78,7 +54,6 @@ export default function MatchReportCard({ report }: { report: MatchReport }) {
         </button>
       </div>
 
-      <PlayerDetailsModal player={viewingPlayer} onClose={() => setViewingPlayer(null)} />
     </>
   );
 }

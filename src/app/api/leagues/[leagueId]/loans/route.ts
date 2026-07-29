@@ -398,6 +398,48 @@ export async function POST(req: NextRequest, { params }: Props) {
     return NextResponse.json({ error: 'This player is already involved in an active or pending loan' }, { status: 409 });
   }
 
+  // 7b. A listed player can be loaned only through the seller's loan gate.
+  //
+  // Two distinct refusals, and the difference matters:
+  //
+  //   'active'  — bidding is live. Nothing can be arranged privately around an
+  //               auction other managers have committed budget to, and the
+  //               listing can no longer be cancelled to make way (see the DELETE
+  //               handler in listings/[listingId]/route.ts). Hard no.
+  //
+  //   gate shut — the seller listed this player without opening him to loans.
+  //               Their choice to reverse, via PATCH on the listing.
+  //
+  // If neither applies the loan may be proposed: accepting it cancels the still-
+  // pending listing, and 080's trg_withdraw_listing_auction_anchor rejects the
+  // auction anchor in the same transaction. See the accept handler, which
+  // re-checks this — the listing can go live between proposal and acceptance.
+  const { data: openListingForPlayer } = await admin
+    .from('player_sale_listings')
+    .select('id, status, open_to_loan')
+    .eq('league_id', leagueId)
+    .eq('player_id', playerId)
+    .in('status', ['pending', 'active'])
+    .maybeSingle();
+
+  if (openListingForPlayer?.status === 'active') {
+    return NextResponse.json(
+      { error: 'Bidding is live on this player — he cannot be loaned until the auction finishes.' },
+      { status: 409 },
+    );
+  }
+
+  if (openListingForPlayer && !openListingForPlayer.open_to_loan) {
+    return NextResponse.json(
+      {
+        error: requestMode
+          ? 'This player is listed for transfer and his club is not accepting loan approaches.'
+          : 'You have listed this player without opening him to loans. Edit the listing to accept loan approaches, or cancel it.',
+      },
+      { status: 409 },
+    );
+  }
+
   // 8. Check active loan limits (count active + deferred + pending_activation)
   const ACTIVE_LOAN_STATUSES = ['active', 'accepted_deferred', 'pending_activation'];
 
@@ -489,7 +531,7 @@ export async function POST(req: NextRequest, { params }: Props) {
   // 12. Send notifications & private DM to the counterparty (the one who needs to accept)
   try {
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://gaffa.live';
-    const actionUrl = `${baseUrl}/league/${leagueId}/trades`;
+    const actionUrl = `${baseUrl}/league/${leagueId}/transfers/deals`;
 
     const { data: targetUser } = await admin.from('users').select('email').eq('id', counterpartyTeam.user_id).single();
     if (targetUser?.email) {
@@ -516,7 +558,7 @@ export async function POST(req: NextRequest, { params }: Props) {
         userId: counterpartyTeam.user_id,
         title: 'Loan Request Received!',
         content: `**${myTeam.team_name}** is requesting to loan **${player.name}** for GW${startGameweek}-GW${endGameweek}. Proposed fee: €${loanFee}m.${message ? ` Message: "${message}"` : ''}`,
-        url: `/league/${leagueId}/trades`
+        url: `/league/${leagueId}/transfers/deals`
       });
     } else {
       await createNotification(admin, {
@@ -524,7 +566,7 @@ export async function POST(req: NextRequest, { params }: Props) {
         userId: counterpartyTeam.user_id,
         title: 'New Loan Proposal!',
         content: `**${myTeam.team_name}** has proposed to loan **${player.name}** to your club for GW${startGameweek}-GW${endGameweek}. Fee: €${loanFee}m.${message ? ` Message: "${message}"` : ''}`,
-        url: `/league/${leagueId}/trades`
+        url: `/league/${leagueId}/transfers/deals`
       });
     }
 

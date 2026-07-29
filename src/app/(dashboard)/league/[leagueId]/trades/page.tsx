@@ -397,7 +397,7 @@ export default async function TradesPage({ params, searchParams }: Props) {
   // Determine initial tab from searchParam
   const VALID_TABS = ['trades', 'league-feed', 'listings', 'loans'] as const;
   type ValidTab = typeof VALID_TABS[number];
-  const initialTab: ValidTab = VALID_TABS.includes(tabParam as ValidTab) ? (tabParam as ValidTab) : 'trades';
+  const initialTab: ValidTab = VALID_TABS.includes(tabParam as ValidTab) ? (tabParam as ValidTab) : 'league-feed';
 
   return (
     <TradesClient

@@ -1,51 +1,25 @@
 'use client';
 
 import { useState, useRef, useCallback, useEffect } from 'react';
-import type { Player, PlayerSeasonArchive } from '@/types';
-import { formatPlayerName } from '@/lib/formatName';
+import type { Player, PlayerOwnership, PlayerSeasonArchive } from '@/types';
+import type { CrestConfig } from '@/components/crest/types';
+import { getPlayerDisplayName, playerInitial } from '@/lib/players/displayName';
 import { useParams } from 'next/navigation';
+import CrestBadge from '@/components/crest/CrestBadge';
+import FormArrow from '@/components/players/FormArrow';
+import { clubBadgePath, clubColor } from '@/lib/clubs/registry';
+import {
+  type CardGamelogEntry,
+  fetchBack,
+  fetchFront,
+  getCachedBack,
+  getCachedFront,
+  getOwnershipFor,
+  isImageReady,
+  markImageReady,
+  primeFront,
+} from '@/lib/players/cardCache';
 import styles from './PremiumPlayerCard.module.css';
-
-const TEAM_COLORS: Record<string, string> = {
-    'Arsenal': '#EF0107',
-    'Aston Villa': '#680D3A',
-    'Bournemouth': '#DA291C',
-    'Brentford': '#E30613',
-    'Brighton': '#0057B8',
-    'Chelsea': '#034694',
-    'Crystal Palace': '#1B458F',
-    'Everton': '#003399',
-    'Fulham': '#CC0000',
-    'Ipswich': '#3469A5',
-    'Leicester': '#003090',
-    'Liverpool': '#C8102E',
-    'Man City': '#6CABDD',
-    'Man Utd': '#DA291C',
-    'Newcastle': '#363635',
-    'Nottm Forest': '#E53233',
-    'Southampton': '#D71920',
-    'Spurs': '#132257',
-    'West Ham': '#7A263A',
-    'Wolves': '#D4A017',
-};
-
-const TEAM_TO_ID: Record<string, number> = {
-    'Arsenal': 1, 'Aston Villa': 2, 'Bournemouth': 3, 'Brentford': 4,
-    'Brighton': 5, 'Chelsea': 6, 'Coventry City': 7, 'Coventry': 7,
-    'Crystal Palace': 8, 'Everton': 9, 'Fulham': 10, 'Hull City': 11, 'Hull': 11,
-    'Ipswich Town': 12, 'Ipswich': 12, 'Leeds': 13, 'Liverpool': 14,
-    'Man City': 15, 'Man Utd': 16, 'Newcastle': 17, "Nott'm Forest": 18, 'Nottm Forest': 18,
-    'Spurs': 19, 'Sunderland': 20
-};
-
-function getTeamColor(teamName: string): string {
-    if (TEAM_COLORS[teamName]) return TEAM_COLORS[teamName];
-    for (const [key, val] of Object.entries(TEAM_COLORS)) {
-        const first = key.split(' ')[0].toLowerCase();
-        if (teamName.toLowerCase().startsWith(first)) return val;
-    }
-    return '#3A6B4A';
-}
 
 function ratingHex(r: number | null): string {
     if (r == null) return '#9A9488';
@@ -59,7 +33,7 @@ function ratingHex(r: number | null): string {
 const POS_LONG: Record<string, string> = {
     GK: 'Goalkeeper', CB: 'Centre-Back', LB: 'Left-Back', RB: 'Right-Back',
     LWB: 'Left Wing-Back', RWB: 'Right Wing-Back',
-    DM: 'Defensive Mid', CM: 'Central Mid', 
+    DM: 'Defensive Mid', CM: 'Central Mid',
     AM: 'Attacking Mid', LW: 'Left Winger', RW: 'Right Winger', ST: 'Striker',
 };
 
@@ -75,20 +49,69 @@ const POS_CSS_VAR: Record<string, string> = {
     ST: 'var(--color-pos-st)',
 };
 
-interface GamelogEntry {
-    gameweek: number;
-    fantasy_points: number;
-    match_rating: number | null;
-    stats: { minutes_played?: number; goals?: number; assists?: number } | null;
-    opponent?: string;
-    result?: string;
-    date?: string;
-    isDNP?: boolean;
-}
-
 interface Props {
     player: Player;
+    /**
+     * Owner crest data. `undefined` means "not known yet" and triggers a
+     * background lookup; `null` means "known free agent" and does not.
+     * List pages pass this down so the crest is present on first paint.
+     */
+    ownership?: PlayerOwnership | null;
     onClose?: () => void;
+    /**
+     * Render from the player prop only — no network enrichment.
+     * Used by the auth marketing carousel where data is already complete
+     * and a fetch would just cause a late re-paint.
+     */
+    staticOnly?: boolean;
+}
+
+interface Snapshot {
+    player: Player;
+    ownership: PlayerOwnership | null | undefined;
+}
+
+/**
+ * The best data available synchronously, in priority order: whatever a previous
+ * open cached, then the props. Never returns null, so the card always has
+ * something complete enough to paint on its very first frame.
+ */
+function buildSnapshot(
+    player: Player,
+    ownership: PlayerOwnership | null | undefined,
+    leagueId: string | undefined,
+): Snapshot {
+    const cached = getCachedFront(player.id, leagueId);
+    const resolvedOwnership =
+        ownership !== undefined
+            ? ownership
+            : cached?.ownership !== undefined
+                ? cached.ownership
+                : getOwnershipFor(player.id, leagueId);
+
+    if (!cached) return { player, ownership: resolvedOwnership };
+    return {
+        // Props win on any field they actually carry — a list page's row is at
+        // least as fresh as the cache, and merging avoids flicker either way.
+        player: { ...cached.player, ...stripUndefined(player) },
+        ownership: resolvedOwnership,
+    };
+}
+
+function stripUndefined<T extends object>(obj: T): Partial<T> {
+    const out: Partial<T> = {};
+    for (const [k, v] of Object.entries(obj)) {
+        if (v !== undefined) (out as any)[k] = v;
+    }
+    return out;
+}
+
+/** True when the front face still has holes only the server can fill. */
+function frontIsIncomplete(snapshot: Snapshot, leagueId: string | undefined): boolean {
+    if (snapshot.player.overall_rank === undefined) return true;
+    if (snapshot.player.position_ranks === undefined) return true;
+    if (leagueId && snapshot.ownership === undefined) return true;
+    return false;
 }
 
 function calcAge(dob: string): number {
@@ -134,7 +157,9 @@ function FlipIcon() {
 
 export default function PremiumPlayerCard({
     player,
+    ownership,
     onClose,
+    staticOnly = false,
 }: Props) {
     const stageRef = useRef<HTMLDivElement>(null);
     const cardRef = useRef<HTMLDivElement>(null);
@@ -145,48 +170,109 @@ export default function PremiumPlayerCard({
     const flippedRef = useRef(false);
     const [tab, setTab] = useState<'log' | 'history'>('log');
     const [hovering, setHovering] = useState(false);
-    const [gamelog, setGamelog] = useState<GamelogEntry[]>([]);
-    const [history, setHistory] = useState<PlayerSeasonArchive[]>([]);
-    // Authoritative player data — starts with the prop and is replaced by the
-    // API response which always includes ppg, rankings, etc.
-    const [resolvedPlayer, setResolvedPlayer] = useState<Player>(player);
-
-    const displayPhotoUrl = resolvedPlayer?.photo_url || player?.photo_url || null;
-    const [imgSrc, setImgSrc] = useState<string | null>(displayPhotoUrl);
-
-    useEffect(() => {
-        setImgSrc(resolvedPlayer?.photo_url || player?.photo_url || null);
-    }, [resolvedPlayer?.photo_url, player?.photo_url, player?.id]);
 
     const params = useParams();
     const leagueId = params?.leagueId as string | undefined;
 
+    // ── Front face: painted on the first frame, always ────────────────────────
+    const [snapshot, setSnapshot] = useState<Snapshot>(() =>
+        staticOnly ? { player, ownership: ownership ?? null } : buildSnapshot(player, ownership, leagueId),
+    );
+
+    // Deriving during render (rather than in an effect) means switching players
+    // never paints one frame of the previous player's data.
+    const [renderedId, setRenderedId] = useState(player.id);
+    if (renderedId !== player.id) {
+        setRenderedId(player.id);
+        setSnapshot(
+            staticOnly ? { player, ownership: ownership ?? null } : buildSnapshot(player, ownership, leagueId),
+        );
+        setFlipped(false);
+        flippedRef.current = false;
+        setTab('log');
+    }
+
+    const resolvedPlayer = snapshot.player;
+    const resolvedOwnership = snapshot.ownership ?? null;
+
+    // ── Back face: fetched after paint, never gates anything ──────────────────
+    const [back, setBack] = useState<{ gamelog: CardGamelogEntry[]; history: PlayerSeasonArchive[] } | null>(
+        () => (staticOnly ? { gamelog: [], history: [] } : getCachedBack(player.id, leagueId)),
+    );
+    const [backRenderedId, setBackRenderedId] = useState(player.id);
+    if (backRenderedId !== player.id) {
+        setBackRenderedId(player.id);
+        setBack(staticOnly ? { gamelog: [], history: [] } : getCachedBack(player.id, leagueId));
+    }
+
+    // ── Photo: fixed slot, instant when warm, crossfade when cold ─────────────
+    const photoUrl = resolvedPlayer.photo_url ?? null;
+    const [photoState, setPhotoState] = useState<{ url: string | null; loaded: boolean; failed: boolean }>(
+        () => ({ url: photoUrl, loaded: isImageReady(photoUrl), failed: false }),
+    );
+    if (photoState.url !== photoUrl) {
+        setPhotoState({ url: photoUrl, loaded: isImageReady(photoUrl), failed: false });
+    }
+
+    // An <img> whose bytes are already in the HTTP cache can finish before React
+    // attaches onLoad, so mount-time completeness has to be checked directly or
+    // a warm photo would still fade in.
+    const photoRef = useCallback((node: HTMLImageElement | null) => {
+        if (node && node.complete && node.naturalWidth > 0) {
+            markImageReady(node.currentSrc || node.src);
+            setPhotoState((s) => (s.loaded ? s : { ...s, loaded: true }));
+        }
+    }, []);
+
     useEffect(() => {
+        if (staticOnly) return;
         let active = true;
-        const query = leagueId ? `?leagueId=${leagueId}` : '';
-        fetch(`/api/players/${player.id}${query}`)
-            .then(r => r.json())
-            .then(d => {
-                if (!active) return;
-                setGamelog(d.gamelog ?? []);
-                setHistory(d.history ?? []);
-                // Override with authoritative full player data from the API
-                if (d.player) {
-                    setResolvedPlayer(d.player as Player);
-                }
-            })
-            .catch(() => {});
+
+        // Only reach for the network when the props genuinely left a hole.
+        if (frontIsIncomplete(snapshot, leagueId)) {
+            fetchFront(player.id, leagueId).then((front) => {
+                if (!active || !front) return;
+                // `snapshot` here is this player's opening snapshot — the effect
+                // is keyed on player.id and nothing else writes it.
+                const merged: Snapshot = {
+                    player: { ...front.player, ...stripUndefined(snapshot.player) },
+                    ownership:
+                        snapshot.ownership !== undefined ? snapshot.ownership : front.ownership,
+                };
+                // Cache the filled-in version, or every reopen of a player whose
+                // row was missing a rank refetches the same thing.
+                primeFront(merged.player, leagueId, merged.ownership);
+                setSnapshot(merged);
+            });
+        } else {
+            // Props were complete — record them so the next open of this player
+            // (from anywhere in the app) skips the check entirely.
+            primeFront(snapshot.player, leagueId, resolvedOwnership);
+        }
+
+        if (!getCachedBack(player.id, leagueId)) {
+            fetchBack(player.id, leagueId).then((data) => {
+                if (active && data) setBack(data);
+            });
+        }
+
         return () => {
             active = false;
-            setGamelog([]);
-            setHistory([]);
-            setResolvedPlayer(player);
         };
-    }, [player.id, leagueId]);
+    // Keyed on the player, not the snapshot — refetching on every merge would loop.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [player.id, leagueId, staticOnly]);
 
-    const teamColor = getTeamColor(resolvedPlayer.pl_team);
+    const teamColor = clubColor(resolvedPlayer.pl_team);
     const posLong = POS_LONG[resolvedPlayer.primary_position] ?? resolvedPlayer.primary_position;
     const posVar = POS_CSS_VAR[resolvedPlayer.primary_position] ?? 'var(--color-accent-green)';
+
+    /** True once a real photo is on screen and the fallback initial can recede. */
+    const photoShowing = !!photoUrl && !photoState.failed && photoState.loaded;
+
+    const gamelog = back?.gamelog ?? [];
+    const history = back?.history ?? [];
+    const backPending = back === null;
 
     const playedGames = gamelog.filter(g => {
         const isDNP = g.isDNP ?? (g.stats?.minutes_played === 0);
@@ -194,14 +280,24 @@ export default function PremiumPlayerCard({
     });
     const recentGames = playedGames.slice(0, 8).reverse();
 
-    const displayForm = resolvedPlayer.form_rating ?? resolvedPlayer.form;
-    const rating = resolvedPlayer.form_rating;
+    // Form must average the same games the "L5" label promises. The cached
+    // players.form_rating column is computed server-side (see
+    // update_player_form_ratings in supabase/migrations) over the last 5
+    // appearances with >=15 minutes, but it's only refreshed by a live stats
+    // sync — so once gamelog is in hand, recompute client-side from it
+    // instead of trusting a column that can go stale between syncs.
+    const qualifyingGames = playedGames.filter(g => (g.stats?.minutes_played ?? 0) >= 15);
+    const last5Qualifying = qualifyingGames.slice(0, 5).filter(g => g.match_rating != null);
+    const computedForm = last5Qualifying.length > 0
+        ? Math.round((last5Qualifying.reduce((sum, g) => sum + (g.match_rating ?? 0), 0) / last5Qualifying.length) * 10) / 10
+        : null;
+    const rating = back !== null ? computedForm : resolvedPlayer.form_rating;
+    const totalPts = resolvedPlayer.total_points;
 
-
-    const resolvedTeamId = resolvedPlayer.pl_team_id ?? TEAM_TO_ID[resolvedPlayer.pl_team];
-    const { first: firstName, last: webName } = formatPlayerName(resolvedPlayer, 'split');
-
-
+    // Resolved by club NAME, never by pl_team_id — FPL reassigns those ids every
+    // season, which is how this card once rendered Spurs' badge for West Ham.
+    const badgePath = clubBadgePath(resolvedPlayer.pl_team);
+    const { first: firstName, last: webName } = getPlayerDisplayName(resolvedPlayer, 'split');
 
     const onMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
         const stage = stageRef.current;
@@ -286,11 +382,16 @@ export default function PremiumPlayerCard({
                     {/* Masthead */}
                     <div className={styles.masthead}>
                         <div className={styles.mastheadLeft}>
-                            {resolvedTeamId ? (
+                            {badgePath ? (
+                                // eslint-disable-next-line @next/next/no-img-element
                                 <img
-                                    src={`/team-logos/${resolvedTeamId}.png`}
+                                    src={badgePath}
                                     alt={resolvedPlayer.pl_team}
                                     className={styles.crestImg}
+                                    width={28}
+                                    height={28}
+                                    decoding="sync"
+                                    fetchPriority="high"
                                 />
                             ) : (
                                 <div className={styles.crest} style={{ background: teamColor }}>
@@ -298,9 +399,44 @@ export default function PremiumPlayerCard({
                                 </div>
                             )}
                             <div className={styles.clubMeta}>
-                                <span className={styles.mastheadName}>{formatPlayerName(resolvedPlayer, 'full')}</span>
+                                <span className={styles.mastheadName}>{getPlayerDisplayName(resolvedPlayer, 'full')}</span>
                                 <span className={styles.mastheadClub}>{resolvedPlayer.pl_team}</span>
                             </div>
+                        </div>
+                        {/* Always mounted at a fixed width — a crest that resolves late
+                            fades in instead of re-flowing the club name beside it. */}
+                        <div className={styles.mastheadRight}>
+                            {resolvedOwnership && (
+                                resolvedOwnership.loanedTo ? (
+                                    <div className={styles.loanCrests} title={`On loan from ${resolvedOwnership.owner.teamName} to ${resolvedOwnership.loanedTo.teamName}`}>
+                                        <div className={styles.loanCrestCol}>
+                                            <CrestBadge
+                                                config={resolvedOwnership.owner.crestConfig as CrestConfig | null}
+                                                size={22}
+                                                teamName={resolvedOwnership.owner.teamName}
+                                            />
+                                            <span className={styles.loanRole}>Lender</span>
+                                        </div>
+                                        <span className={styles.loanArrow} aria-hidden="true">→</span>
+                                        <div className={styles.loanCrestCol}>
+                                            <CrestBadge
+                                                config={resolvedOwnership.loanedTo.crestConfig as CrestConfig | null}
+                                                size={22}
+                                                teamName={resolvedOwnership.loanedTo.teamName}
+                                            />
+                                            <span className={styles.loanRole}>On loan</span>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className={styles.ownerCrest} title={resolvedOwnership.owner.teamName}>
+                                        <CrestBadge
+                                            config={resolvedOwnership.owner.crestConfig as CrestConfig | null}
+                                            size={28}
+                                            teamName={resolvedOwnership.owner.teamName}
+                                        />
+                                    </div>
+                                )
+                            )}
                         </div>
                     </div>
 
@@ -319,34 +455,57 @@ export default function PremiumPlayerCard({
                                 </span>
                             </div>
                         )}
-                        {imgSrc ? (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img
-                                src={imgSrc}
-                                alt={formatPlayerName(resolvedPlayer, 'full')}
-                                className={styles.photo}
-                                loading="eager"
-                                referrerPolicy="no-referrer"
-                                onError={() => setImgSrc(null)}
-                            />
-                        ) : (
-                            <div className={styles.photoPlaceholder}>
-                                {resolvedPlayer.name.charAt(0).toUpperCase()}
+                        {/* Fixed-size slot. The photo and its fallback occupy the exact
+                            same box, so nothing around them can ever move. */}
+                        <div className={styles.photoSlot}>
+                            {photoUrl && !photoState.failed && (
+                                // eslint-disable-next-line @next/next/no-img-element
+                                <img
+                                    key={photoUrl}
+                                    ref={photoRef}
+                                    src={photoUrl}
+                                    alt={getPlayerDisplayName(resolvedPlayer, 'full')}
+                                    className={`${styles.photo} ${photoState.loaded ? styles.photoLoaded : ''}`}
+                                    width={196}
+                                    height={250}
+                                    loading="eager"
+                                    decoding="async"
+                                    fetchPriority="high"
+                                    referrerPolicy="no-referrer"
+                                    onLoad={(e) => {
+                                        markImageReady(e.currentTarget.currentSrc || e.currentTarget.src);
+                                        setPhotoState((s) => ({ ...s, loaded: true }));
+                                    }}
+                                    onError={() => setPhotoState((s) => ({ ...s, failed: true }))}
+                                />
+                            )}
+                            {/* Stays mounted and fades out as the photo fades in.
+                                Unmounting it instead would flash the card
+                                background through a transparent cutout PNG. */}
+                            <div
+                                className={`${styles.photoPlaceholder} ${photoShowing ? styles.photoPlaceholderHidden : ''}`}
+                                style={{ '--placeholder-tint': teamColor } as React.CSSProperties}
+                                aria-hidden={photoShowing ? 'true' : undefined}
+                            >
+                                {playerInitial(resolvedPlayer)}
                             </div>
-                        )}
+                        </div>
                     </div>
 
                     {/* Identity bar */}
                     <div className={styles.identityBar}>
-                        {rating != null && rating > 0 && (
-                            <div
-                                className={styles.ratingBubble}
-                                style={{ borderColor: ratingHex(rating), color: ratingHex(rating) }}
-                            >
-                                <span className={styles.ratingVal}>{rating.toFixed(1)}</span>
-                                <span className={styles.ratingLbl}>Rtg</span>
-                            </div>
-                        )}
+                        <div className={styles.ratingCluster}>
+                            {rating != null && rating > 0 && (
+                                <div
+                                    className={styles.ratingBubble}
+                                    style={{ borderColor: ratingHex(rating), color: ratingHex(rating) }}
+                                >
+                                    <span className={styles.ratingVal}>{rating.toFixed(1)}</span>
+                                    <span className={styles.ratingLbl}>Rtg</span>
+                                </div>
+                            )}
+                            <FormArrow rating={rating} size={18} className={styles.formArrow} />
+                        </div>
                         {firstName && <span className={styles.firstName}>{firstName}</span>}
                         <span className={styles.lastName}>{webName}</span>
                         <div className={styles.idMeta}>
@@ -372,25 +531,25 @@ export default function PremiumPlayerCard({
                     <div className={styles.statsStrip}>
                         <div className={styles.statCell}>
                             <span className={`${styles.statVal} ${styles.statGold}`}>
-                                {resolvedPlayer.market_value != null ? `€${resolvedPlayer.market_value}m` : '—'}
+                                {resolvedPlayer.market_value != null ? `€${resolvedPlayer.market_value}m` : 'n/a'}
                             </span>
                             <span className={styles.statLbl}>Value</span>
                         </div>
                         <div className={styles.statCell}>
+                            <span className={`${styles.statVal} ${styles.statGreen}`}>
+                                {totalPts != null ? Number(totalPts).toFixed(0) : 'n/a'}
+                            </span>
+                            <span className={styles.statLbl}>Pts</span>
+                        </div>
+                        <div className={styles.statCell}>
                             <span className={styles.statVal}>
-                                {resolvedPlayer.ppg != null ? resolvedPlayer.ppg.toFixed(1) : '—'}
+                                {resolvedPlayer.ppg != null ? resolvedPlayer.ppg.toFixed(1) : 'n/a'}
                             </span>
                             <span className={styles.statLbl}>PPG</span>
                         </div>
                         <div className={styles.statCell}>
-                            <span className={`${styles.statVal} ${styles.statGreen}`}>
-                                {displayForm != null ? displayForm.toFixed(1) : '—'}
-                            </span>
-                            <span className={styles.statLbl}>Form</span>
-                        </div>
-                        <div className={styles.statCell}>
                             <span className={styles.statVal}>
-                                {resolvedPlayer.overall_rank != null ? `#${resolvedPlayer.overall_rank}` : '—'}
+                                {resolvedPlayer.overall_rank != null ? `#${resolvedPlayer.overall_rank}` : 'n/a'}
                             </span>
                             <span className={styles.statLbl}>OVR</span>
                         </div>
@@ -401,7 +560,7 @@ export default function PremiumPlayerCard({
                         <span className={styles.rankLbl}>Pos Rank</span>
                         <div className={styles.rankChips}>
                             {resolvedPlayer.position_ranks && resolvedPlayer.position_ranks.length > 0 ? (
-                                resolvedPlayer.position_ranks.sort((a, b) => a.rank - b.rank).map((r, i) => (
+                                [...resolvedPlayer.position_ranks].sort((a, b) => a.rank - b.rank).map((r, i) => (
                                     <span
                                         key={r.position}
                                         className={`${styles.rankChip} ${i === 0 ? styles.rankChipPrimary : ''}`}
@@ -460,12 +619,16 @@ export default function PremiumPlayerCard({
                                             title={`GW${g.gameweek} · ${ratingVal.toFixed(1)} Rtg`}
                                         />
                                     );
-                                }) : <span className={styles.formEmpty}>No data yet</span>}
+                                }) : backPending ? (
+                                    Array.from({ length: 8 }).map((_, i) => (
+                                        <div key={i} className={`${styles.formBar} ${styles.barSkeleton}`} style={{ height: `${12 + (i % 4) * 7}px` }} />
+                                    ))
+                                ) : <span className={styles.formEmpty}>No data yet</span>}
                             </div>
-                            {displayForm != null && (
+                            {rating != null && rating > 0 && (
                                 <div className={styles.formSummary}>
-                                    <span className={styles.formLbl}>Form · L3</span>
-                                    <span className={styles.formVal}>{typeof displayForm === 'number' ? displayForm.toFixed(1) : displayForm}</span>
+                                    <span className={styles.formLbl}>Form · L5</span>
+                                    <FormArrow rating={rating} size={14} showValue />
                                 </div>
                             )}
                         </div>
@@ -507,7 +670,7 @@ export default function PremiumPlayerCard({
                                                 {gamelog.map((g, index) => {
                                                     if (g.isDNP) {
                                                         return (
-                                                            <tr key={`${g.gameweek}-${g.opponent ?? index}`} className={styles.dnpRow}>
+                                                            <tr key={`${g.gameweek}-${g.opponent ?? "x"}-${index}`} className={styles.dnpRow}>
                                                                 <td className={styles.gwTd}>{g.gameweek}</td>
                                                                 <td className={styles.oppTd}>{g.opponent}</td>
                                                                 <td colSpan={5} className={styles.dnpTd}>DNP</td>
@@ -517,9 +680,9 @@ export default function PremiumPlayerCard({
                                                     const parsedRes = parseMatchResult(g.opponent, g.result);
                                                     const resCode = parsedRes?.code;
                                                     const resText = parsedRes?.text ?? g.result;
-                                                    
+
                                                     return (
-                                                        <tr key={`${g.gameweek}-${g.opponent ?? index}`}>
+                                                        <tr key={`${g.gameweek}-${g.opponent ?? "x"}-${index}`}>
                                                             <td className={styles.gwTd}>{g.gameweek}</td>
                                                             <td className={styles.oppTd}>
                                                                 {g.opponent}
@@ -552,6 +715,12 @@ export default function PremiumPlayerCard({
                                                 })}
                                             </tbody>
                                         </table>
+                                    ) : backPending ? (
+                                        <div className={styles.rowSkeletons} aria-busy="true" aria-label="Loading game log">
+                                            {Array.from({ length: 7 }).map((_, i) => (
+                                                <div key={i} className={styles.rowSkeleton} />
+                                            ))}
+                                        </div>
                                     ) : (
                                         <div className={styles.emptyState}>No game log records found.</div>
                                     )}
@@ -573,7 +742,7 @@ export default function PremiumPlayerCard({
                                             <tbody>
                                                 {history.map((h, index) => {
                                                     const bestPosRank = h.position_ranks && h.position_ranks.length > 0
-                                                        ? h.position_ranks.sort((a: any, b: any) => a.rank - b.rank)[0]
+                                                        ? [...h.position_ranks].sort((a, b) => a.rank - b.rank)[0]
                                                         : null;
 
                                                     return (
@@ -594,6 +763,12 @@ export default function PremiumPlayerCard({
                                                 })}
                                             </tbody>
                                         </table>
+                                    ) : backPending ? (
+                                        <div className={styles.rowSkeletons} aria-busy="true" aria-label="Loading season history">
+                                            {Array.from({ length: 4 }).map((_, i) => (
+                                                <div key={i} className={styles.rowSkeleton} />
+                                            ))}
+                                        </div>
                                     ) : (
                                         <div className={styles.emptyState}>No past season stats available.</div>
                                     )}

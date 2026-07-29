@@ -1,0 +1,215 @@
+.section {
+  padding: 0.9rem 1.25rem 0;
+}
+
+.label {
+  display: block;
+  font-size: 0.55rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  margin-bottom: 0.45rem;
+}
+
+.select {
+  width: 100%;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid var(--color-border);
+  border-radius: 7px;
+  background: var(--color-bg-card);
+  font-family: var(--font-sans);
+  font-size: 0.8125rem;
+  color: var(--color-text-primary);
+}
+
+.identity {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.9rem 1.25rem 0;
+  flex-wrap: wrap;
+}
+
+.name {
+  font-family: var(--font-serif);
+  font-weight: 700;
+  font-size: 1.125rem;
+  color: var(--color-text-primary);
+}
+
+.meta {
+  font-size: 0.69rem;
+  color: var(--color-text-muted);
+}
+
+/* ── Gates ──────────────────────────────────────────────── */
+
+.gates {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.gate {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  padding: 0.6rem 0.7rem;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 7px;
+  background: var(--color-bg-card);
+  cursor: pointer;
+}
+
+.gate input { margin-top: 0.2rem; flex-shrink: 0; }
+
+.gate b {
+  display: block;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.gate em {
+  display: block;
+  font-style: normal;
+  font-size: 0.66rem;
+  color: var(--color-text-muted);
+  line-height: 1.45;
+  margin-top: 0.1rem;
+}
+
+/* Each open gate takes the colour its pill wears on the card, so the dialog and
+   the board agree without a legend. */
+.gateOnTrade {
+  border-color: var(--color-pos-cb);
+  background: color-mix(in srgb, var(--color-pos-cb) 7%, var(--color-bg-card));
+}
+
+.gateOnCash {
+  border-color: var(--color-accent);
+  background: var(--color-accent-dim);
+}
+
+.gateOnLoan {
+  border-color: var(--color-pos-wb);
+  background: color-mix(in srgb, var(--color-pos-wb) 7%, var(--color-bg-card));
+}
+
+/* ── Prices ─────────────────────────────────────────────── */
+
+.prices {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+}
+
+.priceField {
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 7px;
+  padding: 0.5rem 0.625rem;
+  background: var(--color-bg-card);
+  display: block;
+}
+
+.priceLabel {
+  display: block;
+  font-size: 0.5rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.priceInput {
+  width: 100%;
+  border: none;
+  background: none;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 1.0625rem;
+  color: var(--color-text-primary);
+  padding: 0.15rem 0 0;
+}
+
+.priceInput:focus { outline: none; }
+
+.priceInput:disabled {
+  color: var(--color-text-muted);
+  cursor: not-allowed;
+}
+
+.priceInput::-webkit-outer-spin-button,
+.priceInput::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.priceInput { -moz-appearance: textfield; appearance: textfield; }
+
+.hint {
+  font-size: 0.66rem;
+  color: var(--color-text-muted);
+  margin-top: 0.5rem;
+  line-height: 1.5;
+  padding-bottom: 1rem;
+}
+
+.error {
+  margin: 0 1.25rem 0.75rem;
+  padding: 0.5rem 0.7rem;
+  border-radius: 6px;
+  background: var(--color-danger-dim);
+  color: var(--color-danger);
+  font-size: 0.72rem;
+  line-height: 1.45;
+}
+
+/* ── Footer ─────────────────────────────────────────────── */
+
+.spacer { flex: 1; }
+
+.ghost,
+.go,
+.danger {
+  padding: 0.6rem 1.125rem;
+  border-radius: 5px;
+  font-family: var(--font-sans);
+  font-size: 0.69rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+
+.ghost {
+  border-color: var(--color-border);
+  color: var(--color-text-secondary);
+  background: none;
+}
+
+.danger {
+  border-color: var(--color-border);
+  color: var(--color-danger);
+  background: none;
+}
+
+.ghost:hover:not(:disabled),
+.danger:hover:not(:disabled) { background: var(--color-bg-card-hover); }
+
+.go {
+  background: var(--color-accent);
+  color: #FFFFFF;
+}
+
+.go:hover:not(:disabled) { background: var(--color-accent-hover); }
+
+.go:disabled,
+.ghost:disabled,
+.danger:disabled { opacity: 0.5; cursor: not-allowed; }
+
+@media (max-width: 480px) {
+  .prices { grid-template-columns: 1fr; }
+}

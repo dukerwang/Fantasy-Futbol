@@ -1,0 +1,236 @@
+'use client';
+
+import { useMemo, useState } from 'react';
+import type { GranularPosition } from '@/types';
+import type {
+  EnrichedPlayer,
+  RosterPlayer,
+  TransfersAuction,
+  TransfersListing,
+} from '@/lib/transfers/buildTransfersModel';
+import PositionBadge from '@/components/players/PositionBadge';
+import Modal from './Modal';
+import { useTick, formatRemaining } from './useTick';
+import styles from './BidDialog.module.css';
+import { getPlayerDisplayName } from '@/lib/players/displayName';
+
+/**
+ * Bidding, and the release clause, in one dialog.
+ *
+ * They are the same request — `POST /auctions/bid` with a different number —
+ * and the RPC resolves a bid at or above `buy_now_price` inline rather than
+ * waiting for the sweep (079 §3). Splitting them into two dialogs would have
+ * meant two forms that submit identically and one shared roster-drop picker.
+ *
+ * `mode` only decides what the amount field starts at and how the button reads;
+ * the manager is free to type any legal number in either mode.
+ */
+
+export type BidMode = 'bid' | 'clause';
+
+interface Props {
+  open: boolean;
+  onClose: () => void;
+  leagueId: string;
+  player: EnrichedPlayer;
+  /** Null for a free agent with no auction open yet — the first bid opens one. */
+  auction: TransfersAuction | null;
+  listing: TransfersListing | null;
+  mode: BidMode;
+  budget: number;
+  /** Required when the active roster is full: whoever comes off to make room. */
+  rosterFull: boolean;
+  myRoster: RosterPlayer[];
+  onDone: () => void;
+}
+
+const money = (n: number) => `€${n}m`;
+
+export default function BidDialog({
+  open,
+  onClose,
+  leagueId,
+  player,
+  auction,
+  listing,
+  mode,
+  budget,
+  rosterFull,
+  myRoster,
+  onDone,
+}: Props) {
+  const standing = auction?.highest_bid ?? 0;
+  const live = listing ? listing.status === 'active' : standing > 0;
+
+  // The floor, resolved the same way the server will resolve it: one above the
+  // standing bid when there is one, otherwise the listing's minimum or the
+  // free-agent 20%-of-market-value floor that buildTransfersModel already
+  // computed into `minimum_bid`.
+  const floor = useMemo(() => {
+    if (standing > 0) return standing + 1;
+    if (listing) return listing.min_bid;
+    if (auction) return auction.minimum_bid;
+    return Math.floor((Number(player.market_value) || 0) * 0.2);
+  }, [standing, listing, auction, player.market_value]);
+
+  const clause = listing?.buy_now_price ?? null;
+  const opening = mode === 'clause' && clause != null ? clause : floor;
+
+  const [amount, setAmount] = useState<number>(opening);
+  const [dropId, setDropId] = useState<string>('');
+  const [message, setMessage] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+
+  // Re-seed when the dialog is reopened for a different player or mode.
+  const [seed, setSeed] = useState(`${player.id}:${mode}`);
+  if (seed !== `${player.id}:${mode}`) {
+    setSeed(`${player.id}:${mode}`);
+    setAmount(opening);
+    setDropId('');
+    setMessage(null);
+  }
+
+  const expiresAt = auction?.expires_at ?? listing?.auction_expires_at ?? null;
+  const now = useTick(open && Boolean(expiresAt));
+  const msLeft = expiresAt ? new Date(expiresAt).getTime() - now : 0;
+
+  // A drop is only demanded when the roster is full AND the academy cannot
+  // absorb the arrival — the route decides that itself, so this is an offer of
+  // a drop rather than a hard gate, and the server still has the final word.
+  const droppable = myRoster.filter((r) => r.status !== 'loan_in' && r.id !== player.id);
+
+  const tooExpensive = amount > budget;
+  const belowFloor = amount < floor;
+  const wouldTakeClause = clause != null && amount >= clause;
+
+  const submit = async () => {
+    setBusy(true);
+    setMessage(null);
+    try {
+      const res = await fetch(`/api/leagues/${leagueId}/auctions/bid`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          playerId: player.id,
+          bidAmount: amount,
+          dropPlayerId: dropId || null,
+          saleListingId: listing?.id ?? null,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setMessage(data.error ?? 'That bid was not accepted.');
+        return;
+      }
+      onDone();
+      onClose();
+    } catch {
+      setMessage('Could not reach the server. Try again.');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <Modal
+      open={open}
+      onClose={onClose}
+      title={mode === 'clause' ? 'Trigger the release clause' : live ? 'Raise your bid' : 'Open the bidding'}
+      footer={
+        <>
+          <span className={styles.summary}>
+            {wouldTakeClause && clause != null ? (
+              <>Pays <b>{money(amount)}</b> and takes him now — the clause ends the auction.</>
+            ) : (
+              <>Leaves you <b>{money(Math.max(0, budget - amount))}</b> for the rest of the window.</>
+            )}
+          </span>
+          <button type="button" className={styles.ghost} onClick={onClose} disabled={busy}>
+            Cancel
+          </button>
+          <button
+            type="button"
+            className={styles.go}
+            onClick={submit}
+            disabled={busy || belowFloor || tooExpensive}
+          >
+            {busy ? 'Sending…' : wouldTakeClause ? `Pay ${money(amount)}` : `Bid ${money(amount)}`}
+          </button>
+        </>
+      }
+    >
+      <div className={styles.identity}>
+        <PositionBadge position={player.primary_position as GranularPosition} size="sm" />
+        <span className={styles.name}>{getPlayerDisplayName(player, 'full')}</span>
+        <span className={styles.meta}>
+          {player.pl_team} · {money(Number(player.market_value) || 0)}
+          {listing?.seller_team_name ? ` · ${listing.seller_team_name}` : ' · free agent'}
+        </span>
+      </div>
+
+      <div className={styles.ladder}>
+        <div className={styles.rung}>
+          <div className={styles.rungLabel}>{live ? 'Standing bid' : 'No bids yet'}</div>
+          <div className={`${styles.rungValue} ${live ? styles.warn : styles.off}`}>
+            {live ? money(standing) : '—'}
+          </div>
+        </div>
+        <div className={styles.rung}>
+          <div className={styles.rungLabel}>Minimum</div>
+          <div className={styles.rungValue}>{money(floor)}</div>
+        </div>
+        <div className={styles.rung}>
+          <div className={styles.rungLabel}>Clause</div>
+          <div className={`${styles.rungValue} ${clause != null ? styles.gold : styles.off}`}>
+            {clause != null ? money(clause) : '—'}
+          </div>
+        </div>
+        <div className={styles.rung}>
+          <div className={styles.rungLabel}>Closes</div>
+          <div className={styles.rungValue}>{expiresAt ? formatRemaining(msLeft) : '—'}</div>
+        </div>
+      </div>
+
+      <label className={styles.field}>
+        <span className={styles.fieldLabel}>Your bid</span>
+        <div className={styles.amountRow}>
+          <span className={styles.currency}>€</span>
+          <input
+            className={styles.amount}
+            type="number"
+            min={floor}
+            step={1}
+            value={Number.isNaN(amount) ? '' : amount}
+            onChange={(e) => setAmount(parseInt(e.target.value, 10))}
+          />
+          <span className={styles.suffix}>m</span>
+        </div>
+        <div className={styles.hint}>
+          Minimum {money(floor)} · Club Balance {money(budget)}
+        </div>
+      </label>
+
+      {rosterFull && (
+        <label className={styles.field}>
+          <span className={styles.fieldLabel}>Who comes off</span>
+          <select className={styles.select} value={dropId} onChange={(e) => setDropId(e.target.value)}>
+            <option value="">Send him to the academy if there is room</option>
+            {droppable.map((r) => (
+              <option key={r.id} value={r.id}>
+                {getPlayerDisplayName(r, 'full')} · {r.primary_position} · {money(Number(r.market_value) || 0)}
+              </option>
+            ))}
+          </select>
+          <div className={styles.hint}>
+            Your squad is full. Nominate a player to release if you win, or leave this and he joins
+            the academy — the bid is refused if neither has room.
+          </div>
+        </label>
+      )}
+
+      {belowFloor && <p className={styles.error}>The minimum bid is {money(floor)}.</p>}
+      {tooExpensive && <p className={styles.error}>That is more than your {money(budget)} balance.</p>}
+      {message && <p className={styles.error}>{message}</p>}
+    </Modal>
+  );
+}

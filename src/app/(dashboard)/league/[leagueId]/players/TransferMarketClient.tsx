@@ -3,10 +3,10 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import Link from 'next/link';
 import type { AuctionListing, Player, GranularPosition } from '@/types';
-import { formatPlayerName } from '@/lib/formatName';
+import { getPlayerDisplayName, playerInitial } from '@/lib/players/displayName';
 import styles from './transfers.module.css';
 import PosBadge from '@/components/players/PositionBadge';
-import PlayerDetailsModal from '@/components/players/PlayerDetailsModal';
+import { usePlayerCard, playerHoverProps } from '@/components/players/PlayerCardProvider';
 import { Icon } from '@/components/ui/Icon';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -172,7 +172,13 @@ export default function TransferMarketClient({
   const [dropPlayerId, setDropPlayerId] = useState('');
   const [submitError, setSubmitError] = useState('');
   const [submitting, setSubmitting] = useState(false);
-  const [viewingPlayer, setViewingPlayer] = useState<Player | null>(null);
+
+  const { openPlayer, prefetchPlayer, primePlayers } = usePlayerCard();
+
+  // Every row already carries ranks and season-resolved stats from the server,
+  // so seeding the card cache here means clicking a name opens the card from
+  // memory with nothing left to fetch.
+  const viewPlayer = useCallback((p: Player) => openPlayer(p), [openPlayer]);
 
   // ── Client-side filtering ────────────────────────────────────────────────────
 
@@ -196,6 +202,17 @@ export default function TransferMarketClient({
     }
     return list;
   }, [allFreeAgents, searchQ, searchPos]);
+
+  // Seed the card cache and pre-decode the top photos. Keyed on the unfiltered
+  // list so typing in the search box doesn't re-prime hundreds of rows a
+  // keystroke — the filtered view is always a subset of what's already primed.
+  useEffect(() => {
+    primePlayers(allFreeAgents);
+  }, [allFreeAgents, primePlayers]);
+
+  useEffect(() => {
+    primePlayers(auctions.map((a) => a.player).filter(Boolean) as Player[]);
+  }, [auctions, primePlayers]);
 
   // ── Refresh ─────────────────────────────────────────────────────────────────
 
@@ -316,7 +333,7 @@ export default function TransferMarketClient({
     if (rosterFull && sendToAcademyIfFull && modal.player?.date_of_birth) {
       const age = calculateAgeInYears(modal.player.date_of_birth);
       if (age > academy.age_limit) {
-        setSubmitError(`${formatPlayerName(modal.player)} is age ${age} and not U${academy.age_limit} academy eligible.`);
+        setSubmitError(`${getPlayerDisplayName(modal.player)} is age ${age} and not U${academy.age_limit} academy eligible.`);
         return;
       }
       if (academy.current >= academy.max) {
@@ -499,9 +516,10 @@ export default function TransferMarketClient({
                         <button
                           type="button"
                           className={styles.playerName}
-                          onClick={() => setViewingPlayer(player)}
+                          onClick={() => viewPlayer(player)}
+                          {...playerHoverProps(prefetchPlayer, player)}
                         >
-                          {formatPlayerName(player, 'initial_last')}
+                          {getPlayerDisplayName(player, 'initial_last')}
                         </button>
                         <span className={styles.playerClub}>{player.pl_team}</span>
                       </div>
@@ -512,8 +530,10 @@ export default function TransferMarketClient({
                           <span className={styles.statValue}>{formatStat(player.ppg)}</span>
                         </div>
                         <div className={styles.statCol}>
-                          <span className={styles.statLabel}>Form</span>
-                          <span className={styles.statValue}>{formatStat(player.form_rating)}</span>
+                          <span className={styles.statLabel}>Pts</span>
+                          <span className={styles.statValue}>
+                            {player.total_points != null ? Number(player.total_points).toFixed(0) : '—'}
+                          </span>
                         </div>
                         <div className={styles.statCol}>
                           <span className={styles.statLabel}>Mkt Val</span>
@@ -551,7 +571,7 @@ export default function TransferMarketClient({
               <div className={styles.activityList}>
                 {initialRecentActivity.map((item) => {
                   const playerName = item.player
-                    ? (item.player.web_name || item.player.name)
+                    ? getPlayerDisplayName(item.player, 'initial_last')
                     : '—';
                   const teamName = item.team?.team_name ?? '—';
                   const bid = item.faab_bid != null ? `€${item.faab_bid}m` : '—';
@@ -627,13 +647,13 @@ export default function TransferMarketClient({
                           // eslint-disable-next-line @next/next/no-img-element
                           <img
                             src={auction.player.photo_url}
-                            alt={auction.player.web_name ?? auction.player.name}
+                            alt={getPlayerDisplayName(auction.player, 'full')}
                             className={styles.auctionAvatar}
                             draggable="false"
                           />
                         ) : (
                           <span className={styles.auctionAvatarInitial}>
-                            {(auction.player.web_name ?? auction.player.name).charAt(0).toUpperCase()}
+                            {playerInitial(auction.player)}
                           </span>
                         )}
                       </div>
@@ -641,9 +661,10 @@ export default function TransferMarketClient({
                         <button
                           type="button"
                           className={styles.auctionPlayerName}
-                          onClick={() => setViewingPlayer(auction.player)}
+                          onClick={() => viewPlayer(auction.player)}
+                          {...playerHoverProps(prefetchPlayer, auction.player)}
                         >
-                          {formatPlayerName(auction.player, 'initial_last')}
+                          {getPlayerDisplayName(auction.player, 'initial_last')}
                         </button>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
                           <PosBadge position={auction.player.primary_position} size="sm" />
@@ -663,8 +684,10 @@ export default function TransferMarketClient({
                         <span className={styles.statValue}>{formatStat(auction.player.ppg)}</span>
                       </div>
                       <div className={styles.statCol}>
-                        <span className={styles.statLabel}>Form</span>
-                        <span className={styles.statValue}>{formatStat(auction.player.form_rating)}</span>
+                        <span className={styles.statLabel}>Pts</span>
+                        <span className={styles.statValue}>
+                          {auction.player.total_points != null ? Number(auction.player.total_points).toFixed(0) : '—'}
+                        </span>
                       </div>
                       <div className={styles.statCol}>
                         <span className={styles.statLabel}>Mkt Val</span>
@@ -770,7 +793,7 @@ export default function TransferMarketClient({
                   <PosBadge position={modal.player.primary_position} />
                   <div className={styles.modalPlayerMeta}>
                     <p className={styles.modalPlayerName}>
-                      {formatPlayerName(modal.player, 'initial_last')}
+                      {getPlayerDisplayName(modal.player, 'initial_last')}
                     </p>
                     <p className={styles.modalPlayerClub}>
                       {modal.player.pl_team} · {modal.player.primary_position}
@@ -935,7 +958,7 @@ export default function TransferMarketClient({
                       const fee = Math.max(2, Math.floor(Number(p.market_value || 0) * 0.2));
                       return (
                         <option key={p.id} value={p.id}>
-                          {formatPlayerName(p as { name: string; web_name?: string | null })} ({p.primary_position} · {p.pl_team})
+                          {getPlayerDisplayName(p as { name: string; web_name?: string | null })} ({p.primary_position} · {p.pl_team})
                           {` — −€${fee}m severance`}
                         </option>
                       );
@@ -973,11 +996,7 @@ export default function TransferMarketClient({
         </div>
       )}
 
-      {/* Player details modal */}
-      <PlayerDetailsModal
-        player={viewingPlayer}
-        onClose={() => setViewingPlayer(null)}
-      />
+      {/* The player card modal is owned by PlayerCardProvider in the dashboard layout. */}
       <div style={{ display: 'none' }}>{isMyTeamEligible.toString()}{promotedClubs.length}</div>
     </div>
   );

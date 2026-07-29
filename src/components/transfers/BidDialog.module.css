@@ -1,0 +1,201 @@
+.identity {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.9rem 1.25rem 0.75rem;
+  flex-wrap: wrap;
+}
+
+.name {
+  font-family: var(--font-serif);
+  font-weight: 700;
+  font-size: 1.25rem;
+  letter-spacing: -0.015em;
+  color: var(--color-text-primary);
+}
+
+.meta {
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+}
+
+/* The same ladder as the card, so the number you clicked is the number you see. */
+.ladder {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  border-top: 1px solid var(--color-border-subtle);
+  border-bottom: 1px solid var(--color-border-subtle);
+  background: var(--color-bg-card);
+}
+
+.rung {
+  padding: 0.55rem 0.75rem;
+  border-right: 1px solid var(--color-border-subtle);
+}
+
+.rung:last-child { border-right: none; }
+
+.rungLabel {
+  font-size: 0.5rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.rungValue {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.9375rem;
+  margin-top: 0.125rem;
+  color: var(--color-text-primary);
+}
+
+.warn { color: var(--color-warning); }
+.gold { color: var(--color-gold); }
+
+:global([data-theme='dark']) .gold { color: #CBA85F; }
+
+.off {
+  color: var(--color-text-muted);
+  font-weight: 400;
+}
+
+/* ── Fields ─────────────────────────────────────────────── */
+
+.field {
+  display: block;
+  padding: 0.9rem 1.25rem 0;
+}
+
+.fieldLabel {
+  display: block;
+  font-size: 0.55rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  margin-bottom: 0.4rem;
+}
+
+.amountRow {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  border: 1px solid var(--color-border);
+  border-radius: 7px;
+  background: var(--color-bg-card);
+  padding: 0.5rem 0.75rem;
+}
+
+.amountRow:focus-within {
+  border-color: var(--color-accent);
+  outline: 2px solid var(--color-border-accent);
+  outline-offset: -1px;
+}
+
+.currency,
+.suffix {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 1.25rem;
+  color: var(--color-accent);
+}
+
+.amount {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: none;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 1.5rem;
+  color: var(--color-accent);
+  padding: 0;
+}
+
+.amount:focus { outline: none; }
+
+/* Spinners on a price field are a mis-click waiting to happen at €1m a tap. */
+.amount::-webkit-outer-spin-button,
+.amount::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.amount { -moz-appearance: textfield; appearance: textfield; }
+
+.select {
+  width: 100%;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid var(--color-border);
+  border-radius: 7px;
+  background: var(--color-bg-card);
+  font-family: var(--font-sans);
+  font-size: 0.8125rem;
+  color: var(--color-text-primary);
+}
+
+.hint {
+  font-size: 0.66rem;
+  color: var(--color-text-muted);
+  margin-top: 0.4rem;
+  line-height: 1.45;
+}
+
+.error {
+  margin: 0.75rem 1.25rem 0;
+  padding: 0.5rem 0.7rem;
+  border-radius: 6px;
+  background: var(--color-danger-dim);
+  color: var(--color-danger);
+  font-size: 0.75rem;
+  line-height: 1.45;
+}
+
+.field:last-of-type { padding-bottom: 1rem; }
+
+/* ── Footer ─────────────────────────────────────────────── */
+
+.summary {
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+  flex: 1;
+  min-width: 140px;
+}
+
+.summary b { font-family: var(--font-mono); }
+
+.ghost,
+.go {
+  padding: 0.6rem 1.25rem;
+  border-radius: 5px;
+  font-family: var(--font-sans);
+  font-size: 0.69rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+
+.ghost {
+  border-color: var(--color-border);
+  color: var(--color-text-secondary);
+  background: none;
+}
+
+.ghost:hover:not(:disabled) { background: var(--color-bg-card-hover); }
+
+.go {
+  background: var(--color-accent);
+  color: #FFFFFF;
+}
+
+.go:hover:not(:disabled) { background: var(--color-accent-hover); }
+
+.go:disabled,
+.ghost:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

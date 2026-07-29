@@ -1,0 +1,265 @@
+/* The listing card.
+   State is carried by a full border plus a background tint — never by a
+   coloured sliver down one edge. Colour on this card comes only from the
+   position badge, the crest, the gate pills and the figures. */
+
+.card {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 9px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Bidding live — warm amber. Held to a tint so it reads as heat, not alarm. */
+.live {
+  background: color-mix(in srgb, var(--color-warning) 7%, var(--color-bg-card));
+  border-color: color-mix(in srgb, var(--color-warning) 45%, var(--color-border));
+}
+
+/* Your own listing — the accent, used here as belonging rather than action. */
+.mine {
+  background: var(--color-accent-dim);
+  border-color: var(--color-border-accent);
+}
+
+/* ── Identity ───────────────────────────────────────────── */
+
+.top {
+  display: flex;
+  gap: 0.7rem;
+  padding: 0.75rem 0.75rem 0.6rem;
+}
+
+.photoBtn {
+  width: 52px;
+  height: 52px;
+  border-radius: 6px;
+  flex-shrink: 0;
+  background: var(--color-bg-elevated);
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+}
+
+.photoFallback {
+  font-family: var(--font-serif);
+  font-weight: 700;
+  font-size: 1.375rem;
+  color: var(--color-text-muted);
+}
+
+.identity {
+  flex: 1;
+  min-width: 0;
+}
+
+/* PositionBadge sits to the LEFT of the name, never underneath it in small
+   text — the position is identity, not metadata. */
+.nameRow {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.name {
+  font-family: var(--font-serif);
+  font-weight: 700;
+  font-size: 1.0625rem;
+  letter-spacing: -0.01em;
+  line-height: 1.05;
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.meta {
+  font-size: 0.66rem;
+  color: var(--color-text-muted);
+  margin-top: 0.2rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.crest {
+  flex-shrink: 0;
+  display: flex;
+  align-items: flex-start;
+}
+
+/* ── The three-price ladder ─────────────────────────────── */
+
+.prices {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  border-top: 1px solid var(--color-border-subtle);
+}
+
+.price {
+  padding: 0.5rem 0.625rem;
+  border-right: 1px solid var(--color-border-subtle);
+  min-width: 0;
+}
+
+.priceLast { border-right: none; }
+
+.priceLabel {
+  font-size: 0.5rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.priceValue {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.9375rem;
+  margin-top: 0.125rem;
+  color: var(--color-text-primary);
+}
+
+.accent { color: var(--color-accent); }
+.gold   { color: var(--color-gold); }
+.warn   { color: var(--color-warning); }
+
+/* --color-gold (#93702F) is tuned for the cream theme and is not overridden for
+   dark, where it lands as a dark mustard on #252B3D — around 2.8:1, too low for
+   a figure someone is meant to read a price off. Lifted in lightness only
+   (hsl 41°, 51%, 38% → 60%) so the hue does not drift toward yellow.
+   Scoped here rather than overriding the token: it is also the app-wide colour
+   for leader / #1 figures, which sit on different surfaces. */
+:global([data-theme='dark']) .gold { color: #CBA85F; }
+
+.priceOff {
+  color: var(--color-text-muted);
+  font-weight: 400;
+  font-size: 0.8125rem;
+}
+
+/* ── Gate pills ─────────────────────────────────────────── */
+
+.gates {
+  display: flex;
+  gap: 0.3rem;
+  padding: 0.55rem 0.75rem 0;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.gate {
+  font-size: 0.53rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  padding: 0.19rem 0.44rem;
+  border-radius: 999px;
+  border: 1px solid currentColor;
+  white-space: nowrap;
+}
+
+.trade {
+  color: var(--color-pos-cb);
+  background: color-mix(in srgb, var(--color-pos-cb) 8%, transparent);
+}
+
+.cash {
+  color: var(--color-accent);
+  background: var(--color-accent-dim);
+}
+
+.loan {
+  color: var(--color-pos-wb);
+  background: color-mix(in srgb, var(--color-pos-wb) 8%, transparent);
+}
+
+/* A closed gate is stated, not hidden: knowing the seller will not trade is
+   worth as much as knowing they will. Dashed and grey so it reads as absence. */
+.gateShut {
+  color: var(--color-text-muted);
+  border-style: dashed;
+}
+
+.clock {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  color: var(--color-text-muted);
+}
+
+.clockHot {
+  color: var(--color-warning);
+  font-weight: 700;
+}
+
+/* ── Actions ────────────────────────────────────────────── */
+
+.actions {
+  display: flex;
+  margin-top: 0.55rem;
+  border-top: 1px solid var(--color-border-subtle);
+  background: var(--color-bg-elevated);
+}
+
+.action {
+  flex: 1;
+  text-align: center;
+  padding: 0.5rem 0.2rem;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+  background: none;
+  border: none;
+  border-right: 1px solid var(--color-border-subtle);
+  cursor: pointer;
+  transition: background 0.15s ease;
+  min-width: 0;
+}
+
+.action:last-child,
+.actionLast { border-right: none; }
+
+.action:hover:not(:disabled) { background: var(--color-bg-card-hover); }
+
+.action:disabled {
+  cursor: default;
+  color: var(--color-text-muted);
+}
+
+.actionBid {
+  background: var(--color-accent);
+  color: var(--color-text-inverse);
+}
+
+.actionBid:hover:not(:disabled) { background: var(--color-accent-hover); }
+
+.actionClause { color: var(--color-gold); }
+.actionOffer  { color: var(--color-pos-cb); }
+.actionLoan   { color: var(--color-pos-wb); }
+.actionMuted  { color: var(--color-text-muted); }
+
+/* Dark theme: --color-text-inverse is a dark navy, which would leave the
+   primary action reading dark-on-green. Force cream. */
+:global([data-theme='dark']) .actionBid { color: #EDEAE2; }
+
+@media (max-width: 480px) {
+  .prices { grid-template-columns: repeat(3, 1fr); }
+  .priceValue { font-size: 0.85rem; }
+  .name { font-size: 1rem; }
+}

@@ -1,10 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { useParams } from 'next/navigation';
-import { formatPlayerName } from '@/lib/formatName';
-import PlayerDetailsModal from '@/components/players/PlayerDetailsModal';
-import type { Player } from '@/types';
+import { getPlayerDisplayName } from '@/lib/players/displayName';
+import { usePlayerCard, playerHoverProps } from '@/components/players/PlayerCardProvider';
 import styles from './league.module.css';
 
 interface TopPerformersProps {
@@ -20,29 +17,7 @@ const POS_COLOR_MAP: Record<string, string> = {
 };
 
 export default function TopPerformers({ latestCompletedGW, topPerformers }: TopPerformersProps) {
-  const [viewingPlayer, setViewingPlayer] = useState<Player | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-
-  const params = useParams();
-  const leagueId = params?.leagueId as string | undefined;
-
-  const handlePlayerClick = async (playerId: string) => {
-    if (isLoading) return;
-    setIsLoading(true);
-    try {
-      const query = leagueId ? `?leagueId=${leagueId}` : '';
-      const res = await fetch(`/api/players/${playerId}${query}`);
-      if (!res.ok) throw new Error('Failed to fetch details');
-      const data = await res.json();
-      if (data.player) {
-        setViewingPlayer(data.player as Player);
-      }
-    } catch (err) {
-      console.error('Failed to fetch player details:', err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const { openPlayerById, prefetchPlayer } = usePlayerCard();
 
   return (
     <>
@@ -65,7 +40,7 @@ export default function TopPerformers({ latestCompletedGW, topPerformers }: TopP
                       <img src={player.photo_url} alt="" className={styles.perfPhoto} />
                     ) : (
                       <div className={styles.perfPhotoFallback}>
-                        {formatPlayerName(player, 'initial_last').charAt(0)}
+                        {getPlayerDisplayName(player, 'initial_last').charAt(0)}
                       </div>
                     )}
                   </div>
@@ -77,9 +52,10 @@ export default function TopPerformers({ latestCompletedGW, topPerformers }: TopP
                       <button
                         type="button"
                         className={styles.perfName}
-                        onClick={() => handlePlayerClick(player.id)}
+                        onClick={() => openPlayerById(player.id)}
+                        {...playerHoverProps(prefetchPlayer, player)}
                       >
-                        {formatPlayerName(player, 'initial_last')}
+                        {getPlayerDisplayName(player, 'initial_last')}
                       </button>
                     </div>
                     <span className={styles.perfTeamName}>{player.pl_team}</span>
@@ -95,7 +71,6 @@ export default function TopPerformers({ latestCompletedGW, topPerformers }: TopP
         )}
       </div>
 
-      <PlayerDetailsModal player={viewingPlayer} onClose={() => setViewingPlayer(null)} />
     </>
   );
 }

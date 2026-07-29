@@ -31,6 +31,25 @@ interface NavGroup {
   items: { label: string; href: string; disabled?: boolean }[];
 }
 
+/**
+ * Which dropdown item is the current page.
+ *
+ * A plain `startsWith` breaks as soon as one item's href is a prefix of a
+ * sibling's — the Transfers group has `/transfers` alongside
+ * `/transfers/listings`, so Market would light up on all four pages. An item
+ * that prefixes a sibling has to match exactly; everything else keeps prefix
+ * matching so deeper routes still highlight their section.
+ */
+function isItemActive(
+  pathname: string | null,
+  href: string,
+  siblings: { href: string }[],
+): boolean {
+  if (!pathname) return false;
+  const prefixesASibling = siblings.some((s) => s.href !== href && s.href.startsWith(`${href}/`));
+  return prefixesASibling ? pathname === href : pathname.startsWith(href);
+}
+
 export default function TopBar() {
   const pathname = usePathname();
   const router = useRouter();
@@ -138,6 +157,7 @@ export default function TopBar() {
   function getNavGroups(): NavGroup[] {
     if (!currentLeagueId) return [];
     const base = `/league/${currentLeagueId}`;
+
     const isDraftVisible = currentLeague?.status === 'setup' || currentLeague?.status === 'drafting';
 
     const groups: NavGroup[] = [
@@ -160,10 +180,13 @@ export default function TopBar() {
       {
         label: 'Transfers',
         items: [
-          { label: 'Free Agency', href: `${base}/players` },
-          { label: 'Trades', href: `${base}/trades` },
-          { label: 'Player Sales', href: `${base}/trades?tab=listings` },
-          { label: 'Player Loans', href: `${base}/trades?tab=loans` },
+          // The hub's own sub-nav is the primary way around these four; this
+          // group exists so the section is reachable from anywhere in the app.
+          { label: 'Market', href: `${base}/transfers` },
+          { label: 'Auctions', href: `${base}/transfers/auctions` },
+          { label: 'Listings', href: `${base}/transfers/listings` },
+          { label: 'Free Agency', href: `${base}/transfers/free-agents` },
+          { label: 'Deals', href: `${base}/transfers/deals` },
         ],
       },
       {
@@ -275,7 +298,7 @@ export default function TopBar() {
                         <Link
                           key={item.label}
                           href={item.href}
-                          className={`${styles.dropdownLink} ${pathname?.startsWith(item.href) ? styles.dropdownLinkActive : ''}`}
+                          className={`${styles.dropdownLink} ${isItemActive(pathname, item.href, group.items) ? styles.dropdownLinkActive : ''}`}
                           onClick={() => {
                             setIsNavigating(true);
                             setOpenDropdown(null);

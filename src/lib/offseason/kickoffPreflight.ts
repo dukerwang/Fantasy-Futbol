@@ -16,7 +16,7 @@
  */
 
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { COMPENSATION_RATE } from '@/lib/transfers/compensation';
+import { getDepartureCompensationRate } from '@/lib/transfers/compensation';
 import { AUCTION_THRESHOLD, findPromotedClubsAndArrivals } from '@/lib/offseason/seasonKickoff';
 
 /** Above this, an auction batch looks like a backlog release rather than a window. */
@@ -44,60 +44,10 @@ export interface KickoffPreflightResult {
   };
 }
 
-const FPL_URL = 'https://fantasy.premierleague.com/api/bootstrap-static/';
-
-const PARTICLES = new Set([
-  'de', 'da', 'do', 'dos', 'das', 'van', 'von', 'del', 'della', 'di', 'la', 'le',
-  'el', 'al', 'bin', 'ibn', 'den', 'der', 'ter', 'junior', 'santos', 'silva', 'costa',
-]);
-
-function normalize(str: string | null | undefined): string {
-  if (!str) return '';
-  return str
-    .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '')
-    .toLowerCase()
-    .replace(/-/g, ' ')
-    .replace(/[^a-z0-9 ]/g, '')
-    .replace(/\s+/g, ' ')
-    .trim();
-}
-
-function significantTokens(str: string | null | undefined): string[] {
-  return normalize(str).split(' ').filter((t) => t.length >= 3 && !PARTICLES.has(t));
-}
-
-interface FplElement {
-  id: number;
-  first_name: string;
-  second_name: string;
-  web_name: string;
-  team: number;
-}
-
-/**
- * Is this departed player actually still in the Premier League under a
- * different row? This is the Murillo / Joelinton failure: a stale row and a
- * live row for the same human, with the roster pointing at the stale one.
- * Kickoff would drop the player and pay compensation for someone who never
- * left. Mononyms are the tricky case — "Murillo" shares exactly one token with
- * "Murillo Costa dos Santos" — so a single shared token counts when it makes
- * up the whole of one side's name.
- */
-function looksLikeSamePlayer(dbName: string, el: FplElement): boolean {
-  // Deliberately ignores web_name. On exactly the rows this check inspects,
-  // web_name is the field a bad sync overwrote — Konaté's row carries
-  // "Endo", Gordon's carries "Bakwa" — so matching on it identifies the
-  // player who corrupted the row rather than the player who owns it. `name`
-  // is the field the sync preserves, which makes it the trustworthy signal.
-  const a = significantTokens(dbName);
-  const b = significantTokens(`${el.first_name} ${el.second_name}`);
-  if (a.length === 0 || b.length === 0) return false;
-
-  const shared = a.filter((t) => b.includes(t));
-  if (shared.length >= 2) return true;
-  return shared.length === 1 && (a.length === 1 || b.length === 1);
-}
+// Moved to src/lib/players/plPresence.ts so departure detection shares exactly
+// this check. It previously lived here alone, which is why the mid-season
+// auto-release path shipped without it.
+import { looksLikeSamePlayer, fetchFplElements, type FplElement } from '@/lib/players/plPresence';
 
 export async function runKickoffPreflight(
   admin: SupabaseClient,
@@ -142,21 +92,18 @@ export async function runKickoffPreflight(
     : { data: [] as never[] };
 
   const departures = (rosteredPlayers ?? []).filter((p) => !p.is_active);
+  // Priced off this league's configured rate so the preflight total matches
+  // what Kickoff will actually pay.
+  const compensationRate = await getDepartureCompensationRate(admin, leagueId);
   const compensationTotal = departures.reduce(
-    (sum, p) => sum + Number(p.market_value ?? 0) * COMPENSATION_RATE,
+    (sum, p) => sum + Number(p.market_value ?? 0) * compensationRate,
     0,
   );
 
   // Departed players still present in the live FPL bootstrap = duplicate rows.
-  let bootstrap: { elements: FplElement[] } | null = null;
-  try {
-    const res = await fetch(FPL_URL, { headers: { 'User-Agent': 'Gaffa/1.0' }, cache: 'no-store' });
-    if (res.ok) bootstrap = await res.json();
-  } catch {
-    bootstrap = null;
-  }
+  const elements: FplElement[] | null = await fetchFplElements();
 
-  if (!bootstrap) {
+  if (!elements) {
     issues.push({
       severity: 'warning',
       code: 'fpl_unreachable',
@@ -165,7 +112,7 @@ export async function runKickoffPreflight(
   } else {
     const stillInPl: string[] = [];
     for (const p of departures) {
-      const hit = bootstrap.elements.find((el) => looksLikeSamePlayer(p.name, el));
+      const hit = elements.find((el) => looksLikeSamePlayer(p.name, el));
       if (hit) {
         stillInPl.push(`${p.name} → FPL "${hit.first_name} ${hit.second_name}" [${hit.web_name}]`);
       }

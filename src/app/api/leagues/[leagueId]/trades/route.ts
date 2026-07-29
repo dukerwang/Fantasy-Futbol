@@ -8,6 +8,8 @@ interface Props {
   params: Promise<{ leagueId: string }>;
 }
 
+type RosterPlayerLite = { id: string; name: string; web_name: string | null; primary_position: string; pl_team: string };
+
 // GET: list trade proposals involving the user's team in this league
 export async function GET(_req: NextRequest, { params }: Props) {
   const { leagueId } = await params;
@@ -58,7 +60,7 @@ export async function GET(_req: NextRequest, { params }: Props) {
 
     for (const entry of rosterEntries ?? []) {
       if (!allRosters[entry.team_id]) allRosters[entry.team_id] = [];
-      allRosters[entry.team_id].push(entry.player as any);
+      allRosters[entry.team_id].push(entry.player as unknown as RosterPlayerLite);
     }
   }
 
@@ -68,7 +70,7 @@ export async function GET(_req: NextRequest, { params }: Props) {
     .select('player:players(id, fpl_id, api_football_id, web_name, name, full_name, date_of_birth, nationality, pl_team, pl_team_id, primary_position, secondary_positions, market_value, market_value_updated_at, projected_points, photo_url, height_cm, fpl_status, fpl_news, total_points, form_rating, ppg, is_active, transfermarkt_id, created_at, updated_at)')
     .eq('team_id', myTeam.id);
 
-  const myRoster = (myRosterEntries ?? []).map((e) => e.player as any);
+  const myRoster = (myRosterEntries ?? []).map((e) => e.player as unknown as RosterPlayerLite);
 
   // Enrich trades with player details
   const allPlayerIds = new Set<string>();
@@ -108,7 +110,17 @@ export async function POST(req: NextRequest, { params }: Props) {
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const body = await req.json();
-  const { targetTeamId, offeredPlayerIds, requestedPlayerIds, offeredFaab, requestedFaab, message, parentTradeId } = body as {
+  const {
+    targetTeamId,
+    offeredPlayerIds,
+    requestedPlayerIds,
+    offeredFaab,
+    requestedFaab,
+    message,
+    parentTradeId,
+    offeredRightIds = [],
+    requestedRightIds = [],
+  } = body as {
     targetTeamId: string;
     offeredPlayerIds: string[];
     requestedPlayerIds: string[];
@@ -116,14 +128,34 @@ export async function POST(req: NextRequest, { params }: Props) {
     requestedFaab: number;
     message?: string;
     parentTradeId?: string;
+    /** departure_decisions.id values — retained player rights, not roster players. */
+    offeredRightIds?: string[];
+    requestedRightIds?: string[];
+    /**
+     * Set when this proposal is an offer against a sale listing. Ties the offer
+     * to the listing so accepting it can close the listing and cancel its
+     * auction in one transaction, and so the seller's gates can be enforced.
+     */
+    saleListingId?: string | null;
   };
+  const { saleListingId } = body as { saleListingId?: string | null };
 
   if (!targetTeamId) return NextResponse.json({ error: 'targetTeamId is required' }, { status: 400 });
   if (!Array.isArray(offeredPlayerIds) || !Array.isArray(requestedPlayerIds)) {
     return NextResponse.json({ error: 'offeredPlayerIds and requestedPlayerIds must be arrays' }, { status: 400 });
   }
-  if (offeredPlayerIds.length === 0 && requestedPlayerIds.length === 0) {
-    return NextResponse.json({ error: 'A trade must include at least one player' }, { status: 400 });
+  if (!Array.isArray(offeredRightIds) || !Array.isArray(requestedRightIds)) {
+    return NextResponse.json({ error: 'offeredRightIds and requestedRightIds must be arrays' }, { status: 400 });
+  }
+  // Rights count as substance: a deal that moves only a retained claim (for
+  // budget, or for another claim) is a legitimate trade.
+  if (
+    offeredPlayerIds.length === 0 &&
+    requestedPlayerIds.length === 0 &&
+    offeredRightIds.length === 0 &&
+    requestedRightIds.length === 0
+  ) {
+    return NextResponse.json({ error: 'A trade must include at least one player or retained right' }, { status: 400 });
   }
   if (typeof offeredFaab !== 'number' || offeredFaab < 0 || !Number.isInteger(offeredFaab)) {
     return NextResponse.json({ error: 'offeredFaab must be a non-negative integer' }, { status: 400 });
@@ -152,7 +184,7 @@ export async function POST(req: NextRequest, { params }: Props) {
     .eq('team_id', myTeam.id)
     .eq('status', 'ir');
 
-  if (illegalIr?.some(e => (e.player as any)?.fpl_status === 'a')) {
+  if (illegalIr?.some(e => (e.player as unknown as { fpl_status: string | null })?.fpl_status === 'a')) {
     return NextResponse.json({ error: 'Cannot propose trades while you have a healthy player occupying an IR slot. Please activate them first.' }, { status: 400 });
   }
 
@@ -173,16 +205,21 @@ export async function POST(req: NextRequest, { params }: Props) {
     );
   }
 
-  // Validate that offered players are actually on the proposer's roster
+  // Validate that offered players are actually on the proposer's roster, and
+  // aren't out on loan — a loaned player's roster slot is governed by the loan
+  // agreement, not by whichever club currently holds the roster_entries row.
   if (offeredPlayerIds.length > 0) {
     const { data: myPlayers } = await admin
       .from('roster_entries')
-      .select('player_id')
+      .select('player_id, status')
       .eq('team_id', myTeam.id)
       .in('player_id', offeredPlayerIds);
 
     if ((myPlayers ?? []).length !== offeredPlayerIds.length) {
       return NextResponse.json({ error: 'One or more offered players are not on your roster' }, { status: 400 });
+    }
+    if ((myPlayers ?? []).some((e) => e.status === 'loan_in' || e.status === 'loan_out')) {
+      return NextResponse.json({ error: 'One or more offered players are currently out on loan and cannot be traded' }, { status: 400 });
     }
   }
 
@@ -190,14 +227,42 @@ export async function POST(req: NextRequest, { params }: Props) {
   if (requestedPlayerIds.length > 0) {
     const { data: theirPlayers } = await admin
       .from('roster_entries')
-      .select('player_id')
+      .select('player_id, status')
       .eq('team_id', targetTeamId)
       .in('player_id', requestedPlayerIds);
 
     if ((theirPlayers ?? []).length !== requestedPlayerIds.length) {
       return NextResponse.json({ error: 'One or more requested players are not on the target team roster' }, { status: 400 });
     }
+    if ((theirPlayers ?? []).some((e) => e.status === 'loan_in' || e.status === 'loan_out')) {
+      return NextResponse.json({ error: 'One or more requested players are currently out on loan and cannot be traded' }, { status: 400 });
+    }
   }
+
+  // Validate retained rights are live and held by the side offering them.
+  // The execute RPC re-checks this under lock at acceptance — a right can lapse
+  // in between — but rejecting here gives the proposer a usable error instead of
+  // a deal that silently dies days later.
+  async function validateRights(rightIds: string[], holderTeamId: string, label: string) {
+    if (rightIds.length === 0) return null;
+    const { data: rights } = await admin
+      .from('departure_decisions')
+      .select('id')
+      .eq('league_id', leagueId)
+      .eq('team_id', holderTeamId)
+      .in('status', ['retained', 'return_pending'])
+      .in('id', rightIds);
+
+    if ((rights ?? []).length !== rightIds.length) {
+      return `One or more ${label} retained rights are no longer held or have lapsed`;
+    }
+    return null;
+  }
+
+  const rightsError =
+    (await validateRights(offeredRightIds, myTeam.id, 'offered')) ??
+    (await validateRights(requestedRightIds, targetTeamId, 'requested'));
+  if (rightsError) return NextResponse.json({ error: rightsError }, { status: 400 });
 
   // Enforce player lock: cannot trade players with an active (locked) sale listing
   const allPlayerIds = [...offeredPlayerIds, ...requestedPlayerIds];
@@ -223,6 +288,77 @@ export async function POST(req: NextRequest, { params }: Props) {
     }
   }
 
+  // ── Offer against a sale listing ──────────────────────────────────────────
+  //
+  // The listing's gates say which kinds of offer the seller will entertain.
+  // They are advertising, so they are enforced here at proposal time rather
+  // than at acceptance: a seller who never opted into cash offers should not
+  // have to read and reject them.
+  if (saleListingId) {
+    const { data: listing } = await admin
+      .from('player_sale_listings')
+      .select('id, seller_team_id, player_id, status, min_bid, ask_price, open_to_trade, open_to_sale')
+      .eq('id', saleListingId)
+      .eq('league_id', leagueId)
+      .maybeSingle();
+
+    if (!listing) {
+      return NextResponse.json({ error: 'That listing no longer exists.' }, { status: 404 });
+    }
+    if (listing.status !== 'pending') {
+      return NextResponse.json(
+        {
+          error: listing.status === 'active'
+            ? 'Bidding has started on this listing — it is now auction-only.'
+            : `This listing is ${listing.status} and no longer accepting offers.`,
+        },
+        { status: 409 },
+      );
+    }
+    // The seller must be the counterparty, and the listed player must actually
+    // be part of what is being asked for. Without both, a listing id could be
+    // pinned to an unrelated trade to borrow its acceptance path.
+    if (listing.seller_team_id !== targetTeamId) {
+      return NextResponse.json(
+        { error: 'That listing belongs to a different club.' },
+        { status: 400 },
+      );
+    }
+    if (!requestedPlayerIds.includes(listing.player_id)) {
+      return NextResponse.json(
+        { error: 'An offer on a listing must request the listed player.' },
+        { status: 400 },
+      );
+    }
+
+    const includesPlayers = offeredPlayerIds.length > 0 || offeredRightIds.length > 0;
+
+    if (includesPlayers && !listing.open_to_trade) {
+      return NextResponse.json(
+        { error: 'This seller is not accepting offers that include players — cash only.' },
+        { status: 400 },
+      );
+    }
+    if (!includesPlayers) {
+      if (!listing.open_to_sale) {
+        return NextResponse.json(
+          { error: 'This seller is not accepting cash offers — your offer must include a player.' },
+          { status: 400 },
+        );
+      }
+      // Cash-only offers must clear the auction floor. Otherwise the offer path
+      // becomes a way to buy below a price the seller has already committed to
+      // publicly, undercutting their own auction. Offers including players are
+      // deliberately unconstrained — their value is not a single number.
+      if (offeredFaab < listing.min_bid) {
+        return NextResponse.json(
+          { error: `A cash offer must be at least the minimum bid of €${listing.min_bid}m.` },
+          { status: 400 },
+        );
+      }
+    }
+  }
+
   if (parentTradeId) {
     const { data: parentTrade } = await admin
       .from('trade_proposals')
@@ -242,11 +378,14 @@ export async function POST(req: NextRequest, { params }: Props) {
       team_b_id: targetTeamId,
       offered_players: offeredPlayerIds,
       requested_players: requestedPlayerIds,
+      offered_rights: offeredRightIds,
+      requested_rights: requestedRightIds,
       offered_faab: offeredFaab,
       requested_faab: requestedFaab,
       status: 'pending',
       message: message ?? null,
       parent_trade_id: parentTradeId ?? null,
+      sale_listing_id: saleListingId ?? null,
     })
     .select()
     .single();

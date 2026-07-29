@@ -3,12 +3,12 @@
 import { useState, useCallback, useEffect } from 'react';
 import Link from 'next/link';
 import PositionBadge from '@/components/players/PositionBadge';
-import PlayerDetailsModal from '@/components/players/PlayerDetailsModal';
+import { usePlayerCard } from '@/components/players/PlayerCardProvider';
 import { Icon } from '@/components/ui/Icon';
 import ListPlayerModal from './ListPlayerModal';
 import ProposeLoanModal from './ProposeLoanModal';
 import RequestLoanModal from './RequestLoanModal';
-import { formatPlayerName } from '@/lib/formatName';
+import { getPlayerDisplayName } from '@/lib/players/displayName';
 import styles from './trades.module.css';
 
 export interface SimplePlayer {
@@ -104,7 +104,7 @@ interface Props {
 type Tab = 'trades' | 'league-feed' | 'listings' | 'loans';
 
 function playerDisplayName(p: SimplePlayer) {
-  return formatPlayerName(p, 'initial_last');
+  return getPlayerDisplayName(p, 'initial_last');
 }
 
 export default function TradesClient({
@@ -122,7 +122,7 @@ export default function TradesClient({
   rosterSize = 20,
   initialLoans = [],
   currentGameweek = 1,
-  initialTab = 'trades',
+  initialTab = 'league-feed',
   leagueSettings = {
     loan_slot_buyback_fee: 25,
     loan_bonus_cap_default: 0,
@@ -135,8 +135,17 @@ export default function TradesClient({
   const [tab, setTab] = useState<Tab>(initialTab);
   const [trades, setTrades] = useState<TradeRecord[]>(initialTrades);
   const [playerMap, setPlayerMap] = useState<Record<string, SimplePlayer>>(initialPlayerMap);
-  const [viewingPlayer, setViewingPlayer] = useState<SimplePlayer | null>(null);
   const [localMyRoster, setLocalMyRoster] = useState<any[]>(myRoster);
+
+  // Trade rows carry only a thin player shape (no photo or ranks), so the card
+  // opens by id off the shared cache rather than painting a half-filled front.
+  const { openPlayerById, prefetchPlayer } = usePlayerCard();
+  const setViewingPlayer = useCallback(
+    (p: SimplePlayer | null) => {
+      if (p) openPlayerById(p.id);
+    },
+    [openPlayerById],
+  );
 
   // Player Market
   const [showListModal, setShowListModal] = useState(false);
@@ -468,6 +477,12 @@ export default function TradesClient({
       {/* ── Tab Bar (4 tabs) ── */}
       <div className={styles.tabs}>
         <button
+          className={`${styles.tab} ${tab === 'league-feed' ? styles.tabActive : ''}`}
+          onClick={() => setTab('league-feed')}
+        >
+          Trade Feed
+        </button>
+        <button
           className={`${styles.tab} ${tab === 'trades' ? styles.tabActive : ''}`}
           onClick={() => { setTab('trades'); setProposeSuccess(''); }}
         >
@@ -475,12 +490,6 @@ export default function TradesClient({
           {pendingTrades.length > 0 && (
             <span className={styles.tabBadge}>{pendingTrades.length}</span>
           )}
-        </button>
-        <button
-          className={`${styles.tab} ${tab === 'league-feed' ? styles.tabActive : ''}`}
-          onClick={() => setTab('league-feed')}
-        >
-          League Feed
         </button>
         <button
           className={`${styles.tab} ${tab === 'listings' ? styles.tabActive : ''}`}
@@ -563,6 +572,7 @@ export default function TradesClient({
                               <PositionBadge position={p.primary_position as any} size="sm" />
                               <span
                                 onClick={(e) => { e.stopPropagation(); setViewingPlayer(p); }}
+                                onPointerEnter={() => prefetchPlayer(p as { id: string })}
                                 className={styles.tradePlayerNameLink}
                               >
                                 {playerDisplayName(p)}
@@ -602,6 +612,7 @@ export default function TradesClient({
                               <PositionBadge position={p.primary_position as any} size="sm" />
                               <span
                                 onClick={(e) => { e.stopPropagation(); setViewingPlayer(p); }}
+                                onPointerEnter={() => prefetchPlayer(p as { id: string })}
                                 className={styles.tradePlayerNameLink}
                               >
                                 {playerDisplayName(p)}
@@ -875,7 +886,7 @@ export default function TradesClient({
                           {offeredPlayers.length > 0 ? offeredPlayers.map((p: SimplePlayer) => (
                             <span key={p.id} className={styles.leagueFeedPlayerChip}>
                               <PositionBadge position={p.primary_position as any} size="sm" />
-                              {p.web_name ?? p.name}
+                              {getPlayerDisplayName(p, 'initial_last')}
                             </span>
                           )) : <span className={styles.leagueFeedNone}>—</span>}
                           {trade.offered_faab > 0 && <span className={styles.leagueFeedFaab}>+€{trade.offered_faab}m</span>}
@@ -887,7 +898,7 @@ export default function TradesClient({
                           {requestedPlayers.length > 0 ? requestedPlayers.map((p: SimplePlayer) => (
                             <span key={p.id} className={styles.leagueFeedPlayerChip}>
                               <PositionBadge position={p.primary_position as any} size="sm" />
-                              {p.web_name ?? p.name}
+                              {getPlayerDisplayName(p, 'initial_last')}
                             </span>
                           )) : <span className={styles.leagueFeedNone}>—</span>}
                           {trade.requested_faab > 0 && <span className={styles.leagueFeedFaab}>+€{trade.requested_faab}m</span>}
@@ -1168,12 +1179,7 @@ export default function TradesClient({
         </div>
       )}
 
-      {/* ── Modals ── */}
-      <PlayerDetailsModal
-        player={viewingPlayer as any}
-        onClose={() => setViewingPlayer(null)}
-      />
-
+      {/* ── Modals ── (the player card is owned by PlayerCardProvider) */}
       {showListModal && (
         <ListPlayerModal
           leagueId={leagueId}
@@ -1285,7 +1291,7 @@ export function TradeCard({ trade, myTeamId, playerMap, onAction, onCounter, onV
         <span className={styles.tcPosDot} style={{ background: positionColor(p.primary_position) }} />
         <div className={styles.tcPlayerInfo}>
           <button className={styles.tcPlayerName} onClick={() => onViewPlayer?.(p)}>
-            {formatPlayerName(p, 'initial_last')}
+            {getPlayerDisplayName(p, 'initial_last')}
           </button>
           <span className={styles.tcPlayerClub}>{p.pl_team}{p.primary_position ? ` · ${p.primary_position}` : ''}</span>
         </div>
@@ -1482,7 +1488,7 @@ export function LoanCard({
                 onClick={() => onViewPlayer(p)}
                 style={{ background: 'none', border: 'none', padding: 0, font: 'inherit', color: 'inherit', cursor: 'pointer', textDecoration: 'underline', textAlign: 'left' }}
               >
-                {formatPlayerName(p, 'full')}
+                {getPlayerDisplayName(p, 'full')}
               </button>
             ) : 'Unknown Player'}
           </h4>
@@ -1593,7 +1599,7 @@ export function LoanCard({
             <button
               onClick={() => {
                 const penalty = 25;
-                if (confirm(`Recall ${p ? formatPlayerName(p, 'full') : 'this player'} early? You will pay €${penalty}m penalty to the borrower.`)) {
+                if (confirm(`Recall ${p ? getPlayerDisplayName(p, 'full') : 'this player'} early? You will pay €${penalty}m penalty to the borrower.`)) {
                   onRecall(loan.id);
                 }
               }}
@@ -1706,7 +1712,7 @@ function ListingCard({
         <div className={styles.tbCardInfo}>
           <div className={styles.tbCardInfoTop}>
             <span className={styles.tbPlayerName} style={{ cursor: 'pointer' }} onClick={() => onViewPlayer(p)}>
-              {formatPlayerName(p, 'initial_last')}
+              {getPlayerDisplayName(p, 'initial_last')}
             </span>
             <div className={styles.tbValueBlock}>
               <span className={styles.tbValueLabel}>{isLive ? 'Current Bid' : 'Min Bid'}</span>
@@ -1751,7 +1757,7 @@ function ListingCard({
                 style={{ padding: '8px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--color-border)', background: 'var(--color-bg-card)', color: 'var(--color-text-primary)' }}>
                 <option value="">— Select player to drop —</option>
                 {eligibleDrops.map((d) => (
-                  <option key={d.id} value={d.id}>{formatPlayerName(d, 'initial_last')} ({d.primary_position})</option>
+                  <option key={d.id} value={d.id}>{getPlayerDisplayName(d, 'initial_last')} ({d.primary_position})</option>
                 ))}
               </select>
             </div>

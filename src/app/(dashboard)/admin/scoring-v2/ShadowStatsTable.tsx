@@ -3,7 +3,7 @@
 import { useMemo, useState } from 'react';
 import type { GranularPosition } from '@/types';
 import PosBadge from '@/components/players/PositionBadge';
-import { formatPlayerName } from '@/lib/formatName';
+import { getPlayerDisplayName } from '@/lib/players/displayName';
 import styles from './scoring-v2.module.css';
 
 export interface ShadowStatsPayload {
@@ -150,7 +150,7 @@ export default function ShadowStatsTable({ statsSeason, players, shadowMaps }: P
         if (!activePos) return false;
 
         if (q) {
-          const full = formatPlayerName(p, 'full').toLowerCase();
+          const full = getPlayerDisplayName(p, 'full').toLowerCase();
           if (!full.includes(q) && !p.name.toLowerCase().includes(q)) return false;
         }
 
@@ -389,7 +389,7 @@ export default function ShadowStatsTable({ statsSeason, players, shadowMaps }: P
                     </div>
                     <div className={styles.shadowPlayerInfo}>
                       <span className={styles.shadowPlayerName}>
-                        {formatPlayerName(player, 'full')}
+                        {getPlayerDisplayName(player, 'full')}
                       </span>
                       <span className={styles.shadowPlayerClub}>{player.pl_team}</span>
                     </div>

@@ -3,7 +3,7 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { redirect, notFound } from 'next/navigation';
 import Link from 'next/link';
 import NavigationLink from '@/components/ui/NavigationLink';
-import { formatPlayerName } from '@/lib/formatName';
+import { getPlayerDisplayName } from '@/lib/players/displayName';
 import styles from './league.module.css';
 import DraftOrderManager from './DraftOrderManager';
 import LeaveLeagueButton from './LeaveLeagueButton';
@@ -553,12 +553,12 @@ export default async function LeaguePage({ params }: Props) {
                 <div className={styles.taxiList}>
                   {taxiSquad.map((entry: any, i: number) => {
                     const player = entry.player;
-                    const initials = (player.web_name ?? player.name ?? '?').split(' ').map((n: string) => n[0]).join('').substring(0, 2);
+                    const initials = getPlayerDisplayName(player, 'full').split(' ').map((n: string) => n[0]).join('').substring(0, 2);
                     return (
                       <div key={i} className={styles.taxiRow}>
                         <div className={styles.taxiAvatar}>{initials}</div>
                         <div className={styles.taxiInfo}>
-                          <span className={styles.taxiName}>{formatPlayerName(player, 'full')}</span>
+                          <span className={styles.taxiName}>{getPlayerDisplayName(player, 'full')}</span>
                           <span className={styles.taxiPosClub}>{player.primary_position} • {player.pl_team}</span>
                         </div>
                       </div>

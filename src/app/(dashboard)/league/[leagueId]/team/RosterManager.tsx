@@ -3,8 +3,8 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import type { Player, RosterEntry } from '@/types';
-import PlayerDetailsModal from '@/components/players/PlayerDetailsModal';
-import { formatPlayerName } from '@/lib/formatName';
+import { usePlayerCard, playerHoverProps } from '@/components/players/PlayerCardProvider';
+import { getPlayerDisplayName } from '@/lib/players/displayName';
 import styles from './my-team.module.css';
 
 interface Props {
@@ -16,7 +16,7 @@ export default function RosterManager({ teamId, rosterEntries }: Props) {
     const router = useRouter();
     const [loadingId, setLoadingId] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
-    const [viewingPlayer, setViewingPlayer] = useState<Player | null>(null);
+    const { openPlayer: setViewingPlayer, prefetchPlayer } = usePlayerCard();
 
     async function handleAction(
         playerId: string,
@@ -92,7 +92,7 @@ export default function RosterManager({ teamId, rosterEntries }: Props) {
     // Trade Block toggle function removed — replaced by player market listings
 
     const sortedEntries = [...rosterEntries].sort((a, b) => {
-        return formatPlayerName(a.player, 'full').localeCompare(formatPlayerName(b.player, 'full'));
+        return getPlayerDisplayName(a.player, 'full').localeCompare(getPlayerDisplayName(b.player, 'full'));
     });
 
     if (rosterEntries.length === 0) return null;
@@ -119,6 +119,7 @@ export default function RosterManager({ teamId, rosterEntries }: Props) {
                                 <div
                                     className={styles.rosterItemInfo}
                                     onClick={() => setViewingPlayer(entry.player)}
+                                    {...playerHoverProps(prefetchPlayer, entry.player)}
                                     style={{ cursor: 'pointer' }}
                                 >
                                     <span className={styles.posBadge} style={{ background: 'var(--color-bg-secondary)', border: '1px solid var(--color-border)', color: 'var(--color-text-muted)' }}>
@@ -129,13 +130,13 @@ export default function RosterManager({ teamId, rosterEntries }: Props) {
                                         className={styles.rosterItemNameBtn}
                                         title="View player details"
                                     >
-                                        {formatPlayerName(entry.player, 'full')}
+                                        {getPlayerDisplayName(entry.player, 'full')}
                                     </button>
                                     <span className={styles.rosterItemClub}>{entry.player.pl_team}</span>
                                     {entry.player.projected_points !== undefined && entry.player.projected_points !== null && (
                                         <span className={styles.rosterItemValue} style={{ color: 'var(--color-text-secondary)', marginRight: 'var(--space-2)' }}>Proj: {Number(entry.player.projected_points).toFixed(1)}</span>
                                     )}
-                                    <span className={styles.rosterItemValue}>€{Number(entry.player.market_value || 0).toFixed(1)}m</span>
+                                    <span className={styles.rosterItemValue}>{entry.player.market_value != null ? `€${Number(entry.player.market_value).toFixed(1)}m` : 'n/a'}</span>
                                 </div>
                                 <div className={styles.rosterItemActions} style={{ display: 'flex', alignItems: 'center' }}>
                                     {hasActiveListing && (
@@ -168,7 +169,7 @@ export default function RosterManager({ teamId, rosterEntries }: Props) {
                                         onClick={() => handleAction(
                                             entry.player.id,
                                             'drop',
-                                            formatPlayerName(entry.player, 'full'),
+                                            getPlayerDisplayName(entry.player, 'full'),
                                             Number(entry.player.market_value || 0),
                                         )}
                                         disabled={loadingId !== null || hasActiveListing || isLoanOut || isPendingActivation}
@@ -181,7 +182,7 @@ export default function RosterManager({ teamId, rosterEntries }: Props) {
                                         onClick={() => handleAction(
                                             entry.player.id,
                                             'transfer_out',
-                                            formatPlayerName(entry.player, 'full'),
+                                            getPlayerDisplayName(entry.player, 'full'),
                                             Number(entry.player.market_value || 0),
                                         )}
                                         disabled={loadingId !== null || hasActiveListing || isLoanIn || isLoanOut || isPendingActivation}
@@ -219,10 +220,7 @@ export default function RosterManager({ teamId, rosterEntries }: Props) {
                 </div>
             </div>
 
-            <PlayerDetailsModal
-                player={viewingPlayer}
-                onClose={() => setViewingPlayer(null)}
-            />
+            {/* The player card modal is owned by PlayerCardProvider in the dashboard layout. */}
         </>
     );
 }

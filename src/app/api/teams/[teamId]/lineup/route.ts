@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { FORMATION_SLOTS, POSITION_FLEX_MAP, BENCH_FLEX_MAP, getExpectedBenchSlots } from '@/types';
+import { getPlayerDisplayName } from '@/lib/players/displayName';
 import type { Formation, GranularPosition, MatchupLineup, BenchSlot } from '@/types';
 
 type LineupPlacement = { kind: 'starter'; slot: GranularPosition } | { kind: 'bench'; slot: BenchSlot };
@@ -339,7 +340,7 @@ export async function POST(req: NextRequest, { params }: Props) {
         const nextKey = placementKey(newMap.get(pid));
         if (prevKey !== nextKey) {
           const pl = playerMap.get(pid) as any;
-          lockedNames.push((pl?.web_name || pl?.full_name || pid) as string);
+          lockedNames.push(pl ? getPlayerDisplayName(pl, 'initial_last') : pid);
         }
       }
       if (lockedNames.length > 0) {

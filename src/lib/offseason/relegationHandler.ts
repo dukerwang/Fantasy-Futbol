@@ -1,14 +1,29 @@
 /**
- * Gaffa — Relegation Compensation Handler
+ * Gaffa — Relegation / Departure Resolution at Kickoff
  *
- * Processes end-of-season FAAB compensation for players at relegated clubs.
- * Detection is automatic: the existing sync/players route marks relegated
- * players as is_active=false when FPL sets their status to 'u'.
- * This module only handles the payout step, run by the commissioner.
+ * Kickoff is the deadline for the summer's retain-or-release decisions. By the
+ * time it runs, every departed player on a roster has a decision row (opened by
+ * `recordDepartures` as soon as the sync marked him inactive) and the manager
+ * has had the whole offseason to answer it.
+ *
+ * This module resolves whatever is still outstanding:
+ *   - `pending`  → released, compensation paid at the snapshotted offer
+ *   - `retained` → left alone; the manager already chose, and the player stays
+ *                  theirs as rights rather than as a squad member
+ *
+ * Release is the default for anyone who never answered. It pays them something
+ * rather than silently consuming a scarce retained slot they never asked to
+ * spend, and it returns the player to circulation.
+ *
+ * Idempotent throughout: `recordDepartures` skips players who already have an
+ * open decision, and the release RPC no-ops on any decision that is not still
+ * pending, so a second Kickoff run finds nothing left to do.
  */
 
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { processPlayerTransferOut, COMPENSATION_RATE } from '@/lib/transfers/compensation';
+import { recordDepartures } from '@/lib/departures/detect';
+import { listDecisions, releaseDeparture } from '@/lib/departures/decisions';
+import { getPlayerDisplayName } from '@/lib/players/displayName';
 
 interface RelegationResult {
   playerId: string;
@@ -32,78 +47,63 @@ interface RelegationPreview {
   ownedBy: { teamName: string; leagueId: string }[];
 }
 
+interface DecisionWithPlayer {
+  id: string;
+  team_id: string;
+  player_id: string;
+  status: string;
+  market_value_at_departure: number | null;
+  compensation_offered: number | null;
+}
+
 /**
- * Returns a preview of all relegated players on fantasy rosters in a given league.
- * Used by the admin UI to show the commissioner what will happen before they confirm.
+ * What Kickoff will actually do, for the admin confirmation screen.
  *
- * A "relegated player" is any `is_active=false` player still sitting on a
- * roster in this league. Membership on a roster is the guard: once processed
- * the roster entry is deleted, so a processed player can never show up twice.
- * (`pl_status` is written as an audit marker but is deliberately NOT used to
- * exclude — it's a global column, so using it as the guard meant the first
- * league processed consumed the flag for every other league.)
+ * Reads decisions rather than scanning `players` for inactive rows: only
+ * players still awaiting a choice get paid out, so a player whose manager
+ * already chose to retain him must not appear here as an imminent cost.
  */
 export async function previewRelegationCompensation(
   admin: SupabaseClient,
   leagueId: string,
 ): Promise<RelegationPreview[]> {
-  const { data: relegatedPlayers, error: playersErr } = await admin
-    .from('players')
-    .select('id, name, pl_team, market_value')
-    .eq('is_active', false);
+  const pending = (await listDecisions(admin, leagueId, {
+    statuses: ['pending'],
+  })) as unknown as DecisionWithPlayer[];
 
-  if (playersErr || !relegatedPlayers || relegatedPlayers.length === 0) return [];
+  if (pending.length === 0) return [];
 
-  const playerIds = relegatedPlayers.map((p) => p.id);
+  const playerIds = [...new Set(pending.map((d) => d.player_id))];
+  const teamIds = [...new Set(pending.map((d) => d.team_id))];
 
-  // Find which of these are on rosters in this league. `!inner` is required —
-  // without it PostgREST keeps every row and merely nulls the embed, so the
-  // league filter silently did nothing and other leagues' entries leaked in.
-  const { data: rosterEntries } = await admin
-    .from('roster_entries')
-    .select('player_id, team:teams!inner(id, team_name, league_id)')
-    .in('player_id', playerIds)
-    .eq('team.league_id', leagueId);
+  const [{ data: players }, { data: teams }] = await Promise.all([
+    admin.from('players').select('id, name, web_name, pl_team').in('id', playerIds),
+    admin.from('teams').select('id, team_name').in('id', teamIds),
+  ]);
 
-  if (!rosterEntries || rosterEntries.length === 0) return [];
+  const playerById = new Map((players ?? []).map((p) => [p.id as string, p]));
+  const teamById = new Map((teams ?? []).map((t) => [t.id as string, t]));
 
-  const results: RelegationPreview[] = [];
-
-  for (const player of relegatedPlayers) {
-    const owned = (rosterEntries ?? []).filter((r) => r.player_id === player.id);
-    if (owned.length === 0) continue;
-
-    // Same constant the payout uses — a hardcoded rate here meant the preview
-    // could quote a figure the RPC never actually paid.
-    const comp = Math.round(player.market_value * COMPENSATION_RATE * 100) / 100;
-    results.push({
-      playerId: player.id,
-      playerName: player.name,
-      club: player.pl_team,
-      marketValue: player.market_value,
-      compensationFaab: comp,
-      ownedBy: owned.map((r) => {
-        const team = r.team as unknown as { id: string; team_name: string; league_id: string };
-        return { teamName: team?.team_name ?? 'Unknown', leagueId: team?.league_id ?? '' };
-      }),
-    });
-  }
-
-  return results;
+  return pending.map((d) => {
+    const player = playerById.get(d.player_id);
+    const team = teamById.get(d.team_id);
+    return {
+      playerId: d.player_id,
+      playerName: getPlayerDisplayName(player, 'full'),
+      club: player?.pl_team ?? 'Unknown',
+      marketValue: Number(d.market_value_at_departure ?? 0),
+      compensationFaab: Number(d.compensation_offered ?? 0),
+      ownedBy: [{ teamName: team?.team_name ?? 'Unknown', leagueId }],
+    };
+  });
 }
 
 /**
- * Processes relegation compensation for all relegated players owned in a league.
+ * Resolves every outstanding departure decision in this league.
  *
- * For each inactive player on a fantasy roster in THIS league:
- * - Owner receives 80% of market_value as FAAB (via processPlayerTransferOut)
- * - Player removed from roster
- * - pl_status set to 'relegated' (audit marker)
- * - season_transitions record written
- *
- * Idempotent on two levels: the RPC skips any (team, player) that already has
- * a `transfer_compensation` transaction, and processing deletes the roster
- * entry, so a second run finds nothing left to select.
+ * Opens decisions for anything the sync has marked departed but not yet
+ * recorded (a player sold abroad the night before Kickoff), then releases
+ * everything still pending.
  */
 export async function processRelegationCompensation(
   admin: SupabaseClient,
@@ -111,91 +111,86 @@ export async function processRelegationCompensation(
   seasonFrom: string,
   seasonTo: string,
 ): Promise<RelegationResult[]> {
-  // Scope to players actually rostered in this league. The previous version
-  // scanned `players` globally and used pl_status as the guard, which meant a
-  // batch run (kickoff-all) stamped every inactive player 'relegated' while
-  // processing the first league — starving every league after it.
-  const { data: leagueTeams, error: teamsErr } = await admin
-    .from('teams')
-    .select('id')
-    .eq('league_id', leagueId);
-  if (teamsErr) throw new Error(`Failed to load league teams: ${teamsErr.message}`);
+  // Catch late departures. No deadline — Kickoff is the deadline, and it is
+  // happening right now.
+  await recordDepartures(admin, leagueId, { seasonFrom, decideBy: null, notify: false });
 
-  const teamIds = (leagueTeams ?? []).map((t) => t.id);
-  if (teamIds.length === 0) return [];
+  const pending = (await listDecisions(admin, leagueId, {
+    statuses: ['pending'],
+  })) as unknown as DecisionWithPlayer[];
 
-  const { data: entries, error: entriesErr } = await admin
-    .from('roster_entries')
-    .select('player_id')
-    .in('team_id', teamIds)
-    .not('player_id', 'is', null);
-  if (entriesErr) throw new Error(`Failed to load rostered players: ${entriesErr.message}`);
+  if (pending.length === 0) return [];
 
-  const rosteredIds = [...new Set((entries ?? []).map((e) => e.player_id))];
-  if (rosteredIds.length === 0) return [];
+  const playerIds = [...new Set(pending.map((d) => d.player_id))];
+  const teamIds = [...new Set(pending.map((d) => d.team_id))];
 
-  const { data: relegatedPlayers, error: playersErr } = await admin
-    .from('players')
-    .select('id, name, pl_team, market_value')
-    .eq('is_active', false)
-    .in('id', rosteredIds);
+  const [{ data: players }, { data: teams }] = await Promise.all([
+    admin.from('players').select('id, name, web_name, pl_team').in('id', playerIds),
+    admin.from('teams').select('id, team_name').in('id', teamIds),
+  ]);
 
-  if (playersErr) throw new Error(`Failed to fetch relegated players: ${playersErr.message}`);
-  if (!relegatedPlayers || relegatedPlayers.length === 0) return [];
+  const playerById = new Map((players ?? []).map((p) => [p.id as string, p]));
+  const teamById = new Map((teams ?? []).map((t) => [t.id as string, t]));
 
   const results: RelegationResult[] = [];
+  const transitionRows: Record<string, unknown>[] = [];
 
-  for (const player of relegatedPlayers) {
-    // The RPC pays out across every league that rosters this player — correct,
-    // since the player has left the PL for all of them. But the audit trail and
-    // the returned result belong to the league being kicked off, so scope them.
-    const result = await processPlayerTransferOut(admin, player.id);
-    const inThisLeague = result.affectedTeams.filter((t) => t.leagueId === leagueId);
+  for (const decision of pending) {
+    const player = playerById.get(decision.player_id);
+    const team = teamById.get(decision.team_id);
+    const name = getPlayerDisplayName(player, 'full');
+    const club = player?.pl_team ?? 'Unknown';
 
-    if (result.affectedTeams.length > 0) {
-      await admin
-        .from('players')
-        .update({ pl_status: 'relegated', pl_season: seasonFrom, updated_at: new Date().toISOString() })
-        .eq('id', player.id);
+    let paid: { compensation: number; newFaab: number } | null = null;
+    try {
+      paid = await releaseDeparture(admin, decision.id);
+    } catch (err) {
+      console.error(`[relegation] Failed to release ${name}:`, err);
+      continue;
+    }
 
-      // Write season_transitions record per team affected in THIS league
-      const transitionRows = inThisLeague.map((t) => ({
-        league_id: leagueId,
-        season_from: seasonFrom,
-        season_to: seasonTo,
-        event_type: 'relegated',
-        player_id: player.id,
-        team_id: t.teamId,
-        team_name: t.teamName,
-        notes: `${player.name} (${player.pl_team}) relegated. €${result.compensation}m compensation paid.`,
-      }));
+    // Null means the decision was already resolved by a concurrent run.
+    if (!paid) continue;
 
-      if (transitionRows.length > 0) {
-        const { error: transErr } = await admin.from('season_transitions').insert(transitionRows);
-        if (transErr) {
-          console.error(`[relegation] Failed to write season_transitions for ${player.name}:`, transErr);
-        }
-      }
+    // Audit marker. Deliberately not used as a processing guard — it is a
+    // global column on `players`, so using it to decide what to skip meant the
+    // first league processed consumed the flag for every other league.
+    await admin
+      .from('players')
+      .update({ pl_status: 'relegated', pl_season: seasonFrom, updated_at: new Date().toISOString() })
+      .eq('id', decision.player_id);
 
-      results.push({
-        playerId: player.id,
-        playerName: player.name,
-        club: player.pl_team,
-        compensationFaab: result.compensation,
-        affectedRosters: inThisLeague.map((t) => ({
-          teamId: t.teamId,
-          teamName: t.teamName,
-          leagueId: t.leagueId,
-          newFaab: t.newFaab,
-        })),
-      });
-    } else {
-      // Nothing paid out — league isn't in a payable state. Still mark the
-      // player so the audit trail reflects that they've left the PL.
-      await admin
-        .from('players')
-        .update({ pl_status: 'relegated', pl_season: seasonFrom, updated_at: new Date().toISOString() })
-        .eq('id', player.id);
+    transitionRows.push({
+      league_id: leagueId,
+      season_from: seasonFrom,
+      season_to: seasonTo,
+      event_type: 'relegated',
+      player_id: decision.player_id,
+      team_id: decision.team_id,
+      team_name: team?.team_name ?? 'Unknown',
+      notes: `${name} (${club}) left the Premier League. €${paid.compensation}m compensation paid.`,
+    });
+
+    results.push({
+      playerId: decision.player_id,
+      playerName: name,
+      club,
+      compensationFaab: paid.compensation,
+      affectedRosters: [
+        {
+          teamId: decision.team_id,
+          teamName: team?.team_name ?? 'Unknown',
+          leagueId,
+          newFaab: paid.newFaab,
+        },
+      ],
+    });
+  }
+
+  if (transitionRows.length > 0) {
+    const { error: transErr } = await admin.from('season_transitions').insert(transitionRows);
+    if (transErr) {
+      console.error('[relegation] Failed to write season_transitions:', transErr);
     }
   }
 

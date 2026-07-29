@@ -1,12 +1,17 @@
 'use client';
 
 import { useEffect } from 'react';
-import type { Player } from '@/types';
+import type { Player, PlayerOwnership } from '@/types';
 import PremiumPlayerCard from './PremiumPlayerCard';
 import styles from './PlayerDetailsModal.module.css';
 
 interface Props {
     player: Player | null;
+    /**
+     * Owner crest data, when the opener already knows it. `undefined` lets the
+     * card resolve it; `null` means known free agent.
+     */
+    ownership?: PlayerOwnership | null;
     onClose: () => void;
     /** If provided, shows a "Pick" action button inside the modal */
     onPick?: (player: Player) => void;
@@ -16,6 +21,7 @@ interface Props {
 
 export default function PlayerDetailsModal({
     player,
+    ownership,
     onClose,
     onPick,
     onNominate,
@@ -42,8 +48,12 @@ export default function PlayerDetailsModal({
         >
             <div className={styles.box} onClick={(e) => e.stopPropagation()}>
                 <div className={styles.cardScaler}>
+                    {/* Keyed on the player so switching subjects remounts rather
+                        than briefly painting the previous player's photo. */}
                     <PremiumPlayerCard
+                        key={player.id}
                         player={player}
+                        ownership={ownership}
                         onClose={onClose}
                     />
                 </div>
