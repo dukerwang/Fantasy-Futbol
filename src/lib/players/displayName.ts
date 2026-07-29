@@ -166,6 +166,7 @@ function formatSofifaCommon(
   sofifaCommon: string,
   dbName: string,
   format: 'full' | 'initial_last' | 'split',
+  webName = '',
 ): string | { first: string; last: string } {
   // If SoFIFA common name has an initial (e.g. "W. Saliba" or "J. Timber")
   if (sofifaCommon.includes('.')) {
@@ -173,11 +174,9 @@ function formatSofifaCommon(
       // Return full legal/DB name (e.g. "William Saliba", "Jurriën Timber")
       return dbName;
     }
-    // For compact/split formats, use the initial + surname form (e.g. "W. Saliba")
-    const parts = sofifaCommon.split(/\s+/).filter(Boolean);
-    const last = parts.slice(1).join(' ');
-    const first = parts[0];
-    if (format === 'split') return { first, last };
+    // For 'split', use the full given name over the surname (e.g. "William" / "Saliba"),
+    // not the abbreviated SoFIFA initial — that's for 'initial_last' only.
+    if (format === 'split') return splitName(dbName, webName);
     return sofifaCommon;
   }
 
@@ -223,7 +222,7 @@ export function getPlayerDisplayName(
 
   const sofifaCommon = player.sofifa_common_name?.trim();
   if (sofifaCommon) {
-    return formatSofifaCommon(sofifaCommon, dbName, format);
+    return formatSofifaCommon(sofifaCommon, dbName, format, webName);
   }
 
   if (format === 'split') return splitName(dbName, webName);

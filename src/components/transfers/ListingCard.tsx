@@ -6,6 +6,7 @@ import type { TransfersAuction, TransfersListing, TransfersTeam } from '@/lib/tr
 import CrestBadge from '@/components/crest/CrestBadge';
 import PositionBadge from '@/components/players/PositionBadge';
 import { useTick, formatRemaining, isClosing } from './useTick';
+import { listingStance } from '@/lib/transfers/listingStance';
 import styles from './ListingCard.module.css';
 import { getPlayerDisplayName, playerInitial } from '@/lib/players/displayName';
 
@@ -16,10 +17,15 @@ import { getPlayerDisplayName, playerInitial } from '@/lib/players/displayName';
  * listing, and a loan block — so the card is read top to bottom as: who, for how
  * much, on what terms, and what you can do about it.
  *
+ * Since 088 the chip states the seller's STANCE ("For sale · €95m", "Wants
+ * players", "Open to approaches") rather than a permissions matrix. Every route
+ * in is open to everyone until bidding starts; what the seller is after tells
+ * you which approach is likely to land, not which one is allowed.
+ *
  * Three states, distinguished by full border + background tint, never by an
  * accent sliver down one edge:
  *
- *   quiet  — listed, nobody has bid. Every gate the seller opened is available.
+ *   quiet  — listed, nobody has bid. Every route in is available.
  *   live   — bidding has started. The seller has lost control: prices are locked
  *            (PATCH refuses), the listing can no longer be cancelled, and every
  *            offer path is gone. The absence of those buttons IS the explanation;
@@ -77,13 +83,7 @@ export default function ListingCard({
   const standing = auction?.highest_bid ?? 0;
   const bidFrom = live && standing > 0 ? standing + 1 : auction?.minimum_bid ?? listing.min_bid;
 
-  const gates = live
-    ? [{ key: 'locked', label: 'Locked — bidding', open: false }]
-    : [
-        { key: 'trade', label: listing.open_to_trade ? 'Trade' : 'No trade', open: listing.open_to_trade },
-        { key: 'cash', label: listing.open_to_sale ? 'Cash' : 'No cash', open: listing.open_to_sale },
-        { key: 'loan', label: listing.open_to_loan ? 'Loan' : 'No loan', open: listing.open_to_loan },
-      ];
+  const stance = listingStance(listing);
 
   const stateClass = isMine ? styles.mine : live ? styles.live : '';
 
@@ -136,7 +136,7 @@ export default function ListingCard({
         <div className={styles.price}>
           <div className={styles.priceLabel}>{live ? 'Standing bid' : 'Asking'}</div>
           <div className={`${styles.priceValue} ${live ? styles.warn : styles.accent}`}>
-            {live ? money(standing) : listing.open_to_sale ? money(listing.ask_price) : '—'}
+            {live ? money(standing) : money(listing.ask_price)}
           </div>
         </div>
         <div className={styles.price}>
@@ -152,11 +152,9 @@ export default function ListingCard({
       </div>
 
       <div className={styles.gates}>
-        {gates.map((g) => (
-          <span key={g.key} className={`${styles.gate} ${g.open ? styles[g.key] : styles.gateShut}`}>
-            {g.label}
-          </span>
-        ))}
+        <span className={`${styles.gate} ${live ? styles.gateShut : styles[stance.tone]}`}>
+          {live ? 'Locked — bidding' : stance.headline}
+        </span>
         {expiresAt && (
           <span className={`${styles.clock} ${hot ? styles.clockHot : ''}`}>
             {formatRemaining(msLeft)}
@@ -181,8 +179,10 @@ export default function ListingCard({
           </>
         ) : (
           <>
-            {/* Once bidding starts the offer paths are simply gone. */}
-            {!live && (listing.open_to_trade || listing.open_to_sale) && (
+            {/* Once bidding starts the offer paths are simply gone. Short of
+                that, every path is open to everyone — what the seller is after
+                is stated above, not enforced here. */}
+            {!live && (
               <button type="button" className={`${styles.action} ${styles.actionOffer}`} onClick={() => onOffer?.(listing)}>
                 Offer
               </button>
@@ -195,7 +195,7 @@ export default function ListingCard({
                 Clause
               </button>
             )}
-            {!live && listing.open_to_loan && (
+            {!live && (
               <button type="button" className={`${styles.action} ${styles.actionLoan}`} onClick={() => onLoan?.(listing)}>
                 Loan
               </button>

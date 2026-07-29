@@ -23,6 +23,7 @@ export type DealKind =
   | 'sale'           // players → cash
   | 'sale-cash-back' // players → players + cash
   | 'cash-only'      // money both ways and nothing else — not a deal
+  | 'one-sided'      // one side is empty — a free transfer, usually an unfinished offer
   | 'empty';         // nothing on the table
 
 /**
@@ -47,7 +48,8 @@ export interface DealDescription {
   sentence: string;
   /** Cash after netting. Positive flows proposer → target. */
   netFaab: number;
-  /** False for `empty` and `cash-only`; both are refused server-side. */
+  /** False for `empty`, `cash-only` and `one-sided` — nothing that would be a
+   *  free transfer or a bare budget move can be sent. */
   sendable: boolean;
 }
 
@@ -89,7 +91,7 @@ export function describeDeal(
     headline,
     sentence,
     netFaab,
-    sendable: kind !== 'empty' && kind !== 'cash-only',
+    sendable: kind !== 'empty' && kind !== 'cash-only' && kind !== 'one-sided',
   });
 
   if (!givesPlayers && !getsPlayers) {
@@ -122,6 +124,26 @@ export function describeDeal(
       'sale',
       'A sale',
       `${subject} ${v('sell', 'sell')} ${list(d.offered)} for ${money(netFaab)}.`,
+    );
+  }
+
+  // One side is empty. Anything with cash on it was caught above, so reaching
+  // here with an empty side means literally nothing is being put up — a free
+  // transfer. Most often it is an unfinished offer: the cash line was added and
+  // left at zero, which looked identical to a completed one until the recipient
+  // opened it. Refused rather than named, in both directions.
+  if (!givesPlayers) {
+    return out(
+      'one-sided',
+      'Nothing offered',
+      `${subject} ${v('are asking', 'are asking')} for ${list(d.requested)} and putting nothing up.`,
+    );
+  }
+  if (!getsPlayers) {
+    return out(
+      'one-sided',
+      'Nothing asked',
+      `${subject} ${v('are giving up', 'are giving up')} ${list(d.offered)} and asking for nothing back.`,
     );
   }
 

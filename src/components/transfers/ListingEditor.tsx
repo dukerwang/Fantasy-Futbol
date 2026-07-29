@@ -7,13 +7,23 @@ import PositionBadge from '@/components/players/PositionBadge';
 import Modal from './Modal';
 import styles from './ListingEditor.module.css';
 import { getPlayerDisplayName } from '@/lib/players/displayName';
+import { listingStance } from '@/lib/transfers/listingStance';
 
 /**
  * List a player, or edit a listing that has not been bid on yet.
  *
- * The three gates are the substance of this dialog. What the seller opts into
- * is which kinds of *approach* they will entertain — the auction is mandatory
- * and runs either way, which is why there is no switch for it.
+ * The three flags are the substance of this dialog, and since 088 they state
+ * INTENT rather than permission: what the seller is after, not what they will
+ * allow. Nothing here refuses an approach — every route in stays open until
+ * bidding starts — so ticking none of them is a stance too ("make me an
+ * offer"), and the preview below shows the seller the headline the rest of the
+ * league will read. The auction is mandatory and runs either way, which is why
+ * there is no switch for it.
+ *
+ * The one price that binds is `minBid`: the 80%-of-market-value trigger sets
+ * where it can sit, and a cash offer must clear it. That is about not
+ * undercutting your own auction, not about taste. The asking price is optional
+ * advertising, and only the release clause executes on contact.
  *
  * Editing stops the moment bidding starts: `PATCH /listings/[id]` refuses a
  * listing at status 'active' because managers have committed budget against the
@@ -32,7 +42,7 @@ interface Props {
   myRoster: RosterPlayer[];
   /** Pre-selects the player when creating — the entry point from a player's own file. */
   initialPlayerId?: string | null;
-  /** Defaults the approach gates when creating, e.g. loan-only from a "list for loan" CTA. */
+  /** Defaults the stated intent when creating, e.g. loan-leaning from a "list for loan" CTA. */
   initialGates?: { trade: boolean; sale: boolean; loan: boolean };
   onDone: () => void;
 }
@@ -91,13 +101,24 @@ export default function ListingEditor({
   const floor = marketValue > 0 ? Math.floor(marketValue * 0.8) : 0;
 
   const belowFloor = minBid < floor;
-  const askInvalid = gateSale && (askPrice == null || askPrice < minBid);
+  // An ask below the floor would advertise a price nobody is allowed to pay. An
+  // ABSENT ask is fine since 088 — it means the seller has not named a number,
+  // not that he is unavailable.
+  const askInvalid = askPrice != null && askPrice < minBid;
   const askAboveClause = askPrice != null && clause != null && askPrice >= clause;
   const clauseInvalid = clause != null && clause <= minBid;
-  const inert = !gateTrade && !gateSale && !gateLoan;
 
+  // Ticking nothing is a legitimate stance now ("make me an offer"), so there is
+  // no longer an inert listing to refuse.
   const canSave =
-    !busy && Boolean(editing || playerId) && !belowFloor && !askInvalid && !askAboveClause && !clauseInvalid && !inert;
+    !busy && Boolean(editing || playerId) && !belowFloor && !askInvalid && !askAboveClause && !clauseInvalid;
+
+  const stance = listingStance({
+    open_to_trade: gateTrade,
+    open_to_sale: gateSale,
+    open_to_loan: gateLoan,
+    ask_price: askPrice,
+  });
 
   const save = async () => {
     setBusy(true);
@@ -105,7 +126,10 @@ export default function ListingEditor({
     try {
       const payload = {
         minBid,
-        askPrice: gateSale ? askPrice : null,
+        // Kept whatever the seller typed. It used to be nulled unless the cash
+        // gate was on; now the ask is independent advertising, so a seller who
+        // is chiefly after players can still say what he'd take in cash.
+        askPrice,
         buyNowPrice: clause,
         openToTrade: gateTrade,
         openToSale: gateSale,
@@ -223,31 +247,45 @@ export default function ListingEditor({
       )}
 
       <div className={styles.section}>
-        <span className={styles.label}>What you will entertain</span>
+        <span className={styles.label}>What you&rsquo;re after</span>
         <div className={styles.gates}>
-          <label className={`${styles.gate} ${gateTrade ? styles.gateOnTrade : ''}`}>
-            <input type="checkbox" checked={gateTrade} onChange={(e) => setGateTrade(e.target.checked)} />
-            <span>
-              <b>Player offers</b>
-              <em>Other clubs may offer players, with or without cash.</em>
-            </span>
-          </label>
           <label className={`${styles.gate} ${gateSale ? styles.gateOnCash : ''}`}>
             <input type="checkbox" checked={gateSale} onChange={(e) => setGateSale(e.target.checked)} />
             <span>
-              <b>Cash offers</b>
-              <em>Needs an asking price. Meeting it still requires your acceptance.</em>
+              <b>Cash</b>
+              <em>You&rsquo;d rather have the budget than a body.</em>
+            </span>
+          </label>
+          <label className={`${styles.gate} ${gateTrade ? styles.gateOnTrade : ''}`}>
+            <input type="checkbox" checked={gateTrade} onChange={(e) => setGateTrade(e.target.checked)} />
+            <span>
+              <b>Players</b>
+              <em>You&rsquo;re shopping for a squad, not a balance.</em>
             </span>
           </label>
           <label className={`${styles.gate} ${gateLoan ? styles.gateOnLoan : ''}`}>
             <input type="checkbox" checked={gateLoan} onChange={(e) => setGateLoan(e.target.checked)} />
             <span>
-              <b>Loan approaches</b>
-              <em>He comes back. Terms are negotiated per proposal.</em>
+              <b>A loan</b>
+              <em>Happy to let him go out and come back.</em>
             </span>
           </label>
         </div>
-        {inert && <p className={styles.error}>Choose at least one. The auction runs either way.</p>}
+        <p className={styles.hint}>
+          Advisory only — anyone may still approach you any way they like. This sorts the board and
+          sets the headline other managers read.
+        </p>
+      </div>
+
+      <div className={styles.section}>
+        <span className={styles.label}>How the board will read him</span>
+        <div className={styles.stance}>
+          <b>{stance.headline}</b>
+          <span>
+            bid from {money(minBid)}
+            {clause != null ? ` · clause ${money(clause)}` : ''}
+          </span>
+        </div>
       </div>
 
       <div className={styles.section}>
@@ -268,7 +306,6 @@ export default function ListingEditor({
             <input
               className={styles.priceInput}
               type="number"
-              disabled={!gateSale}
               value={askPrice ?? ''}
               placeholder="—"
               onChange={(e) => setAskPrice(e.target.value === '' ? null : parseInt(e.target.value, 10))}
@@ -296,7 +333,7 @@ export default function ListingEditor({
           The minimum bid must be at least {money(floor)} — 80% of his {money(marketValue)} market value.
         </p>
       )}
-      {askInvalid && <p className={styles.error}>Cash offers need an asking price of at least {money(minBid)}.</p>}
+      {askInvalid && <p className={styles.error}>An asking price cannot sit below the {money(minBid)} minimum bid.</p>}
       {askAboveClause && <p className={styles.error}>The asking price must sit below the release clause.</p>}
       {clauseInvalid && <p className={styles.error}>The release clause must sit above the minimum bid.</p>}
       {error && <p className={styles.error}>{error}</p>}

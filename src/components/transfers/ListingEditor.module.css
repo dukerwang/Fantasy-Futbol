@@ -156,6 +156,32 @@
   padding-bottom: 1rem;
 }
 
+/* A preview of the headline the board will show, so the seller can see what
+   their choices actually say to everyone else before saving. */
+.stance {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 7px;
+  background: var(--color-bg-card);
+}
+
+.stance b {
+  font-family: var(--font-serif);
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--color-text-primary);
+}
+
+.stance span {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  color: var(--color-text-muted);
+}
+
 .error {
   margin: 0 1.25rem 0.75rem;
   padding: 0.5rem 0.7rem;

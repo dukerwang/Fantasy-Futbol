@@ -11,8 +11,6 @@
   letter-spacing: 0.16em; text-transform: uppercase;
   color: var(--color-text-muted); line-height: 1;
 }
-.posNet { color: var(--color-accent); font-weight: var(--font-semibold); }
-.negNet { color: var(--color-defeat); font-weight: var(--font-semibold); }
 
 /* ---- Masthead --------------------------------------------- */
 .masthead {

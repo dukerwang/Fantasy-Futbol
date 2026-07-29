@@ -106,6 +106,8 @@ export default function ListingsClient({
     switch (f) {
       case 'all': return true;
       case 'live': return l.status === 'active';
+      // Since 088 these read "sellers who want X", not "listings that permit
+      // X" — every route in is open on any listing that is not yet live.
       case 'trade': return l.open_to_trade && l.status !== 'active';
       case 'cash': return l.open_to_sale && l.status !== 'active';
       case 'loan': return l.open_to_loan && l.status !== 'active';
@@ -168,9 +170,9 @@ export default function ListingsClient({
   const facets: { key: Facet; label: string; color: string }[] = [
     { key: 'all', label: 'All', color: 'var(--color-text-primary)' },
     { key: 'live', label: 'Bidding live', color: 'var(--color-warning)' },
-    { key: 'trade', label: 'Open to trade', color: 'var(--color-pos-cb)' },
-    { key: 'cash', label: 'Open to cash', color: 'var(--color-accent)' },
-    { key: 'loan', label: 'Open to loan', color: 'var(--color-pos-wb)' },
+    { key: 'trade', label: 'Wants players', color: 'var(--color-pos-cb)' },
+    { key: 'cash', label: 'Wants cash', color: 'var(--color-accent)' },
+    { key: 'loan', label: 'Would loan out', color: 'var(--color-pos-wb)' },
     { key: 'clause', label: 'Has clause', color: 'var(--color-gold)' },
     { key: 'affordable', label: 'Within budget', color: 'var(--color-text-secondary)' },
     { key: 'mine', label: 'Yours', color: 'var(--color-text-muted)' },
@@ -196,7 +198,7 @@ export default function ListingsClient({
           </div>
           <div className={styles.stat}>
             <div className={`${styles.statValue} ${styles.statTeal}`}>{count('loan')}</div>
-            <div className={styles.statLabel}>Open to loan</div>
+            <div className={styles.statLabel}>Would loan out</div>
           </div>
           <div className={styles.stat}>
             <div className={styles.statValue}>{count('mine')}</div>

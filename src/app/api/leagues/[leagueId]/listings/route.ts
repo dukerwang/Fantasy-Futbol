@@ -96,15 +96,10 @@ export async function POST(req: NextRequest, { params }: Props) {
   const gateSale = !!openToSale;
   const gateLoan = !!openToLoan;
 
-  // Enforced by player_sale_listings_gate_not_inert (082, widened to include the
-  // loan gate in 083); repeated here so the seller gets a sentence rather than a
-  // constraint violation.
-  if (!gateTrade && !gateSale && !gateLoan) {
-    return NextResponse.json(
-      { error: 'Choose at least one kind of approach to accept: player offers, cash offers, or loans. The auction runs either way.' },
-      { status: 400 },
-    );
-  }
+  // No "choose at least one" check any more. 088 dropped
+  // player_sale_listings_gate_not_inert because stating no preference is a
+  // stance in its own right — "make me an offer" — and the most permissive one
+  // there is, now that the flags advertise rather than refuse.
 
   if (buyNowPrice !== undefined && buyNowPrice !== null) {
     if (!Number.isInteger(buyNowPrice) || buyNowPrice <= minBid) {
@@ -112,12 +107,11 @@ export async function POST(req: NextRequest, { params }: Props) {
     }
   }
 
-  if (gateSale && (askPrice === undefined || askPrice === null)) {
-    return NextResponse.json(
-      { error: 'An asking price is required when you accept cash offers.' },
-      { status: 400 },
-    );
-  }
+  // An asking price is optional since 088 (player_sale_listings_ask_requires_price
+  // was dropped): its absence means the seller has not named a number, not that
+  // he is unavailable. When there IS one, it must still sit between the floor
+  // and the clause — player_sale_listings_gate_order survives, and the checks
+  // below mirror it so the seller gets a sentence, not a constraint violation.
 
   if (askPrice !== undefined && askPrice !== null) {
     if (!Number.isInteger(askPrice) || askPrice < minBid) {

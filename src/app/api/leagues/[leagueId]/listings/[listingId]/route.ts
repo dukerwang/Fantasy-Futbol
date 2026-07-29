@@ -81,17 +81,11 @@ export async function PATCH(req: NextRequest, { params }: Props) {
   if (!Number.isInteger(minBid) || minBid < 0) {
     return NextResponse.json({ error: 'minBid must be a non-negative integer' }, { status: 400 });
   }
-  if (!gateTrade && !gateSale && !gateLoan) {
-    return NextResponse.json(
-      { error: 'Choose at least one kind of approach to accept. The auction runs either way.' },
-      { status: 400 },
-    );
-  }
+  // Stating no preference, and naming no asking price, are both legitimate
+  // since 088 — the two constraints those checks mirrored are gone. What
+  // survives is the ordering of whatever prices ARE given, below.
   if (buyNowPrice !== null && (!Number.isInteger(buyNowPrice) || buyNowPrice <= minBid)) {
     return NextResponse.json({ error: 'Buy Now price must be a whole number above the minimum bid.' }, { status: 400 });
-  }
-  if (gateSale && (askPrice === null || askPrice === undefined)) {
-    return NextResponse.json({ error: 'An asking price is required when you accept cash offers.' }, { status: 400 });
   }
   if (askPrice !== null && askPrice !== undefined) {
     if (!Number.isInteger(askPrice) || askPrice < minBid) {

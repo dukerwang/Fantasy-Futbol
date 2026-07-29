@@ -166,6 +166,32 @@ export async function POST(req: NextRequest, { params }: Props) {
     return NextResponse.json({ error: 'requestedFaab must be a non-negative integer' }, { status: 400 });
   }
 
+  // Neither side may come empty-handed. `describeDeal` calls this shape
+  // 'one-sided' and the composer refuses to send it, but the rule belongs here
+  // too — the composer is only today's caller, and a free transfer is almost
+  // always an unfinished offer: a cash line added and left at zero looks
+  // identical to a completed one until the recipient opens it.
+  //
+  // Cash counts as substance, so this fires only when a side puts up literally
+  // nothing. Netting matters: €30m out against €30m back is €0m, which is not a
+  // payment for the players coming the other way.
+  const givesAssets = offeredPlayerIds.length > 0 || offeredRightIds.length > 0;
+  const getsAssets = requestedPlayerIds.length > 0 || requestedRightIds.length > 0;
+  const netFaab = offeredFaab - requestedFaab;
+
+  if (!givesAssets && netFaab <= 0) {
+    return NextResponse.json(
+      { error: 'You are asking for players and putting nothing up — add a player, a retained right, or cash.' },
+      { status: 400 },
+    );
+  }
+  if (!getsAssets && netFaab >= 0) {
+    return NextResponse.json(
+      { error: 'You are giving players up and asking for nothing back — add a player, a retained right, or cash.' },
+      { status: 400 },
+    );
+  }
+
   const admin = createAdminClient();
 
   // Verify caller's team
@@ -292,14 +318,13 @@ export async function POST(req: NextRequest, { params }: Props) {
 
   // ── Offer against a sale listing ──────────────────────────────────────────
   //
-  // The listing's gates say which kinds of offer the seller will entertain.
-  // They are advertising, so they are enforced here at proposal time rather
-  // than at acceptance: a seller who never opted into cash offers should not
-  // have to read and reject them.
+  // What the seller says they are after is advertising, not a gate (088) — an
+  // offer is never refused here for arriving in a shape they did not tick. Only
+  // the auction's integrity is defended: see the `min_bid` floor below.
   if (saleListingId) {
     const { data: listing } = await admin
       .from('player_sale_listings')
-      .select('id, seller_team_id, player_id, status, min_bid, ask_price, open_to_trade, open_to_sale')
+      .select('id, seller_team_id, player_id, status, min_bid')
       .eq('id', saleListingId)
       .eq('league_id', leagueId)
       .maybeSingle();
@@ -333,31 +358,17 @@ export async function POST(req: NextRequest, { params }: Props) {
       );
     }
 
+    // The one rule that survived 088. A cash-only offer below `min_bid` is a way
+    // to buy under the price the seller has already committed to publicly, which
+    // undercuts their own auction — that is the market's integrity, not the
+    // seller's taste, so it still binds. Offers including players are
+    // deliberately unconstrained: their value is not a single number.
     const includesPlayers = offeredPlayerIds.length > 0 || offeredRightIds.length > 0;
-
-    if (includesPlayers && !listing.open_to_trade) {
+    if (!includesPlayers && offeredFaab < listing.min_bid) {
       return NextResponse.json(
-        { error: 'This seller is not accepting offers that include players — cash only.' },
+        { error: `A cash offer must be at least the minimum bid of €${listing.min_bid}m.` },
         { status: 400 },
       );
-    }
-    if (!includesPlayers) {
-      if (!listing.open_to_sale) {
-        return NextResponse.json(
-          { error: 'This seller is not accepting cash offers — your offer must include a player.' },
-          { status: 400 },
-        );
-      }
-      // Cash-only offers must clear the auction floor. Otherwise the offer path
-      // becomes a way to buy below a price the seller has already committed to
-      // publicly, undercutting their own auction. Offers including players are
-      // deliberately unconstrained — their value is not a single number.
-      if (offeredFaab < listing.min_bid) {
-        return NextResponse.json(
-          { error: `A cash offer must be at least the minimum bid of €${listing.min_bid}m.` },
-          { status: 400 },
-        );
-      }
     }
   }
 

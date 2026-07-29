@@ -399,25 +399,26 @@ export async function POST(req: NextRequest, { params }: Props) {
     return NextResponse.json({ error: 'This player is already involved in an active or pending loan' }, { status: 409 });
   }
 
-  // 7b. A listed player can be loaned only through the seller's loan gate.
+  // 7b. A listed player can be loaned unless bidding has started.
   //
-  // Two distinct refusals, and the difference matters:
+  // Only one refusal remains. 'active' means bidding is live: nothing can be
+  // arranged privately around an auction other managers have committed budget
+  // to, and the listing can no longer be cancelled to make way (see the DELETE
+  // handler in listings/[listingId]/route.ts). Hard no.
   //
-  //   'active'  — bidding is live. Nothing can be arranged privately around an
-  //               auction other managers have committed budget to, and the
-  //               listing can no longer be cancelled to make way (see the DELETE
-  //               handler in listings/[listingId]/route.ts). Hard no.
+  // `open_to_loan` used to be the second refusal, and it made listing a player
+  // REMOVE a way to reach him — anyone may ask about an unlisted player on any
+  // roster, but a listed one was unreachable unless the seller had ticked a box
+  // that defaults to false. 088 turned it into intent: it now advertises what
+  // the seller wants and sorts the board, and refuses nobody.
   //
-  //   gate shut — the seller listed this player without opening him to loans.
-  //               Their choice to reverse, via PATCH on the listing.
-  //
-  // If neither applies the loan may be proposed: accepting it cancels the still-
-  // pending listing, and 080's trg_withdraw_listing_auction_anchor rejects the
-  // auction anchor in the same transaction. See the accept handler, which
-  // re-checks this — the listing can go live between proposal and acceptance.
+  // Otherwise the loan may be proposed: accepting it cancels the still-pending
+  // listing, and 080's trg_withdraw_listing_auction_anchor rejects the auction
+  // anchor in the same transaction. See the accept handler, which re-checks
+  // this — the listing can go live between proposal and acceptance.
   const { data: openListingForPlayer } = await admin
     .from('player_sale_listings')
-    .select('id, status, open_to_loan')
+    .select('id, status')
     .eq('league_id', leagueId)
     .eq('player_id', playerId)
     .in('status', ['pending', 'active'])
@@ -426,17 +427,6 @@ export async function POST(req: NextRequest, { params }: Props) {
   if (openListingForPlayer?.status === 'active') {
     return NextResponse.json(
       { error: 'Bidding is live on this player — he cannot be loaned until the auction finishes.' },
-      { status: 409 },
-    );
-  }
-
-  if (openListingForPlayer && !openListingForPlayer.open_to_loan) {
-    return NextResponse.json(
-      {
-        error: requestMode
-          ? 'This player is listed for transfer and his club is not accepting loan approaches.'
-          : 'You have listed this player without opening him to loans. Edit the listing to accept loan approaches, or cancel it.',
-      },
       { status: 409 },
     );
   }

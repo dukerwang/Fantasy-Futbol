@@ -12,7 +12,7 @@ import RetainedList from './RetainedList';
 import DepartureDecisionModal, { type DecisionRequest } from '@/components/teams/DepartureDecisionModal';
 import { getPlayerDisplayName } from '@/lib/players/displayName';
 import {
-  money, statusMeta, INJURY, ageOf, overallScores, squadTotals,
+  money, ageOf, overallScores, squadTotals,
   avgForm, seasonPts, ppgOf, valueOf, countdown,
 } from './clubDerive';
 import styles from './club.module.css';
@@ -278,8 +278,6 @@ export default function ClubClient({ leagueId, teamId, club, standing, entries, 
     if (n.decision) setDecision(n.decision);
     else if (n.entryId) setSelectedId(n.entryId);
   }
-
-  const netClass = totals.net >= 0 ? styles.posNet : styles.negNet;
 
   return (
     <div className={styles.shell}>

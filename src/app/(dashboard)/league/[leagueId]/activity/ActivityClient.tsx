@@ -642,7 +642,7 @@ function RightSidebar({
             {overflow > 0 && (
               <div className={styles.widgetFooter}>
                 <a
-                  href={`/league/${leagueId}/players?tab=auctions`}
+                  href={`/league/${leagueId}/transfers/auctions`}
                   className={styles.widgetFooterLink}
                 >
                   +{overflow} more auction{overflow !== 1 ? 's' : ''} →

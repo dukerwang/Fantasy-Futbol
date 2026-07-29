@@ -17,6 +17,7 @@ import GwRangeSlider from './GwRangeSlider';
 import styles from './ProposeBuilder.module.css';
 import { getPlayerDisplayName } from '@/lib/players/displayName';
 import { describeDeal } from '@/lib/transfers/describeDeal';
+import { listingStance } from '@/lib/transfers/listingStance';
 
 /**
  * One builder for both deal types.
@@ -108,6 +109,16 @@ export default function ProposeBuilder({
   const [theirCash, setTheirCash] = useState(0);
   const [message, setMessage] = useState('');
 
+  // Each side of an offer starts EMPTY and is built up. Showing both squads in
+  // full made the table look identical whether you had put up eleven players or
+  // none, and buried what the deal actually was under forty rows you were not
+  // proposing. `picking` names which side's picker is open; the cash flags let a
+  // cash line exist at zero while it is being typed into.
+  const [picking, setPicking] = useState<'mine' | 'theirs' | null>(null);
+  const [pickQuery, setPickQuery] = useState('');
+  const [myCashOpen, setMyCashOpen] = useState(false);
+  const [theirCashOpen, setTheirCashOpen] = useState(false);
+
   // Loan terms.
   const gwNow = model.currentGameweek;
   const [loanDirection, setLoanDirection] = useState<LoanDirection>(initialLoanDirection ?? 'borrow');
@@ -134,6 +145,10 @@ export default function ProposeBuilder({
     setMyCash(0);
     setTheirCash(0);
     setMessage('');
+    setPicking(null);
+    setPickQuery('');
+    setMyCashOpen(false);
+    setTheirCashOpen(false);
     setLoanDirection(initialLoanDirection ?? 'borrow');
     setStartGw(gwNow + 1);
     setEndGw(gwNow + 7);
@@ -370,9 +385,10 @@ export default function ProposeBuilder({
   // the loan-fee engine's blended, reliability-weighted recent_ppg — that
   // number is right for pricing a loan, not for browsing a squad.
   const playerMeta = (p: RosterPlayer) => {
+    // A listed player shows his club's stance rather than a raw ask, which used
+    // to render "asking €0m" whenever the column had never been filled in.
     const listed = p.listing;
-    if (listed?.open_to_sale && listed.ask_price != null) return `${p.pl_team} · listed, asking ${money(listed.ask_price)}`;
-    if (listed) return `${p.pl_team} · listed`;
+    if (listed) return `${p.pl_team} · ${listingStance(listed).headline.toLowerCase()}`;
     return `${p.pl_team} · ${Math.round(p.total_points ?? 0)} pts`;
   };
 
@@ -424,6 +440,190 @@ export default function ProposeBuilder({
     </button>
   );
 
+  // ── Rows already on the table ──────────────────────────────────
+  //
+  // Called as plain functions, not rendered as <Components>. A component
+  // declared inside render is a new type on every render, so React unmounts and
+  // remounts it — which would throw focus out of the cash input on every
+  // keystroke. The picker rows above get away with it because they are buttons.
+
+  const chosenPlayerRow = (p: RosterPlayer, onRemove: () => void) => (
+    <div key={p.id} className={`${styles.pick} ${styles.chosen}`}>
+      <PositionBadge position={p.primary_position as GranularPosition} size="sm" />
+      <span className={styles.pickBody}>
+        <span className={styles.pickName}>{getPlayerDisplayName(p, 'initial_last')}</span>
+        <span className={styles.pickMeta}>{playerMeta(p)}</span>
+      </span>
+      <span className={styles.pickValue}>{money(Number(p.market_value) || 0)}</span>
+      <button
+        type="button"
+        className={styles.remove}
+        onClick={onRemove}
+        aria-label={`Remove ${getPlayerDisplayName(p, 'full')}`}
+      >
+        ✕
+      </button>
+    </div>
+  );
+
+  const chosenRightRow = (r: TransfersRight, onRemove: () => void) => (
+    <div key={r.id} className={`${styles.pick} ${styles.chosen}`}>
+      <PositionBadge position={(r.player?.primary_position ?? 'CM') as GranularPosition} size="sm" />
+      <span className={styles.pickBody}>
+        <span className={styles.pickName}>
+          {r.player ? getPlayerDisplayName(r.player, 'initial_last') : 'Unknown'}
+        </span>
+        <span className={styles.pickMeta}>
+          Retained rights{r.status === 'return_pending' ? ' · back in the PL' : ''}
+        </span>
+      </span>
+      <span className={styles.pickValue}>{money(r.marketValueAtDeparture)}</span>
+      <button type="button" className={styles.remove} onClick={onRemove} aria-label="Remove retained right">
+        ✕
+      </button>
+    </div>
+  );
+
+  const cashRow = (opts: {
+    value: number;
+    onChange: (n: number) => void;
+    onRemove: () => void;
+    hint: string;
+    label: string;
+  }) => (
+    <div className={`${styles.pick} ${styles.chosen} ${opts.value > 0 ? styles.pickOn : ''}`}>
+      <span className={styles.cashGlyph} aria-hidden="true">€</span>
+      <span className={styles.pickBody}>
+        <span className={styles.pickName}>Cash</span>
+        <span className={styles.pickMeta}>{opts.hint}</span>
+      </span>
+      <input
+        className={styles.cashInline}
+        type="number"
+        min={0}
+        value={opts.value || ''}
+        placeholder="0"
+        aria-label={opts.label}
+        onChange={(e) => opts.onChange(Math.max(0, parseInt(e.target.value, 10) || 0))}
+      />
+      <button type="button" className={styles.remove} onClick={opts.onRemove} aria-label="Remove cash">
+        ✕
+      </button>
+    </div>
+  );
+
+  /** The add-picker for one side: their squad and rights, minus what is already
+   *  on the table, plus a cash line. */
+  const pickerPanel = (side: 'mine' | 'theirs') => {
+    const mine = side === 'mine';
+    const roster = mine ? myRoster : theirRoster;
+    const rights = mine ? myRights : theirRights;
+    const chosenPlayers = mine ? give : want;
+    const chosenRights = mine ? giveRights : wantRights;
+    const cashOpen = mine ? myCashOpen : theirCashOpen;
+
+    const q = pickQuery.trim().toLowerCase();
+    const hit = (name: string) => q === '' || name.toLowerCase().includes(q);
+
+    // Dearest first. A squad list in roster order is a list in no order at all;
+    // when you are looking for something to balance a deal, value is the axis
+    // you are actually scanning.
+    const players = roster
+      .filter((p) => !chosenPlayers.includes(p.id) && hit(getPlayerDisplayName(p, 'full')))
+      .slice()
+      .sort((a, b) => (Number(b.market_value) || 0) - (Number(a.market_value) || 0));
+    const claims = rights
+      .filter((r) => !chosenRights.includes(r.id) && hit(r.player ? getPlayerDisplayName(r.player, 'full') : ''))
+      .slice()
+      .sort((a, b) => b.marketValueAtDeparture - a.marketValueAtDeparture);
+
+    return (
+      <div className={styles.picker}>
+        <div className={styles.pickerHead}>
+          <input
+            className={styles.pickerSearch}
+            placeholder={mine ? 'Search your squad…' : `Search ${target?.team_name ?? 'their squad'}…`}
+            value={pickQuery}
+            onChange={(e) => setPickQuery(e.target.value)}
+            aria-label="Search"
+          />
+          <button
+            type="button"
+            className={styles.pickerDone}
+            onClick={() => { setPicking(null); setPickQuery(''); }}
+          >
+            Done
+          </button>
+        </div>
+
+        <div className={styles.pickerList}>
+          {!cashOpen && (
+            <>
+              <div className={styles.pickerGroup}>Budget</div>
+              <button
+                type="button"
+                className={`${styles.pick} ${styles.pickerCash}`}
+                onClick={() => {
+                  if (mine) setMyCashOpen(true); else setTheirCashOpen(true);
+                  setPicking(null);
+                  setPickQuery('');
+                }}
+              >
+                <span className={styles.cashGlyph} aria-hidden="true">€</span>
+                <span className={styles.pickBody}>
+                  <span className={styles.pickName}>Cash</span>
+                  <span className={styles.pickMeta}>
+                    {money(mine ? budget : target?.faab_budget ?? 0)} available
+                  </span>
+                </span>
+              </button>
+            </>
+          )}
+
+          {players.length > 0 && (
+            <div className={`${styles.pickerGroup} ${!cashOpen ? styles.pickerGroupGap : ''}`}>
+              Squad
+            </div>
+          )}
+          {players.map((p) => (
+            <PlayerRow
+              key={p.id}
+              p={p}
+              selected={false}
+              onPick={() => {
+                if (mine) setGive([...give, p.id]); else setWant([...want, p.id]);
+              }}
+            />
+          ))}
+
+          {claims.length > 0 && (
+            <div className={`${styles.pickerGroup} ${styles.pickerGroupGap}`}>Retained rights</div>
+          )}
+          {claims.map((r) => (
+            <RightRow
+              key={r.id}
+              r={r}
+              selected={false}
+              onPick={() => {
+                if (mine) setGiveRights([...giveRights, r.id]); else setWantRights([...wantRights, r.id]);
+              }}
+            />
+          ))}
+
+          {players.length === 0 && claims.length === 0 && (
+            <p className={styles.emptyNote}>
+              {roster.length === 0 && rights.length === 0
+                ? 'Pick a club above.'
+                : q
+                  ? `Nothing matching “${pickQuery.trim()}”.`
+                  : 'Nothing left to add.'}
+            </p>
+          )}
+        </div>
+      </div>
+    );
+  };
+
   // Offers are named by the band above the footer, so only a loan needs a line
   // here — and it states the shape, not the money, since the loan ledger owns
   // the money and the two must not disagree about whether "cost" means the fee
@@ -449,7 +649,7 @@ export default function ProposeBuilder({
       open={open}
       onClose={onClose}
       wide
-      title={target ? `Propose to ${target.team_name}` : 'Propose a deal'}
+      title={target ? `Approach ${target.team_name}` : 'Approach a club'}
       lead={
         <CrestBadge
           config={(target?.crest_config as CrestConfig | null) ?? null}
@@ -822,47 +1022,33 @@ export default function ProposeBuilder({
               </span>
             </div>
 
-            <div className={styles.list}>
-              {myRoster.map((p) => (
-                <PlayerRow
-                  key={p.id}
-                  p={p}
-                  selected={give.includes(p.id)}
-                  onPick={() => toggle(give, setGive, p.id, false)}
-                />
-              ))}
-              {myRights.map((r) => (
-                <RightRow
-                  key={r.id}
-                  r={r}
-                  selected={giveRights.includes(r.id)}
-                  onPick={() => toggle(giveRights, setGiveRights, r.id, false)}
-                />
-              ))}
-            </div>
+            {give.map((id) => {
+              const p = byId.get(id);
+              return p ? chosenPlayerRow(p, () => setGive(give.filter((x) => x !== id))) : null;
+            })}
+            {giveRights.map((id) => {
+              const r = rightById.get(id);
+              return r ? chosenRightRow(r, () => setGiveRights(giveRights.filter((x) => x !== id))) : null;
+            })}
+            {myCashOpen && cashRow({
+              value: myCash,
+              onChange: setMyCash,
+              onRemove: () => { setMyCashOpen(false); setMyCash(0); },
+              hint: myCash > 0
+                ? `Leaves you ${money(Math.max(0, budget - myCash))} for the rest of the window`
+                : `${money(budget)} available`,
+              label: 'Cash you put up',
+            })}
 
-            <div className={styles.cash}>
-              <div className={styles.cashLabel}>Cash you put up</div>
-              <div className={styles.cashRow}>
-                <input
-                  className={styles.cashInput}
-                  type="number"
-                  min={0}
-                  value={myCash}
-                  onChange={(e) => setMyCash(Math.max(0, parseInt(e.target.value, 10) || 0))}
-                />
-                <span className={styles.cashOf}>of {money(budget)} available</span>
-              </div>
-              <div className={styles.track}>
-                <div
-                  className={styles.fill}
-                  style={{ width: `${budget > 0 ? Math.min(100, (myCash / budget) * 100) : 0}%` }}
-                />
-              </div>
-              <div className={styles.hint}>
-                Leaves you {money(Math.max(0, budget - myCash))} for the rest of the window.
-              </div>
-            </div>
+            {picking === 'mine' ? pickerPanel('mine') : (
+              <button
+                type="button"
+                className={styles.add}
+                onClick={() => { setPicking('mine'); setPickQuery(''); }}
+              >
+                + Add a player, a retained right, or cash
+              </button>
+            )}
           </div>
 
           <div className={styles.swap} aria-hidden="true">⇄</div>
@@ -876,43 +1062,33 @@ export default function ProposeBuilder({
               </span>
             </div>
 
-            {theirRoster.length === 0 && theirRights.length === 0 && (
-              <p className={styles.emptyNote}>Pick a club above.</p>
+            {want.map((id) => {
+              const p = byId.get(id);
+              return p ? chosenPlayerRow(p, () => setWant(want.filter((x) => x !== id))) : null;
+            })}
+            {wantRights.map((id) => {
+              const r = rightById.get(id);
+              return r ? chosenRightRow(r, () => setWantRights(wantRights.filter((x) => x !== id))) : null;
+            })}
+            {theirCashOpen && cashRow({
+              value: theirCash,
+              onChange: setTheirCash,
+              onRemove: () => { setTheirCashOpen(false); setTheirCash(0); },
+              hint: theirCash > 0
+                ? 'They must be able to cover it when they accept'
+                : `${money(target?.faab_budget ?? 0)} available`,
+              label: 'Cash they put up',
+            })}
+
+            {picking === 'theirs' ? pickerPanel('theirs') : (
+              <button
+                type="button"
+                className={styles.add}
+                onClick={() => { setPicking('theirs'); setPickQuery(''); }}
+              >
+                + Add a player, a retained right, or cash
+              </button>
             )}
-
-            <div className={styles.list}>
-              {theirRoster.map((p) => (
-                <PlayerRow
-                  key={p.id}
-                  p={p}
-                  selected={want.includes(p.id)}
-                  onPick={() => toggle(want, setWant, p.id, false)}
-                />
-              ))}
-              {theirRights.map((r) => (
-                <RightRow
-                  key={r.id}
-                  r={r}
-                  selected={wantRights.includes(r.id)}
-                  onPick={() => toggle(wantRights, setWantRights, r.id, false)}
-                />
-              ))}
-            </div>
-
-            <div className={styles.cash}>
-              <div className={styles.cashLabel}>Cash they put up</div>
-              <div className={styles.cashRow}>
-                <input
-                  className={styles.cashInput}
-                  type="number"
-                  min={0}
-                  value={theirCash}
-                  onChange={(e) => setTheirCash(Math.max(0, parseInt(e.target.value, 10) || 0))}
-                />
-                <span className={styles.cashOf}>of {money(target?.faab_budget ?? 0)} available</span>
-              </div>
-              <div className={styles.hint}>They must be able to cover it when they accept.</div>
-            </div>
           </div>
         </div>
       )}

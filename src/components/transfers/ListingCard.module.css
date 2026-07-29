@@ -172,12 +172,15 @@
   white-space: nowrap;
 }
 
-.trade {
+/* One chip stating the seller's position, not three stating permissions. Since
+   088 nothing here refuses an approach, so "No trade" would be a lie — the
+   colour just says which way they are leaning. */
+.players {
   color: var(--color-pos-cb);
   background: color-mix(in srgb, var(--color-pos-cb) 8%, transparent);
 }
 
-.cash {
+.sale {
   color: var(--color-accent);
   background: var(--color-accent-dim);
 }
@@ -187,8 +190,13 @@
   background: color-mix(in srgb, var(--color-pos-wb) 8%, transparent);
 }
 
-/* A closed gate is stated, not hidden: knowing the seller will not trade is
-   worth as much as knowing they will. Dashed and grey so it reads as absence. */
+.open {
+  color: var(--color-text-secondary);
+  background: color-mix(in srgb, var(--color-text-secondary) 7%, transparent);
+}
+
+/* Bidding is live: the private paths really are gone, so this one IS an
+   absence. Dashed and grey to read as such. */
 .gateShut {
   color: var(--color-text-muted);
   border-style: dashed;
