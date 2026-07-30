@@ -238,21 +238,26 @@ export async function buildLeagueOwnershipMap(
   admin: SupabaseClient,
   leagueId: string,
 ): Promise<Record<string, PlayerOwnership>> {
-  const { data: leagueTeams } = await admin
-    .from('teams')
-    .select('id, team_name, abbreviation, crest_config')
-    .eq('league_id', leagueId);
+  // Run both queries in parallel — roster_entries filters by league_id via an inner
+  // join on teams, following the same PostgREST pattern used in matchupProcessor.
+  const [teamsRes, entriesRes] = await Promise.all([
+    admin
+      .from('teams')
+      .select('id, team_name, abbreviation, crest_config')
+      .eq('league_id', leagueId),
+    admin
+      .from('roster_entries')
+      .select('player_id, team_id, status, team:teams!team_id!inner(league_id)')
+      .eq('team.league_id', leagueId),
+  ]);
 
+  const leagueTeams = teamsRes.data;
   if (!leagueTeams || leagueTeams.length === 0) return {};
 
   const teamById = new Map(leagueTeams.map((t: any) => [t.id, t]));
-  const { data: entries } = await admin
-    .from('roster_entries')
-    .select('player_id, team_id, status')
-    .in('team_id', Array.from(teamById.keys()));
 
   const byPlayer = new Map<string, { team_id: string; status: string }[]>();
-  for (const e of entries ?? []) {
+  for (const e of entriesRes.data ?? []) {
     const list = byPlayer.get(e.player_id);
     if (list) list.push(e);
     else byPlayer.set(e.player_id, [e]);

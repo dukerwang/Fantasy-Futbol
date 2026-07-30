@@ -1,7 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { redirect, notFound } from 'next/navigation';
-import Link from 'next/link';
 import NavigationLink from '@/components/ui/NavigationLink';
 import { getPlayerDisplayName } from '@/lib/players/displayName';
 import styles from './league.module.css';
@@ -77,37 +76,33 @@ export default async function LeaguePage({ params }: Props) {
     redirect(`/league/${leagueId}/team-setup`);
   }
 
-  // Check if league is active and ready for offseason reset, or already
-  // reset and waiting on the commissioner to run the season kickoff.
-  let showSeasonCompleteBanner = false;
-  const showKickoffBanner = league.status === 'offseason';
-  if (league.status === 'active') {
-    const [incompleteMatchupsRes, incompleteTourneysRes] = await Promise.all([
-      admin
-        .from('matchups')
-        .select('id', { count: 'exact', head: true })
-        .eq('league_id', leagueId)
-        .neq('status', 'completed'),
-      admin
-        .from('tournaments')
-        .select('id', { count: 'exact', head: true })
-        .eq('league_id', leagueId)
-        .neq('status', 'completed')
-    ]);
-
-    const incompleteMatchups = incompleteMatchupsRes.count ?? 0;
-    const incompleteTourneys = incompleteTourneysRes.count ?? 0;
-
-    // Fetch total matchups count to ensure the league matches actually exist
-    const { count: totalMatchups } = await admin
-      .from('matchups')
-      .select('id', { count: 'exact', head: true })
+  // ── Pre-Draft Early Return ──────────────────────────────────────────────
+  // Skip all the active-league data fetches for leagues that haven't drafted yet.
+  if (league.status === 'setup' || league.status === 'drafting') {
+    const { data: preDraftTeams } = await admin
+      .from('teams')
+      .select('id, team_name, draft_order, abbreviation, logo_url, crest_config, user_id, user:users(id, username, email)')
       .eq('league_id', leagueId);
 
-    if (totalMatchups && totalMatchups > 0 && incompleteMatchups === 0 && incompleteTourneys === 0) {
-      showSeasonCompleteBanner = true;
-    }
+    const isCommissioner = league.commissioner_id === user.id;
+    const currentUsername = user.user_metadata?.username ?? user.user_metadata?.preferred_username ?? user.email?.split('@')[0] ?? 'Manager';
+    const myDetailedTeam = (preDraftTeams ?? []).find((t: any) => t.user_id === user.id) ?? null;
+
+    return (
+      <PreDraftLobby
+        leagueId={leagueId}
+        league={league}
+        teams={(preDraftTeams ?? []) as any[]}
+        myUserId={user.id}
+        myTeam={myDetailedTeam}
+        currentUsername={currentUsername}
+        isCommissioner={isCommissioner}
+      />
+    );
   }
+
+  // showKickoffBanner is only relevant for active/offseason leagues (pre-draft is handled above).
+  const showKickoffBanner = league.status === 'offseason';
 
   // ── Parallel data fetches ────────────────────────────────────────────────
   const [
@@ -119,6 +114,9 @@ export default async function LeaguePage({ params }: Props) {
     tournamentsResult,
     recentMatchupsResult,
     spentResult,
+    incompleteMatchupsResult,
+    incompleteTourneysResult,
+    totalMatchupsResult,
   ] = await Promise.all([
     // Full standings
     admin
@@ -182,6 +180,18 @@ export default async function LeaguePage({ params }: Props) {
       .eq('league_id', leagueId)
       .eq('team_id', myTeamId)
       .in('type', ['waiver_claim', 'drop']) : Promise.resolve({ data: [] }),
+
+    // Season complete checks — folded into this batch to avoid a sequential pre-fetch waterfall.
+    // For non-active leagues these resolve immediately via Promise.resolve.
+    league.status === 'active'
+      ? admin.from('matchups').select('id', { count: 'exact', head: true }).eq('league_id', leagueId).neq('status', 'completed')
+      : Promise.resolve({ data: null, count: 0 }),
+    league.status === 'active'
+      ? admin.from('tournaments').select('id', { count: 'exact', head: true }).eq('league_id', leagueId).neq('status', 'completed')
+      : Promise.resolve({ data: null, count: 0 }),
+    league.status === 'active'
+      ? admin.from('matchups').select('id', { count: 'exact', head: true }).eq('league_id', leagueId)
+      : Promise.resolve({ data: null, count: 0 }),
   ]);
 
   const standings = standingsResult.data ?? [];
@@ -192,6 +202,13 @@ export default async function LeaguePage({ params }: Props) {
   const taxiSquad = taxiResult?.data ?? [];
   const tournaments = tournamentsResult?.data ?? [];
   let recentMatchups = recentMatchupsResult?.data ?? [];
+
+  // Season complete banner — derived from counts fetched in the parallel batch above
+  const showSeasonCompleteBanner =
+    league.status === 'active' &&
+    (totalMatchupsResult.count ?? 0) > 0 &&
+    (incompleteMatchupsResult.count ?? 0) === 0 &&
+    (incompleteTourneysResult.count ?? 0) === 0;
 
   // Compute total spent: sum faab_bid from waiver wins + compensation_amount from drops with severance
   const spentTxs = (spentResult as any)?.data ?? [];
@@ -414,25 +431,6 @@ export default async function LeaguePage({ params }: Props) {
   // ── Compute Team Records from Standings ──────────────────────────────────
   const userStanding = standings.find((s: any) => s.team_id === userTeam?.id);
   const userRecord = userStanding ? `${userStanding.wins}W · ${userStanding.draws}D · ${userStanding.losses}L` : '0W · 0D · 0L';
-
-  // If the league is in setup or drafting phase, render the dedicated Pre-Draft waiting room lobby
-  if (league.status === 'setup' || league.status === 'drafting') {
-    const isCommissioner = league.commissioner_id === user.id;
-    const currentUsername = user.user_metadata?.username ?? user.user_metadata?.preferred_username ?? user.email?.split('@')[0] ?? 'Manager';
-    const myDetailedTeam = initialTeams.find(t => t.user_id === user.id) ?? null;
-
-    return (
-      <PreDraftLobby
-        leagueId={leagueId}
-        league={league}
-        teams={initialTeams}
-        myUserId={user.id}
-        myTeam={myDetailedTeam}
-        currentUsername={currentUsername}
-        isCommissioner={isCommissioner}
-      />
-    );
-  }
 
   // ── Render ────────────────────────────────────────────────────────────────
   return (
