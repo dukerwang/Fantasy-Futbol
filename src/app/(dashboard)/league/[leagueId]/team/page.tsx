@@ -7,7 +7,7 @@ import type { Formation, GranularPosition, MatchupLineup, BenchSlot } from '@/ty
 import { FORMATION_SLOTS, POSITION_FLEX_MAP, BENCH_FLEX_MAP } from '@/types';
 import PitchUI from './PitchUI';
 import { FULL_PLAYER_SELECT } from '@/lib/constants/queries';
-import { getCurrentFplSeason, isFplSeasonKickedOff } from '@/lib/season/currentSeason';
+import { getCurrentFplSeason, isFplSeasonKickedOff, resolveDraftStatsSeason } from '@/lib/season/currentSeason';
 import styles from './my-team.module.css';
 
 export const dynamic = 'force-dynamic';
@@ -58,7 +58,7 @@ export default async function MyTeamPage({ params }: Props) {
 
   let season = (team.league as any).current_season ?? (team.league as any).season ?? currentFpl;
   if (season === currentFpl && !kickedOff) {
-    season = (team.league as any).previous_season ?? season;
+    season = await resolveDraftStatsSeason(admin, team.league as any);
   }
 
   // Fetch all player rankings and archives in parallel

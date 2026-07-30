@@ -22,7 +22,12 @@
  */
 
 import { FULL_PLAYER_SELECT } from '@/lib/constants/queries';
-import { getCurrentFplSeason, isFplSeasonKickedOff } from '@/lib/season/currentSeason';
+import {
+  getCurrentFplSeason,
+  isFplSeasonKickedOff,
+  previousSeason,
+  resolveDraftStatsSeason,
+} from '@/lib/season/currentSeason';
 import type { createAdminClient } from '@/lib/supabase/admin';
 import type { Player } from '@/types';
 
@@ -57,21 +62,33 @@ type EnrichablePlayer = { id: string } & Partial<StatOverrides>;
  * A league sitting in `current_season` that the FPL bootstrap says has not
  * kicked off yet must show LAST season's figures — otherwise every player reads
  * as 0 points during the entire preseason, which is when transfer activity is
- * heaviest. Mirrors `players/page.tsx:157-163` and `trades/page.tsx:139-145`.
+ * heaviest. Also refuses a stale previous_season default with no archive rows
+ * (the 2024-25 trap on brand-new 2026-27 leagues).
  */
-export async function resolveDisplaySeason(league: {
-  current_season?: string | null;
-  previous_season?: string | null;
-}): Promise<{ season: string; previousSeason: string }> {
+export async function resolveDisplaySeason(
+  league: {
+    current_season?: string | null;
+    previous_season?: string | null;
+  },
+  admin?: AdminClient,
+): Promise<{ season: string; previousSeason: string }> {
   const currentFpl = await getCurrentFplSeason();
   const kickedOff = await isFplSeasonKickedOff();
 
-  let season = league.current_season || currentFpl;
-  if (season === currentFpl && !kickedOff) {
-    season = league.previous_season || season;
+  if (admin && (!kickedOff || !league.current_season)) {
+    const season = await resolveDraftStatsSeason(admin, league);
+    return { season, previousSeason: season };
   }
 
-  return { season, previousSeason: league.previous_season || '2024-25' };
+  let season = league.current_season || currentFpl;
+  if (season === currentFpl && !kickedOff) {
+    season = league.previous_season || previousSeason(currentFpl);
+  }
+
+  return {
+    season,
+    previousSeason: league.previous_season || previousSeason(currentFpl),
+  };
 }
 
 /** Fetch the rankings view and the season archive once, for merging. */
@@ -79,7 +96,7 @@ export async function fetchEnrichmentMaps(
   admin: AdminClient,
   league: { current_season?: string | null; previous_season?: string | null },
 ): Promise<EnrichmentMaps> {
-  const { season, previousSeason } = await resolveDisplaySeason(league);
+  const { season, previousSeason: prev } = await resolveDisplaySeason(league, admin);
 
   const [{ data: rankings }, { data: archives }] = await Promise.all([
     admin.from('player_rankings').select('*'),
@@ -96,7 +113,7 @@ export async function fetchEnrichmentMaps(
 
   return {
     season,
-    previousSeason,
+    previousSeason: prev,
     rankMap: byPlayerId(rankings ?? []),
     archiveMap: byPlayerId(archives ?? []),
   };

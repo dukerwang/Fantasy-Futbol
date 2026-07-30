@@ -163,7 +163,7 @@ export async function POST(req: NextRequest) {
           leagueId: league.id,
           userId: t.user_id,
           title: 'Draft Started!',
-          content: `The scheduled kickoff has arrived! The draft for **${league.name}** has officially started! The War Room is now open.`,
+          content: `The scheduled kickoff has arrived! The draft for **${league.name}** has officially started! The Draft Room is now open.`,
           url: `/league/${league.id}/draft`
         });
       }

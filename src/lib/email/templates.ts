@@ -163,7 +163,7 @@ export const getOutbidEmail = (playerName: string, currentHighBid: number, leagu
 export const getDraftStartedEmail = (leagueName: string, draftUrl: string) => {
   const body = `
     <p>The commissioner has officially started the draft for <strong>${leagueName}</strong>!</p>
-    <p>The "War Room" is now open. Head over immediately to start making your picks.</p>
+    <p>The Draft Room is now open. Head over immediately to start making your picks.</p>
     <div style="background-color: #F7F3ED; padding: 20px; border-radius: 8px; border: 2px solid #1a1a1a; text-align: center; margin: 24px 0;">
       <p style="font-family: 'Georgia', serif; font-size: 1.2em; font-weight: bold; margin-top: 0;">DRAFT IS LIVE</p>
       <a href="${draftUrl}" class="button" style="margin-top: 0;">Enter Draft Room</a>
@@ -218,7 +218,7 @@ export const getDraftScheduledEmail = (leagueName: string, scheduledTime: string
       <p style="font-family: 'Georgia', serif; font-size: 1.4em; font-weight: bold; margin: 8px 0;">${scheduledTime}</p>
       <a href="${lobbyUrl}" class="button" style="margin-top: 12px;">Enter Pre-Draft Lobby</a>
     </div>
-    <p>Please review your queue, research players, and ensure you are in the War Room before the timer hits zero!</p>
+    <p>Please review your queue, research players, and ensure you are in the Draft Room before the timer hits zero!</p>
   `;
   return baseTemplate(`Draft Scheduled for ${leagueName}`, body);
 };

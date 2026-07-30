@@ -4,7 +4,7 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { FULL_PLAYER_SELECT } from '@/lib/constants/queries';
 import type { Player, RosterStatus } from '@/types';
-import { getCurrentFplSeason, isFplSeasonKickedOff } from '@/lib/season/currentSeason';
+import { getCurrentFplSeason, isFplSeasonKickedOff, resolveDraftStatsSeason } from '@/lib/season/currentSeason';
 import { listDecisions, getSlotUsage } from '@/lib/departures/decisions';
 import { OPEN_STATUSES, RIGHTS_HELD_STATUSES } from '@/lib/departures/types';
 import { CLUB_BY_SLUG } from '@/lib/clubs/registry';
@@ -67,9 +67,11 @@ export default async function MyClubPage({ params }: Props) {
 
   const currentFpl = await getCurrentFplSeason();
   const kickedOff = await isFplSeasonKickedOff();
+  // Preseason club card must show the completed stats season (2025-26), not
+  // a stale previous_season default (2024-25) or the empty upcoming year.
   let season = league.current_season ?? league.season ?? currentFpl;
   if (season === currentFpl && !kickedOff) {
-    season = league.previous_season ?? season;
+    season = await resolveDraftStatsSeason(admin, league);
   }
 
   // ── Roster + player data ────────────────────────────────────────────────────

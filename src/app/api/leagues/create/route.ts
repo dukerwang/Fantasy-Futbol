@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient as createServerClient } from '@/lib/supabase/server';
 import { createClient as createAdminClient } from '@supabase/supabase-js';
 import { DEFAULT_SCORING_RULES } from '@/types';
-import { getCurrentFplSeason } from '@/lib/season/currentSeason';
+import { getCurrentFplSeason, previousSeason } from '@/lib/season/currentSeason';
 
 export async function POST(req: NextRequest) {
   // Verify the requesting user is authenticated
@@ -21,7 +21,11 @@ export async function POST(req: NextRequest) {
   );
 
   // 1. Create the league
+  // current_season = upcoming/live FPL year; previous_season = last completed
+  // year whose archives feed the draft board. Never leave previous_season on
+  // the stale column default (2024-25) — that season has no archive rows.
   const currentSeason = await getCurrentFplSeason();
+  const priorSeason = previousSeason(currentSeason);
   const { data: league, error: leagueErr } = await admin.from('leagues').insert({
     name: name.trim(),
     commissioner_id: user.id,
@@ -34,6 +38,7 @@ export async function POST(req: NextRequest) {
     scoring_rules: DEFAULT_SCORING_RULES,
     season: currentSeason,
     current_season: currentSeason,
+    previous_season: priorSeason,
   }).select('id, invite_code').single();
 
   if (leagueErr) return NextResponse.json({ error: leagueErr.message }, { status: 500 });

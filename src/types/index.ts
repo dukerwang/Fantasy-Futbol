@@ -190,6 +190,7 @@ export interface Player {
   transfermarkt_id: string | null;
   overall_rank?: number | null; // From player_rankings view
   position_ranks?: { position: string; rank: number }[] | null; // From player_rankings view
+  isNewToPrem?: boolean; // Computed server-side: no player_season_clubs row for the prior season
   created_at: string;
   updated_at: string;
 }

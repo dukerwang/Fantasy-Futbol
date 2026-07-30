@@ -121,7 +121,7 @@ export default function TeamSetupClient({ leagueId, leagueName, team, username }
             <span className={styles.previewTitle}>Step 1 of 2</span>
             <h1 className={styles.panelTitle}>Club Credentials</h1>
             <p className={styles.panelSubtitle}>
-              Configure your credentials for <strong>{leagueName}</strong> before entering the war room.
+              Configure your credentials for <strong>{leagueName}</strong> before entering the draft room.
             </p>
           </div>
 

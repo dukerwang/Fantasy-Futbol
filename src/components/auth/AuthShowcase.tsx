@@ -145,7 +145,7 @@ const slides = [
   },
   {
     eyebrow: 'Dynasty Draft',
-    title: 'A war room built for dynasty.',
+    title: 'A draft room built for dynasty.',
     desc: 'Form a foundation that lasts for years. Conduct a live snake-order startup draft, watch the clock, and build a roster that persists season over season.',
     visual: <StartupDraftVisual />
   },
@@ -735,7 +735,7 @@ function StartupDraftVisual() {
       <div className={styles.mainArea}>
         <main className={styles.boardPanel}>
           <div className={styles.boardHeader}>
-            <h1 className={styles.boardHeadline}>The War Room</h1>
+            <h1 className={styles.boardHeadline}>The Draft Room</h1>
             <p className={styles.boardSubtitle}>
               Dynasty League · Round 1/10 · 1 pick made
             </p>

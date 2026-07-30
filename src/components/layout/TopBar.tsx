@@ -158,8 +158,6 @@ export default function TopBar() {
     if (!currentLeagueId) return [];
     const base = `/league/${currentLeagueId}`;
 
-    const isDraftVisible = currentLeague?.status === 'setup' || currentLeague?.status === 'drafting';
-
     const groups: NavGroup[] = [
       {
         label: 'Squad',
@@ -194,7 +192,6 @@ export default function TopBar() {
         items: [
           { label: 'Gameweeks', href: `${base}/matchups` },
           { label: 'Cups', href: `${base}/tournaments` },
-          ...(isDraftVisible ? [{ label: 'Draft', href: `${base}/draft` }] : []),
         ],
       },
     ];
@@ -207,9 +204,11 @@ export default function TopBar() {
     return group.items.some(item => !item.disabled && pathname?.startsWith(item.href));
   }
 
-  // Check if Home is active (exact match)
+  // Check if Home is active (exact match). During setup/drafting the league
+  // home IS the draft lobby, so Draft owns that highlight instead.
   function isHomeActive(): boolean {
     if (!currentLeagueId) return false;
+    if (currentLeague?.status === 'setup' || currentLeague?.status === 'drafting') return false;
     return pathname === `/league/${currentLeagueId}`;
   }
 
@@ -217,6 +216,15 @@ export default function TopBar() {
   function isActivityActive(): boolean {
     if (!currentLeagueId) return false;
     return pathname?.startsWith(`/league/${currentLeagueId}/activity`) ?? false;
+  }
+
+  // Draft is its own top-level item during setup/drafting; lobby lives on the
+  // league home page (PreDraftLobby), with the live room under /draft.
+  const isDraftVisible = currentLeague?.status === 'setup' || currentLeague?.status === 'drafting';
+  function isDraftActive(): boolean {
+    if (!currentLeagueId || !isDraftVisible) return false;
+    const base = `/league/${currentLeagueId}`;
+    return pathname === base || (pathname?.startsWith(`${base}/draft`) ?? false);
   }
 
   // Dropdown hover handlers with debounce
@@ -323,6 +331,19 @@ export default function TopBar() {
                 Activity
               </Link>
             </div>
+
+            {/* Draft (standalone — setup/drafting only; opens the lobby) */}
+            {isDraftVisible && (
+              <div className={styles.navItem}>
+                <Link
+                  href={`/league/${currentLeagueId}`}
+                  className={`${styles.navLink} ${isDraftActive() ? styles.navLinkActive : ''}`}
+                  onClick={() => setIsNavigating(true)}
+                >
+                  Draft
+                </Link>
+              </div>
+            )}
           </div>
         )}
 
@@ -581,6 +602,22 @@ export default function TopBar() {
                 Activity
               </Link>
             </div>
+
+            {/* Draft (standalone — setup/drafting only; opens the lobby) */}
+            {isDraftVisible && (
+              <div className={styles.mobileDrawerItem}>
+                <Link
+                  href={`/league/${currentLeagueId}`}
+                  className={`${styles.mobileDrawerLink} ${isDraftActive() ? styles.mobileDrawerLinkActive : ''}`}
+                  onClick={() => {
+                    setIsNavigating(true);
+                    setMobileMenuOpen(false);
+                  }}
+                >
+                  Draft
+                </Link>
+              </div>
+            )}
 
             {/* Mobile User Section */}
             <div className={styles.mobileDrawerUserSection}>

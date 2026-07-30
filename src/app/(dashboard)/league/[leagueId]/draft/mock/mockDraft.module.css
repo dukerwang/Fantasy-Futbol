@@ -1,0 +1,200 @@
+/* ── Mock draft — setup & recap screens ─────────────────────────────
+   The live drafting UI reuses ../draft.module.css directly (same board,
+   player list, roster/queue tabs) so a mock draft looks and feels like the
+   real one. This file only covers the two screens that don't exist there. */
+
+.wrap {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--space-8) var(--space-4);
+}
+
+.topBar {
+  width: 100%;
+  max-width: 720px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-6);
+}
+
+.mockBadge {
+  composes: ds-eyebrow from global;
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-full);
+  background: var(--color-accent-subtle, rgba(31, 163, 95, 0.12));
+  color: var(--color-accent);
+  font-weight: var(--font-semibold);
+}
+
+.exitLink {
+  composes: ds-body from global;
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  font-size: var(--text-sm);
+}
+
+.exitLink:hover {
+  color: var(--color-text-primary);
+}
+
+.card {
+  width: 100%;
+  max-width: 720px;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  padding: var(--space-8);
+}
+
+.title {
+  composes: ds-heading from global;
+  font-size: var(--text-2xl);
+  margin: 0 0 var(--space-2);
+}
+
+.desc {
+  composes: ds-body from global;
+  color: var(--color-text-secondary);
+  margin: 0 0 var(--space-6);
+  max-width: 560px;
+}
+
+.formRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-5);
+  margin-bottom: var(--space-6);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 180px;
+}
+
+.fieldLabel {
+  composes: ds-eyebrow from global;
+  color: var(--color-text-secondary);
+}
+
+.select {
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-input, var(--color-bg-card));
+  color: var(--color-text-primary);
+  font-size: var(--text-sm);
+}
+
+.btnRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.primaryBtn {
+  padding: var(--space-3) var(--space-6);
+  background: var(--color-text-primary);
+  color: var(--color-bg-card);
+  border: none;
+  border-radius: var(--radius-md);
+  font-weight: var(--font-semibold);
+  font-size: var(--text-sm);
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.primaryBtn:hover {
+  background: var(--color-accent);
+  color: var(--color-text-inverse);
+}
+
+.secondaryBtn {
+  padding: var(--space-3) var(--space-6);
+  background: transparent;
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-weight: var(--font-semibold);
+  font-size: var(--text-sm);
+  cursor: pointer;
+  transition: border-color var(--transition-fast), color var(--transition-fast);
+}
+
+.secondaryBtn:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+.controlsCol {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--space-2);
+  flex-shrink: 0;
+}
+
+.controlBtns {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.controlBtn {
+  padding: var(--space-1) var(--space-3);
+  background: transparent;
+  color: var(--color-text-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-weight: var(--font-semibold);
+  font-size: var(--text-xs);
+  cursor: pointer;
+  text-decoration: none;
+  line-height: 1.4;
+  transition: border-color var(--transition-fast), color var(--transition-fast);
+}
+
+.controlBtn:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+/* ── Recap ─────────────────────────────────────────────────────────── */
+
+.recapSection {
+  margin-bottom: var(--space-6);
+}
+
+.recapSectionTitle {
+  composes: ds-eyebrow from global;
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-3);
+}
+
+.leaderboard {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-sm);
+}
+
+.leaderboard th {
+  text-align: left;
+  padding: var(--space-2) var(--space-3);
+  color: var(--color-text-secondary);
+  font-weight: var(--font-semibold);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.leaderboard td {
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.leaderboardMe {
+  background: var(--color-accent-subtle, rgba(31, 163, 95, 0.08));
+  font-weight: var(--font-semibold);
+}

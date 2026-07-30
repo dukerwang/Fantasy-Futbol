@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import SidebarChat from './SidebarChat';
 import DraftOrderManager from './DraftOrderManager';
+import CrestBadge from '@/components/crest/CrestBadge';
 import styles from './preDraftLobby.module.css';
 import type { League } from '@/types';
 
@@ -17,24 +18,6 @@ interface Props {
   myTeam: any | null;
   currentUsername: string;
   isCommissioner: boolean;
-}
-
-function getInitials(name: string, abbr: string | null): string {
-  if (abbr && abbr.trim()) return abbr.trim().substring(0, 3).toUpperCase();
-  const parts = name.trim().split(/\s+/);
-  if (parts.length >= 2) {
-    return (parts[0][0] + parts[1][0]).toUpperCase();
-  }
-  return name.trim().substring(0, 2).toUpperCase();
-}
-
-function getHslColor(str: string): string {
-  let hash = 0;
-  for (let i = 0; i < str.length; i++) {
-    hash = str.charCodeAt(i) + ((hash << 5) - hash);
-  }
-  const h = Math.abs(hash) % 360;
-  return `linear-gradient(135deg, hsl(${h}, 50%, 45%), hsl(${(h + 40) % 360}, 55%, 35%))`;
 }
 
 export default function PreDraftLobby({
@@ -50,19 +33,8 @@ export default function PreDraftLobby({
   const [modalOpen, setModalOpen] = useState(false);
   const [editName, setEditName] = useState(myTeam?.team_name ?? '');
   const [editAbbr, setEditAbbr] = useState(myTeam?.abbreviation ?? '');
-  const [editLogo, setEditLogo] = useState(myTeam?.logo_url ?? '');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  // Profile picture upload & cropper states
-  const [imageToCrop, setImageToCrop] = useState<string | null>(null);
-  const [cropZoom, setCropZoom] = useState(1);
-  const [cropX, setCropX] = useState(0);
-  const [cropY, setCropY] = useState(0);
-  const [isDragging, setIsDragging] = useState(false);
-  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
-  const [naturalWidth, setNaturalWidth] = useState(0);
-  const [naturalHeight, setNaturalHeight] = useState(0);
 
   const supabase = createClient();
 
@@ -204,77 +176,6 @@ export default function PreDraftLobby({
     }
   }
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    if (!file.type.startsWith('image/')) {
-      setError('Please select a valid image file (PNG/JPEG)');
-      return;
-    }
-
-    if (file.size > 5 * 1024 * 1024) {
-      setError('File exceeds 5MB size limit.');
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      if (event.target?.result) {
-        setImageToCrop(event.target.result as string);
-        setCropZoom(1);
-        setCropX(0);
-        setCropY(0);
-        setNaturalWidth(0);
-        setNaturalHeight(0);
-        setError(null);
-      }
-    };
-    reader.readAsDataURL(file);
-  };
-
-  const handleApplyCrop = () => {
-    if (!imageToCrop) return;
-
-    const img = new Image();
-    img.src = imageToCrop;
-    img.onload = () => {
-      const canvas = document.createElement('canvas');
-      canvas.width = 150;
-      canvas.height = 150;
-      const ctx = canvas.getContext('2d');
-      if (ctx) {
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(0, 0, 150, 150);
-
-        const scale = cropZoom * (150 / 200);
-        const cx = 75;
-        const cy = 75;
-
-        ctx.save();
-        ctx.translate(cx + cropX * (150 / 200), cy + cropY * (150 / 200));
-        ctx.scale(scale, scale);
-
-        const imgRatio = img.width / img.height;
-        let dw, dh;
-        if (imgRatio >= 1) {
-          dh = 200;
-          dw = 200 * imgRatio;
-        } else {
-          dw = 200;
-          dh = 200 / imgRatio;
-        }
-
-        ctx.drawImage(img, -dw / 2, -dh / 2, dw, dh);
-        ctx.restore();
-
-        const base64 = canvas.toDataURL('image/jpeg', 0.85);
-        setEditLogo(base64);
-        setImageToCrop(null);
-      }
-    };
-  };
-
   async function handleSaveIdentity(e: React.FormEvent) {
     e.preventDefault();
     if (!myTeam) return;
@@ -306,7 +207,6 @@ export default function PreDraftLobby({
       .update({
         team_name: editName.trim(),
         abbreviation: abbrClean,
-        logo_url: editLogo.trim() || null,
       })
       .eq('id', myTeam.id);
 
@@ -338,15 +238,18 @@ export default function PreDraftLobby({
         {/* Status Card */}
         <div className={styles.statusCard}>
           <div className={styles.statusHeader}>
-            <h1 className={styles.leagueName}>{league.name}</h1>
-            <span className={`${styles.statusBadge} ${isActive ? styles.statusBadgeActive : ''}`}>
-              ● {isActive ? 'Draft Active' : 'Lobby Open'}
+            <div>
+              <span className={styles.leagueEyebrow}>League Lobby</span>
+              <h1 className={styles.leagueName}>{league.name}</h1>
+            </div>
+            <span className={isActive ? styles.statusLive : styles.statusOpen}>
+              {isActive ? 'Draft live' : 'Lobby open'}
             </span>
           </div>
           <div className={styles.leagueMeta}>
-            <span>COMMISSIONER: <strong>{isCommissioner ? 'YOU' : 'Other Manager'}</strong></span>
-            <span>FORMAT: <strong>{String(league.draft_type).toUpperCase()} DRAFT</strong></span>
-            <span>MAX TEAMS: <strong>{league.max_teams}</strong></span>
+            <span className={styles.metaItem}>Commissioner <strong>{isCommissioner ? 'you' : 'another manager'}</strong></span>
+            <span className={styles.metaItem}>Format <strong>{String(league.draft_type).toLowerCase()} draft</strong></span>
+            <span className={styles.metaItem}>Max teams <strong>{league.max_teams}</strong></span>
           </div>
         </div>
 
@@ -354,16 +257,16 @@ export default function PreDraftLobby({
         <div className={styles.ctaCard}>
           <h2 className={styles.ctaTitle}>
             {isActive
-              ? '🚨 The Draft is Underway!'
+              ? 'The draft is underway'
               : league.draft_scheduled_at
-              ? '📅 Draft Scheduled'
-              : '⏳ The Draft Room is Preparing'}
+              ? 'Draft scheduled'
+              : 'The draft room is preparing'}
           </h2>
           <p className={styles.ctaDesc}>
             {isActive
-              ? 'Picks are being made in real time. Enter the war room now to make selections, set your queue, and configure scouting lists!'
+              ? 'Picks are being made in real time. Enter the draft room now to make selections, set your queue, and configure scouting lists!'
               : league.draft_scheduled_at
-              ? 'The countdown has begun. Research players, configure your queue, and prepare your war room. Kickoff is automated.'
+              ? 'The countdown has begun. Research players, configure your queue, and prepare your draft room. Kickoff is automated.'
               : 'Join the lobby chat, customize your club credentials, and review the drafting pool. Once the commissioner randomizes the picks and launches the draft, the entry gate will open.'}
           </p>
 
@@ -392,7 +295,7 @@ export default function PreDraftLobby({
               </div>
             ) : (
               <div className={styles.countdownStarting}>
-                🚨 Draft starting now! Entering War Room...
+                Draft starting now — entering the draft room…
               </div>
             )
           )}
@@ -400,6 +303,12 @@ export default function PreDraftLobby({
           <Link href={`/league/${leagueId}/draft`} className={styles.ctaBtn}>
             {isActive ? 'Enter active draft room →' : 'Preview draft board →'}
           </Link>
+
+          {!isActive && (
+            <Link href={`/league/${leagueId}/draft/mock`} className={styles.mockDraftBtn}>
+              Practice with a mock draft →
+            </Link>
+          )}
         </div>
 
         {/* Club Roster Board */}
@@ -415,21 +324,13 @@ export default function PreDraftLobby({
             {sortedTeams.map((t) => {
               const isMe = t.user_id === myUserId;
               const hasOrder = t.draft_order !== null;
-              const initials = getInitials(t.team_name, t.abbreviation);
-              const fallbackBg = getHslColor(t.id);
               const ownerLabel = t.user?.username || t.user?.email?.split('@')[0] || 'Manager';
 
               return (
                 <div key={t.id} className={`${styles.memberRow} ${isMe ? styles.memberRowActive : ''}`}>
                   <div className={styles.memberLeft}>
                     <div className={styles.avatarContainer}>
-                      {t.logo_url ? (
-                        <img src={t.logo_url} alt="" className={styles.avatarImage} />
-                      ) : (
-                        <div className={styles.avatarFallback} style={{ background: fallbackBg }}>
-                          {initials}
-                        </div>
-                      )}
+                      <CrestBadge config={t.crest_config} teamName={t.team_name} size={38} />
                     </div>
                     <div className={styles.memberDetails}>
                       <div className={styles.teamNameRow}>
@@ -457,7 +358,7 @@ export default function PreDraftLobby({
                       </button>
                     )}
                     {league.commissioner_id === t.user_id && (
-                      <span className={styles.commissionerBadge}>COMMISH</span>
+                      <span className={styles.commissionerBadge}>Commissioner</span>
                     )}
                     <div className={styles.draftOrderBadge}>
                       {hasOrder ? (
@@ -477,13 +378,13 @@ export default function PreDraftLobby({
         {isCommissioner && !isActive && (
           <div className={`${styles.sectionCard} ${styles.commCard}`}>
             <div className={`${styles.sectionHeader} ${styles.commHeader}`}>
-              <h2 className={`${styles.sectionTitle} ${styles.commTitle}`}>🛠️ Commissioner Controls</h2>
-              <span className={styles.memberCount}>Setup Phase</span>
+              <h2 className={`${styles.sectionTitle} ${styles.commTitle}`}>Commissioner Controls</h2>
+              <span className={styles.memberCount}>Setup phase</span>
             </div>
 
             {/* Scheduling Section */}
             <div className={styles.schedulerSection}>
-              <h3 className={styles.schedulerTitle}>📅 Schedule Draft Kickoff</h3>
+              <h3 className={styles.schedulerTitle}>Schedule Draft Kickoff</h3>
               <p className={styles.schedulerHint}>
                 Set a date and time for the draft to automatically begin. A minimum of 4 managers must be joined.
               </p>
@@ -584,153 +485,16 @@ export default function PreDraftLobby({
                   />
                 </div>
 
-                <div className={styles.inputGroup}>
-                  <label className={styles.inputLabel}>Profile Photo / Logo</label>
-                  
-                  {imageToCrop ? (
-                    <div className={styles.cropperWorkspace}>
-                      <p className={styles.cropperHint}>Drag to center your photo, then adjust the zoom below.</p>
-                      
-                      <div
-                        className={styles.cropperContainer}
-                        onMouseDown={(e) => {
-                          setIsDragging(true);
-                          setDragStart({ x: e.clientX - cropX, y: e.clientY - cropY });
-                        }}
-                        onMouseMove={(e) => {
-                          if (!isDragging) return;
-                          setCropX(e.clientX - dragStart.x);
-                          setCropY(e.clientY - dragStart.y);
-                        }}
-                        onMouseUp={() => setIsDragging(false)}
-                        onMouseLeave={() => setIsDragging(false)}
-                        onTouchStart={(e) => {
-                          if (e.touches.length === 1) {
-                            setIsDragging(true);
-                            setDragStart({ x: e.touches[0].clientX - cropX, y: e.touches[0].clientY - cropY });
-                          }
-                        }}
-                        onTouchMove={(e) => {
-                          if (!isDragging || e.touches.length !== 1) return;
-                          setCropX(e.touches[0].clientX - dragStart.x);
-                          setCropY(e.touches[0].clientY - dragStart.y);
-                        }}
-                        onTouchEnd={() => setIsDragging(false)}
-                      >
-                        <img
-                          src={imageToCrop}
-                          alt="Crop preview"
-                          className={styles.cropperImage}
-                          onLoad={(e) => {
-                            const img = e.currentTarget;
-                            setNaturalWidth(img.naturalWidth);
-                            setNaturalHeight(img.naturalHeight);
-                          }}
-                          style={{
-                            width: naturalWidth > 0 && naturalHeight > 0 
-                              ? `${(naturalWidth / naturalHeight) >= 1 ? 200 * (naturalWidth / naturalHeight) : 200}px`
-                              : '200px',
-                            height: naturalWidth > 0 && naturalHeight > 0
-                              ? `${(naturalWidth / naturalHeight) >= 1 ? 200 : 200 / (naturalWidth / naturalHeight)}px`
-                              : '200px',
-                            transform: `translate(${cropX}px, ${cropY}px) scale(${cropZoom})`,
-                          }}
-                          draggable={false}
-                        />
-                        <div className={styles.cropperOverlay} />
-                      </div>
-
-                      <div className={styles.cropperControls}>
-                        <div className={styles.zoomRow}>
-                          <span className={styles.zoomLabel}>Zoom:</span>
-                          <input
-                            type="range"
-                            min="1"
-                            max="3"
-                            step="0.05"
-                            value={cropZoom}
-                            onChange={(e) => setCropZoom(parseFloat(e.target.value))}
-                            className={styles.zoomSlider}
-                          />
-                        </div>
-                        <div className={styles.cropperButtons}>
-                          <button
-                            type="button"
-                            className={styles.cropCancelBtn}
-                            onClick={() => setImageToCrop(null)}
-                          >
-                            Cancel
-                          </button>
-                          <button
-                            type="button"
-                            className={styles.cropApplyBtn}
-                            onClick={handleApplyCrop}
-                          >
-                            Apply Crop
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className={styles.uploadArea}>
-                      <div className={styles.uploadPreviewRow}>
-                        <div className={styles.uploadAvatarPreview}>
-                          {editLogo ? (
-                            <img src={editLogo} alt="Preview" className={styles.previewLogoImg} />
-                          ) : (
-                            <div className={styles.previewLogoFallback}>
-                              {getInitials(editName, editAbbr)}
-                            </div>
-                          )}
-                        </div>
-                        <div className={styles.uploadBtnCol}>
-                          <label className={styles.fileUploadLabel}>
-                            Choose File...
-                            <input
-                              type="file"
-                              accept="image/png, image/jpeg, image/jpg"
-                              onChange={handleFileChange}
-                              className={styles.hiddenFileInput}
-                            />
-                          </label>
-                          <span className={styles.uploadRequirements}>
-                            Supports JPG or PNG. Max size 5MB.
-                          </span>
-                          {editLogo && (
-                            <button
-                              type="button"
-                              onClick={() => setEditLogo('')}
-                              className={styles.removeLogoBtn}
-                            >
-                              Remove Photo
-                            </button>
-                          )}
-                        </div>
-                      </div>
-                      
-                      <div className={styles.urlInputFallback}>
-                        <label className={styles.urlLabel}>Or enter direct Image URL:</label>
-                        <input
-                          type="url"
-                          className={styles.textInput}
-                          placeholder="e.g. https://domain.com/photo.png"
-                          value={editLogo}
-                          onChange={(e) => setEditLogo(e.target.value)}
-                        />
-                      </div>
-                    </div>
-                  )}
-                </div>
-
                 {error && <p className={styles.modalError}>{error}</p>}
 
                 <div className={styles.fullSetupLinkContainer}>
+                  <CrestBadge config={myTeam?.crest_config} teamName={editName} size={40} />
                   <Link
                     href={`/league/${leagueId}/team-setup`}
                     className={styles.fullSetupLink}
                     onClick={() => setModalOpen(false)}
                   >
-                    ✨ Open Full-Screen Crest Creator Suite →
+                    Design your crest in the creator suite →
                   </Link>
                 </div>
               </div>

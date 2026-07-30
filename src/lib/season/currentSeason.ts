@@ -116,6 +116,64 @@ export async function isFplSeasonKickedOff(): Promise<boolean> {
 }
 
 /**
+ * Returns the most recent season that has rows in season_player_stats_archive.
+ * Draft boards and preseason scouting should prefer this over an empty
+ * upcoming season or a stale previous_season default (e.g. 2024-25).
+ */
+export async function getLatestArchiveSeason(
+  admin: SupabaseClient,
+): Promise<string | null> {
+  const { data } = await admin
+    .from('season_player_stats_archive')
+    .select('season')
+    .order('season', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  return (data?.season as string | undefined) ?? null;
+}
+
+/**
+ * Season whose completed Prem stats should feed the draft board / mock draft.
+ *
+ * Brand-new leagues often land on current_season = upcoming FPL year (e.g.
+ * 2026-27) with previous_season still at the column default (2024-25). Archives
+ * only exist for the just-completed year (2025-26), so we:
+ *   1. Prefer league.previous_season when it has archive rows
+ *   2. Else previousSeason(currentFpl) when that has rows
+ *   3. Else the latest archived season in the DB
+ *
+ * Never returns an empty upcoming/live season for scouting.
+ */
+export async function resolveDraftStatsSeason(
+  admin: SupabaseClient,
+  league?: { current_season?: string | null; previous_season?: string | null },
+): Promise<string> {
+  const currentFpl = await getCurrentFplSeason();
+  const candidates = [
+    league?.previous_season,
+    previousSeason(league?.current_season ?? currentFpl),
+    previousSeason(currentFpl),
+    await getLatestArchiveSeason(admin),
+  ].filter((s): s is string => Boolean(s));
+
+  // De-dupe while preserving preference order
+  const seen = new Set<string>();
+  for (const season of candidates) {
+    if (seen.has(season)) continue;
+    seen.add(season);
+    const { count } = await admin
+      .from('season_player_stats_archive')
+      .select('player_id', { count: 'exact', head: true })
+      .eq('season', season);
+    if ((count ?? 0) > 0) return season;
+  }
+
+  // Absolute last resort — still better than an empty upcoming season
+  return (await getLatestArchiveSeason(admin)) ?? previousSeason(currentFpl);
+}
+
+/**
  * Returns the most recent season available in rating_reference_stats.
  *
  * The scoring engine uses this to load sigmoid normalization baselines.
