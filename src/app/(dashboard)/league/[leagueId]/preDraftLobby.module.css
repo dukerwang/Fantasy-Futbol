@@ -86,6 +86,30 @@
   font-weight: var(--font-semibold);
 }
 
+.inviteCodeCopyBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: var(--space-2);
+  padding: 0;
+  width: 20px;
+  height: 20px;
+  color: var(--color-text-muted);
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 0.9em;
+  line-height: 1;
+  vertical-align: middle;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.inviteCodeCopyBtn:hover {
+  color: var(--color-accent);
+  background: var(--color-bg-secondary);
+}
+
 /* ── CTA card ───────────────────────────────────────────── */
 .ctaCard {
   background: var(--color-bg-card);

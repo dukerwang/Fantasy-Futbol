@@ -35,6 +35,18 @@ export default function PreDraftLobby({
   const [editAbbr, setEditAbbr] = useState(myTeam?.abbreviation ?? '');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [inviteCopied, setInviteCopied] = useState(false);
+
+  async function handleCopyInvite() {
+    if (!league.invite_code) return;
+    try {
+      await navigator.clipboard.writeText(league.invite_code);
+      setInviteCopied(true);
+      setTimeout(() => setInviteCopied(false), 1500);
+    } catch {
+      // clipboard access denied — ignore, code is still visible to copy manually
+    }
+  }
 
   const supabase = createClient();
 
@@ -250,6 +262,19 @@ export default function PreDraftLobby({
             <span className={styles.metaItem}>Commissioner <strong>{isCommissioner ? 'you' : 'another manager'}</strong></span>
             <span className={styles.metaItem}>Format <strong>{String(league.draft_type).toLowerCase()} draft</strong></span>
             <span className={styles.metaItem}>Max teams <strong>{league.max_teams}</strong></span>
+            {league.invite_code && (
+              <span className={styles.metaItem}>
+                Invite code <strong>{league.invite_code.toUpperCase()}</strong>
+                <button
+                  type="button"
+                  className={styles.inviteCodeCopyBtn}
+                  onClick={handleCopyInvite}
+                  title="Copy invite code to share with friends"
+                >
+                  {inviteCopied ? '✓' : '⧉'}
+                </button>
+              </span>
+            )}
           </div>
         </div>
 

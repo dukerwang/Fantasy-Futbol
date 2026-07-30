@@ -96,6 +96,7 @@ export interface League {
   is_dynasty: boolean;
   status: 'setup' | 'drafting' | 'active' | 'completed';
   draft_scheduled_at: string | null;
+  invite_code: string | null;
   created_at: string;
   updated_at: string;
 }
