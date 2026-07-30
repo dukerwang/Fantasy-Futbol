@@ -105,9 +105,9 @@ export default function BidDialog({
   // a drop rather than a hard gate, and the server still has the final word.
   const droppable = myRoster.filter((r) => r.status !== 'loan_in' && r.id !== player.id);
 
-  const tooExpensive = amount > budget;
-  const belowFloor = amount < floor;
-  const wouldTakeClause = clause != null && amount >= clause;
+  const tooExpensive = !Number.isNaN(amount) && amount > budget;
+  const belowFloor = Number.isNaN(amount) || amount < floor;
+  const wouldTakeClause = clause != null && !Number.isNaN(amount) && amount >= clause;
   const overCommitted = committedTotal > budget;
 
   const submit = async () => {
@@ -149,7 +149,7 @@ export default function BidDialog({
             {wouldTakeClause && clause != null ? (
               <>Pays <b>{money(amount)}</b> and takes him now — the clause ends the auction.</>
             ) : (
-              <>Leaves you <b>{money(Math.max(0, budget - amount))}</b> for the rest of the window.</>
+              <>Leaves you <b>{money(Math.max(0, budget - (Number.isNaN(amount) ? 0 : amount)))}</b> for the rest of the window.</>
             )}
           </span>
           <button type="button" className={styles.ghost} onClick={onClose} disabled={busy}>
@@ -208,7 +208,16 @@ export default function BidDialog({
             min={floor}
             step={1}
             value={Number.isNaN(amount) ? '' : amount}
-            onChange={(e) => setAmount(parseInt(e.target.value, 10))}
+            onFocus={(e) => e.target.select()}
+            onChange={(e) => {
+              const raw = e.target.value;
+              if (raw === '') {
+                setAmount(NaN);
+                return;
+              }
+              const n = parseInt(raw, 10);
+              setAmount(Number.isNaN(n) ? NaN : n);
+            }}
           />
           <span className={styles.suffix}>m</span>
         </div>

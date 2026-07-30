@@ -26,14 +26,23 @@ interface Props {
 
 export default function Modal({ open, onClose, title, lead, children, footer, wide }: Props) {
   const panelRef = useRef<HTMLDivElement>(null);
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
+  // A dismiss requires the press to both start and end on the scrim. Closing on
+  // mousedown alone would fire when a native <select> menu (which renders
+  // outside the panel) is dismissed over the backdrop, and would also dismiss
+  // mid-drag when the user releases outside after selecting text in an input.
+  const scrimPointerDown = useRef(false);
 
   // Escape closes; body scroll is frozen while open so the page behind does not
-  // drift under a dialog the user is typing a price into.
+  // drift under a dialog the user is typing a price into. onClose is read from
+  // a ref so parent re-renders (inline lambdas, countdown ticks) do not re-run
+  // this effect and steal focus from an input mid-edit.
   useEffect(() => {
     if (!open) return;
 
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
+      if (e.key === 'Escape') onCloseRef.current();
     };
     document.addEventListener('keydown', onKey);
 
@@ -46,7 +55,7 @@ export default function Modal({ open, onClose, title, lead, children, footer, wi
       document.removeEventListener('keydown', onKey);
       document.body.style.overflow = previous;
     };
-  }, [open, onClose]);
+  }, [open]);
 
   if (!open || typeof document === 'undefined') return null;
 
@@ -54,10 +63,13 @@ export default function Modal({ open, onClose, title, lead, children, footer, wi
     <div
       className={styles.scrim}
       onMouseDown={(e) => {
-        // Only a press that both starts and ends on the scrim closes — otherwise
-        // a drag that begins on a text input and releases outside would dismiss
-        // the dialog mid-edit.
-        if (e.target === e.currentTarget) onClose();
+        scrimPointerDown.current = e.target === e.currentTarget;
+      }}
+      onClick={(e) => {
+        if (scrimPointerDown.current && e.target === e.currentTarget) {
+          onCloseRef.current();
+        }
+        scrimPointerDown.current = false;
       }}
     >
       <div
@@ -67,6 +79,8 @@ export default function Modal({ open, onClose, title, lead, children, footer, wi
         aria-modal="true"
         aria-label={title}
         tabIndex={-1}
+        onMouseDown={(e) => e.stopPropagation()}
+        onClick={(e) => e.stopPropagation()}
       >
         <header className={styles.header}>
           {lead}

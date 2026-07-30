@@ -100,24 +100,35 @@ export default function ListingEditor({
   // the number instead of a raised exception.
   const floor = marketValue > 0 ? Math.floor(marketValue * 0.8) : 0;
 
-  const belowFloor = minBid < floor;
+  // Empty-while-typing is stored as NaN / null so the box can clear; treat those
+  // as incomplete for validation rather than coercing them back to 0.
+  const belowFloor = Number.isNaN(minBid) || minBid < floor;
   // An ask below the floor would advertise a price nobody is allowed to pay. An
   // ABSENT ask is fine since 088 — it means the seller has not named a number,
   // not that he is unavailable.
-  const askInvalid = askPrice != null && askPrice < minBid;
-  const askAboveClause = askPrice != null && clause != null && askPrice >= clause;
-  const clauseInvalid = clause != null && clause <= minBid;
+  const askInvalid = askPrice != null && !Number.isNaN(askPrice) && askPrice < minBid;
+  const askAboveClause =
+    askPrice != null && !Number.isNaN(askPrice) && clause != null && !Number.isNaN(clause) && askPrice >= clause;
+  const clauseInvalid = clause != null && !Number.isNaN(clause) && clause <= minBid;
+  const pricesIncomplete =
+    Number.isNaN(minBid) || Number.isNaN(askPrice as number) || Number.isNaN(clause as number);
 
   // Ticking nothing is a legitimate stance now ("make me an offer"), so there is
   // no longer an inert listing to refuse.
   const canSave =
-    !busy && Boolean(editing || playerId) && !belowFloor && !askInvalid && !askAboveClause && !clauseInvalid;
+    !busy &&
+    Boolean(editing || playerId) &&
+    !pricesIncomplete &&
+    !belowFloor &&
+    !askInvalid &&
+    !askAboveClause &&
+    !clauseInvalid;
 
   const stance = listingStance({
     open_to_trade: gateTrade,
     open_to_sale: gateSale,
     open_to_loan: gateLoan,
-    ask_price: askPrice,
+    ask_price: askPrice != null && !Number.isNaN(askPrice) ? askPrice : null,
   });
 
   const save = async () => {
@@ -282,8 +293,8 @@ export default function ListingEditor({
         <div className={styles.stance}>
           <b>{stance.headline}</b>
           <span>
-            bid from {money(minBid)}
-            {clause != null ? ` · clause ${money(clause)}` : ''}
+            bid from {Number.isNaN(minBid) ? '—' : money(minBid)}
+            {clause != null && !Number.isNaN(clause) ? ` · clause ${money(clause)}` : ''}
           </span>
         </div>
       </div>
@@ -297,8 +308,17 @@ export default function ListingEditor({
               className={styles.priceInput}
               type="number"
               min={floor}
-              value={minBid}
-              onChange={(e) => setMinBid(Math.max(0, parseInt(e.target.value, 10) || 0))}
+              value={Number.isNaN(minBid) ? '' : minBid}
+              onFocus={(e) => e.target.select()}
+              onChange={(e) => {
+                const raw = e.target.value;
+                if (raw === '') {
+                  setMinBid(NaN);
+                  return;
+                }
+                const n = parseInt(raw, 10);
+                setMinBid(Number.isNaN(n) ? NaN : Math.max(0, n));
+              }}
             />
           </label>
           <label className={styles.priceField}>
@@ -306,9 +326,18 @@ export default function ListingEditor({
             <input
               className={styles.priceInput}
               type="number"
-              value={askPrice ?? ''}
+              value={askPrice == null || Number.isNaN(askPrice) ? '' : askPrice}
               placeholder="—"
-              onChange={(e) => setAskPrice(e.target.value === '' ? null : parseInt(e.target.value, 10))}
+              onFocus={(e) => e.target.select()}
+              onChange={(e) => {
+                const raw = e.target.value;
+                if (raw === '') {
+                  setAskPrice(null);
+                  return;
+                }
+                const n = parseInt(raw, 10);
+                setAskPrice(Number.isNaN(n) ? NaN : Math.max(0, n));
+              }}
             />
           </label>
           <label className={styles.priceField}>
@@ -316,9 +345,18 @@ export default function ListingEditor({
             <input
               className={styles.priceInput}
               type="number"
-              value={clause ?? ''}
+              value={clause == null || Number.isNaN(clause) ? '' : clause}
               placeholder="—"
-              onChange={(e) => setClause(e.target.value === '' ? null : parseInt(e.target.value, 10))}
+              onFocus={(e) => e.target.select()}
+              onChange={(e) => {
+                const raw = e.target.value;
+                if (raw === '') {
+                  setClause(null);
+                  return;
+                }
+                const n = parseInt(raw, 10);
+                setClause(Number.isNaN(n) ? NaN : Math.max(0, n));
+              }}
             />
           </label>
         </div>
