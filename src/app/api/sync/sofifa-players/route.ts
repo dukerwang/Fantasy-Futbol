@@ -325,9 +325,20 @@ async function runSync(preloadedTeams: SoFifaTeamDetail[] | null) {
         const wing = `${side}W` as GranularPosition;
         const midRaw = `${side}M`;
         const fbRaw = `${side}B`;
+        const wbRaw = `${side}WB`;
         const wingRaw = `${side}W`;
+        const hasExplicitFB = allRaw.has(fbRaw);
+        const hasExplicitWB = allRaw.has(wbRaw);
 
-        const pCat = sofifaPrimaryRaw === midRaw ? 'mid' : sofifaPrimaryRaw === wingRaw ? 'wing' : sofifaPrimaryRaw === fbRaw ? 'fb' : 'other';
+        // LWB/RWB are full-back family for hybrid rules, but they must remain
+        // distinct tags — collapsing them to LB/RB (or letting an older pass
+        // rewrite them to LW/RW) is what made pos-rank chips read "LW" for
+        // wing-backs.
+        const pCat =
+          sofifaPrimaryRaw === midRaw ? 'mid'
+          : sofifaPrimaryRaw === wingRaw ? 'wing'
+          : (sofifaPrimaryRaw === fbRaw || sofifaPrimaryRaw === wbRaw) ? 'fb'
+          : 'other';
 
         // Special Case: both lm/rm, but only one lb/rb -> evaluate before roles
         if (hasBothMid && hasOnlyOneFB) {
@@ -353,8 +364,19 @@ async function runSync(preloadedTeams: SoFifaTeamDetail[] | null) {
             if (pCat === 'wing') primary = wing;
           }
           if (hasFB) {
-            finalSet.add(fb);
-            if (pCat === 'fb') primary = fb;
+            // Preserve explicit SoFIFA WB vs FB — do not flatten LWB→LB.
+            if (hasExplicitWB) {
+              finalSet.add(wb);
+              if (pCat === 'fb' && sofifaPrimaryRaw === wbRaw) primary = wb;
+            }
+            if (hasExplicitFB) {
+              finalSet.add(fb);
+              if (pCat === 'fb' && sofifaPrimaryRaw === fbRaw) primary = fb;
+            }
+            if (!hasExplicitWB && !hasExplicitFB) {
+              finalSet.add(fb);
+              if (pCat === 'fb') primary = fb;
+            }
           }
           return;
         }
@@ -369,6 +391,7 @@ async function runSync(preloadedTeams: SoFifaTeamDetail[] | null) {
             primary = wb;
             finalSet.add(wb);
             finalSet.add(wing);
+            if (hasExplicitFB) finalSet.add(fb);
           } else {
             finalSet.add(wing);
             finalSet.add(wb);
@@ -386,7 +409,7 @@ async function runSync(preloadedTeams: SoFifaTeamDetail[] | null) {
             finalSet.add(wb);
             finalSet.add(fb);
           } else {
-            if (pCat === 'fb' || pCat === 'mid') primary = fb;
+            if (pCat === 'fb' || pCat === 'mid') primary = hasExplicitWB && !hasExplicitFB ? wb : fb;
             finalSet.add(fb);
             finalSet.add(wb);
           }
@@ -397,13 +420,17 @@ async function runSync(preloadedTeams: SoFifaTeamDetail[] | null) {
       applySide('L', hasLB, hasLM, hasLW);
       applySide('R', hasRB, hasRM, hasRW);
 
-      // Add other positions (GK, CB, DM, CM, AM, ST)
+      // Add other positions (GK, CB, DM, CM, AM, ST). Wide roles are owned by
+      // applySide above — except explicit LWB/RWB, which must survive even when
+      // the FB-only branch would otherwise emit only LB/RB.
       for (const raw of positionsRaw) {
         const mapped = POS_MAP[raw];
-        if (mapped && !['LB', 'RB', 'LW', 'RW', 'LWB', 'RWB', 'LM', 'RM', 'LF', 'RF'].includes(raw)) {
+        if (mapped && !['LB', 'RB', 'LW', 'RW', 'LM', 'RM', 'LF', 'RF'].includes(raw)) {
           finalSet.add(mapped as GranularPosition);
         }
       }
+      if (allRaw.has('LWB')) finalSet.add('LWB');
+      if (allRaw.has('RWB')) finalSet.add('RWB');
 
       if (primary && !finalSet.has(primary)) {
         finalSet.add(primary);
