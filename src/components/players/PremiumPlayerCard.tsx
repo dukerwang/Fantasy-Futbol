@@ -146,6 +146,38 @@ function parseMatchResult(opponent: string | undefined, result: string | undefin
     return { code, text: `${code} ${s1}-${s2}` };
 }
 
+/** FPL availability stamp — null when the player is available. */
+function injuryStatus(fplStatus: string | null | undefined, fplNews: string | null | undefined) {
+    if (!fplStatus || fplStatus === 'a') return null;
+    const label =
+        fplStatus === 'd' ? 'Doubtful'
+        : fplStatus === 'i' ? 'Out'
+        : fplStatus === 's' ? 'Suspended'
+        : 'Unavailable';
+    const news = fplNews?.trim() || null;
+    return {
+        label,
+        news,
+        doubtful: fplStatus === 'd',
+        title: news ?? label,
+        aria: news ? `${label}: ${news}` : label,
+    };
+}
+
+/** Points + rating for one game under the selected slot. Falls back to stored primary values. */
+function scoreAtPosition(
+    g: CardGamelogEntry,
+    pos: string,
+    primary: string,
+): { fantasy_points: number; match_rating: number | null } {
+    const scored = g.by_position?.[pos];
+    if (scored) return scored;
+    if (pos === primary) {
+        return { fantasy_points: g.fantasy_points, match_rating: g.match_rating };
+    }
+    return { fantasy_points: g.fantasy_points, match_rating: g.match_rating };
+}
+
 function FlipIcon() {
     return (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="16" height="16" aria-hidden="true">
@@ -170,6 +202,8 @@ export default function PremiumPlayerCard({
     const flippedRef = useRef(false);
     const [tab, setTab] = useState<'log' | 'history'>('log');
     const [hovering, setHovering] = useState(false);
+    // Position the card is evaluating — chips flip both faces to that slot's scoring.
+    const [selectedPos, setSelectedPos] = useState<string>(player.primary_position);
 
     const params = useParams();
     const leagueId = params?.leagueId as string | undefined;
@@ -190,6 +224,7 @@ export default function PremiumPlayerCard({
         setFlipped(false);
         flippedRef.current = false;
         setTab('log');
+        setSelectedPos(player.primary_position);
     }
 
     const resolvedPlayer = snapshot.player;
@@ -264,8 +299,14 @@ export default function PremiumPlayerCard({
     }, [player.id, leagueId, staticOnly]);
 
     const teamColor = clubColor(resolvedPlayer.pl_team);
-    const posLong = POS_LONG[resolvedPlayer.primary_position] ?? resolvedPlayer.primary_position;
-    const posVar = POS_CSS_VAR[resolvedPlayer.primary_position] ?? 'var(--color-accent-green)';
+    const primaryPos = resolvedPlayer.primary_position;
+    const viewPos = selectedPos || primaryPos;
+    const isPrimaryView = viewPos === primaryPos;
+    const posLong = POS_LONG[viewPos] ?? viewPos;
+    // Spine / card accent follows the selected slot; identity tags keep each
+    // position's own color so selecting RB doesn't recolor the DM pill.
+    const posVar = POS_CSS_VAR[viewPos] ?? 'var(--color-accent-green)';
+    const primaryPosVar = POS_CSS_VAR[primaryPos] ?? 'var(--color-accent-green)';
 
     /** True once a real photo is on screen and the fallback initial can recede. */
     const photoShowing = !!photoUrl && !photoState.failed && photoState.loaded;
@@ -280,6 +321,28 @@ export default function PremiumPlayerCard({
     });
     const recentGames = playedGames.slice(0, 8).reverse();
 
+    // Position-aware season totals from the game log (same re-score path as ranks).
+    // Primary view keeps the synced players.total_points / ppg so the default
+    // card never drifts; secondary waits on the back payload.
+    let viewTotalPts: number | null = resolvedPlayer.total_points;
+    let viewPpg: number | null = resolvedPlayer.ppg;
+    if (!isPrimaryView) {
+        if (back !== null) {
+            let pts = 0;
+            let gp = 0;
+            for (const g of playedGames) {
+                if ((g.stats?.minutes_played ?? 0) <= 0) continue;
+                pts += scoreAtPosition(g, viewPos, primaryPos).fantasy_points;
+                gp += 1;
+            }
+            viewTotalPts = pts;
+            viewPpg = gp > 0 ? Math.round((pts / gp) * 10) / 10 : 0;
+        } else {
+            viewTotalPts = null;
+            viewPpg = null;
+        }
+    }
+
     // Form must average the same games the "L5" label promises. The cached
     // players.form_rating column is computed server-side (see
     // update_player_form_ratings in supabase/migrations) over the last 5
@@ -287,17 +350,24 @@ export default function PremiumPlayerCard({
     // sync — so once gamelog is in hand, recompute client-side from it
     // instead of trusting a column that can go stale between syncs.
     const qualifyingGames = playedGames.filter(g => (g.stats?.minutes_played ?? 0) >= 15);
-    const last5Qualifying = qualifyingGames.slice(0, 5).filter(g => g.match_rating != null);
-    const computedForm = last5Qualifying.length > 0
-        ? Math.round((last5Qualifying.reduce((sum, g) => sum + (g.match_rating ?? 0), 0) / last5Qualifying.length) * 10) / 10
-        : null;
+    const last5Qualifying = qualifyingGames.slice(0, 5);
+    const computedForm = (() => {
+        const rated = last5Qualifying
+            .map(g => scoreAtPosition(g, viewPos, primaryPos).match_rating)
+            .filter((r): r is number => r != null);
+        if (rated.length === 0) return null;
+        return Math.round((rated.reduce((sum, r) => sum + r, 0) / rated.length) * 10) / 10;
+    })();
+    // Secondary form only exists once the back has by_position; until then keep
+    // the primary form so the bubble doesn't flash empty on a chip click.
     const rating = back !== null ? computedForm : resolvedPlayer.form_rating;
-    const totalPts = resolvedPlayer.total_points;
+    const totalPts = viewTotalPts;
 
     // Resolved by club NAME, never by pl_team_id — FPL reassigns those ids every
     // season, which is how this card once rendered Spurs' badge for West Ham.
     const badgePath = clubBadgePath(resolvedPlayer.pl_team);
     const { first: firstName, last: webName } = getPlayerDisplayName(resolvedPlayer, 'split');
+    const injury = injuryStatus(resolvedPlayer.fpl_status, resolvedPlayer.fpl_news);
 
     const onMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
         const stage = stageRef.current;
@@ -447,12 +517,19 @@ export default function PremiumPlayerCard({
 
                     {/* Hero — player photo */}
                     <div className={styles.hero}>
-                        {resolvedPlayer.fpl_status !== 'a' && resolvedPlayer.fpl_status !== null && resolvedPlayer.fpl_status !== undefined && (
-                            <div className={`${styles.injuryOverlay} ${resolvedPlayer.fpl_status === 'd' ? styles.injuryDoubtful : styles.injuryOut}`}>
-                                <span className={styles.injuryText}>
-                                    {resolvedPlayer.fpl_status === 'd' ? 'DOUBTFUL' : resolvedPlayer.fpl_status === 'i' ? 'OUT' : resolvedPlayer.fpl_status === 's' ? 'SUSPENDED' : 'UNAVAILABLE'}
-                                    {resolvedPlayer.fpl_news ? ` · ${resolvedPlayer.fpl_news}` : ''}
-                                </span>
+                        {injury && !flipped && (
+                            <div
+                                className={`${styles.injuryStamp} ${injury.doubtful ? styles.injuryDoubtful : styles.injuryOut}`}
+                                aria-label={injury.aria}
+                                tabIndex={injury.news ? 0 : undefined}
+                            >
+                                <span className={styles.injuryDot} aria-hidden="true" />
+                                <span className={styles.injuryLabel}>{injury.label}</span>
+                                {injury.news && (
+                                    <span className={styles.injuryTip} role="tooltip">
+                                        {injury.news}
+                                    </span>
+                                )}
                             </div>
                         )}
                         {/* Fixed-size slot. The photo and its fallback occupy the exact
@@ -509,7 +586,7 @@ export default function PremiumPlayerCard({
                         {firstName && <span className={styles.firstName}>{firstName}</span>}
                         <span className={styles.lastName}>{webName}</span>
                         <div className={styles.idMeta}>
-                            <span className={styles.posTag} style={{ background: posVar }}>{resolvedPlayer.primary_position}</span>
+                            <span className={styles.posTag} style={{ background: primaryPosVar }}>{resolvedPlayer.primary_position}</span>
                             {resolvedPlayer.secondary_positions?.map(pos => (
                                 <span key={pos} className={styles.posTag} style={{ background: POS_CSS_VAR[pos] || 'var(--color-bg-elevated)' }}>
                                     {pos}
@@ -543,7 +620,7 @@ export default function PremiumPlayerCard({
                         </div>
                         <div className={styles.statCell}>
                             <span className={styles.statVal}>
-                                {resolvedPlayer.ppg != null ? resolvedPlayer.ppg.toFixed(1) : 'n/a'}
+                                {viewPpg != null ? viewPpg.toFixed(1) : 'n/a'}
                             </span>
                             <span className={styles.statLbl}>PPG</span>
                         </div>
@@ -555,21 +632,31 @@ export default function PremiumPlayerCard({
                         </div>
                     </div>
 
-                    {/* Position rank strip */}
+                    {/* Position rank strip — chips select which slot's scoring the card shows */}
                     <div className={styles.rankStrip}>
                         <span className={styles.rankLbl}>Pos Rank</span>
-                        <div className={styles.rankChips}>
+                        <div className={styles.rankChips} role="group" aria-label="Score as position">
                             {resolvedPlayer.position_ranks && resolvedPlayer.position_ranks.length > 0 ? (
-                                [...resolvedPlayer.position_ranks].sort((a, b) => a.rank - b.rank).map((r, i) => (
-                                    <span
-                                        key={r.position}
-                                        className={`${styles.rankChip} ${i === 0 ? styles.rankChipPrimary : ''}`}
-                                        style={{ '--chip-color': POS_CSS_VAR[r.position] ?? 'var(--color-accent-green)' } as React.CSSProperties}
-                                    >
-                                        <span className={styles.rcPos}>{r.position}</span>
-                                        <span className={styles.rcNum}>#{r.rank}</span>
-                                    </span>
-                                ))
+                                [...resolvedPlayer.position_ranks].sort((a, b) => a.rank - b.rank).map((r) => {
+                                    const selected = r.position === viewPos;
+                                    return (
+                                        <button
+                                            key={r.position}
+                                            type="button"
+                                            className={`${styles.rankChip} ${selected ? styles.rankChipSelected : ''}`}
+                                            style={{ '--chip-color': POS_CSS_VAR[r.position] ?? 'var(--color-accent-green)' } as React.CSSProperties}
+                                            aria-pressed={selected}
+                                            aria-label={`Score as ${r.position}, rank ${r.rank}`}
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setSelectedPos(r.position);
+                                            }}
+                                        >
+                                            <span className={styles.rcPos}>{r.position}</span>
+                                            <span className={styles.rcNum}>#{r.rank}</span>
+                                        </button>
+                                    );
+                                })
                             ) : (
                                 <span className={styles.rankEmpty}>—</span>
                             )}
@@ -594,7 +681,10 @@ export default function PremiumPlayerCard({
                         {/* Back header */}
                         <div className={styles.backHead}>
                             <div>
-                                <span className={styles.backEyebrow}>Form Guide · 2025/26</span>
+                                <span className={styles.backEyebrow}>
+                                    Form Guide · 2025/26
+                                    {!isPrimaryView ? ` · as ${viewPos}` : ''}
+                                </span>
                                 <div className={styles.backName}>
                                     {webName} <em>·</em> Last {recentGames.length || '—'}
                                 </div>
@@ -605,7 +695,7 @@ export default function PremiumPlayerCard({
                         <div className={styles.formSection}>
                             <div className={styles.formBars}>
                                 {recentGames.length > 0 ? recentGames.map((g, i) => {
-                                    const ratingVal = g.match_rating ?? 0;
+                                    const ratingVal = scoreAtPosition(g, viewPos, primaryPos).match_rating ?? 0;
                                     const h = Math.max(3, (ratingVal / 10) * 42);
                                     const barCls = ratingVal >= 8 ? styles.barHigh
                                         : ratingVal >= 5.5 ? styles.barMid
@@ -680,6 +770,7 @@ export default function PremiumPlayerCard({
                                                     const parsedRes = parseMatchResult(g.opponent, g.result);
                                                     const resCode = parsedRes?.code;
                                                     const resText = parsedRes?.text ?? g.result;
+                                                    const gameScore = scoreAtPosition(g, viewPos, primaryPos);
 
                                                     return (
                                                         <tr key={`${g.gameweek}-${g.opponent ?? "x"}-${index}`}>
@@ -702,11 +793,11 @@ export default function PremiumPlayerCard({
                                                             <td className={styles.ctrTd}>{g.stats?.minutes_played ?? '—'}</td>
                                                             <td className={styles.ctrTd}>{g.stats?.goals ?? 0}</td>
                                                             <td className={styles.ctrTd}>{g.stats?.assists ?? 0}</td>
-                                                            <td className={styles.ptsTd}>{g.fantasy_points.toFixed(1)}</td>
+                                                            <td className={styles.ptsTd}>{gameScore.fantasy_points.toFixed(1)}</td>
                                                             <td>
-                                                                {g.match_rating != null ? (
-                                                                    <span style={{ color: ratingHex(g.match_rating) }}>
-                                                                        {g.match_rating.toFixed(1)}
+                                                                {gameScore.match_rating != null ? (
+                                                                    <span style={{ color: ratingHex(gameScore.match_rating) }}>
+                                                                        {gameScore.match_rating.toFixed(1)}
                                                                     </span>
                                                                 ) : '—'}
                                                             </td>

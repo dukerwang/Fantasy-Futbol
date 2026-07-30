@@ -21,11 +21,21 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import { FULL_PLAYER_SELECT } from '@/lib/constants/queries';
 import {
   getCurrentFplSeason,
+  getLatestReferenceStatsSeason,
   isFplSeasonKickedOff,
   previousSeason,
 } from '@/lib/season/currentSeason';
 import { getClubFixtureLog, type ClubFixtureLog } from '@/lib/fixtures/lockout';
-import type { OwnerClub, Player, PlayerOwnership, PlayerSeasonArchive } from '@/types';
+import { loadReferenceStats } from '@/lib/scoring/matchups';
+import { calculateMatchRating } from '@/lib/scoring/matchRating';
+import type {
+  GranularPosition,
+  OwnerClub,
+  Player,
+  PlayerOwnership,
+  PlayerSeasonArchive,
+  RawStats,
+} from '@/types';
 
 const FPL_BASE = 'https://fantasy.premierleague.com/api';
 const USER_AGENT =
@@ -37,6 +47,12 @@ export interface ResolvedSeason {
   isCurrentFplSeason: boolean;
 }
 
+/** Points + rating for one appearance evaluated at a specific slot. */
+export interface PositionGameScore {
+  fantasy_points: number;
+  match_rating: number | null;
+}
+
 export interface GamelogEntry {
   gameweek: number;
   fantasy_points: number;
@@ -46,6 +62,13 @@ export interface GamelogEntry {
   result?: string;
   date?: string;
   isDNP?: boolean;
+  /**
+   * Same appearance re-scored under every eligible slot (primary + secondaries).
+   * Primary uses the stored values; secondaries go through calculateMatchRating
+   * with that position's weights — same path as positional ranks / role-aware
+   * matchup scoring.
+   */
+  by_position?: Record<string, PositionGameScore>;
 }
 
 export interface PlayerCardFront {
@@ -58,6 +81,74 @@ export interface PlayerCardBack {
   gamelog: GamelogEntry[];
   history: PlayerSeasonArchive[];
   season: string;
+}
+
+type RefStatsMap = Parameters<typeof calculateMatchRating>[2];
+
+/** Primary first, then unique secondaries — the slots a manager can actually play him in. */
+function eligiblePositions(
+  primary: string | null | undefined,
+  secondaries: string[] | null | undefined,
+): string[] {
+  const out: string[] = [];
+  const prim = primary ? String(primary).toUpperCase() : '';
+  if (prim) out.push(prim);
+  for (const s of secondaries ?? []) {
+    const key = String(s).toUpperCase();
+    if (key && !out.includes(key)) out.push(key);
+  }
+  return out;
+}
+
+/**
+ * Annotate each played appearance with by_position scores. DNPs stay untouched.
+ * Primary keeps the stored fantasy_points / match_rating so the default view
+ * never drifts from what the sync wrote; secondaries are re-scored live.
+ *
+ * Points include the OOP penalty (same number a matchup would award). Display
+ * rating does NOT — applying OOP after the nonlinear curves parked great
+ * games at ~6.5 RTG beside ~18 pts, which reads as "rating doesn't match
+ * points". Rating here is the performance under that slot's weights; points
+ * are what you'd actually bank.
+ */
+function attachPositionScores(
+  gamelog: GamelogEntry[],
+  primary: string,
+  positions: string[],
+  refStats: RefStatsMap,
+): GamelogEntry[] {
+  if (positions.length === 0) return gamelog;
+  const prim = primary.toUpperCase() as GranularPosition;
+
+  return gamelog.map((g) => {
+    if (g.isDNP || Number(g.stats?.minutes_played ?? 0) <= 0) return g;
+
+    const by_position: Record<string, PositionGameScore> = {};
+    for (const pos of positions) {
+      if (pos === prim) {
+        by_position[pos] = {
+          fantasy_points: Number(g.fantasy_points),
+          match_rating: g.match_rating,
+        };
+        continue;
+      }
+      if (!g.stats) {
+        by_position[pos] = { fantasy_points: 0, match_rating: null };
+        continue;
+      }
+      const raw = g.stats as RawStats;
+      const slot = pos as GranularPosition;
+      // Matchup-accurate points (OOP applied).
+      const forPoints = calculateMatchRating(raw, slot, refStats, prim);
+      // Positional display rating without the post-curve OOP squash.
+      const forRating = calculateMatchRating(raw, slot, refStats);
+      by_position[pos] = {
+        fantasy_points: forPoints.fantasyPoints,
+        match_rating: forRating.rating,
+      };
+    }
+    return { ...g, by_position };
+  });
 }
 
 /**
@@ -307,8 +398,14 @@ export async function fetchPlayerBack(
 ): Promise<PlayerCardBack> {
   const season = await resolveCardSeason(admin, leagueId, explicitSeason);
 
-  const [{ data: playerRow }, { data: dbStats }, { data: historyData }] = await Promise.all([
-    admin.from('players').select('fpl_id, pl_team_id, pl_team, name').eq('id', playerId).maybeSingle(),
+  const refSeasonPromise = getLatestReferenceStatsSeason(admin);
+
+  const [{ data: playerRow }, { data: dbStats }, { data: historyData }, refSeason] = await Promise.all([
+    admin
+      .from('players')
+      .select('fpl_id, pl_team_id, pl_team, name, primary_position, secondary_positions')
+      .eq('id', playerId)
+      .maybeSingle(),
     admin
       .from('player_stats')
       .select('match_id, gameweek, fantasy_points, match_rating, stats')
@@ -319,23 +416,36 @@ export async function fetchPlayerBack(
       .select('season, total_points, ppg, form_rating, overall_rank, position_ranks')
       .eq('player_id', playerId)
       .order('season', { ascending: false }),
+    refSeasonPromise,
   ]);
 
   const history = (historyData ?? []) as PlayerSeasonArchive[];
   const stats = (dbStats ?? []) as any[];
+  const primaryPos = String((playerRow as any)?.primary_position ?? '').toUpperCase();
+  const positions = eligiblePositions(
+    (playerRow as any)?.primary_position,
+    (playerRow as any)?.secondary_positions,
+  );
+  // Ref stats for re-scoring secondaries — same source positional ranks use.
+  const refStats = (await loadReferenceStats(admin, refSeason)) as RefStatsMap;
+
+  const withPositionScores = (log: GamelogEntry[]): GamelogEntry[] =>
+    attachPositionScores(log, primaryPos, positions, refStats);
 
   const buildDbFallbackLog = (): GamelogEntry[] =>
-    stats
-      .map((s) => ({
-        gameweek: s.gameweek,
-        fantasy_points: Number(s.fantasy_points),
-        match_rating: s.match_rating != null ? Number(s.match_rating) : null,
-        stats: s.stats,
-        opponent: 'Unknown',
-        result: '',
-        isDNP: Number(s.stats?.minutes_played ?? 0) <= 0,
-      }))
-      .sort((a, b) => b.gameweek - a.gameweek);
+    withPositionScores(
+      stats
+        .map((s) => ({
+          gameweek: s.gameweek,
+          fantasy_points: Number(s.fantasy_points),
+          match_rating: s.match_rating != null ? Number(s.match_rating) : null,
+          stats: s.stats,
+          opponent: 'Unknown',
+          result: '',
+          isDNP: Number(s.stats?.minutes_played ?? 0) <= 0,
+        }))
+        .sort((a, b) => b.gameweek - a.gameweek),
+    );
 
   // Past seasons resolve entirely from our own fixture snapshot. FPL cannot be
   // asked: it stops serving a season's fixtures once it rolls over, and recycles
@@ -443,7 +553,7 @@ export async function fetchPlayerBack(
     }
 
     gamelog.sort((a, b) => b.gameweek - a.gameweek);
-    return { gamelog, history, season: season.targetSeason };
+    return { gamelog: withPositionScores(gamelog), history, season: season.targetSeason };
   }
 
   const dbPlayer = playerRow as { fpl_id: number | null; pl_team_id: number | null; name: string };
@@ -560,7 +670,7 @@ export async function fetchPlayerBack(
     }
 
     gamelog.sort((a, b) => b.gameweek - a.gameweek);
-    return { gamelog, history, season: season.targetSeason };
+    return { gamelog: withPositionScores(gamelog), history, season: season.targetSeason };
   } catch (err) {
     console.error('Player game log enrichment failed, falling back to DB rows', err);
     return { gamelog: buildDbFallbackLog(), history, season: season.targetSeason };

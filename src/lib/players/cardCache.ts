@@ -28,6 +28,7 @@ export interface CardGamelogEntry {
   result?: string;
   date?: string;
   isDNP?: boolean;
+  by_position?: Record<string, { fantasy_points: number; match_rating: number | null }>;
 }
 
 export interface CardFront {
@@ -137,11 +138,12 @@ export function fetchFront(
 // ── Back ─────────────────────────────────────────────────────────────────────
 
 export function getCachedBack(playerId: string, leagueId?: string | null): CardBack | null {
-  return backCache.get(cacheKey(playerId, leagueId)) ?? null;
+  // v3: secondary ratings skip post-curve OOP so Rtg tracks Pts on the card.
+  return backCache.get(`${cacheKey(playerId, leagueId)}|v3`) ?? null;
 }
 
 export function fetchBack(playerId: string, leagueId?: string | null): Promise<CardBack | null> {
-  const key = cacheKey(playerId, leagueId);
+  const key = `${cacheKey(playerId, leagueId)}|v3`;
   const cached = backCache.get(key);
   if (cached) return Promise.resolve(cached);
 
