@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "download-team-logos": "node scripts/download-pl-team-logos.mjs"
+    "download-team-logos": "node scripts/download-pl-team-logos.mjs",
+    "test": "vitest run"
   },
   "dependencies": {
     "@supabase/ssr": "^0.8.0",
@@ -31,6 +32,7 @@
     "eslint-config-next": "16.1.6",
     "playwright": "^1.58.2",
     "prettier": "^3.8.1",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.10"
   }
 }

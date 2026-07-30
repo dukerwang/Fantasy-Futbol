@@ -18,7 +18,7 @@ node node_modules/typescript/bin/tsc --noEmit         # typecheck (no separate n
 npm run download-team-logos                           # scripts/download-pl-team-logos.mjs
 ```
 
-There is no test runner configured in this repo (no `test` script, no test framework dependency) — do not assume Jest/Vitest exist.
+Tests run under **vitest** (`npm test` → `vitest run`). `vitest.config.ts` includes only `src/**/__tests__/**/*.test.ts`; widen that glob when tests land elsewhere. Current coverage: the scoring engine (`src/lib/scoring/__tests__/`), the economy modules (`src/lib/economy/__tests__/`) and the prize curve (`src/lib/offseason/__tests__/`).
 
 **Before declaring work done or pushing commits, run `npm run build` and make sure it passes.** This project has no CI; the build is the only correctness gate besides manual verification. (`.cursor/rules/project-context.mdc` encodes the same rule; it also references `CURSOR.md` and `GEMINI.md`, which no longer exist. `ANTIGRAVITY.md` at the repo root documents an unrelated third-party agent tool, not this codebase — ignore it.)
 
@@ -79,7 +79,7 @@ FPL's `teams[].id` is 1–20 assigned **alphabetically over whichever 20 clubs a
 `clubs.json` is deliberately data, not TypeScript, so `scripts/download-pl-team-logos.mjs` and the app read identical bytes. Do not reintroduce parsing of the `.ts` file — an earlier version did, and mispaired a slug with the next club's code the moment a name needed double quotes.
 
 ### Position taxonomy
-12 tactical positions (GK, CB, LB, RB, LWB, RWB, DM, CM, AM, LW, RW, ST) — no generic DEF/MID/FWD buckets, no LM/RM (mapped to LW/RW). This taxonomy is enforced across roster validation, lineup eligibility, and scoring weights, so a change to position handling usually touches all three. Formations are restricted to 7 supported layouts (see README for the list).
+12 tactical positions (GK, CB, LB, RB, LWB, RWB, DM, CM, AM, LW, RW, ST) — no generic DEF/MID/FWD buckets, no LM/RM (mapped to LW/RW). This taxonomy is enforced across roster validation, lineup eligibility, and scoring weights, so a change to position handling usually touches all three. Formations are restricted to **10** supported layouts — `src/types/index.ts` `Formation` is the source of truth. (README says seven; it is wrong.)
 
 ### Database
 Schema lives entirely in `supabase/migrations/*.sql` as sequential numbered files (plus one timestamp-named migration); `ls supabase/migrations | tail` for the current head. Migrations are run manually in the Supabase SQL editor — there's no local runner, so a new migration file is not applied until the user runs it. There's no ORM — queries go through the Supabase JS client (`src/lib/supabase/{client,server,admin}.ts`). Critical game logic (bid resolution, matchup scoring RPCs, trade execution) is implemented as Postgres stored procedures/RPCs, not just application code — check for an existing RPC before reimplementing transactional logic in TypeScript. `admin.ts` uses the service role key and bypasses RLS; only use it in trusted server contexts (cron/admin API routes), never expose it to client code.

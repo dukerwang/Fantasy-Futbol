@@ -38,6 +38,10 @@ interface Props {
   listing: TransfersListing | null;
   mode: BidMode;
   budget: number;
+  /** Sum of this club's open bids across all auctions; disclosure only. */
+  committedTotal?: number;
+  /** How many auctions currently carry one of those bids. */
+  openBidCount?: number;
   /** Required when the active roster is full: whoever comes off to make room. */
   rosterFull: boolean;
   myRoster: RosterPlayer[];
@@ -55,6 +59,8 @@ export default function BidDialog({
   listing,
   mode,
   budget,
+  committedTotal = 0,
+  openBidCount = 0,
   rosterFull,
   myRoster,
   onDone,
@@ -102,6 +108,7 @@ export default function BidDialog({
   const tooExpensive = amount > budget;
   const belowFloor = amount < floor;
   const wouldTakeClause = clause != null && amount >= clause;
+  const overCommitted = committedTotal > budget;
 
   const submit = async () => {
     setBusy(true);
@@ -208,6 +215,18 @@ export default function BidDialog({
         <div className={styles.hint}>
           Minimum {money(floor)} · Club Balance {money(budget)}
         </div>
+        {openBidCount > 0 && (
+          <p className={overCommitted ? styles.error : styles.hint}>
+            {money(committedTotal)} committed across {openBidCount} open bid
+            {openBidCount === 1 ? '' : 's'} · {money(budget)} Club Balance
+            {overCommitted && (
+              <>
+                {' '}— your open bids exceed your Club Balance. If several
+                resolve together you will only win the ones you can afford.
+              </>
+            )}
+          </p>
+        )}
       </label>
 
       {rosterFull && (

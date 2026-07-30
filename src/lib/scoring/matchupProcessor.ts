@@ -5,6 +5,7 @@ import { getCurrentFplSeason, getLatestReferenceStatsSeason } from '@/lib/season
 import { sendEmail } from '@/lib/email/client';
 import { getMatchweekSummaryEmail } from '@/lib/email/templates';
 import { executeAdvanceTournament } from '@/lib/tournaments/advanceTournament';
+import { payMeritPeriod } from '@/lib/economy/payMeritPeriod';
 
 export async function processMatchupsForGameweek(gameweek: number, finished: boolean) {
     const admin = createAdminClient();
@@ -280,6 +281,25 @@ export async function processMatchupsForGameweek(gameweek: number, finished: boo
     // 6. Send summary emails & Process deferred transactions (drops/trades)
     if (finished && leagueSummaryData.size > 0) {
         for (const [leagueId, summary] of Array.from(leagueSummaryData.entries())) {
+            // A0. Pay the merit period if this gameweek closes one.
+            //
+            // Runs before the deferred-transaction blocks below so a club that
+            // is about to have a drop or trade executed already has the money.
+            // Never fatal: the credit RPC is idempotent on
+            // (league, team, season, period), so a failure here is retried the
+            // next time this gameweek is resolved rather than double-paying.
+            try {
+                const merit = await payMeritPeriod(admin, leagueId, gameweek);
+                if (merit.paid) {
+                    console.log(
+                        `[matchupProcessor] Merit period ${merit.periodIndex} paid for league ${leagueId}: ` +
+                        merit.payments.map((p) => `${p.teamName} €${p.amount}m`).join(', ')
+                    );
+                }
+            } catch (err) {
+                console.error(`[matchupProcessor] Merit payment failed for league ${leagueId}:`, err);
+            }
+
             // A. Execute any pending drops queued during the gameweek
             try {
                 const { data: pendingDrops } = await admin

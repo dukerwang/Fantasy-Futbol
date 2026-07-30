@@ -29,9 +29,16 @@ import type { SupabaseClient } from '@supabase/supabase-js';
  * currency denominated in millions; it is not worth distorting the economy to
  * avoid. Payouts round to the nearest whole million and that is intended.
  *
+ * Lowered from 0.8 to 0.6 by migration 091. Two reasons: departure
+ * compensation was the second-largest source of newly created money in the
+ * league (~EUR 152m/season for six clubs), and at 0.8 the payout was
+ * generous enough that releasing beat retaining in almost every case,
+ * leaving the Retained List as dead weight. At 0.6, holding rights is a
+ * real decision.
+ *
  * Exported so the preview path can't drift from what actually gets paid.
  */
-export const COMPENSATION_RATE = 0.8;
+export const COMPENSATION_RATE = 0.6;
 
 /**
  * Resolves the departure compensation rate for one league, falling back to

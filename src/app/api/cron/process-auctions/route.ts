@@ -10,8 +10,8 @@
  *      their bid + drop-player severance fee (20% of drop player market value, min €2m) is found.
  *   3. Process the winner: drop nominated player (charging severance), add won player,
  *      deduct total FAAB cost, log transactions.
- *   4. Award Scout's Rebate (20%, capped €5m) to the auction initiator if a different
- *      team won.
+ *   4. Recirculate part of the winning free-agent bid as Scout's Fee + Solidarity
+ *      (20% pool; half to the initiator uncapped, half split among other clubs).
  *   5. Approve winning claim, reject all others.
  */
 import { NextRequest, NextResponse } from 'next/server';
@@ -150,8 +150,10 @@ export async function POST(req: NextRequest) {
         winner_status?: string;
         drop_player_name?: string;
         initiator_team_name?: string;
-        rebate_amount?: number;
-        rebate_team_id?: string;
+        scout_amount?: number;
+        scout_team_id?: string;
+        solidarity_per_club?: number;
+        solidarity_club_count?: number;
         losing_teams?: { team_id: string; team_name: string; user_id: string; faab_bid: number }[];
       };
 

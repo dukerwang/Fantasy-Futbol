@@ -31,6 +31,8 @@ interface Props {
   teamName: string;
   currentBudget: number;
   startingBudget: number;
+  netCreated: number;
+  netDestroyed: number;
   transactions: Transaction[];
 }
 
@@ -44,9 +46,16 @@ const TX_META: Record<string, { direction: 'in' | 'out' | 'none'; label: string;
   trade:                { direction: 'none', label: 'TRADE',           category: 'Trades'      },
   transfer_out:         { direction: 'in',  label: 'TRANSFER OUT',     category: 'Transfers'   },
   transfer_compensation:{ direction: 'in',  label: 'COMPENSATION',     category: 'Transfers'   },
-  rebate:               { direction: 'in',  label: "SCOUT'S REBATE",   category: 'Rebates'     },
+  rebate:               { direction: 'in',  label: "SCOUT'S FEE",      category: 'Recirculation' },
   draft_pick:           { direction: 'none', label: 'DRAFT PICK',      category: 'Draft'       },
   prize_payout:         { direction: 'in',  label: 'PRIZE',            category: 'Prizes'      },
+  merit_payment:        { direction: 'in',  label: 'TV & MATCHDAY',    category: 'Revenue'     },
+  solidarity_payment:   { direction: 'in',  label: 'SOLIDARITY',       category: 'Recirculation' },
+  sale_proceeds:        { direction: 'in',  label: 'SALE PROCEEDS',    category: 'Sales'       },
+  loan_fee:             { direction: 'in',  label: 'LOAN FEE',         category: 'Loans'       },
+  loan_bonus:           { direction: 'out', label: 'LOAN BONUS',       category: 'Loans'       },
+  loan_recall_penalty:  { direction: 'out', label: 'RECALL PENALTY',   category: 'Loans'       },
+  loan_slot_buyback:    { direction: 'out', label: 'SLOT BUYBACK',     category: 'Loans'       },
 };
 
 type FilterKey = 'all' | 'out' | 'in';
@@ -218,6 +227,8 @@ export default function FinanceClient({
   teamName,
   currentBudget,
   startingBudget,
+  netCreated,
+  netDestroyed,
   transactions,
 }: Props) {
   const [filter, setFilter] = useState<FilterKey>('all');
@@ -275,6 +286,16 @@ export default function FinanceClient({
           <span className={`${styles.summaryValue} ${netPositive ? styles.summaryIn : styles.summaryOut}`}>
             {netPositive ? '+' : ''}€{net}m
           </span>
+        </div>
+        <div className={styles.summaryDivider} />
+        <div className={styles.summaryCard}>
+          <span className={styles.summaryLabel}>MONEY CREATED</span>
+          <span className={`${styles.summaryValue} ${styles.summaryIn}`}>€{netCreated}m</span>
+        </div>
+        <div className={styles.summaryDivider} />
+        <div className={styles.summaryCard}>
+          <span className={styles.summaryLabel}>MONEY DESTROYED</span>
+          <span className={`${styles.summaryValue} ${styles.summaryOut}`}>€{netDestroyed}m</span>
         </div>
       </div>
 

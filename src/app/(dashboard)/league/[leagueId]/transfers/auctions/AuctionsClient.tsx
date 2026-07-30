@@ -307,6 +307,8 @@ export default function AuctionsClient({
           }
           mode={bid.mode}
           budget={budget}
+          committedTotal={model.auctions.reduce((s, a) => s + (a.my_bid != null && a.my_bid > 0 ? a.my_bid : 0), 0)}
+          openBidCount={model.auctions.filter((a) => a.my_bid != null && a.my_bid > 0).length}
           rosterFull={model.rosterFull}
           myRoster={model.myRoster}
           onDone={refresh}

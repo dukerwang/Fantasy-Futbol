@@ -458,9 +458,7 @@ export function calculateFantasyPoints(rating: number, minutesPlayed: number): n
     const scale = 10.0;
 
     const curve = Math.pow(Math.max(0, rating - 4.5) / 2.0, 1.5);
-    let finalPoints = basePoints + (scale * curve);
-
-    if (rating < 3.0) finalPoints -= 2.0;
+    const finalPoints = basePoints + (scale * curve);
 
     return Math.max(0, Number(finalPoints.toFixed(2)));
 }

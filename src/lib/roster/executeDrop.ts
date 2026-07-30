@@ -85,10 +85,30 @@ export async function executeDrop(
             .update({ faab_budget: team.faab_budget + refundAmount })
             .eq('id', teamId);
     } else if (severanceFee > 0) {
+        // Math.max(0, ...) is deliberate: a club with no money still gets to
+        // drop a player rather than being trapped with an unwanted roster.
+        const charged = Math.min(severanceFee, team.faab_budget);
         await admin
             .from('teams')
-            .update({ faab_budget: Math.max(0, team.faab_budget - severanceFee) })
+            .update({ faab_budget: team.faab_budget - charged })
             .eq('id', teamId);
+
+        // Recirculate a share of what was actually charged, not of the nominal
+        // fee — otherwise a broke club's drop would mint money for the league.
+        // Never fatal: the drop itself has already committed, and a failed
+        // distribution costs the other clubs a few million rather than
+        // corrupting the roster.
+        if (charged > 0) {
+            const { error: solErr } = await admin.rpc('distribute_solidarity', {
+                p_league_id: team.league_id,
+                p_payer_team_id: teamId,
+                p_amount: charged,
+                p_reason: `Solidarity payment from ${player.name}'s severance fee`,
+            });
+            if (solErr) {
+                console.error('[executeDrop] Solidarity distribution failed:', solErr.message);
+            }
+        }
     }
 
     // 3. Log transaction

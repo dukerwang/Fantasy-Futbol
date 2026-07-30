@@ -2,7 +2,7 @@
  * Gaffa — Prize Distribution
  *
  * Distributes end-of-season FAAB prizes to teams for:
- * - Regular season standings (exponential curve: €85m 1st → €50m last, N-team agnostic)
+ * - Regular season standings (exponential curve: €40m 1st → €20m last, N-team agnostic)
  * - Cup winners/runners-up (Champions Cup, League Cup, Consolation Cup)
  *
  * FAAB is a permanent dynasty currency — prizes compound across seasons.
@@ -25,25 +25,52 @@ export type PrizeConfig = Record<string, number>;
  * Cup prize defaults — season standing prizes are computed dynamically
  * via computeSeasonPrize() and are not stored here.
  * Per-league overrides for any key (including season_Nth) live in leagues.prize_config.
+ *
+ * Rebalanced by the 2026-07 economy pass. The previous config paid
+ * consolation_cup_winner: 60 — identical to the Champions Cup — so in an
+ * 8-team league the 7th-placed club could earn EUR 60m for winning a single
+ * game against 8th, out-earning most of the table. Consolation is now level
+ * with the League Cup, and no cup pays more than finishing first.
  */
 export const DEFAULT_PRIZE_CONFIG: PrizeConfig = {
-  champions_cup_winner: 60,
-  champions_cup_runner_up: 20,
-  consolation_cup_winner: 60,
-  consolation_cup_runner_up: 25,
-  league_cup_winner: 40,
-  league_cup_runner_up: 10,
+  champions_cup_winner: 40,
+  champions_cup_runner_up: 15,
+  league_cup_winner: 20,
+  league_cup_runner_up: 8,
+  consolation_cup_winner: 20,
+  consolation_cup_runner_up: 8,
 };
 
 /**
+ * Endpoints of the end-of-season placement curve, in EUR m.
+ *
+ * These used to be 85 and 50, when this pool carried the entire merit load.
+ * The merit component now arrives monthly during the season (see
+ * src/lib/economy/meritPayments.ts), so what is left at the reset is mostly
+ * central revenue with a modest tilt — hence a 2:1 ratio rather than
+ * something steeper.
+ *
+ * Why not steeper: monthly merit already pays a champion ~EUR 75m against a
+ * bottom club's ~EUR 41m. Stacking a 5:1 placement curve on top produces a
+ * EUR 74m gap in total annual earnings, which compounds to EUR 370m over five
+ * seasons in a league where money never resets. The Premier League's own
+ * central distribution is mostly an equal share for the same reason; prestige
+ * differentiation is carried by the cups, which are uncorrelated with league
+ * position.
+ */
+export const SEASON_PRIZE_FIRST = 40;
+export const SEASON_PRIZE_LAST = 20;
+
+/**
  * Exponential prize curve for regular season standings.
- * Always returns €85m for 1st and €50m for last, regardless of league size.
- * Formula: 85 × (50/85)^((rank−1)/(N−1)), rounded to nearest integer.
+ * Always returns SEASON_PRIZE_FIRST for 1st and SEASON_PRIZE_LAST for last,
+ * regardless of league size.
+ * Formula: FIRST × (LAST/FIRST)^((rank−1)/(N−1)), rounded to nearest integer.
  */
 export function computeSeasonPrize(rank: number, totalTeams: number): number {
-  if (totalTeams <= 1) return 85;
+  if (totalTeams <= 1) return SEASON_PRIZE_FIRST;
   const t = (rank - 1) / (totalTeams - 1);
-  return Math.round(85 * Math.pow(50 / 85, t));
+  return Math.round(SEASON_PRIZE_FIRST * Math.pow(SEASON_PRIZE_LAST / SEASON_PRIZE_FIRST, t));
 }
 
 function getOrdinalSuffix(i: number): string {
@@ -64,7 +91,7 @@ function ordinalLabel(rank: number): string {
 
 /**
  * Builds the prize list for regular season standings.
- * Prize amounts follow an exponential curve (€85m 1st → €50m last) scaled to
+ * Prize amounts follow an exponential curve (€40m 1st → €20m last) scaled to
  * however many teams are in the league. Per-league prize_config overrides
  * for individual rank keys are still respected.
  */

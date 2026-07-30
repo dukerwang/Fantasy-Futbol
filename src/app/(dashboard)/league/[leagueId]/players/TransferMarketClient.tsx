@@ -173,6 +173,22 @@ export default function TransferMarketClient({
   const [submitError, setSubmitError] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
+  // Every bid this club currently leads or holds, summed. The API already
+  // sends my_bid per auction, so this needs no new request.
+  //
+  // Why this is surfaced rather than enforced: the bid route checks each bid
+  // against the current balance in isolation, so simultaneous bids can exceed
+  // it. The resolver never overdraws — it walks down to the next affordable
+  // bidder — but that means an auction you thought you had won goes elsewhere
+  // with no warning. Bidding widely and expecting to win one is legitimate, so
+  // the fix is to show the exposure, not to forbid it.
+  const totalCommitted = auctions.reduce(
+    (sum, a) => sum + (a.my_bid != null && a.my_bid > 0 ? a.my_bid : 0),
+    0,
+  );
+  const openBidCount = auctions.filter((a) => a.my_bid != null && a.my_bid > 0).length;
+  const overCommitted = totalCommitted > myTeam.faab_budget;
+
   const { openPlayer, prefetchPlayer, primePlayers } = usePlayerCard();
 
   // Every row already carries ranks and season-resolved stats from the server,
@@ -899,9 +915,22 @@ export default function TransferMarketClient({
                     {tmMin > 0 && ` (€${tmMin}m Transfermarkt floor)`}
                   </span>
                   <span className={styles.bidContextInfoGreen}>
-                    Balance: <strong>€{myTeam.faab_budget}m</strong>
+                    Club Balance: <strong>€{myTeam.faab_budget}m</strong>
                   </span>
                 </div>
+
+                {openBidCount > 0 && (
+                  <p className={styles.newAuctionHint}>
+                    €{totalCommitted}m committed across {openBidCount} open bid
+                    {openBidCount === 1 ? '' : 's'} · €{myTeam.faab_budget}m Club Balance
+                    {overCommitted && (
+                      <>
+                        {' '}— your open bids exceed your Club Balance. If several
+                        resolve together you will only win the ones you can afford.
+                      </>
+                    )}
+                  </p>
+                )}
 
                 {/* Contextual lead message */}
                 {!isNaN(bidNum) && modal.currentExpiry && (
