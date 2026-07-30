@@ -12,42 +12,44 @@
 
 .chatHeader {
   flex-shrink: 0;
-  padding: 1rem 1.25rem;
+  padding: var(--space-4) var(--space-5);
   border-bottom: 1px solid var(--color-border-subtle);
   background: var(--color-bg-secondary);
   display: flex;
-  align-items: center;
-  gap: 0.5rem;
+  align-items: baseline;
+  gap: var(--space-2);
 }
 
 .chatTitle {
-  font-family: var(--font-serif);
-  font-size: 0.9rem;
-  font-weight: 700;
-  color: var(--color-accent-green);
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
+  composes: ds-heading from global;
   margin: 0;
 }
 
 .chatSubtitle {
-  font-size: 0.72rem;
+  font-size: 11px;
   color: var(--color-text-muted);
 }
 
 .messagesList {
   flex: 1;
   overflow-y: auto;
-  padding: 1.25rem;
+  padding: var(--space-5);
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: var(--space-4);
   background: var(--color-bg-secondary);
+}
+
+.loadingStatus {
+  composes: ds-body-sm from global;
+  text-align: center;
+  padding: var(--space-10) 0;
+  color: var(--color-text-muted);
 }
 
 .msgRow {
   display: flex;
-  gap: 0.75rem;
+  gap: var(--space-3);
   align-items: flex-start;
   max-width: 90%;
 }
@@ -58,20 +60,11 @@
 }
 
 .avatarBubble {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: #fff;
   flex-shrink: 0;
-  margin-top: 2px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  align-self: center;
 }
 
 .bubbleWrap {
@@ -85,7 +78,7 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 0.65rem;
+  font-size: 11px;
   color: var(--color-text-muted);
 }
 
@@ -103,29 +96,28 @@
   border: 1px solid var(--color-border-subtle);
   border-radius: var(--radius-sm);
   padding: 8px 12px;
-  font-size: 0.8rem;
+  font-size: var(--text-sm);
   color: var(--color-text-primary);
   line-height: 1.4;
   word-break: break-word;
   white-space: pre-wrap;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
 }
 
 .msgTextSelf {
-  background: rgba(58, 107, 74, 0.05);
-  border-color: rgba(58, 107, 74, 0.15);
+  background: var(--color-accent-dim);
+  border-color: color-mix(in srgb, var(--color-accent) 25%, transparent);
 }
 
 .inputArea {
   flex-shrink: 0;
-  padding: 0.875rem 1.25rem 1rem;
+  padding: var(--space-3) var(--space-5) var(--space-4);
   border-top: 1px solid var(--color-border-subtle);
   background: var(--color-bg-secondary);
 }
 
 .form {
   display: flex;
-  gap: 0.625rem;
+  gap: var(--space-2);
   align-items: flex-end;
 }
 
@@ -138,17 +130,16 @@
   border-radius: var(--radius-sm);
   padding: 10px 12px;
   font-family: var(--font-sans);
-  font-size: 0.8rem;
+  font-size: var(--text-sm);
   color: var(--color-text-primary);
   resize: none;
   outline: none;
-  transition: border-color 0.15s ease;
+  transition: border-color var(--transition-fast);
   line-height: 1.35;
 }
 
 .inputField:focus {
-  border-color: var(--color-accent-green);
-  box-shadow: 0 0 0 2px rgba(58, 107, 74, 0.05);
+  border-color: var(--color-accent);
 }
 
 .sendBtn {
@@ -156,24 +147,24 @@
   align-items: center;
   justify-content: center;
   height: 38px;
-  padding: 0 1.25rem;
-  background: var(--color-accent-green);
-  color: #fff;
+  padding: 0 var(--space-5);
+  background: var(--color-text-primary);
+  color: var(--color-bg-primary);
   border: none;
   border-radius: var(--radius-sm);
   cursor: pointer;
   font-family: var(--font-sans);
-  font-size: 0.72rem;
+  font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
-  transition: background 0.15s;
-  box-shadow: 0 2px 4px rgba(58, 107, 74, 0.1);
+  transition: background var(--transition-fast);
   white-space: nowrap;
 }
 
 .sendBtn:hover:not(:disabled) {
-  opacity: 0.9;
+  background: var(--color-accent);
+  color: var(--color-text-inverse);
 }
 
 .sendBtn:disabled {
@@ -188,21 +179,18 @@
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: 2rem 1rem;
-  gap: 0.5rem;
+  padding: var(--space-8) var(--space-4);
+  gap: var(--space-2);
 }
 
 .emptyTitle {
   font-family: var(--font-serif);
-  font-size: 0.95rem;
+  font-size: var(--text-base);
   font-weight: 700;
   color: var(--color-text-primary);
 }
 
 .emptyDesc {
-  font-size: 0.72rem;
-  color: var(--color-text-muted);
+  composes: ds-body-sm from global;
   max-width: 240px;
-  line-height: 1.4;
-  margin: 0;
 }

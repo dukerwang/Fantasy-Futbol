@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import FormattedText from '@/components/ui/FormattedText';
+import CrestBadge from '@/components/crest/CrestBadge';
 import styles from './sidebarChat.module.css';
 
 interface Props {
@@ -20,17 +21,8 @@ interface Message {
 
 interface ManagerInfo {
   name: string;
-  initials: string;
-  bg: string;
-}
-
-function getHslColor(str: string): string {
-  let hash = 0;
-  for (let i = 0; i < str.length; i++) {
-    hash = str.charCodeAt(i) + ((hash << 5) - hash);
-  }
-  const h = Math.abs(hash) % 360;
-  return `linear-gradient(135deg, hsl(${h}, 50%, 45%), hsl(${(h + 40) % 360}, 55%, 35%))`;
+  teamName: string;
+  crestConfig: any;
 }
 
 export default function SidebarChat({
@@ -67,11 +59,10 @@ export default function SidebarChat({
         for (const t of data.teams ?? []) {
           const userObj: any = Array.isArray(t.user) ? t.user[0] : t.user;
           const name = userObj?.username || userObj?.email?.split('@')[0] || 'Manager';
-          const initials = t.abbreviation || name.substring(0, 2).toUpperCase();
           m[t.user_id] = {
             name,
-            initials: initials.substring(0, 3),
-            bg: getHslColor(t.id)
+            teamName: t.team_name,
+            crestConfig: t.crest_config
           };
         }
         setManagers(m);
@@ -186,7 +177,7 @@ export default function SidebarChat({
 
       <div className={styles.messagesList} ref={listRef}>
         {loading ? (
-          <div style={{ textAlign: 'center', padding: '40px', color: 'var(--color-text-muted)', fontSize: '0.8rem' }}>
+          <div className={styles.loadingStatus}>
             Retrieving logs...
           </div>
         ) : messages.length > 0 ? (
@@ -194,8 +185,8 @@ export default function SidebarChat({
             const isSelf = m.sender_id === currentUserId;
             const manager = managers[m.sender_id] || {
               name: isSelf ? currentUsername : 'Manager',
-              initials: isSelf ? currentUsername.substring(0, 2).toUpperCase() : 'M',
-              bg: '#6b7280'
+              teamName: isSelf ? currentUsername : 'Manager',
+              crestConfig: null
             };
 
             return (
@@ -203,9 +194,8 @@ export default function SidebarChat({
                 key={m.id}
                 className={`${styles.msgRow} ${isSelf ? styles.msgRowSelf : ''}`}
               >
-                {/* Fallback initials logo bubble */}
-                <div className={styles.avatarBubble} style={{ background: manager.bg }}>
-                  {manager.initials}
+                <div className={styles.avatarBubble}>
+                  <CrestBadge config={manager.crestConfig} teamName={manager.teamName} size={26} />
                 </div>
 
                 <div className={styles.bubbleWrap}>

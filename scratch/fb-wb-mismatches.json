@@ -1,0 +1,50 @@
+{
+  "mismatches": [],
+  "emptyFb": [
+    {
+      "id": "f96782a9-72c9-4d85-bb22-e38638cb6852",
+      "name": "Matty Jacob",
+      "pl_team": "Hull City"
+    },
+    {
+      "id": "dd9eefdd-65e7-417e-8dcb-f13316ba94f2",
+      "name": "Victor Munoz",
+      "pl_team": "Liverpool"
+    },
+    {
+      "id": "8d3e6c9e-9f57-4a55-91e2-1b5cc3802593",
+      "name": "Thomas Meunier",
+      "pl_team": "Sunderland"
+    },
+    {
+      "id": "c6b18ef4-e1db-4893-a6fe-fba7a6c2f765",
+      "name": "Adam Aznou",
+      "pl_team": "Everton"
+    },
+    {
+      "id": "4afdf18d-aca5-43ad-9c5a-655ccf85baa2",
+      "name": "Álvaro Rodríguez",
+      "pl_team": "Bournemouth"
+    },
+    {
+      "id": "e9df668d-5e5d-4c48-85f6-b06a0752a74b",
+      "name": "Julián Araujo",
+      "pl_team": "Bournemouth"
+    },
+    {
+      "id": "d810a676-9a3d-41b4-8827-fdd6eab751c4",
+      "name": "Jeremy Monga",
+      "pl_team": "Man City"
+    },
+    {
+      "id": "416a4043-a0ee-4dd8-b442-e01072efa0be",
+      "name": "Kenny Tete",
+      "pl_team": "Fulham"
+    },
+    {
+      "id": "befa620a-53e5-4c92-a79a-9a9a93ca7a87",
+      "name": "Reinildo Mandava",
+      "pl_team": "Sunderland"
+    }
+  ]
+}

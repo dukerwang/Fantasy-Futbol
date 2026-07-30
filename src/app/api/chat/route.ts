@@ -46,7 +46,7 @@ export async function GET(req: NextRequest) {
   const { data: leagueTeams } = await admin
     .from('teams')
     .select(`
-      id, team_name, user_id, abbreviation,
+      id, team_name, user_id, abbreviation, crest_config,
       user:users(id, username, avatar_url)
     `)
     .eq('league_id', leagueId);

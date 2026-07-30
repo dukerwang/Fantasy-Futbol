@@ -191,7 +191,7 @@
 .tbl tbody tr { cursor: pointer; transition: background var(--transition-fast); }
 .tbl tbody tr:hover { background: var(--color-bg-card-hover); }
 .trSel { background: var(--color-accent-dim); }
-.num { text-align: right; font-variant-numeric: tabular-nums; width: 82px; }
+.num { text-align: left; font-variant-numeric: tabular-nums; width: 82px; }
 .posCol { width: 46px; }
 .nm { font-weight: var(--font-semibold); color: var(--color-text-primary); }
 .tdMuted { color: var(--color-text-muted); }

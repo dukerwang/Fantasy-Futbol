@@ -9,11 +9,20 @@
  * players on re-scored per-position points — which is how a striker could read
  * "#4" while sitting 2nd in the striker table (see migration 085).
  *
- * Pool rules, applied identically to display and ranks:
+ * Pool rules:
  *   • archived season → every player with an archive row for it. They played
  *     that season; leaving the league afterwards does not remove them from its
  *     record, and a frozen historical rank must not shift when someone departs.
  *   • live season → active players only, which is all a live table can render.
+ *
+ * The leaderboard additionally opts into `includeActiveWithoutArchive`, and the
+ * rank recompute does not. That asymmetry is the point: ranks are a closed
+ * record of who actually played, while the table is also how you find a player
+ * at all — search, position filters, the scouting modal. Between the rollover
+ * and kickoff every stats surface resolves to LAST season, so an archive-only
+ * pool made all three promoted clubs and every summer signing unfindable in the
+ * app (137 of 560 active players at the 2026-27 rollover). They appear with
+ * zeroes, which is what they have.
  */
 
 import type { createAdminClient } from '@/lib/supabase/admin';
@@ -71,6 +80,24 @@ export interface SeasonStatsContext {
   playerMap: Map<string, any>;
   statRows: AggregatableStatRow[];
   refStats: RefStatsMap;
+  /**
+   * Pool members that own an archive row for this season — i.e. whose points and
+   * ranks are frozen. Everyone else takes live values, which is how the
+   * leaderboard knows not to hand an archived rank to a player who wasn't there.
+   */
+  archivedIds: Set<string>;
+}
+
+export interface SeasonStatsOptions {
+  /**
+   * Add currently-active players with no archive row to an archived season's
+   * pool. They carry no season points, ranks or aggregates — they exist so the
+   * table can still be searched for players who joined after it ended.
+   *
+   * Never set this for rank computation: it would rank players over a season
+   * they did not play.
+   */
+  includeActiveWithoutArchive?: boolean;
 }
 
 export interface SeasonShadowMaps {
@@ -96,7 +123,11 @@ async function fetchAllPages<T>(
  * Load the player pool, their season stat rows and the reference stats needed
  * to re-score secondary positions.
  */
-export async function loadSeasonStatsContext(admin: Admin, season: string): Promise<SeasonStatsContext> {
+export async function loadSeasonStatsContext(
+  admin: Admin,
+  season: string,
+  options: SeasonStatsOptions = {},
+): Promise<SeasonStatsContext> {
   // The season being viewed may predate any reference stats of its own; the
   // latest calibrated season is what the rest of the app scores against.
   const refSeason = await getLatestReferenceStatsSeason(admin);
@@ -139,7 +170,11 @@ export async function loadSeasonStatsContext(admin: Admin, season: string): Prom
   const seasonClubsMeta = CLUBS_BY_SEASON[season] ?? {};
 
   const players = playersData
-    .filter((p) => (archived ? archiveMap.has(p.id) : p.is_active))
+    .filter((p) =>
+      archived
+        ? archiveMap.has(p.id) || (options.includeActiveWithoutArchive === true && p.is_active)
+        : p.is_active,
+    )
     .map((p) => {
       const arch = archiveMap.get(p.id);
       let pl_team = p.pl_team;
@@ -155,6 +190,15 @@ export async function loadSeasonStatsContext(admin: Admin, season: string): Prom
           pl_team = meta.name;
           pl_team_id = meta.fplTeamId;
         }
+      }
+
+      // No archive row in an archived season means this player wasn't in the
+      // division that year — they're here only to stay findable. players.*
+      // holds LIVE totals, so passing them through would print a current-season
+      // points haul inside a frozen table. Zero is the true figure for a season
+      // they did not play.
+      if (!arch && archived) {
+        return { ...p, pl_team, pl_team_id, total_points: 0, ppg: 0, form_rating: 0 };
       }
 
       if (!arch) return { ...p, pl_team, pl_team_id };
@@ -175,7 +219,9 @@ export async function loadSeasonStatsContext(admin: Admin, season: string): Prom
   const playerMap = new Map<string, any>();
   for (const p of players) playerMap.set(p.id, p);
 
-  return { season, archived, players, playerMap, statRows, refStats: refStats as RefStatsMap };
+  const archivedIds = new Set(players.filter((p) => archiveMap.has(p.id)).map((p) => p.id as string));
+
+  return { season, archived, players, playerMap, statRows, refStats: refStats as RefStatsMap, archivedIds };
 }
 
 /** The three minute thresholds the leaderboard's filter switches between. */
@@ -198,14 +244,21 @@ export interface SeasonLeaderboard {
 
 /** Everything GlobalStatsTable needs for a season, minus league ownership. */
 export async function loadSeasonLeaderboard(admin: Admin, season: string): Promise<SeasonLeaderboard> {
-  const ctx = await loadSeasonStatsContext(admin, season);
+  const ctx = await loadSeasonStatsContext(admin, season, { includeActiveWithoutArchive: true });
 
-  // Live season: the ranks live on players.position_ranks, which the archive
-  // branch of loadSeasonStatsContext has already overridden where applicable.
-  if (!ctx.archived) {
-    const { data: rankings } = await admin.from('player_rankings').select('*');
-    const rankMap = new Map((rankings ?? []).map((r: any) => [r.player_id, r]));
-    for (const p of ctx.players) {
+  // Players with an archive row already carry that season's frozen ranks, applied
+  // in loadSeasonStatsContext. Everyone else — all of a live season, and the
+  // arrivals now included in an archived one — takes the live ranks. Reading
+  // players.position_ranks for them instead would show a 2026-27 rank inside a
+  // 2025-26 table, so an absent rank stays absent.
+  const needsRanks = ctx.players.filter((p) => !ctx.archivedIds.has(p.id));
+  if (needsRanks.length > 0) {
+    const rankMap = new Map<string, any>();
+    if (!ctx.archived) {
+      const { data: rankings } = await admin.from('player_rankings').select('*');
+      for (const r of rankings ?? []) rankMap.set((r as any).player_id, r);
+    }
+    for (const p of needsRanks) {
       const ranks = rankMap.get(p.id);
       p.overall_rank = ranks?.overall_rank;
       p.position_ranks = ranks?.position_ranks;

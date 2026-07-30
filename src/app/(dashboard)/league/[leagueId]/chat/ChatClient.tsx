@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { Icon } from '@/components/ui/Icon';
 import FormattedText from '@/components/ui/FormattedText';
+import CrestBadge from '@/components/crest/CrestBadge';
 import styles from './Chat.module.css';
 
 interface UserInfo {
@@ -17,6 +18,7 @@ interface TeamInfo {
   id: string;
   team_name: string;
   user_id: string;
+  crest_config?: any;
   user: UserInfo;
 }
 
@@ -262,7 +264,6 @@ export default function ChatClient({
               otherManagers.map((team) => {
                 const isActive = activeTab.type === 'dm' && activeTab.userId === team.user_id;
                 const hasUnread = unreadDMs.has(team.user_id);
-                const managerInitial = team.user.username ? team.user.username[0].toUpperCase() : '?';
 
                 return (
                   <button
@@ -278,7 +279,9 @@ export default function ChatClient({
                       setMobileView('chat');
                     }}
                   >
-                    <span className={styles.managerAvatar}>{managerInitial}</span>
+                    <span className={styles.managerAvatar}>
+                      <CrestBadge config={team.crest_config} teamName={team.team_name} size={24} />
+                    </span>
                     <div className={styles.managerInfo}>
                       <span className={styles.managerName}>{team.user.username}</span>
                       <span className={styles.managerTeam}>{team.team_name}</span>
@@ -288,7 +291,7 @@ export default function ChatClient({
                 );
               })
             ) : (
-              <div style={{ padding: '0 20px', fontSize: '12px', color: 'var(--color-text-muted)' }}>
+              <div className={styles.sidebarEmpty}>
                 No other managers found
               </div>
             )}
@@ -321,7 +324,11 @@ export default function ChatClient({
             ) : (
               <>
                 <span className={styles.managerAvatar}>
-                  {activeTab.username ? activeTab.username[0].toUpperCase() : '?'}
+                  <CrestBadge
+                    config={teams.find((t) => t.user_id === activeTab.userId)?.crest_config}
+                    teamName={activeTab.teamName}
+                    size={24}
+                  />
                 </span>
                 <span>{activeTab.username}</span>
                 <span className={styles.panelSubtitle}>({activeTab.teamName}) — Private DM</span>
@@ -333,7 +340,7 @@ export default function ChatClient({
         {/* Message Log */}
         <div className={styles.messagesFeed} ref={feedRef}>
           {loading ? (
-            <div style={{ textAlign: 'center', padding: '40px', color: 'var(--color-text-muted)' }}>
+            <div className={styles.feedStatus}>
               Retrieving logs...
             </div>
           ) : currentMessages.length > 0 ? (
@@ -342,7 +349,6 @@ export default function ChatClient({
               const senderName = m.sender?.username || 'Unknown';
               const teamInfo = teams.find((t) => t.user_id === m.sender_id);
               const teamLabel = teamInfo ? teamInfo.team_name : (isSelf ? 'My Club' : '');
-              const initial = senderName ? senderName[0].toUpperCase() : '?';
 
               const isSystemTrade = m.message.startsWith('[SYSTEM:TRADE_PROPOSAL:');
               const isSystemAnnouncement = m.is_system === true;
@@ -367,8 +373,8 @@ export default function ChatClient({
                       <Icon name="trophy" size={16} />
                     </div>
                   ) : (
-                    <div className={`${styles.msgAvatar} ${isSelf ? styles.msgAvatarSelf : ''}`}>
-                      {initial}
+                    <div className={styles.msgAvatar}>
+                      <CrestBadge config={teamInfo?.crest_config} teamName={teamLabel || senderName} size={30} />
                     </div>
                   )}
 

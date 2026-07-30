@@ -1,0 +1,1204 @@
+[
+  {
+    "id": 1800,
+    "name": "Coventry City",
+    "players": [
+      {
+        "id": 263339,
+        "commonName": "C. Rushworth",
+        "fullName": "Carl Rushworth",
+        "positions": [
+          "GK",
+          "GK"
+        ],
+        "roles": []
+      },
+      {
+        "id": 251626,
+        "commonName": "M. van Ewijk",
+        "fullName": "Milan van Ewijk",
+        "positions": [
+          "RB",
+          "RM",
+          "RB"
+        ],
+        "roles": [
+          "Attacking wingback +",
+          "SupportAttack",
+          "Wingback +",
+          "BalancedSupport",
+          "Wide midfielder +",
+          "SupportDefendBuild-up",
+          "Layout 1",
+          "2",
+          "3"
+        ]
+      },
+      {
+        "id": 257253,
+        "commonName": "B. Thomas",
+        "fullName": "Bobby Thomas",
+        "positions": [
+          "CB",
+          "RCB"
+        ],
+        "roles": []
+      },
+      {
+        "id": 246873,
+        "commonName": "L. Kitching",
+        "fullName": "Liam Kitching",
+        "positions": [
+          "CB",
+          "LCB"
+        ],
+        "roles": []
+      },
+      {
+        "id": 232755,
+        "commonName": "J. Dasilva",
+        "fullName": "Jay Dasilva",
+        "positions": [
+          "LB",
+          "LM",
+          "LB"
+        ],
+        "roles": [
+          "Attacking wingback +",
+          "SupportAttack",
+          "Wingback +",
+          "BalancedSupport",
+          "Inside forward +",
+          "BalancedAttack",
+          "Layout 1",
+          "2",
+          "3"
+        ]
+      },
+      {
+        "id": 239529,
+        "commonName": "F. Onyeka",
+        "fullName": "Frank Onyeka",
+        "positions": [
+          "CM",
+          "CDM",
+          "RDM"
+        ],
+        "roles": []
+      },
+      {
+        "id": 212118,
+        "commonName": "M. Grimes",
+        "fullName": "Matt Grimes",
+        "positions": [
+          "CDM",
+          "CM",
+          "LDM"
+        ],
+        "roles": []
+      },
+      {
+        "id": 254910,
+        "commonName": "T. Sakamoto",
+        "fullName": "Tatsuhiro Sakamoto",
+        "positions": [
+          "RM",
+          "RW",
+          "RM"
+        ],
+        "roles": []
+      },
+      {
+        "id": 236784,
+        "commonName": "E. Mason-Clark",
+        "fullName": "Ephron Mason Clark",
+        "positions": [
+          "LM",
+          "LW",
+          "LM"
+        ],
+        "roles": []
+      },
+      {
+        "id": 251690,
+        "commonName": "J. Rudoni",
+        "fullName": "Jack Rudoni",
+        "positions": [
+          "CAM",
+          "CM",
+          "CAM"
+        ],
+        "roles": []
+      },
+      {
+        "id": 238743,
+        "commonName": "H. Wright",
+        "fullName": "Haji Wright",
+        "positions": [
+          "ST",
+          "LM",
+          "LW",
+          "ST"
+        ],
+        "roles": []
+      },
+      {
+        "id": 235744,
+        "commonName": "B. Thomas-Asante",
+        "fullName": "Brandon Thomas Asante",
+        "positions": [
+          "ST",
+          "CAM",
+          "RM"
+        ],
+        "roles": []
+      },
+      {
+        "id": 251198,
+        "commonName": "E. Simms",
+        "fullName": "Ellis Simms",
+        "positions": [
+          "ST"
+        ],
+        "roles": []
+      },
+      {
+        "id": 241645,
+        "commonName": "V. Torp",
+        "fullName": "Victor Torp",
+        "positions": [
+          "CM",
+          "CDM",
+          "CAM"
+        ],
+        "roles": []
+      },
+      {
+        "id": 251555,
+        "commonName": "J. Eccles",
+        "fullName": "Josh Eccles",
+        "positions": [
+          "CM",
+          "CDM",
+          "CAM"
+        ],
+        "roles": []
+      },
+      {
+        "id": 273616,
+        "commonName": "R. Esse",
+        "fullName": "Romain Esse",
+        "positions": [
+          "RM",
+          "LM",
+          "RW"
+        ],
+        "roles": []
+      },
+      {
+        "id": 233047,
+        "commonName": "J. Latibeaudiere",
+        "fullName": "Joel Latibeaudiere",
+        "positions": [
+          "CB",
+          "RB"
+        ],
+        "roles": []
+      },
+      {
+        "id": 204825,
+        "commonName": "B. Wilson",
+        "fullName": "Ben Wilson",
+        "positions": [
+          "GK"
+        ],
+        "roles": []
+      },
+      {
+        "id": 240500,
+        "commonName": "L. Woolfenden",
+        "fullName": "Luke Woolfenden",
+        "positions": [
+          "CB"
+        ],
+        "roles": []
+      },
+      {
+        "id": 261335,
+        "commonName": "K. Kesler-Hayden",
+        "fullName": "Kaine Kesler-Hayden",
+        "positions": [
+          "RB",
+          "RM"
+        ],
+        "roles": [
+          "Wingback +",
+          "BalancedSupport",
+          "Winger +",
+          "BalancedAttack",
+          "Layout 1",
+          "2",
+          "3"
+        ]
+      },
+      {
+        "id": 213147,
+        "commonName": "J. Allen",
+        "fullName": "Jamie Allen",
+        "positions": [
+          "CM",
+          "CAM",
+          "CDM"
+        ],
+        "roles": []
+      },
+      {
+        "id": 196952,
+        "commonName": "J. Bidwell",
+        "fullName": "Jake Bidwell",
+        "positions": [
+          "LB",
+          "LM"
+        ],
+        "roles": [
+          "Wingback +",
+          "BalancedSupport",
+          "Attacking wingback +",
+          "SupportAttack",
+          "Layout 1",
+          "2",
+          "3"
+        ]
+      },
+      {
+        "id": 264584,
+        "commonName": "J. Markelo",
+        "fullName": "Jahnoah Markelo",
+        "positions": [
+          "RM",
+          "RW"
+        ],
+        "roles": []
+      },
+      {
+        "id": 255976,
+        "commonName": "O. Dovin",
+        "fullName": "Oliver Dovin",
+        "positions": [
+          "GK"
+        ],
+        "roles": []
+      },
+      {
+        "id": 71106,
+        "commonName": "Yang Min Hyeok",
+        "fullName": "Min Hyeok Yang",
+        "positions": [
+          "RM",
+          "RW",
+          "LM"
+        ],
+        "roles": []
+      },
+      {
+        "id": 72423,
+        "commonName": "Brau",
+        "fullName": "Miguel Angel Brau Blanquez",
+        "positions": [
+          "LB",
+          "LM",
+          "LW"
+        ],
+        "roles": []
+      },
+      {
+        "id": 277657,
+        "commonName": "K. Andrews",
+        "fullName": "Kai Andrews",
+        "positions": [
+          "CM",
+          "CAM",
+          "CDM"
+        ],
+        "roles": []
+      },
+      {
+        "id": 264621,
+        "commonName": "N. Bassette",
+        "fullName": "Norman Bassette",
+        "positions": [
+          "ST"
+        ],
+        "roles": []
+      },
+      {
+        "id": 253403,
+        "commonName": "Raphael",
+        "fullName": "Raphael Borges Rodrigues",
+        "positions": [
+          "RM",
+          "LM",
+          "RB",
+          "RB"
+        ],
+        "roles": []
+      },
+      {
+        "id": 225543,
+        "commonName": "B. Collins",
+        "fullName": "Brad Collins",
+        "positions": [
+          "GK",
+          "GK"
+        ],
+        "roles": []
+      }
+    ]
+  },
+  {
+    "id": 94,
+    "name": "Ipswich Town",
+    "players": [
+      {
+        "id": 206561,
+        "commonName": "C. Walton",
+        "fullName": "Christian Walton",
+        "positions": [
+          "GK",
+          "GK"
+        ],
+        "roles": []
+      },
+      {
+        "id": 223877,
+        "commonName": "D. Furlong",
+        "fullName": "Darnell Furlong",
+        "positions": [
+          "RB",
+          "RM",
+          "RB"
+        ],
+        "roles": [
+          "Wingback +",
+          "BalancedSupport",
+          "Layout 1",
+          "2",
+          "3"
+        ]
+      },
+      {
+        "id": 235405,
+        "commonName": "D. O'Shea",
+        "fullName": "Dara O'Shea",
+        "positions": [
+          "CB",
+          "RB",
+          "RM",
+          "RCB"
+        ],
+        "roles": [
+          "Defender +",
+          "DefendBalanced",
+          "Wingback +",
+          "BalancedSupport",
+          "Layout 1",
+          "2",
+          "3"
+        ]
+      },
+      {
+        "id": 248602,
+        "commonName": "J. Greaves",
+        "fullName": "Jacob Greaves",
+        "positions": [
+          "CB",
+          "LB",
+          "LCB"
+        ],
+        "roles": []
+      },
+      {
+        "id": 246685,
+        "commonName": "L. Davis",
+        "fullName": "Leif Davis",
+        "positions": [
+          "LB",
+          "LM",
+          "LB"
+        ],
+        "roles": [
+          "Attacking wingback +",
+          "SupportAttack",
+          "Wingback +",
+          "BalancedSupport",
+          "Layout 1",
+          "2",
+          "3"
+        ]
+      },
+      {
+        "id": 239356,
+        "commonName": "A. Matusiwa",
+        "fullName": "Azor Matusiwa",
+        "positions": [
+          "CDM",
+          "CM",
+          "RDM"
+        ],
+        "roles": []
+      },
+      {
+        "id": 233851,
+        "commonName": "J. Taylor",
+        "fullName": "Jack Taylor",
+        "positions": [
+          "CDM",
+          "CM",
+          "CAM",
+          "LDM"
+        ],
+        "roles": []
+      },
+      {
+        "id": 71110,
+        "commonName": "S. Egeli",
+        "fullName": "Sindre Walle Egeli",
+        "positions": [
+          "RM",
+          "RW",
+          "RM"
+        ],
+        "roles": []
+      },
+      {
+        "id": 242908,
+        "commonName": "J. Clarke",
+        "fullName": "Jack Clarke",
+        "positions": [
+          "LM",
+          "LW",
+          "RM",
+          "LM"
+        ],
+        "roles": []
+      },
+      {
+        "id": 250816,
+        "commonName": "A. Mehmeti",
+        "fullName": "Anis Mehmeti",
+        "positions": [
+          "CAM",
+          "LM",
+          "ST",
+          "CAM"
+        ],
+        "roles": []
+      },
+      {
+        "id": 259423,
+        "commonName": "Iván Azón",
+        "fullName": "Ivan Azon Monzon",
+        "positions": [
+          "ST",
+          "ST"
+        ],
+        "roles": []
+      },
+      {
+        "id": 233602,
+        "commonName": "G. Hirst",
+        "fullName": "George Hirst",
+        "positions": [
+          "ST"
+        ],
+        "roles": []
+      },
+      {
+        "id": 261336,
+        "commonName": "J. Philogene",
+        "fullName": "Jaden Philogene",
+        "positions": [
+          "LM",
+          "RM",
+          "LW"
+        ],
+        "roles": []
+      },
+      {
+        "id": 244472,
+        "commonName": "J. Cajuste",
+        "fullName": "Jens Lys Cajuste",
+        "positions": [
+          "CDM",
+          "CM"
+        ],
+        "roles": []
+      },
+      {
+        "id": 256051,
+        "commonName": "M. Núñez",
+        "fullName": "Marcelino Nunez",
+        "positions": [
+          "CAM",
+          "CDM",
+          "CM"
+        ],
+        "roles": []
+      },
+      {
+        "id": 258483,
+        "commonName": "D. Neil",
+        "fullName": "Dan Neil",
+        "positions": [
+          "CDM",
+          "CM"
+        ],
+        "roles": []
+      },
+      {
+        "id": 235458,
+        "commonName": "C. Kipré",
+        "fullName": "Cedric Kipre",
+        "positions": [
+          "CB"
+        ],
+        "roles": []
+      },
+      {
+        "id": 223909,
+        "commonName": "A. Palmer",
+        "fullName": "Alex Palmer",
+        "positions": [
+          "GK"
+        ],
+        "roles": []
+      },
+      {
+        "id": 213418,
+        "commonName": "C. Akpom",
+        "fullName": "Chuba Akpom",
+        "positions": [
+          "ST",
+          "CAM"
+        ],
+        "roles": []
+      },
+      {
+        "id": 265801,
+        "commonName": "K. McAteer",
+        "fullName": "Kasey Mcateer",
+        "positions": [
+          "RM",
+          "RW",
+          "CAM"
+        ],
+        "roles": []
+      },
+      {
+        "id": 241842,
+        "commonName": "B. Johnson",
+        "fullName": "Ben Johnson",
+        "positions": [
+          "RB",
+          "RM",
+          "LB"
+        ],
+        "roles": [
+          "Wingback +",
+          "BalancedSupport",
+          "Winger +",
+          "BalancedAttack",
+          "Layout 1",
+          "2",
+          "3"
+        ]
+      },
+      {
+        "id": 212484,
+        "commonName": "W. Burns",
+        "fullName": "Wes Burns",
+        "positions": [
+          "RM",
+          "RW"
+        ],
+        "roles": []
+      },
+      {
+        "id": 203751,
+        "commonName": "C. Townsend",
+        "fullName": "Conor Townsend",
+        "positions": [
+          "LB",
+          "LM"
+        ],
+        "roles": [
+          "Wingback +",
+          "BalancedSupport",
+          "Layout 1",
+          "2",
+          "3"
+        ]
+      },
+      {
+        "id": 260798,
+        "commonName": "E. Baggott",
+        "fullName": "Elkan Baggott",
+        "positions": [
+          "CB"
+        ],
+        "roles": []
+      },
+      {
+        "id": 173533,
+        "commonName": "D. Button",
+        "fullName": "David Button",
+        "positions": [
+          "GK"
+        ],
+        "roles": []
+      },
+      {
+        "id": 266151,
+        "commonName": "H. Gray",
+        "fullName": "Henry Gray",
+        "positions": [
+          "GK",
+          "GK"
+        ],
+        "roles": []
+      },
+      {
+        "id": 264645,
+        "commonName": "C. Slicker",
+        "fullName": "Cieran Slicker",
+        "positions": [
+          "GK",
+          "GK"
+        ],
+        "roles": []
+      },
+      {
+        "id": 264200,
+        "commonName": "C. Humphreys",
+        "fullName": "Cameron Humphreys",
+        "positions": [
+          "CAM",
+          "CM",
+          "CDM",
+          "LCM"
+        ],
+        "roles": []
+      },
+      {
+        "id": 263376,
+        "commonName": "A. Al Hamadi",
+        "fullName": "Ali Al Hamadi",
+        "positions": [
+          "ST"
+        ],
+        "roles": []
+      },
+      {
+        "id": 245729,
+        "commonName": "H. Clarke",
+        "fullName": "Harry Clarke",
+        "positions": [
+          "RB",
+          "RB"
+        ],
+        "roles": []
+      },
+      {
+        "id": 233164,
+        "commonName": "A. Murić",
+        "fullName": "Arijanet Muric",
+        "positions": [
+          "GK",
+          "GK"
+        ],
+        "roles": []
+      },
+      {
+        "id": 231005,
+        "commonName": "C. Ogbene",
+        "fullName": "Chiedozie Ogbene",
+        "positions": [
+          "RM",
+          "RB",
+          "RW"
+        ],
+        "roles": []
+      },
+      {
+        "id": 225667,
+        "commonName": "C. Chaplin",
+        "fullName": "Conor Chaplin",
+        "positions": [
+          "CAM",
+          "RM",
+          "CM",
+          "CAM"
+        ],
+        "roles": []
+      },
+      {
+        "id": 220139,
+        "commonName": "S. Szmodics",
+        "fullName": "Sammie Szmodics",
+        "positions": [
+          "CAM",
+          "LM",
+          "ST",
+          "CM",
+          "CAM"
+        ],
+        "roles": []
+      },
+      {
+        "id": 80501,
+        "commonName": "F. Barbrook",
+        "fullName": "Finley Barbrook",
+        "positions": [
+          "CDM",
+          "CM"
+        ],
+        "roles": []
+      }
+    ]
+  },
+  {
+    "id": 1952,
+    "name": "Hull City",
+    "players": [
+      {
+        "id": 258585,
+        "commonName": "I. Pandur",
+        "fullName": "Ivor Pandur",
+        "positions": [
+          "GK",
+          "GK"
+        ],
+        "roles": []
+      },
+      {
+        "id": 224099,
+        "commonName": "L. Coyle",
+        "fullName": "Lewie Coyle",
+        "positions": [
+          "RB",
+          "LB",
+          "RM",
+          "RB"
+        ],
+        "roles": [
+          "Wingback +",
+          "BalancedSupport",
+          "Layout 1",
+          "2",
+          "3"
+        ]
+      },
+      {
+        "id": 204936,
+        "commonName": "J. Egan",
+        "fullName": "John Egan",
+        "positions": [
+          "CB",
+          "RCB"
+        ],
+        "roles": []
+      },
+      {
+        "id": 272895,
+        "commonName": "C. Hughes",
+        "fullName": "Charlie Hughes",
+        "positions": [
+          "CB",
+          "LCB"
+        ],
+        "roles": []
+      },
+      {
+        "id": 243608,
+        "commonName": "R. Giles",
+        "fullName": "Ryan Giles",
+        "positions": [
+          "LB",
+          "LM",
+          "LB"
+        ],
+        "roles": [
+          "Attacking wingback +",
+          "SupportAttack",
+          "Wingback +",
+          "BalancedSupport",
+          "Winger +",
+          "BalancedAttack",
+          "Layout 1",
+          "2",
+          "3"
+        ]
+      },
+      {
+        "id": 241953,
+        "commonName": "R. Slater",
+        "fullName": "Regan Slater",
+        "positions": [
+          "CDM",
+          "CM",
+          "RB",
+          "RDM"
+        ],
+        "roles": []
+      },
+      {
+        "id": 233053,
+        "commonName": "A. Hadžiahmetović",
+        "fullName": "Amir Hadziahmetovic",
+        "positions": [
+          "CDM",
+          "CM",
+          "LDM"
+        ],
+        "roles": []
+      },
+      {
+        "id": 246053,
+        "commonName": "J. Gelhardt",
+        "fullName": "Joe Gelhardt",
+        "positions": [
+          "CAM",
+          "RM",
+          "ST",
+          "CM",
+          "RM"
+        ],
+        "roles": []
+      },
+      {
+        "id": 240925,
+        "commonName": "L. Millar",
+        "fullName": "Liam Millar",
+        "positions": [
+          "LM",
+          "LW",
+          "LM"
+        ],
+        "roles": []
+      },
+      {
+        "id": 202693,
+        "commonName": "M. Crooks",
+        "fullName": "Matt Crooks",
+        "positions": [
+          "CAM",
+          "CM",
+          "CDM",
+          "CAM"
+        ],
+        "roles": []
+      },
+      {
+        "id": 220031,
+        "commonName": "O. McBurnie",
+        "fullName": "Oli Mcburnie",
+        "positions": [
+          "ST",
+          "ST"
+        ],
+        "roles": []
+      },
+      {
+        "id": 251275,
+        "commonName": "K. Joseph",
+        "fullName": "Kyle Joseph",
+        "positions": [
+          "ST",
+          "LM",
+          "RM",
+          "LW"
+        ],
+        "roles": []
+      },
+      {
+        "id": 200746,
+        "commonName": "J. Lundstram",
+        "fullName": "John Lundstram",
+        "positions": [
+          "CDM",
+          "CM",
+          "CB"
+        ],
+        "roles": []
+      },
+      {
+        "id": 226401,
+        "commonName": "K. Dowell",
+        "fullName": "Kieran Dowell",
+        "positions": [
+          "RM",
+          "CAM",
+          "RW"
+        ],
+        "roles": []
+      },
+      {
+        "id": 207952,
+        "commonName": "S. Ajayi",
+        "fullName": "Semi Ajayi",
+        "positions": [
+          "CB"
+        ],
+        "roles": []
+      },
+      {
+        "id": 254529,
+        "commonName": "C. Drameh",
+        "fullName": "Cody Drameh",
+        "positions": [
+          "RB",
+          "LB"
+        ],
+        "roles": []
+      },
+      {
+        "id": 235267,
+        "commonName": "A. Famewo",
+        "fullName": "Akin Famewo",
+        "positions": [
+          "CB",
+          "LB"
+        ],
+        "roles": []
+      },
+      {
+        "id": 220058,
+        "commonName": "D. Phillips",
+        "fullName": "Dillon Phillips",
+        "positions": [
+          "GK"
+        ],
+        "roles": []
+      },
+      {
+        "id": 70994,
+        "commonName": "L. Koumas",
+        "fullName": "Lewis Koumas",
+        "positions": [
+          "LM",
+          "RM",
+          "LW"
+        ],
+        "roles": []
+      },
+      {
+        "id": 270209,
+        "commonName": "D. Gyabi",
+        "fullName": "Darko Gyabi",
+        "positions": [
+          "CM",
+          "CAM",
+          "CDM"
+        ],
+        "roles": []
+      },
+      {
+        "id": 213697,
+        "commonName": "P. McNair",
+        "fullName": "Paddy Mcnair",
+        "positions": [
+          "CB"
+        ],
+        "roles": []
+      },
+      {
+        "id": 277663,
+        "commonName": "M. Belloumi",
+        "fullName": "Mohamed Belloumi",
+        "positions": [
+          "RM",
+          "RW"
+        ],
+        "roles": []
+      },
+      {
+        "id": 268439,
+        "commonName": "T. Collyer",
+        "fullName": "Toby Collyer",
+        "positions": [
+          "CDM",
+          "CM"
+        ],
+        "roles": []
+      },
+      {
+        "id": 258433,
+        "commonName": "E. Matazo",
+        "fullName": "Eliot Matazo",
+        "positions": [
+          "CDM",
+          "CM"
+        ],
+        "roles": []
+      },
+      {
+        "id": 73429,
+        "commonName": "Y. Hirakawa",
+        "fullName": "Yu Hirakawa",
+        "positions": [
+          "RM",
+          "LM",
+          "RW"
+        ],
+        "roles": []
+      },
+      {
+        "id": 225956,
+        "commonName": "B. Akintola",
+        "fullName": "Babajide David Akintola",
+        "positions": [
+          "RM",
+          "RW",
+          "LM"
+        ],
+        "roles": []
+      },
+      {
+        "id": 248692,
+        "commonName": "M. Jacob",
+        "fullName": "Matty Jacob",
+        "positions": [
+          "LB"
+        ],
+        "roles": []
+      },
+      {
+        "id": 73219,
+        "commonName": "J. Debayo",
+        "fullName": "James Debayo",
+        "positions": [
+          "CB"
+        ],
+        "roles": []
+      },
+      {
+        "id": 79579,
+        "commonName": "C. McCarthy",
+        "fullName": "Cathal Mccarthy",
+        "positions": [
+          "CB",
+          "CDM"
+        ],
+        "roles": []
+      },
+      {
+        "id": 74360,
+        "commonName": "N. Tinsdale",
+        "fullName": "Nathan Tinsdale",
+        "positions": [
+          "CM",
+          "CAM",
+          "LM",
+          "CDM"
+        ],
+        "roles": []
+      },
+      {
+        "id": 278708,
+        "commonName": "T. Sellars-Fleming",
+        "fullName": "Tyrell Sellars Fleming",
+        "positions": [
+          "ST",
+          "RW",
+          "LW"
+        ],
+        "roles": []
+      },
+      {
+        "id": 271333,
+        "commonName": "T. Lo-Tutala",
+        "fullName": "Thimothee Lo Tutala",
+        "positions": [
+          "GK",
+          "GK"
+        ],
+        "roles": []
+      },
+      {
+        "id": 270379,
+        "commonName": "A. Kamara",
+        "fullName": "Abu Kamara",
+        "positions": [
+          "RM",
+          "RW",
+          "LM"
+        ],
+        "roles": []
+      },
+      {
+        "id": 266688,
+        "commonName": "E. Destan",
+        "fullName": "Enis Destan",
+        "positions": [
+          "ST"
+        ],
+        "roles": []
+      },
+      {
+        "id": 265777,
+        "commonName": "M. Burstow",
+        "fullName": "Mason Burstow",
+        "positions": [
+          "ST",
+          "LW",
+          "LM"
+        ],
+        "roles": []
+      },
+      {
+        "id": 261420,
+        "commonName": "H. Vaughan",
+        "fullName": "Harry Vaughan",
+        "positions": [
+          "LM",
+          "CAM",
+          "LW"
+        ],
+        "roles": []
+      },
+      {
+        "id": 231777,
+        "commonName": "A. Ömür",
+        "fullName": "Abdülkadir Ömür",
+        "positions": [
+          "RM",
+          "CAM",
+          "CM",
+          "RB"
+        ],
+        "roles": [
+          "Wide midfielder +",
+          "SupportDefendBuild-up",
+          "Half-winger +",
+          "AttackBalancedRoaming",
+          "Holding +",
+          "DefendBall-winning",
+          "Layout 1",
+          "2",
+          "3"
+        ]
+      },
+      {
+        "id": 225441,
+        "commonName": "K. Palmer",
+        "fullName": "Kasey Palmer",
+        "positions": [
+          "CAM",
+          "CM",
+          "CAM"
+        ],
+        "roles": []
+      }
+    ]
+  }
+]

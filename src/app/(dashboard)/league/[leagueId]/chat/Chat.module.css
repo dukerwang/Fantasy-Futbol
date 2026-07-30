@@ -47,12 +47,7 @@
 }
 
 .sectionHeader {
-  font-family: var(--font-sans);
-  font-size: 11px;
-  font-weight: var(--font-bold);
-  color: var(--color-text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
+  composes: ds-label from global;
   padding: 0 var(--space-5) 6px var(--space-5);
 }
 
@@ -89,16 +84,11 @@
   opacity: 0.95;
 }
 
-.sidebarBtnActive .icon,
-.sidebarBtnActive:hover .icon,
-.sidebarBtnActive .managerAvatar,
-.sidebarBtnActive:hover .managerAvatar {
+.sidebarBtnActive .icon {
   color: var(--color-bg-primary);
-  border-color: rgba(255, 255, 255, 0.2);
 }
 
-.sidebarBtnActive .managerDot,
-.sidebarBtnActive:hover .managerDot {
+.sidebarBtnActive .managerDot {
   border-color: var(--color-text-primary);
 }
 
@@ -108,17 +98,9 @@
 }
 
 .managerAvatar {
-  width: 24px;
-  height: 24px;
-  border-radius: var(--radius-full);
-  background: var(--color-bg-primary);
-  border: 1px solid var(--color-border-subtle);
-  color: var(--color-text-secondary);
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 10px;
-  font-weight: var(--font-bold);
   flex-shrink: 0;
 }
 
@@ -148,9 +130,15 @@
   width: 8px;
   height: 8px;
   border-radius: var(--radius-full);
-  background: #d9383a; /* Unread chat indicator */
+  background: var(--color-danger);
   border: 1px solid var(--color-bg-secondary);
   flex-shrink: 0;
+}
+
+.sidebarEmpty {
+  composes: ds-body-sm from global;
+  padding: 0 var(--space-5);
+  color: var(--color-text-muted);
 }
 
 /* Main Panel styling */
@@ -198,6 +186,13 @@
   background: var(--color-bg-primary);
 }
 
+.feedStatus {
+  composes: ds-body-sm from global;
+  text-align: center;
+  padding: var(--space-10) 0;
+  color: var(--color-text-muted);
+}
+
 .msgRow {
   display: flex;
   gap: var(--space-4);
@@ -223,25 +218,19 @@
 }
 
 .msgAvatar {
-  width: 36px;
-  height: 36px;
-  border-radius: var(--radius-full);
-  background: var(--color-bg-secondary);
-  border: 1px solid var(--color-border-subtle);
-  color: var(--color-text-primary);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: var(--font-bold);
-  font-size: 12px;
   flex-shrink: 0;
-  margin-top: 2px;
+  align-self: center;
 }
 
-.msgAvatarSelf {
-  background: var(--color-accent-green);
+.msgAvatarSystem {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--color-gold);
   color: var(--color-text-inverse);
-  border-color: var(--color-accent-green);
 }
 
 .msgBubble {
@@ -278,7 +267,7 @@
 .msgTextCard {
   background: var(--color-bg-secondary);
   border: 1px solid var(--color-border-subtle);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-md);
   padding: 10px 14px;
   color: var(--color-text-primary);
   font-family: var(--font-sans);
@@ -289,13 +278,12 @@
 }
 
 .msgTextCardSelf {
-  background: rgba(58, 107, 74, 0.06);
-  border-color: rgba(58, 107, 74, 0.15);
+  background: var(--color-accent-dim);
+  border-color: color-mix(in srgb, var(--color-accent) 25%, transparent);
 }
 
 .msgTextCardDM {
-  border: 1px dashed rgba(112, 84, 44, 0.25);
-  background: rgba(250, 245, 235, 0.5); /* warm cream hint */
+  border: 1px dashed var(--color-border);
 }
 
 /* System announcement messages (season resets, champions, etc.) */
@@ -308,31 +296,22 @@
   gap: var(--space-2);
 }
 
-.msgAvatarSystem {
-  background: linear-gradient(135deg, #b8943f 0%, #d4a843 50%, #c9a135 100%);
-  border-color: rgba(184, 148, 63, 0.4);
-  color: #fff;
-  font-size: 16px;
-  box-shadow: 0 2px 8px rgba(184, 148, 63, 0.3);
-}
-
 .msgSenderSystem {
   font-weight: var(--font-bold);
-  color: #b8943f;
+  color: var(--color-gold);
   font-size: 11px;
   letter-spacing: 0.05em;
   text-transform: uppercase;
 }
 
 .msgTextCardSystem {
-  background: linear-gradient(135deg, rgba(184, 148, 63, 0.06) 0%, rgba(212, 168, 67, 0.08) 100%);
-  border: 1px solid rgba(184, 148, 63, 0.25);
-  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--color-gold) 6%, var(--color-bg-secondary));
+  border: 1px solid color-mix(in srgb, var(--color-gold) 30%, var(--color-border));
+  border-radius: var(--radius-md);
   text-align: center;
   max-width: 540px;
   white-space: pre-wrap;
   line-height: 1.6;
-  box-shadow: 0 2px 12px rgba(184, 148, 63, 0.06);
 }
 
 
@@ -371,7 +350,7 @@
 }
 
 .inputField:focus {
-  border-color: var(--color-text-primary);
+  border-color: var(--color-accent);
 }
 
 .sendBtn {
@@ -388,12 +367,13 @@
   font-family: var(--font-sans);
   font-size: 13px;
   font-weight: var(--font-semibold);
-  transition: opacity var(--transition-fast);
+  transition: background var(--transition-fast), opacity var(--transition-fast);
   white-space: nowrap;
 }
 
-.sendBtn:hover {
-  opacity: 0.9;
+.sendBtn:hover:not(:disabled) {
+  background: var(--color-accent);
+  color: var(--color-text-inverse);
 }
 
 .sendBtn:disabled {
@@ -413,39 +393,34 @@
 }
 
 .emptyTitle {
-  font-family: var(--font-serif);
+  composes: ds-h2 from global;
   font-size: var(--text-lg);
-  font-weight: var(--font-semibold);
-  color: var(--color-text-primary);
 }
 
 .emptyDesc {
-  font-family: var(--font-sans);
-  font-size: var(--text-sm);
-  color: var(--color-text-muted);
+  composes: ds-body-sm from global;
   max-width: 400px;
-  line-height: 1.5;
 }
 
 /* System Trade Widget Styling */
 .tradeWidgetCard {
   background: var(--color-bg-secondary);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-md);
   padding: var(--space-4) var(--space-5);
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
   width: 320px;
   max-width: 100%;
-  box-shadow: 0 4px 12px rgba(112, 84, 44, 0.03);
+  box-shadow: var(--shadow-sm);
 }
 
 .tradeWidgetHeader {
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  color: var(--color-accent-green);
+  color: var(--color-accent);
 }
 
 .tradeWidgetIcon {
@@ -483,12 +458,8 @@
 }
 
 .tradeWidgetLabel {
-  font-family: var(--font-sans);
+  composes: ds-label from global;
   font-size: 9px;
-  font-weight: var(--font-bold);
-  color: var(--color-text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
 }
 
 .tradeWidgetValue {
@@ -507,14 +478,15 @@
   background: var(--color-text-primary);
   color: var(--color-bg-primary);
   border: none;
-  border-radius: var(--radius-xs);
+  border-radius: var(--radius-xs, 3px);
   cursor: pointer;
   text-align: center;
-  transition: opacity var(--transition-fast);
+  transition: background var(--transition-fast);
 }
 
 .tradeWidgetBtn:hover {
-  opacity: 0.9;
+  background: var(--color-accent);
+  color: var(--color-text-inverse);
 }
 
 /* --- Mobile Chat UI Layout --- */
@@ -571,7 +543,7 @@
     display: inline-flex;
     align-items: center;
     gap: 4px;
-    color: var(--color-accent-green);
+    color: var(--color-accent);
     font-family: var(--font-sans);
     font-size: 14px;
     font-weight: var(--font-semibold);
@@ -604,4 +576,3 @@
     padding: var(--space-3) var(--space-4);
   }
 }
-
