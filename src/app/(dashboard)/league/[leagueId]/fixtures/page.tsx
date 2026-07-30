@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { redirect, notFound } from 'next/navigation';
-import Link from 'next/link';
+import NavigationLink from '@/components/ui/NavigationLink';
 import styles from '../league.module.css';
 
 interface Props {
@@ -61,22 +61,22 @@ export default async function FixturesPage({ params }: Props) {
       <header className={styles.header}>
         <div>
           <p className={styles.breadcrumb}>
-            <Link href="/dashboard">Dashboard</Link> /{' '}
-            <Link href={`/league/${leagueId}`}>{league.name}</Link> / Fixtures
+            <NavigationLink href="/dashboard">Dashboard</NavigationLink> /{' '}
+            <NavigationLink href={`/league/${leagueId}`}>{league.name}</NavigationLink> / Fixtures
           </p>
           <h1 className={styles.leagueName}>Fixtures</h1>
           <p className={styles.season}>{league.season} Season</p>
         </div>
         <div className={styles.headerActions}>
-          <Link
+          <NavigationLink
             href={`/league/${leagueId}/standings`}
             className={styles.actionBtn}
           >
             Standings
-          </Link>
-          <Link href={`/league/${leagueId}`} className={styles.actionBtn}>
+          </NavigationLink>
+          <NavigationLink href={`/league/${leagueId}`} className={styles.actionBtn}>
             League Home
-          </Link>
+          </NavigationLink>
         </div>
       </header>
 

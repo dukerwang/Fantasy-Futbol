@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import Link from 'next/link';
+import NavigationLink from '@/components/ui/NavigationLink';
 import type { GranularPosition, Player } from '@/types';
 import type { StatPlayer } from './page';
 import PlayerDetailsModal from '@/components/players/PlayerDetailsModal';
@@ -212,7 +212,7 @@ export default function GlobalStatsTable({ leagueId, leagueName, players, shadow
         <div>
           {leagueId && (
             <p className={styles.breadcrumb}>
-              <Link href={`/league/${leagueId}`}>{leagueName}</Link> / Stats
+              <NavigationLink href={`/league/${leagueId}`}>{leagueName}</NavigationLink> / Stats
             </p>
           )}
           <h1 className={styles.title}>Player Stats</h1>

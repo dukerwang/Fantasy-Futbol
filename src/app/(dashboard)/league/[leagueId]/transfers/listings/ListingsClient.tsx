@@ -274,7 +274,10 @@ export default function ListingsClient({
               onOffer={(x) => setPropose({ listing: x, mode: 'offer' })}
               onLoan={(x) => setPropose({ listing: x, mode: 'loan' })}
               onEdit={(x) => setEditing(x)}
-              onReview={() => router.push(`/league/${leagueId}/transfers/deals`)}
+              onReview={() => {
+                window.dispatchEvent(new Event('navigation-start'));
+                router.push(`/league/${leagueId}/transfers/deals`);
+              }}
             />
           ))}
         </div>

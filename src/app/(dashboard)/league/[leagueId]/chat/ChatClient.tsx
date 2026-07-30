@@ -420,7 +420,10 @@ export default function ChatClient({
                         </div>
                         <button
                           className={styles.tradeWidgetBtn}
-                          onClick={() => router.push(`/league/${leagueId}/transfers/deals`)}
+                          onClick={() => {
+                            window.dispatchEvent(new Event('navigation-start'));
+                            router.push(`/league/${leagueId}/transfers/deals`);
+                          }}
                         >
                           Review Trade Offer ↗
                         </button>

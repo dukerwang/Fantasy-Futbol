@@ -118,6 +118,7 @@ export default function DraftOrderManager({ leagueId, initialTeams }: Props) {
       return;
     }
 
+    window.dispatchEvent(new Event('navigation-start'));
     router.push(`/league/${leagueId}/draft`);
     router.refresh();
   }

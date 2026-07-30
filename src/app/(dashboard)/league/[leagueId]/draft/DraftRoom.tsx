@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
+import NavigationLink from '@/components/ui/NavigationLink';
 import { motion, AnimatePresence } from 'framer-motion';
 import { List } from 'react-window';
 import { createClient } from '@/lib/supabase/client';
@@ -739,9 +739,9 @@ export default function DraftRoom({
         {isDraftComplete ? (
           <div className={styles.completeBanner}>
             <span className={styles.completeText}>Draft complete — league is now active.</span>
-            <Link href={`/league/${leagueId}/team`} className={styles.goToTeamBtn}>
+            <NavigationLink href={`/league/${leagueId}/team`} className={styles.goToTeamBtn}>
               Go to My Team →
-            </Link>
+            </NavigationLink>
           </div>
         ) : (
           <>

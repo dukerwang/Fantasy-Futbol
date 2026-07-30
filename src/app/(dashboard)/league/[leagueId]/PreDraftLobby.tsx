@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
+import NavigationLink from '@/components/ui/NavigationLink';
 import { createClient } from '@/lib/supabase/client';
 import SidebarChat from './SidebarChat';
 import DraftOrderManager from './DraftOrderManager';
@@ -325,14 +325,14 @@ export default function PreDraftLobby({
             )
           )}
 
-          <Link href={`/league/${leagueId}/draft`} className={styles.ctaBtn}>
+          <NavigationLink href={`/league/${leagueId}/draft`} className={styles.ctaBtn}>
             {isActive ? 'Enter active draft room →' : 'Preview draft board →'}
-          </Link>
+          </NavigationLink>
 
           {!isActive && (
-            <Link href={`/league/${leagueId}/draft/mock`} className={styles.mockDraftBtn}>
+            <NavigationLink href={`/league/${leagueId}/draft/mock`} className={styles.mockDraftBtn}>
               Practice with a mock draft →
-            </Link>
+            </NavigationLink>
           )}
         </div>
 
@@ -514,13 +514,13 @@ export default function PreDraftLobby({
 
                 <div className={styles.fullSetupLinkContainer}>
                   <CrestBadge config={myTeam?.crest_config} teamName={editName} size={40} />
-                  <Link
+                  <NavigationLink
                     href={`/league/${leagueId}/team-setup`}
                     className={styles.fullSetupLink}
                     onClick={() => setModalOpen(false)}
                   >
                     Design your crest in the creator suite →
-                  </Link>
+                  </NavigationLink>
                 </div>
               </div>
 

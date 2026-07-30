@@ -28,6 +28,7 @@ export default function JoinLeagueForm() {
       return;
     }
 
+    window.dispatchEvent(new Event('navigation-start'));
     router.push(`/league/${json.leagueId}/team-setup`);
     router.refresh();
   }

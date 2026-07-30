@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { redirect } from 'next/navigation';
-import Link from 'next/link';
+import NavigationLink from '@/components/ui/NavigationLink';
 import { FULL_PLAYER_SELECT } from '@/lib/constants/queries';
 import type { Player, RosterStatus } from '@/types';
 import { getCurrentFplSeason, isFplSeasonKickedOff, resolveDraftStatsSeason } from '@/lib/season/currentSeason';
@@ -49,7 +49,7 @@ export default async function MyClubPage({ params }: Props) {
     return (
       <div className={styles.empty}>
         <h2>No team found</h2>
-        <Link href="/dashboard">&larr; Back to Dashboard</Link>
+        <NavigationLink href="/dashboard">&larr; Back to Dashboard</NavigationLink>
       </div>
     );
   }

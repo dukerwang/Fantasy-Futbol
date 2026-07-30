@@ -1,7 +1,7 @@
 import { createAdminClient } from '@/lib/supabase/admin';
 import { createClient } from '@/lib/supabase/server';
 import { notFound, redirect } from 'next/navigation';
-import Link from 'next/link';
+import NavigationLink from '@/components/ui/NavigationLink';
 import type { Tournament, TournamentRound, TournamentMatchup } from '@/types';
 import { getSeeding } from '@/lib/tournaments/engine';
 import { BracketMatchup } from '@/components/tournaments/BracketMatchup';
@@ -197,13 +197,13 @@ export default async function TournamentsPage({ params, searchParams }: Props) {
                     {tournaments.map(t => {
                         const isActive = t.id === activeTournament?.id;
                         return (
-                            <Link 
+                            <NavigationLink 
                                 key={t.id} 
                                 href={`/league/${leagueId}/tournaments?cup=${t.id}`}
                                 className={`${styles.tab} ${isActive ? styles.tabActive : styles.tabInactive}`}
                             >
                                 {t.name}
-                            </Link>
+                            </NavigationLink>
                         );
                     })}
                 </div>

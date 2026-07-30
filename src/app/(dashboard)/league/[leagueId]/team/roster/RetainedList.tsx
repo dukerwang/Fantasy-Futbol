@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import NavigationLink from '@/components/ui/NavigationLink';
 import type { DepartureView, ClubProps } from './ClubClient';
 import type { DecisionRequest } from '@/components/teams/DepartureDecisionModal';
 import { PosBadge } from './SquadViews';
@@ -115,7 +115,7 @@ function HeldRow({
             <div className={styles.retFigK}>value at departure</div>
           </div>
           <div className={styles.retActions}>
-            <Link href={`/league/${leagueId}/transfers/deals?proposeRight=${d.id}`} className={styles.retBtn}>Trade</Link>
+            <NavigationLink href={`/league/${leagueId}/transfers/deals?proposeRight=${d.id}`} className={styles.retBtn}>Trade</NavigationLink>
             <button type="button" className={`${styles.retBtn} ${styles.retBtnDanger}`} onClick={() => onDecision({ mode: 'relinquish', dep: d })}>Relinquish</button>
           </div>
         </>

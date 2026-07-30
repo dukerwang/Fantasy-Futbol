@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import Link from 'next/link';
+import NavigationLink from '@/components/ui/NavigationLink';
 import { useRouter } from 'next/navigation';
 import type { GranularPosition, Player } from '@/types';
 import type {
@@ -245,9 +245,9 @@ export default function MarketClient({
           <div className={`${styles.sect} ${styles.sectSpaced}`}>
             <h2 className={styles.sectTitle}>On the listings board</h2>
             <span className={styles.sectHint}>what other clubs have made available, and on what terms</span>
-            <Link href={`/league/${leagueId}/transfers/listings`} className={styles.sectMore}>
+            <NavigationLink href={`/league/${leagueId}/transfers/listings`} className={styles.sectMore}>
               All {model.counts.listings} listings →
-            </Link>
+            </NavigationLink>
           </div>
 
           {model.listings.length === 0 ? (
@@ -273,7 +273,10 @@ export default function MarketClient({
                   onOffer={(x) => setPropose({ listing: x, mode: 'offer' })}
                   onLoan={(x) => setPropose({ listing: x, mode: 'loan' })}
                   onEdit={(x) => setEditing(x)}
-                  onReview={() => router.push(`/league/${leagueId}/transfers/deals`)}
+                  onReview={() => {
+                    window.dispatchEvent(new Event('navigation-start'));
+                    router.push(`/league/${leagueId}/transfers/deals`);
+                  }}
                 />
               ))}
             </div>
@@ -281,7 +284,7 @@ export default function MarketClient({
 
           {/* ── The two doors ───────────────────────────── */}
           <div className={styles.doors}>
-            <Link href={`/league/${leagueId}/transfers/free-agents`} className={styles.door}>
+            <NavigationLink href={`/league/${leagueId}/transfers/free-agents`} className={styles.door}>
               <div className={styles.doorTop}>
                 <div className={`${styles.doorNum} ${styles.statAccent}`}>{model.counts.freeAgents}</div>
                 <div className={styles.doorName}>Free Agency</div>
@@ -290,8 +293,8 @@ export default function MarketClient({
                 </div>
               </div>
               <div className={styles.doorGo}>Browse free agents →</div>
-            </Link>
-            <Link href={`/league/${leagueId}/transfers/deals`} className={styles.door}>
+            </NavigationLink>
+            <NavigationLink href={`/league/${leagueId}/transfers/deals`} className={styles.door}>
               <div className={styles.doorTop}>
                 <div className={`${styles.doorNum} ${toAnswer ? styles.statRed : ''}`}>{model.counts.deals}</div>
                 <div className={styles.doorName}>Deals</div>
@@ -300,7 +303,7 @@ export default function MarketClient({
                 </div>
               </div>
               <div className={styles.doorGo}>Open your deals →</div>
-            </Link>
+            </NavigationLink>
           </div>
 
           {/* ── Schedule ────────────────────────────────── */}

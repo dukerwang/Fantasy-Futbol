@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Link from 'next/link';
+import NavigationLink from '@/components/ui/NavigationLink';
 import type { Matchup } from '@/types';
 import styles from './matchups.module.css';
 
@@ -87,7 +87,7 @@ export default function LiveMatchupCard({
     // ── Hero (featured matchup) variant ────────────────────────────────────────
     if (featured) {
         return (
-            <Link href={href} className={styles.heroCard}>
+            <NavigationLink href={href} className={styles.heroCard}>
                 
                 {/* Team A — left column */}
                 <div className={styles.heroTeamCol}>
@@ -146,7 +146,7 @@ export default function LiveMatchupCard({
                         </span>
                     )}
                 </div>
-            </Link>
+            </NavigationLink>
         );
     }
 
@@ -167,7 +167,7 @@ export default function LiveMatchupCard({
     const statusText = isLive ? 'Live' : isCompleted ? 'Final' : 'Sched';
 
     return (
-        <Link href={href} className={styles.matchupCardLink}>
+        <NavigationLink href={href} className={styles.matchupCardLink}>
             <div className={styles.matchupCard}>
                 {/* Team A half: [badge] [name ... score] */}
                 <div className={styles.cardHalf}>
@@ -202,6 +202,6 @@ export default function LiveMatchupCard({
                     </div>
                 </div>
             </div>
-        </Link>
+        </NavigationLink>
     );
 }

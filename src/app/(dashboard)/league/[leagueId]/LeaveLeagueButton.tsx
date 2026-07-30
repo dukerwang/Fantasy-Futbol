@@ -29,6 +29,7 @@ export default function LeaveLeagueButton({ leagueId, isCommissioner }: Props) {
                 throw new Error(data.error || 'Failed to process request');
             }
 
+            window.dispatchEvent(new Event('navigation-start'));
             router.push('/dashboard');
             router.refresh(); // Force refresh to update dashboard state
         } catch (err: any) {

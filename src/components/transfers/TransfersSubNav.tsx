@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import NavigationLink from '@/components/ui/NavigationLink';
 import { usePathname } from 'next/navigation';
 import type { TransfersCounts } from '@/lib/transfers/buildTransfersModel';
 import styles from './TransfersSubNav.module.css';
@@ -40,7 +40,7 @@ export default function TransfersSubNav({ leagueId, counts }: Props) {
         const active = item.href === base ? pathname === base : pathname?.startsWith(item.href);
 
         return (
-          <Link
+          <NavigationLink
             key={item.href}
             href={item.href}
             className={`${styles.item} ${active ? styles.itemActive : ''}`}
@@ -48,7 +48,7 @@ export default function TransfersSubNav({ leagueId, counts }: Props) {
           >
             {item.label}
             {item.count !== null && <span className={styles.count}>{item.count}</span>}
-          </Link>
+          </NavigationLink>
         );
       })}
     </nav>

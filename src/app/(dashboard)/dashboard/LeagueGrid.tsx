@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, CSSProperties } from 'react';
-import Link from 'next/link';
+import NavigationLink from '@/components/ui/NavigationLink';
 import { Icon } from '@/components/ui/Icon';
 import styles from './LeagueGrid.module.css';
 
@@ -81,7 +81,7 @@ export default function LeagueGrid({ leagues }: { leagues: LeagueCardData[] }) {
 
       <div className={styles.grid}>
         {sorted.map((league, i) => (
-          <Link
+          <NavigationLink
             key={league.id}
             href={`/league/${league.id}`}
             className={styles.card}
@@ -109,7 +109,7 @@ export default function LeagueGrid({ leagues }: { leagues: LeagueCardData[] }) {
             ) : (
               <ActiveBody league={league} />
             )}
-          </Link>
+          </NavigationLink>
         ))}
       </div>
     </>

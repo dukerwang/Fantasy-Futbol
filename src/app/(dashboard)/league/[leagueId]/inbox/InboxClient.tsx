@@ -116,6 +116,7 @@ export default function InboxClient({ leagueId, leagueName }: InboxClientProps) 
       await handleMarkSingleRead(n.id);
     }
     if (n.url) {
+      window.dispatchEvent(new Event('navigation-start'));
       router.push(n.url);
     }
   };

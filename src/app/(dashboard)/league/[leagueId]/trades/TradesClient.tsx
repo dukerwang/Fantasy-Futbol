@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback, useEffect } from 'react';
-import Link from 'next/link';
+import NavigationLink from '@/components/ui/NavigationLink';
 import PositionBadge from '@/components/players/PositionBadge';
 import { usePlayerCard } from '@/components/players/PlayerCardProvider';
 import { Icon } from '@/components/ui/Icon';
@@ -457,7 +457,7 @@ export default function TradesClient({
       <header className={styles.header}>
         <div>
           <p className={styles.breadcrumb}>
-            <Link href={`/league/${leagueId}`}>{leagueName}</Link> / Transfers
+            <NavigationLink href={`/league/${leagueId}`}>{leagueName}</NavigationLink> / Transfers
           </p>
           <h1 className={styles.title}>Transfers Hub</h1>
           {pendingTrades.length > 0 && (

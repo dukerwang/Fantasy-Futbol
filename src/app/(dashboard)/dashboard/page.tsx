@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { redirect } from 'next/navigation';
-import Link from 'next/link';
+import NavigationLink from '@/components/ui/NavigationLink';
 import { Icon } from '@/components/ui/Icon';
 import { getFplStatus } from '@/lib/fpl/api';
 import { getGameweekFixtures, type GwFixture } from '@/lib/fpl/fixtures';
@@ -167,14 +167,14 @@ export default async function DashboardPage() {
           <p className={styles.heroSub}>{heroSubtitle}</p>
         </div>
         <div className={styles.heroActions}>
-          <Link href="/league/join" className={styles.btnSecondary}>
+          <NavigationLink href="/league/join" className={styles.btnSecondary}>
             <Icon name="unlock" size={14} strokeWidth={1.8} />
             Join League
-          </Link>
-          <Link href="/league/create" className={styles.btnPrimary}>
+          </NavigationLink>
+          <NavigationLink href="/league/create" className={styles.btnPrimary}>
             <Icon name="plus" size={14} strokeWidth={2.2} />
             Create League
-          </Link>
+          </NavigationLink>
         </div>
       </header>
 
@@ -214,14 +214,14 @@ export default async function DashboardPage() {
           <h2 className={styles.emptyTitle}>No leagues yet</h2>
           <p className={styles.emptyText}>Create a league and invite your friends to get started.</p>
           <div className={styles.emptyActions}>
-            <Link href="/league/create" className={styles.btnPrimary}>
+            <NavigationLink href="/league/create" className={styles.btnPrimary}>
               <Icon name="plus" size={14} strokeWidth={2.2} />
               Create a League
-            </Link>
-            <Link href="/league/join" className={styles.btnSecondary}>
+            </NavigationLink>
+            <NavigationLink href="/league/join" className={styles.btnSecondary}>
               <Icon name="unlock" size={14} strokeWidth={1.8} />
               Join with Invite Code
-            </Link>
+            </NavigationLink>
           </div>
         </div>
       )}

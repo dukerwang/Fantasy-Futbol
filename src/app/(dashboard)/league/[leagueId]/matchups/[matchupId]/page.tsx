@@ -1,7 +1,7 @@
 import { createAdminClient } from '@/lib/supabase/admin';
 import { createClient } from '@/lib/supabase/server';
 import { notFound, redirect } from 'next/navigation';
-import Link from 'next/link';
+import NavigationLink from '@/components/ui/NavigationLink';
 import type { Matchup, MatchupLineup, Player } from '@/types';
 import MatchupPitch from '@/components/MatchupPitch';
 import { FULL_PLAYER_SELECT } from '@/lib/constants/queries';
@@ -119,9 +119,9 @@ export default async function MatchupDetailPage({ params }: Props) {
 
     return (
         <div className={styles.container}>
-            <Link href={`/league/${leagueId}/matchups?gw=${matchup.gameweek}`} className={styles.backLink}>
+            <NavigationLink href={`/league/${leagueId}/matchups?gw=${matchup.gameweek}`} className={styles.backLink}>
                 ← Gameweeks
-            </Link>
+            </NavigationLink>
 
             {/* Score banner */}
             <div className={styles.matchHeader}>

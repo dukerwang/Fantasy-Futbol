@@ -81,6 +81,7 @@ export default function TeamSetupClient({ leagueId, leagueName, team, username }
     }
 
     setLoading(false);
+    window.dispatchEvent(new Event('navigation-start'));
     router.push(`/league/${leagueId}`);
     router.refresh();
   };

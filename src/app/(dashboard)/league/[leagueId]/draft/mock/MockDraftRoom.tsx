@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import Link from 'next/link';
+import NavigationLink from '@/components/ui/NavigationLink';
 import { motion } from 'framer-motion';
 import { List } from 'react-window';
 import { getPlayerDisplayName } from '@/lib/players/displayName';
@@ -672,7 +672,7 @@ export default function MockDraftRoom({ leagueId, league, players, shadowMaps, m
       <div className={styles.wrap}>
         <div className={styles.topBar}>
           <span className={styles.mockBadge}>Mock Draft</span>
-          <Link href={`/league/${leagueId}`} className={styles.exitLink}>← Back to lobby</Link>
+          <NavigationLink href={`/league/${leagueId}`} className={styles.exitLink}>← Back to lobby</NavigationLink>
         </div>
         <div className={styles.card}>
           <h1 className={styles.title}>Practice your draft</h1>
@@ -734,7 +734,7 @@ export default function MockDraftRoom({ leagueId, league, players, shadowMaps, m
             <span className={draftStyles.completeText}>Mock draft complete — see how your squad stacks up.</span>
             <div className={styles.btnRow}>
               <button type="button" className={styles.secondaryBtn} onClick={restartDraft}>Start New Mock Draft</button>
-              <Link href={`/league/${leagueId}`} className={draftStyles.goToTeamBtn}>Back to Lobby →</Link>
+              <NavigationLink href={`/league/${leagueId}`} className={draftStyles.goToTeamBtn}>Back to Lobby →</NavigationLink>
             </div>
           </div>
         ) : (
@@ -781,9 +781,9 @@ export default function MockDraftRoom({ leagueId, league, players, shadowMaps, m
                 <button type="button" className={styles.controlBtn} onClick={restartDraft}>
                   Restart
                 </button>
-                <Link href={`/league/${leagueId}`} className={styles.controlBtn}>
+                <NavigationLink href={`/league/${leagueId}`} className={styles.controlBtn}>
                   Exit
-                </Link>
+                </NavigationLink>
               </div>
             </div>
           </>

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import Link from 'next/link';
+import NavigationLink from '@/components/ui/NavigationLink';
 import type { AuctionListing, Player, GranularPosition } from '@/types';
 import { getPlayerDisplayName, playerInitial } from '@/lib/players/displayName';
 import styles from './transfers.module.css';
@@ -609,12 +609,12 @@ export default function TransferMarketClient({
             )}
 
             <div className={styles.sidebarFooter}>
-              <Link
+              <NavigationLink
                 href={`/league/${leagueId}/activity`}
                 className={styles.viewAllLink}
               >
                 View all activity →
-              </Link>
+              </NavigationLink>
             </div>
           </aside>
         </div>

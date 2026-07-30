@@ -49,6 +49,7 @@ export default function CrestEditClient({ leagueId, team }: Props) {
     
     // Quick delay to let the user see success before redirecting
     setTimeout(() => {
+      window.dispatchEvent(new Event('navigation-start'));
       router.push(`/league/${leagueId}`);
       router.refresh();
     }, 800);
@@ -81,7 +82,10 @@ export default function CrestEditClient({ leagueId, team }: Props) {
           abbreviation={team.abbreviation ?? 'CLUB'}
           teamName={team.team_name}
           onSave={handleSave}
-          onCancel={() => router.push(`/league/${leagueId}`)}
+          onCancel={() => {
+            window.dispatchEvent(new Event('navigation-start'));
+            router.push(`/league/${leagueId}`);
+          }}
           saveLabel="Save Crest Design"
           loading={loading || success}
         />

@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
-import Link from 'next/link';
+import NavigationLink from '@/components/ui/NavigationLink';
 import JoinLeagueForm from './JoinLeagueForm';
 import styles from './join.module.css';
 
@@ -13,7 +13,7 @@ export default async function JoinLeaguePage() {
     <div className={styles.page}>
       <header className={styles.header}>
         <p className={styles.breadcrumb}>
-          <Link href="/dashboard">Dashboard</Link> / Join League
+          <NavigationLink href="/dashboard">Dashboard</NavigationLink> / Join League
         </p>
         <h1 className={styles.title}>Join a League</h1>
         <p className={styles.subtitle}>Enter an invite code to join your friends' league.</p>
