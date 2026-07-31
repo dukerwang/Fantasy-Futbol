@@ -9,7 +9,10 @@ BEGIN
   -- Fire-and-forget POST request to the Vercel cron endpoint
   PERFORM net.http_post(
       url:='https://gaffa.live/api/cron/start-scheduled-drafts',
-      headers:='{"x-cron-secret": "irenie_beanie"}'::jsonb
+      -- Secret redacted. This literal leaked via the public repo; migration 098
+      -- moves it to Supabase Vault and 098's runbook rotates it. Superseded —
+      -- do not reintroduce a literal here.
+      headers:=jsonb_build_object('x-cron-secret', public.cron_secret())
   );
 END;
 $$;

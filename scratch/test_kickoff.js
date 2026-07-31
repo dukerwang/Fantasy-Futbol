@@ -9,7 +9,9 @@ async function testCron() {
     path: '/api/cron/start-scheduled-drafts',
     method: 'POST',
     headers: {
-      'x-cron-secret': 'irenie_beanie',
+      // Never hardcode the secret — this file is in a public repo.
+      // Run as: CRON_SECRET=... node scratch/test_kickoff.js
+      'x-cron-secret': process.env.CRON_SECRET,
       'Content-Type': 'application/json'
     }
   };
