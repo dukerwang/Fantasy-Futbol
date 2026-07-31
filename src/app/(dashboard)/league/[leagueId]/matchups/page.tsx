@@ -107,32 +107,31 @@ export default async function MatchupsPage({ params, searchParams }: Props) {
 
     let gameweeks = Array.from(new Set((allGws ?? []).map((row) => row.gameweek))).sort((a, b) => a - b);
 
-    // Self-healing: if the draft was auto-completed via SQL cron, matchups might not exist yet
-    if (gameweeks.length === 0 && league.status === 'active') {
-        const { insertMatchups } = await import('@/lib/schedule/insertMatchups');
-        await insertMatchups(admin, leagueId).catch(console.error);
-
-        // Also seed cup tournaments if they don't exist yet (brand new league)
-        const { data: tourneys } = await admin
+    // Self-healing safety net for leagues whose draft completed before the
+    // ensureSeasonScaffold fix, or via the SQL cron (which cannot call it).
+    // The cup check is deliberately independent of the matchup check — gating
+    // cup creation behind "zero matchups exist" is what left two production
+    // leagues with a full schedule and no cups, permanently.
+    if (league.status === 'active') {
+        const { data: existingTourneys } = await admin
             .from('tournaments')
             .select('id')
             .eq('league_id', leagueId)
             .limit(1);
 
-        if (!tourneys || tourneys.length === 0) {
-            const { createAllTournaments } = await import('@/lib/tournaments/createTournaments');
-            const { getCurrentFplSeason } = await import('@/lib/season/currentSeason');
-            const season = league.current_season ?? await getCurrentFplSeason();
-            await createAllTournaments(admin, leagueId, season).catch(console.error);
+        if (gameweeks.length === 0 || !existingTourneys || existingTourneys.length === 0) {
+            const { ensureSeasonScaffold } = await import('@/lib/schedule/ensureSeasonScaffold');
+            const scaffold = await ensureSeasonScaffold(admin, leagueId, league.current_season);
+
+            if (scaffold.matchupsCreated) {
+                const { data: refreshedGws } = await admin
+                    .from('matchups')
+                    .select('gameweek')
+                    .eq('league_id', leagueId)
+                    .order('gameweek', { ascending: true });
+                gameweeks = Array.from(new Set((refreshedGws ?? []).map((row) => row.gameweek))).sort((a, b) => a - b);
+            }
         }
-        
-        // Re-fetch gameweeks after generation
-        const { data: refreshedGws } = await admin
-            .from('matchups')
-            .select('gameweek')
-            .eq('league_id', leagueId)
-            .order('gameweek', { ascending: true });
-        gameweeks = Array.from(new Set((refreshedGws ?? []).map((row) => row.gameweek))).sort((a, b) => a - b);
     }
 
     let targetGw = parseInt(gw ?? '0', 10);

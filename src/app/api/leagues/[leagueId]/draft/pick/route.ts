@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
-import { insertMatchups } from '@/lib/schedule/insertMatchups';
+import { ensureSeasonScaffold } from '@/lib/schedule/ensureSeasonScaffold';
 
 interface Props {
   params: Promise<{ leagueId: string }>;
@@ -29,7 +29,7 @@ export async function POST(req: NextRequest, { params }: Props) {
   // Verify league
   const { data: league } = await admin
     .from('leagues')
-    .select('id, status, roster_size')
+    .select('id, status, roster_size, current_season')
     .eq('id', leagueId)
     .single();
 
@@ -170,7 +170,9 @@ export async function POST(req: NextRequest, { params }: Props) {
       payload: { leagueId },
     });
     admin.removeChannel(completeChannel);
-    await insertMatchups(admin, leagueId).catch(console.error);
+    // Schedule AND all three cup brackets — see ensureSeasonScaffold for why
+    // these must not be called separately.
+    await ensureSeasonScaffold(admin, leagueId, league.current_season);
   }
 
   return NextResponse.json({ ...newPick, status: isComplete ? 'active' : 'drafting', draftQueue });

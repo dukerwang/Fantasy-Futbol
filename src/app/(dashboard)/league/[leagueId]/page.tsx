@@ -223,29 +223,20 @@ export default async function LeaguePage({ params }: Props) {
     return sum;
   }, 0);
 
-  // Self-healing: if the draft was auto-completed via SQL cron, matchups might not exist yet
-  if (league.status === 'active' && recentMatchups.length === 0 && myMatchups.length === 0) {
-    // Check if there are truly no matchups in the league
-    const { count } = await admin.from('matchups').select('id', { count: 'exact', head: true }).eq('league_id', leagueId);
-    if (count === 0) {
-      const { insertMatchups } = await import('@/lib/schedule/insertMatchups');
-      await insertMatchups(admin, leagueId).catch(console.error);
-      
-      // Also seed cup tournaments if they don't exist yet (brand new league)
-      const { data: tourneys } = await admin
-        .from('tournaments')
-        .select('id')
-        .eq('league_id', leagueId)
-        .limit(1);
+  // Self-healing safety net for leagues whose draft completed before the
+  // ensureSeasonScaffold fix, or via the SQL cron (which cannot call it).
+  // Checks cups independently of matchups: gating the cup backfill behind
+  // "zero matchups exist" is exactly what left two production leagues with a
+  // full schedule and no cups, permanently. Both counts here were already
+  // fetched in the parallel batch above, so this is free when nothing is missing.
+  if (
+    league.status === 'active' &&
+    ((totalMatchupsResult.count ?? 0) === 0 || tournaments.length === 0)
+  ) {
+    const { ensureSeasonScaffold } = await import('@/lib/schedule/ensureSeasonScaffold');
+    const scaffold = await ensureSeasonScaffold(admin, leagueId, league.current_season);
 
-      if (!tourneys || tourneys.length === 0) {
-        const { createAllTournaments } = await import('@/lib/tournaments/createTournaments');
-        const { getCurrentFplSeason } = await import('@/lib/season/currentSeason');
-        const season = league.current_season ?? await getCurrentFplSeason();
-        await createAllTournaments(admin, leagueId, season).catch(console.error);
-      }
-
-      // Refresh myMatchups if they were just created
+    if (scaffold.matchupsCreated) {
       if (myTeamId) {
         const { data: freshMyMatchups } = await admin
           .from('matchups')
