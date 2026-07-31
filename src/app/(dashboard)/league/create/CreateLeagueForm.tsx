@@ -9,7 +9,10 @@ export default function CreateLeagueForm() {
   const [name, setName] = useState('');
   const [maxTeams, setMaxTeams] = useState(10);
   const [rosterSize, setRosterSize] = useState(20);
-  const [faabBudget, setFaabBudget] = useState(150);
+  // 250 matches the API default and docs/USER_GUIDE.md §8. The form used to
+  // default to 150, so every league made through the UI silently started a
+  // third poorer than the documented figure.
+  const [faabBudget, setFaabBudget] = useState(250);
   const [draftType, setDraftType] = useState<'snake' | 'auction'>('snake');
   const [isDynasty, setIsDynasty] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -20,10 +23,15 @@ export default function CreateLeagueForm() {
     setLoading(true);
     setError(null);
 
+    // Auction quiet hours are meaningless without a zone, and this has to be
+    // read in the browser: the same call on the server returns Vercel's UTC,
+    // not where the managers actually live.
+    const auctionTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
     const res = await fetch('/api/leagues/create', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, maxTeams, rosterSize, faabBudget, draftType, isDynasty }),
+      body: JSON.stringify({ name, maxTeams, rosterSize, faabBudget, draftType, isDynasty, auctionTimezone }),
     });
 
     const json = await res.json();
