@@ -484,6 +484,8 @@ export interface AuctionListing {
   bid_history: AuctionBid[];
   is_promoted_exclusive?: boolean;
   is_eligible?: boolean;
+  /** Future ISO timestamp when a staggered kickoff auction opens; null means open now. */
+  opens_at: string | null;
 }
 
 

@@ -22,8 +22,8 @@ import { findPromotedClubsAndArrivals } from '@/lib/offseason/seasonKickoff';
 import { sendEmail } from '@/lib/email/client';
 import { getSystemAuctionsEmail } from '@/lib/email/templates';
 import { createNotification } from '@/lib/notifications/createNotification';
-
-const AUCTION_WINDOW_HOURS = 48;
+import { initialAuctionExpiry } from '@/lib/auction/timer';
+import { getLeagueAuctionSettings } from '@/lib/auction/leagueAuctionSettings';
 
 interface LeagueRow {
   id: string;
@@ -45,6 +45,18 @@ export interface SeedResult {
  * skipped, so this is idempotent per player per league.
  */
 export async function seedHighValueAuctions(admin: SupabaseClient): Promise<SeedResult[]> {
+  // INVARIANT: nothing may be auctioned before a league has drafted.
+  //
+  // `status = 'active'` is what enforces it — a league is 'setup' or 'drafting'
+  // until the final pick lands, so a €90m arrival on August 12th with a draft
+  // scheduled for the 15th creates no auction and instead falls into the draft
+  // pool, which draft/page.tsx builds from `players` where is_active = true with
+  // no snapshot or cutoff.
+  //
+  // This filter reads like "leagues in play", so widening it would silently
+  // start auctioning players out from under an undrafted league. Do not relax it
+  // without replacing the guarantee. Asserted in
+  // src/lib/auctions/__tests__/seedingWaves.test.ts.
   const { data: leagues } = await admin
     .from('leagues')
     .select('id, name, previous_season')
@@ -58,7 +70,10 @@ export async function seedHighValueAuctions(admin: SupabaseClient): Promise<Seed
       const { candidates } = await findPromotedClubsAndArrivals(admin, league.id, league.previous_season);
       if (candidates.length === 0) continue;
 
-      const expiresAt = new Date(Date.now() + AUCTION_WINDOW_HOURS * 60 * 60 * 1000).toISOString();
+      // One window for every seeding path — see initialAuctionExpiry's docblock
+      // for the five places that previously disagreed.
+      const { quietHours } = await getLeagueAuctionSettings(admin, league.id);
+      const expiresAt = initialAuctionExpiry(Date.now(), quietHours);
       const auctionRows = candidates.map((p) => ({
         league_id: league.id,
         team_id: null,
@@ -69,6 +84,7 @@ export async function seedHighValueAuctions(admin: SupabaseClient): Promise<Seed
         gameweek: 0,
         is_auction: true,
         expires_at: expiresAt,
+        opens_at: null,
         // Reference price for the auction premium — see migration 070.
         market_value_at_auction: p.marketValue,
       }));

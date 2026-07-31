@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { redirect, notFound } from 'next/navigation';
 import TransferMarketClient from './TransferMarketClient';
+import { getLeagueAuctionSettings } from '@/lib/auction/leagueAuctionSettings';
 import { FULL_PLAYER_SELECT } from '@/lib/constants/queries';
 import type { Player } from '@/types';
 import { getCurrentFplSeason, isFplSeasonKickedOff } from '@/lib/season/currentSeason';
@@ -125,6 +126,7 @@ export default async function TransferMarketPage({ params, searchParams }: Props
         bid_history: bidEntry ? [bidEntry] : [],
         is_promoted_exclusive: !!isPromotedExclusive,
         is_eligible: isMyTeamEligible,
+        opens_at: claim.opens_at ?? null,
       });
     } else {
       if (isRealBid) {
@@ -224,6 +226,9 @@ export default async function TransferMarketPage({ params, searchParams }: Props
   const rosterFull = activeRosterCount >= (league.roster_size ?? 20);
   const academyCount = myRoster.filter((p: any) => p.status === 'taxi').length;
 
+  // League bid floor (configurable per-league, default 50% of market value)
+  const { bidFloor } = await getLeagueAuctionSettings(admin, leagueId);
+
   // Recent completed auction wins for the sidebar feed
   const { data: recentActivity } = await admin
     .from('transactions')
@@ -250,6 +255,7 @@ export default async function TransferMarketPage({ params, searchParams }: Props
       initialRecentActivity={(recentActivity ?? []) as any[]}
       initialIsMyTeamEligible={isMyTeamEligible}
       initialPromotedClubs={Array.from(promotedClubs)}
+      initialBidFloor={bidFloor}
     />
   );
 }

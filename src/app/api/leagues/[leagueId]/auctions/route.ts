@@ -126,6 +126,7 @@ export async function GET(_req: NextRequest, { params }: Props) {
         bid_history: bidEntry ? [bidEntry] : [],
         is_promoted_exclusive: !!isPromotedExclusive,
         is_eligible: isMyTeamEligible,
+        opens_at: claim.opens_at ?? null,
       });
     } else {
       if (isRealBid) {

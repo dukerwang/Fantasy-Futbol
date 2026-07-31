@@ -21,9 +21,11 @@ import { previewRelegationCompensation, processRelegationCompensation } from '@/
 import { syncPlayersFromFpl } from '@/lib/players/syncPlayers';
 import { createNotification } from '@/lib/notifications/createNotification';
 import { getPlayerDisplayName } from '@/lib/players/displayName';
+import { initialAuctionExpiry } from '@/lib/auction/timer';
+import { getLeagueAuctionSettings } from '@/lib/auction/leagueAuctionSettings';
+import { assignReleaseWaves } from '@/lib/auctions/seedingWaves';
 
 export const AUCTION_THRESHOLD = 50.0;
-const AUCTION_WINDOW_HOURS = 96;
 
 interface LeagueRow {
   id: string;
@@ -257,21 +259,39 @@ export async function runSeasonKickoff(admin: SupabaseClient, leagueId: string):
   );
 
   if (playersToAuction.length > 0) {
-    const expiresAt = new Date();
-    expiresAt.setHours(expiresAt.getHours() + AUCTION_WINDOW_HOURS);
+    const { quietHours } = await getLeagueAuctionSettings(admin, leagueId);
+    const now = Date.now();
 
-    const auctionInserts = playersToAuction.map((p) => ({
+    // Only the elite tier is staggered. Promoted-club players are cheap and
+    // numerous, and delaying them would block routine roster building.
+    const elite = playersToAuction.filter((p) => Number(p.marketValue || 0) >= AUCTION_THRESHOLD);
+    const rest = playersToAuction.filter((p) => Number(p.marketValue || 0) < AUCTION_THRESHOLD);
+
+    const { count: teamCount } = await admin
+      .from('teams')
+      .select('id', { count: 'exact', head: true })
+      .eq('league_id', leagueId);
+
+    const waved = assignReleaseWaves(elite, teamCount ?? 0, now);
+
+    const auctionInserts = [
+      ...waved.map((p) => ({ player: p, opensAtMs: p.opensAtMs })),
+      ...rest.map((p) => ({ player: p, opensAtMs: null as number | null })),
+    ].map(({ player, opensAtMs }) => ({
       league_id: leagueId,
       team_id: null,
-      player_id: p.id,
+      player_id: player.id,
       faab_bid: 0,
       priority: 999,
       status: 'pending',
       gameweek: 0,
       is_auction: true,
-      expires_at: expiresAt.toISOString(),
+      // The 72h window runs from when the auction OPENS, not from kickoff —
+      // otherwise a wave four releases already expired.
+      expires_at: initialAuctionExpiry(opensAtMs ?? now, quietHours),
+      opens_at: opensAtMs === null ? null : new Date(opensAtMs).toISOString(),
       // Reference price for the auction premium — see migration 070.
-      market_value_at_auction: p.marketValue,
+      market_value_at_auction: player.marketValue,
     }));
 
     const { error: insertErr } = await admin.from('waiver_claims').insert(auctionInserts);

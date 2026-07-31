@@ -10,7 +10,7 @@ export async function POST(req: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const { name, teamName, maxTeams, rosterSize, faabBudget, draftType, isDynasty } = await req.json();
+  const { name, teamName, maxTeams, rosterSize, faabBudget, draftType, isDynasty, auctionTimezone } = await req.json();
 
   if (!name?.trim()) return NextResponse.json({ error: 'League name is required' }, { status: 400 });
 
@@ -35,6 +35,12 @@ export async function POST(req: NextRequest) {
     faab_budget: faabBudget ?? 250,
     draft_type: draftType ?? 'snake',
     is_dynasty: isDynasty ?? true,
+    // Quiet hours are meaningless without a zone, and the column has no default
+    // because the right value depends on where the managers live. The client
+    // sends its own IANA zone; do NOT fall back to Intl here, because this runs
+    // on Vercel and would resolve to UTC — which for a US league puts "quiet
+    // hours" in the middle of their evening and closes auctions mid-workday.
+    auction_timezone: auctionTimezone || 'Europe/London',
     scoring_rules: DEFAULT_SCORING_RULES,
     season: currentSeason,
     current_season: currentSeason,

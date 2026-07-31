@@ -46,6 +46,8 @@ interface Props {
   initialRecentActivity: RecentActivityItem[];
   initialIsMyTeamEligible?: boolean;
   initialPromotedClubs?: string[];
+  /** Free-agent bid floor as a fraction of market value. Default 0.5 (50%). */
+  initialBidFloor?: number;
 }
 
 function calculateAgeInYears(dobIso: string, referenceDate = new Date()): number {
@@ -105,6 +107,23 @@ function timeAgo(ts: string): string {
   return `${Math.floor(h / 24)}d ago`;
 }
 
+/**
+ * Human-readable countdown to an opens_at timestamp.
+ * Shows "Opens in Xd Yh" down to minutes.
+ */
+function formatOpensIn(opensAt: string, now: number): string {
+  const diff = new Date(opensAt).getTime() - now;
+  if (diff <= 0) return '';
+  const h = Math.floor(diff / 3_600_000);
+  const m = Math.floor((diff % 3_600_000) / 60_000);
+  if (h >= 24) {
+    const d = Math.floor(h / 24);
+    return `Opens in ${d}d ${h % 24}h`;
+  }
+  if (h > 0) return `Opens in ${h}h ${m.toString().padStart(2, '0')}m`;
+  return `Opens in ${m}m`;
+}
+
 function formatStat(val: number | null | undefined, decimals = 1): string {
   if (val == null) return '—';
   return Number(val).toFixed(decimals);
@@ -131,6 +150,7 @@ export default function TransferMarketClient({
   initialRecentActivity,
   initialIsMyTeamEligible,
   initialPromotedClubs,
+  initialBidFloor = 0.5,
 }: Props) {
   const [auctions, setAuctions] = useState<AuctionListing[]>(initialAuctions);
   // Full unfiltered list — refreshed from API; search filters client-side
@@ -143,6 +163,8 @@ export default function TransferMarketClient({
   const [activeTab, setActiveTab] = useState<'market' | 'auctions'>(initialTab);
   const [isMyTeamEligible, setIsMyTeamEligible] = useState(initialIsMyTeamEligible ?? true);
   const [promotedClubs, setPromotedClubs] = useState<string[]>(initialPromotedClubs ?? []);
+  // Floor doesn't change at runtime — league setting is read at page load.
+  const bidFloor = initialBidFloor;
 
   // Client-side search/filter state
   const [searchQ, setSearchQ] = useState('');
@@ -305,7 +327,7 @@ export default function TransferMarketClient({
     isEligible?: boolean,
   ) {
     setModal({ open: true, player, currentHighest, currentExpiry, myCurrentBid, myCurrentDropId, bidHistory, isPromotedExclusive, isEligible });
-    const tmMin = Math.floor(Number(player.market_value || 0) * 0.2);
+    const tmMin = Math.floor(Number(player.market_value || 0) * bidFloor);
     const auctionMin = myCurrentBid !== null
       ? Math.max(currentHighest, myCurrentBid) + 1
       : currentHighest;
@@ -337,9 +359,9 @@ export default function TransferMarketClient({
       setSubmitError(`You only have €${myTeam.faab_budget}m Club Balance remaining.`);
       return;
     }
-    const tmMin = Math.floor(Number(modal.player.market_value || 0) * 0.2);
+    const tmMin = Math.floor(Number(modal.player.market_value || 0) * bidFloor);
     if (tmMin > 0 && amount < tmMin) {
-      setSubmitError(`Minimum bid for this player is €${tmMin}m (Transfermarkt floor).`);
+      setSubmitError(`Minimum bid for this player is €${tmMin}m (${Math.round(bidFloor * 100)}% of market value).`);
       return;
     }
     if (rosterFull && !dropPlayerId && !sendToAcademyIfFull) {
@@ -395,7 +417,7 @@ export default function TransferMarketClient({
   // ── Bid stepper ─────────────────────────────────────────────────────────────
 
   const bidNum = parseInt(bidAmount, 10);
-  const tmMin = modal.player ? Math.floor(Number(modal.player.market_value || 0) * 0.2) : 0;
+  const tmMin = modal.player ? Math.floor(Number(modal.player.market_value || 0) * bidFloor) : 0;
   const auctionMin = modal.myCurrentBid !== null
     ? Math.max(modal.currentHighest, modal.myCurrentBid) + 1
     : modal.currentHighest;
@@ -650,7 +672,8 @@ export default function TransferMarketClient({
                 const isUrgent = new Date(auction.expires_at).getTime() - now < ANTI_SNIPE_WINDOW_MS;
                 const isLeading = auction.highest_bidder_team_id === myTeam.id;
                 const isExpired = new Date(auction.expires_at).getTime() <= now;
-                const tmMin = Math.floor(Number(auction.player.market_value || 0) * 0.2);
+                const isLocked = !!(auction.opens_at && new Date(auction.opens_at).getTime() > now);
+                const tmMin = Math.floor(Number(auction.player.market_value || 0) * bidFloor);
 
                 return (
                   <div
@@ -688,6 +711,11 @@ export default function TransferMarketClient({
                           {auction.is_promoted_exclusive && (
                             <span className={styles.promotedExclusiveBadge} title="Exclusive to bottom-half teams from last season">
                               Promoted Exclusive
+                            </span>
+                          )}
+                          {isLocked && auction.opens_at && (
+                            <span className={styles.lockedBadge} title="This auction opens at a future wave date">
+                              {formatOpensIn(auction.opens_at, now)}
                             </span>
                           )}
                         </div>
@@ -738,9 +766,11 @@ export default function TransferMarketClient({
 
                       <button
                         className={styles.auctionPlaceBidBtn}
-                        disabled={isExpired || (auction.is_promoted_exclusive && !auction.is_eligible)}
+                        disabled={isExpired || isLocked || (auction.is_promoted_exclusive && !auction.is_eligible)}
                         title={
-                          auction.is_promoted_exclusive && !auction.is_eligible
+                          isLocked && auction.opens_at
+                            ? formatOpensIn(auction.opens_at, now)
+                            : auction.is_promoted_exclusive && !auction.is_eligible
                             ? "This kickoff auction is restricted to bottom-half teams from last season."
                             : undefined
                         }
@@ -759,6 +789,8 @@ export default function TransferMarketClient({
                       >
                         {isExpired
                           ? 'Processing…'
+                          : isLocked
+                          ? (auction.opens_at ? formatOpensIn(auction.opens_at, now) : 'Locked')
                           : auction.is_promoted_exclusive && !auction.is_eligible
                           ? 'Excluded (Top-Half)'
                           : isLeading
@@ -912,7 +944,7 @@ export default function TransferMarketClient({
                 <div className={styles.bidContextInfo}>
                   <span>
                     Min bid: <strong>€{Math.max(auctionMin, tmMin)}m</strong>
-                    {tmMin > 0 && ` (€${tmMin}m Transfermarkt floor)`}
+                    {tmMin > 0 && ` (€${tmMin}m — ${Math.round(bidFloor * 100)}% of market value)`}
                   </span>
                   <span className={styles.bidContextInfoGreen}>
                     Club Balance: <strong>€{myTeam.faab_budget}m</strong>

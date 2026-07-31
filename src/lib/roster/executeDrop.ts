@@ -1,8 +1,9 @@
 import { SupabaseClient } from '@supabase/supabase-js';
 import { sendEmail } from '@/lib/email/client';
 import { getPlayerDroppedEmail } from '@/lib/email/templates';
-import { AUCTION_THRESHOLD } from '@/lib/offseason/seasonKickoff';
 import { getDepartureCompensationRate } from '@/lib/transfers/compensation';
+import { initialAuctionExpiry } from '@/lib/auction/timer';
+import { getLeagueAuctionSettings } from '@/lib/auction/leagueAuctionSettings';
 
 export async function executeDrop(
     admin: SupabaseClient,
@@ -123,11 +124,11 @@ export async function executeDrop(
 
     // 4. For plain drops (not PL transfers), auto-start a system auction
     if (actionType !== 'transfer_out') {
-        // Shares the high-value threshold with Kickoff and the nightly sweep so
-        // the three can't drift apart on what counts as a marquee player.
-        const isBigTransfer = marketValue >= AUCTION_THRESHOLD;
-        const durationHours = isBigTransfer ? 96 : 48;
-        const auctionExpiry = new Date(Date.now() + durationHours * 60 * 60 * 1000).toISOString();
+        // Single 72h pre-first-bid window. This path used AUCTION_THRESHOLD (50)
+        // to pick between 96h and 48h while the timer and the resolver used 40
+        // for the same decision — market value no longer affects duration at all.
+        const { quietHours } = await getLeagueAuctionSettings(admin, team.league_id);
+        const auctionExpiry = initialAuctionExpiry(Date.now(), quietHours);
 
         await admin.from('waiver_claims').insert({
             league_id: team.league_id,
@@ -139,6 +140,7 @@ export async function executeDrop(
             gameweek: 0,
             is_auction: true,
             expires_at: auctionExpiry,
+            opens_at: null,
             // Reference price for the auction premium — see migration 070.
             market_value_at_auction: marketValue,
         });
@@ -167,7 +169,7 @@ export async function executeDrop(
                         leagueId: team.league_id,
                         userId: t.user_id,
                         title: 'Waiver Alert: Player Dropped',
-                        content: `**${team.team_name}** dropped **${player.name}** to the waiver pool. A ${durationHours}-hour transfer auction has automatically begun.`,
+                        content: `**${team.team_name}** dropped **${player.name}** to the waiver pool. A 72-hour transfer auction has automatically begun.`,
                         url: `/league/${team.league_id}/players`
                     });
                 }

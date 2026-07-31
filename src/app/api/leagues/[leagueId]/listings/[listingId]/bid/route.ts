@@ -24,7 +24,8 @@ import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { sendEmail } from '@/lib/email/client';
 import { getOutbidEmail } from '@/lib/email/templates';
-import { BIG_TRANSFER_THRESHOLD, calculateExpiresAt } from '@/lib/auction/timer';
+import { calculateExpiresAt } from '@/lib/auction/timer';
+import { getLeagueAuctionSettings } from '@/lib/auction/leagueAuctionSettings';
 import { getLockedPlTeamIds } from '@/lib/auction/lockedClubs';
 
 interface Props {
@@ -105,9 +106,11 @@ export async function POST(req: NextRequest, { params }: Props) {
     .maybeSingle();
 
   const now = Date.now();
-  const isBig = Number(playerData?.market_value || 0) >= BIG_TRANSFER_THRESHOLD;
+  // Sale listings share the timer with free agents, so the decaying timeout and
+  // the quiet-hours guard apply to them too. That is intended.
+  const { quietHours } = await getLeagueAuctionSettings(admin, leagueId);
   const firstBidTime = anchor?.first_bid_at ? new Date(anchor.first_bid_at).getTime() : now;
-  const expiresAt = calculateExpiresAt(firstBidTime, now, isBig);
+  const expiresAt = calculateExpiresAt(firstBidTime, now, quietHours);
 
   const { data: rpcRes, error: rpcError } = await admin.rpc('place_auction_bid_rpc', {
     p_league_id: leagueId,

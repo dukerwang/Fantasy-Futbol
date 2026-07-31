@@ -289,21 +289,22 @@ It also keeps the skill in the right place. In a sealed format the winner is usu
 - **Your bid must beat the current high.** Matching it is rejected, as is lowering your own standing bid. There is therefore no such thing as a tied bid.
 - If you're at your roster limit you nominate a player to **drop** as part of your bid. Dropping charges a **severance fee** of 20% of his market value, minimum **€2m**, on top of your winning bid — so churn isn't free.
 - If you win but your active roster is full and the player is U21, he can be routed to your **Academy** rather than blocking the transfer.
-- **The league seeds auctions automatically at season kickoff** for any player worth **€50m or more**, *or* who plays for a **newly-promoted club**. Everyone is emailed. Promoted-club players are seeded regardless of price, because at kickoff nobody owns them and a cheap newly-promoted starter is exactly the kind of asset a dynasty league should compete for rather than claim first.
+- Free agent bids must reach at least the league's **minimum bid floor** (default **50% of market value**).
+- **The league seeds auctions automatically at season kickoff** for any player worth **€50m or more**, *or* who plays for a **newly-promoted club**. Everyone is emailed. Promoted-club players are seeded regardless of price, because at kickoff nobody owns them and a cheap newly-promoted starter is exactly the kind of asset a dynasty league should compete for rather than claim first. To keep managers focused on the same marquee targets, elite-tier auctions (€50m+) are **released in staggered waves** (roughly half the league size per wave, spaced 3 days apart).
 
 ### How long an auction runs
 
-There is no fixed window. The clock follows the bidding:
+There is no fixed duration and no hard ceiling. The clock is driven by bidding activity with a decaying inactivity timeout, protected by your league's **quiet hours** (default 00:00–08:00 local time):
 
 | | |
 |---|---|
-| Stays open at least | **24 hours** after the first bid |
-| Then closes | **12 hours** after the most recent bid |
-| Hard ceiling | **72 hours** — or **96 hours** if market value ≥ €40m |
+| Initial window (before first bid) | **72 hours** (for all players) |
+| Stays open at least | **24 hours** after the first real bid |
+| Inactivity timeout | **12h** (age <48h) → **4h** (48–72h) → **2h** (72–96h) → **1h** (96h+) |
+| Quiet hours guard | Expiries landing inside quiet hours automatically move to the window's end (e.g. 08:00) |
+| Hard ceiling | **None** — an auction terminates when someone stops paying, preventing snipes |
 
-Every bid pushes the close out by 12 hours, so a quiet auction ends 12 hours after it goes quiet and a contested one keeps running. The 24-hour floor exists so a 3am bid can't close at 4am — it must stay open until at least 3pm, giving everyone a waking chance to respond.
-
-> **Known limitation:** once a contested auction reaches its hard ceiling the closing time stops moving, and a bid placed just before it extends nothing. Auctions in that state can still be sniped. This is an open design question, not intended behaviour.
+Every bid extends the clock by the active inactivity timeout. Because there is no hard ceiling, contested auctions can never freeze on a snipeable public deadline, and quiet hours guarantee no auction resolves while managers are asleep.
 
 ### Selling your own players
 

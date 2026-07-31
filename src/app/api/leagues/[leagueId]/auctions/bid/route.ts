@@ -4,9 +4,9 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { sendEmail } from '@/lib/email/client';
 import { getOutbidEmail } from '@/lib/email/templates';
 import {
-  BIG_TRANSFER_THRESHOLD,
   calculateExpiresAt,
 } from '@/lib/auction/timer';
+import { getLeagueAuctionSettings } from '@/lib/auction/leagueAuctionSettings';
 import { getLockedPlTeamIds } from '@/lib/auction/lockedClubs';
 
 interface Props {
@@ -62,6 +62,8 @@ export async function POST(req: NextRequest, { params }: Props) {
     .single();
 
   if (!myTeam) return NextResponse.json({ error: 'No team in this league' }, { status: 403 });
+
+  const auctionSettings = await getLeagueAuctionSettings(admin, leagueId);
 
   // Validate FAAB (simple check against current balance; cron will re-validate at resolution)
   if (bidAmount > myTeam.faab_budget) {
@@ -184,11 +186,24 @@ export async function POST(req: NextRequest, { params }: Props) {
       );
     }
   } else {
-    // Free agent: the Transfermarkt floor of 20% of market value.
-    const minimumBid = playerData ? Math.floor(Number(playerData.market_value || 0) * 0.2) : 0;
+    // Free agent: a floor as a share of market value, per league setting
+    // (default 50% — migration 095).
+    //
+    // This was a hardcoded 20% while a MANAGER's listing has been floored at
+    // 80% by a DB trigger since 077_listing_gates.sql. Same player, four times
+    // the price depending on who was selling. The consequences were that a full
+    // window's shopping cost only 22% of a starting balance, and that manager
+    // listings were nearly unsellable — nobody pays 80% to a rival when the
+    // equivalent free agent costs 20%.
+    const floorPct = auctionSettings.bidFloor;
+    const minimumBid = playerData
+      ? Math.floor(Number(playerData.market_value || 0) * floorPct)
+      : 0;
     if (minimumBid > 0 && bidAmount < minimumBid) {
       return NextResponse.json(
-        { error: `Minimum bid for this player is €${minimumBid}m (20% of Transfermarkt value)` },
+        {
+          error: `Minimum bid for this player is €${minimumBid}m (${Math.round(floorPct * 100)}% of market value)`,
+        },
         { status: 400 },
       );
     }
@@ -268,10 +283,10 @@ export async function POST(req: NextRequest, { params }: Props) {
     }
   }
 
-  // Fetch system seed claim to check expiry and first bid time
+  // Fetch system seed claim to check expiry, first bid time, and staggered-release gate
   const { data: systemSeedClaim } = await admin
     .from('waiver_claims')
-    .select('expires_at, first_bid_at')
+    .select('expires_at, first_bid_at, opens_at')
     .eq('league_id', leagueId)
     .eq('player_id', playerId)
     .eq('status', 'pending')
@@ -286,11 +301,28 @@ export async function POST(req: NextRequest, { params }: Props) {
     );
   }
 
+  // Staggered release: season kickoff seeds the elite tier with future opens_at
+  // values so managers compete for the same players instead of picking from
+  // 14-25 simultaneous auctions. Every other seeding path writes NULL.
+  //
+  // This is the ONLY enforcement point. The auction list deliberately still
+  // shows unopened auctions so managers can plan budgets across the window.
+  if (systemSeedClaim?.opens_at && new Date().getTime() < new Date(systemSeedClaim.opens_at).getTime()) {
+    const opensAt = new Date(systemSeedClaim.opens_at);
+    return NextResponse.json(
+      { error: `This auction opens on ${opensAt.toUTCString()}. Bidding is not open yet.` },
+      { status: 400 },
+    );
+  }
+
   // ── Activity-based expiry calculation ────────────────────────────────────────
   const now = Date.now();
-  const isBigTransfer = playerData && Number(playerData.market_value || 0) >= BIG_TRANSFER_THRESHOLD;
+  // Market value no longer affects duration: deleting the hard ceiling removed
+  // the only two places the big-transfer distinction fed (72h vs 96h ceiling,
+  // 48h vs 96h initial window). Every auction now runs on the same decaying
+  // timeout and a single 72h pre-first-bid window.
   const firstBidTime = systemSeedClaim?.first_bid_at ? new Date(systemSeedClaim.first_bid_at).getTime() : now;
-  const expiresAt = calculateExpiresAt(firstBidTime, now, !!isBigTransfer);
+  const expiresAt = calculateExpiresAt(firstBidTime, now, auctionSettings.quietHours);
 
   // Call the database RPC to place/upsert the bid atomically
   const { data: rpcRes, error: rpcError } = await admin.rpc('place_auction_bid_rpc', {

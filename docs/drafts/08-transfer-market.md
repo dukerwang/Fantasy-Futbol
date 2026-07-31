@@ -17,12 +17,13 @@ Two things put a player on that board:
 - **A manager lists one of their own.** They set a minimum bid and, optionally,
   a "buy now" price. The proceeds go to them as Club Balance income — a real
   transfer fee, not a release.
-- **The league seeds one automatically at season kickoff**, for any player whose
+- **The league seeds auctions automatically at season kickoff**, for any player whose
   market value is **€50m or more**, *or* who plays for a **newly-promoted club**.
-  Every manager gets an email. Promoted-club players are seeded regardless of
-  value, because at kickoff nobody in the league owns them and a €12m
-  newly-promoted starter is exactly the kind of asset a dynasty league should
-  have to compete for rather than claim first.
+  Everyone is emailed. Promoted-club players are seeded regardless of value,
+  because at kickoff nobody in the league owns them and a €12m newly-promoted
+  starter is exactly the kind of asset a dynasty league should have to compete
+  for rather than claim first. To force competition for top targets, elite-tier
+  kickoff auctions are **released in staggered waves** (half-league wave size, spaced 3 days apart).
 
 ## Why it works this way
 
@@ -53,33 +54,36 @@ the headline other managers read.
 
 | Rule | Value |
 |---|---|
+| Initial window (before first bid) | **72 hours** (all players) |
 | Auction stays open at least | **24 hours** after the first real bid |
-| Then closes | **12 hours** after the most recent bid |
-| Hard ceiling | **72 hours** — or **96 hours** if market value ≥ €40m |
-| System-seeded auction trigger | market value **≥ €50m**, or player from a **newly-promoted club** |
+| Inactivity timeout | **12h** (age <48h) → **4h** (48–72h) → **2h** (72–96h) → **1h** (96h+) |
+| Quiet hours guard | Expiries in quiet hours move to window end (default **00:00–08:00** local) |
+| Hard ceiling | **None** |
+| System-seeded auction trigger | market value **≥ €50m** (staggered), or player from **newly-promoted club** |
+| Free-agent minimum bid floor | **50%** of market value (configurable per league) |
 | Listing minimum bid floor | **80%** of market value |
 | Severance if you drop to make room | **20%** of the dropped player's market value, minimum **€2m** |
-| Rebate if you start an auction and lose | **20%** of the winning bid, capped at **€5m** |
+| Scout's Fee (initiator reward) | **10%** of the winning bid, uncapped (on lost system auctions) |
+| Solidarity payment | **10%** of the winning bid split equally among non-winning clubs |
 | Bidding on your own listing | not allowed |
 
-**There is no fixed 48-hour window.** The clock is driven by activity, not by a
-timer that started when the auction opened.
+**There is no fixed duration and no hard ceiling.** The clock is driven by bidding activity, not by a timer that started when the auction opened.
 
 ## Questions you probably have
 
 **How long do I actually have?**
 
-Until 12 hours after the last bid — but never less than 24 hours after the first
-one, and never more than 72 (96 for a €40m+ player). So a quiet auction ends 12
-hours after it goes quiet, and a contested one keeps going until people stop.
+Until the active inactivity timeout elapses without another bid — but never less
+than 24 hours after the first real bid, and with no hard ceiling. A quiet auction ends
+when inactivity elapses, and a contested one keeps going as long as people keep bidding.
 
 **How do you stop someone sniping it at 4am?**
 
-That's the whole reason the clock works this way. Every bid pushes the close out
-12 hours, so there is no last moment to ambush — bid at 3am and the auction
-simply can't close before 3pm, giving everyone a waking chance to respond. The
-24-hour floor stops a fast-moving auction from resolving overnight, and the hard
-ceiling stops a bidding war from running for a week.
+Two ways. First, every bid pushes the close out by the current inactivity timeout,
+so there is no hard ceiling or final moment to ambush. Second, the league's
+**quiet hours guard** automatically advances any expiry that would land overnight
+(e.g., between 00:00 and 08:00) to the window's end (08:00), guaranteeing no auction
+resolves while managers are asleep.
 
 **What if two of us bid at the same instant?**
 
@@ -96,10 +100,10 @@ bid first. It has been flagged for a ruling. (See `OPEN_RULES_QUESTIONS.md`.)
 
 **Why would I ever bid first and show my hand?**
 
-Because starting an auction is compensated. If you open the bidding on a player
-and someone else ultimately wins him, you're refunded **20% of the winning bid,
-up to €5m**. You surfaced the player and drove the price; you don't walk away
-with nothing.
+Because starting a system auction is rewarded with the **Scout's Fee**. If you open
+the bidding on a free agent and someone else ultimately wins him, you earn **10% of
+the winning bid, uncapped**. You surfaced the player and drove the price, so you walk
+away with a cash reward.
 
 **What if I win but my roster is full?**
 
@@ -126,10 +130,10 @@ evaporating.
 
 ### Verified against
 
-`src/lib/auction/timer.ts` · `src/lib/offseason/seasonKickoff.ts`
-(`AUCTION_THRESHOLD`) · `src/lib/auctions/seedHighValueAuctions.ts` ·
-`src/app/api/leagues/[leagueId]/auctions/route.ts` ·
-`supabase/migrations/079_unified_bid_rpc.sql` ·
-`supabase/migrations/077_listing_gates.sql` ·
-`supabase/migrations/088_listing_intent.sql` ·
-`supabase/migrations/076_fix_sale_listing_resolution.sql`
+`src/lib/auction/timer.ts` · `src/lib/auction/leagueAuctionSettings.ts` ·
+`src/lib/auctions/seedingWaves.ts` · `src/lib/offseason/seasonKickoff.ts` ·
+`src/lib/auctions/seedHighValueAuctions.ts` · `src/app/api/leagues/[leagueId]/auctions/route.ts` ·
+`src/app/api/leagues/[leagueId]/auctions/bid/route.ts` ·
+`supabase/migrations/095_auction_pricing_settings.sql` ·
+`supabase/migrations/096_reauction_expiry_72h.sql` ·
+`supabase/migrations/093_solidarity_on_auctions.sql`
