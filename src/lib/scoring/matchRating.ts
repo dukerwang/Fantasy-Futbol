@@ -446,10 +446,26 @@ export function curveFinalRating(composite: number, minutesPlayed: number): numb
 }
 
 /**
- * Fantasy points from the scoring-scale rating (not the display rating).
- * Calibration (SIGMOID_K=1.0, scale=7.0, exponent=1.5, base=2.0):
- * average game (6.5 display) ≈ 6.5 pts, good (7.0) ≈ 10 pts,
- * exceptional (8.0) ≈ 18 pts, masterclass (9.0) ≈ 27 pts.
+ * Fantasy points from the SCORING-scale rating (1 + 9×composite), never the
+ * display rating. Calibration: base=0.0, scale=10.0, pivot=4.5, exponent=1.5.
+ *
+ * Because the two scales differ (display = 3.5 + 6×composite), the points a
+ * user sees against a rating on the card are NOT this function's input. In
+ * display terms the curve is:
+ *
+ *   display   5.83   6.0    6.5    7.0    7.5    8.0    9.0
+ *   points    0.00   0.44   3.54   8.18   13.98  20.71  36.60
+ *
+ * Two consequences worth preserving. A display rating at or below **5.83**
+ * pays exactly zero — composite 0.389 maps to scoring 4.5, the pivot — so a
+ * below-par game is worth nothing rather than a little. And the curve is
+ * convex: 7.0 → 8.0 is worth more than 6.0 → 7.0, so one decisive performance
+ * outweighs several adequate ones. Composite is clamped to [0, 1], so the
+ * ceiling is a display 9.5 / scoring 10.0 ≈ 45.6 pts.
+ *
+ * Changing base/scale/pivot/exponent silently rewrites every historical
+ * comparison — see scripts/backfill-scoring-v2.mjs and docs/USER_GUIDE.md §4,
+ * which publishes the table above to players.
  */
 export function calculateFantasyPoints(rating: number, minutesPlayed: number): number {
     if (minutesPlayed === 0 || rating === 0) return 0;
