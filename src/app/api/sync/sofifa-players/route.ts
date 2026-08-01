@@ -544,10 +544,21 @@ async function runSync(preloadedTeams: SoFifaTeamDetail[] | null) {
 
   // 6. Upsert the full reference cache (migration 099) -- every scraped
   // player, not just public.players matches, keyed by SoFIFA's own stable id.
-  if (referenceUpdates.length > 0) {
+  //
+  // Loaned players routinely appear on both their parent club's squad page
+  // and their loan destination's, with the same sofifa_id -- Postgres's
+  // ON CONFLICT rejects an entire batch outright ("command cannot affect row
+  // a second time") the moment the same conflict key shows up twice in one
+  // statement, so this must be deduped before chunking or a single loan
+  // anywhere in a chunk silently drops every other player in it.
+  const dedupedReference = Array.from(
+    new Map(referenceUpdates.map((r) => [r.sofifa_id, r])).values(),
+  );
+
+  if (dedupedReference.length > 0) {
     const chunkSize = 200;
-    for (let i = 0; i < referenceUpdates.length; i += chunkSize) {
-      const chunk = referenceUpdates.slice(i, i + chunkSize);
+    for (let i = 0; i < dedupedReference.length; i += chunkSize) {
+      const chunk = dedupedReference.slice(i, i + chunkSize);
       const { error: refError } = await admin
         .from('sofifa_position_reference')
         .upsert(
@@ -566,6 +577,6 @@ async function runSync(preloadedTeams: SoFifaTeamDetail[] | null) {
     teams: teams.length,
     matched,
     updated: updates.length,
-    referenceCached: referenceUpdates.length,
+    referenceCached: dedupedReference.length,
   });
 }
