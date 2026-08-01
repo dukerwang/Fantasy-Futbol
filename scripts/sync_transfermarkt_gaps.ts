@@ -20,9 +20,14 @@
  *   node --experimental-strip-types scripts/sync_transfermarkt_gaps.ts
  *   node --experimental-strip-types scripts/sync_transfermarkt_gaps.ts --apply
  *   node --experimental-strip-types scripts/sync_transfermarkt_gaps.ts --all
+ *   node --experimental-strip-types scripts/sync_transfermarkt_gaps.ts --all --full --apply
  *
  *   --apply   write the values (default is dry run)
  *   --all     include unrostered players too (default: rostered only)
+ *   --full    check every targeted player, not just ones with a suspect value —
+ *             for periodic drift correction on players already priced. Slower
+ *             (one search + one profile fetch per player, ~3s apart), meant for
+ *             an infrequent full pass rather than the daily gap-fill.
  */
 
 import { createClient } from '@supabase/supabase-js';
@@ -37,6 +42,7 @@ const HERE = path.dirname(fileURLToPath(import.meta.url));
 
 const APPLY = process.argv.includes('--apply');
 const ALL = process.argv.includes('--all');
+const FULL = process.argv.includes('--full');
 
 const UA =
   'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36';
@@ -188,6 +194,7 @@ async function main() {
   const targets = players.filter((p) => {
     const owned = rosterCount.get(p.id) ?? 0;
     if (!ALL && owned === 0) return false;
+    if (FULL) return true;
     // Never had a Transfermarkt value written — the most reliable signal there
     // is. Comparing against the *current* FPL cost misses rows carrying a stale
     // cost from an earlier sync (a mis-matched row can inherit another player's
@@ -202,7 +209,7 @@ async function main() {
     return cost != null && Math.abs(Number(p.market_value) - cost) < 0.001;
   });
 
-  console.log(`[scope] ${targets.length} player(s) need a Transfermarkt lookup${ALL ? '' : ' (rostered only)'}`);
+  console.log(`[scope] ${targets.length} player(s) ${FULL ? 'in full-refresh scope' : 'need a Transfermarkt lookup'}${ALL ? '' : ' (rostered only)'}`);
   console.log(`[mode]  ${APPLY ? 'APPLY — will write' : 'DRY RUN'}\n`);
 
   const results: { id: string; name: string; from: number; to: number; club: string; matched: string; score: number; how: 'full' | 'token'; asOf: string | null }[] = [];
