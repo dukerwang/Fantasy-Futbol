@@ -86,7 +86,11 @@ export async function syncPlayersFromFpl(admin: SupabaseClient): Promise<SyncPla
         pl_team_id: el.team,
         primary_position: position,
         secondary_positions: [] as string[],
-        market_value: parseFloat((el.now_cost / 10).toFixed(1)),
+        // FPL's now_cost is a salary-cap price on a totally different scale
+        // from Transfermarkt's real valuations (which Gaffa's economy runs
+        // on) — never usable as a market_value stand-in. Leave unpriced
+        // players null until sync_transfermarkt.ts supplies a real figure.
+        market_value: null as number | null,
         photo_url: photoUrl,
         fpl_status: el.status,
         fpl_news: el.news || null,

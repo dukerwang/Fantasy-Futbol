@@ -1,0 +1,75 @@
+name: Sync Transfermarkt market values
+
+# Runs after the FPL player sync (0 2 UTC — see vercel.json) so any brand-new
+# signing FPL picked up overnight gets a same-day chance at a real market
+# value instead of sitting null/unpriced for however long until someone runs
+# this by hand.
+#
+# First run: trigger manually (Actions tab -> this workflow -> Run workflow)
+# with dry_run left checked, and read the job log / players.json artifact
+# before trusting the nightly schedule — this pipeline has not been run
+# end-to-end yet (the scraper's real output schema was confirmed by reading
+# its source, not by executing it).
+on:
+  schedule:
+    - cron: '30 3 * * *'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry run (scrape + transform only, skip the Supabase write)'
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run || 'false' }}
+      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - run: npm ci
+
+      - name: Resolve current season start year
+        id: season
+        run: echo "year=$(node scripts/tm_season_year.mjs)" >> "$GITHUB_OUTPUT"
+
+      - name: Scrape Premier League squads from Transfermarkt
+        run: |
+          set -euo pipefail
+          echo '{"type":"competition","competition_type":"first_tier","href":"/premier-league/startseite/wettbewerb/GB1"}' \
+            | docker run --rm -i dcaribou/transfermarkt-scraper:main python -m tfmkt clubs --season "${{ steps.season.outputs.year }}" \
+            | docker run --rm -i dcaribou/transfermarkt-scraper:main python -m tfmkt players --season "${{ steps.season.outputs.year }}" \
+            > raw_tm_players.jsonl
+          wc -l raw_tm_players.jsonl
+
+      - name: Transform scraper output into scripts/players.json
+        run: node scripts/tm_transform.mjs < raw_tm_players.jsonl
+
+      - name: Sync market values into Supabase
+        run: |
+          if [ "$DRY_RUN" = "true" ]; then
+            npx tsx scripts/sync_transfermarkt.ts --dry-run
+          else
+            npx tsx scripts/sync_transfermarkt.ts
+          fi
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: transfermarkt-sync-${{ github.run_id }}
+          path: |
+            raw_tm_players.jsonl
+            scripts/players.json
+          retention-days: 14

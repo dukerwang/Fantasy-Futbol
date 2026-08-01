@@ -252,17 +252,15 @@ async function main() {
   console.log(`\n[done] Successfully updated ${written} player market values from Transfermarkt.`);
 
   // Step 5: Seed system FAAB auctions for players who just crossed the
-  // £40m threshold in this run.
+  // £50m threshold in this run.
   //
-  // NOTE: this checks "was below £40m before, now >= £40m" rather than
-  // "had no market_value before" — new players always get a market_value
-  // immediately on insert (a fallback derived from FPL's now_cost, see
-  // syncPlayersFromFpl), so it's never actually null by the time this
-  // script runs. The real signal that a player just became a high-value
-  // arrival is Transfermarkt correcting that low fallback value upward
-  // past the threshold.
+  // New players land from syncPlayersFromFpl with market_value: null (FPL's
+  // now_cost is a different pricing scale and isn't usable as a stand-in —
+  // see the comment there), so the crossing check below also fires the
+  // first time this script prices a brand-new arrival above the threshold,
+  // not just on later corrections.
 
-  const AUCTION_THRESHOLD = 40.0; // £40m Transfermarkt value
+  const AUCTION_THRESHOLD = 50.0; // £50m Transfermarkt value — keep in sync with src/lib/offseason/seasonKickoff.ts
   const AUCTION_WINDOW_HOURS = 48;
 
   // Build a map of pre-update market values (fetched before any writes in step 4)
