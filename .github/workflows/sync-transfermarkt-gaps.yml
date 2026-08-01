@@ -1,21 +1,20 @@
 name: Sync missing/stale Transfermarkt values
 
-# The fast, frequent half of Transfermarkt pricing. Runs scripts/sync_transfermarkt_gaps.ts,
-# which does a per-player search+profile lookup via plain fetch() (no Docker, no scraper
-# image) against only the rows that actually need it: never-priced players (the exact case
-# of a brand-new FPL signing with market_value still null), inactive/departed rows, and rows
-# whose value still matches their raw FPL cost. Typically a handful of players, so this can
-# run daily without the full squad-crawl's runtime or blocking risk.
+# DEAD END — kept for reference only, not scheduled. This ran fine locally
+# (real search results, real values) but 0/357 lookups succeeded when run from
+# a GitHub Actions runner — Transfermarkt blocks GitHub's shared-runner IPs at
+# the network level, same underlying problem as sync-transfermarkt.yml (see
+# its comment for the full story). Superseded by scripts/run_transfermarkt_gaps.sh
+# + two LaunchAgents (com.gaffa.transfermarkt-gaps-daily,
+# com.gaffa.transfermarkt-full-monthly) running this same script locally,
+# where the IP isn't flagged.
 #
-# --all is required, not optional: a brand-new signing is unrostered by definition (nobody's
-# picked them up yet), and the script skips unrostered players unless --all is passed.
-#
-# The full squad crawl (sync-transfermarkt.yml) stays on a much slower cadence — it exists to
-# catch value *drift* on players already priced, not to catch brand-new arrivals, which this
-# workflow already covers same-day.
+# No `schedule:` trigger on purpose — it would just fail forever and spam
+# failure emails. workflow_dispatch kept in case a self-hosted runner ever
+# makes this viable again (not currently attached — this repo is public, and
+# GitHub advises against self-hosted runners on public repos for exactly the
+# reason that would otherwise fix this).
 on:
-  schedule:
-    - cron: '0 5 * * *'
   workflow_dispatch:
     inputs:
       apply:
