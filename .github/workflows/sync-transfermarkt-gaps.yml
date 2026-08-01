@@ -1,0 +1,53 @@
+name: Sync missing/stale Transfermarkt values
+
+# The fast, frequent half of Transfermarkt pricing. Runs scripts/sync_transfermarkt_gaps.ts,
+# which does a per-player search+profile lookup via plain fetch() (no Docker, no scraper
+# image) against only the rows that actually need it: never-priced players (the exact case
+# of a brand-new FPL signing with market_value still null), inactive/departed rows, and rows
+# whose value still matches their raw FPL cost. Typically a handful of players, so this can
+# run daily without the full squad-crawl's runtime or blocking risk.
+#
+# --all is required, not optional: a brand-new signing is unrostered by definition (nobody's
+# picked them up yet), and the script skips unrostered players unless --all is passed.
+#
+# The full squad crawl (sync-transfermarkt.yml) stays on a much slower cadence — it exists to
+# catch value *drift* on players already priced, not to catch brand-new arrivals, which this
+# workflow already covers same-day.
+on:
+  schedule:
+    - cron: '0 5 * * *'
+  workflow_dispatch:
+    inputs:
+      apply:
+        description: 'Write values to Supabase (unchecked = dry run, prints proposed changes only)'
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  sync-gaps:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      APPLY: ${{ github.event_name == 'schedule' && 'true' || (github.event.inputs.apply || 'false') }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - run: npm ci
+
+      - name: Resolve missing/stale market values
+        run: |
+          if [ "$APPLY" = "true" ]; then
+            node --experimental-strip-types scripts/sync_transfermarkt_gaps.ts --all --apply
+          else
+            node --experimental-strip-types scripts/sync_transfermarkt_gaps.ts --all
+          fi

@@ -1,18 +1,21 @@
 name: Sync Transfermarkt market values
 
-# Runs after the FPL player sync (0 2 UTC — see vercel.json) so any brand-new
-# signing FPL picked up overnight gets a same-day chance at a real market
-# value instead of sitting null/unpriced for however long until someone runs
-# this by hand.
+# The slow, comprehensive half of Transfermarkt pricing: a full Docker-based
+# crawl of every Premier League club squad. Pricing brand-new signings is NOT
+# this workflow's job anymore — sync-transfermarkt-gaps.yml handles that daily
+# via fast per-player lookups. This one exists to catch value *drift* on
+# players already priced (a squad crawl re-reads everyone, so a rising or
+# falling valuation on an existing player gets picked up even though nothing
+# about that row looks "stale" to the gaps script). Monthly is plenty for that.
 #
 # First run: trigger manually (Actions tab -> this workflow -> Run workflow)
 # with dry_run left checked, and read the job log / players.json artifact
-# before trusting the nightly schedule — this pipeline has not been run
-# end-to-end yet (the scraper's real output schema was confirmed by reading
-# its source, not by executing it).
+# before trusting the schedule — this pipeline has not been run end-to-end yet
+# (the scraper's real output schema was confirmed by reading its source, not
+# by executing it).
 on:
   schedule:
-    - cron: '30 3 * * *'
+    - cron: '30 3 1 * *'
   workflow_dispatch:
     inputs:
       dry_run:
