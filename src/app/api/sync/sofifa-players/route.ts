@@ -171,6 +171,8 @@ interface SoFifaSquadPlayer {
 
 interface SoFifaTeamDetail {
   players: SoFifaSquadPlayer[];
+  name?: string;
+  sofifaLeagueId?: number; // set by playwright-sofifa.js --top5; absent → assume Premier League
 }
 
 // ── Route handler ─────────────────────────────────────────────────────────────
@@ -272,9 +274,21 @@ async function runSync(preloadedTeams: SoFifaTeamDetail[] | null) {
     secondary_positions: GranularPosition[];
     sofifa_common_name: string | null;
   }> = [];
+  // Every scraped player, matched to public.players or not -- see migration 099.
+  const referenceUpdates: Array<{
+    sofifa_id: number;
+    full_name: string;
+    common_name: string | null;
+    name_aliases: string[];
+    club_name: string | null;
+    sofifa_league_id: number;
+    primary_position: GranularPosition;
+    secondary_positions: GranularPosition[];
+  }> = [];
   let matched = 0;
 
   for (const team of teams) {
+    const sofifaLeagueId = team.sofifaLeagueId ?? PL_LEAGUE_ID;
 
     for (const sp of team.players ?? []) {
       let sofifaPrimaryRaw: string | null = null;
@@ -491,6 +505,19 @@ async function runSync(preloadedTeams: SoFifaTeamDetail[] | null) {
         });
       }
 
+      // Cache every player regardless of dbMatch -- most top-5-league players
+      // aren't in public.players yet, and that's exactly who this is for.
+      referenceUpdates.push({
+        sofifa_id: sp.id,
+        full_name: fullName,
+        common_name: common || null,
+        name_aliases: candidates,
+        club_name: team.name ?? null,
+        sofifa_league_id: sofifaLeagueId,
+        primary_position: primary as GranularPosition,
+        secondary_positions: finalSecondary as GranularPosition[],
+      });
+
     }
 
   }
@@ -515,11 +542,30 @@ async function runSync(preloadedTeams: SoFifaTeamDetail[] | null) {
     }
   }
 
+  // 6. Upsert the full reference cache (migration 099) -- every scraped
+  // player, not just public.players matches, keyed by SoFIFA's own stable id.
+  if (referenceUpdates.length > 0) {
+    const chunkSize = 200;
+    for (let i = 0; i < referenceUpdates.length; i += chunkSize) {
+      const chunk = referenceUpdates.slice(i, i + chunkSize);
+      const { error: refError } = await admin
+        .from('sofifa_position_reference')
+        .upsert(
+          chunk.map((r) => ({ ...r, scraped_at: new Date().toISOString() })),
+          { onConflict: 'sofifa_id' },
+        );
+      if (refError) {
+        console.error('[sofifa-sync] reference upsert failed:', refError.message);
+      }
+    }
+  }
+
   return NextResponse.json({
     ok: true,
     roster: rosterLabel,
     teams: teams.length,
     matched,
     updated: updates.length,
+    referenceCached: referenceUpdates.length,
   });
 }

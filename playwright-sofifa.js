@@ -1,20 +1,47 @@
 /**
- * Fetches PL squad + position + role data from sofifa.com using a real browser
- * (bypasses Cloudflare API block by scraping HTML), then POSTs it to the local sync route.
+ * Fetches squad + position + role data from sofifa.com using a real browser
+ * (bypasses Cloudflare API block by scraping HTML), then POSTs it to the sync route.
  *
  * Usage:
- *   node playwright-sofifa.js
+ *   node playwright-sofifa.js --headful               # Premier League only
+ *   node playwright-sofifa.js --headful --top5         # all top-5 leagues (1-2x/year)
  *   node playwright-sofifa.js --send-only
  *
- * Requires the dev server to be running on localhost:3000.
+ * --headful is effectively required, not optional: tested directly, headless mode
+ * gets 0/357 real results even immediately after a --headful run warms the saved
+ * session (./playwright-profile) -- Cloudflare here evaluates whether the live
+ * request looks automated, not just whether a valid session cookie exists. Headless
+ * is left in as a fallback path (and the "no teams collected" guard below keeps a
+ * failed attempt from sending garbage), but don't rely on it succeeding.
+ *
+ * --top5 additionally scrapes La Liga/Serie A/Bundesliga/Ligue 1, tagging each team
+ * with sofifaLeagueId so the sync route can cache every player (not just Premier
+ * League matches) into sofifa_position_reference -- lets a brand-new Prem signing
+ * get a real position immediately on arrival if they transferred from one of these
+ * leagues, instead of waiting for the next PL-only crawl to happen to cover them.
+ *
+ * SYNC_URL defaults to localhost for manual/dev runs; set SOFIFA_SYNC_URL to point
+ * at production instead, e.g.:
+ *   SOFIFA_SYNC_URL=https://gaffa.live/api/sync/sofifa-players node playwright-sofifa.js --headful --top5
  */
 
 const { chromium } = require('playwright');
 const fs = require('fs');
 
 const SOFIFA_BASE = 'https://sofifa.com';
-const SYNC_URL = 'http://localhost:3000/api/sync/sofifa-players';
+const SYNC_URL = process.env.SOFIFA_SYNC_URL || 'http://localhost:3000/api/sync/sofifa-players';
 const DATA_FILE = 'scraped-sofifa.json';
+
+// SoFIFA's own league ids (sofifa.com/league/<id>), verified against real
+// indexed SoFIFA pages, not guessed -- getting one wrong here means silently
+// scraping the wrong league's squads into the position reference cache.
+const LEAGUES = [
+  { id: 13, name: 'Premier League' },
+  { id: 53, name: 'La Liga' },
+  { id: 31, name: 'Serie A' },
+  { id: 19, name: 'Bundesliga' },
+  { id: 16, name: 'Ligue 1' },
+];
 
 // Try to load CRON_SECRET from .env.local
 let CRON_SECRET = 'change-me-to-a-random-secret';
@@ -46,40 +73,36 @@ const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
     }
   } else {
     const headful = process.argv.includes('--headful');
-    let browser = null;
+    const top5 = process.argv.includes('--top5');
+    const leaguesToScrape = top5 ? LEAGUES : [LEAGUES[0]];
     let context = null;
     let page = null;
 
-    if (headful) {
-      context = await chromium.launchPersistentContext('./playwright-profile', {
-        headless: false,
-        executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
-        args: [
-          '--no-sandbox',
-          '--disable-setuid-sandbox',
-          '--disable-blink-features=AutomationControlled'
-        ],
-        userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
-      });
-      page = context.pages()[0] || await context.newPage();
-    } else {
-      browser = await chromium.launch({
-        args: ['--no-sandbox', '--disable-setuid-sandbox'],
-        headless: true
-      });
-      context = await browser.newContext({
-        userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
-      });
-      page = await context.newPage();
-    }
+    // Always the same persistent profile, same real-Chrome binary, same args --
+    // only `headless` differs. Using the same executablePath for both keeps the
+    // saved cookies/fingerprint consistent regardless of which mode wrote them,
+    // so a session solved once in --headful actually carries over headlessly.
+    context = await chromium.launchPersistentContext('./playwright-profile', {
+      headless: !headful,
+      executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-blink-features=AutomationControlled'
+      ],
+      userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+    });
+    page = context.pages()[0] || await context.newPage();
 
     try {
       console.log('Loading sofifa.com to establish session...');
       await page.goto(SOFIFA_BASE, { waitUntil: 'domcontentloaded', timeout: 60000 });
       await delay(2000);
 
-      console.log('Fetching Premier League teams...');
-      await page.goto(`${SOFIFA_BASE}/teams?lg=13`, { waitUntil: 'domcontentloaded', timeout: 60000 });
+      for (const league of leaguesToScrape) {
+      console.log(`\n=== ${league.name} (lg=${league.id}) ===`);
+      console.log('Fetching teams...');
+      await page.goto(`${SOFIFA_BASE}/teams?lg=${league.id}`, { waitUntil: 'domcontentloaded', timeout: 60000 });
       if (headful) {
         console.log('🔒 Cloudflare challenge may appear. If a "Verify you are human" checkbox is shown in the browser, please check it to proceed...');
         await page.waitForSelector('table tbody tr a[href^="/team/"]', { timeout: 60000 }).catch(e => console.log('⚠️ Warning: Timeout waiting for team selector. proceeding...'));
@@ -282,20 +305,18 @@ const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
         preloadedTeams.push({
           id: team.id,
           name: team.name,
+          sofifaLeagueId: league.id,
           players: teamPlayers
         });
 
         // Save progress locally in case of crash
         fs.writeFileSync(DATA_FILE, JSON.stringify(preloadedTeams, null, 2));
       }
+      } // end leaguesToScrape loop
     } catch (e) {
       console.error('Scraping error:', e.message);
     } finally {
-      if (headful) {
-        if (context) await context.close();
-      } else {
-        if (browser) await browser.close();
-      }
+      if (context) await context.close();
     }
   }
 

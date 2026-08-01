@@ -113,6 +113,16 @@ export async function PATCH(req: NextRequest, { params }: Props) {
       .eq('id', listing.player_id)
       .single();
 
+    // Quarantine: same as creation -- see listings/route.ts.
+    if (playerRow && playerRow.market_value == null) {
+      return NextResponse.json(
+        {
+          error: `${playerRow.name ?? 'This player'} hasn't been priced by Transfermarkt yet and can't be listed. Check back once a value is synced.`,
+        },
+        { status: 400 },
+      );
+    }
+
     const marketValue = Number(playerRow?.market_value ?? 0);
     if (marketValue > 0) {
       const floor = Math.floor(marketValue * 0.8);

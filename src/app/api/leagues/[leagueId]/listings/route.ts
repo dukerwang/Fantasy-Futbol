@@ -228,6 +228,21 @@ export async function POST(req: NextRequest, { params }: Props) {
     .eq('id', playerId)
     .single();
 
+  // Quarantine: unlike a player whose value is simply low, a null market_value
+  // means Transfermarkt hasn't priced them yet -- almost always a brand-new
+  // signing (see syncPlayers.ts). Listing one for sale before a real value
+  // exists would let it be bought for whatever the seller asks, with no floor
+  // to anchor against. Migration 100 enforces this at the trigger level too;
+  // this is just the friendly pre-check.
+  if (playerRow && playerRow.market_value == null) {
+    return NextResponse.json(
+      {
+        error: `${playerRow.name ?? 'This player'} hasn't been priced by Transfermarkt yet and can't be listed. Check back once a value is synced.`,
+      },
+      { status: 400 },
+    );
+  }
+
   const marketValue = Number(playerRow?.market_value ?? 0);
   if (marketValue > 0) {
     const floor = Math.floor(marketValue * 0.8);

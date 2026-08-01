@@ -164,6 +164,22 @@ export async function POST(req: NextRequest, { params }: Props) {
     .eq('id', playerId)
     .single();
 
+  // Quarantine: a null market_value isn't "worth nothing", it's "not priced
+  // yet" -- syncPlayers.ts inserts new signings with market_value: null (see
+  // its comment) precisely because FPL's own price is a different, unusable
+  // scale, and treating null as 0 here would let a brand-new arrival be
+  // claimed for the table minimum before Transfermarkt has ever valued them.
+  // Lifts automatically once a real value lands (daily gap-sync or the
+  // monthly full refresh -- see .github/workflows/sync-transfermarkt*.yml).
+  if (playerData && playerData.market_value == null) {
+    return NextResponse.json(
+      {
+        error: `${playerData.name ?? 'This player'} hasn't been priced by Transfermarkt yet and can't be bid on. Check back once a value is synced.`,
+      },
+      { status: 400 },
+    );
+  }
+
   // Is this a manager's listing or an open free agent? The RPC resolves this
   // authoritatively under FOR UPDATE; this read only decides which price floor
   // to pre-check so the caller gets a specific message instead of a generic one.

@@ -10,6 +10,7 @@
 
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { resolvePosition, FPL_POSITION_OVERRIDES } from '@/lib/fpl/positionMap';
+import type { GranularPosition } from '@/types';
 import { recordDepartures, midseasonDecideBy } from '@/lib/departures/detect';
 import { getCurrentFplSeason } from '@/lib/season/currentSeason';
 
@@ -131,6 +132,36 @@ export async function syncPlayersFromFpl(admin: SupabaseClient): Promise<SyncPla
   const existingByFplId = new Map<number, DbPlayer>();
   const existingByNormName = new Map<string, DbPlayer>();
   const existingByWebAndTeam = new Map<string, DbPlayer>();
+
+  // Position cache from the periodic top-5-league SoFIFA crawl (migration 099)
+  // -- covers players who aren't in `players` yet (most new PL arrivals transfer
+  // from one of these leagues). Looked up below for brand-new inserts only;
+  // existing rows keep whatever position they already have.
+  const { data: sofifaReferenceRows } = await admin
+    .from('sofifa_position_reference')
+    .select('name_aliases, primary_position, secondary_positions');
+
+  interface SofifaReferenceMatch {
+    primary_position: string;
+    secondary_positions: string[];
+  }
+
+  const sofifaReferenceByAlias = new Map<string, SofifaReferenceMatch>();
+  for (const ref of sofifaReferenceRows ?? []) {
+    const match: SofifaReferenceMatch = {
+      primary_position: ref.primary_position,
+      secondary_positions: ref.secondary_positions ?? [],
+    };
+    for (const alias of ref.name_aliases ?? []) {
+      if (!sofifaReferenceByAlias.has(alias)) sofifaReferenceByAlias.set(alias, match);
+    }
+  }
+
+  function firstLastWord(name: string): string {
+    const parts = name.split(' ').filter(Boolean);
+    if (parts.length <= 2) return name;
+    return `${parts[0]} ${parts[parts.length - 1]}`;
+  }
 
   function normalizeName(str: string | null | undefined): string {
     if (!str) return '';
@@ -293,6 +324,21 @@ export async function syncPlayersFromFpl(admin: SupabaseClient): Promise<SyncPla
 
     if (existing) {
       matchedDbIds.add(existing.id);
+    } else {
+      // Brand-new player: try the SoFIFA top-5-league reference cache before
+      // falling back to resolvePosition()'s crude element_type default. An
+      // existing row's position is never touched here — only ever a fresh
+      // insert's initial value, which the override/merge logic below still
+      // gets the final say over (e.g. FPL_POSITION_OVERRIDES).
+      const sofifaMatch =
+        sofifaReferenceByAlias.get(aliasNorm) ??
+        sofifaReferenceByAlias.get(rawFplNorm) ??
+        sofifaReferenceByAlias.get(firstLastWord(aliasNorm)) ??
+        sofifaReferenceByAlias.get(firstLastWord(rawFplNorm));
+      if (sofifaMatch) {
+        row.primary_position = sofifaMatch.primary_position as GranularPosition;
+        row.secondary_positions = sofifaMatch.secondary_positions as GranularPosition[];
+      }
     }
 
     // Curated FPL_POSITION_OVERRIDES always win (e.g. Zubimendi → DM). Otherwise
@@ -332,7 +378,11 @@ export async function syncPlayersFromFpl(admin: SupabaseClient): Promise<SyncPla
       name: finalName,
       ...(clearBadFullName ? { full_name: null } : {}),
       primary_position: primaryPosition,
-      secondary_positions: (existing?.secondary_positions ?? []).filter((p: string) => p !== primaryPosition),
+      // row.secondary_positions is only ever non-empty here for a brand-new
+      // player matched against the SoFIFA reference cache above -- existing
+      // rows always take their own stored value, same as primary_position.
+      secondary_positions: (existing?.secondary_positions ?? row.secondary_positions ?? [])
+        .filter((p: string) => p !== primaryPosition),
       market_value:
         existing?.market_value != null && existing.market_value !== 0
           ? existing.market_value
