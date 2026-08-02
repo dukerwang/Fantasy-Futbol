@@ -313,6 +313,8 @@ Your minimum bid must be at least **80% of the player's market value**. Without 
 
 When you list a player you can flag whether you want **cash, players, or a loan**. These flags advertise what you're after and set the headline other managers see — they don't restrict how people can approach you. Anyone can still make any kind of offer.
 
+**Before anyone bids, you can also negotiate directly.** Send an Offer — cash, players, or a mix — and it lands as a private proposal in your DMs with the seller, who can accept, counter, or decline it, exactly like any other trade. It's a quieter route than the open auction: nobody else sees it, and unlike a bid it needs the seller's yes rather than just being the highest number on the board. A cash-only offer still has to clear your **minimum bid** — the floor protects the auction itself, not just who's allowed to open it — but an offer that includes players isn't priced against anything, since their value isn't one number. Once real bidding starts, this door closes and the listing becomes auction-only.
+
 ### Where a transfer fee goes
 
 When you sign a free agent, the fee doesn't vanish. **20% of every winning bid returns to the league**, split two ways:
