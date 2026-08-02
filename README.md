@@ -1,119 +1,127 @@
 # Gaffa
 
-Gaffa is a highly customized, dynasty-style fantasy football (soccer) application designed for a single private league, live at [gaffa.live](https://gaffa.live). Unlike mainstream platforms (e.g., Sleeper, ESPN, or standard FPL) that rely on arbitrary point allocations, Gaffa mirrors real-world football tactical roles, economics, and match context. Players are valued via free agent bidding using a virtual currency economy and scored contextually based on their on-pitch stats using a custom mathematical normalization engine.
+Gaffa is a dynasty-style fantasy football (soccer) app built for a single private league, live at [gaffa.live](https://gaffa.live). It exists because mainstream fantasy platforms — FPL, Sleeper, ESPN — score football with a spreadsheet's idea of the sport: a flat points table, three generic position buckets, and a season that resets to zero every summer. Gaffa scores it like a match-rating site instead, and runs the league like a real football club's boardroom.
+
+**The rule that shapes everything else:** a player is judged against what his specific role is expected to produce, not against a universal points table. There is no scoring quirk to farm — the way to win Gaffa is to be right about footballers.
+
+The full player-facing rulebook — every mechanic paired with the reasoning behind it — lives in **[docs/USER_GUIDE.md](docs/USER_GUIDE.md)**. This document is the shorter version, plus the engineering underneath it.
 
 ---
 
-## Tech Stack
+## What sets Gaffa apart
 
-The application is built on a modern, robust serverless architecture designed for real-time calculation and transactional integrity:
+| | **FPL** | **Sleeper (dynasty)** | **Gaffa** |
+|---|---|---|---|
+| Scoring | Flat points table, same for every player in a bucket | Flat points table, customizable but still context-free | Contextual sigmoid rating against **position-specific statistical baselines** — a clean sheet and a quiet 90 minutes are not scored the same way for a CB and a striker |
+| Positions | 3–4 generic buckets (GK/DEF/MID/FWD) | Sport-generic slots, not football-tactical | **12 real tactical roles** (CB, LB, RB, LWB, RWB, DM, CM, AM, LW, RW, ST, GK) — a wing-back is not a centre-back |
+| Season model | Redraft every year, or classic "keep a few players" | True dynasty rosters | True dynasty — **one draft, ever**; every player after that is bought, sold, loaned, or traded like a real transfer |
+| Economy | None — free waivers | FAAB waivers, typically blind and capped | An **open, public auction economy**: visible bidding, uncapped permanent budget, transfer fees that partly recirculate to the rest of the league (Scout's Fee + solidarity) instead of just vanishing |
+| Depth of squad-building | Starting XI only | Bench + taxi squad | Starting XI, bench with **strict positional cover**, Injured Reserve, an **Academy** for U21 prospects, a **loan market** with recall clauses and performance bonuses, and a **Retained List** for players who leave the league but might come back |
+| Season shape | League table only | League table (+ optional playoffs) | League table **plus three parallel knockout cups** running simultaneously, so a mid-table club still has something to play for in March |
+| Squad transactions | Waivers only | Waivers + trades | Waivers/auctions + **unrestricted manager-to-manager trades** + **loans** (with real transfer terms: fees, recall clauses, buyback pricing) |
 
-- **Frontend**: Next.js App Router (utilizing React Server Components and React 19) for dynamic, fast-loading user interfaces. Styling is implemented entirely with CSS Modules to maintain a strict, token-based premium custom design system without the overhead of utility-class frameworks. Animations are handled via Framer Motion.
-- **Backend & Database**: Supabase (PostgreSQL) manages user authentication, relational tables, and Row Level Security (RLS) policies. Critical game actions—such as processing transactions, resolving waiver claims, and updating player rankings—are built on PostgreSQL stored procedures, triggers, and RPC functions. Automated sync routines are powered by PostgreSQL `pg_cron` jobs and Vercel Cron.
-- **Data Ingestion & Pipelines**: Ingestion pipelines run in Next.js API routes and utilize Playwright scrapers to coordinate three primary data sources:
-  - **FPL API**: Sourced for live match stats, event details, fixtures, player availability status, and baseline point metrics.
-  - **SoFIFA API**: Sourced to scrape granular tactical positions and secondary positions from the EA Sports FC database.
-  - **Transfermarkt**: Sourced to extract financial player market values, fuzzy-matching names to maintain virtual economy baselines.
+Nothing here is decorative. Every one of these systems solves a specific failure mode of the games it's compared against — see [docs/USER_GUIDE.md](docs/USER_GUIDE.md) for the reasoning behind each (why cups exist, why the transfer fee partly recirculates, why loans are capped 1-out/2-in, why retention pays 60% and not more).
 
 ---
 
 ## Core Systems
 
-### Granular Position & Formation System
-Standard fantasy soccer platforms merge all defenders, midfielders, and forwards into monolithic position classes. Gaffa implements a highly tactical 12-position taxonomy to align with modern football configurations:
-- **Goalkeeper**: GK
-- **Defenders**: CB (Center-Back), LB (Left Fullback), RB (Right Fullback), LWB (Left Wingback), RWB (Right Wingback)
-- **Midfielders**: DM (Defensive Midfielder), CM (Central Midfielder), AM (Attacking Midfielder)
-- **Attackers**: LW (Left Winger), RW (Right Winger), ST (Striker)
+### Position & formation taxonomy
+Gaffa enforces **12 tactical positions** — no generic DEF/MID/FWD buckets, no LM/RM (auto-mapped to LW/RW). Eligibility is exact: a bench centre-back never covers a left-back slot, because "defender" isn't a real football job. Starting XIs must fit one of **10 supported formations** (`4-3-3`, `4-2-1-3`, `4-2-2-2`, `4-3-1-2`, `4-3-2-1`, `3-4-1-2`, `3-4-3`, `3-4-2-1`, `3-5-2`, `5-3-2`), sourced from `src/types/index.ts`. Benches split into DEF/MID/ATT/FLEX groups, where FLEX accepts any starter-eligible player, including an emergency goalkeeper.
 
-LM (Left Midfielder) and RM (Right Midfielder) do not exist in Gaffa; they are automatically mapped to LW and RW. Roster validation, lineup eligibility, and scoring engine weights enforce these distinctions. Lineups must conform to one of seven supported formations: `4-3-3`, `4-2-1-3`, `4-2-2-2`, `3-4-1-2`, `3-5-2`, `5-3-2`, or `3-4-3`. 
+Two independent lock timings, not one: a manager's **formation** locks at the first kickoff involving any of their squad, but an **individual player** only locks when his own club kicks off — so a Saturday-morning lineup can still react to lunchtime results before the late kickoffs.
 
-Players are eligible for lineup slots matching their primary or secondary positions (sourced from SoFIFA). Lineup submissions lock at the kickoff of the gameweek. Bench slots are categorized into DEF, MID, ATT, and FLEX. While DEF, MID, and ATT restrict player eligibility to their respective groups, the FLEX slot represents a true flex option that can accommodate any starter-eligible player, including an emergency GK.
+### Scoring engine (sigmoid rating → points)
+Instead of flat per-action points, every match performance is rated **1.0–10.0** against position-specific statistical baselines, then converted onto a separate, steeply convex fantasy-points scale.
 
-### Scoring Engine (Sigmoid Engine)
-Instead of assigning flat points to raw actions, Gaffa evaluates performance quality relative to position-specific baselines. The scoring engine calculates a contextual match rating (1.0 to 10.0 scale) across 8 rating components: `match_impact`, `influence`, `creativity`, `threat`, `defensive`, `goal_involvement`, `finishing`, and `save_score`.
+1. **Sigmoid normalization** — raw FPL stats are compressed into a `0.0–1.0` component score per rating dimension via a logistic sigmoid against position-specific seasonal medians/stddevs:
+   $$score = \frac{1}{1 + e^{-Z}}, \quad Z = K \cdot \frac{value - median}{stddev}, \quad K = 1.0$$
+   Baselines are stored in `rating_reference_stats` and recomputed from live current-season data, so "average" is always relative to this season's actual Premier League, not a fixed historical constant.
+2. **8 rating components**: `match_impact`, `influence`, `creativity`, `threat`, `defensive`, `goal_involvement`, `finishing`, `save_score`. Goals score 6, assists 4, on a global cross-position scale. Clean-sheet bonuses are weighted by role (GK 16, DEF/DM 12, CM 4, AM/ATT 0) and require ≥60 minutes played. Goals conceded penalize keepers directly and outfielders against their team's *expected* goals conceded, not the raw scoreline.
+3. **Positional weighting + flex boost** — each of the 12 positions has its own weight profile across the 8 components; a player's single best role-relevant component that match gets an extra boost, so one standout facet of a performance isn't diluted by an average one elsewhere.
+4. **Two decoupled scales**: the on-screen rating anchors an average starter at ≈6.5 (Fotmob-calibrated); fantasy points come from a separately-calibrated convex curve on the same composite — a 6.0 rating pays close to nothing (0.44 pts) while a 9.0 pays 36.6. **Anything at or under a ≈5.84 rating scores exactly zero.** Points floor at 0; they never go negative.
+5. **Out-of-position penalty** — a midfielder or attacker fielded in a defensive slot takes a 20% penalty to both rating and points, closing the baseline-mismatch arbitrage where defensive volume flatters a player being measured against the wrong yardstick.
 
-1. **Sigmoid Normalization**: Raw stats are normalized into a `0.0–1.0` component score using a logistic sigmoid function against position-specific seasonal medians and standard deviations:
-   $$score = \frac{1}{1 + e^{-Z}}, \quad Z = K \cdot \frac{value - median}{stddev}$$
-   Here, $K = 1.0$, which compresses performance values beyond $\pm 2$ standard deviations. Normalization parameters are loaded from the database table `rating_reference_stats`, which is dynamically recomputed from current-season FPL live data.
-2. **Component Formulation**:
-   - *Match Impact*: Strips goals and assists from the raw FPL Bonus Points System (BPS) to prevent double counting.
-   - *Influence, Creativity, Threat*: Taken directly from FPL raw ICT metrics.
-   - *Defensive*: Built from tackles, clearances, blocks, interceptions (CBI), and recoveries. Clean sheet bonuses are awarded for $\ge 60$ minutes played (GK gets 16, DEF/DM gets 12, CM gets 4, AM/ATT gets 0). Goals conceded (GC) penalize GKs (-4.0 per goal) and outfielders (based on the difference between expected goals conceded, xGC, and actual goals conceded).
-   - *Goal Involvement & Finishing*: Evaluate goals (6 pts) and assists (4 pts), along with xG outperformance, using global cross-position scales to keep attacking outputs mathematically comparable across positions.
-   - *Save Score*: Evaluates GK saves (2 pts) and penalty saves (5 pts), applying a floor of 0.85 on clean sheets.
-3. **Positional Weighting & Flex**: Each position has a unique base weight profile. The engine also applies a *Flex System*: the highest component score in a position's flex component list is boosted by the position's `flex` value (typically $+0.25$), and the final composite is capped at 1.0.
-4. **Scale Calibration & Points**: The display rating shown in the UI uses a Fotmob-calibrated scale ($3.5 + 6.0 \times composite$) to anchor average starters at $\approx 6.5$. Fantasy points are calculated from a decoupled scoring scale ($1.0 + 9.0 \times composite$) using a convex curve:
-   $$Points = 10 \times \left(\frac{scoring\_rating - 4.5}{2.0}\right)^{1.5}$$
-   Ratings below 3.0 incur a -2.0 points penalty, and final fantasy points are capped at a minimum of 0.
-5. **Out-of-Position (OOP) Penalty**: Midfielders or attackers fielded in defensive slots (CB, LB, RB, LWB, RWB) receive a 20% penalty to both their match rating and fantasy points to curb baseline-mismatch volume inflation.
+### Weekly matchups & cups
+A team's weekly score is its starting XI's fantasy points, plus a **Bench Depth Bonus**: unused bench players who *did* play add 25% of their points to the total, so a deep squad is worth something beyond insurance. A **10-point draw band** absorbs noise that isn't a real result — smaller gaps are draws, not coin-flip wins.
 
-### Matchup System
-Gaffa operates on a weekly head-to-head matchup format. A team's weekly score is the sum of its starting players' fantasy points. 
+Auto-subs replace a zero-minute starter once his own fixture is confirmed finished, scanning the bench in a fixed **DEF → MID → ATT → FLEX** order and re-rating the substitute against the *slot he filled*, not his own position.
 
-If a starting player records zero minutes, priority-based auto-subs are processed at gameweek resolution. The system scans the manager's bench in order, replacing the missing starter with the first eligible bench player whose PL match is finished. Unused bench players who played during the gameweek contribute a Bench Depth Bonus equal to 25% of their stored primary-position fantasy points.
+Three knockout cups — **Champions Cup**, **League Cup**, **Consolation Cup** — run in parallel with the league table, seeded by league position, so a club with no title chance still has a tie to play for. Cups never draw: level scores are broken by best individual performer, then by bracket seed.
 
-Once a gameweek is finalized, the matchup processor executes *Role-Aware Post-Match Scoring*. While players' global stats remain scored at their primary positions, starters and auto-subs in matchups are re-evaluated using the reference weights of the slot they actually occupied. This ensures that a bench fullback subbed into a center-back slot is evaluated under center-back defensive profiles for the team score. 
+### The transfer market (open auction economy)
+Every player not currently on your roster — genuine free agents and other managers' listings alike — sits on **one board**, bid on the same way: a public, uncapped-duration **open auction**, paid from a **Club Balance** (the product name for the internal `faab_budget` — permanent, uncapped, never resets between seasons, and itself a tradeable asset).
 
-Matchup outcomes are determined by a draw threshold: if the difference between team scores is $\le 10$ points, the matchup is resolved as a draw. A larger gap awards a win to the higher-scoring team. Regular season matchups run concurrently with knockout cup tournaments (**Champions Cup**, **League Cup**, and **Consolation Cup**), with brackets and leg progressions automatically updated.
+- Auctions have no fixed clock: a 72-hour initial window, a 24-hour floor after the first real bid, and a *decaying* inactivity timeout (12h → 4h → 2h → 1h as the auction ages) so a contested auction can never freeze on a snipeable public deadline. A quiet-hours guard (00:00–08:00 by default) means nothing resolves while managers are asleep.
+- **20% of every winning bid recirculates**, split between the manager who opened that auction (**Scout's Fee**, 10% uncapped) and an equal **solidarity payment** to every other non-winning club — modeled on FIFA's real solidarity mechanism, so a bidding war between two clubs funds everyone else instead of just draining the league's money supply.
+- Selling your own roster requires a minimum listing price of **80% of market value**, closing the trivial-transfer exploit two managers could otherwise use to move an asset for €1m.
+- Dropping a player for space costs a **severance fee** (20% of market value, min €2m) — churn isn't free.
 
-### Auction & Waiver Economy
-Gaffa features a virtual transfer economy driven by Free Agent Acquisition Budget (FAAB) bidding. Each team starts with a league-configured budget (defaulting to 250). FAAB is a permanent dynasty asset; it does not reset between seasons and can be traded.
+### Trades & loans
+Manager-to-manager **trades** need no commissioner approval and have no deadline — any combination of players, Club Balance, and Retained List rights against any combination of theirs. A trade involving a player already live in a gameweek is deferred until that gameweek resolves, so a mid-week trade can't be used to escape a bad lineup.
 
-Managers sign players via a waiver system featuring a 48-hour blind bidding window. High-value players (defined as having a Transfermarkt market value $\ge \text{£50m}$) who enter the player pool automatically trigger a system auction. The system seeds the auction, locks the bidding window, and sends notification emails via Resend to all league managers.
+**Loans** move a player to another club for 4–16 gameweeks against an upfront fee and an optional per-point performance bonus, with a recall clause or a flat buyback fee to reclaim the roster slot. Hard capped at **1 player out, 2 players in** at a time, so loans stay a specific deal about a specific player rather than a second roster.
 
-If a player permanently departs the Premier League or their club is relegated, the owning team receives *Transfer Out Compensation*. The player is deactivated, dropped from the roster, and the owner is reimbursed in FAAB at 100% of the player's Transfermarkt market value.
+### Dynasty format & departures
+The league drafts **exactly once**, ever. After that every new player is bought at auction. Rosters carry Active/Bench, **IR** (injured reserve — doesn't count against the roster cap, but blocks that manager from bidding while a healthy player sits on it), and an **Academy** for U21 prospects (age-cutoff, not games-played, so it can't be used to hide useful squad players off the books).
 
-### Dynasty Format & Offseason Reset
-Unlike standard redraft leagues, Gaffa teams carry their rosters and FAAB assets over from season to season. Roster allocations are split into Active, Bench, IR (Injured Reserve), and a Taxi Squad for stashing young prospects (configured per league, defaulting to a size of 3 and an age limit of 21).
+When a rostered player leaves the Premier League, the owning manager chooses, per departure: **Release** (60% of market value in compensation, and a bar from bidding on his eventual return) or **Retain** (forfeit the cash, keep tradeable rights that mature automatically if he ever comes back). The choice — and the exclusion that comes with Release — exists specifically to close an exploit the original all-cash-payout design had: a manager could be paid out *and* still win the player back later with a free option nobody else had.
 
-At the conclusion of the season, the commissioner triggers the *Offseason Reset*:
-1. **Preflight Check**: Verifies that all GW38 matchups and tournament cup brackets are completed.
-2. **Archive Standings**: Records final standings, total points, and team ranks in the `season_standings_archive` table.
-3. **Distribute Prizes**: Credits FAAB prizes to teams based on their league and cup finish configurations.
-4. **Relegation Compensation**: Processes automatic compensation (100% of market value in FAAB) for rostered players on relegated Premier League clubs, dropping the players and marking them as relegated.
-5. **Team Stat Reset**: Resets wins, losses, draws, and seasonal points for all teams to 0 (while preserving FAAB budgets).
-6. **Metadata Progression**: Advances the league's current season value and transitions the league status to `offseason`.
-7. **Schedule & Tournament Generation**: Generates a new head-to-head match schedule and initializes empty cup brackets for the upcoming season.
+### The offseason reset
+Once every fixture and cup tie is complete, the commissioner triggers the reset: rosters lock, the season is archived (standings, matchups, cup results, player stats), placement and cup prizes are paid (€40m→€20m by league position, €40m/€15m Champions Cup, €20m/€8m League and Consolation Cup), win/loss/draw records zero out, **Club Balance carries over untouched**, and a new schedule plus fresh cup brackets are generated. Departures are handled continuously through the season via Release/Retain, not dumped on the league in one lump at reset — so relegation arrives as a series of decisions across the summer, not a single event.
+
+---
+
+## Tech Stack
+
+- **Frontend**: Next.js 16 App Router with React Server Components and React 19. Styling is strict, token-based CSS Modules — no utility-class framework — with two full themes (light "Cream Editorial", dark "Premium Dark") and a distinct design token per tactical position. Animation via Framer Motion.
+- **Backend & database**: Supabase (PostgreSQL) for auth, relational data, and Row Level Security. Transactionally critical game logic — bid resolution, matchup scoring, trade execution — is implemented as **Postgres stored procedures/RPCs**, not just application code, so money and rosters move atomically. Sync and resolution timing is driven by Vercel Cron.
+- **Data ingestion**: three external sources are fused into one player record — the **FPL API** (live stats, injury status, fixtures), a **SoFIFA scraper** (granular primary/secondary tactical positions the FPL API doesn't carry), and a **Transfermarkt scraper** (market values, fuzzy name-matched at a 0.72 similarity threshold, auto-triggering a system auction on any arrival worth ≥£50m).
 
 ---
 
 ## Project Structure
 
-The codebase is organized in a standard Next.js App Router tree:
-
 ```text
 src/
-├── app/            # Next.js pages, layouts, and API routes (Dashboard, League, Auth, sync endpoints)
-├── components/     # Reusable UI components (Pitch, trade panels, player cards)
-├── context/        # React context providers (theme state)
-├── lib/            # Core business logic (Scoring engine, matchup processor, offseason transitions, Supabase clients)
-├── scripts/        # Data-syncing, logo downloading, reference stats calculations, and scraper scripts
-├── types/          # Authoritative global TypeScript types and formation maps
+├── app/               # Next.js route groups — (auth), (dashboard), and api/ (sync, cron, admin, transfers)
+├── components/        # UI components by domain (players, teams, transfers, layout, ui)
+├── context/           # React context (theme)
+├── lib/                # Core business logic:
+│   ├── scoring/         #   sigmoid rating engine + matchup processor
+│   ├── tournaments/      #   cup bracket generation and advancement
+│   ├── offseason/        #   season reset, relegation compensation, prize distribution
+│   ├── auction/, listings/  #   bidding economy, sale listings, loan terms
+│   ├── roster/, lineups/   #   lineup validation and auto-subs
+│   ├── economy/          #   solidarity payments, merit (match revenue) payouts
+│   ├── clubs/             #   the durable club-identity registry (never keyed on FPL's seasonal team ids)
+│   └── supabase/          #   client/server/admin Supabase clients
+├── scripts/            # Data-sync and scraper scripts colocated with app code
+└── types/              # Authoritative global types — Formation, position taxonomy, bench bonuses
+supabase/migrations/   # Sequential numbered SQL migrations — the source of truth for schema
+docs/USER_GUIDE.md     # The full player-facing rulebook this README summarizes
 ```
 
 ---
 
 ## Data Pipeline
 
-Player and performance data flows through the application in a multi-stage pipeline:
-
 ```mermaid
 graph TD
-    A[FPL API Bootstrap] -->|Base Metadata & Injury Status| B[Supabase players Table]
-    C[SoFIFA Scraper] -->|Granular Primary/Secondary Positions| B
-    D[Transfermarkt Scraper] -->|Fuzzy-Matched Market Values| B
-    E[FPL Live Event API] -->|Live Match Events| F[Scoring Engine /api/sync/stats]
-    F -->|Calculate ratings & fantasy points| G[Supabase player_stats Table]
+    A[FPL API Bootstrap] -->|Base metadata & injury status| B[Supabase players table]
+    C[SoFIFA Scraper] -->|Granular primary/secondary positions| B
+    D[Transfermarkt Scraper] -->|Fuzzy-matched market values, £50m+ auto-auction| B
+    E[FPL Live Event API] -->|Live match events| F["Scoring Engine (/api/sync/stats)"]
+    F -->|Sigmoid ratings & fantasy points| G[Supabase player_stats table]
     G -->|update_player_fantasy_scores RPC| B
     G -->|update_player_form_ratings RPC| B
     G -->|resolveAllStalledGameweeks| H[Matchup Processor]
-    H -->|Auto-subs, Bench Bonus, Role-Aware scoring| I[Supabase matchups Table]
+    H -->|Auto-subs, Bench Depth Bonus, role-aware re-scoring| I[Supabase matchups table]
     I -->|executeAdvanceTournament| J[Cup Brackets & Standings]
 ```
 
-1. **Player Synchronization**: Running `/api/sync/players` pulls down Premier League player metadata from FPL. It updates names, clubs, and injury status while preserving manual overrides.
-2. **Tactical Mapping**: `/api/sync/sofifa-players` runs to query the SoFIFA API. It matches players to EA FC squads and updates their primary and secondary positions.
-3. **Market Valuations**: The Transfermarkt scraper compares player names against the database using a word-subset and fuzzy matching threshold (minimum 0.72 similarity). It updates player market values and, if a new high-value arrival ($\ge \text{£50m}$) is detected, seeds system auctions.
-4. **Live Ingestion**: Vercel Cron routes trigger `/api/sync/stats?mode=fpl_live` during live gameweeks. The route fetches live events, maps them to Gaffa's internal `RawStats` structure, computes match ratings and points via the scoring engine, and inserts records into `player_stats`.
-5. **Gameweek Resolution**: When FPL flags a gameweek as finished or provisionally finished, the matchup processor updates matchups to `completed`, resolves head-to-head scores, triggers cup progressions, and archives standings.
+1. **Player sync** (`/api/sync/players`) — pulls Premier League player metadata from FPL: names, clubs, injury status, preserving manual overrides.
+2. **Tactical mapping** (`/api/sync/sofifa-players`) — matches players to their EA FC squad entries and updates primary/secondary tactical positions.
+3. **Market valuation** — the Transfermarkt scraper fuzzy-matches names (0.72 similarity threshold), updates market values, and seeds a system auction on any new arrival ≥£50m or any player at a newly-promoted club.
+4. **Live ingestion** (`/api/sync/stats?mode=fpl_live`) — during live gameweeks, fetches FPL live events, runs them through the scoring engine, and writes ratings and points to `player_stats`.
+5. **Gameweek resolution** — once FPL marks a gameweek finished, the matchup processor resolves head-to-head scores, applies auto-subs and role-aware re-scoring, and advances the cup brackets.
