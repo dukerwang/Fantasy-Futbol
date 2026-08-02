@@ -86,7 +86,8 @@ export async function POST(req: NextRequest, { params }: Props) {
 
       await admin.from('chat_messages').insert({
         league_id: leagueId,
-        message: `📢 [SYSTEM:ANNOUNCEMENT] Slot buyback! **${myTeam.team_name}** paid €${resData.fee_paid}m to buy back and unlock a signing slot while **${player.name}** is out on loan.`,
+        is_system: true,
+        message: `[SYSTEM:ANNOUNCEMENT] Slot buyback — **${myTeam.team_name}** paid €${resData.fee_paid}m to buy back and unlock a signing slot while **${player.name}** is out on loan.`,
       });
     }
   } catch (err) {

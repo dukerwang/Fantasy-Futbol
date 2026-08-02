@@ -181,6 +181,24 @@
   background: rgba(58, 107, 74, 0.05);
 }
 
+/* Blockbuster/Galactico signings — a thin gold accent, matching the
+   app-wide --color-gold convention (leader/#1 figures; never a filled
+   badge). Rules sit after .rowUnread so gold wins when both apply. */
+.rowHype {
+  border-left: 3px solid var(--color-gold);
+  padding-left: calc(var(--space-6) - 3px);
+}
+
+.rowHype .rowTitle {
+  color: var(--color-gold);
+}
+
+.rowHype .iconWrapper {
+  color: var(--color-gold);
+  border-color: rgba(147, 112, 47, 0.3);
+  background: rgba(147, 112, 47, 0.08);
+}
+
 .rowContent {
   flex: 1;
   display: flex;

@@ -33,6 +33,21 @@ import { describeDeal } from '@/lib/transfers/describeDeal';
 
 const money = (n: number) => `€${n}m`;
 
+/** Prefill for countering a pending trade/loan — see openTradeCounter/openLoanCounter. */
+interface CounterSeed {
+  giveIds?: string[];
+  wantIds?: string[];
+  giveRightIds?: string[];
+  wantRightIds?: string[];
+  myCash?: number;
+  theirCash?: number;
+  startGw?: number;
+  endGw?: number;
+  hasRecall?: boolean;
+  parentTradeId?: string;
+  parentLoanId?: string;
+}
+
 export default function DealsClient({
   leagueId,
   initial,
@@ -50,10 +65,47 @@ export default function DealsClient({
   const [proposePlayerId, setProposePlayerId] = useState<string | null>(null);
   const [proposeRightId, setProposeRightId] = useState<string | null>(null);
   const [proposeLoanDirection, setProposeLoanDirection] = useState<LoanDirection>('borrow');
+  const [proposeCounterSeed, setProposeCounterSeed] = useState<CounterSeed | null>(null);
   const [editing, setEditing] = useState<TransfersListing | null | 'new'>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const refresh = () => router.refresh();
+
+  // A counter mirrors the proposal being answered — "same deal, now I'm
+  // proposing it" — so the composer opens ready to tweak rather than empty.
+  // Only the responder (team_b for a trade; whoever must accept/reject a
+  // loan) is ever offered Counter, in both the Deals card and the chat card,
+  // so `me` is always that side here.
+  const openTradeCounter = (p: TradeProposalRow) => {
+    setProposeRightId(null);
+    setProposeTeamId(p.team_a_id);
+    setProposePlayerId(null);
+    setProposeCounterSeed({
+      giveIds: p.requested_players ?? [],
+      wantIds: p.offered_players ?? [],
+      giveRightIds: p.requested_rights ?? [],
+      wantRightIds: p.offered_rights ?? [],
+      myCash: p.requested_faab,
+      theirCash: p.offered_faab,
+      parentTradeId: p.id,
+    });
+    setPropose('offer');
+  };
+
+  const openLoanCounter = (l: LoanRow) => {
+    const lending = l.lender_team_id === me;
+    setProposeRightId(null);
+    setProposeTeamId(lending ? l.borrower_team_id : l.lender_team_id);
+    setProposePlayerId(l.player_id);
+    setProposeLoanDirection(lending ? 'lend' : 'borrow');
+    setProposeCounterSeed({
+      startGw: l.start_gameweek,
+      endGw: l.end_gameweek,
+      hasRecall: l.has_recall,
+      parentLoanId: l.id,
+    });
+    setPropose('loan');
+  };
 
   useEffect(() => { setServerClock(model.serverNow); }, [model.serverNow]);
   useEffect(() => {
@@ -222,12 +274,7 @@ export default function DealsClient({
                 type="button"
                 className={styles.dealBtn}
                 disabled={busyId === p.id}
-                onClick={() => {
-                  setProposeRightId(null);
-                  setProposeTeamId(p.team_a_id);
-                  setProposePlayerId(p.requested_players?.[0] ?? null);
-                  setPropose('offer');
-                }}
+                onClick={() => openTradeCounter(p)}
               >
                 Counter
               </button>
@@ -297,6 +344,14 @@ export default function DealsClient({
                 onClick={() => act('loan', l.id, 'accept')}
               >
                 Accept
+              </button>
+              <button
+                type="button"
+                className={styles.dealBtn}
+                disabled={busyId === l.id}
+                onClick={() => openLoanCounter(l)}
+              >
+                Counter
               </button>
               <button
                 type="button"
@@ -401,7 +456,7 @@ export default function DealsClient({
               type="button"
               className={styles.proposeBtn}
               style={{ background: 'var(--color-pos-cb)' }}
-              onClick={() => { setProposeRightId(null); setProposeTeamId(null); setProposePlayerId(null); setPropose('offer'); }}
+              onClick={() => { setProposeRightId(null); setProposeTeamId(null); setProposePlayerId(null); setProposeCounterSeed(null); setPropose('offer'); }}
             >
               Make an offer
             </button>
@@ -409,7 +464,7 @@ export default function DealsClient({
               type="button"
               className={styles.proposeBtn}
               style={{ background: 'var(--color-pos-wb)' }}
-              onClick={() => { setProposeLoanDirection('borrow'); setProposeTeamId(null); setProposePlayerId(null); setPropose('loan'); }}
+              onClick={() => { setProposeLoanDirection('borrow'); setProposeTeamId(null); setProposePlayerId(null); setProposeCounterSeed(null); setPropose('loan'); }}
             >
               Request a loan
             </button>
@@ -417,7 +472,7 @@ export default function DealsClient({
               type="button"
               className={styles.proposeBtn}
               style={{ background: 'var(--color-pos-wb)' }}
-              onClick={() => { setProposeLoanDirection('lend'); setProposeTeamId(null); setProposePlayerId(null); setPropose('loan'); }}
+              onClick={() => { setProposeLoanDirection('lend'); setProposeTeamId(null); setProposePlayerId(null); setProposeCounterSeed(null); setPropose('loan'); }}
             >
               Propose a loan
             </button>
@@ -564,13 +619,21 @@ export default function DealsClient({
       </div>
 
       <Suspense fallback={null}>
-        <ProposeRightReader onFound={(id) => { setProposeRightId(id); setPropose('offer'); }} />
+        <ProposeRightReader onFound={(id) => { setProposeCounterSeed(null); setProposeRightId(id); setPropose('offer'); }} />
+      </Suspense>
+      <Suspense fallback={null}>
+        <ProposeCounterReader
+          onFoundTrade={openTradeCounter}
+          onFoundLoan={openLoanCounter}
+          myOffers={model.myOffers}
+          loans={model.loans}
+        />
       </Suspense>
 
       {propose && (
         <ProposeBuilder
           open
-          onClose={() => setPropose(null)}
+          onClose={() => { setPropose(null); setProposeCounterSeed(null); }}
           leagueId={leagueId}
           model={model}
           initialMode={propose}
@@ -578,6 +641,17 @@ export default function DealsClient({
           initialPlayerId={proposePlayerId}
           initialGiveRightId={proposeRightId}
           initialLoanDirection={proposeLoanDirection}
+          initialGiveIds={proposeCounterSeed?.giveIds}
+          initialWantIds={proposeCounterSeed?.wantIds}
+          initialGiveRightIds={proposeCounterSeed?.giveRightIds}
+          initialWantRightIds={proposeCounterSeed?.wantRightIds}
+          initialMyCash={proposeCounterSeed?.myCash}
+          initialTheirCash={proposeCounterSeed?.theirCash}
+          initialStartGw={proposeCounterSeed?.startGw}
+          initialEndGw={proposeCounterSeed?.endGw}
+          initialHasRecall={proposeCounterSeed?.hasRecall}
+          parentTradeId={proposeCounterSeed?.parentTradeId}
+          parentLoanId={proposeCounterSeed?.parentLoanId}
           onDone={refresh}
         />
       )}
@@ -640,6 +714,40 @@ function ProposeRightReader({ onFound }: { onFound: (rightId: string) => void })
   useEffect(() => {
     const rightId = searchParams.get('proposeRight');
     if (rightId) onFound(rightId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  return null;
+}
+
+/**
+ * Reads `?counter=trade:<id>` or `?counter=loan:<id>` from the URL and opens
+ * the builder pre-filled as a counter to that proposal — the landing spot for
+ * the chat DM's Counter button, which can't open the builder directly since
+ * it lives on a different page. Same pattern as ProposeRightReader above.
+ */
+function ProposeCounterReader({
+  onFoundTrade,
+  onFoundLoan,
+  myOffers,
+  loans,
+}: {
+  onFoundTrade: (p: TradeProposalRow) => void;
+  onFoundLoan: (l: LoanRow) => void;
+  myOffers: TradeProposalRow[];
+  loans: LoanRow[];
+}) {
+  const searchParams = useSearchParams();
+  useEffect(() => {
+    const counter = searchParams.get('counter');
+    if (!counter) return;
+    const [kind, id] = counter.split(':');
+    if (kind === 'trade') {
+      const trade = myOffers.find((p) => p.id === id && p.status === 'pending');
+      if (trade) onFoundTrade(trade);
+    } else if (kind === 'loan') {
+      const loan = loans.find((l) => l.id === id && l.status === 'pending');
+      if (loan) onFoundLoan(loan);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   return null;

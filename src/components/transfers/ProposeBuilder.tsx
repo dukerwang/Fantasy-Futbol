@@ -67,6 +67,29 @@ interface Props {
   /** Which side of a loan this session starts on. Defaults to "borrow" — the
    *  listing-triggered "Loan" quick action always requests the listed player in. */
   initialLoanDirection?: LoanDirection;
+  /**
+   * Countering a trade/listing offer: the full asset table pre-filled as a
+   * mirror of the proposal being countered ("same deal, now I'm proposing
+   * it"), so the composer opens ready to tweak rather than empty. When set,
+   * these override `initialPlayerId`/`initialGiveRightId` above.
+   */
+  initialGiveIds?: string[];
+  initialWantIds?: string[];
+  initialGiveRightIds?: string[];
+  initialWantRightIds?: string[];
+  initialMyCash?: number;
+  initialTheirCash?: number;
+  /** Countering a loan: the original schedule/recall clause carried over as a
+   *  starting point — the fee/bonus stay template-derived, same as any fresh
+   *  loan proposal, since there's no raw fee field to restore verbatim. */
+  initialStartGw?: number;
+  initialEndGw?: number;
+  initialHasRecall?: boolean;
+  /** Set when this session is a counter-offer — rejects the parent proposal
+   *  on send and chains this one to it (trade_proposals.parent_trade_id /
+   *  player_loans.parent_loan_id). */
+  parentTradeId?: string | null;
+  parentLoanId?: string | null;
   onDone: () => void;
 }
 
@@ -92,6 +115,17 @@ export default function ProposeBuilder({
   initialPlayerId,
   initialGiveRightId,
   initialLoanDirection,
+  initialGiveIds,
+  initialWantIds,
+  initialGiveRightIds,
+  initialWantRightIds,
+  initialMyCash,
+  initialTheirCash,
+  initialStartGw,
+  initialEndGw,
+  initialHasRecall,
+  parentTradeId,
+  parentLoanId,
   onDone,
 }: Props) {
   const others = useMemo(
@@ -101,12 +135,12 @@ export default function ProposeBuilder({
 
   const [mode, setMode] = useState<ProposeMode>(initialMode);
   const [targetId, setTargetId] = useState<string>(initialTeamId ?? others[0]?.id ?? '');
-  const [give, setGive] = useState<string[]>([]);
-  const [want, setWant] = useState<string[]>(initialPlayerId ? [initialPlayerId] : []);
-  const [giveRights, setGiveRights] = useState<string[]>(initialGiveRightId ? [initialGiveRightId] : []);
-  const [wantRights, setWantRights] = useState<string[]>([]);
-  const [myCash, setMyCash] = useState(0);
-  const [theirCash, setTheirCash] = useState(0);
+  const [give, setGive] = useState<string[]>(initialGiveIds ?? []);
+  const [want, setWant] = useState<string[]>(initialWantIds ?? (initialPlayerId ? [initialPlayerId] : []));
+  const [giveRights, setGiveRights] = useState<string[]>(initialGiveRightIds ?? (initialGiveRightId ? [initialGiveRightId] : []));
+  const [wantRights, setWantRights] = useState<string[]>(initialWantRightIds ?? []);
+  const [myCash, setMyCash] = useState(initialMyCash ?? 0);
+  const [theirCash, setTheirCash] = useState(initialTheirCash ?? 0);
   const [message, setMessage] = useState('');
 
   // Each side of an offer starts EMPTY and is built up. Showing both squads in
@@ -122,39 +156,39 @@ export default function ProposeBuilder({
   // Loan terms.
   const gwNow = model.currentGameweek;
   const [loanDirection, setLoanDirection] = useState<LoanDirection>(initialLoanDirection ?? 'borrow');
-  const [startGw, setStartGw] = useState(gwNow + 1);
-  const [endGw, setEndGw] = useState(gwNow + 7);
+  const [startGw, setStartGw] = useState(initialStartGw ?? gwNow + 1);
+  const [endGw, setEndGw] = useState(initialEndGw ?? gwNow + 7);
   const [loanTemplate, setLoanTemplate] = useState<'fixed' | 'balanced' | 'performance'>('balanced');
   const [loanAdjust, setLoanAdjust] = useState(0); // -0.20 .. +0.20
-  const [hasRecall, setHasRecall] = useState(true);
+  const [hasRecall, setHasRecall] = useState(initialHasRecall ?? true);
 
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // Re-seed when reopened for a different starting point.
-  const seedKey = `${initialMode}:${initialTeamId ?? ''}:${initialPlayerId ?? ''}:${initialGiveRightId ?? ''}:${initialLoanDirection ?? ''}:${open}`;
+  const seedKey = `${initialMode}:${initialTeamId ?? ''}:${initialPlayerId ?? ''}:${initialGiveRightId ?? ''}:${initialLoanDirection ?? ''}:${parentTradeId ?? ''}:${parentLoanId ?? ''}:${open}`;
   const [seed, setSeed] = useState(seedKey);
   if (seed !== seedKey) {
     setSeed(seedKey);
     setMode(initialMode);
     setTargetId(initialTeamId ?? others[0]?.id ?? '');
-    setGive([]);
-    setWant(initialPlayerId ? [initialPlayerId] : []);
-    setGiveRights(initialGiveRightId ? [initialGiveRightId] : []);
-    setWantRights([]);
-    setMyCash(0);
-    setTheirCash(0);
+    setGive(initialGiveIds ?? []);
+    setWant(initialWantIds ?? (initialPlayerId ? [initialPlayerId] : []));
+    setGiveRights(initialGiveRightIds ?? (initialGiveRightId ? [initialGiveRightId] : []));
+    setWantRights(initialWantRightIds ?? []);
+    setMyCash(initialMyCash ?? 0);
+    setTheirCash(initialTheirCash ?? 0);
     setMessage('');
     setPicking(null);
     setPickQuery('');
     setMyCashOpen(false);
     setTheirCashOpen(false);
     setLoanDirection(initialLoanDirection ?? 'borrow');
-    setStartGw(gwNow + 1);
-    setEndGw(gwNow + 7);
+    setStartGw(initialStartGw ?? gwNow + 1);
+    setEndGw(initialEndGw ?? gwNow + 7);
     setLoanTemplate('balanced');
     setLoanAdjust(0);
-    setHasRecall(true);
+    setHasRecall(initialHasRecall ?? true);
     setError(null);
   }
 
@@ -329,6 +363,7 @@ export default function ProposeBuilder({
               bonusCap: loanFinalTerms.cap,
               hasRecall,
               message: message || undefined,
+              parentLoanId: parentLoanId ?? undefined,
             }
           : {
               requestMode: true,
@@ -341,6 +376,7 @@ export default function ProposeBuilder({
               bonusCap: loanFinalTerms.cap,
               hasRecall,
               message: message || undefined,
+              parentLoanId: parentLoanId ?? undefined,
             };
         const res = await fetch(`/api/leagues/${leagueId}/loans`, {
           method: 'POST',
@@ -367,6 +403,7 @@ export default function ProposeBuilder({
             requestedRightIds: wantRights,
             message: message || undefined,
             saleListingId: initialListing?.id ?? null,
+            parentTradeId: parentTradeId ?? undefined,
           }),
         });
         const data = await res.json();

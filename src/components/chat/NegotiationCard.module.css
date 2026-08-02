@@ -1,0 +1,169 @@
+/*
+ * Card language ported directly from the Deals page
+ * (src/app/(dashboard)/league/[leagueId]/transfers/deals/deals.module.css
+ * `.deal`/`.dealSides`/`.dealActions` family) so a negotiation reads the same
+ * whether it's answered in chat or on Deals — same tags, same button
+ * treatment, same status language. Only the outer width is chat-specific.
+ */
+
+.card {
+  width: 320px;
+  max-width: 100%;
+  border: 1px solid var(--color-border);
+  border-radius: 9px;
+  overflow: hidden;
+  background: var(--color-bg-card);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Needs your answer — full border + tint, no edge sliver. */
+.cardActive {
+  border-color: var(--color-border-accent);
+  background: var(--color-accent-dim);
+}
+
+.head {
+  padding: 0.55rem 0.75rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  border-bottom: 1px solid var(--color-border-subtle);
+  flex-wrap: wrap;
+}
+
+.title {
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-text-primary);
+}
+
+.tag {
+  font-size: 0.53rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 0.19rem 0.44rem;
+  border-radius: 3px;
+  color: #FFFFFF;
+  white-space: nowrap;
+}
+
+.sides {
+  display: grid;
+  grid-template-columns: 1fr 34px 1fr;
+}
+
+.side { padding: 0.7rem 0.75rem; min-width: 0; }
+.sideRight { text-align: right; }
+
+.swap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-muted);
+  border-left: 1px solid var(--color-border-subtle);
+  border-right: 1px solid var(--color-border-subtle);
+}
+
+.label {
+  font-size: 0.5rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  margin-bottom: 0.375rem;
+}
+
+.assets {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.assetsRight { align-items: flex-end; }
+
+.assetName {
+  font-family: var(--font-serif);
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: var(--color-text-primary);
+}
+
+.assetRightsTag {
+  font-weight: 400;
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+.cash {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.875rem;
+  color: var(--color-accent);
+  margin-top: 0.25rem;
+}
+
+.cap {
+  font-weight: 400;
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+}
+
+.none { color: var(--color-text-muted); font-size: 0.8125rem; }
+
+.note {
+  padding: 0 0.75rem 0.625rem;
+  font-size: 0.75rem;
+  font-style: italic;
+  color: var(--color-text-secondary);
+}
+
+.actions {
+  display: flex;
+  border-top: 1px solid var(--color-border-subtle);
+  background: var(--color-bg-elevated);
+}
+
+.btn {
+  flex: 1;
+  text-align: center;
+  padding: 0.55rem;
+  font-family: var(--font-sans);
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border: none;
+  border-right: 1px solid var(--color-border-subtle);
+  background: none;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+}
+
+.btn:last-child { border-right: none; }
+.btn:hover:not(:disabled) { background: var(--color-bg-card-hover); }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.btnYes {
+  background: var(--color-accent);
+  color: #FFFFFF;
+}
+
+.btnYes:hover:not(:disabled) { background: var(--color-accent-hover); }
+
+.status {
+  flex: 1;
+  padding: 0.55rem 0.75rem;
+  font-size: 0.69rem;
+  color: var(--color-text-muted);
+}
+
+.error {
+  padding: 0.4rem 0.75rem;
+  font-size: 0.69rem;
+  color: var(--color-danger);
+  background: var(--color-danger-dim);
+}

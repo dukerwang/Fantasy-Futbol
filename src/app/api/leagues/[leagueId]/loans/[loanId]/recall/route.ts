@@ -162,7 +162,8 @@ export async function POST(req: NextRequest, { params }: Props) {
       // Send league lobby announcement
       await admin.from('chat_messages').insert({
         league_id: leagueId,
-        message: `📢 [SYSTEM:ANNOUNCEMENT] Recall activated! **${myTeam.team_name}** has recalled **${player.name}** early from **${borrowerTeam.team_name}**. Lender pays €${resData.penalty}m penalty to borrower.`,
+        is_system: true,
+        message: `[SYSTEM:ANNOUNCEMENT] Recall activated — **${myTeam.team_name}** has recalled **${player.name}** early from **${borrowerTeam.team_name}**. Lender pays €${resData.penalty}m penalty to borrower.`,
       });
 
       // Notify lender about pending activation if applicable

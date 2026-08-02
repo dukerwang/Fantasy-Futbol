@@ -35,7 +35,7 @@ export default async function ChatPage({ params }: Props) {
     .select('id')
     .eq('league_id', leagueId)
     .eq('user_id', user.id)
-    .single();
+    .maybeSingle();
 
   // Commissioners are allowed in chat even if they don't have an active team in the league
   if (!myTeam && league.commissioner_id !== user.id) {
@@ -57,6 +57,7 @@ export default async function ChatPage({ params }: Props) {
       leagueName={league.name}
       currentUserId={user.id}
       currentUsername={username}
+      currentTeamId={myTeam?.id ?? null}
     />
   );
 }

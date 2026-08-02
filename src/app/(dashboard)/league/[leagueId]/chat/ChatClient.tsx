@@ -1,11 +1,12 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { Icon } from '@/components/ui/Icon';
 import FormattedText from '@/components/ui/FormattedText';
 import CrestBadge from '@/components/crest/CrestBadge';
+import TradeOfferCard, { type TradeSummary } from '@/components/chat/TradeOfferCard';
+import LoanOfferCard, { type LoanSummary } from '@/components/chat/LoanOfferCard';
 import styles from './Chat.module.css';
 
 interface UserInfo {
@@ -30,6 +31,8 @@ interface ChatMessage {
   message: string;
   created_at: string;
   is_system?: boolean;
+  trade_id?: string | null;
+  loan_id?: string | null;
   sender?: UserInfo;
 }
 
@@ -38,6 +41,7 @@ interface ChatClientProps {
   leagueName: string;
   currentUserId: string;
   currentUsername: string;
+  currentTeamId: string | null;
 }
 
 type TabState = 
@@ -48,10 +52,13 @@ export default function ChatClient({
   leagueId,
   leagueName,
   currentUserId,
-  currentUsername
+  currentUsername,
+  currentTeamId
 }: ChatClientProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [teams, setTeams] = useState<TeamInfo[]>([]);
+  const [trades, setTrades] = useState<Record<string, TradeSummary>>({});
+  const [loans, setLoans] = useState<Record<string, LoanSummary>>({});
   const [activeTab, setActiveTab] = useState<TabState>({ type: 'lobby' });
   const [inputValue, setInputValue] = useState('');
   const [isSending, setIsSending] = useState(false);
@@ -62,7 +69,6 @@ export default function ChatClient({
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const feedRef = useRef<HTMLDivElement>(null);
   const supabase = createClient();
-  const router = useRouter();
 
   // Scroll to bottom helper
   const scrollToBottom = (behavior: 'smooth' | 'auto' = 'smooth') => {
@@ -79,6 +85,8 @@ export default function ChatClient({
           const data = await res.json();
           setMessages(data.messages || []);
           setTeams(data.teams || []);
+          setTrades(data.trades || {});
+          setLoans(data.loans || {});
         }
       } catch (err) {
         console.error('Failed to load chat logs:', err);
@@ -89,6 +97,23 @@ export default function ChatClient({
     };
 
     fetchLogs();
+  }, [leagueId]);
+
+  // Re-resolve live trade/loan negotiation summaries — called when a new
+  // proposal message arrives (its trade_id/loan_id won't be in the map yet)
+  // and after the viewer acts on a card, for an instant local reflection
+  // ahead of the Realtime UPDATE below.
+  const refreshNegotiations = useCallback(async () => {
+    try {
+      const res = await fetch(`/api/chat?league_id=${leagueId}`);
+      if (res.ok) {
+        const data = await res.json();
+        setTrades(data.trades || {});
+        setLoans(data.loans || {});
+      }
+    } catch (err) {
+      console.error('Failed to refresh negotiation cards:', err);
+    }
   }, [leagueId]);
 
   // Connect to Supabase Realtime
@@ -105,6 +130,12 @@ export default function ChatClient({
         },
         (payload) => {
           const newMsg = payload.new as ChatMessage;
+
+          // A proposal card for a trade/loan we haven't seen yet — resolve it
+          // (name/status/etc.) since the map from initial load won't have it.
+          if (newMsg.trade_id || newMsg.loan_id) {
+            refreshNegotiations();
+          }
 
           // Deduplicate
           setMessages((prev) => {
@@ -142,7 +173,37 @@ export default function ChatClient({
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [leagueId, teams, activeTab, currentUserId, currentUsername, supabase]);
+  }, [leagueId, teams, activeTab, currentUserId, currentUsername, supabase, refreshNegotiations]);
+
+  // Live-update trade/loan cards when the underlying deal is resolved —
+  // whether that happens here in chat or elsewhere (the Deals page, another
+  // tab). Only `status` (and a couple of terminal fields) can change after a
+  // proposal is inserted, so a targeted merge is enough; no re-fetch needed.
+  useEffect(() => {
+    const channel = supabase
+      .channel(`chat_negotiations:${leagueId}`)
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'trade_proposals', filter: `league_id=eq.${leagueId}` },
+        (payload) => {
+          const row = payload.new as { id: string; status: string };
+          setTrades((prev) => (prev[row.id] ? { ...prev, [row.id]: { ...prev[row.id], status: row.status } } : prev));
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'player_loans', filter: `league_id=eq.${leagueId}` },
+        (payload) => {
+          const row = payload.new as { id: string; status: string };
+          setLoans((prev) => (prev[row.id] ? { ...prev, [row.id]: { ...prev[row.id], status: row.status } } : prev));
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [leagueId, supabase]);
 
   // Auto-scroll when new messages arrive or active tab changes
   useEffect(() => {
@@ -350,17 +411,9 @@ export default function ChatClient({
               const teamInfo = teams.find((t) => t.user_id === m.sender_id);
               const teamLabel = teamInfo ? teamInfo.team_name : (isSelf ? 'My Club' : '');
 
-              const isSystemTrade = m.message.startsWith('[SYSTEM:TRADE_PROPOSAL:');
               const isSystemAnnouncement = m.is_system === true;
-              let tradeData: any = null;
-              if (isSystemTrade) {
-                try {
-                  const jsonStr = m.message.substring('[SYSTEM:TRADE_PROPOSAL:'.length, m.message.length - 1);
-                  tradeData = JSON.parse(jsonStr);
-                } catch (e) {
-                  console.error('Failed to parse system trade msg:', e);
-                }
-              }
+              const trade = m.trade_id ? trades[m.trade_id] : undefined;
+              const loan = m.loan_id ? loans[m.loan_id] : undefined;
 
               return (
                 <div
@@ -393,41 +446,10 @@ export default function ChatClient({
                       </div>
                     )}
 
-                    {isSystemTrade && tradeData ? (
-                      <div className={styles.tradeWidgetCard}>
-                        <div className={styles.tradeWidgetHeader}>
-                          <Icon name="repeat" size={16} className={styles.tradeWidgetIcon} />
-                          <span className={styles.tradeWidgetTitle}>
-                            {tradeData.isCounter ? 'Counter Trade Offer' : 'New Trade Proposed'}
-                          </span>
-                        </div>
-                        <div className={styles.tradeWidgetTeams}>
-                          <strong>{tradeData.proposerName}</strong> proposed to <strong>{tradeData.targetName}</strong>
-                        </div>
-                        <div className={styles.tradeWidgetOfferBlock}>
-                          <div className={styles.tradeWidgetCol}>
-                            <span className={styles.tradeWidgetLabel}>Giving:</span>
-                            <span className={styles.tradeWidgetValue}>
-                              {tradeData.offered && tradeData.offered.length > 0 ? tradeData.offered.join(', ') : 'None'}
-                            </span>
-                          </div>
-                          <div className={styles.tradeWidgetCol}>
-                            <span className={styles.tradeWidgetLabel}>Receiving:</span>
-                            <span className={styles.tradeWidgetValue}>
-                              {tradeData.requested && tradeData.requested.length > 0 ? tradeData.requested.join(', ') : 'None'}
-                            </span>
-                          </div>
-                        </div>
-                        <button
-                          className={styles.tradeWidgetBtn}
-                          onClick={() => {
-                            window.dispatchEvent(new Event('navigation-start'));
-                            router.push(`/league/${leagueId}/transfers/deals`);
-                          }}
-                        >
-                          Review Trade Offer ↗
-                        </button>
-                      </div>
+                    {trade ? (
+                      <TradeOfferCard trade={trade} leagueId={leagueId} currentTeamId={currentTeamId} onActionComplete={refreshNegotiations} />
+                    ) : loan ? (
+                      <LoanOfferCard loan={loan} leagueId={leagueId} currentTeamId={currentTeamId} onActionComplete={refreshNegotiations} />
                     ) : (
                       <div
                         className={`
@@ -440,7 +462,7 @@ export default function ChatClient({
                         <FormattedText
                           text={
                             isSystemAnnouncement
-                              ? m.message.replace(/^📢\s*\[SYSTEM:ANNOUNCEMENT\]\s*/i, '').replace(/^📢\s*/, '')
+                              ? m.message.replace(/^(?:📢\s*)?\[SYSTEM:ANNOUNCEMENT\]\s*/i, '').replace(/^📢\s*/, '')
                               : m.message
                           }
                         />

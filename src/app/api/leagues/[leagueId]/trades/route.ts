@@ -452,24 +452,19 @@ export async function POST(req: NextRequest, { params }: Props) {
         url: `/league/${leagueId}/transfers/deals`
       });
 
-      // Send private DM to the target manager about the trade proposal
-      const offeredNamesPlain = offeredPlayerIds.map(id => players?.find(p => p.id === id)?.name || 'Unknown Player');
-      const requestedNamesPlain = requestedPlayerIds.map(id => players?.find(p => p.id === id)?.name || 'Unknown Player');
-      if (offeredFaab > 0) offeredNamesPlain.push(`€${offeredFaab}m`);
-      if (requestedFaab > 0) requestedNamesPlain.push(`€${requestedFaab}m`);
-
+      // Send private DM to the target manager about the trade proposal. The
+      // card itself is driven live off `trade_id` (see ChatClient/TradeOfferCard) —
+      // this text is only a plain-language fallback for search/accessibility.
       await admin.from('chat_messages').insert({
         league_id: leagueId,
         sender_id: user.id,
         recipient_id: targetTeam.user_id, // Private DM to target manager only
-        message: `[SYSTEM:TRADE_PROPOSAL:${JSON.stringify({
-          tradeId: trade.id,
-          proposerName: myTeam.team_name,
-          targetName: targetTeam.team_name,
-          offered: offeredNamesPlain,
-          requested: requestedNamesPlain,
-          isCounter: !!parentTradeId
-        })}]`
+        trade_id: trade.id,
+        message: parentTradeId
+          ? `${myTeam.team_name} sent a counter offer to ${targetTeam.team_name}`
+          : saleListingId
+            ? `${myTeam.team_name} made an offer on a listed player to ${targetTeam.team_name}`
+            : `${myTeam.team_name} proposed a trade to ${targetTeam.team_name}`,
       });
     }
   } catch (err) {

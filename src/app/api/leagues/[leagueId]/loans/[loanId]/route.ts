@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { sendEmail } from '@/lib/email/client';
 import { getLoanAcceptedEmail } from '@/lib/email/templates';
+import { buildHereWeGo } from '@/lib/notifications/hereWeGo';
 
 interface Props {
   params: Promise<{ leagueId: string; loanId: string }>;
@@ -96,17 +97,8 @@ export async function POST(req: NextRequest, { params }: Props) {
   if (action === 'reject') {
     await admin.from('player_loans').update({ status: 'rejected' }).eq('id', loanId);
 
-    // Send notification to lender
+    // Notify lender in-app only — a rejection needs no action, so it isn't worth an email.
     try {
-      const { data: lenderUser } = await admin.from('users').select('email').eq('id', lenderTeam.user_id).single();
-      if (lenderUser?.email) {
-        await sendEmail({
-          to: lenderUser.email,
-          subject: `Loan Proposal Rejected`,
-          html: `<p><strong>${borrowerTeam.team_name}</strong> has rejected your proposal to loan <strong>${player.name}</strong>.</p>`
-        });
-      }
-
       const { createNotification } = await import('@/lib/notifications/createNotification');
       await createNotification(admin, {
         leagueId,
@@ -344,9 +336,14 @@ export async function POST(req: NextRequest, { params }: Props) {
       });
 
       // Send a public chat message to the league lobby
+      const loanLine = buildHereWeGo(
+        'loan',
+        `**${borrowerTeam.team_name}** agree a loan for **${player.name}** from **${lenderTeam.team_name}** (GW${loan.start_gameweek}-GW${loan.end_gameweek})`,
+      );
       await admin.from('chat_messages').insert({
         league_id: leagueId,
-        message: `📢 [SYSTEM:ANNOUNCEMENT] Deal signed! **${player.name}** joins **${borrowerTeam.team_name}** on loan from **${lenderTeam.team_name}** (from GW${loan.start_gameweek} to GW${loan.end_gameweek}).`,
+        is_system: true,
+        message: `[SYSTEM:ANNOUNCEMENT] ${loanLine.lead}`,
       });
 
     } catch (err) {

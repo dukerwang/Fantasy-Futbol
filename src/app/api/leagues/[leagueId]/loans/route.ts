@@ -273,7 +273,7 @@ export async function POST(req: NextRequest, { params }: Props) {
   const body = await req.json();
   // requestMode = true means the CALLER is the borrower requesting a player from lenderTeamId.
   // Classic mode (requestMode = false/undefined): caller is the lender proposing to borrowerTeamId.
-  const { borrowerTeamId, lenderTeamId, playerId, loanFee, startGameweek, endGameweek, bonusRate, bonusCap: clientBonusCap, hasRecall, message, requestMode } = body as {
+  const { borrowerTeamId, lenderTeamId, playerId, loanFee, startGameweek, endGameweek, bonusRate, bonusCap: clientBonusCap, hasRecall, message, requestMode, parentLoanId: requestedParentLoanId } = body as {
     borrowerTeamId?: string;
     lenderTeamId?: string;
     playerId: string;
@@ -285,6 +285,8 @@ export async function POST(req: NextRequest, { params }: Props) {
     hasRecall: boolean;
     message?: string;
     requestMode?: boolean;
+    /** Set when this proposal counters a pending loan — that loan is rejected and chained via parent_loan_id. */
+    parentLoanId?: string;
   };
 
   // Resolve effective lender/borrower based on mode
@@ -494,6 +496,31 @@ export async function POST(req: NextRequest, { params }: Props) {
 
   if (!player) return NextResponse.json({ error: 'Player not found' }, { status: 404 });
 
+  // 10b. Counter-offer: reject the parent loan (if still pending) and chain this
+  // one to it, mirroring trade_proposals.parent_trade_id (029_trade_block.sql).
+  let parentLoanId: string | undefined;
+  if (requestedParentLoanId) {
+    const { data: parentLoan } = await admin
+      .from('player_loans')
+      .select('id, status, lender_team_id, borrower_team_id')
+      .eq('id', requestedParentLoanId)
+      .eq('league_id', leagueId)
+      .maybeSingle();
+
+    if (!parentLoan) {
+      return NextResponse.json({ error: 'The loan you are countering no longer exists.' }, { status: 404 });
+    }
+    if (parentLoan.status !== 'pending') {
+      return NextResponse.json({ error: `That loan proposal is ${parentLoan.status} and can no longer be countered.` }, { status: 409 });
+    }
+    if (parentLoan.lender_team_id !== myTeam.id && parentLoan.borrower_team_id !== myTeam.id) {
+      return NextResponse.json({ error: 'You are not a party to that loan proposal.' }, { status: 403 });
+    }
+
+    await admin.from('player_loans').update({ status: 'rejected' }).eq('id', parentLoan.id);
+    parentLoanId = parentLoan.id;
+  }
+
   // 11. Create the loan proposal/request
   const { data: loan, error: insertError } = await admin
     .from('player_loans')
@@ -510,7 +537,8 @@ export async function POST(req: NextRequest, { params }: Props) {
       has_recall: hasRecall,
       status: 'pending',
       proposed_by: proposedBy,
-      message: message ?? null
+      message: message ?? null,
+      parent_loan_id: parentLoanId ?? null
     })
     .select()
     .single();
@@ -561,21 +589,19 @@ export async function POST(req: NextRequest, { params }: Props) {
       });
     }
 
-    // Private DM to counterparty manager
+    // Private DM to counterparty manager. The card is driven live off `loan_id`
+    // (see ChatClient/LoanOfferCard) — this text is only a plain-language
+    // fallback for search/accessibility.
     await admin.from('chat_messages').insert({
       league_id: leagueId,
       sender_id: user.id,
       recipient_id: counterpartyTeam.user_id,
-      message: `[SYSTEM:LOAN_PROPOSAL:${JSON.stringify({
-        loanId: loan.id,
-        lenderName: requestMode ? counterpartyTeam.team_name : myTeam.team_name,
-        borrowerName: requestMode ? myTeam.team_name : counterpartyTeam.team_name,
-        playerName: player.name,
-        loanFee: loanFee,
-        startGw: startGameweek,
-        endGw: endGameweek,
-        isRequest: requestMode ?? false
-      })}]`
+      loan_id: loan.id,
+      message: parentLoanId
+        ? `${myTeam.team_name} sent a counter loan offer to ${counterpartyTeam.team_name}`
+        : requestMode
+          ? `${myTeam.team_name} requested to loan ${player.name} from ${counterpartyTeam.team_name}`
+          : `${myTeam.team_name} proposed to loan ${player.name} to ${counterpartyTeam.team_name}`,
     });
 
   } catch (err) {

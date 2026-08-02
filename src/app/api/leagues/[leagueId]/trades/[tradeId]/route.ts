@@ -3,6 +3,8 @@ import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { sendEmail } from '@/lib/email/client';
 import { getTradeAcceptedEmail } from '@/lib/email/templates';
+import { buildHereWeGo, formatAssetList } from '@/lib/notifications/hereWeGo';
+import { getValueTier } from '@/lib/notifications/valueTiers';
 
 interface Props {
   params: Promise<{ leagueId: string; tradeId: string }>;
@@ -89,6 +91,46 @@ export async function POST(req: NextRequest, { params }: Props) {
   }
 
   // ── ACCEPT: transactional validation + execution ──────────────────────────
+
+  // A listing purchase is a trade_proposals row with sale_listing_id set: team_a
+  // is always the buyer (the proposer), team_b the seller (must accept — see
+  // the listing.seller_team_id === targetTeamId check at proposal creation).
+  // Framing it as a "trade" between two clubs is misleading when one side just
+  // bought a listed player for cash, so deal copy branches on this.
+  const isListingSale = !!trade.sale_listing_id;
+  const offeredPlayerIds: string[] = trade.offered_players || [];
+  const requestedPlayerIds: string[] = trade.requested_players || [];
+  const allTradePlayerIds = [...offeredPlayerIds, ...requestedPlayerIds];
+
+  const { data: tradePlayerRows } = allTradePlayerIds.length
+    ? await admin.from('players').select('id, name, market_value').in('id', allTradePlayerIds)
+    : { data: [] as { id: string; name: string; market_value: number | null }[] };
+  const playerById = new Map((tradePlayerRows ?? []).map((p) => [p.id, p]));
+  const offeredFaab = Number(trade.offered_faab ?? 0);
+  const requestedFaab = Number(trade.requested_faab ?? 0);
+
+  // Listing sale: buyer (team_a) pays offeredFaab for the one requested player.
+  const dealAmount = isListingSale ? offeredFaab : 0;
+  const soldPlayerName = isListingSale ? (requestedPlayerIds.map((id) => playerById.get(id)?.name ?? 'Unknown Player')[0] ?? 'Unknown Player') : '';
+
+  // Tier off whichever is higher: the actual transaction (FAAB paid) or any
+  // moved player's real-world market value — a bargain pickup of a genuine
+  // superstar, or an inflated bidding war for a nobody, should both read right.
+  const tierValue = isListingSale
+    ? Math.max(offeredFaab, Number(playerById.get(requestedPlayerIds[0])?.market_value ?? 0))
+    : Math.max(offeredFaab, requestedFaab, ...allTradePlayerIds.map((id) => Number(playerById.get(id)?.market_value ?? 0)));
+  const dealTier = getValueTier(tierValue);
+  const dealTierLabel = dealTier === 'galactico' ? `Galactico ${isListingSale ? 'Arrival' : 'Trade'}`
+    : dealTier === 'blockbuster' ? `Blockbuster ${isListingSale ? 'Signing' : 'Trade'}`
+    : null;
+  const dealSubjectBase = isListingSale ? `${soldPlayerName} to ${teamA.team_name}` : `${teamA.team_name} & ${teamB.team_name}`;
+  const dealSubject = dealTierLabel ? `${dealTierLabel}: ${dealSubjectBase}` : (isListingSale ? `Signing Confirmed: ${dealSubjectBase}` : `Trade Completed: ${dealSubjectBase}`);
+
+  // Shams-style asset lists for a genuine two-way trade — real transfer
+  // journalism has no equivalent for a trade, so this borrows the
+  // "Club A send X to Club B for Y" shape of a trade report instead.
+  const offeredAssetsPlain = formatAssetList(offeredPlayerIds.map((id) => playerById.get(id)?.name ?? 'Unknown Player'), offeredFaab);
+  const requestedAssetsPlain = formatAssetList(requestedPlayerIds.map((id) => playerById.get(id)?.name ?? 'Unknown Player'), requestedFaab);
 
   // Get league roster size
   const { data: league } = await admin
@@ -179,7 +221,7 @@ export async function POST(req: NextRequest, { params }: Props) {
         .eq('status', 'pending');
     }
 
-    // --- SEND EMAIL NOTIFICATION ---
+    // --- SEND EMAIL + CHAT NOTIFICATION ---
     try {
       const { data: allTeams } = await admin.from('teams').select('user_id').eq('league_id', leagueId);
       if (allTeams && allTeams.length > 0) {
@@ -191,11 +233,32 @@ export async function POST(req: NextRequest, { params }: Props) {
           const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://gaffa.live';
           await sendEmail({
             to: emails,
-            subject: 'Trade Agreed (Pending Gameweek Completion)',
-            html: getTradeAcceptedEmail(teamA.team_name, teamB.team_name, `${baseUrl}/league/${leagueId}`)
+            subject: `${dealSubject} (Pending Gameweek Completion)`,
+            html: getTradeAcceptedEmail({
+              isListingSale,
+              teamA: teamA.team_name,
+              teamB: teamB.team_name,
+              playerName: soldPlayerName,
+              dealAmount,
+              offeredAssets: offeredAssetsPlain,
+              requestedAssets: requestedAssetsPlain,
+              tierValue,
+              pending: true,
+              leagueUrl: `${baseUrl}/league/${leagueId}`,
+            })
           });
         }
       }
+
+      const detailMd = isListingSale
+        ? `**${soldPlayerName}** to **${teamA.team_name}** for €${dealAmount}m`
+        : `**${teamA.team_name}** send ${offeredAssetsPlain} to **${teamB.team_name}** for ${requestedAssetsPlain}`;
+      const { lead } = buildHereWeGo(isListingSale ? 'signing' : 'trade', detailMd, tierValue, true);
+      await admin.from('chat_messages').insert({
+        league_id: leagueId,
+        is_system: true,
+        message: `[SYSTEM:ANNOUNCEMENT] ${lead}`,
+      });
     } catch (err) {
       console.error('Failed to send trade accepted email:', err);
     }
@@ -238,14 +301,31 @@ export async function POST(req: NextRequest, { params }: Props) {
       const { data: users } = await admin.from('users').select('email').in('id', userIds);
       const emails = (users ?? []).map(u => u.email).filter(Boolean);
 
+      const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://gaffa.live';
+
       if (emails.length > 0) {
-        const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://gaffa.live';
         await sendEmail({
           to: emails,
-          subject: 'Blockbuster Trade Completed!',
-          html: getTradeAcceptedEmail(teamA.team_name, teamB.team_name, `${baseUrl}/league/${leagueId}`)
+          subject: dealSubject,
+          html: getTradeAcceptedEmail({
+            isListingSale,
+            teamA: teamA.team_name,
+            teamB: teamB.team_name,
+            playerName: soldPlayerName,
+            dealAmount,
+            offeredAssets: offeredAssetsPlain,
+            requestedAssets: requestedAssetsPlain,
+            tierValue,
+            pending: false,
+            leagueUrl: `${baseUrl}/league/${leagueId}`,
+          })
         });
       }
+
+      const detailMd = isListingSale
+        ? `**${soldPlayerName}** to **${teamA.team_name}** for €${dealAmount}m`
+        : `**${teamA.team_name}** send ${offeredAssetsPlain} to **${teamB.team_name}** for ${requestedAssetsPlain}`;
+      const { eyebrow, lead } = buildHereWeGo(isListingSale ? 'signing' : 'trade', detailMd, tierValue);
 
       // Create in-game notifications for the league
       const { createNotification } = await import('@/lib/notifications/createNotification');
@@ -253,11 +333,18 @@ export async function POST(req: NextRequest, { params }: Props) {
         await createNotification(admin, {
           leagueId,
           userId: t.user_id,
-          title: 'Blockbuster Trade Completed!',
-          content: `A trade has been completed between **${teamA.team_name}** and **${teamB.team_name}**! Check the activity logs to see who moved.`,
+          title: eyebrow || (isListingSale ? 'Signing Confirmed' : 'Trade Completed'),
+          content: lead,
           url: `/league/${leagueId}`
         });
       }
+
+      // Public league lobby announcement — the live "here we go" news ticker.
+      await admin.from('chat_messages').insert({
+        league_id: leagueId,
+        is_system: true,
+        message: `[SYSTEM:ANNOUNCEMENT] ${lead}`,
+      });
     }
   } catch (err) {
     console.error('Failed to send trade accepted notifications:', err);

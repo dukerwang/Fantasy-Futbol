@@ -69,9 +69,116 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
+  // Batch-resolve live trade/loan negotiation summaries for any messages that
+  // reference one, so the client can render an always-current card instead of
+  // trusting a snapshot embedded at proposal time.
+  const tradeIds = Array.from(new Set((messages ?? []).map((m) => m.trade_id).filter((id): id is string => !!id)));
+  const loanIds = Array.from(new Set((messages ?? []).map((m) => m.loan_id).filter((id): id is string => !!id)));
+
+  const trades: Record<string, unknown> = {};
+  if (tradeIds.length > 0) {
+    const { data: tradeRows } = await admin
+      .from('trade_proposals')
+      .select(`
+        id, status, team_a_id, team_b_id, offered_players, requested_players,
+        offered_rights, requested_rights, offered_faab, requested_faab,
+        sale_listing_id, parent_trade_id, message, created_at,
+        team_a:teams!trade_proposals_team_a_id_fkey(id, team_name),
+        team_b:teams!trade_proposals_team_b_id_fkey(id, team_name)
+      `)
+      .eq('league_id', leagueId)
+      .in('id', tradeIds);
+
+    const allPlayerIds = new Set<string>();
+    const allRightIds = new Set<string>();
+    for (const t of tradeRows ?? []) {
+      (t.offered_players ?? []).forEach((id: string) => allPlayerIds.add(id));
+      (t.requested_players ?? []).forEach((id: string) => allPlayerIds.add(id));
+      (t.offered_rights ?? []).forEach((id: string) => allRightIds.add(id));
+      (t.requested_rights ?? []).forEach((id: string) => allRightIds.add(id));
+    }
+
+    const playerNameMap: Record<string, string> = {};
+    if (allPlayerIds.size > 0) {
+      const { data: players } = await admin.from('players').select('id, name').in('id', Array.from(allPlayerIds));
+      for (const p of players ?? []) playerNameMap[p.id] = p.name;
+    }
+
+    const rightNameMap: Record<string, string> = {};
+    if (allRightIds.size > 0) {
+      const { data: rights } = await admin
+        .from('departure_decisions')
+        .select('id, player:players(name)')
+        .in('id', Array.from(allRightIds));
+      for (const r of rights ?? []) rightNameMap[r.id] = (r.player as unknown as { name: string } | null)?.name ?? 'Unknown Player';
+    }
+
+    for (const t of tradeRows ?? []) {
+      trades[t.id] = {
+        id: t.id,
+        status: t.status,
+        teamAId: t.team_a_id,
+        teamAName: (t.team_a as unknown as { team_name: string } | null)?.team_name ?? 'Unknown Club',
+        teamBId: t.team_b_id,
+        teamBName: (t.team_b as unknown as { team_name: string } | null)?.team_name ?? 'Unknown Club',
+        offeredPlayers: (t.offered_players ?? []).map((id: string) => ({ id, name: playerNameMap[id] ?? 'Unknown Player' })),
+        requestedPlayers: (t.requested_players ?? []).map((id: string) => ({ id, name: playerNameMap[id] ?? 'Unknown Player' })),
+        offeredRights: (t.offered_rights ?? []).map((id: string) => ({ id, name: rightNameMap[id] ?? 'Unknown Player' })),
+        requestedRights: (t.requested_rights ?? []).map((id: string) => ({ id, name: rightNameMap[id] ?? 'Unknown Player' })),
+        offeredFaab: t.offered_faab,
+        requestedFaab: t.requested_faab,
+        saleListingId: t.sale_listing_id,
+        parentTradeId: t.parent_trade_id,
+        message: t.message,
+        createdAt: t.created_at,
+      };
+    }
+  }
+
+  const loans: Record<string, unknown> = {};
+  if (loanIds.length > 0) {
+    const { data: loanRows } = await admin
+      .from('player_loans')
+      .select(`
+        id, status, lender_team_id, borrower_team_id, player_id, loan_fee,
+        start_gameweek, end_gameweek, bonus_rate, bonus_cap, has_recall,
+        proposed_by, parent_loan_id, message, created_at,
+        lender_team:teams!lender_team_id(id, team_name),
+        borrower_team:teams!borrower_team_id(id, team_name),
+        player:players(id, name)
+      `)
+      .eq('league_id', leagueId)
+      .in('id', loanIds);
+
+    for (const l of loanRows ?? []) {
+      loans[l.id] = {
+        id: l.id,
+        status: l.status,
+        lenderTeamId: l.lender_team_id,
+        lenderTeamName: (l.lender_team as unknown as { team_name: string } | null)?.team_name ?? 'Unknown Club',
+        borrowerTeamId: l.borrower_team_id,
+        borrowerTeamName: (l.borrower_team as unknown as { team_name: string } | null)?.team_name ?? 'Unknown Club',
+        playerId: l.player_id,
+        playerName: (l.player as unknown as { name: string } | null)?.name ?? 'Unknown Player',
+        loanFee: l.loan_fee,
+        startGameweek: l.start_gameweek,
+        endGameweek: l.end_gameweek,
+        bonusRate: l.bonus_rate,
+        bonusCap: l.bonus_cap,
+        hasRecall: l.has_recall,
+        proposedBy: l.proposed_by,
+        parentLoanId: l.parent_loan_id,
+        message: l.message,
+        createdAt: l.created_at,
+      };
+    }
+  }
+
   return NextResponse.json({
     messages: messages ?? [],
-    teams: leagueTeams ?? []
+    teams: leagueTeams ?? [],
+    trades,
+    loans,
   });
 }
 
