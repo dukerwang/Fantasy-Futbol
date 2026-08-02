@@ -18,6 +18,7 @@ import ListingCard from '@/components/transfers/ListingCard';
 import ProposeBuilder, { type LoanDirection, type ProposeMode } from '@/components/transfers/ProposeBuilder';
 import ListingEditor from '@/components/transfers/ListingEditor';
 import { setServerClock } from '@/components/transfers/useTick';
+import { useLiveTransfers } from '@/components/transfers/useLiveTransfers';
 import styles from './deals.module.css';
 import { getPlayerDisplayName } from '@/lib/players/displayName';
 import { describeDeal } from '@/lib/transfers/describeDeal';
@@ -55,8 +56,8 @@ export default function DealsClient({
   leagueId: string;
   initial: TransfersModel;
 }) {
-  const model = initial;
   const router = useRouter();
+  const model = useLiveTransfers(leagueId, initial);
   const { openPlayer, primePlayers } = usePlayerCard();
   const me = model.myTeam.id;
 

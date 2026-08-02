@@ -13,7 +13,7 @@
 
 import { calculateMatchRating, mapFplLiveToRawStats } from '@/lib/scoring/engine';
 import { loadReferenceStats } from '@/lib/scoring/matchups';
-import { resolveAllStalledGameweeks } from '@/lib/scoring/matchupProcessor';
+import { resolveAllStalledGameweeks, processMatchupsForGameweek } from '@/lib/scoring/matchupProcessor';
 import { getCurrentFplSeason, getLatestReferenceStatsSeason } from '@/lib/season/currentSeason';
 import { snapshotCurrentFplFixtures } from '@/lib/fixtures/upsertFixtures';
 import { recomputePositionRanks } from '@/lib/stats/seasonStats';
@@ -33,19 +33,32 @@ const FPL_BASE = 'https://fantasy.premierleague.com/api';
 const SYNTHETIC_MATCH_ID_FLOOR = 1000;
 
 
-async function getCurrentGameweek(): Promise<number> {
+interface GameweekWindow {
+    gw: number;
+    /** Deadline has passed and FPL hasn't marked it finished — worth a live sync. */
+    isLiveWindow: boolean;
+}
+
+/**
+ * The current gameweek, plus whether it's actually worth running a live sync
+ * for it right now. Backs the pg_cron tick's idle short-circuit (below) — an
+ * explicit `?gw=` call always runs the full sync regardless of this flag.
+ */
+async function getCurrentGameweekWindow(): Promise<GameweekWindow> {
     const res = await fetch('https://fantasy.premierleague.com/api/bootstrap-static/', {
         next: { revalidate: 0 } // Always fresh — stale response picks wrong GW
     });
     const data = await res.json();
     const now = new Date();
     let gw = 0;
+    let isLiveWindow = false;
     for (const ev of data.events as any[]) {
-        if (ev.deadline_time && new Date(ev.deadline_time) <= now) {
-            gw = Math.max(gw, ev.id);
+        if (ev.deadline_time && new Date(ev.deadline_time) <= now && ev.id >= gw) {
+            gw = ev.id;
+            isLiveWindow = !ev.finished && !ev.finished_provisional;
         }
     }
-    return gw;
+    return { gw, isLiveWindow };
 }
 
 export async function GET(req: NextRequest) { return POST(req); }
@@ -65,9 +78,22 @@ export async function POST(req: NextRequest) {
   }
 
   if (mode === 'fpl_live') {
-    let gw = parseInt(searchParams.get('gw') ?? '0', 10);
-    if (!gw) gw = await getCurrentGameweek();
+    const gwParam = searchParams.get('gw');
+    let gw = parseInt(gwParam ?? '0', 10);
+    // An explicit ?gw= is a deliberate call (manual backfill/re-sync) and
+    // always runs the full sync. Auto-derived gw is the pg_cron tick — cheap
+    // to run every 2 minutes only because most of those ticks land outside an
+    // actual live window and skip before touching the ~600-player payload.
+    let isLiveWindow = true;
+    if (!gw) {
+      const window = await getCurrentGameweekWindow();
+      gw = window.gw;
+      isLiveWindow = window.isLiveWindow;
+    }
     if (!gw) return NextResponse.json({ error: 'gw could not be determined' }, { status: 400 });
+    if (!isLiveWindow) {
+      return NextResponse.json({ ok: true, mode: 'fpl_live', gameweek: gw, skipped: 'not_live_window' });
+    }
     return syncFplLiveRatings(gw);
   }
 
@@ -302,8 +328,19 @@ async function syncFplLiveRatings(gameweek: number): Promise<NextResponse> {
     console.error('recomputePositionRanks failed:', err);
   }
 
+  // Eagerly recompute this gameweek's matchup totals so Realtime subscribers
+  // (LiveMatchupCard, matchup detail pages) see fresh scores on the sync's own
+  // schedule instead of waiting for someone to load a page. `finished=false`
+  // — this is a live-pass update, not the final lock-in, which stays exactly
+  // where it already was: resolveAllStalledGameweeks below.
+  try {
+    await processMatchupsForGameweek(gameweek, false);
+  } catch (err) {
+    console.error('processMatchupsForGameweek (live pass) failed:', err);
+  }
+
   // Resolve all stalled GWs — not just the one being synced.
-  // This catches GWs that were left as 'live' once getCurrentGameweek() rolled forward.
+  // This catches GWs that were left as 'live' once getCurrentGameweekWindow() rolled forward.
   const resolution = await resolveAllStalledGameweeks();
 
   return NextResponse.json({ ok: true, mode: 'fpl_live', gameweek, saved, resolution, positionRanks });

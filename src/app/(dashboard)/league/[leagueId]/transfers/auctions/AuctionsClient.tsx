@@ -12,6 +12,7 @@ import { getPlayerDisplayName, playerInitial } from '@/lib/players/displayName';
 import TransfersSubNav from '@/components/transfers/TransfersSubNav';
 import BidDialog, { type BidMode } from '@/components/transfers/BidDialog';
 import { setServerClock, useTick, formatRemaining, isClosing } from '@/components/transfers/useTick';
+import { useLiveTransfers } from '@/components/transfers/useLiveTransfers';
 import styles from './auctions.module.css';
 
 /**
@@ -41,8 +42,8 @@ export default function AuctionsClient({
   leagueId: string;
   initial: TransfersModel;
 }) {
-  const model = initial;
   const router = useRouter();
+  const model = useLiveTransfers(leagueId, initial);
   const { openPlayer, primePlayers } = usePlayerCard();
 
   const [facet, setFacet] = useState<Facet>('all');

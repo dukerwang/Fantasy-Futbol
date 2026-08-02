@@ -25,7 +25,7 @@ export default function PositionBadge({ position, size = 'md' }: Props) {
   return (
     <span
       className={`${styles.badge} ${styles[`size_${size}`]}`}
-      style={{ backgroundColor: POSITION_BG[position], color: 'var(--color-text-inverse)' }}
+      style={{ backgroundColor: POSITION_BG[position], color: '#FFFFFF' }}
     >
       {position}
     </span>

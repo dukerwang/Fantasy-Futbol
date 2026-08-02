@@ -9,6 +9,7 @@ import PositionBadge from '@/components/players/PositionBadge';
 import TransfersSubNav from '@/components/transfers/TransfersSubNav';
 import BidDialog from '@/components/transfers/BidDialog';
 import { setServerClock, useTick, formatRemaining, isClosing } from '@/components/transfers/useTick';
+import { useLiveTransfers } from '@/components/transfers/useLiveTransfers';
 import styles from './free-agents.module.css';
 import { getPlayerDisplayName } from '@/lib/players/displayName';
 
@@ -49,8 +50,8 @@ export default function FreeAgentsClient({
   leagueId: string;
   initial: TransfersModel;
 }) {
-  const model = initial;
   const router = useRouter();
+  const model = useLiveTransfers(leagueId, initial);
   const { openPlayer, primePlayers } = usePlayerCard();
 
   const [query, setQuery] = useState('');

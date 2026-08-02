@@ -8,6 +8,7 @@ import { FULL_PLAYER_SELECT } from '@/lib/constants/queries';
 import { normalizeMatchupLineup } from '@/lib/lineups/normalizeMatchupLineup';
 import { generateMatchReport } from '@/lib/narrative/matchReport';
 import MatchReportCard from './MatchReportCard';
+import MatchupLiveRefresh from './MatchupLiveRefresh';
 import styles from './matchup-detail.module.css';
 
 export const dynamic = 'force-dynamic';
@@ -119,6 +120,8 @@ export default async function MatchupDetailPage({ params }: Props) {
 
     return (
         <div className={styles.container}>
+            {isLive && <MatchupLiveRefresh matchupId={matchup.id} />}
+
             <NavigationLink href={`/league/${leagueId}/matchups?gw=${matchup.gameweek}`} className={styles.backLink}>
                 ← Gameweeks
             </NavigationLink>

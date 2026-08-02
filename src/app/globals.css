@@ -175,7 +175,11 @@
   --color-text-primary:   #EDEAE2;
   --color-text-secondary: #B7B2A8;
   --color-text-muted:     #8C8982;
-  --color-text-inverse:   #1A1F2E;
+  /* Every usage of this token pairs it with a saturated, theme-stable
+     surface (accent green, gold, purple, position/crest colors) — never
+     with a surface that goes light in dark mode. Literal-inverting to
+     navy here made those surfaces render dark-on-dark; stay cream. */
+  --color-text-inverse:   #EDEAE2;
 
   /* Same accent hue as the light theme's forest green, lifted in
      lightness/saturation so it doesn't read muddy on a dark surface —

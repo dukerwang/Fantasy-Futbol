@@ -20,6 +20,7 @@ import BidDialog, { type BidMode } from '@/components/transfers/BidDialog';
 import ProposeBuilder, { type ProposeMode } from '@/components/transfers/ProposeBuilder';
 import ListingEditor from '@/components/transfers/ListingEditor';
 import { setServerClock, useTick, formatRemaining, isClosing } from '@/components/transfers/useTick';
+import { useLiveTransfers } from '@/components/transfers/useLiveTransfers';
 import styles from './market.module.css';
 import { getPlayerDisplayName } from '@/lib/players/displayName';
 
@@ -40,8 +41,8 @@ export default function MarketClient({
   leagueId: string;
   initial: TransfersModel;
 }) {
-  const model = initial;
   const router = useRouter();
+  const model = useLiveTransfers(leagueId, initial);
   const { openPlayer, primePlayers } = usePlayerCard();
 
   const [bid, setBid] = useState<{ auction: TransfersAuction; mode: BidMode } | null>(null);

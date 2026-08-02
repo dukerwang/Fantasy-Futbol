@@ -262,10 +262,6 @@
 .actionLoan   { color: var(--color-pos-wb); }
 .actionMuted  { color: var(--color-text-muted); }
 
-/* Dark theme: --color-text-inverse is a dark navy, which would leave the
-   primary action reading dark-on-green. Force cream. */
-:global([data-theme='dark']) .actionBid { color: #EDEAE2; }
-
 @media (max-width: 480px) {
   .prices { grid-template-columns: repeat(3, 1fr); }
   .priceValue { font-size: 0.85rem; }
