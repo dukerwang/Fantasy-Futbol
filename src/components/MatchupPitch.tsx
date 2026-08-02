@@ -2,7 +2,7 @@
 
 import { useCallback, useState } from 'react';
 import type { MatchupLineup, Player, GranularPosition } from '@/types';
-import { POSITION_FLEX_MAP } from '@/types';
+import { POSITION_FLEX_MAP, BENCH_DEPTH_BONUS, BENCH_DEPTH_BONUS_LABEL } from '@/types';
 import { getPlayerDisplayName } from '@/lib/players/displayName';
 import { getScoreIntensityColor } from '@/lib/utils/scoreColor';
 import { usePlayerCard } from './players/PlayerCardProvider';
@@ -242,7 +242,7 @@ export default function MatchupPitch({
             if (b.isSubOut) return sum; // this was a starter subbed out
             return sum + (detailMap[b.player_id]?.points ?? 0);
         }, 0);
-        return rawBenchPts * 0.25;
+        return rawBenchPts * BENCH_DEPTH_BONUS;
     }
 
     const benchBonusA = calcBenchBonus(resolvedA.bench);
@@ -384,7 +384,7 @@ export default function MatchupPitch({
                                     <div className={styles.breakdownLeft}>
                                         <span className={styles.breakdownBar} style={{ background: '#d1d5db' }} />
                                         <div>
-                                            <p className={styles.breakdownName}>Bench Contribution (25%)</p>
+                                            <p className={styles.breakdownName}>Bench Contribution ({BENCH_DEPTH_BONUS_LABEL})</p>
                                         </div>
                                     </div>
                                     <span className={styles.breakdownPts}>

@@ -24,6 +24,19 @@ export const POSITION_FLEX_MAP: Record<GranularPosition, GranularPosition[]> = {
   ST: ['ST'],
 };
 
+// Share of their own points that an unused bench player who played contributes
+// to the team total (see README § Matchups, docs/USER_GUIDE.md § 5).
+//
+// Lives here rather than in src/lib/scoring/matchups.ts because MatchupPitch is
+// a client component and matchups.ts pulls in the scoring engine. It was
+// previously written as a bare 0.20 in both the resolver and the UI, and the two
+// had to be found and changed by hand together — a drift here shows managers a
+// breakdown that doesn't add up to their score, so there is exactly one copy.
+export const BENCH_DEPTH_BONUS = 0.25;
+
+/** BENCH_DEPTH_BONUS rendered for UI copy, e.g. "25%". */
+export const BENCH_DEPTH_BONUS_LABEL = `${Math.round(BENCH_DEPTH_BONUS * 100)}%`;
+
 // Supported formations (slot lists)
 // Slots are ordered left-to-right within each zone row for direct visual rendering.
 export type Formation = '4-3-3' | '4-2-1-3' | '4-2-2-2' | '3-4-1-2' | '3-5-2' | '3-4-3' | '5-3-2' | '3-4-2-1' | '4-3-1-2' | '4-3-2-1';
