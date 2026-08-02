@@ -8,7 +8,7 @@ Everything else follows from that. Positions are the twelve real tactical roles,
 
 This guide explains every system and why it works the way it does. It doesn't cover how the app is built.
 
-> **On numbers:** every figure here is a league setting or a code constant, verified against the source. Where a value is configurable the common default is given. Money is shown as **€m**.
+> **On numbers:** many figures below can be changed by your commissioner, so your league may differ — where that's the case, this guide gives the common default. Money is shown as **€m**.
 
 ---
 
@@ -20,8 +20,6 @@ Gaffa uses **12 tactical positions**, not the generic DEF/MID/FWD buckets:
 - **Defenders**: CB, LB, RB, LWB (left wing-back), RWB (right wing-back)
 - **Midfielders**: DM (defensive), CM (central), AM (attacking)
 - **Attackers**: LW, RW, ST
-
-There's no LM/RM — those map to LW/RW. Every player has a primary position and often secondary positions (from SoFIFA), and he's eligible for any slot matching **either**.
 
 **Why this granular?** Because "midfielder" isn't a job. A defensive midfielder and an attacking midfielder are asked for opposite things, and grading them on one scale is how fantasy football ends up rewarding whoever happens to sit in the most generous bucket. Twelve roles means the yardstick matches the job.
 
@@ -59,7 +57,7 @@ You field **exactly 11 starters and exactly 4 bench players**, in four slots:
 - **ATT** — ST, LW, RW
 - **FLEX** — anyone starter-eligible, *including* an emergency goalkeeper
 
-Bench **order matters** — it's the priority list for auto-subs (§5). Note the distinction: the DEF/MID/ATT grouping controls *where a player may sit*; whether he can actually *cover* a slot is the strict rule above.
+If a starter is out, Gaffa checks your bench for cover in a fixed order — **DEF, then MID, then ATT, then FLEX** (§5). Note the distinction: the DEF/MID/ATT grouping controls *where a player may sit*; whether he can actually *cover* a specific empty slot is the strict eligibility rule above.
 
 ### When things lock
 
@@ -99,7 +97,7 @@ A league drafts **once**, before its first season. After that your squad carries
 - The commissioner sets or randomises the order, and either starts immediately or **schedules** it. Everyone gets an email and an in-app notice, and it auto-starts at that time — or auto-cancels and tells the commissioner if there still aren't 4 managers.
 - It's a **snake draft**: order reverses every round, running for as many rounds as your roster size, so everyone finishes with a full squad.
 - Any active, undrafted Premier League player is available. There's no separate rookie pool.
-- Each pick has a **90-second clock**. Miss it and the system picks for you — from players you've pre-starred if you set a queue, otherwise from a positional-need heuristic.
+- Each pick has a **90-second clock**. Miss it and the system picks for you — from players you've pre-starred if you set a queue, otherwise by whichever position you need most.
 - When the last pick lands, the season schedule and all three cup brackets are generated and normal play switches on.
 
 **Why only one draft ever?** Because a dynasty league where talent arrives by lottery every year isn't a dynasty. After the initial draft, every player who enters the league has to be *bought* — which is what makes the Club Balance meaningful and a good squad an achievement rather than a draft slot.
@@ -120,11 +118,11 @@ Each match a player earns a **rating from roughly 1.0 to 10.0**, calibrated so a
 - **Goals and assists** — rewarded identically regardless of position, with a bonus for beating your expected-goals numbers
 - **Saves** (goalkeepers) — including a larger bonus for penalty saves
 
-**The flex boost.** Whichever of a player's role-relevant components is his best that match receives an extra weighting. A defender who has an outstanding attacking game, or a winger who genuinely defends, is credited for it instead of being capped by his job description. Every position's weights plus its flex boost total exactly 1.00.
+**The flex boost.** Whichever of a player's role-relevant components is his best that match receives extra weighting, so a standout game in one part of his role isn't flattened by an average one elsewhere.
 
 ### Rating and points are two different scales
 
-Your **fantasy points** come from the same performance, but they are *not* a conversion of the rating on the card. The two run on deliberately separate scales so that cosmetic changes to the displayed rating never quietly move anyone's points. The practical effect surprises everyone once:
+Your **fantasy points** come from the same performance, but they are *not* a straightforward conversion of the rating on the card — the two run on separate scales. The practical effect surprises everyone once:
 
 | Displayed rating | Fantasy points |
 |---|---|
@@ -166,7 +164,7 @@ Both matches count and the points add together. Your player is rated separately 
 
 Yes — a sending-off is usually catastrophic for that player's week, often costing the entire return.
 
-There's no separate "−3 for a red card" line item, because there doesn't need to be one. Cards are already reflected in the underlying performance data that drives a player's match impact, and being sent off stops him accumulating anything else. A midfielder sent off around the 25-minute mark typically lands near a **5.5 rating and scores 0**, where the same player completing an unremarkable 90 minutes would have returned around **12 points**. He falls under the zero threshold and takes nothing.
+There's no separate "−3 for a red card" line item, because there doesn't need to be one. Cards are already reflected in how his match impact is scored, and being sent off stops him accumulating anything else. A midfielder sent off around the 25-minute mark typically lands near a **5.5 rating and scores 0**, where the same player completing an unremarkable 90 minutes would have returned around **12 points**. He falls under the zero threshold and takes nothing.
 
 The one mercy is that it bottoms out. A player's contribution can be reduced to nothing but can't go below it, so a disaster costs you his points — it never subtracts from your team score.
 
@@ -184,18 +182,18 @@ Each week your club plays another head-to-head. Your score is the total fantasy 
 
 If a starter finishes the gameweek on **zero minutes**, Gaffa replaces him — but only once **that starter's own fixture is confirmed finished**, so a late team-sheet surprise isn't acted on prematurely.
 
-It then walks your bench **in the order you set** and takes the first player who:
+It then checks your bench **in a fixed order — DEF, then MID, then ATT, then FLEX** — and takes the first player who:
 
 1. **actually played** (more than zero minutes), and
 2. is **eligible for that exact slot** — his primary or secondary position must match it
 
-Each bench player can only be used once. Remember the strict eligibility rule: a bench CB will not cover an LB slot no matter how far down the list he sits.
+Each bench player can only be used once. Remember the strict eligibility rule: a bench CB will not cover an LB slot no matter which of the four bench categories he's sitting in.
 
 **The sub is then re-rated at the slot he filled**, not his own position. If your bench full-back comes into a centre-back slot, his contribution to your team score is judged against centre-back expectations — because that's the job he did. His own season stats still record his real position.
 
 ### Bench Depth Bonus
 
-Bench players who played but weren't needed each add **20% of the points they scored** to your team total, credited at their normal position.
+Bench players who played but weren't needed each add **25% of the points they scored** to your team total, credited at their normal position.
 
 **Why:** a deep squad should be worth something. Without this, the optimal bench is four players you expect not to play, which is the opposite of squad-building. With it, genuine depth pays a small dividend every week.
 
@@ -203,7 +201,7 @@ Bench players who played but weren't needed each add **20% of the points they sc
 
 If the gap between the two scores is **10 points or less**, it's a **draw**. A larger gap gives the win to the higher score.
 
-**Why a draw band at all?** Because a 0.4-point margin isn't a result — it's noise in the rating engine. Football has draws; a league that resolves every coin-flip into a win would overstate how much of the table is skill.
+**Why a draw band at all?** Because a 0.4-point margin isn't a result — it's noise in the ratings themselves. Football has draws; a league that resolves every coin-flip into a win would overstate how much of the table is skill.
 
 Regular-season matchups run alongside the cups, so you're usually playing two fixtures a week — **off the same score and the same XI** (§6).
 
@@ -219,7 +217,7 @@ You can't save it. A lineup must fill every slot in the chosen shape with an eli
 
 **Should I start someone I know is injured, so the auto-sub fires?**
 
-It works — an absent starter is replaced from your bench once his fixture finishes — but you lose the Bench Depth Bonus you'd have earned from that bench player, since a player used as a sub doesn't also pay the 20%. Starting the fit player is normally better.
+It works — an absent starter is replaced from your bench once his fixture finishes — but you lose the Bench Depth Bonus you'd have earned from that bench player, since a player used as a sub doesn't also pay the 25%. Starting the fit player is normally better.
 
 **Both of us scored nothing. What happens?**
 
@@ -290,6 +288,7 @@ It also keeps the skill in the right place. In a sealed format the winner is usu
 - If you're at your roster limit you nominate a player to **drop** as part of your bid. Dropping charges a **severance fee** of 20% of his market value, minimum **€2m**, on top of your winning bid — so churn isn't free.
 - If you win but your active roster is full and the player is U21, he can be routed to your **Academy** rather than blocking the transfer.
 - Free agent bids must reach at least the league's **minimum bid floor** (default **50% of market value**).
+- **A brand-new Premier League arrival can't be bid on until Transfermarkt has priced them** — usually within a day of them appearing in the app. There's no floor to enforce before that, so bidding is blocked outright rather than left open at zero.
 - **The league seeds auctions automatically at season kickoff** for any player worth **€50m or more**, *or* who plays for a **newly-promoted club**. Everyone is emailed. Promoted-club players are seeded regardless of price, because at kickoff nobody owns them and a cheap newly-promoted starter is exactly the kind of asset a dynasty league should compete for rather than claim first. To keep managers focused on the same marquee targets, elite-tier auctions (€50m+) are **released in staggered waves** (roughly half the league size per wave, spaced 3 days apart).
 
 ### How long an auction runs
@@ -310,7 +309,7 @@ Every bid extends the clock by the active inactivity timeout. Because there is n
 
 You can **list one of your rostered players**. Set a minimum bid and, optionally, an instant "buy now" price. Others bid through the same open auction, and you can't bid on your own listing. When it sells the winning bid is paid to *you* as Club Balance income — a genuine transfer fee, not a release.
 
-Your minimum bid must be at least **80% of the player's market value**. Without that floor, two managers could move a €90m striker for €1m and call it a sale; the floor makes a listing a real valuation.
+Your minimum bid must be at least **80% of the player's market value**. Without that floor, two managers could move a €90m striker for €1m and call it a sale; the floor makes a listing a real valuation. For the same reason, a player who hasn't been priced by Transfermarkt yet can't be listed at all until they are.
 
 When you list a player you can flag whether you want **cash, players, or a loan**. These flags advertise what you're after and set the headline other managers see — they don't restrict how people can approach you. Anyone can still make any kind of offer.
 
@@ -372,7 +371,7 @@ Your Finance page is your club's bank statement:
 - **Money created vs destroyed** — whether your club has taken more out of the league's money supply than it has put back
 - A full paginated **transaction history** — date, type and amount of every move your club has made
 
-### TV & Matchday Revenue
+### Match Revenue
 
 You are paid **during** the season, not only at the end of it. Every four gameweeks your results over that block are settled into your Club Balance:
 
@@ -387,7 +386,7 @@ Ten payments a season — after gameweeks 4, 8, 12, 16, 20, 24, 28, 32 and 36, p
 
 **Why during the season?** Because money that only arrives in June can only be spent in June. A club that has to wait until the reset to be paid does its business in one summer splurge and then sits out the year. Paying monthly means you can respond to an injury in October with a signing rather than a shrug.
 
-**Why does a draw pay less than half a win?** Because of the draw band in §5. A margin of ten points or fewer is noise in the rating engine rather than a result, so it shouldn't pay like one.
+**Why does a draw pay less than half a win?** Because of the draw band in §5. A margin of ten points or fewer is noise in the ratings rather than a result, so it shouldn't pay like one.
 
 Note that a win and a loss together pay exactly the same as two draws, so the league's total outlay is identical however the results fall. Nobody is paid out of anybody else's pocket.
 
@@ -432,11 +431,11 @@ Once every gameweek and cup tie is complete, the commissioner triggers the reset
 
 1. **Rosters lock immediately** — no bids, trades or loans until the new season opens.
 2. **The season is archived** — final standings, every matchup, cup winners, and each player's season stats and ranks are written to the permanent record.
-3. **Placement and cup prizes are paid** into Club Balances. Finishing first pays **€40m**, scaling down to **€20m** for last — a flatter curve than it looks, because the bulk of league earnings now arrives monthly during the season (§11). Cup money is on top: **€40m** for the Champions Cup, **€20m** for the League Cup or the Consolation Cup.
+3. **Placement and cup prizes are paid** into Club Balances. Finishing first pays **€40m**, scaling down to **€20m** for last — a flatter curve than it looks, because the bulk of league earnings now arrives monthly during the season (§11). Cup money is on top: **€40m** to the Champions Cup winner (**€15m** runner-up), **€20m** to the League Cup or Consolation Cup winner (**€8m** runner-up each) — no cup pays more than finishing first in the league.
 4. **Records reset, money doesn't.** Wins, losses, draws and points go to zero. Club Balance carries over untouched.
 5. **A new season is generated** — the season counter advances, and a fresh schedule plus all three cup brackets are created.
 
-**Departures are not part of the reset.** Players leaving the Premier League — including everyone at a relegated club — are picked up continuously by the player sync as FPL drops them, and each one opens a release-or-retain decision for you to answer (§13). So relegation doesn't hit you in one lump at the reset; it arrives as decisions as the summer unfolds.
+**Departures are not part of the reset.** Players leaving the Premier League — including everyone at a relegated club — are picked up continuously as it happens, and each one opens a release-or-retain decision for you to answer (§13). So relegation doesn't hit you in one lump at the reset; it arrives as decisions as the summer unfolds.
 
 **Your squad is not touched.** The reset is about records and money — never your players.
 
@@ -464,10 +463,10 @@ The permanent record book: final standings and podium for every past season, eac
 | **Open auction** | How every signing works. Bids are public — you see the current high bid and who holds it, and must beat it to lead. |
 | **Scout's Fee** | 10% of the winning bid, uncapped, paid to whoever opened an auction they went on to lose. |
 | **Solidarity payment** | An equal share of another 10% of every winning bid, paid to the clubs that didn't win it. |
-| **TV & Matchday Revenue** | Your monthly income, settled every four gameweeks on your results. |
+| **Match Revenue** | Your monthly income, settled every four gameweeks on your results. |
 | **Severance fee** | The cost of dropping a rostered player to make room — 20% of his market value, minimum €2m, on top of the winning bid. |
 | **Auto-sub** | An automatic bench replacement when a starter records zero minutes and his fixture has finished. |
-| **Bench Depth Bonus** | 20% of the points scored by bench players who played but weren't needed as subs. |
+| **Bench Depth Bonus** | 25% of the points scored by bench players who played but weren't needed as subs. |
 | **Flex boost** | Extra weighting given to a player's strongest role-relevant component that match. |
 | **OOP penalty** | The 20% rating/points penalty when a player whose primary position is a midfield or attacking role is fielded in a defensive slot. |
 | **Academy** | A stash for U21 players that doesn't count against your active roster. |
