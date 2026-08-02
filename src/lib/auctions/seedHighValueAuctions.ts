@@ -18,10 +18,11 @@
  */
 
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { findPromotedClubsAndArrivals } from '@/lib/offseason/seasonKickoff';
+import { findPromotedClubsAndArrivals, AUCTION_THRESHOLD } from '@/lib/offseason/seasonKickoff';
 import { sendEmail } from '@/lib/email/client';
 import { getSystemAuctionsEmail } from '@/lib/email/templates';
 import { createNotification } from '@/lib/notifications/createNotification';
+import { buildAuctionSubject, buildFeaturedNotice } from '@/lib/notifications/valueTiers';
 import { initialAuctionExpiry } from '@/lib/auction/timer';
 import { getLeagueAuctionSettings } from '@/lib/auction/leagueAuctionSettings';
 
@@ -129,17 +130,18 @@ async function notifyLeague(
       const playerInfo = candidates.map((p) => ({ name: p.name, value: p.marketValue }));
       await sendEmail({
         to: emails,
-        subject: 'Transfer Window Alert: New Players on Waivers',
-        html: getSystemAuctionsEmail(playerInfo, false, `${baseUrl}/league/${leagueId}`),
+        subject: buildAuctionSubject(playerInfo, 'Transfer Window Alert: New Players on Waivers'),
+        html: getSystemAuctionsEmail(playerInfo, false, `${baseUrl}/league/${leagueId}`, AUCTION_THRESHOLD),
       });
     }
 
+    const featuredNotice = buildFeaturedNotice(candidates.map((c) => ({ name: c.name, value: c.marketValue })));
     for (const t of allTeams) {
       await createNotification(admin, {
         leagueId,
         userId: t.user_id,
         title: 'New Transfer Auction Open',
-        content: `**${candidates.length}** new high-value or promoted-club arrival(s) have hit the transfer market and gone up for a 48-hour system auction.`,
+        content: `**${candidates.length}** new high-value or promoted-club arrival(s) have hit the transfer market and gone up for a 48-hour system auction.${featuredNotice}`,
         url: `/league/${leagueId}`,
       });
     }

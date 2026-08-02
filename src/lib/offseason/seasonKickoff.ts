@@ -24,6 +24,7 @@ import { getPlayerDisplayName } from '@/lib/players/displayName';
 import { initialAuctionExpiry } from '@/lib/auction/timer';
 import { getLeagueAuctionSettings } from '@/lib/auction/leagueAuctionSettings';
 import { assignReleaseWaves } from '@/lib/auctions/seedingWaves';
+import { buildAuctionSubject, buildFeaturedNotice } from '@/lib/notifications/valueTiers';
 
 export const AUCTION_THRESHOLD = 50.0;
 
@@ -314,17 +315,18 @@ export async function runSeasonKickoff(admin: SupabaseClient, leagueId: string):
         const playerInfo = playersToAuction.map((p) => ({ name: p.name, value: p.marketValue }));
         await sendEmail({
           to: emails,
-          subject: 'The Season Has Begun!',
-          html: getSystemAuctionsEmail(playerInfo, true, `${baseUrl}/league/${leagueId}`),
+          subject: buildAuctionSubject(playerInfo, 'The Season Has Begun!'),
+          html: getSystemAuctionsEmail(playerInfo, true, `${baseUrl}/league/${leagueId}`, AUCTION_THRESHOLD),
         });
       }
 
+      const featuredNotice = buildFeaturedNotice(playersToAuction.map((p) => ({ name: p.name, value: p.marketValue })));
       for (const t of allTeams) {
         await createNotification(admin, {
           leagueId,
           userId: t.user_id,
           title: 'New Season Started!',
-          content: `The new season has officially kicked off! Rosters are unlocked, and **${playersToAuction.length}** high-value summer arrivals have been added to the transfer auction block.`,
+          content: `The new season has officially kicked off! Rosters are unlocked, and **${playersToAuction.length}** high-value summer arrivals have been added to the transfer auction block.${featuredNotice}`,
           url: `/league/${leagueId}`,
         });
       }

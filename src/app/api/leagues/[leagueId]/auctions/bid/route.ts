@@ -8,6 +8,7 @@ import {
 } from '@/lib/auction/timer';
 import { getLeagueAuctionSettings } from '@/lib/auction/leagueAuctionSettings';
 import { getLockedPlTeamIds } from '@/lib/auction/lockedClubs';
+import { notifyAuctionResolution, type AuctionResolutionResult } from '@/lib/auctions/notifyAuctionResolution';
 
 interface Props {
   params: Promise<{ leagueId: string }>;
@@ -390,7 +391,7 @@ export async function POST(req: NextRequest, { params }: Props) {
   if (resData.is_buy_now) {
     try {
       const { lockedPlTeamIds } = await getLockedPlTeamIds();
-      const { error: resolveErr } = await admin.rpc('resolve_single_player_auction_rpc', {
+      const { data: resolveRpcRes, error: resolveErr } = await admin.rpc('resolve_single_player_auction_rpc', {
         p_league_id: leagueId,
         p_player_id: playerId,
         p_locked_pl_team_ids: lockedPlTeamIds,
@@ -399,6 +400,14 @@ export async function POST(req: NextRequest, { params }: Props) {
         console.error('[bid] Buy Now inline resolution failed, leaving to sweep:', resolveErr);
       } else {
         resolved = true;
+        // Buy Now is uncontested by definition — one bidder, no atmosphere copy needed.
+        await notifyAuctionResolution(admin, {
+          leagueId,
+          playerName: playerData?.name ?? 'Unknown Player',
+          playerMarketValue: playerData?.market_value,
+          bidderCount: 1,
+          resData: resolveRpcRes as AuctionResolutionResult,
+        });
       }
     } catch (err) {
       console.error('[bid] Buy Now inline resolution threw, leaving to sweep:', err);

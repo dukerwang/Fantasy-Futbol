@@ -356,7 +356,7 @@ async function main() {
                   await sendEmail({
                     to: emails,
                     subject: 'Transfer Window Alert: New Players on Waivers',
-                    html: getSystemAuctionsEmail(playerInfo, false, `\${baseUrl}/league/\${league.id}`)
+                    html: getSystemAuctionsEmail(playerInfo, false, `\${baseUrl}/league/\${league.id}`, AUCTION_THRESHOLD)
                   });
                 }
               }

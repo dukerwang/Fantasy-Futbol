@@ -146,7 +146,8 @@ export async function POST(req: NextRequest) {
       // Send league lobby announcement
       await admin.from('chat_messages').insert({
         league_id: loan.league_id,
-        message: `📢 [SYSTEM:ANNOUNCEMENT] Loan expired! **${player_name}** returns to **${lender_team_name}** after completing their loan term at **${borrower_team_name}**.`,
+        is_system: true,
+        message: `[SYSTEM:ANNOUNCEMENT] Loan concluded — **${player_name}** returns to **${lender_team_name}** after completing their loan term at **${borrower_team_name}**.`,
       });
 
     } catch (err) {

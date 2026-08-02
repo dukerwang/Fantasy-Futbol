@@ -1,5 +1,18 @@
 // HTML Email Templates for Gaffa
 
+import { getValueTier, TIER_COPY } from '@/lib/notifications/valueTiers';
+import { buildHereWeGo } from '@/lib/notifications/hereWeGo';
+
+/** Thin gold rule/text — mirrors the app's --color-gold convention (globals.css):
+ *  reserved for standout figures, never a filled badge. */
+const GOLD = '#93702F';
+
+const tierEyebrowHtml = (marketValue: number) => {
+  const copy = TIER_COPY[getValueTier(marketValue)];
+  if (!copy) return '';
+  return `<p style="margin: 0 0 4px; font-size: 0.75em; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: ${GOLD};">${copy.eyebrow}</p>`;
+};
+
 const baseTemplate = (title: string, body: string) => `
 <!DOCTYPE html>
 <html>
@@ -64,13 +77,40 @@ export const getTradeProposedEmail = (
   return baseTemplate('Formal Trade Proposal Received', body);
 };
 
-export const getTradeAcceptedEmail = (clubA: string, clubB: string, leagueUrl: string) => {
+export const getTradeAcceptedEmail = (params: {
+  /** True when this is really a listing purchase (one side paid cash for a listed player), not a genuine two-way trade. */
+  isListingSale: boolean;
+  /** Buyer when isListingSale, otherwise team A. */
+  teamA: string;
+  /** Seller when isListingSale, otherwise team B. */
+  teamB: string;
+  /** Listing sale only — the bought player's name. */
+  playerName?: string;
+  /** Listing sale only — the price paid. */
+  dealAmount?: number;
+  /** Genuine trade only — pre-formatted asset lists, e.g. "Sam Rook and €10m" (see formatAssetList). */
+  offeredAssets?: string;
+  requestedAssets?: string;
+  /** Drives tier escalation — the higher of the actual transaction amount and any moved player's real-world market value. */
+  tierValue: number;
+  /** Deferred until the gameweek ends rather than resolved immediately. */
+  pending: boolean;
+  leagueUrl: string;
+}) => {
+  const { isListingSale, teamA, teamB, playerName, dealAmount, offeredAssets, requestedAssets, tierValue, pending, leagueUrl } = params;
+  const detail = isListingSale
+    ? `<strong>${playerName}</strong> to <strong>${teamA}</strong> for €${dealAmount}m`
+    : `<strong>${teamA}</strong> send ${offeredAssets} to <strong>${teamB}</strong> for ${requestedAssets}`;
+
+  const { eyebrow, lead } = buildHereWeGo(isListingSale ? 'signing' : 'trade', detail, tierValue, pending);
+  const title = isListingSale ? 'Official: Signing Confirmed' : 'Official: Trade Completed';
+
   const body = `
-    <p>A blockbuster trade has just been completed in your league between <strong>${clubA}</strong> and <strong>${clubB}</strong>.</p>
-    <p>Head to the transaction log to see the details.</p>
+    ${eyebrow ? `<p style="margin: 0 0 4px; font-size: 0.75em; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: ${GOLD};">${eyebrow}</p>` : ''}
+    <p>${lead}</p>
     <a href="${leagueUrl}/activity" class="button">View League Activity</a>
   `;
-  return baseTemplate('Trade Completed', body);
+  return baseTemplate(title, body);
 };
 
 export const getPlayerDroppedEmail = (clubName: string, playerName: string, leagueUrl: string) => {
@@ -82,17 +122,44 @@ export const getPlayerDroppedEmail = (clubName: string, playerName: string, leag
   return baseTemplate('Player Dropped to Waivers', body);
 };
 
-export const getSystemAuctionsEmail = (players: { name: string; value: number }[], isSummerKickoff: boolean, leagueUrl: string) => {
+export const getSystemAuctionsEmail = (
+  players: { name: string; value: number }[],
+  isSummerKickoff: boolean,
+  leagueUrl: string,
+  thresholdM: number,
+) => {
   const title = isSummerKickoff ? 'The Season Has Begun!' : 'Transfer Window Alert';
-  const preamble = isSummerKickoff 
+  const preamble = isSummerKickoff
     ? `The commissioner has officially started the new season. <strong>${players.length} new players</strong> have been added to the Transfer Auction Block.`
-    : `FPL has added <strong>${players.length} new players</strong> to the database who meet the €40m valuation threshold. They have been placed on waivers.`;
-    
+    : `FPL has added <strong>${players.length} new players</strong> to the database who meet the €${thresholdM}m valuation threshold. They have been placed on waivers.`;
+
+  const standard = players.filter((p) => getValueTier(p.value) === 'standard');
+  const featured = players
+    .filter((p) => getValueTier(p.value) !== 'standard')
+    .sort((a, b) => b.value - a.value);
+
+  const featuredHtml = featured
+    .map((p) => {
+      const copy = TIER_COPY[getValueTier(p.value)]!;
+      return `
+        <div style="background-color: #fff; padding: 20px; border-radius: 8px; border-left: 4px solid ${GOLD}; margin: 0 0 16px;">
+          ${tierEyebrowHtml(p.value)}
+          <p style="margin: 0; font-family: 'Georgia', serif; font-size: 1.3em; font-weight: bold;">${p.name}</p>
+          <p style="margin: 4px 0 8px; font-size: 1.1em;">€${p.value}m</p>
+          <p style="margin: 0; font-size: 0.9em; color: #666;">${copy.description}</p>
+        </div>
+      `;
+    })
+    .join('');
+
+  const standardHtml = standard.length
+    ? `<ul>${standard.map((p) => `<li>${p.name} (€${p.value}m)</li>`).join('')}</ul>`
+    : '';
+
   const body = `
     <p>${preamble}</p>
-    <ul>
-      ${players.map(p => `<li>${p.name} (€${p.value}m)</li>`).join('')}
-    </ul>
+    ${featuredHtml}
+    ${standardHtml}
     <p>You have 48 hours to place your bids on these players.</p>
     <a href="${leagueUrl}/players" class="button">View Player Market</a>
   `;
@@ -100,40 +167,39 @@ export const getSystemAuctionsEmail = (players: { name: string; value: number }[
 };
 
 export const getAuctionWonEmail = (
-  playerName: string, 
-  winnerClub: string, 
-  winningBid: number, 
-  bidderCount: number, 
-  droppedPlayerName: string | null, 
+  playerName: string,
+  winnerClub: string,
+  winningBid: number,
+  /** The higher of winningBid and the player's real-world market value — drives tier escalation. */
+  tierValue: number,
+  bidderCount: number,
+  droppedPlayerName: string | null,
   droppedByClub: string | null,
   leagueUrl: string
 ) => {
   let intensity = 'Uncontested Signing';
   let intensityDesc = 'A straightforward negotiation with no competing interest.';
-  let headline = `${winnerClub} Secures ${playerName}`;
-  
+
   if (bidderCount === 2 || bidderCount === 3) {
     intensity = 'Contested Auction';
     intensityDesc = 'Moderate interest from multiple clubs.';
-    headline = `${winnerClub} Wins the Race for ${playerName}`;
   } else if (bidderCount >= 4) {
     intensity = 'A Bidding War for the Ages';
     intensityDesc = 'The boardroom was a battlefield as multiple teams fought for the signature.';
-    headline = `${winnerClub} Prevails in Epic Bidding War`;
   }
 
-  if (winningBid >= 100) {
-    headline = `Record-Breaking Move: ${playerName} Joins ${winnerClub}`;
-  }
-
-  const sourceInfo = droppedByClub 
-    ? `previously released by <strong>${droppedByClub}</strong>` 
+  const tier = getValueTier(tierValue);
+  const sourceInfo = droppedByClub
+    ? `previously released by <strong>${droppedByClub}</strong>`
     : 'a new arrival to the league';
 
+  const detail = `<strong>${playerName}</strong> to <strong>${winnerClub}</strong> for €${winningBid}m`;
+  const { eyebrow, lead } = buildHereWeGo('signing', detail, tierValue);
+
   const body = `
-    <h2 style="font-family: 'Georgia', serif; font-size: 1.5em; margin-top: 0;">${headline}</h2>
-    <p>The deal is finalized. <strong>${playerName}</strong> has officially put pen to paper for <strong>${winnerClub}</strong>.</p>
-    <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; border-left: 4px solid #1a1a1a; margin: 20px 0;">
+    ${eyebrow ? `<p style="margin: 0 0 4px; font-size: 0.75em; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: ${GOLD};">${eyebrow}</p>` : ''}
+    <p style="font-family: 'Georgia', serif; font-size: 1.2em; margin-top: 0;">${lead}</p>
+    <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; border-left: 4px solid ${tier === 'standard' ? '#1a1a1a' : GOLD}; margin: 20px 0;">
       <p style="margin-top: 0; font-size: 0.9em; text-transform: uppercase; color: #666;">Auction Details</p>
       <p><strong>Winning Bid:</strong> €${winningBid}m</p>
       <p style="margin-bottom: 0;"><strong>Atmosphere:</strong> ${intensity}</p>
@@ -148,6 +214,25 @@ export const getAuctionWonEmail = (
     <a href="${leagueUrl}/activity" class="button">Read the Transaction Log</a>
   `;
   return baseTemplate('Official: Auction Concluded', body);
+};
+
+export const getPlayerSoldEmail = (
+  playerName: string,
+  buyerClub: string,
+  price: number,
+  /** The higher of price and the player's real-world market value — drives tier escalation. */
+  tierValue: number,
+  leagueUrl: string,
+) => {
+  const detail = `<strong>${playerName}</strong> to <strong>${buyerClub}</strong> for €${price}m`;
+  const { eyebrow, lead } = buildHereWeGo('signing', detail, tierValue);
+
+  const body = `
+    ${eyebrow ? `<p style="margin: 0 0 4px; font-size: 0.75em; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: ${GOLD};">${eyebrow}</p>` : ''}
+    <p style="font-family: 'Georgia', serif; font-size: 1.2em; margin-top: 0;">${lead}</p>
+    <a href="${leagueUrl}/team" class="button">View Your Team</a>
+  `;
+  return baseTemplate('Player Sold!', body);
 };
 
 export const getOutbidEmail = (playerName: string, currentHighBid: number, leagueUrl: string) => {
@@ -253,9 +338,11 @@ export const getLoanProposedEmail = (lenderName: string, playerName: string, loa
 };
 
 export const getLoanAcceptedEmail = (lenderName: string, borrowerName: string, playerName: string, startGw: number, endGw: number, leagueUrl: string) => {
+  const detail = `<strong>${borrowerName}</strong> agree a loan for <strong>${playerName}</strong> from <strong>${lenderName}</strong>, GW${startGw} to GW${endGw}`;
+  const { lead } = buildHereWeGo('loan', detail);
+
   const body = `
-    <p>The loan agreement for <strong>${playerName}</strong> has been signed and finalized.</p>
-    <p><strong>${playerName}</strong> has joined <strong>${borrowerName}</strong> on loan from <strong>${lenderName}</strong> for the term GW${startGw} to GW${endGw}.</p>
+    <p>${lead}</p>
     <a href="${leagueUrl}/transfers/deals" class="button">View Active Loans</a>
   `;
   return baseTemplate('Loan Agreement Finalized', body);

@@ -16,8 +16,7 @@
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/admin';
-import { sendEmail } from '@/lib/email/client';
-import { getAuctionWonEmail } from '@/lib/email/templates';
+import { notifyAuctionResolution, type AuctionResolutionResult } from '@/lib/auctions/notifyAuctionResolution';
 export const maxDuration = 60; // 1 minute max for Vercel Hobby tier
 
 
@@ -118,7 +117,7 @@ export async function POST(req: NextRequest) {
     try {
       const { data: wonPlayer } = await admin
         .from('players')
-        .select('id, name')
+        .select('id, name, market_value')
         .eq('id', player_id)
         .single();
 
@@ -136,26 +135,7 @@ export async function POST(req: NextRequest) {
         continue;
       }
 
-      const resData = rpcRes as {
-        success: boolean;
-        won: boolean;
-        deferred?: boolean;
-        error?: string;
-        winner_claim_id?: string;
-        winner_team_id?: string;
-        winner_team_name?: string;
-        winner_user_id?: string;
-        winner_bid?: number;
-        winner_severance?: number;
-        winner_status?: string;
-        drop_player_name?: string;
-        initiator_team_name?: string;
-        scout_amount?: number;
-        scout_team_id?: string;
-        solidarity_per_club?: number;
-        solidarity_club_count?: number;
-        losing_teams?: { team_id: string; team_name: string; user_id: string; faab_bid: number }[];
-      };
+      const resData = rpcRes as AuctionResolutionResult;
 
       if (!resData.success) {
         console.error('[process-auctions] RPC failed to resolve:', resData.error);
@@ -168,106 +148,13 @@ export async function POST(req: NextRequest) {
         continue;
       }
 
-      if (resData.won && resData.winner_team_id) {
-        // --- SEND NOTIFICATION ---
-        try {
-          const { data: leagueTeams } = await admin
-            .from('teams')
-            .select('id, team_name, user_id')
-            .eq('league_id', league_id);
-
-          const winnerTeamName = resData.winner_team_name;
-          const winnerUserId = resData.winner_user_id;
-          const dropPlayerName = resData.drop_player_name;
-          const initiatorTeamName = resData.initiator_team_name;
-          const winnerBid = resData.winner_bid!;
-          
-          const userIds = (leagueTeams ?? []).map(t => t.user_id);
-          const { data: users } = await admin.from('users').select('email').in('id', userIds);
-          const leagueEmails = (users ?? []).map(u => u.email).filter(Boolean);
-
-          if (leagueEmails.length > 0) {
-            const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://gaffa.live';
-            await sendEmail({
-              to: leagueEmails,
-              subject: `Auction Won: ${wonPlayer?.name ?? 'Player'} signed by ${winnerTeamName ?? 'Club'}`,
-              html: getAuctionWonEmail(
-                wonPlayer?.name ?? 'Unknown Player',
-                winnerTeamName ?? 'Unknown Club',
-                winnerBid,
-                realClaims.length,
-                dropPlayerName || null,
-                initiatorTeamName || null,
-                `${baseUrl}/league/${league_id}`
-              )
-            });
-          }
-
-          // Create in-game notifications
-          const { createNotification } = await import('@/lib/notifications/createNotification');
-          
-          // 1. Notify the winner
-          if (winnerUserId) {
-            await createNotification(admin, {
-              leagueId: league_id,
-              userId: winnerUserId,
-              title: 'Auction Won!',
-              content: `You secured **${wonPlayer?.name ?? 'Player'}** for **€${winnerBid}m** in a ${realClaims.length}-bidder auction.${resData.winner_severance ? ` **${dropPlayerName}** was dropped to waivers to clear roster space.` : ''}`,
-              url: `/league/${league_id}/team`
-            });
-          }
-
-          // 1b. Notify the seller (if player sale)
-          if ((resData as any).sale_listing_id && (resData as any).seller_team_id) {
-            const { data: sellerTeam } = await admin
-              .from('teams')
-              .select('user_id, team_name')
-              .eq('id', (resData as any).seller_team_id)
-              .single();
-
-            if (sellerTeam && sellerTeam.user_id) {
-              await createNotification(admin, {
-                leagueId: league_id,
-                userId: sellerTeam.user_id,
-                title: 'Player Sold!',
-                content: `**${wonPlayer?.name ?? 'Player'}** has been sold to **${winnerTeamName}** for **€${winnerBid}m**.`,
-                url: `/league/${league_id}/team`
-              });
-
-              const { data: sellerUser } = await admin
-                .from('users')
-                .select('email')
-                .eq('id', sellerTeam.user_id)
-                .single();
-
-              if (sellerUser?.email) {
-                const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://gaffa.live';
-                await sendEmail({
-                  to: [sellerUser.email],
-                  subject: `Player Sold! ${wonPlayer?.name ?? 'Player'} transfer complete`,
-                  html: `<p>Your player <strong>${wonPlayer?.name ?? 'Player'}</strong> has been sold to <strong>${winnerTeamName}</strong> for <strong>€${winnerBid}m</strong>.</p><p>View your team: <a href="${baseUrl}/league/${league_id}/team">${baseUrl}/league/${league_id}/team</a></p>`
-                });
-              }
-            }
-          }
-
-          // 2. Notify the losing bidders
-          const losingBidders = resData.losing_teams ?? [];
-          await Promise.all(losingBidders.map(async (loser) => {
-            if (loser.user_id) {
-              await createNotification(admin, {
-                leagueId: league_id,
-                userId: loser.user_id,
-                title: 'Waiver Auction Lost',
-                content: `Your waiver bid of **€${loser.faab_bid}m** for **${wonPlayer?.name ?? 'Player'}** was unsuccessful. **${winnerTeamName ?? 'Another team'}** won the signature for **€${winnerBid}m**.`,
-                url: `/league/${league_id}/players`
-              });
-            }
-          }));
-        } catch (emailErr) {
-          console.error('[process-auctions] Failed to send auction result notifications:', emailErr);
-        }
-      }
+      await notifyAuctionResolution(admin, {
+        leagueId: league_id,
+        playerName: wonPlayer?.name ?? 'Unknown Player',
+        playerMarketValue: wonPlayer?.market_value,
+        bidderCount: realClaims.length,
+        resData,
+      });
 
       processed++;
     } catch (err) {
