@@ -242,7 +242,7 @@ export default function MatchupPitch({
             if (b.isSubOut) return sum; // this was a starter subbed out
             return sum + (detailMap[b.player_id]?.points ?? 0);
         }, 0);
-        return rawBenchPts * 0.2;
+        return rawBenchPts * 0.25;
     }
 
     const benchBonusA = calcBenchBonus(resolvedA.bench);
@@ -384,7 +384,7 @@ export default function MatchupPitch({
                                     <div className={styles.breakdownLeft}>
                                         <span className={styles.breakdownBar} style={{ background: '#d1d5db' }} />
                                         <div>
-                                            <p className={styles.breakdownName}>Bench Contribution (20%)</p>
+                                            <p className={styles.breakdownName}>Bench Contribution (25%)</p>
                                         </div>
                                     </div>
                                     <span className={styles.breakdownPts}>

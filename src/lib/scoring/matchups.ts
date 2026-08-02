@@ -66,7 +66,7 @@ function rateAtSlot(
  *   - During live (`finished === false`), the stored primary-position points
  *     drive the scoreboard. The UI surfaces this as "approximate, locks at
  *     GW finish".
- *   - Bench depth bonus (20%) always uses stored points, since bench players
+ *   - Bench depth bonus (25%) always uses stored points, since bench players
  *     didn't play any slot.
  *
  * @param lineup The team's lineup object (starters, bench)
@@ -169,7 +169,7 @@ export function calculateTeamScore(
     }
   }
 
-  // 2. Bench depth bonus (20% of unused bench players who played).
+  // 2. Bench depth bonus (25% of unused bench players who played).
   //    Bench players didn't fill any slot, so we credit them at their
   //    primary-position points (i.e., stored fantasyPoints, unchanged from v1).
   for (const benchId of benchIds) {
@@ -180,7 +180,7 @@ export function calculateTeamScore(
       if (record && totalMinutes > 0) {
         const benchPlayerTotal = getStoredPoints(benchId);
         if (benchPlayerTotal > 0) {
-          score += benchPlayerTotal * 0.20;
+          score += benchPlayerTotal * 0.25;
         }
       }
     }

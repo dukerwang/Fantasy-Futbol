@@ -51,7 +51,7 @@ Instead of assigning flat points to raw actions, Gaffa evaluates performance qua
 ### Matchup System
 Gaffa operates on a weekly head-to-head matchup format. A team's weekly score is the sum of its starting players' fantasy points. 
 
-If a starting player records zero minutes, priority-based auto-subs are processed at gameweek resolution. The system scans the manager's bench in order, replacing the missing starter with the first eligible bench player whose PL match is finished. Unused bench players who played during the gameweek contribute a Bench Depth Bonus equal to 20% of their stored primary-position fantasy points.
+If a starting player records zero minutes, priority-based auto-subs are processed at gameweek resolution. The system scans the manager's bench in order, replacing the missing starter with the first eligible bench player whose PL match is finished. Unused bench players who played during the gameweek contribute a Bench Depth Bonus equal to 25% of their stored primary-position fantasy points.
 
 Once a gameweek is finalized, the matchup processor executes *Role-Aware Post-Match Scoring*. While players' global stats remain scored at their primary positions, starters and auto-subs in matchups are re-evaluated using the reference weights of the slot they actually occupied. This ensures that a bench fullback subbed into a center-back slot is evaluated under center-back defensive profiles for the team score. 
 
