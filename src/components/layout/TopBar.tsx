@@ -176,18 +176,6 @@ export default function TopBar() {
         ],
       },
       {
-        label: 'Transfers',
-        items: [
-          // The hub's own sub-nav is the primary way around these four; this
-          // group exists so the section is reachable from anywhere in the app.
-          { label: 'Market', href: `${base}/transfers` },
-          { label: 'Auctions', href: `${base}/transfers/auctions` },
-          { label: 'Listings', href: `${base}/transfers/listings` },
-          { label: 'Free Agency', href: `${base}/transfers/free-agents` },
-          { label: 'Deals', href: `${base}/transfers/deals` },
-        ],
-      },
-      {
         label: 'Fixtures',
         items: [
           { label: 'Gameweeks', href: `${base}/matchups` },
@@ -216,6 +204,13 @@ export default function TopBar() {
   function isActivityActive(): boolean {
     if (!currentLeagueId) return false;
     return pathname?.startsWith(`/league/${currentLeagueId}/activity`) ?? false;
+  }
+
+  // Transfers is a standalone link, not a dropdown — Market is the hub for
+  // Auctions/Listings/Free Agency/Deals, so the top bar only needs one door in.
+  function isTransfersActive(): boolean {
+    if (!currentLeagueId) return false;
+    return pathname?.startsWith(`/league/${currentLeagueId}/transfers`) ?? false;
   }
 
   // Draft is its own top-level item during setup/drafting; lobby lives on the
@@ -320,6 +315,17 @@ export default function TopBar() {
                 )}
               </div>
             ))}
+
+            {/* Transfers (standalone — Market is the hub for the other four pages) */}
+            <div className={styles.navItem}>
+              <Link
+                href={`/league/${currentLeagueId}/transfers`}
+                className={`${styles.navLink} ${isTransfersActive() ? styles.navLinkActive : ''}`}
+                onClick={() => setIsNavigating(true)}
+              >
+                Transfers
+              </Link>
+            </div>
 
             {/* Activity (standalone) */}
             <div className={styles.navItem}>
@@ -588,6 +594,20 @@ export default function TopBar() {
                 </div>
               </div>
             ))}
+
+            {/* Transfers (standalone — Market is the hub for the other four pages) */}
+            <div className={styles.mobileDrawerItem}>
+              <Link
+                href={`/league/${currentLeagueId}/transfers`}
+                className={`${styles.mobileDrawerLink} ${isTransfersActive() ? styles.mobileDrawerLinkActive : ''}`}
+                onClick={() => {
+                  setIsNavigating(true);
+                  setMobileMenuOpen(false);
+                }}
+              >
+                Transfers
+              </Link>
+            </div>
 
             {/* Activity (standalone) */}
             <div className={styles.mobileDrawerItem}>

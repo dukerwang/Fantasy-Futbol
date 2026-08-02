@@ -27,9 +27,11 @@ import { getPlayerDisplayName } from '@/lib/players/displayName';
 /**
  * Transfer Market — the front page.
  *
- * A digest, not a workspace. Everything here is a doorway to one of the other
- * three pages; the only thing you can finish without leaving is a bid, because
- * a closing auction is the one thing that will not wait for you to navigate.
+ * A digest, not a workspace, and the hub for all of Transfers: this is the
+ * only page in the section reachable from the top bar, and everything here is
+ * a doorway to one of the other four pages. The only thing you can finish
+ * without leaving is a bid, because a closing auction is the one thing that
+ * will not wait for you to navigate.
  */
 
 const money = (n: number) => `€${n}m`;
@@ -174,6 +176,9 @@ export default function MarketClient({
               {closing.filter((a) => isClosing(new Date(a.expires_at!).getTime() - now)).length > 0 &&
                 ` — ${closing.filter((a) => isClosing(new Date(a.expires_at!).getTime() - now)).length} inside the hour`}
             </span>
+            <NavigationLink href={`/league/${leagueId}/transfers/auctions`} className={styles.sectMore}>
+              All {model.counts.auctions} in the auction room →
+            </NavigationLink>
           </div>
 
           {closing.length === 0 ? (
@@ -283,8 +288,19 @@ export default function MarketClient({
             </div>
           )}
 
-          {/* ── The two doors ───────────────────────────── */}
+          {/* ── The doors ──────────────────────────────── */}
           <div className={styles.doors}>
+            <NavigationLink href={`/league/${leagueId}/transfers/auctions`} className={styles.door}>
+              <div className={styles.doorTop}>
+                <div className={`${styles.doorNum} ${styles.statWarn}`}>{model.counts.auctions}</div>
+                <div className={styles.doorName}>Auctions</div>
+                <div className={styles.doorSub}>
+                  Every lot under the hammer in one room — sortable by time, bid history, and the
+                  saleroom ticker.
+                </div>
+              </div>
+              <div className={styles.doorGo}>Enter the auction room →</div>
+            </NavigationLink>
             <NavigationLink href={`/league/${leagueId}/transfers/free-agents`} className={styles.door}>
               <div className={styles.doorTop}>
                 <div className={`${styles.doorNum} ${styles.statAccent}`}>{model.counts.freeAgents}</div>

@@ -246,7 +246,7 @@
 
 .doors {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 0.625rem;
   margin-top: 1.25rem;
 }
