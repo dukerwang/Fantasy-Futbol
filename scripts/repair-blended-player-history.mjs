@@ -197,7 +197,7 @@ for (const targetName of targetNames) {
 
   for (let i = 0; i < rows.length; i += 200) {
     const { error: insErr } = await supabase.from('player_stats')
-      .upsert(rows.slice(i, i + 200), { onConflict: 'player_id,match_id' });
+      .upsert(rows.slice(i, i + 200), { onConflict: 'player_id,season,match_id' });
     if (insErr) throw new Error(`insert ${player.name}: ${insErr.message}`);
   }
   console.log(`  rebuilt with ${rows.length} appearances`);

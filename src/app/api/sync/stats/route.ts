@@ -268,7 +268,7 @@ async function syncFplLiveRatings(gameweek: number): Promise<NextResponse> {
                 fantasy_points: v2.fantasyPoints,
                 match_rating: v2.rating,
               },
-              { onConflict: 'player_id,match_id' },
+              { onConflict: 'player_id,season,match_id' },
             );
             if (!error) saved++;
           }
@@ -304,7 +304,7 @@ async function syncFplLiveRatings(gameweek: number): Promise<NextResponse> {
               fantasy_points: v2.fantasyPoints,
               match_rating: v2.rating,
             },
-            { onConflict: 'player_id,match_id' },
+            { onConflict: 'player_id,season,match_id' },
           );
           saved++;
         }

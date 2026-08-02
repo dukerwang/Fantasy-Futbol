@@ -360,7 +360,7 @@ console.log('');
 
 for (let i = 0; i < inserts.length; i += 200) {
   const { error } = await supabase.from('player_stats')
-    .upsert(inserts.slice(i, i + 200), { onConflict: 'player_id,match_id' });
+    .upsert(inserts.slice(i, i + 200), { onConflict: 'player_id,season,match_id' });
   if (error) throw new Error(`insert: ${error.message}`);
 }
 console.log(`inserted ${inserts.length} appearances`);
