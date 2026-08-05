@@ -221,6 +221,9 @@ export default function DraftRoom({
   const boardScrollRef = useRef<HTMLDivElement>(null);
   const playerListRef = useRef<HTMLDivElement>(null);
   const autoPickTriggeredRef = useRef(false);
+  // loadingPick is state, so two clicks landing in the same tick both read it
+  // as false and both POST. The ref flips synchronously.
+  const pickInFlightRef = useRef(false);
 
   const [draftQueue, setDraftQueue] = useState<string[]>([]);
   useEffect(() => {
@@ -582,11 +585,12 @@ export default function DraftRoom({
   }, [teamPicks, myTeam, rosterSortMode]);
 
   const makePick = useCallback(async (playerId: string) => {
-    if (!isMyTurn || loadingPick || !currentTeam || !myTeam) return;
+    if (!isMyTurn || loadingPick || pickInFlightRef.current || !currentTeam || !myTeam) return;
     if (pickedPlayerIds.has(playerId)) {
       setPickError('Player already drafted');
       return;
     }
+    pickInFlightRef.current = true;
     setLoadingPick(true);
     setPickError(null);
 
@@ -608,7 +612,10 @@ export default function DraftRoom({
       const res = await fetch(`/api/leagues/${leagueId}/draft/pick`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ playerId, draftQueue: activeQueuePlayers }),
+        // The server re-derives who is on the clock; expectPick only lets it
+        // reject this request outright if the board moved while we were
+        // deciding, rather than drafting for whoever is up now.
+        body: JSON.stringify({ playerId, draftQueue: activeQueuePlayers, expectPick: currentPickNumber }),
       });
 
       const json = await res.json();
@@ -616,6 +623,7 @@ export default function DraftRoom({
         setOptimisticPick(null);
         setPickError(json.error ?? 'Pick failed');
         setLoadingPick(false);
+        pickInFlightRef.current = false;
         return;
       }
 
@@ -624,11 +632,13 @@ export default function DraftRoom({
       }
 
       setLoadingPick(false);
+      pickInFlightRef.current = false;
       if (json.status === 'active') router.refresh();
     } catch {
       setOptimisticPick(null);
       setPickError('Network error. Please try again.');
       setLoadingPick(false);
+      pickInFlightRef.current = false;
     }
   }, [isMyTurn, loadingPick, currentTeam, myTeam, playerMap, leagueId, currentRound, currentPickNumber, activeQueuePlayers, draftQueue, saveDraftQueue, router, pickedPlayerIds]);
 

@@ -7,13 +7,16 @@ interface Props {
   params: Promise<{ leagueId: string }>;
 }
 
-/** Returns the draft_order slot (1-indexed) for a given overall pick number in a snake draft. */
-function snakeDraftOrder(pickNumber: number, numTeams: number): number {
-  const round = Math.floor((pickNumber - 1) / numTeams); // 0-indexed round
-  const posInRound = (pickNumber - 1) % numTeams;
-  return round % 2 === 0
-    ? posInRound + 1        // odd rounds (0,2,4…): 1→N
-    : numTeams - posInRound; // even rounds (1,3,5…): N→1
+interface PickResult {
+  success: boolean;
+  code?: string;
+  error?: string;
+  http_status?: number;
+  pick_id?: string;
+  pick?: number;
+  round?: number;
+  team_id?: string;
+  is_complete?: boolean;
 }
 
 export async function POST(req: NextRequest, { params }: Props) {
@@ -24,132 +27,41 @@ export async function POST(req: NextRequest, { params }: Props) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const admin = createAdminClient();
-
-  // Verify league
-  const { data: league } = await admin
-    .from('leagues')
-    .select('id, status, roster_size, current_season')
-    .eq('id', leagueId)
-    .single();
-
-  if (!league) return NextResponse.json({ error: 'League not found' }, { status: 404 });
-  if (league.status !== 'drafting') return NextResponse.json({ error: 'Draft is not active' }, { status: 400 });
-
-  const { playerId, draftQueue } = await req.json();
+  const { playerId, draftQueue, expectPick } = await req.json();
   if (!playerId) return NextResponse.json({ error: 'playerId required' }, { status: 400 });
 
-  // Get all teams sorted by draft_order
-  const { data: teams } = await admin
-    .from('teams')
-    .select('id, user_id, draft_order, team_name')
-    .eq('league_id', leagueId)
-    .order('draft_order', { ascending: true });
+  const admin = createAdminClient();
 
-  if (!teams || teams.length === 0) {
-    return NextResponse.json({ error: 'No teams found' }, { status: 400 });
+  // Everything that used to live here — league status, who is on the clock,
+  // ownership, player availability, roster size, and both inserts — now runs
+  // inside make_draft_pick_rpc under a league-scoped advisory lock. Validating
+  // in the route meant validating against a board that a concurrent auto-pick
+  // could change before the insert landed (migration 108).
+  const { data, error: rpcErr } = await admin.rpc('make_draft_pick_rpc', {
+    p_league_id: leagueId,
+    p_player_id: playerId,
+    p_user_id: user.id,
+    p_expect_pick: typeof expectPick === 'number' ? expectPick : null,
+  });
+
+  if (rpcErr) return NextResponse.json({ error: rpcErr.message }, { status: 500 });
+
+  const result = data as PickResult;
+  if (!result?.success) {
+    return NextResponse.json(
+      { error: result?.error ?? 'Pick failed' },
+      { status: result?.http_status ?? 400 },
+    );
   }
 
-  const numTeams = teams.length;
-
-  // Get existing picks
-  const { data: existingPicks } = await admin
+  // The pick is committed. Everything below is presentation and fan-out — a
+  // failure here must not be reported as a failed pick.
+  const { data: newPick } = await admin
     .from('draft_picks')
-    .select('id, team_id, player_id, picked_at')
-    .eq('league_id', leagueId)
-    .order('pick', { ascending: true });
-
-  const picks = existingPicks ?? [];
-  const totalPicks = numTeams * league.roster_size;
-
-  if (picks.length >= totalPicks) {
-    return NextResponse.json({ error: 'Draft is already complete' }, { status: 400 });
-  }
-
-  const pickNumber = picks.length + 1;
-
-  // Determine which team is on the clock via snake formula
-  const draftOrderSlot = snakeDraftOrder(pickNumber, numTeams);
-  const currentTeam = teams.find((t) => t.draft_order === draftOrderSlot);
-
-  if (!currentTeam) {
-    return NextResponse.json({ error: 'Could not determine current team' }, { status: 500 });
-  }
-
-  // Validate caller owns the current team
-  if (currentTeam.user_id !== user.id) {
-    return NextResponse.json({ error: 'Not your pick' }, { status: 403 });
-  }
-
-  // Validate player is active
-  const { data: player } = await admin
-    .from('players')
-    .select('id, is_active, name, web_name, primary_position, secondary_positions, pl_team, market_value')
-    .eq('id', playerId)
-    .single();
-
-  if (!player) return NextResponse.json({ error: 'Player not found' }, { status: 404 });
-  if (!player.is_active) return NextResponse.json({ error: 'Player is not active' }, { status: 400 });
-
-  // Check player not already drafted in this league
-  if (picks.some((p) => p.player_id === playerId)) {
-    return NextResponse.json({ error: 'Player already drafted' }, { status: 400 });
-  }
-
-  // Check team hasn't exceeded roster_size
-  const teamPickCount = picks.filter((p) => p.team_id === currentTeam.id).length;
-  if (teamPickCount >= league.roster_size) {
-    return NextResponse.json({ error: 'Team roster is full' }, { status: 400 });
-  }
-
-  const round = Math.ceil(pickNumber / numTeams);
-
-  // Insert into draft_picks
-  const { data: newPick, error: pickErr } = await admin
-    .from('draft_picks')
-    .insert({
-      league_id: leagueId,
-      team_id: currentTeam.id,
-      player_id: playerId,
-      round,
-      pick: pickNumber,
-    })
     .select('*, player:players(*), team:teams(*)')
+    .eq('id', result.pick_id!)
     .single();
 
-  if (pickErr) {
-    if (pickErr.code === '23505') {
-      const isPlayerConflict = 
-        pickErr.message?.includes('player_id') || 
-        pickErr.message?.includes('unique_league_player') ||
-        (pickErr.details && (pickErr.details.includes('player_id') || pickErr.details.includes('unique_league_player')));
-      if (isPlayerConflict) {
-        return NextResponse.json({ error: 'This player has already been drafted by another team.' }, { status: 409 });
-      }
-      return NextResponse.json({ error: 'This pick slot has already been processed.' }, { status: 409 });
-    }
-    return NextResponse.json({ error: pickErr.message }, { status: 500 });
-  }
-
-  // Insert into roster_entries
-  const { error: rosterErr } = await admin
-    .from('roster_entries')
-    .insert({
-      team_id: currentTeam.id,
-      player_id: playerId,
-      status: 'bench',
-      acquisition_type: 'draft',
-    });
-
-  if (rosterErr) return NextResponse.json({ error: rosterErr.message }, { status: 500 });
-
-  // Reset consecutive autopicks on manual pick
-  await admin
-    .from('teams')
-    .update({ consecutive_autopicks: 0 })
-    .eq('id', currentTeam.id);
-
-  // Broadcast the pick to all connected clients via Supabase Broadcast
   const broadcastChannel = admin.channel(`draft:${leagueId}`);
   await broadcastChannel.send({
     type: 'broadcast',
@@ -158,11 +70,8 @@ export async function POST(req: NextRequest, { params }: Props) {
   });
   admin.removeChannel(broadcastChannel);
 
-  // If this was the last pick, close the draft
-  const isComplete = picks.length + 1 >= totalPicks;
-  if (isComplete) {
-    await admin.from('leagues').update({ status: 'active' }).eq('id', leagueId);
-    // Broadcast draft completion
+  // The RPC already flipped the league to 'active' on the final pick.
+  if (result.is_complete) {
     const completeChannel = admin.channel(`draft:${leagueId}`);
     await completeChannel.send({
       type: 'broadcast',
@@ -172,8 +81,12 @@ export async function POST(req: NextRequest, { params }: Props) {
     admin.removeChannel(completeChannel);
     // Schedule AND all three cup brackets — see ensureSeasonScaffold for why
     // these must not be called separately.
-    await ensureSeasonScaffold(admin, leagueId, league.current_season);
+    await ensureSeasonScaffold(admin, leagueId);
   }
 
-  return NextResponse.json({ ...newPick, status: isComplete ? 'active' : 'drafting', draftQueue });
+  return NextResponse.json({
+    ...newPick,
+    status: result.is_complete ? 'active' : 'drafting',
+    draftQueue,
+  });
 }

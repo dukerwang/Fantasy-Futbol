@@ -137,8 +137,12 @@ export async function POST() {
                 return NextResponse.json({ error: `Could not find a valid player for ${teamObj.team_name} in round ${round}` }, { status: 500 });
             }
 
-            const pId = availablePlayers[draftedPlayerIndex].id;
-            // Remove from available pool
+            // Read the player out BEFORE splicing him from the pool — reading
+            // availablePlayers[draftedPlayerIndex] afterwards returns whoever
+            // shifted into that slot, which is how the starting XI below ended
+            // up assigned against the wrong positions.
+            const drafted = availablePlayers[draftedPlayerIndex];
+            const pId = drafted.id;
             availablePlayers.splice(draftedPlayerIndex, 1);
 
             picksToInsert.push({
@@ -152,8 +156,8 @@ export async function POST() {
             rostersToInsert.push({
                 team_id: teamObj.id,
                 player_id: pId,
-                primary_position: availablePlayers[draftedPlayerIndex].primary_position,
-                pos: availablePlayers[draftedPlayerIndex].primary_position,
+                primary_position: drafted.primary_position,
+                pos: drafted.primary_position,
                 status: 'bench', // will update below after all picks
                 acquisition_type: 'draft'
             });
@@ -184,7 +188,14 @@ export async function POST() {
     const { error: picksErr } = await admin.from('draft_picks').insert(picksToInsert);
     if (picksErr) return NextResponse.json({ error: picksErr.message }, { status: 500 });
 
-    const { error: rostersErr } = await admin.from('roster_entries').insert(rostersToInsert);
+    // primary_position/pos are scratch fields for the starting-XI pass above;
+    // they are not roster_entries columns and PostgREST rejects the insert if
+    // they are sent.
+    const { error: rostersErr } = await admin.from('roster_entries').insert(
+        rostersToInsert.map(({ team_id, player_id, status, acquisition_type }) => ({
+            team_id, player_id, status, acquisition_type,
+        }))
+    );
     if (rostersErr) return NextResponse.json({ error: rostersErr.message }, { status: 500 });
 
     // 7. Initialize League calendar
