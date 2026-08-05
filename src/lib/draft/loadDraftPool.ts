@@ -5,7 +5,9 @@
  * live draft — which is what the player card and scouting table read from.
  */
 
+import { unstable_cache } from 'next/cache';
 import { FULL_PLAYER_SELECT } from '@/lib/constants/queries';
+import { createAdminClient } from '@/lib/supabase/admin';
 import { getLatestReferenceStatsSeason, resolveDraftStatsSeason } from '@/lib/season/currentSeason';
 import { calculateMatchRating, DEFAULT_REFERENCE_STATS } from '@/lib/scoring/matchRating';
 import type { Player } from '@/types';
@@ -34,18 +36,31 @@ export async function loadDraftPool(
   // and never a stale previous_season default with zero rows (2024-25).
   const season = await resolveDraftStatsSeason(admin, league);
   const refSeason = await getLatestReferenceStatsSeason(admin);
+  const { players, shadowMaps } = await loadDraftStatsForSeason(season, refSeason);
+  return { players, shadowMaps, season };
+}
 
-  const [{ data: playersData }, { data: rankings }, { data: refData }, { data: archives }, { data: seasonClubs }] =
-    await Promise.all([
-      admin.from('players').select(FULL_PLAYER_SELECT).eq('is_active', true),
-      admin.from('player_rankings').select('*'),
-      admin.from('rating_reference_stats').select('*').eq('season', refSeason),
-      admin
-        .from('season_player_stats_archive')
-        .select('player_id, ppg, form_rating, overall_rank, position_ranks')
-        .eq('season', season),
-      admin.from('player_season_clubs').select('player_id').eq('season', season),
-    ]);
+// The draft room polls this every 15s per connected client to catch auto-picks
+// and timer state. Everything below depends only on (season, refSeason), not on
+// any one league, so it's cached across every poll from every client instead of
+// re-running a ~15-page unfiltered scan of player_stats on every tick — that was
+// enough concurrent full-table scans during a live draft to starve the DB
+// connection pool for everyone (see the 2026-08-05 incident).
+const loadDraftStatsForSeason = unstable_cache(
+  async (season: string, refSeason: string): Promise<{ players: Player[]; shadowMaps: DraftShadowMaps }> => {
+    const admin = createAdminClient();
+
+    const [{ data: playersData }, { data: rankings }, { data: refData }, { data: archives }, { data: seasonClubs }] =
+      await Promise.all([
+        admin.from('players').select(FULL_PLAYER_SELECT).eq('is_active', true),
+        admin.from('player_rankings').select('*'),
+        admin.from('rating_reference_stats').select('*').eq('season', refSeason),
+        admin
+          .from('season_player_stats_archive')
+          .select('player_id, ppg, form_rating, overall_rank, position_ranks')
+          .eq('season', season),
+        admin.from('player_season_clubs').select('player_id').eq('season', season),
+      ]);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const archiveMap = new Map<string, any>((archives ?? []).map((a: any) => [a.player_id, a]));
@@ -177,12 +192,14 @@ export async function loadDraftPool(
     return result;
   }
 
-  return {
-    players,
-    shadowMaps: {
-      all: buildStatsAgg(15),
-      gt45: buildStatsAgg(45),
-    },
-    season,
-  };
-}
+    return {
+      players,
+      shadowMaps: {
+        all: buildStatsAgg(15),
+        gt45: buildStatsAgg(45),
+      },
+    };
+  },
+  ['draft-pool-stats-by-season'],
+  { revalidate: 60 },
+);
