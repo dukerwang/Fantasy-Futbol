@@ -5,6 +5,7 @@
  * Usage:
  *   node playwright-sofifa.js --headful               # Premier League only
  *   node playwright-sofifa.js --headful --top5         # all top-5 leagues (1-2x/year)
+ *   node playwright-sofifa.js --headful --only=bournemouth,fulham   # just these teams' squads
  *   node playwright-sofifa.js --send-only
  *
  * --headful is effectively required, not optional: tested directly, headless mode
@@ -110,7 +111,7 @@ const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
         await page.waitForSelector('table tbody tr a[href^="/team/"]', { timeout: 15000 }).catch(e => console.log('⚠️ Warning: Timeout waiting for team selector. proceeding...'));
       }
       
-      const teamsData = await page.evaluate(() => {
+      let teamsData = await page.evaluate(() => {
         const links = Array.from(document.querySelectorAll('table tbody tr a[href^="/team/"]'));
         const unique = [];
         const seen = new Set();
@@ -125,6 +126,13 @@ const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
         }
         return unique;
       });
+
+      const onlyArg = process.argv.find((a) => a.startsWith('--only='));
+      if (onlyArg) {
+        const filters = onlyArg.slice('--only='.length).split(',').map((s) => s.trim().toLowerCase()).filter(Boolean);
+        teamsData = teamsData.filter((t) => filters.some((f) => t.name.toLowerCase().includes(f)));
+        console.log(`--only filter applied: ${teamsData.map((t) => t.name).join(', ') || '(no teams matched)'}`);
+      }
 
       console.log(`Found ${teamsData.length} teams. Starting extraction...`);
 

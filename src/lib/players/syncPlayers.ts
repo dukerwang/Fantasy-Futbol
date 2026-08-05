@@ -137,9 +137,24 @@ export async function syncPlayersFromFpl(admin: SupabaseClient): Promise<SyncPla
   // -- covers players who aren't in `players` yet (most new PL arrivals transfer
   // from one of these leagues). Looked up below for brand-new inserts only;
   // existing rows keep whatever position they already have.
-  const { data: sofifaReferenceRows } = await admin
-    .from('sofifa_position_reference')
-    .select('name_aliases, primary_position, secondary_positions');
+  //
+  // Paginated: PostgREST caps a single select at 1000 rows by default, and this
+  // table holds 3000+. An unpaginated fetch silently returned only the first
+  // 1000, so most new arrivals fell back to resolvePosition()'s coarse
+  // GK/CB/CM/ST default instead of a real cached position.
+  const sofifaReferenceRows: { name_aliases: string[]; primary_position: string; secondary_positions: string[] }[] = [];
+  {
+    const PAGE_SIZE = 1000;
+    for (let from = 0; ; from += PAGE_SIZE) {
+      const { data: page, error: pageErr } = await admin
+        .from('sofifa_position_reference')
+        .select('name_aliases, primary_position, secondary_positions')
+        .range(from, from + PAGE_SIZE - 1);
+      if (pageErr) break;
+      sofifaReferenceRows.push(...(page ?? []));
+      if (!page || page.length < PAGE_SIZE) break;
+    }
+  }
 
   interface SofifaReferenceMatch {
     primary_position: string;
