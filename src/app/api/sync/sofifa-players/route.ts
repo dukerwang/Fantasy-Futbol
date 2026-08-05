@@ -205,7 +205,7 @@ async function runSync(preloadedTeams: SoFifaTeamDetail[] | null) {
   // 1. Load active players from DB for name matching
   const { data: dbPlayers, error: fetchError } = await admin
     .from('players')
-    .select('id, name, web_name, primary_position')
+    .select('id, name, web_name, primary_position, pl_team')
     .eq('is_active', true);
 
   if (fetchError || !dbPlayers) {
@@ -213,13 +213,14 @@ async function runSync(preloadedTeams: SoFifaTeamDetail[] | null) {
   }
 
   type DbPlayer = NonNullable<typeof dbPlayers>[number];
-  const nameMap = new Map<string, DbPlayer>();
+  const nameMap = new Map<string, DbPlayer[]>();
 
   function addToMap(key: string | null, player: DbPlayer) {
     if (!key) return;
     if (!nameMap.has(key)) {
-      nameMap.set(key, player);
+      nameMap.set(key, []);
     }
+    nameMap.get(key)!.push(player);
   }
 
   for (const p of dbPlayers) {
@@ -227,7 +228,7 @@ async function runSync(preloadedTeams: SoFifaTeamDetail[] | null) {
     const normWeb = p.web_name ? normalizeName(p.web_name) : null;
 
     addToMap(normFull, p);
-    addToMap(normWeb, p);
+    if (normWeb) addToMap(normWeb, p);
     addToMap(firstLast(normFull), p);
     if (normWeb) addToMap(firstLast(normWeb), p);
 
@@ -464,9 +465,34 @@ async function runSync(preloadedTeams: SoFifaTeamDetail[] | null) {
         firstLast(normFull), firstLast(normCommon),
       ])).filter(Boolean) as string[];
 
-      let dbMatch = null;
+      let dbMatch: DbPlayer | null = null;
       for (const c of candidates) {
-        dbMatch = nameMap.get(c) ?? null;
+        const matches = nameMap.get(c) ?? [];
+        if (matches.length === 0) continue;
+
+        // Find a candidate that matches the club name or shares significant name tokens
+        for (const candidate of matches) {
+          const dbTeamNorm = normalizeName(candidate.pl_team ?? '');
+          const sfTeamNorm = normalizeName(team.name ?? '');
+
+          // Team match (or loose team match e.g. "Man City" vs "Manchester City")
+          const teamMatches =
+            !dbTeamNorm ||
+            !sfTeamNorm ||
+            dbTeamNorm === sfTeamNorm ||
+            dbTeamNorm.includes(sfTeamNorm) ||
+            sfTeamNorm.includes(dbTeamNorm);
+
+          // Guard against assigning field positions to a known Goalkeeper or vice versa unless full names strongly match
+          const positionMismatch =
+            (candidate.primary_position === 'GK' && primary !== 'GK') ||
+            (candidate.primary_position !== 'GK' && primary === 'GK');
+
+          if (teamMatches && !positionMismatch) {
+            dbMatch = candidate;
+            break;
+          }
+        }
         if (dbMatch) break;
       }
 
@@ -486,11 +512,11 @@ async function runSync(preloadedTeams: SoFifaTeamDetail[] | null) {
       };
 
       if (!dbMatch && MANUAL_OVERRIDES[fullName]) {
-        dbMatch = nameMap.get(normalizeName(MANUAL_OVERRIDES[fullName])) ?? null;
+        dbMatch = nameMap.get(normalizeName(MANUAL_OVERRIDES[fullName]))?.[0] ?? null;
       }
 
       if (!dbMatch && common && MANUAL_OVERRIDES[common]) {
-        dbMatch = nameMap.get(normalizeName(MANUAL_OVERRIDES[common])) ?? null;
+        dbMatch = nameMap.get(normalizeName(MANUAL_OVERRIDES[common]))?.[0] ?? null;
       }
 
       // Fuzzy matching is completely disabled to guarantee 100% precision and zero false positives.
