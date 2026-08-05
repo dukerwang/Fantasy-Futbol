@@ -13,7 +13,7 @@ import SidebarChat from '../SidebarChat';
 import styles from './draft.module.css';
 
 
-const TIMER_SECONDS = 90;
+const TIMER_SECONDS = 120;
 const QUEUE_STORAGE_KEY = (leagueId: string, teamId: string) =>
   `draft-queue:${leagueId}:${teamId}`;
 
@@ -394,9 +394,13 @@ export default function DraftRoom({
     if (isDraftComplete) return;
     autoPickTriggeredRef.current = false;
 
-    const latestPickTimeStr = effectivePicks.length > 0
-      ? effectivePicks[effectivePicks.length - 1].picked_at
-      : league.updated_at;
+    if (effectivePicks.length === 0) {
+      // Pick 1 is untimed — the clock only starts once the first pick lands.
+      setSecondsLeft(TIMER_SECONDS);
+      return;
+    }
+
+    const latestPickTimeStr = effectivePicks[effectivePicks.length - 1].picked_at;
     const latestPickDate = new Date(latestPickTimeStr ?? Date.now());
 
     const updateTimer = () => {
@@ -421,7 +425,7 @@ export default function DraftRoom({
     const interval = setInterval(updateTimer, 1000);
     return () => clearInterval(interval);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [effectivePicks, isDraftComplete, league.updated_at]);
+  }, [effectivePicks, isDraftComplete]);
 
   useEffect(() => {
     const container = boardScrollRef.current;
