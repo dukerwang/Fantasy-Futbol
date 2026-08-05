@@ -158,7 +158,7 @@ export async function POST(req: NextRequest, { params }: Props) {
     );
   }
 
-  // Transfermarkt minimum bid: 20% of the player's current market value
+  // Transfermarkt minimum bid floor: default 50% of market value (configurable per league)
   const { data: playerData } = await admin
     .from('players')
     .select('market_value, name, date_of_birth, pl_team')

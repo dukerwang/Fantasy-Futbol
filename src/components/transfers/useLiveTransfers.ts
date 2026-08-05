@@ -106,6 +106,8 @@ export function useLiveTransfers(leagueId: string, model: TransfersModel): Trans
         : undefined;
       const marketValue = Number(player.market_value ?? row.market_value_at_auction ?? 0);
 
+      const bidFloor = Number(model.league.free_agent_bid_floor) || 0.5;
+
       const mapped: TransfersAuction = {
         player_id: row.player_id,
         player,
@@ -118,7 +120,7 @@ export function useLiveTransfers(leagueId: string, model: TransfersModel): Trans
         highest_bidder_team_name: teamName(row.highest_bidder_team_id),
         bid_count: row.bid_count ?? 0,
         bids,
-        minimum_bid: listing ? listing.min_bid : Math.floor(marketValue * 0.2),
+        minimum_bid: listing ? listing.min_bid : Math.floor(marketValue * bidFloor),
         first_bid_at: row.first_bid_at,
         expires_at: row.expires_at,
         market_value_at_auction: row.market_value_at_auction,

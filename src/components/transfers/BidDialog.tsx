@@ -45,6 +45,7 @@ interface Props {
   /** Required when the active roster is full: whoever comes off to make room. */
   rosterFull: boolean;
   myRoster: RosterPlayer[];
+  bidFloor?: number;
   onDone: () => void;
 }
 
@@ -63,6 +64,7 @@ export default function BidDialog({
   openBidCount = 0,
   rosterFull,
   myRoster,
+  bidFloor = 0.5,
   onDone,
 }: Props) {
   const standing = auction?.highest_bid ?? 0;
@@ -70,14 +72,14 @@ export default function BidDialog({
 
   // The floor, resolved the same way the server will resolve it: one above the
   // standing bid when there is one, otherwise the listing's minimum or the
-  // free-agent 20%-of-market-value floor that buildTransfersModel already
-  // computed into `minimum_bid`.
+  // free-agent bid floor (default 50% of market value) that buildTransfersModel
+  // already computed into `minimum_bid`.
   const floor = useMemo(() => {
     if (standing > 0) return standing + 1;
     if (listing) return listing.min_bid;
     if (auction) return auction.minimum_bid;
-    return Math.floor((Number(player.market_value) || 0) * 0.2);
-  }, [standing, listing, auction, player.market_value]);
+    return Math.floor((Number(player.market_value) || 0) * bidFloor);
+  }, [standing, listing, auction, player.market_value, bidFloor]);
 
   const clause = listing?.buy_now_price ?? null;
   const opening = mode === 'clause' && clause != null ? clause : floor;

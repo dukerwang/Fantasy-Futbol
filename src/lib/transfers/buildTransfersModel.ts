@@ -152,6 +152,7 @@ export interface TransfersLeague {
   loan_bonus_cap_default: number | null;
   max_loan_outs: number | null;
   max_loan_ins: number | null;
+  free_agent_bid_floor: number | null;
 }
 
 export interface TransfersTeam {
@@ -275,7 +276,7 @@ export async function buildTransfersModel(
     .from('leagues')
     .select(`id, name, roster_size, taxi_size, taxi_age_limit, status, roster_locked,
              total_gameweeks, current_season, previous_season, loan_slot_buyback_fee,
-             loan_bonus_cap_default, max_loan_outs, max_loan_ins`)
+             loan_bonus_cap_default, max_loan_outs, max_loan_ins, free_agent_bid_floor`)
     .eq('id', leagueId)
     .single();
   if (!league) return null;
@@ -443,6 +444,8 @@ export async function buildTransfersModel(
     getFplStatus(),
   ]);
 
+  const freeAgentBidFloor = Number(league.free_agent_bid_floor) || 0.5;
+
   // 6. Assemble the board.
   const auctions: TransfersAuction[] = (auctionRows ?? []).map((a) => {
     const mine = myClaimBy.get(a.player_id);
@@ -463,7 +466,7 @@ export async function buildTransfersModel(
         : null,
       bid_count: a.bid_count ?? 0,
       bids: Array.isArray(a.bids) ? a.bids : [],
-      minimum_bid: listing ? listing.min_bid : Math.floor(marketValue * 0.2),
+      minimum_bid: listing ? listing.min_bid : Math.floor(marketValue * freeAgentBidFloor),
       first_bid_at: a.first_bid_at,
       expires_at: a.expires_at,
       market_value_at_auction: a.market_value_at_auction,

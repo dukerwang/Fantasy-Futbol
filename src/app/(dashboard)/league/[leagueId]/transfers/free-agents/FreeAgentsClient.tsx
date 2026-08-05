@@ -295,6 +295,7 @@ export default function FreeAgentsClient({
           openBidCount={model.auctions.filter((a) => a.my_bid != null && a.my_bid > 0).length}
           rosterFull={model.rosterFull}
           myRoster={model.myRoster}
+          bidFloor={model.league.free_agent_bid_floor ?? 0.5}
           onDone={() => { router.refresh(); load(); }}
         />
       )}
