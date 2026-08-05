@@ -103,6 +103,9 @@ export default async function MyClubPage({ params }: Props) {
   // listings, pending drops, last-5 form, all in parallel.
   const currentGw = await resolveCurrentGw();
   const formFrom = Math.max(1, currentGw - 4);
+  // player_stats keeps every past season's rows uncleared, and gameweek numbers
+  // repeat every season — the form/gameweek window must be season-scoped too.
+  const statsSeason = await getCurrentFplSeason(undefined, true);
 
   const [
     { data: rankings },
@@ -135,6 +138,7 @@ export default async function MyClubPage({ params }: Props) {
       ? admin
           .from('player_stats')
           .select('player_id, gameweek, fantasy_points')
+          .eq('season', statsSeason)
           .in('player_id', rosterIds)
           .gte('gameweek', formFrom)
           .lte('gameweek', currentGw)

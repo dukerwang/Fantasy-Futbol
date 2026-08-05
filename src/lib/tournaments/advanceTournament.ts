@@ -15,14 +15,18 @@ import type { GranularPosition, ReferenceStats } from '@/types';
 type AdminClient = ReturnType<typeof createAdminClient>;
 type RefStatsMap = Record<string, ReferenceStats>;
 
-async function getRefStats(admin: AdminClient, tournamentId: string): Promise<RefStatsMap> {
+async function getRefStats(
+  admin: AdminClient,
+  tournamentId: string,
+): Promise<{ refStats: RefStatsMap; season: string }> {
   const { data } = await admin
     .from('tournaments')
     .select('league:leagues(current_season)')
     .eq('id', tournamentId)
     .single();
   const season = (data?.league as any)?.current_season ?? '2025-26';
-  return loadReferenceStats(admin, season) as Promise<RefStatsMap>;
+  const refStats = (await loadReferenceStats(admin, season)) as RefStatsMap;
+  return { refStats, season };
 }
 
 /** Place a winner into the next round matchup slot. */
@@ -63,6 +67,7 @@ async function scoreLeg(
   teamAId: string,
   teamBId: string,
   refStats: RefStatsMap,
+  season: string,
 ): Promise<{
   scoreA: number;
   scoreB: number;
@@ -104,8 +109,8 @@ async function scoreLeg(
     ? (matchupB.team_a_id === teamBId ? matchupB.lineup_a : matchupB.lineup_b)
     : null;
 
-  const teamAPlayers = await getPlayerScores(admin, lineupA, gw, refStats);
-  const teamBPlayers = await getPlayerScores(admin, lineupB, gw, refStats);
+  const teamAPlayers = await getPlayerScores(admin, lineupA, gw, refStats, season);
+  const teamBPlayers = await getPlayerScores(admin, lineupB, gw, refStats, season);
 
   return { scoreA, scoreB, teamAPlayers, teamBPlayers };
 }
@@ -115,6 +120,7 @@ async function getPlayerScores(
   lineup: any,
   gw: number,
   refStats: RefStatsMap,
+  season: string,
 ): Promise<{ playerId: string; points: number }[]> {
   if (!lineup?.starters) return [];
   const playerIds = lineup.starters.map((s: any) => s.player_id).filter(Boolean);
@@ -123,6 +129,7 @@ async function getPlayerScores(
   const { data: stats } = await admin
     .from('player_stats')
     .select('player_id, stats, player:players(primary_position)')
+    .eq('season', season)
     .eq('gameweek', gw)
     .in('player_id', playerIds);
 
@@ -181,7 +188,7 @@ export async function executeAdvanceTournament(
     return { ok: true, advanced: 0, gameweek };
   }
 
-  const refStats = await getRefStats(admin, tournamentId);
+  const { refStats, season } = await getRefStats(admin, tournamentId);
   let advanced = 0;
 
   for (const round of rounds) {
@@ -203,6 +210,7 @@ export async function executeAdvanceTournament(
         matchup.team_a_id,
         matchup.team_b_id,
         refStats,
+        season,
       );
 
       let leg2Scores = {
@@ -219,6 +227,7 @@ export async function executeAdvanceTournament(
           matchup.team_a_id,
           matchup.team_b_id,
           refStats,
+          season,
         );
       }
 

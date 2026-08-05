@@ -136,9 +136,11 @@ export default async function MyTeamPage({ params }: Props) {
       }
       if (currentFplGw) {
         const playerIds = rosterEntries.map((e) => e.player.id);
+        const statsSeason = await getCurrentFplSeason(undefined, true);
         const { data: statsRows } = await admin
           .from('player_stats')
           .select('player_id, fantasy_points')
+          .eq('season', statsSeason)
           .eq('gameweek', currentFplGw)
           .in('player_id', playerIds);
         for (const s of statsRows ?? []) {

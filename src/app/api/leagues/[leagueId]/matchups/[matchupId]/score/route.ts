@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { calculateTeamScore, loadReferenceStats, type PlayerScoreRecord } from '@/lib/scoring/matchups';
 import { normalizeMatchupLineup } from '@/lib/lineups/normalizeMatchupLineup';
-import { getLatestReferenceStatsSeason } from '@/lib/season/currentSeason';
+import { getLatestReferenceStatsSeason, getCurrentFplSeason } from '@/lib/season/currentSeason';
 
 interface Props {
   params: Promise<{ leagueId: string; matchupId: string }>;
@@ -71,10 +71,14 @@ export async function GET(_req: NextRequest, { params }: Props) {
   const refStats = await loadReferenceStats(admin, season);
 
   // 2. Fetch player stats for this GW
+  // Must scope by season too — a gameweek number repeats every season, and
+  // player_stats keeps every past season's rows (never archived/cleared).
+  const statsSeason = await getCurrentFplSeason(undefined, true);
   const { data: statsRows } = await admin
     .from('player_stats')
     .select('player_id, fantasy_points, stats')
     .in('player_id', Array.from(playerIds))
+    .eq('season', statsSeason)
     .eq('gameweek', matchup.gameweek);
 
   const playerRecord = new Map<string, PlayerScoreRecord>();

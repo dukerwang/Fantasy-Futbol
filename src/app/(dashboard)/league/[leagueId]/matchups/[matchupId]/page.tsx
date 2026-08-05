@@ -7,6 +7,7 @@ import MatchupPitch from '@/components/MatchupPitch';
 import { FULL_PLAYER_SELECT } from '@/lib/constants/queries';
 import { normalizeMatchupLineup } from '@/lib/lineups/normalizeMatchupLineup';
 import { generateMatchReport } from '@/lib/narrative/matchReport';
+import { getCurrentFplSeason } from '@/lib/season/currentSeason';
 import MatchReportCard from './MatchReportCard';
 import MatchupLiveRefresh from './MatchupLiveRefresh';
 import styles from './matchup-detail.module.css';
@@ -90,9 +91,13 @@ export default async function MatchupDetailPage({ params }: Props) {
     // computed at sync time with the full data and is the authoritative value.
     const detailMap: Record<string, { points: number; stats?: any }> = {};
     if (playerIds.size > 0 && matchupData.gameweek) {
+        // Scope by season too — gameweek numbers repeat every season, and
+        // player_stats keeps every past season's rows (never archived/cleared).
+        const statsSeason = await getCurrentFplSeason(undefined, true);
         const { data: statsRows } = await admin
             .from('player_stats')
             .select('player_id, fantasy_points, stats')
+            .eq('season', statsSeason)
             .eq('gameweek', matchupData.gameweek)
             .in('player_id', Array.from(playerIds));
 
