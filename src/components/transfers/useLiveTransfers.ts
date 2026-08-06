@@ -269,7 +269,7 @@ interface ListingRow {
   id: string;
   seller_team_id: string;
   player_id: string;
-  min_bid: number;
+  min_bid: number | null;
   ask_price: number | null;
   buy_now_price: number | null;
   open_to_trade: boolean;

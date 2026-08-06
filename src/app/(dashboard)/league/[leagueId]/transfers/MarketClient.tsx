@@ -78,13 +78,19 @@ export default function MarketClient({
   // Closing now: free agents and listed players together, soonest first. This is
   // the only place in the hub the two kinds are deliberately mixed — urgency
   // does not care whose player he is.
+  //
+  // A listing with no min_bid (114) has no bid ladder — release-clause-only or
+  // negotiation-only — so it's excluded here the same way AuctionsClient
+  // excludes it from the Auction Room: this widget renders a "Bid €Xm" button,
+  // which would be wrong to offer.
   const closing = useMemo(
     () =>
       model.auctions
         .filter((a) => a.expires_at)
+        .filter((a) => a.kind !== 'listing' || (listingById.get(a.sale_listing_id ?? '')?.min_bid ?? null) != null)
         .sort((a, b) => new Date(a.expires_at!).getTime() - new Date(b.expires_at!).getTime())
         .slice(0, 4),
-    [model.auctions],
+    [model.auctions, listingById],
   );
 
   const wire = useMemo(() => buildWire(model), [model]);
@@ -190,7 +196,11 @@ export default function MarketClient({
                 const hot = isClosing(msLeft);
                 const leading = a.highest_bidder_team_id === model.myTeam.id;
                 const mine = a.seller_team_id === model.myTeam.id;
-                const next = a.highest_bid > 0 ? a.highest_bid + 1 : a.minimum_bid;
+                // `closing` already filtered out any listing with no min_bid
+                // (114), so a.minimum_bid is never actually null here — the
+                // fallback is type-level safety, not a real case.
+                const floor = a.minimum_bid ?? 0;
+                const next = a.highest_bid > 0 ? a.highest_bid + 1 : floor;
                 const seller = a.seller_team_id ? teamById.get(a.seller_team_id) : undefined;
 
                 return (
@@ -224,7 +234,7 @@ export default function MarketClient({
                     </div>
                     <div className={styles.closingBottom}>
                       <span className={styles.closingPrice}>
-                        {money(a.highest_bid > 0 ? a.highest_bid : a.minimum_bid)}
+                        {money(a.highest_bid > 0 ? a.highest_bid : floor)}
                       </span>
                       <span className={`${styles.closingClock} ${hot ? styles.closingClockHot : ''}`}>
                         {formatRemaining(msLeft)}

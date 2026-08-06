@@ -95,11 +95,16 @@ export default function ListingsClient({
    * the release clause. They cross once bidding is live: a standing bid can
    * climb past the clause, at which point paying the clause is the cheap route,
    * not the expensive one.
+   *
+   * Null (114) means there is no numeric way in at all — no min_bid and no
+   * buy_now_price, so the only door is a private Offer, which isn't a fixed
+   * price this can compare against a budget.
    */
-  const entryPrice = (l: TransfersListing) => {
+  const entryPrice = (l: TransfersListing): number | null => {
     const a = auctionByListing.get(l.id);
     const standing = a?.highest_bid ?? 0;
     const floor = l.status === 'active' && standing > 0 ? standing + 1 : a?.minimum_bid ?? l.min_bid;
+    if (floor == null) return l.buy_now_price ?? null;
     return l.buy_now_price != null ? Math.min(l.buy_now_price, floor) : floor;
   };
 
@@ -113,7 +118,10 @@ export default function ListingsClient({
       case 'cash': return l.open_to_sale && l.status !== 'active';
       case 'loan': return l.open_to_loan && l.status !== 'active';
       case 'clause': return l.buy_now_price != null;
-      case 'affordable': return entryPrice(l) <= budget;
+      case 'affordable': {
+        const p = entryPrice(l);
+        return p != null && p <= budget;
+      }
       case 'mine': return l.seller_team_id === model.myTeam.id;
     }
   };

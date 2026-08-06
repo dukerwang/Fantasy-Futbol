@@ -307,13 +307,19 @@ Every bid extends the clock by the active inactivity timeout. Because there is n
 
 ### Selling your own players
 
-You can **list one of your rostered players**. Set a minimum bid and, optionally, an instant "buy now" price. Others bid through the same open auction, and you can't bid on your own listing. When it sells the winning bid is paid to *you* as Club Balance income — a genuine transfer fee, not a release.
+You can **list one of your rostered players**, and the listing is shaped by which of three prices you set — no separate "auction or negotiation" switch to configure:
 
-Your minimum bid must be at least **80% of the player's market value**. Without that floor, two managers could move a €90m striker for €1m and call it a sale; the floor makes a listing a real valuation. For the same reason, a player who hasn't been priced by Transfermarkt yet can't be listed at all until they are.
+- **Minimum bid** opens him to a genuine open auction, same as a free agent. Set at all, it must be at least **80% of the player's market value** — without that floor, two managers could move a €90m striker for €1m and call it a sale.
+- **Release clause** lets anyone buy him outright at that price, no bidding required.
+- **Asking price** is advertising for a negotiated Offer — it names a number without committing to accept it.
 
-When you list a player you can flag whether you want **cash, players, or a loan**. These flags advertise what you're after and set the headline other managers see — they don't restrict how people can approach you. Anyone can still make any kind of offer.
+Set only the ones that apply. Skip the minimum bid and only set a release clause, and there's no open auction at all — the only way in is paying the clause outright, or negotiating an Offer. Skip all three prices except the asking price (or set none) and the listing is negotiation-only: nobody can bid, only propose. At least one of the three has to be set, or there's nothing here to advertise. Whatever you do set, others bid through the same open auction and you can't bid on your own listing; when he sells the winning bid is paid to *you* as Club Balance income — a genuine transfer fee, not a release.
 
-**Before anyone bids, you can also negotiate directly.** Send an Offer — cash, players, or a mix — and it lands as a private proposal in your DMs with the seller, who can accept, counter, or decline it, exactly like any other trade. It's a quieter route than the open auction: nobody else sees it, and unlike a bid it needs the seller's yes rather than just being the highest number on the board. A cash-only offer still has to clear your **minimum bid** — the floor protects the auction itself, not just who's allowed to open it — but an offer that includes players isn't priced against anything, since their value isn't one number. Once real bidding starts, this door closes and the listing becomes auction-only.
+For the same reason a minimum bid needs a real value to be floored against, a player who hasn't been priced by Transfermarkt yet can't be listed at all until they are.
+
+When you list a player you can also flag whether you want **cash, players, or a loan**. These flags advertise what you're after and set the headline other managers see — they don't restrict how people can approach you. Anyone can still make any kind of offer.
+
+**Before anyone bids, you can also negotiate directly.** Send an Offer — cash, players, or a mix — and it lands as a private proposal in your DMs with the seller, who can accept, counter, or decline it, exactly like any other trade. It's a quieter route than the open auction: nobody else sees it, and unlike a bid it needs the seller's yes rather than just being the highest number on the board. A cash-only offer still has to clear your **minimum bid**, when you have one set — the floor protects the auction itself, not just who's allowed to open it — but an offer that includes players isn't priced against anything, since their value isn't one number. Once real bidding starts, this door closes and the listing becomes auction-only.
 
 ### Where a transfer fee goes
 

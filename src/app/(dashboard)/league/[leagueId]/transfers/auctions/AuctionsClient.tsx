@@ -67,8 +67,25 @@ export default function AuctionsClient({
     [model.listings],
   );
 
+  /**
+   * The auction room only shows lots that actually have a bid ladder. A
+   * listing with no min_bid (114) — release-clause-only or negotiation-only —
+   * has nothing to bid on here; it stays reachable only from the Listings
+   * board via Offer/Clause. Free-agent auctions always have a floor, so they
+   * pass through unfiltered.
+   */
+  const biddableAuctions = useMemo(
+    () =>
+      model.auctions.filter((a) => {
+        if (a.kind !== 'listing') return true;
+        const listing = a.sale_listing_id ? listingById.get(a.sale_listing_id) : undefined;
+        return listing ? listing.min_bid != null : true;
+      }),
+    [model.auctions, listingById],
+  );
+
   /** The cheapest legal way in right now. */
-  const nextBid = (a: TransfersAuction) => (a.highest_bid > 0 ? a.highest_bid + 1 : a.minimum_bid);
+  const nextBid = (a: TransfersAuction) => (a.highest_bid > 0 ? a.highest_bid + 1 : a.minimum_bid ?? 0);
 
   const matches = (a: TransfersAuction, f: Facet) => {
     const msLeft = a.expires_at ? new Date(a.expires_at).getTime() - now : Infinity;
@@ -86,20 +103,20 @@ export default function AuctionsClient({
 
   const sorted = useMemo(
     () =>
-      [...model.auctions].sort((a, b) => {
+      [...biddableAuctions].sort((a, b) => {
         const at = a.expires_at ? new Date(a.expires_at).getTime() : Number.MAX_SAFE_INTEGER;
         const bt = b.expires_at ? new Date(b.expires_at).getTime() : Number.MAX_SAFE_INTEGER;
         return at - bt;
       }),
-    [model.auctions],
+    [biddableAuctions],
   );
 
   const visible = sorted.filter((a) => matches(a, facet));
-  const count = (f: Facet) => model.auctions.filter((a) => matches(a, f)).length;
+  const count = (f: Facet) => biddableAuctions.filter((a) => matches(a, f)).length;
 
   const leadingCount = count('leading');
   const outbidCount = count('outbid');
-  const committed = model.auctions
+  const committed = biddableAuctions
     .filter((a) => a.highest_bidder_team_id === me)
     .reduce((s, a) => s + a.highest_bid, 0);
 
@@ -117,7 +134,7 @@ export default function AuctionsClient({
   // Market page, which mixes every kind of movement.
   const ticker = useMemo(() => {
     const out: { id: string; who: string; amount: number; player: string; at: string; mine: boolean }[] = [];
-    for (const a of model.auctions) {
+    for (const a of biddableAuctions) {
       const who = a.player ? getPlayerDisplayName(a.player, 'full') : 'a player';
       for (const b of a.bids) {
         out.push({
@@ -131,7 +148,7 @@ export default function AuctionsClient({
       }
     }
     return out.sort((x, y) => new Date(y.at).getTime() - new Date(x.at).getTime()).slice(0, 10);
-  }, [model.auctions, me]);
+  }, [biddableAuctions, me]);
 
   return (
     <div className={styles.page}>
@@ -148,7 +165,7 @@ export default function AuctionsClient({
             <div className={styles.statLabel}>Club Balance</div>
           </div>
           <div className={styles.stat}>
-            <div className={`${styles.statValue} ${styles.statWarn}`}>{model.auctions.length}</div>
+            <div className={`${styles.statValue} ${styles.statWarn}`}>{biddableAuctions.length}</div>
             <div className={styles.statLabel}>Lots live</div>
           </div>
           <div className={styles.stat}>
@@ -189,7 +206,7 @@ export default function AuctionsClient({
 
           {visible.length === 0 ? (
             <p className={styles.empty}>
-              {model.auctions.length === 0
+              {biddableAuctions.length === 0
                 ? 'The room is empty. Nothing is under the hammer.'
                 : 'No lot matches that filter.'}
             </p>
@@ -289,7 +306,7 @@ export default function AuctionsClient({
             <div className={`${styles.deskRow} ${styles.deskLast}`}>
               <span className={styles.deskLabel}>Your lots selling</span>
               <span className={styles.deskValue}>
-                {model.auctions.filter((a) => a.seller_team_id === me).length}
+                {biddableAuctions.filter((a) => a.seller_team_id === me).length}
               </span>
             </div>
           </div>
@@ -308,8 +325,8 @@ export default function AuctionsClient({
           }
           mode={bid.mode}
           budget={budget}
-          committedTotal={model.auctions.reduce((s, a) => s + (a.my_bid != null && a.my_bid > 0 ? a.my_bid : 0), 0)}
-          openBidCount={model.auctions.filter((a) => a.my_bid != null && a.my_bid > 0).length}
+          committedTotal={biddableAuctions.reduce((s, a) => s + (a.my_bid != null && a.my_bid > 0 ? a.my_bid : 0), 0)}
+          openBidCount={biddableAuctions.filter((a) => a.my_bid != null && a.my_bid > 0).length}
           rosterFull={model.rosterFull}
           myRoster={model.myRoster}
           bidFloor={model.league.free_agent_bid_floor ?? 0.5}
@@ -357,7 +374,11 @@ function Lot({
   const leading = a.highest_bidder_team_id === me;
   const mine = a.seller_team_id === me;
   const outbid = a.my_bid != null && !leading;
-  const next = a.highest_bid > 0 ? a.highest_bid + 1 : a.minimum_bid;
+  // AuctionsClient only ever hands this component a lot from biddableAuctions,
+  // which filters out any listing with no min_bid (114) — so a.minimum_bid is
+  // never actually null here. The fallback is type-level safety, not a real case.
+  const floor = a.minimum_bid ?? 0;
+  const next = a.highest_bid > 0 ? a.highest_bid + 1 : floor;
 
   const state = mine ? styles.lotMine : leading ? styles.lotLead : hot ? styles.lotHot : '';
 
@@ -395,7 +416,7 @@ function Lot({
             {a.highest_bid > 0 ? money(a.highest_bid) : 'No bids'}
           </div>
           <div className={styles.lotFrom}>
-            {a.highest_bid > 0 ? `from ${money(a.minimum_bid)}` : `floor ${money(a.minimum_bid)}`}
+            {a.highest_bid > 0 ? `from ${money(floor)}` : `floor ${money(floor)}`}
           </div>
         </div>
 
@@ -461,7 +482,7 @@ function Lot({
             <div>
               <div className={styles.exTitle}>Bid history</div>
               {a.bids.length === 0 ? (
-                <p className={styles.exEmpty}>Nobody has bid yet. The floor is {money(a.minimum_bid)}.</p>
+                <p className={styles.exEmpty}>Nobody has bid yet. The floor is {money(floor)}.</p>
               ) : (
                 [...a.bids]
                   .sort((x, y) => new Date(y.at).getTime() - new Date(x.at).getTime())
@@ -484,7 +505,7 @@ function Lot({
                   <span className={styles.rungLabel}>
                     {a.kind === 'listing' ? "Seller's floor" : 'Opening floor'}
                   </span>
-                  <span className={styles.rungValue}>{money(sellerFloor ?? a.minimum_bid)}</span>
+                  <span className={styles.rungValue}>{money(sellerFloor ?? floor)}</span>
                 </div>
                 <div className={styles.rung}>
                   <span className={styles.rungLabel}>Standing bid</span>

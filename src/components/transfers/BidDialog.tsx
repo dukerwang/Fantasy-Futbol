@@ -76,8 +76,11 @@ export default function BidDialog({
   // already computed into `minimum_bid`.
   const floor = useMemo(() => {
     if (standing > 0) return standing + 1;
-    if (listing) return listing.min_bid;
-    if (auction) return auction.minimum_bid;
+    // A listing with no min_bid (114) has no auction floor at all — the dialog
+    // should only reach this in 'clause' mode for one of those, which reads
+    // `clause` below instead, but the fallback still has to be a real number.
+    if (listing) return listing.min_bid ?? listing.buy_now_price ?? 0;
+    if (auction) return auction.minimum_bid ?? Math.floor((Number(player.market_value) || 0) * bidFloor);
     return Math.floor((Number(player.market_value) || 0) * bidFloor);
   }, [standing, listing, auction, player.market_value, bidFloor]);
 

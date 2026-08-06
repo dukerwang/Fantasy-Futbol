@@ -363,8 +363,12 @@ export async function POST(req: NextRequest, { params }: Props) {
     // undercuts their own auction — that is the market's integrity, not the
     // seller's taste, so it still binds. Offers including players are
     // deliberately unconstrained: their value is not a single number.
+    //
+    // A listing with no min_bid (114) has no public auction price to undercut —
+    // it's release-clause-only or negotiation-only — so there is nothing for
+    // this floor to defend. Any cash amount is the seller's call.
     const includesPlayers = offeredPlayerIds.length > 0 || offeredRightIds.length > 0;
-    if (!includesPlayers && offeredFaab < listing.min_bid) {
+    if (!includesPlayers && listing.min_bid != null && offeredFaab < listing.min_bid) {
       return NextResponse.json(
         { error: `A cash offer must be at least the minimum bid of €${listing.min_bid}m.` },
         { status: 400 },

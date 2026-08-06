@@ -187,9 +187,15 @@ export default function ListingCard({
                 Offer
               </button>
             )}
-            <button type="button" className={`${styles.action} ${styles.actionBid}`} onClick={() => onBid?.(listing)}>
-              {live ? `Bid ${money(bidFrom)}` : 'Bid'}
-            </button>
+            {/* No min_bid (114) means no open auction exists on this listing at
+                all — release-clause-only or negotiation-only. The Clause and
+                Offer buttons are the only doors in; showing Bid would invite a
+                bid the RPC will just reject. */}
+            {listing.min_bid != null && (
+              <button type="button" className={`${styles.action} ${styles.actionBid}`} onClick={() => onBid?.(listing)}>
+                {live ? `Bid ${money(bidFrom)}` : 'Bid'}
+              </button>
+            )}
             {listing.buy_now_price != null && (
               <button type="button" className={`${styles.action} ${styles.actionClause}`} onClick={() => onClause?.(listing)}>
                 Clause

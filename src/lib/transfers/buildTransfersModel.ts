@@ -125,7 +125,8 @@ export interface TransfersListing {
   seller_team_name?: string | null;
   player_id: string;
   player?: EnrichedPlayer | null;
-  min_bid: number;
+  /** The auction floor. Null (114) means this listing has no open auction. */
+  min_bid: number | null;
   ask_price: number | null;
   buy_now_price: number | null;
   open_to_trade: boolean;
@@ -223,8 +224,10 @@ export interface TransfersAuction {
    *   - a listing uses the seller's own min_bid (077 guarantees >= 80% of MV)
    *   - a free agent uses the Transfermarkt floor of 20% of market value,
    *     matching the check in POST /auctions/bid
+   * Null (114) when the listing behind this row has no min_bid — no open
+   * auction exists, so there is no floor to state.
    */
-  minimum_bid: number;
+  minimum_bid: number | null;
   first_bid_at: string | null;
   expires_at: string | null;
   market_value_at_auction: number | null;
@@ -560,7 +563,10 @@ export async function buildTransfersModel(
       age_limit: league.taxi_age_limit ?? 21,
     },
     counts: {
-      auctions: auctions.length,
+      // A listing-kind auction with no minimum_bid (114) has no bid ladder —
+      // it doesn't show as a lot on the Auction Room (AuctionsClient filters
+      // the same way), so the nav badge shouldn't count it either.
+      auctions: auctions.filter((a) => a.kind !== 'listing' || a.minimum_bid != null).length,
       listings: (listings ?? []).length,
       freeAgents,
       deals,

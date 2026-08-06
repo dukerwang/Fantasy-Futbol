@@ -144,6 +144,9 @@
    Scoped here rather than overriding the token: it is also the app-wide colour
    for leader / #1 figures, which sit on different surfaces. */
 :global([data-theme='dark']) .gold { color: #CBA85F; }
+/* Same fix as .gold above, same reason: this pill's text sits directly on
+   --color-gold and needs the same dark-mode lift to stay readable. */
+:global([data-theme='dark']) .clause { color: #CBA85F; }
 
 .priceOff {
   color: var(--color-text-muted);
@@ -193,6 +196,20 @@
 .open {
   color: var(--color-text-secondary);
   background: color-mix(in srgb, var(--color-text-secondary) 7%, transparent);
+}
+
+/* No min_bid (114): this listing has no open auction at all. Gold ties it to
+   the Clause figure in the price ladder above. */
+.clause {
+  color: var(--color-gold);
+  background: color-mix(in srgb, var(--color-gold) 8%, transparent);
+}
+
+/* No min_bid and no buy_now_price: the only door in is a private Offer. */
+.offers {
+  color: var(--color-text-secondary);
+  background: color-mix(in srgb, var(--color-text-secondary) 7%, transparent);
+  border-style: dashed;
 }
 
 /* Bidding is live: the private paths really are gone, so this one IS an

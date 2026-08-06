@@ -76,7 +76,7 @@ export async function POST(req: NextRequest, { params }: Props) {
   const body = await req.json();
   const { playerId, minBid, buyNowPrice, openToTrade, openToSale, openToLoan, askPrice } = body as {
     playerId: string;
-    minBid: number;
+    minBid?: number | null;
     buyNowPrice?: number | null;
     openToTrade?: boolean;
     openToSale?: boolean;
@@ -84,11 +84,28 @@ export async function POST(req: NextRequest, { params }: Props) {
     askPrice?: number | null;
   };
 
-  if (!playerId || minBid === undefined || minBid === null) {
-    return NextResponse.json({ error: 'playerId and minBid are required' }, { status: 400 });
+  if (!playerId) {
+    return NextResponse.json({ error: 'playerId is required' }, { status: 400 });
   }
 
-  if (!Number.isInteger(minBid) || minBid < 0) {
+  // minBid is optional (114): absent means "no open auction" — a release
+  // clause and/or an asking price are the only doors in. At least one of the
+  // three prices has to be set, or the listing is inert (nothing to shape it
+  // around, not even a stance to advertise). Mirrors the DB CHECK
+  // (player_sale_listings_states_a_price) so the seller gets a sentence
+  // instead of a raised exception.
+  const hasMinBid = minBid !== undefined && minBid !== null;
+  const hasBuyNow = buyNowPrice !== undefined && buyNowPrice !== null;
+  const hasAsk = askPrice !== undefined && askPrice !== null;
+
+  if (!hasMinBid && !hasBuyNow && !hasAsk) {
+    return NextResponse.json(
+      { error: 'Set at least one of a minimum bid, a release clause, or an asking price.' },
+      { status: 400 },
+    );
+  }
+
+  if (hasMinBid && (!Number.isInteger(minBid as number) || (minBid as number) < 0)) {
     return NextResponse.json({ error: 'minBid must be a non-negative integer' }, { status: 400 });
   }
 
@@ -101,8 +118,14 @@ export async function POST(req: NextRequest, { params }: Props) {
   // stance in its own right — "make me an offer" — and the most permissive one
   // there is, now that the flags advertise rather than refuse.
 
-  if (buyNowPrice !== undefined && buyNowPrice !== null) {
-    if (!Number.isInteger(buyNowPrice) || buyNowPrice <= minBid) {
+  if (hasBuyNow) {
+    // Without an auction floor there is nothing for the clause to sit above —
+    // any positive clause is fine. With one, it must clear it (114 keeps the
+    // DB's buy_now_gt_min tolerant of a NULL min_bid, so this mirrors it).
+    if (!Number.isInteger(buyNowPrice as number) || (buyNowPrice as number) <= 0) {
+      return NextResponse.json({ error: 'buyNowPrice must be a positive integer' }, { status: 400 });
+    }
+    if (hasMinBid && (buyNowPrice as number) <= (minBid as number)) {
       return NextResponse.json({ error: 'buyNowPrice must be an integer greater than minBid' }, { status: 400 });
     }
   }
@@ -113,16 +136,20 @@ export async function POST(req: NextRequest, { params }: Props) {
   // and the clause — player_sale_listings_gate_order survives, and the checks
   // below mirror it so the seller gets a sentence, not a constraint violation.
 
-  if (askPrice !== undefined && askPrice !== null) {
-    if (!Number.isInteger(askPrice) || askPrice < minBid) {
+  if (hasAsk) {
+    if (!Number.isInteger(askPrice as number) || (hasMinBid && (askPrice as number) < (minBid as number))) {
       return NextResponse.json(
-        { error: `Asking price must be a whole number of at least your minimum bid (€${minBid}m).` },
+        {
+          error: hasMinBid
+            ? `Asking price must be a whole number of at least your minimum bid (€${minBid}m).`
+            : 'Asking price must be a whole number.',
+        },
         { status: 400 },
       );
     }
-    if (buyNowPrice !== undefined && buyNowPrice !== null && askPrice >= buyNowPrice) {
+    if (hasBuyNow && (askPrice as number) >= (buyNowPrice as number)) {
       return NextResponse.json(
-        { error: 'Asking price must be below the Buy Now price — otherwise nobody would negotiate.' },
+        { error: 'Asking price must be below the release clause — otherwise nobody would negotiate.' },
         { status: 400 },
       );
     }
@@ -244,9 +271,12 @@ export async function POST(req: NextRequest, { params }: Props) {
   }
 
   const marketValue = Number(playerRow?.market_value ?? 0);
-  if (marketValue > 0) {
+  // The floor only means something when there's an auction to floor. A
+  // release-clause-only or negotiation-only listing (no minBid) has nothing
+  // for this check to apply to.
+  if (hasMinBid && marketValue > 0) {
     const floor = Math.floor(marketValue * 0.8);
-    if (minBid < floor) {
+    if ((minBid as number) < floor) {
       return NextResponse.json(
         {
           error: `Minimum bid must be at least €${floor}m — 80% of ${playerRow?.name ?? 'this player'}'s €${marketValue}m market value.`,
@@ -269,7 +299,7 @@ export async function POST(req: NextRequest, { params }: Props) {
       league_id: leagueId,
       seller_team_id: myTeam.id,
       player_id: playerId,
-      min_bid: minBid,
+      min_bid: hasMinBid ? minBid : null,
       buy_now_price: buyNowPrice ?? null,
       ask_price: askPrice ?? null,
       open_to_trade: gateTrade,

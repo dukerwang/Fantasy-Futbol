@@ -319,7 +319,11 @@ function AuctionChip({
   const msLeft = auction.expires_at ? new Date(auction.expires_at).getTime() - now : 0;
   const hot = Boolean(auction.expires_at) && isClosing(msLeft);
   const leading = auction.highest_bidder_team_id === myTeamId;
-  const next = auction.highest_bid > 0 ? auction.highest_bid + 1 : auction.minimum_bid;
+  // This chip only ever renders a free_agent auction (filtered above by the
+  // caller), which always has a computed minimum_bid — never a listing, so
+  // never null (114). The fallback is type-level safety, not a real case.
+  const floor = auction.minimum_bid ?? 0;
+  const next = auction.highest_bid > 0 ? auction.highest_bid + 1 : floor;
 
   return (
     <article className={`${styles.chip} ${hot ? styles.chipHot : ''}`}>
@@ -337,7 +341,7 @@ function AuctionChip({
       </div>
       <div className={styles.chipBottom}>
         <span className={styles.chipPrice}>
-          {money(auction.highest_bid > 0 ? auction.highest_bid : auction.minimum_bid)}
+          {money(auction.highest_bid > 0 ? auction.highest_bid : floor)}
         </span>
         <span className={`${styles.chipClock} ${hot ? styles.chipClockHot : ''}`}>
           {auction.expires_at ? formatRemaining(msLeft) : '—'}

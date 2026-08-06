@@ -186,17 +186,31 @@ export async function POST(req: NextRequest, { params }: Props) {
   // to pre-check so the caller gets a specific message instead of a generic one.
   const { data: openListing } = await admin
     .from('player_sale_listings')
-    .select('id, min_bid, seller_team_id')
+    .select('id, min_bid, buy_now_price, seller_team_id')
     .eq('league_id', leagueId)
     .eq('player_id', playerId)
     .in('status', ['pending', 'active'])
     .maybeSingle();
 
   if (openListing) {
-    // The seller's own floor governs, and 077 already guarantees it is at least
-    // 80% of market value. Applying the free-agent 20% rule on top would be
-    // both redundant and, for a cheap player under an ambitious ask, wrong.
-    if (bidAmount < openListing.min_bid) {
+    if (openListing.min_bid == null) {
+      // No auction floor (114): the seller only takes a release-clause payment,
+      // or nothing at all. The RPC is the authoritative check; this just gives
+      // the caller a specific message instead of the RPC's generic one.
+      if (openListing.buy_now_price == null || bidAmount < openListing.buy_now_price) {
+        return NextResponse.json(
+          {
+            error: openListing.buy_now_price != null
+              ? `This player isn't open to auction bids — only a release-clause payment of €${openListing.buy_now_price}m is accepted. Send an Offer to negotiate instead.`
+              : "This player isn't open to auction bids. Send an Offer to negotiate instead.",
+          },
+          { status: 400 },
+        );
+      }
+    } else if (bidAmount < openListing.min_bid) {
+      // The seller's own floor governs, and 077 already guarantees it is at least
+      // 80% of market value. Applying the free-agent 20% rule on top would be
+      // both redundant and, for a cheap player under an ambitious ask, wrong.
       return NextResponse.json(
         { error: `Bid must be at least the seller's minimum of €${openListing.min_bid}m.` },
         { status: 400 },
@@ -403,6 +417,7 @@ export async function POST(req: NextRequest, { params }: Props) {
         // Buy Now is uncontested by definition — one bidder, no atmosphere copy needed.
         await notifyAuctionResolution(admin, {
           leagueId,
+          playerId,
           playerName: playerData?.name ?? 'Unknown Player',
           playerMarketValue: playerData?.market_value,
           bidderCount: 1,

@@ -11,9 +11,14 @@
  * ticked everything and a seller who ticked nothing are in the same position —
  * open to whatever you bring — and pretending otherwise would give the manager
  * reading the board a distinction they cannot act on.
+ *
+ * Since 114 the three PRICE fields also carry meaning, and that mechanism
+ * takes priority over the intent chips above: a listing with no min_bid has no
+ * open auction at all, and that is the dominant fact about it — worth saying
+ * before whether the seller would rather have cash or players for him.
  */
 
-export type StanceTone = 'sale' | 'players' | 'loan' | 'open';
+export type StanceTone = 'sale' | 'players' | 'loan' | 'open' | 'clause' | 'offers';
 
 export interface ListingStance {
   headline: string;
@@ -25,9 +30,26 @@ export interface StanceInput {
   open_to_sale: boolean;
   open_to_loan: boolean;
   ask_price?: number | null;
+  /** Auction floor. Absent (114) means this listing has no open auction. */
+  min_bid?: number | null;
+  buy_now_price?: number | null;
 }
 
 export function listingStance(l: StanceInput): ListingStance {
+  const hasAuction = l.min_bid != null;
+  const hasClause = l.buy_now_price != null;
+  const named = l.ask_price != null && l.ask_price > 0;
+
+  if (!hasAuction) {
+    if (hasClause) {
+      return { headline: `Release clause only · €${l.buy_now_price}m`, tone: 'clause' };
+    }
+    return {
+      headline: named ? `Offers only · asking €${l.ask_price}m` : 'Offers only',
+      tone: 'offers',
+    };
+  }
+
   const { open_to_trade: players, open_to_sale: cash, open_to_loan: loan } = l;
   const stated = [players, cash, loan].filter(Boolean).length;
 
@@ -35,7 +57,6 @@ export function listingStance(l: StanceInput): ListingStance {
     // An ask price is optional now, so the headline carries it only when the
     // seller actually named one. Zero counts as unnamed: "asking €0m" is not a
     // price, it is a column that was never filled in.
-    const named = l.ask_price != null && l.ask_price > 0;
     return {
       headline: named ? `For sale · €${l.ask_price}m` : 'For sale',
       tone: 'sale',

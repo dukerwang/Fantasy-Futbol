@@ -143,8 +143,15 @@ export function buildWire(model: TransfersModel, limit = 12): WireEvent[] {
       at: l.created_at,
       who: l.seller_team_id === myTeamId ? 'You' : l.seller_team_name ?? 'A club',
       mid: `listed ${l.player ? getPlayerDisplayName(l.player) : 'a player'} —`,
-      amount: l.ask_price != null ? `asking ${money(l.ask_price)}` : `from ${money(l.min_bid)}`,
-      tail: l.buy_now_price != null ? `· clause ${money(l.buy_now_price)}` : '',
+      // 114: a listing with no min_bid has no auction to say "from" about — it
+      // falls back to the clause (release-clause-only) or, with neither price
+      // set, plain "offers only".
+      amount:
+        l.ask_price != null ? `asking ${money(l.ask_price)}`
+        : l.min_bid != null ? `from ${money(l.min_bid)}`
+        : l.buy_now_price != null ? `clause ${money(l.buy_now_price)}`
+        : 'offers only',
+      tail: l.min_bid != null && l.buy_now_price != null ? `· clause ${money(l.buy_now_price)}` : '',
     });
   }
 

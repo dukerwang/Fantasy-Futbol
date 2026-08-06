@@ -61,7 +61,11 @@ export default function ListingEditor({
   const editing = Boolean(listing);
 
   const [playerId, setPlayerId] = useState<string>(listing?.player_id ?? initialPlayerId ?? '');
-  const [minBid, setMinBid] = useState<number>(listing?.min_bid ?? floorFor(myRoster, initialPlayerId ?? ''));
+  // Defaults to the 80% floor for a new listing — most sellers want the open
+  // auction, so that stays the path of least resistance — but since 114 it can
+  // be cleared to null: no minimum bid means no open auction at all, only
+  // whatever the release clause and/or asking price allow.
+  const [minBid, setMinBid] = useState<number | null>(listing?.min_bid ?? floorFor(myRoster, initialPlayerId ?? ''));
   const [askPrice, setAskPrice] = useState<number | null>(listing?.ask_price ?? null);
   const [clause, setClause] = useState<number | null>(listing?.buy_now_price ?? null);
   const [gateTrade, setGateTrade] = useState(listing?.open_to_trade ?? initialGates?.trade ?? true);
@@ -100,25 +104,37 @@ export default function ListingEditor({
   // the number instead of a raised exception.
   const floor = marketValue > 0 ? Math.floor(marketValue * 0.8) : 0;
 
-  // Empty-while-typing is stored as NaN / null so the box can clear; treat those
-  // as incomplete for validation rather than coercing them back to 0.
-  const belowFloor = Number.isNaN(minBid) || minBid < floor;
-  // An ask below the floor would advertise a price nobody is allowed to pay. An
-  // ABSENT ask is fine since 088 — it means the seller has not named a number,
-  // not that he is unavailable.
-  const askInvalid = askPrice != null && !Number.isNaN(askPrice) && askPrice < minBid;
-  const askAboveClause =
-    askPrice != null && !Number.isNaN(askPrice) && clause != null && !Number.isNaN(clause) && askPrice >= clause;
-  const clauseInvalid = clause != null && !Number.isNaN(clause) && clause <= minBid;
+  // Empty-while-typing is stored as NaN so the box can clear without saving a
+  // half-typed number; a resting null (all three prices can be null since 114)
+  // is a real, valid state, not an incomplete one.
+  const minBidSet = minBid != null && !Number.isNaN(minBid);
+  const askSet = askPrice != null && !Number.isNaN(askPrice);
+  const clauseSet = clause != null && !Number.isNaN(clause);
+
+  // The floor only binds an auction that exists.
+  const belowFloor = minBidSet && (minBid as number) < floor;
+  // An ask below the floor would advertise a price nobody is allowed to pay —
+  // but only when there's a floor to sit above. An ABSENT ask is fine since
+  // 088 — it means the seller has not named a number, not that he is
+  // unavailable.
+  const askInvalid = askSet && minBidSet && (askPrice as number) < (minBid as number);
+  const askAboveClause = askSet && clauseSet && (askPrice as number) >= (clause as number);
+  // With no auction, the clause just needs to be a real positive price rather
+  // than sit above a floor that doesn't exist.
+  const clauseInvalid = clauseSet && (minBidSet ? (clause as number) <= (minBid as number) : (clause as number) <= 0);
   const pricesIncomplete =
-    Number.isNaN(minBid) || Number.isNaN(askPrice as number) || Number.isNaN(clause as number);
+    Number.isNaN(minBid as number) || Number.isNaN(askPrice as number) || Number.isNaN(clause as number);
+  // Mirrors player_sale_listings_states_a_price (114): a listing needs at
+  // least one price to be shaped around, or there's nothing here to save.
+  const noPriceStated = !minBidSet && !askSet && !clauseSet;
 
   // Ticking nothing is a legitimate stance now ("make me an offer"), so there is
-  // no longer an inert listing to refuse.
+  // no longer an inert listing to refuse based on the trade/sale/loan gates.
   const canSave =
     !busy &&
     Boolean(editing || playerId) &&
     !pricesIncomplete &&
+    !noPriceStated &&
     !belowFloor &&
     !askInvalid &&
     !askAboveClause &&
@@ -128,7 +144,9 @@ export default function ListingEditor({
     open_to_trade: gateTrade,
     open_to_sale: gateSale,
     open_to_loan: gateLoan,
-    ask_price: askPrice != null && !Number.isNaN(askPrice) ? askPrice : null,
+    ask_price: askSet ? (askPrice as number) : null,
+    min_bid: minBidSet ? (minBid as number) : null,
+    buy_now_price: clauseSet ? (clause as number) : null,
   });
 
   const save = async () => {
@@ -292,10 +310,15 @@ export default function ListingEditor({
         <span className={styles.label}>How the board will read him</span>
         <div className={styles.stance}>
           <b>{stance.headline}</b>
-          <span>
-            bid from {Number.isNaN(minBid) ? '—' : money(minBid)}
-            {clause != null && !Number.isNaN(clause) ? ` · clause ${money(clause)}` : ''}
-          </span>
+          {/* With no minimum bid, the headline already states the mechanism
+              (release-clause-only / offers-only) — a second "bid from" line
+              here would just repeat it in a different order. */}
+          {minBidSet && (
+            <span>
+              bid from {money(minBid as number)}
+              {clauseSet ? ` · clause ${money(clause as number)}` : ''}
+            </span>
+          )}
         </div>
       </div>
 
@@ -308,12 +331,15 @@ export default function ListingEditor({
               className={styles.priceInput}
               type="number"
               min={floor}
-              value={Number.isNaN(minBid) ? '' : minBid}
+              value={minBidSet ? (minBid as number) : ''}
+              placeholder="No auction"
               onFocus={(e) => e.target.select()}
               onChange={(e) => {
                 const raw = e.target.value;
                 if (raw === '') {
-                  setMinBid(NaN);
+                  // Blank is a real, valid state since 114 — not "incomplete
+                  // number," but "no open auction on this listing at all."
+                  setMinBid(null);
                   return;
                 }
                 const n = parseInt(raw, 10);
@@ -361,8 +387,10 @@ export default function ListingEditor({
           </label>
         </div>
         <p className={styles.hint}>
-          The ladder runs offers → auction → clause. The asking price is advertising: meeting it sends
-          an offer you still have to accept. Only the release clause executes on contact.
+          Set only what applies — a minimum bid opens him to auction, a release clause allows an
+          instant buy, and an asking price invites offers. Leave a field blank to turn that route off.
+          The asking price is advertising: meeting it sends an offer you still have to accept. Only
+          the release clause executes on contact.
         </p>
       </div>
 
@@ -371,9 +399,18 @@ export default function ListingEditor({
           The minimum bid must be at least {money(floor)} — 80% of his {money(marketValue)} market value.
         </p>
       )}
-      {askInvalid && <p className={styles.error}>An asking price cannot sit below the {money(minBid)} minimum bid.</p>}
+      {askInvalid && (
+        <p className={styles.error}>An asking price cannot sit below the {money(minBid as number)} minimum bid.</p>
+      )}
       {askAboveClause && <p className={styles.error}>The asking price must sit below the release clause.</p>}
-      {clauseInvalid && <p className={styles.error}>The release clause must sit above the minimum bid.</p>}
+      {clauseInvalid && (
+        <p className={styles.error}>
+          {minBidSet ? 'The release clause must sit above the minimum bid.' : 'The release clause must be a positive amount.'}
+        </p>
+      )}
+      {noPriceStated && (
+        <p className={styles.error}>Set at least one of a minimum bid, a release clause, or an asking price.</p>
+      )}
       {error && <p className={styles.error}>{error}</p>}
     </Modal>
   );

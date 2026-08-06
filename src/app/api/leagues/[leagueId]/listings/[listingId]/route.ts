@@ -62,7 +62,7 @@ export async function PATCH(req: NextRequest, { params }: Props) {
 
   const body = await req.json();
   const patch = body as {
-    minBid?: number;
+    minBid?: number | null;
     buyNowPrice?: number | null;
     askPrice?: number | null;
     openToTrade?: boolean;
@@ -70,33 +70,56 @@ export async function PATCH(req: NextRequest, { params }: Props) {
     openToLoan?: boolean;
   };
 
-  // Absent key = leave alone. Explicit null = clear (buyNow/ask are nullable).
-  const minBid = patch.minBid ?? listing.min_bid;
+  // Absent key = leave alone. Explicit null = clear (all three prices are
+  // nullable since 114 — minBid included, now that an auction is optional).
+  const minBid = patch.minBid === undefined ? listing.min_bid : patch.minBid;
   const buyNowPrice = patch.buyNowPrice === undefined ? listing.buy_now_price : patch.buyNowPrice;
   const askPrice = patch.askPrice === undefined ? listing.ask_price : patch.askPrice;
   const gateTrade = patch.openToTrade ?? listing.open_to_trade;
   const gateSale = patch.openToSale ?? listing.open_to_sale;
   const gateLoan = patch.openToLoan ?? listing.open_to_loan;
 
-  if (!Number.isInteger(minBid) || minBid < 0) {
+  const hasMinBid = minBid !== null && minBid !== undefined;
+  const hasBuyNow = buyNowPrice !== null && buyNowPrice !== undefined;
+  const hasAsk = askPrice !== null && askPrice !== undefined;
+
+  // Mirrors player_sale_listings_states_a_price (114): a listing needs at
+  // least one price to be shaped around.
+  if (!hasMinBid && !hasBuyNow && !hasAsk) {
+    return NextResponse.json(
+      { error: 'Set at least one of a minimum bid, a release clause, or an asking price.' },
+      { status: 400 },
+    );
+  }
+
+  if (hasMinBid && (!Number.isInteger(minBid as number) || (minBid as number) < 0)) {
     return NextResponse.json({ error: 'minBid must be a non-negative integer' }, { status: 400 });
   }
   // Stating no preference, and naming no asking price, are both legitimate
   // since 088 — the two constraints those checks mirrored are gone. What
   // survives is the ordering of whatever prices ARE given, below.
-  if (buyNowPrice !== null && (!Number.isInteger(buyNowPrice) || buyNowPrice <= minBid)) {
-    return NextResponse.json({ error: 'Buy Now price must be a whole number above the minimum bid.' }, { status: 400 });
+  if (hasBuyNow) {
+    if (!Number.isInteger(buyNowPrice as number) || (buyNowPrice as number) <= 0) {
+      return NextResponse.json({ error: 'Release clause must be a positive whole number.' }, { status: 400 });
+    }
+    if (hasMinBid && (buyNowPrice as number) <= (minBid as number)) {
+      return NextResponse.json({ error: 'Release clause must be a whole number above the minimum bid.' }, { status: 400 });
+    }
   }
-  if (askPrice !== null && askPrice !== undefined) {
-    if (!Number.isInteger(askPrice) || askPrice < minBid) {
+  if (hasAsk) {
+    if (!Number.isInteger(askPrice as number) || (hasMinBid && (askPrice as number) < (minBid as number))) {
       return NextResponse.json(
-        { error: `Asking price must be a whole number of at least €${minBid}m.` },
+        {
+          error: hasMinBid
+            ? `Asking price must be a whole number of at least €${minBid}m.`
+            : 'Asking price must be a whole number.',
+        },
         { status: 400 },
       );
     }
-    if (buyNowPrice !== null && askPrice >= buyNowPrice) {
+    if (hasBuyNow && (askPrice as number) >= (buyNowPrice as number)) {
       return NextResponse.json(
-        { error: 'Asking price must be below the Buy Now price.' },
+        { error: 'Asking price must be below the release clause.' },
         { status: 400 },
       );
     }
@@ -106,7 +129,8 @@ export async function PATCH(req: NextRequest, { params }: Props) {
   // 077 trigger deliberately early-returns on an unchanged min_bid so that
   // toggling a gate on an old listing is not rejected over a price the seller
   // never touched (market_value drifts continuously via the Transfermarkt sync).
-  if (minBid !== listing.min_bid) {
+  // Clearing min_bid to null (dropping the auction) has nothing to floor.
+  if (hasMinBid && minBid !== listing.min_bid) {
     const { data: playerRow } = await admin
       .from('players')
       .select('name, market_value')
@@ -126,7 +150,7 @@ export async function PATCH(req: NextRequest, { params }: Props) {
     const marketValue = Number(playerRow?.market_value ?? 0);
     if (marketValue > 0) {
       const floor = Math.floor(marketValue * 0.8);
-      if (minBid < floor) {
+      if ((minBid as number) < floor) {
         return NextResponse.json(
           {
             error: `Minimum bid must be at least €${floor}m — 80% of ${playerRow?.name ?? 'this player'}'s €${marketValue}m market value.`,
