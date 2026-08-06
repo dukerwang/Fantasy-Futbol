@@ -60,7 +60,7 @@ export async function POST(req: NextRequest, { params }: Props) {
         userId: teamB.user_id,
         title: 'Trade Proposal Withdrawn',
         content: `**${teamA.team_name}** has withdrawn their trade proposal to you.`,
-        url: `/league/${leagueId}/trades`
+        url: `/league/${leagueId}/transfers/deals`
       });
     } catch (err) {
       console.error('[trade/cancel] Failed to create notification:', err);
@@ -82,7 +82,7 @@ export async function POST(req: NextRequest, { params }: Props) {
         userId: teamA.user_id,
         title: 'Trade Proposal Rejected',
         content: `Your trade proposal to **${teamB.team_name}** has been declined.`,
-        url: `/league/${leagueId}/trades`
+        url: `/league/${leagueId}/transfers/deals`
       });
     } catch (err) {
       console.error('[trade/reject] Failed to create notification:', err);

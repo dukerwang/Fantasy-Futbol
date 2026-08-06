@@ -118,7 +118,7 @@ export async function POST(req: NextRequest) {
           userId: borrower_user_id,
           title: 'Loan Concluded',
           content: `Your loan of **${player_name}** has expired and the player returned to **${lender_team_name}**.${resData.bonus_paid && resData.bonus_paid > 0 ? ` Paid €${resData.bonus_paid}m performance bonus.` : ''}`,
-          url: `/league/${loan.league_id}/trades`
+          url: `/league/${loan.league_id}/transfers/deals`
         });
       }
 

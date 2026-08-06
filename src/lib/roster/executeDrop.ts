@@ -170,7 +170,7 @@ export async function executeDrop(
                         userId: t.user_id,
                         title: 'Waiver Alert: Player Dropped',
                         content: `**${team.team_name}** dropped **${player.name}** to the waiver pool. A 72-hour transfer auction has automatically begun.`,
-                        url: `/league/${team.league_id}/players`
+                        url: `/league/${team.league_id}/transfers/auctions`
                     });
                 }
             }

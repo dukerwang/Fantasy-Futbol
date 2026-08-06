@@ -295,7 +295,7 @@ async function notifyLoanTermination(
       content:
         `**${playerName}** has left the Premier League, so your loan has ended early and your squad place is free again. ` +
         `Any performance bonus owed has been settled; the loan fee is not refunded.`,
-      url: `/league/${leagueId}/trades`,
+      url: `/league/${leagueId}/transfers/deals`,
     });
   } catch (err) {
     console.error('[departures] loan termination notification failed:', err);

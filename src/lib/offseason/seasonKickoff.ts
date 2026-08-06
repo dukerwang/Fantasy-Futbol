@@ -341,7 +341,7 @@ export async function runSeasonKickoff(admin: SupabaseClient, leagueId: string):
               userId,
               title: '💸 Relegation Compensation Paid',
               content: `**${r.playerName}** (${r.club}) has been dropped due to relegation. You have been compensated with **+€${r.compensationFaab}m**.`,
-              url: `/league/${leagueId}/transactions`,
+              url: `/league/${leagueId}/finance`,
             });
           }
         }

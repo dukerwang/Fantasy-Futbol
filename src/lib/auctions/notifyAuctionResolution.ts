@@ -155,7 +155,7 @@ export async function notifyAuctionResolution(
             userId: loser.user_id,
             title: 'Waiver Auction Lost',
             content: `Your waiver bid of **€${loser.faab_bid}m** for **${playerName}** was unsuccessful. **${winnerTeamName ?? 'Another team'}** won the signature for **€${winnerBid}m**.`,
-            url: `/league/${leagueId}/players`,
+            url: `/league/${leagueId}/transfers/auctions`,
           });
         }
       }),

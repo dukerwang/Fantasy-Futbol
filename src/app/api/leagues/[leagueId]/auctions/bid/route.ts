@@ -441,7 +441,7 @@ export async function POST(req: NextRequest, { params }: Props) {
         userId: resData.outbid_team_user_id,
         title: 'Outbid Warning!',
         content: `You have been outbid for **${playerData?.name ?? 'Unknown Player'}**. The new high bid is now **€${bidAmount}m**.`,
-        url: `/league/${leagueId}/players`
+        url: `/league/${leagueId}/transfers/auctions`
       });
     } catch (err) {
       console.error('[bid] Failed to send outbid notifications:', err);

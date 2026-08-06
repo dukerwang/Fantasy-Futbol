@@ -142,7 +142,7 @@ async function notifyLeague(
         userId: t.user_id,
         title: 'New Transfer Auction Open',
         content: `**${candidates.length}** new high-value or promoted-club arrival(s) have hit the transfer market and gone up for a 48-hour system auction.${featuredNotice}`,
-        url: `/league/${leagueId}`,
+        url: `/league/${leagueId}/transfers/auctions`,
       });
     }
   } catch (err) {
