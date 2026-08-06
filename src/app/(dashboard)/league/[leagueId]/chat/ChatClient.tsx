@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { Icon } from '@/components/ui/Icon';
 import FormattedText from '@/components/ui/FormattedText';
@@ -99,6 +99,32 @@ export default function ChatClient({
     fetchLogs();
   }, [leagueId]);
 
+  // Seed unread DM dots from persisted read state so they survive a reload,
+  // instead of only reflecting messages received live while this page is open.
+  useEffect(() => {
+    const fetchUnread = async () => {
+      try {
+        const res = await fetch(`/api/chat/unread?league_id=${leagueId}`);
+        if (res.ok) {
+          const data = await res.json();
+          setUnreadDMs(new Set<string>(data.dmUnreadPeerIds || []));
+        }
+      } catch (err) {
+        console.error('Failed to load chat unread summary:', err);
+      }
+    };
+    fetchUnread();
+  }, [leagueId]);
+
+  // Persist a conversation as read-up-to-now (lobby, or a specific DM peer)
+  const markRead = useCallback((peerId: string | null) => {
+    fetch('/api/chat/read', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ leagueId, peerId }),
+    }).catch((err) => console.error('Failed to mark chat read:', err));
+  }, [leagueId]);
+
   // Re-resolve live trade/loan negotiation summaries — called when a new
   // proposal message arrives (its trade_id/loan_id won't be in the map yet)
   // and after the viewer acts on a card, for an instant local reflection
@@ -152,7 +178,9 @@ export default function ChatClient({
               } : undefined
             };
 
-            // Set unread DM dots if sent to us and not currently focused
+            // Set unread DM dots if sent to us and not currently focused;
+            // otherwise (we're actively looking at this thread) keep the
+            // persisted read cursor moving so it doesn't go stale on reload.
             if (newMsg.recipient_id === currentUserId && newMsg.sender_id) {
               const senderId = newMsg.sender_id;
               if (activeTab.type !== 'dm' || activeTab.userId !== senderId) {
@@ -161,7 +189,11 @@ export default function ChatClient({
                   newSet.add(senderId);
                   return newSet;
                 });
+              } else {
+                markRead(senderId);
               }
+            } else if (newMsg.recipient_id === null && newMsg.sender_id !== currentUserId && activeTab.type === 'lobby') {
+              markRead(null);
             }
 
             return [...prev, enriched];
@@ -173,7 +205,7 @@ export default function ChatClient({
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [leagueId, teams, activeTab, currentUserId, currentUsername, supabase, refreshNegotiations]);
+  }, [leagueId, teams, activeTab, currentUserId, currentUsername, supabase, refreshNegotiations, markRead]);
 
   // Live-update trade/loan cards when the underlying deal is resolved —
   // whether that happens here in chat or elsewhere (the Deals page, another
@@ -210,7 +242,9 @@ export default function ChatClient({
     scrollToBottom('smooth');
   }, [messages, activeTab]);
 
-  // Clear unread indicator when selecting a DM
+  // Mark the newly-focused conversation as read, both locally (clear the
+  // sidebar dot) and persisted server-side (so the nav badge and a reload
+  // both reflect it, not just this open tab).
   useEffect(() => {
     if (activeTab.type === 'dm') {
       setUnreadDMs((prev) => {
@@ -218,8 +252,11 @@ export default function ChatClient({
         next.delete(activeTab.userId);
         return next;
       });
+      markRead(activeTab.userId);
+    } else {
+      markRead(null);
     }
-  }, [activeTab]);
+  }, [activeTab, markRead]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -289,8 +326,35 @@ export default function ChatClient({
     }
   });
 
-  // Filter out current user from managers DMs list
-  const otherManagers = teams.filter((t) => t.user_id !== currentUserId);
+  // Most recent message timestamp per DM peer (either direction), so the
+  // sidebar can order threads like a normal messaging app.
+  const dmLastActivity = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const m of messages) {
+      if (!m.recipient_id) continue; // lobby message, not a DM
+      const peerId = m.sender_id === currentUserId ? m.recipient_id : m.recipient_id === currentUserId ? m.sender_id : null;
+      if (!peerId) continue;
+      const existing = map.get(peerId);
+      if (!existing || m.created_at > existing) {
+        map.set(peerId, m.created_at);
+      }
+    }
+    return map;
+  }, [messages, currentUserId]);
+
+  // Filter out current user from managers DMs list, most recently active first;
+  // managers with no message history yet fall to the bottom, alphabetically.
+  const otherManagers = useMemo(() => {
+    const others = teams.filter((t) => t.user_id !== currentUserId);
+    return [...others].sort((a, b) => {
+      const aTime = dmLastActivity.get(a.user_id);
+      const bTime = dmLastActivity.get(b.user_id);
+      if (aTime && bTime) return bTime.localeCompare(aTime);
+      if (aTime) return -1;
+      if (bTime) return 1;
+      return a.team_name.localeCompare(b.team_name);
+    });
+  }, [teams, dmLastActivity, currentUserId]);
 
   return (
     <div className={`${styles.chatLayout} ${mobileView === 'chat' ? styles.mobileShowChat : styles.mobileShowList}`}>
@@ -329,7 +393,7 @@ export default function ChatClient({
                 return (
                   <button
                     key={team.user_id}
-                    className={`${styles.sidebarBtn} ${isActive ? styles.sidebarBtnActive : ''}`}
+                    className={`${styles.sidebarBtn} ${isActive ? styles.sidebarBtnActive : ''} ${hasUnread && !isActive ? styles.sidebarBtnUnread : ''}`}
                     onClick={() => {
                       setActiveTab({
                         type: 'dm',

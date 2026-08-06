@@ -92,6 +92,21 @@
   border-color: var(--color-text-primary);
 }
 
+.sidebarBtnUnread {
+  background: var(--color-accent-green-dim);
+  border-left: 3px solid var(--color-accent-green);
+  padding-left: calc(var(--space-5) - 3px);
+}
+
+.sidebarBtnUnread:hover {
+  background: var(--color-accent-green-dim);
+}
+
+.sidebarBtnUnread .managerName {
+  font-weight: var(--font-bold);
+  color: var(--color-text-primary);
+}
+
 .icon {
   color: var(--color-text-muted);
   flex-shrink: 0;

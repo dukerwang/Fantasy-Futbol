@@ -6,6 +6,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import ThemeToggle from './ThemeToggle';
 import NotificationBell from './NotificationBell';
+import ChatNavIcon from './ChatNavIcon';
 import { Icon } from '@/components/ui/Icon';
 import CrestBadge from '@/components/crest/CrestBadge';
 import styles from './TopBar.module.css';
@@ -369,15 +370,10 @@ export default function TopBar() {
 
           {/* Persistent League Chat */}
           {currentLeagueId && (
-            <Link
-              href={`/league/${currentLeagueId}/chat`}
-              className={`${styles.iconBtn} ${pathname?.startsWith(`/league/${currentLeagueId}/chat`) ? styles.iconBtnActive : ''}`}
-              title="League Chat Lobby"
-              aria-label="League Chat Lobby"
-              onClick={() => setIsNavigating(true)}
-            >
-              <Icon name="message-square" size={18} strokeWidth={1.5} />
-            </Link>
+            <ChatNavIcon
+              leagueId={currentLeagueId}
+              onNavigate={() => setIsNavigating(true)}
+            />
           )}
 
           {/* Platform Admin — site admin only, not scoped to any one league */}

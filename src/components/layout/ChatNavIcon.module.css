@@ -1,0 +1,16 @@
+.container {
+  position: relative;
+  display: inline-block;
+}
+
+.dot {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 10px;
+  height: 10px;
+  border-radius: var(--radius-full);
+  background: #d9383a; /* editorial vibrant dark red, matches NotificationBell badge */
+  border: 2px solid var(--color-bg-secondary);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
