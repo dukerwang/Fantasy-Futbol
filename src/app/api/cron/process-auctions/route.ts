@@ -150,6 +150,7 @@ export async function POST(req: NextRequest) {
 
       await notifyAuctionResolution(admin, {
         leagueId: league_id,
+        playerId: player_id,
         playerName: wonPlayer?.name ?? 'Unknown Player',
         playerMarketValue: wonPlayer?.market_value,
         bidderCount: realClaims.length,

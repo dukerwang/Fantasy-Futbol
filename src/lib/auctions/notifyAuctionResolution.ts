@@ -42,6 +42,7 @@ export async function notifyAuctionResolution(
   admin: SupabaseClient,
   params: {
     leagueId: string;
+    playerId: string;
     playerName: string;
     /** The player's real-world (Transfermarkt) market value, if known — tier escalates off whichever is higher: this or the winning bid, so a bargain FAAB pickup of a genuine superstar still reads as a big deal. */
     playerMarketValue?: number | null;
@@ -50,7 +51,7 @@ export async function notifyAuctionResolution(
     resData: AuctionResolutionResult;
   },
 ): Promise<void> {
-  const { leagueId, playerName, playerMarketValue, bidderCount, resData } = params;
+  const { leagueId, playerId, playerName, playerMarketValue, bidderCount, resData } = params;
   if (!resData.won || !resData.winner_team_id) return;
 
   try {
@@ -59,10 +60,24 @@ export async function notifyAuctionResolution(
       .select('id, team_name, user_id')
       .eq('league_id', leagueId);
 
+    // Who last released this player into the pool, if anyone — NOT the same as
+    // `initiator_team_name` (the RPC's "who placed the first bid" field, used
+    // only for the Scout's Fee payout). A prior bug conflated the two, which
+    // made an uncontested claim on a brand-new player read as "previously
+    // released by <the winning club itself>".
+    const { data: lastDrop } = await admin
+      .from('transactions')
+      .select('team:teams(team_name)')
+      .eq('player_id', playerId)
+      .in('type', ['drop', 'transfer_out'])
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    const droppedByClub = (lastDrop?.team as unknown as { team_name: string } | null)?.team_name ?? null;
+
     const winnerTeamName = resData.winner_team_name;
     const winnerUserId = resData.winner_user_id;
     const dropPlayerName = resData.drop_player_name;
-    const initiatorTeamName = resData.initiator_team_name;
     const winnerBid = resData.winner_bid!;
     const tierValue = Math.max(winnerBid, Number(playerMarketValue ?? 0));
 
@@ -83,7 +98,7 @@ export async function notifyAuctionResolution(
           tierValue,
           bidderCount,
           dropPlayerName || null,
-          initiatorTeamName || null,
+          droppedByClub,
           `${baseUrl}/league/${leagueId}`,
         ),
       });

@@ -99,6 +99,7 @@ export async function POST(req: NextRequest, { params }: Props) {
   if (!resData.deferred) {
     await notifyAuctionResolution(admin, {
       leagueId,
+      playerId,
       playerName: wonPlayer?.name ?? 'Unknown Player',
       playerMarketValue: wonPlayer?.market_value,
       bidderCount: bidderCount ?? 0,
