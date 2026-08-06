@@ -36,7 +36,8 @@ type AdminClient = ReturnType<typeof createAdminClient>;
 export interface SquadListing {
   id: string;
   status: 'pending' | 'active' | 'sold' | 'expired' | 'cancelled';
-  min_bid: number;
+  /** The auction floor. Null (114) means this listing has no open auction. */
+  min_bid: number | null;
   ask_price: number | null;
   buy_now_price: number | null;
   open_to_trade: boolean;
