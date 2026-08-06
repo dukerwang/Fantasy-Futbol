@@ -12,6 +12,8 @@ interface Props {
   entry: SquadEntry | null;
   teamId: string;
   leagueId: string;
+  /** False on a rival's club: the file stays, every control that mutates it goes. */
+  viewerIsOwner: boolean;
   academyAgeLimit: number;
   onAfter: () => void;
 }
@@ -21,7 +23,7 @@ const ACQ_LABEL: Record<string, string> = {
   waiver: 'Auction', draft: 'Drafted', trade: 'Traded in', free_agent: 'Free agent', retained_return: 'Reinstated',
 };
 
-export default function Inspector({ entry, teamId, leagueId, academyAgeLimit, onAfter }: Props) {
+export default function Inspector({ entry, teamId, leagueId, viewerIsOwner, academyAgeLimit, onAfter }: Props) {
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [confirmDrop, setConfirmDrop] = useState(false);
@@ -95,9 +97,13 @@ export default function Inspector({ entry, teamId, leagueId, academyAgeLimit, on
     }
   }
 
-  // Contextual primary actions (real roster transitions).
+  // Contextual primary actions (real roster transitions). Owner only — every
+  // endpoint behind these already rejects a non-owner (POST /teams/[teamId]/*
+  // checks `team.user_id !== user.id`), so this is the UI half of a rule the
+  // server keeps regardless.
   const primary: { label: string; run: () => void }[] = [];
-  if (entry.status === 'ir') primary.push({ label: 'Activate from IR', run: () => call(`/api/teams/${teamId}/ir`, { playerId: entry.playerId, action: 'activate' }) });
+  if (!viewerIsOwner) { /* no transitions offered */ }
+  else if (entry.status === 'ir') primary.push({ label: 'Activate from IR', run: () => call(`/api/teams/${teamId}/ir`, { playerId: entry.playerId, action: 'activate' }) });
   else if (entry.status === 'taxi') primary.push({ label: 'Promote to Squad', run: () => call(`/api/teams/${teamId}/taxi`, { playerId: entry.playerId, action: 'activate' }) });
   else {
     const f = p.fpl_status;
@@ -120,11 +126,26 @@ export default function Inspector({ entry, teamId, leagueId, academyAgeLimit, on
           {isPurchase && <FileRow k="Fee paid" v={money(paid)} />}
           <FileRow k="Market value now" v={money(value)} />
           {isPurchase && <FileRow k="Net vs. fee" v={signedMoney(net)} cls={net >= 0 ? styles.posNet : styles.negNet} />}
-          <FileRow k="Cost to drop" v={<>{money(severance)}<span className={styles.fileSubtle}> severance</span></>} />
+          {/* Severance is what it costs YOU to cut him. Meaningless on a rival's
+              file, where the same money is somebody else's problem. */}
+          {viewerIsOwner && (
+            <FileRow k="Cost to drop" v={<>{money(severance)}<span className={styles.fileSubtle}> severance</span></>} />
+          )}
         </div>
 
         {err && <div className={styles.inspErr}>{err}</div>}
 
+        {!viewerIsOwner ? (
+          <div className={styles.acts}>
+            <a
+              className={`${styles.act} ${styles.actPrimary} ${styles.actWide}`}
+              href={`/league/${leagueId}/transfers/deals?proposeTeam=${teamId}&proposePlayer=${entry.playerId}`}
+            >
+              Make an offer
+            </a>
+            {listingLive && <span className={styles.act} aria-disabled="true">Listed for transfer</span>}
+          </div>
+        ) : (
         <div className={styles.acts}>
           {primary.map((a) => (
             <button key={a.label} type="button" className={`${styles.act} ${styles.actPrimary} ${styles.actWide}`} disabled={busy} onClick={a.run}>
@@ -160,9 +181,10 @@ export default function Inspector({ entry, teamId, leagueId, academyAgeLimit, on
             </button>
           )}
         </div>
+        )}
       </section>
 
-      {listingOpen && (
+      {listingOpen && viewerIsOwner && (
         <ListingEditor
           open
           onClose={() => setListingOpen(false)}

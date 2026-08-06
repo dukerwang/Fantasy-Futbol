@@ -9,10 +9,21 @@ import { getPlayerDisplayName, playerInitial } from '@/lib/players/displayName';
 import styles from './club.module.css';
 
 export default function RetainedList({
-  leagueId, departures, onDecision,
-}: { leagueId: string; departures: ClubProps['departures']; onDecision: (r: DecisionRequest) => void }) {
+  leagueId, departures, viewerIsOwner, onDecision, teamId,
+}: {
+  leagueId: string;
+  departures: ClubProps['departures'];
+  /** False on a rival's club: held rights are public (they're tradeable), the decisions on them are not. */
+  viewerIsOwner: boolean;
+  onDecision: (r: DecisionRequest) => void;
+  teamId?: string;
+}) {
   const { pending, held, slots, error } = departures;
   if (!error && pending.length === 0 && held.length === 0 && slots.total === 0) return null;
+  // A rival with no held rights has nothing to say here — the empty state below
+  // is written to the owner ("No retained players yet…") and slot usage alone
+  // isn't worth a panel.
+  if (!viewerIsOwner && held.length === 0) return null;
 
   return (
     <section className={`${styles.panel} ${styles.retained}`}>
@@ -21,7 +32,7 @@ export default function RetainedList({
         <span className={styles.eyebrow}>{slots.used} / {slots.total} slots</span>
       </div>
 
-      {error && (
+      {error && viewerIsOwner && (
         <div className={styles.retError}>
           Couldn’t load your retained rights right now — this list may be incomplete. Try refreshing.
         </div>
@@ -37,7 +48,16 @@ export default function RetainedList({
       {held.length > 0 ? (
         <div className={styles.retGroup}>
           {pending.length > 0 && <div className={styles.retGroupH}>Held rights</div>}
-          {held.map((d) => <HeldRow key={d.id} leagueId={leagueId} d={d} onDecision={onDecision} />)}
+          {held.map((d) => (
+            <HeldRow
+              key={d.id}
+              leagueId={leagueId}
+              d={d}
+              viewerIsOwner={viewerIsOwner}
+              teamId={teamId}
+              onDecision={onDecision}
+            />
+          ))}
         </div>
       ) : pending.length === 0 ? (
         <p className={styles.retEmpty}>
@@ -47,8 +67,9 @@ export default function RetainedList({
       ) : null}
 
       <div className={styles.retFoot}>
-        Rights never expire and can’t be cashed out — relinquish one to free its slot. They’re tradeable
-        from the Transfer Market’s Deals page.
+        {viewerIsOwner
+          ? 'Rights never expire and can’t be cashed out — relinquish one to free its slot. They’re tradeable from the Transfer Market’s Deals page.'
+          : 'Rights never expire and can’t be cashed out, but they can be traded — make an offer from the Deals page.'}
       </div>
     </section>
   );
@@ -87,8 +108,14 @@ function PendingRow({ d, onDecision }: { d: DepartureView; onDecision: (r: Decis
 }
 
 function HeldRow({
-  leagueId, d, onDecision,
-}: { leagueId: string; d: DepartureView; onDecision: (r: DecisionRequest) => void }) {
+  leagueId, d, viewerIsOwner, teamId, onDecision,
+}: {
+  leagueId: string;
+  d: DepartureView;
+  viewerIsOwner: boolean;
+  teamId?: string;
+  onDecision: (r: DecisionRequest) => void;
+}) {
   const returning = d.status === 'return_pending';
   return (
     <div className={`${styles.retRow} ${returning ? styles.retReturning : ''}`}>
@@ -104,9 +131,11 @@ function HeldRow({
       {returning ? (
         <>
           <span className={styles.retReturned}>Returned</span>
-          <div className={styles.retActions}>
-            <button type="button" className={`${styles.retBtn} ${styles.retBtnPrimary}`} onClick={() => onDecision({ mode: 'reinstate', dep: d })}>Reinstate</button>
-          </div>
+          {viewerIsOwner && (
+            <div className={styles.retActions}>
+              <button type="button" className={`${styles.retBtn} ${styles.retBtnPrimary}`} onClick={() => onDecision({ mode: 'reinstate', dep: d })}>Reinstate</button>
+            </div>
+          )}
         </>
       ) : (
         <>
@@ -115,8 +144,19 @@ function HeldRow({
             <div className={styles.retFigK}>value at departure</div>
           </div>
           <div className={styles.retActions}>
-            <NavigationLink href={`/league/${leagueId}/transfers/deals?proposeRight=${d.id}`} className={styles.retBtn}>Trade</NavigationLink>
-            <button type="button" className={`${styles.retBtn} ${styles.retBtnDanger}`} onClick={() => onDecision({ mode: 'relinquish', dep: d })}>Relinquish</button>
+            {viewerIsOwner ? (
+              <>
+                <NavigationLink href={`/league/${leagueId}/transfers/deals?proposeRight=${d.id}`} className={styles.retBtn}>Trade</NavigationLink>
+                <button type="button" className={`${styles.retBtn} ${styles.retBtnDanger}`} onClick={() => onDecision({ mode: 'relinquish', dep: d })}>Relinquish</button>
+              </>
+            ) : (
+              <NavigationLink
+                href={`/league/${leagueId}/transfers/deals?proposeTeam=${teamId ?? ''}`}
+                className={styles.retBtn}
+              >
+                Offer
+              </NavigationLink>
+            )}
           </div>
         </>
       )}

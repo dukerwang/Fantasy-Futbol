@@ -630,6 +630,19 @@ export default function DealsClient({
           loans={model.loans}
         />
       </Suspense>
+      <Suspense fallback={null}>
+        <ProposeTeamReader
+          teamIds={model.allTeams.map((t) => t.id)}
+          myTeamId={model.myTeam.id}
+          onFound={(teamId, playerId) => {
+            setProposeCounterSeed(null);
+            setProposeRightId(null);
+            setProposeTeamId(teamId);
+            setProposePlayerId(playerId);
+            setPropose('offer');
+          }}
+        />
+      </Suspense>
 
       {propose && (
         <ProposeBuilder
@@ -715,6 +728,35 @@ function ProposeRightReader({ onFound }: { onFound: (rightId: string) => void })
   useEffect(() => {
     const rightId = searchParams.get('proposeRight');
     if (rightId) onFound(rightId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  return null;
+}
+
+/**
+ * Reads `?proposeTeam=<teamId>` (optionally `&proposePlayer=<playerId>`) and
+ * opens the builder aimed at that club — the landing spot for every "Propose a
+ * deal" / "Make an offer" button on a rival's club page and in the squad-peek
+ * drawer, neither of which can open the builder itself.
+ *
+ * The team id is validated against the league's own clubs rather than trusted:
+ * a hand-edited or stale id would otherwise select a counterparty with no
+ * roster, and the builder would open onto two empty columns.
+ */
+function ProposeTeamReader({
+  teamIds,
+  myTeamId,
+  onFound,
+}: {
+  teamIds: string[];
+  myTeamId: string;
+  onFound: (teamId: string, playerId: string | null) => void;
+}) {
+  const searchParams = useSearchParams();
+  useEffect(() => {
+    const teamId = searchParams.get('proposeTeam');
+    if (!teamId || teamId === myTeamId || !teamIds.includes(teamId)) return;
+    onFound(teamId, searchParams.get('proposePlayer'));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   return null;

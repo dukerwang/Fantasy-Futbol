@@ -3,6 +3,9 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { redirect, notFound } from 'next/navigation';
 import { Icon } from '@/components/ui/Icon';
 import CrestBadge from '@/components/crest/CrestBadge';
+import NavigationLink from '@/components/ui/NavigationLink';
+import SquadPeekButton from '@/components/teams/SquadPeekButton';
+import { clubHref } from '@/lib/teams/clubHref';
 import styles from './standings.module.css';
 
 export const dynamic = 'force-dynamic';
@@ -183,7 +186,14 @@ export default async function StandingsPage({ params }: Props) {
                   <div className={styles.podiumLeaderBadge}>★ League Leader</div>
                 )}
 
-                <h2 className={styles.podiumTeamName}>{row.teamName}</h2>
+                <h2 className={styles.podiumTeamName}>
+                  <NavigationLink
+                    href={clubHref(leagueId, row.teamId, row.teamId === myTeamId)}
+                    className={styles.teamLink}
+                  >
+                    {row.teamName}
+                  </NavigationLink>
+                </h2>
                 <p className={styles.podiumManager}>{row.username}</p>
 
                 <div className={styles.podiumBottom}>
@@ -236,8 +246,23 @@ export default async function StandingsPage({ params }: Props) {
                     <td className={styles.rankCell}>{formatRank(i + 1)}</td>
                     <td className={styles.teamCell}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <CrestBadge config={row.crestConfig} size={28} teamName={row.teamName} />
-                        <span className={styles.teamCellName}>{row.teamName}</span>
+                        {/* The crest peeks, the name navigates — a glance and a
+                            visit are different intentions and shouldn't share
+                            one target. */}
+                        <SquadPeekButton
+                          teamId={row.teamId}
+                          teamName={row.teamName}
+                          className={styles.crestPeek}
+                          title={`Peek at ${row.teamName}`}
+                        >
+                          <CrestBadge config={row.crestConfig} size={28} teamName={row.teamName} />
+                        </SquadPeekButton>
+                        <NavigationLink
+                          href={clubHref(leagueId, row.teamId, isOwn)}
+                          className={`${styles.teamCellName} ${styles.teamLink}`}
+                        >
+                          {row.teamName}
+                        </NavigationLink>
                       </div>
                     </td>
                     <td className={styles.managerCell}>{row.username}</td>

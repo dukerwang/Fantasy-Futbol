@@ -33,6 +33,27 @@
   color: var(--color-bg-primary);
 }
 
+/* Pushed to the far end of the strip — an aside about the selected club, not
+   another club to select. */
+.viewSquad {
+  margin-left: auto;
+  padding: 0.3rem 0.6rem;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 999px;
+  background: none;
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  font-weight: var(--font-semibold);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color var(--transition-fast), border-color var(--transition-fast);
+}
+.viewSquad:hover {
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
 /* ── Mode row ───────────────────────────────────────────── */
 
 .modes {

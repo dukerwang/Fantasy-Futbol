@@ -1,5 +1,5 @@
 /**
- * Pure, client-side derivations for the My Club page.
+ * Pure, client-side derivations for the club page — yours or any rival's.
  * Operates on the SquadEntry[] the server hands down; no I/O.
  *
  * Formation feasibility mirrors the app's real rules: POSITION_FLEX_MAP is

@@ -8,6 +8,7 @@ import { FULL_PLAYER_SELECT } from '@/lib/constants/queries';
 import { normalizeMatchupLineup } from '@/lib/lineups/normalizeMatchupLineup';
 import { generateMatchReport } from '@/lib/narrative/matchReport';
 import { getCurrentFplSeason } from '@/lib/season/currentSeason';
+import { clubHref } from '@/lib/teams/clubHref';
 import MatchReportCard from './MatchReportCard';
 import MatchupLiveRefresh from './MatchupLiveRefresh';
 import styles from './matchup-detail.module.css';
@@ -133,7 +134,11 @@ export default async function MatchupDetailPage({ params }: Props) {
 
             {/* Score banner */}
             <div className={styles.matchHeader}>
-                <h1 className={styles.matchTitle}>{teamAName} vs {teamBName}</h1>
+                <h1 className={styles.matchTitle}>
+                    <ClubLink leagueId={leagueId} teamId={matchup.team_a?.id} myTeamId={member?.id} name={teamAName} />
+                    {' vs '}
+                    <ClubLink leagueId={leagueId} teamId={matchup.team_b?.id} myTeamId={member?.id} name={teamBName} />
+                </h1>
 
                 <div className={styles.scoreRow}>
                     <span className={`${styles.bannerScore} ${bWins ? styles.loser : ''}`}>
@@ -174,5 +179,22 @@ export default async function MatchupDetailPage({ params }: Props) {
                 matchupStatus={matchup.status}
             />
         </div>
+    );
+}
+
+/**
+ * A club name in the score banner, linked to that club's squad.
+ *
+ * The lineup below shows the eleven that played this week; the link answers the
+ * question that immediately follows it — what else is on that roster.
+ */
+function ClubLink({
+    leagueId, teamId, myTeamId, name,
+}: { leagueId: string; teamId?: string; myTeamId?: string; name: string }) {
+    if (!teamId) return <>{name}</>;
+    return (
+        <NavigationLink href={clubHref(leagueId, teamId, teamId === myTeamId)} className={styles.clubLink}>
+            {name}
+        </NavigationLink>
     );
 }

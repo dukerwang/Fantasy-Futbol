@@ -4,6 +4,7 @@ import type { CrestConfig } from '@/components/crest/types';
 import type { GranularPosition } from '@/types';
 import type { TransfersAuction, TransfersListing, TransfersTeam } from '@/lib/transfers/buildTransfersModel';
 import CrestBadge from '@/components/crest/CrestBadge';
+import SquadPeekButton from '@/components/teams/SquadPeekButton';
 import PositionBadge from '@/components/players/PositionBadge';
 import { useTick, formatRemaining, isClosing } from './useTick';
 import { listingStance } from '@/lib/transfers/listingStance';
@@ -120,13 +121,21 @@ export default function ListingCard({
           </div>
         </div>
 
-        <div className={styles.crest} aria-hidden="true">
+        {/* The seller's crest opens their squad — "what else are they sitting
+            on?" is the question a listing provokes, and it used to have no
+            answer short of starting an offer. */}
+        <SquadPeekButton
+          teamId={listing.seller_team_id}
+          teamName={seller?.team_name ?? listing.seller_team_name ?? undefined}
+          className={styles.crest}
+          title={`${seller?.team_name ?? listing.seller_team_name ?? 'Seller'} — peek at their squad`}
+        >
           <CrestBadge
             config={(seller?.crest_config as CrestConfig | null) ?? null}
             teamName={seller?.team_name ?? listing.seller_team_name}
             size={24}
           />
-        </div>
+        </SquadPeekButton>
       </div>
 
       {/* The three-price ladder. Live auctions swap the seller's asking price for

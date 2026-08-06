@@ -2,9 +2,10 @@
 
 import { useState, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import type { Player, RosterStatus } from '@/types';
 import CrestBadge from '@/components/crest/CrestBadge';
-import type { CrestConfig } from '@/components/crest/types';
+import NavigationLink from '@/components/ui/NavigationLink';
+import type { ClubProps, SquadEntry } from '@/lib/teams/loadClubView';
+import ClubSwitcher from './ClubSwitcher';
 import { DepthChart, Gallery, SquadTable } from './SquadViews';
 import Inspector from './Inspector';
 import Intel from './Intel';
@@ -17,86 +18,17 @@ import {
 } from './clubDerive';
 import styles from './club.module.css';
 
-// ── Shared prop types (imported by the server page) ──────────────────────────
+// ── Shared prop types ────────────────────────────────────────────────────────
+// Declared alongside the loader that produces them (`@/lib/teams/loadClubView`)
+// and re-exported here, because this file's children have always imported them
+// from './ClubClient' and there is no reason for them to care where a type moved.
 
-/** A `player_sale_listings` row, shaped for the ListingEditor modal Inspector opens inline. */
-export interface SquadListing {
-  id: string;
-  status: 'pending' | 'active' | 'sold' | 'expired' | 'cancelled';
-  min_bid: number;
-  ask_price: number | null;
-  buy_now_price: number | null;
-  open_to_trade: boolean;
-  open_to_sale: boolean;
-  open_to_loan: boolean;
-  auction_expires_at: string | null;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface SquadEntry {
-  id: string;
-  playerId: string;
-  status: RosterStatus;
-  acquisitionType: 'draft' | 'waiver' | 'free_agent' | 'trade' | 'retained_return';
-  acquisitionValue: number | null;
-  acquiredAt: string;
-  isPendingDrop: boolean;
-  listing: SquadListing | null;
-  form: number[];
-  player: Player;
-}
-
-export interface DepartureView {
-  id: string;
-  status: string;
-  name: string;
-  webName: string;
-  pos: string;
-  photoUrl: string | null;
-  lastClub: string;
-  backClub: string | null;
-  seasonFrom: string;
-  marketValue: number;
-  compensation: number;
-  decideBy: string | null;
-  reinstateBy: string | null;
-}
-
-export interface ClubProps {
-  leagueId: string;
-  teamId: string;
-  club: {
-    name: string;
-    manager: string;
-    leagueName: string;
-    season: string;
-    balance: number;
-    rosterMax: number;
-    academyMax: number;
-    retainedMax: number;
-    academyAgeLimit: number;
-    gw: number;
-    crestConfig: CrestConfig | null;
-  };
-  standing: {
-    rank: number | null;
-    w: number;
-    d: number;
-    l: number;
-    pointsFor: number;
-    pointsForRank: number;
-    ofTeams: number;
-  };
-  entries: SquadEntry[];
-  departures: {
-    pending: DepartureView[];
-    held: DepartureView[];
-    slots: { used: number; total: number; remaining: number };
-    /** True if the decisions or slot-usage query failed — the lists below are empty defaults, not "nothing to show". */
-    error: boolean;
-  };
-}
+export type {
+  SquadListing,
+  SquadEntry,
+  DepartureView,
+  ClubProps,
+} from '@/lib/teams/loadClubView';
 
 // ── Toolbar option sets ──────────────────────────────────────────────────────
 
@@ -230,7 +162,9 @@ function ToDo({ items, onAct }: { items: TodoItem[]; onAct: (t: TodoItem) => voi
 
 // ── Page ──────────────────────────────────────────────────────────────────────
 
-export default function ClubClient({ leagueId, teamId, club, standing, entries, departures }: ClubProps) {
+export default function ClubClient({
+  leagueId, teamId, clubs, viewerIsOwner, club, standing, entries, departures,
+}: ClubProps) {
   const router = useRouter();
   const [view, setView] = useState('depth');
   const [sort, setSort] = useState('overall');
@@ -269,9 +203,11 @@ export default function ClubClient({ leagueId, teamId, club, standing, entries, 
   }, [entries, filter, sort, overall]);
 
   const selected = entries.find((e) => e.id === selectedId) ?? null;
+  // A to-do list is a list of things YOU must act on. On a rival's club it
+  // would be a list of things you can see but can't touch — worse than absent.
   const todos = useMemo(
-    () => buildTodos(entries, departures, club.academyAgeLimit),
-    [entries, departures, club.academyAgeLimit],
+    () => (viewerIsOwner ? buildTodos(entries, departures, club.academyAgeLimit) : []),
+    [viewerIsOwner, entries, departures, club.academyAgeLimit],
   );
 
   function handleTodo(n: TodoItem) {
@@ -288,10 +224,15 @@ export default function ClubClient({ leagueId, teamId, club, standing, entries, 
             <CrestBadge config={club.crestConfig ?? undefined} teamName={club.name} size={68} />
           </div>
           <div className={styles.mhTitles}>
-            <div className={styles.eyebrow}>My Club · {club.season} · {club.leagueName}</div>
+            {/* No "My Club" / "Club" prefix here — the club's name is the
+                headline directly below and the manager is the line under that,
+                so a label naming the kind of thing you're looking at was just
+                repeating the page back at itself. */}
+            <div className={styles.eyebrow}>{club.season} · {club.leagueName}</div>
             <h1 className={styles.mhClub}>{club.name}</h1>
             <div className={styles.mhMeta}>
               <span>{club.manager}</span>
+              {viewerIsOwner && <span className={styles.mhYou}>You</span>}
               {standing.rank != null && (
                 <>
                   <span className={styles.mhDot}>·</span>
@@ -303,7 +244,23 @@ export default function ClubClient({ leagueId, teamId, club, standing, entries, 
               <span className={styles.mhRecord}>{standing.w}W · {standing.d}D · {standing.l}L</span>
             </div>
           </div>
+
+          {/* On a rival's club the masthead is also the exit: the reason you
+              came to look at someone's squad is almost always to deal for part
+              of it. Moving to the next club is the switcher's job, below. */}
+          {!viewerIsOwner && (
+            <div className={styles.mhActions}>
+              <NavigationLink
+                href={`/league/${leagueId}/transfers/deals?proposeTeam=${teamId}`}
+                className={styles.mhCta}
+              >
+                Propose a deal
+              </NavigationLink>
+            </div>
+          )}
         </div>
+
+        <ClubSwitcher leagueId={leagueId} clubs={clubs} currentTeamId={teamId} />
 
         <div className={styles.figs}>
           <Fig label="Club Balance" value={money(club.balance)} sub="Available to spend" />
@@ -360,16 +317,29 @@ export default function ClubClient({ leagueId, teamId, club, standing, entries, 
           {view === 'depth' && <DepthChart entries={shown} allEntries={entries} selId={selectedId} onSelect={setSelectedId} />}
           {view === 'gallery' && <Gallery entries={shown} selId={selectedId} onSelect={setSelectedId} />}
           {view === 'table' && <SquadTable entries={shown} selId={selectedId} onSelect={setSelectedId} />}
-          <RetainedList leagueId={leagueId} departures={departures} onDecision={setDecision} />
+          <RetainedList
+            leagueId={leagueId}
+            teamId={teamId}
+            departures={departures}
+            viewerIsOwner={viewerIsOwner}
+            onDecision={setDecision}
+          />
           <Intel entries={entries} totals={totals} />
         </main>
 
         <div className={styles.rail}>
-          <Inspector entry={selected} teamId={teamId} leagueId={leagueId} academyAgeLimit={club.academyAgeLimit} onAfter={() => router.refresh()} />
+          <Inspector
+            entry={selected}
+            teamId={teamId}
+            leagueId={leagueId}
+            viewerIsOwner={viewerIsOwner}
+            academyAgeLimit={club.academyAgeLimit}
+            onAfter={() => router.refresh()}
+          />
         </div>
       </div>
 
-      {decision && (
+      {decision && viewerIsOwner && (
         <DepartureDecisionModal
           req={decision}
           leagueId={leagueId}

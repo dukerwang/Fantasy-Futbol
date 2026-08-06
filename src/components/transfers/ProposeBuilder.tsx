@@ -11,6 +11,7 @@ import type {
   TransfersTeam,
 } from '@/lib/transfers/buildTransfersModel';
 import CrestBadge from '@/components/crest/CrestBadge';
+import SquadPeekButton from '@/components/teams/SquadPeekButton';
 import PositionBadge from '@/components/players/PositionBadge';
 import { usePlayerCard, playerHoverProps } from '@/components/players/PlayerCardProvider';
 import Modal from './Modal';
@@ -780,6 +781,21 @@ export default function ProposeBuilder({
             {t.team_name}
           </button>
         ))}
+
+        {/* The columns below list the counterparty's tradeable assets, not their
+            club: their XI, their academy and where they actually have depth are
+            what tell you whether the ask is realistic. The drawer opens over
+            this dialog and hands the Escape key back when it closes. */}
+        {target && (
+          <SquadPeekButton
+            teamId={target.id}
+            teamName={target.team_name}
+            className={styles.viewSquad}
+            title={`Peek at ${target.team_name}'s squad`}
+          >
+            View squad
+          </SquadPeekButton>
+        )}
       </div>
 
       <div className={styles.modes}>

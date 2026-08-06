@@ -6,6 +6,7 @@ import type { CrestConfig } from '@/components/crest/types';
 import { getPlayerDisplayName, playerInitial } from '@/lib/players/displayName';
 import { useParams } from 'next/navigation';
 import CrestBadge from '@/components/crest/CrestBadge';
+import SquadPeekButton from '@/components/teams/SquadPeekButton';
 import FormArrow from '@/components/players/FormArrow';
 import { clubBadgePath, clubColor } from '@/lib/clubs/registry';
 import {
@@ -479,32 +480,49 @@ export default function PremiumPlayerCard({
                             {resolvedOwnership && (
                                 resolvedOwnership.loanedTo ? (
                                     <div className={styles.loanCrests} title={`On loan from ${resolvedOwnership.owner.teamName} to ${resolvedOwnership.loanedTo.teamName}`}>
-                                        <div className={styles.loanCrestCol}>
+                                        <SquadPeekButton
+                                            teamId={resolvedOwnership.owner.teamId}
+                                            teamName={resolvedOwnership.owner.teamName}
+                                            className={styles.loanCrestCol}
+                                            title={`${resolvedOwnership.owner.teamName} — peek at their squad`}
+                                        >
                                             <CrestBadge
                                                 config={resolvedOwnership.owner.crestConfig as CrestConfig | null}
                                                 size={22}
                                                 teamName={resolvedOwnership.owner.teamName}
                                             />
                                             <span className={styles.loanRole}>Lender</span>
-                                        </div>
+                                        </SquadPeekButton>
                                         <span className={styles.loanArrow} aria-hidden="true">→</span>
-                                        <div className={styles.loanCrestCol}>
+                                        <SquadPeekButton
+                                            teamId={resolvedOwnership.loanedTo.teamId}
+                                            teamName={resolvedOwnership.loanedTo.teamName}
+                                            className={styles.loanCrestCol}
+                                            title={`${resolvedOwnership.loanedTo.teamName} — peek at their squad`}
+                                        >
                                             <CrestBadge
                                                 config={resolvedOwnership.loanedTo.crestConfig as CrestConfig | null}
                                                 size={22}
                                                 teamName={resolvedOwnership.loanedTo.teamName}
                                             />
                                             <span className={styles.loanRole}>On loan</span>
-                                        </div>
+                                        </SquadPeekButton>
                                     </div>
                                 ) : (
-                                    <div className={styles.ownerCrest} title={resolvedOwnership.owner.teamName}>
+                                    // "Who owns him?" and "what else have they got?" are one
+                                    // question asked twice — the crest answers both.
+                                    <SquadPeekButton
+                                        teamId={resolvedOwnership.owner.teamId}
+                                        teamName={resolvedOwnership.owner.teamName}
+                                        className={styles.ownerCrest}
+                                        title={`${resolvedOwnership.owner.teamName} — peek at their squad`}
+                                    >
                                         <CrestBadge
                                             config={resolvedOwnership.owner.crestConfig as CrestConfig | null}
                                             size={28}
                                             teamName={resolvedOwnership.owner.teamName}
                                         />
-                                    </div>
+                                    </SquadPeekButton>
                                 )
                             )}
                         </div>
