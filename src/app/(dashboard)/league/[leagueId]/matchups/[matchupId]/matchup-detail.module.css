@@ -43,6 +43,17 @@
     line-height: 1.2;
 }
 
+/* Club names in the banner lead to their squads. Underline only on hover, so
+   the headline still reads as a headline. */
+.clubLink {
+    color: inherit;
+    text-decoration: none;
+}
+.clubLink:hover {
+    text-decoration: underline;
+    text-underline-offset: 4px;
+}
+
 .scoreRow {
     display: flex;
     align-items: center;

@@ -1,14 +1,19 @@
 import TopBar from '@/components/layout/TopBar';
 import { PlayerCardProvider } from '@/components/players/PlayerCardProvider';
+import { SquadPeekProvider } from '@/components/teams/SquadPeekProvider';
 import TeamLogoPreloader from '@/components/players/TeamLogoPreloader';
 import styles from './layout.module.css';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
     <PlayerCardProvider>
-      <TeamLogoPreloader />
-      <TopBar />
-      <main className={styles.main}>{children}</main>
+      {/* Inside the card provider: the player card's owner crest opens a peek,
+          so the peek must be able to mount over an already-open card. */}
+      <SquadPeekProvider>
+        <TeamLogoPreloader />
+        <TopBar />
+        <main className={styles.main}>{children}</main>
+      </SquadPeekProvider>
     </PlayerCardProvider>
   );
 }

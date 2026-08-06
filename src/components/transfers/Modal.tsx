@@ -42,6 +42,10 @@ export default function Modal({ open, onClose, title, lead, children, footer, wi
     if (!open) return;
 
     const onKey = (e: KeyboardEvent) => {
+      // The squad-peek drawer can sit on top of this dialog. Both listen on
+      // `document`, so without this check one Escape would close the drawer and
+      // discard the offer being composed underneath it.
+      if (document.body.dataset.squadPeekOpen) return;
       if (e.key === 'Escape') onCloseRef.current();
     };
     document.addEventListener('keydown', onKey);

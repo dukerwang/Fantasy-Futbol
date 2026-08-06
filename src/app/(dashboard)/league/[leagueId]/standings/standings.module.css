@@ -269,6 +269,34 @@
   letter-spacing: -0.01em;
 }
 
+/* Club name → that club's page. Underline on hover only, so the table still
+   reads as a table rather than a page of links. */
+.teamLink {
+  color: inherit;
+  text-decoration: none;
+}
+.teamLink:hover {
+  color: var(--color-accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* The crest becomes a peek trigger — a bare button, styled as the badge it wraps. */
+.crestPeek {
+  display: inline-flex;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  border-radius: 50%;
+  line-height: 0;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+.crestPeek:hover {
+  transform: scale(1.06);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-accent) 45%, transparent);
+}
+
 /* Manager */
 .tableRow td.managerCell {
   text-align: left;

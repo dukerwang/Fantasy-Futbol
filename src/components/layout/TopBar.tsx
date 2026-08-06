@@ -27,9 +27,21 @@ interface UserTeam {
   league: LeagueInfo;
 }
 
+interface NavItem {
+  label: string;
+  href: string;
+  disabled?: boolean;
+  /**
+   * Extra route prefixes this item owns. Clubs lives at `/team/roster` but the
+   * same page serves every rival at `/clubs/<id>`; without this the top bar
+   * goes completely dark the moment you open someone else's squad.
+   */
+  alsoMatches?: string[];
+}
+
 interface NavGroup {
   label: string;
-  items: { label: string; href: string; disabled?: boolean }[];
+  items: NavItem[];
 }
 
 /**
@@ -45,8 +57,10 @@ function isItemActive(
   pathname: string | null,
   href: string,
   siblings: { href: string }[],
+  alsoMatches?: string[],
 ): boolean {
   if (!pathname) return false;
+  if (alsoMatches?.some((p) => pathname.startsWith(p))) return true;
   const prefixesASibling = siblings.some((s) => s.href !== href && s.href.startsWith(`${href}/`));
   return prefixesASibling ? pathname === href : pathname.startsWith(href);
 }
@@ -164,7 +178,10 @@ export default function TopBar() {
         label: 'Squad',
         items: [
           { label: 'Lineup', href: `${base}/team` },
-          { label: 'My Club', href: `${base}/team/roster` },
+          // "Clubs", not "My Club": the destination is still your own squad,
+          // but the page it opens is the way into every squad in the league,
+          // and the item has to stay lit while you're reading a rival's.
+          { label: 'Clubs', href: `${base}/team/roster`, alsoMatches: [`${base}/clubs/`] },
         ],
       },
       {
@@ -188,9 +205,16 @@ export default function TopBar() {
     return groups;
   }
 
-  // Check if a nav group is active
+  // Check if a nav group is active. Deliberately looser than isItemActive —
+  // a group lights up for anything beneath any of its items — but it has to
+  // honour `alsoMatches` too, or Squad would go dark on a rival's club page.
   function isGroupActive(group: NavGroup): boolean {
-    return group.items.some(item => !item.disabled && pathname?.startsWith(item.href));
+    return group.items.some(
+      (item) =>
+        !item.disabled &&
+        (pathname?.startsWith(item.href) ||
+          item.alsoMatches?.some((p) => pathname?.startsWith(p))),
+    );
   }
 
   // Check if Home is active (exact match). During setup/drafting the league
@@ -302,7 +326,7 @@ export default function TopBar() {
                         <Link
                           key={item.label}
                           href={item.href}
-                          className={`${styles.dropdownLink} ${isItemActive(pathname, item.href, group.items) ? styles.dropdownLinkActive : ''}`}
+                          className={`${styles.dropdownLink} ${isItemActive(pathname, item.href, group.items, item.alsoMatches) ? styles.dropdownLinkActive : ''}`}
                           onClick={() => {
                             setIsNavigating(true);
                             setOpenDropdown(null);
