@@ -12,6 +12,7 @@ import type {
 } from '@/lib/transfers/buildTransfersModel';
 import CrestBadge from '@/components/crest/CrestBadge';
 import PositionBadge from '@/components/players/PositionBadge';
+import { usePlayerCard, playerHoverProps } from '@/components/players/PlayerCardProvider';
 import Modal from './Modal';
 import GwRangeSlider from './GwRangeSlider';
 import styles from './ProposeBuilder.module.css';
@@ -132,6 +133,8 @@ export default function ProposeBuilder({
     () => model.allTeams.filter((t) => t.id !== model.myTeam.id),
     [model.allTeams, model.myTeam.id],
   );
+
+  const { openPlayerById, prefetchPlayer } = usePlayerCard();
 
   const [mode, setMode] = useState<ProposeMode>(initialMode);
   const [targetId, setTargetId] = useState<string>(initialTeamId ?? others[0]?.id ?? '');
@@ -429,6 +432,9 @@ export default function ProposeBuilder({
     return `${p.pl_team} · ${Math.round(p.total_points ?? 0)} pts`;
   };
 
+  // A picker row is normally a plain select-to-add button, but the name inside
+  // it is its own nested button that opens the player card instead — it stops
+  // propagation so a click on the name never also adds the player.
   const PlayerRow = ({
     p,
     selected,
@@ -438,18 +444,29 @@ export default function ProposeBuilder({
     selected: boolean;
     onPick: () => void;
   }) => (
-    <button
-      type="button"
+    <div
+      role="button"
+      tabIndex={0}
       className={`${styles.pick} ${selected ? styles.pickOn : ''}`}
       onClick={onPick}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onPick(); }
+      }}
     >
       <PositionBadge position={p.primary_position as GranularPosition} size="sm" />
       <span className={styles.pickBody}>
-        <span className={styles.pickName}>{getPlayerDisplayName(p, 'initial_last')}</span>
+        <button
+          type="button"
+          className={`${styles.pickName} ${styles.pickNameBtn}`}
+          onClick={(e) => { e.stopPropagation(); openPlayerById(p.id); }}
+          {...playerHoverProps(prefetchPlayer, p)}
+        >
+          {getPlayerDisplayName(p, 'initial_last')}
+        </button>
         <span className={styles.pickMeta}>{playerMeta(p)}</span>
       </span>
       <span className={styles.pickValue}>{money(Number(p.market_value) || 0)}</span>
-    </button>
+    </div>
   );
 
   const RightRow = ({
@@ -461,20 +478,35 @@ export default function ProposeBuilder({
     selected: boolean;
     onPick: () => void;
   }) => (
-    <button
-      type="button"
+    <div
+      role="button"
+      tabIndex={0}
       className={`${styles.pick} ${selected ? styles.pickOn : ''}`}
       onClick={onPick}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onPick(); }
+      }}
     >
       <PositionBadge position={(r.player?.primary_position ?? 'CM') as GranularPosition} size="sm" />
       <span className={styles.pickBody}>
-        <span className={styles.pickName}>{r.player ? getPlayerDisplayName(r.player, 'initial_last') : 'Unknown'}</span>
+        {r.player ? (
+          <button
+            type="button"
+            className={`${styles.pickName} ${styles.pickNameBtn}`}
+            onClick={(e) => { e.stopPropagation(); openPlayerById(r.player!.id); }}
+            {...playerHoverProps(prefetchPlayer, r.player)}
+          >
+            {getPlayerDisplayName(r.player, 'initial_last')}
+          </button>
+        ) : (
+          <span className={styles.pickName}>Unknown</span>
+        )}
         <span className={styles.pickMeta}>
           Retained rights{r.status === 'return_pending' ? ' · back in the PL' : ''}
         </span>
       </span>
       <span className={styles.pickValue}>{money(r.marketValueAtDeparture)}</span>
-    </button>
+    </div>
   );
 
   // ── Rows already on the table ──────────────────────────────────
@@ -488,7 +520,14 @@ export default function ProposeBuilder({
     <div key={p.id} className={`${styles.pick} ${styles.chosen}`}>
       <PositionBadge position={p.primary_position as GranularPosition} size="sm" />
       <span className={styles.pickBody}>
-        <span className={styles.pickName}>{getPlayerDisplayName(p, 'initial_last')}</span>
+        <button
+          type="button"
+          className={`${styles.pickName} ${styles.pickNameBtn}`}
+          onClick={() => openPlayerById(p.id)}
+          {...playerHoverProps(prefetchPlayer, p)}
+        >
+          {getPlayerDisplayName(p, 'initial_last')}
+        </button>
         <span className={styles.pickMeta}>{playerMeta(p)}</span>
       </span>
       <span className={styles.pickValue}>{money(Number(p.market_value) || 0)}</span>
@@ -507,9 +546,18 @@ export default function ProposeBuilder({
     <div key={r.id} className={`${styles.pick} ${styles.chosen}`}>
       <PositionBadge position={(r.player?.primary_position ?? 'CM') as GranularPosition} size="sm" />
       <span className={styles.pickBody}>
-        <span className={styles.pickName}>
-          {r.player ? getPlayerDisplayName(r.player, 'initial_last') : 'Unknown'}
-        </span>
+        {r.player ? (
+          <button
+            type="button"
+            className={`${styles.pickName} ${styles.pickNameBtn}`}
+            onClick={() => openPlayerById(r.player!.id)}
+            {...playerHoverProps(prefetchPlayer, r.player)}
+          >
+            {getPlayerDisplayName(r.player, 'initial_last')}
+          </button>
+        ) : (
+          <span className={styles.pickName}>Unknown</span>
+        )}
         <span className={styles.pickMeta}>
           Retained rights{r.status === 'return_pending' ? ' · back in the PL' : ''}
         </span>
@@ -806,7 +854,14 @@ export default function ProposeBuilder({
               <div className={styles.chip}>
                 <PositionBadge position={loanPlayer.primary_position as GranularPosition} size="sm" />
                 <span className={styles.pickBody}>
-                  <span className={styles.pickName}>{getPlayerDisplayName(loanPlayer, 'full')}</span>
+                  <button
+                    type="button"
+                    className={`${styles.pickName} ${styles.pickNameBtn}`}
+                    onClick={() => openPlayerById(loanPlayer.id)}
+                    {...playerHoverProps(prefetchPlayer, loanPlayer)}
+                  >
+                    {getPlayerDisplayName(loanPlayer, 'full')}
+                  </button>
                   <span className={styles.pickMeta}>
                     {loanPlayer.pl_team} · {recentPPG.toFixed(1)} projected PPG
                   </span>

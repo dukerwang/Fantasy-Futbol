@@ -150,6 +150,23 @@
   text-overflow: ellipsis;
 }
 
+.pickNameBtn {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  max-width: 100%;
+}
+
+.pickNameBtn:hover,
+.pickNameBtn:focus-visible {
+  color: var(--color-accent);
+  text-decoration: underline;
+}
+
 .pickMeta {
   display: block;
   font-size: 0.625rem;
