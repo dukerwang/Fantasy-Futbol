@@ -68,7 +68,11 @@
       "Bash(sips -c 160 400 -x 0 -y 0 og-final.png --out crop-logo.png)",
       "Bash(rm -f /private/tmp/claude-501/-Users-dukewang-Fantasy-Futbol/8d51a9b3-5f3b-413d-a951-13baf964e2a8/scratchpad/crop-logo.png /private/tmp/claude-501/-Users-dukewang-Fantasy-Futbol/8d51a9b3-5f3b-413d-a951-13baf964e2a8/scratchpad/crop-card.png)",
       "Bash(rm -f /private/tmp/claude-501/-Users-dukewang-Fantasy-Futbol/8d51a9b3-5f3b-413d-a951-13baf964e2a8/scratchpad/crop-mid.png)",
-      "Bash(sips -g pixelWidth -g pixelHeight caicedo.png)"
+      "Bash(sips -g pixelWidth -g pixelHeight caicedo.png)",
+      "Read(//Users/dukewang/.claude/**)",
+      "Bash(claude mcp *)",
+      "Bash(claude plugin *)",
+      "Bash(npx --yes vercel logs --help)"
     ]
   }
 }
