@@ -5,7 +5,9 @@
 .overlay {
   position: fixed;
   inset: 0;
-  z-index: 200;
+  /* Must clear the transfers Modal and SquadPeek drawer (both z-index 1000) —
+     the player card is opened from on top of both. */
+  z-index: 1100;
   background: rgba(10, 12, 16, 0.85);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
