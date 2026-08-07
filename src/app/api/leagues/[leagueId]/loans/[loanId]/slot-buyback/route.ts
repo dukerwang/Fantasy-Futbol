@@ -61,7 +61,13 @@ export async function POST(req: NextRequest, { params }: Props) {
     return NextResponse.json({ error: rpcError.message }, { status: 500 });
   }
 
-  const resData = rpcRes as { success: boolean; error?: string; fee_paid?: number };
+  const resData = rpcRes as {
+    success: boolean;
+    error?: string;
+    fee_paid?: number;
+    solidarity_per_club?: number;
+    solidarity_recipients?: { team_id: string; team_name: string; user_id: string }[];
+  };
   if (!resData.success) {
     return NextResponse.json({ error: resData.error || 'Failed to activate slot buyback' }, { status: 400 });
   }
@@ -89,6 +95,25 @@ export async function POST(req: NextRequest, { params }: Props) {
         is_system: true,
         message: `[SYSTEM:ANNOUNCEMENT] Slot buyback — **${myTeam.team_name}** paid €${resData.fee_paid}m to buy back and unlock a signing slot while **${player.name}** is out on loan.`,
       });
+
+      // 20% of the buyback fee recirculates (094) — notify who actually got paid.
+      const solidarityRecipients = resData.solidarity_recipients ?? [];
+      if (solidarityRecipients.length > 0 && resData.solidarity_per_club) {
+        const amount = resData.solidarity_per_club;
+        await Promise.all(
+          solidarityRecipients.map((recipient) =>
+            recipient.user_id
+              ? createNotification(admin, {
+                  leagueId,
+                  userId: recipient.user_id,
+                  title: 'Solidarity Payment',
+                  content: `You received **€${amount}m** in solidarity from **${myTeam.team_name}**'s loan slot buyback fee.`,
+                  url: `/league/${leagueId}/finance`,
+                })
+              : Promise.resolve(),
+          ),
+        );
+      }
     }
   } catch (err) {
     console.error('Failed to notify slot buyback:', err);

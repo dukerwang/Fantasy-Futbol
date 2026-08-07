@@ -100,7 +100,7 @@ export async function executeDrop(
         // distribution costs the other clubs a few million rather than
         // corrupting the roster.
         if (charged > 0) {
-            const { error: solErr } = await admin.rpc('distribute_solidarity', {
+            const { data: solData, error: solErr } = await admin.rpc('distribute_solidarity', {
                 p_league_id: team.league_id,
                 p_payer_team_id: teamId,
                 p_amount: charged,
@@ -108,6 +108,34 @@ export async function executeDrop(
             });
             if (solErr) {
                 console.error('[executeDrop] Solidarity distribution failed:', solErr.message);
+            } else {
+                // Notification only — the credit itself already landed inside
+                // distribute_solidarity, atomically with the drop. A failure
+                // here means a club finds out from Finance instead of a
+                // notification, not that they went unpaid.
+                try {
+                    const result = solData as { per_club?: number; recipients?: { team_id: string; team_name: string; user_id: string }[] };
+                    const recipients = result?.recipients ?? [];
+                    if (recipients.length > 0 && result?.per_club) {
+                        const { createNotification } = await import('@/lib/notifications/createNotification');
+                        const amount = result.per_club;
+                        await Promise.all(
+                            recipients.map((recipient) =>
+                                recipient.user_id
+                                    ? createNotification(admin, {
+                                          leagueId: team.league_id,
+                                          userId: recipient.user_id,
+                                          title: 'Solidarity Payment',
+                                          content: `You received **€${amount}m** in solidarity from **${team.team_name}**'s severance fee for dropping **${player.name}**.`,
+                                          url: `/league/${team.league_id}/finance`,
+                                      })
+                                    : Promise.resolve(),
+                            ),
+                        );
+                    }
+                } catch (err) {
+                    console.error('[executeDrop] Failed to notify solidarity recipients:', err);
+                }
             }
         }
     }
