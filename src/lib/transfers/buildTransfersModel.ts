@@ -476,7 +476,14 @@ export async function buildTransfersModel(
       my_bid: mine?.faab_bid ?? null,
       my_drop_player_id: mine?.drop_player_id ?? null,
     };
-  });
+  })
+    // A listing is a listing, not an auction, until someone actually bids on
+    // it — the anchor seeded at creation (migration 080) exists to hold the
+    // 14-day expiry clock, not to make the board treat an untouched listing
+    // as live. Free-agent auctions (system-seeded or otherwise) have no
+    // seller "deciding" anything, so they're unaffected and still show
+    // immediately regardless of bid count.
+    .filter((a) => a.kind !== 'listing' || a.bid_count > 0);
 
   const activeRosterCount = myRoster.filter((r) => r.status !== 'ir' && r.status !== 'taxi').length;
 
