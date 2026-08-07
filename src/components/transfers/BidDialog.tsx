@@ -13,6 +13,7 @@ import Modal from './Modal';
 import { useTick, formatRemaining } from './useTick';
 import styles from './BidDialog.module.css';
 import { getPlayerDisplayName } from '@/lib/players/displayName';
+import { isAcademyEligible, type AcademyCapacity } from '@/lib/transfers/academyEligibility';
 
 /**
  * Bidding, and the release clause, in one dialog.
@@ -46,6 +47,8 @@ interface Props {
   rosterFull: boolean;
   myRoster: RosterPlayer[];
   bidFloor?: number;
+  /** This club's academy occupancy — offer proactive routing whenever there's room. */
+  academy: AcademyCapacity;
   onDone: () => void;
 }
 
@@ -65,6 +68,7 @@ export default function BidDialog({
   rosterFull,
   myRoster,
   bidFloor = 0.5,
+  academy,
   onDone,
 }: Props) {
   const standing = auction?.highest_bid ?? 0;
@@ -89,6 +93,7 @@ export default function BidDialog({
 
   const [amount, setAmount] = useState<number>(opening);
   const [dropId, setDropId] = useState<string>('');
+  const [sendToAcademy, setSendToAcademy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -98,6 +103,7 @@ export default function BidDialog({
     setSeed(`${player.id}:${mode}`);
     setAmount(opening);
     setDropId('');
+    setSendToAcademy(false);
     setMessage(null);
   }
 
@@ -109,6 +115,13 @@ export default function BidDialog({
   // absorb the arrival — the route decides that itself, so this is an offer of
   // a drop rather than a hard gate, and the server still has the final word.
   const droppable = myRoster.filter((r) => r.status !== 'loan_in' && r.id !== player.id);
+
+  // Proactive academy routing (117): offered any time the player is
+  // age-eligible and the academy has room, independent of whether the active
+  // roster happens to be full right now — that's the whole point, since two
+  // auctions resolving seconds apart can otherwise both land on a full active
+  // roster with no way to have asked for the academy in advance.
+  const academyEligible = isAcademyEligible(player.date_of_birth, academy);
 
   const tooExpensive = !Number.isNaN(amount) && amount > budget;
   const belowFloor = Number.isNaN(amount) || amount < floor;
@@ -127,6 +140,7 @@ export default function BidDialog({
           bidAmount: amount,
           dropPlayerId: dropId || null,
           saleListingId: listing?.id ?? null,
+          sendToAcademy,
         }),
       });
       const data = await res.json();
@@ -242,6 +256,25 @@ export default function BidDialog({
           </p>
         )}
       </label>
+
+      {/* Proactive academy routing (117): offered whenever the player is
+          eligible and there's room, independent of roster fullness — the
+          full-roster fallback below already covers that case on its own. */}
+      {!rosterFull && academyEligible && (
+        <label className={styles.field}>
+          <span className={styles.checkboxRow}>
+            <input
+              type="checkbox"
+              checked={sendToAcademy}
+              onChange={(e) => setSendToAcademy(e.target.checked)}
+            />
+            Send to academy if I win
+          </span>
+          <div className={styles.hint}>
+            Academy: {academy.current}/{academy.max} slots · U{academy.age_limit} only.
+          </div>
+        </label>
+      )}
 
       {rosterFull && (
         <label className={styles.field}>

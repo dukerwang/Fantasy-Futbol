@@ -32,7 +32,7 @@ export async function POST(req: NextRequest, { params }: Props) {
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const body = await req.json();
-  const { playerId, bidAmount, dropPlayerId, saleListingId } = body as {
+  const { playerId, bidAmount, dropPlayerId, saleListingId, sendToAcademy } = body as {
     playerId: string;
     bidAmount: number;
     dropPlayerId?: string | null;
@@ -43,6 +43,13 @@ export async function POST(req: NextRequest, { params }: Props) {
      * for the same player. Never trusted as the source of truth.
      */
     saleListingId?: string | null;
+    /**
+     * Opt-in: if this bid wins, route the player straight to the academy
+     * rather than the active bench — regardless of whether the active roster
+     * happens to be full at the moment of resolution. Mutually exclusive with
+     * dropPlayerId. See migration 117.
+     */
+    sendToAcademy?: boolean;
   };
 
   if (!playerId || bidAmount === undefined || bidAmount === null) {
@@ -50,6 +57,12 @@ export async function POST(req: NextRequest, { params }: Props) {
   }
   if (!Number.isInteger(bidAmount) || bidAmount < 0) {
     return NextResponse.json({ error: 'bidAmount must be a non-negative integer' }, { status: 400 });
+  }
+  if (dropPlayerId && sendToAcademy) {
+    return NextResponse.json(
+      { error: 'Cannot nominate a drop player and request academy routing on the same bid.' },
+      { status: 400 },
+    );
   }
 
   const admin = createAdminClient();
@@ -179,6 +192,29 @@ export async function POST(req: NextRequest, { params }: Props) {
       },
       { status: 400 },
     );
+  }
+
+  // Proactive academy request (117): validated here as a courtesy to the
+  // caller — age doesn't change between now and resolution, so a request for
+  // an ineligible player is always wrong. Academy CAPACITY is deliberately
+  // not checked here: it's re-validated fresh at resolution time (the whole
+  // point of this feature is that another auction can claim the last slot
+  // between now and then), and the resolver falls back to bench rather than
+  // failing the win if that happens.
+  if (sendToAcademy) {
+    if (!playerData?.date_of_birth) {
+      return NextResponse.json(
+        { error: 'This player has no date of birth on record, so academy eligibility cannot be confirmed.' },
+        { status: 400 },
+      );
+    }
+    const requestedAge = calculateAgeInYears(playerData.date_of_birth);
+    if (requestedAge > ageLimit) {
+      return NextResponse.json(
+        { error: `${playerData.name ?? 'This player'} is age ${requestedAge} and not U${ageLimit} academy-eligible.` },
+        { status: 400 },
+      );
+    }
   }
 
   // Is this a manager's listing or an open free agent? The RPC resolves this
@@ -365,6 +401,7 @@ export async function POST(req: NextRequest, { params }: Props) {
     p_expires_at: new Date(expiresAt).toISOString(),
     p_now: new Date(now).toISOString(),
     p_expect_sale_listing_id: saleListingId || null,
+    p_send_to_academy: !!sendToAcademy,
   });
 
   if (rpcError) {

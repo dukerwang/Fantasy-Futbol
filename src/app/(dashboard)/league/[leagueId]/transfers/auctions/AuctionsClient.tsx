@@ -329,6 +329,7 @@ export default function AuctionsClient({
           openBidCount={biddableAuctions.filter((a) => a.my_bid != null && a.my_bid > 0).length}
           rosterFull={model.rosterFull}
           myRoster={model.myRoster}
+          academy={model.academy}
           bidFloor={model.league.free_agent_bid_floor ?? 0.5}
           onDone={refresh}
         />
