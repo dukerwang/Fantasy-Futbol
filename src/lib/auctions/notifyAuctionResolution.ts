@@ -30,8 +30,13 @@ export interface AuctionResolutionResult {
   initiator_team_name?: string;
   scout_amount?: number;
   scout_team_id?: string;
+  /** Added alongside solidarity_recipients (115) — who to notify, not just who to credit. */
+  scout_user_id?: string | null;
+  scout_team_name?: string | null;
   solidarity_per_club?: number;
   solidarity_club_count?: number;
+  /** Every club actually paid a solidarity share (115) — built during the same loop that pays them. */
+  solidarity_recipients?: { team_id: string; team_name: string; user_id: string }[];
   losing_teams?: { team_id: string; team_name: string; user_id: string; faab_bid: number }[];
   sale_listing_id?: string | null;
   seller_team_id?: string | null;
@@ -124,6 +129,39 @@ export async function notifyAuctionResolution(
       is_system: true,
       message: `[SYSTEM:ANNOUNCEMENT] ${lead}`,
     });
+
+    // 1a. Notify the scout. Only free-agent/system auctions recirculate money
+    // (093) — a sale listing pays the seller in full, so this never fires
+    // alongside resData.sale_listing_id. In-app only, matching the losing-bidder
+    // notification below: a €1-10m credit doesn't need an email blast the way
+    // the winner announcement does.
+    if (resData.scout_team_id && resData.scout_user_id && resData.scout_amount) {
+      await createNotification(admin, {
+        leagueId,
+        userId: resData.scout_user_id,
+        title: "Scout's Fee!",
+        content: `You earned **€${resData.scout_amount}m** for opening the auction on **${playerName}** — won by **${winnerTeamName ?? 'another club'}** for €${winnerBid}m.`,
+        url: `/league/${leagueId}/finance`,
+      });
+    }
+
+    // 1b. Notify every club paid a solidarity share.
+    const solidarityRecipients = resData.solidarity_recipients ?? [];
+    if (solidarityRecipients.length > 0 && resData.solidarity_per_club) {
+      const amount = resData.solidarity_per_club;
+      await Promise.all(
+        solidarityRecipients.map(async (recipient) => {
+          if (!recipient.user_id) return;
+          await createNotification(admin, {
+            leagueId,
+            userId: recipient.user_id,
+            title: 'Solidarity Payment',
+            content: `You received **€${amount}m** in solidarity from ${winnerTeamName ?? 'another club'}'s **€${winnerBid}m** signing of **${playerName}**.`,
+            url: `/league/${leagueId}/finance`,
+          });
+        }),
+      );
+    }
 
     // 1b. Notify the seller (if player sale)
     if (resData.sale_listing_id && resData.seller_team_id) {

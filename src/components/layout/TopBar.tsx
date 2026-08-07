@@ -107,14 +107,24 @@ export default function TopBar() {
     return () => window.removeEventListener('navigation-start', handleNavStart);
   }, []);
 
-  // Fetch user's teams + leagues via server API (bypasses RLS)
+  // Fetch user's teams + leagues (includes each team's Club Balance) on every
+  // navigation, not just once. This layout persists across client-side route
+  // changes — Next.js never remounts it — so a mount-only fetch left the pill
+  // showing whatever the balance was when the tab was first opened, stale
+  // against every page that fetches its own fresh data (auctions, listings,
+  // finance) after a bid resolves, a trade completes, or a solidarity payment
+  // lands.
   useEffect(() => {
     fetch('/api/user/leagues')
       .then(r => r.json())
       .then(({ teams: data }) => {
         if (data) setTeams(data);
       });
+  }, [pathname]);
 
+  // Platform admin status and username don't change mid-session, so these stay
+  // mount-only.
+  useEffect(() => {
     // Platform admin status — distinct from any league's commissioner
     fetch('/api/user/admin-status')
       .then(r => r.json())
