@@ -129,6 +129,9 @@ export function useLiveTransfers(leagueId: string, model: TransfersModel): Trans
       };
 
       setAuctions((prev) => {
+        if (mapped.kind === 'listing' && (mapped.bid_count ?? 0) === 0) {
+          return prev.filter((a) => a.player_id !== row.player_id);
+        }
         const idx = prev.findIndex((a) => a.player_id === row.player_id);
         if (idx === -1) return [mapped, ...prev];
         // Drop-player nomination is deliberately absent from the public

@@ -480,7 +480,13 @@ export async function buildHomeModel(
   const standings = (standingsRes.data ?? []) as any[];
   const allMatchups = (matchupsRes.data ?? []) as MatchupLite[];
   const tournaments = (tournamentsRes.data ?? []) as any[];
-  const liveAuctions = (auctionsRes.data ?? []) as any[];
+  // A listing is a listing, not an auction, until someone actually bids on it —
+  // the anchor seeded at creation (migration 080) holds the 14-day expiry clock,
+  // but untouched listings must not show as live auctions on the home page.
+  const rawLiveAuctions = (auctionsRes.data ?? []) as any[];
+  const liveAuctions = rawLiveAuctions.filter(
+    (a) => a.kind !== 'listing' || (a.bid_count ?? 0) > 0,
+  );
   const departures = (departuresRes.data ?? []) as any[];
   const offers = (offersRes.data ?? []) as any[];
   const myListings = (listingsRes.data ?? []) as any[];
@@ -1439,25 +1445,31 @@ export async function buildHomeModel(
       const r = resultFor(myTeamId, previous as MatchupLite);
       lastMeeting = `${r === 'W' ? 'Won' : r === 'L' ? 'Lost' : 'Drew'} ${Math.round(mine)}–${Math.round(theirs)}`;
     }
+    let title: string;
+    if (!fixture.hasScores) {
+      title = phase === 'live' ? 'You are playing' : 'You play';
+    } else if (phase === 'live') {
+      title =
+        fixture.outcome === 'ahead'
+          ? 'You lead'
+          : fixture.outcome === 'behind'
+            ? 'You trail'
+            : 'You are playing';
+    } else {
+      title =
+        fixture.outcome === 'ahead'
+          ? 'You beat'
+          : fixture.outcome === 'behind'
+            ? 'You lost to'
+            : 'You drew with';
+    }
+
     opponent = {
       club: fixture.away,
       record: `${w}-${d}-${l}`,
       lastMeeting,
-      title:
-        phase === 'ft'
-          ? fixture.outcome === 'ahead'
-            ? 'You beat'
-            : fixture.outcome === 'behind'
-              ? 'You lost to'
-              : 'You drew with'
-          : phase === 'market'
-            ? 'You drew with'
-            : phase === 'buildup'
-              ? 'You play'
-              : 'You are playing',
+      title,
     };
-    if (phase === 'market' && fixture.outcome === 'ahead') opponent.title = 'You beat';
-    if (phase === 'market' && fixture.outcome === 'behind') opponent.title = 'You lost to';
   }
 
   // ── the dynasty block ───────────────────────────────────────
