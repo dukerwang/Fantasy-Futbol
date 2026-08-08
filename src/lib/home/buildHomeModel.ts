@@ -1303,7 +1303,7 @@ export async function buildHomeModel(
       competition: t.name,
       value: won ? 'Winners' : t.status === 'completed' ? 'Out' : 'In it',
       sub: won ? 'Champions' : t.status === 'completed' ? 'Knocked out' : 'Still alive',
-      prize: `${seasonOver ? 'Paid' : 'Pays'} ${money(cupPrizes[t.type] ?? 20)}`,
+      prize: `${seasonOver ? 'Paid' : 'Pays'} ${money(cupPrizes[t.type] ?? 25)}`,
       tone: won ? 'won' : t.status === 'completed' ? 'out' : 'plain',
     });
   }
