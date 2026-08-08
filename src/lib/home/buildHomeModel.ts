@@ -19,7 +19,11 @@
 import type { createAdminClient } from '@/lib/supabase/admin';
 import { getFplStatus } from '@/lib/fpl/api';
 import { getPlayerDisplayName } from '@/lib/players/displayName';
-import { computeSeasonPrize } from '@/lib/offseason/prizeDistribution';
+import {
+  computeSeasonPrize,
+  DEFAULT_PRIZE_CONFIG,
+  type PrizeConfig,
+} from '@/lib/offseason/prizeDistribution';
 import {
   periodIndexForGameweek,
   gameweeksInPeriod,
@@ -1269,10 +1273,21 @@ export async function buildHomeModel(
     tone: 'plain',
   });
 
+  /**
+   * Cup prize money comes from the league's own config, falling back to
+   * DEFAULT_PRIZE_CONFIG — never hardcoded here. These numbers move: the
+   * 2026-08 pass took the Champions Cup from 40 to 50 and the other two from
+   * 20 to 25, and a copy in this file would have quietly kept paying the old
+   * figures on screen while the reset paid the new ones.
+   */
+  const prizeConfig: PrizeConfig = {
+    ...DEFAULT_PRIZE_CONFIG,
+    ...((league.prize_config as PrizeConfig | null) ?? {}),
+  };
   const cupPrizes: Record<string, number> = {
-    primary_cup: 40,
-    secondary_cup: 20,
-    consolation_cup: 20,
+    primary_cup: prizeConfig.champions_cup_winner,
+    secondary_cup: prizeConfig.league_cup_winner,
+    consolation_cup: prizeConfig.consolation_cup_winner,
   };
   for (const t of tournaments) {
     const won = archiveCups.some(
@@ -1503,7 +1518,16 @@ export async function buildHomeModel(
         },
       ],
       prizes: money(computeSeasonPrize(myRank, teamCount)),
-      prizeSub: `Placement ${money(computeSeasonPrize(myRank, teamCount))}${cupWins.length ? ` · cup ${money(40)}` : ''}`,
+      prizeSub: `Placement ${money(computeSeasonPrize(myRank, teamCount))}${
+        cupWins.length
+          ? ` · ${cupWins
+              .map((c) => {
+                const t = tournaments.find((x) => x.name === c.tournament_name);
+                return `${c.tournament_name} ${money(cupPrizes[t?.type ?? ''] ?? 0)}`;
+              })
+              .join(' · ')}`
+          : ''
+      }`,
       balance: money(balance),
       openDepartures: departures.filter((d) => d.status === 'pending').length,
     };
