@@ -1,3 +1,17 @@
+/* The position badge is the twelve-position taxonomy made visible, so it
+   is the one component where colour genuinely carries identity.
+
+   Every position now supplies three tokens instead of one — field, label
+   ink (`-on`) and keyline (`-line`) — and this file reads all three
+   rather than hardcoding `color: #fff` on all twelve. That hardcode was
+   the reason goalkeeper amber had to be dragged toward mud to stay
+   legible: forcing white ink made the fill the only thing that could
+   move. Letting the ink vary per position is what lets each hue sit
+   where the spine wants it.
+
+   The keyline matters in dark mode, where the fills are light and the
+   badge would otherwise float on the card with no edge. */
+
 .badge {
   display: inline-flex;
   align-items: center;
@@ -7,6 +21,9 @@
   letter-spacing: 0.04em;
   line-height: 1;
   flex-shrink: 0;
+  background: var(--pos-field);
+  color: var(--pos-ink);
+  box-shadow: inset 0 0 0 1px var(--pos-line);
 }
 
 .size_sm {
@@ -19,62 +36,20 @@
   padding: 3px 7px;
 }
 
-.pos_GK {
-  background: var(--color-pos-gk);
-  color: #fff;
-}
+.pos_GK  { --pos-field: var(--color-pos-gk);  --pos-ink: var(--color-pos-gk-on);  --pos-line: var(--color-pos-gk-line); }
+.pos_CB  { --pos-field: var(--color-pos-cb);  --pos-ink: var(--color-pos-cb-on);  --pos-line: var(--color-pos-cb-line); }
+.pos_LB  { --pos-field: var(--color-pos-lb);  --pos-ink: var(--color-pos-lb-on);  --pos-line: var(--color-pos-lb-line); }
+.pos_RB  { --pos-field: var(--color-pos-rb);  --pos-ink: var(--color-pos-rb-on);  --pos-line: var(--color-pos-rb-line); }
+.pos_LWB { --pos-field: var(--color-pos-lwb); --pos-ink: var(--color-pos-lwb-on); --pos-line: var(--color-pos-lwb-line); }
+.pos_RWB { --pos-field: var(--color-pos-rwb); --pos-ink: var(--color-pos-rwb-on); --pos-line: var(--color-pos-rwb-line); }
+.pos_DM  { --pos-field: var(--color-pos-dm);  --pos-ink: var(--color-pos-dm-on);  --pos-line: var(--color-pos-dm-line); }
+.pos_CM  { --pos-field: var(--color-pos-cm);  --pos-ink: var(--color-pos-cm-on);  --pos-line: var(--color-pos-cm-line); }
+.pos_AM  { --pos-field: var(--color-pos-am);  --pos-ink: var(--color-pos-am-on);  --pos-line: var(--color-pos-am-line); }
+.pos_LW  { --pos-field: var(--color-pos-lw);  --pos-ink: var(--color-pos-lw-on);  --pos-line: var(--color-pos-lw-line); }
+.pos_RW  { --pos-field: var(--color-pos-rw);  --pos-ink: var(--color-pos-rw-on);  --pos-line: var(--color-pos-rw-line); }
+.pos_ST  { --pos-field: var(--color-pos-st);  --pos-ink: var(--color-pos-st-on);  --pos-line: var(--color-pos-st-line); }
 
-.pos_CB {
-  background: var(--color-pos-cb);
-  color: #fff;
-}
-
-.pos_LB {
-  background: var(--color-pos-fb);
-  color: #fff;
-}
-
-.pos_RB {
-  background: var(--color-pos-fb);
-  color: #fff;
-}
-
-.pos_DM {
-  background: var(--color-pos-dm);
-  color: #fff;
-}
-
-.pos_CM {
-  background: var(--color-pos-cm);
-  color: #fff;
-}
-
-.pos_LWB {
-  background: var(--color-pos-wb);
-  color: #fff;
-}
-
-.pos_RWB {
-  background: var(--color-pos-wb);
-  color: #fff;
-}
-
-.pos_AM {
-  background: var(--color-pos-am);
-  color: #fff;
-}
-
-.pos_LW {
-  background: var(--color-pos-lw);
-  color: #fff;
-}
-
-.pos_RW {
-  background: var(--color-pos-rw);
-  color: #fff;
-}
-
-.pos_ST {
-  background: var(--color-pos-st);
-  color: #fff;
-}
+/* Left/right variants share a hue, so the side is carried by a clipped
+   corner as well as by the letters — colour is never the sole cue. */
+.side_l { clip-path: polygon(0 42%, 5px 0, 100% 0, 100% 100%, 0 100%); }
+.side_r { clip-path: polygon(0 0, calc(100% - 5px) 0, 100% 42%, 100% 100%, 0 100%); }

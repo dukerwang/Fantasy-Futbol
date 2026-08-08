@@ -56,6 +56,40 @@ function rateAtSlot(
 }
 
 /**
+ * What the scorer actually did, for surfaces that have to explain a result
+ * rather than just print it.
+ *
+ * This is populated by `calculateTeamScore` itself rather than recomputed by
+ * the caller, and that is the whole point: auto-sub eligibility is strict
+ * exact-position matching in a fixed bench order, and any second
+ * implementation of it would eventually disagree with the score it is meant
+ * to be explaining.
+ */
+export interface TeamScoreDetail {
+  /** Starters who recorded zero minutes across every fixture. */
+  blanked: { playerId: string; slot: string; covered: boolean }[];
+  /** Auto-subs that fired, with the slot filled and the points earned there. */
+  subs: { inId: string; outId: string; slot: string; points: number }[];
+  /** Bench players who played but weren't needed, and their 25% credit. */
+  benchBonus: { playerId: string; credit: number }[];
+  /** Total bench depth bonus added to the score. */
+  benchBonusTotal: number;
+  /**
+   * Starters taking the out-of-position penalty — a midfield or attacking
+   * primary fielded in a defensive slot (§4 of the guide).
+   */
+  outOfPosition: { playerId: string; slot: string }[];
+}
+
+/** An empty detail, so callers can allocate one without repeating the shape. */
+export function emptyTeamScoreDetail(): TeamScoreDetail {
+  return { blanked: [], subs: [], benchBonus: [], benchBonusTotal: 0, outOfPosition: [] };
+}
+
+const DEFENSIVE_SLOTS = ['CB', 'LB', 'RB', 'LWB', 'RWB'];
+const MID_OR_ATT = ['DM', 'CM', 'AM', 'LW', 'RW', 'ST'];
+
+/**
  * Resolve a single team's lineup score with auto-subs and bench bonus.
  *
  * Role-aware scoring (Phase 2):
@@ -85,7 +119,13 @@ export function calculateTeamScore(
   playerPlTeamId: Map<string, number>,
   refStats: Record<string, ReferenceStats>,
   finished: boolean,
-  finishedPlTeamIds: Set<number>
+  finishedPlTeamIds: Set<number>,
+  /**
+   * Optional out-param. When supplied it is filled with what the scorer did —
+   * which starters blanked, which subs fired, what the bench bonus paid. Every
+   * existing caller passes seven arguments and is unaffected.
+   */
+  detail?: TeamScoreDetail
 ): number {
   if (!lineup) return 0;
 
@@ -140,10 +180,18 @@ export function calculateTeamScore(
 
     if (totalMinutes > 0) {
       score += getSlotPoints(starter.player_id, starter.slot);
+      if (detail) {
+        const primary = (playerPositions.get(starter.player_id) ?? [])[0];
+        if (primary && MID_OR_ATT.includes(primary) && DEFENSIVE_SLOTS.includes(starter.slot)) {
+          detail.outOfPosition.push({ playerId: starter.player_id, slot: starter.slot });
+        }
+      }
     } else {
       // Auto-sub: only fire if this player's PL match is confirmed finished
       const plTeamId = playerPlTeamId.get(starter.player_id);
       const fixtureFinished = finished || (plTeamId != null && finishedPlTeamIds.has(plTeamId));
+
+      let covered = false;
 
       if (fixtureFinished) {
         const slotAllowedPos = POSITION_FLEX_MAP[starter.slot] ?? [];
@@ -161,12 +209,22 @@ export function calculateTeamScore(
           if (canPlaySlot) {
             // Auto-sub fills the absent starter's slot, so we rate the sub at
             // THAT slot (not the sub's own primary position).
-            score += getSlotPoints(benchId, starter.slot);
+            const subPoints = getSlotPoints(benchId, starter.slot);
+            score += subPoints;
             usedBenchIds.add(benchId);
+            covered = true;
+            detail?.subs.push({
+              inId: benchId,
+              outId: starter.player_id,
+              slot: starter.slot,
+              points: Math.round(subPoints * 100) / 100,
+            });
             break;
           }
         }
       }
+
+      detail?.blanked.push({ playerId: starter.player_id, slot: starter.slot, covered });
     }
   }
 
@@ -181,7 +239,13 @@ export function calculateTeamScore(
       if (record && totalMinutes > 0) {
         const benchPlayerTotal = getStoredPoints(benchId);
         if (benchPlayerTotal > 0) {
-          score += benchPlayerTotal * BENCH_DEPTH_BONUS;
+          const credit = benchPlayerTotal * BENCH_DEPTH_BONUS;
+          score += credit;
+          if (detail) {
+            detail.benchBonus.push({ playerId: benchId, credit: Math.round(credit * 100) / 100 });
+            detail.benchBonusTotal =
+              Math.round((detail.benchBonusTotal + credit) * 100) / 100;
+          }
         }
       }
     }

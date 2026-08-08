@@ -1,0 +1,791 @@
+/* ==========================================================
+   League Home — ported 1:1 from the Gaffa 2.0 prototype
+   (Claude Design project f4858479, "League Home.dc.html").
+
+   The reframe this page is built on: it is about YOUR CLUB, not
+   the league. The old home spent seven of nine regions on
+   league-wide information that /standings, /activity, /stats
+   and /matchups already carry in more depth.
+   ========================================================== */
+
+.page {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: var(--s6) var(--s6) var(--s12);
+}
+
+/* ---------- masthead: your club is the subject ---------- */
+.mast {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--s5);
+  flex-wrap: wrap;
+  padding-bottom: var(--s4);
+  border-bottom: 2px solid var(--color-text-primary);
+}
+.mastId { display: flex; align-items: center; gap: var(--s4); min-width: 0; }
+.mastTx { min-width: 0; }
+.mastName {
+  font-family: var(--font-serif);
+  font-weight: 700;
+  font-size: 38px;
+  letter-spacing: -0.028em;
+  line-height: 1.02;
+  margin: 0;
+}
+.mastSub { font-size: var(--t-13); color: var(--color-text-secondary); margin-top: 3px; }
+
+.figs { display: flex; gap: var(--s8); margin-left: auto; flex-wrap: wrap; }
+.fig { min-width: 76px; }
+.figV {
+  font-family: var(--font-serif);
+  font-weight: 700;
+  font-size: var(--t-25);
+  line-height: 1;
+  letter-spacing: -0.015em;
+  font-variant-numeric: tabular-nums lining-nums;
+}
+.figVAccent { color: var(--color-accent-ink); }
+/* A stake, not a label. */
+.figS {
+  font-size: var(--t-11);
+  color: var(--color-text-muted);
+  margin-top: 5px;
+  line-height: 1.35;
+}
+
+/* ---------- attention ----------
+   A list, not a flex row. In the first prototype item widths were a
+   function of item count, so two items produced 376px and 261px gaps at
+   1440px, and at 375px every message computed to width:0 inside
+   overflow:hidden — the copy was simply gone. */
+.attn { margin-top: var(--s5); }
+.attnHd { display: flex; align-items: baseline; gap: var(--s3); padding-bottom: var(--s2); }
+.attnT {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 600;
+  font-size: var(--t-17);
+  margin: 0;
+}
+.attnHint { font-size: var(--t-12); color: var(--color-text-muted); }
+.attnList {
+  display: grid;
+  gap: 1px;
+  background: var(--color-border-subtle);
+  border: var(--line-strong);
+  border-radius: var(--r-shell);
+  overflow: hidden;
+}
+.attnItem {
+  display: grid;
+  grid-template-columns: auto 1fr auto auto auto;
+  align-items: center;
+  gap: var(--s4);
+  padding: var(--s3) var(--s4);
+  background: var(--color-bg-card);
+}
+.attnItem:hover { background: var(--color-bg-card-alt); }
+.attnText { font-size: var(--t-13); font-weight: 600; color: var(--color-text-primary); min-width: 0; }
+.attnWhen {
+  font-family: var(--font-mono);
+  font-size: var(--t-11);
+  font-weight: 600;
+  color: var(--color-warning-text);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.attnWhenCalm { composes: attnWhen; color: var(--color-text-muted); }
+.attnDismiss {
+  display: inline-grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border: 0;
+  border-radius: var(--r-control);
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  flex: none;
+}
+.attnDismiss:hover { background: var(--color-bg-inset); color: var(--color-text-primary); }
+.attnRestore {
+  margin-left: auto;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  font-family: inherit;
+  font-size: var(--t-12);
+  font-weight: 700;
+  color: var(--color-accent-ink);
+  cursor: pointer;
+}
+.attnRestore:hover { text-decoration: underline; text-underline-offset: 3px; }
+.attnEmpty {
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+  padding: var(--s4) var(--s5);
+  background: var(--color-bg-card);
+  border: var(--line-strong);
+  border-radius: var(--r-shell);
+  font-size: var(--t-13);
+  color: var(--color-text-secondary);
+}
+
+/* Tick + text, never a filled pill or a coloured side-border. */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: var(--t-10);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--tagColor, var(--color-text-muted));
+  white-space: nowrap;
+}
+.tag::before {
+  content: '';
+  width: 3px;
+  height: 11px;
+  border-radius: var(--r-micro);
+  background: currentColor;
+}
+.tagWarn { --tagColor: var(--color-warning-text); }
+.tagOwn { --tagColor: var(--color-accent-ink); }
+.tagPlain { --tagColor: var(--color-text-muted); }
+
+/* ---------- body ----------
+   Every track is minmax(0,…) and every grid child gets min-width:0.
+   Without it a grid item's automatic minimum is its min-content, and the
+   standings table then sets the minimum width of the whole page. */
+.body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 306px);
+  gap: var(--s8);
+  align-items: start;
+  margin-top: var(--s8);
+}
+.main { min-width: 0; display: grid; gap: var(--s8); }
+.main > * { min-width: 0; }
+.rail { min-width: 0; display: grid; gap: var(--s6); position: sticky; top: var(--s5); }
+.rail > * { min-width: 0; }
+
+.sect {
+  display: flex;
+  align-items: baseline;
+  gap: var(--s3);
+  padding-bottom: var(--s2);
+  border-bottom: 2px solid var(--color-text-primary);
+  margin-bottom: var(--s4);
+}
+.sectT {
+  font-family: var(--font-serif);
+  font-weight: 700;
+  font-size: var(--t-20);
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+.sectHint { font-size: var(--t-12); color: var(--color-text-muted); }
+.sectMore { margin-left: auto; font-size: var(--t-12); font-weight: 700; color: var(--color-accent-ink); }
+
+/* ---------- hero ---------- */
+.hero {
+  border: var(--line-strong);
+  border-radius: var(--r-shell);
+  overflow: hidden;
+  background: var(--color-bg-card);
+}
+.heroTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s4);
+  padding: var(--s3) var(--s5);
+  border-bottom: var(--line);
+}
+.heroWhen { font-size: var(--t-12); color: var(--color-text-secondary); font-weight: 600; }
+.live {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 600;
+  font-size: var(--t-13);
+  color: var(--color-live);
+}
+.live::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: var(--r-round);
+  background: currentColor;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .live::before { animation: pulse 1.8s ease-in-out infinite; }
+}
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+.heroTeams {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: var(--s5);
+  padding: var(--s5);
+}
+.ht { display: flex; align-items: center; gap: var(--s3); min-width: 0; }
+.htAway { justify-content: flex-end; }
+.htTx { min-width: 0; }
+.htAway .htTx { text-align: right; }
+.htName {
+  font-family: var(--font-serif);
+  font-weight: 700;
+  font-size: var(--t-20);
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+.htMeta { font-size: var(--t-11); color: var(--color-text-secondary); margin-top: 2px; }
+
+.scores { display: flex; align-items: center; gap: var(--s4); }
+.score {
+  font-family: var(--font-serif);
+  font-weight: 700;
+  font-size: 46px;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums lining-nums;
+}
+.scoreDim { composes: score; color: var(--color-text-muted); }
+.scoreSep { width: 1px; height: 30px; background: var(--color-border); }
+.vs { font-family: var(--font-serif); font-style: italic; font-size: var(--t-20); color: var(--color-text-muted); }
+
+/* ---------- the margin meter ----------
+   Live only. The margin is SIGNED, so a defeat is representable — the
+   first prototype took a magnitude and the marker leaned the same way
+   whatever the result, which meant a loss had never once been drawn.
+   The verdict names the distance to the NEXT outcome, which is the one
+   thing the two scores cannot say on their own. */
+.meter { padding: 0 var(--s5) var(--s4); }
+.meterTrack { position: relative; height: 22px; }
+.meterRail {
+  position: absolute;
+  top: 8px;
+  left: 0;
+  right: 0;
+  height: 6px;
+  background: var(--color-bg-inset);
+  border-radius: var(--r-micro);
+}
+.meterBand {
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  left: 37.5%;
+  right: 37.5%;
+  background: var(--color-bg-card-alt);
+  border-left: 1px dashed var(--color-border-strong);
+  border-right: 1px dashed var(--color-border-strong);
+  border-radius: var(--r-micro);
+}
+/* The zero is a thin reference line; the marker is the pointer. In a
+   tight game they sit close together and must not read as a pair. */
+.meterZero {
+  position: absolute;
+  top: 5px;
+  bottom: 5px;
+  left: 50%;
+  width: 1px;
+  margin-left: -0.5px;
+  background: var(--color-border-strong);
+}
+.meterMark {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  margin-left: -1.5px;
+  border-radius: var(--r-micro);
+  background: var(--color-text-primary);
+  box-shadow: 0 0 0 2px var(--color-bg-card);
+}
+.meterMarkAhead { composes: meterMark; background: var(--color-accent-ink); }
+.meterMarkBehind { composes: meterMark; background: var(--color-danger); }
+.meterAxis { display: flex; justify-content: space-between; margin-top: 3px; }
+.meterAxis span {
+  font-family: var(--font-mono);
+  font-size: var(--t-10);
+  color: var(--color-text-muted);
+}
+.verdict { margin-top: var(--s2); font-size: var(--t-13); font-weight: 700; }
+.verdictCalm { composes: verdict; color: var(--color-text-secondary); }
+
+/* ---------- XI readiness ----------
+   PRODUCT.md says the twelve tactical positions ARE the product. On the
+   old page they were five 7px squares. Here the whole pre-deadline
+   answer is built out of the spine. */
+.xi { border-top: var(--line); padding: var(--s4) var(--s5); }
+.xiHd { display: flex; align-items: baseline; gap: var(--s3); margin-bottom: var(--s3); }
+.xiT { font-size: var(--t-13); font-weight: 700; }
+.xiS { font-size: var(--t-12); color: var(--color-text-muted); }
+.xiGrid { display: flex; flex-wrap: wrap; gap: 5px; }
+.xiCell { display: flex; flex-direction: column; align-items: center; gap: 3px; width: 58px; }
+.xiName {
+  font-size: var(--t-10);
+  color: var(--color-text-secondary);
+  line-height: 1.1;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+.xiNameFlag { composes: xiName; color: var(--color-danger); font-weight: 700; }
+.xiNameLocked { composes: xiName; color: var(--color-text-muted); }
+.xiFlags { margin-top: var(--s3); display: flex; flex-wrap: wrap; gap: var(--s2) var(--s5); }
+.xiFlag { display: flex; align-items: center; gap: 6px; font-size: var(--t-12); color: var(--color-text-secondary); }
+.xiFlag b { color: var(--color-danger); }
+
+/* The cover note explains a rule, so it reads as prose rather than as an
+   alert: no fill, no icon, just a hairline separating it from the shape. */
+.cover { margin-top: var(--s3); padding-top: var(--s3); border-top: var(--line); }
+.coverLead { font-size: var(--t-12); color: var(--color-text-secondary); line-height: 1.5; }
+.coverLead b { color: var(--color-text-primary); }
+.coverBench { margin-top: 4px; font-size: var(--t-11); color: var(--color-text-muted); line-height: 1.5; }
+
+/* ---------- hero foot / report / debrief ---------- */
+.heroFoot {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: var(--s4);
+  padding: var(--s3) var(--s5);
+  border-top: var(--line);
+  background: var(--color-bg-card-alt);
+}
+.heroFootA { font-size: var(--t-12); color: var(--color-text-secondary); min-width: 0; }
+.heroFootB { composes: heroFootA; text-align: right; }
+.heroFoot b { color: var(--color-text-primary); }
+
+.report { padding: var(--s4) var(--s5); border-top: var(--line); }
+.reportH {
+  font-family: var(--font-serif);
+  font-weight: 700;
+  font-size: var(--t-20);
+  letter-spacing: -0.02em;
+  line-height: 1.22;
+  text-wrap: balance;
+}
+.reportB { margin-top: 5px; font-size: var(--t-12); color: var(--color-text-muted); }
+
+/* Auto-subs, blanks and the bench bonus are invisible mechanics that
+   only ever existed in the box score. This is what a losing manager
+   actually needs, and no other fantasy app can print it. */
+.debrief {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s2) var(--s5);
+  padding: var(--s3) var(--s5);
+  border-top: var(--line);
+}
+.debriefItem { display: flex; align-items: center; gap: 6px; font-size: var(--t-12); color: var(--color-text-secondary); }
+.debriefItem b {
+  font-family: var(--font-serif);
+  font-weight: 700;
+  font-size: var(--t-13);
+  color: var(--color-text-primary);
+  font-variant-numeric: tabular-nums;
+}
+.cup {
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+  padding: var(--s3) var(--s5);
+  border-top: var(--line);
+  font-size: var(--t-12);
+  color: var(--color-text-secondary);
+}
+
+/* ---------- the market ----------
+   The single biggest hole in the old page. A gameweek is ~3 days of
+   football and ~4 days of transfers; through the longer half the old
+   home had a static hero and the market only as past-tense prose. */
+.mkt { border: var(--line-strong); border-radius: var(--r-shell); overflow: hidden; background: var(--color-bg-card); }
+.mktHd {
+  display: flex;
+  align-items: center;
+  gap: var(--s4);
+  padding: var(--s3) var(--s5);
+  border-bottom: var(--line);
+  flex-wrap: wrap;
+}
+.mktSummary { font-size: var(--t-12); color: var(--color-text-secondary); }
+.mktBudget { composes: mktSummary; margin-left: auto; }
+.mktRow {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto auto;
+  align-items: center;
+  gap: var(--s4);
+  padding: var(--s3) var(--s5);
+  border-top: var(--line);
+}
+.mktRowMine { composes: mktRow; background: var(--color-tint-accent); }
+.mktName { min-width: 0; }
+.mktNameN { font-size: var(--t-13); font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mktNameM { font-size: var(--t-11); color: var(--color-text-muted); }
+.mktBid { text-align: right; }
+.mktBidV {
+  font-family: var(--font-serif);
+  font-weight: 700;
+  font-size: var(--t-17);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.mktBidL { font-size: var(--t-10); color: var(--color-text-muted); margin-top: 3px; }
+.mktEmpty { padding: var(--s6) var(--s5); text-align: center; font-size: var(--t-13); color: var(--color-text-secondary); }
+.clock {
+  font-family: var(--font-mono);
+  font-size: var(--t-13);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.clockHot { composes: clock; color: var(--color-danger); }
+
+/* ---------- fronts ---------- */
+.fronts { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--s3); }
+.front {
+  border: var(--line-strong);
+  border-radius: var(--r-shell);
+  padding: var(--s4);
+  background: var(--color-bg-card);
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.frontOut { composes: front; border: var(--line); background: var(--color-bg-card-alt); }
+.frontWon { composes: front; border: 1px solid var(--color-gold); }
+.frontLabel {
+  font-size: var(--t-10);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+.frontV {
+  font-family: var(--font-serif);
+  font-weight: 700;
+  font-size: var(--t-20);
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+.frontVMuted { composes: frontV; color: var(--color-text-muted); }
+.frontVGold { composes: frontV; color: var(--color-gold); }
+.frontS { font-size: var(--t-11); color: var(--color-text-secondary); line-height: 1.4; }
+.frontP { font-size: var(--t-11); color: var(--color-text-muted); margin-top: auto; padding-top: 3px; }
+
+/* ---------- elsewhere ----------
+   One column. Two columns inside a ~660px main gave each row ~320px for
+   two full club names plus two scores, and every name truncated to
+   "Northg…" — strictly worse than the crest already beside it. */
+.mw { display: grid; grid-template-columns: 1fr; gap: var(--s2); }
+.mwRow {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--s3);
+  padding: var(--s3);
+  border: var(--line-strong);
+  border-radius: var(--r-shell);
+  background: var(--color-bg-card);
+  color: var(--color-text-primary);
+}
+.mwRow:hover { background: var(--color-bg-card-alt); }
+.mwName { font-size: var(--t-12); font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mwNameB { composes: mwName; text-align: right; }
+.mwScore {
+  font-family: var(--font-serif);
+  font-weight: 700;
+  font-size: var(--t-17);
+  font-variant-numeric: tabular-nums;
+}
+.mwScoreDim { composes: mwScore; color: var(--color-text-muted); }
+.mwTag {
+  font-size: var(--t-10);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+.mwTagBand { composes: mwTag; color: var(--color-text-primary); }
+.mwTagLive { composes: mwTag; color: var(--color-live); }
+
+/* ---------- the table ----------
+   A real <table>. The first prototype used a div grid with no header
+   association, and at 375px it clipped Pts and Form under
+   overflow:hidden with no way to scroll to them. */
+.tableWrap {
+  min-width: 0;
+  overflow-x: auto;
+  background: var(--color-bg-card);
+  border: var(--line-strong);
+  border-radius: var(--r-shell);
+}
+.table { width: 100%; border-collapse: collapse; font-size: var(--t-13); }
+.table caption {
+  caption-side: bottom;
+  text-align: left;
+  padding: var(--s2) var(--s3);
+  font-size: var(--t-11);
+  color: var(--color-text-muted);
+}
+.table thead th {
+  text-align: right;
+  padding: var(--s2) var(--s3);
+  border-bottom: 1px solid var(--color-border-strong);
+  font-size: var(--t-10);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+.table thead th.alignLeft, .table tbody td.alignLeft { text-align: left; }
+.table tbody td { padding: 7px var(--s3); text-align: right; white-space: nowrap; }
+.table tbody tr:nth-child(even) { background: var(--color-bg-card-alt); }
+.rowMe { background: var(--color-tint-accent) !important; }
+.club { display: flex; align-items: center; gap: var(--s2); min-width: 0; }
+.clubName { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.clubNameMe { composes: clubName; font-weight: 700; }
+/* Primary ink on a tinted ground: green on a green tint is redundant,
+   and in dark it measured 3.85:1. The tint already carries "yours". */
+.you {
+  font-size: var(--t-10);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--r-micro);
+  padding: 0 4px;
+  flex: none;
+}
+.num { font-family: var(--font-serif); font-weight: 700; font-variant-numeric: tabular-nums; }
+/* Direction is carried by the glyph as well as by colour. */
+.move { display: inline-flex; align-items: center; gap: 4px; font-weight: 700; font-size: var(--t-12); }
+.moveUp { composes: move; color: var(--color-accent-ink); }
+.moveDown { composes: move; color: var(--color-danger); }
+.moveFlat { composes: move; color: var(--color-text-muted); }
+
+/* W/D/L as letters, not colour-only spans. */
+.form { display: inline-flex; gap: 2px; }
+.pip {
+  width: 15px;
+  height: 15px;
+  border-radius: var(--r-micro);
+  font-size: 9px;
+  font-weight: 800;
+  display: inline-grid;
+  place-items: center;
+  line-height: 1;
+}
+.pipW { composes: pip; background: var(--color-accent); color: #fff; }
+.pipD { composes: pip; background: var(--color-bg-inset); color: var(--color-text-secondary); }
+.pipL { composes: pip; background: var(--color-danger); color: #fff; }
+/* Dark's accent and danger are light fills, so white on them measures
+   3.25 and 2.85 — the same move gaffa.css makes for .btn-primary. */
+:global([data-theme='dark']) .pipW,
+:global([data-theme='dark']) .pipL { color: #10141c; }
+.prize { font-family: var(--font-serif); font-weight: 700; color: var(--color-text-muted); font-variant-numeric: tabular-nums; }
+
+/* ---------- your gameweek ----------
+   Replaces a league-wide top five, three of whom you did not own and
+   none of whom you could act on. The baseline rule engraves the median
+   for the player's OWN position, so you read "against his role" rather
+   than "out of some total" — the scoring model, made legible. */
+.yg { border: var(--line-strong); border-radius: var(--r-shell); background: var(--color-bg-card); overflow: hidden; }
+.ygRow {
+  display: grid;
+  grid-template-columns: 178px minmax(0, 1fr) 66px;
+  align-items: center;
+  gap: var(--s4);
+  padding: var(--s3) var(--s5);
+  border-bottom: var(--line);
+}
+.ygRow:last-of-type { border-bottom: 0; }
+.ygPlayer { display: flex; align-items: center; gap: var(--s2); min-width: 0; }
+.ygName { font-size: var(--t-13); font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ygClub { font-size: var(--t-10); color: var(--color-text-muted); }
+.ygVal { text-align: right; }
+.ygValV {
+  font-family: var(--font-serif);
+  font-weight: 700;
+  font-size: var(--t-17);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.ygValL { font-size: var(--t-10); color: var(--color-text-muted); margin-top: 2px; }
+
+.baseline { position: relative; height: 20px; display: flex; align-items: center; }
+.baselineTrack {
+  position: relative;
+  height: 7px;
+  width: 100%;
+  background: var(--color-bg-inset);
+  border-radius: var(--r-micro);
+}
+.baselineInk { position: absolute; inset-block: 0; left: 0; border-radius: var(--r-micro); }
+.baselineMedian {
+  position: absolute;
+  top: -5px;
+  bottom: -5px;
+  width: 2px;
+  margin-left: -1px;
+  background: var(--color-text-primary);
+}
+.ygKey {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s2) var(--s5);
+  padding: var(--s3) var(--s5);
+  border-top: var(--line);
+  background: var(--color-bg-card-alt);
+}
+.ygKeyItem { display: inline-flex; align-items: center; gap: 6px; font-size: var(--t-11); color: var(--color-text-muted); }
+.keyTick { width: 2px; height: 13px; background: var(--color-text-primary); }
+.keyInk { width: 15px; height: 6px; border-radius: var(--r-micro); background: var(--color-text-secondary); }
+
+/* ---------- rail ---------- */
+.railCard { border: var(--line-strong); border-radius: var(--r-shell); background: var(--color-bg-card); overflow: hidden; }
+.railHd {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s3);
+  padding: var(--s3) var(--s4);
+  border-bottom: var(--line);
+}
+.railT { font-family: var(--font-serif); font-style: italic; font-weight: 600; font-size: var(--t-15); margin: 0; }
+.ev { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: var(--s3); padding: var(--s3) var(--s4); border-bottom: var(--line); }
+.ev:last-of-type { border-bottom: 0; }
+.evDot { width: 3px; border-radius: var(--r-micro); margin-top: 3px; height: 13px; background: var(--color-border-strong); }
+.evText { font-size: var(--t-12); line-height: 1.45; color: var(--color-text-secondary); }
+.evText b, .evText strong { color: var(--color-text-primary); font-weight: 700; }
+.evTime { font-family: var(--font-mono); font-size: var(--t-10); color: var(--color-text-muted); margin-top: 3px; }
+.railMore {
+  display: block;
+  padding: var(--s3) var(--s4);
+  font-size: var(--t-12);
+  font-weight: 700;
+  border-top: var(--line);
+  color: var(--color-accent-ink);
+}
+
+/* The opponent is a person. PRODUCT.md principle 3: the league is a
+   rivalry between named people, and the old page rendered ten friends
+   as ten table rows and an 11px grey handle. */
+.opp { padding: var(--s4); display: grid; gap: var(--s3); }
+.oppId { display: flex; align-items: center; gap: var(--s3); }
+.oppName { font-family: var(--font-serif); font-weight: 700; font-size: var(--t-17); letter-spacing: -0.015em; line-height: 1.15; }
+.oppManager { font-size: var(--t-11); color: var(--color-text-muted); margin-top: 2px; }
+.oppH2h { display: flex; gap: var(--s5); padding-top: var(--s3); border-top: var(--line); }
+.oppH2hV { font-family: var(--font-serif); font-weight: 700; font-size: var(--t-17); line-height: 1; font-variant-numeric: tabular-nums; }
+.oppH2hL { font-size: var(--t-10); color: var(--color-text-muted); margin-top: 3px; }
+
+/* Dynasty. The only multi-season artefact on the old page was the
+   Club Balance figure, in a product whose second principle is that
+   decisions must outlive the week. */
+.dyn { padding: var(--s4); display: grid; gap: var(--s2); }
+.dynRow { display: flex; align-items: baseline; justify-content: space-between; gap: var(--s3); font-size: var(--t-12); }
+.dynL { color: var(--color-text-muted); }
+.dynV { font-weight: 700; color: var(--color-text-primary); text-align: right; }
+.dynVGold { composes: dynV; color: var(--color-gold); }
+
+/* ---------- close of season ---------- */
+.closed { border: 1px solid var(--color-gold); border-radius: var(--r-shell); background: var(--color-bg-card); overflow: hidden; }
+.closedLead { display: flex; align-items: center; gap: var(--s4); padding: var(--s5); }
+.closedF { font-family: var(--font-serif); font-weight: 700; font-size: var(--t-25); letter-spacing: -0.02em; line-height: 1.15; }
+.closedS { font-size: var(--t-13); color: var(--color-text-secondary); margin-top: 3px; }
+.stages { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; background: var(--color-border-subtle); border-top: var(--line); }
+.stageDone { padding: var(--s4); background: var(--color-bg-card); border-top: 2px solid var(--color-accent); }
+.stageNow { padding: var(--s4); background: var(--color-bg-card); border-top: 2px solid var(--color-warning-text); }
+.stageH { font-size: var(--t-13); font-weight: 700; }
+.stageS { font-size: var(--t-11); color: var(--color-text-muted); margin-top: 3px; line-height: 1.4; }
+.closedMoney { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s5); padding: var(--s5); border-top: var(--line); }
+.closedMv { font-family: var(--font-serif); font-weight: 700; font-size: var(--t-25); line-height: 1; font-variant-numeric: tabular-nums; }
+.closedMvAccent { composes: closedMv; color: var(--color-accent-ink); }
+.closedMs { font-size: var(--t-11); color: var(--color-text-muted); margin-top: 5px; line-height: 1.45; }
+
+/* ---------- buttons ---------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 30px;
+  padding: 0 var(--s3);
+  border-radius: var(--r-control);
+  border: 1px solid var(--color-border-strong);
+  background: transparent;
+  color: var(--color-text-primary);
+  font-family: inherit;
+  font-size: var(--t-12);
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  text-decoration: none;
+  transition: background 140ms ease, color 140ms ease;
+}
+.btn:hover { background: var(--color-bg-inset); }
+.btnPrimary {
+  composes: btn;
+  border-color: transparent;
+  background: var(--color-accent);
+  color: #fff;
+}
+.btnPrimary:hover { background: var(--color-accent-hover); }
+:global([data-theme='dark']) .btnPrimary { color: #10141c; }
+
+/* ---------- responsive ---------- */
+@media (max-width: 1080px) {
+  .body { grid-template-columns: minmax(0, 1fr); }
+  .rail { position: static; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 820px) {
+  .fronts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .closedMoney, .stages { grid-template-columns: 1fr; }
+  .ygRow { grid-template-columns: 150px minmax(0, 1fr) 58px; }
+}
+@media (max-width: 640px) {
+  .page { padding: var(--s5) var(--s4) var(--s10); }
+  .rail { grid-template-columns: 1fr; }
+  .mast { align-items: flex-start; }
+  .mastName { font-size: 28px; }
+  .figs { margin-left: 0; gap: var(--s5); width: 100%; }
+  .fig { min-width: 0; flex: 1 1 40%; }
+  /* tag + clock on the first line, the message in full on the second,
+     the action pinned right across both. Nothing truncates. */
+  .attnItem { grid-template-columns: auto minmax(0, 1fr) auto auto; gap: var(--s2) var(--s3); padding: var(--s3); }
+  .attnItem .tag { grid-row: 1; grid-column: 1; }
+  .attnWhen, .attnWhenCalm { grid-row: 1; grid-column: 2; justify-self: start; }
+  .attnItem .btn, .attnItem .btnPrimary { grid-row: 1 / span 2; grid-column: 3; align-self: center; }
+  .attnDismiss { grid-row: 1 / span 2; grid-column: 4; align-self: center; }
+  .attnText { grid-row: 2; grid-column: 1 / span 2; }
+  .heroTeams { grid-template-columns: 1fr; gap: var(--s3); padding: var(--s4); }
+  .htAway { justify-content: flex-start; }
+  .htAway .htTx { text-align: left; }
+  .scores { justify-content: space-between; padding: var(--s2) 0; border-top: var(--line); border-bottom: var(--line); }
+  .score, .scoreDim { font-size: 34px; }
+  .scoreSep { display: none; }
+  .heroFoot { grid-template-columns: 1fr; gap: var(--s2); }
+  .heroFootB { text-align: left; }
+  .mktRow, .mktRowMine { grid-template-columns: auto minmax(0, 1fr) auto; gap: var(--s3); padding: var(--s3); }
+  .mwRow { grid-template-columns: auto minmax(0, 1fr) auto; row-gap: var(--s2); }
+  .mwNameB { grid-column: 2; text-align: left; }
+  .ygRow { grid-template-columns: 1fr auto; row-gap: var(--s2); padding: var(--s3); }
+  .ygRow .baseline { grid-column: 1 / span 2; }
+  .fronts { grid-template-columns: 1fr; }
+}

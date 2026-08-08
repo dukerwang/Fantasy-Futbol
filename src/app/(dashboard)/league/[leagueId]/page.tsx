@@ -1,19 +1,19 @@
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { redirect, notFound } from 'next/navigation';
-import NavigationLink from '@/components/ui/NavigationLink';
-import { getPlayerDisplayName } from '@/lib/players/displayName';
-import styles from './league.module.css';
-import DraftOrderManager from './DraftOrderManager';
-import LeaveLeagueButton from './LeaveLeagueButton';
-import PreDraftLobby from './PreDraftLobby';
-import CrestBadge from '@/components/crest/CrestBadge';
 
+import { buildHomeModel } from '@/lib/home/buildHomeModel';
 import { getFplStatus } from '@/lib/fpl/api';
 import { processMatchupsForGameweek } from '@/lib/scoring/matchupProcessor';
-import TransferGazette from './TransferGazette';
-import TopPerformers from './TopPerformers';
-import { Icon } from '@/components/ui/Icon';
+
+import PreDraftLobby from './PreDraftLobby';
+import LeaveLeagueButton from './LeaveLeagueButton';
+import { Masthead } from './_home/Masthead';
+import Attention from './_home/Attention';
+import Fixture, { SeasonClosed } from './_home/Fixture';
+import { Market, Fronts, Matchweek, StandingsTable, YourGameweek } from './_home/Sections';
+import Rail from './_home/Rail';
+import styles from './_home/home.module.css';
 
 export const dynamic = 'force-dynamic';
 
@@ -21,36 +21,31 @@ interface Props {
   params: Promise<{ leagueId: string }>;
 }
 
-// ── Helpers ───────────────────────────────────────────────────────────────
-
-function timeAgo(iso: string): string {
-  const diff = Date.now() - new Date(iso).getTime();
-  const hrs = Math.floor(diff / 3600000);
-  if (hrs < 1) return `${Math.floor(diff / 60000)}m ago`;
-  if (hrs < 24) return `${hrs}h ago`;
-  const days = Math.floor(hrs / 24);
-  return days === 1 ? '1d ago' : `${days}d ago`;
-}
-
-
-
-// ── Page ─────────────────────────────────────────────────────────────────
-
+/**
+ * League Home.
+ *
+ * A thin renderer over `buildHomeModel`. Everything that used to be derived
+ * inline here — form guides, hero state, spend totals, top performers — now
+ * lives in the model, so the rules have one home and the JSX has none.
+ *
+ * Three things in this file are load-bearing and must survive any rewrite:
+ *   1. the pre-draft early return, which skips every active-league fetch
+ *   2. the `ensureSeasonScaffold` safety net, whose cup check is deliberately
+ *      independent of its matchup check
+ *   3. the server-side score sync, which avoids a 0.0–0.0 flash on first paint
+ */
 export default async function LeaguePage({ params }: Props) {
   const { leagueId } = await params;
 
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) redirect('/login');
 
   const admin = createAdminClient();
 
-  const { data: league } = await admin
-    .from('leagues')
-    .select('*')
-    .eq('id', leagueId)
-    .single();
-
+  const { data: league } = await admin.from('leagues').select('*').eq('id', leagueId).single();
   if (!league) notFound();
 
   const { data: membership } = await admin
@@ -62,653 +57,122 @@ export default async function LeaguePage({ params }: Props) {
 
   if (!membership && league.commissioner_id !== user.id) redirect('/dashboard');
 
-  // ── My team ──────────────────────────────────────────────────────────────
   const { data: myTeam } = await admin
     .from('teams')
-    .select('id, team_name, faab_budget, abbreviation')
+    .select('id, abbreviation')
     .eq('league_id', leagueId)
     .eq('user_id', user.id)
     .single();
-
-  const myTeamId = myTeam?.id ?? null;
 
   if (myTeam && !myTeam.abbreviation) {
     redirect(`/league/${leagueId}/team-setup`);
   }
 
-  // ── Pre-Draft Early Return ──────────────────────────────────────────────
-  // Skip all the active-league data fetches for leagues that haven't drafted yet.
+  // ── 1. Pre-draft early return ───────────────────────────────
+  // Leagues that have not drafted yet skip every active-league fetch below.
   if (league.status === 'setup' || league.status === 'drafting') {
     const { data: preDraftTeams } = await admin
       .from('teams')
-      .select('id, team_name, draft_order, abbreviation, logo_url, crest_config, user_id, user:users(id, username, email)')
+      .select(
+        'id, team_name, draft_order, abbreviation, logo_url, crest_config, user_id, user:users(id, username, email)',
+      )
       .eq('league_id', leagueId);
 
     const isCommissioner = league.commissioner_id === user.id;
-    const currentUsername = user.user_metadata?.username ?? user.user_metadata?.preferred_username ?? user.email?.split('@')[0] ?? 'Manager';
-    const myDetailedTeam = (preDraftTeams ?? []).find((t: any) => t.user_id === user.id) ?? null;
+    const currentUsername =
+      user.user_metadata?.username ??
+      user.user_metadata?.preferred_username ??
+      user.email?.split('@')[0] ??
+      'Manager';
+    const myDetailedTeam =
+      (preDraftTeams ?? []).find((t: { user_id: string }) => t.user_id === user.id) ?? null;
 
     return (
       <PreDraftLobby
         leagueId={leagueId}
         league={league}
-        teams={(preDraftTeams ?? []) as any[]}
+        teams={(preDraftTeams ?? []) as never[]}
         myUserId={user.id}
-        myTeam={myDetailedTeam}
+        myTeam={myDetailedTeam as never}
         currentUsername={currentUsername}
         isCommissioner={isCommissioner}
       />
     );
   }
 
-  // showKickoffBanner is only relevant for active/offseason leagues (pre-draft is handled above).
-  const showKickoffBanner = league.status === 'offseason';
-
-  // ── Parallel data fetches ────────────────────────────────────────────────
-  const [
-    standingsResult,
-    myMatchupsResult,
-    teamsResult,
-    activityResult,
-    taxiResult,
-    tournamentsResult,
-    recentMatchupsResult,
-    spentResult,
-    incompleteMatchupsResult,
-    incompleteTourneysResult,
-    totalMatchupsResult,
-  ] = await Promise.all([
-    // Full standings
-    admin
-      .from('league_standings')
-      .select('team_id, team_name, rank, league_points, wins, draws, losses, played')
-      .eq('league_id', leagueId)
-      .order('rank', { ascending: true }),
-
-    // All matchups for user's team
-    myTeamId ? admin
-      .from('matchups')
-      .select('*, team_a:teams!team_a_id(id, team_name), team_b:teams!team_b_id(id, team_name)')
-      .eq('league_id', leagueId)
-      .or(`team_a_id.eq.${myTeamId},team_b_id.eq.${myTeamId}`)
-      .order('gameweek', { ascending: true }) : Promise.resolve({ data: null }),
-
-    // All teams
-    admin
-      .from('teams')
-      .select('id, team_name, draft_order, abbreviation, logo_url, crest_config, user_id, user:users(id, username, email)')
-      .eq('league_id', leagueId),
-
-    // Recent activity
-    admin
-      .from('transactions')
-      .select(`
-        id, type, faab_bid, notes, processed_at,
-        team:teams(id, team_name),
-        player:players(id, web_name, name, primary_position)
-      `)
-      .eq('league_id', leagueId)
-      .order('processed_at', { ascending: false })
-      .limit(5),
-
-    // Taxi Squad
-    myTeamId ? admin
-      .from('roster_entries')
-      .select('player:players(id, web_name, name, primary_position, pl_team, photo_url)')
-      .eq('team_id', myTeamId)
-      .eq('roster_status', 'taxi') : Promise.resolve({ data: [] }),
-
-    // Tournaments
-    admin
-      .from('tournaments')
-      .select('id, name, status, current_round')
-      .eq('league_id', leagueId),
-
-    // Recent matchups for form
-    admin
-      .from('matchups')
-      .select('team_a_id, team_b_id, score_a, score_b, gameweek')
-      .eq('league_id', leagueId)
-      .eq('status', 'completed')
-      .order('gameweek', { ascending: false })
-      .limit(100),
-
-    // Total spent this season (waiver_claim + drop severance) for my team
-    myTeamId ? admin
-      .from('transactions')
-      .select('faab_bid, compensation_amount, type')
-      .eq('league_id', leagueId)
-      .eq('team_id', myTeamId)
-      .in('type', ['waiver_claim', 'drop']) : Promise.resolve({ data: [] }),
-
-    // Season complete checks — folded into this batch to avoid a sequential pre-fetch waterfall.
-    // For non-active leagues these resolve immediately via Promise.resolve.
-    league.status === 'active'
-      ? admin.from('matchups').select('id', { count: 'exact', head: true }).eq('league_id', leagueId).neq('status', 'completed')
-      : Promise.resolve({ data: null, count: 0 }),
-    league.status === 'active'
-      ? admin.from('tournaments').select('id', { count: 'exact', head: true }).eq('league_id', leagueId).neq('status', 'completed')
-      : Promise.resolve({ data: null, count: 0 }),
-    league.status === 'active'
-      ? admin.from('matchups').select('id', { count: 'exact', head: true }).eq('league_id', leagueId)
-      : Promise.resolve({ data: null, count: 0 }),
-  ]);
-
-  const standings = standingsResult.data ?? [];
-  let myMatchups = myMatchupsResult.data ?? [];
-  const activity = activityResult.data ?? [];
-  const initialTeams = (teamsResult.data ?? []) as any[];
-  const crestMap = new Map(initialTeams.map((t: any) => [t.id, t.crest_config]));
-  const taxiSquad = taxiResult?.data ?? [];
-  const tournaments = tournamentsResult?.data ?? [];
-  let recentMatchups = recentMatchupsResult?.data ?? [];
-
-  // Season complete banner — derived from counts fetched in the parallel batch above
-  const showSeasonCompleteBanner =
-    league.status === 'active' &&
-    (totalMatchupsResult.count ?? 0) > 0 &&
-    (incompleteMatchupsResult.count ?? 0) === 0 &&
-    (incompleteTourneysResult.count ?? 0) === 0;
-
-  // Compute total spent: sum faab_bid from waiver wins + compensation_amount from drops with severance
-  const spentTxs = (spentResult as any)?.data ?? [];
-  const totalSpentThisSeason = (spentTxs as any[]).reduce((sum: number, tx: any) => {
-    if (tx.type === 'waiver_claim') {
-      const bid = tx.faab_bid != null && tx.faab_bid > 0 ? tx.faab_bid : 0;
-      return sum + bid;
-    } else if (tx.type === 'drop') {
-      const sev = tx.compensation_amount != null && Number(tx.compensation_amount) > 0 ? Number(tx.compensation_amount) : 0;
-      return sum + sev;
-    }
-    return sum;
-  }, 0);
-
-  // Self-healing safety net for leagues whose draft completed before the
-  // ensureSeasonScaffold fix, or via the SQL cron (which cannot call it).
-  // Checks cups independently of matchups: gating the cup backfill behind
-  // "zero matchups exist" is exactly what left two production leagues with a
-  // full schedule and no cups, permanently. Both counts here were already
-  // fetched in the parallel batch above, so this is free when nothing is missing.
-  if (
-    league.status === 'active' &&
-    ((totalMatchupsResult.count ?? 0) === 0 || tournaments.length === 0)
-  ) {
-    const { ensureSeasonScaffold } = await import('@/lib/schedule/ensureSeasonScaffold');
-    const scaffold = await ensureSeasonScaffold(admin, leagueId, league.current_season);
-
-    if (scaffold.matchupsCreated) {
-      if (myTeamId) {
-        const { data: freshMyMatchups } = await admin
-          .from('matchups')
-          .select('*, team_a:teams!team_a_id(id, team_name), team_b:teams!team_b_id(id, team_name)')
-          .eq('league_id', leagueId)
-          .or(`team_a_id.eq.${myTeamId},team_b_id.eq.${myTeamId}`)
-          .order('gameweek', { ascending: true });
-        if (freshMyMatchups) myMatchups = freshMyMatchups;
-      }
-
-      const { data: refreshedRecent } = await admin
+  // ── 2. Season scaffold safety net ───────────────────────────
+  // For leagues whose draft completed before the ensureSeasonScaffold fix, or
+  // via the SQL cron (which cannot call it). The cup check is INDEPENDENT of
+  // the matchup check on purpose: gating the cup backfill behind "zero
+  // matchups exist" is exactly what left two production leagues with a full
+  // schedule and no cups, permanently.
+  if (league.status === 'active') {
+    const [{ count: matchupCount }, { count: tournamentCount }] = await Promise.all([
+      admin
         .from('matchups')
-        .select('team_a_id, team_b_id, score_a, score_b, gameweek')
-        .eq('league_id', leagueId)
-        .eq('status', 'completed')
-        .order('gameweek', { ascending: false })
-        .limit(100);
-      recentMatchups = refreshedRecent ?? [];
+        .select('id', { count: 'exact', head: true })
+        .eq('league_id', leagueId),
+      admin
+        .from('tournaments')
+        .select('id', { count: 'exact', head: true })
+        .eq('league_id', leagueId),
+    ]);
+
+    if ((matchupCount ?? 0) === 0 || (tournamentCount ?? 0) === 0) {
+      const { ensureSeasonScaffold } = await import('@/lib/schedule/ensureSeasonScaffold');
+      await ensureSeasonScaffold(admin, leagueId, league.current_season);
     }
   }
 
-  // ── SERVER-SIDE SCORE SYNC ──────────────────────────────────────────────
-  // If the current matchup shows 0.0-0.0, force a sync to avoid the initial flash
-  const fplStatus = await getFplStatus();
-  const currentFplGw = fplStatus.currentGw;
-  const currentMatchup = myMatchups.find(m => m.gameweek === currentFplGw);
+  // ── 3. Server-side score sync ───────────────────────────────
+  // If the current gameweek's matchup still reads 0.0–0.0, resolve it before
+  // the first paint rather than letting the page flash zeros and correct
+  // itself a moment later.
+  if (myTeam) {
+    const fplStatus = await getFplStatus();
+    const { data: currentMatchup } = await admin
+      .from('matchups')
+      .select('id, status, score_a, score_b')
+      .eq('league_id', leagueId)
+      .eq('gameweek', fplStatus.currentGw)
+      .or(`team_a_id.eq.${myTeam.id},team_b_id.eq.${myTeam.id}`)
+      .maybeSingle();
 
-  if (currentMatchup && currentMatchup.status !== 'completed' && 
-      parseFloat(currentMatchup.score_a) === 0 && parseFloat(currentMatchup.score_b) === 0) {
-    await processMatchupsForGameweek(currentFplGw, fplStatus.isFinished);
-    
-    // Refresh myMatchups again with fresh scores
-    if (myTeamId) {
-      const { data: freshMyMatchups } = await admin
-        .from('matchups')
-        .select('*, team_a:teams!team_a_id(id, team_name), team_b:teams!team_b_id(id, team_name)')
-        .eq('league_id', leagueId)
-        .or(`team_a_id.eq.${myTeamId},team_b_id.eq.${myTeamId}`)
-        .order('gameweek', { ascending: true });
-      if (freshMyMatchups) myMatchups = freshMyMatchups;
+    if (
+      currentMatchup &&
+      currentMatchup.status !== 'completed' &&
+      Number(currentMatchup.score_a) === 0 &&
+      Number(currentMatchup.score_b) === 0
+    ) {
+      await processMatchupsForGameweek(fplStatus.currentGw, fplStatus.isFinished);
     }
   }
 
-  type FormResult = 'W' | 'D' | 'L';
-  const DRAW_MARGIN = 10;
-  function computeForm(teamId: string, matchups: any[]): FormResult[] {
-    const results: FormResult[] = [];
-    for (const m of matchups) {
-      if (results.length >= 5) break;
+  const model = await buildHomeModel(admin, leagueId, user.id);
 
-      let myScore: number, theirScore: number;
-      if (m.team_a_id === teamId) {
-        myScore = m.score_a ?? 0;
-        theirScore = m.score_b ?? 0;
-      } else if (m.team_b_id === teamId) {
-        myScore = m.score_b ?? 0;
-        theirScore = m.score_a ?? 0;
-      } else {
-        continue;
-      }
+  // A commissioner with no team of their own can reach this page; there is no
+  // club to build the model around, so send them somewhere that works.
+  if (!model) redirect(`/league/${leagueId}/standings`);
 
-      if (Math.abs(myScore - theirScore) <= DRAW_MARGIN) {
-        results.push('D');
-      } else if (myScore > theirScore) {
-        results.push('W');
-      } else {
-        results.push('L');
-      }
-    }
-    return results;
-  }
-
-  const formMap = new Map<string, FormResult[]>();
-  for (const row of standings) {
-    formMap.set(row.team_id, computeForm(row.team_id, recentMatchups));
-  }
-
-  // ── Matchup hero state ────────────────────────────────────────────────────
-  // Since we ordered by gameweek ASC, find() for scheduled gets the earliest one.
-  const liveMatchup = myMatchups.find((m) => m.status === 'live');
-  const scheduledMatchup = myMatchups.find((m) => m.status === 'scheduled');
-  // For completed, we want the latest sequence, so we reverse it to search from highest GW
-  const completedMatchup = [...myMatchups].reverse().find((m) => m.status === 'completed');
-
-  let heroMatchup: typeof myMatchups[0] | null = null;
-  let heroState: 'live' | 'upcoming' | 'final' | null = null;
-
-  const { isFinished: isCurrentFplGwFinished, nextGwIsClose: nextFplGwIsClose } = fplStatus;
-
-  const currentGwMatchup = myMatchups.find((m) => m.gameweek === currentFplGw);
-  
-  if (currentGwMatchup) {
-    heroMatchup = currentGwMatchup;
-    if (heroMatchup.status === 'live' || (heroMatchup.status === 'scheduled' && !isCurrentFplGwFinished)) {
-      heroState = 'live';
-    } else if (heroMatchup.status === 'completed' || isCurrentFplGwFinished) {
-      if (nextFplGwIsClose) {
-        // If next GW is very close, pivot to showing the upcoming one instead
-        const upcomingMatchup = myMatchups.find((m) => m.gameweek === currentFplGw + 1) || scheduledMatchup;
-        if (upcomingMatchup) {
-          heroMatchup = upcomingMatchup;
-          heroState = 'upcoming';
-        } else {
-          heroState = 'final';
-        }
-      } else {
-        heroState = 'final';
-      }
-    } else {
-      heroState = 'upcoming';
-    }
-  } else {
-    // Fallbacks if current FPL GW doesn't align with local data
-    if (liveMatchup) {
-      heroMatchup = liveMatchup;
-      heroState = 'live';
-    } else if (scheduledMatchup && nextFplGwIsClose) {
-      heroMatchup = scheduledMatchup;
-      heroState = 'upcoming';
-    } else if (completedMatchup) {
-      heroMatchup = completedMatchup;
-      heroState = 'final';
-    }
-  }
-
-
-
-  // ── Top GW performers ────────────────────────────────────────────────────
-  // Find most recently completed GW
-  const latestCompletedGW = completedMatchup?.gameweek ?? null;
-  let topPerformers: any[] = [];
-  if (latestCompletedGW) {
-    const { data: rawPerf } = await admin
-      .from('player_stats')
-      .select(`
-        fantasy_points, match_rating, gameweek,
-        player:players!player_id(id, web_name, name, primary_position, pl_team, photo_url)
-      `)
-      .eq('gameweek', latestCompletedGW)
-      .eq('season', league.current_season ?? league.season)
-      .order('fantasy_points', { ascending: false })
-      .limit(5);
-
-    if (rawPerf && rawPerf.length > 0) {
-      // Find which team owns each player
-      const playerIds = rawPerf.map((p) => (p.player as any)?.id).filter(Boolean);
-      const { data: ownerEntries } = await admin
-        .from('roster_entries')
-        .select('player_id, team_id, team:teams!team_id(id, team_name)')
-        .in('player_id', playerIds);
-
-      const ownerMap: Record<string, { team_id: string; team_name: string }> = {};
-      for (const e of ownerEntries ?? []) {
-        if (!ownerMap[e.player_id]) {
-          ownerMap[e.player_id] = {
-            team_id: e.team_id,
-            team_name: (e.team as any)?.team_name ?? 'Unknown',
-          };
-        }
-      }
-
-      topPerformers = rawPerf.map((p) => ({
-        ...p,
-        owner: ownerMap[(p.player as any)?.id] ?? null,
-      }));
-    }
-  }
-
-  // ── Hero helpers ─────────────────────────────────────────────────────────
-  const isUserTeamA = heroMatchup?.team_a?.id === myTeamId;
-  const userTeam = heroMatchup ? (isUserTeamA ? heroMatchup.team_a : heroMatchup.team_b) : null;
-  const oppTeam = heroMatchup ? (isUserTeamA ? heroMatchup.team_b : heroMatchup.team_a) : null;
-  const userScore = heroMatchup ? (isUserTeamA ? heroMatchup.score_a : heroMatchup.score_b) : null;
-  const oppScore = heroMatchup ? (isUserTeamA ? heroMatchup.score_b : heroMatchup.score_a) : null;
-
-  const userTeamFull = initialTeams.find((t: any) => t.id === userTeam?.id);
-  const oppTeamFull = initialTeams.find((t: any) => t.id === oppTeam?.id);
-  const userCrest = userTeamFull?.crest_config;
-  const oppCrest = oppTeamFull?.crest_config;
-  const userUsername = userTeamFull?.user?.username || 'MANAGER';
-  const oppUsername = oppTeamFull?.user?.username || 'OPPONENT';
-
-  // ── Compute Team Records from Standings ──────────────────────────────────
-  const userStanding = standings.find((s: any) => s.team_id === userTeam?.id);
-  const userRecord = userStanding ? `${userStanding.wins}W · ${userStanding.draws}D · ${userStanding.losses}L` : '0W · 0D · 0L';
-
-  // ── Render ────────────────────────────────────────────────────────────────
   return (
     <div className={styles.page}>
+      <Masthead model={model} />
+      <Attention items={model.attention} leagueId={leagueId} />
 
-      {/* ── Page Header ── */}
-      <header className={styles.pageHeader}>
-        <p className={`${styles.eyebrow} eyebrow`}>League Home</p>
-        <h1 className={styles.pageTitle}>{league.name}</h1>
-      </header>
+      <div className={styles.body}>
+        <main className={styles.main}>
+          {model.phase === 'closed' ? <SeasonClosed model={model} /> : <Fixture model={model} />}
+          <Market model={model} />
+          <Fronts model={model} />
+          <Matchweek model={model} />
+          <StandingsTable model={model} />
+          <YourGameweek model={model} />
+        </main>
 
-      {/* Setup banner — only shown while league is in setup */}
-      {(league.status === 'setup' || league.status === 'drafting') && (
-        <div className={styles.setupBanner}>
-          <DraftOrderManager
-            leagueId={leagueId}
-            initialTeams={initialTeams}
-          />
-        </div>
-      )}
-
-      {/* Season Complete Banner — informational only. Reset/Kickoff are */}
-      {/* platform-admin actions now (see /admin/offseason), not something */}
-      {/* league commissioners trigger themselves. */}
-      {showSeasonCompleteBanner && (
-        <div className={styles.seasonCompleteBanner}>
-          <div className={styles.bannerIcon} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Icon name="trophy" size={28} />
-          </div>
-          <div className={styles.bannerContent}>
-            <h3>Season Complete!</h3>
-            <p>
-              All regular season matchups and cup tournaments have finished. The league is waiting on the Gaffa admin to run the end-of-season reset and release prize payouts.
-            </p>
-          </div>
-        </div>
-      )}
-
-      {/* Kickoff Pending Banner — shown once Reset has run; awaiting the */}
-      {/* platform admin to process relegations & summer auctions. */}
-      {showKickoffBanner && (
-        <div className={styles.seasonCompleteBanner}>
-          <div className={styles.bannerIcon} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Icon name="lock" size={28} />
-          </div>
-          <div className={styles.bannerContent}>
-            <h3>Offseason Reset Complete — Awaiting Kickoff</h3>
-            <p>
-              {`Rosters are locked while the league transitions to ${league.current_season}. Waiting on the Gaffa admin to run Kickoff — that's when relegation/transfer compensation is paid out and the summer auctions for high-value and promoted-club arrivals are seeded.`}
-            </p>
-          </div>
-        </div>
-      )}
-
-      {/* ── Dashboard Grid ── */}
-      <div className={styles.bodyRow}>
-
-        {/* ── Left Column ── */}
-        <div className={styles.leftCol}>
-          {/* Manager Card */}
-          <div className={styles.managerCard}>
-            <div className={styles.cardPadding}>
-              <span className={styles.kickerLabel}>MANAGER</span>
-              <h2 className={styles.managerName}>{myTeam?.team_name ?? 'Observer'}</h2>
-              <span className={styles.managerOwner}>by {user.user_metadata?.username ?? user.user_metadata?.preferred_username ?? user.email?.split('@')[0] ?? 'Manager'}</span>
-              
-              <div className={styles.managerDivider} />
-              
-              <div className={styles.managerStatsRow}>
-                <div className={styles.managerStat}>
-                  <span className={styles.kickerLabel}>RANK</span>
-                  <span className={styles.managerStatValue}>#{userStanding?.rank ?? '-'}</span>
-                </div>
-                <div className={styles.managerStat}>
-                  <span className={styles.kickerLabel}>POINTS</span>
-                  <span className={styles.managerStatValue}>{userStanding?.league_points?.toLocaleString() ?? '-'}</span>
-                </div>
-              </div>
-
-              <div className={styles.managerDivider} />
-
-              <div className={styles.managerRecordBlock}>
-                <span className={styles.kickerLabel}>RECORD</span>
-                <span className={styles.managerRecord}>{userRecord}</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Club Balance Card */}
-          <NavigationLink href={`/league/${leagueId}/finance`} className={styles.faabCardLink}>
-            <div className={styles.faabCard}>
-              <div className={styles.cardPadding}>
-                <span className={styles.kickerLabel}>CLUB BALANCE</span>
-                <div className={styles.faabAmountRow}>
-                  <span className={styles.faabAmount}>€{myTeam?.faab_budget ?? 0}m</span>
-                  <span className={styles.faabRemaining}>AVAILABLE</span>
-                </div>
-                <div className={styles.faabSpentLabel}>
-                  <span>SPENT THIS SEASON: €{totalSpentThisSeason}m</span>
-                </div>
-              </div>
-            </div>
-          </NavigationLink>
-
-          {/* Taxi Squad */}
-          <div className={styles.taxiCard}>
-            <div className={styles.cardPadding}>
-              <div className={styles.taxiHeaderRow}>
-                <span className={styles.kickerLabel}>ACADEMY</span>
-                <span className={styles.u21Badge}>U21</span>
-              </div>
-              
-              {taxiSquad.length === 0 ? (
-                <div className={styles.emptyStateBox}>
-                  <p className={styles.emptyHint}>No academy players.</p>
-                </div>
-              ) : (
-                <div className={styles.taxiList}>
-                  {taxiSquad.map((entry: any, i: number) => {
-                    const player = entry.player;
-                    const initials = getPlayerDisplayName(player, 'full').split(' ').map((n: string) => n[0]).join('').substring(0, 2);
-                    return (
-                      <div key={i} className={styles.taxiRow}>
-                        <div className={styles.taxiAvatar}>{initials}</div>
-                        <div className={styles.taxiInfo}>
-                          <span className={styles.taxiName}>{getPlayerDisplayName(player, 'full')}</span>
-                          <span className={styles.taxiPosClub}>{player.primary_position} • {player.pl_team}</span>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* ── Center Column ── */}
-        <div className={styles.centerCol}>
-          {/* Matchup Hero */}
-          {heroMatchup && heroState && (
-            <NavigationLink href={`/league/${leagueId}/matchups/${heroMatchup.id}`} className={styles.matchupHeroLink}>
-              <div className={styles.matchupHero}>
-                <div className={styles.matchupHeader}>
-                  <span className={styles.matchupGwLabel}>MATCHWEEK {heroMatchup.gameweek}</span>
-                  {heroState === 'live' && <span className={styles.matchupLiveBadge}>Live</span>}
-                </div>
-                <div className={styles.matchupBody}>
-                  {/* Row 1: Teams side by side */}
-                  <div className={styles.matchupTeamsRow}>
-                    {/* Team A */}
-                    <div className={styles.matchupTeamInfoA}>
-                      <div style={{ marginRight: '12px', display: 'flex', alignItems: 'center' }}>
-                        <CrestBadge config={userCrest} size={40} teamName={userTeam?.team_name} />
-                      </div>
-                      <div className={styles.matchupTeamDetails}>
-                        <span className={styles.matchupTeamName}>{userTeam?.team_name ?? '—'}</span>
-                        <span className={styles.matchupManager}>MANAGER {userUsername.toUpperCase()}</span>
-                      </div>
-                    </div>
-                    {/* Team B */}
-                    <div className={styles.matchupTeamInfoB}>
-                      <div className={styles.matchupTeamDetails}>
-                        <span className={styles.matchupTeamName}>{oppTeam?.team_name ?? '—'}</span>
-                        <span className={styles.matchupManager}>MANAGER {oppUsername.toUpperCase()}</span>
-                      </div>
-                      <div style={{ marginLeft: '12px', display: 'flex', alignItems: 'center' }}>
-                        <CrestBadge config={oppCrest} size={40} teamName={oppTeam?.team_name} />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Row 2: Scores anchored under each team */}
-                  <div className={styles.matchupScoresRow}>
-                    {/* Score A stack */}
-                    <div className={`${styles.matchupScoreStack} ${heroState !== 'upcoming' && (userScore ?? 0) > (oppScore ?? 0) ? styles.matchupScoreWin : heroState !== 'upcoming' && (userScore ?? 0) < (oppScore ?? 0) ? styles.matchupScoreLose : ''}`}>
-                      <span className={styles.matchupScoreNum}>
-                        {heroState === 'upcoming' ? '—' : (userScore?.toFixed(2) ?? '0.00')}
-                      </span>
-                      <span className={styles.matchupScoreLabel}>PTS</span>
-                    </div>
-
-                    <div className={styles.matchupScoreDivider} />
-
-                    {/* Score B stack */}
-                    <div className={`${styles.matchupScoreStack} ${styles.matchupScoreStackB} ${heroState !== 'upcoming' && (oppScore ?? 0) > (userScore ?? 0) ? styles.matchupScoreWin : heroState !== 'upcoming' && (oppScore ?? 0) < (userScore ?? 0) ? styles.matchupScoreLose : ''}`}>
-                      <span className={styles.matchupScoreNum}>
-                        {heroState === 'upcoming' ? '—' : (oppScore?.toFixed(2) ?? '0.00')}
-                      </span>
-                      <span className={styles.matchupScoreLabel}>PTS</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </NavigationLink>
-          )}
-
-          {/* Transfer Gazette */}
-          <TransferGazette activity={activity} />
-        </div>
-
-        {/* ── Right Column ── */}
-        <div className={styles.rightCol}>
-          
-          {/* League Standings */}
-          <div className={styles.rightCard}>
-            <span className={styles.kickerLabel}>LEAGUE STANDINGS</span>
-            <div className={styles.standingsTable}>
-              <div className={styles.standingsHeader}>
-                <span className={styles.stRank}>RK</span>
-                <span className={styles.stTeam}>TEAM</span>
-                <span className={styles.stPts}>PTS</span>
-                <span className={styles.stForm}>FORM</span>
-              </div>
-              <div className={styles.standingsList}>
-                {standings.slice(0, 5).map((s: any) => {
-                  const isMe = s.team_id === myTeamId;
-                  const form = formMap.get(s.team_id) ?? [];
-                  const crestConfig = crestMap.get(s.team_id);
-                  return (
-                    <div key={s.team_id} className={`${styles.standingsRow} ${isMe ? styles.stRowActive : ''}`}>
-                      <span className={styles.stRankValue}>{s.rank}</span>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flex: 1, minWidth: 0 }}>
-                        <CrestBadge config={crestConfig} size={20} teamName={s.team_name} />
-                        <span className={`${styles.stTeamName} ${isMe ? styles.stTeamNameBold : ''}`} style={{ flex: 1 }}>{s.team_name}</span>
-                      </div>
-                      <span className={styles.stPtsValue}>{s.league_points.toLocaleString()}</span>
-                      <div className={styles.formDots}>
-                        {form.map((result, idx) => (
-                          <span
-                            key={idx}
-                            className={`${styles.formDot} ${
-                              result === 'W'
-                                ? styles.formDotW
-                                : result === 'D'
-                                ? styles.formDotD
-                                : styles.formDotL
-                            }`}
-                          />
-                        ))}
-                        {Array.from({ length: Math.max(0, 5 - form.length) }).map((_, idx) => (
-                          <span key={`empty-${idx}`} className={`${styles.formDot} ${styles.formDotEmpty}`} />
-                        ))}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-              <div className={styles.standingsFooter}>
-                <NavigationLink href={`/league/${leagueId}/standings`} className={styles.cardLink}>VIEW FULL STANDINGS</NavigationLink>
-              </div>
-            </div>
-          </div>
-
-          {/* Top Performers */}
-          <TopPerformers latestCompletedGW={latestCompletedGW} topPerformers={topPerformers} />
-
-          {/* Tournament Status */}
-          <div className={styles.rightCard}>
-            <span className={styles.kickerLabel}>TOURNAMENT STATUS</span>
-            {tournaments.length === 0 ? (
-              <div className={styles.emptyStateBox}>
-                <p className={styles.emptyHint}>No active tournaments.</p>
-              </div>
-            ) : (
-              <div className={styles.tournList}>
-                {tournaments.map((t: any) => (
-                  <div key={t.id} className={styles.tournRow}>
-                    <div className={styles.tournIcon} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <Icon name="trophy" size={16} />
-                    </div>
-                    <div className={styles.tournInfo}>
-                      <span className={styles.tournName}>{t.name}</span>
-                      <span className={styles.tournDesc}>{t.status === 'active' ? `Round ${t.current_round ?? 1}` : t.status}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-        </div>
+        <Rail model={model} />
       </div>
 
-
-      {/* Leave League (always available, bottom) */}
-      <div className={styles.dangerZone}>
+      <div style={{ marginTop: 'var(--s12)' }}>
         <LeaveLeagueButton leagueId={leagueId} isCommissioner={league.commissioner_id === user.id} />
       </div>
     </div>

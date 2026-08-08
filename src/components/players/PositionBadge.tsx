@@ -6,26 +6,27 @@ interface Props {
   size?: 'sm' | 'md';
 }
 
-const POSITION_BG: Record<GranularPosition, string> = {
-  GK: 'var(--color-pos-gk)',
-  CB: 'var(--color-pos-cb)',
-  LB: 'var(--color-pos-fb)',
-  RB: 'var(--color-pos-fb)',
-  LWB: 'var(--color-pos-wb)',
-  RWB: 'var(--color-pos-wb)',
-  DM: 'var(--color-pos-dm)',
-  CM: 'var(--color-pos-cm)',
-  AM: 'var(--color-pos-am)',
-  LW: 'var(--color-pos-lw)',
-  RW: 'var(--color-pos-rw)',
-  ST: 'var(--color-pos-st)',
+/* Left/right pairs share a hue (LB/RB, LWB/RWB, LW/RW), so the side is
+   carried by a clipped corner as well as by the letters. Without it the
+   spine would be leaning on colour alone to separate two positions that
+   are genuinely different roles. */
+const SIDE: Partial<Record<GranularPosition, 'l' | 'r'>> = {
+  LB: 'l', LWB: 'l', LW: 'l',
+  RB: 'r', RWB: 'r', RW: 'r',
 };
 
 export default function PositionBadge({ position, size = 'md' }: Props) {
+  const side = SIDE[position];
   return (
     <span
-      className={`${styles.badge} ${styles[`size_${size}`]}`}
-      style={{ backgroundColor: POSITION_BG[position], color: '#FFFFFF' }}
+      className={[
+        styles.badge,
+        styles[`size_${size}`],
+        styles[`pos_${position}`],
+        side ? styles[`side_${side}`] : '',
+      ]
+        .filter(Boolean)
+        .join(' ')}
     >
       {position}
     </span>

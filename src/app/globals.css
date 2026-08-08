@@ -27,7 +27,11 @@
   /* --- Ink / Text --- */
   --color-text-primary:   #1C1C1C;  /* headlines, key figures */
   --color-text-secondary: #4A4A4A;  /* body copy */
-  --color-text-muted:     #9A9488;  /* labels, captions, meta */
+  /* Darkened from #9A9488, which measured 2.73-2.94:1 on both the page
+     and card surfaces and carried essentially every label, caption,
+     column head and timestamp in the app. PRODUCT.md makes AA a hard
+     requirement; this clears it while staying the same warm grey. */
+  --color-text-muted:     #6B6356;  /* labels, captions, meta */
   --color-text-inverse:   #FFFFFF;
 
   /* --- Accents & Semantic Colors ---
@@ -60,17 +64,96 @@
   --color-silver:       #94a3b8;  /* #2 figures, silver medals */
   --color-bronze:       #92400e;  /* #3 figures, bronze medals */
 
-  /* --- Position Colors (The Football Spine) --- */
-  --color-pos-gk: #D4A017;  /* Amber          — Goalkeeper */
-  --color-pos-cb: #2A5A92;  /* Steel Blue     — Centre-Back */
-  --color-pos-fb: #3B82F6;  /* Blue           — Full-Back (LB/RB) */
-  --color-pos-wb: #2E7D82;  /* Teal           — Wing-Back (LWB/RWB) */
-  --color-pos-dm: #7450A1;  /* Muted Purple   — Defensive Mid */
-  --color-pos-cm: #9D81C1;  /* Lavender       — Central Mid */
-  --color-pos-am: #B54E7F;  /* Rose / Plum    — Attacking Mid */
-  --color-pos-lw: #2F7A4E;  /* Deep Sage      — Left Wing */
-  --color-pos-rw: #2F7A4E;  /* Deep Sage      — Right Wing */
-  --color-pos-st: #A62626;  /* Deep Red       — Striker */
+  /* --- Position Colors (The Football Spine) ---
+     Gaffa 2.0 spine, verified by design-2.0/verify-palette.mjs. Each
+     position carries three tokens: the field, the label ink (`-on`,
+     chosen per position rather than forcing white on all twelve), and
+     the keyline (`-line`). It is the KEYLINE, not the fill, that has to
+     clear 3:1 against the page — that is what lets a bright hue stay
+     bright instead of being dragged to mud.
+
+     One hue moved from 1.0: LWB/RWB teal went a shade deeper, off the
+     green band. Wingers were also moved (to a terracotta, so that green
+     could mean exactly one thing) and then moved back — see LW/RW below.
+     And goalkeeper amber moved from #D4A017 to #9E6D00: at luminance
+     0.42 it was the one pale badge in a spine that otherwise sits at
+     0.10-0.17, so it was the only position needing dark ink (white on
+     the old amber measured 2.23:1). Holding hue and chroma and moving
+     lightness only, white first clears 4.5:1 at #9E6D00. */
+  --color-pos-gk: #9E6D00;  --color-pos-gk-on: #FFFFFF;  --color-pos-gk-line: #9E6D00;
+  --color-pos-cb: #2A5A92;  --color-pos-cb-on: #FFFFFF;  --color-pos-cb-line: #2A5A92;
+  --color-pos-lb: #2C6FD8;  --color-pos-lb-on: #FFFFFF;  --color-pos-lb-line: #2C6FD8;
+  --color-pos-rb: #2C6FD8;  --color-pos-rb-on: #FFFFFF;  --color-pos-rb-line: #2C6FD8;
+  --color-pos-lwb: #1F6B70; --color-pos-lwb-on: #FFFFFF; --color-pos-lwb-line: #1F6B70;
+  --color-pos-rwb: #1F6B70; --color-pos-rwb-on: #FFFFFF; --color-pos-rwb-line: #1F6B70;
+  --color-pos-dm: #6A47A0;  --color-pos-dm-on: #FFFFFF;  --color-pos-dm-line: #6A47A0;
+  --color-pos-cm: #8763AC;  --color-pos-cm-on: #FFFFFF;  --color-pos-cm-line: #8763AC;
+  --color-pos-am: #A8406C;  --color-pos-am-on: #FFFFFF;  --color-pos-am-line: #A8406C;
+  /* Wingers stay on 1.0's deep sage by Duke's call. Worth knowing what it
+     costs: sage sits close to the accent green, which under the colour law
+     means "Gaffa, and yours" — so on a surface that tints your own row green,
+     a winger badge reads adjacent to ownership. 2.0 moved them to terracotta
+     for exactly that reason. Revisit if the two ever collide in practice. */
+  --color-pos-lw: #2F7A4E;  --color-pos-lw-on: #FFFFFF;  --color-pos-lw-line: #2F7A4E;
+  --color-pos-rw: #2F7A4E;  --color-pos-rw-on: #FFFFFF;  --color-pos-rw-line: #2F7A4E;
+  --color-pos-st: #A62626;  --color-pos-st-on: #FFFFFF;  --color-pos-st-line: #A62626;
+  /* Back-compat aliases: 1.0 shared one token across LB/RB and LWB/RWB.
+     Existing stylesheets still reference these. */
+  --color-pos-fb: var(--color-pos-lb);
+  --color-pos-wb: var(--color-pos-lwb);
+
+  /* --- Gaffa 2.0 additions ---
+     New roles 1.0 had no token for. Additive: nothing already in the
+     app changes because of these.
+       bg-inset ...... the recessed ground under a track or a chip
+       border-strong . a hairline that clears 3:1 against the page, for
+                       control outlines and axis rules
+       accent-ink .... accent as BODY TEXT. --color-accent is a fill and
+                       large-text token; at 13px on a dark card #1FA35F
+                       is 4.33:1, so rather than move a pinned brand
+                       value the token splits by role
+       live .......... a match in progress. A broadcast tally red, not
+                       the brand green, so green keeps one job
+       warning-text .. warning as TEXT. --color-warning stays #f59e0b
+                       because eight stylesheets use it as a FILL with
+                       dark ink on top; as text on cream it is 1.87:1,
+                       so text needs its own darker value
+       tint-* ........ one tint strength per theme, replacing ad-hoc
+                       color-mix at 4/5/6/7/8%. A tinted ground takes
+                       PRIMARY ink only, never the tint's own hue */
+  --color-bg-inset:      #E8E2D6;
+  --color-border-strong: #8F877B;
+  --color-accent-ink:    #146B40;
+  --color-live:          #B3261E;
+  --color-warning-text:  #8A5A0B;
+  --color-tint-accent:   #E2EAE1;
+  --color-tint-danger:   #F5E3DD;
+  --color-tint-warning:  #EFE8DD;
+  --line:        1px solid var(--color-border-subtle);
+  --line-strong: 1px solid var(--color-border);
+
+  /* --- Gaffa 2.0 scales ---
+     Additive. The --text-*, --space-* and --radius-* scales below are
+     unchanged and still drive every existing surface.
+
+     The type scale is named by px and floors at 10, because --text-xs
+     floors at 12 and pages that wanted 9-11px had no token to reach
+     for — so they wrote rem literals (0.6rem, 0.72rem, 0.59rem) and
+     8px text shipped. Extend the scale rather than police the escapes.
+
+     The radius set is one token per ROLE rather than per size, which is
+     what stops a page inventing 3px, 5px and 7px alongside the tokens. */
+  --t-10: 10px;  --t-11: 11px;  --t-12: 12px;  --t-13: 13px;  --t-15: 15px;
+  --t-17: 17px;  --t-20: 20px;  --t-25: 25px;  --t-32: 32px;  --t-40: 40px;
+
+  --s1: 4px;   --s2: 8px;   --s3: 12px;  --s4: 16px;  --s5: 20px;
+  --s6: 24px;  --s8: 32px;  --s10: 40px; --s12: 48px; --s16: 64px;
+
+  --r-shell: 10px;    /* outer containers */
+  --r-control: 4px;   /* buttons, inputs, badges, chips */
+  --r-micro: 2px;     /* ticks, flags, meter fills */
+  --r-round: 50%;     /* dots and circular marks */
+  --r-pill: 999px;    /* toggles only */
 
   /* --- Typography ---
      The --font-*-* vars are injected by next/font (see layout.tsx) and already
@@ -174,7 +257,10 @@
      colder off-white. */
   --color-text-primary:   #EDEAE2;
   --color-text-secondary: #B7B2A8;
-  --color-text-muted:     #8C8982;
+  /* #8C8982 passed only against --color-bg-primary and failed (4.03:1)
+     on every card surface, which is where most muted text actually
+     sits. Lifted to clear AA on cards too. */
+  --color-text-muted:     #949BAB;
   /* Every usage of this token pairs it with a saturated, theme-stable
      surface (accent green, gold, purple, position/crest colors) — never
      with a surface that goes light in dark mode. Literal-inverting to
@@ -194,6 +280,53 @@
   --color-accent-blue-hover: #18814D;
 
   --color-success: #1FA35F;
+
+  /* --- Gaffa 2.0 additions, dark ---
+     Note --color-accent-hover stays DARKER than --color-accent here: it
+     is the fill-hover for buttons, where darkening is correct. Accent as
+     TEXT uses --color-accent-ink, which is lighter than the fill so it
+     clears AA on a card (#1FA35F as 13px text was 4.33:1). */
+  --color-bg-inset:      #161B28;
+  --color-border-strong: #6E7893;
+  --color-accent-ink:    #2FB56C;
+  --color-live:          #F0736A;
+  --color-warning-text:  #E0A63C;
+  --color-tint-accent:   #2A4647;
+  --color-tint-danger:   #533E4A;
+  --color-tint-warning:  #4D4745;
+
+  /* --- The spine in dark ---
+     One fill per position across BOTH themes, with white ink everywhere.
+
+     Dark previously lightened all twelve fills and switched the label to dark
+     ink, which meant a position was literally a different colour depending on
+     the theme — awkward for the one token set where hue carries identity.
+     Keeping the fills fixed makes the badge the same object in both themes
+     and lets the ink be white throughout.
+
+     The fills sit in a narrow band that satisfies both constraints at once:
+     white text needs luminance <= 0.183 to clear 4.5:1, so the fill cannot be
+     lightened for dark. What it loses that way is its EDGE against a dark
+     card, and that is what `-line` is for — the keyline carries 4.7-9.1:1
+     against both the dark page and the dark card, so the badge still reads as
+     a distinct object without the fill having to move. */
+  /* Keylines emitted by design-2.0/verify-palette.mjs --emit. Each is the
+     fill's own hue lifted in OKLCH lightness until it clears 4.0:1 against
+     whichever of the dark page and the dark card is harder — the check
+     enforces 3.0, the derivation aims past it so the edge is visible rather
+     than merely compliant. */
+  --color-pos-gk-on: #FFFFFF;  --color-pos-gk-line: #B38126;
+  --color-pos-cb-on: #FFFFFF;  --color-pos-cb-line: #5B8DC8;
+  --color-pos-lb-on: #FFFFFF;  --color-pos-lb-line: #4387F2;
+  --color-pos-rb-on: #FFFFFF;  --color-pos-rb-line: #4387F2;
+  --color-pos-lwb-on: #FFFFFF; --color-pos-lwb-line: #4D959A;
+  --color-pos-rwb-on: #FFFFFF; --color-pos-rwb-line: #4D959A;
+  --color-pos-dm-on: #FFFFFF;  --color-pos-dm-line: #9A78D6;
+  --color-pos-cm-on: #FFFFFF;  --color-pos-cm-line: #9E79C4;
+  --color-pos-am-on: #FFFFFF;  --color-pos-am-line: #D1658F;
+  --color-pos-lw-on: #FFFFFF;  --color-pos-lw-line: #4F986A;
+  --color-pos-rw-on: #FFFFFF;  --color-pos-rw-line: #4F986A;
+  --color-pos-st-on: #FFFFFF;  --color-pos-st-line: #E15F57;
 
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.30);
   --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.40);
