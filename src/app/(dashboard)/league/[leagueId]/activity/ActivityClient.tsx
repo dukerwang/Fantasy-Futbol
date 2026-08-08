@@ -48,6 +48,8 @@ interface WaiverClaim {
   faab_bid: number;
   created_at: string;
   expires_at: string;
+  sale_listing_id?: string | null;
+  first_bid_at?: string | null;
   player: Player | null;
   team: Team | null;
 }
@@ -477,6 +479,11 @@ function groupAuctions(liveAuctions: WaiverClaim[], myTeamId: string | null): Au
 
   for (const claim of liveAuctions) {
     if (!claim.player) continue;
+    // An untouched manager listing anchor has no bids yet — filter it out
+    // so it only displays as a live auction once someone places an opening bid.
+    if (claim.sale_listing_id && claim.team_id === null && !claim.first_bid_at) {
+      continue;
+    }
     const pid = claim.player.id;
     const existing = map.get(pid);
     const isRealBid = claim.team_id !== null;

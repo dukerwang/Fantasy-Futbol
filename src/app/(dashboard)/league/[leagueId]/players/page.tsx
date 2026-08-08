@@ -99,6 +99,9 @@ export default async function TransferMarketPage({ params, searchParams }: Props
   // Group by player to build AuctionListing[] with per-auction bid history
   const auctionMap = new Map<string, any>();
   for (const claim of rawClaims ?? []) {
+    if (claim.sale_listing_id && claim.team_id === null && !claim.first_bid_at) {
+      continue;
+    }
     const existing = auctionMap.get(claim.player_id);
     const isRealBid = claim.team_id !== null;
     const bidEntry = isRealBid ? {
