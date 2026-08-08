@@ -167,7 +167,7 @@ export default async function StandingsPage({ params }: Props) {
                 className={`${styles.podiumCard} ${isLeader ? styles.podiumCardLeader : ''}`}
               >
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                  <CrestBadge config={row.crestConfig} size={64} teamName={row.teamName} />
+                  <CrestBadge config={row.crestConfig} size={64} teamName={row.teamName} teamId={row.teamId} />
                   <Icon
                     name="trophy"
                     size={20}

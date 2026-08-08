@@ -288,13 +288,13 @@
   border: none;
   background: none;
   cursor: pointer;
-  border-radius: 50%;
   line-height: 0;
-  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  border-radius: 4px;
+  transition: transform var(--transition-fast), filter var(--transition-fast);
 }
 .crestPeek:hover {
-  transform: scale(1.06);
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-accent) 45%, transparent);
+  transform: translateY(-1.5px) scale(1.06);
+  filter: drop-shadow(0 4px 10px color-mix(in srgb, var(--color-accent) 40%, transparent));
 }
 
 /* Manager */

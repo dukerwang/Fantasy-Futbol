@@ -2,6 +2,8 @@
 
 import { useSquadPeek } from './SquadPeekProvider';
 
+import styles from './SquadPeekButton.module.css';
+
 /**
  * Any control that opens the squad peek.
  *
@@ -30,10 +32,12 @@ export default function SquadPeekButton({
   const peek = useSquadPeek();
   if (!peek) return <>{children}</>;
 
+  const btnClass = className ? `${styles.peekButton} ${className}` : styles.peekButton;
+
   return (
     <button
       type="button"
-      className={className}
+      className={btnClass}
       title={title}
       onClick={(e) => {
         e.preventDefault();

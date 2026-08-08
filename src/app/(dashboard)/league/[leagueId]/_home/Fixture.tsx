@@ -61,7 +61,7 @@ export default function Fixture({ model }: { model: HomeModel }) {
 
       <div className={styles.heroTeams}>
         <div className={styles.ht}>
-          <CrestBadge config={f.home.crest as CrestConfig | null} size={32} teamName={f.home.name} />
+          <CrestBadge config={f.home.crest as CrestConfig | null} size={32} teamName={f.home.name} teamId={f.home.id} />
           <div className={styles.htTx}>
             <div className={styles.htName}>{f.home.name}</div>
             <div className={styles.htMeta}>{f.homeMeta}</div>
@@ -89,7 +89,7 @@ export default function Fixture({ model }: { model: HomeModel }) {
             <div className={styles.htName}>{f.away.name}</div>
             <div className={styles.htMeta}>{f.awayMeta}</div>
           </div>
-          <CrestBadge config={f.away.crest as CrestConfig | null} size={32} teamName={f.away.name} />
+          <CrestBadge config={f.away.crest as CrestConfig | null} size={32} teamName={f.away.name} teamId={f.away.id} />
         </div>
       </div>
 
@@ -289,6 +289,7 @@ export function SeasonClosed({ model }: { model: HomeModel }) {
           config={model.club.crest as CrestConfig | null}
           size={46}
           teamName={model.club.name}
+          teamId={model.club.id}
         />
         <div>
           <div className={styles.closedF}>{c.headline}</div>

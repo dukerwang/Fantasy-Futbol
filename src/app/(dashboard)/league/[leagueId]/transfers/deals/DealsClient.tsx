@@ -573,6 +573,7 @@ export default function DealsClient({
                     <CrestBadge
                       config={(t.crest_config as CrestConfig | null) ?? null}
                       teamName={t.team_name}
+                      teamId={t.id}
                       size={22}
                     />
                     <div className={styles.clubBody}>

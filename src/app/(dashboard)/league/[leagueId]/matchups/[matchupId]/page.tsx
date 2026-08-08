@@ -9,6 +9,8 @@ import { normalizeMatchupLineup } from '@/lib/lineups/normalizeMatchupLineup';
 import { generateMatchReport } from '@/lib/narrative/matchReport';
 import { getCurrentFplSeason } from '@/lib/season/currentSeason';
 import { clubHref } from '@/lib/teams/clubHref';
+import CrestBadge from '@/components/crest/CrestBadge';
+import type { CrestConfig } from '@/components/crest/types';
 import MatchReportCard from './MatchReportCard';
 import MatchupLiveRefresh from './MatchupLiveRefresh';
 import styles from './matchup-detail.module.css';
@@ -49,8 +51,8 @@ export default async function MatchupDetailPage({ params }: Props) {
         .from('matchups')
         .select(`
             *,
-            team_a:teams!matchups_team_a_id_fkey(id, team_name),
-            team_b:teams!matchups_team_b_id_fkey(id, team_name)
+            team_a:teams!matchups_team_a_id_fkey(id, team_name, crest_config),
+            team_b:teams!matchups_team_b_id_fkey(id, team_name, crest_config)
         `)
         .eq('id', matchupId)
         .eq('league_id', leagueId)
@@ -59,8 +61,8 @@ export default async function MatchupDetailPage({ params }: Props) {
     if (!matchupData) notFound();
 
     const matchup = matchupData as Matchup & {
-        team_a: { id: string; team_name: string } | null;
-        team_b: { id: string; team_name: string } | null;
+        team_a: { id: string; team_name: string; crest_config: any } | null;
+        team_b: { id: string; team_name: string; crest_config: any } | null;
     };
 
     const lineupA = normalizeMatchupLineup(matchup.lineup_a as MatchupLineup | null);
@@ -135,9 +137,9 @@ export default async function MatchupDetailPage({ params }: Props) {
             {/* Score banner */}
             <div className={styles.matchHeader}>
                 <h1 className={styles.matchTitle}>
-                    <ClubLink leagueId={leagueId} teamId={matchup.team_a?.id} myTeamId={member?.id} name={teamAName} />
+                    <ClubLink leagueId={leagueId} teamId={matchup.team_a?.id} myTeamId={member?.id} name={teamAName} crestConfig={matchup.team_a?.crest_config} />
                     {' vs '}
-                    <ClubLink leagueId={leagueId} teamId={matchup.team_b?.id} myTeamId={member?.id} name={teamBName} />
+                    <ClubLink leagueId={leagueId} teamId={matchup.team_b?.id} myTeamId={member?.id} name={teamBName} crestConfig={matchup.team_b?.crest_config} />
                 </h1>
 
                 <div className={styles.scoreRow}>
@@ -176,6 +178,10 @@ export default async function MatchupDetailPage({ params }: Props) {
                 detailMap={detailMap}
                 teamAName={teamAName}
                 teamBName={teamBName}
+                teamAId={matchup.team_a?.id}
+                teamBId={matchup.team_b?.id}
+                crestA={matchup.team_a?.crest_config}
+                crestB={matchup.team_b?.crest_config}
                 matchupStatus={matchup.status}
             />
         </div>
@@ -189,12 +195,15 @@ export default async function MatchupDetailPage({ params }: Props) {
  * question that immediately follows it — what else is on that roster.
  */
 function ClubLink({
-    leagueId, teamId, myTeamId, name,
-}: { leagueId: string; teamId?: string; myTeamId?: string; name: string }) {
+    leagueId, teamId, myTeamId, name, crestConfig,
+}: { leagueId: string; teamId?: string; myTeamId?: string; name: string; crestConfig?: any }) {
     if (!teamId) return <>{name}</>;
     return (
-        <NavigationLink href={clubHref(leagueId, teamId, teamId === myTeamId)} className={styles.clubLink}>
-            {name}
-        </NavigationLink>
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+            <CrestBadge config={crestConfig} size={28} teamName={name} teamId={teamId} />
+            <NavigationLink href={clubHref(leagueId, teamId, teamId === myTeamId)} className={styles.clubLink}>
+                {name}
+            </NavigationLink>
+        </span>
     );
 }

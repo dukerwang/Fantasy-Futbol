@@ -7,13 +7,17 @@ import { DIVISIONS } from './divisions';
 import { CURATED_ICONS } from './icons';
 import styles from './crest.module.css';
 
+import SquadPeekButton from '../teams/SquadPeekButton';
+
 interface CrestBadgeProps {
   config: CrestConfig | null | undefined;
   size?: number;
   teamName?: string | null;
+  teamId?: string | null;
+  interactive?: boolean;
 }
 
-export default function CrestBadge({ config, size = 40, teamName }: CrestBadgeProps) {
+export default function CrestBadge({ config, size = 40, teamName, teamId, interactive = true }: CrestBadgeProps) {
   const reactId = useId();
   const clipId = `crest-clip-${reactId.replace(/:/g, '')}`;
 
@@ -26,6 +30,8 @@ export default function CrestBadge({ config, size = 40, teamName }: CrestBadgePr
     }
     return displayName.trim().substring(0, 2).toUpperCase();
   })();
+
+  const renderBadge = () => {
 
   // 1. Render Fallback Badge (Classic Gaffa Green Shield with Cream Initials)
   if (!config) {
@@ -152,4 +158,17 @@ export default function CrestBadge({ config, size = 40, teamName }: CrestBadgePr
       </svg>
     </div>
   );
+};
+
+  const badge = renderBadge();
+
+  if (teamId && interactive) {
+    return (
+      <SquadPeekButton teamId={teamId} teamName={displayName} title={`Peek at ${displayName}`}>
+        {badge}
+      </SquadPeekButton>
+    );
+  }
+
+  return badge;
 }

@@ -6,6 +6,8 @@ import { POSITION_FLEX_MAP, BENCH_DEPTH_BONUS, BENCH_DEPTH_BONUS_LABEL } from '@
 import { getPlayerDisplayName } from '@/lib/players/displayName';
 import { getScoreIntensityColor } from '@/lib/utils/scoreColor';
 import { usePlayerCard } from './players/PlayerCardProvider';
+import CrestBadge from './crest/CrestBadge';
+import type { CrestConfig } from './crest/types';
 import { Icon } from './ui/Icon';
 import styles from './MatchupPitch.module.css';
 
@@ -108,6 +110,9 @@ function PlayerChip({ slot, player, detail, isSubIn, onClick }: {
             <p className={styles.chipName}>
                 {player ? getPlayerDisplayName(player) : '—'}
             </p>
+            {detail?.stats && (
+                <p className={styles.chipSub}>{fmtStats(detail.stats, slot)}</p>
+            )}
         </div>
     );
 }
@@ -217,11 +222,15 @@ interface Props {
     detailMap: Record<string, Detail>;
     teamAName: string;
     teamBName: string;
+    teamAId?: string;
+    teamBId?: string;
+    crestA?: CrestConfig | null;
+    crestB?: CrestConfig | null;
     matchupStatus?: string;
 }
 
 export default function MatchupPitch({
-    lineupA, lineupB, playerMap, detailMap, teamAName, teamBName, matchupStatus = 'live',
+    lineupA, lineupB, playerMap, detailMap, teamAName, teamBName, teamAId, teamBId, crestA, crestB, matchupStatus = 'live',
 }: Props) {
     // Pitch tiles hold only a partial player, so the card resolves by id off
     // the shared cache rather than painting a half-filled front.
@@ -258,7 +267,9 @@ export default function MatchupPitch({
     function renderHalfPitch(
         zones: ReturnType<typeof groupByZone> | null,
         teamName: string,
-        sideKey: string,
+        teamId?: string,
+        crestConfig?: CrestConfig | null,
+        sideKey: string = 'a',
     ) {
         return (
             <div className={styles.halfOuter}>
@@ -268,7 +279,10 @@ export default function MatchupPitch({
                     <div className={styles.halfPenaltyBox} />
                     <div className={styles.halfPenaltyArc} />
                     <div className={styles.halfGoalBox} />
-                    <div className={styles.halfTeamLabel}>
+                    <div className={styles.halfTeamLabel} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                        {teamId && (
+                            <CrestBadge config={crestConfig} size={22} teamName={teamName} teamId={teamId} />
+                        )}
                         <span>{teamName}</span>
                     </div>
                     <div className={styles.pitchHalfZones}>
@@ -303,8 +317,8 @@ export default function MatchupPitch({
             {/* Two vertically oriented half-pitches (attack top / GK bottom), side by side */}
             <div className={styles.pitchSurface}>
                 <div className={styles.pitchHalvesGrid}>
-                    {renderHalfPitch(zonesA, teamAName, 'a')}
-                    {renderHalfPitch(zonesB, teamBName, 'b')}
+                    {renderHalfPitch(zonesA, teamAName, teamAId, crestA, 'a')}
+                    {renderHalfPitch(zonesB, teamBName, teamBId, crestB, 'b')}
                 </div>
             </div>
 

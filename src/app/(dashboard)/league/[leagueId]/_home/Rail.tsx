@@ -29,6 +29,7 @@ export default function Rail({ model }: { model: HomeModel }) {
                 config={model.opponent.club.crest as CrestConfig | null}
                 size={32}
                 teamName={model.opponent.club.name}
+                teamId={model.opponent.club.id}
               />
               <div>
                 <div className={styles.oppName}>{model.opponent.club.name}</div>

@@ -153,7 +153,7 @@ export function Matchweek({ model }: { model: HomeModel }) {
             href={`/league/${model.leagueId}/matchups/${m.id}`}
             className={styles.mwRow}
           >
-            <CrestBadge config={m.home.crest as CrestConfig | null} size={21} teamName={m.home.name} />
+            <CrestBadge config={m.home.crest as CrestConfig | null} size={21} teamName={m.home.name} teamId={m.home.id} />
             <span className={styles.mwName}>{m.home.name}</span>
             <span
               className={
@@ -185,7 +185,7 @@ export function Matchweek({ model }: { model: HomeModel }) {
               {m.awayScore == null ? '—' : m.awayScore.toFixed(2)}
             </span>
             <span className={styles.mwNameB}>{m.away.name}</span>
-            <CrestBadge config={m.away.crest as CrestConfig | null} size={21} teamName={m.away.name} />
+            <CrestBadge config={m.away.crest as CrestConfig | null} size={21} teamName={m.away.name} teamId={m.away.id} />
           </NavigationLink>
         ))}
       </div>
@@ -262,6 +262,7 @@ export function StandingsTable({ model }: { model: HomeModel }) {
                       config={r.club.crest as CrestConfig | null}
                       size={21}
                       teamName={r.club.name}
+                      teamId={r.teamId}
                     />
                     <span className={r.isMe ? styles.clubNameMe : styles.clubName}>
                       {r.club.name}

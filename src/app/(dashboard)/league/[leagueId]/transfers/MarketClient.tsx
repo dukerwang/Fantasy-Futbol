@@ -221,6 +221,7 @@ export default function MarketClient({
                           <CrestBadge
                             config={(seller?.crest_config as CrestConfig | null) ?? null}
                             teamName={seller?.team_name}
+                            teamId={a.seller_team_id ?? seller?.id}
                             size={20}
                           />
                         ) : (

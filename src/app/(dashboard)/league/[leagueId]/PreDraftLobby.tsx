@@ -355,7 +355,7 @@ export default function PreDraftLobby({
                 <div key={t.id} className={`${styles.memberRow} ${isMe ? styles.memberRowActive : ''}`}>
                   <div className={styles.memberLeft}>
                     <div className={styles.avatarContainer}>
-                      <CrestBadge config={t.crest_config} teamName={t.team_name} size={38} />
+                      <CrestBadge config={t.crest_config} teamName={t.team_name} teamId={t.id} size={38} />
                     </div>
                     <div className={styles.memberDetails}>
                       <div className={styles.teamNameRow}>

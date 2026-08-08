@@ -427,6 +427,7 @@ function Lot({
               <CrestBadge
                 config={(leader?.crest_config as CrestConfig | null) ?? null}
                 teamName={leader?.team_name ?? a.highest_bidder_team_name}
+                teamId={a.highest_bidder_team_id}
                 size={17}
               />
               <span className={styles.lotWn}>

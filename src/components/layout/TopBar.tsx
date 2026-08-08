@@ -467,6 +467,7 @@ export default function TopBar() {
                         config={currentCrestConfig}
                         size={40}
                         teamName={currentTeam?.team_name || username}
+                        teamId={currentTeam?.id}
                       />
                     ) : (
                       <div className={styles.userInitialsAvatar} style={{ width: '40px', height: '40px', fontSize: '13px' }}>
@@ -677,6 +678,7 @@ export default function TopBar() {
                     config={currentCrestConfig}
                     size={36}
                     teamName={currentTeam?.team_name || username}
+                    teamId={currentTeam?.id}
                   />
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>

@@ -23,6 +23,7 @@ export function Masthead({ model }: { model: HomeModel }) {
           config={model.club.crest as CrestConfig | null}
           size={46}
           teamName={model.club.name}
+          teamId={model.club.id}
         />
         <div className={styles.mastTx}>
           <h1 className={styles.mastName}>{model.club.name}</h1>

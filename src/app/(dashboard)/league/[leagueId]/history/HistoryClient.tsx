@@ -1,6 +1,8 @@
 'use client';
 
 import { Icon } from '@/components/ui/Icon';
+import CrestBadge from '@/components/crest/CrestBadge';
+import type { CrestConfig } from '@/components/crest/types';
 import styles from './history.module.css';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -13,6 +15,7 @@ interface StandingRow {
   team: {
     id: string;
     team_name: string;
+    crest_config?: any;
     user: { username: string } | null;
   } | null;
 }
@@ -99,20 +102,25 @@ function SeasonPanel({ entry }: { entry: SeasonEntry }) {
           {top3.map(row => {
             return (
               <div key={row.final_rank} className={`${styles.podiumCard} ${row.final_rank === 1 ? styles.podiumCardFirst : ''}`} style={medalStyle(row.final_rank)}>
-                <span className={styles.podiumMedal} style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Icon
-                    name="trophy"
-                    size={20}
-                    style={{
-                      color:
-                        row.final_rank === 1
-                          ? '#D4AF37'
-                          : row.final_rank === 2
-                          ? '#A8A9AD'
-                          : '#CD7F32',
-                    }}
-                  />
-                </span>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
+                  {row.team?.id && (
+                    <CrestBadge config={row.team.crest_config as CrestConfig | null} size={40} teamName={row.team.team_name} teamId={row.team.id} />
+                  )}
+                  <span className={styles.podiumMedal} style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Icon
+                      name="trophy"
+                      size={18}
+                      style={{
+                        color:
+                          row.final_rank === 1
+                            ? '#D4AF37'
+                            : row.final_rank === 2
+                            ? '#A8A9AD'
+                            : '#CD7F32',
+                      }}
+                    />
+                  </span>
+                </div>
                 <span className={styles.podiumTeam}>{row.team?.team_name ?? 'Unknown'}</span>
                 <span className={styles.podiumManager}>{row.team?.user?.username ?? ''}</span>
                 <span className={styles.podiumPts}>{row.total_points?.toLocaleString()} pts</span>
@@ -157,7 +165,14 @@ function SeasonPanel({ entry }: { entry: SeasonEntry }) {
                       <span className={styles.rankNum}>{row.final_rank}</span>
                     )}
                   </td>
-                  <td className={styles.tdTeam}>{row.team?.team_name ?? 'Unknown'}</td>
+                  <td className={styles.tdTeam}>
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+                      {row.team?.id && (
+                        <CrestBadge config={row.team.crest_config as CrestConfig | null} size={22} teamName={row.team.team_name} teamId={row.team.id} />
+                      )}
+                      <span>{row.team?.team_name ?? 'Unknown'}</span>
+                    </span>
+                  </td>
                   <td className={styles.tdManager}>{row.team?.user?.username ?? '—'}</td>
                   <td className={styles.tdPts}>{row.total_points?.toLocaleString()}</td>
                 </tr>

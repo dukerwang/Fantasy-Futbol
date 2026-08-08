@@ -22,6 +22,7 @@ interface Message {
 interface ManagerInfo {
   name: string;
   teamName: string;
+  teamId?: string;
   crestConfig: any;
 }
 
@@ -62,6 +63,7 @@ export default function SidebarChat({
           m[t.user_id] = {
             name,
             teamName: t.team_name,
+            teamId: t.id,
             crestConfig: t.crest_config
           };
         }
@@ -195,7 +197,7 @@ export default function SidebarChat({
                 className={`${styles.msgRow} ${isSelf ? styles.msgRowSelf : ''}`}
               >
                 <div className={styles.avatarBubble}>
-                  <CrestBadge config={manager.crestConfig} teamName={manager.teamName} size={26} />
+                  <CrestBadge config={manager.crestConfig} teamName={manager.teamName} teamId={manager.teamId} size={26} />
                 </div>
 
                 <div className={styles.bubbleWrap}>

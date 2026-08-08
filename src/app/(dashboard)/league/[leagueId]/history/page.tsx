@@ -43,7 +43,7 @@ export default async function HistoryPage({ params }: Props) {
       .from('season_standings_archive')
       .select(
         `season, final_rank, total_points, archived_at,
-         team:teams!team_id(id, team_name, user:users!user_id(username))`
+         team:teams!team_id(id, team_name, crest_config, user:users!user_id(username))`
       )
       .eq('league_id', leagueId)
       .order('season', { ascending: false })

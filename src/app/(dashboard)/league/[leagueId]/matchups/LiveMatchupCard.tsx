@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import NavigationLink from '@/components/ui/NavigationLink';
 import { createClient } from '@/lib/supabase/client';
 import type { Matchup } from '@/types';
+import CrestBadge from '@/components/crest/CrestBadge';
 import styles from './matchups.module.css';
 
 interface TeamRecord {
@@ -50,6 +51,8 @@ export default function LiveMatchupCard({
     const teamBName = (matchup as any).team_b?.team_name ?? 'TBD';
     const teamAId = (matchup as any).team_a?.id;
     const teamBId = (matchup as any).team_b?.id;
+    const crestA = (matchup as any).team_a?.crest_config;
+    const crestB = (matchup as any).team_b?.crest_config;
 
     const myTeamSide =
         myTeamId === teamAId ? 'a' : myTeamId === teamBId ? 'b' : null;
@@ -113,7 +116,8 @@ export default function LiveMatchupCard({
             <NavigationLink href={href} className={styles.heroCard}>
                 
                 {/* Team A — left column */}
-                <div className={styles.heroTeamCol}>
+                <div className={styles.heroTeamCol} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+                    {teamAId && <CrestBadge config={crestA} size={36} teamName={teamAName} teamId={teamAId} />}
                     <span className={styles.heroTeamName}>
                         {teamAName}
                     </span>
@@ -159,7 +163,8 @@ export default function LiveMatchupCard({
                 </div>
 
                 {/* Team B — right column (same depth as team A so names align) */}
-                <div className={`${styles.heroTeamCol} ${styles.right}`}>
+                <div className={`${styles.heroTeamCol} ${styles.right}`} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+                    {teamBId && <CrestBadge config={crestB} size={36} teamName={teamBName} teamId={teamBId} />}
                     <span className={styles.heroTeamName}>
                         {teamBName}
                     </span>
@@ -197,6 +202,7 @@ export default function LiveMatchupCard({
                     <div className={`${styles.sideBadge} ${badgeA.cls}`}>
                         {isLive && badgeA.text === '▶' ? <span className={styles.livePulse} /> : badgeA.text}
                     </div>
+                    {teamAId && <CrestBadge config={crestA} size={22} teamName={teamAName} teamId={teamAId} />}
                     <div className={styles.halfInfo}>
                         <span className={[styles.halfName, myTeamSide === 'a' ? styles.myTeam : ''].filter(Boolean).join(' ')}>
                             {teamAName}
@@ -220,6 +226,7 @@ export default function LiveMatchupCard({
                             {teamBName}
                         </span>
                     </div>
+                    {teamBId && <CrestBadge config={crestB} size={22} teamName={teamBName} teamId={teamBId} />}
                     <div className={`${styles.sideBadge} ${badgeB.cls}`}>
                         {isLive && badgeB.text === '▶' ? <span className={styles.livePulse} /> : badgeB.text}
                     </div>

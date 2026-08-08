@@ -172,8 +172,8 @@ export default async function MatchupsPage({ params, searchParams }: Props) {
         .from('matchups')
         .select(`
             *,
-            team_a:teams!matchups_team_a_id_fkey(id, team_name, user_id),
-            team_b:teams!matchups_team_b_id_fkey(id, team_name, user_id)
+            team_a:teams!matchups_team_a_id_fkey(id, team_name, user_id, crest_config),
+            team_b:teams!matchups_team_b_id_fkey(id, team_name, user_id, crest_config)
         `)
         .eq('league_id', leagueId)
         .eq('gameweek', targetGw);

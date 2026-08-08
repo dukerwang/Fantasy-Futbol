@@ -405,7 +405,7 @@ export default function ChatClient({
                     }}
                   >
                     <span className={styles.managerAvatar}>
-                      <CrestBadge config={team.crest_config} teamName={team.team_name} size={24} />
+                      <CrestBadge config={team.crest_config} teamName={team.team_name} teamId={team.id} size={24} />
                     </span>
                     <div className={styles.managerInfo}>
                       <span className={styles.managerName}>{team.user.username}</span>
@@ -452,6 +452,7 @@ export default function ChatClient({
                   <CrestBadge
                     config={teams.find((t) => t.user_id === activeTab.userId)?.crest_config}
                     teamName={activeTab.teamName}
+                    teamId={teams.find((t) => t.user_id === activeTab.userId)?.id}
                     size={24}
                   />
                 </span>
@@ -491,7 +492,7 @@ export default function ChatClient({
                     </div>
                   ) : (
                     <div className={styles.msgAvatar}>
-                      <CrestBadge config={teamInfo?.crest_config} teamName={teamLabel || senderName} size={30} />
+                      <CrestBadge config={teamInfo?.crest_config} teamName={teamLabel || senderName} teamId={teamInfo?.id} size={30} />
                     </div>
                   )}
 
