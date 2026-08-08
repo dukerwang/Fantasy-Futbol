@@ -182,6 +182,11 @@
     min-height: 72px;
 }
 
+.halfZoneWBZ {
+    justify-content: space-between;
+    padding: 8px 12px;
+}
+
 /* ── Player chip — card style from prototype ──────────────────────── */
 .chip {
     position: relative;

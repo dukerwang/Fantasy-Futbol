@@ -319,13 +319,14 @@ export default function AuthShowcase() {
    MatchupPitch) with the real PositionBadge component, scaled
    up so each role reads clearly.
    ============================================================ */
-const PITCH_ZONE_ORDER = ['ATT', 'AMZ', 'CMZ', 'DMZ', 'DEF', 'GK'] as const;
+const PITCH_ZONE_ORDER = ['ATT', 'AMZ', 'CMZ', 'DMZ', 'WBZ', 'DEF', 'GK'] as const;
 type PitchZone = typeof PITCH_ZONE_ORDER[number];
 
 const SLOT_TO_ZONE: Record<GranularPosition, PitchZone> = {
   LW: 'ATT', ST: 'ATT', RW: 'ATT',
   AM: 'AMZ',
-  LWB: 'CMZ', RWB: 'CMZ', CM: 'CMZ',
+  CM: 'CMZ',
+  LWB: 'WBZ', RWB: 'WBZ',
   DM: 'DMZ',
   CB: 'DEF', LB: 'DEF', RB: 'DEF',
   GK: 'GK',
@@ -334,7 +335,7 @@ const SLOT_TO_ZONE: Record<GranularPosition, PitchZone> = {
 const FORMATION_433: GranularPosition[] = ['LW', 'ST', 'RW', 'CM', 'CM', 'DM', 'LB', 'CB', 'CB', 'RB', 'GK'];
 
 function groupByZone(positions: GranularPosition[]): Record<PitchZone, GranularPosition[]> {
-  const zones: Record<PitchZone, GranularPosition[]> = { ATT: [], AMZ: [], CMZ: [], DMZ: [], DEF: [], GK: [] };
+  const zones: Record<PitchZone, GranularPosition[]> = { ATT: [], AMZ: [], CMZ: [], DMZ: [], WBZ: [], DEF: [], GK: [] };
   positions.forEach((p) => zones[SLOT_TO_ZONE[p]].push(p));
   return zones;
 }

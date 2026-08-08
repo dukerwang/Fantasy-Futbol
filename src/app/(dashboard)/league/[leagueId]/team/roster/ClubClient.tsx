@@ -221,7 +221,13 @@ export default function ClubClient({
       <header className={styles.masthead}>
         <div className={styles.mhTop}>
           <div className={styles.mhCrest}>
-            <CrestBadge config={club.crestConfig ?? undefined} teamName={club.name} size={68} />
+            <CrestBadge
+              config={club.crestConfig ?? undefined}
+              teamName={club.name}
+              teamId={teamId}
+              size={68}
+              href={viewerIsOwner ? `/league/${leagueId}/crest` : undefined}
+            />
           </div>
           <div className={styles.mhTitles}>
             {/* No "My Club" / "Club" prefix here — the club's name is the

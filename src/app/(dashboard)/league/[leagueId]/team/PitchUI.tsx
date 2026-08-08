@@ -21,9 +21,9 @@ import { getScoreIntensityColor } from '@/lib/utils/scoreColor';
 
 const FORMATIONS: Formation[] = ['4-3-3', '4-2-1-3', '4-2-2-2', '3-4-3', '3-4-1-2', '3-5-2', '5-3-2', '3-4-2-1', '4-3-1-2', '4-3-2-1'];
 
-type PitchZone = 'ATT' | 'AMZ' | 'CMZ' | 'DMZ' | 'DEF' | 'GK';
+type PitchZone = 'ATT' | 'AMZ' | 'CMZ' | 'DMZ' | 'WBZ' | 'DEF' | 'GK';
 // Zone order: attackers at top, GK at bottom (same vertical flow as MatchupPitch)
-const ZONE_ORDER: PitchZone[] = ['ATT', 'AMZ', 'CMZ', 'DMZ', 'DEF', 'GK'];
+const ZONE_ORDER: PitchZone[] = ['ATT', 'AMZ', 'CMZ', 'DMZ', 'WBZ', 'DEF', 'GK'];
 const BENCH_SLOT_NAMES: BenchSlot[] = ['DEF', 'MID', 'ATT', 'FLEX'];
 
 const DEFAULT_TAXI_AGE_LIMIT = 21;
@@ -45,10 +45,10 @@ const POS_COLOR: Record<GranularPosition, string> = {
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-// Matches MatchupPitch's 6-zone approach so DM/CM/AM render as distinct rows
+// Matches MatchupPitch's 6-zone approach so DM/CM/AM/WB render as distinct rows
 function getZone(pos: GranularPosition): PitchZone {
     if (pos === 'GK') return 'GK';
-    if (pos === 'LWB' || pos === 'RWB') return 'CMZ';
+    if (pos === 'LWB' || pos === 'RWB') return 'WBZ';
     if (pos === 'CB' || pos === 'LB' || pos === 'RB') return 'DEF';
     if (pos === 'DM') return 'DMZ';
     if (pos === 'CM') return 'CMZ';
@@ -343,6 +343,7 @@ export default function PitchUI({
             AMZ: list.filter((s) => s.zone === 'AMZ'),
             CMZ: list.filter((s) => s.zone === 'CMZ'),
             DMZ: list.filter((s) => s.zone === 'DMZ'),
+            WBZ: list.filter((s) => s.zone === 'WBZ'),
             DEF: list.filter((s) => s.zone === 'DEF'),
             GK:  list.filter((s) => s.zone === 'GK'),
         };

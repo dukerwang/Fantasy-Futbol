@@ -9,15 +9,27 @@ import styles from './crest.module.css';
 
 import SquadPeekButton from '../teams/SquadPeekButton';
 
+import NavigationLink from '../ui/NavigationLink';
+
 interface CrestBadgeProps {
   config: CrestConfig | null | undefined;
   size?: number;
   teamName?: string | null;
   teamId?: string | null;
   interactive?: boolean;
+  onClick?: () => void;
+  href?: string;
 }
 
-export default function CrestBadge({ config, size = 40, teamName, teamId, interactive = true }: CrestBadgeProps) {
+export default function CrestBadge({
+  config,
+  size = 40,
+  teamName,
+  teamId,
+  interactive = true,
+  onClick,
+  href,
+}: CrestBadgeProps) {
   const reactId = useId();
   const clipId = `crest-clip-${reactId.replace(/:/g, '')}`;
 
@@ -161,6 +173,31 @@ export default function CrestBadge({ config, size = 40, teamName, teamId, intera
 };
 
   const badge = renderBadge();
+
+  if (href) {
+    return (
+      <NavigationLink
+        href={href}
+        className={styles.interactiveCrest}
+        title={teamName ? `Customize ${teamName} crest` : 'Customize crest'}
+      >
+        {badge}
+      </NavigationLink>
+    );
+  }
+
+  if (onClick) {
+    return (
+      <button
+        type="button"
+        onClick={onClick}
+        className={styles.interactiveCrestBtn}
+        title={teamName ? `Customize ${teamName} crest` : 'Customize crest'}
+      >
+        {badge}
+      </button>
+    );
+  }
 
   if (teamId && interactive) {
     return (

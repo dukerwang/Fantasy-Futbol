@@ -6,6 +6,49 @@
 export const PRECOMPUTED_STATS_2025_26 = {
   "players": [
     {
+      "id": "4d7489a9-79e5-43b5-a654-a37ccaa61067",
+      "fpl_id": 426,
+      "api_football_id": 1485,
+      "web_name": "B.Fernandes",
+      "name": "Bruno Fernandes",
+      "full_name": null,
+      "date_of_birth": "1994-09-08",
+      "nationality": "Portugal",
+      "pl_team": "Man Utd",
+      "pl_team_id": 14,
+      "primary_position": "AM",
+      "secondary_positions": [
+        "CM"
+      ],
+      "market_value": 35,
+      "market_value_updated_at": "2026-07-23T22:03:29.331+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/141746.png",
+      "height_cm": 179,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 792.56,
+      "form_rating": 8.4,
+      "ppg": 22.6,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 1,
+      "position_ranks": [
+        {
+          "position": "CM",
+          "rank": 1
+        },
+        {
+          "position": "AM",
+          "rank": 1
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
       "id": "fe617316-7d87-458f-bb22-092d4e181d51",
       "fpl_id": 411,
       "api_football_id": 1100,
@@ -31,7 +74,7 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.420173+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 2,
       "position_ranks": [
         {
@@ -71,12 +114,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.959221+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 3,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 3
+          "rank": 4
         },
         {
           "position": "DM",
@@ -118,12 +161,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.420173+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 4,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 2
+          "rank": 3
         },
         {
           "position": "DM",
@@ -161,7 +204,7 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:29:06.172314+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 5,
       "position_ranks": [
         {
@@ -204,7 +247,7 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-02T14:17:24.538777+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 6,
       "position_ranks": [
         {
@@ -214,97 +257,6 @@ export const PRECOMPUTED_STATS_2025_26 = {
         {
           "position": "ST",
           "rank": 2
-        }
-      ],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "ad4ecab9-d1d8-46be-b6ef-7e0aee0efa14",
-      "fpl_id": 368,
-      "api_football_id": 1096,
-      "web_name": "Szoboszlai",
-      "name": "Dominik Szoboszlai",
-      "full_name": null,
-      "date_of_birth": "2000-10-25",
-      "nationality": "Hungary",
-      "pl_team": "Liverpool",
-      "pl_team_id": 12,
-      "primary_position": "AM",
-      "secondary_positions": [
-        "RB",
-        "CM"
-      ],
-      "market_value": 100,
-      "market_value_updated_at": "2026-07-23T22:03:29.282+00:00",
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/424876.png",
-      "height_cm": 186,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 525.38,
-      "form_rating": 8,
-      "ppg": 14.6,
-      "is_active": true,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.127773+00:00",
-      "overall_rank": 8,
-      "position_ranks": [
-        {
-          "position": "CM",
-          "rank": 1
-        },
-        {
-          "position": "RB",
-          "rank": 3
-        },
-        {
-          "position": "AM",
-          "rank": 1
-        }
-      ],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "b8467cdd-ed09-4251-8413-d439031faccc",
-      "fpl_id": 13,
-      "api_football_id": 2937,
-      "web_name": "Rice",
-      "name": "Declan Rice",
-      "full_name": null,
-      "date_of_birth": "1999-01-14",
-      "nationality": "England",
-      "pl_team": "Arsenal",
-      "pl_team_id": 1,
-      "primary_position": "DM",
-      "secondary_positions": [
-        "CM"
-      ],
-      "market_value": 120,
-      "market_value_updated_at": "2026-07-23T22:03:29.227+00:00",
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/204480.png",
-      "height_cm": 188,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 517.93,
-      "form_rating": 6.9,
-      "ppg": 14.4,
-      "is_active": true,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.220849+00:00",
-      "overall_rank": 9,
-      "position_ranks": [
-        {
-          "position": "CM",
-          "rank": 4
-        },
-        {
-          "position": "DM",
-          "rank": 3
         }
       ],
       "owner_team_id": null,
@@ -339,7 +291,7 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:29:20.988309+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 7,
       "position_ranks": [
         {
@@ -352,7 +304,135 @@ export const PRECOMPUTED_STATS_2025_26 = {
         },
         {
           "position": "AM",
+          "rank": 3
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "ad4ecab9-d1d8-46be-b6ef-7e0aee0efa14",
+      "fpl_id": 368,
+      "api_football_id": 1096,
+      "web_name": "Szoboszlai",
+      "name": "Dominik Szoboszlai",
+      "full_name": null,
+      "date_of_birth": "2000-10-25",
+      "nationality": "Hungary",
+      "pl_team": "Liverpool",
+      "pl_team_id": 12,
+      "primary_position": "AM",
+      "secondary_positions": [
+        "RB",
+        "CM"
+      ],
+      "market_value": 100,
+      "market_value_updated_at": "2026-07-23T22:03:29.282+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/424876.png",
+      "height_cm": 186,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 525.38,
+      "form_rating": 8,
+      "ppg": 14.6,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 8,
+      "position_ranks": [
+        {
+          "position": "CM",
           "rank": 2
+        },
+        {
+          "position": "RB",
+          "rank": 3
+        },
+        {
+          "position": "AM",
+          "rank": 2
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "b8467cdd-ed09-4251-8413-d439031faccc",
+      "fpl_id": 13,
+      "api_football_id": 2937,
+      "web_name": "Rice",
+      "name": "Declan Rice",
+      "full_name": null,
+      "date_of_birth": "1999-01-14",
+      "nationality": "England",
+      "pl_team": "Arsenal",
+      "pl_team_id": 1,
+      "primary_position": "DM",
+      "secondary_positions": [
+        "CM"
+      ],
+      "market_value": 120,
+      "market_value_updated_at": "2026-07-23T22:03:29.227+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/204480.png",
+      "height_cm": 188,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 517.93,
+      "form_rating": 6.9,
+      "ppg": 14.4,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 9,
+      "position_ranks": [
+        {
+          "position": "CM",
+          "rank": 6
+        },
+        {
+          "position": "DM",
+          "rank": 3
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "b058045c-a38a-4087-bfeb-2f27eda28848",
+      "fpl_id": 106,
+      "api_football_id": 196156,
+      "web_name": "Thiago",
+      "name": "Igor Thiago",
+      "full_name": null,
+      "date_of_birth": "2001-06-26",
+      "nationality": "Brazil",
+      "pl_team": "Brentford",
+      "pl_team_id": 5,
+      "primary_position": "ST",
+      "secondary_positions": [],
+      "market_value": 65,
+      "market_value_updated_at": "2026-07-23T21:15:14.881+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/502500.png",
+      "height_cm": 191,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 516.14,
+      "form_rating": 6.9,
+      "ppg": 13.6,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 10,
+      "position_ranks": [
+        {
+          "position": "ST",
+          "rank": 3
         }
       ],
       "owner_team_id": null,
@@ -384,12 +464,55 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.220849+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 11,
       "position_ranks": [
         {
           "position": "CB",
           "rank": 1
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "00b2b501-9743-4473-9ba0-dce35927a988",
+      "fpl_id": 165,
+      "api_football_id": 10329,
+      "web_name": "João Pedro",
+      "name": "João Pedro",
+      "full_name": null,
+      "date_of_birth": "2001-09-26",
+      "nationality": "Brazil",
+      "pl_team": "Chelsea",
+      "pl_team_id": 7,
+      "primary_position": "ST",
+      "secondary_positions": [
+        "AM"
+      ],
+      "market_value": 80,
+      "market_value_updated_at": "2026-07-23T22:03:29.262+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/475168.png",
+      "height_cm": 182,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 492.76,
+      "form_rating": 6.8,
+      "ppg": 14.1,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 12,
+      "position_ranks": [
+        {
+          "position": "AM",
+          "rank": 7
+        },
+        {
+          "position": "ST",
+          "rank": 4
         }
       ],
       "owner_team_id": null,
@@ -421,7 +544,7 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.420173+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 13,
       "position_ranks": [
         {
@@ -460,7 +583,7 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.127773+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 14,
       "position_ranks": [
         {
@@ -469,7 +592,7 @@ export const PRECOMPUTED_STATS_2025_26 = {
         },
         {
           "position": "AM",
-          "rank": 5
+          "rank": 8
         }
       ],
       "owner_team_id": null,
@@ -503,7 +626,7 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.220849+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 15,
       "position_ranks": [
         {
@@ -544,12 +667,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.220849+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 16,
       "position_ranks": [
         {
           "position": "ST",
-          "rank": 3
+          "rank": 6
         }
       ],
       "owner_team_id": null,
@@ -583,16 +706,101 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.420173+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 17,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 6
+          "rank": 7
         },
         {
           "position": "AM",
-          "rank": 3
+          "rank": 4
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "daf49ca4-c4c5-497c-96f7-16f9b9b0de0a",
+      "fpl_id": 389,
+      "api_football_id": 41621,
+      "web_name": "Matheus N.",
+      "name": "Matheus Nunes",
+      "full_name": null,
+      "date_of_birth": "1998-08-27",
+      "nationality": "Portugal",
+      "pl_team": "Man City",
+      "pl_team_id": 13,
+      "primary_position": "RWB",
+      "secondary_positions": [
+        "RB",
+        "CM"
+      ],
+      "market_value": 50,
+      "market_value_updated_at": "2026-07-23T22:03:29.189+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/465351.png",
+      "height_cm": 183,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 443.18,
+      "form_rating": 7.2,
+      "ppg": 13,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 18,
+      "position_ranks": [
+        {
+          "position": "CM",
+          "rank": 16
+        },
+        {
+          "position": "RB",
+          "rank": 2
+        },
+        {
+          "position": "RWB",
+          "rank": 1
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "1e0ea6bf-3b1e-4e6e-b19a-6b84ed7cdf85",
+      "fpl_id": 12,
+      "api_football_id": 1460,
+      "web_name": "Saka",
+      "name": "Bukayo Saka",
+      "full_name": null,
+      "date_of_birth": "2001-09-05",
+      "nationality": "England",
+      "pl_team": "Arsenal",
+      "pl_team_id": 1,
+      "primary_position": "RW",
+      "secondary_positions": [],
+      "market_value": 110,
+      "market_value_updated_at": "2026-07-23T22:03:29.235+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/223340.png",
+      "height_cm": 178,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 431.27,
+      "form_rating": 7.8,
+      "ppg": 14.3,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 19,
+      "position_ranks": [
+        {
+          "position": "RW",
+          "rank": 4
         }
       ],
       "owner_team_id": null,
@@ -626,12 +834,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-02T14:17:16.259492+00:00",
-      "overall_rank": 21,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 20,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 7
+          "rank": 9
         },
         {
           "position": "DM",
@@ -642,85 +850,86 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "owner_team_name": null
     },
     {
-      "id": "1e0ea6bf-3b1e-4e6e-b19a-6b84ed7cdf85",
-      "fpl_id": 12,
-      "api_football_id": 1460,
-      "web_name": "Saka",
-      "name": "Bukayo Saka",
+      "id": "1cdc4b07-0e39-4ee6-941d-b53e46edfd86",
+      "fpl_id": 452,
+      "api_football_id": 10135,
+      "web_name": "Bruno G.",
+      "name": "Bruno Guimarães",
       "full_name": null,
-      "date_of_birth": "2001-09-05",
-      "nationality": "England",
-      "pl_team": "Arsenal",
-      "pl_team_id": 1,
-      "primary_position": "RW",
-      "secondary_positions": [],
-      "market_value": 110,
-      "market_value_updated_at": "2026-07-23T22:03:29.235+00:00",
+      "date_of_birth": "1997-11-16",
+      "nationality": "Brazil",
+      "pl_team": "Newcastle",
+      "pl_team_id": 15,
+      "primary_position": "CM",
+      "secondary_positions": [
+        "DM"
+      ],
+      "market_value": 70,
+      "market_value_updated_at": "2026-07-23T22:03:29.373+00:00",
       "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/223340.png",
-      "height_cm": 178,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/208706.png",
+      "height_cm": 182,
       "fpl_status": "a",
       "fpl_news": null,
-      "total_points": 431.27,
-      "form_rating": 7.8,
-      "ppg": 14.3,
+      "total_points": 430.9,
+      "form_rating": 7,
+      "ppg": 14.9,
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:29:16.679925+00:00",
-      "overall_rank": 20,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 21,
       "position_ranks": [
         {
-          "position": "RW",
-          "rank": 4
+          "position": "CM",
+          "rank": 8
+        },
+        {
+          "position": "DM",
+          "rank": 8
         }
       ],
       "owner_team_id": null,
       "owner_team_name": null
     },
     {
-      "id": "daf49ca4-c4c5-497c-96f7-16f9b9b0de0a",
-      "fpl_id": 389,
-      "api_football_id": 41621,
-      "web_name": "Matheus N.",
-      "name": "Matheus Nunes",
+      "id": "ba85b775-4ac0-4047-a8ce-b43e28d81a9b",
+      "fpl_id": 399,
+      "api_football_id": null,
+      "web_name": "Cherki",
+      "name": "Rayan Cherki",
       "full_name": null,
-      "date_of_birth": "1998-08-27",
-      "nationality": "Portugal",
+      "date_of_birth": "2003-08-17",
+      "nationality": "France",
       "pl_team": "Man City",
       "pl_team_id": 13,
-      "primary_position": "RWB",
+      "primary_position": "RW",
       "secondary_positions": [
-        "RB",
-        "CM"
+        "AM"
       ],
-      "market_value": 50,
-      "market_value_updated_at": "2026-07-23T22:03:29.189+00:00",
+      "market_value": 90,
+      "market_value_updated_at": "2026-07-23T22:03:29.201+00:00",
       "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/465351.png",
-      "height_cm": 183,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/466052.png",
+      "height_cm": 177,
       "fpl_status": "a",
       "fpl_news": null,
-      "total_points": 443.18,
+      "total_points": 424.92,
       "form_rating": 7.1,
-      "ppg": 13,
+      "ppg": 14.1,
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:29:11.296836+00:00",
-      "overall_rank": 19,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 22,
       "position_ranks": [
         {
-          "position": "CM",
-          "rank": 16
+          "position": "RW",
+          "rank": 5
         },
         {
-          "position": "RB",
-          "rank": 2
-        },
-        {
-          "position": "RWB",
-          "rank": 1
+          "position": "AM",
+          "rank": 5
         }
       ],
       "owner_team_id": null,
@@ -752,12 +961,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.127773+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 23,
       "position_ranks": [
         {
           "position": "ST",
-          "rank": 5
+          "rank": 8
         }
       ],
       "owner_team_id": null,
@@ -789,7 +998,7 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.959221+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 24,
       "position_ranks": [
         {
@@ -828,16 +1037,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.127773+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 25,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 8
+          "rank": 10
         },
         {
           "position": "DM",
-          "rank": 8
+          "rank": 9
         }
       ],
       "owner_team_id": null,
@@ -872,20 +1081,63 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.541055+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 26,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 9
+          "rank": 11
         },
         {
           "position": "LW",
-          "rank": 4
+          "rank": 9
         },
         {
           "position": "AM",
-          "rank": 10
+          "rank": 13
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "427e6ba6-7d52-464c-bbf9-5d1c9da23941",
+      "fpl_id": 527,
+      "api_football_id": 2413,
+      "web_name": "Richarlison",
+      "name": "Richarlison",
+      "full_name": null,
+      "date_of_birth": "1997-05-10",
+      "nationality": "Brazil",
+      "pl_team": "Spurs",
+      "pl_team_id": 18,
+      "primary_position": "ST",
+      "secondary_positions": [
+        "LW"
+      ],
+      "market_value": 25,
+      "market_value_updated_at": "2026-07-23T22:03:29.312+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/212319.png",
+      "height_cm": 184,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 407.5,
+      "form_rating": 7.5,
+      "ppg": 12.7,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 27,
+      "position_ranks": [
+        {
+          "position": "LW",
+          "rank": 6
+        },
+        {
+          "position": "ST",
+          "rank": 9
         }
       ],
       "owner_team_id": null,
@@ -919,15 +1171,52 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.420173+00:00",
-      "overall_rank": 29,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 28,
       "position_ranks": [
         {
           "position": "RW",
-          "rank": 5
+          "rank": 6
         },
         {
           "position": "ST",
+          "rank": 7
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "72fa79b9-c0e4-461f-b792-859ffa600bcd",
+      "fpl_id": 498,
+      "api_football_id": 6610,
+      "web_name": "Senesi",
+      "name": "Marcos Senesi",
+      "full_name": null,
+      "date_of_birth": "1997-05-10",
+      "nationality": "Argentina",
+      "pl_team": "Bournemouth",
+      "pl_team_id": 4,
+      "primary_position": "CB",
+      "secondary_positions": [],
+      "market_value": 25,
+      "market_value_updated_at": "2026-07-23T22:03:29.294+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/221466.png",
+      "height_cm": 185,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 399.47,
+      "form_rating": 7.4,
+      "ppg": 10.8,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 29,
+      "position_ranks": [
+        {
+          "position": "CB",
           "rank": 4
         }
       ],
@@ -962,7 +1251,7 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.420173+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 30,
       "position_ranks": [
         {
@@ -1006,12 +1295,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.60895+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 31,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 10
+          "rank": 12
         },
         {
           "position": "LW",
@@ -1019,7 +1308,7 @@ export const PRECOMPUTED_STATS_2025_26 = {
         },
         {
           "position": "AM",
-          "rank": 4
+          "rank": 6
         }
       ],
       "owner_team_id": null,
@@ -1053,12 +1342,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.127773+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 32,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 14
+          "rank": 17
         },
         {
           "position": "LB",
@@ -1089,60 +1378,97 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "fpl_status": "a",
       "fpl_news": null,
       "total_points": 395.39,
-      "form_rating": 6.7,
+      "form_rating": 6.9,
       "ppg": 11,
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.541055+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 33,
       "position_ranks": [
         {
           "position": "CB",
-          "rank": 4
+          "rank": 5
         }
       ],
       "owner_team_id": null,
       "owner_team_name": null
     },
     {
-      "id": "ba85b775-4ac0-4047-a8ce-b43e28d81a9b",
-      "fpl_id": 399,
-      "api_football_id": null,
-      "web_name": "Cherki",
-      "name": "Rayan Cherki",
-      "full_name": null,
-      "date_of_birth": "2003-08-17",
-      "nationality": "France",
-      "pl_team": "Man City",
-      "pl_team_id": 13,
-      "primary_position": "RW",
-      "secondary_positions": [
-        "AM"
-      ],
-      "market_value": 90,
-      "market_value_updated_at": "2026-07-23T22:03:29.201+00:00",
+      "id": "4f9210ba-d053-4d0e-adcd-2bd3e37dc1b7",
+      "fpl_id": 1,
+      "api_football_id": 19465,
+      "web_name": "Raya",
+      "name": "David Raya",
+      "full_name": "David Raya Martín",
+      "date_of_birth": "1995-09-15",
+      "nationality": "Spain",
+      "pl_team": "Arsenal",
+      "pl_team_id": 1,
+      "primary_position": "GK",
+      "secondary_positions": [],
+      "market_value": 30,
+      "market_value_updated_at": "2026-07-23T22:03:29.213+00:00",
       "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/466052.png",
-      "height_cm": 177,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/154561.png",
+      "height_cm": 183,
       "fpl_status": "a",
       "fpl_news": null,
-      "total_points": 424.92,
-      "form_rating": 7.1,
-      "ppg": 14.1,
+      "total_points": 394.67,
+      "form_rating": 7.5,
+      "ppg": 10.7,
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:29:04.880404+00:00",
-      "overall_rank": 22,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 34,
       "position_ranks": [
         {
-          "position": "RW",
-          "rank": 6
+          "position": "GK",
+          "rank": 1
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "e002cfcc-ada0-47dd-8f37-628336e6d51a",
+      "fpl_id": 400,
+      "api_football_id": 1422,
+      "web_name": "Doku",
+      "name": "Jérémy Doku",
+      "full_name": null,
+      "date_of_birth": "2002-05-27",
+      "nationality": "Belgium",
+      "pl_team": "Man City",
+      "pl_team_id": 13,
+      "primary_position": "LW",
+      "secondary_positions": [
+        "RW"
+      ],
+      "market_value": 75,
+      "market_value_updated_at": "2026-07-23T22:03:29.206+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/248875.png",
+      "height_cm": 173,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 387.35,
+      "form_rating": 7.9,
+      "ppg": 14.3,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 35,
+      "position_ranks": [
+        {
+          "position": "LW",
+          "rank": 4
         },
         {
-          "position": "AM",
-          "rank": 6
+          "position": "RW",
+          "rank": 7
         }
       ],
       "owner_team_id": null,
@@ -1174,12 +1500,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.541055+00:00",
-      "overall_rank": 35,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 36,
       "position_ranks": [
         {
           "position": "GK",
-          "rank": 1
+          "rank": 2
         }
       ],
       "owner_team_id": null,
@@ -1211,60 +1537,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.220849+00:00",
-      "overall_rank": 36,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 37,
       "position_ranks": [
         {
           "position": "CB",
-          "rank": 5
-        }
-      ],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "c184cc1f-317e-48af-9c67-22c2a272c420",
-      "fpl_id": 366,
-      "api_football_id": 203224,
-      "web_name": "Wirtz",
-      "name": "Florian Wirtz",
-      "full_name": null,
-      "date_of_birth": "2003-05-03",
-      "nationality": "Germany",
-      "pl_team": "Liverpool",
-      "pl_team_id": 12,
-      "primary_position": "AM",
-      "secondary_positions": [
-        "LW",
-        "CM"
-      ],
-      "market_value": 100,
-      "market_value_updated_at": "2026-07-23T22:03:29.282+00:00",
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/494595.png",
-      "height_cm": 176,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 380.92,
-      "form_rating": 6.9,
-      "ppg": 11.9,
-      "is_active": true,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.127773+00:00",
-      "overall_rank": 38,
-      "position_ranks": [
-        {
-          "position": "CM",
-          "rank": 11
-        },
-        {
-          "position": "LW",
           "rank": 6
-        },
-        {
-          "position": "AM",
-          "rank": 7
         }
       ],
       "owner_team_id": null,
@@ -1299,20 +1577,68 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:29:04.901705+00:00",
-      "overall_rank": 37,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 38,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 12
+          "rank": 14
         },
         {
           "position": "RW",
-          "rank": 8
+          "rank": 10
         },
         {
           "position": "AM",
-          "rank": 8
+          "rank": 11
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "c184cc1f-317e-48af-9c67-22c2a272c420",
+      "fpl_id": 366,
+      "api_football_id": 203224,
+      "web_name": "Wirtz",
+      "name": "Florian Wirtz",
+      "full_name": null,
+      "date_of_birth": "2003-05-03",
+      "nationality": "Germany",
+      "pl_team": "Liverpool",
+      "pl_team_id": 12,
+      "primary_position": "AM",
+      "secondary_positions": [
+        "LW",
+        "CM"
+      ],
+      "market_value": 100,
+      "market_value_updated_at": "2026-07-23T22:03:29.282+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/494595.png",
+      "height_cm": 176,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 380.92,
+      "form_rating": 6.9,
+      "ppg": 11.9,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 39,
+      "position_ranks": [
+        {
+          "position": "CM",
+          "rank": 13
+        },
+        {
+          "position": "LW",
+          "rank": 11
+        },
+        {
+          "position": "AM",
+          "rank": 10
         }
       ],
       "owner_team_id": null,
@@ -1346,12 +1672,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.127773+00:00",
-      "overall_rank": 39,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 40,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 15
+          "rank": 19
         },
         {
           "position": "DM",
@@ -1389,16 +1715,96 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.541055+00:00",
-      "overall_rank": 40,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 41,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 17
+          "rank": 20
         },
         {
           "position": "DM",
           "rank": 7
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "a02a8470-057d-4092-b778-c05f959761a6",
+      "fpl_id": 136,
+      "api_football_id": 1469,
+      "web_name": "Welbeck",
+      "name": "Danny Welbeck",
+      "full_name": null,
+      "date_of_birth": "1990-11-26",
+      "nationality": "England",
+      "pl_team": "Brighton",
+      "pl_team_id": 6,
+      "primary_position": "ST",
+      "secondary_positions": [],
+      "market_value": 3,
+      "market_value_updated_at": "2026-07-23T22:03:29.365+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/50175.png",
+      "height_cm": 185,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 379.59,
+      "form_rating": 6.8,
+      "ppg": 10.7,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 42,
+      "position_ranks": [
+        {
+          "position": "ST",
+          "rank": 10
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "c80f3912-04f9-4255-8d41-7999f8f9bd59",
+      "fpl_id": 156,
+      "api_football_id": 1864,
+      "web_name": "Neto",
+      "name": "Pedro Neto",
+      "full_name": null,
+      "date_of_birth": "2000-03-09",
+      "nationality": "Portugal",
+      "pl_team": "Chelsea",
+      "pl_team_id": 7,
+      "primary_position": "RW",
+      "secondary_positions": [
+        "LW"
+      ],
+      "market_value": 60,
+      "market_value_updated_at": "2026-07-23T22:03:29.261+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/247632.png",
+      "height_cm": 174,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 379.51,
+      "form_rating": 7.2,
+      "ppg": 11.5,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 43,
+      "position_ranks": [
+        {
+          "position": "LW",
+          "rank": 5
+        },
+        {
+          "position": "RW",
+          "rank": 8
         }
       ],
       "owner_team_id": null,
@@ -1432,8 +1838,8 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.959221+00:00",
-      "overall_rank": 42,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 44,
       "position_ranks": [
         {
           "position": "LB",
@@ -1442,43 +1848,6 @@ export const PRECOMPUTED_STATS_2025_26 = {
         {
           "position": "LWB",
           "rank": 2
-        }
-      ],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "a02a8470-057d-4092-b778-c05f959761a6",
-      "fpl_id": 136,
-      "api_football_id": 1469,
-      "web_name": "Welbeck",
-      "name": "Danny Welbeck",
-      "full_name": null,
-      "date_of_birth": "1990-11-26",
-      "nationality": "England",
-      "pl_team": "Brighton",
-      "pl_team_id": 6,
-      "primary_position": "ST",
-      "secondary_positions": [],
-      "market_value": 3,
-      "market_value_updated_at": "2026-07-23T22:03:29.365+00:00",
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/50175.png",
-      "height_cm": 185,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 379.59,
-      "form_rating": 6.8,
-      "ppg": 10.7,
-      "is_active": true,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:28:58.151709+00:00",
-      "overall_rank": 41,
-      "position_ranks": [
-        {
-          "position": "ST",
-          "rank": 6
         }
       ],
       "owner_team_id": null,
@@ -1512,8 +1881,8 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.541055+00:00",
-      "overall_rank": 44,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 45,
       "position_ranks": [
         {
           "position": "RB",
@@ -1521,44 +1890,55 @@ export const PRECOMPUTED_STATS_2025_26 = {
         },
         {
           "position": "CB",
-          "rank": 6
+          "rank": 7
         }
       ],
       "owner_team_id": null,
       "owner_team_name": null
     },
     {
-      "id": "a5a1513a-a62f-4cbc-9c6c-71501c19e6b4",
-      "fpl_id": 384,
-      "api_football_id": null,
-      "web_name": "Donnarumma",
-      "name": "Gianluigi Donnarumma",
+      "id": "1b7cbbd9-e2a2-43e8-9daa-a3a4e3b80270",
+      "fpl_id": 428,
+      "api_football_id": 1165,
+      "web_name": "Cunha",
+      "name": "Matheus Cunha",
       "full_name": null,
-      "date_of_birth": "1999-02-25",
-      "nationality": "Italy",
-      "pl_team": "Man City",
-      "pl_team_id": 13,
-      "primary_position": "GK",
-      "secondary_positions": [],
-      "market_value": 45,
-      "market_value_updated_at": "2026-07-23T22:03:29.162+00:00",
+      "date_of_birth": "1999-05-27",
+      "nationality": "Brazil",
+      "pl_team": "Man Utd",
+      "pl_team_id": 14,
+      "primary_position": "AM",
+      "secondary_positions": [
+        "LW",
+        "ST"
+      ],
+      "market_value": 75,
+      "market_value_updated_at": "2026-07-23T22:03:29.338+00:00",
       "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/204936.png",
-      "height_cm": 196,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/430871.png",
+      "height_cm": 183,
       "fpl_status": "a",
       "fpl_news": null,
-      "total_points": 368.75,
-      "form_rating": 7.1,
-      "ppg": 10.8,
+      "total_points": 371.93,
+      "form_rating": 7.7,
+      "ppg": 11.3,
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.127773+00:00",
-      "overall_rank": 48,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 46,
       "position_ranks": [
         {
-          "position": "GK",
-          "rank": 2
+          "position": "LW",
+          "rank": 3
+        },
+        {
+          "position": "AM",
+          "rank": 12
+        },
+        {
+          "position": "ST",
+          "rank": 5
         }
       ],
       "owner_team_id": null,
@@ -1592,16 +1972,53 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:29:01.604817+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 47,
       "position_ranks": [
         {
           "position": "LW",
-          "rank": 3
+          "rank": 7
         },
         {
           "position": "RW",
-          "rank": 7
+          "rank": 9
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "a5a1513a-a62f-4cbc-9c6c-71501c19e6b4",
+      "fpl_id": 384,
+      "api_football_id": null,
+      "web_name": "Donnarumma",
+      "name": "Gianluigi Donnarumma",
+      "full_name": null,
+      "date_of_birth": "1999-02-25",
+      "nationality": "Italy",
+      "pl_team": "Man City",
+      "pl_team_id": 13,
+      "primary_position": "GK",
+      "secondary_positions": [],
+      "market_value": 45,
+      "market_value_updated_at": "2026-07-23T22:03:29.162+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/204936.png",
+      "height_cm": 196,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 368.75,
+      "form_rating": 7.1,
+      "ppg": 10.8,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 48,
+      "position_ranks": [
+        {
+          "position": "GK",
+          "rank": 3
         }
       ],
       "owner_team_id": null,
@@ -1633,12 +2050,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.127773+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 49,
       "position_ranks": [
         {
           "position": "CB",
-          "rank": 7
+          "rank": 8
         }
       ],
       "owner_team_id": null,
@@ -1670,12 +2087,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.220849+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 50,
       "position_ranks": [
         {
           "position": "GK",
-          "rank": 3
+          "rank": 4
         }
       ],
       "owner_team_id": null,
@@ -1707,12 +2124,55 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.60895+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 51,
       "position_ranks": [
         {
           "position": "CB",
-          "rank": 8
+          "rank": 9
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "16ff793b-3ea5-45cc-a5a1-cea5716fceb5",
+      "fpl_id": 78,
+      "api_football_id": null,
+      "web_name": "Kroupi.Jr",
+      "name": "Junior Kroupi",
+      "full_name": null,
+      "date_of_birth": "2006-06-23",
+      "nationality": "France",
+      "pl_team": "Bournemouth",
+      "pl_team_id": 4,
+      "primary_position": "ST",
+      "secondary_positions": [
+        "AM"
+      ],
+      "market_value": 70,
+      "market_value_updated_at": "2026-07-23T22:03:29.421+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/560262.png",
+      "height_cm": 200,
+      "fpl_status": "i",
+      "fpl_news": "Foot injury - Unknown return date",
+      "total_points": 358.97,
+      "form_rating": 7.5,
+      "ppg": 11.4,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 52,
+      "position_ranks": [
+        {
+          "position": "AM",
+          "rank": 21
+        },
+        {
+          "position": "ST",
+          "rank": 18
         }
       ],
       "owner_team_id": null,
@@ -1744,12 +2204,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-02T14:17:26.196348+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 53,
       "position_ranks": [
         {
           "position": "RW",
-          "rank": 9
+          "rank": 11
         }
       ],
       "owner_team_id": null,
@@ -1781,12 +2241,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.959221+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 54,
       "position_ranks": [
         {
           "position": "GK",
-          "rank": 4
+          "rank": 5
         }
       ],
       "owner_team_id": null,
@@ -1818,12 +2278,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.60895+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 55,
       "position_ranks": [
         {
           "position": "GK",
-          "rank": 5
+          "rank": 6
         }
       ],
       "owner_team_id": null,
@@ -1858,63 +2318,63 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.220849+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 56,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 18
+          "rank": 21
         },
         {
           "position": "DM",
-          "rank": 9
+          "rank": 10
         },
         {
           "position": "AM",
-          "rank": 20
+          "rank": 26
         }
       ],
       "owner_team_id": null,
       "owner_team_name": null
     },
     {
-      "id": "16ff793b-3ea5-45cc-a5a1-cea5716fceb5",
-      "fpl_id": 78,
-      "api_football_id": null,
-      "web_name": "Kroupi.Jr",
-      "name": "Junior Kroupi",
+      "id": "50d7b59e-0000-4be6-a5ac-8c4628020d55",
+      "fpl_id": 499,
+      "api_football_id": 47519,
+      "web_name": "Pedro Porro",
+      "name": "Pedro Porro",
       "full_name": null,
-      "date_of_birth": "2006-06-23",
-      "nationality": "France",
-      "pl_team": "Bournemouth",
-      "pl_team_id": 4,
-      "primary_position": "ST",
+      "date_of_birth": "1999-09-13",
+      "nationality": "Spain",
+      "pl_team": "Spurs",
+      "pl_team_id": 18,
+      "primary_position": "RB",
       "secondary_positions": [
-        "AM"
+        "RWB"
       ],
-      "market_value": 70,
-      "market_value_updated_at": "2026-07-23T22:03:29.421+00:00",
+      "market_value": 45,
+      "market_value_updated_at": "2026-07-23T21:14:24.324+00:00",
       "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/560262.png",
-      "height_cm": 200,
-      "fpl_status": "i",
-      "fpl_news": "Foot injury - Unknown return date",
-      "total_points": 358.97,
-      "form_rating": 7.1,
-      "ppg": 11.4,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/441164.png",
+      "height_cm": 173,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 355.57,
+      "form_rating": 7.5,
+      "ppg": 10.8,
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:29:05.805857+00:00",
-      "overall_rank": 52,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 57,
       "position_ranks": [
         {
-          "position": "AM",
-          "rank": 16
+          "position": "RB",
+          "rank": 6
         },
         {
-          "position": "ST",
-          "rank": 12
+          "position": "RWB",
+          "rank": 2
         }
       ],
       "owner_team_id": null,
@@ -1946,12 +2406,60 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:29:22.299165+00:00",
-      "overall_rank": 57,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 58,
       "position_ranks": [
         {
           "position": "ST",
+          "rank": 12
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "4459f763-775e-4899-bb86-7e00e4dafe54",
+      "fpl_id": 68,
+      "api_football_id": 19245,
+      "web_name": "Tavernier",
+      "name": "Marcus Tavernier",
+      "full_name": null,
+      "date_of_birth": "1999-03-22",
+      "nationality": "England",
+      "pl_team": "Bournemouth",
+      "pl_team_id": 4,
+      "primary_position": "LW",
+      "secondary_positions": [
+        "RW",
+        "AM"
+      ],
+      "market_value": 25,
+      "market_value_updated_at": "2026-07-23T22:03:29.417+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/201658.png",
+      "height_cm": 178,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 350.28,
+      "form_rating": 7.3,
+      "ppg": 10.6,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 59,
+      "position_ranks": [
+        {
+          "position": "LW",
           "rank": 8
+        },
+        {
+          "position": "RW",
+          "rank": 12
+        },
+        {
+          "position": "AM",
+          "rank": 9
         }
       ],
       "owner_team_id": null,
@@ -1983,12 +2491,60 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.959221+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 60,
       "position_ranks": [
         {
           "position": "GK",
-          "rank": 6
+          "rank": 7
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "f4e91d8f-54e8-4744-b6f5-eeb3196515ce",
+      "fpl_id": 525,
+      "api_football_id": 336585,
+      "web_name": "Fernandes",
+      "name": "Mateus Fernandes",
+      "full_name": null,
+      "date_of_birth": "2004-07-10",
+      "nationality": "Portugal",
+      "pl_team": "West Ham",
+      "pl_team_id": 19,
+      "primary_position": "CM",
+      "secondary_positions": [
+        "AM",
+        "DM"
+      ],
+      "market_value": 50,
+      "market_value_updated_at": "2026-07-23T22:03:29.302+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/551226.png",
+      "height_cm": 178,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 348.12,
+      "form_rating": 7.2,
+      "ppg": 9.7,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 61,
+      "position_ranks": [
+        {
+          "position": "CM",
+          "rank": 18
+        },
+        {
+          "position": "DM",
+          "rank": 11
+        },
+        {
+          "position": "AM",
+          "rank": 16
         }
       ],
       "owner_team_id": null,
@@ -2024,24 +2580,24 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.220849+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 62,
       "position_ranks": [
         {
           "position": "LB",
-          "rank": 5
+          "rank": 6
         },
         {
           "position": "RB",
-          "rank": 8
+          "rank": 9
         },
         {
           "position": "RWB",
-          "rank": 3
+          "rank": 5
         },
         {
           "position": "CB",
-          "rank": 12
+          "rank": 13
         }
       ],
       "owner_team_id": null,
@@ -2073,12 +2629,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.127773+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 63,
       "position_ranks": [
         {
           "position": "LW",
-          "rank": 5
+          "rank": 10
         }
       ],
       "owner_team_id": null,
@@ -2110,12 +2666,86 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-07-30T00:06:34.434183+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 64,
       "position_ranks": [
         {
           "position": "CB",
-          "rank": 9
+          "rank": 10
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "ce67c3f1-2cfe-4139-a1ae-ff69244f1648",
+      "fpl_id": 79,
+      "api_football_id": 152856,
+      "web_name": "Evanilson",
+      "name": "Evanilson",
+      "full_name": null,
+      "date_of_birth": "1999-10-06",
+      "nationality": "Brazil",
+      "pl_team": "Bournemouth",
+      "pl_team_id": 4,
+      "primary_position": "ST",
+      "secondary_positions": [],
+      "market_value": 35,
+      "market_value_updated_at": "2026-07-23T22:03:29.422+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/444102.png",
+      "height_cm": 183,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 342.7,
+      "form_rating": 6.7,
+      "ppg": 9.5,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 65,
+      "position_ranks": [
+        {
+          "position": "ST",
+          "rank": 13
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "0738ad7f-1212-4d33-8817-1f71d561d2ce",
+      "fpl_id": null,
+      "api_football_id": 2476,
+      "web_name": "Raúl",
+      "name": "Raúl Jiménez",
+      "full_name": null,
+      "date_of_birth": null,
+      "nationality": "Argentina",
+      "pl_team": "Fulham",
+      "pl_team_id": 10,
+      "primary_position": "ST",
+      "secondary_positions": [],
+      "market_value": 3,
+      "market_value_updated_at": "2026-08-02T14:17:24.57+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/102057.png",
+      "height_cm": 185,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 341.63,
+      "form_rating": 6.3,
+      "ppg": 9.5,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 66,
+      "position_ranks": [
+        {
+          "position": "ST",
+          "rank": 20
         }
       ],
       "owner_team_id": null,
@@ -2149,59 +2779,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.127773+00:00",
-      "overall_rank": 66,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 67,
       "position_ranks": [
         {
           "position": "AM",
-          "rank": 13
+          "rank": 17
         },
         {
           "position": "ST",
-          "rank": 9
-        }
-      ],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "e002cfcc-ada0-47dd-8f37-628336e6d51a",
-      "fpl_id": 400,
-      "api_football_id": 1422,
-      "web_name": "Doku",
-      "name": "Jérémy Doku",
-      "full_name": null,
-      "date_of_birth": "2002-05-27",
-      "nationality": "Belgium",
-      "pl_team": "Man City",
-      "pl_team_id": 13,
-      "primary_position": "LW",
-      "secondary_positions": [
-        "RW"
-      ],
-      "market_value": 75,
-      "market_value_updated_at": "2026-07-23T22:03:29.206+00:00",
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/248875.png",
-      "height_cm": 173,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 387.35,
-      "form_rating": 7.9,
-      "ppg": 14.3,
-      "is_active": true,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:29:04.417862+00:00",
-      "overall_rank": 34,
-      "position_ranks": [
-        {
-          "position": "LW",
-          "rank": 7
-        },
-        {
-          "position": "RW",
-          "rank": 10
+          "rank": 14
         }
       ],
       "owner_team_id": null,
@@ -2233,60 +2820,49 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.420173+00:00",
-      "overall_rank": 67,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 68,
       "position_ranks": [
         {
           "position": "ST",
-          "rank": 10
+          "rank": 15
         }
       ],
       "owner_team_id": null,
       "owner_team_name": null
     },
     {
-      "id": "4459f763-775e-4899-bb86-7e00e4dafe54",
-      "fpl_id": 68,
-      "api_football_id": 19245,
-      "web_name": "Tavernier",
-      "name": "Marcus Tavernier",
+      "id": "66ca278c-3133-45e5-990b-58f6a500b4b3",
+      "fpl_id": 122,
+      "api_football_id": 383685,
+      "web_name": "Minteh",
+      "name": "Yankuba Minteh",
       "full_name": null,
-      "date_of_birth": "1999-03-22",
-      "nationality": "England",
-      "pl_team": "Bournemouth",
-      "pl_team_id": 4,
-      "primary_position": "LW",
-      "secondary_positions": [
-        "RW",
-        "AM"
-      ],
-      "market_value": 25,
-      "market_value_updated_at": "2026-07-23T22:03:29.417+00:00",
+      "date_of_birth": "2004-07-22",
+      "nationality": "Gambia",
+      "pl_team": "Brighton",
+      "pl_team_id": 6,
+      "primary_position": "RW",
+      "secondary_positions": [],
+      "market_value": 45,
+      "market_value_updated_at": "2026-07-23T22:03:29.359+00:00",
       "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/201658.png",
-      "height_cm": 178,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/592031.png",
+      "height_cm": 180,
       "fpl_status": "a",
       "fpl_news": null,
-      "total_points": 350.28,
-      "form_rating": 7.5,
-      "ppg": 10.6,
+      "total_points": 334.97,
+      "form_rating": 6.8,
+      "ppg": 10.4,
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:29:17.789931+00:00",
-      "overall_rank": 59,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 69,
       "position_ranks": [
         {
-          "position": "LW",
-          "rank": 8
-        },
-        {
           "position": "RW",
-          "rank": 11
-        },
-        {
-          "position": "AM",
-          "rank": 9
+          "rank": 13
         }
       ],
       "owner_team_id": null,
@@ -2318,12 +2894,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.959221+00:00",
-      "overall_rank": 69,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 70,
       "position_ranks": [
         {
           "position": "CB",
-          "rank": 10
+          "rank": 11
         }
       ],
       "owner_team_id": null,
@@ -2357,16 +2933,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.959221+00:00",
-      "overall_rank": 70,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 71,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 13
+          "rank": 15
         },
         {
           "position": "AM",
-          "rank": 11
+          "rank": 14
         }
       ],
       "owner_team_id": null,
@@ -2401,20 +2977,20 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.220849+00:00",
-      "overall_rank": 73,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 72,
       "position_ranks": [
         {
           "position": "LW",
-          "rank": 9
-        },
-        {
-          "position": "RW",
           "rank": 12
         },
         {
+          "position": "RW",
+          "rank": 14
+        },
+        {
           "position": "ST",
-          "rank": 7
+          "rank": 11
         }
       ],
       "owner_team_id": null,
@@ -2446,49 +3022,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.541055+00:00",
-      "overall_rank": 74,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 73,
       "position_ranks": [
         {
           "position": "CB",
-          "rank": 11
-        }
-      ],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "66ca278c-3133-45e5-990b-58f6a500b4b3",
-      "fpl_id": 122,
-      "api_football_id": 383685,
-      "web_name": "Minteh",
-      "name": "Yankuba Minteh",
-      "full_name": null,
-      "date_of_birth": "2004-07-22",
-      "nationality": "Gambia",
-      "pl_team": "Brighton",
-      "pl_team_id": 6,
-      "primary_position": "RW",
-      "secondary_positions": [],
-      "market_value": 45,
-      "market_value_updated_at": "2026-07-23T22:03:29.359+00:00",
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/592031.png",
-      "height_cm": 180,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 334.97,
-      "form_rating": 6.8,
-      "ppg": 10.4,
-      "is_active": true,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:29:06.668328+00:00",
-      "overall_rank": 68,
-      "position_ranks": [
-        {
-          "position": "RW",
-          "rank": 13
+          "rank": 12
         }
       ],
       "owner_team_id": null,
@@ -2522,16 +3061,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.220849+00:00",
-      "overall_rank": 77,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 74,
       "position_ranks": [
         {
           "position": "RB",
-          "rank": 6
+          "rank": 7
         },
         {
           "position": "RWB",
-          "rank": 4
+          "rank": 6
         }
       ],
       "owner_team_id": null,
@@ -2565,15 +3104,169 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:29:20.275946+00:00",
-      "overall_rank": 78,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 75,
       "position_ranks": [
         {
           "position": "RB",
-          "rank": 7
+          "rank": 8
         },
         {
           "position": "CB",
+          "rank": 15
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "f225935b-cb65-4c6e-a6a3-ef7e9e1a1540",
+      "fpl_id": 390,
+      "api_football_id": 567,
+      "web_name": "Rúben",
+      "name": "Rúben Dias",
+      "full_name": null,
+      "date_of_birth": "1997-05-14",
+      "nationality": "Portugal",
+      "pl_team": "Man City",
+      "pl_team_id": 13,
+      "primary_position": "CB",
+      "secondary_positions": [],
+      "market_value": 55,
+      "market_value_updated_at": "2026-07-23T22:03:29.174+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/171314.png",
+      "height_cm": 187,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 322.01,
+      "form_rating": 6.9,
+      "ppg": 12.9,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 76,
+      "position_ranks": [
+        {
+          "position": "CB",
+          "rank": 16
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "d444e3ce-0094-43ed-8a7f-f3080fec85b3",
+      "fpl_id": null,
+      "api_football_id": 47380,
+      "web_name": "Cucurella",
+      "name": "Marc Cucurella",
+      "full_name": null,
+      "date_of_birth": null,
+      "nationality": "Spain",
+      "pl_team": "Chelsea",
+      "pl_team_id": 7,
+      "primary_position": "LB",
+      "secondary_positions": [
+        "CM"
+      ],
+      "market_value": 60,
+      "market_value_updated_at": "2026-08-02T14:17:12.717+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/179268.png",
+      "height_cm": 174,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 320.77,
+      "form_rating": 6.3,
+      "ppg": 9.7,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 77,
+      "position_ranks": [
+        {
+          "position": "CM",
+          "rank": 22
+        },
+        {
+          "position": "LB",
+          "rank": 5
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "837a564c-c021-4bd1-ba6e-827ea9cce38f",
+      "fpl_id": 491,
+      "api_football_id": null,
+      "web_name": "Igor Jesus",
+      "name": "Igor Jesus Maciel da Cruz",
+      "full_name": null,
+      "date_of_birth": "2001-02-25",
+      "nationality": null,
+      "pl_team": "Nott'm Forest",
+      "pl_team_id": 16,
+      "primary_position": "ST",
+      "secondary_positions": [],
+      "market_value": 25,
+      "market_value_updated_at": "2026-07-30T00:14:03.661+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/482973.png",
+      "height_cm": null,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 319.36,
+      "form_rating": 7.4,
+      "ppg": 9.1,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-07-23T22:07:36.460356+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 78,
+      "position_ranks": [
+        {
+          "position": "ST",
+          "rank": 17
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "2ac26b81-dc73-4560-adb8-5433414f1b34",
+      "fpl_id": null,
+      "api_football_id": 1946,
+      "web_name": "Trossard",
+      "name": "Leandro Trossard",
+      "full_name": null,
+      "date_of_birth": null,
+      "nationality": "Belgium",
+      "pl_team": "Arsenal",
+      "pl_team_id": 1,
+      "primary_position": "LW",
+      "secondary_positions": [],
+      "market_value": 18,
+      "market_value_updated_at": "2026-08-02T14:17:19.702+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/116216.png",
+      "height_cm": 172,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 318.23,
+      "form_rating": 7.2,
+      "ppg": 10.2,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 79,
+      "position_ranks": [
+        {
+          "position": "LW",
           "rank": 14
         }
       ],
@@ -2606,12 +3299,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.959221+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 80,
       "position_ranks": [
         {
           "position": "GK",
-          "rank": 7
+          "rank": 8
         }
       ],
       "owner_team_id": null,
@@ -2643,49 +3336,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.220849+00:00",
-      "overall_rank": 82,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 81,
       "position_ranks": [
         {
           "position": "CB",
-          "rank": 15
-        }
-      ],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "2ac26b81-dc73-4560-adb8-5433414f1b34",
-      "fpl_id": null,
-      "api_football_id": 1946,
-      "web_name": "Trossard",
-      "name": "Leandro Trossard",
-      "full_name": null,
-      "date_of_birth": null,
-      "nationality": "Belgium",
-      "pl_team": "Arsenal",
-      "pl_team_id": 1,
-      "primary_position": "LW",
-      "secondary_positions": [],
-      "market_value": 18,
-      "market_value_updated_at": "2026-08-02T14:17:19.702+00:00",
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/116216.png",
-      "height_cm": 172,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 318.23,
-      "form_rating": 7.2,
-      "ppg": 10.2,
-      "is_active": false,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:29:00.801722+00:00",
-      "overall_rank": 79,
-      "position_ranks": [
-        {
-          "position": "LW",
-          "rank": 11
+          "rank": 17
         }
       ],
       "owner_team_id": null,
@@ -2712,17 +3368,17 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "fpl_status": "a",
       "fpl_news": null,
       "total_points": 314.13,
-      "form_rating": 7,
+      "form_rating": 6.9,
       "ppg": 8.3,
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.220849+00:00",
-      "overall_rank": 83,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 82,
       "position_ranks": [
         {
           "position": "GK",
-          "rank": 8
+          "rank": 9
         }
       ],
       "owner_team_id": null,
@@ -2752,21 +3408,21 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "fpl_status": "a",
       "fpl_news": null,
       "total_points": 313.9,
-      "form_rating": 6.7,
+      "form_rating": 6.3,
       "ppg": 8.5,
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.60895+00:00",
-      "overall_rank": 84,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 83,
       "position_ranks": [
         {
           "position": "LB",
-          "rank": 6
+          "rank": 7
         },
         {
           "position": "RB",
-          "rank": 9
+          "rank": 10
         },
         {
           "position": "LWB",
@@ -2804,16 +3460,59 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.220849+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 84,
+      "position_ranks": [
+        {
+          "position": "RB",
+          "rank": 11
+        },
+        {
+          "position": "RWB",
+          "rank": 4
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "89b834d3-4564-40f3-aa5d-c68a51610f55",
+      "fpl_id": 201,
+      "api_football_id": 13736,
+      "web_name": "Muñoz",
+      "name": "Daniel Muñoz",
+      "full_name": "Daniel Muñoz Mejía",
+      "date_of_birth": "1996-05-26",
+      "nationality": "Colombia",
+      "pl_team": "Crystal Palace",
+      "pl_team_id": 8,
+      "primary_position": "RB",
+      "secondary_positions": [
+        "RWB"
+      ],
+      "market_value": 22,
+      "market_value_updated_at": "2026-07-23T22:03:29.39+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/247348.png",
+      "height_cm": 180,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 311.79,
+      "form_rating": 6.4,
+      "ppg": 11.1,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 85,
       "position_ranks": [
         {
           "position": "RB",
-          "rank": 10
+          "rank": 12
         },
         {
           "position": "RWB",
-          "rank": 2
+          "rank": 3
         }
       ],
       "owner_team_id": null,
@@ -2847,16 +3546,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.959221+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 86,
       "position_ranks": [
         {
           "position": "LW",
-          "rank": 10
+          "rank": 13
         },
         {
           "position": "RW",
-          "rank": 14
+          "rank": 15
         }
       ],
       "owner_team_id": null,
@@ -2886,25 +3585,25 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "fpl_status": "a",
       "fpl_news": null,
       "total_points": 307.65,
-      "form_rating": 6.7,
+      "form_rating": 6.8,
       "ppg": 8.8,
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.127773+00:00",
-      "overall_rank": 88,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 87,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 22
+          "rank": 27
         },
         {
           "position": "DM",
-          "rank": 10
+          "rank": 12
         },
         {
           "position": "CB",
-          "rank": 13
+          "rank": 14
         }
       ],
       "owner_team_id": null,
@@ -2938,16 +3637,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.60895+00:00",
-      "overall_rank": 89,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 88,
       "position_ranks": [
         {
           "position": "DM",
-          "rank": 11
+          "rank": 15
         },
         {
           "position": "RB",
-          "rank": 11
+          "rank": 13
         }
       ],
       "owner_team_id": null,
@@ -2981,16 +3680,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.420173+00:00",
-      "overall_rank": 90,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 89,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 29
+          "rank": 36
         },
         {
           "position": "ST",
-          "rank": 13
+          "rank": 19
         }
       ],
       "owner_team_id": null,
@@ -3022,12 +3721,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.959221+00:00",
-      "overall_rank": 91,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 90,
       "position_ranks": [
         {
           "position": "CB",
-          "rank": 17
+          "rank": 19
         }
       ],
       "owner_team_id": null,
@@ -3061,16 +3760,53 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.959221+00:00",
-      "overall_rank": 93,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 91,
       "position_ranks": [
         {
           "position": "DM",
-          "rank": 15
+          "rank": 19
         },
         {
           "position": "LW",
-          "rank": 12
+          "rank": 15
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "9c6b03b4-a7b0-47d6-88ed-1ff10f5d71da",
+      "fpl_id": null,
+      "api_football_id": null,
+      "web_name": "Flemming",
+      "name": "Zian Flemming",
+      "full_name": null,
+      "date_of_birth": "1998-08-01",
+      "nationality": "Netherlands",
+      "pl_team": "Burnley",
+      "pl_team_id": 3,
+      "primary_position": "ST",
+      "secondary_positions": [],
+      "market_value": 12,
+      "market_value_updated_at": "2026-08-02T14:17:22.918+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/431639.png",
+      "height_cm": 185,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 297.73,
+      "form_rating": 7.4,
+      "ppg": 11.6,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 92,
+      "position_ranks": [
+        {
+          "position": "ST",
+          "rank": 21
         }
       ],
       "owner_team_id": null,
@@ -3105,20 +3841,100 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.959221+00:00",
-      "overall_rank": 96,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 93,
       "position_ranks": [
         {
           "position": "RB",
-          "rank": 12
+          "rank": 14
         },
         {
           "position": "RWB",
-          "rank": 6
+          "rank": 8
         },
         {
           "position": "CB",
-          "rank": 16
+          "rank": 18
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "135a3e0d-1126-48a4-b457-83271160c939",
+      "fpl_id": 223,
+      "api_football_id": 25927,
+      "web_name": "Mateta",
+      "name": "Jean-Philippe Mateta",
+      "full_name": null,
+      "date_of_birth": "1997-06-28",
+      "nationality": "France",
+      "pl_team": "Crystal Palace",
+      "pl_team_id": 8,
+      "primary_position": "ST",
+      "secondary_positions": [],
+      "market_value": 30,
+      "market_value_updated_at": "2026-07-23T22:03:29.403+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/231747.png",
+      "height_cm": 192,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 293.85,
+      "form_rating": 6.8,
+      "ppg": 8.8,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 94,
+      "position_ranks": [
+        {
+          "position": "ST",
+          "rank": 23
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "0aafecd4-34c9-456e-a179-13d3da737ec5",
+      "fpl_id": null,
+      "api_football_id": 280687,
+      "web_name": "H.Bueno",
+      "name": "Hugo Bueno",
+      "full_name": null,
+      "date_of_birth": "2002-09-18",
+      "nationality": "Spain",
+      "pl_team": "Wolves",
+      "pl_team_id": 20,
+      "primary_position": "LWB",
+      "secondary_positions": [
+        "LB"
+      ],
+      "market_value": 12,
+      "market_value_updated_at": "2026-08-02T14:17:25.958+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/490721.png",
+      "height_cm": 180,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 292.12,
+      "form_rating": 6.6,
+      "ppg": 9.4,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 95,
+      "position_ranks": [
+        {
+          "position": "LB",
+          "rank": 22
+        },
+        {
+          "position": "LWB",
+          "rank": 4
         }
       ],
       "owner_team_id": null,
@@ -3152,16 +3968,107 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.220849+00:00",
-      "overall_rank": 99,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 96,
       "position_ranks": [
         {
           "position": "RB",
-          "rank": 13
+          "rank": 15
         },
         {
           "position": "CB",
-          "rank": 18
+          "rank": 20
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "41469187-fb71-4f6d-9fdf-0bfad1f17f59",
+      "fpl_id": 337,
+      "api_football_id": null,
+      "web_name": "Aaronson",
+      "name": "Brenden Aaronson",
+      "full_name": null,
+      "date_of_birth": "2000-10-22",
+      "nationality": "United States",
+      "pl_team": "Leeds",
+      "pl_team_id": 11,
+      "primary_position": "RW",
+      "secondary_positions": [
+        "AM",
+        "CM"
+      ],
+      "market_value": 22,
+      "market_value_updated_at": "2026-07-23T22:03:29.516+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/427637.png",
+      "height_cm": 177,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 291.85,
+      "form_rating": 6.3,
+      "ppg": 8.1,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 97,
+      "position_ranks": [
+        {
+          "position": "CM",
+          "rank": 42
+        },
+        {
+          "position": "RW",
+          "rank": 16
+        },
+        {
+          "position": "AM",
+          "rank": 20
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "9ba00773-6639-4149-9738-f8bbab9fdee0",
+      "fpl_id": 159,
+      "api_football_id": 116117,
+      "web_name": "Caicedo",
+      "name": "Moisés Caicedo",
+      "full_name": null,
+      "date_of_birth": "2001-11-02",
+      "nationality": "Ecuador",
+      "pl_team": "Chelsea",
+      "pl_team_id": 7,
+      "primary_position": "DM",
+      "secondary_positions": [
+        "CM"
+      ],
+      "market_value": 100,
+      "market_value_updated_at": "2026-07-23T22:03:29.255+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/486672.png",
+      "height_cm": 178,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 288.72,
+      "form_rating": 6.5,
+      "ppg": 8.7,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 98,
+      "position_ranks": [
+        {
+          "position": "CM",
+          "rank": 25
+        },
+        {
+          "position": "DM",
+          "rank": 13
         }
       ],
       "owner_team_id": null,
@@ -3195,16 +4102,53 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.541055+00:00",
-      "overall_rank": 101,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 99,
       "position_ranks": [
         {
           "position": "LB",
-          "rank": 9
+          "rank": 10
         },
         {
           "position": "CB",
-          "rank": 19
+          "rank": 21
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "69b5cd6b-d7ff-44c0-b42d-4b2fc793ca3a",
+      "fpl_id": 140,
+      "api_football_id": 18959,
+      "web_name": "Sánchez",
+      "name": "Robert Sánchez",
+      "full_name": null,
+      "date_of_birth": "1997-11-18",
+      "nationality": "Spain",
+      "pl_team": "Chelsea",
+      "pl_team_id": 7,
+      "primary_position": "GK",
+      "secondary_positions": [],
+      "market_value": 22,
+      "market_value_updated_at": "2026-07-23T22:03:29.24+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/215059.png",
+      "height_cm": 197,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 287.87,
+      "form_rating": 6.1,
+      "ppg": 8.5,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 100,
+      "position_ranks": [
+        {
+          "position": "GK",
+          "rank": 10
         }
       ],
       "owner_team_id": null,
@@ -3236,12 +4180,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.420173+00:00",
-      "overall_rank": 102,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 101,
       "position_ranks": [
         {
           "position": "CB",
-          "rank": 21
+          "rank": 23
         }
       ],
       "owner_team_id": null,
@@ -3273,12 +4217,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-02T14:17:23.432924+00:00",
-      "overall_rank": 103,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 102,
       "position_ranks": [
         {
           "position": "LW",
-          "rank": 15
+          "rank": 19
         }
       ],
       "owner_team_id": null,
@@ -3310,12 +4254,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.959221+00:00",
-      "overall_rank": 104,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 103,
       "position_ranks": [
         {
           "position": "ST",
-          "rank": 18
+          "rank": 26
         }
       ],
       "owner_team_id": null,
@@ -3347,11 +4291,59 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.60895+00:00",
-      "overall_rank": 105,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 104,
       "position_ranks": [
         {
           "position": "CB",
+          "rank": 24
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "02990cda-3234-4d82-a41c-bc4f4211f75b",
+      "fpl_id": 336,
+      "api_football_id": null,
+      "web_name": "Okafor",
+      "name": "Noah Okafor",
+      "full_name": null,
+      "date_of_birth": "2000-05-24",
+      "nationality": "Switzerland",
+      "pl_team": "Leeds",
+      "pl_team_id": 11,
+      "primary_position": "ST",
+      "secondary_positions": [
+        "LW",
+        "AM"
+      ],
+      "market_value": 25,
+      "market_value_updated_at": "2026-07-23T22:03:29.517+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/435997.png",
+      "height_cm": 185,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 281.03,
+      "form_rating": 7.9,
+      "ppg": 11,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 105,
+      "position_ranks": [
+        {
+          "position": "LW",
+          "rank": 18
+        },
+        {
+          "position": "AM",
+          "rank": 24
+        },
+        {
+          "position": "ST",
           "rank": 22
         }
       ],
@@ -3384,12 +4376,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.959221+00:00",
-      "overall_rank": 107,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 106,
       "position_ranks": [
         {
           "position": "CB",
-          "rank": 23
+          "rank": 25
         }
       ],
       "owner_team_id": null,
@@ -3423,16 +4415,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-02T14:17:14.34394+00:00",
-      "overall_rank": 108,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 107,
       "position_ranks": [
         {
           "position": "LW",
-          "rank": 24
+          "rank": 27
         },
         {
           "position": "LB",
-          "rank": 7
+          "rank": 8
         }
       ],
       "owner_team_id": null,
@@ -3468,24 +4460,110 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.541055+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 108,
+      "position_ranks": [
+        {
+          "position": "CM",
+          "rank": 38
+        },
+        {
+          "position": "LB",
+          "rank": 9
+        },
+        {
+          "position": "RB",
+          "rank": 16
+        },
+        {
+          "position": "RWB",
+          "rank": 9
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "2ae311a0-0774-434b-9b73-9295bbb2ca94",
+      "fpl_id": null,
+      "api_football_id": 41104,
+      "web_name": "J.Palhinha",
+      "name": "João Palhinha",
+      "full_name": null,
+      "date_of_birth": "1995-07-09",
+      "nationality": "Portugal",
+      "pl_team": "Spurs",
+      "pl_team_id": 18,
+      "primary_position": "DM",
+      "secondary_positions": [
+        "CM"
+      ],
+      "market_value": 15,
+      "market_value_updated_at": "2026-08-02T14:17:18.695+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/154296.png",
+      "height_cm": 190,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 279.03,
+      "form_rating": 7.1,
+      "ppg": 8.7,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 109,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 31
+          "rank": 32
         },
         {
-          "position": "LB",
-          "rank": 8
-        },
+          "position": "DM",
+          "rank": 14
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "4249721b-3041-4345-b971-91c4c07a7696",
+      "fpl_id": 144,
+      "api_football_id": 161907,
+      "web_name": "Gusto",
+      "name": "Malo Gusto",
+      "full_name": null,
+      "date_of_birth": "2003-05-19",
+      "nationality": "France",
+      "pl_team": "Chelsea",
+      "pl_team_id": 7,
+      "primary_position": "RWB",
+      "secondary_positions": [
+        "RB"
+      ],
+      "market_value": 35,
+      "market_value_updated_at": "2026-07-23T22:03:29.254+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/482609.png",
+      "height_cm": 179,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 278.17,
+      "form_rating": 6.9,
+      "ppg": 8.4,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 110,
+      "position_ranks": [
         {
           "position": "RB",
-          "rank": 14
+          "rank": 19
         },
         {
           "position": "RWB",
-          "rank": 7
+          "rank": 10
         }
       ],
       "owner_team_id": null,
@@ -3519,15 +4597,52 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.220849+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 111,
       "position_ranks": [
         {
           "position": "LW",
-          "rank": 13
+          "rank": 16
         },
         {
           "position": "ST",
+          "rank": 16
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "1bc3c5fa-5d46-48f6-a4eb-7a3dc33d7131",
+      "fpl_id": 28,
+      "api_football_id": 19599,
+      "web_name": "Martinez",
+      "name": "Emiliano Martínez",
+      "full_name": null,
+      "date_of_birth": "1992-09-02",
+      "nationality": "Argentina",
+      "pl_team": "Aston Villa",
+      "pl_team_id": 2,
+      "primary_position": "GK",
+      "secondary_positions": [],
+      "market_value": 12,
+      "market_value_updated_at": "2026-07-23T22:03:29.449+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/98980.png",
+      "height_cm": 195,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 277.38,
+      "form_rating": 6.6,
+      "ppg": 8.7,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 112,
+      "position_ranks": [
+        {
+          "position": "GK",
           "rank": 11
         }
       ],
@@ -3564,108 +4679,66 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.220849+00:00",
-      "overall_rank": 112,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 113,
       "position_ranks": [
         {
           "position": "LW",
-          "rank": 14
+          "rank": 17
         },
         {
           "position": "RW",
-          "rank": 16
+          "rank": 18
         },
         {
           "position": "RWB",
-          "rank": 8
+          "rank": 11
         },
         {
           "position": "AM",
-          "rank": 15
+          "rank": 19
         }
       ],
       "owner_team_id": null,
       "owner_team_name": null
     },
     {
-      "id": "41469187-fb71-4f6d-9fdf-0bfad1f17f59",
-      "fpl_id": 337,
-      "api_football_id": null,
-      "web_name": "Aaronson",
-      "name": "Brenden Aaronson",
+      "id": "24725095-8ece-4ce2-ae86-1f225ef55d55",
+      "fpl_id": 210,
+      "api_football_id": 288102,
+      "web_name": "Wharton",
+      "name": "Adam Wharton",
       "full_name": null,
-      "date_of_birth": "2000-10-22",
-      "nationality": "United States",
-      "pl_team": "Leeds",
-      "pl_team_id": 11,
-      "primary_position": "RW",
+      "date_of_birth": "2004-02-06",
+      "nationality": "England",
+      "pl_team": "Crystal Palace",
+      "pl_team_id": 8,
+      "primary_position": "DM",
       "secondary_positions": [
-        "AM",
         "CM"
       ],
-      "market_value": 22,
-      "market_value_updated_at": "2026-07-23T22:03:29.516+00:00",
+      "market_value": 70,
+      "market_value_updated_at": "2026-07-23T22:03:29.393+00:00",
       "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/427637.png",
-      "height_cm": 177,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/496221.png",
+      "height_cm": 182,
       "fpl_status": "a",
       "fpl_news": null,
-      "total_points": 291.85,
+      "total_points": 272.47,
       "form_rating": 6.3,
-      "ppg": 8.1,
+      "ppg": 8,
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:29:08.167294+00:00",
-      "overall_rank": 100,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 114,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 35
+          "rank": 23
         },
         {
-          "position": "RW",
-          "rank": 17
-        },
-        {
-          "position": "AM",
-          "rank": 17
-        }
-      ],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "9c6b03b4-a7b0-47d6-88ed-1ff10f5d71da",
-      "fpl_id": null,
-      "api_football_id": null,
-      "web_name": "Flemming",
-      "name": "Zian Flemming",
-      "full_name": null,
-      "date_of_birth": "1998-08-01",
-      "nationality": "Netherlands",
-      "pl_team": "Burnley",
-      "pl_team_id": 3,
-      "primary_position": "ST",
-      "secondary_positions": [],
-      "market_value": 12,
-      "market_value_updated_at": "2026-08-02T14:17:22.918+00:00",
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/431639.png",
-      "height_cm": 185,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 297.73,
-      "form_rating": 7.1,
-      "ppg": 11.6,
-      "is_active": false,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:28:57.24125+00:00",
-      "overall_rank": 94,
-      "position_ranks": [
-        {
-          "position": "ST",
+          "position": "DM",
           "rank": 16
         }
       ],
@@ -3673,37 +4746,37 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "owner_team_name": null
     },
     {
-      "id": "135a3e0d-1126-48a4-b457-83271160c939",
-      "fpl_id": 223,
-      "api_football_id": 25927,
-      "web_name": "Mateta",
-      "name": "Jean-Philippe Mateta",
+      "id": "8ddd18ba-c6cb-4605-9bd8-956f82ce0659",
+      "fpl_id": 31,
+      "api_football_id": 19354,
+      "web_name": "Konsa",
+      "name": "Ezri Konsa",
       "full_name": null,
-      "date_of_birth": "1997-06-28",
-      "nationality": "France",
-      "pl_team": "Crystal Palace",
-      "pl_team_id": 8,
-      "primary_position": "ST",
+      "date_of_birth": "1997-10-23",
+      "nationality": "England",
+      "pl_team": "Aston Villa",
+      "pl_team_id": 2,
+      "primary_position": "CB",
       "secondary_positions": [],
-      "market_value": 30,
-      "market_value_updated_at": "2026-07-23T22:03:29.403+00:00",
+      "market_value": 45,
+      "market_value_updated_at": "2026-07-23T22:03:29.451+00:00",
       "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/231747.png",
-      "height_cm": 192,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/199798.png",
+      "height_cm": 183,
       "fpl_status": "a",
       "fpl_news": null,
-      "total_points": 293.85,
-      "form_rating": 6.8,
-      "ppg": 8.8,
+      "total_points": 271.87,
+      "form_rating": 6.5,
+      "ppg": 8,
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:29:18.464474+00:00",
-      "overall_rank": 97,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 115,
       "position_ranks": [
         {
-          "position": "ST",
-          "rank": 17
+          "position": "CB",
+          "rank": 26
         }
       ],
       "owner_team_id": null,
@@ -3738,20 +4811,20 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.420173+00:00",
-      "overall_rank": 114,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 116,
       "position_ranks": [
         {
           "position": "LB",
-          "rank": 10
+          "rank": 11
         },
         {
           "position": "CB",
-          "rank": 20
+          "rank": 22
         },
         {
           "position": "LWB",
-          "rank": 4
+          "rank": 5
         }
       ],
       "owner_team_id": null,
@@ -3783,12 +4856,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.60895+00:00",
-      "overall_rank": 115,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 117,
       "position_ranks": [
         {
           "position": "CB",
-          "rank": 24
+          "rank": 27
         }
       ],
       "owner_team_id": null,
@@ -3820,98 +4893,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.420173+00:00",
-      "overall_rank": 117,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 118,
       "position_ranks": [
         {
           "position": "GK",
-          "rank": 9
-        }
-      ],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "24725095-8ece-4ce2-ae86-1f225ef55d55",
-      "fpl_id": 210,
-      "api_football_id": 288102,
-      "web_name": "Wharton",
-      "name": "Adam Wharton",
-      "full_name": null,
-      "date_of_birth": "2004-02-06",
-      "nationality": "England",
-      "pl_team": "Crystal Palace",
-      "pl_team_id": 8,
-      "primary_position": "DM",
-      "secondary_positions": [
-        "CM"
-      ],
-      "market_value": 70,
-      "market_value_updated_at": "2026-07-23T22:03:29.393+00:00",
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/496221.png",
-      "height_cm": 182,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 272.47,
-      "form_rating": 6.3,
-      "ppg": 8,
-      "is_active": true,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:29:19.059779+00:00",
-      "overall_rank": 113,
-      "position_ranks": [
-        {
-          "position": "CM",
-          "rank": 20
-        },
-        {
-          "position": "DM",
           "rank": 12
-        }
-      ],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "4249721b-3041-4345-b971-91c4c07a7696",
-      "fpl_id": 144,
-      "api_football_id": 161907,
-      "web_name": "Gusto",
-      "name": "Malo Gusto",
-      "full_name": null,
-      "date_of_birth": "2003-05-19",
-      "nationality": "France",
-      "pl_team": "Chelsea",
-      "pl_team_id": 7,
-      "primary_position": "RWB",
-      "secondary_positions": [
-        "RB"
-      ],
-      "market_value": 35,
-      "market_value_updated_at": "2026-07-23T22:03:29.254+00:00",
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/482609.png",
-      "height_cm": 179,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 278.17,
-      "form_rating": 6.9,
-      "ppg": 8.4,
-      "is_active": true,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:29:06.865327+00:00",
-      "overall_rank": 110,
-      "position_ranks": [
-        {
-          "position": "RB",
-          "rank": 16
-        },
-        {
-          "position": "RWB",
-          "rank": 9
         }
       ],
       "owner_team_id": null,
@@ -3943,12 +4930,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.420173+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 119,
       "position_ranks": [
         {
           "position": "CB",
-          "rank": 26
+          "rank": 29
         }
       ],
       "owner_team_id": null,
@@ -3983,20 +4970,20 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.220849+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 120,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 21
+          "rank": 26
         },
         {
           "position": "LW",
-          "rank": 18
+          "rank": 22
         },
         {
           "position": "AM",
-          "rank": 14
+          "rank": 18
         }
       ],
       "owner_team_id": null,
@@ -4028,12 +5015,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-02T14:17:19.394161+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 121,
       "position_ranks": [
         {
           "position": "CB",
-          "rank": 27
+          "rank": 30
         }
       ],
       "owner_team_id": null,
@@ -4065,12 +5052,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.541055+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 122,
       "position_ranks": [
         {
           "position": "ST",
-          "rank": 15
+          "rank": 25
         }
       ],
       "owner_team_id": null,
@@ -4104,16 +5091,59 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.959221+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 123,
       "position_ranks": [
         {
           "position": "LB",
-          "rank": 11
+          "rank": 12
         },
         {
           "position": "LWB",
-          "rank": 7
+          "rank": 8
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "5cc907bc-2006-4003-b30c-0f6df4f7fcba",
+      "fpl_id": 41,
+      "api_football_id": 19071,
+      "web_name": "Buendía",
+      "name": "Emiliano Buendía",
+      "full_name": null,
+      "date_of_birth": "1996-12-25",
+      "nationality": "Argentina",
+      "pl_team": "Aston Villa",
+      "pl_team_id": 2,
+      "primary_position": "LW",
+      "secondary_positions": [
+        "AM"
+      ],
+      "market_value": 16,
+      "market_value_updated_at": "2026-07-23T22:03:29.463+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/195546.png",
+      "height_cm": 172,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 259.66,
+      "form_rating": 6.6,
+      "ppg": 6.8,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 124,
+      "position_ranks": [
+        {
+          "position": "LW",
+          "rank": 29
+        },
+        {
+          "position": "AM",
+          "rank": 36
         }
       ],
       "owner_team_id": null,
@@ -4147,16 +5177,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.420173+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 125,
       "position_ranks": [
         {
           "position": "RW",
-          "rank": 18
+          "rank": 19
         },
         {
           "position": "RWB",
-          "rank": 5
+          "rank": 7
         }
       ],
       "owner_team_id": null,
@@ -4188,12 +5218,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.220849+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 126,
       "position_ranks": [
         {
           "position": "CB",
-          "rank": 30
+          "rank": 33
         }
       ],
       "owner_team_id": null,
@@ -4228,20 +5258,20 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.60895+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 127,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 24
+          "rank": 29
         },
         {
           "position": "RW",
-          "rank": 15
+          "rank": 17
         },
         {
           "position": "AM",
-          "rank": 12
+          "rank": 15
         }
       ],
       "owner_team_id": null,
@@ -4273,12 +5303,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.127773+00:00",
-      "overall_rank": 129,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 128,
       "position_ranks": [
         {
           "position": "LW",
-          "rank": 16
+          "rank": 20
         }
       ],
       "owner_team_id": null,
@@ -4312,16 +5342,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.60895+00:00",
-      "overall_rank": 130,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 129,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 19
+          "rank": 24
         },
         {
           "position": "DM",
-          "rank": 13
+          "rank": 17
         }
       ],
       "owner_team_id": null,
@@ -4356,20 +5386,20 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.220849+00:00",
-      "overall_rank": 131,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 130,
       "position_ranks": [
         {
           "position": "LW",
-          "rank": 26
+          "rank": 31
         },
         {
           "position": "RW",
-          "rank": 26
+          "rank": 27
         },
         {
           "position": "LWB",
-          "rank": 8
+          "rank": 9
         }
       ],
       "owner_team_id": null,
@@ -4401,12 +5431,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.541055+00:00",
-      "overall_rank": 132,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 131,
       "position_ranks": [
         {
           "position": "GK",
-          "rank": 10
+          "rank": 13
         }
       ],
       "owner_team_id": null,
@@ -4440,16 +5470,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-07-23T22:06:34.352231+00:00",
-      "updated_at": "2026-08-08T02:10:21.220849+00:00",
-      "overall_rank": 133,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 132,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 23
+          "rank": 28
         },
         {
           "position": "DM",
-          "rank": 14
+          "rank": 18
         }
       ],
       "owner_team_id": null,
@@ -4481,12 +5511,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.420173+00:00",
-      "overall_rank": 134,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 133,
       "position_ranks": [
         {
           "position": "GK",
-          "rank": 11
+          "rank": 14
         }
       ],
       "owner_team_id": null,
@@ -4518,12 +5548,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.959221+00:00",
-      "overall_rank": 135,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 134,
       "position_ranks": [
         {
           "position": "CB",
-          "rank": 31
+          "rank": 34
         }
       ],
       "owner_team_id": null,
@@ -4557,16 +5587,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.420173+00:00",
-      "overall_rank": 136,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 135,
       "position_ranks": [
         {
           "position": "LW",
-          "rank": 17
+          "rank": 21
         },
         {
           "position": "RW",
-          "rank": 19
+          "rank": 20
         }
       ],
       "owner_team_id": null,
@@ -4601,20 +5631,20 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.127773+00:00",
-      "overall_rank": 137,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 136,
       "position_ranks": [
         {
           "position": "LB",
-          "rank": 12
+          "rank": 13
         },
         {
           "position": "RB",
-          "rank": 15
+          "rank": 17
         },
         {
           "position": "CB",
-          "rank": 29
+          "rank": 32
         }
       ],
       "owner_team_id": null,
@@ -4646,12 +5676,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.541055+00:00",
-      "overall_rank": 138,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 137,
       "position_ranks": [
         {
           "position": "CB",
-          "rank": 32
+          "rank": 35
         }
       ],
       "owner_team_id": null,
@@ -4683,12 +5713,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.541055+00:00",
-      "overall_rank": 139,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 138,
       "position_ranks": [
         {
           "position": "GK",
-          "rank": 12
+          "rank": 15
         }
       ],
       "owner_team_id": null,
@@ -4723,20 +5753,68 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.220849+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 139,
+      "position_ranks": [
+        {
+          "position": "CM",
+          "rank": 33
+        },
+        {
+          "position": "DM",
+          "rank": 33
+        },
+        {
+          "position": "AM",
+          "rank": 27
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "41e62aa8-47b4-4f28-8cfc-cce7145e78e9",
+      "fpl_id": 417,
+      "api_football_id": 886,
+      "web_name": "Dalot",
+      "name": "Diogo Dalot",
+      "full_name": null,
+      "date_of_birth": "1999-03-18",
+      "nationality": "Portugal",
+      "pl_team": "Man Utd",
+      "pl_team_id": 14,
+      "primary_position": "RB",
+      "secondary_positions": [
+        "LB",
+        "CM"
+      ],
+      "market_value": 30,
+      "market_value_updated_at": "2026-07-23T22:03:29.324+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/216051.png",
+      "height_cm": 183,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 245.85,
+      "form_rating": 6.6,
+      "ppg": 7.5,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 140,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 27
+          "rank": 34
         },
         {
-          "position": "DM",
-          "rank": 28
+          "position": "LB",
+          "rank": 14
         },
         {
-          "position": "AM",
-          "rank": 21
+          "position": "RB",
+          "rank": 18
         }
       ],
       "owner_team_id": null,
@@ -4771,20 +5849,20 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.420173+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 141,
       "position_ranks": [
         {
           "position": "LW",
-          "rank": 19
+          "rank": 23
         },
         {
           "position": "RW",
-          "rank": 20
+          "rank": 22
         },
         {
           "position": "LWB",
-          "rank": 15
+          "rank": 16
         }
       ],
       "owner_team_id": null,
@@ -4819,20 +5897,20 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:29:07.269327+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 142,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 37
+          "rank": 45
         },
         {
           "position": "LB",
-          "rank": 13
+          "rank": 15
         },
         {
           "position": "CB",
-          "rank": 25
+          "rank": 28
         }
       ],
       "owner_team_id": null,
@@ -4864,60 +5942,55 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.959221+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 143,
       "position_ranks": [
         {
           "position": "ST",
-          "rank": 19
+          "rank": 27
         }
       ],
       "owner_team_id": null,
       "owner_team_name": null
     },
     {
-      "id": "02990cda-3234-4d82-a41c-bc4f4211f75b",
-      "fpl_id": 336,
-      "api_football_id": null,
-      "web_name": "Okafor",
-      "name": "Noah Okafor",
+      "id": "04982c10-e875-43bb-84f8-b2b1e824ec4f",
+      "fpl_id": 208,
+      "api_football_id": 2218,
+      "web_name": "Sarr",
+      "name": "Ismaïla Sarr",
       "full_name": null,
-      "date_of_birth": "2000-05-24",
-      "nationality": "Switzerland",
-      "pl_team": "Leeds",
-      "pl_team_id": 11,
-      "primary_position": "ST",
+      "date_of_birth": "1998-02-25",
+      "nationality": "Senegal",
+      "pl_team": "Crystal Palace",
+      "pl_team_id": 8,
+      "primary_position": "RW",
       "secondary_positions": [
-        "LW",
         "AM"
       ],
-      "market_value": 25,
-      "market_value_updated_at": "2026-07-23T22:03:29.517+00:00",
+      "market_value": 45,
+      "market_value_updated_at": "2026-07-23T22:03:29.398+00:00",
       "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/435997.png",
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/232185.png",
       "height_cm": 185,
       "fpl_status": "a",
       "fpl_news": null,
-      "total_points": 281.03,
-      "form_rating": 7.9,
-      "ppg": 11,
+      "total_points": 243.28,
+      "form_rating": 6.9,
+      "ppg": 8.7,
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:29:07.966838+00:00",
-      "overall_rank": 106,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 144,
       "position_ranks": [
         {
-          "position": "LW",
-          "rank": 22
+          "position": "RW",
+          "rank": 21
         },
         {
           "position": "AM",
-          "rank": 27
-        },
-        {
-          "position": "ST",
-          "rank": 20
+          "rank": 22
         }
       ],
       "owner_team_id": null,
@@ -4952,20 +6025,57 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.420173+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 145,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 25
+          "rank": 30
         },
         {
           "position": "DM",
-          "rank": 18
+          "rank": 22
         },
         {
           "position": "AM",
-          "rank": 26
+          "rank": 31
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "59f57ab2-242c-4224-ab4c-6f572f048ca4",
+      "fpl_id": 327,
+      "api_football_id": null,
+      "web_name": "Bijol",
+      "name": "Jaka Bijol",
+      "full_name": null,
+      "date_of_birth": "1999-02-05",
+      "nationality": "Slovenia",
+      "pl_team": "Leeds",
+      "pl_team_id": 11,
+      "primary_position": "CB",
+      "secondary_positions": [],
+      "market_value": 20,
+      "market_value_updated_at": "2026-07-23T22:03:29.508+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/434752.png",
+      "height_cm": 190,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 242.04,
+      "form_rating": 7.6,
+      "ppg": 10.5,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 146,
+      "position_ranks": [
+        {
+          "position": "CB",
+          "rank": 36
         }
       ],
       "owner_team_id": null,
@@ -4999,16 +6109,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.220849+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 147,
       "position_ranks": [
         {
           "position": "LB",
-          "rank": 14
+          "rank": 16
         },
         {
           "position": "LWB",
-          "rank": 6
+          "rank": 7
         }
       ],
       "owner_team_id": null,
@@ -5042,16 +6152,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.127773+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 148,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 26
+          "rank": 31
         },
         {
           "position": "DM",
-          "rank": 22
+          "rank": 26
         }
       ],
       "owner_team_id": null,
@@ -5083,12 +6193,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:28:59.076415+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 149,
       "position_ranks": [
         {
           "position": "CB",
-          "rank": 33
+          "rank": 37
         }
       ],
       "owner_team_id": null,
@@ -5123,20 +6233,20 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-02T14:17:14.983024+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 150,
       "position_ranks": [
         {
           "position": "LW",
-          "rank": 21
+          "rank": 25
         },
         {
           "position": "RW",
-          "rank": 21
+          "rank": 23
         },
         {
           "position": "ST",
-          "rank": 14
+          "rank": 24
         }
       ],
       "owner_team_id": null,
@@ -5171,20 +6281,20 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:29:15.105784+00:00",
-      "overall_rank": 152,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 151,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 33
+          "rank": 41
         },
         {
           "position": "DM",
-          "rank": 16
+          "rank": 20
         },
         {
           "position": "RB",
-          "rank": 17
+          "rank": 21
         }
       ],
       "owner_team_id": null,
@@ -5218,16 +6328,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.541055+00:00",
-      "overall_rank": 153,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 152,
       "position_ranks": [
         {
           "position": "RW",
-          "rank": 22
+          "rank": 24
         },
         {
           "position": "AM",
-          "rank": 19
+          "rank": 25
         }
       ],
       "owner_team_id": null,
@@ -5262,20 +6372,20 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.127773+00:00",
-      "overall_rank": 154,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 153,
       "position_ranks": [
         {
           "position": "LB",
-          "rank": 17
+          "rank": 19
         },
         {
           "position": "CB",
-          "rank": 36
+          "rank": 39
         },
         {
           "position": "LWB",
-          "rank": 9
+          "rank": 10
         }
       ],
       "owner_team_id": null,
@@ -5307,12 +6417,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.420173+00:00",
-      "overall_rank": 155,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 154,
       "position_ranks": [
         {
           "position": "LW",
-          "rank": 23
+          "rank": 26
         }
       ],
       "owner_team_id": null,
@@ -5344,12 +6454,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.420173+00:00",
-      "overall_rank": 156,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 155,
       "position_ranks": [
         {
           "position": "GK",
-          "rank": 13
+          "rank": 16
         }
       ],
       "owner_team_id": null,
@@ -5383,16 +6493,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.420173+00:00",
-      "overall_rank": 157,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 156,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 28
+          "rank": 35
         },
         {
           "position": "DM",
-          "rank": 17
+          "rank": 21
         }
       ],
       "owner_team_id": null,
@@ -5424,49 +6534,55 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.60895+00:00",
-      "overall_rank": 158,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 157,
       "position_ranks": [
         {
           "position": "ST",
-          "rank": 26
+          "rank": 34
         }
       ],
       "owner_team_id": null,
       "owner_team_name": null
     },
     {
-      "id": "59f57ab2-242c-4224-ab4c-6f572f048ca4",
-      "fpl_id": 327,
+      "id": "8b97c08c-e887-4b4d-bdba-b87eeea0da89",
+      "fpl_id": 330,
       "api_football_id": null,
-      "web_name": "Bijol",
-      "name": "Jaka Bijol",
+      "web_name": "Bogle",
+      "name": "Jayden Bogle",
       "full_name": null,
-      "date_of_birth": "1999-02-05",
-      "nationality": "Slovenia",
+      "date_of_birth": "2000-07-27",
+      "nationality": "England",
       "pl_team": "Leeds",
       "pl_team_id": 11,
-      "primary_position": "CB",
-      "secondary_positions": [],
-      "market_value": 20,
-      "market_value_updated_at": "2026-07-23T22:03:29.508+00:00",
+      "primary_position": "RB",
+      "secondary_positions": [
+        "RWB"
+      ],
+      "market_value": 15,
+      "market_value_updated_at": "2026-07-23T22:03:29.511+00:00",
       "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/434752.png",
-      "height_cm": 190,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/226182.png",
+      "height_cm": 178,
       "fpl_status": "a",
       "fpl_news": null,
-      "total_points": 242.04,
-      "form_rating": 7.6,
-      "ppg": 10.5,
+      "total_points": 220.7,
+      "form_rating": 7.2,
+      "ppg": 6.7,
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:29:02.324821+00:00",
-      "overall_rank": 146,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 158,
       "position_ranks": [
         {
-          "position": "CB",
-          "rank": 34
+          "position": "RB",
+          "rank": 20
+        },
+        {
+          "position": "RWB",
+          "rank": 12
         }
       ],
       "owner_team_id": null,
@@ -5498,12 +6614,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-02T14:17:23.245709+00:00",
-      "overall_rank": 161,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 159,
       "position_ranks": [
         {
           "position": "ST",
-          "rank": 21
+          "rank": 29
         }
       ],
       "owner_team_id": null,
@@ -5537,59 +6653,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:29:03.581832+00:00",
-      "overall_rank": 162,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 160,
       "position_ranks": [
         {
           "position": "LB",
-          "rank": 26
+          "rank": 29
         },
         {
           "position": "LWB",
-          "rank": 14
-        }
-      ],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "04982c10-e875-43bb-84f8-b2b1e824ec4f",
-      "fpl_id": 208,
-      "api_football_id": 2218,
-      "web_name": "Sarr",
-      "name": "Ismaïla Sarr",
-      "full_name": null,
-      "date_of_birth": "1998-02-25",
-      "nationality": "Senegal",
-      "pl_team": "Crystal Palace",
-      "pl_team_id": 8,
-      "primary_position": "RW",
-      "secondary_positions": [
-        "AM"
-      ],
-      "market_value": 45,
-      "market_value_updated_at": "2026-07-23T22:03:29.398+00:00",
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/232185.png",
-      "height_cm": 185,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 243.28,
-      "form_rating": 6.9,
-      "ppg": 8.7,
-      "is_active": true,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:29:08.686995+00:00",
-      "overall_rank": 144,
-      "position_ranks": [
-        {
-          "position": "RW",
-          "rank": 23
-        },
-        {
-          "position": "AM",
-          "rank": 22
+          "rank": 15
         }
       ],
       "owner_team_id": null,
@@ -5623,16 +6696,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.220849+00:00",
-      "overall_rank": 164,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 161,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 45
+          "rank": 55
         },
         {
           "position": "DM",
-          "rank": 19
+          "rank": 23
         }
       ],
       "owner_team_id": null,
@@ -5666,16 +6739,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.420173+00:00",
-      "overall_rank": 165,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 162,
       "position_ranks": [
         {
           "position": "LB",
-          "rank": 15
+          "rank": 17
         },
         {
           "position": "LWB",
-          "rank": 5
+          "rank": 6
         }
       ],
       "owner_team_id": null,
@@ -5709,16 +6782,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.220849+00:00",
-      "overall_rank": 166,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 163,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 38
+          "rank": 46
         },
         {
           "position": "DM",
-          "rank": 20
+          "rank": 24
         }
       ],
       "owner_team_id": null,
@@ -5752,16 +6825,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.127773+00:00",
-      "overall_rank": 167,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 164,
       "position_ranks": [
         {
           "position": "LB",
-          "rank": 24
+          "rank": 27
         },
         {
           "position": "LWB",
-          "rank": 12
+          "rank": 13
         }
       ],
       "owner_team_id": null,
@@ -5796,20 +6869,20 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.541055+00:00",
-      "overall_rank": 168,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 165,
       "position_ranks": [
         {
           "position": "LW",
-          "rank": 31
+          "rank": 39
         },
         {
           "position": "AM",
-          "rank": 30
+          "rank": 35
         },
         {
           "position": "ST",
-          "rank": 29
+          "rank": 37
         }
       ],
       "owner_team_id": null,
@@ -5843,16 +6916,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.959221+00:00",
-      "overall_rank": 169,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 166,
       "position_ranks": [
         {
           "position": "LB",
-          "rank": 16
+          "rank": 18
         },
         {
           "position": "LWB",
-          "rank": 10
+          "rank": 11
         }
       ],
       "owner_team_id": null,
@@ -5886,16 +6959,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-02T14:17:11.266465+00:00",
-      "overall_rank": 170,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 167,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 36
+          "rank": 44
         },
         {
           "position": "DM",
-          "rank": 21
+          "rank": 25
         }
       ],
       "owner_team_id": null,
@@ -5927,12 +7000,49 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.541055+00:00",
-      "overall_rank": 171,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 168,
       "position_ranks": [
         {
           "position": "CB",
-          "rank": 35
+          "rank": 38
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "418a23ee-06ab-4067-9a11-efee1e2aa04e",
+      "fpl_id": 350,
+      "api_football_id": 158693,
+      "web_name": "A.Becker",
+      "name": "Alisson",
+      "full_name": null,
+      "date_of_birth": "1992-10-02",
+      "nationality": "Brazil",
+      "pl_team": "Liverpool",
+      "pl_team_id": 12,
+      "primary_position": "GK",
+      "secondary_positions": [],
+      "market_value": 15,
+      "market_value_updated_at": "2026-07-23T22:03:29.267+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/116535.png",
+      "height_cm": 193,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 209.07,
+      "form_rating": 6.7,
+      "ppg": 8,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 169,
+      "position_ranks": [
+        {
+          "position": "GK",
+          "rank": 17
         }
       ],
       "owner_team_id": null,
@@ -5966,16 +7076,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.420173+00:00",
-      "overall_rank": 172,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 170,
       "position_ranks": [
         {
           "position": "LB",
-          "rank": 19
+          "rank": 23
         },
         {
           "position": "CB",
-          "rank": 37
+          "rank": 41
         }
       ],
       "owner_team_id": null,
@@ -6007,12 +7117,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.541055+00:00",
-      "overall_rank": 173,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 171,
       "position_ranks": [
         {
           "position": "LB",
-          "rank": 18
+          "rank": 20
         }
       ],
       "owner_team_id": null,
@@ -6044,12 +7154,55 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.959221+00:00",
-      "overall_rank": 174,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 172,
       "position_ranks": [
         {
           "position": "RB",
-          "rank": 18
+          "rank": 22
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "910f1290-b4b7-47b7-8a96-ef4c7bf83ac0",
+      "fpl_id": 9,
+      "api_football_id": null,
+      "web_name": "Hincapie",
+      "name": "Piero Hincapié",
+      "full_name": null,
+      "date_of_birth": "2002-01-09",
+      "nationality": "Ecuador",
+      "pl_team": "Arsenal",
+      "pl_team_id": 1,
+      "primary_position": "LB",
+      "secondary_positions": [
+        "CB"
+      ],
+      "market_value": 50,
+      "market_value_updated_at": "2026-07-23T22:03:29.218+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/448104.png",
+      "height_cm": 184,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 207.66,
+      "form_rating": 6.8,
+      "ppg": 8.7,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 173,
+      "position_ranks": [
+        {
+          "position": "LB",
+          "rank": 21
+        },
+        {
+          "position": "CB",
+          "rank": 40
         }
       ],
       "owner_team_id": null,
@@ -6083,59 +7236,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.959221+00:00",
-      "overall_rank": 176,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 174,
       "position_ranks": [
         {
           "position": "LB",
-          "rank": 21
+          "rank": 25
         },
         {
           "position": "LWB",
-          "rank": 13
-        }
-      ],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "8b97c08c-e887-4b4d-bdba-b87eeea0da89",
-      "fpl_id": 330,
-      "api_football_id": null,
-      "web_name": "Bogle",
-      "name": "Jayden Bogle",
-      "full_name": null,
-      "date_of_birth": "2000-07-27",
-      "nationality": "England",
-      "pl_team": "Leeds",
-      "pl_team_id": 11,
-      "primary_position": "RB",
-      "secondary_positions": [
-        "RWB"
-      ],
-      "market_value": 15,
-      "market_value_updated_at": "2026-07-23T22:03:29.511+00:00",
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/226182.png",
-      "height_cm": 178,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 220.7,
-      "form_rating": 7.2,
-      "ppg": 6.7,
-      "is_active": true,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:29:22.784321+00:00",
-      "overall_rank": 160,
-      "position_ranks": [
-        {
-          "position": "RB",
-          "rank": 19
-        },
-        {
-          "position": "RWB",
-          "rank": 10
+          "rank": 14
         }
       ],
       "owner_team_id": null,
@@ -6167,12 +7277,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.420173+00:00",
-      "overall_rank": 177,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 175,
       "position_ranks": [
         {
           "position": "CB",
-          "rank": 38
+          "rank": 42
         }
       ],
       "owner_team_id": null,
@@ -6204,12 +7314,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.420173+00:00",
-      "overall_rank": 178,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 176,
       "position_ranks": [
         {
           "position": "CB",
-          "rank": 39
+          "rank": 43
         }
       ],
       "owner_team_id": null,
@@ -6244,20 +7354,63 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.127773+00:00",
-      "overall_rank": 179,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 177,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 32
+          "rank": 39
         },
         {
           "position": "DM",
-          "rank": 23
+          "rank": 27
         },
         {
           "position": "AM",
-          "rank": 33
+          "rank": 38
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "94184a62-b2fe-4e33-80cd-ac6e70472826",
+      "fpl_id": 54,
+      "api_football_id": 195103,
+      "web_name": "Gomes",
+      "name": "João Gomes",
+      "full_name": null,
+      "date_of_birth": "2001-02-12",
+      "nationality": "Brazil",
+      "pl_team": "Wolves",
+      "pl_team_id": 20,
+      "primary_position": "DM",
+      "secondary_positions": [
+        "CM"
+      ],
+      "market_value": 40,
+      "market_value_updated_at": "2026-07-23T22:03:29.46+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/448089.png",
+      "height_cm": 176,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 204.39,
+      "form_rating": 6.3,
+      "ppg": 6,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 178,
+      "position_ranks": [
+        {
+          "position": "CM",
+          "rank": 40
+        },
+        {
+          "position": "DM",
+          "rank": 28
         }
       ],
       "owner_team_id": null,
@@ -6289,12 +7442,49 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-07-30T00:06:34.434183+00:00",
-      "overall_rank": 181,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 179,
       "position_ranks": [
         {
           "position": "GK",
-          "rank": 14
+          "rank": 18
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "222a3420-6c35-412a-a0f7-b035ac7c3ec5",
+      "fpl_id": 472,
+      "api_football_id": 363695,
+      "web_name": "Murillo",
+      "name": "Murillo",
+      "full_name": null,
+      "date_of_birth": "2002-07-04",
+      "nationality": "Brazil",
+      "pl_team": "Nott'm Forest",
+      "pl_team_id": 16,
+      "primary_position": "CB",
+      "secondary_positions": [],
+      "market_value": 50,
+      "market_value_updated_at": "2026-07-23T21:14:48.963+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/575476.png",
+      "height_cm": 180,
+      "fpl_status": "d",
+      "fpl_news": "Muscular injury - 75% chance of playing",
+      "total_points": 202.13,
+      "form_rating": 7,
+      "ppg": 8.1,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 180,
+      "position_ranks": [
+        {
+          "position": "CB",
+          "rank": 44
         }
       ],
       "owner_team_id": null,
@@ -6321,17 +7511,17 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "fpl_status": "d",
       "fpl_news": "Unspecified injury - 75% chance of playing",
       "total_points": 202.09,
-      "form_rating": 7.1,
+      "form_rating": 7,
       "ppg": 9.2,
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.420173+00:00",
-      "overall_rank": 182,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 181,
       "position_ranks": [
         {
           "position": "GK",
-          "rank": 15
+          "rank": 19
         }
       ],
       "owner_team_id": null,
@@ -6366,20 +7556,20 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.959221+00:00",
-      "overall_rank": 183,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 182,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 39
+          "rank": 47
         },
         {
           "position": "DM",
-          "rank": 24
+          "rank": 29
         },
         {
           "position": "CB",
-          "rank": 28
+          "rank": 31
         }
       ],
       "owner_team_id": null,
@@ -6413,16 +7603,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.60895+00:00",
-      "overall_rank": 184,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 183,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 46
+          "rank": 56
         },
         {
           "position": "DM",
-          "rank": 25
+          "rank": 30
         }
       ],
       "owner_team_id": null,
@@ -6454,12 +7644,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-02T14:17:15.720178+00:00",
-      "overall_rank": 185,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 184,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 34
+          "rank": 43
         }
       ],
       "owner_team_id": null,
@@ -6494,20 +7684,20 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.541055+00:00",
-      "overall_rank": 186,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 185,
       "position_ranks": [
         {
           "position": "LB",
-          "rank": 20
+          "rank": 24
         },
         {
           "position": "RB",
-          "rank": 20
+          "rank": 23
         },
         {
           "position": "LWB",
-          "rank": 11
+          "rank": 12
         }
       ],
       "owner_team_id": null,
@@ -6541,53 +7731,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.541055+00:00",
-      "overall_rank": 187,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 186,
       "position_ranks": [
         {
           "position": "RW",
-          "rank": 24
+          "rank": 25
         },
         {
           "position": "ST",
-          "rank": 24
-        }
-      ],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "ee522d12-c61c-4b23-99fb-83a4632f4094",
-      "fpl_id": 465,
-      "api_football_id": 315237,
-      "web_name": "Osula",
-      "name": "William Osula",
-      "full_name": null,
-      "date_of_birth": "2003-08-04",
-      "nationality": "Denmark",
-      "pl_team": "Newcastle",
-      "pl_team_id": 15,
-      "primary_position": "ST",
-      "secondary_positions": [],
-      "market_value": 28,
-      "market_value_updated_at": "2026-07-23T22:03:29.381+00:00",
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/538207.png",
-      "height_cm": 180,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 194.5,
-      "form_rating": 7.3,
-      "ppg": 10.5,
-      "is_active": true,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.420173+00:00",
-      "overall_rank": 189,
-      "position_ranks": [
-        {
-          "position": "ST",
-          "rank": 33
+          "rank": 31
         }
       ],
       "owner_team_id": null,
@@ -6619,12 +7772,49 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:29:16.238719+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 187,
+      "position_ranks": [
+        {
+          "position": "ST",
+          "rank": 32
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "ee522d12-c61c-4b23-99fb-83a4632f4094",
+      "fpl_id": 465,
+      "api_football_id": 315237,
+      "web_name": "Osula",
+      "name": "William Osula",
+      "full_name": null,
+      "date_of_birth": "2003-08-04",
+      "nationality": "Denmark",
+      "pl_team": "Newcastle",
+      "pl_team_id": 15,
+      "primary_position": "ST",
+      "secondary_positions": [],
+      "market_value": 28,
+      "market_value_updated_at": "2026-07-23T22:03:29.381+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/538207.png",
+      "height_cm": 180,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 194.5,
+      "form_rating": 7.3,
+      "ppg": 10.5,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 188,
       "position_ranks": [
         {
           "position": "ST",
-          "rank": 25
+          "rank": 41
         }
       ],
       "owner_team_id": null,
@@ -6656,12 +7846,49 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.420173+00:00",
-      "overall_rank": 190,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 189,
       "position_ranks": [
         {
           "position": "RW",
-          "rank": 25
+          "rank": 26
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "b6d1c8dd-00dc-415a-b16c-40482016d6c2",
+      "fpl_id": 347,
+      "api_football_id": null,
+      "web_name": "Nmecha",
+      "name": "Lukas Nmecha",
+      "full_name": null,
+      "date_of_birth": "1998-12-14",
+      "nationality": "Germany",
+      "pl_team": "Leeds",
+      "pl_team_id": 11,
+      "primary_position": "ST",
+      "secondary_positions": [],
+      "market_value": 10,
+      "market_value_updated_at": "2026-07-23T22:03:29.524+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/174594.png",
+      "height_cm": 185,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 192.7,
+      "form_rating": 6.5,
+      "ppg": 6.2,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 190,
+      "position_ranks": [
+        {
+          "position": "ST",
+          "rank": 40
         }
       ],
       "owner_team_id": null,
@@ -6695,16 +7922,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-07-30T00:06:34.434183+00:00",
-      "overall_rank": 193,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 191,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 47
+          "rank": 57
         },
         {
           "position": "DM",
-          "rank": 26
+          "rank": 31
         }
       ],
       "owner_team_id": null,
@@ -6738,16 +7965,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-07-30T00:06:34.434183+00:00",
-      "overall_rank": 194,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 192,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 44
+          "rank": 54
         },
         {
           "position": "DM",
-          "rank": 27
+          "rank": 32
         }
       ],
       "owner_team_id": null,
@@ -6782,100 +8009,20 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.420173+00:00",
-      "overall_rank": 195,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 193,
       "position_ranks": [
         {
           "position": "LB",
-          "rank": 22
+          "rank": 26
         },
         {
           "position": "RB",
-          "rank": 21
+          "rank": 24
         },
         {
           "position": "RWB",
-          "rank": 12
-        }
-      ],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "b6d1c8dd-00dc-415a-b16c-40482016d6c2",
-      "fpl_id": 347,
-      "api_football_id": null,
-      "web_name": "Nmecha",
-      "name": "Lukas Nmecha",
-      "full_name": null,
-      "date_of_birth": "1998-12-14",
-      "nationality": "Germany",
-      "pl_team": "Leeds",
-      "pl_team_id": 11,
-      "primary_position": "ST",
-      "secondary_positions": [],
-      "market_value": 10,
-      "market_value_updated_at": "2026-07-23T22:03:29.524+00:00",
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/174594.png",
-      "height_cm": 185,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 192.7,
-      "form_rating": 6.5,
-      "ppg": 6.2,
-      "is_active": true,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:29:17.159789+00:00",
-      "overall_rank": 191,
-      "position_ranks": [
-        {
-          "position": "ST",
-          "rank": 31
-        }
-      ],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "910f1290-b4b7-47b7-8a96-ef4c7bf83ac0",
-      "fpl_id": 9,
-      "api_football_id": null,
-      "web_name": "Hincapie",
-      "name": "Piero Hincapié",
-      "full_name": null,
-      "date_of_birth": "2002-01-09",
-      "nationality": "Ecuador",
-      "pl_team": "Arsenal",
-      "pl_team_id": 1,
-      "primary_position": "LB",
-      "secondary_positions": [
-        "CB"
-      ],
-      "market_value": 50,
-      "market_value_updated_at": "2026-07-23T22:03:29.218+00:00",
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/448104.png",
-      "height_cm": 184,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 207.66,
-      "form_rating": 6.8,
-      "ppg": 8.7,
-      "is_active": true,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:29:09.795849+00:00",
-      "overall_rank": 175,
-      "position_ranks": [
-        {
-          "position": "LB",
-          "rank": 23
-        },
-        {
-          "position": "CB",
-          "rank": 40
+          "rank": 14
         }
       ],
       "owner_team_id": null,
@@ -6907,12 +8054,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.541055+00:00",
-      "overall_rank": 196,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 194,
       "position_ranks": [
         {
           "position": "ST",
-          "rank": 37
+          "rank": 45
         }
       ],
       "owner_team_id": null,
@@ -6946,16 +8093,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.220849+00:00",
-      "overall_rank": 197,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 195,
       "position_ranks": [
         {
           "position": "LB",
-          "rank": 32
+          "rank": 35
         },
         {
           "position": "LWB",
-          "rank": 17
+          "rank": 18
         }
       ],
       "owner_team_id": null,
@@ -6990,20 +8137,20 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.420173+00:00",
-      "overall_rank": 198,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 196,
       "position_ranks": [
         {
           "position": "LB",
-          "rank": 25
+          "rank": 28
         },
         {
           "position": "CB",
-          "rank": 41
+          "rank": 45
         },
         {
           "position": "LWB",
-          "rank": 16
+          "rank": 17
         }
       ],
       "owner_team_id": null,
@@ -7038,20 +8185,20 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.541055+00:00",
-      "overall_rank": 199,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 197,
       "position_ranks": [
         {
           "position": "LW",
-          "rank": 25
+          "rank": 30
         },
         {
           "position": "AM",
-          "rank": 23
+          "rank": 28
         },
         {
           "position": "ST",
-          "rank": 23
+          "rank": 30
         }
       ],
       "owner_team_id": null,
@@ -7085,16 +8232,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:29:07.719079+00:00",
-      "overall_rank": 201,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 198,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 42
+          "rank": 51
         },
         {
           "position": "DM",
-          "rank": 29
+          "rank": 34
         }
       ],
       "owner_team_id": null,
@@ -7129,20 +8276,63 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.959221+00:00",
-      "overall_rank": 202,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 199,
       "position_ranks": [
         {
           "position": "LW",
-          "rank": 27
+          "rank": 32
         },
         {
           "position": "RW",
-          "rank": 27
+          "rank": 28
         },
         {
           "position": "AM",
-          "rank": 18
+          "rank": 23
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "d84d8b90-69db-4709-8f91-f35b3e2e3c88",
+      "fpl_id": null,
+      "api_football_id": 2990,
+      "web_name": "Gana",
+      "name": "Idrissa Gueye",
+      "full_name": null,
+      "date_of_birth": "1989-09-26",
+      "nationality": "Senegal",
+      "pl_team": "Everton",
+      "pl_team_id": 9,
+      "primary_position": "DM",
+      "secondary_positions": [
+        "CM"
+      ],
+      "market_value": 0.5,
+      "market_value_updated_at": "2026-08-02T14:17:16.478+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/80801.png",
+      "height_cm": 174,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 184.82,
+      "form_rating": 7,
+      "ppg": 7.7,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 200,
+      "position_ranks": [
+        {
+          "position": "CM",
+          "rank": 48
+        },
+        {
+          "position": "DM",
+          "rank": 35
         }
       ],
       "owner_team_id": null,
@@ -7176,16 +8366,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.220849+00:00",
-      "overall_rank": 203,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 201,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 40
+          "rank": 49
         },
         {
           "position": "AM",
-          "rank": 24
+          "rank": 29
         }
       ],
       "owner_team_id": null,
@@ -7219,15 +8409,52 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.541055+00:00",
-      "overall_rank": 204,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 202,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 30
+          "rank": 37
         },
         {
           "position": "DM",
+          "rank": 36
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "fa7291e7-29ee-451b-8b0b-a9860f990b94",
+      "fpl_id": 16,
+      "api_football_id": 136723,
+      "web_name": "Madueke",
+      "name": "Noni Madueke",
+      "full_name": null,
+      "date_of_birth": "2002-03-10",
+      "nationality": "England",
+      "pl_team": "Arsenal",
+      "pl_team_id": 1,
+      "primary_position": "RW",
+      "secondary_positions": [],
+      "market_value": 50,
+      "market_value_updated_at": "2026-07-23T22:03:29.235+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/248857.png",
+      "height_cm": 182,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 182.05,
+      "form_rating": 6.8,
+      "ppg": 8.8,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 203,
+      "position_ranks": [
+        {
+          "position": "RW",
           "rank": 30
         }
       ],
@@ -7260,12 +8487,55 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-02T14:17:24.071487+00:00",
-      "overall_rank": 206,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 204,
       "position_ranks": [
         {
           "position": "CB",
-          "rank": 42
+          "rank": 46
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "a44cb207-8f2c-4c75-a880-627f7ed46d62",
+      "fpl_id": 67,
+      "api_football_id": null,
+      "web_name": "Rayan",
+      "name": "Rayan Vitor Simplício Rocha",
+      "full_name": "Rayan Vitor Simplício Rocha",
+      "date_of_birth": "2006-08-03",
+      "nationality": "Brazil",
+      "pl_team": "Bournemouth",
+      "pl_team_id": 4,
+      "primary_position": "RW",
+      "secondary_positions": [
+        "ST"
+      ],
+      "market_value": 60,
+      "market_value_updated_at": "2026-07-23T22:03:29.419+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/499604.png",
+      "height_cm": 185,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 181.33,
+      "form_rating": 7.4,
+      "ppg": 12.1,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 205,
+      "position_ranks": [
+        {
+          "position": "RW",
+          "rank": 29
+        },
+        {
+          "position": "ST",
+          "rank": 33
         }
       ],
       "owner_team_id": null,
@@ -7299,16 +8569,59 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.541055+00:00",
-      "overall_rank": 208,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 206,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 53
+          "rank": 63
         },
         {
           "position": "DM",
-          "rank": 31
+          "rank": 37
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "208dc84a-64e2-4abd-a19e-126190ec80af",
+      "fpl_id": null,
+      "api_football_id": 2887,
+      "web_name": "A.Jimenez",
+      "name": "Álex Jiménez",
+      "full_name": null,
+      "date_of_birth": "2005-05-08",
+      "nationality": "Mexico",
+      "pl_team": "Bournemouth",
+      "pl_team_id": 4,
+      "primary_position": "RB",
+      "secondary_positions": [
+        "RW"
+      ],
+      "market_value": 22,
+      "market_value_updated_at": "2026-07-24T00:15:18.985+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/551483.png",
+      "height_cm": 190,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 180.28,
+      "form_rating": 6.6,
+      "ppg": 6,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 207,
+      "position_ranks": [
+        {
+          "position": "RB",
+          "rank": 25
+        },
+        {
+          "position": "RW",
+          "rank": 34
         }
       ],
       "owner_team_id": null,
@@ -7340,12 +8653,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.420173+00:00",
-      "overall_rank": 209,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 208,
       "position_ranks": [
         {
           "position": "CB",
-          "rank": 43
+          "rank": 47
         }
       ],
       "owner_team_id": null,
@@ -7380,20 +8693,20 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.420173+00:00",
-      "overall_rank": 210,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 209,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 41
+          "rank": 50
         },
         {
           "position": "DM",
-          "rank": 39
+          "rank": 46
         },
         {
           "position": "AM",
-          "rank": 25
+          "rank": 30
         }
       ],
       "owner_team_id": null,
@@ -7427,16 +8740,59 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.420173+00:00",
-      "overall_rank": 211,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 210,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 49
+          "rank": 59
         },
         {
           "position": "DM",
-          "rank": 32
+          "rank": 38
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "d5a89e12-703b-4651-bec5-0821caea37b3",
+      "fpl_id": 125,
+      "api_football_id": 90590,
+      "web_name": "Georginio",
+      "name": "Georginio Rutter",
+      "full_name": null,
+      "date_of_birth": "2002-04-20",
+      "nationality": "France",
+      "pl_team": "Brighton",
+      "pl_team_id": 6,
+      "primary_position": "AM",
+      "secondary_positions": [
+        "ST"
+      ],
+      "market_value": 30,
+      "market_value_updated_at": "2026-07-23T22:03:29.362+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/463067.png",
+      "height_cm": 182,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 175.19,
+      "form_rating": 6.8,
+      "ppg": 6.2,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 211,
+      "position_ranks": [
+        {
+          "position": "AM",
+          "rank": 33
+        },
+        {
+          "position": "ST",
+          "rank": 28
         }
       ],
       "owner_team_id": null,
@@ -7471,20 +8827,20 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-07-30T00:06:34.434183+00:00",
-      "overall_rank": 213,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 212,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 43
+          "rank": 52
         },
         {
           "position": "RW",
-          "rank": 28
+          "rank": 31
         },
         {
           "position": "AM",
-          "rank": 29
+          "rank": 34
         }
       ],
       "owner_team_id": null,
@@ -7519,20 +8875,20 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:29:10.506693+00:00",
-      "overall_rank": 214,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 213,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 50
+          "rank": 60
         },
         {
           "position": "LW",
-          "rank": 20
+          "rank": 24
         },
         {
           "position": "AM",
-          "rank": 28
+          "rank": 32
         }
       ],
       "owner_team_id": null,
@@ -7566,16 +8922,127 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.541055+00:00",
-      "overall_rank": 216,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 214,
       "position_ranks": [
         {
           "position": "LW",
-          "rank": 29
+          "rank": 34
         },
         {
           "position": "RW",
-          "rank": 29
+          "rank": 32
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "14628733-ca00-4e66-af7d-ab56495d34aa",
+      "fpl_id": 121,
+      "api_football_id": 106835,
+      "web_name": "Mitoma",
+      "name": "Mitoma Kaoru",
+      "full_name": null,
+      "date_of_birth": "1997-05-20",
+      "nationality": "Japan",
+      "pl_team": "Brighton",
+      "pl_team_id": 6,
+      "primary_position": "LW",
+      "secondary_positions": [],
+      "market_value": 22,
+      "market_value_updated_at": "2026-07-23T22:03:29.357+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/451340.png",
+      "height_cm": 178,
+      "fpl_status": "i",
+      "fpl_news": "Hamstring injury - Unknown return date",
+      "total_points": 172.5,
+      "form_rating": 6.8,
+      "ppg": 7.4,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 215,
+      "position_ranks": [
+        {
+          "position": "LW",
+          "rank": 36
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "676a771a-9fe9-4187-a697-048062b99fc7",
+      "fpl_id": 222,
+      "api_football_id": 2032,
+      "web_name": "Strand Larsen",
+      "name": "Jørgen Strand Larsen",
+      "full_name": null,
+      "date_of_birth": "2000-02-06",
+      "nationality": "Norway",
+      "pl_team": "Crystal Palace",
+      "pl_team_id": 8,
+      "primary_position": "ST",
+      "secondary_positions": [],
+      "market_value": 40,
+      "market_value_updated_at": "2026-07-23T22:03:29.402+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/247412.png",
+      "height_cm": 193,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 172.19,
+      "form_rating": 6.4,
+      "ppg": 4.8,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 216,
+      "position_ranks": [
+        {
+          "position": "ST",
+          "rank": 35
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "ea339c7d-af5a-4cc4-a890-626f03ec1b7f",
+      "fpl_id": 145,
+      "api_football_id": 291476,
+      "web_name": "Fofana",
+      "name": "Wesley Fofana",
+      "full_name": null,
+      "date_of_birth": "2000-12-17",
+      "nationality": "Côte d'Ivoire",
+      "pl_team": "Chelsea",
+      "pl_team_id": 7,
+      "primary_position": "CB",
+      "secondary_positions": [],
+      "market_value": 28,
+      "market_value_updated_at": "2026-07-23T22:03:29.245+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/444463.png",
+      "height_cm": 181,
+      "fpl_status": "s",
+      "fpl_news": "Suspended until 6 Sep",
+      "total_points": 171.81,
+      "form_rating": 6.4,
+      "ppg": 7.1,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 217,
+      "position_ranks": [
+        {
+          "position": "CB",
+          "rank": 48
         }
       ],
       "owner_team_id": null,
@@ -7610,20 +9077,20 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.220849+00:00",
-      "overall_rank": 220,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 218,
       "position_ranks": [
         {
           "position": "LW",
-          "rank": 32
+          "rank": 40
         },
         {
           "position": "AM",
-          "rank": 36
+          "rank": 42
         },
         {
           "position": "ST",
-          "rank": 30
+          "rank": 38
         }
       ],
       "owner_team_id": null,
@@ -7652,58 +9119,21 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "fpl_status": "a",
       "fpl_news": null,
       "total_points": 171.5,
-      "form_rating": 6.4,
+      "form_rating": 6.2,
       "ppg": 4.9,
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-02T14:17:13.790198+00:00",
-      "overall_rank": 221,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 219,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 67
+          "rank": 80
         },
         {
           "position": "RB",
-          "rank": 22
-        }
-      ],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "676a771a-9fe9-4187-a697-048062b99fc7",
-      "fpl_id": 222,
-      "api_football_id": 2032,
-      "web_name": "Strand Larsen",
-      "name": "Jørgen Strand Larsen",
-      "full_name": null,
-      "date_of_birth": "2000-02-06",
-      "nationality": "Norway",
-      "pl_team": "Crystal Palace",
-      "pl_team_id": 8,
-      "primary_position": "ST",
-      "secondary_positions": [],
-      "market_value": 40,
-      "market_value_updated_at": "2026-07-23T22:03:29.402+00:00",
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/247412.png",
-      "height_cm": 193,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 172.19,
-      "form_rating": 6.4,
-      "ppg": 4.8,
-      "is_active": true,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:28:59.916912+00:00",
-      "overall_rank": 218,
-      "position_ranks": [
-        {
-          "position": "ST",
-          "rank": 27
+          "rank": 26
         }
       ],
       "owner_team_id": null,
@@ -7737,16 +9167,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.220849+00:00",
-      "overall_rank": 222,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 220,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 52
+          "rank": 62
         },
         {
           "position": "DM",
-          "rank": 34
+          "rank": 40
         }
       ],
       "owner_team_id": null,
@@ -7780,16 +9210,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-07-30T00:06:34.434183+00:00",
-      "overall_rank": 224,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 221,
       "position_ranks": [
         {
           "position": "LW",
-          "rank": 30
+          "rank": 37
         },
         {
           "position": "RW",
-          "rank": 30
+          "rank": 33
         }
       ],
       "owner_team_id": null,
@@ -7823,16 +9253,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-02T14:17:20.606352+00:00",
-      "overall_rank": 225,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 222,
       "position_ranks": [
         {
           "position": "RB",
-          "rank": 23
+          "rank": 27
         },
         {
           "position": "RW",
-          "rank": 34
+          "rank": 38
         }
       ],
       "owner_team_id": null,
@@ -7866,53 +9296,144 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.541055+00:00",
-      "overall_rank": 226,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 223,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 54
+          "rank": 64
         },
         {
           "position": "DM",
-          "rank": 35
+          "rank": 41
         }
       ],
       "owner_team_id": null,
       "owner_team_name": null
     },
     {
-      "id": "ea339c7d-af5a-4cc4-a890-626f03ec1b7f",
-      "fpl_id": 145,
-      "api_football_id": 291476,
-      "web_name": "Fofana",
-      "name": "Wesley Fofana",
+      "id": "34911213-0a59-4de9-8249-f8ce38571027",
+      "fpl_id": null,
+      "api_football_id": 1590,
+      "web_name": "José Sá",
+      "name": "José Sá",
       "full_name": null,
-      "date_of_birth": "2000-12-17",
-      "nationality": "Côte d'Ivoire",
-      "pl_team": "Chelsea",
-      "pl_team_id": 7,
-      "primary_position": "CB",
+      "date_of_birth": "1993-01-17",
+      "nationality": "Portugal",
+      "pl_team": "Wolves",
+      "pl_team_id": 20,
+      "primary_position": "GK",
       "secondary_positions": [],
-      "market_value": 28,
-      "market_value_updated_at": "2026-07-23T22:03:29.245+00:00",
+      "market_value": 5,
+      "market_value_updated_at": "2026-03-05T03:23:57.666+00:00",
       "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/444463.png",
-      "height_cm": 181,
-      "fpl_status": "s",
-      "fpl_news": "Suspended until 6 Sep",
-      "total_points": 171.81,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/149065.png",
+      "height_cm": 192,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 167.16,
       "form_rating": 6.4,
-      "ppg": 7.1,
+      "ppg": 7.3,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 224,
+      "position_ranks": [
+        {
+          "position": "GK",
+          "rank": 20
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "8fcf0391-9d05-457b-83e5-eb5e6913704a",
+      "fpl_id": 127,
+      "api_football_id": 278370,
+      "web_name": "Gomez",
+      "name": "Diego Gómez",
+      "full_name": null,
+      "date_of_birth": "2003-03-27",
+      "nationality": "Paraguay",
+      "pl_team": "Brighton",
+      "pl_team_id": 6,
+      "primary_position": "DM",
+      "secondary_positions": [
+        "LW",
+        "CM"
+      ],
+      "market_value": 25,
+      "market_value_updated_at": "2026-07-23T21:15:16.324+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/514254.png",
+      "height_cm": 183,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 166.09,
+      "form_rating": 5.6,
+      "ppg": 5.2,
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:29:07.167904+00:00",
-      "overall_rank": 219,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 225,
       "position_ranks": [
         {
-          "position": "CB",
-          "rank": 44
+          "position": "CM",
+          "rank": 53
+        },
+        {
+          "position": "DM",
+          "rank": 42
+        },
+        {
+          "position": "LW",
+          "rank": 28
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "beb3d9af-1178-45ad-bbfc-6a225aa8a9cd",
+      "fpl_id": 401,
+      "api_football_id": 81573,
+      "web_name": "Marmoush",
+      "name": "Omar Marmoush",
+      "full_name": null,
+      "date_of_birth": "1999-02-07",
+      "nationality": "Egypt",
+      "pl_team": "Man City",
+      "pl_team_id": 13,
+      "primary_position": "LW",
+      "secondary_positions": [
+        "ST"
+      ],
+      "market_value": 50,
+      "market_value_updated_at": "2026-07-23T22:03:29.212+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/438234.png",
+      "height_cm": 180,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 166.04,
+      "form_rating": 7.8,
+      "ppg": 12.3,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 226,
+      "position_ranks": [
+        {
+          "position": "LW",
+          "rank": 38
+        },
+        {
+          "position": "ST",
+          "rank": 39
         }
       ],
       "owner_team_id": null,
@@ -7946,16 +9467,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.959221+00:00",
-      "overall_rank": 228,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 227,
       "position_ranks": [
         {
           "position": "RB",
-          "rank": 24
+          "rank": 28
         },
         {
           "position": "RWB",
-          "rank": 11
+          "rank": 13
         }
       ],
       "owner_team_id": null,
@@ -7987,55 +9508,49 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.220849+00:00",
-      "overall_rank": 229,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 228,
       "position_ranks": [
         {
           "position": "CB",
-          "rank": 45
+          "rank": 49
         }
       ],
       "owner_team_id": null,
       "owner_team_name": null
     },
     {
-      "id": "a44cb207-8f2c-4c75-a880-627f7ed46d62",
-      "fpl_id": 67,
-      "api_football_id": null,
-      "web_name": "Rayan",
-      "name": "Rayan Vitor Simplício Rocha",
-      "full_name": "Rayan Vitor Simplício Rocha",
-      "date_of_birth": "2006-08-03",
-      "nationality": "Brazil",
-      "pl_team": "Bournemouth",
-      "pl_team_id": 4,
-      "primary_position": "RW",
-      "secondary_positions": [
-        "ST"
-      ],
-      "market_value": 60,
-      "market_value_updated_at": "2026-07-23T22:03:29.419+00:00",
+      "id": "2c764ba1-3ef5-41e3-8065-63ffe6a97ef9",
+      "fpl_id": null,
+      "api_football_id": 135334,
+      "web_name": "S.Bueno",
+      "name": "Santiago Bueno",
+      "full_name": null,
+      "date_of_birth": "1998-11-09",
+      "nationality": "Uruguay",
+      "pl_team": "Wolves",
+      "pl_team_id": 20,
+      "primary_position": "CB",
+      "secondary_positions": [],
+      "market_value": 10,
+      "market_value_updated_at": "2026-08-02T14:17:09.335+00:00",
       "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/499604.png",
-      "height_cm": 185,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/231480.png",
+      "height_cm": 190,
       "fpl_status": "a",
       "fpl_news": null,
-      "total_points": 181.33,
-      "form_rating": 7.4,
-      "ppg": 12.1,
-      "is_active": true,
+      "total_points": 165.08,
+      "form_rating": 6.4,
+      "ppg": 5.7,
+      "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:28:57.638718+00:00",
-      "overall_rank": 207,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 229,
       "position_ranks": [
         {
-          "position": "RW",
-          "rank": 31
-        },
-        {
-          "position": "ST",
-          "rank": 28
+          "position": "CB",
+          "rank": 50
         }
       ],
       "owner_team_id": null,
@@ -8069,59 +9584,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:29:19.635049+00:00",
-      "overall_rank": 231,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 230,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 61
+          "rank": 74
         },
         {
           "position": "DM",
-          "rank": 36
-        }
-      ],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "d5a89e12-703b-4651-bec5-0821caea37b3",
-      "fpl_id": 125,
-      "api_football_id": 90590,
-      "web_name": "Georginio",
-      "name": "Georginio Rutter",
-      "full_name": null,
-      "date_of_birth": "2002-04-20",
-      "nationality": "France",
-      "pl_team": "Brighton",
-      "pl_team_id": 6,
-      "primary_position": "AM",
-      "secondary_positions": [
-        "ST"
-      ],
-      "market_value": 30,
-      "market_value_updated_at": "2026-07-23T22:03:29.362+00:00",
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/463067.png",
-      "height_cm": 182,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 175.19,
-      "form_rating": 6.8,
-      "ppg": 6.2,
-      "is_active": true,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:29:09.799737+00:00",
-      "overall_rank": 212,
-      "position_ranks": [
-        {
-          "position": "AM",
-          "rank": 31
-        },
-        {
-          "position": "ST",
-          "rank": 22
+          "rank": 43
         }
       ],
       "owner_team_id": null,
@@ -8155,16 +9627,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.541055+00:00",
-      "overall_rank": 232,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 231,
       "position_ranks": [
         {
           "position": "LB",
-          "rank": 34
+          "rank": 37
         },
         {
           "position": "LWB",
-          "rank": 19
+          "rank": 20
         }
       ],
       "owner_team_id": null,
@@ -8198,16 +9670,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-02T14:17:07.767622+00:00",
-      "overall_rank": 233,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 232,
       "position_ranks": [
         {
           "position": "LB",
-          "rank": 27
+          "rank": 30
         },
         {
           "position": "LWB",
-          "rank": 18
+          "rank": 19
         }
       ],
       "owner_team_id": null,
@@ -8241,16 +9713,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.420173+00:00",
-      "overall_rank": 234,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 233,
       "position_ranks": [
         {
           "position": "LB",
-          "rank": 29
+          "rank": 32
         },
         {
           "position": "LWB",
-          "rank": 20
+          "rank": 21
         }
       ],
       "owner_team_id": null,
@@ -8285,20 +9757,20 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.420173+00:00",
-      "overall_rank": 235,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 234,
       "position_ranks": [
         {
           "position": "LB",
-          "rank": 28
+          "rank": 31
         },
         {
           "position": "RB",
-          "rank": 25
+          "rank": 29
         },
         {
           "position": "RWB",
-          "rank": 13
+          "rank": 15
         }
       ],
       "owner_team_id": null,
@@ -8332,16 +9804,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-02T14:17:12.498852+00:00",
-      "overall_rank": 236,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 235,
       "position_ranks": [
         {
           "position": "RB",
-          "rank": 26
+          "rank": 30
         },
         {
           "position": "RW",
-          "rank": 36
+          "rank": 39
         }
       ],
       "owner_team_id": null,
@@ -8376,20 +9848,20 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.959221+00:00",
-      "overall_rank": 237,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 236,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 62
+          "rank": 75
         },
         {
           "position": "DM",
-          "rank": 33
+          "rank": 39
         },
         {
           "position": "CB",
-          "rank": 46
+          "rank": 51
         }
       ],
       "owner_team_id": null,
@@ -8424,20 +9896,20 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.220849+00:00",
-      "overall_rank": 238,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 237,
       "position_ranks": [
         {
           "position": "LB",
-          "rank": 30
+          "rank": 33
         },
         {
           "position": "RB",
-          "rank": 28
+          "rank": 32
         },
         {
           "position": "CB",
-          "rank": 48
+          "rank": 53
         }
       ],
       "owner_team_id": null,
@@ -8469,49 +9941,55 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.420173+00:00",
-      "overall_rank": 239,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 238,
       "position_ranks": [
         {
           "position": "CB",
-          "rank": 47
+          "rank": 52
         }
       ],
       "owner_team_id": null,
       "owner_team_name": null
     },
     {
-      "id": "fa7291e7-29ee-451b-8b0b-a9860f990b94",
-      "fpl_id": 16,
-      "api_football_id": 136723,
-      "web_name": "Madueke",
-      "name": "Noni Madueke",
+      "id": "0a3c471a-ce3c-47a7-a2df-28d51a274f05",
+      "fpl_id": 18,
+      "api_football_id": 127769,
+      "web_name": "Martinelli",
+      "name": "Gabriel Martinelli",
       "full_name": null,
-      "date_of_birth": "2002-03-10",
-      "nationality": "England",
+      "date_of_birth": "2001-06-18",
+      "nationality": "Brazil",
       "pl_team": "Arsenal",
       "pl_team_id": 1,
-      "primary_position": "RW",
-      "secondary_positions": [],
-      "market_value": 50,
-      "market_value_updated_at": "2026-07-23T22:03:29.235+00:00",
+      "primary_position": "LW",
+      "secondary_positions": [
+        "CM"
+      ],
+      "market_value": 45,
+      "market_value_updated_at": "2026-08-05T04:06:16.101+00:00",
       "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/248857.png",
-      "height_cm": 182,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/444145.png",
+      "height_cm": 178,
       "fpl_status": "a",
       "fpl_news": null,
-      "total_points": 182.05,
+      "total_points": 150.64,
       "form_rating": 6.8,
-      "ppg": 8.8,
+      "ppg": 5.8,
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:29:03.176245+00:00",
-      "overall_rank": 205,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 239,
       "position_ranks": [
         {
-          "position": "RW",
-          "rank": 32
+          "position": "CM",
+          "rank": 109
+        },
+        {
+          "position": "LW",
+          "rank": 43
         }
       ],
       "owner_team_id": null,
@@ -8546,20 +10024,57 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.420173+00:00",
-      "overall_rank": 242,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 240,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 51
+          "rank": 61
         },
         {
           "position": "DM",
-          "rank": 37
+          "rank": 44
         },
         {
           "position": "RB",
-          "rank": 27
+          "rank": 31
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "3218c8da-486e-40a9-95ba-d3937fe0d254",
+      "fpl_id": 157,
+      "api_football_id": null,
+      "web_name": "Estêvão",
+      "name": "Estêvão",
+      "full_name": null,
+      "date_of_birth": "2007-04-24",
+      "nationality": "Brazil",
+      "pl_team": "Chelsea",
+      "pl_team_id": 7,
+      "primary_position": "RW",
+      "secondary_positions": [],
+      "market_value": 80,
+      "market_value_updated_at": "2026-07-23T22:03:29.26+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/624773.png",
+      "height_cm": 176,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 149.74,
+      "form_rating": 6.7,
+      "ppg": 7.9,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 241,
+      "position_ranks": [
+        {
+          "position": "RW",
+          "rank": 35
         }
       ],
       "owner_team_id": null,
@@ -8594,100 +10109,57 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.127773+00:00",
-      "overall_rank": 244,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 242,
       "position_ranks": [
         {
           "position": "RB",
-          "rank": 38
+          "rank": 42
         },
         {
           "position": "RW",
-          "rank": 43
+          "rank": 47
         },
         {
           "position": "RWB",
-          "rank": 14
+          "rank": 16
         }
       ],
       "owner_team_id": null,
       "owner_team_name": null
     },
     {
-      "id": "0a3c471a-ce3c-47a7-a2df-28d51a274f05",
-      "fpl_id": 18,
-      "api_football_id": 127769,
-      "web_name": "Martinelli",
-      "name": "Gabriel Martinelli",
+      "id": "61afeb25-5d25-44db-aede-9875c4525eae",
+      "fpl_id": 160,
+      "api_football_id": 284324,
+      "web_name": "Garnacho",
+      "name": "Alejandro Garnacho",
       "full_name": null,
-      "date_of_birth": "2001-06-18",
-      "nationality": "Brazil",
-      "pl_team": "Arsenal",
-      "pl_team_id": 1,
-      "primary_position": "LW",
-      "secondary_positions": [
-        "CM"
-      ],
-      "market_value": 45,
-      "market_value_updated_at": "2026-08-05T04:06:16.101+00:00",
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/444145.png",
-      "height_cm": 178,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 150.64,
-      "form_rating": 6.8,
-      "ppg": 5.8,
-      "is_active": true,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:29:06.259393+00:00",
-      "overall_rank": 241,
-      "position_ranks": [
-        {
-          "position": "CM",
-          "rank": 92
-        },
-        {
-          "position": "LW",
-          "rank": 36
-        }
-      ],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "14628733-ca00-4e66-af7d-ab56495d34aa",
-      "fpl_id": 121,
-      "api_football_id": 106835,
-      "web_name": "Mitoma",
-      "name": "Mitoma Kaoru",
-      "full_name": null,
-      "date_of_birth": "1997-05-20",
-      "nationality": "Japan",
-      "pl_team": "Brighton",
-      "pl_team_id": 6,
+      "date_of_birth": "2004-07-01",
+      "nationality": "Argentina",
+      "pl_team": "Chelsea",
+      "pl_team_id": 7,
       "primary_position": "LW",
       "secondary_positions": [],
-      "market_value": 22,
-      "market_value_updated_at": "2026-07-23T22:03:29.357+00:00",
+      "market_value": 28,
+      "market_value_updated_at": "2026-07-23T22:03:29.462+00:00",
       "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/451340.png",
-      "height_cm": 178,
-      "fpl_status": "i",
-      "fpl_news": "Hamstring injury - Unknown return date",
-      "total_points": 172.5,
-      "form_rating": 6.8,
-      "ppg": 7.4,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/493105.png",
+      "height_cm": 180,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 147.5,
+      "form_rating": 6.5,
+      "ppg": 6.9,
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:29:09.148899+00:00",
-      "overall_rank": 217,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 243,
       "position_ranks": [
         {
           "position": "LW",
-          "rank": 33
+          "rank": 41
         }
       ],
       "owner_team_id": null,
@@ -8722,20 +10194,20 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-02T14:17:24.35253+00:00",
-      "overall_rank": 246,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 244,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 55
+          "rank": 65
         },
         {
           "position": "DM",
-          "rank": 40
+          "rank": 47
         },
         {
           "position": "AM",
-          "rank": 35
+          "rank": 41
         }
       ],
       "owner_team_id": null,
@@ -8769,16 +10241,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.959221+00:00",
-      "overall_rank": 249,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 245,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 48
+          "rank": 58
         },
         {
           "position": "DM",
-          "rank": 41
+          "rank": 48
         }
       ],
       "owner_team_id": null,
@@ -8812,16 +10284,59 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:29:00.330555+00:00",
-      "overall_rank": 250,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 246,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 59
+          "rank": 71
         },
         {
           "position": "DM",
-          "rank": 44
+          "rank": 53
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "6b3f9d08-4371-479e-ae74-2b269777bcdd",
+      "fpl_id": 571,
+      "api_football_id": null,
+      "web_name": "Florentino",
+      "name": "Florentino",
+      "full_name": null,
+      "date_of_birth": "1999-08-19",
+      "nationality": "Portugal",
+      "pl_team": "Burnley",
+      "pl_team_id": 3,
+      "primary_position": "DM",
+      "secondary_positions": [
+        "CM"
+      ],
+      "market_value": 16,
+      "market_value_updated_at": "2026-08-02T14:17:21.192+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/216055.png",
+      "height_cm": 200,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 140.81,
+      "form_rating": 6.3,
+      "ppg": 4.9,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 247,
+      "position_ranks": [
+        {
+          "position": "CM",
+          "rank": 77
+        },
+        {
+          "position": "DM",
+          "rank": 49
         }
       ],
       "owner_team_id": null,
@@ -8853,12 +10368,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.541055+00:00",
-      "overall_rank": 252,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 248,
       "position_ranks": [
         {
           "position": "CB",
-          "rank": 50
+          "rank": 55
         }
       ],
       "owner_team_id": null,
@@ -8893,20 +10408,20 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-02T14:17:26.380507+00:00",
-      "overall_rank": 253,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 249,
       "position_ranks": [
         {
           "position": "LB",
-          "rank": 31
+          "rank": 34
         },
         {
           "position": "RB",
-          "rank": 30
+          "rank": 34
         },
         {
           "position": "CB",
-          "rank": 51
+          "rank": 56
         }
       ],
       "owner_team_id": null,
@@ -8940,59 +10455,53 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.60895+00:00",
-      "overall_rank": 254,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 250,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 56
+          "rank": 66
         },
         {
           "position": "DM",
-          "rank": 42
+          "rank": 50
         }
       ],
       "owner_team_id": null,
       "owner_team_name": null
     },
     {
-      "id": "beb3d9af-1178-45ad-bbfc-6a225aa8a9cd",
-      "fpl_id": 401,
-      "api_football_id": 81573,
-      "web_name": "Marmoush",
-      "name": "Omar Marmoush",
+      "id": "be397fbb-a005-4e87-ad18-84f35d2e7c26",
+      "fpl_id": null,
+      "api_football_id": 195717,
+      "web_name": "Mosquera",
+      "name": "Yerson Mosquera",
       "full_name": null,
-      "date_of_birth": "1999-02-07",
-      "nationality": "Egypt",
-      "pl_team": "Man City",
-      "pl_team_id": 13,
-      "primary_position": "LW",
-      "secondary_positions": [
-        "ST"
-      ],
-      "market_value": 50,
-      "market_value_updated_at": "2026-07-23T22:03:29.212+00:00",
+      "date_of_birth": "2001-05-02",
+      "nationality": "Colombia",
+      "pl_team": "Wolves",
+      "pl_team_id": 20,
+      "primary_position": "CB",
+      "secondary_positions": [],
+      "market_value": 12,
+      "market_value_updated_at": "2026-08-02T14:17:25.686+00:00",
       "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/438234.png",
-      "height_cm": 180,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/501837.png",
+      "height_cm": 187,
       "fpl_status": "a",
       "fpl_news": null,
-      "total_points": 166.04,
-      "form_rating": 7.8,
-      "ppg": 12.3,
-      "is_active": true,
+      "total_points": 137.75,
+      "form_rating": 6,
+      "ppg": 5.3,
+      "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:28:59.494574+00:00",
-      "overall_rank": 227,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 251,
       "position_ranks": [
         {
-          "position": "LW",
-          "rank": 34
-        },
-        {
-          "position": "ST",
-          "rank": 32
+          "position": "CB",
+          "rank": 57
         }
       ],
       "owner_team_id": null,
@@ -9028,24 +10537,24 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.420173+00:00",
-      "overall_rank": 256,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 252,
       "position_ranks": [
         {
           "position": "LB",
-          "rank": 33
+          "rank": 36
         },
         {
           "position": "RB",
-          "rank": 31
+          "rank": 35
         },
         {
           "position": "RWB",
-          "rank": 15
+          "rank": 17
         },
         {
           "position": "CB",
-          "rank": 49
+          "rank": 54
         }
       ],
       "owner_team_id": null,
@@ -9079,16 +10588,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.541055+00:00",
-      "overall_rank": 257,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 253,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 57
+          "rank": 67
         },
         {
           "position": "DM",
-          "rank": 38
+          "rank": 45
         }
       ],
       "owner_team_id": null,
@@ -9122,16 +10631,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.60895+00:00",
-      "overall_rank": 258,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 254,
       "position_ranks": [
         {
           "position": "RB",
-          "rank": 33
+          "rank": 37
         },
         {
           "position": "CB",
-          "rank": 52
+          "rank": 58
         }
       ],
       "owner_team_id": null,
@@ -9166,20 +10675,63 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.541055+00:00",
-      "overall_rank": 259,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 255,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 58
+          "rank": 68
         },
         {
           "position": "DM",
-          "rank": 43
+          "rank": 51
         },
         {
           "position": "AM",
-          "rank": 41
+          "rank": 48
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "5606a893-d5b8-4c73-a014-014e8b432330",
+      "fpl_id": 458,
+      "api_football_id": 723,
+      "web_name": "Joelinton",
+      "name": "Joelinton",
+      "full_name": null,
+      "date_of_birth": "1996-08-14",
+      "nationality": "Brazil",
+      "pl_team": "Newcastle",
+      "pl_team_id": 15,
+      "primary_position": "CM",
+      "secondary_positions": [
+        "DM"
+      ],
+      "market_value": 25,
+      "market_value_updated_at": "2026-07-24T00:06:08.49+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/180974.png",
+      "height_cm": 186,
+      "fpl_status": "d",
+      "fpl_news": "Thigh injury - 75% chance of playing",
+      "total_points": 131.77,
+      "form_rating": 5.9,
+      "ppg": 4.9,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 256,
+      "position_ranks": [
+        {
+          "position": "CM",
+          "rank": 69
+        },
+        {
+          "position": "DM",
+          "rank": 52
         }
       ],
       "owner_team_id": null,
@@ -9214,20 +10766,68 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.959221+00:00",
-      "overall_rank": 260,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 257,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 64
+          "rank": 78
         },
         {
           "position": "LW",
-          "rank": 28
+          "rank": 33
         },
         {
           "position": "AM",
-          "rank": 34
+          "rank": 39
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "d7dc20a6-e1c9-499e-b458-fe2848346cfb",
+      "fpl_id": 456,
+      "api_football_id": 19192,
+      "web_name": "J.Ramsey",
+      "name": "Jacob Ramsey",
+      "full_name": null,
+      "date_of_birth": "2001-05-28",
+      "nationality": "England",
+      "pl_team": "Newcastle",
+      "pl_team_id": 15,
+      "primary_position": "CM",
+      "secondary_positions": [
+        "LW",
+        "AM"
+      ],
+      "market_value": 35,
+      "market_value_updated_at": "2026-08-05T04:06:16.101+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/232653.png",
+      "height_cm": 180,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 131.24,
+      "form_rating": 7,
+      "ppg": 6,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 258,
+      "position_ranks": [
+        {
+          "position": "CM",
+          "rank": 70
+        },
+        {
+          "position": "LW",
+          "rank": 35
+        },
+        {
+          "position": "AM",
+          "rank": 40
         }
       ],
       "owner_team_id": null,
@@ -9259,12 +10859,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.420173+00:00",
-      "overall_rank": 261,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 259,
       "position_ranks": [
         {
           "position": "CB",
-          "rank": 53
+          "rank": 59
         }
       ],
       "owner_team_id": null,
@@ -9299,20 +10899,63 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-07-30T00:06:34.434183+00:00",
-      "overall_rank": 262,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 260,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 60
+          "rank": 72
         },
         {
           "position": "DM",
-          "rank": 45
+          "rank": 54
         },
         {
           "position": "AM",
-          "rank": 37
+          "rank": 44
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "3569929e-790b-41cf-b18f-a8d37017a170",
+      "fpl_id": 209,
+      "api_football_id": 18823,
+      "web_name": "Johnson",
+      "name": "Brennan Johnson",
+      "full_name": null,
+      "date_of_birth": "2001-05-23",
+      "nationality": "England",
+      "pl_team": "Crystal Palace",
+      "pl_team_id": 8,
+      "primary_position": "RW",
+      "secondary_positions": [
+        "LW"
+      ],
+      "market_value": 30,
+      "market_value_updated_at": "2026-07-23T22:03:29.4+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/242898.png",
+      "height_cm": 175,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 130.08,
+      "form_rating": 6.3,
+      "ppg": 4.7,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 261,
+      "position_ranks": [
+        {
+          "position": "LW",
+          "rank": 42
+        },
+        {
+          "position": "RW",
+          "rank": 36
         }
       ],
       "owner_team_id": null,
@@ -9346,16 +10989,64 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-02T14:17:23.521708+00:00",
-      "overall_rank": 264,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 262,
       "position_ranks": [
         {
           "position": "RB",
-          "rank": 36
+          "rank": 40
         },
         {
           "position": "RWB",
-          "rank": 16
+          "rank": 18
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "2247e53b-19a8-4deb-b935-b8b511ccf488",
+      "fpl_id": 214,
+      "api_football_id": 2601,
+      "web_name": "Kamada",
+      "name": "Daichi Kamada",
+      "full_name": null,
+      "date_of_birth": "1996-08-05",
+      "nationality": "Japan",
+      "pl_team": "Crystal Palace",
+      "pl_team_id": 8,
+      "primary_position": "CM",
+      "secondary_positions": [
+        "AM",
+        "DM"
+      ],
+      "market_value": 10,
+      "market_value_updated_at": "2026-07-23T22:03:29.397+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/209400.png",
+      "height_cm": 184,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 128.57,
+      "form_rating": 6.2,
+      "ppg": 5.1,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 263,
+      "position_ranks": [
+        {
+          "position": "CM",
+          "rank": 73
+        },
+        {
+          "position": "DM",
+          "rank": 56
+        },
+        {
+          "position": "AM",
+          "rank": 45
         }
       ],
       "owner_team_id": null,
@@ -9389,16 +11080,53 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.420173+00:00",
-      "overall_rank": 266,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 264,
       "position_ranks": [
         {
           "position": "AM",
-          "rank": 48
+          "rank": 55
         },
         {
           "position": "ST",
-          "rank": 41
+          "rank": 50
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "3965b253-52a1-4a06-b4e2-bf3153c53c73",
+      "fpl_id": null,
+      "api_football_id": 159420,
+      "web_name": "Edwards",
+      "name": "Marcus Edwards",
+      "full_name": null,
+      "date_of_birth": "1998-12-03",
+      "nationality": "England",
+      "pl_team": "Burnley",
+      "pl_team_id": 3,
+      "primary_position": "RW",
+      "secondary_positions": [],
+      "market_value": 6,
+      "market_value_updated_at": "2026-08-02T14:17:08.95+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/174592.png",
+      "height_cm": 180,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 127.19,
+      "form_rating": 6.4,
+      "ppg": 6.6,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 265,
+      "position_ranks": [
+        {
+          "position": "RW",
+          "rank": 43
         }
       ],
       "owner_team_id": null,
@@ -9434,24 +11162,24 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-02T14:17:18.188325+00:00",
-      "overall_rank": 268,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 266,
       "position_ranks": [
         {
           "position": "DM",
-          "rank": 56
+          "rank": 69
         },
         {
           "position": "RB",
-          "rank": 35
+          "rank": 39
         },
         {
           "position": "RW",
-          "rank": 56
+          "rank": 62
         },
         {
           "position": "CB",
-          "rank": 54
+          "rank": 60
         }
       ],
       "owner_team_id": null,
@@ -9485,59 +11213,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:29:04.494456+00:00",
-      "overall_rank": 269,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 267,
       "position_ranks": [
         {
           "position": "RW",
-          "rank": 33
+          "rank": 37
         },
         {
           "position": "ST",
-          "rank": 34
-        }
-      ],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "3569929e-790b-41cf-b18f-a8d37017a170",
-      "fpl_id": 209,
-      "api_football_id": 18823,
-      "web_name": "Johnson",
-      "name": "Brennan Johnson",
-      "full_name": null,
-      "date_of_birth": "2001-05-23",
-      "nationality": "England",
-      "pl_team": "Crystal Palace",
-      "pl_team_id": 8,
-      "primary_position": "RW",
-      "secondary_positions": [
-        "LW"
-      ],
-      "market_value": 30,
-      "market_value_updated_at": "2026-07-23T22:03:29.4+00:00",
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/242898.png",
-      "height_cm": 175,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 130.08,
-      "form_rating": 6.3,
-      "ppg": 4.7,
-      "is_active": true,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:29:21.808262+00:00",
-      "overall_rank": 263,
-      "position_ranks": [
-        {
-          "position": "LW",
-          "rank": 35
-        },
-        {
-          "position": "RW",
-          "rank": 35
+          "rank": 42
         }
       ],
       "owner_team_id": null,
@@ -9571,53 +11256,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.220849+00:00",
-      "overall_rank": 270,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
       "position_ranks": [
         {
           "position": "RB",
-          "rank": 32
+          "rank": 36
         },
         {
           "position": "RWB",
-          "rank": 17
-        }
-      ],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "3965b253-52a1-4a06-b4e2-bf3153c53c73",
-      "fpl_id": null,
-      "api_football_id": 159420,
-      "web_name": "Edwards",
-      "name": "Marcus Edwards",
-      "full_name": null,
-      "date_of_birth": "1998-12-03",
-      "nationality": "England",
-      "pl_team": "Burnley",
-      "pl_team_id": 3,
-      "primary_position": "RW",
-      "secondary_positions": [],
-      "market_value": 6,
-      "market_value_updated_at": "2026-08-02T14:17:08.95+00:00",
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/174592.png",
-      "height_cm": 180,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 127.19,
-      "form_rating": 6.4,
-      "ppg": 6.6,
-      "is_active": false,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:29:23.20977+00:00",
-      "overall_rank": 267,
-      "position_ranks": [
-        {
-          "position": "RW",
-          "rank": 39
+          "rank": 19
         }
       ],
       "owner_team_id": null,
@@ -9649,12 +11297,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.541055+00:00",
-      "overall_rank": 271,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 269,
       "position_ranks": [
         {
           "position": "ST",
-          "rank": 40
+          "rank": 49
         }
       ],
       "owner_team_id": null,
@@ -9689,20 +11337,20 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-02T14:17:06.601365+00:00",
-      "overall_rank": 272,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 270,
       "position_ranks": [
         {
           "position": "RW",
-          "rank": 42
+          "rank": 46
         },
         {
           "position": "AM",
-          "rank": 50
+          "rank": 57
         },
         {
           "position": "ST",
-          "rank": 35
+          "rank": 43
         }
       ],
       "owner_team_id": null,
@@ -9736,16 +11384,53 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.959221+00:00",
-      "overall_rank": 274,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 271,
       "position_ranks": [
         {
           "position": "LW",
-          "rank": 38
+          "rank": 44
         },
         {
           "position": "RW",
-          "rank": 37
+          "rank": 40
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "d8a69f04-65a6-4d70-98ca-5210810d4da6",
+      "fpl_id": 74,
+      "api_football_id": 18870,
+      "web_name": "Brooks",
+      "name": "David Brooks",
+      "full_name": null,
+      "date_of_birth": "1997-07-08",
+      "nationality": "Wales",
+      "pl_team": "Bournemouth",
+      "pl_team_id": 4,
+      "primary_position": "RW",
+      "secondary_positions": [],
+      "market_value": 12,
+      "market_value_updated_at": "2026-07-23T22:03:29.42+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/111317.png",
+      "height_cm": 173,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 120.58,
+      "form_rating": 6.4,
+      "ppg": 4.7,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 272,
+      "position_ranks": [
+        {
+          "position": "RW",
+          "rank": 41
         }
       ],
       "owner_team_id": null,
@@ -9780,20 +11465,20 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.220849+00:00",
-      "overall_rank": 276,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 273,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 82
+          "rank": 99
         },
         {
           "position": "AM",
-          "rank": 39
+          "rank": 47
         },
         {
           "position": "ST",
-          "rank": 36
+          "rank": 44
         }
       ],
       "owner_team_id": null,
@@ -9828,57 +11513,20 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-02T14:17:09.194501+00:00",
-      "overall_rank": 277,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 274,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 63
+          "rank": 76
         },
         {
           "position": "DM",
-          "rank": 48
+          "rank": 58
         },
         {
           "position": "CB",
-          "rank": 57
-        }
-      ],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "d8a69f04-65a6-4d70-98ca-5210810d4da6",
-      "fpl_id": 74,
-      "api_football_id": 18870,
-      "web_name": "Brooks",
-      "name": "David Brooks",
-      "full_name": null,
-      "date_of_birth": "1997-07-08",
-      "nationality": "Wales",
-      "pl_team": "Bournemouth",
-      "pl_team_id": 4,
-      "primary_position": "RW",
-      "secondary_positions": [],
-      "market_value": 12,
-      "market_value_updated_at": "2026-07-23T22:03:29.42+00:00",
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/111317.png",
-      "height_cm": 173,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 120.58,
-      "form_rating": 6.4,
-      "ppg": 4.7,
-      "is_active": true,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:29:11.783573+00:00",
-      "overall_rank": 275,
-      "position_ranks": [
-        {
-          "position": "RW",
-          "rank": 38
+          "rank": 63
         }
       ],
       "owner_team_id": null,
@@ -9912,64 +11560,53 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.220849+00:00",
-      "overall_rank": 278,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 275,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 70
+          "rank": 84
         },
         {
           "position": "RB",
-          "rank": 34
+          "rank": 38
         }
       ],
       "owner_team_id": null,
       "owner_team_name": null
     },
     {
-      "id": "2247e53b-19a8-4deb-b935-b8b511ccf488",
-      "fpl_id": 214,
-      "api_football_id": 2601,
-      "web_name": "Kamada",
-      "name": "Daichi Kamada",
+      "id": "345d8e67-b3ac-4d18-af0a-16f571d7c3dd",
+      "fpl_id": 526,
+      "api_football_id": 18883,
+      "web_name": "Solanke",
+      "name": "Dominic Solanke",
       "full_name": null,
-      "date_of_birth": "1996-08-05",
-      "nationality": "Japan",
-      "pl_team": "Crystal Palace",
-      "pl_team_id": 8,
-      "primary_position": "CM",
-      "secondary_positions": [
-        "AM",
-        "DM"
-      ],
-      "market_value": 10,
-      "market_value_updated_at": "2026-07-23T22:03:29.397+00:00",
+      "date_of_birth": "1997-09-14",
+      "nationality": "England",
+      "pl_team": "Spurs",
+      "pl_team_id": 18,
+      "primary_position": "ST",
+      "secondary_positions": [],
+      "market_value": 28,
+      "market_value_updated_at": "2026-07-23T22:03:29.311+00:00",
       "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/209400.png",
-      "height_cm": 184,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/154566.png",
+      "height_cm": 187,
       "fpl_status": "a",
       "fpl_news": null,
-      "total_points": 128.57,
-      "form_rating": 6.2,
-      "ppg": 5.1,
+      "total_points": 118.18,
+      "form_rating": 6.7,
+      "ppg": 8.3,
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:29:04.084873+00:00",
-      "overall_rank": 265,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 276,
       "position_ranks": [
         {
-          "position": "CM",
-          "rank": 66
-        },
-        {
-          "position": "DM",
-          "rank": 50
-        },
-        {
-          "position": "AM",
-          "rank": 42
+          "position": "ST",
+          "rank": 46
         }
       ],
       "owner_team_id": null,
@@ -10004,20 +11641,20 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-02T14:17:25.4649+00:00",
-      "overall_rank": 279,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 277,
       "position_ranks": [
         {
           "position": "LW",
-          "rank": 40
+          "rank": 47
         },
         {
           "position": "RW",
-          "rank": 40
+          "rank": 44
         },
         {
           "position": "ST",
-          "rank": 38
+          "rank": 47
         }
       ],
       "owner_team_id": null,
@@ -10049,12 +11686,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.127773+00:00",
-      "overall_rank": 280,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 278,
       "position_ranks": [
         {
           "position": "LW",
-          "rank": 49
+          "rank": 56
         }
       ],
       "owner_team_id": null,
@@ -10086,12 +11723,103 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-02T14:17:26.560238+00:00",
-      "overall_rank": 281,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 279,
       "position_ranks": [
         {
           "position": "CB",
-          "rank": 58
+          "rank": 65
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "ba8466ad-e02f-4f8d-958a-0bfdff8f0131",
+      "fpl_id": 405,
+      "api_football_id": 161933,
+      "web_name": "N.Gonzalez",
+      "name": "Nico González",
+      "full_name": null,
+      "date_of_birth": "2002-01-03",
+      "nationality": "Spain",
+      "pl_team": "Man City",
+      "pl_team_id": 13,
+      "primary_position": "LW",
+      "secondary_positions": [
+        "RW",
+        "AM"
+      ],
+      "market_value": 40,
+      "market_value_updated_at": "2026-07-23T22:03:29.194+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/465694.png",
+      "height_cm": 189,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 113.23,
+      "form_rating": 6.3,
+      "ppg": 5,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 280,
+      "position_ranks": [
+        {
+          "position": "LW",
+          "rank": 46
+        },
+        {
+          "position": "RW",
+          "rank": 42
+        },
+        {
+          "position": "AM",
+          "rank": 53
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "f0e53bb8-fed1-46b3-818c-d68c5330719f",
+      "fpl_id": null,
+      "api_football_id": 180560,
+      "web_name": "Hannibal",
+      "name": "Hannibal",
+      "full_name": null,
+      "date_of_birth": "2003-01-21",
+      "nationality": "Tunisia",
+      "pl_team": "Burnley",
+      "pl_team_id": 3,
+      "primary_position": "CM",
+      "secondary_positions": [
+        "AM"
+      ],
+      "market_value": 18,
+      "market_value_updated_at": "2026-07-23T22:03:29.391+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/465527.png",
+      "height_cm": 177,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 112.11,
+      "form_rating": 6.3,
+      "ppg": 5.5,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 281,
+      "position_ranks": [
+        {
+          "position": "CM",
+          "rank": 83
+        },
+        {
+          "position": "AM",
+          "rank": 43
         }
       ],
       "owner_team_id": null,
@@ -10126,20 +11854,68 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.220849+00:00",
-      "overall_rank": 284,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 282,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 73
+          "rank": 88
         },
         {
           "position": "DM",
-          "rank": 46
+          "rank": 55
         },
         {
           "position": "RB",
-          "rank": 39
+          "rank": 43
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "4ec785c4-0d76-407d-83a6-ba64dedb67bd",
+      "fpl_id": 17,
+      "api_football_id": 47311,
+      "web_name": "Merino",
+      "name": "Mikel Merino",
+      "full_name": null,
+      "date_of_birth": "1996-06-22",
+      "nationality": "Spain",
+      "pl_team": "Arsenal",
+      "pl_team_id": 1,
+      "primary_position": "CM",
+      "secondary_positions": [
+        "ST",
+        "DM"
+      ],
+      "market_value": 25,
+      "market_value_updated_at": "2026-07-23T22:03:29.228+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/195384.png",
+      "height_cm": 189,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 109.81,
+      "form_rating": 6.4,
+      "ppg": 6.5,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 283,
+      "position_ranks": [
+        {
+          "position": "CM",
+          "rank": 82
+        },
+        {
+          "position": "DM",
+          "rank": 62
+        },
+        {
+          "position": "ST",
+          "rank": 36
         }
       ],
       "owner_team_id": null,
@@ -10171,12 +11947,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.220849+00:00",
-      "overall_rank": 285,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 284,
       "position_ranks": [
         {
           "position": "CB",
-          "rank": 59
+          "rank": 66
         }
       ],
       "owner_team_id": null,
@@ -10208,12 +11984,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-07-30T00:06:34.434183+00:00",
-      "overall_rank": 286,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 285,
       "position_ranks": [
         {
           "position": "CB",
-          "rank": 60
+          "rank": 67
         }
       ],
       "owner_team_id": null,
@@ -10248,20 +12024,20 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.60895+00:00",
-      "overall_rank": 287,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 286,
       "position_ranks": [
         {
           "position": "RW",
-          "rank": 64
+          "rank": 70
         },
         {
           "position": "AM",
-          "rank": 61
+          "rank": 70
         },
         {
           "position": "ST",
-          "rank": 54
+          "rank": 66
         }
       ],
       "owner_team_id": null,
@@ -10296,20 +12072,20 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.420173+00:00",
-      "overall_rank": 288,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 287,
       "position_ranks": [
         {
           "position": "DM",
-          "rank": 47
+          "rank": 57
         },
         {
           "position": "LB",
-          "rank": 35
+          "rank": 38
         },
         {
           "position": "CB",
-          "rank": 63
+          "rank": 70
         }
       ],
       "owner_team_id": null,
@@ -10341,12 +12117,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.220849+00:00",
-      "overall_rank": 289,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 288,
       "position_ranks": [
         {
           "position": "CB",
-          "rank": 61
+          "rank": 68
         }
       ],
       "owner_team_id": null,
@@ -10378,12 +12154,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.60895+00:00",
-      "overall_rank": 290,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 289,
       "position_ranks": [
         {
           "position": "CB",
-          "rank": 62
+          "rank": 69
         }
       ],
       "owner_team_id": null,
@@ -10417,53 +12193,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.127773+00:00",
-      "overall_rank": 291,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 290,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 72
+          "rank": 86
         },
         {
           "position": "DM",
-          "rank": 49
-        }
-      ],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "c6b2dc4e-0fe9-4976-b49f-952446522b4c",
-      "fpl_id": 379,
-      "api_football_id": 2864,
-      "web_name": "Isak",
-      "name": "Alexander Isak",
-      "full_name": null,
-      "date_of_birth": "1999-09-21",
-      "nationality": "Sweden",
-      "pl_team": "Liverpool",
-      "pl_team_id": 12,
-      "primary_position": "ST",
-      "secondary_positions": [],
-      "market_value": 85,
-      "market_value_updated_at": "2026-07-23T22:03:29.287+00:00",
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/219168.png",
-      "height_cm": 192,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 103.45,
-      "form_rating": 6.6,
-      "ppg": 7.1,
-      "is_active": true,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.127773+00:00",
-      "overall_rank": 293,
-      "position_ranks": [
-        {
-          "position": "ST",
-          "rank": 45
+          "rank": 59
         }
       ],
       "owner_team_id": null,
@@ -10497,16 +12236,53 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:29:05.369086+00:00",
-      "overall_rank": 292,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 291,
       "position_ranks": [
         {
           "position": "LW",
-          "rank": 48
+          "rank": 55
         },
         {
           "position": "RW",
-          "rank": 50
+          "rank": 54
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "c6b2dc4e-0fe9-4976-b49f-952446522b4c",
+      "fpl_id": 379,
+      "api_football_id": 2864,
+      "web_name": "Isak",
+      "name": "Alexander Isak",
+      "full_name": null,
+      "date_of_birth": "1999-09-21",
+      "nationality": "Sweden",
+      "pl_team": "Liverpool",
+      "pl_team_id": 12,
+      "primary_position": "ST",
+      "secondary_positions": [],
+      "market_value": 85,
+      "market_value_updated_at": "2026-07-23T22:03:29.287+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/219168.png",
+      "height_cm": 192,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 103.45,
+      "form_rating": 6.6,
+      "ppg": 7.1,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 292,
+      "position_ranks": [
+        {
+          "position": "ST",
+          "rank": 56
         }
       ],
       "owner_team_id": null,
@@ -10541,68 +12317,20 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.420173+00:00",
-      "overall_rank": 294,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 293,
       "position_ranks": [
         {
           "position": "LW",
-          "rank": 41
+          "rank": 48
         },
         {
           "position": "RW",
-          "rank": 41
+          "rank": 45
         },
         {
           "position": "ST",
-          "rank": 39
-        }
-      ],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "d7dc20a6-e1c9-499e-b458-fe2848346cfb",
-      "fpl_id": 456,
-      "api_football_id": 19192,
-      "web_name": "J.Ramsey",
-      "name": "Jacob Ramsey",
-      "full_name": null,
-      "date_of_birth": "2001-05-28",
-      "nationality": "England",
-      "pl_team": "Newcastle",
-      "pl_team_id": 15,
-      "primary_position": "CM",
-      "secondary_positions": [
-        "LW",
-        "AM"
-      ],
-      "market_value": 35,
-      "market_value_updated_at": "2026-08-05T04:06:16.101+00:00",
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/232653.png",
-      "height_cm": 180,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 101.67,
-      "form_rating": 7,
-      "ppg": 4.8,
-      "is_active": true,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:29:02.528506+00:00",
-      "overall_rank": 295,
-      "position_ranks": [
-        {
-          "position": "CM",
-          "rank": 68
-        },
-        {
-          "position": "LW",
-          "rank": 37
-        },
-        {
-          "position": "AM",
-          "rank": 40
+          "rank": 48
         }
       ],
       "owner_team_id": null,
@@ -10634,12 +12362,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.220849+00:00",
-      "overall_rank": 296,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 294,
       "position_ranks": [
         {
           "position": "CB",
-          "rank": 64
+          "rank": 71
         }
       ],
       "owner_team_id": null,
@@ -10673,16 +12401,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-02T14:17:21.925289+00:00",
-      "overall_rank": 297,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 295,
       "position_ranks": [
         {
           "position": "AM",
-          "rank": 53
+          "rank": 60
         },
         {
           "position": "ST",
-          "rank": 42
+          "rank": 51
         }
       ],
       "owner_team_id": null,
@@ -10716,16 +12444,64 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:29:01.203028+00:00",
-      "overall_rank": 298,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 296,
       "position_ranks": [
         {
           "position": "RB",
-          "rank": 40
+          "rank": 44
         },
         {
           "position": "RW",
-          "rank": 49
+          "rank": 53
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "48075b62-9dca-4d29-be9d-f8cd4a2c23e4",
+      "fpl_id": 213,
+      "api_football_id": 2490,
+      "web_name": "Lerma",
+      "name": "Jefferson Lerma",
+      "full_name": null,
+      "date_of_birth": "1994-10-25",
+      "nationality": "Colombia",
+      "pl_team": "Crystal Palace",
+      "pl_team_id": 8,
+      "primary_position": "DM",
+      "secondary_positions": [
+        "CM",
+        "CB"
+      ],
+      "market_value": 6,
+      "market_value_updated_at": "2026-07-23T22:03:29.394+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/152551.png",
+      "height_cm": 179,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 95.81,
+      "form_rating": 6.2,
+      "ppg": 3.8,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 297,
+      "position_ranks": [
+        {
+          "position": "CM",
+          "rank": 89
+        },
+        {
+          "position": "DM",
+          "rank": 60
+        },
+        {
+          "position": "CB",
+          "rank": 64
         }
       ],
       "owner_team_id": null,
@@ -10756,29 +12532,29 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "fpl_status": "a",
       "fpl_news": null,
       "total_points": 94.95,
-      "form_rating": 6.7,
+      "form_rating": 6.4,
       "ppg": 3.8,
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:28:58.558184+00:00",
-      "overall_rank": 299,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 298,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 65
+          "rank": 79
         },
         {
           "position": "DM",
-          "rank": 51
+          "rank": 61
         },
         {
           "position": "RB",
-          "rank": 29
+          "rank": 33
         },
         {
           "position": "AM",
-          "rank": 32
+          "rank": 37
         }
       ],
       "owner_team_id": null,
@@ -10810,12 +12586,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.420173+00:00",
-      "overall_rank": 300,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 299,
       "position_ranks": [
         {
           "position": "CB",
-          "rank": 65
+          "rank": 72
         }
       ],
       "owner_team_id": null,
@@ -10847,12 +12623,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-02T14:17:17.263971+00:00",
-      "overall_rank": 301,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 300,
       "position_ranks": [
         {
           "position": "GK",
-          "rank": 16
+          "rank": 21
         }
       ],
       "owner_team_id": null,
@@ -10884,12 +12660,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.420173+00:00",
-      "overall_rank": 302,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 301,
       "position_ranks": [
         {
           "position": "CB",
-          "rank": 66
+          "rank": 73
         }
       ],
       "owner_team_id": null,
@@ -10924,20 +12700,63 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.959221+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 302,
+      "position_ranks": [
+        {
+          "position": "LW",
+          "rank": 50
+        },
+        {
+          "position": "RW",
+          "rank": 49
+        },
+        {
+          "position": "AM",
+          "rank": 56
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "f553f873-ff25-405d-89ff-1d35ab0cc161",
+      "fpl_id": null,
+      "api_football_id": 282770,
+      "web_name": "R.Gomes",
+      "name": "Rodrigo Gomes",
+      "full_name": null,
+      "date_of_birth": "2003-07-07",
+      "nationality": "Portugal",
+      "pl_team": "Wolves",
+      "pl_team_id": 20,
+      "primary_position": "LW",
+      "secondary_positions": [
+        "RW"
+      ],
+      "market_value": 15,
+      "market_value_updated_at": "2026-08-02T14:17:23.466+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/483081.png",
+      "height_cm": 175,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 93.52,
+      "form_rating": 6.2,
+      "ppg": 3.7,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 303,
       "position_ranks": [
         {
           "position": "LW",
-          "rank": 43
+          "rank": 57
         },
         {
           "position": "RW",
-          "rank": 45
-        },
-        {
-          "position": "AM",
-          "rank": 49
+          "rank": 56
         }
       ],
       "owner_team_id": null,
@@ -10971,16 +12790,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.541055+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 304,
       "position_ranks": [
         {
           "position": "LW",
-          "rank": 45
+          "rank": 52
         },
         {
           "position": "RW",
-          "rank": 46
+          "rank": 50
         }
       ],
       "owner_team_id": null,
@@ -11015,20 +12834,20 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.541055+00:00",
-      "overall_rank": 306,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 305,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 71
+          "rank": 85
         },
         {
           "position": "DM",
-          "rank": 59
+          "rank": 71
         },
         {
           "position": "AM",
-          "rank": 46
+          "rank": 52
         }
       ],
       "owner_team_id": null,
@@ -11062,16 +12881,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.959221+00:00",
-      "overall_rank": 307,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 306,
       "position_ranks": [
         {
           "position": "LW",
-          "rank": 47
+          "rank": 54
         },
         {
           "position": "RW",
-          "rank": 48
+          "rank": 52
         }
       ],
       "owner_team_id": null,
@@ -11103,12 +12922,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.541055+00:00",
-      "overall_rank": 308,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 307,
       "position_ranks": [
         {
           "position": "ST",
-          "rank": 44
+          "rank": 53
         }
       ],
       "owner_team_id": null,
@@ -11142,16 +12961,59 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.220849+00:00",
-      "overall_rank": 309,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 308,
       "position_ranks": [
         {
           "position": "RW",
-          "rank": 44
+          "rank": 48
         },
         {
           "position": "ST",
-          "rank": 43
+          "rank": 52
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "2cfc2bd2-01b0-4512-a797-1362b2046462",
+      "fpl_id": 27,
+      "api_football_id": 643,
+      "web_name": "G.Jesus",
+      "name": "Gabriel Jesus",
+      "full_name": "Gabriel Fernando de Jesus",
+      "date_of_birth": "1997-04-03",
+      "nationality": "Brazil",
+      "pl_team": "Arsenal",
+      "pl_team_id": 1,
+      "primary_position": "ST",
+      "secondary_positions": [
+        "AM"
+      ],
+      "market_value": 17,
+      "market_value_updated_at": "2026-07-23T22:03:29.239+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/205651.png",
+      "height_cm": 175,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 92.33,
+      "form_rating": 6.6,
+      "ppg": 4.2,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-07-23T21:04:10.259666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 308,
+      "position_ranks": [
+        {
+          "position": "AM",
+          "rank": 69
+        },
+        {
+          "position": "ST",
+          "rank": 63
         }
       ],
       "owner_team_id": null,
@@ -11185,16 +13047,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.127773+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 310,
       "position_ranks": [
         {
           "position": "RW",
-          "rank": 59
+          "rank": 65
         },
         {
           "position": "ST",
-          "rank": 51
+          "rank": 62
         }
       ],
       "owner_team_id": null,
@@ -11228,16 +13090,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.127773+00:00",
-      "overall_rank": 313,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 311,
       "position_ranks": [
         {
           "position": "RB",
-          "rank": 41
+          "rank": 45
         },
         {
           "position": "RWB",
-          "rank": 18
+          "rank": 20
         }
       ],
       "owner_team_id": null,
@@ -11271,16 +13133,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-07-30T00:06:34.434183+00:00",
-      "overall_rank": 314,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 312,
       "position_ranks": [
         {
           "position": "LW",
-          "rank": 46
+          "rank": 53
         },
         {
           "position": "RW",
-          "rank": 47
+          "rank": 51
         }
       ],
       "owner_team_id": null,
@@ -11316,24 +13178,61 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.541055+00:00",
-      "overall_rank": 315,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 313,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 75
+          "rank": 91
         },
         {
           "position": "DM",
-          "rank": 52
+          "rank": 63
         },
         {
           "position": "RB",
-          "rank": 37
+          "rank": 41
         },
         {
           "position": "CB",
-          "rank": 56
+          "rank": 62
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "6f4dc08e-564e-471b-baac-f8444ef933cf",
+      "fpl_id": 167,
+      "api_football_id": 161948,
+      "web_name": "Delap",
+      "name": "Liam Delap",
+      "full_name": null,
+      "date_of_birth": "2003-02-08",
+      "nationality": "England",
+      "pl_team": "Chelsea",
+      "pl_team_id": 7,
+      "primary_position": "ST",
+      "secondary_positions": [],
+      "market_value": 28,
+      "market_value_updated_at": "2026-07-23T22:03:29.264+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/463034.png",
+      "height_cm": 186,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 89.16,
+      "form_rating": 6.2,
+      "ppg": 4.2,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 314,
+      "position_ranks": [
+        {
+          "position": "ST",
+          "rank": 54
         }
       ],
       "owner_team_id": null,
@@ -11368,57 +13267,63 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.220849+00:00",
-      "overall_rank": 317,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 315,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 74
+          "rank": 90
         },
         {
           "position": "DM",
-          "rank": 55
+          "rank": 68
         },
         {
           "position": "AM",
-          "rank": 38
+          "rank": 46
         }
       ],
       "owner_team_id": null,
       "owner_team_name": null
     },
     {
-      "id": "6f4dc08e-564e-471b-baac-f8444ef933cf",
-      "fpl_id": 167,
-      "api_football_id": 161948,
-      "web_name": "Delap",
-      "name": "Liam Delap",
+      "id": "0ba005dd-ba53-44bd-a30a-0992f0efcc0a",
+      "fpl_id": 345,
+      "api_football_id": null,
+      "web_name": "Tanaka",
+      "name": "Tanaka Ao",
       "full_name": null,
-      "date_of_birth": "2003-02-08",
-      "nationality": "England",
-      "pl_team": "Chelsea",
-      "pl_team_id": 7,
-      "primary_position": "ST",
-      "secondary_positions": [],
-      "market_value": 28,
-      "market_value_updated_at": "2026-07-23T22:03:29.264+00:00",
+      "date_of_birth": "1998-09-10",
+      "nationality": null,
+      "pl_team": "Leeds",
+      "pl_team_id": 11,
+      "primary_position": "DM",
+      "secondary_positions": [
+        "CM"
+      ],
+      "market_value": 13,
+      "market_value_updated_at": "2026-07-23T22:03:29.516+00:00",
       "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/463034.png",
-      "height_cm": 186,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/248056.png",
+      "height_cm": null,
       "fpl_status": "a",
       "fpl_news": null,
-      "total_points": 89.16,
-      "form_rating": 6.2,
-      "ppg": 4.2,
+      "total_points": 87.88,
+      "form_rating": 6.5,
+      "ppg": 4.4,
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:29:02.764631+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 316,
       "position_ranks": [
         {
-          "position": "ST",
-          "rank": 46
+          "position": "CM",
+          "rank": 81
+        },
+        {
+          "position": "DM",
+          "rank": 64
         }
       ],
       "owner_team_id": null,
@@ -11453,20 +13358,20 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.220849+00:00",
-      "overall_rank": 319,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 317,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 78
+          "rank": 94
         },
         {
           "position": "LW",
-          "rank": 44
+          "rank": 51
         },
         {
           "position": "AM",
-          "rank": 44
+          "rank": 50
         }
       ],
       "owner_team_id": null,
@@ -11500,16 +13405,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.959221+00:00",
-      "overall_rank": 320,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 318,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 89
+          "rank": 106
         },
         {
           "position": "DM",
-          "rank": 53
+          "rank": 66
         }
       ],
       "owner_team_id": null,
@@ -11543,16 +13448,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.220849+00:00",
-      "overall_rank": 321,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 319,
       "position_ranks": [
         {
           "position": "LB",
-          "rank": 36
+          "rank": 39
         },
         {
           "position": "LWB",
-          "rank": 23
+          "rank": 24
         }
       ],
       "owner_team_id": null,
@@ -11587,20 +13492,20 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:29:13.53572+00:00",
-      "overall_rank": 322,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 320,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 79
+          "rank": 95
         },
         {
           "position": "DM",
-          "rank": 54
+          "rank": 67
         },
         {
           "position": "CB",
-          "rank": 55
+          "rank": 61
         }
       ],
       "owner_team_id": null,
@@ -11632,12 +13537,49 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.420173+00:00",
-      "overall_rank": 323,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 321,
       "position_ranks": [
         {
           "position": "CB",
-          "rank": 68
+          "rank": 75
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "37a4b1c5-46cd-4488-8012-95c7e7c1d204",
+      "fpl_id": null,
+      "api_football_id": 138822,
+      "web_name": "Broja",
+      "name": "Armando Broja",
+      "full_name": null,
+      "date_of_birth": "2001-09-10",
+      "nationality": "Albania",
+      "pl_team": "Burnley",
+      "pl_team_id": 3,
+      "primary_position": "ST",
+      "secondary_positions": [],
+      "market_value": 5,
+      "market_value_updated_at": "2026-08-02T14:17:18.223+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/440323.png",
+      "height_cm": 191,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 85.11,
+      "form_rating": 6.2,
+      "ppg": 5.4,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 322,
+      "position_ranks": [
+        {
+          "position": "ST",
+          "rank": 59
         }
       ],
       "owner_team_id": null,
@@ -11672,57 +13614,68 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.420173+00:00",
-      "overall_rank": 325,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 323,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 76
+          "rank": 92
         },
         {
           "position": "LW",
-          "rank": 39
+          "rank": 45
         },
         {
           "position": "AM",
-          "rank": 45
+          "rank": 51
         }
       ],
       "owner_team_id": null,
       "owner_team_name": null
     },
     {
-      "id": "37a4b1c5-46cd-4488-8012-95c7e7c1d204",
+      "id": "e1316dd9-53f8-476e-9605-df83c8f7ca79",
       "fpl_id": null,
-      "api_football_id": 138822,
-      "web_name": "Broja",
-      "name": "Armando Broja",
+      "api_football_id": null,
+      "web_name": "Mayenda",
+      "name": "Eliezer Mayenda",
       "full_name": null,
-      "date_of_birth": "2001-09-10",
-      "nationality": "Albania",
-      "pl_team": "Burnley",
-      "pl_team_id": 3,
+      "date_of_birth": "2005-05-08",
+      "nationality": "Spain",
+      "pl_team": "Sunderland",
+      "pl_team_id": 17,
       "primary_position": "ST",
-      "secondary_positions": [],
-      "market_value": 5,
-      "market_value_updated_at": "2026-08-02T14:17:18.223+00:00",
+      "secondary_positions": [
+        "RW",
+        "LW"
+      ],
+      "market_value": 16,
+      "market_value_updated_at": "2026-08-02T14:17:07.236+00:00",
       "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/440323.png",
-      "height_cm": 191,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/564406.png",
+      "height_cm": 180,
       "fpl_status": "a",
       "fpl_news": null,
-      "total_points": 85.11,
-      "form_rating": 6.2,
-      "ppg": 5.4,
+      "total_points": 83.96,
+      "form_rating": 6.6,
+      "ppg": 6.2,
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:29:08.42725+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 324,
       "position_ranks": [
         {
+          "position": "LW",
+          "rank": 58
+        },
+        {
+          "position": "RW",
+          "rank": 57
+        },
+        {
           "position": "ST",
-          "rank": 48
+          "rank": 58
         }
       ],
       "owner_team_id": null,
@@ -11756,16 +13709,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-02T14:17:08.667746+00:00",
-      "overall_rank": 327,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 325,
       "position_ranks": [
         {
           "position": "LB",
-          "rank": 37
+          "rank": 40
         },
         {
           "position": "LWB",
-          "rank": 21
+          "rank": 22
         }
       ],
       "owner_team_id": null,
@@ -11797,12 +13750,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-02T14:17:17.451944+00:00",
-      "overall_rank": 329,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 326,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 77
+          "rank": 93
         }
       ],
       "owner_team_id": null,
@@ -11836,16 +13789,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.959221+00:00",
-      "overall_rank": 331,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 327,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 88
+          "rank": 105
         },
         {
           "position": "AM",
-          "rank": 47
+          "rank": 54
         }
       ],
       "owner_team_id": null,
@@ -11879,59 +13832,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-02T14:17:08.576964+00:00",
-      "overall_rank": 332,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 328,
       "position_ranks": [
         {
           "position": "RB",
-          "rank": 42
+          "rank": 46
         },
         {
           "position": "RWB",
-          "rank": 20
-        }
-      ],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "0ba005dd-ba53-44bd-a30a-0992f0efcc0a",
-      "fpl_id": 345,
-      "api_football_id": null,
-      "web_name": "Tanaka",
-      "name": "Tanaka Ao",
-      "full_name": null,
-      "date_of_birth": "1998-09-10",
-      "nationality": null,
-      "pl_team": "Leeds",
-      "pl_team_id": 11,
-      "primary_position": "DM",
-      "secondary_positions": [
-        "CM"
-      ],
-      "market_value": 13,
-      "market_value_updated_at": "2026-07-23T22:03:29.516+00:00",
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/248056.png",
-      "height_cm": null,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 87.88,
-      "form_rating": 6.6,
-      "ppg": 4.4,
-      "is_active": true,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:28:56.434881+00:00",
-      "overall_rank": 318,
-      "position_ranks": [
-        {
-          "position": "CM",
-          "rank": 69
-        },
-        {
-          "position": "DM",
-          "rank": 57
+          "rank": 22
         }
       ],
       "owner_team_id": null,
@@ -11966,20 +13876,20 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-02T14:17:22.52407+00:00",
-      "overall_rank": 333,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 329,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 84
+          "rank": 101
         },
         {
           "position": "DM",
-          "rank": 58
+          "rank": 70
         },
         {
           "position": "CB",
-          "rank": 67
+          "rank": 74
         }
       ],
       "owner_team_id": null,
@@ -12013,16 +13923,90 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.420173+00:00",
-      "overall_rank": 334,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 330,
       "position_ranks": [
         {
           "position": "RB",
-          "rank": 43
+          "rank": 47
         },
         {
           "position": "RWB",
-          "rank": 19
+          "rank": 21
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "cccdcc41-31b7-4c95-acfa-b57b41eb5da5",
+      "fpl_id": 271,
+      "api_football_id": 195106,
+      "web_name": "Muniz",
+      "name": "Rodrigo Muniz",
+      "full_name": null,
+      "date_of_birth": "2001-05-04",
+      "nationality": "Brazil",
+      "pl_team": "Fulham",
+      "pl_team_id": 10,
+      "primary_position": "ST",
+      "secondary_positions": [],
+      "market_value": 20,
+      "market_value_updated_at": "2026-07-23T22:03:29.56+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/244042.png",
+      "height_cm": 178,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 78.69,
+      "form_rating": 6.3,
+      "ppg": 3.7,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 331,
+      "position_ranks": [
+        {
+          "position": "ST",
+          "rank": 55
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "60091a4c-4a43-4698-beb0-94e98a8057c5",
+      "fpl_id": 255,
+      "api_football_id": 131,
+      "web_name": "J.Cuenca",
+      "name": "Jorge Cuenca",
+      "full_name": null,
+      "date_of_birth": "1999-11-17",
+      "nationality": "Spain",
+      "pl_team": "Fulham",
+      "pl_team_id": 10,
+      "primary_position": "CB",
+      "secondary_positions": [],
+      "market_value": 8,
+      "market_value_updated_at": "2026-07-30T00:14:05.947+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/246301.png",
+      "height_cm": 190,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 77.91,
+      "form_rating": 6.4,
+      "ppg": 7,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 332,
+      "position_ranks": [
+        {
+          "position": "CB",
+          "rank": 76
         }
       ],
       "owner_team_id": null,
@@ -12054,12 +14038,49 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-02T14:17:18.279124+00:00",
-      "overall_rank": 336,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 333,
       "position_ranks": [
         {
           "position": "RW",
-          "rank": 51
+          "rank": 55
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "d0ff65b5-4009-4239-b2c3-199bf0d8b189",
+      "fpl_id": 326,
+      "api_football_id": null,
+      "web_name": "Perri",
+      "name": "Lucas Perri",
+      "full_name": null,
+      "date_of_birth": "1997-12-10",
+      "nationality": "Brazil",
+      "pl_team": "Leeds",
+      "pl_team_id": 11,
+      "primary_position": "GK",
+      "secondary_positions": [],
+      "market_value": 10,
+      "market_value_updated_at": "2026-07-23T21:15:11.031+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/201595.png",
+      "height_cm": 197,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 76.94,
+      "form_rating": 6.3,
+      "ppg": 4.8,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 334,
+      "position_ranks": [
+        {
+          "position": "GK",
+          "rank": 22
         }
       ],
       "owner_team_id": null,
@@ -12091,12 +14112,55 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-02T14:17:15.073012+00:00",
-      "overall_rank": 337,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 335,
       "position_ranks": [
         {
           "position": "CB",
-          "rank": 69
+          "rank": 77
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "457968a7-0a7c-4c53-95b7-c54822a4c45f",
+      "fpl_id": 162,
+      "api_football_id": 305834,
+      "web_name": "Andrey Santos",
+      "name": "Andrey Santos",
+      "full_name": null,
+      "date_of_birth": "2004-05-03",
+      "nationality": "Brazil",
+      "pl_team": "Chelsea",
+      "pl_team_id": 7,
+      "primary_position": "CM",
+      "secondary_positions": [
+        "DM"
+      ],
+      "market_value": 40,
+      "market_value_updated_at": "2026-07-23T22:03:29.328+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/532605.png",
+      "height_cm": 180,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 75.39,
+      "form_rating": 6.5,
+      "ppg": 3.8,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 336,
+      "position_ranks": [
+        {
+          "position": "CM",
+          "rank": 97
+        },
+        {
+          "position": "DM",
+          "rank": 65
         }
       ],
       "owner_team_id": null,
@@ -12130,16 +14194,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.541055+00:00",
-      "overall_rank": 338,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 337,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 80
+          "rank": 96
         },
         {
           "position": "DM",
-          "rank": 60
+          "rank": 73
         }
       ],
       "owner_team_id": null,
@@ -12171,12 +14235,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.959221+00:00",
-      "overall_rank": 339,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 338,
       "position_ranks": [
         {
           "position": "ST",
-          "rank": 47
+          "rank": 57
         }
       ],
       "owner_team_id": null,
@@ -12210,16 +14274,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-07-30T00:06:34.434183+00:00",
-      "overall_rank": 340,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 339,
       "position_ranks": [
         {
           "position": "RB",
-          "rank": 44
+          "rank": 48
         },
         {
           "position": "CB",
-          "rank": 70
+          "rank": 78
         }
       ],
       "owner_team_id": null,
@@ -12251,12 +14315,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.127773+00:00",
-      "overall_rank": 341,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 340,
       "position_ranks": [
         {
           "position": "GK",
-          "rank": 17
+          "rank": 23
         }
       ],
       "owner_team_id": null,
@@ -12288,12 +14352,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.420173+00:00",
-      "overall_rank": 342,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 341,
       "position_ranks": [
         {
           "position": "RW",
-          "rank": 52
+          "rank": 58
         }
       ],
       "owner_team_id": null,
@@ -12325,12 +14389,55 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.60895+00:00",
-      "overall_rank": 343,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 342,
       "position_ranks": [
         {
           "position": "CB",
-          "rank": 71
+          "rank": 79
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "9266aac0-2151-47f2-818b-2bbd8208dea4",
+      "fpl_id": null,
+      "api_football_id": 47522,
+      "web_name": "Douglas Luiz",
+      "name": "Douglas Luiz",
+      "full_name": null,
+      "date_of_birth": "1998-05-09",
+      "nationality": "Brazil",
+      "pl_team": "Aston Villa",
+      "pl_team_id": 2,
+      "primary_position": "DM",
+      "secondary_positions": [
+        "CM"
+      ],
+      "market_value": 18,
+      "market_value_updated_at": "2026-08-02T14:17:24.3+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/230046.png",
+      "height_cm": 175,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 72.14,
+      "form_rating": 6.1,
+      "ppg": 5.2,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 343,
+      "position_ranks": [
+        {
+          "position": "CM",
+          "rank": 87
+        },
+        {
+          "position": "DM",
+          "rank": 72
         }
       ],
       "owner_team_id": null,
@@ -12365,20 +14472,20 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:29:07.566628+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 344,
       "position_ranks": [
         {
           "position": "DM",
-          "rank": 61
+          "rank": 74
         },
         {
           "position": "RB",
-          "rank": 45
+          "rank": 49
         },
         {
           "position": "CB",
-          "rank": 72
+          "rank": 80
         }
       ],
       "owner_team_id": null,
@@ -12410,55 +14517,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.220849+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 345,
       "position_ranks": [
         {
           "position": "ST",
-          "rank": 53
-        }
-      ],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "f1d55c14-d12c-4161-9f34-2e23463ecc3e",
-      "fpl_id": null,
-      "api_football_id": 284446,
-      "web_name": "Potts",
-      "name": "Freddie Potts",
-      "full_name": null,
-      "date_of_birth": "2003-09-12",
-      "nationality": "England",
-      "pl_team": "West Ham",
-      "pl_team_id": 19,
-      "primary_position": "DM",
-      "secondary_positions": [
-        "CM"
-      ],
-      "market_value": 10,
-      "market_value_updated_at": "2026-08-02T14:17:20.55+00:00",
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/490142.png",
-      "height_cm": 183,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 67.13,
-      "form_rating": 5.6,
-      "ppg": 3.5,
-      "is_active": false,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-02T14:17:20.695544+00:00",
-      "overall_rank": 347,
-      "position_ranks": [
-        {
-          "position": "CM",
-          "rank": 85
-        },
-        {
-          "position": "DM",
-          "rank": 62
+          "rank": 65
         }
       ],
       "owner_team_id": null,
@@ -12492,16 +14556,59 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:29:15.767831+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 346,
       "position_ranks": [
         {
           "position": "LW",
-          "rank": 51
+          "rank": 59
         },
         {
           "position": "RW",
-          "rank": 54
+          "rank": 59
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "f1d55c14-d12c-4161-9f34-2e23463ecc3e",
+      "fpl_id": null,
+      "api_football_id": 284446,
+      "web_name": "Potts",
+      "name": "Freddie Potts",
+      "full_name": null,
+      "date_of_birth": "2003-09-12",
+      "nationality": "England",
+      "pl_team": "West Ham",
+      "pl_team_id": 19,
+      "primary_position": "DM",
+      "secondary_positions": [
+        "CM"
+      ],
+      "market_value": 10,
+      "market_value_updated_at": "2026-08-02T14:17:20.55+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/490142.png",
+      "height_cm": 183,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 67.13,
+      "form_rating": 5.6,
+      "ppg": 3.5,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 347,
+      "position_ranks": [
+        {
+          "position": "CM",
+          "rank": 102
+        },
+        {
+          "position": "DM",
+          "rank": 75
         }
       ],
       "owner_team_id": null,
@@ -12536,20 +14643,20 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.959221+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 348,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 83
+          "rank": 100
         },
         {
           "position": "DM",
-          "rank": 64
+          "rank": 78
         },
         {
           "position": "AM",
-          "rank": 51
+          "rank": 58
         }
       ],
       "owner_team_id": null,
@@ -12584,20 +14691,20 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.541055+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 349,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 87
+          "rank": 104
         },
         {
           "position": "DM",
-          "rank": 66
+          "rank": 79
         },
         {
           "position": "AM",
-          "rank": 43
+          "rank": 49
         }
       ],
       "owner_team_id": null,
@@ -12629,12 +14736,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-02T14:17:15.810534+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 350,
       "position_ranks": [
         {
           "position": "ST",
-          "rank": 49
+          "rank": 60
         }
       ],
       "owner_team_id": null,
@@ -12668,16 +14775,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.60895+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 351,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 94
+          "rank": 111
         },
         {
           "position": "DM",
-          "rank": 63
+          "rank": 76
         }
       ],
       "owner_team_id": null,
@@ -12711,16 +14818,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.541055+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 352,
       "position_ranks": [
         {
           "position": "LW",
-          "rank": 50
+          "rank": 60
         },
         {
           "position": "RW",
-          "rank": 53
+          "rank": 60
         }
       ],
       "owner_team_id": null,
@@ -12752,12 +14859,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-02T14:17:20.972834+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 353,
       "position_ranks": [
         {
           "position": "CB",
-          "rank": 73
+          "rank": 81
         }
       ],
       "owner_team_id": null,
@@ -12789,12 +14896,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.541055+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 354,
       "position_ranks": [
         {
           "position": "RW",
-          "rank": 55
+          "rank": 61
         }
       ],
       "owner_team_id": null,
@@ -12828,16 +14935,96 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-02T14:17:13.881235+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 355,
       "position_ranks": [
         {
           "position": "LW",
-          "rank": 52
+          "rank": 61
         },
         {
           "position": "RW",
-          "rank": 57
+          "rank": 63
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "dff991ed-2066-4d35-af6e-bdbdcb6d3e18",
+      "fpl_id": 158,
+      "api_football_id": null,
+      "web_name": "Gittens",
+      "name": "Jamie Gittens",
+      "full_name": null,
+      "date_of_birth": "2004-08-08",
+      "nationality": "England",
+      "pl_team": "Chelsea",
+      "pl_team_id": 7,
+      "primary_position": "LW",
+      "secondary_positions": [],
+      "market_value": 30,
+      "market_value_updated_at": "2026-07-23T21:15:11.464+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/463936.png",
+      "height_cm": 178,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 58.68,
+      "form_rating": 6.5,
+      "ppg": 4.4,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 356,
+      "position_ranks": [
+        {
+          "position": "LW",
+          "rank": 62
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "1d799357-e0c0-4de6-921a-c167f0a4595e",
+      "fpl_id": 75,
+      "api_football_id": 1125,
+      "web_name": "Christie",
+      "name": "Ryan Christie",
+      "full_name": null,
+      "date_of_birth": "1995-02-22",
+      "nationality": "Scotland",
+      "pl_team": "Bournemouth",
+      "pl_team_id": 4,
+      "primary_position": "DM",
+      "secondary_positions": [
+        "CM"
+      ],
+      "market_value": 8,
+      "market_value_updated_at": "2026-07-23T22:03:29.416+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/158499.png",
+      "height_cm": 178,
+      "fpl_status": "s",
+      "fpl_news": "Suspended until 29 Aug",
+      "total_points": 56.77,
+      "form_rating": 5.8,
+      "ppg": 2.4,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 357,
+      "position_ranks": [
+        {
+          "position": "CM",
+          "rank": 98
+        },
+        {
+          "position": "DM",
+          "rank": 77
         }
       ],
       "owner_team_id": null,
@@ -12872,20 +15059,20 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-02T14:17:14.527468+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 358,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 90
+          "rank": 107
         },
         {
           "position": "DM",
-          "rank": 67
+          "rank": 80
         },
         {
           "position": "AM",
-          "rank": 55
+          "rank": 62
         }
       ],
       "owner_team_id": null,
@@ -12917,12 +15104,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.127773+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 359,
       "position_ranks": [
         {
           "position": "CB",
-          "rank": 74
+          "rank": 82
         }
       ],
       "owner_team_id": null,
@@ -12957,20 +15144,20 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:29:12.670494+00:00",
-      "overall_rank": 361,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 360,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 91
+          "rank": 108
         },
         {
           "position": "LW",
-          "rank": 42
+          "rank": 49
         },
         {
           "position": "AM",
-          "rank": 54
+          "rank": 61
         }
       ],
       "owner_team_id": null,
@@ -13002,12 +15189,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.959221+00:00",
-      "overall_rank": 362,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 361,
       "position_ranks": [
         {
           "position": "CB",
-          "rank": 75
+          "rank": 83
         }
       ],
       "owner_team_id": null,
@@ -13039,12 +15226,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.541055+00:00",
-      "overall_rank": 363,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 362,
       "position_ranks": [
         {
           "position": "CB",
-          "rank": 76
+          "rank": 84
         }
       ],
       "owner_team_id": null,
@@ -13076,12 +15263,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.420173+00:00",
-      "overall_rank": 364,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 363,
       "position_ranks": [
         {
           "position": "ST",
-          "rank": 50
+          "rank": 61
         }
       ],
       "owner_team_id": null,
@@ -13117,24 +15304,24 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.127773+00:00",
-      "overall_rank": 365,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 364,
       "position_ranks": [
         {
           "position": "LB",
-          "rank": 39
+          "rank": 42
         },
         {
           "position": "RB",
-          "rank": 47
+          "rank": 51
         },
         {
           "position": "RWB",
-          "rank": 21
+          "rank": 23
         },
         {
           "position": "CB",
-          "rank": 78
+          "rank": 86
         }
       ],
       "owner_team_id": null,
@@ -13169,20 +15356,20 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.541055+00:00",
-      "overall_rank": 366,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 365,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 95
+          "rank": 112
         },
         {
           "position": "RW",
-          "rank": 58
+          "rank": 64
         },
         {
           "position": "AM",
-          "rank": 56
+          "rank": 64
         }
       ],
       "owner_team_id": null,
@@ -13214,12 +15401,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.220849+00:00",
-      "overall_rank": 367,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 366,
       "position_ranks": [
         {
           "position": "CB",
-          "rank": 77
+          "rank": 85
         }
       ],
       "owner_team_id": null,
@@ -13253,59 +15440,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.420173+00:00",
-      "overall_rank": 368,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 367,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 93
+          "rank": 110
         },
         {
           "position": "AM",
-          "rank": 52
-        }
-      ],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "1d799357-e0c0-4de6-921a-c167f0a4595e",
-      "fpl_id": 75,
-      "api_football_id": 1125,
-      "web_name": "Christie",
-      "name": "Ryan Christie",
-      "full_name": null,
-      "date_of_birth": "1995-02-22",
-      "nationality": "Scotland",
-      "pl_team": "Bournemouth",
-      "pl_team_id": 4,
-      "primary_position": "DM",
-      "secondary_positions": [
-        "CM"
-      ],
-      "market_value": 8,
-      "market_value_updated_at": "2026-07-23T22:03:29.416+00:00",
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/158499.png",
-      "height_cm": 178,
-      "fpl_status": "s",
-      "fpl_news": "Suspended until 29 Aug",
-      "total_points": 56.77,
-      "form_rating": 5.8,
-      "ppg": 2.4,
-      "is_active": true,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:29:05.364831+00:00",
-      "overall_rank": 357,
-      "position_ranks": [
-        {
-          "position": "CM",
-          "rank": 81
-        },
-        {
-          "position": "DM",
-          "rank": 65
+          "rank": 59
         }
       ],
       "owner_team_id": null,
@@ -13339,16 +15483,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.541055+00:00",
-      "overall_rank": 369,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 368,
       "position_ranks": [
         {
           "position": "LB",
-          "rank": 38
+          "rank": 41
         },
         {
           "position": "LWB",
-          "rank": 22
+          "rank": 23
         }
       ],
       "owner_team_id": null,
@@ -13380,12 +15524,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-02T14:17:07.674981+00:00",
-      "overall_rank": 370,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 369,
       "position_ranks": [
         {
           "position": "GK",
-          "rank": 18
+          "rank": 24
         }
       ],
       "owner_team_id": null,
@@ -13417,12 +15561,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-02T14:17:17.360887+00:00",
-      "overall_rank": 371,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 370,
       "position_ranks": [
         {
           "position": "CB",
-          "rank": 79
+          "rank": 87
         }
       ],
       "owner_team_id": null,
@@ -13454,12 +15598,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.220849+00:00",
-      "overall_rank": 372,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 371,
       "position_ranks": [
         {
           "position": "ST",
-          "rank": 59
+          "rank": 72
         }
       ],
       "owner_team_id": null,
@@ -13491,12 +15635,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.60895+00:00",
-      "overall_rank": 373,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 372,
       "position_ranks": [
         {
           "position": "ST",
-          "rank": 52
+          "rank": 64
         }
       ],
       "owner_team_id": null,
@@ -13528,12 +15672,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-07-30T00:06:34.434183+00:00",
-      "overall_rank": 374,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 373,
       "position_ranks": [
         {
           "position": "LB",
-          "rank": 40
+          "rank": 43
         }
       ],
       "owner_team_id": null,
@@ -13565,12 +15709,55 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.220849+00:00",
-      "overall_rank": 375,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 374,
       "position_ranks": [
         {
           "position": "RW",
-          "rank": 60
+          "rank": 66
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "22bee9ee-5422-4cd9-b95c-58273a23cbd3",
+      "fpl_id": 243,
+      "api_football_id": 195993,
+      "web_name": "Alcaraz",
+      "name": "Carlos Alcaraz",
+      "full_name": null,
+      "date_of_birth": "2002-11-30",
+      "nationality": "Argentina",
+      "pl_team": "Everton",
+      "pl_team_id": 9,
+      "primary_position": "AM",
+      "secondary_positions": [
+        "CM"
+      ],
+      "market_value": 15,
+      "market_value_updated_at": "2026-07-30T00:14:05.433+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/502697.png",
+      "height_cm": 176,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 48.14,
+      "form_rating": 6.9,
+      "ppg": 4.6,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 375,
+      "position_ranks": [
+        {
+          "position": "CM",
+          "rank": 116
+        },
+        {
+          "position": "AM",
+          "rank": 63
         }
       ],
       "owner_team_id": null,
@@ -13602,12 +15789,55 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.127773+00:00",
-      "overall_rank": 377,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 376,
       "position_ranks": [
         {
           "position": "CB",
-          "rank": 80
+          "rank": 88
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "8ec2716d-e230-4b73-a371-889447a69c61",
+      "fpl_id": 433,
+      "api_football_id": 51494,
+      "web_name": "Ugarte",
+      "name": "Manuel Ugarte",
+      "full_name": null,
+      "date_of_birth": "2001-04-11",
+      "nationality": "Uruguay",
+      "pl_team": "Man Utd",
+      "pl_team_id": 14,
+      "primary_position": "DM",
+      "secondary_positions": [
+        "CM"
+      ],
+      "market_value": 25,
+      "market_value_updated_at": "2026-07-23T22:03:29.325+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/232112.png",
+      "height_cm": 182,
+      "fpl_status": "i",
+      "fpl_news": "Knee injury - Unknown return date",
+      "total_points": 45.82,
+      "form_rating": 6.2,
+      "ppg": 3.1,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 377,
+      "position_ranks": [
+        {
+          "position": "CM",
+          "rank": 115
+        },
+        {
+          "position": "DM",
+          "rank": 81
         }
       ],
       "owner_team_id": null,
@@ -13639,12 +15869,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-02T14:17:26.470552+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 378,
       "position_ranks": [
         {
           "position": "GK",
-          "rank": 19
+          "rank": 25
         }
       ],
       "owner_team_id": null,
@@ -13678,16 +15908,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.959221+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 379,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 86
+          "rank": 103
         },
         {
           "position": "DM",
-          "rank": 68
+          "rank": 82
         }
       ],
       "owner_team_id": null,
@@ -13722,20 +15952,20 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.220849+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 380,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 102
+          "rank": 121
         },
         {
           "position": "DM",
-          "rank": 69
+          "rank": 83
         },
         {
           "position": "RB",
-          "rank": 49
+          "rank": 53
         }
       ],
       "owner_team_id": null,
@@ -13769,16 +15999,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.959221+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 381,
       "position_ranks": [
         {
           "position": "RB",
-          "rank": 48
+          "rank": 52
         },
         {
           "position": "RWB",
-          "rank": 23
+          "rank": 25
         }
       ],
       "owner_team_id": null,
@@ -13812,16 +16042,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-02T14:17:18.095386+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 382,
       "position_ranks": [
         {
           "position": "LB",
-          "rank": 43
+          "rank": 46
         },
         {
           "position": "LWB",
-          "rank": 24
+          "rank": 25
         }
       ],
       "owner_team_id": null,
@@ -13856,20 +16086,20 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.541055+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 383,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 97
+          "rank": 114
         },
         {
           "position": "DM",
-          "rank": 70
+          "rank": 84
         },
         {
           "position": "AM",
-          "rank": 57
+          "rank": 65
         }
       ],
       "owner_team_id": null,
@@ -13901,12 +16131,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.220849+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 384,
       "position_ranks": [
         {
           "position": "GK",
-          "rank": 20
+          "rank": 26
         }
       ],
       "owner_team_id": null,
@@ -13938,12 +16168,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.220849+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 385,
       "position_ranks": [
         {
           "position": "CB",
-          "rank": 81
+          "rank": 89
         }
       ],
       "owner_team_id": null,
@@ -13977,16 +16207,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-02T14:17:17.634144+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 386,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 101
+          "rank": 120
         },
         {
           "position": "DM",
-          "rank": 71
+          "rank": 85
         }
       ],
       "owner_team_id": null,
@@ -14021,20 +16251,20 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-02T14:17:16.08142+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 387,
       "position_ranks": [
         {
           "position": "RB",
-          "rank": 50
+          "rank": 54
         },
         {
           "position": "RW",
-          "rank": 63
+          "rank": 69
         },
         {
           "position": "CB",
-          "rank": 82
+          "rank": 90
         }
       ],
       "owner_team_id": null,
@@ -14066,12 +16296,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.127773+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 388,
       "position_ranks": [
         {
           "position": "GK",
-          "rank": 21
+          "rank": 27
         }
       ],
       "owner_team_id": null,
@@ -14103,12 +16333,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.541055+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 389,
       "position_ranks": [
         {
           "position": "GK",
-          "rank": 22
+          "rank": 28
         }
       ],
       "owner_team_id": null,
@@ -14140,12 +16370,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.541055+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 390,
       "position_ranks": [
         {
           "position": "GK",
-          "rank": 23
+          "rank": 29
         }
       ],
       "owner_team_id": null,
@@ -14179,16 +16409,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.220849+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 391,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 103
+          "rank": 123
         },
         {
           "position": "LB",
-          "rank": 41
+          "rank": 44
         }
       ],
       "owner_team_id": null,
@@ -14223,20 +16453,20 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-07-30T00:06:34.434183+00:00",
-      "overall_rank": 393,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 392,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 96
+          "rank": 113
         },
         {
           "position": "DM",
-          "rank": 72
+          "rank": 86
         },
         {
           "position": "RB",
-          "rank": 46
+          "rank": 50
         }
       ],
       "owner_team_id": null,
@@ -14271,20 +16501,57 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.220849+00:00",
-      "overall_rank": 394,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 393,
       "position_ranks": [
         {
           "position": "LB",
-          "rank": 42
+          "rank": 45
         },
         {
           "position": "RB",
-          "rank": 51
+          "rank": 55
         },
         {
           "position": "RWB",
-          "rank": 22
+          "rank": 24
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "0473d57b-d7ba-4c7d-b634-bff59c97d61c",
+      "fpl_id": 206,
+      "api_football_id": 278898,
+      "web_name": "Chadi Riad",
+      "name": "Chadi Riad",
+      "full_name": null,
+      "date_of_birth": "2003-06-17",
+      "nationality": "Morocco",
+      "pl_team": "Crystal Palace",
+      "pl_team_id": 8,
+      "primary_position": "CB",
+      "secondary_positions": [],
+      "market_value": 20,
+      "market_value_updated_at": "2026-07-30T00:14:04.903+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/515621.png",
+      "height_cm": 186,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 36.73,
+      "form_rating": 6.3,
+      "ppg": 3.8,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 394,
+      "position_ranks": [
+        {
+          "position": "CB",
+          "rank": 92
         }
       ],
       "owner_team_id": null,
@@ -14319,20 +16586,20 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.959221+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 395,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 100
+          "rank": 119
         },
         {
           "position": "DM",
-          "rank": 73
+          "rank": 87
         },
         {
           "position": "AM",
-          "rank": 58
+          "rank": 66
         }
       ],
       "owner_team_id": null,
@@ -14367,20 +16634,20 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:28:56.838006+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 396,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 99
+          "rank": 118
         },
         {
           "position": "DM",
-          "rank": 75
+          "rank": 90
         },
         {
           "position": "AM",
-          "rank": 59
+          "rank": 67
         }
       ],
       "owner_team_id": null,
@@ -14412,12 +16679,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-02T14:17:19.572364+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 397,
       "position_ranks": [
         {
           "position": "ST",
-          "rank": 55
+          "rank": 67
         }
       ],
       "owner_team_id": null,
@@ -14452,20 +16719,20 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.420173+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 398,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 98
+          "rank": 117
         },
         {
           "position": "LB",
-          "rank": 44
+          "rank": 47
         },
         {
           "position": "RB",
-          "rank": 52
+          "rank": 56
         }
       ],
       "owner_team_id": null,
@@ -14497,49 +16764,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.220849+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 399,
       "position_ranks": [
         {
           "position": "CB",
-          "rank": 83
-        }
-      ],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "e29d2ccc-5dbf-41a9-96da-294d23e47d7f",
-      "fpl_id": 343,
-      "api_football_id": null,
-      "web_name": "James",
-      "name": "Daniel James",
-      "full_name": null,
-      "date_of_birth": "1997-11-10",
-      "nationality": "Wales",
-      "pl_team": "Leeds",
-      "pl_team_id": 11,
-      "primary_position": "RW",
-      "secondary_positions": [],
-      "market_value": 10,
-      "market_value_updated_at": "2026-07-23T22:03:29.521+00:00",
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/200617.png",
-      "height_cm": 171,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 31.28,
-      "form_rating": 6.2,
-      "ppg": 1.9,
-      "is_active": true,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.127773+00:00",
-      "overall_rank": 400,
-      "position_ranks": [
-        {
-          "position": "RW",
-          "rank": 65
+          "rank": 91
         }
       ],
       "owner_team_id": null,
@@ -14571,12 +16801,92 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-02T14:17:08.433673+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 400,
       "position_ranks": [
         {
           "position": "LB",
-          "rank": 45
+          "rank": 48
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "e29d2ccc-5dbf-41a9-96da-294d23e47d7f",
+      "fpl_id": 343,
+      "api_football_id": null,
+      "web_name": "James",
+      "name": "Daniel James",
+      "full_name": null,
+      "date_of_birth": "1997-11-10",
+      "nationality": "Wales",
+      "pl_team": "Leeds",
+      "pl_team_id": 11,
+      "primary_position": "RW",
+      "secondary_positions": [],
+      "market_value": 10,
+      "market_value_updated_at": "2026-07-23T22:03:29.521+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/200617.png",
+      "height_cm": 171,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 31.28,
+      "form_rating": 6.2,
+      "ppg": 1.9,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 400,
+      "position_ranks": [
+        {
+          "position": "RW",
+          "rank": 71
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "dd17bddd-dc46-4d81-9a61-d2cd6a0f7664",
+      "fpl_id": 486,
+      "api_football_id": 158697,
+      "web_name": "McAtee",
+      "name": "James McAtee",
+      "full_name": null,
+      "date_of_birth": "2002-10-18",
+      "nationality": "England",
+      "pl_team": "Nott'm Forest",
+      "pl_team_id": 16,
+      "primary_position": "RW",
+      "secondary_positions": [
+        "AM"
+      ],
+      "market_value": 18,
+      "market_value_updated_at": "2026-07-23T22:03:29.482+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/432714.png",
+      "height_cm": 180,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 30.47,
+      "form_rating": 6.2,
+      "ppg": 1.3,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-07-23T21:04:10.259666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 402,
+      "position_ranks": [
+        {
+          "position": "RW",
+          "rank": 81
+        },
+        {
+          "position": "AM",
+          "rank": 77
         }
       ],
       "owner_team_id": null,
@@ -14612,24 +16922,24 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.959221+00:00",
-      "overall_rank": 402,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 403,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 105
+          "rank": 124
         },
         {
           "position": "LW",
-          "rank": 53
+          "rank": 63
         },
         {
           "position": "RW",
-          "rank": 61
+          "rank": 67
         },
         {
           "position": "AM",
-          "rank": 62
+          "rank": 71
         }
       ],
       "owner_team_id": null,
@@ -14661,12 +16971,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.220849+00:00",
-      "overall_rank": 403,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 404,
       "position_ranks": [
         {
           "position": "AM",
-          "rank": 60
+          "rank": 68
         }
       ],
       "owner_team_id": null,
@@ -14698,12 +17008,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.127773+00:00",
-      "overall_rank": 404,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 405,
       "position_ranks": [
         {
           "position": "ST",
-          "rank": 58
+          "rank": 70
         }
       ],
       "owner_team_id": null,
@@ -14738,20 +17048,57 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.959221+00:00",
-      "overall_rank": 405,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 406,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 120
+          "rank": 139
         },
         {
           "position": "AM",
-          "rank": 72
+          "rank": 82
         },
         {
           "position": "ST",
-          "rank": 61
+          "rank": 74
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "6058c8a8-4590-43ba-94e7-c71b2f071ddc",
+      "fpl_id": null,
+      "api_football_id": 18753,
+      "web_name": "Adama",
+      "name": "Adama Traoré",
+      "full_name": null,
+      "date_of_birth": null,
+      "nationality": "Spain",
+      "pl_team": "West Ham",
+      "pl_team_id": 19,
+      "primary_position": "RW",
+      "secondary_positions": [],
+      "market_value": 6,
+      "market_value_updated_at": "2026-08-02T14:17:14.105+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/159533.png",
+      "height_cm": 178,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 26.99,
+      "form_rating": 6.2,
+      "ppg": 1.8,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 407,
+      "position_ranks": [
+        {
+          "position": "RW",
+          "rank": 77
         }
       ],
       "owner_team_id": null,
@@ -14786,20 +17133,20 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.60895+00:00",
-      "overall_rank": 407,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 408,
       "position_ranks": [
         {
           "position": "DM",
-          "rank": 76
+          "rank": 91
         },
         {
           "position": "LB",
-          "rank": 46
+          "rank": 49
         },
         {
           "position": "CB",
-          "rank": 85
+          "rank": 94
         }
       ],
       "owner_team_id": null,
@@ -14831,12 +17178,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-07-30T00:06:34.434183+00:00",
-      "overall_rank": 408,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 409,
       "position_ranks": [
         {
           "position": "ST",
-          "rank": 57
+          "rank": 69
         }
       ],
       "owner_team_id": null,
@@ -14871,20 +17218,20 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-02T14:17:26.28724+00:00",
-      "overall_rank": 409,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 410,
       "position_ranks": [
         {
           "position": "RB",
-          "rank": 53
+          "rank": 57
         },
         {
           "position": "RWB",
-          "rank": 24
+          "rank": 26
         },
         {
           "position": "CB",
-          "rank": 84
+          "rank": 93
         }
       ],
       "owner_team_id": null,
@@ -14918,9 +17265,46 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-02T14:17:11.634822+00:00",
-      "overall_rank": 410,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 411,
       "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "4c4752cc-da95-4fa4-b070-7ce69adf317d",
+      "fpl_id": 168,
+      "api_football_id": 392270,
+      "web_name": "Marc Guiu",
+      "name": "Marc Guiu",
+      "full_name": null,
+      "date_of_birth": "2006-01-04",
+      "nationality": "Spain",
+      "pl_team": "Chelsea",
+      "pl_team_id": 7,
+      "primary_position": "ST",
+      "secondary_positions": [],
+      "market_value": 12,
+      "market_value_updated_at": "2026-07-23T22:03:29.265+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/499309.png",
+      "height_cm": 187,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 25.49,
+      "form_rating": 6.2,
+      "ppg": 1.5,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 412,
+      "position_ranks": [
+        {
+          "position": "ST",
+          "rank": 71
+        }
+      ],
       "owner_team_id": null,
       "owner_team_name": null
     },
@@ -14952,16 +17336,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.959221+00:00",
-      "overall_rank": 412,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 413,
       "position_ranks": [
         {
           "position": "RW",
-          "rank": 62
+          "rank": 68
         },
         {
           "position": "AM",
-          "rank": 67
+          "rank": 76
         }
       ],
       "owner_team_id": null,
@@ -14993,12 +17377,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.60895+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 414,
       "position_ranks": [
         {
           "position": "CB",
-          "rank": 86
+          "rank": 95
         }
       ],
       "owner_team_id": null,
@@ -15033,20 +17417,20 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-02T14:17:12.772505+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 415,
       "position_ranks": [
         {
           "position": "DM",
-          "rank": 74
+          "rank": 89
         },
         {
           "position": "RB",
-          "rank": 54
+          "rank": 58
         },
         {
           "position": "CB",
-          "rank": 87
+          "rank": 96
         }
       ],
       "owner_team_id": null,
@@ -15081,20 +17465,20 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.959221+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 416,
       "position_ranks": [
         {
           "position": "LW",
-          "rank": 55
+          "rank": 65
         },
         {
           "position": "RW",
-          "rank": 69
+          "rank": 75
         },
         {
           "position": "ST",
-          "rank": 56
+          "rank": 68
         }
       ],
       "owner_team_id": null,
@@ -15126,12 +17510,49 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.959221+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 417,
       "position_ranks": [
         {
           "position": "GK",
-          "rank": 24
+          "rank": 30
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "89f9e692-ad7a-46e9-80a5-722f4e47bd87",
+      "fpl_id": null,
+      "api_football_id": 25004,
+      "web_name": "Ortega Moreno",
+      "name": "Stefan Ortega",
+      "full_name": null,
+      "date_of_birth": "1992-11-06",
+      "nationality": "Germany",
+      "pl_team": "Nott'm Forest",
+      "pl_team_id": 16,
+      "primary_position": "GK",
+      "secondary_positions": [],
+      "market_value": 4,
+      "market_value_updated_at": "2026-08-02T14:17:25.496+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/88248.png",
+      "height_cm": 185,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 23.21,
+      "form_rating": 6.6,
+      "ppg": 7.7,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 418,
+      "position_ranks": [
+        {
+          "position": "GK",
+          "rank": 31
         }
       ],
       "owner_team_id": null,
@@ -15163,12 +17584,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.220849+00:00",
-      "overall_rank": 418,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 419,
       "position_ranks": [
         {
           "position": "RW",
-          "rank": 78
+          "rank": 86
         }
       ],
       "owner_team_id": null,
@@ -15202,16 +17623,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.220849+00:00",
-      "overall_rank": 419,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 420,
       "position_ranks": [
         {
           "position": "LW",
-          "rank": 54
+          "rank": 64
         },
         {
           "position": "RW",
-          "rank": 67
+          "rank": 73
         }
       ],
       "owner_team_id": null,
@@ -15246,20 +17667,20 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-07-30T00:06:34.434183+00:00",
-      "overall_rank": 420,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 421,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 110
+          "rank": 129
         },
         {
           "position": "RW",
-          "rank": 68
+          "rank": 74
         },
         {
           "position": "AM",
-          "rank": 65
+          "rank": 74
         }
       ],
       "owner_team_id": null,
@@ -15291,12 +17712,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-02T14:17:25.177961+00:00",
-      "overall_rank": 421,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 422,
       "position_ranks": [
         {
           "position": "RW",
-          "rank": 66
+          "rank": 72
         }
       ],
       "owner_team_id": null,
@@ -15330,16 +17751,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.420173+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 423,
       "position_ranks": [
         {
           "position": "LB",
-          "rank": 47
+          "rank": 50
         },
         {
           "position": "LWB",
-          "rank": 25
+          "rank": 26
         }
       ],
       "owner_team_id": null,
@@ -15371,12 +17792,49 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-02T14:17:15.899158+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 424,
       "position_ranks": [
         {
           "position": "CB",
-          "rank": 88
+          "rank": 97
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "f9b4ed25-0763-460d-b173-9b837d38399e",
+      "fpl_id": 468,
+      "api_football_id": 162150,
+      "web_name": "John",
+      "name": "John Victor",
+      "full_name": "John Victor Maciel Furtado",
+      "date_of_birth": "1996-02-13",
+      "nationality": "England",
+      "pl_team": "Nott'm Forest",
+      "pl_team_id": 16,
+      "primary_position": "GK",
+      "secondary_positions": [],
+      "market_value": 5,
+      "market_value_updated_at": "2026-07-23T22:03:29.468+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/221389.png",
+      "height_cm": 178,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 19.33,
+      "form_rating": 5.9,
+      "ppg": 3.9,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 425,
+      "position_ranks": [
+        {
+          "position": "GK",
+          "rank": 32
         }
       ],
       "owner_team_id": null,
@@ -15410,16 +17868,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.541055+00:00",
-      "overall_rank": 427,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 426,
       "position_ranks": [
         {
           "position": "LW",
-          "rank": 56
+          "rank": 66
         },
         {
           "position": "RW",
-          "rank": 71
+          "rank": 78
         }
       ],
       "owner_team_id": null,
@@ -15453,16 +17911,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.541055+00:00",
-      "overall_rank": 428,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 427,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 106
+          "rank": 125
         },
         {
           "position": "DM",
-          "rank": 78
+          "rank": 92
         }
       ],
       "owner_team_id": null,
@@ -15497,20 +17955,20 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.959221+00:00",
-      "overall_rank": 429,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 428,
       "position_ranks": [
         {
           "position": "LB",
-          "rank": 48
+          "rank": 51
         },
         {
           "position": "RB",
-          "rank": 55
+          "rank": 59
         },
         {
           "position": "RWB",
-          "rank": 25
+          "rank": 27
         }
       ],
       "owner_team_id": null,
@@ -15542,252 +18000,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.541055+00:00",
-      "overall_rank": 431,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 429,
       "position_ranks": [
         {
           "position": "CB",
-          "rank": 89
-        }
-      ],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "ab8d497f-c1c4-43e2-b54f-f12db6de944c",
-      "fpl_id": 352,
-      "api_football_id": 18889,
-      "web_name": "Woodman",
-      "name": "Freddie Woodman",
-      "full_name": null,
-      "date_of_birth": "1997-03-04",
-      "nationality": "England",
-      "pl_team": "Liverpool",
-      "pl_team_id": 12,
-      "primary_position": "GK",
-      "secondary_positions": [],
-      "market_value": 3,
-      "market_value_updated_at": "2026-07-23T22:03:29.269+00:00",
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/155503.png",
-      "height_cm": 188,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 16.24,
-      "form_rating": 6.5,
-      "ppg": 5.4,
-      "is_active": true,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.127773+00:00",
-      "overall_rank": 434,
-      "position_ranks": [
-        {
-          "position": "GK",
-          "rank": 25
-        }
-      ],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "65de0dac-c026-4d9f-8e67-587453f95115",
-      "fpl_id": 141,
-      "api_football_id": 286616,
-      "web_name": "Jörgensen",
-      "name": "Filip Jörgensen",
-      "full_name": null,
-      "date_of_birth": "2002-04-16",
-      "nationality": "Denmark",
-      "pl_team": "Chelsea",
-      "pl_team_id": 7,
-      "primary_position": "GK",
-      "secondary_positions": [],
-      "market_value": 15,
-      "market_value_updated_at": "2026-07-23T22:03:29.241+00:00",
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/508479.png",
-      "height_cm": 192,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 15.25,
-      "form_rating": 6.2,
-      "ppg": 3.1,
-      "is_active": true,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.60895+00:00",
-      "overall_rank": 436,
-      "position_ranks": [
-        {
-          "position": "GK",
-          "rank": 26
-        }
-      ],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "87573e54-c65e-48a5-9ae5-b907c2095c42",
-      "fpl_id": null,
-      "api_football_id": null,
-      "web_name": "Weiss",
-      "name": "Max Weiß",
-      "full_name": null,
-      "date_of_birth": "2004-06-15",
-      "nationality": "Germany",
-      "pl_team": "Burnley",
-      "pl_team_id": 3,
-      "primary_position": "GK",
-      "secondary_positions": [],
-      "market_value": 4,
-      "market_value_updated_at": "2026-08-02T14:17:21.46+00:00",
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/518030.png",
-      "height_cm": 190,
-      "fpl_status": "d",
-      "fpl_news": "Shoulder injury - 75% chance of playing",
-      "total_points": 14.71,
-      "form_rating": 6.6,
-      "ppg": 4.9,
-      "is_active": false,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-02T14:17:21.605527+00:00",
-      "overall_rank": 437,
-      "position_ranks": [
-        {
-          "position": "GK",
-          "rank": 27
-        }
-      ],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "3a1df6c5-5f6a-4ea8-97a5-697416db492e",
-      "fpl_id": null,
-      "api_football_id": null,
-      "web_name": "Hoever",
-      "name": "Ki-Jana Hoever",
-      "full_name": null,
-      "date_of_birth": "2002-01-18",
-      "nationality": "Netherlands",
-      "pl_team": "Wolves",
-      "pl_team_id": 20,
-      "primary_position": "RB",
-      "secondary_positions": [
-        "RW"
-      ],
-      "market_value": 3.5,
-      "market_value_updated_at": "2026-08-02T14:17:10.701+00:00",
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/441271.png",
-      "height_cm": 183,
-      "fpl_status": "u",
-      "fpl_news": "has joined Sheffield United on loan for the rest of the season.",
-      "total_points": 14.52,
-      "form_rating": 6.3,
-      "ppg": 2.1,
-      "is_active": false,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-02T14:17:10.847545+00:00",
-      "overall_rank": 438,
-      "position_ranks": [
-        {
-          "position": "RB",
-          "rank": 56
-        },
-        {
-          "position": "RW",
-          "rank": 70
-        }
-      ],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "a7c3156e-4bee-4e78-93ee-5b8c2e854b38",
-      "fpl_id": 547,
-      "api_football_id": null,
-      "web_name": "Mundle",
-      "name": "Romaine Mundle",
-      "full_name": null,
-      "date_of_birth": "2003-04-24",
-      "nationality": "England",
-      "pl_team": "Sunderland",
-      "pl_team_id": 17,
-      "primary_position": "LW",
-      "secondary_positions": [
-        "RW"
-      ],
-      "market_value": 7,
-      "market_value_updated_at": "2026-07-23T22:03:29.542+00:00",
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/461199.png",
-      "height_cm": 172,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 14.44,
-      "form_rating": 6.1,
-      "ppg": 1.1,
-      "is_active": true,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.541055+00:00",
-      "overall_rank": 439,
-      "position_ranks": [
-        {
-          "position": "LW",
-          "rank": 57
-        },
-        {
-          "position": "RW",
-          "rank": 72
-        }
-      ],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "49fbd23a-c1af-4721-8e8a-ff1a08c63f89",
-      "fpl_id": 342,
-      "api_football_id": 394167,
-      "web_name": "Harrison",
-      "name": "Jack Harrison",
-      "full_name": null,
-      "date_of_birth": "1996-11-20",
-      "nationality": "England",
-      "pl_team": "Leeds",
-      "pl_team_id": 11,
-      "primary_position": "RW",
-      "secondary_positions": [
-        "LW"
-      ],
-      "market_value": 6.5,
-      "market_value_updated_at": "2026-08-02T14:17:04.476+00:00",
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/221399.png",
-      "height_cm": null,
-      "fpl_status": "u",
-      "fpl_news": "Has joined New England Revolution permanently",
-      "total_points": 14.06,
-      "form_rating": 6.2,
-      "ppg": 1.5,
-      "is_active": false,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.127773+00:00",
-      "overall_rank": 440,
-      "position_ranks": [
-        {
-          "position": "LW",
-          "rank": 58
-        },
-        {
-          "position": "RW",
-          "rank": 73
+          "rank": 98
         }
       ],
       "owner_team_id": null,
@@ -15822,20 +18040,383 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:29:05.773571+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 430,
+      "position_ranks": [
+        {
+          "position": "CM",
+          "rank": 122
+        },
+        {
+          "position": "DM",
+          "rank": 88
+        },
+        {
+          "position": "AM",
+          "rank": 72
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "ab8d497f-c1c4-43e2-b54f-f12db6de944c",
+      "fpl_id": 352,
+      "api_football_id": 18889,
+      "web_name": "Woodman",
+      "name": "Freddie Woodman",
+      "full_name": null,
+      "date_of_birth": "1997-03-04",
+      "nationality": "England",
+      "pl_team": "Liverpool",
+      "pl_team_id": 12,
+      "primary_position": "GK",
+      "secondary_positions": [],
+      "market_value": 3,
+      "market_value_updated_at": "2026-07-23T22:03:29.269+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/155503.png",
+      "height_cm": 188,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 16.24,
+      "form_rating": 6.5,
+      "ppg": 5.4,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 431,
+      "position_ranks": [
+        {
+          "position": "GK",
+          "rank": 33
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "0729b388-f7d8-40c0-801c-e3ebe8808de9",
+      "fpl_id": 100,
+      "api_football_id": 153066,
+      "web_name": "Carvalho",
+      "name": "Fábio Carvalho",
+      "full_name": null,
+      "date_of_birth": "2002-08-30",
+      "nationality": "Portugal",
+      "pl_team": "Brentford",
+      "pl_team_id": 5,
+      "primary_position": "AM",
+      "secondary_positions": [
+        "CM"
+      ],
+      "market_value": 8,
+      "market_value_updated_at": "2026-07-23T22:03:29.444+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/244858.png",
+      "height_cm": 170,
+      "fpl_status": "d",
+      "fpl_news": "Lack of match fitness - 25% chance of playing",
+      "total_points": 15.7,
+      "form_rating": 6,
+      "ppg": 0.5,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 432,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 104
-        },
-        {
-          "position": "DM",
-          "rank": 77
+          "rank": 139
         },
         {
           "position": "AM",
-          "rank": 64
+          "rank": 84
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "65de0dac-c026-4d9f-8e67-587453f95115",
+      "fpl_id": 141,
+      "api_football_id": 286616,
+      "web_name": "Jörgensen",
+      "name": "Filip Jörgensen",
+      "full_name": null,
+      "date_of_birth": "2002-04-16",
+      "nationality": "Denmark",
+      "pl_team": "Chelsea",
+      "pl_team_id": 7,
+      "primary_position": "GK",
+      "secondary_positions": [],
+      "market_value": 15,
+      "market_value_updated_at": "2026-07-23T22:03:29.241+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/508479.png",
+      "height_cm": 192,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 15.25,
+      "form_rating": 6.2,
+      "ppg": 3.1,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 433,
+      "position_ranks": [
+        {
+          "position": "GK",
+          "rank": 34
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "25417a0c-338e-4c95-855a-58aef607196e",
+      "fpl_id": 146,
+      "api_football_id": 95,
+      "web_name": "B.Badiashile",
+      "name": "Benoît Badiashile",
+      "full_name": null,
+      "date_of_birth": "2001-03-26",
+      "nationality": "France",
+      "pl_team": "Chelsea",
+      "pl_team_id": 7,
+      "primary_position": "CB",
+      "secondary_positions": [],
+      "market_value": 15,
+      "market_value_updated_at": "2026-07-23T22:03:29.248+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/242880.png",
+      "height_cm": 194,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 15.21,
+      "form_rating": 6.2,
+      "ppg": 2.2,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 434,
+      "position_ranks": [
+        {
+          "position": "CB",
+          "rank": 99
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "c4e70645-feea-4449-92f7-5e306765ec0f",
+      "fpl_id": null,
+      "api_football_id": 449245,
+      "web_name": "Pedro Lima",
+      "name": "Pedro Lima",
+      "full_name": null,
+      "date_of_birth": "2006-07-01",
+      "nationality": "Brazil",
+      "pl_team": "Wolves",
+      "pl_team_id": 20,
+      "primary_position": "RWB",
+      "secondary_positions": [
+        "RB"
+      ],
+      "market_value": 4,
+      "market_value_updated_at": "2026-08-02T14:17:17.026+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/641221.png",
+      "height_cm": 174,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 14.92,
+      "form_rating": 6.2,
+      "ppg": 2.8,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 435,
+      "position_ranks": [
+        {
+          "position": "RB",
+          "rank": 61
+        },
+        {
+          "position": "RWB",
+          "rank": 28
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "87573e54-c65e-48a5-9ae5-b907c2095c42",
+      "fpl_id": null,
+      "api_football_id": null,
+      "web_name": "Weiss",
+      "name": "Max Weiß",
+      "full_name": null,
+      "date_of_birth": "2004-06-15",
+      "nationality": "Germany",
+      "pl_team": "Burnley",
+      "pl_team_id": 3,
+      "primary_position": "GK",
+      "secondary_positions": [],
+      "market_value": 4,
+      "market_value_updated_at": "2026-08-02T14:17:21.46+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/518030.png",
+      "height_cm": 190,
+      "fpl_status": "d",
+      "fpl_news": "Shoulder injury - 75% chance of playing",
+      "total_points": 14.71,
+      "form_rating": 6.6,
+      "ppg": 4.9,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 436,
+      "position_ranks": [
+        {
+          "position": "GK",
+          "rank": 35
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "3a1df6c5-5f6a-4ea8-97a5-697416db492e",
+      "fpl_id": null,
+      "api_football_id": null,
+      "web_name": "Hoever",
+      "name": "Ki-Jana Hoever",
+      "full_name": null,
+      "date_of_birth": "2002-01-18",
+      "nationality": "Netherlands",
+      "pl_team": "Wolves",
+      "pl_team_id": 20,
+      "primary_position": "RB",
+      "secondary_positions": [
+        "RW"
+      ],
+      "market_value": 3.5,
+      "market_value_updated_at": "2026-08-02T14:17:10.701+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/441271.png",
+      "height_cm": 183,
+      "fpl_status": "u",
+      "fpl_news": "has joined Sheffield United on loan for the rest of the season.",
+      "total_points": 14.52,
+      "form_rating": 6.3,
+      "ppg": 2.1,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 437,
+      "position_ranks": [
+        {
+          "position": "RB",
+          "rank": 60
+        },
+        {
+          "position": "RW",
+          "rank": 76
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "a7c3156e-4bee-4e78-93ee-5b8c2e854b38",
+      "fpl_id": 547,
+      "api_football_id": null,
+      "web_name": "Mundle",
+      "name": "Romaine Mundle",
+      "full_name": null,
+      "date_of_birth": "2003-04-24",
+      "nationality": "England",
+      "pl_team": "Sunderland",
+      "pl_team_id": 17,
+      "primary_position": "LW",
+      "secondary_positions": [
+        "RW"
+      ],
+      "market_value": 7,
+      "market_value_updated_at": "2026-07-23T22:03:29.542+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/461199.png",
+      "height_cm": 172,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 14.44,
+      "form_rating": 6.1,
+      "ppg": 1.1,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 438,
+      "position_ranks": [
+        {
+          "position": "LW",
+          "rank": 67
+        },
+        {
+          "position": "RW",
+          "rank": 79
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "49fbd23a-c1af-4721-8e8a-ff1a08c63f89",
+      "fpl_id": 342,
+      "api_football_id": 394167,
+      "web_name": "Harrison",
+      "name": "Jack Harrison",
+      "full_name": null,
+      "date_of_birth": "1996-11-20",
+      "nationality": "England",
+      "pl_team": "Leeds",
+      "pl_team_id": 11,
+      "primary_position": "RW",
+      "secondary_positions": [
+        "LW"
+      ],
+      "market_value": 6.5,
+      "market_value_updated_at": "2026-08-02T14:17:04.476+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/221399.png",
+      "height_cm": null,
+      "fpl_status": "u",
+      "fpl_news": "Has joined New England Revolution permanently",
+      "total_points": 14.06,
+      "form_rating": 6.2,
+      "ppg": 1.5,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 439,
+      "position_ranks": [
+        {
+          "position": "LW",
+          "rank": 68
+        },
+        {
+          "position": "RW",
+          "rank": 80
         }
       ],
       "owner_team_id": null,
@@ -15867,12 +18448,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.420173+00:00",
-      "overall_rank": 441,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 440,
       "position_ranks": [
         {
           "position": "CB",
-          "rank": 90
+          "rank": 100
         }
       ],
       "owner_team_id": null,
@@ -15907,20 +18488,57 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.541055+00:00",
-      "overall_rank": 442,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 441,
       "position_ranks": [
         {
           "position": "LW",
-          "rank": 60
+          "rank": 70
         },
         {
           "position": "RW",
-          "rank": 77
+          "rank": 85
         },
         {
           "position": "ST",
-          "rank": 60
+          "rank": 73
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "f71c4738-57f9-442e-ace1-5034b0114b45",
+      "fpl_id": 474,
+      "api_football_id": null,
+      "web_name": "Jair Cunha",
+      "name": "Jair Cunha",
+      "full_name": null,
+      "date_of_birth": "2005-03-07",
+      "nationality": "Brazil",
+      "pl_team": "Nott'm Forest",
+      "pl_team_id": 16,
+      "primary_position": "CB",
+      "secondary_positions": [],
+      "market_value": 15,
+      "market_value_updated_at": "2026-07-30T00:14:06.725+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/575458.png",
+      "height_cm": 200,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 12.46,
+      "form_rating": 6,
+      "ppg": 1.4,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 442,
+      "position_ranks": [
+        {
+          "position": "CB",
+          "rank": 102
         }
       ],
       "owner_team_id": null,
@@ -15954,16 +18572,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.127773+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 443,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 109
+          "rank": 128
         },
         {
           "position": "DM",
-          "rank": 79
+          "rank": 93
         }
       ],
       "owner_team_id": null,
@@ -15995,12 +18613,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-07-30T00:06:34.434183+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 444,
       "position_ranks": [
         {
           "position": "CB",
-          "rank": 91
+          "rank": 101
         }
       ],
       "owner_team_id": null,
@@ -16034,7 +18652,7 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-07-30T00:06:34.434183+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 445,
       "position_ranks": [],
       "owner_team_id": null,
@@ -16069,20 +18687,20 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.420173+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 446,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 107
+          "rank": 126
         },
         {
           "position": "DM",
-          "rank": 81
+          "rank": 95
         },
         {
           "position": "AM",
-          "rank": 63
+          "rank": 73
         }
       ],
       "owner_team_id": null,
@@ -16114,12 +18732,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.420173+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 447,
       "position_ranks": [
         {
           "position": "GK",
-          "rank": 28
+          "rank": 36
         }
       ],
       "owner_team_id": null,
@@ -16154,20 +18772,57 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.959221+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 448,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 108
+          "rank": 127
         },
         {
           "position": "DM",
-          "rank": 80
+          "rank": 94
         },
         {
           "position": "AM",
-          "rank": 66
+          "rank": 75
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "9b7b6ff8-cd08-4f38-9980-00afd8fc677e",
+      "fpl_id": 149,
+      "api_football_id": 152953,
+      "web_name": "Colwill",
+      "name": "Levi Colwill",
+      "full_name": null,
+      "date_of_birth": "2003-02-26",
+      "nationality": "England",
+      "pl_team": "Chelsea",
+      "pl_team_id": 7,
+      "primary_position": "CB",
+      "secondary_positions": [],
+      "market_value": 50,
+      "market_value_updated_at": "2026-07-23T22:03:29.244+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/460028.png",
+      "height_cm": 187,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 9.74,
+      "form_rating": 6.4,
+      "ppg": 3.2,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 449,
+      "position_ranks": [
+        {
+          "position": "CB",
+          "rank": 103
         }
       ],
       "owner_team_id": null,
@@ -16199,12 +18854,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.959221+00:00",
-      "overall_rank": 449,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 450,
       "position_ranks": [
         {
           "position": "ST",
-          "rank": 62
+          "rank": 75
         }
       ],
       "owner_team_id": null,
@@ -16238,16 +18893,59 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.959221+00:00",
-      "overall_rank": 450,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 451,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 114
+          "rank": 133
         },
         {
           "position": "DM",
-          "rank": 85
+          "rank": 99
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "ca16e2ea-e73e-4922-ad75-a9e420a8b78d",
+      "fpl_id": 118,
+      "api_football_id": 7600,
+      "web_name": "Igor",
+      "name": "Igor Julio",
+      "full_name": "Igor Julio dos Santos de Paulo",
+      "date_of_birth": "1998-02-07",
+      "nationality": "Brazil",
+      "pl_team": "Brighton",
+      "pl_team_id": 6,
+      "primary_position": "CB",
+      "secondary_positions": [
+        "LB"
+      ],
+      "market_value": 10,
+      "market_value_updated_at": "2026-07-23T22:03:29.346+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/223434.png",
+      "height_cm": 185,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 6.82,
+      "form_rating": 6.9,
+      "ppg": 6.8,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 452,
+      "position_ranks": [
+        {
+          "position": "LB",
+          "rank": 52
+        },
+        {
+          "position": "CB",
+          "rank": 104
         }
       ],
       "owner_team_id": null,
@@ -16281,16 +18979,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.220849+00:00",
-      "overall_rank": 451,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 453,
       "position_ranks": [
         {
           "position": "RW",
-          "rank": 74
+          "rank": 82
         },
         {
           "position": "AM",
-          "rank": 69
+          "rank": 79
         }
       ],
       "owner_team_id": null,
@@ -16322,12 +19020,49 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-02T14:17:25.921994+00:00",
-      "overall_rank": 452,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 454,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 111
+          "rank": 130
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "01d3d2b1-b45d-4cd7-a8d2-027e9b18c3da",
+      "fpl_id": null,
+      "api_football_id": null,
+      "web_name": "Trésor",
+      "name": "Mike Tresor",
+      "full_name": null,
+      "date_of_birth": "1999-05-28",
+      "nationality": "Belgium",
+      "pl_team": "Burnley",
+      "pl_team_id": 3,
+      "primary_position": "LW",
+      "secondary_positions": [],
+      "market_value": 2,
+      "market_value_updated_at": "2026-08-02T14:17:23.835+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/437748.png",
+      "height_cm": 172,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 5.98,
+      "form_rating": 6.3,
+      "ppg": 1.9,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 455,
+      "position_ranks": [
+        {
+          "position": "LW",
+          "rank": 71
         }
       ],
       "owner_team_id": null,
@@ -16361,16 +19096,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.60895+00:00",
-      "overall_rank": 454,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 456,
       "position_ranks": [
         {
           "position": "LW",
-          "rank": 61
+          "rank": 72
         },
         {
           "position": "RW",
-          "rank": 79
+          "rank": 88
         }
       ],
       "owner_team_id": null,
@@ -16404,16 +19139,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-07-30T00:06:34.434183+00:00",
-      "overall_rank": 455,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 457,
       "position_ranks": [
         {
           "position": "RW",
-          "rank": 82
+          "rank": 91
         },
         {
           "position": "AM",
-          "rank": 76
+          "rank": 87
         }
       ],
       "owner_team_id": null,
@@ -16448,20 +19183,20 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.60895+00:00",
-      "overall_rank": 456,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 458,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 116
+          "rank": 135
         },
         {
           "position": "RW",
-          "rank": 75
+          "rank": 83
         },
         {
           "position": "AM",
-          "rank": 68
+          "rank": 78
         }
       ],
       "owner_team_id": null,
@@ -16495,16 +19230,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-02T14:17:15.444074+00:00",
-      "overall_rank": 457,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 459,
       "position_ranks": [
         {
           "position": "AM",
-          "rank": 78
+          "rank": 89
         },
         {
           "position": "ST",
-          "rank": 63
+          "rank": 76
         }
       ],
       "owner_team_id": null,
@@ -16538,16 +19273,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.60895+00:00",
-      "overall_rank": 458,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 460,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 113
+          "rank": 132
         },
         {
           "position": "DM",
-          "rank": 83
+          "rank": 97
         }
       ],
       "owner_team_id": null,
@@ -16581,16 +19316,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.959221+00:00",
-      "overall_rank": 459,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 461,
       "position_ranks": [
         {
           "position": "LW",
-          "rank": 62
+          "rank": 73
         },
         {
           "position": "RW",
-          "rank": 80
+          "rank": 89
         }
       ],
       "owner_team_id": null,
@@ -16622,12 +19357,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-04-22T02:58:21.628569+00:00",
-      "updated_at": "2026-07-30T00:06:34.434183+00:00",
-      "overall_rank": 460,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 462,
       "position_ranks": [
         {
           "position": "LW",
-          "rank": 59
+          "rank": 69
         }
       ],
       "owner_team_id": null,
@@ -16659,12 +19394,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-07-30T00:06:34.434183+00:00",
-      "overall_rank": 462,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 463,
       "position_ranks": [
         {
           "position": "GK",
-          "rank": 29
+          "rank": 37
         }
       ],
       "owner_team_id": null,
@@ -16698,16 +19433,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:29:08.823464+00:00",
-      "overall_rank": 463,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 464,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 112
+          "rank": 131
         },
         {
           "position": "DM",
-          "rank": 82
+          "rank": 96
         }
       ],
       "owner_team_id": null,
@@ -16741,16 +19476,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.220849+00:00",
-      "overall_rank": 464,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 465,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 115
+          "rank": 134
         },
         {
           "position": "DM",
-          "rank": 86
+          "rank": 100
         }
       ],
       "owner_team_id": null,
@@ -16785,20 +19520,20 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.127773+00:00",
-      "overall_rank": 465,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 466,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 120
+          "rank": 139
         },
         {
           "position": "RW",
-          "rank": 76
+          "rank": 84
         },
         {
           "position": "AM",
-          "rank": 71
+          "rank": 81
         }
       ],
       "owner_team_id": null,
@@ -16832,16 +19567,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.60895+00:00",
-      "overall_rank": 466,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 467,
       "position_ranks": [
         {
           "position": "RW",
-          "rank": 81
+          "rank": 90
         },
         {
           "position": "AM",
-          "rank": 74
+          "rank": 85
         }
       ],
       "owner_team_id": null,
@@ -16875,16 +19610,53 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.220849+00:00",
-      "overall_rank": 467,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 468,
       "position_ranks": [
         {
           "position": "RB",
-          "rank": 57
+          "rank": 62
         },
         {
           "position": "RWB",
-          "rank": 26
+          "rank": 29
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "ecfe90d0-29dc-49c3-b20a-6aaa955ebd93",
+      "fpl_id": 52,
+      "api_football_id": 18146,
+      "web_name": "Alysson",
+      "name": "Alysson Edward Franco da Rocha dos Santos",
+      "full_name": null,
+      "date_of_birth": "2006-05-05",
+      "nationality": "Wales",
+      "pl_team": "Aston Villa",
+      "pl_team_id": 2,
+      "primary_position": "RW",
+      "secondary_positions": [],
+      "market_value": 10,
+      "market_value_updated_at": "2026-07-30T00:14:02.295+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/653481.png",
+      "height_cm": 191,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 2.97,
+      "form_rating": 6.1,
+      "ppg": 0.9,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-07-23T22:06:37.796405+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 469,
+      "position_ranks": [
+        {
+          "position": "RW",
+          "rank": 87
         }
       ],
       "owner_team_id": null,
@@ -16918,8 +19690,8 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-02T14:17:18.751928+00:00",
-      "overall_rank": 468,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 470,
       "position_ranks": [],
       "owner_team_id": null,
       "owner_team_name": null
@@ -16950,12 +19722,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.420173+00:00",
-      "overall_rank": 468,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 470,
       "position_ranks": [
         {
           "position": "RW",
-          "rank": 87
+          "rank": 96
         }
       ],
       "owner_team_id": null,
@@ -16989,8 +19761,8 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.541055+00:00",
-      "overall_rank": 470,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 472,
       "position_ranks": [],
       "owner_team_id": null,
       "owner_team_name": null
@@ -17023,16 +19795,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.541055+00:00",
-      "overall_rank": 471,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 473,
       "position_ranks": [
         {
           "position": "LB",
-          "rank": 49
+          "rank": 53
         },
         {
           "position": "LWB",
-          "rank": 26
+          "rank": 27
         }
       ],
       "owner_team_id": null,
@@ -17064,12 +19836,49 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-02T14:17:16.534345+00:00",
-      "overall_rank": 472,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 474,
       "position_ranks": [
         {
           "position": "CB",
-          "rank": 92
+          "rank": 105
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "21fdf6c6-e479-4851-86a6-30a8733aa67a",
+      "fpl_id": 2,
+      "api_football_id": null,
+      "web_name": "Arrizabalaga",
+      "name": "Kepa Arrizabalaga",
+      "full_name": "Kepa Arrizabalaga Revuelta",
+      "date_of_birth": "1994-10-03",
+      "nationality": "Spain",
+      "pl_team": "Arsenal",
+      "pl_team_id": 1,
+      "primary_position": "GK",
+      "secondary_positions": [],
+      "market_value": 5,
+      "market_value_updated_at": "2026-08-02T14:17:02.95+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/109745.png",
+      "height_cm": 188,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 1.87,
+      "form_rating": 6.3,
+      "ppg": 1.9,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 475,
+      "position_ranks": [
+        {
+          "position": "GK",
+          "rank": 38
         }
       ],
       "owner_team_id": null,
@@ -17103,16 +19912,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-02T14:17:19.666634+00:00",
-      "overall_rank": 473,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 476,
       "position_ranks": [
         {
           "position": "RW",
-          "rank": 84
+          "rank": 93
         },
         {
           "position": "ST",
-          "rank": 64
+          "rank": 77
         }
       ],
       "owner_team_id": null,
@@ -17146,16 +19955,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.420173+00:00",
-      "overall_rank": 474,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 477,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 119
+          "rank": 138
         },
         {
           "position": "AM",
-          "rank": 73
+          "rank": 83
         }
       ],
       "owner_team_id": null,
@@ -17190,8 +19999,8 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-02T14:17:15.351484+00:00",
-      "overall_rank": 475,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 478,
       "position_ranks": [],
       "owner_team_id": null,
       "owner_team_name": null
@@ -17226,24 +20035,24 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-02T14:17:20.133345+00:00",
-      "overall_rank": 476,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 479,
       "position_ranks": [
         {
           "position": "LW",
-          "rank": 63
+          "rank": 74
         },
         {
           "position": "LB",
-          "rank": 52
+          "rank": 56
         },
         {
           "position": "RW",
-          "rank": 86
+          "rank": 95
         },
         {
           "position": "AM",
-          "rank": 79
+          "rank": 90
         }
       ],
       "owner_team_id": null,
@@ -17275,8 +20084,8 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-07-30T00:06:34.434183+00:00",
-      "overall_rank": 477,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 480,
       "position_ranks": [],
       "owner_team_id": null,
       "owner_team_name": null
@@ -17310,20 +20119,20 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.541055+00:00",
-      "overall_rank": 478,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 481,
       "position_ranks": [
         {
           "position": "DM",
-          "rank": 84
+          "rank": 98
         },
         {
           "position": "RB",
-          "rank": 58
+          "rank": 63
         },
         {
           "position": "CB",
-          "rank": 94
+          "rank": 107
         }
       ],
       "owner_team_id": null,
@@ -17357,16 +20166,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.420173+00:00",
-      "overall_rank": 478,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 481,
       "position_ranks": [
         {
           "position": "RB",
-          "rank": 59
+          "rank": 64
         },
         {
           "position": "CB",
-          "rank": 93
+          "rank": 106
         }
       ],
       "owner_team_id": null,
@@ -17398,8 +20207,8 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-05-20T02:42:40.200245+00:00",
-      "updated_at": "2026-08-08T02:10:21.60895+00:00",
-      "overall_rank": 480,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 483,
       "position_ranks": [],
       "owner_team_id": null,
       "owner_team_name": null
@@ -17432,16 +20241,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.420173+00:00",
-      "overall_rank": 481,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 484,
       "position_ranks": [
         {
           "position": "LB",
-          "rank": 52
+          "rank": 56
         },
         {
           "position": "RW",
-          "rank": 83
+          "rank": 92
         }
       ],
       "owner_team_id": null,
@@ -17473,8 +20282,8 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.60895+00:00",
-      "overall_rank": 483,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 485,
       "position_ranks": [],
       "owner_team_id": null,
       "owner_team_name": null
@@ -17507,8 +20316,42 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.420173+00:00",
-      "overall_rank": 484,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 486,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "1f061812-288b-4fbf-bdc2-777d8ff145c1",
+      "fpl_id": 134,
+      "api_football_id": null,
+      "web_name": "Oriola",
+      "name": "Nehemiah Oriola",
+      "full_name": null,
+      "date_of_birth": null,
+      "nationality": "England",
+      "pl_team": "Brighton",
+      "pl_team_id": 6,
+      "primary_position": "LW",
+      "secondary_positions": [
+        "RW"
+      ],
+      "market_value": 0.2,
+      "market_value_updated_at": "2026-07-30T00:14:02.71+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/556637.png",
+      "height_cm": null,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0.87,
+      "form_rating": 0,
+      "ppg": 0,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 487,
       "position_ranks": [],
       "owner_team_id": null,
       "owner_team_name": null
@@ -17541,52 +20384,18 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.220849+00:00",
-      "overall_rank": 485,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 487,
       "position_ranks": [
         {
           "position": "RW",
-          "rank": 85
+          "rank": 94
         },
         {
           "position": "ST",
-          "rank": 65
+          "rank": 78
         }
       ],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "1f061812-288b-4fbf-bdc2-777d8ff145c1",
-      "fpl_id": 134,
-      "api_football_id": null,
-      "web_name": "Oriola",
-      "name": "Nehemiah Oriola",
-      "full_name": null,
-      "date_of_birth": null,
-      "nationality": "England",
-      "pl_team": "Brighton",
-      "pl_team_id": 6,
-      "primary_position": "LW",
-      "secondary_positions": [
-        "RW"
-      ],
-      "market_value": 0.2,
-      "market_value_updated_at": "2026-07-30T00:14:02.71+00:00",
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/556637.png",
-      "height_cm": null,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0.87,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": true,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.60895+00:00",
-      "overall_rank": 485,
-      "position_ranks": [],
       "owner_team_id": null,
       "owner_team_name": null
     },
@@ -17618,8 +20427,8 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-02T14:17:15.631428+00:00",
-      "overall_rank": 487,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 489,
       "position_ranks": [],
       "owner_team_id": null,
       "owner_team_name": null
@@ -17652,8 +20461,8 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-02T14:17:10.663408+00:00",
-      "overall_rank": 488,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 490,
       "position_ranks": [],
       "owner_team_id": null,
       "owner_team_name": null
@@ -17686,16 +20495,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.541055+00:00",
-      "overall_rank": 489,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 491,
       "position_ranks": [
         {
           "position": "LB",
-          "rank": 50
+          "rank": 54
         },
         {
           "position": "LWB",
-          "rank": 28
+          "rank": 29
         }
       ],
       "owner_team_id": null,
@@ -17729,8 +20538,8 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-02T14:17:16.443547+00:00",
-      "overall_rank": 490,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 492,
       "position_ranks": [],
       "owner_team_id": null,
       "owner_team_name": null
@@ -17761,8 +20570,8 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.420173+00:00",
-      "overall_rank": 491,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 493,
       "position_ranks": [],
       "owner_team_id": null,
       "owner_team_name": null
@@ -17796,22 +20605,57 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.420173+00:00",
-      "overall_rank": 492,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 494,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 117
+          "rank": 136
         },
         {
           "position": "DM",
-          "rank": 86
+          "rank": 100
         },
         {
           "position": "AM",
-          "rank": 70
+          "rank": 80
         }
       ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "a9bc122d-3a3c-461b-89f6-a1e08978d8f2",
+      "fpl_id": 451,
+      "api_football_id": 318056,
+      "web_name": "A.Murphy",
+      "name": "Alex Murphy",
+      "full_name": null,
+      "date_of_birth": "2004-06-25",
+      "nationality": "Republic of Ireland",
+      "pl_team": "Newcastle",
+      "pl_team_id": 15,
+      "primary_position": "LB",
+      "secondary_positions": [
+        "LWB",
+        "CB"
+      ],
+      "market_value": 1.5,
+      "market_value_updated_at": "2026-07-23T22:03:29.372+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/545477.png",
+      "height_cm": 188,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0.03,
+      "form_rating": 0,
+      "ppg": 0,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 495,
+      "position_ranks": [],
       "owner_team_id": null,
       "owner_team_name": null
     },
@@ -17843,16 +20687,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.959221+00:00",
-      "overall_rank": 493,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 495,
       "position_ranks": [
         {
           "position": "LB",
-          "rank": 51
+          "rank": 55
         },
         {
           "position": "LWB",
-          "rank": 27
+          "rank": 28
         }
       ],
       "owner_team_id": null,
@@ -17887,44 +20731,52 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-02T14:17:20.785043+00:00",
-      "overall_rank": 493,
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 495,
       "position_ranks": [],
       "owner_team_id": null,
       "owner_team_name": null
     },
     {
-      "id": "a9bc122d-3a3c-461b-89f6-a1e08978d8f2",
-      "fpl_id": 451,
-      "api_football_id": 318056,
-      "web_name": "A.Murphy",
-      "name": "Alex Murphy",
+      "id": "1b45c235-0d59-4138-9fa1-735688aa5e3b",
+      "fpl_id": 99,
+      "api_football_id": null,
+      "web_name": "Milambo",
+      "name": "Antoni Milambo",
       "full_name": null,
-      "date_of_birth": "2004-06-25",
-      "nationality": "Republic of Ireland",
-      "pl_team": "Newcastle",
-      "pl_team_id": 15,
-      "primary_position": "LB",
+      "date_of_birth": "2005-04-03",
+      "nationality": "Netherlands",
+      "pl_team": "Brentford",
+      "pl_team_id": 5,
+      "primary_position": "CM",
       "secondary_positions": [
-        "LWB",
-        "CB"
+        "AM"
       ],
-      "market_value": 1.5,
-      "market_value_updated_at": "2026-07-23T22:03:29.372+00:00",
+      "market_value": 15,
+      "market_value_updated_at": "2026-07-23T22:03:29.443+00:00",
       "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/545477.png",
-      "height_cm": 188,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0.03,
-      "form_rating": 0,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/543295.png",
+      "height_cm": 179,
+      "fpl_status": "d",
+      "fpl_news": "Knee injury - 75% chance of playing",
+      "total_points": 0,
+      "form_rating": 5.6,
       "ppg": 0,
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.420173+00:00",
-      "overall_rank": 493,
-      "position_ranks": [],
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [
+        {
+          "position": "CM",
+          "rank": 139
+        },
+        {
+          "position": "AM",
+          "rank": 88
+        }
+      ],
       "owner_team_id": null,
       "owner_team_name": null
     },
@@ -17954,7 +20806,7 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.959221+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 268,
       "position_ranks": [],
       "owner_team_id": null,
@@ -17986,204 +20838,813 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.959221+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 268,
       "position_ranks": [],
       "owner_team_id": null,
       "owner_team_name": null
     },
     {
-      "id": "2c89e459-b583-4188-a988-2b7e3cb5368a",
-      "fpl_id": 111,
-      "api_football_id": 18960,
-      "web_name": "Steele",
-      "name": "Jason Steele",
+      "id": "3cabbf67-e4af-476b-a27a-22b8fb015e96",
+      "fpl_id": 515,
+      "api_football_id": 18784,
+      "web_name": "Maddison",
+      "name": "James Maddison",
       "full_name": null,
-      "date_of_birth": "1990-08-18",
-      "nationality": "England",
-      "pl_team": "Brighton",
-      "pl_team_id": 6,
-      "primary_position": "GK",
-      "secondary_positions": [],
-      "market_value": 0.5,
-      "market_value_updated_at": "2026-07-23T22:03:29.343+00:00",
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/49262.png",
-      "height_cm": 188,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": true,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.60895+00:00",
-      "overall_rank": 268,
-      "position_ranks": [],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "8ba5e159-f201-456b-9dbe-1d2c38626c4e",
-      "fpl_id": 510,
-      "api_football_id": null,
-      "web_name": "Rowswell",
-      "name": "James Rowswell",
-      "full_name": null,
-      "date_of_birth": null,
+      "date_of_birth": "1996-11-23",
       "nationality": "England",
       "pl_team": "Spurs",
       "pl_team_id": 18,
+      "primary_position": "CM",
+      "secondary_positions": [
+        "AM"
+      ],
+      "market_value": 20,
+      "market_value_updated_at": "2026-07-23T22:03:29.306+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/172780.png",
+      "height_cm": 175,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 5.4,
+      "ppg": 0,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [
+        {
+          "position": "CM",
+          "rank": 139
+        },
+        {
+          "position": "AM",
+          "rank": 86
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "21050225-a747-4044-8b14-bee0afd9a6cc",
+      "fpl_id": null,
+      "api_football_id": null,
+      "web_name": "Pimlott",
+      "name": "Oliver Pimlott",
+      "full_name": null,
+      "date_of_birth": "2007-04-07",
+      "nationality": "England",
+      "pl_team": "Burnley",
+      "pl_team_id": 3,
+      "primary_position": "CM",
+      "secondary_positions": [],
+      "market_value": 4.5,
+      "market_value_updated_at": null,
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/647960.png",
+      "height_cm": null,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 0,
+      "ppg": 0,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "f1e8b6d1-4af6-461e-996e-230473c306fe",
+      "fpl_id": null,
+      "api_football_id": null,
+      "web_name": "Wright",
+      "name": "Will Wright",
+      "full_name": null,
+      "date_of_birth": "2008-01-01",
+      "nationality": null,
+      "pl_team": "Liverpool",
+      "pl_team_id": 12,
+      "primary_position": "ST",
+      "secondary_positions": [],
+      "market_value": 4.5,
+      "market_value_updated_at": null,
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/677945.png",
+      "height_cm": null,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 0,
+      "ppg": 0,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-04-26T02:21:12.470462+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "b2018f42-3108-4cc3-8091-5b8f98819d17",
+      "fpl_id": null,
+      "api_football_id": 359942,
+      "web_name": "Akinmboni",
+      "name": "Matai Akinmboni",
+      "full_name": null,
+      "date_of_birth": "2006-10-17",
+      "nationality": "USA",
+      "pl_team": "Bournemouth",
+      "pl_team_id": 4,
       "primary_position": "CB",
       "secondary_positions": [],
       "market_value": 1,
-      "market_value_updated_at": "2026-07-30T00:13:59.47+00:00",
+      "market_value_updated_at": "2026-08-02T14:17:05.871+00:00",
       "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/499716.png",
-      "height_cm": 188,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/541462.png",
+      "height_cm": 191,
       "fpl_status": "a",
       "fpl_news": null,
       "total_points": 0,
       "form_rating": 0,
       "ppg": 0,
-      "is_active": true,
+      "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.541055+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 268,
       "position_ranks": [],
       "owner_team_id": null,
       "owner_team_name": null
     },
     {
-      "id": "58841852-0cef-4a74-a204-f3b17abf6a06",
-      "fpl_id": 93,
+      "id": "b9432e93-4fc5-48ff-a703-cc84154e0c8d",
+      "fpl_id": null,
       "api_football_id": null,
-      "web_name": "Schuster",
-      "name": "Jannik Schuster",
+      "web_name": "McAidoo",
+      "name": "Ryan McAidoo",
       "full_name": null,
-      "date_of_birth": "2006-05-16",
-      "nationality": "Cote d'Ivoire",
-      "pl_team": "Brentford",
-      "pl_team_id": 5,
-      "primary_position": "CB",
-      "secondary_positions": [
-        "LB"
-      ],
-      "market_value": 18,
-      "market_value_updated_at": "2026-07-23T22:03:29.43+00:00",
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/513086.png",
-      "height_cm": 177,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 3.16,
-      "form_rating": 6.5,
-      "ppg": 3.2,
-      "is_active": true,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.220849+00:00",
-      "overall_rank": 470,
-      "position_ranks": [],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "d921b4d4-c7f1-4278-9ad6-8f1cd927abc9",
-      "fpl_id": 353,
-      "api_football_id": 342467,
-      "web_name": "Pecsi",
-      "name": "Ármin Pécsi",
-      "full_name": null,
-      "date_of_birth": null,
-      "nationality": "Hungary",
-      "pl_team": "Liverpool",
-      "pl_team_id": 12,
-      "primary_position": "GK",
-      "secondary_positions": [],
-      "market_value": 0.8,
-      "market_value_updated_at": "2026-07-30T00:14:03.55+00:00",
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/586268.png",
-      "height_cm": 190,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": true,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.127773+00:00",
-      "overall_rank": 268,
-      "position_ranks": [],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "acfc8160-dbdd-4eb8-95a0-a0ea655a08f5",
-      "fpl_id": 363,
-      "api_football_id": null,
-      "web_name": "Leoni",
-      "name": "Giovanni Leoni",
-      "full_name": null,
-      "date_of_birth": "2006-12-21",
-      "nationality": "Italy",
-      "pl_team": "Liverpool",
-      "pl_team_id": 12,
-      "primary_position": "CB",
-      "secondary_positions": [],
-      "market_value": 25,
-      "market_value_updated_at": "2026-07-23T22:03:29.271+00:00",
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/647681.png",
-      "height_cm": 196,
-      "fpl_status": "i",
-      "fpl_news": "Knee injury - Unknown return date",
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": true,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.127773+00:00",
-      "overall_rank": 268,
-      "position_ranks": [],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "43475deb-0f73-4fb0-89fe-8f40affb63bb",
-      "fpl_id": 375,
-      "api_football_id": 397997,
-      "web_name": "Nyoni",
-      "name": "Trey Nyoni",
-      "full_name": null,
-      "date_of_birth": "2007-06-30",
+      "date_of_birth": "2008-06-24",
       "nationality": "England",
-      "pl_team": "Liverpool",
-      "pl_team_id": 12,
-      "primary_position": "CM",
-      "secondary_positions": [
-        "AM",
-        "DM"
-      ],
-      "market_value": 8,
-      "market_value_updated_at": "2026-07-23T22:03:29.281+00:00",
+      "pl_team": "Man City",
+      "pl_team_id": 13,
+      "primary_position": "AM",
+      "secondary_positions": [],
+      "market_value": 4.5,
+      "market_value_updated_at": null,
       "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/591386.png",
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/616288.png",
+      "height_cm": 174,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 0,
+      "ppg": 0,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "3f44a63f-b35d-4e20-8bd9-2a9c6caaf2ad",
+      "fpl_id": null,
+      "api_football_id": 361679,
+      "web_name": "Bates",
+      "name": "Callum Bates",
+      "full_name": null,
+      "date_of_birth": "2005-09-28",
+      "nationality": "England",
+      "pl_team": "Everton",
+      "pl_team_id": 9,
+      "primary_position": "CM",
+      "secondary_positions": [],
+      "market_value": 14,
+      "market_value_updated_at": "2026-07-23T21:16:20.557+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/547801.png",
       "height_cm": 180,
       "fpl_status": "a",
       "fpl_news": null,
       "total_points": 0,
       "form_rating": 0,
       "ppg": 0,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "2cf04bfc-aad1-4c8d-bc13-e3c05a2ccc30",
+      "fpl_id": 438,
+      "api_football_id": 404017,
+      "web_name": "Fletcher",
+      "name": "Tyler Fletcher",
+      "full_name": null,
+      "date_of_birth": "2007-03-19",
+      "nationality": "England",
+      "pl_team": "Man Utd",
+      "pl_team_id": 14,
+      "primary_position": "CM",
+      "secondary_positions": [
+        "DM"
+      ],
+      "market_value": 1.5,
+      "market_value_updated_at": "2026-07-23T22:03:29.33+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/519913.png",
+      "height_cm": null,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 0,
+      "ppg": 0,
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.127773+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [
+        {
+          "position": "CM",
+          "rank": 139
+        },
+        {
+          "position": "DM",
+          "rank": 100
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "cb0359e7-2b9a-4fba-8550-a70da3ad7345",
+      "fpl_id": null,
+      "api_football_id": null,
+      "web_name": "Golambeckis",
+      "name": "Airidas Golambeckis",
+      "full_name": null,
+      "date_of_birth": "2007-11-04",
+      "nationality": "England",
+      "pl_team": "West Ham",
+      "pl_team_id": 19,
+      "primary_position": "CB",
+      "secondary_positions": [],
+      "market_value": 4,
+      "market_value_updated_at": null,
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/643473.png",
+      "height_cm": null,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 0,
+      "ppg": 0,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "aa9695f4-516b-458d-9504-6e02b550aaf7",
+      "fpl_id": null,
+      "api_football_id": null,
+      "web_name": "Leon Routh",
+      "name": "Leon Routh",
+      "full_name": null,
+      "date_of_birth": "2007-11-30",
+      "nationality": "England",
+      "pl_team": "Aston Villa",
+      "pl_team_id": 2,
+      "primary_position": "CB",
+      "secondary_positions": [],
+      "market_value": 4,
+      "market_value_updated_at": null,
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/664015.png",
+      "height_cm": null,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 0,
+      "ppg": 0,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "2e8276e4-c35d-4f6b-83d1-9a2fe1ecacb3",
+      "fpl_id": 51,
+      "api_football_id": null,
+      "web_name": "George Hemmings",
+      "name": "George Hemmings",
+      "full_name": null,
+      "date_of_birth": null,
+      "nationality": "England",
+      "pl_team": "Aston Villa",
+      "pl_team_id": 2,
+      "primary_position": "DM",
+      "secondary_positions": [
+        "CM",
+        "AM"
+      ],
+      "market_value": 0.8,
+      "market_value_updated_at": "2026-07-30T00:14:05.662+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/577285.png",
+      "height_cm": null,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 4.8,
+      "ppg": 0,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [
+        {
+          "position": "CM",
+          "rank": 139
+        },
+        {
+          "position": "DM",
+          "rank": 100
+        },
+        {
+          "position": "AM",
+          "rank": 90
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "abbe08ad-6c5b-4aae-b300-442e412d4f21",
+      "fpl_id": null,
+      "api_football_id": 310531,
+      "web_name": "Kyerematen",
+      "name": "Rio Kyerematen",
+      "full_name": null,
+      "date_of_birth": "2005-06-09",
+      "nationality": "England",
+      "pl_team": "Spurs",
+      "pl_team_id": 18,
+      "primary_position": "CM",
+      "secondary_positions": [],
+      "market_value": 4.5,
+      "market_value_updated_at": null,
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/536134.png",
+      "height_cm": 174,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 0,
+      "ppg": 0,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "ff8ff105-6368-4dd1-87a6-84bb4db17687",
+      "fpl_id": null,
+      "api_football_id": 138806,
+      "web_name": "Williams-Barnett",
+      "name": "Lucá Williams-Barnett",
+      "full_name": null,
+      "date_of_birth": "2008-10-01",
+      "nationality": "England",
+      "pl_team": "Spurs",
+      "pl_team_id": 18,
+      "primary_position": "CM",
+      "secondary_positions": [],
+      "market_value": 4.5,
+      "market_value_updated_at": null,
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/611917.png",
+      "height_cm": 171,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 0,
+      "ppg": 0,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "94f6c297-8139-4b43-8b8b-8e4eb3b99764",
+      "fpl_id": null,
+      "api_football_id": 412086,
+      "web_name": "Simmonds",
+      "name": "Freddie Simmonds",
+      "full_name": null,
+      "date_of_birth": "2008-03-09",
+      "nationality": "England",
+      "pl_team": "Brighton",
+      "pl_team_id": 6,
+      "primary_position": "CB",
+      "secondary_positions": [],
+      "market_value": 4,
+      "market_value_updated_at": null,
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/604988.png",
+      "height_cm": 189,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 0,
+      "ppg": 0,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "634deae3-84e1-4ee6-8e76-c69085997ad6",
+      "fpl_id": null,
+      "api_football_id": null,
+      "web_name": "Bentt",
+      "name": "Luka Bentt",
+      "full_name": null,
+      "date_of_birth": "2007-10-01",
+      "nationality": "Belgium",
+      "pl_team": "Brentford",
+      "pl_team_id": 5,
+      "primary_position": "RW",
+      "secondary_positions": [],
+      "market_value": 4.5,
+      "market_value_updated_at": null,
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/559610.png",
+      "height_cm": 184,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 0,
+      "ppg": 0,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "3f6176b8-e646-4a80-886c-c3137d81e5d0",
+      "fpl_id": null,
+      "api_football_id": 401098,
+      "web_name": "Rawlings",
+      "name": "Luke Rawlings",
+      "full_name": null,
+      "date_of_birth": "2008-04-04",
+      "nationality": "England",
+      "pl_team": "Wolves",
+      "pl_team_id": 20,
+      "primary_position": "CM",
+      "secondary_positions": [],
+      "market_value": 4.5,
+      "market_value_updated_at": null,
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/605319.png",
+      "height_cm": 178,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 0,
+      "ppg": 0,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "aa48897c-2217-47cf-b694-f31142f0d704",
+      "fpl_id": null,
+      "api_football_id": null,
+      "web_name": "Jenson Jones",
+      "name": "Jenson Jones",
+      "full_name": null,
+      "date_of_birth": "2006-06-26",
+      "nationality": "England",
+      "pl_team": "Sunderland",
+      "pl_team_id": 17,
+      "primary_position": "CB",
+      "secondary_positions": [],
+      "market_value": 4,
+      "market_value_updated_at": null,
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/232356.png",
+      "height_cm": 182,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 0,
+      "ppg": 0,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "1e04d564-c74c-47df-b07d-4b30c6561eb3",
+      "fpl_id": null,
+      "api_football_id": null,
+      "web_name": "Sutherland",
+      "name": "Ethan Sutherland",
+      "full_name": null,
+      "date_of_birth": "2006-04-25",
+      "nationality": "Scotland",
+      "pl_team": "Wolves",
+      "pl_team_id": 20,
+      "primary_position": "LB",
+      "secondary_positions": [],
+      "market_value": 4.5,
+      "market_value_updated_at": null,
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/589121.png",
+      "height_cm": 189,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 0,
+      "ppg": 0,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "87c0536d-d54b-48f3-b149-a9d1b80c5b65",
+      "fpl_id": null,
+      "api_football_id": 440159,
+      "web_name": "Kukonki",
+      "name": "Godwill Kukonki",
+      "full_name": null,
+      "date_of_birth": "2008-02-06",
+      "nationality": "England",
+      "pl_team": "Man Utd",
+      "pl_team_id": 14,
+      "primary_position": "CB",
+      "secondary_positions": [],
+      "market_value": 4,
+      "market_value_updated_at": null,
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/576637.png",
+      "height_cm": 196,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 0,
+      "ppg": 0,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "078c3e2c-e003-4c59-902d-2cc5174356f0",
+      "fpl_id": null,
+      "api_football_id": null,
+      "web_name": "Gracey",
+      "name": "Josh Gracey",
+      "full_name": null,
+      "date_of_birth": "2007-12-14",
+      "nationality": null,
+      "pl_team": "Wolves",
+      "pl_team_id": 20,
+      "primary_position": "GK",
+      "secondary_positions": [],
+      "market_value": 4,
+      "market_value_updated_at": null,
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/627888.png",
+      "height_cm": null,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 0,
+      "ppg": 0,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-05-03T02:30:22.897562+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "44d37c18-4826-4b93-b39b-9f67d977d02e",
+      "fpl_id": null,
+      "api_football_id": 380696,
+      "web_name": "Nichols",
+      "name": "Josh Nichols",
+      "full_name": null,
+      "date_of_birth": "2006-07-26",
+      "nationality": "England",
+      "pl_team": "Arsenal",
+      "pl_team_id": 1,
+      "primary_position": "RB",
+      "secondary_positions": [],
+      "market_value": 3.7,
+      "market_value_updated_at": null,
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/499167.png",
+      "height_cm": 165,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 0,
+      "ppg": 0,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "1d0ac8d0-caf5-4611-8bb7-a05283ae8942",
+      "fpl_id": null,
+      "api_football_id": null,
+      "web_name": "Shield",
+      "name": "Ollie Shield",
+      "full_name": null,
+      "date_of_birth": "2006-09-25",
+      "nationality": "England",
+      "pl_team": "Brentford",
+      "pl_team_id": 5,
+      "primary_position": "CB",
+      "secondary_positions": [],
+      "market_value": 4,
+      "market_value_updated_at": null,
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/494556.png",
+      "height_cm": null,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 0,
+      "ppg": 0,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-03-07T02:34:53.417778+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "145eb561-3283-435e-ac49-2a29d2016d95",
+      "fpl_id": null,
+      "api_football_id": null,
+      "web_name": "DaCosta",
+      "name": "Malcom DaCosta",
+      "full_name": null,
+      "date_of_birth": "2008-04-17",
+      "nationality": "Ecuador",
+      "pl_team": "Bournemouth",
+      "pl_team_id": 4,
+      "primary_position": "ST",
+      "secondary_positions": [],
+      "market_value": 4.5,
+      "market_value_updated_at": null,
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/678552.png",
+      "height_cm": 193,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 0,
+      "ppg": 0,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "c284eea4-5b3d-40af-8187-7f1d5ff64bc5",
+      "fpl_id": null,
+      "api_football_id": 361676,
+      "web_name": "Ebere",
+      "name": "Coby Ebere",
+      "full_name": null,
+      "date_of_birth": null,
+      "nationality": "England",
+      "pl_team": "Everton",
+      "pl_team_id": 9,
+      "primary_position": "CM",
+      "secondary_positions": [],
+      "market_value": 6,
+      "market_value_updated_at": "2026-07-23T21:16:21.036+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/504296.png",
+      "height_cm": 187,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 0,
+      "ppg": 0,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "92e63dd7-a93c-4a27-868d-6e66f243f69b",
+      "fpl_id": null,
+      "api_football_id": 63577,
+      "web_name": "Mudryk",
+      "name": "Mykhailo Mudryk",
+      "full_name": null,
+      "date_of_birth": "2001-01-05",
+      "nationality": "Ukraine",
+      "pl_team": "Chelsea",
+      "pl_team_id": 7,
+      "primary_position": "LW",
+      "secondary_positions": [],
+      "market_value": 4.9,
+      "market_value_updated_at": null,
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/465920.png",
+      "height_cm": 175,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 0,
+      "ppg": 0,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 268,
       "position_ranks": [],
       "owner_team_id": null,
@@ -18218,287 +21679,336 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.127773+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 268,
       "position_ranks": [],
       "owner_team_id": null,
       "owner_team_name": null
     },
     {
-      "id": "1d0ac8d0-caf5-4611-8bb7-a05283ae8942",
-      "fpl_id": null,
-      "api_football_id": null,
-      "web_name": "Shield",
-      "name": "Ollie Shield",
+      "id": "43475deb-0f73-4fb0-89fe-8f40affb63bb",
+      "fpl_id": 375,
+      "api_football_id": 397997,
+      "web_name": "Nyoni",
+      "name": "Trey Nyoni",
       "full_name": null,
-      "date_of_birth": "2006-09-25",
+      "date_of_birth": "2007-06-30",
       "nationality": "England",
-      "pl_team": "Brentford",
-      "pl_team_id": 5,
-      "primary_position": "CB",
-      "secondary_positions": [],
-      "market_value": 4,
-      "market_value_updated_at": null,
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/494556.png",
-      "height_cm": null,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": false,
-      "transfermarkt_id": null,
-      "created_at": "2026-03-07T02:34:53.417778+00:00",
-      "updated_at": "2026-07-30T00:06:34.434183+00:00",
-      "overall_rank": 268,
-      "position_ranks": [],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "44d37c18-4826-4b93-b39b-9f67d977d02e",
-      "fpl_id": null,
-      "api_football_id": 380696,
-      "web_name": "Nichols",
-      "name": "Josh Nichols",
-      "full_name": null,
-      "date_of_birth": "2006-07-26",
-      "nationality": "England",
-      "pl_team": "Arsenal",
-      "pl_team_id": 1,
-      "primary_position": "RB",
-      "secondary_positions": [],
-      "market_value": 3.7,
-      "market_value_updated_at": null,
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/499167.png",
-      "height_cm": 165,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": false,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-07-30T00:06:34.434183+00:00",
-      "overall_rank": 268,
-      "position_ranks": [],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "87c0536d-d54b-48f3-b149-a9d1b80c5b65",
-      "fpl_id": null,
-      "api_football_id": 440159,
-      "web_name": "Kukonki",
-      "name": "Godwill Kukonki",
-      "full_name": null,
-      "date_of_birth": "2008-02-06",
-      "nationality": "England",
-      "pl_team": "Man Utd",
-      "pl_team_id": 14,
-      "primary_position": "CB",
-      "secondary_positions": [],
-      "market_value": 4,
-      "market_value_updated_at": null,
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/576637.png",
-      "height_cm": 196,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": false,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-07-30T00:06:34.434183+00:00",
-      "overall_rank": 268,
-      "position_ranks": [],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "aa48897c-2217-47cf-b694-f31142f0d704",
-      "fpl_id": null,
-      "api_football_id": null,
-      "web_name": "Jenson Jones",
-      "name": "Jenson Jones",
-      "full_name": null,
-      "date_of_birth": "2006-06-26",
-      "nationality": "England",
-      "pl_team": "Sunderland",
-      "pl_team_id": 17,
-      "primary_position": "CB",
-      "secondary_positions": [],
-      "market_value": 4,
-      "market_value_updated_at": null,
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/232356.png",
-      "height_cm": 182,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": false,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-07-30T00:06:34.434183+00:00",
-      "overall_rank": 268,
-      "position_ranks": [],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "3f6176b8-e646-4a80-886c-c3137d81e5d0",
-      "fpl_id": null,
-      "api_football_id": 401098,
-      "web_name": "Rawlings",
-      "name": "Luke Rawlings",
-      "full_name": null,
-      "date_of_birth": "2008-04-04",
-      "nationality": "England",
-      "pl_team": "Wolves",
-      "pl_team_id": 20,
+      "pl_team": "Liverpool",
+      "pl_team_id": 12,
       "primary_position": "CM",
-      "secondary_positions": [],
-      "market_value": 4.5,
-      "market_value_updated_at": null,
+      "secondary_positions": [
+        "AM",
+        "DM"
+      ],
+      "market_value": 8,
+      "market_value_updated_at": "2026-07-23T22:03:29.281+00:00",
       "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/605319.png",
-      "height_cm": 178,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/591386.png",
+      "height_cm": 180,
       "fpl_status": "a",
       "fpl_news": null,
       "total_points": 0,
       "form_rating": 0,
       "ppg": 0,
-      "is_active": false,
+      "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-07-30T00:06:34.434183+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 268,
       "position_ranks": [],
       "owner_team_id": null,
       "owner_team_name": null
     },
     {
-      "id": "634deae3-84e1-4ee6-8e76-c69085997ad6",
-      "fpl_id": null,
+      "id": "acfc8160-dbdd-4eb8-95a0-a0ea655a08f5",
+      "fpl_id": 363,
       "api_football_id": null,
-      "web_name": "Bentt",
-      "name": "Luka Bentt",
+      "web_name": "Leoni",
+      "name": "Giovanni Leoni",
       "full_name": null,
-      "date_of_birth": "2007-10-01",
-      "nationality": "Belgium",
-      "pl_team": "Brentford",
-      "pl_team_id": 5,
-      "primary_position": "RW",
-      "secondary_positions": [],
-      "market_value": 4.5,
-      "market_value_updated_at": null,
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/559610.png",
-      "height_cm": 184,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": false,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-07-30T00:06:34.434183+00:00",
-      "overall_rank": 268,
-      "position_ranks": [],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "94f6c297-8139-4b43-8b8b-8e4eb3b99764",
-      "fpl_id": null,
-      "api_football_id": 412086,
-      "web_name": "Simmonds",
-      "name": "Freddie Simmonds",
-      "full_name": null,
-      "date_of_birth": "2008-03-09",
-      "nationality": "England",
-      "pl_team": "Brighton",
-      "pl_team_id": 6,
+      "date_of_birth": "2006-12-21",
+      "nationality": "Italy",
+      "pl_team": "Liverpool",
+      "pl_team_id": 12,
       "primary_position": "CB",
       "secondary_positions": [],
-      "market_value": 4,
-      "market_value_updated_at": null,
+      "market_value": 25,
+      "market_value_updated_at": "2026-07-23T22:03:29.271+00:00",
       "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/604988.png",
-      "height_cm": 189,
-      "fpl_status": "a",
-      "fpl_news": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/647681.png",
+      "height_cm": 196,
+      "fpl_status": "i",
+      "fpl_news": "Knee injury - Unknown return date",
       "total_points": 0,
       "form_rating": 0,
       "ppg": 0,
-      "is_active": false,
+      "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-07-30T00:06:34.434183+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 268,
       "position_ranks": [],
       "owner_team_id": null,
       "owner_team_name": null
     },
     {
-      "id": "ff8ff105-6368-4dd1-87a6-84bb4db17687",
-      "fpl_id": null,
-      "api_football_id": 138806,
-      "web_name": "Williams-Barnett",
-      "name": "Lucá Williams-Barnett",
+      "id": "58841852-0cef-4a74-a204-f3b17abf6a06",
+      "fpl_id": 93,
+      "api_football_id": null,
+      "web_name": "Schuster",
+      "name": "Jannik Schuster",
       "full_name": null,
-      "date_of_birth": "2008-10-01",
+      "date_of_birth": "2006-05-16",
+      "nationality": "Cote d'Ivoire",
+      "pl_team": "Brentford",
+      "pl_team_id": 5,
+      "primary_position": "CB",
+      "secondary_positions": [
+        "LB"
+      ],
+      "market_value": 18,
+      "market_value_updated_at": "2026-07-23T22:03:29.43+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/513086.png",
+      "height_cm": 177,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 3.16,
+      "form_rating": 6.5,
+      "ppg": 3.2,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 470,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "8ba5e159-f201-456b-9dbe-1d2c38626c4e",
+      "fpl_id": 510,
+      "api_football_id": null,
+      "web_name": "Rowswell",
+      "name": "James Rowswell",
+      "full_name": null,
+      "date_of_birth": null,
       "nationality": "England",
       "pl_team": "Spurs",
       "pl_team_id": 18,
-      "primary_position": "CM",
+      "primary_position": "CB",
       "secondary_positions": [],
-      "market_value": 4.5,
-      "market_value_updated_at": null,
+      "market_value": 1,
+      "market_value_updated_at": "2026-07-30T00:13:59.47+00:00",
       "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/611917.png",
-      "height_cm": 171,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/499716.png",
+      "height_cm": 188,
       "fpl_status": "a",
       "fpl_news": null,
       "total_points": 0,
       "form_rating": 0,
       "ppg": 0,
-      "is_active": false,
+      "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-07-30T00:06:34.434183+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 268,
       "position_ranks": [],
       "owner_team_id": null,
       "owner_team_name": null
     },
     {
-      "id": "2cf04bfc-aad1-4c8d-bc13-e3c05a2ccc30",
-      "fpl_id": 438,
-      "api_football_id": 404017,
-      "web_name": "Fletcher",
-      "name": "Tyler Fletcher",
+      "id": "90581c12-8497-4494-ace5-2df9ad6e04cc",
+      "fpl_id": 495,
+      "api_football_id": 156428,
+      "web_name": "Austin",
+      "name": "Brandon Austin",
       "full_name": null,
-      "date_of_birth": "2007-03-19",
+      "date_of_birth": "1999-01-08",
       "nationality": "England",
-      "pl_team": "Man Utd",
-      "pl_team_id": 14,
-      "primary_position": "CM",
-      "secondary_positions": [
-        "DM"
-      ],
-      "market_value": 1.5,
-      "market_value_updated_at": "2026-07-23T22:03:29.33+00:00",
+      "pl_team": "Spurs",
+      "pl_team_id": 18,
+      "primary_position": "GK",
+      "secondary_positions": [],
+      "market_value": 0.5,
+      "market_value_updated_at": "2026-07-23T22:03:29.291+00:00",
       "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/519913.png",
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/214572.png",
+      "height_cm": 188,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 0,
+      "ppg": 0,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "24d2e652-7b23-4b35-b8a3-4772b0b60544",
+      "fpl_id": 218,
+      "api_football_id": 3339,
+      "web_name": "Doucouré",
+      "name": "Cheick Doucouré",
+      "full_name": null,
+      "date_of_birth": "2000-01-08",
+      "nationality": "Mali",
+      "pl_team": "Crystal Palace",
+      "pl_team_id": 8,
+      "primary_position": "DM",
+      "secondary_positions": [
+        "CM",
+        "CB"
+      ],
+      "market_value": 10,
+      "market_value_updated_at": "2026-07-23T22:03:29.393+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/438464.png",
+      "height_cm": 180,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 0,
+      "ppg": 0,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "4aa7bb8b-b72c-491c-874d-7a9653725888",
+      "fpl_id": 197,
+      "api_football_id": null,
+      "web_name": "Bassette",
+      "name": "Norman Bassette",
+      "full_name": null,
+      "date_of_birth": null,
+      "nationality": "Peru",
+      "pl_team": null,
+      "pl_team_id": null,
+      "primary_position": "ST",
+      "secondary_positions": [],
+      "market_value": 1.5,
+      "market_value_updated_at": "2026-08-02T14:17:03.962+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/549653.png",
+      "height_cm": 184,
+      "fpl_status": "u",
+      "fpl_news": "Has joined KVC Westerlo on loan for the rest of the season",
+      "total_points": 24.94,
+      "form_rating": 6.2,
+      "ppg": 1.4,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 414,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "82accb7e-aa15-471d-aaad-bee25c7c04cc",
+      "fpl_id": 21,
+      "api_football_id": 30407,
+      "web_name": "Nørgaard",
+      "name": "Christian Nørgaard",
+      "full_name": null,
+      "date_of_birth": "1994-03-10",
+      "nationality": "Denmark",
+      "pl_team": "Arsenal",
+      "pl_team_id": 1,
+      "primary_position": "DM",
+      "secondary_positions": [
+        "CM"
+      ],
+      "market_value": 5,
+      "market_value_updated_at": "2026-08-02T14:17:03.569+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/128295.png",
+      "height_cm": 187,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 5.5,
+      "ppg": 0,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [
+        {
+          "position": "CM",
+          "rank": 137
+        },
+        {
+          "position": "DM",
+          "rank": 100
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "a6ea8658-40ae-47f2-ad61-937eaf42d044",
+      "fpl_id": 361,
+      "api_football_id": null,
+      "web_name": "Lucky",
+      "name": "Wellity Lucky",
+      "full_name": null,
+      "date_of_birth": null,
+      "nationality": "Spain",
+      "pl_team": "Liverpool",
+      "pl_team_id": 12,
+      "primary_position": "CB",
+      "secondary_positions": [],
+      "market_value": 4,
+      "market_value_updated_at": null,
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/519440.png",
+      "height_cm": 188,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 0,
+      "ppg": 0,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "24633ff0-dd05-4921-a670-91f8db83fea9",
+      "fpl_id": 252,
+      "api_football_id": null,
+      "web_name": "McNally",
+      "name": "Alfie McNally",
+      "full_name": null,
+      "date_of_birth": null,
+      "nationality": "England",
+      "pl_team": "Fulham",
+      "pl_team_id": 10,
+      "primary_position": "GK",
+      "secondary_positions": [],
+      "market_value": 4,
+      "market_value_updated_at": null,
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/505079.png",
       "height_cm": null,
       "fpl_status": "a",
       "fpl_news": null,
@@ -18508,146 +22018,78 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.420173+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "7be5eebe-5109-4be0-b7d7-d066b8f24c04",
+      "fpl_id": 251,
+      "api_football_id": 402504,
+      "web_name": "Lecomte",
+      "name": "Benjamin Lecomte",
+      "full_name": null,
+      "date_of_birth": "1991-04-26",
+      "nationality": "Wales",
+      "pl_team": "Fulham",
+      "pl_team_id": 10,
+      "primary_position": "GK",
+      "secondary_positions": [],
+      "market_value": 0.8,
+      "market_value_updated_at": "2026-07-23T22:03:29.547+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/86873.png",
+      "height_cm": null,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 0,
+      "ppg": 0,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "a1b4e876-2c06-48e4-b5bc-aa6a74f52647",
+      "fpl_id": 150,
+      "api_football_id": null,
+      "web_name": "M.Sarr",
+      "name": "Mamadou Sarr",
+      "full_name": null,
+      "date_of_birth": "2005-08-29",
+      "nationality": "Senegal",
+      "pl_team": "Chelsea",
+      "pl_team_id": 7,
+      "primary_position": "CB",
+      "secondary_positions": [],
+      "market_value": 22,
+      "market_value_updated_at": "2026-07-23T22:03:29.246+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/574458.png",
+      "height_cm": 194,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 5.7,
+      "ppg": 0,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 268,
       "position_ranks": [
         {
-          "position": "CM",
-          "rank": 120
-        },
-        {
-          "position": "DM",
-          "rank": 86
+          "position": "CB",
+          "rank": 108
         }
       ],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "abbe08ad-6c5b-4aae-b300-442e412d4f21",
-      "fpl_id": null,
-      "api_football_id": 310531,
-      "web_name": "Kyerematen",
-      "name": "Rio Kyerematen",
-      "full_name": null,
-      "date_of_birth": "2005-06-09",
-      "nationality": "England",
-      "pl_team": "Spurs",
-      "pl_team_id": 18,
-      "primary_position": "CM",
-      "secondary_positions": [],
-      "market_value": 4.5,
-      "market_value_updated_at": null,
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/536134.png",
-      "height_cm": 174,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": false,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-07-30T00:06:34.434183+00:00",
-      "overall_rank": 268,
-      "position_ranks": [],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "aa9695f4-516b-458d-9504-6e02b550aaf7",
-      "fpl_id": null,
-      "api_football_id": null,
-      "web_name": "Leon Routh",
-      "name": "Leon Routh",
-      "full_name": null,
-      "date_of_birth": "2007-11-30",
-      "nationality": "England",
-      "pl_team": "Aston Villa",
-      "pl_team_id": 2,
-      "primary_position": "CB",
-      "secondary_positions": [],
-      "market_value": 4,
-      "market_value_updated_at": null,
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/664015.png",
-      "height_cm": null,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": false,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-07-30T00:06:34.434183+00:00",
-      "overall_rank": 268,
-      "position_ranks": [],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "cb0359e7-2b9a-4fba-8550-a70da3ad7345",
-      "fpl_id": null,
-      "api_football_id": null,
-      "web_name": "Golambeckis",
-      "name": "Airidas Golambeckis",
-      "full_name": null,
-      "date_of_birth": "2007-11-04",
-      "nationality": "England",
-      "pl_team": "West Ham",
-      "pl_team_id": 19,
-      "primary_position": "CB",
-      "secondary_positions": [],
-      "market_value": 4,
-      "market_value_updated_at": null,
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/643473.png",
-      "height_cm": null,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": false,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-07-30T00:06:34.434183+00:00",
-      "overall_rank": 268,
-      "position_ranks": [],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "3f44a63f-b35d-4e20-8bd9-2a9c6caaf2ad",
-      "fpl_id": null,
-      "api_football_id": 361679,
-      "web_name": "Bates",
-      "name": "Callum Bates",
-      "full_name": null,
-      "date_of_birth": "2005-09-28",
-      "nationality": "England",
-      "pl_team": "Everton",
-      "pl_team_id": 9,
-      "primary_position": "CM",
-      "secondary_positions": [],
-      "market_value": 14,
-      "market_value_updated_at": "2026-07-23T21:16:20.557+00:00",
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/547801.png",
-      "height_cm": 180,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": false,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-07-30T00:06:34.434183+00:00",
-      "overall_rank": 268,
-      "position_ranks": [],
       "owner_team_id": null,
       "owner_team_name": null
     },
@@ -18677,1660 +22119,43 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.959221+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 492,
       "position_ranks": [],
       "owner_team_id": null,
       "owner_team_name": null
     },
     {
-      "id": "dcafcfac-efa4-4b9f-ba5d-a572394c479f",
-      "fpl_id": 509,
-      "api_football_id": null,
-      "web_name": "Byfield",
-      "name": "Jun'ai Byfield",
+      "id": "5272ddba-c1b7-41f0-b60c-fa39a304f27e",
+      "fpl_id": 103,
+      "api_football_id": 19362,
+      "web_name": "Dasilva",
+      "name": "Josh Dasilva",
       "full_name": null,
-      "date_of_birth": null,
+      "date_of_birth": "1998-10-23",
       "nationality": "England",
-      "pl_team": "Spurs",
-      "pl_team_id": 18,
-      "primary_position": "CB",
-      "secondary_positions": [],
-      "market_value": 3,
-      "market_value_updated_at": "2026-07-30T00:14:03.339+00:00",
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/640419.png",
-      "height_cm": 185,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": true,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.541055+00:00",
-      "overall_rank": 268,
-      "position_ranks": [],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "21050225-a747-4044-8b14-bee0afd9a6cc",
-      "fpl_id": null,
-      "api_football_id": null,
-      "web_name": "Pimlott",
-      "name": "Oliver Pimlott",
-      "full_name": null,
-      "date_of_birth": "2007-04-07",
-      "nationality": "England",
-      "pl_team": "Burnley",
-      "pl_team_id": 3,
-      "primary_position": "CM",
-      "secondary_positions": [],
-      "market_value": 4.5,
-      "market_value_updated_at": null,
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/647960.png",
-      "height_cm": null,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": false,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-07-30T00:06:34.434183+00:00",
-      "overall_rank": 268,
-      "position_ranks": [],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "7e8df6ee-596a-494d-a4fb-acf56ee85b5d",
-      "fpl_id": null,
-      "api_football_id": 385726,
-      "web_name": "Gonzalez",
-      "name": "Enso González",
-      "full_name": null,
-      "date_of_birth": "2005-01-20",
-      "nationality": "Paraguay",
-      "pl_team": "Wolves",
-      "pl_team_id": 20,
-      "primary_position": "LW",
-      "secondary_positions": [
-        "RW",
-        "AM"
-      ],
-      "market_value": 2.5,
-      "market_value_updated_at": "2026-08-02T14:17:09.237+00:00",
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/593001.png",
-      "height_cm": 169,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": false,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-02T14:17:09.390026+00:00",
-      "overall_rank": 268,
-      "position_ranks": [],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "c6b18ef4-e1db-4893-a6fe-fba7a6c2f765",
-      "fpl_id": 235,
-      "api_football_id": null,
-      "web_name": "Aznou",
-      "name": "Adam Aznou",
-      "full_name": null,
-      "date_of_birth": "2006-06-02",
-      "nationality": "Morocco",
-      "pl_team": "Everton",
-      "pl_team_id": 9,
-      "primary_position": "LB",
-      "secondary_positions": [],
-      "market_value": 6,
-      "market_value_updated_at": "2026-07-23T22:03:29.494+00:00",
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/499300.png",
-      "height_cm": 178,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": true,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.959221+00:00",
-      "overall_rank": 268,
-      "position_ranks": [],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "5bfd6cc7-62af-4080-a56d-9d7f3fc61282",
-      "fpl_id": null,
-      "api_football_id": null,
-      "web_name": "Thwaites",
-      "name": "Jim Thwaites",
-      "full_name": null,
-      "date_of_birth": "2007-12-20",
-      "nationality": null,
-      "pl_team": "Man Utd",
-      "pl_team_id": 14,
-      "primary_position": "CM",
-      "secondary_positions": [],
-      "market_value": 4.5,
-      "market_value_updated_at": null,
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/576634.png",
-      "height_cm": null,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": false,
-      "transfermarkt_id": null,
-      "created_at": "2026-04-19T02:06:09.73374+00:00",
-      "updated_at": "2026-07-30T00:06:34.434183+00:00",
-      "overall_rank": 268,
-      "position_ranks": [],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "405d7ace-c399-4848-9eba-9df188c55e9f",
-      "fpl_id": null,
-      "api_football_id": null,
-      "web_name": "Sharman-Lowe",
-      "name": "Teddy Sharman-Lowe",
-      "full_name": null,
-      "date_of_birth": "2003-03-30",
-      "nationality": "England",
-      "pl_team": "Chelsea",
-      "pl_team_id": 7,
-      "primary_position": "GK",
-      "secondary_positions": [],
-      "market_value": 0.5,
-      "market_value_updated_at": "2026-08-02T14:17:09.674+00:00",
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/499857.png",
-      "height_cm": 189,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": false,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-02T14:17:09.820461+00:00",
-      "overall_rank": 268,
-      "position_ranks": [],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "00cbbf80-afb3-4c30-a50b-d712f81592e1",
-      "fpl_id": null,
-      "api_football_id": null,
-      "web_name": "Kavuma-McQueen",
-      "name": "Ryan Kavuma-McQueen",
-      "full_name": null,
-      "date_of_birth": "2009-01-01",
-      "nationality": null,
-      "pl_team": "Chelsea",
-      "pl_team_id": 7,
-      "primary_position": "LW",
-      "secondary_positions": [],
-      "market_value": 4.5,
-      "market_value_updated_at": null,
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/616286.png",
-      "height_cm": null,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": false,
-      "transfermarkt_id": null,
-      "created_at": "2026-05-10T02:35:16.553564+00:00",
-      "updated_at": "2026-07-30T00:06:34.434183+00:00",
-      "overall_rank": 268,
-      "position_ranks": [],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "aaf0ec1e-024a-4654-9723-7f345255b712",
-      "fpl_id": null,
-      "api_football_id": null,
-      "web_name": "Emenalo",
-      "name": "Landon Emenalo",
-      "full_name": null,
-      "date_of_birth": "2008-01-18",
-      "nationality": "England",
-      "pl_team": "Chelsea",
-      "pl_team_id": 7,
-      "primary_position": "CM",
-      "secondary_positions": [],
-      "market_value": 4.5,
-      "market_value_updated_at": null,
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/611912.png",
-      "height_cm": 180,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": false,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-07-30T00:06:34.434183+00:00",
-      "overall_rank": 268,
-      "position_ranks": [],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "da7b3a59-977a-478a-a651-2f2b01af6c76",
-      "fpl_id": null,
-      "api_football_id": 284390,
-      "web_name": "Wright",
-      "name": "James Wright",
-      "full_name": null,
-      "date_of_birth": "2004-12-02",
-      "nationality": "England",
-      "pl_team": "Aston Villa",
-      "pl_team_id": 2,
-      "primary_position": "GK",
-      "secondary_positions": [],
-      "market_value": 0.2,
-      "market_value_updated_at": "2026-08-02T14:17:09.763+00:00",
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/481283.png",
-      "height_cm": 188,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": false,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-02T14:17:09.908744+00:00",
-      "overall_rank": 268,
-      "position_ranks": [],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "62984e1d-9d8e-48ba-abc5-a23b608f8ae4",
-      "fpl_id": null,
-      "api_football_id": null,
-      "web_name": "Ridgeon",
-      "name": "Seth Ridgeon",
-      "full_name": null,
-      "date_of_birth": "2008-09-12",
-      "nationality": "England",
-      "pl_team": "Fulham",
-      "pl_team_id": 10,
-      "primary_position": "CM",
-      "secondary_positions": [],
-      "market_value": 4.5,
-      "market_value_updated_at": null,
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/619536.png",
-      "height_cm": 171,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": false,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-07-30T00:06:34.434183+00:00",
-      "overall_rank": 268,
-      "position_ranks": [],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "a63177a3-bd7c-4b64-b4c4-32875bcc1ac0",
-      "fpl_id": null,
-      "api_football_id": null,
-      "web_name": "Eboué",
-      "name": "Mathis Eboué",
-      "full_name": null,
-      "date_of_birth": "2009-02-27",
-      "nationality": null,
-      "pl_team": "Chelsea",
-      "pl_team_id": 7,
-      "primary_position": "CM",
-      "secondary_positions": [],
-      "market_value": 4.5,
-      "market_value_updated_at": null,
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/671606.png",
-      "height_cm": null,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": false,
-      "transfermarkt_id": null,
-      "created_at": "2026-05-10T02:35:16.553564+00:00",
-      "updated_at": "2026-07-30T00:06:34.434183+00:00",
-      "overall_rank": 268,
-      "position_ranks": [],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "d4671617-0e10-4e0a-aa53-afbb49802d05",
-      "fpl_id": null,
-      "api_football_id": 363974,
-      "web_name": "Marsh",
-      "name": "Zach Marsh",
-      "full_name": null,
-      "date_of_birth": "2005-10-06",
-      "nationality": "England",
-      "pl_team": "Crystal Palace",
-      "pl_team_id": 8,
-      "primary_position": "ST",
-      "secondary_positions": [],
-      "market_value": 6,
-      "market_value_updated_at": "2026-07-23T22:03:29.595+00:00",
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/576980.png",
-      "height_cm": 176,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": false,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-07-30T00:06:34.434183+00:00",
-      "overall_rank": 268,
-      "position_ranks": [],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "4b981f37-735f-49f0-b512-520b3963102f",
-      "fpl_id": null,
-      "api_football_id": 284327,
-      "web_name": "Welch",
-      "name": "Reece Welch",
-      "full_name": null,
-      "date_of_birth": "2003-09-19",
-      "nationality": "England",
-      "pl_team": "Everton",
-      "pl_team_id": 9,
-      "primary_position": "CB",
-      "secondary_positions": [],
-      "market_value": 0.25,
-      "market_value_updated_at": "2026-08-02T14:17:10.608+00:00",
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/474907.png",
-      "height_cm": null,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": false,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-02T14:17:10.75537+00:00",
-      "overall_rank": 268,
-      "position_ranks": [],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "996d3fb3-ee69-49f9-ab69-78375648b2d7",
-      "fpl_id": null,
-      "api_football_id": 389579,
-      "web_name": "Eyestone",
-      "name": "Julian Eyestone",
-      "full_name": null,
-      "date_of_birth": null,
-      "nationality": "USA",
       "pl_team": "Brentford",
       "pl_team_id": 5,
-      "primary_position": "GK",
-      "secondary_positions": [],
-      "market_value": 3.9,
-      "market_value_updated_at": null,
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/535017.png",
-      "height_cm": 198,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": false,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-07-30T00:06:34.434183+00:00",
-      "overall_rank": 268,
-      "position_ranks": [],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "6894d560-9778-450d-94c0-1b6bd0954eee",
-      "fpl_id": null,
-      "api_football_id": 276263,
-      "web_name": "Stevens",
-      "name": "Charlie Stevens",
-      "full_name": null,
-      "date_of_birth": "2007-05-31",
-      "nationality": "Wales",
-      "pl_team": "Bournemouth",
-      "pl_team_id": 4,
-      "primary_position": "CM",
-      "secondary_positions": [],
-      "market_value": 4.5,
-      "market_value_updated_at": null,
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/658013.png",
-      "height_cm": 179,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": false,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-07-30T00:06:34.434183+00:00",
-      "overall_rank": 268,
-      "position_ranks": [],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "a97e1354-ef63-4c91-a39e-9ccdf0c2b01b",
-      "fpl_id": null,
-      "api_football_id": null,
-      "web_name": "Gray",
-      "name": "Charlie Gray",
-      "full_name": null,
-      "date_of_birth": "2006-02-22",
-      "nationality": "England",
-      "pl_team": "Man City",
-      "pl_team_id": 13,
-      "primary_position": "ST",
-      "secondary_positions": [
-        "LW"
-      ],
-      "market_value": 4.5,
-      "market_value_updated_at": null,
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/516234.png",
-      "height_cm": null,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": false,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-07-30T00:06:34.434183+00:00",
-      "overall_rank": 268,
-      "position_ranks": [],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "7d76513c-2163-420e-a750-9b0ac3a9c0fa",
-      "fpl_id": null,
-      "api_football_id": null,
-      "web_name": "Alabi",
-      "name": "Sam Alabi",
-      "full_name": null,
-      "date_of_birth": "2009-07-09",
-      "nationality": "England",
-      "pl_team": "Newcastle",
-      "pl_team_id": 15,
-      "primary_position": "CM",
-      "secondary_positions": [],
-      "market_value": 4.5,
-      "market_value_updated_at": null,
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/666607.png",
-      "height_cm": null,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": false,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-07-30T00:06:34.434183+00:00",
-      "overall_rank": 268,
-      "position_ranks": [],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "4f2948ad-ea5b-496a-9121-5f7ec0fdecfe",
-      "fpl_id": null,
-      "api_football_id": null,
-      "web_name": "Sinclair",
-      "name": "Jimmy Sinclair",
-      "full_name": null,
-      "date_of_birth": "2006-08-11",
-      "nationality": null,
-      "pl_team": "Nott'm Forest",
-      "pl_team_id": 16,
-      "primary_position": "CM",
-      "secondary_positions": [],
-      "market_value": 4.5,
-      "market_value_updated_at": null,
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/590040.png",
-      "height_cm": null,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": false,
-      "transfermarkt_id": null,
-      "created_at": "2026-05-11T02:41:43.241031+00:00",
-      "updated_at": "2026-07-30T00:06:34.434183+00:00",
-      "overall_rank": 268,
-      "position_ranks": [],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "a3af4ec3-a04c-4b7a-bb9e-8f62f261416a",
-      "fpl_id": null,
-      "api_football_id": null,
-      "web_name": "Merrick",
-      "name": "Max Merrick",
-      "full_name": null,
-      "date_of_birth": "2005-11-10",
-      "nationality": "England",
-      "pl_team": "Chelsea",
-      "pl_team_id": 7,
-      "primary_position": "GK",
-      "secondary_positions": [],
-      "market_value": 4,
-      "market_value_updated_at": null,
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/518335.png",
-      "height_cm": null,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": false,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-07-30T00:06:34.434183+00:00",
-      "overall_rank": 268,
-      "position_ranks": [],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "a4f2c8a9-652e-4ee8-973c-095905062d85",
-      "fpl_id": null,
-      "api_football_id": 288116,
-      "web_name": "Casey",
-      "name": "Ben Casey",
-      "full_name": null,
-      "date_of_birth": "2008-02-04",
-      "nationality": "England",
-      "pl_team": "Crystal Palace",
-      "pl_team_id": 8,
-      "primary_position": "CB",
-      "secondary_positions": [],
-      "market_value": 4.5,
-      "market_value_updated_at": null,
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/631106.png",
-      "height_cm": 185,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": false,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-07-30T00:06:34.434183+00:00",
-      "overall_rank": 268,
-      "position_ranks": [],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "ca421162-0387-445d-bae5-0a357a93904c",
-      "fpl_id": null,
-      "api_football_id": null,
-      "web_name": "Ndiaye",
-      "name": "Talla Ndiaye",
-      "full_name": null,
-      "date_of_birth": "2008-01-06",
-      "nationality": null,
-      "pl_team": "Liverpool",
-      "pl_team_id": 12,
-      "primary_position": "RW",
-      "secondary_positions": [
-        "LW"
-      ],
-      "market_value": 4,
-      "market_value_updated_at": null,
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/718875.png",
-      "height_cm": null,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": false,
-      "transfermarkt_id": null,
-      "created_at": "2026-05-04T02:49:00.610715+00:00",
-      "updated_at": "2026-07-30T00:06:34.434183+00:00",
-      "overall_rank": 268,
-      "position_ranks": [],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "c1076cdf-9734-4269-842e-ee0883413bd3",
-      "fpl_id": null,
-      "api_football_id": 366629,
-      "web_name": "Carroll",
-      "name": "TJ Carroll",
-      "full_name": null,
-      "date_of_birth": "2007-03-22",
-      "nationality": "England",
-      "pl_team": "Aston Villa",
-      "pl_team_id": 2,
-      "primary_position": "CB",
-      "secondary_positions": [],
-      "market_value": 4,
-      "market_value_updated_at": null,
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/618027.png",
-      "height_cm": 197,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": false,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-07-30T00:06:34.434183+00:00",
-      "overall_rank": 268,
-      "position_ranks": [],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "4dfcc70d-c647-4d8b-87d2-cb708256cb08",
-      "fpl_id": null,
-      "api_football_id": null,
-      "web_name": "Ba",
-      "name": "Abdoullah Ba",
-      "full_name": null,
-      "date_of_birth": "2003-07-31",
-      "nationality": "France",
-      "pl_team": "Sunderland",
-      "pl_team_id": 17,
-      "primary_position": "RW",
-      "secondary_positions": [
-        "LW"
-      ],
-      "market_value": 1.5,
-      "market_value_updated_at": "2026-08-05T04:06:16.101+00:00",
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/477851.png",
-      "height_cm": 200,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": false,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-05T04:06:16.545112+00:00",
-      "overall_rank": 268,
-      "position_ranks": [],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "b18a09f7-d9ad-46cd-bb37-c1ca2ddf9f6d",
-      "fpl_id": null,
-      "api_football_id": 305736,
-      "web_name": "Moore",
-      "name": "Simon Moore",
-      "full_name": null,
-      "date_of_birth": null,
-      "nationality": "England",
-      "pl_team": "Sunderland",
-      "pl_team_id": 17,
-      "primary_position": "GK",
-      "secondary_positions": [],
-      "market_value": 0.08,
-      "market_value_updated_at": "2026-08-05T04:06:29.49+00:00",
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/74854.png",
-      "height_cm": 183,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": false,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-05T04:06:29.66424+00:00",
-      "overall_rank": 268,
-      "position_ranks": [],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "61fd8bb2-404e-485f-9c20-9d5fb5f63ab8",
-      "fpl_id": null,
-      "api_football_id": null,
-      "web_name": "Bevan",
-      "name": "Owen Bevan",
-      "full_name": null,
-      "date_of_birth": null,
-      "nationality": "Wales",
-      "pl_team": "Bournemouth",
-      "pl_team_id": 4,
-      "primary_position": "CB",
-      "secondary_positions": [],
-      "market_value": 3.8,
-      "market_value_updated_at": null,
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/518906.png",
-      "height_cm": 186,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": false,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-07-30T00:06:34.434183+00:00",
-      "overall_rank": 268,
-      "position_ranks": [],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "618b7d4b-2623-4ef0-8fc4-27b416dd0366",
-      "fpl_id": null,
-      "api_football_id": null,
-      "web_name": "Aleksić",
-      "name": "Milan Aleksić",
-      "full_name": null,
-      "date_of_birth": null,
-      "nationality": "Serbia",
-      "pl_team": "Sunderland",
-      "pl_team_id": 17,
       "primary_position": "CM",
       "secondary_positions": [
-        "AM",
         "DM"
       ],
-      "market_value": 0.7,
-      "market_value_updated_at": "2026-03-05T03:23:56.608+00:00",
+      "market_value": 1.5,
+      "market_value_updated_at": "2026-07-23T22:03:29.44+00:00",
       "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/626844.png",
-      "height_cm": 179,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": false,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-07-30T00:06:34.434183+00:00",
-      "overall_rank": 268,
-      "position_ranks": [],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "62413c5f-3cf3-4c2c-8ad3-7d3820aece5e",
-      "fpl_id": null,
-      "api_football_id": 19128,
-      "web_name": "H.Jones",
-      "name": "Harrison Jones",
-      "full_name": null,
-      "date_of_birth": "2004-12-25",
-      "nationality": "England",
-      "pl_team": "Sunderland",
-      "pl_team_id": 17,
-      "primary_position": "AM",
-      "secondary_positions": [
-        "CM"
-      ],
-      "market_value": 0.15,
-      "market_value_updated_at": "2026-03-05T03:23:56.608+00:00",
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/547410.png",
-      "height_cm": 175,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": false,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-07-30T00:06:34.434183+00:00",
-      "overall_rank": 268,
-      "position_ranks": [],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "20b6ba05-7e95-44d1-97d1-101f0b4a3290",
-      "fpl_id": null,
-      "api_football_id": null,
-      "web_name": "Harriman-Annous",
-      "name": "Andre Harriman-Annous",
-      "full_name": null,
-      "date_of_birth": "2007-12-28",
-      "nationality": "England",
-      "pl_team": "Arsenal",
-      "pl_team_id": 1,
-      "primary_position": "CM",
-      "secondary_positions": [],
-      "market_value": 4.4,
-      "market_value_updated_at": null,
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/646243.png",
-      "height_cm": 181,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": false,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-07-30T00:06:34.434183+00:00",
-      "overall_rank": 268,
-      "position_ranks": [],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "ecddb4f8-0b98-4881-8c34-a81bc2a93ffd",
-      "fpl_id": null,
-      "api_football_id": null,
-      "web_name": "Abdullahi",
-      "name": "Ahmed Abdullahi",
-      "full_name": null,
-      "date_of_birth": "2004-06-19",
-      "nationality": "Nigeria",
-      "pl_team": "Sunderland",
-      "pl_team_id": 17,
-      "primary_position": "ST",
-      "secondary_positions": [],
-      "market_value": 0.8,
-      "market_value_updated_at": "2026-08-05T04:06:16.101+00:00",
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/611975.png",
-      "height_cm": null,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": false,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-05T04:06:16.577514+00:00",
-      "overall_rank": 268,
-      "position_ranks": [],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "5c118a23-764b-4342-9eb0-d632653989e4",
-      "fpl_id": null,
-      "api_football_id": 19136,
-      "web_name": "Clarke",
-      "name": "Brayden Clarke",
-      "full_name": null,
-      "date_of_birth": null,
-      "nationality": "England",
-      "pl_team": "Arsenal",
-      "pl_team_id": 1,
-      "primary_position": "CB",
-      "secondary_positions": [],
-      "market_value": 3.8,
-      "market_value_updated_at": null,
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/563324.png",
-      "height_cm": 181,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": false,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-07-30T00:06:34.434183+00:00",
-      "overall_rank": 268,
-      "position_ranks": [],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "9a4169c2-84d8-44ea-b506-c196833f6fb0",
-      "fpl_id": null,
-      "api_football_id": null,
-      "web_name": "Mandas",
-      "name": "Christos Mandas",
-      "full_name": null,
-      "date_of_birth": "2001-09-17",
-      "nationality": "Greece",
-      "pl_team": "Bournemouth",
-      "pl_team_id": 4,
-      "primary_position": "GK",
-      "secondary_positions": [],
-      "market_value": 5,
-      "market_value_updated_at": "2026-03-05T03:23:56.37+00:00",
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/436416.png",
-      "height_cm": 189,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": false,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-07-30T00:06:34.434183+00:00",
-      "overall_rank": 268,
-      "position_ranks": [],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "fa16e52d-b760-42f2-a60b-755193b52a05",
-      "fpl_id": null,
-      "api_football_id": 18873,
-      "web_name": "Fraser",
-      "name": "Nathan Fraser",
-      "full_name": null,
-      "date_of_birth": null,
-      "nationality": "Scotland",
-      "pl_team": "Wolves",
-      "pl_team_id": 20,
-      "primary_position": "ST",
-      "secondary_positions": [],
-      "market_value": 0.6,
-      "market_value_updated_at": "2026-03-05T03:23:57.905+00:00",
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/531363.png",
-      "height_cm": 163,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": false,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-07-30T00:06:34.434183+00:00",
-      "overall_rank": 268,
-      "position_ranks": [],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "93f58264-db8e-4b65-bc5b-2be8d133ef69",
-      "fpl_id": null,
-      "api_football_id": 380492,
-      "web_name": "Da Silva Moreira",
-      "name": "Eric da Silva Moreira",
-      "full_name": null,
-      "date_of_birth": "2006-05-03",
-      "nationality": "Germany",
-      "pl_team": "Nott'm Forest",
-      "pl_team_id": 16,
-      "primary_position": "RWB",
-      "secondary_positions": [
-        "RB"
-      ],
-      "market_value": 0.8,
-      "market_value_updated_at": "2026-08-05T04:06:16.101+00:00",
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/569014.png",
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/183656.png",
       "height_cm": 184,
       "fpl_status": "a",
       "fpl_news": null,
       "total_points": 0,
       "form_rating": 0,
       "ppg": 0,
-      "is_active": false,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-05T04:06:16.573789+00:00",
-      "overall_rank": 268,
-      "position_ranks": [],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "ebf9ffb8-de23-4bb3-b18c-fd51bb57b6c4",
-      "fpl_id": null,
-      "api_football_id": null,
-      "web_name": "Whitehall",
-      "name": "Archie Whitehall",
-      "full_name": null,
-      "date_of_birth": "2006-05-21",
-      "nationality": null,
-      "pl_team": "Nott'm Forest",
-      "pl_team_id": 16,
-      "primary_position": "CM",
-      "secondary_positions": [],
-      "market_value": 4.5,
-      "market_value_updated_at": null,
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/568159.png",
-      "height_cm": null,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": false,
-      "transfermarkt_id": null,
-      "created_at": "2026-05-11T02:41:43.241031+00:00",
-      "updated_at": "2026-07-30T00:06:34.434183+00:00",
-      "overall_rank": 268,
-      "position_ranks": [],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "ae888ae7-b9be-4aee-921e-e4ccd06ebc7b",
-      "fpl_id": null,
-      "api_football_id": null,
-      "web_name": "Herrick",
-      "name": "Finlay Herrick",
-      "full_name": null,
-      "date_of_birth": "2006-01-18",
-      "nationality": null,
-      "pl_team": "West Ham",
-      "pl_team_id": 19,
-      "primary_position": "GK",
-      "secondary_positions": [],
-      "market_value": 4,
-      "market_value_updated_at": null,
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/553742.png",
-      "height_cm": null,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": false,
-      "transfermarkt_id": null,
-      "created_at": "2026-03-30T04:48:20.643762+00:00",
-      "updated_at": "2026-07-30T00:06:34.434183+00:00",
-      "overall_rank": 268,
-      "position_ranks": [],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "db3af38c-fffd-4c60-a7f4-2207f5c40577",
-      "fpl_id": null,
-      "api_football_id": null,
-      "web_name": "Chadwick",
-      "name": "Rhys Chadwick",
-      "full_name": null,
-      "date_of_birth": "2007-02-19",
-      "nationality": null,
-      "pl_team": "Leeds",
-      "pl_team_id": 11,
-      "primary_position": "CM",
-      "secondary_positions": [],
-      "market_value": 4.5,
-      "market_value_updated_at": null,
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/577978.png",
-      "height_cm": null,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": false,
-      "transfermarkt_id": null,
-      "created_at": "2026-05-12T02:41:43.702146+00:00",
-      "updated_at": "2026-07-30T00:06:34.434183+00:00",
-      "overall_rank": 268,
-      "position_ranks": [],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "a87714c1-6e21-4c84-b2b5-85d360bf578d",
-      "fpl_id": null,
-      "api_football_id": 389032,
-      "web_name": "Morrison",
-      "name": "Kieran Morrison",
-      "full_name": null,
-      "date_of_birth": "2006-11-09",
-      "nationality": "England",
-      "pl_team": "Liverpool",
-      "pl_team_id": 12,
-      "primary_position": "RW",
-      "secondary_positions": [],
-      "market_value": 4.5,
-      "market_value_updated_at": null,
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/596042.png",
-      "height_cm": 170,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": false,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-07-30T00:06:34.434183+00:00",
-      "overall_rank": 268,
-      "position_ranks": [],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "1f3dbfd5-ae99-4a41-adf0-0b75dbde7cb5",
-      "fpl_id": null,
-      "api_football_id": 401278,
-      "web_name": "Mohamadou Kanté",
-      "name": "Mohamadou Kanté",
-      "full_name": null,
-      "date_of_birth": "2005-09-20",
-      "nationality": "France",
-      "pl_team": "West Ham",
-      "pl_team_id": 19,
-      "primary_position": "DM",
-      "secondary_positions": [
-        "CM"
-      ],
-      "market_value": 1,
-      "market_value_updated_at": "2026-08-02T14:17:13.266+00:00",
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/630699.png",
-      "height_cm": 178,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 4.9,
-      "ppg": 0,
-      "is_active": false,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-02T14:17:13.413337+00:00",
-      "overall_rank": 268,
-      "position_ranks": [
-        {
-          "position": "CM",
-          "rank": 120
-        },
-        {
-          "position": "DM",
-          "rank": 86
-        }
-      ],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "1de42043-bfe4-4ca7-92d8-40e5939d5302",
-      "fpl_id": null,
-      "api_football_id": 18917,
-      "web_name": "Mee",
-      "name": "Dermot Mee",
-      "full_name": null,
-      "date_of_birth": "2002-11-20",
-      "nationality": "England",
-      "pl_team": "Man Utd",
-      "pl_team_id": 14,
-      "primary_position": "GK",
-      "secondary_positions": [],
-      "market_value": 3.9,
-      "market_value_updated_at": null,
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/461537.png",
-      "height_cm": 180,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": false,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-07-30T00:06:34.434183+00:00",
-      "overall_rank": 268,
-      "position_ranks": [],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "a2f7e668-aeb5-4328-a681-0d249a61298e",
-      "fpl_id": null,
-      "api_football_id": 337934,
-      "web_name": "Shahar",
-      "name": "Leo Shahar",
-      "full_name": null,
-      "date_of_birth": "2007-03-18",
-      "nationality": "England",
-      "pl_team": "Newcastle",
-      "pl_team_id": 15,
-      "primary_position": "RB",
-      "secondary_positions": [
-        "RW"
-      ],
-      "market_value": 4,
-      "market_value_updated_at": null,
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/553746.png",
-      "height_cm": null,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": false,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-07-30T00:06:34.434183+00:00",
-      "overall_rank": 268,
-      "position_ranks": [],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "d94652fb-3f06-4062-9c65-c9c618dfbeeb",
-      "fpl_id": null,
-      "api_football_id": null,
-      "web_name": "Roberts",
-      "name": "Connor Roberts",
-      "full_name": null,
-      "date_of_birth": "1995-09-23",
-      "nationality": "Wales",
-      "pl_team": "Burnley",
-      "pl_team_id": 3,
-      "primary_position": "RB",
-      "secondary_positions": [
-        "CM"
-      ],
-      "market_value": 1.5,
-      "market_value_updated_at": "2026-08-02T14:17:15.388+00:00",
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/192290.png",
-      "height_cm": 175,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": false,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-02T14:17:15.537277+00:00",
-      "overall_rank": 268,
-      "position_ranks": [],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "1b45c235-0d59-4138-9fa1-735688aa5e3b",
-      "fpl_id": 99,
-      "api_football_id": null,
-      "web_name": "Milambo",
-      "name": "Antoni Milambo",
-      "full_name": null,
-      "date_of_birth": "2005-04-03",
-      "nationality": "Netherlands",
-      "pl_team": "Brentford",
-      "pl_team_id": 5,
-      "primary_position": "CM",
-      "secondary_positions": [
-        "AM"
-      ],
-      "market_value": 15,
-      "market_value_updated_at": "2026-07-23T22:03:29.443+00:00",
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/543295.png",
-      "height_cm": 179,
-      "fpl_status": "d",
-      "fpl_news": "Knee injury - 75% chance of playing",
-      "total_points": 0,
-      "form_rating": 5.6,
-      "ppg": 0,
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.220849+00:00",
-      "overall_rank": 268,
-      "position_ranks": [
-        {
-          "position": "CM",
-          "rank": 120
-        },
-        {
-          "position": "AM",
-          "rank": 77
-        }
-      ],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "e66c6488-ab94-48b0-b050-fef3b51776d1",
-      "fpl_id": null,
-      "api_football_id": null,
-      "web_name": "Jordan",
-      "name": "Jordan Beyer",
-      "full_name": null,
-      "date_of_birth": "2000-05-19",
-      "nationality": "Germany",
-      "pl_team": "Burnley",
-      "pl_team_id": 3,
-      "primary_position": "CB",
-      "secondary_positions": [],
-      "market_value": 1.5,
-      "market_value_updated_at": "2026-08-02T14:17:22.823+00:00",
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/241231.png",
-      "height_cm": 187,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": false,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-02T14:17:22.97216+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 268,
       "position_ranks": [],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "353dc79b-12e5-4cb6-aa8b-3fbdce2a1789",
-      "fpl_id": 386,
-      "api_football_id": 19012,
-      "web_name": "Bettinelli",
-      "name": "Marcus Bettinelli",
-      "full_name": null,
-      "date_of_birth": "1992-05-24",
-      "nationality": "England",
-      "pl_team": "Man City",
-      "pl_team_id": 13,
-      "primary_position": "GK",
-      "secondary_positions": [],
-      "market_value": 0.3,
-      "market_value_updated_at": "2026-07-23T22:03:29.167+00:00",
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/122074.png",
-      "height_cm": 193,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": true,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.127773+00:00",
-      "overall_rank": 268,
-      "position_ranks": [],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "b891835b-4b94-438c-9afd-039ba2484de2",
-      "fpl_id": null,
-      "api_football_id": 394710,
-      "web_name": "McKenna",
-      "name": "Callan McKenna",
-      "full_name": null,
-      "date_of_birth": "2006-12-22",
-      "nationality": "Scotland",
-      "pl_team": "Bournemouth",
-      "pl_team_id": 4,
-      "primary_position": "GK",
-      "secondary_positions": [],
-      "market_value": 0.5,
-      "market_value_updated_at": "2026-08-02T14:17:15.844+00:00",
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/568791.png",
-      "height_cm": 188,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": false,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-02T14:17:15.989813+00:00",
-      "overall_rank": 268,
-      "position_ranks": [],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "6f770194-826b-42b3-abce-9ce5f44532d3",
-      "fpl_id": null,
-      "api_football_id": 380679,
-      "web_name": "Kporha",
-      "name": "Caleb Kporha",
-      "full_name": null,
-      "date_of_birth": "2006-07-15",
-      "nationality": "England",
-      "pl_team": "Crystal Palace",
-      "pl_team_id": 8,
-      "primary_position": "RWB",
-      "secondary_positions": [
-        "RB"
-      ],
-      "market_value": 1,
-      "market_value_updated_at": "2026-08-02T14:17:16.203+00:00",
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/590012.png",
-      "height_cm": 170,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": false,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-02T14:17:16.349871+00:00",
-      "overall_rank": 268,
-      "position_ranks": [],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "055f000d-1be9-4e7f-82b6-3de6dde9bcf7",
-      "fpl_id": null,
-      "api_football_id": null,
-      "web_name": "Lienou",
-      "name": "Jayden Lienou",
-      "full_name": null,
-      "date_of_birth": "2008-04-08",
-      "nationality": null,
-      "pl_team": "Leeds",
-      "pl_team_id": 11,
-      "primary_position": "CB",
-      "secondary_positions": [],
-      "market_value": 4,
-      "market_value_updated_at": null,
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/643970.png",
-      "height_cm": null,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": false,
-      "transfermarkt_id": null,
-      "created_at": "2026-05-12T02:41:43.702146+00:00",
-      "updated_at": "2026-07-30T00:06:34.434183+00:00",
-      "overall_rank": 268,
-      "position_ranks": [],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "63f71453-52cd-4d50-bfe4-974acaab7f6b",
-      "fpl_id": null,
-      "api_football_id": 153422,
-      "web_name": "Brierley",
-      "name": "George Brierley",
-      "full_name": null,
-      "date_of_birth": "2007-11-20",
-      "nationality": "England",
-      "pl_team": "Burnley",
-      "pl_team_id": 3,
-      "primary_position": "CM",
-      "secondary_positions": [
-        "DM"
-      ],
-      "market_value": 4.5,
-      "market_value_updated_at": null,
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/704232.png",
-      "height_cm": 168,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": false,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-07-30T00:06:34.434183+00:00",
-      "overall_rank": 268,
-      "position_ranks": [],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "0ff0b702-a3bf-41c2-a59b-4d0bbc7f8413",
-      "fpl_id": 441,
-      "api_football_id": null,
-      "web_name": "Obi",
-      "name": "Chido Obi",
-      "full_name": null,
-      "date_of_birth": "2007-11-29",
-      "nationality": "Denmark",
-      "pl_team": "Man Utd",
-      "pl_team_id": 14,
-      "primary_position": "ST",
-      "secondary_positions": [],
-      "market_value": 5,
-      "market_value_updated_at": "2026-07-23T22:03:29.34+00:00",
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/596047.png",
-      "height_cm": 188,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": true,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.420173+00:00",
-      "overall_rank": 268,
-      "position_ranks": [],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "64aa6013-97ae-4b78-abc3-c51fb321ed65",
-      "fpl_id": null,
-      "api_football_id": null,
-      "web_name": "Gunn",
-      "name": "Angus Gunn",
-      "full_name": null,
-      "date_of_birth": "1996-01-22",
-      "nationality": "Scotland",
-      "pl_team": "Nott'm Forest",
-      "pl_team_id": 16,
-      "primary_position": "GK",
-      "secondary_positions": [],
-      "market_value": 1,
-      "market_value_updated_at": "2026-08-02T14:17:16.57+00:00",
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/107265.png",
-      "height_cm": 150,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 5.7,
-      "ppg": 0,
-      "is_active": false,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-02T14:17:16.716275+00:00",
-      "overall_rank": 268,
-      "position_ranks": [
-        {
-          "position": "GK",
-          "rank": 30
-        }
-      ],
       "owner_team_id": null,
       "owner_team_name": null
     },
@@ -20360,7 +22185,7 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-02T14:17:21.247912+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 268,
       "position_ranks": [],
       "owner_team_id": null,
@@ -20394,39 +22219,7 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-02T14:17:21.063979+00:00",
-      "overall_rank": 268,
-      "position_ranks": [],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "21be9103-6a72-4d86-9dd7-cc210f38e872",
-      "fpl_id": null,
-      "api_football_id": 298129,
-      "web_name": "Boateng",
-      "name": "Enock Agyei",
-      "full_name": null,
-      "date_of_birth": "2005-01-13",
-      "nationality": "England",
-      "pl_team": "Burnley",
-      "pl_team_id": 3,
-      "primary_position": "RW",
-      "secondary_positions": [],
-      "market_value": 0.6,
-      "market_value_updated_at": "2026-08-02T14:17:16.936+00:00",
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/578614.png",
-      "height_cm": 182,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": false,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-02T14:17:17.082399+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 268,
       "position_ranks": [],
       "owner_team_id": null,
@@ -20458,7 +22251,7 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-02T14:17:19.214005+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 268,
       "position_ranks": [],
       "owner_team_id": null,
@@ -20490,247 +22283,7 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-02T14:17:18.662369+00:00",
-      "overall_rank": 268,
-      "position_ranks": [],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "92e63dd7-a93c-4a27-868d-6e66f243f69b",
-      "fpl_id": null,
-      "api_football_id": 63577,
-      "web_name": "Mudryk",
-      "name": "Mykhailo Mudryk",
-      "full_name": null,
-      "date_of_birth": "2001-01-05",
-      "nationality": "Ukraine",
-      "pl_team": "Chelsea",
-      "pl_team_id": 7,
-      "primary_position": "LW",
-      "secondary_positions": [],
-      "market_value": 4.9,
-      "market_value_updated_at": null,
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/465920.png",
-      "height_cm": 175,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": false,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-07-30T00:06:34.434183+00:00",
-      "overall_rank": 268,
-      "position_ranks": [],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "c284eea4-5b3d-40af-8187-7f1d5ff64bc5",
-      "fpl_id": null,
-      "api_football_id": 361676,
-      "web_name": "Ebere",
-      "name": "Coby Ebere",
-      "full_name": null,
-      "date_of_birth": null,
-      "nationality": "England",
-      "pl_team": "Everton",
-      "pl_team_id": 9,
-      "primary_position": "CM",
-      "secondary_positions": [],
-      "market_value": 6,
-      "market_value_updated_at": "2026-07-23T21:16:21.036+00:00",
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/504296.png",
-      "height_cm": 187,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": false,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-07-30T00:06:34.434183+00:00",
-      "overall_rank": 268,
-      "position_ranks": [],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "145eb561-3283-435e-ac49-2a29d2016d95",
-      "fpl_id": null,
-      "api_football_id": null,
-      "web_name": "DaCosta",
-      "name": "Malcom DaCosta",
-      "full_name": null,
-      "date_of_birth": "2008-04-17",
-      "nationality": "Ecuador",
-      "pl_team": "Bournemouth",
-      "pl_team_id": 4,
-      "primary_position": "ST",
-      "secondary_positions": [],
-      "market_value": 4.5,
-      "market_value_updated_at": null,
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/678552.png",
-      "height_cm": 193,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": false,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-07-30T00:06:34.434183+00:00",
-      "overall_rank": 268,
-      "position_ranks": [],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "ab4588be-38bb-4f34-92f1-a8a2cebfa0a0",
-      "fpl_id": 221,
-      "api_football_id": 152969,
-      "web_name": "Drakes-Thomas",
-      "name": "Joél Drakes-Thomas",
-      "full_name": null,
-      "date_of_birth": "2009-06-09",
-      "nationality": "England",
-      "pl_team": "Crystal Palace",
-      "pl_team_id": 8,
-      "primary_position": "CM",
-      "secondary_positions": [],
-      "market_value": 16,
-      "market_value_updated_at": "2026-07-23T21:15:38.931+00:00",
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/672492.png",
-      "height_cm": 181,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": true,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.959221+00:00",
-      "overall_rank": 268,
-      "position_ranks": [],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "3cabbf67-e4af-476b-a27a-22b8fb015e96",
-      "fpl_id": 515,
-      "api_football_id": 18784,
-      "web_name": "Maddison",
-      "name": "James Maddison",
-      "full_name": null,
-      "date_of_birth": "1996-11-23",
-      "nationality": "England",
-      "pl_team": "Spurs",
-      "pl_team_id": 18,
-      "primary_position": "CM",
-      "secondary_positions": [
-        "AM"
-      ],
-      "market_value": 20,
-      "market_value_updated_at": "2026-07-23T22:03:29.306+00:00",
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/172780.png",
-      "height_cm": 175,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 5.4,
-      "ppg": 0,
-      "is_active": true,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.541055+00:00",
-      "overall_rank": 268,
-      "position_ranks": [
-        {
-          "position": "CM",
-          "rank": 120
-        },
-        {
-          "position": "AM",
-          "rank": 75
-        }
-      ],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "791cbaa5-42ce-4012-a64d-a9acd4609bbb",
-      "fpl_id": null,
-      "api_football_id": 301295,
-      "web_name": "Rodney",
-      "name": "Kaden Rodney",
-      "full_name": null,
-      "date_of_birth": "2004-10-07",
-      "nationality": "England",
-      "pl_team": "Crystal Palace",
-      "pl_team_id": 8,
-      "primary_position": "DM",
-      "secondary_positions": [
-        "RB",
-        "CM"
-      ],
-      "market_value": 0.2,
-      "market_value_updated_at": "2026-08-02T14:17:17.58+00:00",
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/530318.png",
-      "height_cm": 189,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": false,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-02T14:17:17.73088+00:00",
-      "overall_rank": 268,
-      "position_ranks": [],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "6ced2442-1706-4db8-bc90-e0c0195eabb9",
-      "fpl_id": null,
-      "api_football_id": null,
-      "web_name": "Lamadrid",
-      "name": "Keiber Lamadrid",
-      "full_name": null,
-      "date_of_birth": "2003-11-18",
-      "nationality": "Venezuela",
-      "pl_team": "West Ham",
-      "pl_team_id": 19,
-      "primary_position": "LW",
-      "secondary_positions": [
-        "CM"
-      ],
-      "market_value": 1.2,
-      "market_value_updated_at": "2026-08-02T14:17:17.859+00:00",
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/572702.png",
-      "height_cm": 177,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": false,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-02T14:17:18.00579+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 268,
       "position_ranks": [],
       "owner_team_id": null,
@@ -20765,7 +22318,7 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-02T14:17:15.170688+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 268,
       "position_ranks": [],
       "owner_team_id": null,
@@ -20799,7 +22352,7 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-02T14:17:14.616309+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 268,
       "position_ranks": [],
       "owner_team_id": null,
@@ -20831,399 +22384,7 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-02T14:17:14.070482+00:00",
-      "overall_rank": 268,
-      "position_ranks": [],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "de9623dd-0873-4935-adf5-3763f703e383",
-      "fpl_id": null,
-      "api_football_id": null,
-      "web_name": "Stephenson",
-      "name": "Joshua Stephenson",
-      "full_name": null,
-      "date_of_birth": "2007-09-04",
-      "nationality": null,
-      "pl_team": "Brentford",
-      "pl_team_id": 5,
-      "primary_position": "RWB",
-      "secondary_positions": [
-        "CM"
-      ],
-      "market_value": 4,
-      "market_value_updated_at": null,
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/649240.png",
-      "height_cm": null,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": false,
-      "transfermarkt_id": null,
-      "created_at": "2026-03-30T04:48:20.643762+00:00",
-      "updated_at": "2026-07-30T00:06:34.434183+00:00",
-      "overall_rank": 268,
-      "position_ranks": [],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "078c3e2c-e003-4c59-902d-2cc5174356f0",
-      "fpl_id": null,
-      "api_football_id": null,
-      "web_name": "Gracey",
-      "name": "Josh Gracey",
-      "full_name": null,
-      "date_of_birth": "2007-12-14",
-      "nationality": null,
-      "pl_team": "Wolves",
-      "pl_team_id": 20,
-      "primary_position": "GK",
-      "secondary_positions": [],
-      "market_value": 4,
-      "market_value_updated_at": null,
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/627888.png",
-      "height_cm": null,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": false,
-      "transfermarkt_id": null,
-      "created_at": "2026-05-03T02:30:22.897562+00:00",
-      "updated_at": "2026-07-30T00:06:34.434183+00:00",
-      "overall_rank": 268,
-      "position_ranks": [],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "fe06942f-0659-4c76-a6d3-2f19110790a7",
-      "fpl_id": null,
-      "api_football_id": null,
-      "web_name": "Wilson",
-      "name": "James Wilson",
-      "full_name": null,
-      "date_of_birth": "2007-03-06",
-      "nationality": "England",
-      "pl_team": "Spurs",
-      "pl_team_id": 18,
-      "primary_position": "ST",
-      "secondary_positions": [],
-      "market_value": 4.5,
-      "market_value_updated_at": null,
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/613232.png",
-      "height_cm": 188,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": false,
-      "transfermarkt_id": null,
-      "created_at": "2026-03-07T02:34:53.417778+00:00",
-      "updated_at": "2026-07-30T00:06:34.434183+00:00",
-      "overall_rank": 268,
-      "position_ranks": [],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "1b0ce0b3-27a1-468c-92b3-7d849d16de0a",
-      "fpl_id": 58,
-      "api_football_id": 18932,
-      "web_name": "Forster",
-      "name": "Fraser Forster",
-      "full_name": null,
-      "date_of_birth": "1988-03-17",
-      "nationality": "England",
-      "pl_team": "Bournemouth",
-      "pl_team_id": 4,
-      "primary_position": "GK",
-      "secondary_positions": [],
-      "market_value": 0.4,
-      "market_value_updated_at": "2026-07-23T22:03:29.406+00:00",
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/40383.png",
-      "height_cm": 201,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": true,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.220849+00:00",
-      "overall_rank": 268,
-      "position_ranks": [],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "d97cbdb2-c50e-4c4e-afba-97ecbc90af2c",
-      "fpl_id": 414,
-      "api_football_id": 2931,
-      "web_name": "Heaton",
-      "name": "Tom Heaton",
-      "full_name": null,
-      "date_of_birth": "1986-04-15",
-      "nationality": "England",
-      "pl_team": "Man Utd",
-      "pl_team_id": 14,
-      "primary_position": "GK",
-      "secondary_positions": [],
-      "market_value": 0.1,
-      "market_value_updated_at": "2026-07-23T22:03:29.316+00:00",
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/21205.png",
-      "height_cm": 188,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": true,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.420173+00:00",
-      "overall_rank": 268,
-      "position_ranks": [],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "83f1d0d1-913e-4f37-a173-e87c26db0849",
-      "fpl_id": null,
-      "api_football_id": null,
-      "web_name": "Whittaker",
-      "name": "Jack Whittaker",
-      "full_name": null,
-      "date_of_birth": "2006-10-14",
-      "nationality": null,
-      "pl_team": "Sunderland",
-      "pl_team_id": 17,
-      "primary_position": "CM",
-      "secondary_positions": [],
-      "market_value": 4.5,
-      "market_value_updated_at": null,
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/570929.png",
-      "height_cm": null,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": false,
-      "transfermarkt_id": null,
-      "created_at": "2026-03-30T04:48:20.643762+00:00",
-      "updated_at": "2026-07-30T00:06:34.434183+00:00",
-      "overall_rank": 268,
-      "position_ranks": [],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "025e2064-d770-425f-b802-ff22ad610176",
-      "fpl_id": null,
-      "api_football_id": null,
-      "web_name": "McManus",
-      "name": "Conor McManus",
-      "full_name": null,
-      "date_of_birth": "2004-06-16",
-      "nationality": null,
-      "pl_team": "Brentford",
-      "pl_team_id": 5,
-      "primary_position": "CB",
-      "secondary_positions": [],
-      "market_value": 4,
-      "market_value_updated_at": null,
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/587433.png",
-      "height_cm": null,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": false,
-      "transfermarkt_id": null,
-      "created_at": "2026-03-30T04:48:20.643762+00:00",
-      "updated_at": "2026-07-30T00:06:34.434183+00:00",
-      "overall_rank": 268,
-      "position_ranks": [],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "0fa642f8-28d4-4c18-a4e2-5de96272807f",
-      "fpl_id": null,
-      "api_football_id": null,
-      "web_name": "Benamar",
-      "name": "Dean Benamar",
-      "full_name": null,
-      "date_of_birth": "2008-05-31",
-      "nationality": "England",
-      "pl_team": "Crystal Palace",
-      "pl_team_id": 8,
-      "primary_position": "CB",
-      "secondary_positions": [],
-      "market_value": 4,
-      "market_value_updated_at": null,
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/643426.png",
-      "height_cm": null,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": false,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-07-30T00:06:34.434183+00:00",
-      "overall_rank": 268,
-      "position_ranks": [],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "c3245195-a8bc-4fb1-a273-9ecab3e7104c",
-      "fpl_id": null,
-      "api_football_id": 347305,
-      "web_name": "Heskey",
-      "name": "Reigan Heskey",
-      "full_name": null,
-      "date_of_birth": "2008-01-18",
-      "nationality": "England",
-      "pl_team": "Man City",
-      "pl_team_id": 13,
-      "primary_position": "AM",
-      "secondary_positions": [
-        "DM",
-        "CM"
-      ],
-      "market_value": 4.5,
-      "market_value_updated_at": null,
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/580921.png",
-      "height_cm": 184,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": false,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-07-30T00:06:34.434183+00:00",
-      "overall_rank": 268,
-      "position_ranks": [],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "2e568b4b-9dc7-457d-b409-99c89b8b02b9",
-      "fpl_id": 524,
-      "api_football_id": 380689,
-      "web_name": "Olusesi",
-      "name": "Callum Olusesi",
-      "full_name": null,
-      "date_of_birth": null,
-      "nationality": "England",
-      "pl_team": "Spurs",
-      "pl_team_id": 18,
-      "primary_position": "CM",
-      "secondary_positions": [
-        "AM",
-        "DM"
-      ],
-      "market_value": 5,
-      "market_value_updated_at": "2026-07-30T00:14:04.288+00:00",
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/499726.png",
-      "height_cm": 175,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": true,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.541055+00:00",
-      "overall_rank": 268,
-      "position_ranks": [],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "7b0fd66e-e069-45a4-805b-1387d6681d13",
-      "fpl_id": null,
-      "api_football_id": 398004,
-      "web_name": "Proctor",
-      "name": "Sam Proctor",
-      "full_name": null,
-      "date_of_birth": "2006-12-21",
-      "nationality": "England",
-      "pl_team": "Aston Villa",
-      "pl_team_id": 2,
-      "primary_position": "GK",
-      "secondary_positions": [],
-      "market_value": 3.9,
-      "market_value_updated_at": null,
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/564505.png",
-      "height_cm": null,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": false,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-07-30T00:06:34.434183+00:00",
-      "overall_rank": 268,
-      "position_ranks": [],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "b997ea74-3c33-4b79-bb9c-11c99ab481e2",
-      "fpl_id": null,
-      "api_football_id": 384981,
-      "web_name": "Amissah",
-      "name": "Samuel Amissah",
-      "full_name": null,
-      "date_of_birth": "2007-03-07",
-      "nationality": "England",
-      "pl_team": "Fulham",
-      "pl_team_id": 10,
-      "primary_position": "CB",
-      "secondary_positions": [],
-      "market_value": 10,
-      "market_value_updated_at": "2026-07-23T21:16:21.581+00:00",
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/591385.png",
-      "height_cm": 184,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": false,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-07-30T00:06:34.434183+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 268,
       "position_ranks": [],
       "owner_team_id": null,
@@ -21255,7 +22416,7 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-02T14:17:21.157741+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 268,
       "position_ranks": [],
       "owner_team_id": null,
@@ -21287,167 +22448,7 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-02T14:17:20.038861+00:00",
-      "overall_rank": 268,
-      "position_ranks": [],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "1e04d564-c74c-47df-b07d-4b30c6561eb3",
-      "fpl_id": null,
-      "api_football_id": null,
-      "web_name": "Sutherland",
-      "name": "Ethan Sutherland",
-      "full_name": null,
-      "date_of_birth": "2006-04-25",
-      "nationality": "Scotland",
-      "pl_team": "Wolves",
-      "pl_team_id": 20,
-      "primary_position": "LB",
-      "secondary_positions": [],
-      "market_value": 4.5,
-      "market_value_updated_at": null,
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/589121.png",
-      "height_cm": 189,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": false,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-07-30T00:06:34.434183+00:00",
-      "overall_rank": 268,
-      "position_ranks": [],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "62dec3a9-2dc0-4e9a-854f-e3046b20b69d",
-      "fpl_id": null,
-      "api_football_id": 367634,
-      "web_name": "Agbinone",
-      "name": "Asher Agbinone",
-      "full_name": null,
-      "date_of_birth": "2005-09-28",
-      "nationality": "England",
-      "pl_team": "Crystal Palace",
-      "pl_team_id": 8,
-      "primary_position": "LW",
-      "secondary_positions": [],
-      "market_value": 0.05,
-      "market_value_updated_at": "2026-08-02T14:17:22.199+00:00",
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/579075.png",
-      "height_cm": 177,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": false,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-02T14:17:22.343754+00:00",
-      "overall_rank": 268,
-      "position_ranks": [],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "77413620-cbf6-4b6d-8d3d-b41b0b316f7c",
-      "fpl_id": null,
-      "api_football_id": 2997,
-      "web_name": "Fabianski",
-      "name": "Lukasz Fabianski",
-      "full_name": null,
-      "date_of_birth": "1985-04-18",
-      "nationality": "Poland",
-      "pl_team": "West Ham",
-      "pl_team_id": 19,
-      "primary_position": "GK",
-      "secondary_positions": [],
-      "market_value": 0.25,
-      "market_value_updated_at": "2026-03-05T03:23:57.364+00:00",
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/37096.png",
-      "height_cm": 190,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": false,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-07-30T00:06:34.434183+00:00",
-      "overall_rank": 268,
-      "position_ranks": [],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "14b01374-223f-4d54-b85f-7406d2aca072",
-      "fpl_id": null,
-      "api_football_id": null,
-      "web_name": "Fitzgerald",
-      "name": "Jayce Fitzgerald",
-      "full_name": null,
-      "date_of_birth": null,
-      "nationality": "England",
-      "pl_team": "Man Utd",
-      "pl_team_id": 14,
-      "primary_position": "CM",
-      "secondary_positions": [],
-      "market_value": 50,
-      "market_value_updated_at": "2026-07-23T22:03:29.377+00:00",
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/556639.png",
-      "height_cm": null,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": false,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-07-30T00:06:34.434183+00:00",
-      "overall_rank": 268,
-      "position_ranks": [],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "f4a9fe0f-428a-44b4-b7a0-7ebbfb1f28fc",
-      "fpl_id": null,
-      "api_football_id": 44994,
-      "web_name": "Hladký",
-      "name": "Václav Hladký",
-      "full_name": null,
-      "date_of_birth": "1990-11-14",
-      "nationality": "Czechia",
-      "pl_team": "Burnley",
-      "pl_team_id": 3,
-      "primary_position": "GK",
-      "secondary_positions": [],
-      "market_value": 0.15,
-      "market_value_updated_at": "2026-08-02T14:17:22.286+00:00",
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/51943.png",
-      "height_cm": 192,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": false,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-02T14:17:22.430312+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 268,
       "position_ranks": [],
       "owner_team_id": null,
@@ -21481,74 +22482,7 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-02T14:17:19.305057+00:00",
-      "overall_rank": 268,
-      "position_ranks": [],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "90f4f754-1fcf-47c0-a8a9-7c9a250b3e44",
-      "fpl_id": null,
-      "api_football_id": null,
-      "web_name": "Jones",
-      "name": "Jaydon Jones",
-      "full_name": null,
-      "date_of_birth": "2006-11-03",
-      "nationality": null,
-      "pl_team": "Sunderland",
-      "pl_team_id": 17,
-      "primary_position": "CM",
-      "secondary_positions": [
-        "DM",
-        "AM"
-      ],
-      "market_value": 4.5,
-      "market_value_updated_at": null,
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/571087.png",
-      "height_cm": null,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": false,
-      "transfermarkt_id": null,
-      "created_at": "2026-03-30T04:48:20.643762+00:00",
-      "updated_at": "2026-07-30T00:06:34.434183+00:00",
-      "overall_rank": 268,
-      "position_ranks": [],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "c4307f99-e110-4789-ae5e-ec340559c4de",
-      "fpl_id": null,
-      "api_football_id": null,
-      "web_name": "Sillah",
-      "name": "Lamin Sillah",
-      "full_name": null,
-      "date_of_birth": "2006-06-06",
-      "nationality": null,
-      "pl_team": "Nott'm Forest",
-      "pl_team_id": 16,
-      "primary_position": "ST",
-      "secondary_positions": [],
-      "market_value": 4.5,
-      "market_value_updated_at": null,
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/687076.png",
-      "height_cm": null,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": false,
-      "transfermarkt_id": null,
-      "created_at": "2026-05-25T02:51:30.657935+00:00",
-      "updated_at": "2026-07-30T00:06:34.434183+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 268,
       "position_ranks": [],
       "owner_team_id": null,
@@ -21582,218 +22516,18 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-02T14:17:19.121619+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 268,
       "position_ranks": [
         {
           "position": "RB",
-          "rank": 60
+          "rank": 65
         },
         {
           "position": "CB",
-          "rank": 95
+          "rank": 108
         }
       ],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "62469e53-07ee-4f50-b6d8-26777ee56518",
-      "fpl_id": null,
-      "api_football_id": 19016,
-      "web_name": "Chambers",
-      "name": "Sam Chambers",
-      "full_name": null,
-      "date_of_birth": "2007-08-18",
-      "nationality": "England",
-      "pl_team": "Leeds",
-      "pl_team_id": 11,
-      "primary_position": "AM",
-      "secondary_positions": [
-        "RW",
-        "CM"
-      ],
-      "market_value": 0.2,
-      "market_value_updated_at": "2026-08-02T14:17:23.566+00:00",
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/565863.png",
-      "height_cm": 182,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": false,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-02T14:17:23.71193+00:00",
-      "overall_rank": 268,
-      "position_ranks": [],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "210eb668-07fb-44ac-a3e7-7e5e01338e50",
-      "fpl_id": null,
-      "api_football_id": null,
-      "web_name": "Olagunju",
-      "name": "Saheed Olagunju",
-      "full_name": null,
-      "date_of_birth": "2007-01-07",
-      "nationality": "England",
-      "pl_team": "Wolves",
-      "pl_team_id": 20,
-      "primary_position": "CB",
-      "secondary_positions": [],
-      "market_value": 4,
-      "market_value_updated_at": null,
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/601956.png",
-      "height_cm": null,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": false,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-07-30T00:06:34.434183+00:00",
-      "overall_rank": 268,
-      "position_ranks": [],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "75370bb2-08a7-496e-964c-e5aa5f0328c6",
-      "fpl_id": null,
-      "api_football_id": null,
-      "web_name": "Abbey",
-      "name": "Jerome Abbey",
-      "full_name": null,
-      "date_of_birth": "2009-09-16",
-      "nationality": "England",
-      "pl_team": "Wolves",
-      "pl_team_id": 20,
-      "primary_position": "CM",
-      "secondary_positions": [],
-      "market_value": 4.5,
-      "market_value_updated_at": null,
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/685628.png",
-      "height_cm": null,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": false,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-07-30T00:06:34.434183+00:00",
-      "overall_rank": 268,
-      "position_ranks": [
-        {
-          "position": "CM",
-          "rank": 120
-        }
-      ],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "8b735b9e-2bd2-4065-9534-07bc7ca9b9be",
-      "fpl_id": null,
-      "api_football_id": null,
-      "web_name": "McMahon-Brown",
-      "name": "Kian McMahon-Brown",
-      "full_name": null,
-      "date_of_birth": "2008-08-03",
-      "nationality": "Ireland",
-      "pl_team": "Burnley",
-      "pl_team_id": 3,
-      "primary_position": "CM",
-      "secondary_positions": [],
-      "market_value": 4.5,
-      "market_value_updated_at": null,
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/644593.png",
-      "height_cm": 175,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": false,
-      "transfermarkt_id": null,
-      "created_at": "2026-03-07T02:34:53.417778+00:00",
-      "updated_at": "2026-07-30T00:06:34.434183+00:00",
-      "overall_rank": 268,
-      "position_ranks": [],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "97ada8db-f887-4113-a866-fd6c0d8bccdf",
-      "fpl_id": null,
-      "api_football_id": 18955,
-      "web_name": "Hollingshead",
-      "name": "Ronnie Hollingshead",
-      "full_name": null,
-      "date_of_birth": "2004-09-09",
-      "nationality": "England",
-      "pl_team": "Aston Villa",
-      "pl_team_id": 2,
-      "primary_position": "GK",
-      "secondary_positions": [],
-      "market_value": 4,
-      "market_value_updated_at": null,
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/516875.png",
-      "height_cm": 178,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": false,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-07-30T00:06:34.434183+00:00",
-      "overall_rank": 268,
-      "position_ranks": [],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "7d37c614-8747-46a7-8822-9f51e4f21ad0",
-      "fpl_id": null,
-      "api_football_id": null,
-      "web_name": "Cresswell",
-      "name": "Alfie Cresswell",
-      "full_name": null,
-      "date_of_birth": "2007-07-15",
-      "nationality": null,
-      "pl_team": "Leeds",
-      "pl_team_id": 11,
-      "primary_position": "CM",
-      "secondary_positions": [],
-      "market_value": 4.5,
-      "market_value_updated_at": null,
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/592740.png",
-      "height_cm": null,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": false,
-      "transfermarkt_id": null,
-      "created_at": "2026-05-18T02:33:07.838113+00:00",
-      "updated_at": "2026-07-30T00:06:34.434183+00:00",
-      "overall_rank": 268,
-      "position_ranks": [],
       "owner_team_id": null,
       "owner_team_name": null
     },
@@ -21823,41 +22557,7 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-02T14:17:14.704697+00:00",
-      "overall_rank": 268,
-      "position_ranks": [],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "e3512876-cfb8-4ef0-9d2f-6160dbefbd93",
-      "fpl_id": null,
-      "api_football_id": null,
-      "web_name": "King",
-      "name": "George King",
-      "full_name": null,
-      "date_of_birth": "2007-03-20",
-      "nationality": "Ireland",
-      "pl_team": "Crystal Palace",
-      "pl_team_id": 8,
-      "primary_position": "AM",
-      "secondary_positions": [
-        "CM"
-      ],
-      "market_value": 4,
-      "market_value_updated_at": null,
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/591384.png",
-      "height_cm": null,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": false,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-07-30T00:06:34.434183+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 268,
       "position_ranks": [],
       "owner_team_id": null,
@@ -21889,71 +22589,7 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-02T14:17:14.160477+00:00",
-      "overall_rank": 268,
-      "position_ranks": [],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "ea895010-04af-4435-90de-b79874b32372",
-      "fpl_id": 3,
-      "api_football_id": null,
-      "web_name": "Meslier",
-      "name": "Illan Meslier",
-      "full_name": null,
-      "date_of_birth": "2000-03-02",
-      "nationality": "France",
-      "pl_team": "Leeds",
-      "pl_team_id": 11,
-      "primary_position": "GK",
-      "secondary_positions": [],
-      "market_value": 8,
-      "market_value_updated_at": "2026-07-23T22:03:29.214+00:00",
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/437495.png",
-      "height_cm": 200,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": true,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.220849+00:00",
-      "overall_rank": 268,
-      "position_ranks": [],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "f1e8b6d1-4af6-461e-996e-230473c306fe",
-      "fpl_id": null,
-      "api_football_id": null,
-      "web_name": "Wright",
-      "name": "Will Wright",
-      "full_name": null,
-      "date_of_birth": "2008-01-01",
-      "nationality": null,
-      "pl_team": "Liverpool",
-      "pl_team_id": 12,
-      "primary_position": "ST",
-      "secondary_positions": [],
-      "market_value": 4.5,
-      "market_value_updated_at": null,
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/677945.png",
-      "height_cm": null,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": false,
-      "transfermarkt_id": null,
-      "created_at": "2026-04-26T02:21:12.470462+00:00",
-      "updated_at": "2026-07-30T00:06:34.434183+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 268,
       "position_ranks": [],
       "owner_team_id": null,
@@ -21987,39 +22623,7 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-02T14:17:12.31262+00:00",
-      "overall_rank": 268,
-      "position_ranks": [],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "b9432e93-4fc5-48ff-a703-cc84154e0c8d",
-      "fpl_id": null,
-      "api_football_id": null,
-      "web_name": "McAidoo",
-      "name": "Ryan McAidoo",
-      "full_name": null,
-      "date_of_birth": "2008-06-24",
-      "nationality": "England",
-      "pl_team": "Man City",
-      "pl_team_id": 13,
-      "primary_position": "AM",
-      "secondary_positions": [],
-      "market_value": 4.5,
-      "market_value_updated_at": null,
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/616288.png",
-      "height_cm": 174,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": false,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-07-30T00:06:34.434183+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 268,
       "position_ranks": [],
       "owner_team_id": null,
@@ -22051,7 +22655,7 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-02T14:17:12.114008+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 268,
       "position_ranks": [],
       "owner_team_id": null,
@@ -22083,7 +22687,7 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-02T14:17:07.086353+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 268,
       "position_ranks": [],
       "owner_team_id": null,
@@ -22115,39 +22719,7 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-02T14:17:06.791345+00:00",
-      "overall_rank": 268,
-      "position_ranks": [],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "b2018f42-3108-4cc3-8091-5b8f98819d17",
-      "fpl_id": null,
-      "api_football_id": 359942,
-      "web_name": "Akinmboni",
-      "name": "Matai Akinmboni",
-      "full_name": null,
-      "date_of_birth": "2006-10-17",
-      "nationality": "USA",
-      "pl_team": "Bournemouth",
-      "pl_team_id": 4,
-      "primary_position": "CB",
-      "secondary_positions": [],
-      "market_value": 1,
-      "market_value_updated_at": "2026-08-02T14:17:05.871+00:00",
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/541462.png",
-      "height_cm": 191,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": false,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-02T14:17:06.017232+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 268,
       "position_ranks": [],
       "owner_team_id": null,
@@ -22179,7 +22751,7 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-02T14:17:07.574941+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 268,
       "position_ranks": [],
       "owner_team_id": null,
@@ -22211,7 +22783,71 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-02T14:17:06.695437+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "17dc0a21-fd40-4227-b002-c91d02795e25",
+      "fpl_id": null,
+      "api_football_id": 18739,
+      "web_name": "Boly",
+      "name": "Willy Boly",
+      "full_name": null,
+      "date_of_birth": null,
+      "nationality": "Côte d'Ivoire",
+      "pl_team": "Nott'm Forest",
+      "pl_team_id": 16,
+      "primary_position": "CB",
+      "secondary_positions": [],
+      "market_value": 0.3,
+      "market_value_updated_at": "2026-08-02T14:17:05.59+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/90585.png",
+      "height_cm": 195,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 0,
+      "ppg": 0,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "e66c6488-ab94-48b0-b050-fef3b51776d1",
+      "fpl_id": null,
+      "api_football_id": null,
+      "web_name": "Jordan",
+      "name": "Jordan Beyer",
+      "full_name": null,
+      "date_of_birth": "2000-05-19",
+      "nationality": "Germany",
+      "pl_team": "Burnley",
+      "pl_team_id": 3,
+      "primary_position": "CB",
+      "secondary_positions": [],
+      "market_value": 1.5,
+      "market_value_updated_at": "2026-08-02T14:17:22.823+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/241231.png",
+      "height_cm": 187,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 0,
+      "ppg": 0,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 268,
       "position_ranks": [],
       "owner_team_id": null,
@@ -22246,40 +22882,8 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.220849+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 352,
-      "position_ranks": [],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "17dc0a21-fd40-4227-b002-c91d02795e25",
-      "fpl_id": null,
-      "api_football_id": 18739,
-      "web_name": "Boly",
-      "name": "Willy Boly",
-      "full_name": null,
-      "date_of_birth": null,
-      "nationality": "Côte d'Ivoire",
-      "pl_team": "Nott'm Forest",
-      "pl_team_id": 16,
-      "primary_position": "CB",
-      "secondary_positions": [],
-      "market_value": 0.3,
-      "market_value_updated_at": "2026-08-02T14:17:05.59+00:00",
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/90585.png",
-      "height_cm": 195,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": false,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-02T14:17:05.741096+00:00",
-      "overall_rank": 268,
       "position_ranks": [],
       "owner_team_id": null,
       "owner_team_name": null
@@ -22310,7 +22914,7 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-04-12T02:51:48.13124+00:00",
-      "updated_at": "2026-07-30T00:06:34.434183+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 268,
       "position_ranks": [],
       "owner_team_id": null,
@@ -22342,108 +22946,103 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-04-19T02:06:09.73374+00:00",
-      "updated_at": "2026-07-30T00:06:34.434183+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 268,
       "position_ranks": [],
       "owner_team_id": null,
       "owner_team_name": null
     },
     {
-      "id": "4aa7bb8b-b72c-491c-874d-7a9653725888",
-      "fpl_id": 197,
+      "id": "ae888ae7-b9be-4aee-921e-e4ccd06ebc7b",
+      "fpl_id": null,
       "api_football_id": null,
-      "web_name": "Bassette",
-      "name": "Norman Bassette",
+      "web_name": "Herrick",
+      "name": "Finlay Herrick",
       "full_name": null,
-      "date_of_birth": null,
-      "nationality": "Peru",
-      "pl_team": null,
-      "pl_team_id": null,
-      "primary_position": "ST",
+      "date_of_birth": "2006-01-18",
+      "nationality": null,
+      "pl_team": "West Ham",
+      "pl_team_id": 19,
+      "primary_position": "GK",
       "secondary_positions": [],
-      "market_value": 1.5,
-      "market_value_updated_at": "2026-08-02T14:17:03.962+00:00",
+      "market_value": 4,
+      "market_value_updated_at": null,
       "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/549653.png",
-      "height_cm": 184,
-      "fpl_status": "u",
-      "fpl_news": "Has joined KVC Westerlo on loan for the rest of the season",
-      "total_points": 24.94,
-      "form_rating": 6.2,
-      "ppg": 1.4,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/553742.png",
+      "height_cm": null,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 0,
+      "ppg": 0,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-03-30T04:48:20.643762+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "db3af38c-fffd-4c60-a7f4-2207f5c40577",
+      "fpl_id": null,
+      "api_football_id": null,
+      "web_name": "Chadwick",
+      "name": "Rhys Chadwick",
+      "full_name": null,
+      "date_of_birth": "2007-02-19",
+      "nationality": null,
+      "pl_team": "Leeds",
+      "pl_team_id": 11,
+      "primary_position": "CM",
+      "secondary_positions": [],
+      "market_value": 4.5,
+      "market_value_updated_at": null,
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/577978.png",
+      "height_cm": null,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 0,
+      "ppg": 0,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-05-12T02:41:43.702146+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "a87714c1-6e21-4c84-b2b5-85d360bf578d",
+      "fpl_id": null,
+      "api_football_id": 389032,
+      "web_name": "Morrison",
+      "name": "Kieran Morrison",
+      "full_name": null,
+      "date_of_birth": "2006-11-09",
+      "nationality": "England",
+      "pl_team": "Liverpool",
+      "pl_team_id": 12,
+      "primary_position": "RW",
+      "secondary_positions": [],
+      "market_value": 4.5,
+      "market_value_updated_at": null,
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/596042.png",
+      "height_cm": 170,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 0,
+      "ppg": 0,
       "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.959221+00:00",
-      "overall_rank": 414,
-      "position_ranks": [],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "24d2e652-7b23-4b35-b8a3-4772b0b60544",
-      "fpl_id": 218,
-      "api_football_id": 3339,
-      "web_name": "Doucouré",
-      "name": "Cheick Doucouré",
-      "full_name": null,
-      "date_of_birth": "2000-01-08",
-      "nationality": "Mali",
-      "pl_team": "Crystal Palace",
-      "pl_team_id": 8,
-      "primary_position": "DM",
-      "secondary_positions": [
-        "CM",
-        "CB"
-      ],
-      "market_value": 10,
-      "market_value_updated_at": "2026-07-23T22:03:29.393+00:00",
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/438464.png",
-      "height_cm": 180,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": true,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.959221+00:00",
-      "overall_rank": 268,
-      "position_ranks": [],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "5272ddba-c1b7-41f0-b60c-fa39a304f27e",
-      "fpl_id": 103,
-      "api_football_id": 19362,
-      "web_name": "Dasilva",
-      "name": "Josh Dasilva",
-      "full_name": null,
-      "date_of_birth": "1998-10-23",
-      "nationality": "England",
-      "pl_team": "Brentford",
-      "pl_team_id": 5,
-      "primary_position": "CM",
-      "secondary_positions": [
-        "DM"
-      ],
-      "market_value": 1.5,
-      "market_value_updated_at": "2026-07-23T22:03:29.44+00:00",
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/183656.png",
-      "height_cm": 184,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": true,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.60895+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 268,
       "position_ranks": [],
       "owner_team_id": null,
@@ -22475,228 +23074,248 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.959221+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 268,
       "position_ranks": [],
       "owner_team_id": null,
       "owner_team_name": null
     },
     {
-      "id": "82accb7e-aa15-471d-aaad-bee25c7c04cc",
-      "fpl_id": 21,
-      "api_football_id": 30407,
-      "web_name": "Nørgaard",
-      "name": "Christian Nørgaard",
+      "id": "1f3dbfd5-ae99-4a41-adf0-0b75dbde7cb5",
+      "fpl_id": null,
+      "api_football_id": 401278,
+      "web_name": "Mohamadou Kanté",
+      "name": "Mohamadou Kanté",
       "full_name": null,
-      "date_of_birth": "1994-03-10",
-      "nationality": "Denmark",
-      "pl_team": "Arsenal",
-      "pl_team_id": 1,
+      "date_of_birth": "2005-09-20",
+      "nationality": "France",
+      "pl_team": "West Ham",
+      "pl_team_id": 19,
       "primary_position": "DM",
       "secondary_positions": [
         "CM"
       ],
-      "market_value": 5,
-      "market_value_updated_at": "2026-08-02T14:17:03.569+00:00",
+      "market_value": 1,
+      "market_value_updated_at": "2026-08-02T14:17:13.266+00:00",
       "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/128295.png",
-      "height_cm": 187,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/630699.png",
+      "height_cm": 178,
       "fpl_status": "a",
       "fpl_news": null,
       "total_points": 0,
-      "form_rating": 5.5,
+      "form_rating": 4.9,
       "ppg": 0,
-      "is_active": true,
+      "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.959221+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 268,
       "position_ranks": [
         {
           "position": "CM",
-          "rank": 118
+          "rank": 139
         },
         {
           "position": "DM",
-          "rank": 86
+          "rank": 100
         }
       ],
       "owner_team_id": null,
       "owner_team_name": null
     },
     {
-      "id": "2e8276e4-c35d-4f6b-83d1-9a2fe1ecacb3",
-      "fpl_id": 51,
-      "api_football_id": null,
-      "web_name": "George Hemmings",
-      "name": "George Hemmings",
+      "id": "1de42043-bfe4-4ca7-92d8-40e5939d5302",
+      "fpl_id": null,
+      "api_football_id": 18917,
+      "web_name": "Mee",
+      "name": "Dermot Mee",
       "full_name": null,
-      "date_of_birth": null,
+      "date_of_birth": "2002-11-20",
       "nationality": "England",
-      "pl_team": "Aston Villa",
-      "pl_team_id": 2,
-      "primary_position": "DM",
-      "secondary_positions": [
-        "CM",
-        "AM"
-      ],
-      "market_value": 0.8,
-      "market_value_updated_at": "2026-07-30T00:14:05.662+00:00",
+      "pl_team": "Man Utd",
+      "pl_team_id": 14,
+      "primary_position": "GK",
+      "secondary_positions": [],
+      "market_value": 3.9,
+      "market_value_updated_at": null,
       "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/577285.png",
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/461537.png",
+      "height_cm": 180,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 0,
+      "ppg": 0,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "a2f7e668-aeb5-4328-a681-0d249a61298e",
+      "fpl_id": null,
+      "api_football_id": 337934,
+      "web_name": "Shahar",
+      "name": "Leo Shahar",
+      "full_name": null,
+      "date_of_birth": "2007-03-18",
+      "nationality": "England",
+      "pl_team": "Newcastle",
+      "pl_team_id": 15,
+      "primary_position": "RB",
+      "secondary_positions": [
+        "RW"
+      ],
+      "market_value": 4,
+      "market_value_updated_at": null,
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/553746.png",
       "height_cm": null,
       "fpl_status": "a",
       "fpl_news": null,
       "total_points": 0,
-      "form_rating": 4.8,
+      "form_rating": 0,
       "ppg": 0,
-      "is_active": true,
+      "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.220849+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 268,
-      "position_ranks": [
-        {
-          "position": "CM",
-          "rank": 120
-        },
-        {
-          "position": "DM",
-          "rank": 86
-        },
-        {
-          "position": "AM",
-          "rank": 79
-        }
-      ],
+      "position_ranks": [],
       "owner_team_id": null,
       "owner_team_name": null
     },
     {
-      "id": "a6ea8658-40ae-47f2-ad61-937eaf42d044",
-      "fpl_id": 361,
+      "id": "d94652fb-3f06-4062-9c65-c9c618dfbeeb",
+      "fpl_id": null,
       "api_football_id": null,
-      "web_name": "Lucky",
-      "name": "Wellity Lucky",
+      "web_name": "Roberts",
+      "name": "Connor Roberts",
       "full_name": null,
-      "date_of_birth": null,
-      "nationality": "Spain",
-      "pl_team": "Liverpool",
-      "pl_team_id": 12,
-      "primary_position": "CB",
-      "secondary_positions": [],
-      "market_value": 4,
-      "market_value_updated_at": null,
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/519440.png",
-      "height_cm": 188,
-      "fpl_status": "a",
-      "fpl_news": null,
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": true,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.127773+00:00",
-      "overall_rank": 268,
-      "position_ranks": [],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "0370d440-8646-4b91-8d10-134f77e8113b",
-      "fpl_id": 382,
-      "api_football_id": 314661,
-      "web_name": "Danns",
-      "name": "Jayden Danns",
-      "full_name": null,
-      "date_of_birth": null,
-      "nationality": "England",
-      "pl_team": "Liverpool",
-      "pl_team_id": 12,
-      "primary_position": "ST",
-      "secondary_positions": [],
-      "market_value": 0.8,
-      "market_value_updated_at": "2026-07-30T00:14:04.069+00:00",
-      "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/500058.png",
-      "height_cm": 183,
-      "fpl_status": "i",
-      "fpl_news": "Unspecified injury - Unknown return date",
-      "total_points": 0,
-      "form_rating": 0,
-      "ppg": 0,
-      "is_active": true,
-      "transfermarkt_id": null,
-      "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.127773+00:00",
-      "overall_rank": 268,
-      "position_ranks": [],
-      "owner_team_id": null,
-      "owner_team_name": null
-    },
-    {
-      "id": "a7d2d194-0011-47d8-ad84-e6e07e5fd3a5",
-      "fpl_id": 365,
-      "api_football_id": 135525,
-      "web_name": "Ramsay",
-      "name": "Calvin Ramsay",
-      "full_name": null,
-      "date_of_birth": "2003-07-31",
-      "nationality": "Scotland",
-      "pl_team": "Liverpool",
-      "pl_team_id": 12,
+      "date_of_birth": "1995-09-23",
+      "nationality": "Wales",
+      "pl_team": "Burnley",
+      "pl_team_id": 3,
       "primary_position": "RB",
       "secondary_positions": [
-        "RWB"
+        "CM"
       ],
       "market_value": 1.5,
-      "market_value_updated_at": "2026-07-23T22:03:29.277+00:00",
+      "market_value_updated_at": "2026-08-02T14:17:15.388+00:00",
       "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/489580.png",
-      "height_cm": 177,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/192290.png",
+      "height_cm": 175,
       "fpl_status": "a",
       "fpl_news": null,
       "total_points": 0,
       "form_rating": 0,
       "ppg": 0,
-      "is_active": true,
+      "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.127773+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 268,
       "position_ranks": [],
       "owner_team_id": null,
       "owner_team_name": null
     },
     {
-      "id": "90581c12-8497-4494-ace5-2df9ad6e04cc",
-      "fpl_id": 495,
-      "api_football_id": 156428,
-      "web_name": "Austin",
-      "name": "Brandon Austin",
+      "id": "b891835b-4b94-438c-9afd-039ba2484de2",
+      "fpl_id": null,
+      "api_football_id": 394710,
+      "web_name": "McKenna",
+      "name": "Callan McKenna",
       "full_name": null,
-      "date_of_birth": "1999-01-08",
-      "nationality": "England",
-      "pl_team": "Spurs",
-      "pl_team_id": 18,
+      "date_of_birth": "2006-12-22",
+      "nationality": "Scotland",
+      "pl_team": "Bournemouth",
+      "pl_team_id": 4,
       "primary_position": "GK",
       "secondary_positions": [],
       "market_value": 0.5,
-      "market_value_updated_at": "2026-07-23T22:03:29.291+00:00",
+      "market_value_updated_at": "2026-08-02T14:17:15.844+00:00",
       "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/214572.png",
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/568791.png",
       "height_cm": 188,
       "fpl_status": "a",
       "fpl_news": null,
       "total_points": 0,
       "form_rating": 0,
       "ppg": 0,
-      "is_active": true,
+      "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.541055+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "20b6ba05-7e95-44d1-97d1-101f0b4a3290",
+      "fpl_id": null,
+      "api_football_id": null,
+      "web_name": "Harriman-Annous",
+      "name": "Andre Harriman-Annous",
+      "full_name": null,
+      "date_of_birth": "2007-12-28",
+      "nationality": "England",
+      "pl_team": "Arsenal",
+      "pl_team_id": 1,
+      "primary_position": "CM",
+      "secondary_positions": [],
+      "market_value": 4.4,
+      "market_value_updated_at": null,
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/646243.png",
+      "height_cm": 181,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 0,
+      "ppg": 0,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "6f770194-826b-42b3-abce-9ce5f44532d3",
+      "fpl_id": null,
+      "api_football_id": 380679,
+      "web_name": "Kporha",
+      "name": "Caleb Kporha",
+      "full_name": null,
+      "date_of_birth": "2006-07-15",
+      "nationality": "England",
+      "pl_team": "Crystal Palace",
+      "pl_team_id": 8,
+      "primary_position": "RWB",
+      "secondary_positions": [
+        "RB"
+      ],
+      "market_value": 1,
+      "market_value_updated_at": "2026-08-02T14:17:16.203+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/590012.png",
+      "height_cm": 170,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 0,
+      "ppg": 0,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 268,
       "position_ranks": [],
       "owner_team_id": null,
@@ -22731,7 +23350,7 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.541055+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 268,
       "position_ranks": [],
       "owner_team_id": null,
@@ -22763,30 +23382,30 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:22.420173+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 268,
       "position_ranks": [],
       "owner_team_id": null,
       "owner_team_name": null
     },
     {
-      "id": "24633ff0-dd05-4921-a670-91f8db83fea9",
-      "fpl_id": 252,
-      "api_football_id": null,
-      "web_name": "McNally",
-      "name": "Alfie McNally",
+      "id": "2c89e459-b583-4188-a988-2b7e3cb5368a",
+      "fpl_id": 111,
+      "api_football_id": 18960,
+      "web_name": "Steele",
+      "name": "Jason Steele",
       "full_name": null,
-      "date_of_birth": null,
+      "date_of_birth": "1990-08-18",
       "nationality": "England",
-      "pl_team": "Fulham",
-      "pl_team_id": 10,
+      "pl_team": "Brighton",
+      "pl_team_id": 6,
       "primary_position": "GK",
       "secondary_positions": [],
-      "market_value": 4,
-      "market_value_updated_at": null,
+      "market_value": 0.5,
+      "market_value_updated_at": "2026-07-23T22:03:29.343+00:00",
       "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/505079.png",
-      "height_cm": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/49262.png",
+      "height_cm": 188,
       "fpl_status": "a",
       "fpl_news": null,
       "total_points": 0,
@@ -22795,67 +23414,788 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.959221+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 268,
       "position_ranks": [],
       "owner_team_id": null,
       "owner_team_name": null
     },
     {
-      "id": "a1b4e876-2c06-48e4-b5bc-aa6a74f52647",
-      "fpl_id": 150,
+      "id": "055f000d-1be9-4e7f-82b6-3de6dde9bcf7",
+      "fpl_id": null,
       "api_football_id": null,
-      "web_name": "M.Sarr",
-      "name": "Mamadou Sarr",
+      "web_name": "Lienou",
+      "name": "Jayden Lienou",
       "full_name": null,
-      "date_of_birth": "2005-08-29",
-      "nationality": "Senegal",
-      "pl_team": "Chelsea",
-      "pl_team_id": 7,
+      "date_of_birth": "2008-04-08",
+      "nationality": null,
+      "pl_team": "Leeds",
+      "pl_team_id": 11,
       "primary_position": "CB",
       "secondary_positions": [],
-      "market_value": 22,
-      "market_value_updated_at": "2026-07-23T22:03:29.246+00:00",
+      "market_value": 4,
+      "market_value_updated_at": null,
       "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/574458.png",
-      "height_cm": 194,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/643970.png",
+      "height_cm": null,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 0,
+      "ppg": 0,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-05-12T02:41:43.702146+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "63f71453-52cd-4d50-bfe4-974acaab7f6b",
+      "fpl_id": null,
+      "api_football_id": 153422,
+      "web_name": "Brierley",
+      "name": "George Brierley",
+      "full_name": null,
+      "date_of_birth": "2007-11-20",
+      "nationality": "England",
+      "pl_team": "Burnley",
+      "pl_team_id": 3,
+      "primary_position": "CM",
+      "secondary_positions": [
+        "DM"
+      ],
+      "market_value": 4.5,
+      "market_value_updated_at": null,
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/704232.png",
+      "height_cm": 168,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 0,
+      "ppg": 0,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "d921b4d4-c7f1-4278-9ad6-8f1cd927abc9",
+      "fpl_id": 353,
+      "api_football_id": 342467,
+      "web_name": "Pecsi",
+      "name": "Ármin Pécsi",
+      "full_name": null,
+      "date_of_birth": null,
+      "nationality": "Hungary",
+      "pl_team": "Liverpool",
+      "pl_team_id": 12,
+      "primary_position": "GK",
+      "secondary_positions": [],
+      "market_value": 0.8,
+      "market_value_updated_at": "2026-07-30T00:14:03.55+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/586268.png",
+      "height_cm": 190,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 0,
+      "ppg": 0,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "dcafcfac-efa4-4b9f-ba5d-a572394c479f",
+      "fpl_id": 509,
+      "api_football_id": null,
+      "web_name": "Byfield",
+      "name": "Jun'ai Byfield",
+      "full_name": null,
+      "date_of_birth": null,
+      "nationality": "England",
+      "pl_team": "Spurs",
+      "pl_team_id": 18,
+      "primary_position": "CB",
+      "secondary_positions": [],
+      "market_value": 3,
+      "market_value_updated_at": "2026-07-30T00:14:03.339+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/640419.png",
+      "height_cm": 185,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 0,
+      "ppg": 0,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "4b981f37-735f-49f0-b512-520b3963102f",
+      "fpl_id": null,
+      "api_football_id": 284327,
+      "web_name": "Welch",
+      "name": "Reece Welch",
+      "full_name": null,
+      "date_of_birth": "2003-09-19",
+      "nationality": "England",
+      "pl_team": "Everton",
+      "pl_team_id": 9,
+      "primary_position": "CB",
+      "secondary_positions": [],
+      "market_value": 0.25,
+      "market_value_updated_at": "2026-08-02T14:17:10.608+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/474907.png",
+      "height_cm": null,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 0,
+      "ppg": 0,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "996d3fb3-ee69-49f9-ab69-78375648b2d7",
+      "fpl_id": null,
+      "api_football_id": 389579,
+      "web_name": "Eyestone",
+      "name": "Julian Eyestone",
+      "full_name": null,
+      "date_of_birth": null,
+      "nationality": "USA",
+      "pl_team": "Brentford",
+      "pl_team_id": 5,
+      "primary_position": "GK",
+      "secondary_positions": [],
+      "market_value": 3.9,
+      "market_value_updated_at": null,
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/535017.png",
+      "height_cm": 198,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 0,
+      "ppg": 0,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "6894d560-9778-450d-94c0-1b6bd0954eee",
+      "fpl_id": null,
+      "api_football_id": 276263,
+      "web_name": "Stevens",
+      "name": "Charlie Stevens",
+      "full_name": null,
+      "date_of_birth": "2007-05-31",
+      "nationality": "Wales",
+      "pl_team": "Bournemouth",
+      "pl_team_id": 4,
+      "primary_position": "CM",
+      "secondary_positions": [],
+      "market_value": 4.5,
+      "market_value_updated_at": null,
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/658013.png",
+      "height_cm": 179,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 0,
+      "ppg": 0,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "a97e1354-ef63-4c91-a39e-9ccdf0c2b01b",
+      "fpl_id": null,
+      "api_football_id": null,
+      "web_name": "Gray",
+      "name": "Charlie Gray",
+      "full_name": null,
+      "date_of_birth": "2006-02-22",
+      "nationality": "England",
+      "pl_team": "Man City",
+      "pl_team_id": 13,
+      "primary_position": "ST",
+      "secondary_positions": [
+        "LW"
+      ],
+      "market_value": 4.5,
+      "market_value_updated_at": null,
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/516234.png",
+      "height_cm": null,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 0,
+      "ppg": 0,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "7d76513c-2163-420e-a750-9b0ac3a9c0fa",
+      "fpl_id": null,
+      "api_football_id": null,
+      "web_name": "Alabi",
+      "name": "Sam Alabi",
+      "full_name": null,
+      "date_of_birth": "2009-07-09",
+      "nationality": "England",
+      "pl_team": "Newcastle",
+      "pl_team_id": 15,
+      "primary_position": "CM",
+      "secondary_positions": [],
+      "market_value": 4.5,
+      "market_value_updated_at": null,
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/666607.png",
+      "height_cm": null,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 0,
+      "ppg": 0,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "4f2948ad-ea5b-496a-9121-5f7ec0fdecfe",
+      "fpl_id": null,
+      "api_football_id": null,
+      "web_name": "Sinclair",
+      "name": "Jimmy Sinclair",
+      "full_name": null,
+      "date_of_birth": "2006-08-11",
+      "nationality": null,
+      "pl_team": "Nott'm Forest",
+      "pl_team_id": 16,
+      "primary_position": "CM",
+      "secondary_positions": [],
+      "market_value": 4.5,
+      "market_value_updated_at": null,
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/590040.png",
+      "height_cm": null,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 0,
+      "ppg": 0,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-05-11T02:41:43.241031+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "a3af4ec3-a04c-4b7a-bb9e-8f62f261416a",
+      "fpl_id": null,
+      "api_football_id": null,
+      "web_name": "Merrick",
+      "name": "Max Merrick",
+      "full_name": null,
+      "date_of_birth": "2005-11-10",
+      "nationality": "England",
+      "pl_team": "Chelsea",
+      "pl_team_id": 7,
+      "primary_position": "GK",
+      "secondary_positions": [],
+      "market_value": 4,
+      "market_value_updated_at": null,
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/518335.png",
+      "height_cm": null,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 0,
+      "ppg": 0,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "0ff0b702-a3bf-41c2-a59b-4d0bbc7f8413",
+      "fpl_id": 441,
+      "api_football_id": null,
+      "web_name": "Obi",
+      "name": "Chido Obi",
+      "full_name": null,
+      "date_of_birth": "2007-11-29",
+      "nationality": "Denmark",
+      "pl_team": "Man Utd",
+      "pl_team_id": 14,
+      "primary_position": "ST",
+      "secondary_positions": [],
+      "market_value": 5,
+      "market_value_updated_at": "2026-07-23T22:03:29.34+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/596047.png",
+      "height_cm": 188,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 0,
+      "ppg": 0,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "64aa6013-97ae-4b78-abc3-c51fb321ed65",
+      "fpl_id": null,
+      "api_football_id": null,
+      "web_name": "Gunn",
+      "name": "Angus Gunn",
+      "full_name": null,
+      "date_of_birth": "1996-01-22",
+      "nationality": "Scotland",
+      "pl_team": "Nott'm Forest",
+      "pl_team_id": 16,
+      "primary_position": "GK",
+      "secondary_positions": [],
+      "market_value": 1,
+      "market_value_updated_at": "2026-08-02T14:17:16.57+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/107265.png",
+      "height_cm": 150,
       "fpl_status": "a",
       "fpl_news": null,
       "total_points": 0,
       "form_rating": 5.7,
       "ppg": 0,
-      "is_active": true,
+      "is_active": false,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.60895+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 268,
       "position_ranks": [
         {
-          "position": "CB",
-          "rank": 95
+          "position": "GK",
+          "rank": 39
         }
       ],
       "owner_team_id": null,
       "owner_team_name": null
     },
     {
-      "id": "7be5eebe-5109-4be0-b7d7-d066b8f24c04",
-      "fpl_id": 251,
-      "api_football_id": 402504,
-      "web_name": "Lecomte",
-      "name": "Benjamin Lecomte",
+      "id": "b18a09f7-d9ad-46cd-bb37-c1ca2ddf9f6d",
+      "fpl_id": null,
+      "api_football_id": 305736,
+      "web_name": "Moore",
+      "name": "Simon Moore",
       "full_name": null,
-      "date_of_birth": "1991-04-26",
-      "nationality": "Wales",
-      "pl_team": "Fulham",
-      "pl_team_id": 10,
+      "date_of_birth": null,
+      "nationality": "England",
+      "pl_team": "Sunderland",
+      "pl_team_id": 17,
       "primary_position": "GK",
       "secondary_positions": [],
-      "market_value": 0.8,
-      "market_value_updated_at": "2026-07-23T22:03:29.547+00:00",
+      "market_value": 0.08,
+      "market_value_updated_at": "2026-08-05T04:06:29.49+00:00",
       "projected_points": null,
-      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/86873.png",
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/74854.png",
+      "height_cm": 183,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 0,
+      "ppg": 0,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "21be9103-6a72-4d86-9dd7-cc210f38e872",
+      "fpl_id": null,
+      "api_football_id": 298129,
+      "web_name": "Boateng",
+      "name": "Enock Agyei",
+      "full_name": null,
+      "date_of_birth": "2005-01-13",
+      "nationality": "England",
+      "pl_team": "Burnley",
+      "pl_team_id": 3,
+      "primary_position": "RW",
+      "secondary_positions": [],
+      "market_value": 0.6,
+      "market_value_updated_at": "2026-08-02T14:17:16.936+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/578614.png",
+      "height_cm": 182,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 0,
+      "ppg": 0,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "4dfcc70d-c647-4d8b-87d2-cb708256cb08",
+      "fpl_id": null,
+      "api_football_id": null,
+      "web_name": "Ba",
+      "name": "Abdoullah Ba",
+      "full_name": null,
+      "date_of_birth": "2003-07-31",
+      "nationality": "France",
+      "pl_team": "Sunderland",
+      "pl_team_id": 17,
+      "primary_position": "RW",
+      "secondary_positions": [
+        "LW"
+      ],
+      "market_value": 1.5,
+      "market_value_updated_at": "2026-08-05T04:06:16.101+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/477851.png",
+      "height_cm": 200,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 0,
+      "ppg": 0,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "791cbaa5-42ce-4012-a64d-a9acd4609bbb",
+      "fpl_id": null,
+      "api_football_id": 301295,
+      "web_name": "Rodney",
+      "name": "Kaden Rodney",
+      "full_name": null,
+      "date_of_birth": "2004-10-07",
+      "nationality": "England",
+      "pl_team": "Crystal Palace",
+      "pl_team_id": 8,
+      "primary_position": "DM",
+      "secondary_positions": [
+        "RB",
+        "CM"
+      ],
+      "market_value": 0.2,
+      "market_value_updated_at": "2026-08-02T14:17:17.58+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/530318.png",
+      "height_cm": 189,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 0,
+      "ppg": 0,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "6ced2442-1706-4db8-bc90-e0c0195eabb9",
+      "fpl_id": null,
+      "api_football_id": null,
+      "web_name": "Lamadrid",
+      "name": "Keiber Lamadrid",
+      "full_name": null,
+      "date_of_birth": "2003-11-18",
+      "nationality": "Venezuela",
+      "pl_team": "West Ham",
+      "pl_team_id": 19,
+      "primary_position": "LW",
+      "secondary_positions": [
+        "CM"
+      ],
+      "market_value": 1.2,
+      "market_value_updated_at": "2026-08-02T14:17:17.859+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/572702.png",
+      "height_cm": 177,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 0,
+      "ppg": 0,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "83f1d0d1-913e-4f37-a173-e87c26db0849",
+      "fpl_id": null,
+      "api_football_id": null,
+      "web_name": "Whittaker",
+      "name": "Jack Whittaker",
+      "full_name": null,
+      "date_of_birth": "2006-10-14",
+      "nationality": null,
+      "pl_team": "Sunderland",
+      "pl_team_id": 17,
+      "primary_position": "CM",
+      "secondary_positions": [],
+      "market_value": 4.5,
+      "market_value_updated_at": null,
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/570929.png",
       "height_cm": null,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 0,
+      "ppg": 0,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-03-30T04:48:20.643762+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "025e2064-d770-425f-b802-ff22ad610176",
+      "fpl_id": null,
+      "api_football_id": null,
+      "web_name": "McManus",
+      "name": "Conor McManus",
+      "full_name": null,
+      "date_of_birth": "2004-06-16",
+      "nationality": null,
+      "pl_team": "Brentford",
+      "pl_team_id": 5,
+      "primary_position": "CB",
+      "secondary_positions": [],
+      "market_value": 4,
+      "market_value_updated_at": null,
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/587433.png",
+      "height_cm": null,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 0,
+      "ppg": 0,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-03-30T04:48:20.643762+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "0fa642f8-28d4-4c18-a4e2-5de96272807f",
+      "fpl_id": null,
+      "api_football_id": null,
+      "web_name": "Benamar",
+      "name": "Dean Benamar",
+      "full_name": null,
+      "date_of_birth": "2008-05-31",
+      "nationality": "England",
+      "pl_team": "Crystal Palace",
+      "pl_team_id": 8,
+      "primary_position": "CB",
+      "secondary_positions": [],
+      "market_value": 4,
+      "market_value_updated_at": null,
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/643426.png",
+      "height_cm": null,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 0,
+      "ppg": 0,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "c3245195-a8bc-4fb1-a273-9ecab3e7104c",
+      "fpl_id": null,
+      "api_football_id": 347305,
+      "web_name": "Heskey",
+      "name": "Reigan Heskey",
+      "full_name": null,
+      "date_of_birth": "2008-01-18",
+      "nationality": "England",
+      "pl_team": "Man City",
+      "pl_team_id": 13,
+      "primary_position": "AM",
+      "secondary_positions": [
+        "DM",
+        "CM"
+      ],
+      "market_value": 4.5,
+      "market_value_updated_at": null,
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/580921.png",
+      "height_cm": 184,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 0,
+      "ppg": 0,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "c1076cdf-9734-4269-842e-ee0883413bd3",
+      "fpl_id": null,
+      "api_football_id": 366629,
+      "web_name": "Carroll",
+      "name": "TJ Carroll",
+      "full_name": null,
+      "date_of_birth": "2007-03-22",
+      "nationality": "England",
+      "pl_team": "Aston Villa",
+      "pl_team_id": 2,
+      "primary_position": "CB",
+      "secondary_positions": [],
+      "market_value": 4,
+      "market_value_updated_at": null,
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/618027.png",
+      "height_cm": 197,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 0,
+      "ppg": 0,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "2e568b4b-9dc7-457d-b409-99c89b8b02b9",
+      "fpl_id": 524,
+      "api_football_id": 380689,
+      "web_name": "Olusesi",
+      "name": "Callum Olusesi",
+      "full_name": null,
+      "date_of_birth": null,
+      "nationality": "England",
+      "pl_team": "Spurs",
+      "pl_team_id": 18,
+      "primary_position": "CM",
+      "secondary_positions": [
+        "AM",
+        "DM"
+      ],
+      "market_value": 5,
+      "market_value_updated_at": "2026-07-30T00:14:04.288+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/499726.png",
+      "height_cm": 175,
       "fpl_status": "a",
       "fpl_news": null,
       "total_points": 0,
@@ -22864,7 +24204,1476 @@ export const PRECOMPUTED_STATS_2025_26 = {
       "is_active": true,
       "transfermarkt_id": null,
       "created_at": "2026-02-20T07:37:49.456666+00:00",
-      "updated_at": "2026-08-08T02:10:21.959221+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "7b0fd66e-e069-45a4-805b-1387d6681d13",
+      "fpl_id": null,
+      "api_football_id": 398004,
+      "web_name": "Proctor",
+      "name": "Sam Proctor",
+      "full_name": null,
+      "date_of_birth": "2006-12-21",
+      "nationality": "England",
+      "pl_team": "Aston Villa",
+      "pl_team_id": 2,
+      "primary_position": "GK",
+      "secondary_positions": [],
+      "market_value": 3.9,
+      "market_value_updated_at": null,
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/564505.png",
+      "height_cm": null,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 0,
+      "ppg": 0,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "b997ea74-3c33-4b79-bb9c-11c99ab481e2",
+      "fpl_id": null,
+      "api_football_id": 384981,
+      "web_name": "Amissah",
+      "name": "Samuel Amissah",
+      "full_name": null,
+      "date_of_birth": "2007-03-07",
+      "nationality": "England",
+      "pl_team": "Fulham",
+      "pl_team_id": 10,
+      "primary_position": "CB",
+      "secondary_positions": [],
+      "market_value": 10,
+      "market_value_updated_at": "2026-07-23T21:16:21.581+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/591385.png",
+      "height_cm": 184,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 0,
+      "ppg": 0,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "ca421162-0387-445d-bae5-0a357a93904c",
+      "fpl_id": null,
+      "api_football_id": null,
+      "web_name": "Ndiaye",
+      "name": "Talla Ndiaye",
+      "full_name": null,
+      "date_of_birth": "2008-01-06",
+      "nationality": null,
+      "pl_team": "Liverpool",
+      "pl_team_id": 12,
+      "primary_position": "RW",
+      "secondary_positions": [
+        "LW"
+      ],
+      "market_value": 4,
+      "market_value_updated_at": null,
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/718875.png",
+      "height_cm": null,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 0,
+      "ppg": 0,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-05-04T02:49:00.610715+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "a4f2c8a9-652e-4ee8-973c-095905062d85",
+      "fpl_id": null,
+      "api_football_id": 288116,
+      "web_name": "Casey",
+      "name": "Ben Casey",
+      "full_name": null,
+      "date_of_birth": "2008-02-04",
+      "nationality": "England",
+      "pl_team": "Crystal Palace",
+      "pl_team_id": 8,
+      "primary_position": "CB",
+      "secondary_positions": [],
+      "market_value": 4.5,
+      "market_value_updated_at": null,
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/631106.png",
+      "height_cm": 185,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 0,
+      "ppg": 0,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "61fd8bb2-404e-485f-9c20-9d5fb5f63ab8",
+      "fpl_id": null,
+      "api_football_id": null,
+      "web_name": "Bevan",
+      "name": "Owen Bevan",
+      "full_name": null,
+      "date_of_birth": null,
+      "nationality": "Wales",
+      "pl_team": "Bournemouth",
+      "pl_team_id": 4,
+      "primary_position": "CB",
+      "secondary_positions": [],
+      "market_value": 3.8,
+      "market_value_updated_at": null,
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/518906.png",
+      "height_cm": 186,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 0,
+      "ppg": 0,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "618b7d4b-2623-4ef0-8fc4-27b416dd0366",
+      "fpl_id": null,
+      "api_football_id": null,
+      "web_name": "Aleksić",
+      "name": "Milan Aleksić",
+      "full_name": null,
+      "date_of_birth": null,
+      "nationality": "Serbia",
+      "pl_team": "Sunderland",
+      "pl_team_id": 17,
+      "primary_position": "CM",
+      "secondary_positions": [
+        "AM",
+        "DM"
+      ],
+      "market_value": 0.7,
+      "market_value_updated_at": "2026-03-05T03:23:56.608+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/626844.png",
+      "height_cm": 179,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 0,
+      "ppg": 0,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "62413c5f-3cf3-4c2c-8ad3-7d3820aece5e",
+      "fpl_id": null,
+      "api_football_id": 19128,
+      "web_name": "H.Jones",
+      "name": "Harrison Jones",
+      "full_name": null,
+      "date_of_birth": "2004-12-25",
+      "nationality": "England",
+      "pl_team": "Sunderland",
+      "pl_team_id": 17,
+      "primary_position": "AM",
+      "secondary_positions": [
+        "CM"
+      ],
+      "market_value": 0.15,
+      "market_value_updated_at": "2026-03-05T03:23:56.608+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/547410.png",
+      "height_cm": 175,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 0,
+      "ppg": 0,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "d4671617-0e10-4e0a-aa53-afbb49802d05",
+      "fpl_id": null,
+      "api_football_id": 363974,
+      "web_name": "Marsh",
+      "name": "Zach Marsh",
+      "full_name": null,
+      "date_of_birth": "2005-10-06",
+      "nationality": "England",
+      "pl_team": "Crystal Palace",
+      "pl_team_id": 8,
+      "primary_position": "ST",
+      "secondary_positions": [],
+      "market_value": 6,
+      "market_value_updated_at": "2026-07-23T22:03:29.595+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/576980.png",
+      "height_cm": 176,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 0,
+      "ppg": 0,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "ecddb4f8-0b98-4881-8c34-a81bc2a93ffd",
+      "fpl_id": null,
+      "api_football_id": null,
+      "web_name": "Abdullahi",
+      "name": "Ahmed Abdullahi",
+      "full_name": null,
+      "date_of_birth": "2004-06-19",
+      "nationality": "Nigeria",
+      "pl_team": "Sunderland",
+      "pl_team_id": 17,
+      "primary_position": "ST",
+      "secondary_positions": [],
+      "market_value": 0.8,
+      "market_value_updated_at": "2026-08-05T04:06:16.101+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/611975.png",
+      "height_cm": null,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 0,
+      "ppg": 0,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "a63177a3-bd7c-4b64-b4c4-32875bcc1ac0",
+      "fpl_id": null,
+      "api_football_id": null,
+      "web_name": "Eboué",
+      "name": "Mathis Eboué",
+      "full_name": null,
+      "date_of_birth": "2009-02-27",
+      "nationality": null,
+      "pl_team": "Chelsea",
+      "pl_team_id": 7,
+      "primary_position": "CM",
+      "secondary_positions": [],
+      "market_value": 4.5,
+      "market_value_updated_at": null,
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/671606.png",
+      "height_cm": null,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 0,
+      "ppg": 0,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-05-10T02:35:16.553564+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "62984e1d-9d8e-48ba-abc5-a23b608f8ae4",
+      "fpl_id": null,
+      "api_football_id": null,
+      "web_name": "Ridgeon",
+      "name": "Seth Ridgeon",
+      "full_name": null,
+      "date_of_birth": "2008-09-12",
+      "nationality": "England",
+      "pl_team": "Fulham",
+      "pl_team_id": 10,
+      "primary_position": "CM",
+      "secondary_positions": [],
+      "market_value": 4.5,
+      "market_value_updated_at": null,
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/619536.png",
+      "height_cm": 171,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 0,
+      "ppg": 0,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "5c118a23-764b-4342-9eb0-d632653989e4",
+      "fpl_id": null,
+      "api_football_id": 19136,
+      "web_name": "Clarke",
+      "name": "Brayden Clarke",
+      "full_name": null,
+      "date_of_birth": null,
+      "nationality": "England",
+      "pl_team": "Arsenal",
+      "pl_team_id": 1,
+      "primary_position": "CB",
+      "secondary_positions": [],
+      "market_value": 3.8,
+      "market_value_updated_at": null,
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/563324.png",
+      "height_cm": 181,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 0,
+      "ppg": 0,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "9a4169c2-84d8-44ea-b506-c196833f6fb0",
+      "fpl_id": null,
+      "api_football_id": null,
+      "web_name": "Mandas",
+      "name": "Christos Mandas",
+      "full_name": null,
+      "date_of_birth": "2001-09-17",
+      "nationality": "Greece",
+      "pl_team": "Bournemouth",
+      "pl_team_id": 4,
+      "primary_position": "GK",
+      "secondary_positions": [],
+      "market_value": 5,
+      "market_value_updated_at": "2026-03-05T03:23:56.37+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/436416.png",
+      "height_cm": 189,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 0,
+      "ppg": 0,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "62dec3a9-2dc0-4e9a-854f-e3046b20b69d",
+      "fpl_id": null,
+      "api_football_id": 367634,
+      "web_name": "Agbinone",
+      "name": "Asher Agbinone",
+      "full_name": null,
+      "date_of_birth": "2005-09-28",
+      "nationality": "England",
+      "pl_team": "Crystal Palace",
+      "pl_team_id": 8,
+      "primary_position": "LW",
+      "secondary_positions": [],
+      "market_value": 0.05,
+      "market_value_updated_at": "2026-08-02T14:17:22.199+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/579075.png",
+      "height_cm": 177,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 0,
+      "ppg": 0,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "77413620-cbf6-4b6d-8d3d-b41b0b316f7c",
+      "fpl_id": null,
+      "api_football_id": 2997,
+      "web_name": "Fabianski",
+      "name": "Lukasz Fabianski",
+      "full_name": null,
+      "date_of_birth": "1985-04-18",
+      "nationality": "Poland",
+      "pl_team": "West Ham",
+      "pl_team_id": 19,
+      "primary_position": "GK",
+      "secondary_positions": [],
+      "market_value": 0.25,
+      "market_value_updated_at": "2026-03-05T03:23:57.364+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/37096.png",
+      "height_cm": 190,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 0,
+      "ppg": 0,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "14b01374-223f-4d54-b85f-7406d2aca072",
+      "fpl_id": null,
+      "api_football_id": null,
+      "web_name": "Fitzgerald",
+      "name": "Jayce Fitzgerald",
+      "full_name": null,
+      "date_of_birth": null,
+      "nationality": "England",
+      "pl_team": "Man Utd",
+      "pl_team_id": 14,
+      "primary_position": "CM",
+      "secondary_positions": [],
+      "market_value": 50,
+      "market_value_updated_at": "2026-07-23T22:03:29.377+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/556639.png",
+      "height_cm": null,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 0,
+      "ppg": 0,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "f4a9fe0f-428a-44b4-b7a0-7ebbfb1f28fc",
+      "fpl_id": null,
+      "api_football_id": 44994,
+      "web_name": "Hladký",
+      "name": "Václav Hladký",
+      "full_name": null,
+      "date_of_birth": "1990-11-14",
+      "nationality": "Czechia",
+      "pl_team": "Burnley",
+      "pl_team_id": 3,
+      "primary_position": "GK",
+      "secondary_positions": [],
+      "market_value": 0.15,
+      "market_value_updated_at": "2026-08-02T14:17:22.286+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/51943.png",
+      "height_cm": 192,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 0,
+      "ppg": 0,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "90f4f754-1fcf-47c0-a8a9-7c9a250b3e44",
+      "fpl_id": null,
+      "api_football_id": null,
+      "web_name": "Jones",
+      "name": "Jaydon Jones",
+      "full_name": null,
+      "date_of_birth": "2006-11-03",
+      "nationality": null,
+      "pl_team": "Sunderland",
+      "pl_team_id": 17,
+      "primary_position": "CM",
+      "secondary_positions": [
+        "DM",
+        "AM"
+      ],
+      "market_value": 4.5,
+      "market_value_updated_at": null,
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/571087.png",
+      "height_cm": null,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 0,
+      "ppg": 0,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-03-30T04:48:20.643762+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "fa16e52d-b760-42f2-a60b-755193b52a05",
+      "fpl_id": null,
+      "api_football_id": 18873,
+      "web_name": "Fraser",
+      "name": "Nathan Fraser",
+      "full_name": null,
+      "date_of_birth": null,
+      "nationality": "Scotland",
+      "pl_team": "Wolves",
+      "pl_team_id": 20,
+      "primary_position": "ST",
+      "secondary_positions": [],
+      "market_value": 0.6,
+      "market_value_updated_at": "2026-03-05T03:23:57.905+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/531363.png",
+      "height_cm": 163,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 0,
+      "ppg": 0,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "93f58264-db8e-4b65-bc5b-2be8d133ef69",
+      "fpl_id": null,
+      "api_football_id": 380492,
+      "web_name": "Da Silva Moreira",
+      "name": "Eric da Silva Moreira",
+      "full_name": null,
+      "date_of_birth": "2006-05-03",
+      "nationality": "Germany",
+      "pl_team": "Nott'm Forest",
+      "pl_team_id": 16,
+      "primary_position": "RWB",
+      "secondary_positions": [
+        "RB"
+      ],
+      "market_value": 0.8,
+      "market_value_updated_at": "2026-08-05T04:06:16.101+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/569014.png",
+      "height_cm": 184,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 0,
+      "ppg": 0,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "ebf9ffb8-de23-4bb3-b18c-fd51bb57b6c4",
+      "fpl_id": null,
+      "api_football_id": null,
+      "web_name": "Whitehall",
+      "name": "Archie Whitehall",
+      "full_name": null,
+      "date_of_birth": "2006-05-21",
+      "nationality": null,
+      "pl_team": "Nott'm Forest",
+      "pl_team_id": 16,
+      "primary_position": "CM",
+      "secondary_positions": [],
+      "market_value": 4.5,
+      "market_value_updated_at": null,
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/568159.png",
+      "height_cm": null,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 0,
+      "ppg": 0,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-05-11T02:41:43.241031+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "353dc79b-12e5-4cb6-aa8b-3fbdce2a1789",
+      "fpl_id": 386,
+      "api_football_id": 19012,
+      "web_name": "Bettinelli",
+      "name": "Marcus Bettinelli",
+      "full_name": null,
+      "date_of_birth": "1992-05-24",
+      "nationality": "England",
+      "pl_team": "Man City",
+      "pl_team_id": 13,
+      "primary_position": "GK",
+      "secondary_positions": [],
+      "market_value": 0.3,
+      "market_value_updated_at": "2026-07-23T22:03:29.167+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/122074.png",
+      "height_cm": 193,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 0,
+      "ppg": 0,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "ab4588be-38bb-4f34-92f1-a8a2cebfa0a0",
+      "fpl_id": 221,
+      "api_football_id": 152969,
+      "web_name": "Drakes-Thomas",
+      "name": "Joél Drakes-Thomas",
+      "full_name": null,
+      "date_of_birth": "2009-06-09",
+      "nationality": "England",
+      "pl_team": "Crystal Palace",
+      "pl_team_id": 8,
+      "primary_position": "CM",
+      "secondary_positions": [],
+      "market_value": 16,
+      "market_value_updated_at": "2026-07-23T21:15:38.931+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/672492.png",
+      "height_cm": 181,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 0,
+      "ppg": 0,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "c4307f99-e110-4789-ae5e-ec340559c4de",
+      "fpl_id": null,
+      "api_football_id": null,
+      "web_name": "Sillah",
+      "name": "Lamin Sillah",
+      "full_name": null,
+      "date_of_birth": "2006-06-06",
+      "nationality": null,
+      "pl_team": "Nott'm Forest",
+      "pl_team_id": 16,
+      "primary_position": "ST",
+      "secondary_positions": [],
+      "market_value": 4.5,
+      "market_value_updated_at": null,
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/687076.png",
+      "height_cm": null,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 0,
+      "ppg": 0,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-05-25T02:51:30.657935+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "da7b3a59-977a-478a-a651-2f2b01af6c76",
+      "fpl_id": null,
+      "api_football_id": 284390,
+      "web_name": "Wright",
+      "name": "James Wright",
+      "full_name": null,
+      "date_of_birth": "2004-12-02",
+      "nationality": "England",
+      "pl_team": "Aston Villa",
+      "pl_team_id": 2,
+      "primary_position": "GK",
+      "secondary_positions": [],
+      "market_value": 0.2,
+      "market_value_updated_at": "2026-08-02T14:17:09.763+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/481283.png",
+      "height_cm": 188,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 0,
+      "ppg": 0,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "aaf0ec1e-024a-4654-9723-7f345255b712",
+      "fpl_id": null,
+      "api_football_id": null,
+      "web_name": "Emenalo",
+      "name": "Landon Emenalo",
+      "full_name": null,
+      "date_of_birth": "2008-01-18",
+      "nationality": "England",
+      "pl_team": "Chelsea",
+      "pl_team_id": 7,
+      "primary_position": "CM",
+      "secondary_positions": [],
+      "market_value": 4.5,
+      "market_value_updated_at": null,
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/611912.png",
+      "height_cm": 180,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 0,
+      "ppg": 0,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "62469e53-07ee-4f50-b6d8-26777ee56518",
+      "fpl_id": null,
+      "api_football_id": 19016,
+      "web_name": "Chambers",
+      "name": "Sam Chambers",
+      "full_name": null,
+      "date_of_birth": "2007-08-18",
+      "nationality": "England",
+      "pl_team": "Leeds",
+      "pl_team_id": 11,
+      "primary_position": "AM",
+      "secondary_positions": [
+        "RW",
+        "CM"
+      ],
+      "market_value": 0.2,
+      "market_value_updated_at": "2026-08-02T14:17:23.566+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/565863.png",
+      "height_cm": 182,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 0,
+      "ppg": 0,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "00cbbf80-afb3-4c30-a50b-d712f81592e1",
+      "fpl_id": null,
+      "api_football_id": null,
+      "web_name": "Kavuma-McQueen",
+      "name": "Ryan Kavuma-McQueen",
+      "full_name": null,
+      "date_of_birth": "2009-01-01",
+      "nationality": null,
+      "pl_team": "Chelsea",
+      "pl_team_id": 7,
+      "primary_position": "LW",
+      "secondary_positions": [],
+      "market_value": 4.5,
+      "market_value_updated_at": null,
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/616286.png",
+      "height_cm": null,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 0,
+      "ppg": 0,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-05-10T02:35:16.553564+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "210eb668-07fb-44ac-a3e7-7e5e01338e50",
+      "fpl_id": null,
+      "api_football_id": null,
+      "web_name": "Olagunju",
+      "name": "Saheed Olagunju",
+      "full_name": null,
+      "date_of_birth": "2007-01-07",
+      "nationality": "England",
+      "pl_team": "Wolves",
+      "pl_team_id": 20,
+      "primary_position": "CB",
+      "secondary_positions": [],
+      "market_value": 4,
+      "market_value_updated_at": null,
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/601956.png",
+      "height_cm": null,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 0,
+      "ppg": 0,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "75370bb2-08a7-496e-964c-e5aa5f0328c6",
+      "fpl_id": null,
+      "api_football_id": null,
+      "web_name": "Abbey",
+      "name": "Jerome Abbey",
+      "full_name": null,
+      "date_of_birth": "2009-09-16",
+      "nationality": "England",
+      "pl_team": "Wolves",
+      "pl_team_id": 20,
+      "primary_position": "CM",
+      "secondary_positions": [],
+      "market_value": 4.5,
+      "market_value_updated_at": null,
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/685628.png",
+      "height_cm": null,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 0,
+      "ppg": 0,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [
+        {
+          "position": "CM",
+          "rank": 139
+        }
+      ],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "de9623dd-0873-4935-adf5-3763f703e383",
+      "fpl_id": null,
+      "api_football_id": null,
+      "web_name": "Stephenson",
+      "name": "Joshua Stephenson",
+      "full_name": null,
+      "date_of_birth": "2007-09-04",
+      "nationality": null,
+      "pl_team": "Brentford",
+      "pl_team_id": 5,
+      "primary_position": "RWB",
+      "secondary_positions": [
+        "CM"
+      ],
+      "market_value": 4,
+      "market_value_updated_at": null,
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/649240.png",
+      "height_cm": null,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 0,
+      "ppg": 0,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-03-30T04:48:20.643762+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "fe06942f-0659-4c76-a6d3-2f19110790a7",
+      "fpl_id": null,
+      "api_football_id": null,
+      "web_name": "Wilson",
+      "name": "James Wilson",
+      "full_name": null,
+      "date_of_birth": "2007-03-06",
+      "nationality": "England",
+      "pl_team": "Spurs",
+      "pl_team_id": 18,
+      "primary_position": "ST",
+      "secondary_positions": [],
+      "market_value": 4.5,
+      "market_value_updated_at": null,
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/613232.png",
+      "height_cm": 188,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 0,
+      "ppg": 0,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-03-07T02:34:53.417778+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "1b0ce0b3-27a1-468c-92b3-7d849d16de0a",
+      "fpl_id": 58,
+      "api_football_id": 18932,
+      "web_name": "Forster",
+      "name": "Fraser Forster",
+      "full_name": null,
+      "date_of_birth": "1988-03-17",
+      "nationality": "England",
+      "pl_team": "Bournemouth",
+      "pl_team_id": 4,
+      "primary_position": "GK",
+      "secondary_positions": [],
+      "market_value": 0.4,
+      "market_value_updated_at": "2026-07-23T22:03:29.406+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/40383.png",
+      "height_cm": 201,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 0,
+      "ppg": 0,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "d97cbdb2-c50e-4c4e-afba-97ecbc90af2c",
+      "fpl_id": 414,
+      "api_football_id": 2931,
+      "web_name": "Heaton",
+      "name": "Tom Heaton",
+      "full_name": null,
+      "date_of_birth": "1986-04-15",
+      "nationality": "England",
+      "pl_team": "Man Utd",
+      "pl_team_id": 14,
+      "primary_position": "GK",
+      "secondary_positions": [],
+      "market_value": 0.1,
+      "market_value_updated_at": "2026-07-23T22:03:29.316+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/21205.png",
+      "height_cm": 188,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 0,
+      "ppg": 0,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "405d7ace-c399-4848-9eba-9df188c55e9f",
+      "fpl_id": null,
+      "api_football_id": null,
+      "web_name": "Sharman-Lowe",
+      "name": "Teddy Sharman-Lowe",
+      "full_name": null,
+      "date_of_birth": "2003-03-30",
+      "nationality": "England",
+      "pl_team": "Chelsea",
+      "pl_team_id": 7,
+      "primary_position": "GK",
+      "secondary_positions": [],
+      "market_value": 0.5,
+      "market_value_updated_at": "2026-08-02T14:17:09.674+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/499857.png",
+      "height_cm": 189,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 0,
+      "ppg": 0,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "8b735b9e-2bd2-4065-9534-07bc7ca9b9be",
+      "fpl_id": null,
+      "api_football_id": null,
+      "web_name": "McMahon-Brown",
+      "name": "Kian McMahon-Brown",
+      "full_name": null,
+      "date_of_birth": "2008-08-03",
+      "nationality": "Ireland",
+      "pl_team": "Burnley",
+      "pl_team_id": 3,
+      "primary_position": "CM",
+      "secondary_positions": [],
+      "market_value": 4.5,
+      "market_value_updated_at": null,
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/644593.png",
+      "height_cm": 175,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 0,
+      "ppg": 0,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-03-07T02:34:53.417778+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "97ada8db-f887-4113-a866-fd6c0d8bccdf",
+      "fpl_id": null,
+      "api_football_id": 18955,
+      "web_name": "Hollingshead",
+      "name": "Ronnie Hollingshead",
+      "full_name": null,
+      "date_of_birth": "2004-09-09",
+      "nationality": "England",
+      "pl_team": "Aston Villa",
+      "pl_team_id": 2,
+      "primary_position": "GK",
+      "secondary_positions": [],
+      "market_value": 4,
+      "market_value_updated_at": null,
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/516875.png",
+      "height_cm": 178,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 0,
+      "ppg": 0,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "7d37c614-8747-46a7-8822-9f51e4f21ad0",
+      "fpl_id": null,
+      "api_football_id": null,
+      "web_name": "Cresswell",
+      "name": "Alfie Cresswell",
+      "full_name": null,
+      "date_of_birth": "2007-07-15",
+      "nationality": null,
+      "pl_team": "Leeds",
+      "pl_team_id": 11,
+      "primary_position": "CM",
+      "secondary_positions": [],
+      "market_value": 4.5,
+      "market_value_updated_at": null,
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/592740.png",
+      "height_cm": null,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 0,
+      "ppg": 0,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-05-18T02:33:07.838113+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "e3512876-cfb8-4ef0-9d2f-6160dbefbd93",
+      "fpl_id": null,
+      "api_football_id": null,
+      "web_name": "King",
+      "name": "George King",
+      "full_name": null,
+      "date_of_birth": "2007-03-20",
+      "nationality": "Ireland",
+      "pl_team": "Crystal Palace",
+      "pl_team_id": 8,
+      "primary_position": "AM",
+      "secondary_positions": [
+        "CM"
+      ],
+      "market_value": 4,
+      "market_value_updated_at": null,
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/591384.png",
+      "height_cm": null,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 0,
+      "ppg": 0,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "5bfd6cc7-62af-4080-a56d-9d7f3fc61282",
+      "fpl_id": null,
+      "api_football_id": null,
+      "web_name": "Thwaites",
+      "name": "Jim Thwaites",
+      "full_name": null,
+      "date_of_birth": "2007-12-20",
+      "nationality": null,
+      "pl_team": "Man Utd",
+      "pl_team_id": 14,
+      "primary_position": "CM",
+      "secondary_positions": [],
+      "market_value": 4.5,
+      "market_value_updated_at": null,
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/576634.png",
+      "height_cm": null,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 0,
+      "ppg": 0,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-04-19T02:06:09.73374+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "c6b18ef4-e1db-4893-a6fe-fba7a6c2f765",
+      "fpl_id": 235,
+      "api_football_id": null,
+      "web_name": "Aznou",
+      "name": "Adam Aznou",
+      "full_name": null,
+      "date_of_birth": "2006-06-02",
+      "nationality": "Morocco",
+      "pl_team": "Everton",
+      "pl_team_id": 9,
+      "primary_position": "LB",
+      "secondary_positions": [],
+      "market_value": 6,
+      "market_value_updated_at": "2026-07-23T22:03:29.494+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/499300.png",
+      "height_cm": 178,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 0,
+      "ppg": 0,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "7e8df6ee-596a-494d-a4fb-acf56ee85b5d",
+      "fpl_id": null,
+      "api_football_id": 385726,
+      "web_name": "Gonzalez",
+      "name": "Enso González",
+      "full_name": null,
+      "date_of_birth": "2005-01-20",
+      "nationality": "Paraguay",
+      "pl_team": "Wolves",
+      "pl_team_id": 20,
+      "primary_position": "LW",
+      "secondary_positions": [
+        "RW",
+        "AM"
+      ],
+      "market_value": 2.5,
+      "market_value_updated_at": "2026-08-02T14:17:09.237+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/593001.png",
+      "height_cm": 169,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 0,
+      "ppg": 0,
+      "is_active": false,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "0370d440-8646-4b91-8d10-134f77e8113b",
+      "fpl_id": 382,
+      "api_football_id": 314661,
+      "web_name": "Danns",
+      "name": "Jayden Danns",
+      "full_name": null,
+      "date_of_birth": null,
+      "nationality": "England",
+      "pl_team": "Liverpool",
+      "pl_team_id": 12,
+      "primary_position": "ST",
+      "secondary_positions": [],
+      "market_value": 0.8,
+      "market_value_updated_at": "2026-07-30T00:14:04.069+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/500058.png",
+      "height_cm": 183,
+      "fpl_status": "i",
+      "fpl_news": "Unspecified injury - Unknown return date",
+      "total_points": 0,
+      "form_rating": 0,
+      "ppg": 0,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "ea895010-04af-4435-90de-b79874b32372",
+      "fpl_id": 3,
+      "api_football_id": null,
+      "web_name": "Meslier",
+      "name": "Illan Meslier",
+      "full_name": null,
+      "date_of_birth": "2000-03-02",
+      "nationality": "France",
+      "pl_team": "Leeds",
+      "pl_team_id": 11,
+      "primary_position": "GK",
+      "secondary_positions": [],
+      "market_value": 8,
+      "market_value_updated_at": "2026-07-23T22:03:29.214+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/437495.png",
+      "height_cm": 200,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 0,
+      "ppg": 0,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
+      "overall_rank": 268,
+      "position_ranks": [],
+      "owner_team_id": null,
+      "owner_team_name": null
+    },
+    {
+      "id": "a7d2d194-0011-47d8-ad84-e6e07e5fd3a5",
+      "fpl_id": 365,
+      "api_football_id": 135525,
+      "web_name": "Ramsay",
+      "name": "Calvin Ramsay",
+      "full_name": null,
+      "date_of_birth": "2003-07-31",
+      "nationality": "Scotland",
+      "pl_team": "Liverpool",
+      "pl_team_id": 12,
+      "primary_position": "RB",
+      "secondary_positions": [
+        "RWB"
+      ],
+      "market_value": 1.5,
+      "market_value_updated_at": "2026-07-23T22:03:29.277+00:00",
+      "projected_points": null,
+      "photo_url": "https://resources.premierleague.com/premierleague25/photos/players/110x140/489580.png",
+      "height_cm": 177,
+      "fpl_status": "a",
+      "fpl_news": null,
+      "total_points": 0,
+      "form_rating": 0,
+      "ppg": 0,
+      "is_active": true,
+      "transfermarkt_id": null,
+      "created_at": "2026-02-20T07:37:49.456666+00:00",
+      "updated_at": "2026-08-08T21:53:18.581034+00:00",
       "overall_rank": 268,
       "position_ranks": [],
       "owner_team_id": null,
@@ -22883,16 +25692,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "16ff793b-3ea5-45cc-a5a1-cea5716fceb5": {
         "ST": {
-          "gp": 32,
-          "total_points": 357.31,
-          "avg_rating": 7.11,
-          "total_minutes": 1598
+          "gp": 33,
+          "total_points": 358.97,
+          "avg_rating": 7.08,
+          "total_minutes": 1663
         },
         "AM": {
-          "gp": 32,
-          "total_points": 264.97,
-          "avg_rating": 6.82,
-          "total_minutes": 1598
+          "gp": 33,
+          "total_points": 265.46,
+          "avg_rating": 6.8,
+          "total_minutes": 1663
         }
       },
       "ebdb1774-36c2-466b-a983-1aa9e188e287": {
@@ -22919,16 +25728,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "0a3c471a-ce3c-47a7-a2df-28d51a274f05": {
         "LW": {
-          "gp": 29,
-          "total_points": 148.89,
-          "avg_rating": 6.52,
-          "total_minutes": 1056
+          "gp": 30,
+          "total_points": 150.64,
+          "avg_rating": 6.51,
+          "total_minutes": 1065
         },
         "CM": {
-          "gp": 29,
+          "gp": 30,
           "total_points": 63.95,
-          "avg_rating": 5.9,
-          "total_minutes": 1056
+          "avg_rating": 5.89,
+          "total_minutes": 1065
         }
       },
       "befa620a-53e5-4c92-a79a-9a9a93ca7a87": {
@@ -22955,16 +25764,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "4249721b-3041-4345-b971-91c4c07a7696": {
         "RWB": {
-          "gp": 33,
-          "total_points": 263.64,
-          "avg_rating": 6.79,
-          "total_minutes": 2175
+          "gp": 34,
+          "total_points": 278.17,
+          "avg_rating": 6.81,
+          "total_minutes": 2255
         },
         "RB": {
-          "gp": 33,
-          "total_points": 231.77,
-          "avg_rating": 6.64,
-          "total_minutes": 2175
+          "gp": 34,
+          "total_points": 239.43,
+          "avg_rating": 6.65,
+          "total_minutes": 2255
         }
       },
       "97e1cfe4-3a30-4d84-98f5-5ddfb705396b": {
@@ -23017,22 +25826,22 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "8abd2d0e-35a2-4b4e-9dc8-3bdcec0cfadf": {
         "LB": {
-          "gp": 25,
+          "gp": 26,
           "total_points": 245.79,
-          "avg_rating": 6.91,
-          "total_minutes": 1688
+          "avg_rating": 6.86,
+          "total_minutes": 1697
         },
         "CB": {
-          "gp": 25,
+          "gp": 26,
           "total_points": 263.72,
-          "avg_rating": 6.97,
-          "total_minutes": 1688
+          "avg_rating": 6.92,
+          "total_minutes": 1697
         },
         "CM": {
-          "gp": 25,
+          "gp": 26,
           "total_points": 192.6,
-          "avg_rating": 6.65,
-          "total_minutes": 1688
+          "avg_rating": 6.6,
+          "total_minutes": 1697
         }
       },
       "68b6431e-b10c-4d5b-889c-72cb62425427": {
@@ -23057,16 +25866,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "539a057b-b67c-4cb3-9656-ae5d3610534d": {
         "DM": {
-          "gp": 28,
+          "gp": 29,
           "total_points": 186.08,
-          "avg_rating": 6.41,
-          "total_minutes": 1840
+          "avg_rating": 6.38,
+          "total_minutes": 1921
         },
         "CM": {
-          "gp": 28,
+          "gp": 29,
           "total_points": 172.8,
-          "avg_rating": 6.52,
-          "total_minutes": 1840
+          "avg_rating": 6.49,
+          "total_minutes": 1921
         }
       },
       "abf1c8d8-5794-4dbb-b12a-2510ed72068c": {
@@ -23255,22 +26064,22 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "41469187-fb71-4f6d-9fdf-0bfad1f17f59": {
         "RW": {
-          "gp": 36,
-          "total_points": 274.34,
-          "avg_rating": 6.79,
-          "total_minutes": 2372
+          "gp": 37,
+          "total_points": 291.85,
+          "avg_rating": 6.81,
+          "total_minutes": 2449
         },
         "AM": {
-          "gp": 36,
-          "total_points": 226.53,
-          "avg_rating": 6.65,
-          "total_minutes": 2372
+          "gp": 37,
+          "total_points": 236.2,
+          "avg_rating": 6.66,
+          "total_minutes": 2449
         },
         "CM": {
-          "gp": 36,
-          "total_points": 196.11,
-          "avg_rating": 6.44,
-          "total_minutes": 2372
+          "gp": 37,
+          "total_points": 202.31,
+          "avg_rating": 6.45,
+          "total_minutes": 2449
         }
       },
       "ad0e9939-ff90-471a-bd09-f9eb18f8bb96": {
@@ -23297,16 +26106,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "04982c10-e875-43bb-84f8-b2b1e824ec4f": {
         "RW": {
-          "gp": 27,
-          "total_points": 217.59,
-          "avg_rating": 6.81,
-          "total_minutes": 2083
+          "gp": 28,
+          "total_points": 243.28,
+          "avg_rating": 6.87,
+          "total_minutes": 2173
         },
         "AM": {
-          "gp": 27,
-          "total_points": 189.94,
-          "avg_rating": 6.76,
-          "total_minutes": 2083
+          "gp": 28,
+          "total_points": 211.29,
+          "avg_rating": 6.8,
+          "total_minutes": 2173
         }
       },
       "373151d3-326e-4560-9dc2-590b083838a0": {
@@ -23681,10 +26490,10 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "14628733-ca00-4e66-af7d-ab56495d34aa": {
         "LW": {
-          "gp": 24,
-          "total_points": 145.22,
-          "avg_rating": 6.66,
-          "total_minutes": 1660
+          "gp": 25,
+          "total_points": 172.5,
+          "avg_rating": 6.73,
+          "total_minutes": 1714
         }
       },
       "7a5dc53a-4593-4902-807c-c7ff04b4ca6f": {
@@ -23721,16 +26530,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "d5a89e12-703b-4651-bec5-0821caea37b3": {
         "AM": {
-          "gp": 31,
-          "total_points": 160.75,
-          "avg_rating": 6.53,
-          "total_minutes": 1761
+          "gp": 32,
+          "total_points": 175.19,
+          "avg_rating": 6.56,
+          "total_minutes": 1776
         },
         "ST": {
-          "gp": 31,
-          "total_points": 221.33,
-          "avg_rating": 6.77,
-          "total_minutes": 1761
+          "gp": 32,
+          "total_points": 243.02,
+          "avg_rating": 6.81,
+          "total_minutes": 1776
         }
       },
       "c66f6b3a-dbf8-41b5-b45d-d02b171105f7": {
@@ -23841,22 +26650,22 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "e1ecd6bf-d759-405f-b504-0302920fa042": {
         "AM": {
-          "gp": 32,
-          "total_points": 174.6,
-          "avg_rating": 6.54,
-          "total_minutes": 1840
+          "gp": 33,
+          "total_points": 174.69,
+          "avg_rating": 6.52,
+          "total_minutes": 1885
         },
         "LW": {
-          "gp": 32,
-          "total_points": 239.56,
-          "avg_rating": 6.73,
-          "total_minutes": 1840
+          "gp": 33,
+          "total_points": 240.65,
+          "avg_rating": 6.71,
+          "total_minutes": 1885
         },
         "CM": {
-          "gp": 32,
+          "gp": 33,
           "total_points": 154.47,
-          "avg_rating": 6.3,
-          "total_minutes": 1840
+          "avg_rating": 6.27,
+          "total_minutes": 1885
         }
       },
       "a20881c6-f003-4871-b984-a0a74a123941": {
@@ -23869,50 +26678,50 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "daf49ca4-c4c5-497c-96f7-16f9b9b0de0a": {
         "RWB": {
-          "gp": 33,
-          "total_points": 423.66,
-          "avg_rating": 7.3,
-          "total_minutes": 2771
+          "gp": 34,
+          "total_points": 443.18,
+          "avg_rating": 7.31,
+          "total_minutes": 2861
         },
         "RB": {
-          "gp": 33,
-          "total_points": 428.59,
-          "avg_rating": 7.27,
-          "total_minutes": 2771
+          "gp": 34,
+          "total_points": 449.85,
+          "avg_rating": 7.29,
+          "total_minutes": 2861
         },
         "CM": {
-          "gp": 33,
-          "total_points": 344.84,
-          "avg_rating": 7.05,
-          "total_minutes": 2771
+          "gp": 34,
+          "total_points": 361.04,
+          "avg_rating": 7.07,
+          "total_minutes": 2861
         }
       },
       "d8a69f04-65a6-4d70-98ca-5210810d4da6": {
         "RW": {
-          "gp": 30,
-          "total_points": 119.65,
-          "avg_rating": 6.42,
-          "total_minutes": 1164
+          "gp": 31,
+          "total_points": 120.58,
+          "avg_rating": 6.41,
+          "total_minutes": 1188
         }
       },
       "0f1543e9-3bb2-4d50-835a-12dc77c9b80a": {
         "AM": {
-          "gp": 25,
+          "gp": 26,
           "total_points": 55.29,
-          "avg_rating": 6.23,
-          "total_minutes": 1227
+          "avg_rating": 6.21,
+          "total_minutes": 1239
         },
         "CM": {
-          "gp": 25,
+          "gp": 26,
           "total_points": 55.38,
-          "avg_rating": 6.05,
-          "total_minutes": 1227
+          "avg_rating": 6.01,
+          "total_minutes": 1239
         },
         "LW": {
-          "gp": 25,
-          "total_points": 93.24,
-          "avg_rating": 6.43,
-          "total_minutes": 1227
+          "gp": 26,
+          "total_points": 93.55,
+          "avg_rating": 6.41,
+          "total_minutes": 1239
         }
       },
       "076c7521-db54-45a3-962b-242df08a9ed9": {
@@ -23939,22 +26748,22 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "6e04f94f-55c7-4321-9ae6-8eef497d044b": {
         "DM": {
-          "gp": 32,
+          "gp": 33,
           "total_points": 85.78,
-          "avg_rating": 5.79,
-          "total_minutes": 1745
+          "avg_rating": 5.78,
+          "total_minutes": 1752
         },
         "CM": {
-          "gp": 32,
+          "gp": 33,
           "total_points": 78.23,
-          "avg_rating": 5.99,
-          "total_minutes": 1745
+          "avg_rating": 5.98,
+          "total_minutes": 1752
         },
         "CB": {
-          "gp": 32,
-          "total_points": 122.21,
-          "avg_rating": 5.19,
-          "total_minutes": 1745
+          "gp": 33,
+          "total_points": 122.3,
+          "avg_rating": 5.18,
+          "total_minutes": 1752
         }
       },
       "e4d69e33-2c4a-4ff9-8a4e-49984236f5b0": {
@@ -23963,6 +26772,14 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_points": 349.89,
           "avg_rating": 6.75,
           "total_minutes": 3420
+        }
+      },
+      "72fa79b9-c0e4-461f-b792-859ffa600bcd": {
+        "CB": {
+          "gp": 37,
+          "total_points": 399.47,
+          "avg_rating": 7.06,
+          "total_minutes": 3288
         }
       },
       "4f642553-88f9-4c7c-958a-eef5a3b12c46": {
@@ -24159,22 +26976,22 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "d56cdc2a-a3fb-4c33-8dc9-73547c33c809": {
         "DM": {
-          "gp": 25,
+          "gp": 26,
           "total_points": 230.71,
-          "avg_rating": 6.7,
-          "total_minutes": 1811
+          "avg_rating": 6.64,
+          "total_minutes": 1901
         },
         "RB": {
-          "gp": 25,
-          "total_points": 209.94,
-          "avg_rating": 5.64,
-          "total_minutes": 1811
+          "gp": 26,
+          "total_points": 210.08,
+          "avg_rating": 5.61,
+          "total_minutes": 1901
         },
         "CM": {
-          "gp": 25,
-          "total_points": 203.46,
-          "avg_rating": 6.77,
-          "total_minutes": 1811
+          "gp": 26,
+          "total_points": 203.9,
+          "avg_rating": 6.74,
+          "total_minutes": 1901
         }
       },
       "5504bc6d-5ae8-41bb-a87b-3181d2fc6f0b": {
@@ -24261,6 +27078,14 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_minutes": 156
         }
       },
+      "6058c8a8-4590-43ba-94e7-c71b2f071ddc": {
+        "RW": {
+          "gp": 24,
+          "total_points": 26.99,
+          "avg_rating": 6.12,
+          "total_minutes": 376
+        }
+      },
       "368b8798-4dbf-4eb8-a47d-1e9d89155a86": {
         "DM": {
           "gp": 25,
@@ -24305,16 +27130,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "73bda496-5581-4cf7-af06-81f8b8f4b39b": {
         "LW": {
-          "gp": 22,
-          "total_points": 66.81,
+          "gp": 23,
+          "total_points": 68.51,
           "avg_rating": 6.34,
-          "total_minutes": 498
+          "total_minutes": 521
         },
         "RW": {
-          "gp": 22,
-          "total_points": 66.82,
+          "gp": 23,
+          "total_points": 68.52,
           "avg_rating": 6.34,
-          "total_minutes": 498
+          "total_minutes": 521
         }
       },
       "82accb7e-aa15-471d-aaad-bee25c7c04cc": {
@@ -24341,10 +27166,10 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "fc4098bc-09f8-4e2d-93d5-90b3999dc1eb": {
         "ST": {
-          "gp": 32,
-          "total_points": 193.22,
-          "avg_rating": 6.66,
-          "total_minutes": 1312
+          "gp": 33,
+          "total_points": 196.67,
+          "avg_rating": 6.65,
+          "total_minutes": 1402
         }
       },
       "5293cfd9-c150-4caf-968f-bd0cebc425b0": {
@@ -24357,10 +27182,10 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "1e0ea6bf-3b1e-4e6e-b19a-6b84ed7cdf85": {
         "RW": {
-          "gp": 30,
-          "total_points": 430.43,
-          "avg_rating": 7.41,
-          "total_minutes": 2198
+          "gp": 31,
+          "total_points": 431.27,
+          "avg_rating": 7.37,
+          "total_minutes": 2218
         }
       },
       "07cbe642-3846-482b-b7b2-e7b37cd90f45": {
@@ -24393,10 +27218,10 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "b6d1c8dd-00dc-415a-b16c-40482016d6c2": {
         "ST": {
-          "gp": 30,
-          "total_points": 191.64,
-          "avg_rating": 6.68,
-          "total_minutes": 1064
+          "gp": 31,
+          "total_points": 192.7,
+          "avg_rating": 6.66,
+          "total_minutes": 1065
         }
       },
       "c7984de4-1de6-46b5-b80c-f51c496fd865": {
@@ -24547,22 +27372,22 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "4459f763-775e-4899-bb86-7e00e4dafe54": {
         "LW": {
-          "gp": 33,
-          "total_points": 333.92,
-          "avg_rating": 7.03,
-          "total_minutes": 2644
+          "gp": 34,
+          "total_points": 350.28,
+          "avg_rating": 7.05,
+          "total_minutes": 2732
         },
         "RW": {
-          "gp": 33,
-          "total_points": 333.9,
-          "avg_rating": 7.03,
-          "total_minutes": 2644
+          "gp": 34,
+          "total_points": 350.26,
+          "avg_rating": 7.05,
+          "total_minutes": 2732
         },
         "AM": {
-          "gp": 33,
-          "total_points": 353.25,
-          "avg_rating": 7.09,
-          "total_minutes": 2644
+          "gp": 34,
+          "total_points": 382.84,
+          "avg_rating": 7.14,
+          "total_minutes": 2732
         }
       },
       "d40c38ba-4747-4544-be8d-17adeb16d7d9": {
@@ -24635,12 +27460,32 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_minutes": 3119
         }
       },
+      "e1316dd9-53f8-476e-9605-df83c8f7ca79": {
+        "ST": {
+          "gp": 20,
+          "total_points": 83.96,
+          "avg_rating": 6.45,
+          "total_minutes": 751
+        },
+        "RW": {
+          "gp": 20,
+          "total_points": 75.91,
+          "avg_rating": 6.37,
+          "total_minutes": 751
+        },
+        "LW": {
+          "gp": 20,
+          "total_points": 75.91,
+          "avg_rating": 6.37,
+          "total_minutes": 751
+        }
+      },
       "135a3e0d-1126-48a4-b457-83271160c939": {
         "ST": {
-          "gp": 31,
-          "total_points": 274.17,
-          "avg_rating": 6.91,
-          "total_minutes": 2185
+          "gp": 32,
+          "total_points": 293.85,
+          "avg_rating": 6.94,
+          "total_minutes": 2210
         }
       },
       "d37e2d33-00cb-4dbc-ae43-ea891bc1bf14": {
@@ -24665,16 +27510,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "24725095-8ece-4ce2-ae86-1f225ef55d55": {
         "DM": {
-          "gp": 33,
-          "total_points": 267.55,
+          "gp": 34,
+          "total_points": 272.47,
           "avg_rating": 6.66,
-          "total_minutes": 2462
+          "total_minutes": 2552
         },
         "CM": {
-          "gp": 33,
-          "total_points": 288.69,
-          "avg_rating": 6.82,
-          "total_minutes": 2462
+          "gp": 34,
+          "total_points": 298.27,
+          "avg_rating": 6.83,
+          "total_minutes": 2552
         }
       },
       "6d484c87-9b2c-4e5a-86b8-b1d7b54bce87": {
@@ -24715,30 +27560,30 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "1f6d6dd4-7123-4a98-936c-23ca01ff7467": {
         "DM": {
-          "gp": 24,
+          "gp": 25,
           "total_points": 162.69,
-          "avg_rating": 6.61,
-          "total_minutes": 1744
+          "avg_rating": 6.55,
+          "total_minutes": 1769
         },
         "CM": {
-          "gp": 24,
+          "gp": 25,
           "total_points": 125.41,
-          "avg_rating": 6.55,
-          "total_minutes": 1744
+          "avg_rating": 6.51,
+          "total_minutes": 1769
         }
       },
       "7dca8805-e8f7-412e-bb97-efb438d93e57": {
         "CB": {
-          "gp": 33,
+          "gp": 34,
           "total_points": 323.97,
-          "avg_rating": 6.95,
-          "total_minutes": 2771
+          "avg_rating": 6.91,
+          "total_minutes": 2780
         },
         "RB": {
-          "gp": 33,
+          "gp": 34,
           "total_points": 319.43,
-          "avg_rating": 6.96,
-          "total_minutes": 2771
+          "avg_rating": 6.92,
+          "total_minutes": 2780
         }
       },
       "92cd80f5-169a-4ca9-a492-2a2da4a44da3": {
@@ -24763,16 +27608,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "e002cfcc-ada0-47dd-8f37-628336e6d51a": {
         "LW": {
-          "gp": 28,
-          "total_points": 338.44,
-          "avg_rating": 7.14,
-          "total_minutes": 1597
+          "gp": 30,
+          "total_points": 387.35,
+          "avg_rating": 7.21,
+          "total_minutes": 1773
         },
         "RW": {
-          "gp": 28,
-          "total_points": 338.43,
-          "avg_rating": 7.14,
-          "total_minutes": 1597
+          "gp": 30,
+          "total_points": 387.34,
+          "avg_rating": 7.21,
+          "total_minutes": 1773
         }
       },
       "278ea88e-6a30-4476-b264-1e0ee2a024aa": {
@@ -24807,6 +27652,20 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_points": 165.74,
           "avg_rating": 6.36,
           "total_minutes": 2652
+        }
+      },
+      "0aafecd4-34c9-456e-a179-13d3da737ec5": {
+        "LWB": {
+          "gp": 35,
+          "total_points": 292.12,
+          "avg_rating": 6.84,
+          "total_minutes": 2359
+        },
+        "LB": {
+          "gp": 35,
+          "total_points": 202.95,
+          "avg_rating": 6.54,
+          "total_minutes": 2359
         }
       },
       "9cfdaa90-16bf-43b7-9a3e-2162902f611c": {
@@ -24907,44 +27766,44 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "516062f0-61b3-4587-9191-eb9525e6cfcc": {
         "CM": {
-          "gp": 35,
-          "total_points": 517.51,
-          "avg_rating": 7.44,
-          "total_minutes": 3027
+          "gp": 36,
+          "total_points": 538.94,
+          "avg_rating": 7.46,
+          "total_minutes": 3114
         },
         "DM": {
-          "gp": 35,
-          "total_points": 399.29,
-          "avg_rating": 7.08,
-          "total_minutes": 3027
+          "gp": 36,
+          "total_points": 409.64,
+          "avg_rating": 7.09,
+          "total_minutes": 3114
         },
         "AM": {
-          "gp": 35,
-          "total_points": 491.72,
-          "avg_rating": 7.4,
-          "total_minutes": 3027
+          "gp": 36,
+          "total_points": 514.24,
+          "avg_rating": 7.42,
+          "total_minutes": 3114
         }
       },
       "3569929e-790b-41cf-b18f-a8d37017a170": {
         "RW": {
-          "gp": 33,
-          "total_points": 125.93,
+          "gp": 34,
+          "total_points": 130.08,
           "avg_rating": 6.41,
-          "total_minutes": 1631
+          "total_minutes": 1710
         },
         "LW": {
-          "gp": 33,
-          "total_points": 125.93,
+          "gp": 34,
+          "total_points": 130.08,
           "avg_rating": 6.41,
-          "total_minutes": 1631
+          "total_minutes": 1710
         }
       },
       "3dbf4b85-db4c-4a2b-8f2c-b93e3b1b8882": {
         "ST": {
-          "gp": 35,
-          "total_points": 350.36,
-          "avg_rating": 6.96,
-          "total_minutes": 2127
+          "gp": 36,
+          "total_points": 352.35,
+          "avg_rating": 6.95,
+          "total_minutes": 2217
         }
       },
       "b8ff78b1-f214-4446-b3a4-a0e28c2130ad": {
@@ -24977,16 +27836,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "8b97c08c-e887-4b4d-bdba-b87eeea0da89": {
         "RB": {
-          "gp": 33,
-          "total_points": 206.83,
-          "avg_rating": 6.61,
-          "total_minutes": 2705
+          "gp": 34,
+          "total_points": 220.7,
+          "avg_rating": 6.64,
+          "total_minutes": 2795
         },
         "RWB": {
-          "gp": 33,
-          "total_points": 234.52,
-          "avg_rating": 6.76,
-          "total_minutes": 2705
+          "gp": 34,
+          "total_points": 246.82,
+          "avg_rating": 6.77,
+          "total_minutes": 2795
         }
       },
       "577b5ff0-8e42-4fc4-be35-3a4a5deb2172": {
@@ -25021,24 +27880,24 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "3965b253-52a1-4a06-b4e2-bf3153c53c73": {
         "RW": {
-          "gp": 22,
-          "total_points": 125.46,
-          "avg_rating": 6.61,
-          "total_minutes": 995
+          "gp": 23,
+          "total_points": 127.19,
+          "avg_rating": 6.59,
+          "total_minutes": 1058
         }
       },
       "0ba005dd-ba53-44bd-a30a-0992f0efcc0a": {
         "DM": {
-          "gp": 27,
-          "total_points": 78.94,
-          "avg_rating": 5.85,
-          "total_minutes": 1217
+          "gp": 28,
+          "total_points": 87.88,
+          "avg_rating": 5.89,
+          "total_minutes": 1307
         },
         "CM": {
-          "gp": 27,
-          "total_points": 97.85,
-          "avg_rating": 6.12,
-          "total_minutes": 1217
+          "gp": 28,
+          "total_points": 114.18,
+          "avg_rating": 6.18,
+          "total_minutes": 1307
         }
       },
       "d8f1acd5-5929-4eea-b92a-cc2ec95ce80e": {
@@ -25055,24 +27914,38 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_minutes": 2195
         }
       },
-      "3d189af2-5ee2-410c-aac2-cb2c7045ef06": {
-        "AM": {
-          "gp": 5,
-          "total_points": 34.55,
-          "avg_rating": 6.57,
-          "total_minutes": 187
+      "2ae311a0-0774-434b-9b73-9295bbb2ca94": {
+        "DM": {
+          "gp": 33,
+          "total_points": 279.03,
+          "avg_rating": 6.59,
+          "total_minutes": 2192
         },
         "CM": {
-          "gp": 5,
+          "gp": 33,
+          "total_points": 237.18,
+          "avg_rating": 6.62,
+          "total_minutes": 2192
+        }
+      },
+      "3d189af2-5ee2-410c-aac2-cb2c7045ef06": {
+        "AM": {
+          "gp": 6,
+          "total_points": 34.56,
+          "avg_rating": 6.45,
+          "total_minutes": 202
+        },
+        "CM": {
+          "gp": 6,
           "total_points": 32.12,
-          "avg_rating": 6.19,
-          "total_minutes": 187
+          "avg_rating": 6.05,
+          "total_minutes": 202
         },
         "DM": {
-          "gp": 5,
+          "gp": 6,
           "total_points": 22.85,
-          "avg_rating": 5.8,
-          "total_minutes": 187
+          "avg_rating": 5.67,
+          "total_minutes": 202
         }
       },
       "3b63a4b0-936e-4d26-956c-c9acfcd7e1f9": {
@@ -25125,10 +27998,10 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "9c6b03b4-a7b0-47d6-88ed-1ff10f5d71da": {
         "ST": {
-          "gp": 28,
-          "total_points": 274.18,
-          "avg_rating": 6.97,
-          "total_minutes": 1681
+          "gp": 29,
+          "total_points": 297.73,
+          "avg_rating": 7.01,
+          "total_minutes": 1764
         }
       },
       "2d0d8ae2-fedc-4d0e-89ef-a7ea8a1c536f": {
@@ -25181,6 +28054,14 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_points": 100.53,
           "avg_rating": 6.47,
           "total_minutes": 986
+        }
+      },
+      "8ddd18ba-c6cb-4605-9bd8-956f82ce0659": {
+        "CB": {
+          "gp": 34,
+          "total_points": 271.87,
+          "avg_rating": 6.8,
+          "total_minutes": 3035
         }
       },
       "912cad56-1e19-46c1-9092-580bbcea3da1": {
@@ -25245,16 +28126,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "a44cb207-8f2c-4c75-a880-627f7ed46d62": {
         "RW": {
-          "gp": 14,
-          "total_points": 164.71,
-          "avg_rating": 7.14,
-          "total_minutes": 1033
+          "gp": 15,
+          "total_points": 181.33,
+          "avg_rating": 7.17,
+          "total_minutes": 1110
         },
         "ST": {
-          "gp": 14,
-          "total_points": 168.27,
-          "avg_rating": 7.22,
-          "total_minutes": 1033
+          "gp": 15,
+          "total_points": 184.03,
+          "avg_rating": 7.25,
+          "total_minutes": 1110
         }
       },
       "3ff9adc3-eccc-44a8-9f7c-5cbb65fcda93": {
@@ -25349,6 +28230,20 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_minutes": 2736
         }
       },
+      "8ec2716d-e230-4b73-a371-889447a69c61": {
+        "DM": {
+          "gp": 22,
+          "total_points": 45.82,
+          "avg_rating": 5.7,
+          "total_minutes": 876
+        },
+        "CM": {
+          "gp": 22,
+          "total_points": 39.23,
+          "avg_rating": 5.92,
+          "total_minutes": 876
+        }
+      },
       "fe704086-e73e-4599-8edd-ee9a8366121e": {
         "CB": {
           "gp": 13,
@@ -25423,10 +28318,10 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "a02a8470-057d-4092-b778-c05f959761a6": {
         "ST": {
-          "gp": 36,
-          "total_points": 377.59,
-          "avg_rating": 7.02,
-          "total_minutes": 2175
+          "gp": 37,
+          "total_points": 379.59,
+          "avg_rating": 7,
+          "total_minutes": 2249
         }
       },
       "edfba6f2-a1de-4dd6-bfad-f4ed5a951a81": {
@@ -25435,6 +28330,20 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_points": 206.65,
           "avg_rating": 6.83,
           "total_minutes": 1834
+        }
+      },
+      "6b3f9d08-4371-479e-ae74-2b269777bcdd": {
+        "DM": {
+          "gp": 31,
+          "total_points": 140.81,
+          "avg_rating": 6.23,
+          "total_minutes": 2100
+        },
+        "CM": {
+          "gp": 31,
+          "total_points": 119.93,
+          "avg_rating": 6.34,
+          "total_minutes": 2100
         }
       },
       "6a436034-5dac-4f03-83b0-8c394ab45e0f": {
@@ -25449,6 +28358,20 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_points": 145.61,
           "avg_rating": 6.79,
           "total_minutes": 1410
+        }
+      },
+      "d84d8b90-69db-4709-8f91-f35b3e2e3c88": {
+        "DM": {
+          "gp": 25,
+          "total_points": 184.82,
+          "avg_rating": 6.67,
+          "total_minutes": 2094
+        },
+        "CM": {
+          "gp": 25,
+          "total_points": 178.78,
+          "avg_rating": 6.73,
+          "total_minutes": 2094
         }
       },
       "7e83aa9d-f328-47e1-99fb-b2d96e4ed3b4": {
@@ -25571,6 +28494,20 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_minutes": 2901
         }
       },
+      "50d7b59e-0000-4be6-a5ac-8c4628020d55": {
+        "RB": {
+          "gp": 34,
+          "total_points": 355.57,
+          "avg_rating": 7,
+          "total_minutes": 2793
+        },
+        "RWB": {
+          "gp": 34,
+          "total_points": 429.29,
+          "avg_rating": 7.24,
+          "total_minutes": 2793
+        }
+      },
       "5272ddba-c1b7-41f0-b60c-fa39a304f27e": {
         "CM": {
           "gp": 2,
@@ -25601,36 +28538,36 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "28f001b5-4974-4145-a4de-8651f8848c5f": {
         "DM": {
-          "gp": 26,
+          "gp": 27,
           "total_points": 94.95,
-          "avg_rating": 6.07,
-          "total_minutes": 1662
+          "avg_rating": 6.03,
+          "total_minutes": 1736
         },
         "RB": {
-          "gp": 26,
+          "gp": 27,
           "total_points": 138.27,
-          "avg_rating": 5.36,
-          "total_minutes": 1662
+          "avg_rating": 5.33,
+          "total_minutes": 1736
         },
         "AM": {
-          "gp": 26,
-          "total_points": 152.58,
-          "avg_rating": 6.62,
-          "total_minutes": 1662
+          "gp": 27,
+          "total_points": 153.18,
+          "avg_rating": 6.6,
+          "total_minutes": 1736
         },
         "CM": {
-          "gp": 26,
+          "gp": 27,
           "total_points": 116.21,
-          "avg_rating": 6.37,
-          "total_minutes": 1662
+          "avg_rating": 6.34,
+          "total_minutes": 1736
         }
       },
       "a2e00783-e063-4812-9309-adf86d1da7f8": {
         "CB": {
-          "gp": 34,
+          "gp": 35,
           "total_points": 235.73,
-          "avg_rating": 6.69,
-          "total_minutes": 2951
+          "avg_rating": 6.66,
+          "total_minutes": 2952
         }
       },
       "24d2a18a-7d88-4b54-a40d-8ca9c2bdecbe": {
@@ -25705,16 +28642,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "beb3d9af-1178-45ad-bbfc-6a225aa8a9cd": {
         "LW": {
-          "gp": 20,
-          "total_points": 138.17,
-          "avg_rating": 6.66,
-          "total_minutes": 661
+          "gp": 21,
+          "total_points": 166.04,
+          "avg_rating": 6.75,
+          "total_minutes": 691
         },
         "ST": {
-          "gp": 20,
-          "total_points": 142.77,
-          "avg_rating": 6.72,
-          "total_minutes": 661
+          "gp": 21,
+          "total_points": 168,
+          "avg_rating": 6.8,
+          "total_minutes": 691
         }
       },
       "0b346a55-cee7-40d8-b608-baf2051c6302": {
@@ -25735,24 +28672,38 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "676a771a-9fe9-4187-a697-048062b99fc7": {
         "ST": {
-          "gp": 35,
-          "total_points": 170.64,
-          "avg_rating": 6.53,
-          "total_minutes": 2237
+          "gp": 36,
+          "total_points": 172.19,
+          "avg_rating": 6.52,
+          "total_minutes": 2301
         }
       },
       "7caa9463-3742-4d54-a485-2e0d6ef33ddc": {
         "CM": {
-          "gp": 22,
+          "gp": 23,
           "total_points": 141.21,
-          "avg_rating": 6.41,
-          "total_minutes": 1002
+          "avg_rating": 6.38,
+          "total_minutes": 1003
         },
         "DM": {
-          "gp": 22,
+          "gp": 23,
           "total_points": 123.03,
-          "avg_rating": 6.09,
-          "total_minutes": 1002
+          "avg_rating": 6.05,
+          "total_minutes": 1003
+        }
+      },
+      "22bee9ee-5422-4cd9-b95c-58273a23cbd3": {
+        "AM": {
+          "gp": 20,
+          "total_points": 48.14,
+          "avg_rating": 6.2,
+          "total_minutes": 679
+        },
+        "CM": {
+          "gp": 20,
+          "total_points": 37.23,
+          "avg_rating": 5.82,
+          "total_minutes": 679
         }
       },
       "acc60c05-73dd-44dd-9453-18cde4b0c99c": {
@@ -25915,10 +28866,10 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "2ac26b81-dc73-4560-adb8-5433414f1b34": {
         "LW": {
-          "gp": 30,
-          "total_points": 314.22,
-          "avg_rating": 7,
-          "total_minutes": 1917
+          "gp": 31,
+          "total_points": 318.23,
+          "avg_rating": 6.98,
+          "total_minutes": 1997
         }
       },
       "c6b2dc4e-0fe9-4976-b49f-952446522b4c": {
@@ -25927,6 +28878,26 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_points": 103.45,
           "avg_rating": 6.75,
           "total_minutes": 694
+        }
+      },
+      "48075b62-9dca-4d29-be9d-f8cd4a2c23e4": {
+        "DM": {
+          "gp": 31,
+          "total_points": 95.81,
+          "avg_rating": 5.89,
+          "total_minutes": 1722
+        },
+        "CM": {
+          "gp": 31,
+          "total_points": 90.55,
+          "avg_rating": 6.1,
+          "total_minutes": 1722
+        },
+        "CB": {
+          "gp": 31,
+          "total_points": 118.07,
+          "avg_rating": 5.15,
+          "total_minutes": 1722
         }
       },
       "8437f927-3bd0-4138-a440-00f27d5fc284": {
@@ -26023,16 +28994,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "2cbcf4ac-77a5-40fa-8622-1e24dc32ad63": {
         "RB": {
-          "gp": 30,
+          "gp": 31,
           "total_points": 97.48,
-          "avg_rating": 6.24,
-          "total_minutes": 1804
+          "avg_rating": 6.22,
+          "total_minutes": 1834
         },
         "RW": {
-          "gp": 30,
-          "total_points": 88.49,
-          "avg_rating": 6.36,
-          "total_minutes": 1804
+          "gp": 31,
+          "total_points": 89.24,
+          "avg_rating": 6.35,
+          "total_minutes": 1834
         }
       },
       "eea2a8f4-6915-4e10-96f6-d3a505aa395e": {
@@ -26077,16 +29048,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "ac7d4101-705a-4b69-9f0e-de1f5a5c9102": {
         "LW": {
-          "gp": 36,
-          "total_points": 366.55,
-          "avg_rating": 7.01,
-          "total_minutes": 2635
+          "gp": 37,
+          "total_points": 369.98,
+          "avg_rating": 7,
+          "total_minutes": 2717
         },
         "RW": {
-          "gp": 36,
-          "total_points": 366.54,
-          "avg_rating": 7.01,
-          "total_minutes": 2635
+          "gp": 37,
+          "total_points": 369.97,
+          "avg_rating": 7,
+          "total_minutes": 2717
         }
       },
       "4c9276aa-a5ca-4aa2-ace6-df7f44685ed1": {
@@ -26105,10 +29076,18 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "59f57ab2-242c-4224-ab4c-6f572f048ca4": {
         "CB": {
-          "gp": 24,
-          "total_points": 221.91,
-          "avg_rating": 6.91,
-          "total_minutes": 1798
+          "gp": 25,
+          "total_points": 242.04,
+          "avg_rating": 6.95,
+          "total_minutes": 1888
+        }
+      },
+      "dff991ed-2066-4d35-af6e-bdbdcb6d3e18": {
+        "LW": {
+          "gp": 16,
+          "total_points": 58.68,
+          "avg_rating": 6.37,
+          "total_minutes": 486
         }
       },
       "2dd830b5-73c0-4f42-81a2-7f97adaf9b92": {
@@ -26189,10 +29168,24 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "6f4dc08e-564e-471b-baac-f8444ef933cf": {
         "ST": {
-          "gp": 27,
-          "total_points": 86.97,
+          "gp": 28,
+          "total_points": 89.16,
           "avg_rating": 6.37,
-          "total_minutes": 1002
+          "total_minutes": 1092
+        }
+      },
+      "94184a62-b2fe-4e33-80cd-ac6e70472826": {
+        "DM": {
+          "gp": 35,
+          "total_points": 204.39,
+          "avg_rating": 6.51,
+          "total_minutes": 2829
+        },
+        "CM": {
+          "gp": 35,
+          "total_points": 204.64,
+          "avg_rating": 6.59,
+          "total_minutes": 2829
         }
       },
       "f373cb45-26bf-4557-aa7a-f50cc6c08a7e": {
@@ -26349,10 +29342,10 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "fa7291e7-29ee-451b-8b0b-a9860f990b94": {
         "RW": {
-          "gp": 25,
-          "total_points": 150.97,
-          "avg_rating": 6.63,
-          "total_minutes": 1136
+          "gp": 26,
+          "total_points": 182.05,
+          "avg_rating": 6.7,
+          "total_minutes": 1205
         }
       },
       "5ee9ace0-9a25-46ab-a79f-4f7c5326533e": {
@@ -26391,16 +29384,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "2a6ce4ec-c812-43c0-b9f5-69a6f82331c3": {
         "LWB": {
-          "gp": 29,
+          "gp": 30,
           "total_points": 219.27,
-          "avg_rating": 6.72,
-          "total_minutes": 1389
+          "avg_rating": 6.69,
+          "total_minutes": 1404
         },
         "LB": {
-          "gp": 29,
+          "gp": 30,
           "total_points": 170.63,
-          "avg_rating": 6.49,
-          "total_minutes": 1389
+          "avg_rating": 6.46,
+          "total_minutes": 1404
         }
       },
       "5d410351-57b8-4408-81a5-b63e6dc1aa5d": {
@@ -26415,6 +29408,26 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_points": 74.54,
           "avg_rating": 6.52,
           "total_minutes": 1201
+        }
+      },
+      "4ec785c4-0d76-407d-83a6-ba64dedb67bd": {
+        "CM": {
+          "gp": 22,
+          "total_points": 109.81,
+          "avg_rating": 6.27,
+          "total_minutes": 1024
+        },
+        "ST": {
+          "gp": 22,
+          "total_points": 178.91,
+          "avg_rating": 6.83,
+          "total_minutes": 1024
+        },
+        "DM": {
+          "gp": 22,
+          "total_points": 93.05,
+          "avg_rating": 5.95,
+          "total_minutes": 1024
         }
       },
       "b8fe2b12-1dd9-41eb-bc58-050d6840f444": {
@@ -26433,36 +29446,36 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "2247e53b-19a8-4deb-b935-b8b511ccf488": {
         "CM": {
-          "gp": 27,
-          "total_points": 116.16,
-          "avg_rating": 6.36,
-          "total_minutes": 1809
+          "gp": 28,
+          "total_points": 128.57,
+          "avg_rating": 6.4,
+          "total_minutes": 1899
         },
         "AM": {
-          "gp": 27,
-          "total_points": 88.45,
-          "avg_rating": 6.38,
-          "total_minutes": 1809
+          "gp": 28,
+          "total_points": 99.33,
+          "avg_rating": 6.41,
+          "total_minutes": 1899
         },
         "DM": {
-          "gp": 27,
-          "total_points": 101.17,
-          "avg_rating": 6.18,
-          "total_minutes": 1809
+          "gp": 28,
+          "total_points": 110.01,
+          "avg_rating": 6.21,
+          "total_minutes": 1899
         }
       },
       "5907035a-ee80-4139-9fb4-38d9e46b18c6": {
         "RW": {
-          "gp": 28,
-          "total_points": 125.93,
-          "avg_rating": 6.48,
-          "total_minutes": 1252
+          "gp": 29,
+          "total_points": 126.73,
+          "avg_rating": 6.47,
+          "total_minutes": 1259
         },
         "ST": {
-          "gp": 28,
-          "total_points": 134.47,
-          "avg_rating": 6.55,
-          "total_minutes": 1252
+          "gp": 29,
+          "total_points": 135.72,
+          "avg_rating": 6.54,
+          "total_minutes": 1259
         }
       },
       "02fe2fe0-42ad-4e03-8e53-4baebab53fac": {
@@ -26497,6 +29510,26 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_points": 47.56,
           "avg_rating": 6,
           "total_minutes": 872
+        }
+      },
+      "1b7cbbd9-e2a2-43e8-9daa-a3a4e3b80270": {
+        "AM": {
+          "gp": 33,
+          "total_points": 371.93,
+          "avg_rating": 7.13,
+          "total_minutes": 2493
+        },
+        "LW": {
+          "gp": 33,
+          "total_points": 451.6,
+          "avg_rating": 7.31,
+          "total_minutes": 2493
+        },
+        "ST": {
+          "gp": 33,
+          "total_points": 469.78,
+          "avg_rating": 7.4,
+          "total_minutes": 2493
         }
       },
       "13a19aed-23dc-41f4-8def-f402eea7234f": {
@@ -26577,22 +29610,22 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "726a0f9c-2524-46c8-a034-c020c2a67a5e": {
         "AM": {
-          "gp": 32,
-          "total_points": 380.34,
-          "avg_rating": 7.15,
-          "total_minutes": 2048
+          "gp": 33,
+          "total_points": 383.55,
+          "avg_rating": 7.13,
+          "total_minutes": 2078
         },
         "RW": {
-          "gp": 32,
-          "total_points": 370.35,
-          "avg_rating": 7.12,
-          "total_minutes": 2048
+          "gp": 33,
+          "total_points": 374.35,
+          "avg_rating": 7.1,
+          "total_minutes": 2078
         },
         "CM": {
-          "gp": 32,
-          "total_points": 382.7,
-          "avg_rating": 7.05,
-          "total_minutes": 2048
+          "gp": 33,
+          "total_points": 383.31,
+          "avg_rating": 7.02,
+          "total_minutes": 2078
         }
       },
       "d83a1914-917b-4724-ba25-418ceaee6b92": {
@@ -26671,6 +29704,14 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_minutes": 972
         }
       },
+      "69b5cd6b-d7ff-44c0-b42d-4b2fc793ca3a": {
+        "GK": {
+          "gp": 35,
+          "total_points": 287.87,
+          "avg_rating": 6.71,
+          "total_minutes": 3040
+        }
+      },
       "6a5877ec-4e87-4a7f-9c8c-6558f421066b": {
         "CB": {
           "gp": 10,
@@ -26723,22 +29764,36 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "d7dc20a6-e1c9-499e-b458-fe2848346cfb": {
         "CM": {
-          "gp": 25,
-          "total_points": 101.67,
-          "avg_rating": 6.26,
-          "total_minutes": 1277
+          "gp": 28,
+          "total_points": 131.24,
+          "avg_rating": 6.31,
+          "total_minutes": 1441
         },
         "LW": {
-          "gp": 25,
-          "total_points": 123.39,
-          "avg_rating": 6.56,
-          "total_minutes": 1277
+          "gp": 28,
+          "total_points": 177.4,
+          "avg_rating": 6.68,
+          "total_minutes": 1441
         },
         "AM": {
-          "gp": 25,
-          "total_points": 93.25,
-          "avg_rating": 6.4,
-          "total_minutes": 1277
+          "gp": 28,
+          "total_points": 125.13,
+          "avg_rating": 6.47,
+          "total_minutes": 1441
+        }
+      },
+      "5606a893-d5b8-4c73-a014-014e8b432330": {
+        "CM": {
+          "gp": 27,
+          "total_points": 131.77,
+          "avg_rating": 6.37,
+          "total_minutes": 1950
+        },
+        "DM": {
+          "gp": 27,
+          "total_points": 117.2,
+          "avg_rating": 6.12,
+          "total_minutes": 1950
         }
       },
       "0429c923-36f4-4286-8efd-b6bdd1046401": {
@@ -26855,6 +29910,14 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_minutes": 1800
         }
       },
+      "ce67c3f1-2cfe-4139-a1ae-ff69244f1648": {
+        "ST": {
+          "gp": 36,
+          "total_points": 342.7,
+          "avg_rating": 7,
+          "total_minutes": 2741
+        }
+      },
       "b74a0c17-cb3e-4ebe-8186-e81812c12400": {
         "AM": {
           "gp": 16,
@@ -26913,16 +29976,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "1d799357-e0c0-4de6-921a-c167f0a4595e": {
         "DM": {
-          "gp": 25,
-          "total_points": 52.88,
-          "avg_rating": 5.71,
-          "total_minutes": 914
+          "gp": 26,
+          "total_points": 56.77,
+          "avg_rating": 5.74,
+          "total_minutes": 978
         },
         "CM": {
-          "gp": 25,
-          "total_points": 67.91,
-          "avg_rating": 6.06,
-          "total_minutes": 914
+          "gp": 26,
+          "total_points": 69.61,
+          "avg_rating": 6.07,
+          "total_minutes": 978
         }
       },
       "3ecb5e88-679c-4ef5-a681-67f057d0f04c": {
@@ -26961,16 +30024,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "ba85b775-4ac0-4047-a8ce-b43e28d81a9b": {
         "RW": {
-          "gp": 31,
-          "total_points": 386.89,
-          "avg_rating": 7.19,
-          "total_minutes": 1629
+          "gp": 33,
+          "total_points": 424.92,
+          "avg_rating": 7.22,
+          "total_minutes": 1772
         },
         "AM": {
-          "gp": 31,
-          "total_points": 390.05,
-          "avg_rating": 7.2,
-          "total_minutes": 1629
+          "gp": 33,
+          "total_points": 426.69,
+          "avg_rating": 7.23,
+          "total_minutes": 1772
         }
       },
       "43475deb-0f73-4fb0-89fe-8f40affb63bb": {
@@ -27015,6 +30078,20 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_minutes": 1290
         }
       },
+      "c80f3912-04f9-4255-8d41-7999f8f9bd59": {
+        "RW": {
+          "gp": 34,
+          "total_points": 379.51,
+          "avg_rating": 7.11,
+          "total_minutes": 2629
+        },
+        "LW": {
+          "gp": 34,
+          "total_points": 379.51,
+          "avg_rating": 7.11,
+          "total_minutes": 2629
+        }
+      },
       "1c00ab5d-9034-47f1-80d8-f770bd3bcf76": {
         "GK": {
           "gp": 38,
@@ -27025,22 +30102,22 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "2ca4efe0-1e19-4aa4-80e4-759ad16f96f7": {
         "AM": {
-          "gp": 11,
-          "total_points": 13.84,
-          "avg_rating": 6.06,
-          "total_minutes": 380
+          "gp": 12,
+          "total_points": 16.77,
+          "avg_rating": 6.09,
+          "total_minutes": 457
         },
         "DM": {
-          "gp": 11,
-          "total_points": 20.37,
-          "avg_rating": 5.39,
-          "total_minutes": 380
+          "gp": 12,
+          "total_points": 31.6,
+          "avg_rating": 5.54,
+          "total_minutes": 457
         },
         "CM": {
-          "gp": 11,
-          "total_points": 22.15,
-          "avg_rating": 5.76,
-          "total_minutes": 380
+          "gp": 12,
+          "total_points": 28.14,
+          "avg_rating": 5.84,
+          "total_minutes": 457
         }
       },
       "e9b7589d-8a39-41bd-833a-fa3e31cbaefc": {
@@ -27127,6 +30204,20 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_minutes": 110
         }
       },
+      "f553f873-ff25-405d-89ff-1d35ab0cc161": {
+        "LW": {
+          "gp": 22,
+          "total_points": 93.52,
+          "avg_rating": 6.45,
+          "total_minutes": 954
+        },
+        "RW": {
+          "gp": 22,
+          "total_points": 93.52,
+          "avg_rating": 6.45,
+          "total_minutes": 954
+        }
+      },
       "64ed0dd6-2e8e-4f42-93d2-7b5ef61a8c00": {
         "CM": {
           "gp": 16,
@@ -27191,6 +30282,20 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_minutes": 1880
         }
       },
+      "457968a7-0a7c-4c53-95b7-c54822a4c45f": {
+        "CM": {
+          "gp": 27,
+          "total_points": 75.39,
+          "avg_rating": 6.04,
+          "total_minutes": 1247
+        },
+        "DM": {
+          "gp": 27,
+          "total_points": 86.7,
+          "avg_rating": 5.81,
+          "total_minutes": 1247
+        }
+      },
       "4c31ddb7-046c-4fe3-addf-c1dc2308b850": {
         "ST": {
           "gp": 31,
@@ -27215,16 +30320,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "a117de33-4f54-48ed-bb40-0e7727b0aa06": {
         "RW": {
-          "gp": 22,
-          "total_points": 102.49,
-          "avg_rating": 6.48,
-          "total_minutes": 814
+          "gp": 24,
+          "total_points": 104.25,
+          "avg_rating": 6.45,
+          "total_minutes": 817
         },
         "LW": {
-          "gp": 22,
-          "total_points": 102.5,
-          "avg_rating": 6.48,
-          "total_minutes": 814
+          "gp": 24,
+          "total_points": 104.26,
+          "avg_rating": 6.45,
+          "total_minutes": 817
         }
       },
       "ab8d497f-c1c4-43e2-b54f-f12db6de944c": {
@@ -27271,16 +30376,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "e37e66a8-dd37-42f2-8d9a-c7767e649e46": {
         "RW": {
-          "gp": 36,
-          "total_points": 565.47,
-          "avg_rating": 7.47,
-          "total_minutes": 3110
+          "gp": 37,
+          "total_points": 567.49,
+          "avg_rating": 7.44,
+          "total_minutes": 3200
         },
         "LW": {
-          "gp": 36,
-          "total_points": 565.47,
-          "avg_rating": 7.47,
-          "total_minutes": 3110
+          "gp": 37,
+          "total_points": 567.49,
+          "avg_rating": 7.44,
+          "total_minutes": 3200
         }
       },
       "6e9c8740-1a5f-476c-a76d-4f8860551aaa": {
@@ -27313,6 +30418,20 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_minutes": 867
         }
       },
+      "00b2b501-9743-4473-9ba0-dce35927a988": {
+        "ST": {
+          "gp": 35,
+          "total_points": 492.76,
+          "avg_rating": 7.31,
+          "total_minutes": 2658
+        },
+        "AM": {
+          "gp": 35,
+          "total_points": 393.83,
+          "avg_rating": 7.07,
+          "total_minutes": 2658
+        }
+      },
       "12508509-baf0-47bb-ab24-8bbff35e5608": {
         "ST": {
           "gp": 35,
@@ -27343,10 +30462,18 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "66ca278c-3133-45e5-990b-58f6a500b4b3": {
         "RW": {
-          "gp": 33,
-          "total_points": 328.63,
+          "gp": 34,
+          "total_points": 334.97,
           "avg_rating": 7.01,
-          "total_minutes": 2299
+          "total_minutes": 2389
+        }
+      },
+      "222a3420-6c35-412a-a0f7-b035ac7c3ec5": {
+        "CB": {
+          "gp": 25,
+          "total_points": 202.13,
+          "avg_rating": 6.77,
+          "total_minutes": 2130
         }
       },
       "8f3d944e-3bb6-4882-9055-875f5c32a168": {
@@ -27363,12 +30490,26 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_minutes": 2643
         }
       },
+      "427e6ba6-7d52-464c-bbf9-5d1c9da23941": {
+        "ST": {
+          "gp": 32,
+          "total_points": 407.5,
+          "avg_rating": 7.23,
+          "total_minutes": 1954
+        },
+        "LW": {
+          "gp": 32,
+          "total_points": 397.39,
+          "avg_rating": 7.16,
+          "total_minutes": 1954
+        }
+      },
       "ea339c7d-af5a-4cc4-a890-626f03ec1b7f": {
         "CB": {
-          "gp": 24,
-          "total_points": 167.89,
-          "avg_rating": 6.7,
-          "total_minutes": 1638
+          "gp": 25,
+          "total_points": 171.81,
+          "avg_rating": 6.69,
+          "total_minutes": 1718
         }
       },
       "01b0f7e3-c88f-4125-b3c5-1f4574ded32d": {
@@ -27383,6 +30524,14 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_points": 164.73,
           "avg_rating": 6.9,
           "total_minutes": 1513
+        }
+      },
+      "b058045c-a38a-4087-bfeb-2f27eda28848": {
+        "ST": {
+          "gp": 38,
+          "total_points": 516.14,
+          "avg_rating": 7.29,
+          "total_minutes": 3282
         }
       },
       "8fbb34ca-bc04-4670-bcbe-42b12f96cb85": {
@@ -27439,6 +30588,14 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_minutes": 1825
         }
       },
+      "f225935b-cb65-4c6e-a6a3-ef7e9e1a1540": {
+        "CB": {
+          "gp": 26,
+          "total_points": 322.01,
+          "avg_rating": 7.09,
+          "total_minutes": 2139
+        }
+      },
       "c764074c-300a-4256-ba2f-bf393f941125": {
         "ST": {
           "gp": 12,
@@ -27455,6 +30612,26 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_minutes": 318
         }
       },
+      "ba8466ad-e02f-4f8d-958a-0bfdff8f0131": {
+        "LW": {
+          "gp": 25,
+          "total_points": 113.23,
+          "avg_rating": 6.54,
+          "total_minutes": 1561
+        },
+        "RW": {
+          "gp": 25,
+          "total_points": 113.23,
+          "avg_rating": 6.54,
+          "total_minutes": 1561
+        },
+        "AM": {
+          "gp": 25,
+          "total_points": 73.93,
+          "avg_rating": 6.33,
+          "total_minutes": 1561
+        }
+      },
       "7a82d11b-e98f-4506-bd2d-b778f6ba4806": {
         "RB": {
           "gp": 29,
@@ -27467,6 +30644,26 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_points": 275.67,
           "avg_rating": 6.68,
           "total_minutes": 1957
+        }
+      },
+      "8fcf0391-9d05-457b-83e5-eb5e6913704a": {
+        "DM": {
+          "gp": 32,
+          "total_points": 166.09,
+          "avg_rating": 6.1,
+          "total_minutes": 2117
+        },
+        "LW": {
+          "gp": 32,
+          "total_points": 207.38,
+          "avg_rating": 6.63,
+          "total_minutes": 2117
+        },
+        "CM": {
+          "gp": 32,
+          "total_points": 169.95,
+          "avg_rating": 6.37,
+          "total_minutes": 2117
         }
       },
       "f0e5257d-5cf1-43ac-b8a5-d51b6d837346": {
@@ -27503,6 +30700,14 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_minutes": 2271
         }
       },
+      "4f9210ba-d053-4d0e-adcd-2bd3e37dc1b7": {
+        "GK": {
+          "gp": 37,
+          "total_points": 394.67,
+          "avg_rating": 6.95,
+          "total_minutes": 3330
+        }
+      },
       "213280ac-6b1f-4213-ab8c-e218ceeb36ff": {
         "CB": {
           "gp": 17,
@@ -27511,24 +30716,96 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_minutes": 1322
         }
       },
+      "3218c8da-486e-40a9-95ba-d3937fe0d254": {
+        "RW": {
+          "gp": 22,
+          "total_points": 149.74,
+          "avg_rating": 6.64,
+          "total_minutes": 839
+        }
+      },
+      "d0ff65b5-4009-4239-b2c3-199bf0d8b189": {
+        "GK": {
+          "gp": 16,
+          "total_points": 76.94,
+          "avg_rating": 6.28,
+          "total_minutes": 1440
+        }
+      },
+      "f0e53bb8-fed1-46b3-818c-d68c5330719f": {
+        "CM": {
+          "gp": 27,
+          "total_points": 112.11,
+          "avg_rating": 6.14,
+          "total_minutes": 1219
+        },
+        "AM": {
+          "gp": 27,
+          "total_points": 120.66,
+          "avg_rating": 6.43,
+          "total_minutes": 1219
+        }
+      },
+      "89b834d3-4564-40f3-aa5d-c68a51610f55": {
+        "RB": {
+          "gp": 29,
+          "total_points": 311.79,
+          "avg_rating": 7.02,
+          "total_minutes": 2400
+        },
+        "RWB": {
+          "gp": 29,
+          "total_points": 361.46,
+          "avg_rating": 7.23,
+          "total_minutes": 2400
+        }
+      },
       "92625d1d-e93f-4e61-98bb-7a9620800b09": {
         "CB": {
-          "gp": 16,
+          "gp": 17,
           "total_points": 69.93,
-          "avg_rating": 6.27,
-          "total_minutes": 648
+          "avg_rating": 6.24,
+          "total_minutes": 657
         },
         "RB": {
-          "gp": 16,
+          "gp": 17,
           "total_points": 63.04,
-          "avg_rating": 6.19,
-          "total_minutes": 648
+          "avg_rating": 6.16,
+          "total_minutes": 657
         },
         "DM": {
-          "gp": 16,
+          "gp": 17,
           "total_points": 67.45,
-          "avg_rating": 5.65,
-          "total_minutes": 648
+          "avg_rating": 5.6,
+          "total_minutes": 657
+        }
+      },
+      "cccdcc41-31b7-4c95-acfa-b57b41eb5da5": {
+        "ST": {
+          "gp": 21,
+          "total_points": 78.69,
+          "avg_rating": 6.44,
+          "total_minutes": 987
+        }
+      },
+      "41e62aa8-47b4-4f28-8cfc-cce7145e78e9": {
+        "RB": {
+          "gp": 34,
+          "total_points": 245.85,
+          "avg_rating": 6.68,
+          "total_minutes": 2609
+        },
+        "LB": {
+          "gp": 34,
+          "total_points": 245.85,
+          "avg_rating": 6.68,
+          "total_minutes": 2609
+        },
+        "CM": {
+          "gp": 34,
+          "total_points": 219.82,
+          "avg_rating": 6.58,
+          "total_minutes": 2609
         }
       },
       "b830276a-f8d0-4293-b9ea-39d1c78f67a3": {
@@ -27561,22 +30838,50 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "02990cda-3234-4d82-a41c-bc4f4211f75b": {
         "ST": {
-          "gp": 27,
-          "total_points": 244.07,
-          "avg_rating": 6.94,
-          "total_minutes": 1487
+          "gp": 28,
+          "total_points": 281.03,
+          "avg_rating": 7.01,
+          "total_minutes": 1553
         },
         "LW": {
-          "gp": 27,
-          "total_points": 233.89,
-          "avg_rating": 6.86,
-          "total_minutes": 1487
+          "gp": 28,
+          "total_points": 272.89,
+          "avg_rating": 6.95,
+          "total_minutes": 1553
         },
         "AM": {
-          "gp": 27,
-          "total_points": 178.08,
-          "avg_rating": 6.67,
-          "total_minutes": 1487
+          "gp": 28,
+          "total_points": 212.51,
+          "avg_rating": 6.75,
+          "total_minutes": 1553
+        }
+      },
+      "1cdc4b07-0e39-4ee6-941d-b53e46edfd86": {
+        "CM": {
+          "gp": 29,
+          "total_points": 430.9,
+          "avg_rating": 7.45,
+          "total_minutes": 2456
+        },
+        "DM": {
+          "gp": 29,
+          "total_points": 373.78,
+          "avg_rating": 7.24,
+          "total_minutes": 2456
+        }
+      },
+      "9ba00773-6639-4149-9738-f8bbab9fdee0": {
+        "DM": {
+          "gp": 33,
+          "total_points": 288.72,
+          "avg_rating": 6.82,
+          "total_minutes": 2796
+        },
+        "CM": {
+          "gp": 33,
+          "total_points": 263.16,
+          "avg_rating": 6.83,
+          "total_minutes": 2796
         }
       },
       "1eb378ba-0063-496a-8e7e-b9317ff9c5ea": {
@@ -27599,6 +30904,14 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_points": 0.11,
           "avg_rating": 5.9,
           "total_minutes": 45
+        }
+      },
+      "837a564c-c021-4bd1-ba6e-827ea9cce38f": {
+        "ST": {
+          "gp": 37,
+          "total_points": 319.36,
+          "avg_rating": 6.89,
+          "total_minutes": 2293
         }
       },
       "d66ca0d3-6585-47b0-ada5-4f1127a30810": {
@@ -27641,12 +30954,42 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_minutes": 351
         }
       },
+      "418a23ee-06ab-4067-9a11-efee1e2aa04e": {
+        "GK": {
+          "gp": 26,
+          "total_points": 209.07,
+          "avg_rating": 6.71,
+          "total_minutes": 2340
+        }
+      },
       "63cb72f9-eea0-4270-b1b3-7f0a9620b4f3": {
         "CB": {
           "gp": 17,
           "total_points": 85.18,
           "avg_rating": 6.43,
           "total_minutes": 920
+        }
+      },
+      "d444e3ce-0094-43ed-8a7f-f3080fec85b3": {
+        "LB": {
+          "gp": 34,
+          "total_points": 320.77,
+          "avg_rating": 6.89,
+          "total_minutes": 2706
+        },
+        "CM": {
+          "gp": 34,
+          "total_points": 308.88,
+          "avg_rating": 6.87,
+          "total_minutes": 2706
+        }
+      },
+      "60091a4c-4a43-4698-beb0-94e98a8057c5": {
+        "CB": {
+          "gp": 15,
+          "total_points": 77.91,
+          "avg_rating": 6.52,
+          "total_minutes": 935
         }
       },
       "7b8988a6-e607-4de5-86a1-ce30e6926f34": {
@@ -27661,6 +31004,50 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_points": 3.42,
           "avg_rating": 5.94,
           "total_minutes": 165
+        }
+      },
+      "345d8e67-b3ac-4d18-af0a-16f571d7c3dd": {
+        "ST": {
+          "gp": 15,
+          "total_points": 118.18,
+          "avg_rating": 6.84,
+          "total_minutes": 997
+        }
+      },
+      "34911213-0a59-4de9-8249-f8ce38571027": {
+        "GK": {
+          "gp": 23,
+          "total_points": 167.16,
+          "avg_rating": 6.51,
+          "total_minutes": 2070
+        }
+      },
+      "0729b388-f7d8-40c0-801c-e3ebe8808de9": {
+        "AM": {
+          "gp": 6,
+          "total_points": 15.7,
+          "avg_rating": 6.15,
+          "total_minutes": 100
+        },
+        "CM": {
+          "gp": 6,
+          "total_points": 12.05,
+          "avg_rating": 5.67,
+          "total_minutes": 100
+        }
+      },
+      "4d7489a9-79e5-43b5-a654-a37ccaa61067": {
+        "AM": {
+          "gp": 35,
+          "total_points": 792.56,
+          "avg_rating": 8.05,
+          "total_minutes": 3065
+        },
+        "CM": {
+          "gp": 35,
+          "total_points": 785.77,
+          "avg_rating": 8.03,
+          "total_minutes": 3065
         }
       },
       "739c3b36-360e-447c-8755-347b4e406faf": {
@@ -27683,6 +31070,28 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_points": 21.05,
           "avg_rating": 6.56,
           "total_minutes": 352
+        }
+      },
+      "0738ad7f-1212-4d33-8817-1f71d561d2ce": {
+        "ST": {
+          "gp": 36,
+          "total_points": 341.63,
+          "avg_rating": 6.95,
+          "total_minutes": 2183
+        }
+      },
+      "5cc907bc-2006-4003-b30c-0f6df4f7fcba": {
+        "LW": {
+          "gp": 36,
+          "total_points": 259.66,
+          "avg_rating": 6.7,
+          "total_minutes": 1753
+        },
+        "AM": {
+          "gp": 36,
+          "total_points": 191.35,
+          "avg_rating": 6.54,
+          "total_minutes": 1753
         }
       },
       "a68e94b0-e3be-4ad5-bb7f-8ac6b2f86ec4": {
@@ -27735,6 +31144,14 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_minutes": 1080
         }
       },
+      "2c764ba1-3ef5-41e3-8065-63ffe6a97ef9": {
+        "CB": {
+          "gp": 29,
+          "total_points": 165.08,
+          "avg_rating": 6.57,
+          "total_minutes": 2552
+        }
+      },
       "cc81d169-a7d9-446e-9294-09aee60888ca": {
         "RWB": {
           "gp": 15,
@@ -27763,6 +31180,22 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_minutes": 58
         }
       },
+      "4c4752cc-da95-4fa4-b070-7ce69adf317d": {
+        "ST": {
+          "gp": 10,
+          "total_points": 25.49,
+          "avg_rating": 6.29,
+          "total_minutes": 265
+        }
+      },
+      "1bc3c5fa-5d46-48f6-a4eb-7a3dc33d7131": {
+        "GK": {
+          "gp": 32,
+          "total_points": 277.38,
+          "avg_rating": 6.79,
+          "total_minutes": 2835
+        }
+      },
       "9faa8929-757b-4be9-a37a-61d893d3c531": {
         "LW": {
           "gp": 22,
@@ -27783,12 +31216,46 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_minutes": 1161
         }
       },
+      "dd17bddd-dc46-4d81-9a61-d2cd6a0f7664": {
+        "RW": {
+          "gp": 14,
+          "total_points": 30.47,
+          "avg_rating": 6.25,
+          "total_minutes": 288
+        },
+        "AM": {
+          "gp": 14,
+          "total_points": 14.4,
+          "avg_rating": 6.04,
+          "total_minutes": 288
+        }
+      },
       "ef6e4e93-6e1b-460d-8ce9-aa5b1d4a2e44": {
         "GK": {
           "gp": 32,
           "total_points": 225.65,
           "avg_rating": 6.6,
           "total_minutes": 2880
+        }
+      },
+      "f4e91d8f-54e8-4744-b6f5-eeb3196515ce": {
+        "CM": {
+          "gp": 36,
+          "total_points": 348.12,
+          "avg_rating": 7.01,
+          "total_minutes": 3017
+        },
+        "AM": {
+          "gp": 36,
+          "total_points": 255.29,
+          "avg_rating": 6.79,
+          "total_minutes": 3017
+        },
+        "DM": {
+          "gp": 36,
+          "total_points": 343.11,
+          "avg_rating": 6.94,
+          "total_minutes": 3017
         }
       },
       "284bbe8d-a421-46e7-a847-189a8f7d1ecd": {
@@ -27825,6 +31292,14 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_minutes": 1141
         }
       },
+      "61afeb25-5d25-44db-aede-9875c4525eae": {
+        "LW": {
+          "gp": 24,
+          "total_points": 147.5,
+          "avg_rating": 6.63,
+          "total_minutes": 1261
+        }
+      },
       "abe86e04-bbe1-40e8-90a5-e5e9fa9401ee": {
         "CM": {
           "gp": 24,
@@ -27859,6 +31334,20 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_minutes": 125
         }
       },
+      "208dc84a-64e2-4abd-a19e-126190ec80af": {
+        "RB": {
+          "gp": 31,
+          "total_points": 180.28,
+          "avg_rating": 6.57,
+          "total_minutes": 2315
+        },
+        "RW": {
+          "gp": 31,
+          "total_points": 136.38,
+          "avg_rating": 6.53,
+          "total_minutes": 2315
+        }
+      },
       "2ec1e12f-c508-4688-aa7e-c694de6211d9": {
         "RB": {
           "gp": 24,
@@ -27875,10 +31364,10 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "37a4b1c5-46cd-4488-8012-95c7e7c1d204": {
         "ST": {
-          "gp": 23,
-          "total_points": 83.3,
-          "avg_rating": 6.41,
-          "total_minutes": 837
+          "gp": 24,
+          "total_points": 85.11,
+          "avg_rating": 6.4,
+          "total_minutes": 843
         }
       },
       "708b0489-7c65-440a-b27d-62017caf1cdf": {
@@ -27891,16 +31380,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "acabbd0d-4759-4ad8-a112-fe37e2be2f00": {
         "DM": {
-          "gp": 11,
+          "gp": 12,
           "total_points": 3.51,
-          "avg_rating": 5.4,
-          "total_minutes": 372
+          "avg_rating": 5.35,
+          "total_minutes": 374
         },
         "CM": {
-          "gp": 11,
+          "gp": 12,
           "total_points": 5.83,
-          "avg_rating": 5.72,
-          "total_minutes": 372
+          "avg_rating": 5.68,
+          "total_minutes": 374
         }
       },
       "0769c646-5fb3-4a2b-9c10-a0721d8e8fc0": {
@@ -27917,6 +31406,14 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_minutes": 1168
         }
       },
+      "be397fbb-a005-4e87-ad18-84f35d2e7c26": {
+        "CB": {
+          "gp": 27,
+          "total_points": 137.75,
+          "avg_rating": 6.41,
+          "total_minutes": 2137
+        }
+      },
       "ea2969ba-c427-4009-b7bb-d516f8bfb2d1": {
         "DM": {
           "gp": 25,
@@ -27929,6 +31426,42 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_points": 189.23,
           "avg_rating": 6.53,
           "total_minutes": 1434
+        }
+      },
+      "9266aac0-2151-47f2-818b-2bbd8208dea4": {
+        "DM": {
+          "gp": 21,
+          "total_points": 72.14,
+          "avg_rating": 5.92,
+          "total_minutes": 913
+        },
+        "CM": {
+          "gp": 21,
+          "total_points": 91.4,
+          "avg_rating": 6.27,
+          "total_minutes": 913
+        }
+      },
+      "25417a0c-338e-4c95-855a-58aef607196e": {
+        "CB": {
+          "gp": 8,
+          "total_points": 15.21,
+          "avg_rating": 6.12,
+          "total_minutes": 470
+        }
+      },
+      "ca16e2ea-e73e-4922-ad75-a9e420a8b78d": {
+        "CB": {
+          "gp": 4,
+          "total_points": 6.82,
+          "avg_rating": 6.02,
+          "total_minutes": 103
+        },
+        "LB": {
+          "gp": 4,
+          "total_points": 7.87,
+          "avg_rating": 5.99,
+          "total_minutes": 103
         }
       },
       "d3e722f8-04a9-4efa-92e0-ff7d16ac7511": {
@@ -27951,6 +31484,36 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_minutes": 1370
         }
       },
+      "f71c4738-57f9-442e-ace1-5034b0114b45": {
+        "CB": {
+          "gp": 9,
+          "total_points": 12.46,
+          "avg_rating": 6.12,
+          "total_minutes": 514
+        }
+      },
+      "910f1290-b4b7-47b7-8a96-ef4c7bf83ac0": {
+        "LB": {
+          "gp": 25,
+          "total_points": 207.66,
+          "avg_rating": 6.79,
+          "total_minutes": 1787
+        },
+        "CB": {
+          "gp": 25,
+          "total_points": 208.87,
+          "avg_rating": 6.81,
+          "total_minutes": 1787
+        }
+      },
+      "01d3d2b1-b45d-4cd7-a8d2-027e9b18c3da": {
+        "LW": {
+          "gp": 6,
+          "total_points": 5.98,
+          "avg_rating": 6.11,
+          "total_minutes": 37
+        }
+      },
       "14c90143-f840-4937-b164-8c23d872f0e2": {
         "ST": {
           "gp": 9,
@@ -27959,12 +31522,88 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_minutes": 132
         }
       },
+      "2cfc2bd2-01b0-4512-a797-1362b2046462": {
+        "ST": {
+          "gp": 14,
+          "total_points": 92.33,
+          "avg_rating": 6.7,
+          "total_minutes": 418
+        },
+        "AM": {
+          "gp": 14,
+          "total_points": 60.77,
+          "avg_rating": 6.43,
+          "total_minutes": 418
+        }
+      },
       "692f76bc-78cd-4147-a3be-68017e54db80": {
         "RW": {
           "gp": 12,
           "total_points": 77.79,
           "avg_rating": 6.68,
           "total_minutes": 634
+        }
+      },
+      "f9b4ed25-0763-460d-b173-9b837d38399e": {
+        "GK": {
+          "gp": 5,
+          "total_points": 19.33,
+          "avg_rating": 5.91,
+          "total_minutes": 437
+        }
+      },
+      "c4e70645-feea-4449-92f7-5e306765ec0f": {
+        "RWB": {
+          "gp": 9,
+          "total_points": 14.92,
+          "avg_rating": 6.04,
+          "total_minutes": 257
+        },
+        "RB": {
+          "gp": 9,
+          "total_points": 3.45,
+          "avg_rating": 5.78,
+          "total_minutes": 257
+        }
+      },
+      "0473d57b-d7ba-4c7d-b634-bff59c97d61c": {
+        "CB": {
+          "gp": 9,
+          "total_points": 36.73,
+          "avg_rating": 6.42,
+          "total_minutes": 550
+        }
+      },
+      "89f9e692-ad7a-46e9-80a5-722f4e47bd87": {
+        "GK": {
+          "gp": 3,
+          "total_points": 23.21,
+          "avg_rating": 6.58,
+          "total_minutes": 270
+        }
+      },
+      "ecfe90d0-29dc-49c3-b20a-6aaa955ebd93": {
+        "RW": {
+          "gp": 3,
+          "total_points": 2.97,
+          "avg_rating": 6.12,
+          "total_minutes": 47
+        }
+      },
+      "9b7b6ff8-cd08-4f38-9980-00afd8fc677e": {
+        "CB": {
+          "gp": 3,
+          "total_points": 9.74,
+          "avg_rating": 6.4,
+          "total_minutes": 225
+        }
+      },
+      "21fdf6c6-e479-4851-86a6-30a8733aa67a": {
+        "GK": {
+          "gp": 1,
+          "total_points": 1.87,
+          "avg_rating": 6.27,
+          "total_minutes": 90
         }
       },
       "a5a1513a-a62f-4cbc-9c6c-71501c19e6b4": {
@@ -28261,20 +31900,6 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_points": 0,
           "avg_rating": 5.73,
           "total_minutes": 8
-        }
-      },
-      "910f1290-b4b7-47b7-8a96-ef4c7bf83ac0": {
-        "LB": {
-          "gp": 24,
-          "total_points": 191.41,
-          "avg_rating": 6.76,
-          "total_minutes": 1707
-        },
-        "CB": {
-          "gp": 24,
-          "total_points": 193.05,
-          "avg_rating": 6.77,
-          "total_minutes": 1707
         }
       },
       "ee332b07-c556-4ca9-b0b7-bdcdb7a96786": {
@@ -28965,16 +32590,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "4249721b-3041-4345-b971-91c4c07a7696": {
         "RWB": {
-          "gp": 32,
-          "total_points": 263.64,
-          "avg_rating": 6.82,
-          "total_minutes": 2164
+          "gp": 33,
+          "total_points": 278.17,
+          "avg_rating": 6.85,
+          "total_minutes": 2244
         },
         "RB": {
-          "gp": 32,
-          "total_points": 231.77,
+          "gp": 33,
+          "total_points": 239.43,
           "avg_rating": 6.68,
-          "total_minutes": 2164
+          "total_minutes": 2244
         }
       },
       "0d15d948-4d69-4c19-aa50-0b48f95177de": {
@@ -29033,16 +32658,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "539a057b-b67c-4cb3-9656-ae5d3610534d": {
         "DM": {
-          "gp": 22,
+          "gp": 23,
           "total_points": 186.08,
-          "avg_rating": 6.82,
-          "total_minutes": 1789
+          "avg_rating": 6.75,
+          "total_minutes": 1870
         },
         "CM": {
-          "gp": 22,
+          "gp": 23,
           "total_points": 172.59,
-          "avg_rating": 6.83,
-          "total_minutes": 1789
+          "avg_rating": 6.78,
+          "total_minutes": 1870
         }
       },
       "abf1c8d8-5794-4dbb-b12a-2510ed72068c": {
@@ -29169,22 +32794,22 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "41469187-fb71-4f6d-9fdf-0bfad1f17f59": {
         "RW": {
-          "gp": 35,
-          "total_points": 273.09,
-          "avg_rating": 6.8,
-          "total_minutes": 2371
+          "gp": 36,
+          "total_points": 290.6,
+          "avg_rating": 6.83,
+          "total_minutes": 2448
         },
         "AM": {
-          "gp": 35,
-          "total_points": 226.46,
-          "avg_rating": 6.67,
-          "total_minutes": 2371
+          "gp": 36,
+          "total_points": 236.13,
+          "avg_rating": 6.69,
+          "total_minutes": 2448
         },
         "CM": {
-          "gp": 35,
-          "total_points": 196.11,
-          "avg_rating": 6.47,
-          "total_minutes": 2371
+          "gp": 36,
+          "total_points": 202.31,
+          "avg_rating": 6.48,
+          "total_minutes": 2448
         }
       },
       "ad0e9939-ff90-471a-bd09-f9eb18f8bb96": {
@@ -29197,16 +32822,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "04982c10-e875-43bb-84f8-b2b1e824ec4f": {
         "RW": {
-          "gp": 27,
-          "total_points": 217.59,
-          "avg_rating": 6.81,
-          "total_minutes": 2083
+          "gp": 28,
+          "total_points": 243.28,
+          "avg_rating": 6.87,
+          "total_minutes": 2173
         },
         "AM": {
-          "gp": 27,
-          "total_points": 189.94,
-          "avg_rating": 6.76,
-          "total_minutes": 2083
+          "gp": 28,
+          "total_points": 211.29,
+          "avg_rating": 6.8,
+          "total_minutes": 2173
         }
       },
       "373151d3-326e-4560-9dc2-590b083838a0": {
@@ -29509,10 +33134,10 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "14628733-ca00-4e66-af7d-ab56495d34aa": {
         "LW": {
-          "gp": 22,
-          "total_points": 141.85,
-          "avg_rating": 6.7,
-          "total_minutes": 1636
+          "gp": 23,
+          "total_points": 169.13,
+          "avg_rating": 6.78,
+          "total_minutes": 1690
         }
       },
       "7a5dc53a-4593-4902-807c-c7ff04b4ca6f": {
@@ -29549,16 +33174,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "d5a89e12-703b-4651-bec5-0821caea37b3": {
         "AM": {
-          "gp": 27,
-          "total_points": 158.82,
-          "avg_rating": 6.62,
-          "total_minutes": 1728
+          "gp": 28,
+          "total_points": 173.26,
+          "avg_rating": 6.65,
+          "total_minutes": 1743
         },
         "ST": {
-          "gp": 27,
-          "total_points": 214.46,
-          "avg_rating": 6.85,
-          "total_minutes": 1728
+          "gp": 28,
+          "total_points": 236.15,
+          "avg_rating": 6.89,
+          "total_minutes": 1743
         }
       },
       "c66f6b3a-dbf8-41b5-b45d-d02b171105f7": {
@@ -29663,22 +33288,22 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "e1ecd6bf-d759-405f-b504-0302920fa042": {
         "AM": {
-          "gp": 29,
-          "total_points": 174.5,
-          "avg_rating": 6.6,
-          "total_minutes": 1808
+          "gp": 30,
+          "total_points": 174.59,
+          "avg_rating": 6.58,
+          "total_minutes": 1853
         },
         "LW": {
-          "gp": 29,
-          "total_points": 236.22,
-          "avg_rating": 6.79,
-          "total_minutes": 1808
+          "gp": 30,
+          "total_points": 237.31,
+          "avg_rating": 6.77,
+          "total_minutes": 1853
         },
         "CM": {
-          "gp": 29,
+          "gp": 30,
           "total_points": 154.47,
-          "avg_rating": 6.4,
-          "total_minutes": 1808
+          "avg_rating": 6.36,
+          "total_minutes": 1853
         }
       },
       "a20881c6-f003-4871-b984-a0a74a123941": {
@@ -29691,22 +33316,22 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "daf49ca4-c4c5-497c-96f7-16f9b9b0de0a": {
         "RWB": {
-          "gp": 33,
-          "total_points": 423.66,
-          "avg_rating": 7.3,
-          "total_minutes": 2771
+          "gp": 34,
+          "total_points": 443.18,
+          "avg_rating": 7.31,
+          "total_minutes": 2861
         },
         "RB": {
-          "gp": 33,
-          "total_points": 428.59,
-          "avg_rating": 7.27,
-          "total_minutes": 2771
+          "gp": 34,
+          "total_points": 449.85,
+          "avg_rating": 7.29,
+          "total_minutes": 2861
         },
         "CM": {
-          "gp": 33,
-          "total_points": 344.84,
-          "avg_rating": 7.05,
-          "total_minutes": 2771
+          "gp": 34,
+          "total_points": 361.04,
+          "avg_rating": 7.07,
+          "total_minutes": 2861
         }
       },
       "b154d0be-8151-43df-9b2d-de5a0c9b14f6": {
@@ -29725,10 +33350,10 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "d8a69f04-65a6-4d70-98ca-5210810d4da6": {
         "RW": {
-          "gp": 23,
-          "total_points": 113.06,
-          "avg_rating": 6.54,
-          "total_minutes": 1110
+          "gp": 24,
+          "total_points": 113.99,
+          "avg_rating": 6.52,
+          "total_minutes": 1134
         }
       },
       "0f1543e9-3bb2-4d50-835a-12dc77c9b80a": {
@@ -29795,16 +33420,24 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "16ff793b-3ea5-45cc-a5a1-cea5716fceb5": {
         "ST": {
-          "gp": 26,
-          "total_points": 304.84,
-          "avg_rating": 7.17,
-          "total_minutes": 1555
+          "gp": 27,
+          "total_points": 306.5,
+          "avg_rating": 7.13,
+          "total_minutes": 1620
         },
         "AM": {
-          "gp": 26,
-          "total_points": 232.26,
-          "avg_rating": 6.91,
-          "total_minutes": 1555
+          "gp": 27,
+          "total_points": 232.75,
+          "avg_rating": 6.87,
+          "total_minutes": 1620
+        }
+      },
+      "72fa79b9-c0e4-461f-b792-859ffa600bcd": {
+        "CB": {
+          "gp": 37,
+          "total_points": 399.47,
+          "avg_rating": 7.06,
+          "total_minutes": 3288
         }
       },
       "4f642553-88f9-4c7c-958a-eef5a3b12c46": {
@@ -30001,22 +33634,22 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "d56cdc2a-a3fb-4c33-8dc9-73547c33c809": {
         "DM": {
-          "gp": 24,
+          "gp": 25,
           "total_points": 230.71,
-          "avg_rating": 6.77,
-          "total_minutes": 1806
+          "avg_rating": 6.71,
+          "total_minutes": 1896
         },
         "RB": {
-          "gp": 24,
-          "total_points": 209.94,
-          "avg_rating": 5.69,
-          "total_minutes": 1806
+          "gp": 25,
+          "total_points": 210.08,
+          "avg_rating": 5.65,
+          "total_minutes": 1896
         },
         "CM": {
-          "gp": 24,
-          "total_points": 203.46,
-          "avg_rating": 6.83,
-          "total_minutes": 1806
+          "gp": 25,
+          "total_points": 203.9,
+          "avg_rating": 6.79,
+          "total_minutes": 1896
         }
       },
       "5504bc6d-5ae8-41bb-a87b-3181d2fc6f0b": {
@@ -30075,6 +33708,14 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_minutes": 1290
         }
       },
+      "6058c8a8-4590-43ba-94e7-c71b2f071ddc": {
+        "RW": {
+          "gp": 8,
+          "total_points": 14.2,
+          "avg_rating": 6.23,
+          "total_minutes": 299
+        }
+      },
       "368b8798-4dbf-4eb8-a47d-1e9d89155a86": {
         "DM": {
           "gp": 24,
@@ -30119,16 +33760,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "73bda496-5581-4cf7-af06-81f8b8f4b39b": {
         "LW": {
-          "gp": 14,
-          "total_points": 58.74,
-          "avg_rating": 6.47,
-          "total_minutes": 448
+          "gp": 15,
+          "total_points": 60.44,
+          "avg_rating": 6.45,
+          "total_minutes": 471
         },
         "RW": {
-          "gp": 14,
-          "total_points": 58.75,
-          "avg_rating": 6.47,
-          "total_minutes": 448
+          "gp": 15,
+          "total_points": 60.45,
+          "avg_rating": 6.45,
+          "total_minutes": 471
         }
       },
       "be04237a-ec7b-4a04-8719-a8db58756e19": {
@@ -30149,10 +33790,10 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "fc4098bc-09f8-4e2d-93d5-90b3999dc1eb": {
         "ST": {
-          "gp": 23,
-          "total_points": 182.14,
-          "avg_rating": 6.86,
-          "total_minutes": 1255
+          "gp": 24,
+          "total_points": 185.59,
+          "avg_rating": 6.84,
+          "total_minutes": 1345
         }
       },
       "5293cfd9-c150-4caf-968f-bd0cebc425b0": {
@@ -30165,10 +33806,10 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "1e0ea6bf-3b1e-4e6e-b19a-6b84ed7cdf85": {
         "RW": {
-          "gp": 29,
-          "total_points": 429.31,
-          "avg_rating": 7.45,
-          "total_minutes": 2189
+          "gp": 30,
+          "total_points": 430.15,
+          "avg_rating": 7.41,
+          "total_minutes": 2209
         }
       },
       "34629bf0-0a1c-485e-9616-d1e33d47e717": {
@@ -30307,22 +33948,22 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "4459f763-775e-4899-bb86-7e00e4dafe54": {
         "LW": {
-          "gp": 32,
-          "total_points": 332.97,
-          "avg_rating": 7.06,
-          "total_minutes": 2634
+          "gp": 33,
+          "total_points": 349.33,
+          "avg_rating": 7.08,
+          "total_minutes": 2722
         },
         "RW": {
-          "gp": 32,
-          "total_points": 332.95,
-          "avg_rating": 7.06,
-          "total_minutes": 2634
+          "gp": 33,
+          "total_points": 349.31,
+          "avg_rating": 7.08,
+          "total_minutes": 2722
         },
         "AM": {
-          "gp": 32,
-          "total_points": 353.16,
-          "avg_rating": 7.13,
-          "total_minutes": 2634
+          "gp": 33,
+          "total_points": 382.75,
+          "avg_rating": 7.17,
+          "total_minutes": 2722
         }
       },
       "d40c38ba-4747-4544-be8d-17adeb16d7d9": {
@@ -30395,12 +34036,32 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_minutes": 3119
         }
       },
+      "e1316dd9-53f8-476e-9605-df83c8f7ca79": {
+        "ST": {
+          "gp": 12,
+          "total_points": 73.88,
+          "avg_rating": 6.64,
+          "total_minutes": 703
+        },
+        "RW": {
+          "gp": 12,
+          "total_points": 68.74,
+          "avg_rating": 6.55,
+          "total_minutes": 703
+        },
+        "LW": {
+          "gp": 12,
+          "total_points": 68.74,
+          "avg_rating": 6.55,
+          "total_minutes": 703
+        }
+      },
       "135a3e0d-1126-48a4-b457-83271160c939": {
         "ST": {
-          "gp": 30,
-          "total_points": 253.48,
-          "avg_rating": 6.87,
-          "total_minutes": 2172
+          "gp": 31,
+          "total_points": 273.16,
+          "avg_rating": 6.9,
+          "total_minutes": 2197
         }
       },
       "d37e2d33-00cb-4dbc-ae43-ea891bc1bf14": {
@@ -30425,16 +34086,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "24725095-8ece-4ce2-ae86-1f225ef55d55": {
         "DM": {
-          "gp": 33,
-          "total_points": 267.55,
+          "gp": 34,
+          "total_points": 272.47,
           "avg_rating": 6.66,
-          "total_minutes": 2462
+          "total_minutes": 2552
         },
         "CM": {
-          "gp": 33,
-          "total_points": 288.69,
-          "avg_rating": 6.82,
-          "total_minutes": 2462
+          "gp": 34,
+          "total_points": 298.27,
+          "avg_rating": 6.83,
+          "total_minutes": 2552
         }
       },
       "6d484c87-9b2c-4e5a-86b8-b1d7b54bce87": {
@@ -30509,16 +34170,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "e002cfcc-ada0-47dd-8f37-628336e6d51a": {
         "LW": {
-          "gp": 25,
-          "total_points": 335.9,
-          "avg_rating": 7.27,
-          "total_minutes": 1557
+          "gp": 27,
+          "total_points": 384.81,
+          "avg_rating": 7.33,
+          "total_minutes": 1733
         },
         "RW": {
-          "gp": 25,
-          "total_points": 335.89,
-          "avg_rating": 7.27,
-          "total_minutes": 1557
+          "gp": 27,
+          "total_points": 384.8,
+          "avg_rating": 7.33,
+          "total_minutes": 1733
         }
       },
       "d6d4aa25-ca60-4c43-af3e-69d69fcde8d7": {
@@ -30533,6 +34194,20 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_points": 165.74,
           "avg_rating": 6.41,
           "total_minutes": 2637
+        }
+      },
+      "0aafecd4-34c9-456e-a179-13d3da737ec5": {
+        "LWB": {
+          "gp": 31,
+          "total_points": 290.86,
+          "avg_rating": 6.97,
+          "total_minutes": 2328
+        },
+        "LB": {
+          "gp": 31,
+          "total_points": 202.73,
+          "avg_rating": 6.64,
+          "total_minutes": 2328
         }
       },
       "9cfdaa90-16bf-43b7-9a3e-2162902f611c": {
@@ -30557,16 +34232,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "1f6d6dd4-7123-4a98-936c-23ca01ff7467": {
         "DM": {
-          "gp": 23,
+          "gp": 24,
           "total_points": 162.69,
-          "avg_rating": 6.68,
-          "total_minutes": 1740
+          "avg_rating": 6.61,
+          "total_minutes": 1765
         },
         "CM": {
-          "gp": 23,
+          "gp": 24,
           "total_points": 125.41,
-          "avg_rating": 6.6,
-          "total_minutes": 1740
+          "avg_rating": 6.55,
+          "total_minutes": 1765
         }
       },
       "416a4043-a0ee-4dd8-b442-e01072efa0be": {
@@ -30647,44 +34322,44 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "516062f0-61b3-4587-9191-eb9525e6cfcc": {
         "CM": {
-          "gp": 35,
-          "total_points": 517.51,
-          "avg_rating": 7.44,
-          "total_minutes": 3027
+          "gp": 36,
+          "total_points": 538.94,
+          "avg_rating": 7.46,
+          "total_minutes": 3114
         },
         "DM": {
-          "gp": 35,
-          "total_points": 399.29,
-          "avg_rating": 7.08,
-          "total_minutes": 3027
+          "gp": 36,
+          "total_points": 409.64,
+          "avg_rating": 7.09,
+          "total_minutes": 3114
         },
         "AM": {
-          "gp": 35,
-          "total_points": 491.72,
-          "avg_rating": 7.4,
-          "total_minutes": 3027
+          "gp": 36,
+          "total_points": 514.24,
+          "avg_rating": 7.42,
+          "total_minutes": 3114
         }
       },
       "3569929e-790b-41cf-b18f-a8d37017a170": {
         "RW": {
-          "gp": 25,
-          "total_points": 117.72,
+          "gp": 26,
+          "total_points": 121.87,
           "avg_rating": 6.5,
-          "total_minutes": 1574
+          "total_minutes": 1653
         },
         "LW": {
-          "gp": 25,
-          "total_points": 117.72,
+          "gp": 26,
+          "total_points": 121.87,
           "avg_rating": 6.5,
-          "total_minutes": 1574
+          "total_minutes": 1653
         }
       },
       "3dbf4b85-db4c-4a2b-8f2c-b93e3b1b8882": {
         "ST": {
-          "gp": 32,
-          "total_points": 345.26,
-          "avg_rating": 7.03,
-          "total_minutes": 2107
+          "gp": 33,
+          "total_points": 347.25,
+          "avg_rating": 7.01,
+          "total_minutes": 2197
         }
       },
       "b8ff78b1-f214-4446-b3a4-a0e28c2130ad": {
@@ -30717,16 +34392,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "8b97c08c-e887-4b4d-bdba-b87eeea0da89": {
         "RB": {
-          "gp": 32,
-          "total_points": 206.83,
-          "avg_rating": 6.64,
-          "total_minutes": 2698
+          "gp": 33,
+          "total_points": 220.7,
+          "avg_rating": 6.66,
+          "total_minutes": 2788
         },
         "RWB": {
-          "gp": 32,
-          "total_points": 234.52,
-          "avg_rating": 6.79,
-          "total_minutes": 2698
+          "gp": 33,
+          "total_points": 246.82,
+          "avg_rating": 6.8,
+          "total_minutes": 2788
         }
       },
       "577b5ff0-8e42-4fc4-be35-3a4a5deb2172": {
@@ -30761,24 +34436,24 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "3965b253-52a1-4a06-b4e2-bf3153c53c73": {
         "RW": {
-          "gp": 15,
-          "total_points": 103.61,
-          "avg_rating": 6.73,
-          "total_minutes": 944
+          "gp": 16,
+          "total_points": 105.34,
+          "avg_rating": 6.7,
+          "total_minutes": 1007
         }
       },
       "0ba005dd-ba53-44bd-a30a-0992f0efcc0a": {
         "DM": {
-          "gp": 19,
-          "total_points": 78.94,
-          "avg_rating": 6.21,
-          "total_minutes": 1164
+          "gp": 20,
+          "total_points": 87.88,
+          "avg_rating": 6.26,
+          "total_minutes": 1254
         },
         "CM": {
-          "gp": 19,
-          "total_points": 97.82,
-          "avg_rating": 6.44,
-          "total_minutes": 1164
+          "gp": 20,
+          "total_points": 114.15,
+          "avg_rating": 6.51,
+          "total_minutes": 1254
         }
       },
       "d8f1acd5-5929-4eea-b92a-cc2ec95ce80e": {
@@ -30795,24 +34470,38 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_minutes": 2179
         }
       },
-      "3d189af2-5ee2-410c-aac2-cb2c7045ef06": {
-        "AM": {
-          "gp": 2,
-          "total_points": 34.54,
-          "avg_rating": 7.7,
-          "total_minutes": 177
+      "2ae311a0-0774-434b-9b73-9295bbb2ca94": {
+        "DM": {
+          "gp": 32,
+          "total_points": 279.03,
+          "avg_rating": 6.65,
+          "total_minutes": 2182
         },
         "CM": {
-          "gp": 2,
+          "gp": 32,
+          "total_points": 237.18,
+          "avg_rating": 6.67,
+          "total_minutes": 2182
+        }
+      },
+      "3d189af2-5ee2-410c-aac2-cb2c7045ef06": {
+        "AM": {
+          "gp": 3,
+          "total_points": 34.55,
+          "avg_rating": 7.08,
+          "total_minutes": 192
+        },
+        "CM": {
+          "gp": 3,
           "total_points": 32.12,
-          "avg_rating": 7.62,
-          "total_minutes": 177
+          "avg_rating": 6.87,
+          "total_minutes": 192
         },
         "DM": {
-          "gp": 2,
+          "gp": 3,
           "total_points": 22.85,
-          "avg_rating": 7.2,
-          "total_minutes": 177
+          "avg_rating": 6.47,
+          "total_minutes": 192
         }
       },
       "3b63a4b0-936e-4d26-956c-c9acfcd7e1f9": {
@@ -30865,10 +34554,10 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "9c6b03b4-a7b0-47d6-88ed-1ff10f5d71da": {
         "ST": {
-          "gp": 23,
-          "total_points": 254.32,
-          "avg_rating": 7.08,
-          "total_minutes": 1659
+          "gp": 24,
+          "total_points": 277.87,
+          "avg_rating": 7.13,
+          "total_minutes": 1742
         }
       },
       "2d0d8ae2-fedc-4d0e-89ef-a7ea8a1c536f": {
@@ -30909,6 +34598,14 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_points": 100.53,
           "avg_rating": 6.71,
           "total_minutes": 960
+        }
+      },
+      "8ddd18ba-c6cb-4605-9bd8-956f82ce0659": {
+        "CB": {
+          "gp": 34,
+          "total_points": 271.87,
+          "avg_rating": 6.8,
+          "total_minutes": 3035
         }
       },
       "278ea88e-6a30-4476-b264-1e0ee2a024aa": {
@@ -30979,16 +34676,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "a44cb207-8f2c-4c75-a880-627f7ed46d62": {
         "RW": {
-          "gp": 14,
-          "total_points": 164.71,
-          "avg_rating": 7.14,
-          "total_minutes": 1033
+          "gp": 15,
+          "total_points": 181.33,
+          "avg_rating": 7.17,
+          "total_minutes": 1110
         },
         "ST": {
-          "gp": 14,
-          "total_points": 168.27,
-          "avg_rating": 7.22,
-          "total_minutes": 1033
+          "gp": 15,
+          "total_points": 184.03,
+          "avg_rating": 7.25,
+          "total_minutes": 1110
         }
       },
       "3ff9adc3-eccc-44a8-9f7c-5cbb65fcda93": {
@@ -31081,6 +34778,20 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_points": 346.83,
           "avg_rating": 6.99,
           "total_minutes": 2732
+        }
+      },
+      "8ec2716d-e230-4b73-a371-889447a69c61": {
+        "DM": {
+          "gp": 15,
+          "total_points": 45.82,
+          "avg_rating": 6.01,
+          "total_minutes": 828
+        },
+        "CM": {
+          "gp": 15,
+          "total_points": 39.23,
+          "avg_rating": 6.15,
+          "total_minutes": 828
         }
       },
       "fe704086-e73e-4599-8edd-ee9a8366121e": {
@@ -31183,6 +34894,20 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_minutes": 1819
         }
       },
+      "6b3f9d08-4371-479e-ae74-2b269777bcdd": {
+        "DM": {
+          "gp": 29,
+          "total_points": 140.81,
+          "avg_rating": 6.29,
+          "total_minutes": 2089
+        },
+        "CM": {
+          "gp": 29,
+          "total_points": 119.93,
+          "avg_rating": 6.39,
+          "total_minutes": 2089
+        }
+      },
       "6a436034-5dac-4f03-83b0-8c394ab45e0f": {
         "DM": {
           "gp": 18,
@@ -31195,6 +34920,20 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_points": 145.61,
           "avg_rating": 6.79,
           "total_minutes": 1410
+        }
+      },
+      "d84d8b90-69db-4709-8f91-f35b3e2e3c88": {
+        "DM": {
+          "gp": 24,
+          "total_points": 184.82,
+          "avg_rating": 6.75,
+          "total_minutes": 2082
+        },
+        "CM": {
+          "gp": 24,
+          "total_points": 178.78,
+          "avg_rating": 6.8,
+          "total_minutes": 2082
         }
       },
       "58c231d4-83d1-4b58-ac7c-a1f9b4b98a5a": {
@@ -31355,6 +35094,20 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_minutes": 2901
         }
       },
+      "50d7b59e-0000-4be6-a5ac-8c4628020d55": {
+        "RB": {
+          "gp": 33,
+          "total_points": 355.57,
+          "avg_rating": 7.04,
+          "total_minutes": 2781
+        },
+        "RWB": {
+          "gp": 33,
+          "total_points": 429.29,
+          "avg_rating": 7.29,
+          "total_minutes": 2781
+        }
+      },
       "eafd17d7-8ce5-4976-a176-1b98e6af5681": {
         "DM": {
           "gp": 19,
@@ -31371,28 +35124,28 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "28f001b5-4974-4145-a4de-8651f8848c5f": {
         "DM": {
-          "gp": 24,
+          "gp": 25,
           "total_points": 94.95,
-          "avg_rating": 6.16,
-          "total_minutes": 1652
+          "avg_rating": 6.12,
+          "total_minutes": 1726
         },
         "RB": {
-          "gp": 24,
+          "gp": 25,
           "total_points": 138.27,
-          "avg_rating": 5.43,
-          "total_minutes": 1652
+          "avg_rating": 5.39,
+          "total_minutes": 1726
         },
         "AM": {
-          "gp": 24,
-          "total_points": 152.56,
-          "avg_rating": 6.69,
-          "total_minutes": 1652
+          "gp": 25,
+          "total_points": 153.16,
+          "avg_rating": 6.66,
+          "total_minutes": 1726
         },
         "CM": {
-          "gp": 24,
+          "gp": 25,
           "total_points": 116.21,
-          "avg_rating": 6.46,
-          "total_minutes": 1652
+          "avg_rating": 6.42,
+          "total_minutes": 1726
         }
       },
       "a2e00783-e063-4812-9309-adf86d1da7f8": {
@@ -31483,10 +35236,10 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "676a771a-9fe9-4187-a697-048062b99fc7": {
         "ST": {
-          "gp": 35,
-          "total_points": 170.64,
-          "avg_rating": 6.53,
-          "total_minutes": 2237
+          "gp": 36,
+          "total_points": 172.19,
+          "avg_rating": 6.52,
+          "total_minutes": 2301
         }
       },
       "7caa9463-3742-4d54-a485-2e0d6ef33ddc": {
@@ -31509,6 +35262,20 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_points": 238.37,
           "avg_rating": 6.7,
           "total_minutes": 1864
+        }
+      },
+      "22bee9ee-5422-4cd9-b95c-58273a23cbd3": {
+        "AM": {
+          "gp": 10,
+          "total_points": 46.41,
+          "avg_rating": 6.52,
+          "total_minutes": 637
+        },
+        "CM": {
+          "gp": 10,
+          "total_points": 36.72,
+          "avg_rating": 6.26,
+          "total_minutes": 637
         }
       },
       "acc60c05-73dd-44dd-9453-18cde4b0c99c": {
@@ -31651,10 +35418,10 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "2ac26b81-dc73-4560-adb8-5433414f1b34": {
         "LW": {
-          "gp": 29,
-          "total_points": 300.64,
-          "avg_rating": 6.98,
-          "total_minutes": 1906
+          "gp": 30,
+          "total_points": 304.65,
+          "avg_rating": 6.97,
+          "total_minutes": 1986
         }
       },
       "c6b2dc4e-0fe9-4976-b49f-952446522b4c": {
@@ -31663,6 +35430,26 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_points": 78.2,
           "avg_rating": 6.73,
           "total_minutes": 662
+        }
+      },
+      "48075b62-9dca-4d29-be9d-f8cd4a2c23e4": {
+        "DM": {
+          "gp": 25,
+          "total_points": 95.81,
+          "avg_rating": 6.12,
+          "total_minutes": 1681
+        },
+        "CM": {
+          "gp": 25,
+          "total_points": 90.55,
+          "avg_rating": 6.29,
+          "total_minutes": 1681
+        },
+        "CB": {
+          "gp": 25,
+          "total_points": 117.81,
+          "avg_rating": 5.28,
+          "total_minutes": 1681
         }
       },
       "8437f927-3bd0-4138-a440-00f27d5fc284": {
@@ -31737,16 +35524,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "2cbcf4ac-77a5-40fa-8622-1e24dc32ad63": {
         "RB": {
-          "gp": 24,
+          "gp": 25,
           "total_points": 96.81,
-          "avg_rating": 6.34,
-          "total_minutes": 1755
+          "avg_rating": 6.32,
+          "total_minutes": 1785
         },
         "RW": {
-          "gp": 24,
-          "total_points": 80.96,
-          "avg_rating": 6.42,
-          "total_minutes": 1755
+          "gp": 25,
+          "total_points": 81.71,
+          "avg_rating": 6.4,
+          "total_minutes": 1785
         }
       },
       "eea2a8f4-6915-4e10-96f6-d3a505aa395e": {
@@ -31791,16 +35578,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "ac7d4101-705a-4b69-9f0e-de1f5a5c9102": {
         "LW": {
-          "gp": 34,
-          "total_points": 364.49,
-          "avg_rating": 7.06,
-          "total_minutes": 2618
+          "gp": 35,
+          "total_points": 367.92,
+          "avg_rating": 7.05,
+          "total_minutes": 2700
         },
         "RW": {
-          "gp": 34,
-          "total_points": 364.48,
-          "avg_rating": 7.06,
-          "total_minutes": 2618
+          "gp": 35,
+          "total_points": 367.91,
+          "avg_rating": 7.05,
+          "total_minutes": 2700
         }
       },
       "4c9276aa-a5ca-4aa2-ace6-df7f44685ed1": {
@@ -31819,10 +35606,18 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "59f57ab2-242c-4224-ab4c-6f572f048ca4": {
         "CB": {
-          "gp": 22,
-          "total_points": 221.6,
-          "avg_rating": 7.01,
-          "total_minutes": 1789
+          "gp": 23,
+          "total_points": 241.73,
+          "avg_rating": 7.05,
+          "total_minutes": 1879
+        }
+      },
+      "dff991ed-2066-4d35-af6e-bdbdcb6d3e18": {
+        "LW": {
+          "gp": 12,
+          "total_points": 52.52,
+          "avg_rating": 6.42,
+          "total_minutes": 451
         }
       },
       "2dd830b5-73c0-4f42-81a2-7f97adaf9b92": {
@@ -31899,6 +35694,20 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_points": 187.87,
           "avg_rating": 6.63,
           "total_minutes": 2233
+        }
+      },
+      "94184a62-b2fe-4e33-80cd-ac6e70472826": {
+        "DM": {
+          "gp": 34,
+          "total_points": 204.39,
+          "avg_rating": 6.55,
+          "total_minutes": 2826
+        },
+        "CM": {
+          "gp": 34,
+          "total_points": 204.64,
+          "avg_rating": 6.62,
+          "total_minutes": 2826
         }
       },
       "f373cb45-26bf-4557-aa7a-f50cc6c08a7e": {
@@ -31997,16 +35806,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "beb3d9af-1178-45ad-bbfc-6a225aa8a9cd": {
         "LW": {
-          "gp": 12,
-          "total_points": 132.29,
-          "avg_rating": 7.06,
-          "total_minutes": 624
+          "gp": 13,
+          "total_points": 160.16,
+          "avg_rating": 7.17,
+          "total_minutes": 654
         },
         "ST": {
-          "gp": 12,
-          "total_points": 133.8,
-          "avg_rating": 7.11,
-          "total_minutes": 624
+          "gp": 13,
+          "total_points": 159.03,
+          "avg_rating": 7.2,
+          "total_minutes": 654
         }
       },
       "f7caab8d-b634-46f3-9e5b-b9769866091a": {
@@ -32033,10 +35842,10 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "a02a8470-057d-4092-b778-c05f959761a6": {
         "ST": {
-          "gp": 33,
-          "total_points": 361.84,
-          "avg_rating": 7.06,
-          "total_minutes": 2147
+          "gp": 34,
+          "total_points": 363.84,
+          "avg_rating": 7.04,
+          "total_minutes": 2221
         }
       },
       "4a7fdd4c-c84c-4753-a32f-c4fa0f789c62": {
@@ -32103,10 +35912,10 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "fa7291e7-29ee-451b-8b0b-a9860f990b94": {
         "RW": {
-          "gp": 19,
-          "total_points": 144.53,
-          "avg_rating": 6.78,
-          "total_minutes": 1083
+          "gp": 20,
+          "total_points": 175.61,
+          "avg_rating": 6.88,
+          "total_minutes": 1152
         }
       },
       "5ee9ace0-9a25-46ab-a79f-4f7c5326533e": {
@@ -32145,16 +35954,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "2a6ce4ec-c812-43c0-b9f5-69a6f82331c3": {
         "LWB": {
-          "gp": 21,
+          "gp": 22,
           "total_points": 202.66,
-          "avg_rating": 6.95,
-          "total_minutes": 1326
+          "avg_rating": 6.89,
+          "total_minutes": 1341
         },
         "LB": {
-          "gp": 21,
+          "gp": 22,
           "total_points": 158.86,
-          "avg_rating": 6.66,
-          "total_minutes": 1326
+          "avg_rating": 6.61,
+          "total_minutes": 1341
         }
       },
       "5d410351-57b8-4408-81a5-b63e6dc1aa5d": {
@@ -32169,6 +35978,26 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_points": 74.54,
           "avg_rating": 6.52,
           "total_minutes": 1201
+        }
+      },
+      "4ec785c4-0d76-407d-83a6-ba64dedb67bd": {
+        "CM": {
+          "gp": 17,
+          "total_points": 109.81,
+          "avg_rating": 6.52,
+          "total_minutes": 986
+        },
+        "ST": {
+          "gp": 17,
+          "total_points": 171.9,
+          "avg_rating": 7.02,
+          "total_minutes": 986
+        },
+        "DM": {
+          "gp": 17,
+          "total_points": 93.05,
+          "avg_rating": 6.23,
+          "total_minutes": 986
         }
       },
       "b8fe2b12-1dd9-41eb-bc58-050d6840f444": {
@@ -32187,22 +36016,22 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "2247e53b-19a8-4deb-b935-b8b511ccf488": {
         "CM": {
-          "gp": 24,
-          "total_points": 116.16,
-          "avg_rating": 6.49,
-          "total_minutes": 1772
+          "gp": 25,
+          "total_points": 128.57,
+          "avg_rating": 6.53,
+          "total_minutes": 1862
         },
         "AM": {
-          "gp": 24,
-          "total_points": 88.4,
-          "avg_rating": 6.45,
-          "total_minutes": 1772
+          "gp": 25,
+          "total_points": 99.28,
+          "avg_rating": 6.48,
+          "total_minutes": 1862
         },
         "DM": {
-          "gp": 24,
-          "total_points": 101.17,
-          "avg_rating": 6.33,
-          "total_minutes": 1772
+          "gp": 25,
+          "total_points": 110.01,
+          "avg_rating": 6.36,
+          "total_minutes": 1862
         }
       },
       "5907035a-ee80-4139-9fb4-38d9e46b18c6": {
@@ -32237,6 +36066,26 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_points": 47.56,
           "avg_rating": 6.08,
           "total_minutes": 867
+        }
+      },
+      "1b7cbbd9-e2a2-43e8-9daa-a3a4e3b80270": {
+        "AM": {
+          "gp": 33,
+          "total_points": 371.93,
+          "avg_rating": 7.13,
+          "total_minutes": 2493
+        },
+        "LW": {
+          "gp": 33,
+          "total_points": 451.6,
+          "avg_rating": 7.31,
+          "total_minutes": 2493
+        },
+        "ST": {
+          "gp": 33,
+          "total_points": 469.78,
+          "avg_rating": 7.4,
+          "total_minutes": 2493
         }
       },
       "13a19aed-23dc-41f4-8def-f402eea7234f": {
@@ -32325,22 +36174,22 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "726a0f9c-2524-46c8-a034-c020c2a67a5e": {
         "AM": {
-          "gp": 28,
-          "total_points": 375.37,
-          "avg_rating": 7.3,
-          "total_minutes": 2024
+          "gp": 29,
+          "total_points": 378.58,
+          "avg_rating": 7.27,
+          "total_minutes": 2054
         },
         "RW": {
-          "gp": 28,
-          "total_points": 362.37,
-          "avg_rating": 7.24,
-          "total_minutes": 2024
+          "gp": 29,
+          "total_points": 366.37,
+          "avg_rating": 7.21,
+          "total_minutes": 2054
         },
         "CM": {
-          "gp": 28,
-          "total_points": 379.9,
-          "avg_rating": 7.24,
-          "total_minutes": 2024
+          "gp": 29,
+          "total_points": 380.51,
+          "avg_rating": 7.2,
+          "total_minutes": 2054
         }
       },
       "d83a1914-917b-4724-ba25-418ceaee6b92": {
@@ -32419,6 +36268,14 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_minutes": 924
         }
       },
+      "69b5cd6b-d7ff-44c0-b42d-4b2fc793ca3a": {
+        "GK": {
+          "gp": 34,
+          "total_points": 287.87,
+          "avg_rating": 6.76,
+          "total_minutes": 3036
+        }
+      },
       "6a5877ec-4e87-4a7f-9c8c-6558f421066b": {
         "CB": {
           "gp": 8,
@@ -32491,22 +36348,22 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "d7dc20a6-e1c9-499e-b458-fe2848346cfb": {
         "CM": {
-          "gp": 19,
-          "total_points": 101.67,
-          "avg_rating": 6.5,
-          "total_minutes": 1229
+          "gp": 22,
+          "total_points": 131.24,
+          "avg_rating": 6.54,
+          "total_minutes": 1393
         },
         "LW": {
-          "gp": 19,
-          "total_points": 115.88,
-          "avg_rating": 6.69,
-          "total_minutes": 1229
+          "gp": 22,
+          "total_points": 169.89,
+          "avg_rating": 6.82,
+          "total_minutes": 1393
         },
         "AM": {
-          "gp": 19,
-          "total_points": 91.56,
-          "avg_rating": 6.54,
-          "total_minutes": 1229
+          "gp": 22,
+          "total_points": 123.44,
+          "avg_rating": 6.61,
+          "total_minutes": 1393
         }
       },
       "5c4576ad-ee8c-4069-b50f-e923284c5e62": {
@@ -32527,6 +36384,20 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_points": 210.75,
           "avg_rating": 6.71,
           "total_minutes": 2059
+        }
+      },
+      "5606a893-d5b8-4c73-a014-014e8b432330": {
+        "CM": {
+          "gp": 27,
+          "total_points": 131.77,
+          "avg_rating": 6.37,
+          "total_minutes": 1950
+        },
+        "DM": {
+          "gp": 27,
+          "total_points": 117.2,
+          "avg_rating": 6.12,
+          "total_minutes": 1950
         }
       },
       "0429c923-36f4-4286-8efd-b6bdd1046401": {
@@ -32643,6 +36514,14 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_minutes": 1800
         }
       },
+      "ce67c3f1-2cfe-4139-a1ae-ff69244f1648": {
+        "ST": {
+          "gp": 36,
+          "total_points": 342.7,
+          "avg_rating": 7,
+          "total_minutes": 2741
+        }
+      },
       "b74a0c17-cb3e-4ebe-8186-e81812c12400": {
         "AM": {
           "gp": 13,
@@ -32701,16 +36580,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "1d799357-e0c0-4de6-921a-c167f0a4595e": {
         "DM": {
-          "gp": 23,
-          "total_points": 52.88,
-          "avg_rating": 5.78,
-          "total_minutes": 892
+          "gp": 24,
+          "total_points": 56.77,
+          "avg_rating": 5.81,
+          "total_minutes": 956
         },
         "CM": {
-          "gp": 23,
-          "total_points": 67.91,
+          "gp": 24,
+          "total_points": 69.61,
           "avg_rating": 6.12,
-          "total_minutes": 892
+          "total_minutes": 956
         }
       },
       "02fe2fe0-42ad-4e03-8e53-4baebab53fac": {
@@ -32777,16 +36656,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "ba85b775-4ac0-4047-a8ce-b43e28d81a9b": {
         "RW": {
-          "gp": 27,
-          "total_points": 371.77,
-          "avg_rating": 7.3,
-          "total_minutes": 1591
+          "gp": 29,
+          "total_points": 409.8,
+          "avg_rating": 7.33,
+          "total_minutes": 1734
         },
         "AM": {
-          "gp": 27,
-          "total_points": 381.18,
-          "avg_rating": 7.34,
-          "total_minutes": 1591
+          "gp": 29,
+          "total_points": 417.82,
+          "avg_rating": 7.37,
+          "total_minutes": 1734
         }
       },
       "4768f826-b1c4-49ba-85ee-b78a93faa65c": {
@@ -32811,6 +36690,20 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_minutes": 1196
         }
       },
+      "c80f3912-04f9-4255-8d41-7999f8f9bd59": {
+        "RW": {
+          "gp": 33,
+          "total_points": 378.64,
+          "avg_rating": 7.14,
+          "total_minutes": 2623
+        },
+        "LW": {
+          "gp": 33,
+          "total_points": 378.64,
+          "avg_rating": 7.14,
+          "total_minutes": 2623
+        }
+      },
       "1c00ab5d-9034-47f1-80d8-f770bd3bcf76": {
         "GK": {
           "gp": 38,
@@ -32821,22 +36714,22 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "2ca4efe0-1e19-4aa4-80e4-759ad16f96f7": {
         "AM": {
-          "gp": 7,
-          "total_points": 13.83,
-          "avg_rating": 6.19,
-          "total_minutes": 365
+          "gp": 8,
+          "total_points": 16.76,
+          "avg_rating": 6.22,
+          "total_minutes": 442
         },
         "DM": {
-          "gp": 7,
-          "total_points": 20.37,
-          "avg_rating": 5.66,
-          "total_minutes": 365
+          "gp": 8,
+          "total_points": 31.6,
+          "avg_rating": 5.86,
+          "total_minutes": 442
         },
         "CM": {
-          "gp": 7,
-          "total_points": 22.15,
-          "avg_rating": 6.02,
-          "total_minutes": 365
+          "gp": 8,
+          "total_points": 28.14,
+          "avg_rating": 6.12,
+          "total_minutes": 442
         }
       },
       "e9b7589d-8a39-41bd-833a-fa3e31cbaefc": {
@@ -32913,6 +36806,20 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_points": 0,
           "avg_rating": 5.57,
           "total_minutes": 96
+        }
+      },
+      "f553f873-ff25-405d-89ff-1d35ab0cc161": {
+        "LW": {
+          "gp": 19,
+          "total_points": 70.1,
+          "avg_rating": 6.4,
+          "total_minutes": 945
+        },
+        "RW": {
+          "gp": 19,
+          "total_points": 70.1,
+          "avg_rating": 6.4,
+          "total_minutes": 945
         }
       },
       "64ed0dd6-2e8e-4f42-93d2-7b5ef61a8c00": {
@@ -33021,6 +36928,20 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_minutes": 183
         }
       },
+      "457968a7-0a7c-4c53-95b7-c54822a4c45f": {
+        "CM": {
+          "gp": 20,
+          "total_points": 75.39,
+          "avg_rating": 6.27,
+          "total_minutes": 1196
+        },
+        "DM": {
+          "gp": 20,
+          "total_points": 86.7,
+          "avg_rating": 6.12,
+          "total_minutes": 1196
+        }
+      },
       "ab8d497f-c1c4-43e2-b54f-f12db6de944c": {
         "GK": {
           "gp": 3,
@@ -33065,16 +36986,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "e37e66a8-dd37-42f2-8d9a-c7767e649e46": {
         "RW": {
-          "gp": 36,
-          "total_points": 565.47,
-          "avg_rating": 7.47,
-          "total_minutes": 3110
+          "gp": 37,
+          "total_points": 567.49,
+          "avg_rating": 7.44,
+          "total_minutes": 3200
         },
         "LW": {
-          "gp": 36,
-          "total_points": 565.47,
-          "avg_rating": 7.47,
-          "total_minutes": 3110
+          "gp": 37,
+          "total_points": 567.49,
+          "avg_rating": 7.44,
+          "total_minutes": 3200
         }
       },
       "6e9c8740-1a5f-476c-a76d-4f8860551aaa": {
@@ -33109,10 +37030,24 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "6f4dc08e-564e-471b-baac-f8444ef933cf": {
         "ST": {
-          "gp": 18,
-          "total_points": 77.92,
-          "avg_rating": 6.49,
-          "total_minutes": 928
+          "gp": 19,
+          "total_points": 80.11,
+          "avg_rating": 6.48,
+          "total_minutes": 1018
+        }
+      },
+      "00b2b501-9743-4473-9ba0-dce35927a988": {
+        "ST": {
+          "gp": 35,
+          "total_points": 492.76,
+          "avg_rating": 7.31,
+          "total_minutes": 2658
+        },
+        "AM": {
+          "gp": 35,
+          "total_points": 393.83,
+          "avg_rating": 7.07,
+          "total_minutes": 2658
         }
       },
       "12508509-baf0-47bb-ab24-8bbff35e5608": {
@@ -33139,10 +37074,18 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "66ca278c-3133-45e5-990b-58f6a500b4b3": {
         "RW": {
-          "gp": 31,
-          "total_points": 326.88,
-          "avg_rating": 7.07,
-          "total_minutes": 2281
+          "gp": 32,
+          "total_points": 333.22,
+          "avg_rating": 7.06,
+          "total_minutes": 2371
+        }
+      },
+      "222a3420-6c35-412a-a0f7-b035ac7c3ec5": {
+        "CB": {
+          "gp": 25,
+          "total_points": 202.13,
+          "avg_rating": 6.77,
+          "total_minutes": 2130
         }
       },
       "8f3d944e-3bb6-4882-9055-875f5c32a168": {
@@ -33173,12 +37116,26 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_minutes": 665
         }
       },
+      "427e6ba6-7d52-464c-bbf9-5d1c9da23941": {
+        "ST": {
+          "gp": 30,
+          "total_points": 380.67,
+          "avg_rating": 7.23,
+          "total_minutes": 1931
+        },
+        "LW": {
+          "gp": 30,
+          "total_points": 368.08,
+          "avg_rating": 7.15,
+          "total_minutes": 1931
+        }
+      },
       "ea339c7d-af5a-4cc4-a890-626f03ec1b7f": {
         "CB": {
-          "gp": 23,
-          "total_points": 167.67,
-          "avg_rating": 6.73,
-          "total_minutes": 1627
+          "gp": 24,
+          "total_points": 171.59,
+          "avg_rating": 6.72,
+          "total_minutes": 1707
         }
       },
       "01b0f7e3-c88f-4125-b3c5-1f4574ded32d": {
@@ -33193,6 +37150,14 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_points": 164.73,
           "avg_rating": 6.9,
           "total_minutes": 1513
+        }
+      },
+      "b058045c-a38a-4087-bfeb-2f27eda28848": {
+        "ST": {
+          "gp": 38,
+          "total_points": 516.14,
+          "avg_rating": 7.29,
+          "total_minutes": 3282
         }
       },
       "8fbb34ca-bc04-4670-bcbe-42b12f96cb85": {
@@ -33223,6 +37188,14 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_minutes": 1825
         }
       },
+      "f225935b-cb65-4c6e-a6a3-ef7e9e1a1540": {
+        "CB": {
+          "gp": 25,
+          "total_points": 322.01,
+          "avg_rating": 7.15,
+          "total_minutes": 2134
+        }
+      },
       "c764074c-300a-4256-ba2f-bf393f941125": {
         "ST": {
           "gp": 12,
@@ -33239,6 +37212,26 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_minutes": 318
         }
       },
+      "ba8466ad-e02f-4f8d-958a-0bfdff8f0131": {
+        "LW": {
+          "gp": 22,
+          "total_points": 110.19,
+          "avg_rating": 6.6,
+          "total_minutes": 1531
+        },
+        "RW": {
+          "gp": 22,
+          "total_points": 110.19,
+          "avg_rating": 6.6,
+          "total_minutes": 1531
+        },
+        "AM": {
+          "gp": 22,
+          "total_points": 73.77,
+          "avg_rating": 6.4,
+          "total_minutes": 1531
+        }
+      },
       "7a82d11b-e98f-4506-bd2d-b778f6ba4806": {
         "RB": {
           "gp": 26,
@@ -33251,6 +37244,26 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_points": 275.67,
           "avg_rating": 6.87,
           "total_minutes": 1926
+        }
+      },
+      "8fcf0391-9d05-457b-83e5-eb5e6913704a": {
+        "DM": {
+          "gp": 32,
+          "total_points": 166.09,
+          "avg_rating": 6.1,
+          "total_minutes": 2117
+        },
+        "LW": {
+          "gp": 32,
+          "total_points": 207.38,
+          "avg_rating": 6.63,
+          "total_minutes": 2117
+        },
+        "CM": {
+          "gp": 32,
+          "total_points": 169.95,
+          "avg_rating": 6.37,
+          "total_minutes": 2117
         }
       },
       "0fb16a00-b28f-468b-be86-4632544ece3c": {
@@ -33281,12 +37294,92 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_minutes": 2245
         }
       },
+      "4f9210ba-d053-4d0e-adcd-2bd3e37dc1b7": {
+        "GK": {
+          "gp": 37,
+          "total_points": 394.67,
+          "avg_rating": 6.95,
+          "total_minutes": 3330
+        }
+      },
       "213280ac-6b1f-4213-ab8c-e218ceeb36ff": {
         "CB": {
           "gp": 17,
           "total_points": 109.65,
           "avg_rating": 6.54,
           "total_minutes": 1322
+        }
+      },
+      "3218c8da-486e-40a9-95ba-d3937fe0d254": {
+        "RW": {
+          "gp": 17,
+          "total_points": 134.39,
+          "avg_rating": 6.74,
+          "total_minutes": 795
+        }
+      },
+      "d0ff65b5-4009-4239-b2c3-199bf0d8b189": {
+        "GK": {
+          "gp": 16,
+          "total_points": 76.94,
+          "avg_rating": 6.28,
+          "total_minutes": 1440
+        }
+      },
+      "f0e53bb8-fed1-46b3-818c-d68c5330719f": {
+        "CM": {
+          "gp": 20,
+          "total_points": 109.04,
+          "avg_rating": 6.33,
+          "total_minutes": 1180
+        },
+        "AM": {
+          "gp": 20,
+          "total_points": 110.75,
+          "avg_rating": 6.56,
+          "total_minutes": 1180
+        }
+      },
+      "89b834d3-4564-40f3-aa5d-c68a51610f55": {
+        "RB": {
+          "gp": 28,
+          "total_points": 311.79,
+          "avg_rating": 7.07,
+          "total_minutes": 2387
+        },
+        "RWB": {
+          "gp": 28,
+          "total_points": 361.32,
+          "avg_rating": 7.28,
+          "total_minutes": 2387
+        }
+      },
+      "cccdcc41-31b7-4c95-acfa-b57b41eb5da5": {
+        "ST": {
+          "gp": 21,
+          "total_points": 78.69,
+          "avg_rating": 6.44,
+          "total_minutes": 987
+        }
+      },
+      "41e62aa8-47b4-4f28-8cfc-cce7145e78e9": {
+        "RB": {
+          "gp": 33,
+          "total_points": 245.85,
+          "avg_rating": 6.72,
+          "total_minutes": 2599
+        },
+        "LB": {
+          "gp": 33,
+          "total_points": 245.85,
+          "avg_rating": 6.72,
+          "total_minutes": 2599
+        },
+        "CM": {
+          "gp": 33,
+          "total_points": 219.82,
+          "avg_rating": 6.62,
+          "total_minutes": 2599
         }
       },
       "b830276a-f8d0-4293-b9ea-39d1c78f67a3": {
@@ -33319,22 +37412,50 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "02990cda-3234-4d82-a41c-bc4f4211f75b": {
         "ST": {
-          "gp": 24,
-          "total_points": 237.4,
-          "avg_rating": 7.02,
-          "total_minutes": 1464
+          "gp": 25,
+          "total_points": 274.36,
+          "avg_rating": 7.1,
+          "total_minutes": 1530
         },
         "LW": {
-          "gp": 24,
-          "total_points": 228.89,
-          "avg_rating": 6.94,
-          "total_minutes": 1464
+          "gp": 25,
+          "total_points": 267.89,
+          "avg_rating": 7.03,
+          "total_minutes": 1530
         },
         "AM": {
-          "gp": 24,
-          "total_points": 175.54,
-          "avg_rating": 6.75,
-          "total_minutes": 1464
+          "gp": 25,
+          "total_points": 209.97,
+          "avg_rating": 6.84,
+          "total_minutes": 1530
+        }
+      },
+      "1cdc4b07-0e39-4ee6-941d-b53e46edfd86": {
+        "CM": {
+          "gp": 29,
+          "total_points": 430.9,
+          "avg_rating": 7.45,
+          "total_minutes": 2456
+        },
+        "DM": {
+          "gp": 29,
+          "total_points": 373.78,
+          "avg_rating": 7.24,
+          "total_minutes": 2456
+        }
+      },
+      "9ba00773-6639-4149-9738-f8bbab9fdee0": {
+        "DM": {
+          "gp": 33,
+          "total_points": 288.72,
+          "avg_rating": 6.82,
+          "total_minutes": 2796
+        },
+        "CM": {
+          "gp": 33,
+          "total_points": 263.16,
+          "avg_rating": 6.83,
+          "total_minutes": 2796
         }
       },
       "1eb378ba-0063-496a-8e7e-b9317ff9c5ea": {
@@ -33359,6 +37480,14 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_minutes": 45
         }
       },
+      "837a564c-c021-4bd1-ba6e-827ea9cce38f": {
+        "ST": {
+          "gp": 35,
+          "total_points": 317.19,
+          "avg_rating": 6.93,
+          "total_minutes": 2280
+        }
+      },
       "d66ca0d3-6585-47b0-ada5-4f1127a30810": {
         "LW": {
           "gp": 22,
@@ -33379,12 +37508,34 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_minutes": 1422
         }
       },
+      "418a23ee-06ab-4067-9a11-efee1e2aa04e": {
+        "GK": {
+          "gp": 26,
+          "total_points": 209.07,
+          "avg_rating": 6.71,
+          "total_minutes": 2340
+        }
+      },
       "63cb72f9-eea0-4270-b1b3-7f0a9620b4f3": {
         "CB": {
           "gp": 12,
           "total_points": 85.18,
           "avg_rating": 6.71,
           "total_minutes": 902
+        }
+      },
+      "d444e3ce-0094-43ed-8a7f-f3080fec85b3": {
+        "LB": {
+          "gp": 33,
+          "total_points": 320.18,
+          "avg_rating": 6.92,
+          "total_minutes": 2695
+        },
+        "CM": {
+          "gp": 33,
+          "total_points": 308.88,
+          "avg_rating": 6.9,
+          "total_minutes": 2695
         }
       },
       "92625d1d-e93f-4e61-98bb-7a9620800b09": {
@@ -33407,12 +37558,64 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_minutes": 620
         }
       },
+      "60091a4c-4a43-4698-beb0-94e98a8057c5": {
+        "CB": {
+          "gp": 11,
+          "total_points": 77.42,
+          "avg_rating": 6.76,
+          "total_minutes": 924
+        }
+      },
+      "345d8e67-b3ac-4d18-af0a-16f571d7c3dd": {
+        "ST": {
+          "gp": 14,
+          "total_points": 116.03,
+          "avg_rating": 6.88,
+          "total_minutes": 985
+        }
+      },
+      "34911213-0a59-4de9-8249-f8ce38571027": {
+        "GK": {
+          "gp": 23,
+          "total_points": 167.16,
+          "avg_rating": 6.51,
+          "total_minutes": 2070
+        }
+      },
       "7e83aa9d-f328-47e1-99fb-b2d96e4ed3b4": {
         "CB": {
           "gp": 4,
           "total_points": 31.51,
           "avg_rating": 6.88,
           "total_minutes": 360
+        }
+      },
+      "0729b388-f7d8-40c0-801c-e3ebe8808de9": {
+        "AM": {
+          "gp": 1,
+          "total_points": 0.46,
+          "avg_rating": 6.01,
+          "total_minutes": 90
+        },
+        "CM": {
+          "gp": 1,
+          "total_points": 0,
+          "avg_rating": 5.67,
+          "total_minutes": 90
+        }
+      },
+      "4d7489a9-79e5-43b5-a654-a37ccaa61067": {
+        "AM": {
+          "gp": 35,
+          "total_points": 792.56,
+          "avg_rating": 8.05,
+          "total_minutes": 3065
+        },
+        "CM": {
+          "gp": 35,
+          "total_points": 785.77,
+          "avg_rating": 8.03,
+          "total_minutes": 3065
         }
       },
       "739c3b36-360e-447c-8755-347b4e406faf": {
@@ -33437,6 +37640,14 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_minutes": 343
         }
       },
+      "0738ad7f-1212-4d33-8817-1f71d561d2ce": {
+        "ST": {
+          "gp": 31,
+          "total_points": 294.92,
+          "avg_rating": 6.95,
+          "total_minutes": 2139
+        }
+      },
       "a117de33-4f54-48ed-bb40-0e7727b0aa06": {
         "RW": {
           "gp": 15,
@@ -33449,6 +37660,20 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_points": 78.29,
           "avg_rating": 6.55,
           "total_minutes": 749
+        }
+      },
+      "5cc907bc-2006-4003-b30c-0f6df4f7fcba": {
+        "LW": {
+          "gp": 30,
+          "total_points": 203.54,
+          "avg_rating": 6.66,
+          "total_minutes": 1710
+        },
+        "AM": {
+          "gp": 30,
+          "total_points": 156.85,
+          "avg_rating": 6.54,
+          "total_minutes": 1710
         }
       },
       "a68e94b0-e3be-4ad5-bb7f-8ac6b2f86ec4": {
@@ -33493,6 +37718,14 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_minutes": 1080
         }
       },
+      "2c764ba1-3ef5-41e3-8065-63ffe6a97ef9": {
+        "CB": {
+          "gp": 29,
+          "total_points": 165.08,
+          "avg_rating": 6.57,
+          "total_minutes": 2552
+        }
+      },
       "cc81d169-a7d9-446e-9294-09aee60888ca": {
         "RWB": {
           "gp": 14,
@@ -33521,6 +37754,22 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_minutes": 58
         }
       },
+      "4c4752cc-da95-4fa4-b070-7ce69adf317d": {
+        "ST": {
+          "gp": 5,
+          "total_points": 7.69,
+          "avg_rating": 6.2,
+          "total_minutes": 212
+        }
+      },
+      "1bc3c5fa-5d46-48f6-a4eb-7a3dc33d7131": {
+        "GK": {
+          "gp": 32,
+          "total_points": 277.38,
+          "avg_rating": 6.79,
+          "total_minutes": 2835
+        }
+      },
       "9faa8929-757b-4be9-a37a-61d893d3c531": {
         "LW": {
           "gp": 17,
@@ -33541,12 +37790,46 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_minutes": 1132
         }
       },
+      "dd17bddd-dc46-4d81-9a61-d2cd6a0f7664": {
+        "RW": {
+          "gp": 7,
+          "total_points": 9.15,
+          "avg_rating": 6.17,
+          "total_minutes": 254
+        },
+        "AM": {
+          "gp": 7,
+          "total_points": 5.12,
+          "avg_rating": 6.03,
+          "total_minutes": 254
+        }
+      },
       "ef6e4e93-6e1b-460d-8ce9-aa5b1d4a2e44": {
         "GK": {
           "gp": 32,
           "total_points": 225.65,
           "avg_rating": 6.6,
           "total_minutes": 2880
+        }
+      },
+      "f4e91d8f-54e8-4744-b6f5-eeb3196515ce": {
+        "CM": {
+          "gp": 36,
+          "total_points": 348.12,
+          "avg_rating": 7.01,
+          "total_minutes": 3017
+        },
+        "AM": {
+          "gp": 36,
+          "total_points": 255.29,
+          "avg_rating": 6.79,
+          "total_minutes": 3017
+        },
+        "DM": {
+          "gp": 36,
+          "total_points": 343.11,
+          "avg_rating": 6.94,
+          "total_minutes": 3017
         }
       },
       "284bbe8d-a421-46e7-a847-189a8f7d1ecd": {
@@ -33583,6 +37866,14 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_minutes": 1141
         }
       },
+      "61afeb25-5d25-44db-aede-9875c4525eae": {
+        "LW": {
+          "gp": 21,
+          "total_points": 143.99,
+          "avg_rating": 6.7,
+          "total_minutes": 1245
+        }
+      },
       "abe86e04-bbe1-40e8-90a5-e5e9fa9401ee": {
         "CM": {
           "gp": 17,
@@ -33615,6 +37906,20 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_points": 15.58,
           "avg_rating": 6.57,
           "total_minutes": 101
+        }
+      },
+      "208dc84a-64e2-4abd-a19e-126190ec80af": {
+        "RB": {
+          "gp": 30,
+          "total_points": 180.28,
+          "avg_rating": 6.6,
+          "total_minutes": 2312
+        },
+        "RW": {
+          "gp": 30,
+          "total_points": 135.58,
+          "avg_rating": 6.55,
+          "total_minutes": 2312
         }
       },
       "2ec1e12f-c508-4688-aa7e-c694de6211d9": {
@@ -33675,6 +37980,14 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_minutes": 1139
         }
       },
+      "be397fbb-a005-4e87-ad18-84f35d2e7c26": {
+        "CB": {
+          "gp": 26,
+          "total_points": 137.75,
+          "avg_rating": 6.43,
+          "total_minutes": 2136
+        }
+      },
       "ea2969ba-c427-4009-b7bb-d516f8bfb2d1": {
         "DM": {
           "gp": 21,
@@ -33687,6 +38000,20 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_points": 189.18,
           "avg_rating": 6.72,
           "total_minutes": 1395
+        }
+      },
+      "9266aac0-2151-47f2-818b-2bbd8208dea4": {
+        "DM": {
+          "gp": 14,
+          "total_points": 72.14,
+          "avg_rating": 6.34,
+          "total_minutes": 856
+        },
+        "CM": {
+          "gp": 14,
+          "total_points": 91.4,
+          "avg_rating": 6.65,
+          "total_minutes": 856
         }
       },
       "7e07391c-d458-4579-9e03-3ad057486ab9": {
@@ -33709,6 +38036,14 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_minutes": 375
         }
       },
+      "25417a0c-338e-4c95-855a-58aef607196e": {
+        "CB": {
+          "gp": 7,
+          "total_points": 15.21,
+          "avg_rating": 6.2,
+          "total_minutes": 459
+        }
+      },
       "d3e722f8-04a9-4efa-92e0-ff7d16ac7511": {
         "CB": {
           "gp": 17,
@@ -33727,6 +38062,50 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_points": 190.13,
           "avg_rating": 7.17,
           "total_minutes": 1358
+        }
+      },
+      "ca16e2ea-e73e-4922-ad75-a9e420a8b78d": {
+        "CB": {
+          "gp": 1,
+          "total_points": 6.82,
+          "avg_rating": 6.87,
+          "total_minutes": 90
+        },
+        "LB": {
+          "gp": 1,
+          "total_points": 7.87,
+          "avg_rating": 6.97,
+          "total_minutes": 90
+        }
+      },
+      "f71c4738-57f9-442e-ace1-5034b0114b45": {
+        "CB": {
+          "gp": 8,
+          "total_points": 11.1,
+          "avg_rating": 6.11,
+          "total_minutes": 508
+        }
+      },
+      "910f1290-b4b7-47b7-8a96-ef4c7bf83ac0": {
+        "LB": {
+          "gp": 24,
+          "total_points": 207.66,
+          "avg_rating": 6.84,
+          "total_minutes": 1779
+        },
+        "CB": {
+          "gp": 24,
+          "total_points": 208.87,
+          "avg_rating": 6.85,
+          "total_minutes": 1779
+        }
+      },
+      "01d3d2b1-b45d-4cd7-a8d2-027e9b18c3da": {
+        "LW": {
+          "gp": 1,
+          "total_points": 1.9,
+          "avg_rating": 6.27,
+          "total_minutes": 15
         }
       },
       "067e06bf-e99f-4fa3-b463-b6258442e6bc": {
@@ -33749,12 +38128,88 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_minutes": 910
         }
       },
+      "2cfc2bd2-01b0-4512-a797-1362b2046462": {
+        "ST": {
+          "gp": 10,
+          "total_points": 42.17,
+          "avg_rating": 6.48,
+          "total_minutes": 368
+        },
+        "AM": {
+          "gp": 10,
+          "total_points": 27.02,
+          "avg_rating": 6.24,
+          "total_minutes": 368
+        }
+      },
       "692f76bc-78cd-4147-a3be-68017e54db80": {
         "RW": {
           "gp": 11,
           "total_points": 76.92,
           "avg_rating": 6.73,
           "total_minutes": 628
+        }
+      },
+      "f9b4ed25-0763-460d-b173-9b837d38399e": {
+        "GK": {
+          "gp": 5,
+          "total_points": 19.33,
+          "avg_rating": 5.91,
+          "total_minutes": 437
+        }
+      },
+      "c4e70645-feea-4449-92f7-5e306765ec0f": {
+        "RWB": {
+          "gp": 4,
+          "total_points": 11.33,
+          "avg_rating": 6.24,
+          "total_minutes": 241
+        },
+        "RB": {
+          "gp": 4,
+          "total_points": 3.45,
+          "avg_rating": 5.92,
+          "total_minutes": 241
+        }
+      },
+      "0473d57b-d7ba-4c7d-b634-bff59c97d61c": {
+        "CB": {
+          "gp": 8,
+          "total_points": 30.73,
+          "avg_rating": 6.38,
+          "total_minutes": 536
+        }
+      },
+      "89f9e692-ad7a-46e9-80a5-722f4e47bd87": {
+        "GK": {
+          "gp": 3,
+          "total_points": 23.21,
+          "avg_rating": 6.58,
+          "total_minutes": 270
+        }
+      },
+      "ecfe90d0-29dc-49c3-b20a-6aaa955ebd93": {
+        "RW": {
+          "gp": 2,
+          "total_points": 1.75,
+          "avg_rating": 6.1,
+          "total_minutes": 43
+        }
+      },
+      "9b7b6ff8-cd08-4f38-9980-00afd8fc677e": {
+        "CB": {
+          "gp": 3,
+          "total_points": 9.74,
+          "avg_rating": 6.4,
+          "total_minutes": 225
+        }
+      },
+      "21fdf6c6-e479-4851-86a6-30a8733aa67a": {
+        "GK": {
+          "gp": 1,
+          "total_points": 1.87,
+          "avg_rating": 6.27,
+          "total_minutes": 90
         }
       },
       "09c40e39-04b8-4d8f-a357-189e73193d14": {
@@ -34033,20 +38488,6 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_points": 0.05,
           "avg_rating": 5.8,
           "total_minutes": 62
-        }
-      },
-      "910f1290-b4b7-47b7-8a96-ef4c7bf83ac0": {
-        "LB": {
-          "gp": 23,
-          "total_points": 191.41,
-          "avg_rating": 6.8,
-          "total_minutes": 1699
-        },
-        "CB": {
-          "gp": 23,
-          "total_points": 193.05,
-          "avg_rating": 6.82,
-          "total_minutes": 1699
         }
       },
       "df807b58-a9dc-44d6-92f6-49cc177a3b91": {
@@ -34701,16 +39142,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "539a057b-b67c-4cb3-9656-ae5d3610534d": {
         "DM": {
-          "gp": 20,
+          "gp": 21,
           "total_points": 186.08,
-          "avg_rating": 6.97,
-          "total_minutes": 1734
+          "avg_rating": 6.9,
+          "total_minutes": 1815
         },
         "CM": {
-          "gp": 20,
+          "gp": 21,
           "total_points": 171.08,
-          "avg_rating": 6.93,
-          "total_minutes": 1734
+          "avg_rating": 6.87,
+          "total_minutes": 1815
         }
       },
       "abf1c8d8-5794-4dbb-b12a-2510ed72068c": {
@@ -34823,22 +39264,22 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "41469187-fb71-4f6d-9fdf-0bfad1f17f59": {
         "RW": {
-          "gp": 29,
-          "total_points": 244.18,
-          "avg_rating": 6.85,
-          "total_minutes": 2234
+          "gp": 30,
+          "total_points": 261.69,
+          "avg_rating": 6.89,
+          "total_minutes": 2311
         },
         "AM": {
-          "gp": 29,
-          "total_points": 208.97,
-          "avg_rating": 6.75,
-          "total_minutes": 2234
+          "gp": 30,
+          "total_points": 218.64,
+          "avg_rating": 6.76,
+          "total_minutes": 2311
         },
         "CM": {
-          "gp": 29,
-          "total_points": 186.45,
-          "avg_rating": 6.57,
-          "total_minutes": 2234
+          "gp": 30,
+          "total_points": 192.65,
+          "avg_rating": 6.58,
+          "total_minutes": 2311
         }
       },
       "ad0e9939-ff90-471a-bd09-f9eb18f8bb96": {
@@ -34851,16 +39292,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "04982c10-e875-43bb-84f8-b2b1e824ec4f": {
         "RW": {
-          "gp": 23,
-          "total_points": 210.71,
-          "avg_rating": 6.91,
-          "total_minutes": 1959
+          "gp": 24,
+          "total_points": 236.4,
+          "avg_rating": 6.97,
+          "total_minutes": 2049
         },
         "AM": {
-          "gp": 23,
-          "total_points": 185.63,
-          "avg_rating": 6.87,
-          "total_minutes": 1959
+          "gp": 24,
+          "total_points": 206.98,
+          "avg_rating": 6.92,
+          "total_minutes": 2049
         }
       },
       "373151d3-326e-4560-9dc2-590b083838a0": {
@@ -35127,10 +39568,10 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "14628733-ca00-4e66-af7d-ab56495d34aa": {
         "LW": {
-          "gp": 19,
-          "total_points": 128.48,
-          "avg_rating": 6.73,
-          "total_minutes": 1552
+          "gp": 20,
+          "total_points": 155.76,
+          "avg_rating": 6.82,
+          "total_minutes": 1606
         }
       },
       "7a5dc53a-4593-4902-807c-c7ff04b4ca6f": {
@@ -35301,16 +39742,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "4249721b-3041-4345-b971-91c4c07a7696": {
         "RWB": {
-          "gp": 26,
-          "total_points": 256.37,
-          "avg_rating": 7,
-          "total_minutes": 2036
+          "gp": 27,
+          "total_points": 270.9,
+          "avg_rating": 7.02,
+          "total_minutes": 2116
         },
         "RB": {
-          "gp": 26,
-          "total_points": 229.26,
+          "gp": 27,
+          "total_points": 236.92,
           "avg_rating": 6.86,
-          "total_minutes": 2036
+          "total_minutes": 2116
         }
       },
       "6e04f94f-55c7-4321-9ae6-8eef497d044b": {
@@ -35343,16 +39784,24 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "16ff793b-3ea5-45cc-a5a1-cea5716fceb5": {
         "ST": {
-          "gp": 20,
-          "total_points": 260.43,
-          "avg_rating": 7.28,
-          "total_minutes": 1421
+          "gp": 21,
+          "total_points": 262.09,
+          "avg_rating": 7.23,
+          "total_minutes": 1486
         },
         "AM": {
-          "gp": 20,
-          "total_points": 205.16,
-          "avg_rating": 7.04,
-          "total_minutes": 1421
+          "gp": 21,
+          "total_points": 205.65,
+          "avg_rating": 6.99,
+          "total_minutes": 1486
+        }
+      },
+      "72fa79b9-c0e4-461f-b792-859ffa600bcd": {
+        "CB": {
+          "gp": 37,
+          "total_points": 399.47,
+          "avg_rating": 7.06,
+          "total_minutes": 3288
         }
       },
       "4f642553-88f9-4c7c-958a-eef5a3b12c46": {
@@ -35555,22 +40004,22 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "d56cdc2a-a3fb-4c33-8dc9-73547c33c809": {
         "DM": {
-          "gp": 22,
+          "gp": 23,
           "total_points": 228.88,
-          "avg_rating": 6.88,
-          "total_minutes": 1754
+          "avg_rating": 6.8,
+          "total_minutes": 1844
         },
         "RB": {
-          "gp": 22,
-          "total_points": 204.72,
-          "avg_rating": 5.74,
-          "total_minutes": 1754
+          "gp": 23,
+          "total_points": 204.86,
+          "avg_rating": 5.7,
+          "total_minutes": 1844
         },
         "CM": {
-          "gp": 22,
-          "total_points": 199.74,
-          "avg_rating": 6.91,
-          "total_minutes": 1754
+          "gp": 23,
+          "total_points": 200.18,
+          "avg_rating": 6.87,
+          "total_minutes": 1844
         }
       },
       "5504bc6d-5ae8-41bb-a87b-3181d2fc6f0b": {
@@ -35683,6 +40132,14 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_points": 7.53,
           "avg_rating": 6.26,
           "total_minutes": 235
+        }
+      },
+      "6058c8a8-4590-43ba-94e7-c71b2f071ddc": {
+        "RW": {
+          "gp": 3,
+          "total_points": 8.3,
+          "avg_rating": 6.39,
+          "total_minutes": 199
         }
       },
       "be04237a-ec7b-4a04-8719-a8db58756e19": {
@@ -35859,22 +40316,22 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "4459f763-775e-4899-bb86-7e00e4dafe54": {
         "LW": {
-          "gp": 30,
-          "total_points": 330.32,
-          "avg_rating": 7.12,
-          "total_minutes": 2574
+          "gp": 31,
+          "total_points": 346.68,
+          "avg_rating": 7.14,
+          "total_minutes": 2662
         },
         "RW": {
-          "gp": 30,
-          "total_points": 330.3,
-          "avg_rating": 7.12,
-          "total_minutes": 2574
+          "gp": 31,
+          "total_points": 346.66,
+          "avg_rating": 7.14,
+          "total_minutes": 2662
         },
         "AM": {
-          "gp": 30,
-          "total_points": 351.94,
-          "avg_rating": 7.2,
-          "total_minutes": 2574
+          "gp": 31,
+          "total_points": 381.53,
+          "avg_rating": 7.25,
+          "total_minutes": 2662
         }
       },
       "d40c38ba-4747-4544-be8d-17adeb16d7d9": {
@@ -35931,6 +40388,26 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_points": 254.93,
           "avg_rating": 6.84,
           "total_minutes": 3119
+        }
+      },
+      "e1316dd9-53f8-476e-9605-df83c8f7ca79": {
+        "ST": {
+          "gp": 8,
+          "total_points": 66.89,
+          "avg_rating": 6.84,
+          "total_minutes": 591
+        },
+        "RW": {
+          "gp": 8,
+          "total_points": 65.56,
+          "avg_rating": 6.78,
+          "total_minutes": 591
+        },
+        "LW": {
+          "gp": 8,
+          "total_points": 65.56,
+          "avg_rating": 6.78,
+          "total_minutes": 591
         }
       },
       "d37e2d33-00cb-4dbc-ae43-ea891bc1bf14": {
@@ -36013,22 +40490,22 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "daf49ca4-c4c5-497c-96f7-16f9b9b0de0a": {
         "RWB": {
-          "gp": 32,
-          "total_points": 423.42,
-          "avg_rating": 7.34,
-          "total_minutes": 2747
+          "gp": 33,
+          "total_points": 442.94,
+          "avg_rating": 7.36,
+          "total_minutes": 2837
         },
         "RB": {
-          "gp": 32,
-          "total_points": 428.38,
-          "avg_rating": 7.31,
-          "total_minutes": 2747
+          "gp": 33,
+          "total_points": 449.64,
+          "avg_rating": 7.33,
+          "total_minutes": 2837
         },
         "CM": {
-          "gp": 32,
-          "total_points": 344.84,
-          "avg_rating": 7.1,
-          "total_minutes": 2747
+          "gp": 33,
+          "total_points": 361.04,
+          "avg_rating": 7.11,
+          "total_minutes": 2837
         }
       },
       "92cd80f5-169a-4ca9-a492-2a2da4a44da3": {
@@ -36049,6 +40526,20 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_points": 162.41,
           "avg_rating": 6.83,
           "total_minutes": 1667
+        }
+      },
+      "0aafecd4-34c9-456e-a179-13d3da737ec5": {
+        "LWB": {
+          "gp": 28,
+          "total_points": 290.38,
+          "avg_rating": 7.09,
+          "total_minutes": 2274
+        },
+        "LB": {
+          "gp": 28,
+          "total_points": 202.73,
+          "avg_rating": 6.74,
+          "total_minutes": 2274
         }
       },
       "9cfdaa90-16bf-43b7-9a3e-2162902f611c": {
@@ -36149,30 +40640,30 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "516062f0-61b3-4587-9191-eb9525e6cfcc": {
         "CM": {
-          "gp": 34,
-          "total_points": 516.38,
-          "avg_rating": 7.48,
-          "total_minutes": 2991
+          "gp": 35,
+          "total_points": 537.81,
+          "avg_rating": 7.5,
+          "total_minutes": 3078
         },
         "DM": {
-          "gp": 34,
-          "total_points": 399.29,
+          "gp": 35,
+          "total_points": 409.64,
           "avg_rating": 7.13,
-          "total_minutes": 2991
+          "total_minutes": 3078
         },
         "AM": {
-          "gp": 34,
-          "total_points": 489.36,
-          "avg_rating": 7.43,
-          "total_minutes": 2991
+          "gp": 35,
+          "total_points": 511.88,
+          "avg_rating": 7.45,
+          "total_minutes": 3078
         }
       },
       "3dbf4b85-db4c-4a2b-8f2c-b93e3b1b8882": {
         "ST": {
-          "gp": 27,
-          "total_points": 286.74,
-          "avg_rating": 7.03,
-          "total_minutes": 1981
+          "gp": 28,
+          "total_points": 288.73,
+          "avg_rating": 7,
+          "total_minutes": 2071
         }
       },
       "b8ff78b1-f214-4446-b3a4-a0e28c2130ad": {
@@ -36191,16 +40682,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "3569929e-790b-41cf-b18f-a8d37017a170": {
         "RW": {
-          "gp": 19,
-          "total_points": 111.97,
+          "gp": 20,
+          "total_points": 116.12,
           "avg_rating": 6.62,
-          "total_minutes": 1424
+          "total_minutes": 1503
         },
         "LW": {
-          "gp": 19,
-          "total_points": 111.97,
+          "gp": 20,
+          "total_points": 116.12,
           "avg_rating": 6.62,
-          "total_minutes": 1424
+          "total_minutes": 1503
         }
       },
       "c828aa5b-d39b-49ef-8fb3-266eecf62196": {
@@ -36219,16 +40710,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "8b97c08c-e887-4b4d-bdba-b87eeea0da89": {
         "RB": {
-          "gp": 32,
-          "total_points": 206.83,
-          "avg_rating": 6.64,
-          "total_minutes": 2698
+          "gp": 33,
+          "total_points": 220.7,
+          "avg_rating": 6.66,
+          "total_minutes": 2788
         },
         "RWB": {
-          "gp": 32,
-          "total_points": 234.52,
-          "avg_rating": 6.79,
-          "total_minutes": 2698
+          "gp": 33,
+          "total_points": 246.82,
+          "avg_rating": 6.8,
+          "total_minutes": 2788
         }
       },
       "577b5ff0-8e42-4fc4-be35-3a4a5deb2172": {
@@ -36277,16 +40768,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "0ba005dd-ba53-44bd-a30a-0992f0efcc0a": {
         "DM": {
-          "gp": 15,
-          "total_points": 64.77,
-          "avg_rating": 6.31,
-          "total_minutes": 1070
+          "gp": 16,
+          "total_points": 73.71,
+          "avg_rating": 6.36,
+          "total_minutes": 1160
         },
         "CM": {
-          "gp": 15,
-          "total_points": 80.92,
-          "avg_rating": 6.51,
-          "total_minutes": 1070
+          "gp": 16,
+          "total_points": 97.25,
+          "avg_rating": 6.58,
+          "total_minutes": 1160
         }
       },
       "d8f1acd5-5929-4eea-b92a-cc2ec95ce80e": {
@@ -36301,6 +40792,20 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_points": 201.51,
           "avg_rating": 6.81,
           "total_minutes": 2107
+        }
+      },
+      "2ae311a0-0774-434b-9b73-9295bbb2ca94": {
+        "DM": {
+          "gp": 24,
+          "total_points": 261.86,
+          "avg_rating": 6.99,
+          "total_minutes": 1982
+        },
+        "CM": {
+          "gp": 24,
+          "total_points": 218.85,
+          "avg_rating": 6.92,
+          "total_minutes": 1982
         }
       },
       "3d189af2-5ee2-410c-aac2-cb2c7045ef06": {
@@ -36381,10 +40886,10 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "9c6b03b4-a7b0-47d6-88ed-1ff10f5d71da": {
         "ST": {
-          "gp": 20,
-          "total_points": 249.75,
-          "avg_rating": 7.22,
-          "total_minutes": 1588
+          "gp": 21,
+          "total_points": 273.3,
+          "avg_rating": 7.26,
+          "total_minutes": 1671
         }
       },
       "2d0d8ae2-fedc-4d0e-89ef-a7ea8a1c536f": {
@@ -36409,6 +40914,14 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_points": 239.83,
           "avg_rating": 7.2,
           "total_minutes": 1303
+        }
+      },
+      "8ddd18ba-c6cb-4605-9bd8-956f82ce0659": {
+        "CB": {
+          "gp": 34,
+          "total_points": 271.87,
+          "avg_rating": 6.8,
+          "total_minutes": 3035
         }
       },
       "912cad56-1e19-46c1-9092-580bbcea3da1": {
@@ -36479,16 +40992,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "a44cb207-8f2c-4c75-a880-627f7ed46d62": {
         "RW": {
-          "gp": 12,
-          "total_points": 132.19,
-          "avg_rating": 7.05,
-          "total_minutes": 988
+          "gp": 13,
+          "total_points": 148.81,
+          "avg_rating": 7.1,
+          "total_minutes": 1065
         },
         "ST": {
-          "gp": 12,
-          "total_points": 137.34,
-          "avg_rating": 7.15,
-          "total_minutes": 988
+          "gp": 13,
+          "total_points": 153.1,
+          "avg_rating": 7.19,
+          "total_minutes": 1065
         }
       },
       "3ff9adc3-eccc-44a8-9f7c-5cbb65fcda93": {
@@ -36567,6 +41080,20 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_points": 93.56,
           "avg_rating": 6.77,
           "total_minutes": 1170
+        }
+      },
+      "8ec2716d-e230-4b73-a371-889447a69c61": {
+        "DM": {
+          "gp": 9,
+          "total_points": 45.82,
+          "avg_rating": 6.49,
+          "total_minutes": 688
+        },
+        "CM": {
+          "gp": 9,
+          "total_points": 39.23,
+          "avg_rating": 6.5,
+          "total_minutes": 688
         }
       },
       "40d0fd76-fff4-4690-ba10-1720bf504dc4": {
@@ -36661,6 +41188,20 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_minutes": 1819
         }
       },
+      "6b3f9d08-4371-479e-ae74-2b269777bcdd": {
+        "DM": {
+          "gp": 25,
+          "total_points": 140.81,
+          "avg_rating": 6.39,
+          "total_minutes": 1985
+        },
+        "CM": {
+          "gp": 25,
+          "total_points": 119.21,
+          "avg_rating": 6.47,
+          "total_minutes": 1985
+        }
+      },
       "6a436034-5dac-4f03-83b0-8c394ab45e0f": {
         "DM": {
           "gp": 16,
@@ -36673,6 +41214,34 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_points": 145.61,
           "avg_rating": 6.95,
           "total_minutes": 1377
+        }
+      },
+      "e002cfcc-ada0-47dd-8f37-628336e6d51a": {
+        "LW": {
+          "gp": 19,
+          "total_points": 364.29,
+          "avg_rating": 7.75,
+          "total_minutes": 1513
+        },
+        "RW": {
+          "gp": 19,
+          "total_points": 364.28,
+          "avg_rating": 7.75,
+          "total_minutes": 1513
+        }
+      },
+      "d84d8b90-69db-4709-8f91-f35b3e2e3c88": {
+        "DM": {
+          "gp": 24,
+          "total_points": 184.82,
+          "avg_rating": 6.75,
+          "total_minutes": 2082
+        },
+        "CM": {
+          "gp": 24,
+          "total_points": 178.78,
+          "avg_rating": 6.8,
+          "total_minutes": 2082
         }
       },
       "d6d4aa25-ca60-4c43-af3e-69d69fcde8d7": {
@@ -36801,6 +41370,20 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_minutes": 2847
         }
       },
+      "50d7b59e-0000-4be6-a5ac-8c4628020d55": {
+        "RB": {
+          "gp": 32,
+          "total_points": 354.72,
+          "avg_rating": 7.07,
+          "total_minutes": 2754
+        },
+        "RWB": {
+          "gp": 32,
+          "total_points": 426.84,
+          "avg_rating": 7.32,
+          "total_minutes": 2754
+        }
+      },
       "eafd17d7-8ce5-4976-a176-1b98e6af5681": {
         "DM": {
           "gp": 18,
@@ -36817,28 +41400,28 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "28f001b5-4974-4145-a4de-8651f8848c5f": {
         "DM": {
-          "gp": 20,
+          "gp": 21,
           "total_points": 79.33,
-          "avg_rating": 6.24,
-          "total_minutes": 1550
+          "avg_rating": 6.18,
+          "total_minutes": 1624
         },
         "RB": {
-          "gp": 20,
+          "gp": 21,
           "total_points": 126.18,
-          "avg_rating": 5.51,
-          "total_minutes": 1550
+          "avg_rating": 5.47,
+          "total_minutes": 1624
         },
         "AM": {
-          "gp": 20,
-          "total_points": 135.83,
-          "avg_rating": 6.75,
-          "total_minutes": 1550
+          "gp": 21,
+          "total_points": 136.43,
+          "avg_rating": 6.72,
+          "total_minutes": 1624
         },
         "CM": {
-          "gp": 20,
+          "gp": 21,
           "total_points": 100.93,
-          "avg_rating": 6.54,
-          "total_minutes": 1550
+          "avg_rating": 6.49,
+          "total_minutes": 1624
         }
       },
       "a2e00783-e063-4812-9309-adf86d1da7f8": {
@@ -36895,10 +41478,10 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "676a771a-9fe9-4187-a697-048062b99fc7": {
         "ST": {
-          "gp": 27,
-          "total_points": 151.11,
-          "avg_rating": 6.61,
-          "total_minutes": 2036
+          "gp": 28,
+          "total_points": 152.66,
+          "avg_rating": 6.59,
+          "total_minutes": 2100
         }
       },
       "33c1f53e-6591-47e1-a9fd-f71252c46329": {
@@ -36921,6 +41504,20 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_points": 115.04,
           "avg_rating": 6.97,
           "total_minutes": 889
+        }
+      },
+      "22bee9ee-5422-4cd9-b95c-58273a23cbd3": {
+        "AM": {
+          "gp": 9,
+          "total_points": 46.24,
+          "avg_rating": 6.58,
+          "total_minutes": 611
+        },
+        "CM": {
+          "gp": 9,
+          "total_points": 36.72,
+          "avg_rating": 6.34,
+          "total_minutes": 611
         }
       },
       "acc60c05-73dd-44dd-9453-18cde4b0c99c": {
@@ -37049,10 +41646,10 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "2ac26b81-dc73-4560-adb8-5433414f1b34": {
         "LW": {
-          "gp": 21,
-          "total_points": 258.05,
-          "avg_rating": 7.14,
-          "total_minutes": 1671
+          "gp": 22,
+          "total_points": 262.06,
+          "avg_rating": 7.12,
+          "total_minutes": 1751
         }
       },
       "c6b2dc4e-0fe9-4976-b49f-952446522b4c": {
@@ -37069,6 +41666,26 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_points": 322.49,
           "avg_rating": 6.96,
           "total_minutes": 2738
+        }
+      },
+      "48075b62-9dca-4d29-be9d-f8cd4a2c23e4": {
+        "DM": {
+          "gp": 18,
+          "total_points": 95.81,
+          "avg_rating": 6.48,
+          "total_minutes": 1508
+        },
+        "CM": {
+          "gp": 18,
+          "total_points": 90.13,
+          "avg_rating": 6.56,
+          "total_minutes": 1508
+        },
+        "CB": {
+          "gp": 18,
+          "total_points": 116.92,
+          "avg_rating": 5.5,
+          "total_minutes": 1508
         }
       },
       "5fe088d3-79b5-48be-8ad5-bedd4d79bec9": {
@@ -37189,16 +41806,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "ac7d4101-705a-4b69-9f0e-de1f5a5c9102": {
         "LW": {
-          "gp": 31,
-          "total_points": 319.42,
-          "avg_rating": 7.02,
-          "total_minutes": 2554
+          "gp": 32,
+          "total_points": 322.85,
+          "avg_rating": 7.01,
+          "total_minutes": 2636
         },
         "RW": {
-          "gp": 31,
-          "total_points": 319.41,
-          "avg_rating": 7.02,
-          "total_minutes": 2554
+          "gp": 32,
+          "total_points": 322.84,
+          "avg_rating": 7.01,
+          "total_minutes": 2636
         }
       },
       "4c9276aa-a5ca-4aa2-ace6-df7f44685ed1": {
@@ -37217,10 +41834,18 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "59f57ab2-242c-4224-ab4c-6f572f048ca4": {
         "CB": {
-          "gp": 22,
-          "total_points": 221.6,
-          "avg_rating": 7.01,
-          "total_minutes": 1789
+          "gp": 23,
+          "total_points": 241.73,
+          "avg_rating": 7.05,
+          "total_minutes": 1879
+        }
+      },
+      "dff991ed-2066-4d35-af6e-bdbdcb6d3e18": {
+        "LW": {
+          "gp": 5,
+          "total_points": 45.34,
+          "avg_rating": 6.92,
+          "total_minutes": 303
         }
       },
       "2dd830b5-73c0-4f42-81a2-7f97adaf9b92": {
@@ -37299,6 +41924,20 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_minutes": 2107
         }
       },
+      "94184a62-b2fe-4e33-80cd-ac6e70472826": {
+        "DM": {
+          "gp": 33,
+          "total_points": 204.39,
+          "avg_rating": 6.6,
+          "total_minutes": 2804
+        },
+        "CM": {
+          "gp": 33,
+          "total_points": 204.64,
+          "avg_rating": 6.66,
+          "total_minutes": 2804
+        }
+      },
       "f373cb45-26bf-4557-aa7a-f50cc6c08a7e": {
         "GK": {
           "gp": 11,
@@ -37309,16 +41948,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "24725095-8ece-4ce2-ae86-1f225ef55d55": {
         "DM": {
-          "gp": 29,
-          "total_points": 267.55,
-          "avg_rating": 6.87,
-          "total_minutes": 2360
+          "gp": 30,
+          "total_points": 272.47,
+          "avg_rating": 6.86,
+          "total_minutes": 2450
         },
         "CM": {
-          "gp": 29,
-          "total_points": 288.31,
-          "avg_rating": 6.98,
-          "total_minutes": 2360
+          "gp": 30,
+          "total_points": 297.89,
+          "avg_rating": 6.99,
+          "total_minutes": 2450
         }
       },
       "226ccc5f-8dda-43bc-bb4e-58359b09336d": {
@@ -37425,10 +42064,10 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "a02a8470-057d-4092-b778-c05f959761a6": {
         "ST": {
-          "gp": 25,
-          "total_points": 319.1,
-          "avg_rating": 7.24,
-          "total_minutes": 1991
+          "gp": 26,
+          "total_points": 321.1,
+          "avg_rating": 7.2,
+          "total_minutes": 2065
         }
       },
       "c9382324-6a24-4320-9bd3-8adcb3512bf9": {
@@ -37455,22 +42094,22 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "e1ecd6bf-d759-405f-b504-0302920fa042": {
         "AM": {
-          "gp": 22,
-          "total_points": 170.2,
-          "avg_rating": 6.79,
-          "total_minutes": 1628
+          "gp": 23,
+          "total_points": 170.29,
+          "avg_rating": 6.75,
+          "total_minutes": 1673
         },
         "LW": {
-          "gp": 22,
-          "total_points": 229.31,
-          "avg_rating": 7,
-          "total_minutes": 1628
+          "gp": 23,
+          "total_points": 230.4,
+          "avg_rating": 6.97,
+          "total_minutes": 1673
         },
         "CM": {
-          "gp": 22,
+          "gp": 23,
           "total_points": 154.19,
-          "avg_rating": 6.63,
-          "total_minutes": 1628
+          "avg_rating": 6.58,
+          "total_minutes": 1673
         }
       },
       "5ee9ace0-9a25-46ab-a79f-4f7c5326533e": {
@@ -37495,10 +42134,10 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "fa7291e7-29ee-451b-8b0b-a9860f990b94": {
         "RW": {
-          "gp": 16,
-          "total_points": 141.78,
-          "avg_rating": 6.91,
-          "total_minutes": 1005
+          "gp": 17,
+          "total_points": 172.86,
+          "avg_rating": 7.01,
+          "total_minutes": 1074
         }
       },
       "2a6ce4ec-c812-43c0-b9f5-69a6f82331c3": {
@@ -37527,6 +42166,26 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_points": 74.54,
           "avg_rating": 6.52,
           "total_minutes": 1201
+        }
+      },
+      "4ec785c4-0d76-407d-83a6-ba64dedb67bd": {
+        "CM": {
+          "gp": 11,
+          "total_points": 82.2,
+          "avg_rating": 6.68,
+          "total_minutes": 813
+        },
+        "ST": {
+          "gp": 11,
+          "total_points": 119.99,
+          "avg_rating": 7.12,
+          "total_minutes": 813
+        },
+        "DM": {
+          "gp": 11,
+          "total_points": 69.31,
+          "avg_rating": 6.44,
+          "total_minutes": 813
         }
       },
       "b8fe2b12-1dd9-41eb-bc58-050d6840f444": {
@@ -37565,10 +42224,30 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "3965b253-52a1-4a06-b4e2-bf3153c53c73": {
         "RW": {
-          "gp": 10,
-          "total_points": 95.03,
-          "avg_rating": 7,
-          "total_minutes": 810
+          "gp": 11,
+          "total_points": 96.76,
+          "avg_rating": 6.93,
+          "total_minutes": 873
+        }
+      },
+      "1b7cbbd9-e2a2-43e8-9daa-a3a4e3b80270": {
+        "AM": {
+          "gp": 28,
+          "total_points": 344.22,
+          "avg_rating": 7.22,
+          "total_minutes": 2372
+        },
+        "LW": {
+          "gp": 28,
+          "total_points": 403.64,
+          "avg_rating": 7.37,
+          "total_minutes": 2372
+        },
+        "ST": {
+          "gp": 28,
+          "total_points": 422.87,
+          "avg_rating": 7.47,
+          "total_minutes": 2372
         }
       },
       "42157e61-90b3-4319-b8fe-5a3b00d0ac50": {
@@ -37733,18 +42412,12 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_minutes": 3159
         }
       },
-      "e002cfcc-ada0-47dd-8f37-628336e6d51a": {
-        "LW": {
-          "gp": 17,
-          "total_points": 315.38,
-          "avg_rating": 7.71,
-          "total_minutes": 1337
-        },
-        "RW": {
-          "gp": 17,
-          "total_points": 315.37,
-          "avg_rating": 7.71,
-          "total_minutes": 1337
+      "69b5cd6b-d7ff-44c0-b42d-4b2fc793ca3a": {
+        "GK": {
+          "gp": 34,
+          "total_points": 287.87,
+          "avg_rating": 6.76,
+          "total_minutes": 3036
         }
       },
       "6a5877ec-4e87-4a7f-9c8c-6558f421066b": {
@@ -37805,22 +42478,22 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "d7dc20a6-e1c9-499e-b458-fe2848346cfb": {
         "CM": {
-          "gp": 14,
-          "total_points": 95.88,
-          "avg_rating": 6.7,
-          "total_minutes": 1092
+          "gp": 17,
+          "total_points": 125.45,
+          "avg_rating": 6.71,
+          "total_minutes": 1256
         },
         "LW": {
-          "gp": 14,
-          "total_points": 94.87,
-          "avg_rating": 6.77,
-          "total_minutes": 1092
+          "gp": 17,
+          "total_points": 148.88,
+          "avg_rating": 6.92,
+          "total_minutes": 1256
         },
         "AM": {
-          "gp": 14,
-          "total_points": 78.46,
-          "avg_rating": 6.63,
-          "total_minutes": 1092
+          "gp": 17,
+          "total_points": 110.34,
+          "avg_rating": 6.71,
+          "total_minutes": 1256
         }
       },
       "5c4576ad-ee8c-4069-b50f-e923284c5e62": {
@@ -37841,6 +42514,20 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_points": 186.94,
           "avg_rating": 6.73,
           "total_minutes": 1942
+        }
+      },
+      "5606a893-d5b8-4c73-a014-014e8b432330": {
+        "CM": {
+          "gp": 22,
+          "total_points": 131.02,
+          "avg_rating": 6.53,
+          "total_minutes": 1836
+        },
+        "DM": {
+          "gp": 22,
+          "total_points": 117.2,
+          "avg_rating": 6.35,
+          "total_minutes": 1836
         }
       },
       "56612e10-c7fc-41d9-82fe-223fbcf11095": {
@@ -37937,6 +42624,14 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_minutes": 1800
         }
       },
+      "ce67c3f1-2cfe-4139-a1ae-ff69244f1648": {
+        "ST": {
+          "gp": 32,
+          "total_points": 313.08,
+          "avg_rating": 7.03,
+          "total_minutes": 2603
+        }
+      },
       "b74a0c17-cb3e-4ebe-8186-e81812c12400": {
         "AM": {
           "gp": 7,
@@ -38015,16 +42710,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "ba85b775-4ac0-4047-a8ce-b43e28d81a9b": {
         "RW": {
-          "gp": 18,
-          "total_points": 311.13,
-          "avg_rating": 7.6,
-          "total_minutes": 1366
+          "gp": 20,
+          "total_points": 349.16,
+          "avg_rating": 7.61,
+          "total_minutes": 1509
         },
         "AM": {
-          "gp": 18,
-          "total_points": 328.09,
-          "avg_rating": 7.7,
-          "total_minutes": 1366
+          "gp": 20,
+          "total_points": 364.73,
+          "avg_rating": 7.71,
+          "total_minutes": 1509
         }
       },
       "4626b630-1317-46dc-92cf-ad780d1b43ec": {
@@ -38067,6 +42762,20 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_points": 56.96,
           "avg_rating": 6.21,
           "total_minutes": 1023
+        }
+      },
+      "c80f3912-04f9-4255-8d41-7999f8f9bd59": {
+        "RW": {
+          "gp": 32,
+          "total_points": 377.8,
+          "avg_rating": 7.17,
+          "total_minutes": 2597
+        },
+        "LW": {
+          "gp": 32,
+          "total_points": 377.8,
+          "avg_rating": 7.17,
+          "total_minutes": 2597
         }
       },
       "1c00ab5d-9034-47f1-80d8-f770bd3bcf76": {
@@ -38150,6 +42859,20 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "gp": 11,
           "total_points": 23.16,
           "avg_rating": 6.28,
+          "total_minutes": 786
+        }
+      },
+      "f553f873-ff25-405d-89ff-1d35ab0cc161": {
+        "LW": {
+          "gp": 12,
+          "total_points": 23.26,
+          "avg_rating": 6.26,
+          "total_minutes": 786
+        },
+        "RW": {
+          "gp": 12,
+          "total_points": 23.26,
+          "avg_rating": 6.26,
           "total_minutes": 786
         }
       },
@@ -38253,6 +42976,20 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_minutes": 134
         }
       },
+      "457968a7-0a7c-4c53-95b7-c54822a4c45f": {
+        "CM": {
+          "gp": 14,
+          "total_points": 75.14,
+          "avg_rating": 6.54,
+          "total_minutes": 1011
+        },
+        "DM": {
+          "gp": 14,
+          "total_points": 86.7,
+          "avg_rating": 6.5,
+          "total_minutes": 1011
+        }
+      },
       "e757fdea-5e60-4c0f-98e3-0786427c41a8": {
         "AM": {
           "gp": 20,
@@ -38289,16 +43026,16 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "e37e66a8-dd37-42f2-8d9a-c7767e649e46": {
         "RW": {
-          "gp": 36,
-          "total_points": 565.47,
-          "avg_rating": 7.47,
-          "total_minutes": 3110
+          "gp": 37,
+          "total_points": 567.49,
+          "avg_rating": 7.44,
+          "total_minutes": 3200
         },
         "LW": {
-          "gp": 36,
-          "total_points": 565.47,
-          "avg_rating": 7.47,
-          "total_minutes": 3110
+          "gp": 37,
+          "total_points": 567.49,
+          "avg_rating": 7.44,
+          "total_minutes": 3200
         }
       },
       "6e9c8740-1a5f-476c-a76d-4f8860551aaa": {
@@ -38347,10 +43084,24 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "6f4dc08e-564e-471b-baac-f8444ef933cf": {
         "ST": {
-          "gp": 11,
-          "total_points": 56.73,
-          "avg_rating": 6.56,
-          "total_minutes": 765
+          "gp": 12,
+          "total_points": 58.92,
+          "avg_rating": 6.54,
+          "total_minutes": 855
+        }
+      },
+      "00b2b501-9743-4473-9ba0-dce35927a988": {
+        "ST": {
+          "gp": 32,
+          "total_points": 487.39,
+          "avg_rating": 7.4,
+          "total_minutes": 2584
+        },
+        "AM": {
+          "gp": 32,
+          "total_points": 392.89,
+          "avg_rating": 7.17,
+          "total_minutes": 2584
         }
       },
       "12508509-baf0-47bb-ab24-8bbff35e5608": {
@@ -38363,10 +43114,18 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "66ca278c-3133-45e5-990b-58f6a500b4b3": {
         "RW": {
-          "gp": 28,
-          "total_points": 318.32,
-          "avg_rating": 7.15,
-          "total_minutes": 2208
+          "gp": 29,
+          "total_points": 324.66,
+          "avg_rating": 7.14,
+          "total_minutes": 2298
+        }
+      },
+      "222a3420-6c35-412a-a0f7-b035ac7c3ec5": {
+        "CB": {
+          "gp": 23,
+          "total_points": 199.92,
+          "avg_rating": 6.83,
+          "total_minutes": 2053
         }
       },
       "8f3d944e-3bb6-4882-9055-875f5c32a168": {
@@ -38397,12 +43156,26 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_minutes": 587
         }
       },
+      "427e6ba6-7d52-464c-bbf9-5d1c9da23941": {
+        "ST": {
+          "gp": 21,
+          "total_points": 327.67,
+          "avg_rating": 7.49,
+          "total_minutes": 1715
+        },
+        "LW": {
+          "gp": 21,
+          "total_points": 319.07,
+          "avg_rating": 7.42,
+          "total_minutes": 1715
+        }
+      },
       "ea339c7d-af5a-4cc4-a890-626f03ec1b7f": {
         "CB": {
-          "gp": 20,
-          "total_points": 165.43,
-          "avg_rating": 6.83,
-          "total_minutes": 1557
+          "gp": 21,
+          "total_points": 169.35,
+          "avg_rating": 6.82,
+          "total_minutes": 1637
         }
       },
       "01b0f7e3-c88f-4125-b3c5-1f4574ded32d": {
@@ -38417,6 +43190,14 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_points": 164.73,
           "avg_rating": 6.9,
           "total_minutes": 1513
+        }
+      },
+      "b058045c-a38a-4087-bfeb-2f27eda28848": {
+        "ST": {
+          "gp": 37,
+          "total_points": 513.37,
+          "avg_rating": 7.31,
+          "total_minutes": 3252
         }
       },
       "f05a9fdb-e777-4b62-ba00-dd076db815db": {
@@ -38467,12 +43248,40 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_minutes": 1825
         }
       },
+      "f225935b-cb65-4c6e-a6a3-ef7e9e1a1540": {
+        "CB": {
+          "gp": 24,
+          "total_points": 322.01,
+          "avg_rating": 7.21,
+          "total_minutes": 2105
+        }
+      },
       "33ed7355-cc6d-4ed4-b95e-a963cd59045e": {
         "CB": {
           "gp": 4,
           "total_points": 41.88,
           "avg_rating": 6.93,
           "total_minutes": 318
+        }
+      },
+      "ba8466ad-e02f-4f8d-958a-0bfdff8f0131": {
+        "LW": {
+          "gp": 18,
+          "total_points": 105.18,
+          "avg_rating": 6.7,
+          "total_minutes": 1438
+        },
+        "RW": {
+          "gp": 18,
+          "total_points": 105.18,
+          "avg_rating": 6.7,
+          "total_minutes": 1438
+        },
+        "AM": {
+          "gp": 18,
+          "total_points": 71.42,
+          "avg_rating": 6.49,
+          "total_minutes": 1438
         }
       },
       "7a82d11b-e98f-4506-bd2d-b778f6ba4806": {
@@ -38487,6 +43296,26 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_points": 275.17,
           "avg_rating": 7.12,
           "total_minutes": 1815
+        }
+      },
+      "8fcf0391-9d05-457b-83e5-eb5e6913704a": {
+        "DM": {
+          "gp": 25,
+          "total_points": 166.09,
+          "avg_rating": 6.38,
+          "total_minutes": 1945
+        },
+        "LW": {
+          "gp": 25,
+          "total_points": 200.14,
+          "avg_rating": 6.78,
+          "total_minutes": 1945
+        },
+        "CM": {
+          "gp": 25,
+          "total_points": 169.77,
+          "avg_rating": 6.6,
+          "total_minutes": 1945
         }
       },
       "0fb16a00-b28f-468b-be86-4632544ece3c": {
@@ -38517,6 +43346,14 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_minutes": 2159
         }
       },
+      "4f9210ba-d053-4d0e-adcd-2bd3e37dc1b7": {
+        "GK": {
+          "gp": 37,
+          "total_points": 394.67,
+          "avg_rating": 6.95,
+          "total_minutes": 3330
+        }
+      },
       "d15d45c5-2c0a-4d7a-bb89-785fa1968f52": {
         "RB": {
           "gp": 7,
@@ -38537,12 +43374,56 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_minutes": 501
         }
       },
+      "3218c8da-486e-40a9-95ba-d3937fe0d254": {
+        "RW": {
+          "gp": 10,
+          "total_points": 80.52,
+          "avg_rating": 6.78,
+          "total_minutes": 633
+        }
+      },
+      "d0ff65b5-4009-4239-b2c3-199bf0d8b189": {
+        "GK": {
+          "gp": 16,
+          "total_points": 76.94,
+          "avg_rating": 6.28,
+          "total_minutes": 1440
+        }
+      },
+      "f0e53bb8-fed1-46b3-818c-d68c5330719f": {
+        "CM": {
+          "gp": 14,
+          "total_points": 101.82,
+          "avg_rating": 6.6,
+          "total_minutes": 1032
+        },
+        "AM": {
+          "gp": 14,
+          "total_points": 96.59,
+          "avg_rating": 6.71,
+          "total_minutes": 1032
+        }
+      },
       "a5e3e4b6-5ce9-4552-9dae-bde71b7e22db": {
         "CB": {
           "gp": 12,
           "total_points": 91.34,
           "avg_rating": 6.8,
           "total_minutes": 858
+        }
+      },
+      "89b834d3-4564-40f3-aa5d-c68a51610f55": {
+        "RB": {
+          "gp": 28,
+          "total_points": 311.79,
+          "avg_rating": 7.07,
+          "total_minutes": 2387
+        },
+        "RWB": {
+          "gp": 28,
+          "total_points": 361.32,
+          "avg_rating": 7.28,
+          "total_minutes": 2387
         }
       },
       "97e1cfe4-3a30-4d84-98f5-5ddfb705396b": {
@@ -38569,6 +43450,34 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_points": 38.5,
           "avg_rating": 6.75,
           "total_minutes": 385
+        }
+      },
+      "cccdcc41-31b7-4c95-acfa-b57b41eb5da5": {
+        "ST": {
+          "gp": 10,
+          "total_points": 37.83,
+          "avg_rating": 6.46,
+          "total_minutes": 743
+        }
+      },
+      "41e62aa8-47b4-4f28-8cfc-cce7145e78e9": {
+        "RB": {
+          "gp": 29,
+          "total_points": 243.63,
+          "avg_rating": 6.83,
+          "total_minutes": 2480
+        },
+        "LB": {
+          "gp": 29,
+          "total_points": 243.63,
+          "avg_rating": 6.83,
+          "total_minutes": 2480
+        },
+        "CM": {
+          "gp": 29,
+          "total_points": 218.81,
+          "avg_rating": 6.76,
+          "total_minutes": 2480
         }
       },
       "b830276a-f8d0-4293-b9ea-39d1c78f67a3": {
@@ -38601,22 +43510,50 @@ export const PRECOMPUTED_STATS_2025_26 = {
       },
       "02990cda-3234-4d82-a41c-bc4f4211f75b": {
         "ST": {
-          "gp": 19,
-          "total_points": 198.54,
-          "avg_rating": 7.07,
-          "total_minutes": 1341
+          "gp": 20,
+          "total_points": 235.5,
+          "avg_rating": 7.17,
+          "total_minutes": 1407
         },
         "LW": {
-          "gp": 19,
-          "total_points": 189.82,
-          "avg_rating": 6.98,
-          "total_minutes": 1341
+          "gp": 20,
+          "total_points": 228.82,
+          "avg_rating": 7.09,
+          "total_minutes": 1407
         },
         "AM": {
-          "gp": 19,
-          "total_points": 150.41,
-          "avg_rating": 6.82,
-          "total_minutes": 1341
+          "gp": 20,
+          "total_points": 184.84,
+          "avg_rating": 6.92,
+          "total_minutes": 1407
+        }
+      },
+      "1cdc4b07-0e39-4ee6-941d-b53e46edfd86": {
+        "CM": {
+          "gp": 28,
+          "total_points": 427.92,
+          "avg_rating": 7.49,
+          "total_minutes": 2428
+        },
+        "DM": {
+          "gp": 28,
+          "total_points": 373.78,
+          "avg_rating": 7.29,
+          "total_minutes": 2428
+        }
+      },
+      "9ba00773-6639-4149-9738-f8bbab9fdee0": {
+        "DM": {
+          "gp": 32,
+          "total_points": 288.72,
+          "avg_rating": 6.88,
+          "total_minutes": 2759
+        },
+        "CM": {
+          "gp": 32,
+          "total_points": 263.16,
+          "avg_rating": 6.88,
+          "total_minutes": 2759
         }
       },
       "1eb378ba-0063-496a-8e7e-b9317ff9c5ea": {
@@ -38639,6 +43576,36 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_points": 0.11,
           "avg_rating": 5.9,
           "total_minutes": 45
+        }
+      },
+      "837a564c-c021-4bd1-ba6e-827ea9cce38f": {
+        "ST": {
+          "gp": 30,
+          "total_points": 303.18,
+          "avg_rating": 7.02,
+          "total_minutes": 2173
+        }
+      },
+      "418a23ee-06ab-4067-9a11-efee1e2aa04e": {
+        "GK": {
+          "gp": 26,
+          "total_points": 209.07,
+          "avg_rating": 6.71,
+          "total_minutes": 2340
+        }
+      },
+      "d444e3ce-0094-43ed-8a7f-f3080fec85b3": {
+        "LB": {
+          "gp": 32,
+          "total_points": 320.18,
+          "avg_rating": 6.96,
+          "total_minutes": 2674
+        },
+        "CM": {
+          "gp": 32,
+          "total_points": 308.88,
+          "avg_rating": 6.95,
+          "total_minutes": 2674
         }
       },
       "3c87856f-63e8-436c-bf70-deef9f0129b0": {
@@ -38675,6 +43642,14 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_minutes": 569
         }
       },
+      "60091a4c-4a43-4698-beb0-94e98a8057c5": {
+        "CB": {
+          "gp": 11,
+          "total_points": 77.42,
+          "avg_rating": 6.76,
+          "total_minutes": 924
+        }
+      },
       "f5911bf8-047b-4e9c-96a6-dbdc2dfa5428": {
         "RW": {
           "gp": 20,
@@ -38689,12 +43664,42 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_minutes": 1462
         }
       },
+      "345d8e67-b3ac-4d18-af0a-16f571d7c3dd": {
+        "ST": {
+          "gp": 10,
+          "total_points": 107.03,
+          "avg_rating": 7.1,
+          "total_minutes": 871
+        }
+      },
+      "34911213-0a59-4de9-8249-f8ce38571027": {
+        "GK": {
+          "gp": 23,
+          "total_points": 167.16,
+          "avg_rating": 6.51,
+          "total_minutes": 2070
+        }
+      },
       "7e83aa9d-f328-47e1-99fb-b2d96e4ed3b4": {
         "CB": {
           "gp": 4,
           "total_points": 31.51,
           "avg_rating": 6.88,
           "total_minutes": 360
+        }
+      },
+      "0729b388-f7d8-40c0-801c-e3ebe8808de9": {
+        "AM": {
+          "gp": 1,
+          "total_points": 0.46,
+          "avg_rating": 6.01,
+          "total_minutes": 90
+        },
+        "CM": {
+          "gp": 1,
+          "total_points": 0,
+          "avg_rating": 5.67,
+          "total_minutes": 90
         }
       },
       "49fbd23a-c1af-4721-8e8a-ff1a08c63f89": {
@@ -38709,6 +43714,20 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_points": 3.89,
           "avg_rating": 6.28,
           "total_minutes": 110
+        }
+      },
+      "4d7489a9-79e5-43b5-a654-a37ccaa61067": {
+        "AM": {
+          "gp": 35,
+          "total_points": 792.56,
+          "avg_rating": 8.05,
+          "total_minutes": 3065
+        },
+        "CM": {
+          "gp": 35,
+          "total_points": 785.77,
+          "avg_rating": 8.03,
+          "total_minutes": 3065
         }
       },
       "739c3b36-360e-447c-8755-347b4e406faf": {
@@ -38787,12 +43806,48 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_minutes": 343
         }
       },
+      "0738ad7f-1212-4d33-8817-1f71d561d2ce": {
+        "ST": {
+          "gp": 26,
+          "total_points": 289.71,
+          "avg_rating": 7.11,
+          "total_minutes": 2025
+        }
+      },
       "c02278ad-eb72-4a7d-8bf8-c0bcce739e76": {
         "CB": {
           "gp": 21,
           "total_points": 205.74,
           "avg_rating": 6.94,
           "total_minutes": 1811
+        }
+      },
+      "1d799357-e0c0-4de6-921a-c167f0a4595e": {
+        "DM": {
+          "gp": 9,
+          "total_points": 44.92,
+          "avg_rating": 6.41,
+          "total_minutes": 593
+        },
+        "CM": {
+          "gp": 9,
+          "total_points": 46.02,
+          "avg_rating": 6.56,
+          "total_minutes": 593
+        }
+      },
+      "5cc907bc-2006-4003-b30c-0f6df4f7fcba": {
+        "LW": {
+          "gp": 23,
+          "total_points": 152.93,
+          "avg_rating": 6.64,
+          "total_minutes": 1544
+        },
+        "AM": {
+          "gp": 23,
+          "total_points": 129.67,
+          "avg_rating": 6.58,
+          "total_minutes": 1544
         }
       },
       "a68e94b0-e3be-4ad5-bb7f-8ac6b2f86ec4": {
@@ -38817,6 +43872,14 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_minutes": 1080
         }
       },
+      "2c764ba1-3ef5-41e3-8065-63ffe6a97ef9": {
+        "CB": {
+          "gp": 28,
+          "total_points": 164.06,
+          "avg_rating": 6.59,
+          "total_minutes": 2518
+        }
+      },
       "cc81d169-a7d9-446e-9294-09aee60888ca": {
         "RWB": {
           "gp": 13,
@@ -38831,12 +43894,82 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_minutes": 889
         }
       },
+      "4c4752cc-da95-4fa4-b070-7ce69adf317d": {
+        "ST": {
+          "gp": 3,
+          "total_points": 6.11,
+          "avg_rating": 6.27,
+          "total_minutes": 178
+        }
+      },
+      "1bc3c5fa-5d46-48f6-a4eb-7a3dc33d7131": {
+        "GK": {
+          "gp": 32,
+          "total_points": 277.38,
+          "avg_rating": 6.79,
+          "total_minutes": 2835
+        }
+      },
+      "dd17bddd-dc46-4d81-9a61-d2cd6a0f7664": {
+        "RW": {
+          "gp": 2,
+          "total_points": 3.59,
+          "avg_rating": 6.26,
+          "total_minutes": 149
+        },
+        "AM": {
+          "gp": 2,
+          "total_points": 2.87,
+          "avg_rating": 6.17,
+          "total_minutes": 149
+        }
+      },
+      "2247e53b-19a8-4deb-b935-b8b511ccf488": {
+        "CM": {
+          "gp": 23,
+          "total_points": 123.49,
+          "avg_rating": 6.57,
+          "total_minutes": 1816
+        },
+        "AM": {
+          "gp": 23,
+          "total_points": 93.17,
+          "avg_rating": 6.49,
+          "total_minutes": 1816
+        },
+        "DM": {
+          "gp": 23,
+          "total_points": 109.97,
+          "avg_rating": 6.44,
+          "total_minutes": 1816
+        }
+      },
       "ef6e4e93-6e1b-460d-8ce9-aa5b1d4a2e44": {
         "GK": {
           "gp": 32,
           "total_points": 225.65,
           "avg_rating": 6.6,
           "total_minutes": 2880
+        }
+      },
+      "f4e91d8f-54e8-4744-b6f5-eeb3196515ce": {
+        "CM": {
+          "gp": 35,
+          "total_points": 333.63,
+          "avg_rating": 7,
+          "total_minutes": 2992
+        },
+        "AM": {
+          "gp": 35,
+          "total_points": 237.22,
+          "avg_rating": 6.76,
+          "total_minutes": 2992
+        },
+        "DM": {
+          "gp": 35,
+          "total_points": 331.98,
+          "avg_rating": 6.93,
+          "total_minutes": 2992
         }
       },
       "284bbe8d-a421-46e7-a847-189a8f7d1ecd": {
@@ -38871,6 +44004,14 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_points": 56.69,
           "avg_rating": 6.45,
           "total_minutes": 1141
+        }
+      },
+      "61afeb25-5d25-44db-aede-9875c4525eae": {
+        "LW": {
+          "gp": 18,
+          "total_points": 138.01,
+          "avg_rating": 6.77,
+          "total_minutes": 1164
         }
       },
       "594e24fb-ffa1-4940-a284-b2614e6cec06": {
@@ -38915,6 +44056,20 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_minutes": 255
         }
       },
+      "208dc84a-64e2-4abd-a19e-126190ec80af": {
+        "RB": {
+          "gp": 27,
+          "total_points": 178.67,
+          "avg_rating": 6.69,
+          "total_minutes": 2219
+        },
+        "RW": {
+          "gp": 27,
+          "total_points": 131.55,
+          "avg_rating": 6.59,
+          "total_minutes": 2219
+        }
+      },
       "708b0489-7c65-440a-b27d-62017caf1cdf": {
         "CB": {
           "gp": 14,
@@ -38951,6 +44106,14 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_minutes": 1069
         }
       },
+      "be397fbb-a005-4e87-ad18-84f35d2e7c26": {
+        "CB": {
+          "gp": 25,
+          "total_points": 137.75,
+          "avg_rating": 6.45,
+          "total_minutes": 2105
+        }
+      },
       "2ec1e12f-c508-4688-aa7e-c694de6211d9": {
         "RB": {
           "gp": 12,
@@ -38979,6 +44142,36 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_minutes": 1297
         }
       },
+      "fc4098bc-09f8-4e2d-93d5-90b3999dc1eb": {
+        "ST": {
+          "gp": 14,
+          "total_points": 109.44,
+          "avg_rating": 6.89,
+          "total_minutes": 1132
+        }
+      },
+      "9266aac0-2151-47f2-818b-2bbd8208dea4": {
+        "DM": {
+          "gp": 12,
+          "total_points": 72.14,
+          "avg_rating": 6.54,
+          "total_minutes": 817
+        },
+        "CM": {
+          "gp": 12,
+          "total_points": 91.4,
+          "avg_rating": 6.82,
+          "total_minutes": 817
+        }
+      },
+      "25417a0c-338e-4c95-855a-58aef607196e": {
+        "CB": {
+          "gp": 7,
+          "total_points": 15.21,
+          "avg_rating": 6.2,
+          "total_minutes": 459
+        }
+      },
       "d3e722f8-04a9-4efa-92e0-ff7d16ac7511": {
         "CB": {
           "gp": 16,
@@ -38997,6 +44190,42 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_points": 184.45,
           "avg_rating": 7.2,
           "total_minutes": 1325
+        }
+      },
+      "ca16e2ea-e73e-4922-ad75-a9e420a8b78d": {
+        "CB": {
+          "gp": 1,
+          "total_points": 6.82,
+          "avg_rating": 6.87,
+          "total_minutes": 90
+        },
+        "LB": {
+          "gp": 1,
+          "total_points": 7.87,
+          "avg_rating": 6.97,
+          "total_minutes": 90
+        }
+      },
+      "f71c4738-57f9-442e-ace1-5034b0114b45": {
+        "CB": {
+          "gp": 7,
+          "total_points": 11.08,
+          "avg_rating": 6.14,
+          "total_minutes": 474
+        }
+      },
+      "910f1290-b4b7-47b7-8a96-ef4c7bf83ac0": {
+        "LB": {
+          "gp": 20,
+          "total_points": 200.02,
+          "avg_rating": 7,
+          "total_minutes": 1704
+        },
+        "CB": {
+          "gp": 20,
+          "total_points": 200.53,
+          "avg_rating": 7,
+          "total_minutes": 1704
         }
       },
       "067e06bf-e99f-4fa3-b463-b6258442e6bc": {
@@ -39019,12 +44248,56 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_minutes": 767
         }
       },
+      "2cfc2bd2-01b0-4512-a797-1362b2046462": {
+        "ST": {
+          "gp": 3,
+          "total_points": 28.5,
+          "avg_rating": 6.96,
+          "total_minutes": 190
+        },
+        "AM": {
+          "gp": 3,
+          "total_points": 22.08,
+          "avg_rating": 6.73,
+          "total_minutes": 190
+        }
+      },
       "692f76bc-78cd-4147-a3be-68017e54db80": {
         "RW": {
           "gp": 9,
           "total_points": 72.36,
           "avg_rating": 6.83,
           "total_minutes": 576
+        }
+      },
+      "f9b4ed25-0763-460d-b173-9b837d38399e": {
+        "GK": {
+          "gp": 5,
+          "total_points": 19.33,
+          "avg_rating": 5.91,
+          "total_minutes": 437
+        }
+      },
+      "c4e70645-feea-4449-92f7-5e306765ec0f": {
+        "RWB": {
+          "gp": 4,
+          "total_points": 11.33,
+          "avg_rating": 6.24,
+          "total_minutes": 241
+        },
+        "RB": {
+          "gp": 4,
+          "total_points": 3.45,
+          "avg_rating": 5.92,
+          "total_minutes": 241
+        }
+      },
+      "0473d57b-d7ba-4c7d-b634-bff59c97d61c": {
+        "CB": {
+          "gp": 7,
+          "total_points": 30.73,
+          "avg_rating": 6.48,
+          "total_minutes": 504
         }
       },
       "213280ac-6b1f-4213-ab8c-e218ceeb36ff": {
@@ -39035,20 +44308,56 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_minutes": 1260
         }
       },
+      "2ca4efe0-1e19-4aa4-80e4-759ad16f96f7": {
+        "AM": {
+          "gp": 6,
+          "total_points": 16.55,
+          "avg_rating": 6.32,
+          "total_minutes": 384
+        },
+        "DM": {
+          "gp": 6,
+          "total_points": 31.6,
+          "avg_rating": 6.11,
+          "total_minutes": 384
+        },
+        "CM": {
+          "gp": 6,
+          "total_points": 28.14,
+          "avg_rating": 6.34,
+          "total_minutes": 384
+        }
+      },
+      "89f9e692-ad7a-46e9-80a5-722f4e47bd87": {
+        "GK": {
+          "gp": 3,
+          "total_points": 23.21,
+          "avg_rating": 6.58,
+          "total_minutes": 270
+        }
+      },
+      "9b7b6ff8-cd08-4f38-9980-00afd8fc677e": {
+        "CB": {
+          "gp": 3,
+          "total_points": 9.74,
+          "avg_rating": 6.4,
+          "total_minutes": 225
+        }
+      },
+      "21fdf6c6-e479-4851-86a6-30a8733aa67a": {
+        "GK": {
+          "gp": 1,
+          "total_points": 1.87,
+          "avg_rating": 6.27,
+          "total_minutes": 90
+        }
+      },
       "ab8d497f-c1c4-43e2-b54f-f12db6de944c": {
         "GK": {
           "gp": 2,
           "total_points": 16.13,
           "avg_rating": 6.86,
           "total_minutes": 180
-        }
-      },
-      "fc4098bc-09f8-4e2d-93d5-90b3999dc1eb": {
-        "ST": {
-          "gp": 13,
-          "total_points": 105.99,
-          "avg_rating": 6.92,
-          "total_minutes": 1042
         }
       },
       "09c40e39-04b8-4d8f-a357-189e73193d14": {
@@ -39291,20 +44600,6 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_minutes": 1141
         }
       },
-      "1d799357-e0c0-4de6-921a-c167f0a4595e": {
-        "DM": {
-          "gp": 8,
-          "total_points": 41.03,
-          "avg_rating": 6.39,
-          "total_minutes": 529
-        },
-        "CM": {
-          "gp": 8,
-          "total_points": 44.32,
-          "avg_rating": 6.6,
-          "total_minutes": 529
-        }
-      },
       "37a4b1c5-46cd-4488-8012-95c7e7c1d204": {
         "ST": {
           "gp": 8,
@@ -39325,26 +44620,6 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_points": 213,
           "avg_rating": 7.27,
           "total_minutes": 1447
-        }
-      },
-      "2247e53b-19a8-4deb-b935-b8b511ccf488": {
-        "CM": {
-          "gp": 22,
-          "total_points": 111.08,
-          "avg_rating": 6.53,
-          "total_minutes": 1726
-        },
-        "AM": {
-          "gp": 22,
-          "total_points": 82.29,
-          "avg_rating": 6.46,
-          "total_minutes": 1726
-        },
-        "DM": {
-          "gp": 22,
-          "total_points": 101.13,
-          "avg_rating": 6.41,
-          "total_minutes": 1726
         }
       },
       "fc2e962c-d8d5-4bdf-bba2-244963092cbe": {
@@ -39387,26 +44662,6 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_points": 34.74,
           "avg_rating": 7.15,
           "total_minutes": 192
-        }
-      },
-      "2ca4efe0-1e19-4aa4-80e4-759ad16f96f7": {
-        "AM": {
-          "gp": 5,
-          "total_points": 13.62,
-          "avg_rating": 6.3,
-          "total_minutes": 307
-        },
-        "DM": {
-          "gp": 5,
-          "total_points": 20.37,
-          "avg_rating": 5.88,
-          "total_minutes": 307
-        },
-        "CM": {
-          "gp": 5,
-          "total_points": 22.15,
-          "avg_rating": 6.25,
-          "total_minutes": 307
         }
       },
       "47ddf67e-0504-4f75-9994-e430913e2e4c": {
@@ -39471,20 +44726,6 @@ export const PRECOMPUTED_STATS_2025_26 = {
           "total_points": 3.42,
           "avg_rating": 6.19,
           "total_minutes": 124
-        }
-      },
-      "910f1290-b4b7-47b7-8a96-ef4c7bf83ac0": {
-        "LB": {
-          "gp": 19,
-          "total_points": 183.77,
-          "avg_rating": 6.96,
-          "total_minutes": 1624
-        },
-        "CB": {
-          "gp": 19,
-          "total_points": 184.71,
-          "avg_rating": 6.96,
-          "total_minutes": 1624
         }
       },
       "6ba0179a-4f91-49c2-9668-c20db99697ea": {

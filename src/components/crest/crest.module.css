@@ -10,6 +10,32 @@
   vertical-align: middle;
 }
 
+.interactiveCrest,
+.interactiveCrestBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition: transform 180ms ease, filter 180ms ease;
+  text-decoration: none;
+}
+
+.interactiveCrest:hover,
+.interactiveCrestBtn:hover {
+  transform: scale(1.05);
+  filter: brightness(1.1);
+}
+
+.interactiveCrest:active,
+.interactiveCrestBtn:active {
+  transform: scale(0.97);
+}
+
 .badgeSvg {
   display: block;
   width: 100%;

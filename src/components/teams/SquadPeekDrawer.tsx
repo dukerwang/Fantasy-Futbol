@@ -29,13 +29,14 @@ interface Props {
 
 /* Same six-band pitch the matchup view uses, so a formation reads identically
    in both places. Anything unmapped falls to midfield rather than vanishing. */
-type Zone = 'ATT' | 'AMZ' | 'CMZ' | 'DMZ' | 'DEF' | 'GK';
-const ZONE_ORDER: Zone[] = ['ATT', 'AMZ', 'CMZ', 'DMZ', 'DEF', 'GK'];
+type Zone = 'ATT' | 'AMZ' | 'CMZ' | 'DMZ' | 'WBZ' | 'DEF' | 'GK';
+const ZONE_ORDER: Zone[] = ['ATT', 'AMZ', 'CMZ', 'DMZ', 'WBZ', 'DEF', 'GK'];
 const SLOT_TO_ZONE: Record<string, Zone> = {
   LW: 'ATT', ST: 'ATT', RW: 'ATT',
   AM: 'AMZ',
   DM: 'DMZ',
-  LWB: 'CMZ', RWB: 'CMZ', CM: 'CMZ',
+  CM: 'CMZ',
+  LWB: 'WBZ', RWB: 'WBZ',
   CB: 'DEF', LB: 'DEF', RB: 'DEF',
   GK: 'GK',
 };
@@ -160,7 +161,7 @@ export default function SquadPeekDrawer({
                       );
                       if (row.length === 0) return null;
                       return (
-                        <div key={zone} className={styles.pitchRow}>
+                        <div key={zone} className={`${styles.pitchRow} ${zone === 'WBZ' ? styles.pitchRowWBZ : ''}`}>
                           {row.map((s, i) => (
                             <Chip key={`${zone}-${i}`} slot={s.slot} player={s.player} />
                           ))}

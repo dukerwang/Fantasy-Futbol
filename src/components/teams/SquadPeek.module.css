@@ -203,6 +203,11 @@
   flex-wrap: wrap;
 }
 
+.pitchRowWBZ {
+  justify-content: space-between;
+  padding: 0 4px;
+}
+
 .chip {
   flex: 0 1 auto;
   min-width: 0;

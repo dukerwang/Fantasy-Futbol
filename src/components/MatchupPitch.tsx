@@ -12,9 +12,9 @@ import { Icon } from './ui/Icon';
 import styles from './MatchupPitch.module.css';
 
 /* ── Zone / colour config (from prototype tailwind theme) ─────────── */
-type Zone = 'ATT' | 'AMZ' | 'CMZ' | 'DMZ' | 'DEF' | 'GK';
+type Zone = 'ATT' | 'AMZ' | 'CMZ' | 'DMZ' | 'WBZ' | 'DEF' | 'GK';
 
-const ZONE_ORDER: Zone[] = ['ATT', 'AMZ', 'CMZ', 'DMZ', 'DEF', 'GK'];
+const ZONE_ORDER: Zone[] = ['ATT', 'AMZ', 'CMZ', 'DMZ', 'WBZ', 'DEF', 'GK'];
 
 const SLOT_COLOR: Record<string, string> = {
     GK: 'var(--color-pos-gk)',
@@ -43,7 +43,9 @@ const SLOT_TO_ZONE: Record<string, Zone> = {
     // DM row
     DM: 'DMZ',
     // Midfield row
-    LWB: 'CMZ', RWB: 'CMZ', CM: 'CMZ',
+    CM: 'CMZ',
+    // Wingbacks row
+    LWB: 'WBZ', RWB: 'WBZ',
     // Defenders
     CB: 'DEF', LB: 'DEF', RB: 'DEF',
     GK: 'GK',
@@ -157,7 +159,7 @@ function slotOffset(slot: string): number {
 /* ── Group starters into zones ────────────────────────────────────── */
 function groupByZone(starters: { player_id: string; slot: string; isSubIn?: boolean }[]) {
     const z: Record<Zone, { player_id: string; slot: string; isSubIn?: boolean }[]> = {
-        ATT: [], AMZ: [], CMZ: [], DMZ: [], DEF: [], GK: [],
+        ATT: [], AMZ: [], CMZ: [], DMZ: [], WBZ: [], DEF: [], GK: [],
     };
     for (const s of starters) z[SLOT_TO_ZONE[s.slot] ?? 'CMZ'].push(s);
     return z;
@@ -288,7 +290,7 @@ export default function MatchupPitch({
                     <div className={styles.pitchHalfZones}>
                         {visibleZones.map((zone) => (
                             <div key={`${sideKey}-${zone}`} className={styles.pitchHalfZoneRow}>
-                                <div className={styles.halfZone}>
+                                <div className={`${styles.halfZone} ${zone === 'WBZ' ? styles.halfZoneWBZ : ''}`}>
                                     {(zones?.[zone] ?? []).map((s) => {
                                         const dy = slotOffset(s.slot);
                                         return (

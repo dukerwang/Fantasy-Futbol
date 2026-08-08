@@ -181,6 +181,68 @@ function significantTokens(str) {
   return normalizeName(str).split(' ').filter((t) => t.length >= 3 && !NAME_PARTICLES.has(t));
 }
 
+const PREFERRED_CLEAN_NAMES = {
+  'Estêvão Almeida de Oliveira Gonçalves': 'Estêvão',
+  'João Pedro Junqueira de Jesus': 'João Pedro',
+  "Rodrigo 'Rodri' Hernandez Cascante": 'Rodri',
+  'Gabriel dos Santos Magalhães': 'Gabriel Magalhães',
+  'Gabriel Fernando de Jesus': 'Gabriel Jesus',
+  'Gabriel Martinelli Silva': 'Gabriel Martinelli',
+  'Pedro Lomba Neto': 'Pedro Neto',
+  'Norberto Bercique Gomes Betuncal': 'Beto',
+  'Francisco Evanilson de Lima Barbosa': 'Evanilson',
+  'Rúben dos Santos Gato Alves Dias': 'Rúben Dias',
+  'Vitor de Oliveira Nunes dos Reis': 'Vitor Reis',
+  'Sávio Moreira de Oliveira': 'Savinho',
+  'Andrey Nascimento dos Santos': 'Andrey Santos',
+  'Diogo Dalot Teixeira': 'Diogo Dalot',
+  'Bruno Guimarães Rodriguez Moura': 'Bruno Guimarães',
+  'Murillo Costa dos Santos': 'Murillo Costa',
+  'Richarlison de Andrade': 'Richarlison',
+  'João Victor de Souza Menezes': 'Souza',
+  'Igor Julio dos Santos de Paulo': 'Igor Julio',
+  'Alisson Becker': 'Alisson',
+  'Mateo Joseph Fernández-Regatillo': 'Mateo Joseph',
+  'Stefan Bajčetić Maquieira': 'Stefan Bajčetić',
+  'Fábio Freitas Gouveia Carvalho': 'Fábio Carvalho',
+  'Fábio Ferreira Vieira': 'Fábio Vieira',
+  'Rodrigo Muniz Carvalho': 'Rodrigo Muniz',
+  'Emersonn Correia da Silva': 'Emersonn',
+  'David Raya Martín': 'David Raya',
+  'Jefferson Lerma Solís': 'Jefferson Lerma',
+  'Alejandro Garnacho Ferreyra': 'Alejandro Garnacho',
+  'Kepa Arrizabalaga Revuelta': 'Kepa',
+  'Emiliano Buendía Stati': 'Emiliano Buendía',
+  'Marcos Senesi Barón': 'Marcos Senesi',
+  'Yéremy Pino Santos': 'Yéremy Pino',
+  'Benoît Badiashile Mukinayi': 'Benoît Badiashile',
+  'Levi Samuels Colwill': 'Levi Colwill',
+  'Moisés Caicedo Corozo': 'Moisés Caicedo',
+  'Matheus França de Oliveira': 'Matheus França',
+  'Julio Soler Barreto': 'Julio Soler',
+  'Carlos Alcaraz Durán': 'Carlos Alcaraz',
+  'Jorge Cuenca Barreno': 'Jorge Cuenca',
+  'Julián Araujo Zúñiga': 'Julián Araujo',
+  'Dário Luís Essugo': 'Dário Essugo',
+  'Nico González Iglesias': 'Nico González',
+  'Bruno Borges Fernandes': 'Bruno Fernandes',
+  'Dominic Solanke-Mitchell': 'Dominic Solanke',
+  'Mikel Merino Zazón': 'Mikel Merino',
+  'Robert Lynch Sánchez': 'Robert Sánchez',
+  'Ezri Konsa Ngoyo': 'Ezri Konsa',
+  'Emiliano Martínez Romero': 'Emiliano Martínez',
+  'Daniel Muñoz Mejía': 'Daniel Muñoz',
+  'Martín Zubimendi Ibáñez': 'Martín Zubimendi',
+  'Manuel Ugarte Ribeiro': 'Manuel Ugarte',
+  'John Victor Maciel Furtado': 'John Victor',
+  'Matheus Santos Carneiro da Cunha': 'Matheus Cunha',
+};
+
+function isSubset(sub, superArr) {
+  const superSet = new Set(superArr);
+  return sub.every(x => superSet.has(x));
+}
+
 const archive = readCsv(CSV);
 const archivePlayers = readCsv(PLAYERS_CSV);
 const statRows = await page('player_stats', 'id, player_id, gameweek, match_id, stats, fantasy_points',
@@ -195,7 +257,11 @@ for (const r of statRows) rowsPerPlayer.set(r.player_id, (rowsPerPlayer.get(r.pl
 // Duplicate records for one person: the twin already holding the season's rows
 // wins — moving a whole season between twins would be churn for no gain.
 const candidatesByName = new Map();
+const dbByName = new Map();
+const dbByNormName = new Map();
 for (const p of players) {
+  dbByName.set(p.name, p);
+  dbByNormName.set(normalizeName(p.name), p);
   for (const key of new Set([normalizeName(p.name), significantTokens(p.name).sort().join(' ')])) {
     if (!key) continue;
     if (!candidatesByName.has(key)) candidatesByName.set(key, []);
@@ -209,11 +275,50 @@ const playerByElement = new Map();
 let unresolvedArchivePlayers = 0;
 for (const ap of archivePlayers) {
   const fullName = `${ap.first_name} ${ap.second_name}`;
-  const exact = candidatesByName.get(normalizeName(fullName));
-  const byTokens = candidatesByName.get(significantTokens(fullName).sort().join(' '));
-  const ids = exact ?? byTokens;
-  if (!ids) { unresolvedArchivePlayers++; continue; }
-  playerByElement.set(Number(ap.id), pickBest(ids));
+  const normFull = normalizeName(fullName);
+  const normWeb = normalizeName(ap.web_name);
+  const apTokens = significantTokens(fullName);
+
+  let match = null;
+
+  // 1. Explicit clean name overrides dictionary
+  if (PREFERRED_CLEAN_NAMES[fullName]) {
+    const targetName = PREFERRED_CLEAN_NAMES[fullName];
+    match = dbByName.get(targetName) || dbByNormName.get(normalizeName(targetName));
+  }
+
+  // 2. Exact normalized name match or candidates exact lookup
+  if (!match) {
+    const exactIds = candidatesByName.get(normFull);
+    if (exactIds && exactIds.length) match = playerById.get(pickBest(exactIds));
+  }
+
+  // 3. Token set exact equality
+  if (!match) {
+    const tokenIds = candidatesByName.get(apTokens.slice().sort().join(' '));
+    if (tokenIds && tokenIds.length) match = playerById.get(pickBest(tokenIds));
+  }
+
+  // 4. Token subset containment (DB name tokens are subset of Archive name tokens)
+  if (!match) {
+    const subsetMatches = players.filter(p => {
+      const dbToks = significantTokens(p.name);
+      if (dbToks.length < 2) return false;
+      return isSubset(dbToks, apTokens);
+    });
+    if (subsetMatches.length > 0) {
+      match = playerById.get(pickBest(subsetMatches.map(p => p.id)));
+    }
+  }
+
+  // 5. Unambiguous web_name fallback
+  if (!match && normWeb.length >= 4) {
+    const webMatches = players.filter(p => normalizeName(p.web_name) === normWeb || normalizeName(p.name) === normWeb);
+    if (webMatches.length === 1) match = webMatches[0];
+  }
+
+  if (!match) { unresolvedArchivePlayers++; continue; }
+  playerByElement.set(Number(ap.id), match.id);
 }
 
 const appearancesByPlayer = new Map();
@@ -257,14 +362,14 @@ for (const playerId of new Set([...appearancesByPlayer.keys(), ...ourByPlayer.ke
   // absent mapping is not evidence that a season did not happen.
   if (appearances.length === 0) continue;
 
-  // Only records that already hold part of this season are repaired. A record
-  // with none of it is either the empty half of a duplicate pair — the players
-  // table has two rows for Murillo, two for Joelinton, two for Carlos Alcaraz,
-  // and the season sits on the other one — or someone we never tracked. Filling
-  // it in would write a second copy of a season we already have.
+  // Check if a twin player record with the same normalized name ALREADY holds rows
   if (held.length === 0) {
-    if (appearances.length > 0) untracked.push({ player: player.name, appearances: appearances.length });
-    continue;
+    const normPName = normalizeName(player.name);
+    const twinsWithStats = players.filter(p => p.id !== player.id && normalizeName(p.name) === normPName && (rowsPerPlayer.get(p.id) ?? 0) > 0);
+    if (twinsWithStats.length > 0) {
+      if (appearances.length > 0) untracked.push({ player: player.name, appearances: appearances.length });
+      continue;
+    }
   }
 
   const unclaimed = [...appearances];
