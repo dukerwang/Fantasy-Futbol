@@ -331,7 +331,7 @@ function computeComponentScores(
     let saveScore: ComponentResult;
     if (position === 'GK') {
         const sv = Math.max(0, stats.saves ?? 0);
-        const psav = Math.max(0, stats.penalty_saves ?? stats.penalties_saved ?? 0);
+        const psav = Math.max(0, stats.penalty_saves ?? 0);
         const shotsFaced = sv + gc;
 
         let matchSavePct = 0.70;
