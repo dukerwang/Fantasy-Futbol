@@ -51,7 +51,7 @@ export const FLEX_CONFIG: Record<GranularPosition, { flex: number; components: R
 
 //                                                                                                       Σ = 1.00
 export const POSITION_WEIGHTS: Record<GranularPosition, Record<RatingComponent, number>> = {
-    GK: { match_impact: 0.25, influence: 0.20, creativity: 0.00, threat: 0.00, defensive: 0.32, goal_involvement: 0.00, finishing: 0.00, save_score: 0.03 },
+    GK: { match_impact: 0.14, influence: 0.06, creativity: 0.00, threat: 0.00, defensive: 0.42, goal_involvement: 0.00, finishing: 0.00, save_score: 0.18 },
     CB: { match_impact: 0.30, influence: 0.05, creativity: 0.05, threat: 0.00, defensive: 0.25, goal_involvement: 0.05, finishing: 0.05, save_score: 0.00 },
     LB: { match_impact: 0.30, influence: 0.05, creativity: 0.10, threat: 0.00, defensive: 0.20, goal_involvement: 0.10, finishing: 0.00, save_score: 0.00 },
     RB: { match_impact: 0.30, influence: 0.05, creativity: 0.10, threat: 0.00, defensive: 0.20, goal_involvement: 0.10, finishing: 0.00, save_score: 0.00 },
@@ -257,7 +257,7 @@ function computeComponentScores(
 
     let defActionsRaw: number;
     if (position === 'GK') {
-        defActionsRaw = recoveries * 0.5 + cbi * 0.5;
+        defActionsRaw = recoveries * 0.4;
     } else if (position === 'CB') {
         defActionsRaw = tackles + cbi * 0.5;
     } else {
@@ -268,7 +268,17 @@ function computeComponentScores(
 
     let defensiveRaw: number;
     if (position === 'GK') {
-        defensiveRaw = defActionsRaw + csBonus - gc * 4.0;
+        let gkCsVal = 0;
+        const sv = Math.max(0, stats.saves ?? 0);
+        if (stats.clean_sheet && canGetCS) {
+            gkCsVal = 20 + Math.min(4, sv * 1.0);
+        }
+        const xgcDiff = Math.max(-2.5, Math.min(2.5, xgc - gc));
+        let zeroSavePenalty = 0;
+        if (!stats.clean_sheet && sv === 0 && gc >= 1) {
+            zeroSavePenalty = 4.5 * gc;
+        }
+        defensiveRaw = defActionsRaw + gkCsVal - gc * 4.2 + xgcDiff * 2.5 - zeroSavePenalty;
     } else {
         defensiveRaw = defActionsRaw + csBonus + xgcOutperf - gcPenalty;
     }
@@ -277,8 +287,8 @@ function computeComponentScores(
         score: sigmoidNormalize(defensiveRaw, ref.defensive.median, ref.defensive.stddev),
         detail: position === 'GK'
             ? (stats.clean_sheet && canGetCS)
-                ? `CS, R ${recoveries}, CBI ${cbi}`
-                : `R ${recoveries}, CBI ${cbi}`
+                ? `CS, R ${recoveries}`
+                : `R ${recoveries}`
             : (stats.clean_sheet && canGetCS)
                 ? `CS, ${gc} conceded vs ${xgc.toFixed(1)} xGC (DC ${dc}, T ${tackles}, CBI ${cbi}, R ${recoveries})`
                 : `${gc} conceded vs ${xgc.toFixed(1)} xGC (DC ${dc}, T ${tackles}, CBI ${cbi}, R ${recoveries})`,
@@ -320,13 +330,24 @@ function computeComponentScores(
     // 9. Save Score (GK-only — non-GKs get a neutral 0.5)
     let saveScore: ComponentResult;
     if (position === 'GK') {
-        const sv = stats.saves;
-        const psav = stats.penalty_saves;
-        const saveRaw = sv * 2 + psav * 5;
+        const sv = Math.max(0, stats.saves ?? 0);
+        const psav = Math.max(0, stats.penalty_saves ?? stats.penalties_saved ?? 0);
+        const shotsFaced = sv + gc;
 
-        let scoreVal = sigmoidNormalize(saveRaw, ref.save_score.median, ref.save_score.stddev);
-        if (stats.clean_sheet && stats.minutes_played >= 60) {
-            scoreVal = Math.max(scoreVal, 0.85); // CS Save Floor under Strategy A.4
+        let matchSavePct = 0.70;
+        if (shotsFaced > 0) {
+            matchSavePct = sv / shotsFaced;
+        } else if (stats.clean_sheet && canGetCS) {
+            matchSavePct = 1.0;
+        }
+
+        const saveVolRaw = sv * 2.5 + psav * 6;
+        const saveVolScore = sigmoidNormalize(saveVolRaw, ref.save_score.median, ref.save_score.stddev);
+        const savePctScore = sigmoidNormalize(matchSavePct, 0.70, 0.15);
+
+        let scoreVal = saveVolScore * 0.45 + savePctScore * 0.55;
+        if (stats.clean_sheet && canGetCS) {
+            scoreVal = Math.max(scoreVal, 0.86);
         }
 
         saveScore = {
@@ -584,6 +605,10 @@ export function calculateMatchRating(
     // never affected by display-scale adjustments.
     const scoringRating = computeScoringRating(composite, stats.minutes_played);
     let fantasyPoints = calculateFantasyPoints(scoringRating, stats.minutes_played);
+    if (position === 'GK') {
+        const baseMinutesFloor = (stats.minutes_played / 90) * 2.5;
+        fantasyPoints = baseMinutesFloor + fantasyPoints * 0.72;
+    }
 
     // Out-of-Position (OOP) penalty:
     // If a player's primary role is a midfielder or attacker (DM, CM, AM, LW, RW, ST)

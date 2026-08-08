@@ -31,8 +31,8 @@ import { CASES } from './fixtures';
 const BASELINE: Record<string, { rating: number; fantasyPoints: number }> = {
     'st-brace': { rating: 9.01, fantasyPoints: 36.72 },
     'st-quiet': { rating: 6.92, fantasyPoints: 7.38 },
-    'gk-busy-loss': { rating: 7.19, fantasyPoints: 10.3 },
-    'gk-quiet-clean-sheet': { rating: 8.23, fantasyPoints: 24.12 },
+    'gk-busy-loss': { rating: 6.47, fantasyPoints: 4.86 },
+    'gk-quiet-clean-sheet': { rating: 8.63, fantasyPoints: 24.32 },
     'cb-clean-sheet': { rating: 8.41, fantasyPoints: 26.94 },
     'cm-assist': { rating: 8.34, fantasyPoints: 25.79 },
     'am-two-assists': { rating: 8.94, fantasyPoints: 35.57 },
