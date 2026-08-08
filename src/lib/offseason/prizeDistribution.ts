@@ -26,19 +26,17 @@ export type PrizeConfig = Record<string, number>;
  * via computeSeasonPrize() and are not stored here.
  * Per-league overrides for any key (including season_Nth) live in leagues.prize_config.
  *
- * Rebalanced by the 2026-07 economy pass. The previous config paid
- * consolation_cup_winner: 60 — identical to the Champions Cup — so in an
- * 8-team league the 7th-placed club could earn EUR 60m for winning a single
- * game against 8th, out-earning most of the table. Consolation is now level
- * with the League Cup, and no cup pays more than finishing first.
+ * Rebalanced to the Prestige Tier. Champions Cup pays €50m (€20m runner-up)
+ * to establish grand trophy prestige over 1st place placement (€40m), while
+ * League Cup and Consolation Cup pay €25m (€10m runner-up).
  */
 export const DEFAULT_PRIZE_CONFIG: PrizeConfig = {
-  champions_cup_winner: 40,
-  champions_cup_runner_up: 15,
-  league_cup_winner: 20,
-  league_cup_runner_up: 8,
-  consolation_cup_winner: 20,
-  consolation_cup_runner_up: 8,
+  champions_cup_winner: 50,
+  champions_cup_runner_up: 20,
+  league_cup_winner: 25,
+  league_cup_runner_up: 10,
+  consolation_cup_winner: 25,
+  consolation_cup_runner_up: 10,
 };
 
 /**

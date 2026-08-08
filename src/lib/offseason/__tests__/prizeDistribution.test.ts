@@ -81,9 +81,12 @@ describe('DEFAULT_PRIZE_CONFIG', () => {
         }
     });
 
-    it('never pays a cup winner more than finishing first in the league', () => {
-        for (const value of Object.values(DEFAULT_PRIZE_CONFIG)) {
-            expect(value).toBeLessThanOrEqual(SEASON_PRIZE_FIRST);
-        }
+    it('ensures secondary cup winners do not exceed regular season 1st place placement money', () => {
+        expect(DEFAULT_PRIZE_CONFIG.league_cup_winner).toBeLessThanOrEqual(SEASON_PRIZE_FIRST);
+        expect(DEFAULT_PRIZE_CONFIG.consolation_cup_winner).toBeLessThanOrEqual(SEASON_PRIZE_FIRST);
+    });
+
+    it('pays the Champions Cup winner a prestige premium above 1st place placement', () => {
+        expect(DEFAULT_PRIZE_CONFIG.champions_cup_winner).toBeGreaterThan(SEASON_PRIZE_FIRST);
     });
 });

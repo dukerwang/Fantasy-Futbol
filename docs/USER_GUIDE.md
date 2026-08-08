@@ -439,7 +439,7 @@ Once every gameweek and cup tie is complete, the commissioner triggers the reset
 
 1. **Rosters lock immediately** — no bids, trades or loans until the new season opens.
 2. **The season is archived** — final standings, every matchup, cup winners, and each player's season stats and ranks are written to the permanent record.
-3. **Placement and cup prizes are paid** into Club Balances. Finishing first pays **€40m**, scaling down to **€20m** for last — a flatter curve than it looks, because the bulk of league earnings now arrives monthly during the season (§11). Cup money is on top: **€40m** to the Champions Cup winner (**€15m** runner-up), **€20m** to the League Cup or Consolation Cup winner (**€8m** runner-up each) — no cup pays more than finishing first in the league.
+3. **Placement and cup prizes are paid** into Club Balances. Finishing first pays **€40m**, scaling down to **€20m** for last — a flatter curve than it looks, because the bulk of league earnings now arrives monthly during the season (§11). Cup money is on top: **€50m** to the Champions Cup winner (**€20m** runner-up), **€25m** to the League Cup or Consolation Cup winner (**€10m** runner-up each).
 4. **Records reset, money doesn't.** Wins, losses, draws and points go to zero. Club Balance carries over untouched.
 5. **A new season is generated** — the season counter advances, and a fresh schedule plus all three cup brackets are created.
 
