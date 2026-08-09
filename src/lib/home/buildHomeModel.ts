@@ -964,13 +964,13 @@ export async function buildHomeModel(
     if (!r.player?.date_of_birth) continue;
     const dob = new Date(r.player.date_of_birth);
     const age = (Date.now() - dob.getTime()) / (365.25 * 24 * 3600 * 1000);
-    if (age >= ageLimit - 0.5) {
+    if (age >= ageLimit) {
       attention.push({
         id: `academy-${r.player.id}`,
         tag: 'Academy',
         tone: 'plain',
         text: `${getPlayerDisplayName(r.player, 'initial_last')} ages out of the Academy`,
-        when: 'At reset',
+        when: 'Season end',
         whenAt: null,
         action: 'Review',
         href: `${base}/team/roster`,
