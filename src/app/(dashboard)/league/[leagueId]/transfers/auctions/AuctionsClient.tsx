@@ -212,7 +212,10 @@ export default function AuctionsClient({
       </div>
 
       <div className={styles.body}>
-        <main className={`${styles.main} g-panel`}>
+        {/* One panel, two columns — the list and its rail are one instrument.
+            See design-2.0/README.md § "A board is one panel". */}
+        <div className={`${styles.board} g-panel`}>
+        <main className={styles.main}>
           {/* Column heads only when there are columns to head. With an empty
               room they rendered as a bare ruled strip above "nothing is under
               the hammer" — a table header for a table that isn't there. */}
@@ -296,8 +299,8 @@ export default function AuctionsClient({
           )}
         </main>
 
-        <aside className={`${styles.rail} g-panel`}>
-          <div className={`g-panel-hd ${styles.railHead}`}>
+        <aside className={styles.rail}>
+          <div className={styles.railHead}>
             <h2 className={styles.railTitle}>The saleroom</h2>
             <span className={styles.railLive}>● Live</span>
           </div>
@@ -343,6 +346,7 @@ export default function AuctionsClient({
             </div>
           </div>
         </aside>
+        </div>
       </div>
 
       {bid?.auction.player && (

@@ -114,16 +114,21 @@
 
 /* ── Layout ─────────────────────────────────────────────── */
 
-/* Two panels on the ground, not one field divided by rules. Elevation is
-   declared once by .g-panel (decision 1), so the border-top/border-right
-   separators the 1.0 version used are gone — the panel edge is the separator
-   now, and a 1px border under .g-panel's shadow is the ghost-card tell. */
-.body {
+/* ONE PANEL, TWO COLUMNS — not two panels side by side.
+   See design-2.0/README.md § "A board is one panel". The list and its rail are
+   one instrument: the rail's figures are arithmetic on the lots beside them, so
+   a hairline between two columns of one field states that and a gap between two
+   floating cards denies it. It is also elevation declared ONCE for one
+   composition, which is what decision 1 actually asks for — two panels is two
+   declarations. And it fixes the shape problem a separate rail creates: the
+   rail's content is short and the list is long, so an independent card ends
+   ~200px up and leaves dead ground beside the list. As a column it just
+   stretches. */
+.body { padding: 0 var(--s6) var(--s6); }
+
+.board {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 300px;
-  gap: var(--s4);
-  padding: 0 var(--s6) var(--s6);
-  align-items: start;
 }
 
 .main { min-width: 0; }
@@ -616,9 +621,22 @@
 
 /* ── Saleroom rail ──────────────────────────────────────── */
 
-.rail { min-width: 0; }
+.rail {
+  min-width: 0;
+  border-left: 1px solid var(--color-border);
+}
 
-.railHead { justify-content: space-between; }
+/* No rule under this title. The lot head's rule belongs to the table it heads
+   and stops at the divider; a second rule under the rail title would read as a
+   competing header band across a field that has only one table in it. The
+   ticker's own hairlines carry the separation from here down. */
+.railHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s3);
+  padding: var(--s3) var(--s4);
+}
 
 .railTitle {
   font-family: var(--font-serif);
@@ -697,7 +715,10 @@
 /* ── Responsive ─────────────────────────────────────────── */
 
 @media (max-width: 1080px) {
-  .body { grid-template-columns: minmax(0, 1fr); }
+  /* Stacked, the rail becomes a footer of the same panel — so the divider turns
+     from a vertical hairline into a horizontal one rather than disappearing. */
+  .board { grid-template-columns: minmax(0, 1fr); }
+  .rail { border-left: none; border-top: 1px solid var(--color-border); }
   .exGrid { grid-template-columns: minmax(0, 1fr); gap: var(--s4); }
 }
 

@@ -451,6 +451,31 @@ dark `--color-defeat` **1.89** (a match result, with no dark value at all), and 
 `--color-pos-cb` **2.00** — a position *field* colour borrowed for a filter chip, breaking
 the colour law and the contrast floor in one move.
 
+### A board is one panel
+
+**Applies to every main-plus-rail surface, not just this page** — the Market's *The Wire*,
+League Home's rail, and anything else that puts a feed or a ledger beside a list. Duke's
+call, and it is the general rule.
+
+**A list and its rail are one panel with an internal hairline, never two panels with a gap.**
+The first port got this wrong: it read "elevation is declared once" as "every region is a
+panel" and floated the lot list and the saleroom side by side. Three things break.
+
+- **Two panels is two elevation declarations** for one composition. Decision 1 asks for
+  elevation declared once *per thing that floats*, and a board is one thing.
+- **The rail is short and the list is long.** As an independent card the rail ends where its
+  content ends — measured ~200px above the bottom of the list — leaving a column of dead
+  ground beside it. As a *column* of one panel it simply stretches.
+- **It severs a real relationship.** "Committed if you win / Free after that" is arithmetic
+  on the lots in the table beside it. A hairline between two columns of one field says they
+  belong together; a gap between two cards says they do not.
+
+Two details that make the joined version read as one field rather than two things sharing a
+shell: the rail's own head takes **no bottom rule** (the table's column-head rule belongs to
+the table and stops at the divider — a second rule reads as a competing header band), and
+when the layout stacks, the divider **turns** from a vertical hairline into a horizontal one
+rather than disappearing.
+
 One fix to a primitive, found by its first real consumer: **`.g-row:hover` now paints with
 `background-image`, not the `background` shorthand.** The shorthand resets
 `background-color` to transparent before painting, so any row carrying a state colour of its
