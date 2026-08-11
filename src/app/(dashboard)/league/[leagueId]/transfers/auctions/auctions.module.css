@@ -74,7 +74,7 @@
   color: var(--color-text-primary);
 }
 
-.statAccent { color: var(--color-accent); }
+.statAccent { color: var(--color-accent-ink); }
 .statRed    { color: var(--color-danger); }
 
 .statLabel { margin-top: var(--s1); }
@@ -103,7 +103,7 @@
 }
 
 .facet:hover { background: var(--color-bg-card-hover); }
-.facetOn, .facetOn:hover { color: var(--color-bg-card) !important; }
+.facetOn, .facetOn:hover { color: var(--color-on-accent) !important; }
 
 .facetCount {
   font-variant-numeric: tabular-nums lining-nums;
@@ -145,6 +145,23 @@
   align-items: center;
 }
 
+/* THE VALUES SIT ON ONE BASELINE, not on one centre line.
+   Half these columns carry a caption under the value (standing bid + "from
+   €37m", clock + "2 bids") and half do not (leader, your state). Centring every
+   cell against the 44px portrait put the caption-less ones in the gap BETWEEN a
+   figure and its caption — measured at 13-14px below the figure they are meant
+   to be read alongside, which is the stagger that made the table look loose
+   even though every column was individually correct.
+
+   `baseline` rather than `start`, because the values are not the same size:
+   the standing bid is --t-17 and the leader --t-12, so top-aligning them would
+   trade one misalignment for a subtler one. Aligning first baselines is what
+   makes a row of mixed type sizes read as a single line. The portrait and the
+   action button keep the row's centre — they are objects, not type. */
+.lotCol,
+.lotWho,
+.lotYou { align-self: baseline; }
+
 .lotHead {
   padding: var(--s2) var(--s4);
   border-bottom: 1px solid var(--color-border);
@@ -182,10 +199,15 @@
    stay muted — bg-card-alt is checked against every ink in both themes. */
 .lotMine { background-color: var(--color-bg-card-alt); }
 
-/* Rule 3: the wash has already said it, so the word goes to ink. */
+/* Rule 3: the wash has already said it, so the word goes to ink.
+   The closing clock is the same case and was the one that proved the rule the
+   hard way — warning ink on a warning wash measured 4.39:1 in light, i.e. the
+   "both at once" defect failing its own contrast floor. The row is amber; the
+   clock is ink. */
 .lotLead .youUp,
 .lotHot .youOut,
-.lotHot .youUp { color: var(--color-text-primary); }
+.lotHot .youUp,
+.lotHot .lotClockHot { color: var(--color-text-primary); }
 
 .lotId { display: flex; align-items: center; gap: var(--s2); min-width: 0; }
 
@@ -253,11 +275,16 @@
   flex-shrink: 0;
 }
 
+/* The two provenances are told apart by border STYLE, not by hue. The listed
+   tag used --color-pos-cb, which is a position field colour — 2.00:1 as text on
+   a dark card, and a colour that already means "centre-back" everywhere else on
+   the page. A dashed rule for a player nobody owns, a solid one for a player
+   being sold, reads at a glance and costs no colour. */
 .srcFa { color: var(--row-ink); border-style: dashed; }
 
 .srcLi {
-  color: var(--color-pos-cb);
-  background: color-mix(in oklab, var(--color-pos-cb) 8%, transparent);
+  color: var(--color-text-secondary);
+  border-style: solid;
 }
 
 .lotCol { min-width: 0; }
@@ -314,7 +341,7 @@
   text-transform: uppercase;
 }
 
-.youUp  { color: var(--color-accent); }
+.youUp  { color: var(--color-accent-ink); }
 .youOut { color: var(--color-danger); }
 
 .youOff {
@@ -359,7 +386,7 @@
   border-radius: var(--r-control);
   border: 1px solid var(--color-accent);
   background: var(--color-accent);
-  color: var(--color-bg-card);
+  color: var(--color-on-accent);
   font-family: var(--font-condensed);
   font-size: var(--t-11);
   font-weight: 700;
@@ -373,8 +400,8 @@
 
 .go:hover { background: var(--color-accent-hover); border-color: var(--color-accent-hover); }
 
-.goGhost { background: transparent; color: var(--color-accent); }
-.goGhost:hover { background: var(--color-accent-dim); border-color: var(--color-accent); color: var(--color-accent); }
+.goGhost { background: transparent; color: var(--color-accent-ink); }
+.goGhost:hover { background: var(--color-accent-dim); border-color: var(--color-accent); color: var(--color-accent-ink); }
 
 .goMuted {
   background: transparent;
@@ -512,7 +539,7 @@
   border-radius: var(--r-control);
   border: 1px solid var(--color-accent);
   background: transparent;
-  color: var(--color-accent);
+  color: var(--color-accent-ink);
   font-family: var(--font-mono);
   font-weight: 700;
   font-size: var(--t-12);
@@ -522,7 +549,7 @@
 
 .q:hover { background: var(--color-accent-dim); }
 
-.qOn { background: var(--color-accent); color: var(--color-bg-card); }
+.qOn { background: var(--color-accent); color: var(--color-on-accent); }
 .qOn:hover { background: var(--color-accent-hover); }
 
 .qGold { border-color: var(--color-gold); color: var(--color-gold); }
@@ -696,6 +723,12 @@
   .lotActions { grid-area: actions; }
 
   .lotBid, .lotFrom { text-align: left; }
+
+  /* Stacked, the columns are on separate lines, so there is no shared baseline
+     to sit on — each cell centres in its own area again. */
+  .lotCol,
+  .lotWho,
+  .lotYou { align-self: center; }
 }
 
 @media (max-width: 640px) {

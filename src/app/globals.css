@@ -140,6 +140,14 @@
   --color-bg-inset:      #E8E2D6;
   --color-border-strong: #8F877B;
   --color-accent-ink:    #146B40;
+  /* The label ON an accent fill. It is NOT text-inverse: the two themes solve
+     it in opposite directions, because the dark theme's accent is the brighter
+     colour. White on light's #146B40 is 6.4:1; white on dark's #1FA35F is only
+     ~2.5:1, so there the label has to go dark instead — the same inversion
+     .btn-primary already makes by hand. Ported surfaces should use this rather
+     than hardcoding #FFFFFF, which is what silently produced a 4.33:1 button
+     label the first time this page was ported. */
+  --color-on-accent:     #FFFFFF;
   --color-live:          #B3261E;
   --color-warning-text:  #8A5A0B;
   --color-tint-accent:   #E2EAE1;
@@ -391,6 +399,7 @@
   --color-bg-inset:      #161B28;
   --color-border-strong: #6E7893;
   --color-accent-ink:    #2FB56C;
+  --color-on-accent:     #10141C;   /* dark ink on the brighter dark accent — see the light block */
   --color-live:          #F0736A;
   --color-warning-text:  #E0A63C;
   --color-tint-accent:   #2A4647;

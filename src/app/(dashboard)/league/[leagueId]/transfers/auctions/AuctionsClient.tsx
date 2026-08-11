@@ -122,13 +122,27 @@ export default function AuctionsClient({
     .filter((a) => a.highest_bidder_team_id === me)
     .reduce((s, a) => s + a.highest_bid, 0);
 
+  /**
+   * These are set as TEXT on a card, so each has to clear 4.5:1 in both themes.
+   * Three of them did not, and each theme failed differently — which is exactly
+   * why 2.0 verifies every pair in both:
+   *
+   *   light  --color-warning  2.09  (the raw amber is a fill, never an ink)
+   *   dark   --color-defeat   1.89  (a match result, and it has no dark value)
+   *   dark   --color-pos-cb   2.00  (a position FIELD colour, read as a label)
+   *
+   * So: the ink-safe warning, danger for "outbid" (defeat means a lost
+   * matchup, not a lost auction), and plain ink for "listed" — a provenance
+   * filter is not a state, and borrowing a position hue for it broke both the
+   * colour law and the contrast floor at once.
+   */
   const facets: { key: Facet; label: string; color: string }[] = [
     { key: 'all', label: 'All', color: 'var(--color-text-primary)' },
-    { key: 'closing', label: 'Closing inside the hour', color: 'var(--color-warning)' },
+    { key: 'closing', label: 'Closing inside the hour', color: 'var(--color-warning-text)' },
     { key: 'leading', label: "You're leading", color: 'var(--color-accent)' },
-    { key: 'outbid', label: 'Outbid', color: 'var(--color-defeat)' },
+    { key: 'outbid', label: 'Outbid', color: 'var(--color-danger)' },
     { key: 'free', label: 'Free agents', color: 'var(--color-text-secondary)' },
-    { key: 'listed', label: 'Listed', color: 'var(--color-pos-cb)' },
+    { key: 'listed', label: 'Listed', color: 'var(--color-text-secondary)' },
     { key: 'affordable', label: 'Within budget', color: 'var(--color-text-secondary)' },
   ];
 
