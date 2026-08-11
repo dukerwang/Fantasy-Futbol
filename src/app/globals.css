@@ -951,9 +951,16 @@ svg {
 /* --- 5. Row tint ---
    Position hue grounds a row on HOVER only. Tinting every row at rest turns a
    squad list into a paint chart; on hover it answers "which one am I on" and
-   teaches the taxonomy at the same time. Pass the hue in as --pf on the row. */
+   teaches the taxonomy at the same time. Pass the hue in as --pf on the row.
+
+   `background-image`, not the `background` shorthand. The shorthand resets
+   background-color to transparent before painting the gradient, so any row
+   carrying a state colour of its own — a closing lot, a row you lead — lost
+   that state the moment the pointer touched it. The first real consumer of
+   this rule (transfers/auctions) is where that surfaced. A row with no
+   background-color of its own renders identically either way. */
 .g-row:hover {
-  background: linear-gradient(90deg,
+  background-image: linear-gradient(90deg,
     color-mix(in oklab, var(--pf) 12%, transparent) 0%, transparent 60%);
 }
 

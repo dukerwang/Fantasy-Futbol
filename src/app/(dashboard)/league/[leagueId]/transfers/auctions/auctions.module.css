@@ -1,3 +1,39 @@
+/* The Auction Room — Gaffa 2.0.
+   First route port after League Home. See design-2.0/README.md § "Port order".
+
+   This page pays its own scale migration: --t-* / --s* / --r-* throughout, no
+   literals. Colour was already on tokens before the port; type, spacing and
+   radius were not.
+
+   THREE RULES THIS PAGE ESTABLISHED, all measured rather than argued:
+
+   1. LIVE MONEY IS MONO, SETTLED MONEY IS SERIF. 2.0 reserves mono for values
+      that genuinely tick. A standing bid ticks — it moves while you look at
+      it, and it is the thing the countdown is counting down to. Club Balance
+      and "Gone this week" do not; they are figures you compare down a column,
+      which is the serif's job (decision 6). So the split runs by liveness, not
+      by "is it money".
+
+   2. A WASHED ROW CARRIES PRIMARY AND SECONDARY INK ONLY. Decision 4 says a
+      tinted ground carries primary ink only, and measuring the tint tokens
+      showed how literally that holds: on --color-tint-accent in dark,
+      text-muted is 3.65, accent 3.13 and danger 3.57. Even at a much weaker
+      12% wash, dark gives muted 4.32, accent 3.70, danger 4.22 — all under
+      4.5, because dark's text-muted starts at only 5.05 on the card and a wash
+      spends the headroom. Secondary survives at 5.70. So a state row lifts its
+      muted meta to secondary via --row-ink, and the wash is the only carrier
+      of the state.
+
+   3. THE WASH AND THE COLOURED STATUS WORD ARE ALTERNATIVES, NOT PARTNERS.
+      "Leading" in accent on an accent wash is green on green — 3.70 in dark,
+      and the same "both at once" defect the palette verifier already calls out
+      for tints. The row is already green; the word goes to ink. An unwashed
+      row keeps the coloured word, because there it is the only carrier.
+
+   The spectrum is deliberately absent. It is rationed to panels representing a
+   whole squad or the whole player pool; a list of live lots is neither, and
+   there it would be decoration. */
+
 .page { min-height: 100%; }
 
 /* ── Masthead ───────────────────────────────────────────── */
@@ -6,70 +42,60 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
-  gap: 1.5rem;
-  padding: 1.125rem 1.75rem 0.9rem;
+  gap: var(--s6);
+  padding: var(--s4) var(--s6) var(--s3);
   flex-wrap: wrap;
 }
 
-.kicker {
-  font-size: 0.59rem;
-  font-weight: 700;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--color-text-muted);
-}
+/* A breadcrumb is a metadata line, so it keeps its label role rather than
+   being deleted the way a decorative eyebrow above a heading would be. */
+.kicker { letter-spacing: 0.16em; }
 
 .title {
   font-family: var(--font-serif);
   font-weight: 800;
-  font-size: 2.0625rem;
+  font-size: var(--t-32);
   letter-spacing: -0.035em;
   line-height: 1;
-  margin-top: 0.25rem;
+  margin-top: var(--s1);
   color: var(--color-text-primary);
 }
 
-.stats { display: flex; gap: 1.5rem; }
+.stats { display: flex; gap: var(--s6); }
 .stat { text-align: right; }
 
+/* Settled figures: serif, tabular, compared down a column. */
 .statValue {
-  font-family: var(--font-mono);
+  font-family: var(--font-serif);
   font-weight: 700;
-  font-size: 1.1875rem;
+  font-size: var(--t-20);
   line-height: 1;
+  font-variant-numeric: tabular-nums lining-nums;
   color: var(--color-text-primary);
 }
 
 .statAccent { color: var(--color-accent); }
-.statWarn   { color: var(--color-warning); }
-.statRed    { color: var(--color-defeat); }
+.statRed    { color: var(--color-danger); }
 
-.statLabel {
-  font-size: 0.5625rem;
-  font-weight: 600;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--color-text-muted);
-  margin-top: 0.2rem;
-}
+.statLabel { margin-top: var(--s1); }
 
 /* ── Facets ─────────────────────────────────────────────── */
 
 .tools {
   display: flex;
-  gap: 0.3rem;
-  padding: 0.7rem 1.75rem;
-  border-top: 1px solid var(--color-border);
+  gap: var(--s1);
+  padding: var(--s2) var(--s6) var(--s3);
   flex-wrap: wrap;
 }
 
 .facet {
-  font-family: var(--font-sans);
-  font-size: 0.6rem;
+  font-family: var(--font-condensed);
+  font-size: var(--t-12);
   font-weight: 700;
   letter-spacing: 0.05em;
-  padding: 0.32rem 0.56rem;
-  border-radius: 3px;
+  text-transform: uppercase;
+  padding: var(--s1) var(--s2);
+  border-radius: var(--r-control);
   border: 1px solid var(--color-border-subtle);
   background: var(--color-bg-card);
   cursor: pointer;
@@ -80,21 +106,27 @@
 .facetOn, .facetOn:hover { color: var(--color-bg-card) !important; }
 
 .facetCount {
-  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums lining-nums;
   font-weight: 500;
   opacity: 0.75;
-  margin-left: 0.15rem;
+  margin-left: var(--s1);
 }
 
 /* ── Layout ─────────────────────────────────────────────── */
 
+/* Two panels on the ground, not one field divided by rules. Elevation is
+   declared once by .g-panel (decision 1), so the border-top/border-right
+   separators the 1.0 version used are gone — the panel edge is the separator
+   now, and a 1px border under .g-panel's shadow is the ghost-card tell. */
 .body {
   display: grid;
-  grid-template-columns: 1fr 300px;
-  border-top: 1px solid var(--color-border);
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: var(--s4);
+  padding: 0 var(--s6) var(--s6);
+  align-items: start;
 }
 
-.main { border-right: 1px solid var(--color-border); min-width: 0; }
+.main { min-width: 0; }
 
 /* Six columns, shared by the header and every lot row so they stay locked. */
 .lotHead,
@@ -103,77 +135,82 @@
   /* Tight fixed columns on purpose. At 1280 — the common laptop width — the
      rail takes 300 and these took 620, leaving the lot's own name 173px for a
      string that wanted 183. The figures need far less room than they look like
-     they do; the name needs all it can get. */
-  grid-template-columns: 1fr 92px 108px 74px 78px 116px;
-  gap: 0.625rem;
+     they do; the name needs all it can get.
+
+     The 2.0 portrait is 44px against the old 38px photo, so the leader column
+     gives back the 6px rather than the name paying for it — the name column
+     was already the short one and is what the note above is about. */
+  grid-template-columns: minmax(0, 1fr) 92px 102px 74px 78px 116px;
+  gap: var(--s2);
   align-items: center;
 }
 
 .lotHead {
-  padding: 0.5rem 1.75rem;
+  padding: var(--s2) var(--s4);
   border-bottom: 1px solid var(--color-border);
-}
-
-.lh {
-  font-size: var(--t-10);
-  font-weight: 700;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--color-text-muted);
 }
 
 .r { text-align: right; }
 
 .lot {
-  padding: 0.625rem 1.75rem;
+  padding: var(--s2) var(--s4);
   border-bottom: 1px solid var(--color-border-subtle);
-  background: var(--color-bg-card);
+  /* --row-ink is the muted slot. It stays muted here and is lifted to
+     secondary only by a state wash below; see rule 2 at the top. */
+  --row-ink: var(--color-text-muted);
 }
 
-/* State as full-row tint, never an edge sliver. */
+/* State as full-row wash, never an edge sliver — and only ever on a minority
+   of rows, so this is not the at-rest paint chart the row-tint rule warns
+   about. Built the same way .g-row:hover is (a colour mixed to transparent
+   over the panel) rather than from --color-tint-*, because the tint tokens are
+   a ground for a single primary-ink statement and are far too strong to have
+   a row's meta sitting on them. */
 .lotHot {
-  background: color-mix(in srgb, var(--color-warning) 7%, var(--color-bg-card));
-  border-bottom-color: color-mix(in srgb, var(--color-warning) 45%, var(--color-border));
+  background-color: color-mix(in oklab, var(--color-warning) 12%, transparent);
+  border-bottom-color: color-mix(in oklab, var(--color-warning) 45%, var(--color-border));
+  --row-ink: var(--color-text-secondary);
 }
 
 .lotLead {
-  background: var(--color-accent-dim);
+  background-color: color-mix(in oklab, var(--color-accent) 12%, transparent);
   border-bottom-color: var(--color-border-accent);
+  --row-ink: var(--color-text-secondary);
 }
 
-.lotMine { background: var(--color-bg-card-alt); }
+/* Your own lot sits on a verified surface rather than a wash, so its meta can
+   stay muted — bg-card-alt is checked against every ink in both themes. */
+.lotMine { background-color: var(--color-bg-card-alt); }
 
-.lotId { display: flex; align-items: center; gap: 0.625rem; min-width: 0; }
+/* Rule 3: the wash has already said it, so the word goes to ink. */
+.lotLead .youUp,
+.lotHot .youOut,
+.lotHot .youUp { color: var(--color-text-primary); }
 
-.lotPhoto {
-  width: 38px;
-  height: 38px;
-  border-radius: 5px;
-  flex-shrink: 0;
-  background: var(--color-bg-elevated);
+.lotId { display: flex; align-items: center; gap: var(--s2); min-width: 0; }
+
+/* A bare hit area. The portrait declares its own frame, ground, hairline and
+   shadow, so the button must add no surface of its own — elevation once. */
+.lotFace {
   border: none;
+  background: none;
   padding: 0;
   cursor: pointer;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--font-serif);
-  font-weight: 700;
-  font-size: 1rem;
-  color: var(--color-text-muted);
+  flex-shrink: 0;
+  line-height: 0;
+  border-radius: var(--r-control);
 }
 
-.photo { width: 100%; height: 100%; object-fit: cover; object-position: top center; }
+.lotFace:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
 
 .lotIdBody { min-width: 0; }
 
-.lotNameRow { display: flex; align-items: center; gap: 0.45rem; min-width: 0; }
+.lotNameRow { display: flex; align-items: center; gap: var(--s2); min-width: 0; }
 
 .lotName {
   font-family: var(--font-serif);
   font-weight: 700;
-  font-size: 1rem;
+  font-size: var(--t-17);
   letter-spacing: -0.01em;
   color: var(--color-text-primary);
   background: none;
@@ -189,13 +226,15 @@
 
 .lotName:hover { text-decoration: underline; }
 
+/* The club is gone from this line — the portrait's crest carries it now, which
+   is what lets the row hold at two short lines instead of three. */
 .lotSub {
-  font-size: 0.625rem;
-  color: var(--color-text-muted);
-  margin-top: 0.125rem;
+  font-size: var(--t-11);
+  color: var(--row-ink);
+  margin-top: var(--s1);
   display: flex;
   align-items: center;
-  gap: 0.3rem;
+  gap: var(--s1);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -203,53 +242,63 @@
 
 /* Provenance is a tag, not a section — the two kinds sort against each other. */
 .src {
+  font-family: var(--font-condensed);
   font-size: var(--t-10);
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  padding: 0.125rem 0.25rem;
-  border-radius: 2px;
+  padding: 0 var(--s1);
+  border-radius: var(--r-micro);
   border: 1px solid currentColor;
   flex-shrink: 0;
 }
 
-.srcFa { color: var(--color-text-muted); border-style: dashed; }
+.srcFa { color: var(--row-ink); border-style: dashed; }
 
 .srcLi {
   color: var(--color-pos-cb);
-  background: color-mix(in srgb, var(--color-pos-cb) 8%, transparent);
+  background: color-mix(in oklab, var(--color-pos-cb) 8%, transparent);
 }
 
 .lotCol { min-width: 0; }
 
+/* Live money: mono, because it ticks. */
 .lotBid {
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 1.0625rem;
+  font-size: var(--t-17);
+  font-variant-numeric: tabular-nums lining-nums;
   text-align: right;
   color: var(--color-text-primary);
 }
 
-.lotBidNone { color: var(--color-text-muted); font-weight: 400; font-size: 0.875rem; }
+.lotBidNone {
+  font-family: var(--font-condensed);
+  color: var(--row-ink);
+  font-weight: 500;
+  font-size: var(--t-13);
+  letter-spacing: 0.04em;
+}
 
 .lotFrom {
   font-family: var(--font-mono);
-  font-size: 0.59rem;
-  color: var(--color-text-muted);
+  font-size: var(--t-10);
+  font-variant-numeric: tabular-nums lining-nums;
+  color: var(--row-ink);
   text-align: right;
-  margin-top: 0.125rem;
+  margin-top: var(--s1);
 }
 
 .lotWho {
   display: flex;
   align-items: center;
-  gap: 0.375rem;
+  gap: var(--s1);
   justify-content: flex-end;
   min-width: 0;
 }
 
 .lotWn {
-  font-size: 0.69rem;
+  font-size: var(--t-12);
   color: var(--color-text-secondary);
   white-space: nowrap;
   overflow: hidden;
@@ -258,81 +307,91 @@
 
 .lotYou {
   text-align: right;
-  font-size: 0.6rem;
+  font-family: var(--font-condensed);
+  font-size: var(--t-11);
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
 
 .youUp  { color: var(--color-accent); }
-.youOut { color: var(--color-defeat); }
+.youOut { color: var(--color-danger); }
 
 .youOff {
-  color: var(--color-text-muted);
+  font-family: var(--font-sans);
+  color: var(--row-ink);
   font-weight: 400;
   letter-spacing: 0;
   text-transform: none;
-  font-size: 0.66rem;
+  font-size: var(--t-11);
 }
 
+/* The countdown is the canonical mono case. */
 .lotClock {
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.875rem;
+  font-size: var(--t-15);
+  font-variant-numeric: tabular-nums lining-nums;
   text-align: right;
   color: var(--color-text-secondary);
 }
 
-.lotClockHot { color: var(--color-warning); }
+/* Closing soon is a warning, not a liveness marker — the room's own live
+   indicator is in the rail head and runs on --color-live. Two different
+   messages, two different colours (decision 7). */
+.lotClockHot { color: var(--color-warning-text); }
 
 .lotBids {
-  font-size: 0.56rem;
-  color: var(--color-text-muted);
+  font-family: var(--font-condensed);
+  font-size: var(--t-10);
+  letter-spacing: 0.04em;
+  color: var(--row-ink);
   text-align: right;
-  margin-top: 0.125rem;
+  margin-top: var(--s1);
 }
 
-.lotActions { display: flex; align-items: center; gap: 0.3rem; justify-content: flex-end; }
+.lotActions { display: flex; align-items: center; gap: var(--s1); justify-content: flex-end; }
 
 .go {
   flex: 1;
   text-align: center;
-  padding: 0.44rem 0.375rem;
-  border-radius: 4px;
+  padding: var(--s2) var(--s1);
+  border-radius: var(--r-control);
   border: 1px solid var(--color-accent);
   background: var(--color-accent);
-  color: #FFFFFF;
-  font-family: var(--font-sans);
-  font-size: 0.6rem;
+  color: var(--color-bg-card);
+  font-family: var(--font-condensed);
+  font-size: var(--t-11);
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
+  font-variant-numeric: tabular-nums lining-nums;
   cursor: pointer;
   white-space: nowrap;
   min-width: 0;
 }
 
-.go:hover { background: var(--color-accent-hover); }
+.go:hover { background: var(--color-accent-hover); border-color: var(--color-accent-hover); }
 
 .goGhost { background: transparent; color: var(--color-accent); }
-.goGhost:hover { background: var(--color-accent-dim); }
+.goGhost:hover { background: var(--color-accent-dim); border-color: var(--color-accent); color: var(--color-accent); }
 
 .goMuted {
   background: transparent;
   border: 1px dashed var(--color-border);
-  color: var(--color-text-muted);
+  color: var(--row-ink);
   cursor: default;
 }
 
 .toggle {
   flex-shrink: 0;
   width: 24px;
-  padding: 0.44rem 0;
+  padding: var(--s2) 0;
   border: 1px solid var(--color-border-subtle);
-  border-radius: 4px;
+  border-radius: var(--r-control);
   background: var(--color-bg-primary);
-  color: var(--color-text-muted);
-  font-size: 0.66rem;
+  color: var(--row-ink);
+  font-size: var(--t-11);
   cursor: pointer;
 }
 
@@ -341,60 +400,83 @@
 /* ── Expanded lot ───────────────────────────────────────── */
 
 .ex {
-  padding: 0 1.75rem 0.9rem;
+  padding: 0 var(--s4) var(--s3);
   border-bottom: 1px solid var(--color-border-subtle);
 }
 
 .exGrid {
   display: grid;
-  grid-template-columns: 1fr 300px;
-  gap: 1.625rem;
-  padding-top: 0.25rem;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: var(--s6);
+  padding-top: var(--s1);
 }
 
-.exTitle {
-  font-size: var(--t-10);
-  font-weight: 700;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--color-text-muted);
-  margin-bottom: 0.5rem;
-}
-
-.exEmpty { font-size: 0.75rem; color: var(--color-text-muted); padding: 0.5rem 0; }
-
-.exRow {
-  display: grid;
-  grid-template-columns: 1fr 78px 74px;
-  gap: 0.55rem;
+/* The lot-size portrait (66x78) lives here rather than in the row. The row's
+   name column was already 10px short of the string it wanted at 1280, so
+   putting a 66px portrait in it would have made a measured problem worse; the
+   drawer has the room, and it gives the expansion something to reveal. */
+.exWho {
+  display: flex;
   align-items: center;
-  padding: 0.375rem 0;
+  gap: var(--s3);
+  padding-bottom: var(--s3);
+  margin-bottom: var(--s3);
   border-bottom: 1px solid var(--color-border-subtle);
 }
 
-.exTop { background: color-mix(in srgb, var(--color-accent) 5%, transparent); }
+.exWhoBody { min-width: 0; }
 
-.exName { font-size: 0.72rem; color: var(--color-text-secondary); }
+.exWhoName {
+  font-family: var(--font-serif);
+  font-weight: 700;
+  font-size: var(--t-20);
+  letter-spacing: -0.015em;
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.exWhoMeta { margin-top: var(--s1); }
+
+.exTitle { margin-bottom: var(--s2); }
+
+.exEmpty { font-size: var(--t-12); color: var(--color-text-muted); padding: var(--s2) 0; }
+
+.exRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 78px 74px;
+  gap: var(--s2);
+  align-items: center;
+  padding: var(--s1) 0;
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.exTop { background: color-mix(in oklab, var(--color-accent) 8%, transparent); }
+
+.exName { font-size: var(--t-12); color: var(--color-text-secondary); }
 .exName b { color: var(--color-text-primary); font-weight: 600; }
 
 .exAmt {
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.78rem;
+  font-size: var(--t-13);
+  font-variant-numeric: tabular-nums lining-nums;
   text-align: right;
   color: var(--color-text-primary);
 }
 
 .exTime {
   font-family: var(--font-mono);
-  font-size: 0.59rem;
+  font-size: var(--t-10);
+  font-variant-numeric: tabular-nums lining-nums;
   color: var(--color-text-muted);
   text-align: right;
 }
 
 .ladder {
   border: 1px solid var(--color-border-subtle);
-  border-radius: 8px;
+  border-radius: var(--r-shell);
   background: var(--color-bg-primary);
   overflow: hidden;
 }
@@ -403,216 +485,208 @@
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  gap: 0.5rem;
-  padding: 0.5rem 0.7rem;
+  gap: var(--s2);
+  padding: var(--s2) var(--s3);
   border-bottom: 1px solid var(--color-border-subtle);
 }
 
 .rungLast { border-bottom: none; }
 
-.rungLabel {
-  font-size: var(--t-10);
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--color-text-muted);
-}
-
 .rungValue {
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.875rem;
+  font-size: var(--t-15);
+  font-variant-numeric: tabular-nums lining-nums;
   color: var(--color-text-primary);
 }
 
-.warn { color: var(--color-warning); }
 .gold { color: var(--color-gold); }
 .off  { color: var(--color-text-muted); font-weight: 400; }
 
-:global([data-theme='dark']) .gold { color: #CBA85F; }
-
-.quick { display: flex; gap: 0.375rem; margin-top: 0.625rem; }
+.quick { display: flex; gap: var(--s1); margin-top: var(--s3); }
 
 .q {
   flex: 1;
   text-align: center;
-  padding: 0.5rem 0.25rem;
-  border-radius: 4px;
+  padding: var(--s2) var(--s1);
+  border-radius: var(--r-control);
   border: 1px solid var(--color-accent);
   background: transparent;
   color: var(--color-accent);
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.72rem;
+  font-size: var(--t-12);
+  font-variant-numeric: tabular-nums lining-nums;
   cursor: pointer;
 }
 
 .q:hover { background: var(--color-accent-dim); }
 
-.qOn { background: var(--color-accent); color: #FFFFFF; }
+.qOn { background: var(--color-accent); color: var(--color-bg-card); }
 .qOn:hover { background: var(--color-accent-hover); }
 
 .qGold { border-color: var(--color-gold); color: var(--color-gold); }
-.qGold:hover { background: color-mix(in srgb, var(--color-gold) 12%, transparent); }
-
-:global([data-theme='dark']) .qGold { border-color: #CBA85F; color: #CBA85F; }
+.qGold:hover { background: color-mix(in oklab, var(--color-gold) 12%, transparent); }
 
 .exNote {
-  font-size: 0.625rem;
+  font-size: var(--t-11);
   color: var(--color-text-muted);
-  margin-top: 0.5rem;
+  margin-top: var(--s2);
   line-height: 1.45;
 }
 
 /* ── Gone this week ─────────────────────────────────────── */
 
-.gone { padding: 0.8rem 1.75rem 1.25rem; }
+.gone { padding: var(--s3) var(--s4) var(--s5); }
 
-.goneHead { display: flex; align-items: baseline; gap: 0.625rem; margin-bottom: 0.55rem; flex-wrap: wrap; }
+.goneHead { display: flex; align-items: baseline; gap: var(--s2); margin-bottom: var(--s2); flex-wrap: wrap; }
 
 .goneTitle {
   font-family: var(--font-serif);
   font-weight: 700;
-  font-size: 1.0625rem;
+  font-size: var(--t-17);
   color: var(--color-text-primary);
   margin: 0;
 }
 
-.goneSub { font-size: 0.66rem; color: var(--color-text-muted); }
+.goneSub { font-size: var(--t-11); color: var(--color-text-muted); }
 
 .goneGrid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 0.55rem;
+  gap: var(--s2);
 }
 
 .goneCard {
   border: 1px solid var(--color-border-subtle);
-  border-radius: 7px;
-  background: var(--color-bg-card);
-  padding: 0.55rem 0.7rem;
+  border-radius: var(--r-shell);
+  background: var(--color-bg-card-alt);
+  padding: var(--s2) var(--s3);
 }
 
 .goneName {
   font-family: var(--font-serif);
   font-weight: 700;
-  font-size: 0.875rem;
+  font-size: var(--t-15);
   color: var(--color-text-primary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.goneMeta { font-size: 0.59rem; color: var(--color-text-muted); margin-top: 0.125rem; }
+.goneMeta { font-size: var(--t-10); color: var(--color-text-muted); margin-top: var(--s1); }
 
+/* Settled money: serif, tabular. These are the league's own price record —
+   figures you compare across the grid — and nothing about them ticks. */
 .goneValue {
-  font-family: var(--font-mono);
+  font-family: var(--font-serif);
   font-weight: 700;
-  font-size: 0.9375rem;
-  margin-top: 0.3rem;
+  font-size: var(--t-17);
+  font-variant-numeric: tabular-nums lining-nums;
+  margin-top: var(--s1);
   color: var(--color-text-primary);
 }
 
 /* ── Saleroom rail ──────────────────────────────────────── */
 
-.rail { background: var(--color-bg-card); min-width: 0; }
+.rail { min-width: 0; }
 
-.railHead {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.8rem 1.125rem 0.625rem;
-}
+.railHead { justify-content: space-between; }
 
 .railTitle {
   font-family: var(--font-serif);
   font-weight: 700;
-  font-size: 1.0625rem;
+  font-size: var(--t-17);
   color: var(--color-text-primary);
   margin: 0;
 }
 
+/* The one genuine liveness marker on the page. Broadcast tally red, which is
+   the whole job --color-live exists to do; the accent means "yours" and can
+   no longer be spent on this. */
 .railLive {
-  font-size: 0.53rem;
+  font-family: var(--font-condensed);
+  font-size: var(--t-10);
   font-weight: 700;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--color-defeat);
+  color: var(--color-live);
 }
 
 .event {
   display: grid;
-  grid-template-columns: 9px 1fr;
-  gap: 0.625rem;
-  padding: 0.5rem 1.125rem;
+  grid-template-columns: 9px minmax(0, 1fr);
+  gap: var(--s2);
+  padding: var(--s2) var(--s4);
   border-top: 1px solid var(--color-border-subtle);
 }
 
-.eventDot { width: 7px; height: 7px; border-radius: 50%; margin-top: 0.3rem; }
+.eventDot { width: 7px; height: 7px; border-radius: var(--r-round); margin-top: var(--s1); }
 
-.eventText { font-size: 0.72rem; line-height: 1.45; color: var(--color-text-secondary); }
+.eventText { font-size: var(--t-12); line-height: 1.45; color: var(--color-text-secondary); }
 .eventStrong { color: var(--color-text-primary); font-weight: 600; }
 
 .eventTime {
   font-family: var(--font-mono);
-  font-size: 0.59rem;
+  font-size: var(--t-10);
+  font-variant-numeric: tabular-nums lining-nums;
   color: var(--color-text-muted);
-  margin-top: 0.125rem;
+  margin-top: var(--s1);
 }
 
 .desk {
   border-top: 2px solid var(--color-text-primary);
-  padding: 0.7rem 1.125rem 0.95rem;
-  margin-top: 0.5rem;
+  padding: var(--s3) var(--s4) var(--s4);
+  margin-top: var(--s2);
 }
 
 .deskRow {
   display: flex;
   justify-content: space-between;
-  gap: 0.75rem;
-  padding: 0.375rem 0;
+  gap: var(--s3);
+  padding: var(--s1) 0;
   border-bottom: 1px solid var(--color-border-subtle);
 }
 
 .deskLast { border-bottom: none; }
 
-.deskLabel { font-size: 0.72rem; color: var(--color-text-secondary); }
+.deskLabel { font-size: var(--t-12); color: var(--color-text-secondary); }
 
 .deskValue {
-  font-family: var(--font-mono);
+  font-family: var(--font-serif);
   font-weight: 700;
-  font-size: 0.8125rem;
+  font-size: var(--t-15);
+  font-variant-numeric: tabular-nums lining-nums;
   color: var(--color-text-primary);
 }
 
 .empty {
-  padding: 2rem 1.75rem;
+  padding: var(--s8) var(--s6);
   text-align: center;
-  font-size: 0.8125rem;
+  font-size: var(--t-13);
   color: var(--color-text-muted);
 }
 
 /* ── Responsive ─────────────────────────────────────────── */
 
 @media (max-width: 1080px) {
-  .body { grid-template-columns: 1fr; }
-  .main { border-right: none; border-bottom: 1px solid var(--color-border); }
-  .exGrid { grid-template-columns: 1fr; gap: 1rem; }
+  .body { grid-template-columns: minmax(0, 1fr); }
+  .exGrid { grid-template-columns: minmax(0, 1fr); gap: var(--s4); }
 }
 
 @media (max-width: 820px) {
-  /* Six columns will not fit. The row becomes two lines: identity and clock on
-     top, money and action beneath — the same information, restacked, rather
-     than columns squeezed to illegibility. */
+  /* Six columns will not fit. The row becomes three lines: identity and clock
+     on top, money and leader beneath, state and action last — the same
+     information, restacked, rather than columns squeezed to illegibility. */
   .lotHead { display: none; }
 
   .lot {
-    grid-template-columns: 1fr auto;
+    grid-template-columns: minmax(0, 1fr) auto;
     grid-template-areas:
       'id     clock'
       'bid    who'
       'you    actions';
-    row-gap: 0.5rem;
+    row-gap: var(--s2);
   }
 
   .lotId      { grid-area: id; }
@@ -626,18 +700,17 @@
 
 @media (max-width: 640px) {
   .header {
-    padding: 1rem 1rem 0.75rem;
+    padding: var(--s4) var(--s4) var(--s3);
     flex-direction: column;
     align-items: flex-start;
-    gap: 1rem;
+    gap: var(--s4);
   }
 
-  .title { font-size: 1.75rem; }
-  .stats { gap: 1.25rem; width: 100%; flex-wrap: wrap; }
+  .title { font-size: var(--t-25); }
+  .stats { gap: var(--s5); width: 100%; flex-wrap: wrap; }
   .stat { text-align: left; }
 
-  .tools { padding: 0.7rem 1rem; }
-  .lot { padding-left: 1rem; padding-right: 1rem; }
-  .ex { padding-left: 1rem; padding-right: 1rem; }
-  .gone { padding-left: 1rem; padding-right: 1rem; }
+  .tools { padding: var(--s2) var(--s4) var(--s3); }
+  .body { padding: 0 var(--s4) var(--s4); }
+  .exWho { gap: var(--s2); }
 }

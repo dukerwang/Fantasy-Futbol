@@ -3,9 +3,10 @@
 Status: **partially implemented.** The 2.0 tokens landed in `src/app/globals.css`
 additively on 2026-08-08 alongside the League Home redesign (see
 `LEAGUE_HOME_HANDOFF.md`); both spec files, `--font-condensed` and the `Portrait` component
-followed on 2026-08-10 (see "Not done yet"). Every surface but League Home still runs 1.0.
-The token block itself has known drift from this document — see "Where the code and this
-document disagree".
+followed on 2026-08-10 (see "Not done yet"). **`transfers/auctions` was ported 2026-08-11**
+— the first route to use the surface, the portrait and the condensed face against real
+data, and the first to be fully free of raw hex and 1.0 scales. Every other surface still
+runs 1.0.
 
 - **Prototype:** Claude Design project `f4858479-5b36-4ba3-9a4f-04da9725c7db`, built
   **unbound** (the bound "Fantasy Futbol Design System" has the wrong accent, fonts and
@@ -402,14 +403,53 @@ The one exception, already applied because it is a defect rather than a preferen
 `font-size` **at or below 8px is gone** — 63 declarations across 15 files, now `var(--t-10)`.
 141 declarations between 8 and 10px remain and move with their page.
 
+## What the first route port established (2026-08-11)
+
+`transfers/auctions`. Three rules came out of it, all forced by measurement rather than
+argued, and all general — they belong to the system, not to that page.
+
+**1. A washed row carries primary and secondary ink only.** Decision 4 says a tinted ground
+carries primary ink; measuring showed how literally that holds, and that **dark is where it
+bites**. On `--color-tint-accent` in dark: `text-muted` **3.65**, `accent` **3.13**,
+`danger` **3.57**. Even at a far weaker 12% wash, dark gives muted **4.32**, accent
+**3.70**, danger **4.22** — because dark's `text-muted` starts at only **5.05** on the card
+and a wash spends the headroom. `text-secondary` survives at **5.70**. Light is forgiving
+by comparison (only `gold` fails, at 4.11). So a state row lifts its muted meta to
+secondary through one variable, and the tint tokens stay what they are: a ground for a
+single primary-ink statement, **not** a row wash.
+
+**2. The wash and the coloured status word are alternatives, not partners.** "Leading" in
+accent on an accent wash is green on green — **3.70** in dark, and the same "both at once"
+defect `verify-palette.mjs` already calls out for tints. The row is green; the word goes to
+ink. An unwashed row keeps the coloured word, because there it is the only carrier.
+
+**3. Live money is mono, settled money is serif.** 2.0 reserves mono for values that tick,
+and "is it money" turned out to be the wrong question. A standing bid ticks — it moves while
+you look at it, and it is what the countdown counts down to. Club Balance and the "gone this
+week" price record do not; they are figures you compare down a column, which is decision 6's
+serif job. The split runs by liveness.
+
+One fix to a primitive, found by its first real consumer: **`.g-row:hover` now paints with
+`background-image`, not the `background` shorthand.** The shorthand resets
+`background-color` to transparent before painting, so any row carrying a state colour of its
+own lost that state the moment the pointer touched it. A row with no background of its own
+renders identically either way.
+
+Two judgements worth recording. **The spectrum stayed off** — it is rationed to panels
+representing a whole squad or the whole pool, and a list of live lots is neither. **The
+lot-size portrait went in the drawer, not the row**: the row's name column was already
+measured 10px short of the string it wanted at 1280, and a 66px portrait would have made a
+measured problem worse, so the row takes the 44px size (+6px, paid for out of the leader
+column) and the expansion is where the 66×78 lands.
+
 ## Port order for the remaining routes
 
-One page is on 2.0 (League Home). The order below is by how much each surface exercises the
-system, so the components land where they are hardest first:
+Two pages are on 2.0 (League Home, `transfers/auctions`). The order below is by how much
+each surface exercises the system, so the components land where they are hardest first:
 
-1. **`transfers/auctions`** — the live market. Exercises the portrait at lot size, the
-   countdown (mono), `--color-live`, and tinted grounds. 429-line stylesheet, already the
-   most 2.0-shaped of the old pages.
+1. ~~**`transfers/auctions`**~~ — **done 2026-08-11.** Exercised the portrait at both row
+   and lot size, the countdown (mono), `--color-live`, the panel, the condensed face and the
+   row tint. Ended at 0 raw hex, 0 rem literals, 0 1.0 scale tokens, 136 2.0 token uses.
 2. **`team` + `team/roster`** — the pitch and the squad. The twelve-position spine at full
    density, and the biggest raw-hex debt (`pitch.module.css`, 98 hex literals).
 3. **`players` / `stats`** — where the **baseline rule** finally becomes a real component
@@ -424,8 +464,9 @@ faces a manager.
 
 ## Not done yet
 
-- 30 dashboard routes still on 1.0; 39 stylesheets still hold raw hex.
-- 141 `font-size` declarations between 8 and 10px, to move with their page.
+- 29 dashboard routes still on 1.0; 38 stylesheets still hold raw hex.
+- 130 `font-size` declarations between 8 and 10px, to move with their page (was 141; the
+  auctions port cleared 11 of them).
 - Radius literals decision 3 was written to kill: 3px ×36, 2px ×31, 7px ×13, 5px ×12.
 - Elevation: 168 `box-shadow` against 586 `1px solid`. The rule is now stated in
   `globals.css`; surfaces carrying both get reconciled as they are ported.
