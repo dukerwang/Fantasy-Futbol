@@ -25,8 +25,10 @@
   --color-border-accent:  rgba(20, 107, 64, 0.40);
 
   /* --- Ink / Text --- */
-  --color-text-primary:   #1C1C1C;  /* headlines, key figures */
-  --color-text-secondary: #4A4A4A;  /* body copy */
+  /* Warm rather than neutral grey, to sit in the cream family instead of on it.
+     Marginally higher contrast than the #1C1C1C / #4A4A4A they replace. */
+  --color-text-primary:   #1C1A17;  /* headlines, key figures */
+  --color-text-secondary: #4A453D;  /* body copy */
   /* Darkened from #9A9488, which measured 2.73-2.94:1 on both the page
      and card surfaces and carried essentially every label, caption,
      column head and timestamp in the app. PRODUCT.md makes AA a hard
@@ -40,12 +42,17 @@
      surface area, not just stat figures. A second (gold-blended)
      accent was tried and rejected as muddy; stays single-accent. */
   --color-accent:             #146B40;
-  --color-accent-hover:       #1B8350;
+  /* Hover DARKENS. This was #1B8350 — lighter than the base — while the dark
+     theme's hover darkened, so hover moved in opposite directions per theme.
+     White on this fill goes 4.76 -> 8.76:1. */
+  --color-accent-hover:       #0F5632;
   --color-accent-dim:         rgba(20, 107, 64, 0.10);
   --color-accent-green:       #146B40;
   --color-accent-green-dim:   rgba(20, 107, 64, 0.10);
   --color-accent-blue:        #146B40;
-  --color-accent-blue-hover:  #1B8350;
+  /* This one drives `a:hover`, i.e. accent as TEXT. #1B8350 measured 4.31:1 on
+     the page — under AA. Mirrors --color-accent-hover. */
+  --color-accent-blue-hover:  #0F5632;
   
   /* Legacy/Additional accents used in app */
   --color-accent-red:         #ef4444;
@@ -57,12 +64,21 @@
   /* --- Semantic Status --- */
   --color-success:      #146B40;
   --color-warning:      #f59e0b;  --color-warning-dim: rgba(245, 158, 11, 0.15);
-  --color-danger:       #ef4444;  --color-danger-dim:  rgba(239, 68, 68, 0.15);
-  --color-danger-dark:  #dc2626;
+  /* Retuned out of raw Tailwind and into the warm palette. #ef4444 as text
+     measured 3.40:1 on the page and 2.92:1 worst-case across 29 text call
+     sites, and it was never overridden for dark (4.36 page / 3.74 card).
+     #A32219 is 6.78:1 light; #F0736A (below) is 5.76:1 dark. The three fill
+     sites all take white ink or none, so the darker value only helps them. */
+  --color-danger:       #A32219;  --color-danger-dim:  rgba(163, 34, 25, 0.12);
+  --color-danger-dark:  #8A1C14;
   --color-defeat:       #9B2C3A;
-  --color-gold:         #93702F;  /* leader / #1 figures only — a thin ring/text color, never a filled badge, never blended with accent */
-  --color-silver:       #94a3b8;  /* #2 figures, silver medals */
-  --color-bronze:       #92400e;  /* #3 figures, bronze medals */
+  /* The medal ramp had NO dark theme — one set served both, so silver measured
+     2.32:1 on the light page and bronze 1.99:1 on a dark card. Both were live
+     AA failures. Separation between gold and bronze is carried by hue (34°) and
+     by silver's near-zero chroma, not by lightness. */
+  --color-gold:         #8A6A1F;  /* leader / #1 figures only — a thin ring/text color, never a filled badge, never blended with accent */
+  --color-silver:       #6C7176;  /* #2 figures, silver medals */
+  --color-bronze:       #8A4A22;  /* #3 figures, bronze medals */
 
   /* --- Position Colors (The Football Spine) ---
      Gaffa 2.0 spine, verified by design-2.0/verify-palette.mjs. Each
@@ -129,6 +145,37 @@
   --color-tint-accent:   #E2EAE1;
   --color-tint-danger:   #F5E3DD;
   --color-tint-warning:  #EFE8DD;
+
+  /* --- The performance ramp (2026-08-10) ---
+     Colours a figure by how it sits against the player's own positional
+     median: the baseline-rule numbers and the points figure. Five stops,
+     every one solved in OKLCH (hue and chroma held, lightness walked)
+     against the harder of card and page in both themes — these are 11px
+     figures. Derived at 4.8 rather than the 4.5 AA requires: solving to
+     the floor exactly put every stop at 4.50:1, the tightest pairs in
+     the whole palette and one background nudge from failing. See
+     scratch/derive_perf_ramp.mjs; verified by design-2.0/verify-palette.mjs.
+
+     THE MIDPOINT IS PLAIN INK, not an amber. The median is not a
+     verdict, and no mid-ramp yellow clears 4.5:1 on cream — so the ramp
+     runs warm / ink / cool rather than red / yellow / green. That is
+     what makes it accessible at all.
+
+     COST, RECORDED RATHER THAN ARGUED — the same way the winger sage is
+     recorded in verify-palette.mjs. This ramp overloads two colours the
+     2.0 law reserves: `perf-best` is 1° in hue from --color-accent and
+     `perf-poor` is 1° from --color-danger, so a strong figure is the
+     same green as "yours" and a weak one the same red as danger. A
+     teal→clay ramp at 47–56° from the accent was built and measured
+     (`Gaffa 2.0 Baseline Rule.dc.html`) and set aside: green-to-red
+     reads instantly and that was judged worth the collision. Do not
+     extend this ramp to fills, badges or status — as TEXT ON FIGURES it
+     is contained, and that containment is the whole mitigation. */
+  --color-perf-poor: #B04B3D;   /* <= 34 */
+  --color-perf-low:  #9B5B2B;   /* 35-44 */
+  --color-perf-mid:  var(--color-text-primary);  /* 45-55, at his median */
+  --color-perf-good: #42764E;   /* 56-69 */
+  --color-perf-best: #147B47;   /* >= 70 */
   --line:        1px solid var(--color-border-subtle);
   --line-strong: 1px solid var(--color-border);
 
@@ -162,6 +209,10 @@
   --font-serif: var(--font-newsreader), Georgia, 'Times New Roman', serif;   /* display / editorial */
   --font-sans:  var(--font-hanken-grotesk), -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; /* body / UI */
   --font-mono:  var(--font-jetbrains-mono), 'Fira Code', ui-monospace, monospace;
+  /* 2.0. Column heads, club names, axis labels — the role 1.0 had no face for,
+     which is why mono took it. Mono now means "this value ticks" and nothing
+     else. Never use --font-condensed for body copy. */
+  --font-condensed: var(--font-archivo-narrow), 'Archivo Narrow', 'Arial Narrow', sans-serif;
 
   /* Type scale (1rem = 16px) */
   --text-xs:   0.75rem;   /* 12 */
@@ -202,9 +253,16 @@
   --radius-full: 9999px;
 
   /* --- Shadows ---
-     Elevation is quiet but present: cards get --shadow-card by
-     default (previously most cards had no shadow at all — border
-     only, which is why the app read flatter than intended). */
+     ELEVATION IS BORDER XOR SHADOW, declared once per element (2.0 decision 1).
+     A 1px border under a soft shadow is the ghost-card tell.
+
+     This block previously instructed "apply --shadow-card to every card by
+     default", which contradicts that rule and is why both treatments now appear
+     across the app (168 box-shadow declarations against 586 `1px solid`). The
+     rule wins: a panel gets a hairline and nothing else; --shadow-card and
+     --shadow-card-lift are reserved for things that genuinely float — modals,
+     dialogs, the player card, dropdowns. Surfaces still carrying both are
+     pre-2.0 and get reconciled as each is ported, not in a blanket sweep. */
   --shadow-sm: 0 1px 3px rgba(28, 28, 28, 0.08);
   --shadow-md: 0 4px 12px rgba(28, 28, 28, 0.10);
   --shadow-lg: 0 8px 24px rgba(28, 28, 28, 0.14);
@@ -233,6 +291,34 @@
   /* --- Layout --- */
   --nav-height: 52px;
   --content-max-width: 1280px;
+
+  /* --- Stacking ---
+     Was 12 undocumented literals ranging 0 → 1000, so nothing could be layered
+     with confidence. Six named steps; anything outside them is a bug. */
+  --z-base:     1;    /* in-flow lift: a row hover, an active tab underline */
+  --z-sticky:   10;   /* sticky table heads, pinned column                  */
+  --z-nav:      100;  /* TopBar and any rail that must clear sticky content */
+  --z-dropdown: 200;  /* menus, popovers, autocomplete                      */
+  --z-modal:    300;  /* dialogs and their scrim                            */
+  --z-toast:    400;  /* transient notices — always on top                  */
+
+  /* --- Motion ---
+     Durations named by intent. --ease-standard is the exponential ease-out the
+     2.0 prototypes use; reach for it by default and keep linear for progress. */
+  --dur-instant: 90ms;   /* state flips: checkbox, tab, tick                */
+  --dur-fast:    140ms;  /* hover, focus, small colour changes              */
+  --dur-base:    220ms;  /* entrances, panel reveals                        */
+  --dur-slow:    420ms;  /* a value settling into place, a meter animating  */
+  --ease-standard: cubic-bezier(.22, 1, .36, 1);
+
+  /* --- Breakpoints ---
+     Documented, NOT tokenised: custom properties do not resolve inside a media
+     query, so a `var()` here would silently never match. These five are the
+     only legal widths; the app currently carries twelve. Use them literally.
+       440px  narrow phone      768px  tablet / nav collapse
+       600px  phone             1080px desktop content ceiling
+       900px  small laptop
+     ------------------------------------------------------------------- */
 }
 
 [data-theme="dark"] {
@@ -272,14 +358,30 @@
      lands next to Futbolpedia's emerald-500 without forking their
      brand color outright. */
   --color-accent:            #1FA35F;
-  --color-accent-hover:      #18814D;
+  /* Hover moves AWAY from the ground: darker on cream, lighter on navy. This
+     was #18814D, which darkened — and .btn-primary carries dark ink (#10141C)
+     in this theme, so the hover state measured 3.76:1 and failed AA on every
+     primary button. #37BE77 with the same ink is 7.72:1. */
+  --color-accent-hover:      #37BE77;
   --color-accent-dim:        rgba(31, 163, 95, 0.14);
   --color-accent-green:      #1FA35F;
   --color-accent-green-dim:  rgba(31, 163, 95, 0.14);
   --color-accent-blue:       #1FA35F;
-  --color-accent-blue-hover: #18814D;
+  /* `a:hover` in dark. #18814D measured 2.87:1 on a card — every hovered link
+     in the dark theme was failing AA. */
+  --color-accent-blue-hover: #37BE77;
 
   --color-success: #1FA35F;
+
+  /* Dark values for the semantics that previously had none. Each is the light
+     hue lifted in OKLCH lightness only. Note #F0736A wants DARK ink when used
+     as a fill (white on it is 2.85:1); the three current fill sites carry no
+     ink, but any new one must invert, the same move .btn-primary makes. */
+  --color-danger:      #F0736A;  --color-danger-dim: rgba(240, 115, 106, 0.16);
+  --color-danger-dark: #D95A50;
+  --color-gold:        #D6B052;
+  --color-silver:      #AEB4BA;
+  --color-bronze:      #CD8450;
 
   /* --- Gaffa 2.0 additions, dark ---
      Note --color-accent-hover stays DARKER than --color-accent here: it
@@ -294,6 +396,14 @@
   --color-tint-accent:   #2A4647;
   --color-tint-danger:   #533E4A;
   --color-tint-warning:  #4D4745;
+
+  /* The performance ramp, dark. Same derivation, same 4.5:1 floor against
+     the harder of card and page; only lightness moves. */
+  --color-perf-poor: #E37969;
+  --color-perf-low:  #CC8758;
+  --color-perf-mid:  var(--color-text-primary);
+  --color-perf-good: #6DA378;
+  --color-perf-best: #4EA972;
 
   /* --- The spine in dark ---
      One fill per position across BOTH themes, with white ink everywhere.
@@ -512,10 +622,12 @@ svg {
 .ds-heading {
   font-family: var(--font-serif);
   font-style: italic;
-  font-size: 16px;
+  font-size: var(--t-17);
   font-weight: 600;
   letter-spacing: 0;
-  color: var(--color-accent);
+  /* accent-ink, not accent: this is body-scale TEXT, and --color-accent is a
+     fill/large-text value that measures 4.33:1 at this size on a dark card. */
+  color: var(--color-accent-ink);
 }
 
 /* Section label — like eyebrow but neutral, slightly smaller */
@@ -593,7 +705,11 @@ svg {
    plain `border-radius: 999px; background: <color>` badge.
    ============================================================ */
 
-/* Live / now — a pulsing dot + italic serif accent text, no pill container */
+/* Live / now — a pulsing dot + italic serif accent text, no pill container.
+   Runs on --color-live, not the accent: under the 2.0 colour law green means
+   "Gaffa, and yours" and nothing else, so live is a broadcast tally red. This
+   class was still painting --color-accent, which left that law unimplemented
+   at the one place that defines liveness. */
 .ds-live {
   display: inline-flex;
   align-items: center;
@@ -601,8 +717,8 @@ svg {
   font-family: var(--font-serif);
   font-style: italic;
   font-weight: 600;
-  font-size: 13.5px;
-  color: var(--color-accent);
+  font-size: var(--t-13);
+  color: var(--color-live);
 }
 .ds-live::before {
   content: "";
@@ -642,8 +758,13 @@ svg {
   padding-left: 9px;
 }
 
-/* Meter — replaces a rounded gradient progress bar (FAAB / budget / countdown fills).
-   Flat, hard-edged, ticked at 25/50/75% like a broadcast stats bar. */
+/* Meter — flat, hard-edged, ticked at 25/50/75% like a broadcast stats bar.
+   ONLY for a quantity with a real maximum: lobby capacity ("7 of 10 managers
+   joined"), a countdown against a known window. Never Club Balance, which is an
+   uncapped dynasty asset and must never render as a spent/remaining gauge, and
+   never a player stat, which is read against a positional median (the baseline
+   rule) rather than as a fill toward a total. An earlier version of this
+   comment listed "FAAB / budget" as the use case; that was wrong. */
 .ds-meter {
   position: relative;
   height: 8px;
@@ -672,4 +793,516 @@ svg {
   border-radius: 5px;
   padding-bottom: 4px;
 }
+
+/* ============================================================
+   GAFFA 2.0 — THE SURFACE ("1f").  Locked 2026-08-10.
+   Ported from design-2.0's `gaffa-surface.css`; see that file and
+   `design-2.0/README.md` § "The surface" for the derivation.
+
+   The approved direction: depth from a real light source, the position
+   spine used structurally but rationed, and the scoreline given the
+   presence of an instrument.
+
+   THE RULE THAT GOVERNS EVERYTHING HERE
+   A gradient ground is not free. 1.0 verified its inks against a FLAT
+   page and a FLAT card, so any gradient pushing past those values
+   creates surface the palette was never checked on. Measured, the first
+   draft of this treatment broke four things:
+
+     light ground edge #EFE9DF   border-strong  2.94  (needs 3.0)
+     dark  ground top  #2B3348   live / danger  4.41  (needs 4.5)
+     dark  ground top  #2B3348   border-strong  2.86  (needs 3.0)
+     dark  panel  top  #2A3145   border-strong  2.94  (needs 3.0)
+
+   So every ramp below ENDS on a value the palette already verifies and
+   travels only in the direction that improves contrast. The darkest
+   point of any surface is one 1.0 already cleared — which also means a
+   page taller than the gradient has no seam and no unverified region
+   below the fold, because the final stop equals the background-color.
+
+   These are 2.0 surfaces: only a ported page should use them, and a
+   ported page pays its own scale migration (--t-*, --s*, --r-*) at the
+   same time. No page is half-migrated.
+   ============================================================ */
+
+/* --- 1. The ground ---
+   One light source, high and centred, falling into the verified page
+   colour. Checked at every stop against text-muted, accent-ink, live,
+   danger, warning-text, the medal ramp and border-strong. */
+.g-page {
+  background-color: var(--color-bg-primary);
+  background-image: radial-gradient(120% 90% at 50% -18%,
+    #FFFFFF 0%, #FBF8F3 38%, var(--color-bg-primary) 100%);
+  background-repeat: no-repeat;
+}
+[data-theme="dark"] .g-page {
+  background-image: radial-gradient(85% 62% at 50% -6%,
+    #292E3E 0%, #1F2536 44%, var(--color-bg-primary) 100%);
+}
+
+/* --- 2. The panel ---
+   Elevation declared ONCE (decision 1): shadow, no border. The top edge
+   catches the light with a 1px inset highlight — a line, not a surface,
+   so it carries no contrast obligation. In dark the panel darkens
+   downward FROM the verified card value; it must never lighten past it. */
+.g-panel {
+  background: var(--color-bg-card);
+  border-radius: var(--r-shell);
+  overflow: hidden;
+  box-shadow:
+    0 1px 1px rgba(58, 44, 26, .05),
+    0 2px 5px rgba(58, 44, 26, .05),
+    0 18px 34px -14px rgba(58, 44, 26, .20),
+    inset 0 1px 0 rgba(255, 255, 255, .9);
+}
+[data-theme="dark"] .g-panel {
+  background: linear-gradient(180deg, var(--color-bg-card) 0%, #212736 100%);
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, .42),
+    0 24px 48px -20px rgba(0, 0, 0, .66),
+    inset 0 1px 0 rgba(180, 198, 235, .16);
+}
+
+/* The header wash is LIGHT-ONLY. On cream it reads as the light landing on
+   the top of the panel; on navy the same device would have to lighten the
+   surface past the verified card, so dark uses the rule alone. A theme is
+   allowed to solve something differently. */
+.g-panel-hd {
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+  padding: var(--s3) var(--s4);
+  border-bottom: 1px solid var(--color-border);
+  background: linear-gradient(180deg, rgba(255, 255, 255, .85), rgba(255, 255, 255, 0));
+}
+[data-theme="dark"] .g-panel-hd {
+  background: none;
+  border-bottom-color: rgba(150, 170, 210, .14);
+}
+
+/* --- 3. The spectrum ---
+   Twelve position hues as a 3px rule at the head of a panel.
+
+   RATIONED, exactly like the tracked label: it appears ONLY on a panel that
+   represents a whole squad or the whole player pool — somewhere all twelve
+   positions are genuinely in play. On a panel showing one competition, one
+   trade or one manager it is decoration, and a device that introduces every
+   group signals nothing. */
+.g-spectrum { display: flex; height: 3px; }
+.g-spectrum i { flex: 1; }
+
+/* --- 4. The scoreline ---
+   The two figures take the top line; the margin axis runs full width beneath
+   them, the way a broadcast bug reads — score first, then the state of the
+   tie. Nothing is squeezed between the numbers.
+
+   The figure stays in INK. A red score reads as danger rather than as live,
+   and live already has its own marker in the header. Your side is ruled in
+   the accent, because accent means "yours". */
+.g-score {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  row-gap: var(--s3);
+  align-items: end;
+  padding: var(--s5) var(--s4) var(--s4);
+}
+.g-score-v {
+  font-family: var(--font-serif);
+  font-weight: 700;
+  font-size: var(--t-40);
+  line-height: 1;
+  letter-spacing: -.035em;
+  font-variant-numeric: tabular-nums lining-nums;
+}
+.g-score-mine .g-score-v {
+  display: inline-block;
+  border-bottom: 2px solid var(--color-accent);
+  padding-bottom: 6px;
+}
+.g-score-away { text-align: right; }
+.g-score-axis { grid-column: 1 / -1; display: flex; flex-direction: column; gap: 5px; }
+
+/* Labels and axis ticks are the condensed face, not mono: a club name is a
+   name. Mono is reserved for values that genuinely tick. */
+.g-label {
+  font-family: var(--font-condensed);
+  font-weight: 700;
+  font-size: var(--t-12);
+  letter-spacing: .10em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+/* The quiet variant, for a caption sitting UNDER something — a club under a
+   player name, a date under a heading. Condensed + uppercase + tracked is
+   already a lot of optical weight, and at 12/700/.10em the caption competed
+   with the 13px name above it instead of sitting beneath it. This runs at the
+   scale floor and at 500, with tracking eased because tracking adds apparent
+   size. Same family, same job, one step back. */
+.g-label-quiet {
+  font-family: var(--font-condensed);
+  font-weight: 500;
+  font-size: var(--t-10);
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+/* --- 5. Row tint ---
+   Position hue grounds a row on HOVER only. Tinting every row at rest turns a
+   squad list into a paint chart; on hover it answers "which one am I on" and
+   teaches the taxonomy at the same time. Pass the hue in as --pf on the row. */
+.g-row:hover {
+  background: linear-gradient(90deg,
+    color-mix(in oklab, var(--pf) 12%, transparent) 0%, transparent 60%);
+}
+
+/* --- 6. Recessed tracks ---
+   Anything a value is laid into — a baseline track, a margin axis — is
+   recessed rather than drawn, so the ink reads as sitting IN the panel. */
+.g-track {
+  position: relative;
+  background: var(--color-bg-inset);
+  border-radius: var(--r-micro);
+  box-shadow: inset 0 1px 2px rgba(58, 44, 26, .13);
+}
+[data-theme="dark"] .g-track {
+  background: rgba(10, 14, 24, .62);
+  box-shadow: none;
+}
+
+/* ============================================================
+   GAFFA 2.0 — THE PLAYER HEAD.  Locked 2026-08-10.
+
+   Portrait | identity | figure, on one row, centred against each
+   other — with the baseline rule spanning the full width beneath it.
+
+   WHY THE FIGURE HAS ITS OWN COLUMN. It used to be the last flex child
+   of the name line with `margin-left: auto`, which is what made it read
+   as floating: pinned to the far right of a row whose only other
+   content was a short name, tied to nothing, with no baseline of its
+   own. A column plus a caption turns it into an instrument reading.
+
+   `minmax(0, 1fr)` and the ellipsis on the identity column are
+   load-bearing, not tidiness. With `min-width: 0` and a nowrap name, a
+   long name SPILLS out of its column and sits on top of the figure —
+   measured at a 31px overlap on "Bruno Fernandes" at hero type in a
+   430px card. Names should never truncate at real panel widths; this is
+   the guard for when they otherwise would collide.
+   ============================================================ */
+.g-player-head {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: var(--s4);
+  align-items: center;
+}
+.g-player-id {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.g-player-name-row {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: var(--s2);
+  min-width: 0;
+}
+.g-player-name-row > :first-child { flex: 0 0 auto; }  /* the position badge */
+.g-player-name {
+  font-weight: 700;
+  font-size: var(--t-20);
+  letter-spacing: -.015em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+/* The figure column: right-aligned, caption sharing the edge so the number
+   has a foot to stand on. */
+.g-player-figure {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 3px;
+  flex: 0 0 auto;
+}
+.g-player-points {
+  font-family: var(--font-serif);
+  font-weight: 700;
+  font-size: var(--t-32);
+  line-height: 1;
+  letter-spacing: -.03em;
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+/* The performance ramp as figure colour. Only ever text on a figure — see the
+   containment note on the tokens. Drive the class from `perfClass()`
+   (src/lib/scoring/perfBand.ts) so the bands are defined in exactly one place.
+   The points figure takes the band of the COMPOSITE that produced it, never of
+   the raw point total, or its colour would mean something different from the
+   baseline-rule numbers directly beneath it. */
+.g-perf-poor { color: var(--color-perf-poor); }
+.g-perf-low  { color: var(--color-perf-low); }
+.g-perf-mid  { color: var(--color-perf-mid); }
+.g-perf-good { color: var(--color-perf-good); }
+.g-perf-best { color: var(--color-perf-best); }
+
+/* ============================================================
+   GAFFA 2.0 — THE BASELINE RULE.  Locked 2026-08-10.
+   Driven by <BaselineRule> (src/components/players/BaselineRule.tsx).
+
+   The signature component: the one no other fantasy app can copy,
+   because no other fantasy app scores this way. A stat is never a bar
+   filling toward a maximum. The median for the player's OWN position is
+   engraved as a fixed rule and his ink is laid over it, so you read
+   "against his role" rather than "out of some total".
+
+   WHY THE RULE IS STRAIGHT. sigmoidNormalize() in matchRating.ts is
+   centred on the positional median — z = K(value − median) / stddev,
+   then 1/(1+e^−z) — so a score of 0.5 IS the median, for every
+   component and every position. The tick is not a per-row lookup, it is
+   a constant 50%, and nothing needs to read rating_reference_stats at
+   render time. That is what lets the ticks stack into ONE continuous
+   vertical line down the card.
+
+   WHY THE FIGURE IS 0–100. The score is already a logistic CDF value,
+   so ×100 reads as a position-relative mark where 50 is his own median,
+   and it is the SAME number as the bar length — the bar fills to 87 and
+   the label says 87. A signed ±50 reading (0 at the rule) was built and
+   tried; it makes the figure agree with the rule but disagree with the
+   ink, and it made a plain component feel like a statistics readout.
+   Also rejected: σ (ln(s/(1−s))). Both live in
+   `Gaffa 2.0 Baseline Rule.dc.html` if the question reopens.
+
+   Caveat worth keeping in view: this is the engine's own logistic
+   scale, not an empirical rank of the pool. 87 is not "better than 87%
+   of attacking midfielders", it is 87 on the curve that produced his
+   points.
+
+   LAYOUT, for whoever builds the surface around this: give it the FULL
+   width of the panel, on its own row beneath the player's identity. In
+   a two-column hero it gets whatever the portrait leaves — measured at
+   76px of track inside a 430px card, against 310px full-width — and
+   with six rows the text column outgrows the portrait, so an
+   `align-items: end` hero drops the photograph to the floor with a hole
+   above it. The header that belongs above it is `.g-player-head`.
+
+   HOW THE CONTINUITY IS BUILT. Not with one element spanning the grid:
+   the rows are `display: contents` and auto-place, so an explicitly
+   placed spanning child shoves every track a column to the right (it
+   did — tracks rendered at the value column's width). Instead each
+   row's tick fills its own row box and `row-gap` is 0, so consecutive
+   ticks butt together exactly at any row height. No magic offsets to
+   re-tune when the type scale moves.
+   ============================================================ */
+.g-baseline {
+  display: grid;
+  grid-template-columns: 104px minmax(0, 1fr) 30px;
+  column-gap: var(--s3);
+  row-gap: 0;
+}
+.g-baseline-row { display: contents; }
+.g-baseline-label {
+  font-size: var(--t-11);
+  color: var(--color-text-secondary);
+  align-self: center;
+}
+.g-baseline-value {
+  font-size: var(--t-11);
+  font-weight: 700;
+  text-align: right;
+  align-self: center;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-primary);
+}
+
+/* Full row height, so the tick has a box to fill. */
+.g-baseline-track {
+  position: relative;
+  align-self: stretch;
+  min-height: 24px;
+  display: flex;
+  align-items: center;
+}
+.g-baseline-bar { position: relative; width: 100%; height: 7px; }
+.g-baseline-ink {
+  position: absolute;
+  inset-block: 0;
+  left: 0;
+  width: var(--v);
+  background: var(--pf, var(--color-accent));
+  border-radius: var(--r-micro);
+}
+.g-baseline-tick {
+  position: absolute;
+  left: 50%;
+  inset-block: 0;
+  width: 2px;
+  margin-left: -1px;
+  background: var(--color-text-primary);
+}
+
+/* Below his own median, the ink steps back — the figure's own colour now
+   carries the verdict, via the performance ramp, so the bar does not need to
+   shout it a second time. (An earlier version also muted the figure here; that
+   would override the ramp, which is the thing actually saying "below".) */
+.g-baseline-row.is-under .g-baseline-ink { opacity: .55; }
+
+/* One caption teaches the scale; the rule the bars cross IS the 50 line, so
+   nothing more than this is needed. */
+.g-baseline-caption {
+  margin-top: 5px;
+  font-family: var(--font-condensed);
+  font-weight: 500;
+  font-size: var(--t-10);
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+/* ============================================================
+   GAFFA 2.0 — THE PORTRAIT.  Locked 2026-08-10.
+   Ported from design-2.0's `gaffa-portrait.css`. Driven by
+   <Portrait> (src/components/players/Portrait.tsx); the URL and
+   availability rules live in src/lib/players/photo.ts.
+
+   Source truth: Premier League headshots are 500x500 TRANSPARENT PNG
+   cut-outs, studio-lit, head and shoulders. The id is FPL bootstrap's
+   elements[].code.
+
+   Measured across five cut-outs:
+     head top        0.4 - 0.8%   (flush to the top edge)
+     shoulders begin 45 - 51%
+     head centre x   46 - 51%
+     head width      29 - 34%
+
+   There is NO headroom in the source. Any crop that zooms and shifts
+   upward removes the top of the skull — that is exactly what an earlier,
+   eyeballed crop did. Breathing room above the head comes from pushing
+   the image DOWN inside its frame.
+
+   Window: x 18-82%, y 0-69%  ->  zoom 156.25%, top inset per size.
+
+   The ground is a radial light at 0.6 of the strength first tried: half
+   read flat, full read like a portrait studio. It is NEVER tinted by
+   position — the kit already carries strong colour, and a position tint
+   fights it (a mauve AM ground behind a red Man Utd shirt was the tell).
+   Position colour stays on the badge.
+
+   The shadow is cast by the FIGURE, not the frame: because the source is
+   a cut-out, drop-shadow follows the real outline of head and shoulders.
+   This replaces a blurred contact ellipse that was faking the same effect
+   and reading as a smudge.
+
+   ONE DEVIATION FROM THE SPEC FILE, deliberate: the spec paints the
+   cut-out as a `background-image` on a <span>. A background that fails to
+   load fires no event, and 27% of the FPL pool has no 500x500 cut-out
+   (measured, 2026-08-10), so the fallback has to be reachable at runtime.
+   Here it is a real <img>, sized to the same zoom and inset, which gives
+   a native onerror. Every measured value is unchanged and the two render
+   identically.
+
+   THE SECOND SOURCE (`-alt`). The CDN's other path serves a 220x280
+   cut-out, and coverage is not nested — plenty of players missing the
+   square one have this. It is a DIFFERENT picture, framed tighter, so it
+   gets its OWN zoom rather than the locked one: 142% against the square
+   source's 156.25% (136% against its 150%), derived by matching head
+   width in the composed frame across eight players
+   (`scratch/solve_portrait_zoom.mjs`, exact match 1.418). The insets do
+   not move — the head is flush to the top edge in both sources, so
+   "push the image down, never crop higher" carries over untouched. */
+.g-portrait { display: block; position: relative; flex-shrink: 0; }
+.g-portrait-lg { width: 104px; height: 120px; --g-portrait-zoom: 156.25%; --g-portrait-zoom-alt: 142%; --g-portrait-inset: 9px; --g-crest: 28px; }  /* hero */
+.g-portrait-md { width: 66px;  height: 78px;  --g-portrait-zoom: 156.25%; --g-portrait-zoom-alt: 142%; --g-portrait-inset: 6px; --g-crest: 22px; }  /* lot  */
+.g-portrait-sm { width: 44px;  height: 44px;  --g-portrait-zoom: 150%;    --g-portrait-zoom-alt: 136%; --g-portrait-inset: 4px; --g-crest: 16px; }  /* row  */
+
+.g-portrait-frame {
+  display: block;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: var(--r-control);
+  box-shadow: inset 0 0 0 1px var(--color-border-subtle);
+  background: radial-gradient(75.6% 57.6% at 50% 25.6%,
+    color-mix(in oklab, #FFFFFF 60%, var(--color-bg-inset)) 0%,
+    var(--color-bg-inset) 67%,
+    color-mix(in oklab, var(--color-bg-inset) 92%, #2A2318) 100%);
+}
+[data-theme="dark"] .g-portrait-frame {
+  box-shadow: inset 0 0 0 1px rgba(150, 170, 210, .16);
+  background: radial-gradient(75.6% 57.6% at 50% 25.6%, #313952 0%, #1D2332 68%, #161A26 100%);
+}
+
+.g-portrait-img {
+  position: absolute;
+  top: var(--g-portrait-inset);
+  left: 50%;
+  width: var(--g-portrait-zoom);
+  height: auto;
+  transform: translateX(-50%);
+  filter: drop-shadow(0 9px 11px rgba(40, 30, 16, .32));
+}
+.g-portrait-img-alt { width: var(--g-portrait-zoom-alt); }
+.g-portrait-sm .g-portrait-img { filter: drop-shadow(0 4px 6px rgba(40, 30, 16, .30)); }
+[data-theme="dark"] .g-portrait-img { filter: drop-shadow(0 10px 13px rgba(0, 0, 0, .66)); }
+[data-theme="dark"] .g-portrait-sm .g-portrait-img { filter: drop-shadow(0 5px 7px rgba(0, 0, 0, .62)); }
+
+/* THE CLUB CREST, chipped onto the portrait's lower-left corner.
+   Chosen 2026-08-10 over a club text line under the name. A crest is how
+   football says a club name: it needs no words, and — unlike the text line it
+   replaces — it cannot run long, which was the actual complaint. It also costs
+   nothing in layout, because it is positioned out of flow; the alternatives
+   that sat the crest ABOVE the portrait made the block ~10-26px taller, since
+   the hero's height is max(left column, right column) and shortening the text
+   side hands the job to the left one.
+
+   The known cost: this is a filled circular mark, and the 1.0 indicator
+   language went out of its way to delete those. It earns the exception by
+   being real club identity art rather than a status pill — the thing that rule
+   was written against — and by being the only element here that survives at
+   row size without words.
+
+   `overflow: hidden` on .g-portrait-frame would clip it, so the chip is a
+   sibling of the frame, not a child. */
+.g-portrait-crest {
+  position: absolute;
+  left: -7px;
+  bottom: -7px;
+  width: var(--g-crest);
+  height: var(--g-crest);
+  border-radius: var(--r-round);
+  background: var(--color-bg-card);
+  display: grid;
+  place-items: center;
+  box-shadow: 0 1px 3px rgba(58, 44, 26, .28);
+}
+[data-theme="dark"] .g-portrait-crest {
+  background: var(--color-bg-card);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, .55);
+}
+.g-portrait-crest img {
+  display: block;
+  width: 64%;
+  height: 64%;
+  object-fit: contain;
+}
+
+/* No photograph: a serif initial on the same lit ground. Absence is shown,
+   never faked — and it is not rare. */
+.g-portrait-fallback {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-serif);
+  font-weight: 700;
+  letter-spacing: -.03em;
+  color: var(--color-text-muted);
+  font-size: 38px;
+}
+.g-portrait-md .g-portrait-fallback { font-size: 26px; }
+.g-portrait-sm .g-portrait-fallback { font-size: 17px; }
 

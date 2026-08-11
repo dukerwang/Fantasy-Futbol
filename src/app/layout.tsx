@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Hanken_Grotesk, JetBrains_Mono, Newsreader } from 'next/font/google';
+import { Archivo_Narrow, Hanken_Grotesk, JetBrains_Mono, Newsreader } from 'next/font/google';
 import { ThemeProvider } from '@/context/ThemeContext';
 import './globals.css';
 
@@ -28,6 +28,19 @@ const jetbrainsMono = JetBrains_Mono({
   subsets: ['latin'],
   display: 'swap',
   variable: '--font-jetbrains-mono',
+});
+
+/**
+ * The condensed face (Gaffa 2.0). It carries column heads, club names and axis
+ * labels — the role that had no face in 1.0 and so fell to JetBrains Mono.
+ * Mono is now reserved for values that genuinely tick: countdowns, lot numbers,
+ * bid clocks. Archivo Narrow is a variable font, so the whole 400–700 range
+ * ships in one file and no per-weight list is needed.
+ */
+const archivoNarrow = Archivo_Narrow({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-archivo-narrow',
 });
 
 export const metadata: Metadata = {
@@ -61,7 +74,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html
       lang="en"
-      className={`${newsreader.variable} ${hankenGrotesk.variable} ${jetbrainsMono.variable}`}
+      className={`${newsreader.variable} ${hankenGrotesk.variable} ${jetbrainsMono.variable} ${archivoNarrow.variable}`}
     >
       <body>
         <ThemeProvider>
