@@ -360,7 +360,7 @@
 
 .youTag {
   font-family: var(--font-sans);
-  font-size: 8px;
+  font-size: var(--t-10);
   font-weight: 700;
   letter-spacing: 0.1em;
   padding: 2px 5px;

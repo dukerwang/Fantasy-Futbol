@@ -221,7 +221,7 @@
 }
 
 .posBadgeMini {
-  font-size: 8px;
+  font-size: var(--t-10);
   font-weight: var(--font-bold);
   color: #fff;
   padding: 1px 4px;
@@ -251,7 +251,7 @@
 }
 
 .statLabelMini {
-  font-size: 8px;
+  font-size: var(--t-10);
   font-weight: var(--font-bold);
   letter-spacing: 0.05em;
   text-transform: uppercase;
@@ -281,7 +281,7 @@
 }
 
 .auctionLabelMini {
-  font-size: 8px;
+  font-size: var(--t-10);
   font-weight: var(--font-bold);
   text-transform: uppercase;
   color: var(--color-text-muted);
@@ -563,7 +563,7 @@
 
 .clockLabel {
   font-family: var(--font-sans);
-  font-size: 6px;
+  font-size: var(--t-10);
   font-weight: 700;
   letter-spacing: 0.15em;
   text-transform: uppercase;
@@ -618,7 +618,7 @@
 
 .stripPickLabel {
   font-family: var(--font-serif);
-  font-size: 8px;
+  font-size: var(--t-10);
   font-style: italic;
   color: var(--color-text-muted);
   line-height: 1;
@@ -630,7 +630,7 @@
 
 .stripTeamName {
   font-family: var(--font-sans);
-  font-size: 8px;
+  font-size: var(--t-10);
   font-weight: 700;
   text-transform: uppercase;
   color: var(--color-text-primary);
@@ -649,7 +649,7 @@
 
 .bannerRoundLabel {
   font-family: var(--font-sans);
-  font-size: 8px;
+  font-size: var(--t-10);
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -708,7 +708,7 @@
 
 .boardSubtitle {
   font-family: var(--font-sans);
-  font-size: 8px;
+  font-size: var(--t-10);
   letter-spacing: 0.05em;
   text-transform: uppercase;
   color: var(--color-text-muted);
@@ -724,7 +724,7 @@
   width: 32px;
   background: var(--color-bg-secondary);
   font-family: var(--font-sans);
-  font-size: 8px;
+  font-size: var(--t-10);
   font-weight: 700;
   text-transform: uppercase;
   color: var(--color-text-muted);
@@ -736,7 +736,7 @@
 .teamHeaderCell {
   background: var(--color-bg-secondary);
   font-family: var(--font-sans);
-  font-size: 8px;
+  font-size: var(--t-10);
   font-weight: 700;
   text-transform: uppercase;
   text-align: center;
@@ -756,7 +756,7 @@
 .roundCell {
   background: var(--color-bg-secondary);
   font-family: var(--font-sans);
-  font-size: 8px;
+  font-size: var(--t-10);
   font-weight: 700;
   color: var(--color-text-muted);
   text-align: center;
@@ -789,7 +789,7 @@
   top: 2px;
   left: 3px;
   font-family: var(--font-sans);
-  font-size: 7px;
+  font-size: var(--t-10);
   color: var(--color-text-muted);
   line-height: 1;
 }
@@ -809,7 +809,7 @@
   align-items: center;
   justify-content: center;
   font-family: var(--font-sans);
-  font-size: 7px;
+  font-size: var(--t-10);
   font-weight: 700;
   color: #fff;
   border-radius: 2px;
@@ -819,7 +819,7 @@
 
 .pickedName {
   font-family: var(--font-sans);
-  font-size: 8px;
+  font-size: var(--t-10);
   font-weight: 600;
   color: var(--color-text-primary);
   text-align: center;
@@ -844,7 +844,7 @@
 }
 
 .onClockText {
-  font-size: 7px;
+  font-size: var(--t-10);
   font-weight: var(--font-bold);
   color: var(--color-accent-green);
   letter-spacing: 0.05em;
@@ -891,7 +891,7 @@
 }
 
 .cupEyebrow {
-  font-size: 8px;
+  font-size: var(--t-10);
   font-weight: var(--font-bold);
   text-transform: uppercase;
   color: var(--color-text-muted);
@@ -916,7 +916,7 @@
 }
 
 .cupTieHeader {
-  font-size: 8px;
+  font-size: var(--t-10);
   font-weight: var(--font-bold);
   color: var(--color-text-muted);
   letter-spacing: 0.05em;
@@ -960,7 +960,7 @@
 
 .cupScore small {
   font-family: var(--font-sans);
-  font-size: 8px;
+  font-size: var(--t-10);
   color: var(--color-text-muted);
   font-weight: normal;
 }

@@ -297,7 +297,7 @@
 
 .loanRole {
   font-family: var(--font-sans);
-  font-size: 7px;
+  font-size: var(--t-10);
   font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -393,7 +393,7 @@
   writing-mode: vertical-rl;
   transform: rotate(180deg);
   font-family: var(--font-sans);
-  font-size: 8px;
+  font-size: var(--t-10);
   font-weight: 700;
   letter-spacing: 0.28em;
   text-transform: uppercase;
@@ -618,7 +618,7 @@
 
 .ratingLbl {
   font-family: var(--font-sans);
-  font-size: 7px;
+  font-size: var(--t-10);
   font-weight: 700;
   letter-spacing: 0.16em;
   text-transform: uppercase;
@@ -656,7 +656,7 @@
 }
 
 .posTag {
-  font-size: 8px;
+  font-size: var(--t-10);
   font-weight: 700;
   letter-spacing: 0.08em;
   color: #fff;
@@ -712,7 +712,7 @@
 
 .statLbl {
   font-family: var(--font-sans);
-  font-size: 8px;
+  font-size: var(--t-10);
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -737,7 +737,7 @@
 
 .rankLbl {
   font-family: var(--font-sans);
-  font-size: 8px;
+  font-size: var(--t-10);
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -788,7 +788,7 @@
 }
 
 .rcPos {
-  font-size: 8px;
+  font-size: var(--t-10);
   font-weight: 700;
   letter-spacing: 0.06em;
   color: #fff;
@@ -956,7 +956,7 @@
 
 .backEyebrow {
   font-family: var(--font-sans);
-  font-size: 8px;
+  font-size: var(--t-10);
   font-weight: 700;
   letter-spacing: 0.20em;
   text-transform: uppercase;
@@ -1030,7 +1030,7 @@
 
 .formLbl {
   font-family: var(--font-sans);
-  font-size: 8px;
+  font-size: var(--t-10);
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -1121,7 +1121,7 @@
 
 .glTable thead th {
   font-family: var(--font-sans);
-  font-size: 8px;
+  font-size: var(--t-10);
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;

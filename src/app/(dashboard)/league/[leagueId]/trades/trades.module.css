@@ -827,7 +827,7 @@
 
 .leagueFeedStatus {
   font-family: 'Inter', sans-serif;
-  font-size: 8px;
+  font-size: var(--t-10);
   font-weight: 700;
   letter-spacing: 0.12em;
   color: var(--color-accent-green);
@@ -1201,7 +1201,7 @@
 
 .blockOnIndicator {
   font-family: 'Inter', sans-serif;
-  font-size: 8px;
+  font-size: var(--t-10);
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -1334,7 +1334,7 @@
 
 .tcStatusPending {
   font-family: 'Inter', sans-serif;
-  font-size: 8px;
+  font-size: var(--t-10);
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -1537,7 +1537,7 @@
 
 .tcHistoryStatus {
   font-family: 'Inter', sans-serif;
-  font-size: 8px;
+  font-size: var(--t-10);
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -1638,7 +1638,7 @@
 
 .tbValueLabel {
   font-family: 'Inter', sans-serif;
-  font-size: 8px;
+  font-size: var(--t-10);
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -1666,7 +1666,7 @@
 
 .tbOwnerTag {
   font-family: 'Inter', sans-serif;
-  font-size: 8px;
+  font-size: var(--t-10);
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;

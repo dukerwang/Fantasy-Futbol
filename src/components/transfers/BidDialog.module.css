@@ -36,7 +36,7 @@
 .rung:last-child { border-right: none; }
 
 .rungLabel {
-  font-size: 0.5rem;
+  font-size: var(--t-10);
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;

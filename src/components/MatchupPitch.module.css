@@ -209,7 +209,7 @@
     display: inline-block;
     padding: 1.5px 5px;
     font-family: var(--font-sans);
-    font-size: 0.45rem;
+    font-size: var(--t-10);
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.04em;
@@ -235,7 +235,7 @@
     top: -5px;
     right: -5px;
     font-family: var(--font-sans);
-    font-size: 0.48rem;
+    font-size: var(--t-10);
     font-weight: 800;
     padding: 2px 4px;
     line-height: 1.2;
@@ -311,7 +311,7 @@
 .benchChipName {
     display: block;
     font-family: var(--font-sans);
-    font-size: 0.5rem;
+    font-size: var(--t-10);
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.02em;
@@ -327,7 +327,7 @@
     top: -5px;
     right: -5px;
     font-family: var(--font-sans);
-    font-size: 0.42rem;
+    font-size: var(--t-10);
     font-weight: 800;
     padding: 2px 3px;
     line-height: 1.2;

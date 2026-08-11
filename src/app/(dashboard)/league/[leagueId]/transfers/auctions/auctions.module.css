@@ -115,7 +115,7 @@
 }
 
 .lh {
-  font-size: 0.5rem;
+  font-size: var(--t-10);
   font-weight: 700;
   letter-spacing: 0.16em;
   text-transform: uppercase;
@@ -203,7 +203,7 @@
 
 /* Provenance is a tag, not a section — the two kinds sort against each other. */
 .src {
-  font-size: 0.47rem;
+  font-size: var(--t-10);
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -353,7 +353,7 @@
 }
 
 .exTitle {
-  font-size: 0.5rem;
+  font-size: var(--t-10);
   font-weight: 700;
   letter-spacing: 0.16em;
   text-transform: uppercase;
@@ -411,7 +411,7 @@
 .rungLast { border-bottom: none; }
 
 .rungLabel {
-  font-size: 0.5rem;
+  font-size: var(--t-10);
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
