@@ -517,8 +517,18 @@ faces a manager.
     class names namespaced (`.pfw`/`.pf`/`.im`/`.fb` → `.g-portrait*`) because a global
     stylesheet cannot own names that short. **One deliberate deviation:** the spec paints the
     cut-out as a `background-image`, which fires no event when it fails; the port uses a real
-    `<img>` at the same zoom and inset so the 403 reaches the fallback. Every measured value
-    is unchanged and the two render identically. `gaffa-portrait.css` still specifies the
+    `<img>` at the same zoom and inset so the 403 reaches the fallback.
+    ~~Every measured value is unchanged and the two render identically.~~ **They did not
+    (fixed 2026-08-11).** `background-size: 156.25%` answers to nothing, but `width: 156.25%`
+    on an `<img>` is clamped by the base reset's `img, svg { max-width: 100% }` — so the zoom
+    was silently discarded and **every portrait in the app rendered at 1.0**, the whole
+    cut-out scaled to the frame's width. A square frame (`sm`) hid it, because a square source
+    fits one exactly; the tall frames ran out of picture and left a 5–6px band of empty ground
+    along the bottom edge, which is how it was finally caught. The fix is `max-width: none` on
+    `.g-portrait-img`; the spec's numbers were right all along. Measured after: 103×103 in a
+    66×78 frame, 69.8% of the source visible — the documented `y 0–69%` window. The lesson is
+    the general one: **moving a value into a property the global reset already owns is a
+    silent change, not a neutral one.** `gaffa-portrait.css` still specifies the
     background-image form — worth reconciling if the prototype is ever rebuilt from the port.
   - **`.g-portrait-crest`** (added 2026-08-10, now also in `gaffa-portrait.css` as `.crest`) —
     the club crest chip. See "The club is a crest, not a line of text" above.

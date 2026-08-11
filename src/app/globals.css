@@ -1229,30 +1229,12 @@ svg {
    (`scratch/solve_portrait_zoom.mjs`, exact match 1.418). The insets do
    not move — the head is flush to the top edge in both sources, so
    "push the image down, never crop higher" carries over untouched. */
-/* ZOOM IS PER SIZE, because the frames are not the same shape (2026-08-11).
-   A single zoom across all three was measured to match HEAD WIDTH, and it does
-   — but head width is only half of a crop. The bottom edge lands wherever the
-   frame's height puts it, and the frames differ: sm is square (44x44) while md
-   and lg are tall (0.85:1). At a shared 156.25%, sm cut off at 61% of the
-   source and md/lg ran to 70%, which is well into the chest. Rendered side by
-   side that did not read as one portrait at three sizes; it read as a tight
-   crop and two shirt-heavy ones — the exact failure this spec was written to
-   avoid, arrived at from the other direction.
-
-   So md and lg are zoomed until their bottom edge lands where sm's does:
-     md  (78 - 7)  / (66  * 1.80) = 60%      lg  (120 - 10) / (104 * 1.78) = 59%
-   Insets move by 1px with them, keeping the head clear of the top edge — the
-   source has NO headroom (head top 0.4-0.8%), so a bigger zoom needs a
-   proportionally bigger push down, never a higher crop.
-
-   The -alt values scale by the same factor (x1.152 md, x1.139 lg) so the tall
-   220x280 source keeps the head-width match against the square one that
-   `solve_portrait_zoom.mjs` derived. sm is unchanged — it was already right,
-   and it is what the other two are being matched to. */
+/* These are the spec's own measured values. They are correct, and for a while
+   they were not reaching the screen — see `max-width` on .g-portrait-img. */
 .g-portrait { display: block; position: relative; flex-shrink: 0; }
-.g-portrait-lg { width: 104px; height: 120px; --g-portrait-zoom: 178%;    --g-portrait-zoom-alt: 162%; --g-portrait-inset: 10px; --g-crest: 28px; }  /* hero */
-.g-portrait-md { width: 66px;  height: 78px;  --g-portrait-zoom: 180%;    --g-portrait-zoom-alt: 164%; --g-portrait-inset: 7px;  --g-crest: 22px; }  /* lot  */
-.g-portrait-sm { width: 44px;  height: 44px;  --g-portrait-zoom: 150%;    --g-portrait-zoom-alt: 136%; --g-portrait-inset: 4px;  --g-crest: 16px; }  /* row  */
+.g-portrait-lg { width: 104px; height: 120px; --g-portrait-zoom: 156.25%; --g-portrait-zoom-alt: 142%; --g-portrait-inset: 9px; --g-crest: 28px; }  /* hero */
+.g-portrait-md { width: 66px;  height: 78px;  --g-portrait-zoom: 156.25%; --g-portrait-zoom-alt: 142%; --g-portrait-inset: 6px; --g-crest: 22px; }  /* lot  */
+.g-portrait-sm { width: 44px;  height: 44px;  --g-portrait-zoom: 150%;    --g-portrait-zoom-alt: 136%; --g-portrait-inset: 4px; --g-crest: 16px; }  /* row  */
 
 .g-portrait-frame {
   display: block;
@@ -1272,11 +1254,31 @@ svg {
   background: radial-gradient(75.6% 57.6% at 50% 25.6%, #313952 0%, #1D2332 68%, #161A26 100%);
 }
 
+/* `max-width: none` IS THE CROP. Without it there is no crop at all.
+   The base reset above carries `img, svg { max-width: 100% }`, which silently
+   clamped `width: 156.25%` back to 100% of the frame — so every portrait in the
+   app rendered the whole 500x500 cut-out scaled to the frame's WIDTH, at zoom
+   1.0, no matter what these variables said. The symptoms: a square frame (sm)
+   looked passable because a square source fits it exactly, while the tall
+   frames (md, lg) showed the entire cut-out and then ran out of picture, leaving
+   a 5-6px band of empty ground along the bottom edge.
+
+   This is the cost of the port's one deliberate deviation from
+   `gaffa-portrait.css`. The spec paints the cut-out as a `background-image`,
+   where `background-size: 156.25%` is not subject to any img reset; the port
+   swapped in a real <img> so a missing cut-out fires `onerror` and reaches the
+   fallback. That swap was right, but it moved the zoom into a property the
+   global reset already owned. Measured after the fix: image 103x103 in a 66x78
+   frame, 69.8% of the source visible — the spec's `y 0-69%` window exactly.
+
+   Do not remove this line, and do not "fix" a portrait by changing the zoom
+   numbers above; if a crop looks wrong, check that this is still in force. */
 .g-portrait-img {
   position: absolute;
   top: var(--g-portrait-inset);
   left: 50%;
   width: var(--g-portrait-zoom);
+  max-width: none;
   height: auto;
   transform: translateX(-50%);
   filter: drop-shadow(0 9px 11px rgba(40, 30, 16, .32));

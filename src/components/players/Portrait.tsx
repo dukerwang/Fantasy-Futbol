@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { clubBadgePath, resolveClub } from '@/lib/clubs/registry';
 import { portraitInitials, portraitSources } from '@/lib/players/photo';
 
@@ -52,6 +52,23 @@ export default function Portrait({ photoUrl, name, club, size = 'sm', className 
   const n = tried.key === key ? tried.n : 0;
   const src = sources[n];
 
+  // `onError` alone is not enough. The markup is server-rendered, so the browser
+  // starts fetching the cut-out long before React hydrates — and a source that
+  // 403s (27% of the pool has no square one) has already fired and lost its
+  // error event by the time the handler attaches. The result was a portrait
+  // stuck on a broken source: an empty lit frame, no second source tried and no
+  // initials, which is the one outcome this cascade exists to prevent.
+  //
+  // A loaded-but-zero-width image is exactly that missed failure, so re-check it
+  // after every commit. This terminates: each pass advances `n`, and once the
+  // sources run out `src` is undefined, the <img> is not rendered at all, and
+  // the fallback takes over.
+  const imgRef = useRef<HTMLImageElement>(null);
+  useEffect(() => {
+    const el = imgRef.current;
+    if (el?.complete && el.naturalWidth === 0) setTried({ key, n: n + 1 });
+  }, [key, n, src]);
+
   // resolveClub returns null rather than guessing, so an unrecognised spelling
   // shows no crest instead of confidently showing the wrong badge.
   const badge = clubBadgePath(club);
@@ -62,6 +79,7 @@ export default function Portrait({ photoUrl, name, club, size = 'sm', className 
       <span className="g-portrait-frame">
         {src ? (
           <img
+            ref={imgRef}
             className={`g-portrait-img${n > 0 ? ' g-portrait-img-alt' : ''}`}
             src={src}
             alt={name}
