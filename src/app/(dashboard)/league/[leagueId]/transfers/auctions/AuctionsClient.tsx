@@ -35,6 +35,7 @@ import styles from './auctions.module.css';
 type Facet = 'all' | 'closing' | 'leading' | 'outbid' | 'free' | 'listed' | 'affordable';
 
 const money = (n: number) => `€${n}m`;
+const bids = (n: number) => `${n} bid${n === 1 ? '' : 's'}`;
 
 export default function AuctionsClient({
   leagueId,
@@ -198,14 +199,19 @@ export default function AuctionsClient({
 
       <div className={styles.body}>
         <main className={`${styles.main} g-panel`}>
-          <div className={styles.lotHead}>
-            <span className="g-label">Lot</span>
-            <span className={`g-label ${styles.r}`}>Standing bid</span>
-            <span className={`g-label ${styles.r}`}>Leader</span>
-            <span className={`g-label ${styles.r}`}>You</span>
-            <span className={`g-label ${styles.r}`}>Closes</span>
-            <span className="g-label" />
-          </div>
+          {/* Column heads only when there are columns to head. With an empty
+              room they rendered as a bare ruled strip above "nothing is under
+              the hammer" — a table header for a table that isn't there. */}
+          {visible.length > 0 && (
+            <div className={styles.lotHead}>
+              <span className="g-label">Lot</span>
+              <span className={`g-label ${styles.r}`}>Standing bid</span>
+              <span className={`g-label ${styles.r}`}>Leader</span>
+              <span className={`g-label ${styles.r}`}>You</span>
+              <span className={`g-label ${styles.r}`}>Closes</span>
+              <span className="g-label" />
+            </div>
+          )}
 
           {visible.length === 0 ? (
             <p className={styles.empty}>
@@ -252,10 +258,17 @@ export default function AuctionsClient({
                     <div className={styles.goneName}>
                       {g.player ? getPlayerDisplayName(g.player, 'initial_last') : 'A player'}
                     </div>
+                    {/* Three outcomes, not two. A lot that drew bids but found
+                        no valid winner — every bidder's roster full, or short of
+                        the money once severance was added — is "unsold", not
+                        "no bids". Saying "no bids" there is what made the strip
+                        wrong even once the figures behind it were right. */}
                     <div className={styles.goneMeta}>
                       {g.winner_team_id
-                        ? `${g.winner_team_id === me ? 'you won' : g.winner_team_name} · ${g.bid_count} bid${g.bid_count === 1 ? '' : 's'}`
-                        : 'expired — no bids'}
+                        ? `${g.winner_team_id === me ? 'you won' : g.winner_team_name} · ${bids(g.bid_count)}`
+                        : g.bid_count > 0
+                          ? `unsold · ${bids(g.bid_count)}`
+                          : 'expired — no bids'}
                     </div>
                     <div
                       className={`${styles.goneValue} ${g.winner_team_id === me ? styles.statAccent : ''}`}
