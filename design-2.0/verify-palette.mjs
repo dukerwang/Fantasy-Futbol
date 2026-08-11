@@ -110,10 +110,19 @@ const P = {
     'bg-primary':    '#F7F3ED',
     'bg-secondary':  '#EDE8DE',
     'bg-card':       '#FDFCF9',
-    'bg-card-alt':   '#F3EFE6',
+    /* Three values below are the APP's, not 2.0's earlier proposals, because
+       measuring settled them the other way:
+         bg-card-alt  #F3EFE6 gave a zebra separation of 1.118 — above this
+                      file's own 1.03-1.10 target, i.e. stripey. #f9f6f1 is 1.051.
+         border /     2.0's #D6D0C4 / #E3DED3 are FAINTER than the app's
+         border-subtle (1.39 vs 1.58 on the page). Neither carries an AA
+                      obligation, and the audit's strongest finding was that
+                      hairlines are what make the newer pages read as precise.
+                      Softening 591 call sites to no benefit is not a fix. */
+    'bg-card-alt':   '#f9f6f1',
     'bg-inset':      '#E8E2D6',
-    'border':        '#D6D0C4',
-    'border-subtle': '#E3DED3',
+    'border':        '#C8C3BC',
+    'border-subtle': '#D9D4CD',
     'border-strong': '#8F877B',
     'text-primary':  '#1C1A17',
     'text-secondary':'#4A453D',
@@ -130,6 +139,22 @@ const P = {
     'tint-accent':   '#E2EAE1',
     'tint-danger':   '#F5E3DD',
     'tint-warning':  '#EFE8DD',
+    /* Performance ramp. Colours a figure by how it sits against the player's
+       OWN positional median. Solved in OKLCH, lightness only, against the
+       HARDER of card and page — these are 11px figures. Derived at 4.8 rather
+       than the 4.5 the check enforces: solving to the floor exactly put every
+       stop at 4.50:1, the tightest pairs in the palette, one background nudge
+       from failing. Same reason the keylines aim past 3.0.
+       Cost recorded, not argued, exactly like the winger sage below: `perf-best`
+       is 1 degree in hue from the accent and `perf-poor` 1 degree from danger,
+       so a strong figure is the same green as "yours" and a weak one the same
+       red as danger. A teal-to-clay ramp 47-56 degrees off the accent was built,
+       measured and set aside — green-to-red reads instantly and Duke judged that
+       worth the collision. Contained to TEXT ON FIGURES; never fills or badges. */
+    'perf-poor':     '#B04B3D',
+    'perf-low':      '#9B5B2B',
+    'perf-good':     '#42764E',
+    'perf-best':     '#147B47',
   },
   dark: {
     'bg-primary':    '#1A1F2E',
@@ -155,6 +180,10 @@ const P = {
     'tint-accent':   '#2A4647',
     'tint-danger':   '#533E4A',
     'tint-warning':  '#4D4745',
+    'perf-poor':     '#E37969',
+    'perf-low':      '#CC8758',
+    'perf-good':     '#6DA378',
+    'perf-best':     '#4EA972',
   },
 };
 
@@ -231,6 +260,16 @@ for (const theme of ['light', 'dark']) {
 
   // Semantic inks that carry sentences: full 4.5.
   for (const ink of ['accent-ink', 'live', 'danger', 'warning-text']) {
+    for (const surface of ['bg-primary', 'bg-card', 'bg-card-alt']) {
+      check(theme, `${ink} on ${surface}`, p[ink], p[surface], 4.5);
+    }
+  }
+
+  // The performance ramp carries the 11px baseline-rule figures, so it gets the
+  // full 4.5 — no large-text discount, even though the points figure it also
+  // colours is 32px. `perf-mid` is not listed: it IS text-primary, already
+  // checked above against every surface.
+  for (const ink of ['perf-poor', 'perf-low', 'perf-good', 'perf-best']) {
     for (const surface of ['bg-primary', 'bg-card', 'bg-card-alt']) {
       check(theme, `${ink} on ${surface}`, p[ink], p[surface], 4.5);
     }
