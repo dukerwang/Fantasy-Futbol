@@ -429,6 +429,28 @@ you look at it, and it is what the countdown counts down to. Club Balance and th
 week" price record do not; they are figures you compare down a column, which is decision 6's
 serif job. The split runs by liveness.
 
+**4. A row of mixed type sizes aligns on a baseline, not a centre line.** Where half a row's
+columns carry a caption under their value and half do not, centring every cell drops the
+caption-less ones into the gap **between** a figure and its caption — measured at **13–14px**
+below the figure they are meant to be read alongside. Every column was individually correct
+and the row still read loose. `align-self: baseline`, not `start`: the values are different
+sizes, so top-aligning trades one misalignment for a subtler one. Objects (a portrait, a
+button) keep the row's centre; type takes the baseline.
+
+**5. `--color-accent` is a fill; `--color-accent-ink` is the text.** `globals.css` already
+said so and the port used the fill token for text anyway — **4.33:1** in dark on every accent
+figure and label. The genuinely missing token was **`--color-on-accent`**, the label *on* an
+accent fill, which has to **invert by theme** because dark's accent is the brighter colour:
+white is 6.4:1 on light's `#146B40` and only ~2.5:1 on dark's `#1FA35F`. Reaching for
+`--color-bg-card` instead, as this port first did, produced a 4.33:1 button label. Both are
+now tokens, so the next port cannot repeat it.
+
+Three more failures worth recording because **each theme failed differently**, which is the
+whole argument for verifying both: light `--color-warning` **2.09** as an ink (it is a fill),
+dark `--color-defeat` **1.89** (a match result, with no dark value at all), and dark
+`--color-pos-cb` **2.00** — a position *field* colour borrowed for a filter chip, breaking
+the colour law and the contrast floor in one move.
+
 One fix to a primitive, found by its first real consumer: **`.g-row:hover` now paints with
 `background-image`, not the `background` shorthand.** The shorthand resets
 `background-color` to transparent before painting, so any row carrying a state colour of its
