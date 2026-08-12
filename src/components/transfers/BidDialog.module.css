@@ -1,21 +1,31 @@
+/* The bid dialog — Gaffa 2.0.
+
+   The ladder mirrors the listing card's, so the number you clicked is the number
+   you see — including its FACE. The standing bid and the countdown tick, so they
+   are mono; the minimum and the clause are settled figures you compare against
+   the board, so they take the serif the card now uses for them.
+
+   The amount you are typing stays mono throughout: it is the live figure, and it
+   is what the countdown is counting down to. */
+
 .identity {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.9rem 1.25rem 0.75rem;
+  gap: var(--s2);
+  padding: var(--s3) var(--s5) var(--s3);
   flex-wrap: wrap;
 }
 
 .name {
   font-family: var(--font-serif);
   font-weight: 700;
-  font-size: 1.25rem;
+  font-size: var(--t-20);
   letter-spacing: -0.015em;
   color: var(--color-text-primary);
 }
 
 .meta {
-  font-size: 0.72rem;
+  font-size: var(--t-12);
   color: var(--color-text-muted);
 }
 
@@ -29,13 +39,14 @@
 }
 
 .rung {
-  padding: 0.55rem 0.75rem;
+  padding: var(--s2) var(--s3);
   border-right: 1px solid var(--color-border-subtle);
 }
 
 .rung:last-child { border-right: none; }
 
 .rungLabel {
+  font-family: var(--font-condensed);
   font-size: var(--t-10);
   font-weight: 700;
   letter-spacing: 0.14em;
@@ -43,18 +54,29 @@
   color: var(--color-text-muted);
 }
 
+/* Settled: compared against the board. */
 .rungValue {
-  font-family: var(--font-mono);
+  font-family: var(--font-serif);
   font-weight: 700;
-  font-size: 0.9375rem;
-  margin-top: 0.125rem;
+  font-size: var(--t-15);
+  font-variant-numeric: tabular-nums lining-nums;
+  margin-top: var(--s1);
   color: var(--color-text-primary);
 }
 
-.warn { color: var(--color-warning); }
-.gold { color: var(--color-gold); }
+/* Live: the standing bid and the countdown both move while you look at them. */
+.rungLive {
+  font-family: var(--font-mono);
+  font-size: var(--t-15);
+}
 
-:global([data-theme='dark']) .gold { color: #CBA85F; }
+/* --color-warning is a fill with no dark value; as an ink on the card it is
+   2.09 in light. --color-warning-text is the ink half of the pair. */
+.warn { color: var(--color-warning-text); }
+
+/* --color-gold now has a dark value of its own, so the scoped #CBA85F override
+   that used to live here is gone. */
+.gold { color: var(--color-gold); }
 
 .off {
   color: var(--color-text-muted);
@@ -65,27 +87,28 @@
 
 .field {
   display: block;
-  padding: 0.9rem 1.25rem 0;
+  padding: var(--s3) var(--s5) 0;
 }
 
 .fieldLabel {
   display: block;
-  font-size: 0.55rem;
+  font-family: var(--font-condensed);
+  font-size: var(--t-10);
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--color-text-muted);
-  margin-bottom: 0.4rem;
+  margin-bottom: var(--s1);
 }
 
 .amountRow {
   display: flex;
   align-items: center;
-  gap: 0.25rem;
+  gap: var(--s1);
   border: 1px solid var(--color-border);
-  border-radius: 7px;
+  border-radius: var(--r-control);
   background: var(--color-bg-card);
-  padding: 0.5rem 0.75rem;
+  padding: var(--s2) var(--s3);
 }
 
 .amountRow:focus-within {
@@ -94,12 +117,15 @@
   outline-offset: -1px;
 }
 
+/* accent-ink, not accent: this is text on a card, where the fill token measured
+   4.33 in dark — and here it is the largest figure in the dialog. */
 .currency,
 .suffix {
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 1.25rem;
-  color: var(--color-accent);
+  font-size: var(--t-20);
+  font-variant-numeric: tabular-nums lining-nums;
+  color: var(--color-accent-ink);
 }
 
 .amount {
@@ -109,8 +135,9 @@
   background: none;
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 1.5rem;
-  color: var(--color-accent);
+  font-size: var(--t-25);
+  font-variant-numeric: tabular-nums lining-nums;
+  color: var(--color-accent-ink);
   padding: 0;
 }
 
@@ -127,68 +154,74 @@
 
 .select {
   width: 100%;
-  padding: 0.55rem 0.7rem;
+  padding: var(--s2) var(--s3);
   border: 1px solid var(--color-border);
-  border-radius: 7px;
+  border-radius: var(--r-control);
   background: var(--color-bg-card);
   font-family: var(--font-sans);
-  font-size: 0.8125rem;
+  font-size: var(--t-13);
   color: var(--color-text-primary);
 }
 
 .hint {
-  font-size: 0.66rem;
+  font-size: var(--t-11);
   color: var(--color-text-muted);
-  margin-top: 0.4rem;
+  margin-top: var(--s1);
   line-height: 1.45;
 }
 
 .checkboxRow {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--s2);
   font-family: var(--font-sans);
-  font-size: 0.8125rem;
+  font-size: var(--t-13);
   color: var(--color-text-primary);
   cursor: pointer;
 }
 
 .checkboxRow input[type='checkbox'] {
-  width: 1rem;
-  height: 1rem;
+  width: 16px;
+  height: 16px;
   accent-color: var(--color-accent);
   cursor: pointer;
 }
 
+/* The wash carries the alarm, so the message is ink — danger on danger-dim is
+   3.91 in dark. The rule down the left is the second carrier. */
 .error {
-  margin: 0.75rem 1.25rem 0;
-  padding: 0.5rem 0.7rem;
-  border-radius: 6px;
+  margin: var(--s3) var(--s5) 0;
+  padding: var(--s2) var(--s3);
+  border-radius: var(--r-control);
+  border-left: 3px solid var(--color-danger);
   background: var(--color-danger-dim);
-  color: var(--color-danger);
-  font-size: 0.75rem;
+  color: var(--color-text-primary);
+  font-size: var(--t-12);
   line-height: 1.45;
 }
 
-.field:last-of-type { padding-bottom: 1rem; }
+.field:last-of-type { padding-bottom: var(--s4); }
 
 /* ── Footer ─────────────────────────────────────────────── */
 
 .summary {
-  font-size: 0.75rem;
+  font-size: var(--t-12);
   color: var(--color-text-secondary);
   flex: 1;
   min-width: 140px;
 }
 
-.summary b { font-family: var(--font-mono); }
+.summary b {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums lining-nums;
+}
 
 .ghost,
 .go {
-  padding: 0.6rem 1.25rem;
-  border-radius: 5px;
-  font-family: var(--font-sans);
-  font-size: 0.69rem;
+  padding: var(--s2) var(--s5);
+  border-radius: var(--r-control);
+  font-family: var(--font-condensed);
+  font-size: var(--t-12);
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -204,9 +237,11 @@
 
 .ghost:hover:not(:disabled) { background: var(--color-bg-card-hover); }
 
+/* --color-on-accent, not #FFFFFF: dark's accent is the brighter colour, so a
+   white label there measures 3.25. */
 .go {
   background: var(--color-accent);
-  color: #FFFFFF;
+  color: var(--color-on-accent);
 }
 
 .go:hover:not(:disabled) { background: var(--color-accent-hover); }

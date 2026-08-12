@@ -1,3 +1,26 @@
+/* Your Deals — Gaffa 2.0.
+
+   Ported with the rest of the Market hub. Masthead and tools match the other
+   three rooms; what is specific here is the deal card and the club rail.
+
+   The main + rail already satisfies "a board is one panel" — one grid, one
+   internal hairline, the rail stretching with the list rather than ending where
+   its content does. It is not wrapped in .g-panel because, unlike the auction
+   room's board, this page is the full-bleed browse surface the listings board
+   and Free Agency also are. Elevation stays declared once, as the page.
+
+   THE POSITION HUES ARE GONE FROM THE DEAL KINDS. Offer tags and the "Make an
+   offer" button ran on --color-pos-cb; loan tags and both loan buttons on
+   --color-pos-wb. Those are centre-back and wing-back field colours standing in
+   for "trade" and "loan" — the colour law broken outright, not bent, and the
+   same substitution the auction room stripped out of its provenance tag. Every
+   one of these already states its kind in words. (They passed contrast as fills,
+   at 6.19-7.06; this one is a law fix, not a floor fix.)
+
+   Where a hierarchy was actually wanted, it is now stated as one: the offer
+   button fills in the accent and the two loan buttons are ghosts, rather than
+   three filled buttons in two arbitrary colours. */
+
 .page { min-height: 100%; }
 
 /* ── Masthead ───────────────────────────────────────────── */
@@ -6,52 +29,43 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
-  gap: 1.5rem;
-  padding: 1.125rem 1.75rem 0.9rem;
+  gap: var(--s6);
+  padding: var(--s4) var(--s6) var(--s3);
   flex-wrap: wrap;
 }
 
-.kicker {
-  font-size: 0.59rem;
-  font-weight: 700;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--color-text-muted);
-}
+.kicker { letter-spacing: 0.16em; }
 
 .title {
   font-family: var(--font-serif);
   font-weight: 800;
-  font-size: 2.0625rem;
+  font-size: var(--t-32);
   letter-spacing: -0.035em;
   line-height: 1;
-  margin-top: 0.25rem;
+  margin-top: var(--s1);
   color: var(--color-text-primary);
 }
 
-.stats { display: flex; gap: 1.5rem; }
+.stats { display: flex; gap: var(--s6); }
 .stat { text-align: right; }
 
 .statValue {
-  font-family: var(--font-mono);
+  font-family: var(--font-serif);
   font-weight: 700;
-  font-size: 1.1875rem;
+  font-size: var(--t-20);
   line-height: 1;
+  font-variant-numeric: tabular-nums lining-nums;
   color: var(--color-text-primary);
 }
 
-.statAccent { color: var(--color-accent); }
-.statRed    { color: var(--color-defeat); }
-.statTeal   { color: var(--color-pos-wb); }
+.statAccent { color: var(--color-accent-ink); }
 
-.statLabel {
-  font-size: 0.5625rem;
-  font-weight: 600;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--color-text-muted);
-  margin-top: 0.2rem;
-}
+/* --color-defeat measured 2.20 on the dark page — it is a match-result colour
+   with no dark value at all. --color-danger has one, and "offers to answer"
+   is not a match result. */
+.statRed { color: var(--color-danger); }
+
+.statLabel { margin-top: var(--s1); }
 
 /* ── Layout ─────────────────────────────────────────────── */
 
@@ -62,7 +76,7 @@
 }
 
 .main {
-  padding: 1rem 1.375rem 1.5rem 1.75rem;
+  padding: var(--s4) var(--s5) var(--s6) var(--s6);
   border-right: 1px solid var(--color-border);
   min-width: 0;
 }
@@ -70,32 +84,32 @@
 .sect {
   display: flex;
   align-items: baseline;
-  gap: 0.625rem;
-  margin-bottom: 0.625rem;
+  gap: var(--s3);
+  margin-bottom: var(--s3);
   flex-wrap: wrap;
 }
 
-.sectSpaced { margin-top: 1.25rem; }
+.sectSpaced { margin-top: var(--s5); }
 
 .sectTitle {
   font-family: var(--font-serif);
   font-weight: 700;
-  font-size: 1.25rem;
+  font-size: var(--t-20);
   letter-spacing: -0.015em;
   color: var(--color-text-primary);
   margin: 0;
 }
 
-.sectHint { font-size: 0.69rem; color: var(--color-text-muted); }
+.sectHint { font-size: var(--t-12); color: var(--color-text-muted); }
 
 .sectMore {
   margin-left: auto;
-  font-family: var(--font-sans);
-  font-size: 0.625rem;
+  font-family: var(--font-condensed);
+  font-size: var(--t-11);
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--color-accent);
+  color: var(--color-accent-ink);
   background: none;
   border: none;
   cursor: pointer;
@@ -103,36 +117,40 @@
 }
 
 .empty {
-  font-size: 0.8125rem;
+  font-size: var(--t-13);
   color: var(--color-text-muted);
-  padding: 1rem 0 1.25rem;
+  padding: var(--s4) 0 var(--s5);
 }
 
+/* The wash carries the alarm, so the message is ink — danger on danger-dim was
+   3.91 in dark, the same "both at once" defect the tint tokens are checked for.
+   The rule down the left is the second carrier. */
 .error {
-  margin-bottom: 0.875rem;
-  padding: 0.55rem 0.75rem;
-  border-radius: 6px;
+  margin-bottom: var(--s3);
+  padding: var(--s2) var(--s3);
+  border-radius: var(--r-control);
+  border-left: 3px solid var(--color-danger);
   background: var(--color-danger-dim);
-  color: var(--color-danger);
-  font-size: 0.78rem;
+  color: var(--color-text-primary);
+  font-size: var(--t-13);
 }
 
 /* ── Propose bar ────────────────────────────────────────── */
 
 .proposeBar {
   display: flex;
-  gap: 0.5rem;
-  padding: 0.7rem 0.75rem;
+  gap: var(--s2);
+  padding: var(--s3);
   border: 1px dashed var(--color-border);
-  border-radius: 9px;
+  border-radius: var(--r-shell);
   background: var(--color-bg-card);
   align-items: center;
-  margin-bottom: 0.9rem;
+  margin-bottom: var(--s3);
   flex-wrap: wrap;
 }
 
 .proposeText {
-  font-size: 0.72rem;
+  font-size: var(--t-12);
   color: var(--color-text-secondary);
   flex: 1;
   min-width: 200px;
@@ -141,96 +159,124 @@
 .proposeText b { color: var(--color-text-primary); }
 
 .proposeBtn {
-  font-family: var(--font-sans);
-  font-size: 0.6rem;
+  font-family: var(--font-condensed);
+  font-size: var(--t-11);
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  padding: 0.45rem 0.75rem;
-  border-radius: 4px;
-  border: none;
-  color: #FFFFFF;
+  padding: var(--s2) var(--s3);
+  border-radius: var(--r-control);
+  border: 1px solid var(--color-accent);
+  background: var(--color-accent);
+  color: var(--color-on-accent);
   cursor: pointer;
   white-space: nowrap;
 }
 
-.proposeBtn:hover { opacity: 0.88; }
+.proposeBtn:hover { background: var(--color-accent-hover); }
+
+/* The two loan routes are the same action at lower rank, not different actions
+   in a different colour. */
+.proposeBtnGhost {
+  background: transparent;
+  border-color: var(--color-border-strong);
+  color: var(--color-text-secondary);
+}
+
+.proposeBtnGhost:hover { background: var(--color-bg-card-hover); }
 
 /* ── Deal cards ─────────────────────────────────────────── */
 
 .deal {
   border: 1px solid var(--color-border);
-  border-radius: 9px;
+  border-radius: var(--r-shell);
   overflow: hidden;
-  margin-bottom: 0.625rem;
+  margin-bottom: var(--s3);
   background: var(--color-bg-card);
+  --card-ink: var(--color-text-muted);
 }
 
-/* Needs your answer — full border + tint, no edge sliver. */
+/* Needs your answer — full border + wash, no edge sliver. The wash lifts the
+   muted slot: on the accent wash in dark, text-muted is 4.19 and secondary
+   5.53. */
 .dealActive {
   border-color: var(--color-border-accent);
   background: var(--color-accent-dim);
+  --card-ink: var(--color-text-secondary);
 }
 
 .dealHead {
-  padding: 0.55rem 0.75rem;
+  padding: var(--s2) var(--s3);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--s2);
   border-bottom: 1px solid var(--color-border-subtle);
   flex-wrap: wrap;
 }
 
 .dealTitle {
-  font-size: 0.6rem;
+  font-family: var(--font-condensed);
+  font-size: var(--t-11);
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--color-text-primary);
 }
 
+/* An outlined chip, told apart by its own words — the same form the listings
+   board's stance chip takes. */
 .dealTag {
-  font-size: 0.53rem;
+  font-family: var(--font-condensed);
+  font-size: var(--t-10);
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  padding: 0.19rem 0.44rem;
-  border-radius: 3px;
-  color: #FFFFFF;
+  padding: var(--s1) var(--s2);
+  border-radius: var(--r-control);
+  border: 1px solid currentColor;
+  color: var(--color-text-secondary);
   white-space: nowrap;
 }
+
+/* On your own listing — the one case where the accent means what it means
+   everywhere else here. */
+.dealTagMine { color: var(--color-accent-ink); }
+
+/* The wash has already said it. */
+.dealActive .dealTag { color: var(--color-text-primary); }
 
 .dealSides {
   display: grid;
   grid-template-columns: 1fr 34px 1fr;
 }
 
-.dealSide { padding: 0.7rem 0.75rem; min-width: 0; }
+.dealSide { padding: var(--s3); min-width: 0; }
 .dealSideRight { text-align: right; }
 
 .dealSwap {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--color-text-muted);
+  color: var(--card-ink);
   border-left: 1px solid var(--color-border-subtle);
   border-right: 1px solid var(--color-border-subtle);
 }
 
 .dealLabel {
+  font-family: var(--font-condensed);
   font-size: var(--t-10);
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--color-text-muted);
-  margin-bottom: 0.375rem;
+  color: var(--card-ink);
+  margin-bottom: var(--s1);
 }
 
 .assets {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: var(--s1);
 }
 
 .assetsRight { align-items: flex-end; }
@@ -238,13 +284,13 @@
 .asset {
   display: flex;
   align-items: center;
-  gap: 0.375rem;
+  gap: var(--s1);
 }
 
 .assetName {
   font-family: var(--font-serif);
   font-weight: 600;
-  font-size: 0.875rem;
+  font-size: var(--t-13);
   color: var(--color-text-primary);
   background: none;
   border: none;
@@ -254,25 +300,30 @@
 
 .assetName:hover { text-decoration: underline; }
 
+/* Settled money: a proposed figure sits there until someone answers it. Serif,
+   and in ink on the washed card for the reason the tag is. */
 .dealCash {
-  font-family: var(--font-mono);
+  font-family: var(--font-serif);
   font-weight: 700;
-  font-size: 0.875rem;
-  color: var(--color-accent);
-  margin-top: 0.25rem;
+  font-size: var(--t-15);
+  font-variant-numeric: tabular-nums lining-nums;
+  color: var(--color-accent-ink);
+  margin-top: var(--s1);
 }
+
+.dealActive .dealCash { color: var(--color-text-primary); }
 
 .dealCap {
   font-weight: 400;
-  font-size: 0.72rem;
-  color: var(--color-text-muted);
+  font-size: var(--t-12);
+  color: var(--card-ink);
 }
 
-.dealNone { color: var(--color-text-muted); font-size: 0.8125rem; }
+.dealNone { color: var(--card-ink); font-size: var(--t-13); }
 
 .dealNote {
-  padding: 0 0.75rem 0.625rem;
-  font-size: 0.75rem;
+  padding: 0 var(--s3) var(--s3);
+  font-size: var(--t-12);
   font-style: italic;
   color: var(--color-text-secondary);
 }
@@ -286,9 +337,9 @@
 .dealBtn {
   flex: 1;
   text-align: center;
-  padding: 0.55rem;
-  font-family: var(--font-sans);
-  font-size: 0.6rem;
+  padding: var(--s2);
+  font-family: var(--font-condensed);
+  font-size: var(--t-11);
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -305,46 +356,46 @@
 
 .dealBtnYes {
   background: var(--color-accent);
-  color: #FFFFFF;
+  color: var(--color-on-accent);
 }
 
 .dealBtnYes:hover:not(:disabled) { background: var(--color-accent-hover); }
 
 .dealStatus {
   flex: 1;
-  padding: 0.55rem 0.75rem;
-  font-size: 0.69rem;
+  padding: var(--s2) var(--s3);
+  font-size: var(--t-12);
   color: var(--color-text-muted);
 }
 
 .listingGrid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 0.625rem;
+  gap: var(--s3);
 }
 
 /* ── Club rail ──────────────────────────────────────────── */
 
 .rail { background: var(--color-bg-card); min-width: 0; }
 
-.railHead { padding: 0.8rem 1.125rem 0.5rem; }
+.railHead { padding: var(--s3) var(--s4) var(--s2); }
 
 .railTitle {
   font-family: var(--font-serif);
   font-weight: 700;
-  font-size: 1.0625rem;
+  font-size: var(--t-17);
   color: var(--color-text-primary);
   margin: 0;
 }
 
-.clubList { padding: 0 1.125rem; }
+.clubList { padding: 0 var(--s4); }
 
 .club {
   display: grid;
   grid-template-columns: 24px 1fr auto auto;
   align-items: center;
-  gap: 0.55rem;
-  padding: 0.55rem 0;
+  gap: var(--s2);
+  padding: var(--s2) 0;
   border-bottom: 1px solid var(--color-border-subtle);
 }
 
@@ -353,35 +404,41 @@
 .clubName {
   font-family: var(--font-serif);
   font-weight: 600;
-  font-size: 0.84rem;
+  font-size: var(--t-13);
   color: var(--color-text-primary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.clubMeta { font-size: 0.625rem; color: var(--color-text-muted); }
+.clubMeta { font-size: var(--t-11); color: var(--color-text-muted); }
 
+/* Settled: a club balance is compared down the rail. */
 .clubBal {
-  font-family: var(--font-mono);
+  font-family: var(--font-serif);
   font-weight: 700;
-  font-size: 0.75rem;
+  font-size: var(--t-13);
+  font-variant-numeric: tabular-nums lining-nums;
   color: var(--color-text-primary);
 }
 
 .clubTag {
+  font-family: var(--font-condensed);
   font-size: var(--t-10);
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  padding: 0.19rem 0.3rem;
-  border-radius: 3px;
+  padding: var(--s1);
+  border-radius: var(--r-control);
   text-align: center;
   white-space: nowrap;
 }
 
-.clubTagThem { background: var(--color-warning); color: #1C1C1C; }
-.clubTagYou  { background: var(--color-accent);  color: #FFFFFF; }
+/* --color-warning IS a fill; this is one of the two places it is used correctly.
+   Its label is --color-on-warning, which does not invert, because the fill does
+   not — it was a #1C1C1C literal doing that job by hand. */
+.clubTagThem { background: var(--color-warning); color: var(--color-on-warning); }
+.clubTagYou  { background: var(--color-accent);  color: var(--color-on-accent); }
 
 .clubTagIdle {
   border: 1px solid var(--color-border);
@@ -390,26 +447,27 @@
 
 .desk {
   border-top: 2px solid var(--color-text-primary);
-  padding: 0.7rem 1.125rem 0.95rem;
-  margin-top: 0.625rem;
+  padding: var(--s3) var(--s4) var(--s4);
+  margin-top: var(--s3);
 }
 
 .deskRow {
   display: flex;
   justify-content: space-between;
-  gap: 0.75rem;
-  padding: 0.375rem 0;
+  gap: var(--s3);
+  padding: var(--s1) 0;
   border-bottom: 1px solid var(--color-border-subtle);
 }
 
 .deskLast { border-bottom: none; }
 
-.deskLabel { font-size: 0.72rem; color: var(--color-text-secondary); }
+.deskLabel { font-size: var(--t-12); color: var(--color-text-secondary); }
 
 .deskValue {
-  font-family: var(--font-mono);
+  font-family: var(--font-serif);
   font-weight: 700;
-  font-size: 0.8125rem;
+  font-size: var(--t-13);
+  font-variant-numeric: tabular-nums lining-nums;
   color: var(--color-text-primary);
 }
 
@@ -422,17 +480,17 @@
 
 @media (max-width: 640px) {
   .header {
-    padding: 1rem 1rem 0.75rem;
+    padding: var(--s4) var(--s4) var(--s3);
     flex-direction: column;
     align-items: flex-start;
-    gap: 1rem;
+    gap: var(--s4);
   }
 
-  .title { font-size: 1.75rem; }
-  .stats { gap: 1.25rem; width: 100%; flex-wrap: wrap; }
+  .title { font-size: var(--t-25); }
+  .stats { gap: var(--s5); width: 100%; flex-wrap: wrap; }
   .stat { text-align: left; }
 
-  .main { padding: 1rem 1rem 1.25rem; }
+  .main { padding: var(--s4) var(--s4) var(--s5); }
 
   /* Two sides plus an arrow will not fit; they stack, and the right side stops
      being right-aligned since there is nothing to align against. */

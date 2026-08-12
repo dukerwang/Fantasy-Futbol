@@ -148,6 +148,12 @@
      than hardcoding #FFFFFF, which is what silently produced a 4.33:1 button
      label the first time this page was ported. */
   --color-on-accent:     #FFFFFF;
+  /* The label ON a warning fill. Unlike on-accent this does NOT invert, because
+     --color-warning does not: it is #f59e0b in both themes, so its label has to
+     be dark ink in both. Declared in both blocks anyway, so nothing has to know
+     that the fill happens to be theme-invariant today. Added during the Market
+     hub port, which found a #1C1C1C literal doing this job by hand. */
+  --color-on-warning:    #1C1A17;
   --color-live:          #B3261E;
   --color-warning-text:  #8A5A0B;
   --color-tint-accent:   #E2EAE1;
@@ -400,6 +406,7 @@
   --color-border-strong: #6E7893;
   --color-accent-ink:    #2FB56C;
   --color-on-accent:     #10141C;   /* dark ink on the brighter dark accent — see the light block */
+  --color-on-warning:    #1C1A17;   /* does NOT invert — the warning fill is the same in both themes */
   --color-live:          #F0736A;
   --color-warning-text:  #E0A63C;
   --color-tint-accent:   #2A4647;
@@ -955,6 +962,47 @@ svg {
   letter-spacing: .05em;
   text-transform: uppercase;
   color: var(--color-text-muted);
+}
+
+/* --- 4b. A chip beside a name ---
+   Use this ANY time a PositionBadge (or any lettered chip) sits next to a
+   player's name. Reaching for a bare `display:flex; align-items:center` is the
+   recurring bug this exists to stop.
+
+   WHY CENTRING ALONE IS WRONG. `align-items: center` centres the chip on the
+   name's LINE BOX, and a line box reserves descender space that capitals never
+   use. So the chip lands below the name's cap band even though both boxes are
+   perfectly centred. Measured against the real fonts (Newsreader 700 beside a
+   10px/2px-padded badge), the chip sits low by:
+
+     name 13px/1.05  2.04px      name 17px/1.05  2.45px
+     name 15px/1.05  2.25px      name 20px/1.05  2.57px
+     name 15px/normal 1.88px
+
+   It is not a clean ratio of the name's size, because the error is driven by the
+   chip's own fixed height — which is why ONE constant serves every name size in
+   the product to within half a pixel, and why this is a primitive rather than a
+   per-site nudge.
+
+   BASELINE ALIGNMENT DOES NOT FIX IT — both variants were built and measured at
+   2.53px low. `align-items: baseline` aligns the chip's own text baseline, which
+   sits near the bottom of its padded box. (It is also inert on a name carrying
+   `overflow: hidden` for an ellipsis, because such an element reports its bottom
+   margin edge as its baseline, not its text baseline.)
+
+   The lift is paint-only, so it changes no layout and no hit area.
+
+   The hook is `.g-poschip`, emitted by PositionBadge itself, so a call site
+   cannot forget to pass it and a conditionally-rendered badge cannot slide out
+   from under a :first-child selector. */
+.g-namerow {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  min-width: 0;
+}
+.g-namerow > .g-poschip {
+  transform: translateY(calc(var(--g-chip-lift, 2.25px) * -1));
 }
 
 /* --- 5. Row tint ---

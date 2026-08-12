@@ -9,7 +9,7 @@ import type {
   TransfersListing,
   TransfersModel,
 } from '@/lib/transfers/buildTransfersModel';
-import { buildWire, WIRE_COLORS } from '@/lib/transfers/buildWire';
+import { buildWire, WIRE_COLORS, WIRE_HOLLOW } from '@/lib/transfers/buildWire';
 import { usePlayerCard } from '@/components/players/PlayerCardProvider';
 import PositionBadge from '@/components/players/PositionBadge';
 import CrestBadge from '@/components/crest/CrestBadge';
@@ -119,11 +119,15 @@ export default function MarketClient({
           const t = new Date(a.expires_at).getTime();
           return t >= from.getTime() && t < to.getTime();
         })
+        // Four states, four marks. "Your listing" was --color-pos-cb, a
+        // centre-back field colour standing in for a kind of lot; it is the
+        // strongest ink instead, which is the one axis left once warning, accent
+        // and muted are spoken for.
         .map((a) => ({
           text: a.player ? getPlayerDisplayName(a.player, 'initial_last') : 'a player',
           color:
             a.seller_team_id === model.myTeam.id
-              ? 'var(--color-pos-cb)'
+              ? 'var(--color-text-primary)'
               : a.highest_bidder_team_id === model.myTeam.id
                 ? 'var(--color-accent)'
                 : a.bid_count > 0
@@ -146,7 +150,7 @@ export default function MarketClient({
 
       <header className={styles.header}>
         <div>
-          <div className={styles.kicker}>
+          <div className={`g-label ${styles.kicker}`}>
             {model.league.name} · GW{model.currentGameweek} · open until GW
             {(model.league.total_gameweeks ?? 38) - 8}
           </div>
@@ -155,19 +159,19 @@ export default function MarketClient({
         <div className={styles.stats}>
           <div className={styles.stat}>
             <div className={`${styles.statValue} ${styles.statAccent}`}>{money(model.myTeam.faab_budget)}</div>
-            <div className={styles.statLabel}>Club Balance</div>
+            <div className={`g-label-quiet ${styles.statLabel}`}>Club Balance</div>
           </div>
           <div className={styles.stat}>
             <div className={`${styles.statValue} ${styles.statWarn}`}>{liveCount}</div>
-            <div className={styles.statLabel}>Lots live</div>
+            <div className={`g-label-quiet ${styles.statLabel}`}>Lots live</div>
           </div>
           <div className={styles.stat}>
             <div className={`${styles.statValue} ${toAnswer ? styles.statRed : ''}`}>{toAnswer}</div>
-            <div className={styles.statLabel}>Offers to answer</div>
+            <div className={`g-label-quiet ${styles.statLabel}`}>Offers to answer</div>
           </div>
           <div className={styles.stat}>
             <div className={styles.statValue}>{model.counts.listings}</div>
-            <div className={styles.statLabel}>On the board</div>
+            <div className={`g-label-quiet ${styles.statLabel}`}>On the board</div>
           </div>
         </div>
       </header>
@@ -205,7 +209,7 @@ export default function MarketClient({
 
                 return (
                   <article key={a.player_id} className={`${styles.closingCard} ${hot ? '' : styles.closingCool}`}>
-                    <div className={styles.closingTop}>
+                    <div className={`g-namerow ${styles.closingTop}`}>
                       {a.player && (
                         <PositionBadge position={a.player.primary_position as GranularPosition} size="sm" />
                       )}
@@ -358,7 +362,7 @@ export default function MarketClient({
               <span className={styles.leg}><span className={styles.pipDot} style={{ background: 'var(--color-warning)' }} />Bidding live</span>
               <span className={styles.leg}><span className={styles.pipDot} style={{ background: 'var(--color-accent)' }} />You&rsquo;re leading</span>
               <span className={styles.leg}><span className={styles.pipDot} style={{ background: 'var(--color-text-muted)' }} />No bids yet</span>
-              <span className={styles.leg}><span className={styles.pipDot} style={{ background: 'var(--color-pos-cb)' }} />Your listing</span>
+              <span className={styles.leg}><span className={styles.pipDot} style={{ background: 'var(--color-text-primary)' }} />Your listing</span>
             </div>
           </div>
         </main>
@@ -375,7 +379,10 @@ export default function MarketClient({
           ) : (
             wire.map((e) => (
               <div key={e.id} className={styles.event}>
-                <span className={styles.eventDot} style={{ background: WIRE_COLORS[e.kind] }} />
+                <span
+                  className={`${styles.eventDot} ${WIRE_HOLLOW.has(e.kind) ? styles.eventDotRing : ''}`}
+                  style={{ background: WIRE_COLORS[e.kind] }}
+                />
                 <div>
                   <div className={styles.eventText}>
                     <span className={styles.eventStrong}>{e.who}</span> {e.mid}{' '}

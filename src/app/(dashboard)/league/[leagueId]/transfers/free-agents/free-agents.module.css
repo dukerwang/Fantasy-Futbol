@@ -1,3 +1,19 @@
+/* Free Agency — Gaffa 2.0.
+
+   Ported with the rest of the Market hub. The masthead and tools match the
+   auction room and the listings board exactly; what is specific here is the
+   table, which is the hub's one dense compare-down-a-column surface.
+
+   WHICH FIGURES ARE SERIF AND WHICH ARE MONO. Decision 6 splits by what the
+   number does, and this page has both kinds side by side. The table is value,
+   points, PPG and form — figures you scan down a column against each other, so
+   they are serif and tabular. The chips above it are live auctions: a standing
+   bid and a countdown, both of which move while you look at them, so they stay
+   mono. Same page, same currency, different jobs.
+
+   The whole table was mono before, which is what made a set of season totals
+   read like a set of tickers. */
+
 .page { min-height: 100%; }
 
 /* ── Masthead ───────────────────────────────────────────── */
@@ -6,56 +22,48 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
-  gap: 1.5rem;
-  padding: 1.125rem 1.75rem 0.9rem;
+  gap: var(--s6);
+  padding: var(--s4) var(--s6) var(--s3);
   flex-wrap: wrap;
 }
 
-.kicker {
-  font-size: 0.59rem;
-  font-weight: 700;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--color-text-muted);
-}
+.kicker { letter-spacing: 0.16em; }
 
 .title {
   font-family: var(--font-serif);
   font-weight: 800;
-  font-size: 2.0625rem;
+  font-size: var(--t-32);
   letter-spacing: -0.035em;
   line-height: 1;
-  margin-top: 0.25rem;
+  margin-top: var(--s1);
   color: var(--color-text-primary);
 }
 
-.stats { display: flex; gap: 1.5rem; }
+.stats { display: flex; gap: var(--s6); }
 .stat { text-align: right; }
 
 .statValue {
-  font-family: var(--font-mono);
+  font-family: var(--font-serif);
   font-weight: 700;
-  font-size: 1.1875rem;
+  font-size: var(--t-20);
   line-height: 1;
+  font-variant-numeric: tabular-nums lining-nums;
   color: var(--color-text-primary);
 }
 
-.statAccent { color: var(--color-accent); }
-.statWarn   { color: var(--color-warning); }
+/* accent-ink, not accent: the fill token as a figure measured 4.33 in dark. */
+.statAccent { color: var(--color-accent-ink); }
 
-.statLabel {
-  font-size: 0.5625rem;
-  font-weight: 600;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--color-text-muted);
-  margin-top: 0.2rem;
-}
+/* warning-text, not warning: the fill token as an ink measured 2.09 in light,
+   and has no dark value at all. */
+.statWarn { color: var(--color-warning-text); }
+
+.statLabel { margin-top: var(--s1); }
 
 /* ── Live auctions ──────────────────────────────────────── */
 
 .auctions {
-  padding: 0.875rem 1.75rem;
+  padding: var(--s3) var(--s6);
   border-top: 1px solid var(--color-border);
   background: var(--color-bg-card);
 }
@@ -63,40 +71,40 @@
 .auctionsTitle {
   font-family: var(--font-serif);
   font-weight: 700;
-  font-size: 1.0625rem;
+  font-size: var(--t-17);
   color: var(--color-text-primary);
-  margin: 0 0 0.55rem;
+  margin: 0 0 var(--s2);
 }
 
 .auctionsGrid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 0.55rem;
+  gap: var(--s2);
 }
 
 .chip {
   border: 1px solid var(--color-border-subtle);
-  border-radius: 8px;
+  border-radius: var(--r-shell);
   background: var(--color-bg-primary);
-  padding: 0.55rem 0.7rem;
+  padding: var(--s2) var(--s3);
+  /* The muted slot, lifted by the wash below — the same device the auction room
+     uses on a state row. */
+  --chip-ink: var(--color-text-muted);
 }
 
 .chipHot {
   background: color-mix(in srgb, var(--color-warning) 7%, var(--color-bg-primary));
   border-color: color-mix(in srgb, var(--color-warning) 45%, var(--color-border));
+  --chip-ink: var(--color-text-secondary);
 }
 
-.chipTop {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  min-width: 0;
-}
+/* Layout and the badge's optical lift come from `.g-namerow`. */
+.chipTop { --g-chip-lift: 1.88px; }   /* .chipName is --t-15 at normal leading */
 
 .chipName {
   font-family: var(--font-serif);
   font-weight: 700;
-  font-size: 0.9375rem;
+  font-size: var(--t-15);
   color: var(--color-text-primary);
   background: none;
   border: none;
@@ -111,22 +119,24 @@
 .chipName:hover { text-decoration: underline; }
 
 .chipMeta {
-  font-size: 0.59rem;
-  color: var(--color-text-muted);
-  margin-top: 0.15rem;
+  font-size: var(--t-11);
+  color: var(--chip-ink);
+  margin-top: var(--s1);
 }
 
 .chipBottom {
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
-  margin-top: 0.4rem;
+  margin-top: var(--s1);
 }
 
+/* Live money: mono, because it ticks. */
 .chipPrice {
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 1.0625rem;
+  font-size: var(--t-17);
+  font-variant-numeric: tabular-nums lining-nums;
   line-height: 1;
   color: var(--color-text-primary);
 }
@@ -134,23 +144,28 @@
 .chipClock {
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.78rem;
-  color: var(--color-text-muted);
+  font-size: var(--t-13);
+  font-variant-numeric: tabular-nums lining-nums;
+  color: var(--chip-ink);
 }
 
-.chipClockHot { color: var(--color-warning); }
+.chipClockHot { color: var(--color-warning-text); }
+
+/* The wash and the coloured word are alternatives, not partners: the chip is
+   already amber, so its clock goes to ink. */
+.chipHot .chipClockHot { color: var(--color-text-primary); }
 
 .chipGo {
   display: block;
   width: 100%;
-  margin-top: 0.45rem;
-  padding: 0.35rem;
-  border-radius: 4px;
+  margin-top: var(--s2);
+  padding: var(--s1);
+  border-radius: var(--r-control);
   border: 1px solid var(--color-accent);
   background: var(--color-accent);
-  color: #FFFFFF;
-  font-family: var(--font-sans);
-  font-size: 0.575rem;
+  color: var(--color-on-accent);
+  font-family: var(--font-condensed);
+  font-size: var(--t-11);
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -159,15 +174,15 @@
 
 .chipGo:hover { background: var(--color-accent-hover); }
 
-.chipGoGhost { background: transparent; color: var(--color-accent); }
-.chipGoGhost:hover { background: var(--color-accent-dim); }
+.chipGoGhost { background: transparent; color: var(--color-accent-ink); }
+.chipGoGhost:hover { background: var(--color-accent-dim); color: var(--color-text-primary); }
 
 /* ── Tools ──────────────────────────────────────────────── */
 
 .tools {
   display: flex;
-  gap: 0.5rem;
-  padding: 0.75rem 1.75rem 0.5rem;
+  gap: var(--s2);
+  padding: var(--s3) var(--s6) var(--s2);
   border-top: 1px solid var(--color-border);
   flex-wrap: wrap;
 }
@@ -175,51 +190,54 @@
 .input {
   flex: 1;
   min-width: 200px;
-  padding: 0.6rem 0.8rem;
+  padding: var(--s2) var(--s3);
   border: 1px solid var(--color-border);
-  border-radius: 5px;
+  border-radius: var(--r-control);
   background: var(--color-bg-card);
   font-family: var(--font-sans);
-  font-size: 0.8125rem;
+  font-size: var(--t-13);
   color: var(--color-text-primary);
 }
 
 .input::placeholder { color: var(--color-text-muted); }
 
 .select {
-  padding: 0.6rem 0.8rem;
+  padding: var(--s2) var(--s3);
   border: 1px solid var(--color-border);
-  border-radius: 5px;
+  border-radius: var(--r-control);
   background: var(--color-bg-card);
   font-family: var(--font-sans);
-  font-size: 0.78rem;
+  font-size: var(--t-13);
   color: var(--color-text-secondary);
   cursor: pointer;
 }
 
 .positions {
   display: flex;
-  gap: 0.25rem;
-  padding: 0 1.75rem 0.75rem;
+  gap: var(--s1);
+  padding: 0 var(--s6) var(--s3);
   flex-wrap: wrap;
 }
 
 .pos {
-  font-family: var(--font-sans);
-  font-size: 0.625rem;
+  font-family: var(--font-condensed);
+  font-size: var(--t-12);
   font-weight: 700;
-  letter-spacing: 0.04em;
-  padding: 0.3rem 0.5rem;
-  border-radius: 3px;
+  letter-spacing: 0.05em;
+  padding: var(--s1) var(--s2);
+  border-radius: var(--r-control);
   border: 1px solid var(--color-border-subtle);
   background: var(--color-bg-card);
   color: var(--color-text-secondary);
   cursor: pointer;
-  min-width: 2.1rem;
+  min-width: 34px;
 }
 
 .pos:hover { background: var(--color-bg-card-hover); }
 
+/* Filled in ink, not in the position's own field colour. A row of twelve filled
+   position hues is the paint chart the row-tint rule warns about, and the two
+   that would have carried it here measured 2.61 and 2.98 as fills in dark. */
 .posOn,
 .posOn:hover {
   background: var(--color-text-primary);
@@ -230,34 +248,37 @@
 /* ── Table ──────────────────────────────────────────────── */
 
 .tableWrap {
-  padding: 0 1.75rem;
+  padding: 0 var(--s6);
   overflow-x: auto;
 }
 
 .table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.8125rem;
+  font-size: var(--t-13);
   /* Fixed layout so the widths below are honoured exactly. Auto layout lets the
      player column swallow the slack and strands the figures far from their
      headers, which is what made the columns look unrelated to each other. */
   table-layout: fixed;
 }
 
+/* Column heads take the condensed face — this is the role it was introduced
+   for. They were also 8.5px, under the scale floor. */
 .table thead th {
   text-align: left;
-  font-size: 0.53rem;
+  font-family: var(--font-condensed);
+  font-size: var(--t-10);
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--color-text-muted);
-  padding: 0.5rem 0.6rem;
+  padding: var(--s2) var(--s2);
   border-bottom: 1px solid var(--color-border);
   white-space: nowrap;
 }
 
 .table tbody td {
-  padding: 0.5rem 0.6rem;
+  padding: var(--s2) var(--s2);
   border-bottom: 1px solid var(--color-border-subtle);
   color: var(--color-text-secondary);
   /* One rule across the whole row. Any cell that opts out of `table-cell`
@@ -265,7 +286,10 @@
   vertical-align: middle;
 }
 
-.table tbody tr:hover { background: var(--color-bg-card-hover); }
+/* Hover is .g-row, the 2.0 primitive: the position hue grounds the row you are
+   on, which is what answers "which one am I reading" in a table this long and
+   teaches the taxonomy while it does it. The row passes its own hue in as --pf.
+   No at-rest tint — that is the paint chart. */
 
 .loading { opacity: 0.45; }
 
@@ -278,17 +302,13 @@
 
 .tdPlayer { overflow: hidden; }
 
-.playerCell {
-  display: flex;
-  align-items: center;
-  gap: 0.45rem;
-  min-width: 0;
-}
+/* Layout and the badge's optical lift come from `.g-namerow`. */
+.playerCell { --g-chip-lift: 1.88px; }   /* .playerName is --t-15 at normal leading */
 
 .playerName {
   font-family: var(--font-serif);
   font-weight: 600;
-  font-size: 0.9375rem;
+  font-size: var(--t-15);
   color: var(--color-text-primary);
   background: none;
   border: none;
@@ -309,36 +329,42 @@
   text-overflow: ellipsis;
 }
 
-/* Figures are right-aligned and tabular so digits line up down the column.
-   The header must match the cell — `.table thead th` sets text-align: left and
-   outranks a bare `.num`, which is why these are qualified. */
+/* Settled figures: serif, tabular, right-aligned so digits line up down the
+   column. The header must match the cell — `.table thead th` sets
+   text-align: left and outranks a bare `.num`, which is why these are
+   qualified. The head keeps the condensed face; only the cells take the serif. */
 .num,
 .table thead th.num,
 .table tbody td.num {
   text-align: right;
-  font-family: var(--font-mono);
-  font-variant-numeric: tabular-nums;
+  font-variant-numeric: tabular-nums lining-nums;
   white-space: nowrap;
+}
+
+.table tbody td.num {
+  font-family: var(--font-serif);
+  font-weight: 600;
+  color: var(--color-text-primary);
 }
 
 .table thead th.thAction,
 .tdAction { text-align: right; }
 
 .bidBtn {
-  padding: 0.3rem 0.7rem;
-  border-radius: 4px;
+  padding: var(--s1) var(--s2);
+  border-radius: var(--r-control);
   border: 1px solid var(--color-accent);
   background: transparent;
-  color: var(--color-accent);
-  font-family: var(--font-sans);
-  font-size: 0.6rem;
+  color: var(--color-accent-ink);
+  font-family: var(--font-condensed);
+  font-size: var(--t-11);
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   cursor: pointer;
 }
 
-.bidBtn:hover { background: var(--color-accent); color: #FFFFFF; }
+.bidBtn:hover { background: var(--color-accent); color: var(--color-on-accent); }
 
 /* The action column's header is empty on screen but must not be empty to a
    screen reader reading the row. */
@@ -356,9 +382,9 @@
 
 .empty,
 .error {
-  padding: 2rem 0;
+  padding: var(--s8) 0;
   text-align: center;
-  font-size: 0.8125rem;
+  font-size: var(--t-13);
   color: var(--color-text-muted);
 }
 
@@ -370,18 +396,18 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 1rem;
-  padding: 1rem 1.75rem 1.75rem;
+  gap: var(--s4);
+  padding: var(--s4) var(--s6) var(--s6);
   flex-wrap: wrap;
 }
 
 .pageBtn {
-  padding: 0.5rem 0.9rem;
-  border-radius: 5px;
+  padding: var(--s2) var(--s3);
+  border-radius: var(--r-control);
   border: 1px solid var(--color-border);
   background: var(--color-bg-card);
   font-family: var(--font-sans);
-  font-size: 0.72rem;
+  font-size: var(--t-12);
   font-weight: 600;
   color: var(--color-text-secondary);
   cursor: pointer;
@@ -391,7 +417,7 @@
 .pageBtn:disabled { opacity: 0.4; cursor: not-allowed; }
 
 .pageOf {
-  font-size: 0.72rem;
+  font-size: var(--t-12);
   color: var(--color-text-muted);
 }
 
@@ -399,20 +425,20 @@
 
 @media (max-width: 640px) {
   .header {
-    padding: 1rem 1rem 0.75rem;
+    padding: var(--s4) var(--s4) var(--s3);
     flex-direction: column;
     align-items: flex-start;
-    gap: 1rem;
+    gap: var(--s4);
   }
 
-  .title { font-size: 1.75rem; }
-  .stats { gap: 1.25rem; width: 100%; }
+  .title { font-size: var(--t-25); }
+  .stats { gap: var(--s5); width: 100%; }
   .stat { text-align: left; }
 
   .auctions,
-  .tools { padding-left: 1rem; padding-right: 1rem; }
-  .positions { padding-left: 1rem; padding-right: 1rem; }
-  .tableWrap { padding: 0 1rem; }
+  .tools { padding-left: var(--s4); padding-right: var(--s4); }
+  .positions { padding-left: var(--s4); padding-right: var(--s4); }
+  .tableWrap { padding: 0 var(--s4); }
 
   /* Form and PPG are the first things to go on a phone — value and total points
      are what a manager scans for, and the card behind the name carries the rest. */
@@ -421,5 +447,5 @@
   .table th:nth-child(6),
   .table td:nth-child(6) { display: none; }
 
-  .pager { padding: 1rem 1rem 1.5rem; }
+  .pager { padding: var(--s4) var(--s4) var(--s6); }
 }

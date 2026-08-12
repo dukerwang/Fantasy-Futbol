@@ -176,12 +176,27 @@ export default function ListingsClient({
 
   const count = (f: Facet) => model.listings.filter((l) => matches(l, f)).length;
 
+  /**
+   * A facet's colour is painted as TEXT on the card when unselected and as a
+   * FILL when selected, so every entry has to survive both. Three of these did
+   * not, and each failed in a different theme:
+   *
+   *   --color-warning   2.09 as ink in light (it is a fill; the ink is
+   *                     --color-warning-text)
+   *   --color-accent    4.33 as ink in dark (the ink is --color-accent-ink)
+   *   --color-pos-cb    2.00, --color-pos-wb 2.28 as ink in dark
+   *
+   * The position pair also broke the colour law before it broke the floor:
+   * "wants players" and "would loan out" are not positions, and those hues mean
+   * centre-back and wing-back everywhere else in the app. The facet's own label
+   * already says which it is, so they go to ink and the hue is not replaced.
+   */
   const facets: { key: Facet; label: string; color: string }[] = [
     { key: 'all', label: 'All', color: 'var(--color-text-primary)' },
-    { key: 'live', label: 'Bidding live', color: 'var(--color-warning)' },
-    { key: 'trade', label: 'Wants players', color: 'var(--color-pos-cb)' },
-    { key: 'cash', label: 'Wants cash', color: 'var(--color-accent)' },
-    { key: 'loan', label: 'Would loan out', color: 'var(--color-pos-wb)' },
+    { key: 'live', label: 'Bidding live', color: 'var(--color-warning-text)' },
+    { key: 'trade', label: 'Wants players', color: 'var(--color-text-secondary)' },
+    { key: 'cash', label: 'Wants cash', color: 'var(--color-accent-ink)' },
+    { key: 'loan', label: 'Would loan out', color: 'var(--color-text-secondary)' },
     { key: 'clause', label: 'Has clause', color: 'var(--color-gold)' },
     { key: 'affordable', label: 'Within budget', color: 'var(--color-text-secondary)' },
     { key: 'mine', label: 'Yours', color: 'var(--color-text-muted)' },
@@ -193,25 +208,27 @@ export default function ListingsClient({
 
       <header className={styles.header}>
         <div>
-          <div className={styles.kicker}>Transfer Market → Listings</div>
+          <div className={`g-label ${styles.kicker}`}>Transfer Market → Listings</div>
           <h1 className={styles.title}>The Listings Board</h1>
         </div>
         <div className={styles.stats}>
           <div className={styles.stat}>
             <div className={`${styles.statValue} ${styles.statAccent}`}>€{budget}m</div>
-            <div className={styles.statLabel}>Club Balance</div>
+            <div className={`g-label-quiet ${styles.statLabel}`}>Club Balance</div>
           </div>
           <div className={styles.stat}>
             <div className={`${styles.statValue} ${styles.statWarn}`}>{count('live')}</div>
-            <div className={styles.statLabel}>Bidding live</div>
+            <div className={`g-label-quiet ${styles.statLabel}`}>Bidding live</div>
           </div>
+          {/* No colour: the loan count used --color-pos-wb, a wing-back field
+              colour standing in for "would loan out". Its label says it. */}
           <div className={styles.stat}>
-            <div className={`${styles.statValue} ${styles.statTeal}`}>{count('loan')}</div>
-            <div className={styles.statLabel}>Would loan out</div>
+            <div className={styles.statValue}>{count('loan')}</div>
+            <div className={`g-label-quiet ${styles.statLabel}`}>Would loan out</div>
           </div>
           <div className={styles.stat}>
             <div className={styles.statValue}>{count('mine')}</div>
-            <div className={styles.statLabel}>Yours</div>
+            <div className={`g-label-quiet ${styles.statLabel}`}>Yours</div>
           </div>
         </div>
       </header>

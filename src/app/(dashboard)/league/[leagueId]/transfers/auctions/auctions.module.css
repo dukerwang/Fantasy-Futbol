@@ -406,7 +406,10 @@
 .go:hover { background: var(--color-accent-hover); border-color: var(--color-accent-hover); }
 
 .goGhost { background: transparent; color: var(--color-accent-ink); }
-.goGhost:hover { background: var(--color-accent-dim); border-color: var(--color-accent); color: var(--color-accent-ink); }
+/* The wash arrives, so the label goes to ink: accent-ink on accent-dim is
+   4.41 in dark. The keyline and the tint are the hover; the word need not be
+   green as well. */
+.goGhost:hover { background: var(--color-accent-dim); border-color: var(--color-accent); color: var(--color-text-primary); }
 
 .goMuted {
   background: transparent;
@@ -552,7 +555,7 @@
   cursor: pointer;
 }
 
-.q:hover { background: var(--color-accent-dim); }
+.q:hover { background: var(--color-accent-dim); color: var(--color-text-primary); }
 
 .qOn { background: var(--color-accent); color: var(--color-on-accent); }
 .qOn:hover { background: var(--color-accent-hover); }

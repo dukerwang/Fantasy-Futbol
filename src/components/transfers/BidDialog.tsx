@@ -197,7 +197,8 @@ export default function BidDialog({
       <div className={styles.ladder}>
         <div className={styles.rung}>
           <div className={styles.rungLabel}>{live ? 'Standing bid' : 'No bids yet'}</div>
-          <div className={`${styles.rungValue} ${live ? styles.warn : styles.off}`}>
+          {/* Mono only while it is actually ticking — an em dash does not. */}
+          <div className={`${styles.rungValue} ${live ? `${styles.rungLive} ${styles.warn}` : styles.off}`}>
             {live ? money(standing) : '—'}
           </div>
         </div>
@@ -213,7 +214,10 @@ export default function BidDialog({
         </div>
         <div className={styles.rung}>
           <div className={styles.rungLabel}>Closes</div>
-          <div className={styles.rungValue}>{expiresAt ? formatRemaining(msLeft) : '—'}</div>
+          {/* The countdown is the canonical mono case. */}
+          <div className={`${styles.rungValue} ${expiresAt ? styles.rungLive : ''}`}>
+            {expiresAt ? formatRemaining(msLeft) : '—'}
+          </div>
         </div>
       </div>
 

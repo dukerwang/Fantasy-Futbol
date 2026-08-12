@@ -5,8 +5,10 @@ additively on 2026-08-08 alongside the League Home redesign (see
 `LEAGUE_HOME_HANDOFF.md`); both spec files, `--font-condensed` and the `Portrait` component
 followed on 2026-08-10 (see "Not done yet"). **`transfers/auctions` was ported 2026-08-11**
 — the first route to use the surface, the portrait and the condensed face against real
-data, and the first to be fully free of raw hex and 1.0 scales. Every other surface still
-runs 1.0.
+data, and the first to be fully free of raw hex and 1.0 scales. **The rest of the Market
+hub followed the same day** — `transfers`, `transfers/listings`, `transfers/free-agents`,
+`transfers/deals`, plus `TransfersSubNav` and `ListingCard` — so the whole section is on
+2.0 together. Every other surface still runs 1.0.
 
 - **Prototype:** Claude Design project `f4858479-5b36-4ba3-9a4f-04da9725c7db`, built
   **unbound** (the bound "Fantasy Futbol Design System" has the wrong accent, fonts and
@@ -489,34 +491,198 @@ measured 10px short of the string it wanted at 1280, and a 66px portrait would h
 measured problem worse, so the row takes the 44px size (+6px, paid for out of the leader
 column) and the expansion is where the 66×78 lands.
 
+## What finishing the hub established (2026-08-11)
+
+`transfers`, `transfers/listings`, `transfers/free-agents`, `transfers/deals`, plus the two
+shared pieces every room renders — `TransfersSubNav` and `ListingCard`. All seven
+stylesheets end at **0 raw hex, 0 rem font-sizes, 0 1.0 scale tokens, 0 radius literals**,
+and **60 measured colour pairs pass in both themes**.
+
+**1. A shared chrome element has to take the gutter of the surfaces it caps.**
+`TransfersSubNav` used a `1.75rem` gutter against the ported page's `var(--s6)` beneath it,
+so the nav items sat **4px outside** the title they label — visible on the auction room the
+day it shipped. One shared element inherits its offset onto every page it lands on, which
+is what makes this different from a page getting its own padding slightly wrong.
+
+**2. "Recently redesigned" is not "already on the system", and can be further off than
+old code.** The four rooms were rebuilt weeks ago and had **85 raw `rem` font-sizes**
+between them, including the 8.5–9.6px band, and almost no `--text-*` / `--space-*` /
+`--radius-*` at all. `trades`, which is older and legacy, was properly on 1.0 tokens.
+Recency predicted improvisation, not conformance — a page written between systems reaches
+for literals because neither scale is obviously the one to use.
+
+**3. The colour law breaks hardest at the *fills*, and the position spine is where it
+goes.** Nine separate places used `--color-pos-cb` or `--color-pos-wb` to mean "trade" and
+"loan" — chips, tags, buttons, stat figures, schedule pips and wire dots. It is an easy
+substitution to make, because those hues are the only large set of distinct colours the
+palette has, and it is always wrong: the hue already means centre-back and wing-back
+everywhere else. Two rules came out of removing them:
+
+- **Where the element carries a word, delete the hue and do not replace it.** A stance chip
+  that says "Wants players", a facet that says "Would loan out", a tag that says "Loan · GW3–8"
+  — the word was always the carrier and the colour was decoration that happened to break
+  the law. Nothing is lost.
+- **Where colour is the sole carrier, add a form axis rather than a hue.** The Wire's five
+  event kinds have no words. The palette has no five free hues (every remaining one means
+  medal, live, or danger), so a **loan is a ring and a trade is a disc** in the same ink —
+  which reads as "the player goes back" better than a colour did. Same move as the auction
+  room's provenance tag, which is told apart by border style.
+
+**4. `--color-on-warning`**, added here. `--color-warning` is a fill, and the label on it
+was a `#1C1C1C` literal doing the job by hand. Unlike `--color-on-accent` it **does not
+invert**, because the fill does not — warning is `#f59e0b` in both themes, so its ink is
+dark in both. It is declared in both blocks anyway, so no consumer has to know that.
+
+Both are now in `verify-palette.mjs`, which had a real hole here: it checked
+`'white on accent fill'` at **3.0**, and passed, while the label dark actually paints
+measured **2.70**. Two errors compounding — it tested a colour the app does not use, at a
+floor a button label does not owe. It now checks `on-accent` and `on-warning` themselves at
+4.5. (186 pairs, up from 184.) Worth knowing when trusting a green run: the verifier's
+tables are a **hand-maintained copy** of `globals.css`, not a parse of it, so they can still
+drift — reconciliation is a manual pass, last done 2026-08-10.
+
+**5. Three of the eight failures found were on tokens that have no dark value**, and every
+one of them failed only in dark: `--color-warning` as an ink (2.09 light, and it is a fill),
+`--color-defeat` (2.20 dark, a match-result colour used for "offers to answer" and for The
+Wire's live marker), `--color-pos-cb` / `--color-pos-wb` (2.00 / 2.28 dark). A token with a
+single value serving both themes is the reliable predictor of a dark-mode failure —
+worth grepping for on the next port before reading anything else.
+
+**6. The liveness split survives contact with a page that has both kinds side by side.**
+Free Agency puts a live-auction chip strip directly above a table of season totals. The
+chips keep mono (a standing bid and a countdown both move while you look at them); the
+table went **mono → serif**, because value, points, PPG and form are compared down a column.
+The whole table having been mono is most of what made a set of season totals read like a
+set of tickers.
+
+**7. One primary action per card.** The listing card had four action buttons in four
+colours — accent, gold, and two position hues — which is four primaries and therefore none.
+The same shape appeared on the deals propose bar (three filled buttons, two hues). Both are
+now one accent fill plus ink/ghost siblings. Two of the tints were also contrast failures
+(gold 4.13 light on the elevated bar; the position pair 1.79 / 2.04 dark), but the
+hierarchy was the real defect.
+
+**Also fixed on the already-ported auction room**, found by applying its own rules next
+door: its "You're leading" facet painted `--color-accent` as text, **4.33:1 in dark**. Rule
+5 from that port — accent is a fill, `--color-accent-ink` is the text — written a day
+earlier, in the file that broke it.
+
+**Left as it is, deliberately:** the deals and market main-plus-rail surfaces are *not*
+wrapped in `.g-panel`. They already satisfy "a board is one panel" — one grid, one internal
+hairline, the rail stretching rather than ending where its content does — and unlike the
+auction room's board these two are full-bleed browse surfaces, as the listings board and
+Free Agency are. Elevation stays declared once, as the page.
+
+## What the dialogs added (2026-08-11)
+
+`Modal`, `BidDialog`, `ListingEditor`, `ProposeBuilder`. Four things the surfaces had not
+surfaced:
+
+**1. An accent-ink control must not gain an accent wash on its own hover or selected
+state.** This is rule 2 from the auctions port, but applied to a *control* rather than a
+row, and it turned out to be the single most repeated defect in the section — **six
+instances**, two of them on the already-ported auction room. Every one was an outline button
+or a selectable card in `--color-accent-ink` whose active state added
+`background: var(--color-accent-dim)`, giving accent-on-accent at **4.41:1 in dark**:
+`.goGhost:hover` and `.q:hover` (auctions), `.chipGoGhost:hover` (free agents),
+`.closingGoGhost:hover` (market), `.templateOn .templateName` and `.dirOn .dirTitle`
+(propose builder), plus `.add:hover` and `.pickOn .pickNameBtn:hover` inside the builder.
+The keyline and the tint are the state; when the wash arrives the label goes to ink.
+
+It is worth naming as its own rule rather than filing under rule 2, because the shape is
+different and much easier to miss: with a row, the wash and the word are written in the same
+place. With a control, the ink is on the base class and the wash is on `:hover` — two rules,
+often far apart in the file, each defensible alone.
+
+**2. A duplicated rule decays into a stale rule.** `ListingCard`'s crest restated
+`SquadPeekButton`'s press treatment instead of letting it own it, and the copy had drifted
+to a superseded version — a hard `box-shadow` ring rather than the current lift and
+silhouette drop-shadow. Worse, the copy's geometry assumption had quietly stopped holding:
+`border-radius: 50%` on a flex child with no `align-self` renders as an **ellipse** once the
+row grows, which it did when the portrait moved to the lot size. Two bugs from one
+duplicated rule. `standings` still carries its own copy of the same treatment, currently in
+sync; it should be collapsed onto the shared class before it drifts too.
+
+**3. A cross-file coupling stated in a comment is not a coupling.** `ListingEditor`'s three
+gates were coloured from `--color-pos-cb` / `--color-pos-wb` with a note saying they took
+"the colour its pill wears on the card, so the dialog and the board agree without a legend".
+When the card's pills dropped those hues, nothing failed and nothing complained — the
+comment simply became false. The gates now share **one** selected state (the accent keyline
+plus its tint) with their own words saying which is which, which is both what the card does
+now and one fewer thing to keep in sync.
+
+**4. Money splits by liveness even inside a form.** `BidDialog`'s amount field stays mono —
+it is the live figure, and the thing the countdown counts down to. `ListingEditor`'s three
+price inputs went to **serif**, because they are the same three figures the card's ladder
+shows and the board compares down a column. What you type in the editor is now the face you
+see on the board. The bid dialog's ladder splits the same way per rung: standing bid and
+countdown mono, minimum and clause serif.
+
+**On porting a 1,000-line stylesheet:** `ProposeBuilder`'s scale migration was done by an
+explicit scripted mapping rather than by hand, so no rule could be silently dropped — the
+transform is recorded at the top of that file. Two judgements in it generalise. Values
+**below the scale floor** (1.6–3.2px optical nudges on checkboxes and glyphs) were kept at
+their measured size in px rather than snapped up to `--s1`; `globals.css` already does this
+where it needs a 5px or 6px value, and rounding them would move things a port has no
+business moving. And **widths are not spacing** — a column track or a control dimension does
+not belong on the space scale, so those were converted to px and left alone.
+
+**Still duplicated, worth extracting:** the ghost/primary button pair, the error box and the
+tracked field label are now written four times across the dialogs. They are consistent
+today because they were ported in one pass; point 2 above is the argument for not leaving
+them that way.
+
 ## Port order for the remaining routes
 
-Two pages are on 2.0 (League Home, `transfers/auctions`). The order below is by how much
-each surface exercises the system, so the components land where they are hardest first:
+**Order by adjacency first, then by how much a surface exercises the system.** The first
+version of this list ranked purely on component coverage, which put `transfers/deals` at
+the bottom as "redesigned recently and not urgent" — and that was wrong, for a reason worth
+keeping. `transfers` is not five related pages; it is **one hub with four rooms**, and
+`MarketClient` is a doorway that links straight into all of them. Porting the auction room
+alone put a 2.0 page in the middle of four 1.0 ones, so a manager crossed the seam twice in
+two clicks without leaving the section. A seam between distant sections is a blemish; a
+seam inside one section is a bug. `free-agents` and `listings` were not on the list at all.
+
+Six surfaces are on 2.0 (League Home, and the whole Market hub).
 
 1. ~~**`transfers/auctions`**~~ — **done 2026-08-11.** Exercised the portrait at both row
    and lot size, the countdown (mono), `--color-live`, the panel, the condensed face and the
    row tint. Ended at 0 raw hex, 0 rem literals, 0 1.0 scale tokens, 136 2.0 token uses.
-2. **`team` + `team/roster`** — the pitch and the squad. The twelve-position spine at full
-   density, and the biggest raw-hex debt (`pitch.module.css`, 98 hex literals).
-3. **`players` / `stats`** — where the **baseline rule** finally becomes a real component
+2. ~~**The rest of the Market hub**~~ — **done 2026-08-11.** `transfers`,
+   `transfers/listings`, `transfers/free-agents`, `transfers/deals`, `TransfersSubNav`,
+   `ListingCard`. See "What finishing the hub established" below.
+3. **`team` + `team/roster`** — the pitch and the squad. The twelve-position spine at full
+   density, and the biggest raw-hex debt (`pitch.module.css`, 98 hex literals). Note
+   `ListingEditor` is shared with this route, so the dialog pass below overlaps it.
+4. **`players` / `stats`** — where the **baseline rule** finally becomes a real component
    rather than prototype CSS.
-4. **`matchups` + `matchups/[id]`** — the scoreline treatment from turn 1.
-5. **`standings`, `history`, `finance`** — table-heavy, mostly typographic, low risk.
-6. **`draft`** — largest and most literal-ridden (1,519 lines), and dormant between
+5. **`matchups` + `matchups/[id]`** — the scoreline treatment from turn 1.
+6. **`standings`, `history`, `finance`** — table-heavy, mostly typographic, low risk.
+7. **`draft`** — largest and most literal-ridden (1,519 lines), and dormant between
    seasons, so it is last and cheapest to defer.
 
-`trades` and `transfers/deals` were redesigned recently and are not urgent; `admin/*` never
-faces a manager.
+The `transfers/` **dialogs** — `Modal`, `BidDialog`, `ListingEditor`, `ProposeBuilder` —
+followed the surfaces on 2026-08-11. See "What the dialogs added" below. The section is now
+wholly on 2.0: **0 raw hex across all 11 of its stylesheets**, and no `rem` literal of any
+kind left in the four dialogs.
+
+**`trades` is legacy and will never be ported.** It is out of the nav and nothing links to
+it; it survives only because `src/components/auth/AuthShowcase.tsx` imports `TradeCard`
+from it for the public login carousel. `admin/*` never faces a manager.
 
 ## Not done yet
 
-- 29 dashboard routes still on 1.0; 38 stylesheets still hold raw hex.
-- 130 `font-size` declarations between 8 and 10px, to move with their page (was 141; the
-  auctions port cleared 11 of them).
-- Radius literals decision 3 was written to kill: 3px ×36, 2px ×31, 7px ×13, 5px ×12.
-- Elevation: 168 `box-shadow` against 586 `1px solid`. The rule is now stated in
+- 25 dashboard routes still on 1.0; 31 stylesheets still hold raw hex (was 38).
+- 91 `font-size` declarations between 8 and 10px, to move with their page — 39 in `rem`,
+  52 in `px` (was 141 before the auctions port, 130 after it, 103 after the hub surfaces).
+- Radius literals decision 3 was written to kill: 2px ×30, 3px ×24, 5px ×1, 7px ×0. The
+  dialogs cleared every 7px in the app and all but one 5px.
+- Elevation: 177 `box-shadow` against 590 `1px solid`. The rule is now stated in
   `globals.css`; surfaces carrying both get reconciled as they are ported.
+- The dialog controls (ghost/primary buttons, error box, tracked field label) are written
+  four times over — see "What the dialogs added".
+- `standings` carries its own copy of the squad-peek press treatment, currently in sync with
+  `SquadPeekButton.module.css`. Collapse it before it drifts, as `ListingCard`'s copy did.
 - The 1.0 eyebrow roles are deliberately absent from 2.0 — 34 call sites across
   `ds-eyebrow` (12), `ds-eyebrow-serif` (7) and `ds-label` (15). Mapping: a genuine
   dateline or metadata line keeps `ds-label`; a label sitting above a heading is deleted

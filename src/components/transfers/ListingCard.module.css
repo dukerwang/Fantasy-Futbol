@@ -1,64 +1,95 @@
-/* The listing card.
-   State is carried by a full border plus a background tint — never by a
-   coloured sliver down one edge. Colour on this card comes only from the
-   position badge, the crest, the gate pills and the figures. */
+/* The listing card — Gaffa 2.0.
+
+   A listing is four things at once (an auction block, a trade block, a sale
+   listing, a loan block), so the card reads top to bottom: who, for how much,
+   on what terms, what you can do about it.
+
+   State is carried by a full border plus a background wash — never by a
+   coloured sliver down one edge. Elevation is the hairline, declared once
+   (decision 1): these sit in a grid of many, and a card in a grid does not
+   float.
+
+   WHAT THE PORT CHANGED, all of it measured rather than argued:
+
+   1. --card-ink, the washed-card version of the auction room's --row-ink. On a
+      washed card in dark, text-muted falls to 4.19 (yours) and 4.48 (bidding
+      live) — dark's muted starts at only 5.05 on the card and a wash spends the
+      headroom. Secondary survives at 5.53 / 5.92. So a washed card lifts its
+      muted meta one step through one variable.
+
+   2. The stance chip drops its hue. It used --color-pos-cb for "wants players"
+      and --color-pos-wb for "would loan him out": position FIELD colours
+      carrying a non-position meaning, measuring 2.00 and 2.28 as text on a dark
+      card. The auction room hit the same thing on its provenance tag and
+      settled it the same way — exactly one stance renders per card and every
+      stance states its own headline in words, so the word is the carrier and
+      the hue was decoration that happened to break the colour law. Colour is
+      kept only where it means what it says elsewhere on the card: accent for
+      cash, gold tying the clause chip to the clause figure.
+
+   3. On a washed card the chip goes to plain ink. The wash and the coloured
+      word are alternatives, not partners — accent-ink on the accent wash is
+      4.41 in dark, gold on it 4.26 in light. The card is already green; the
+      word does not need to be.
+
+   4. Money splits by liveness, not by "is it money". A standing bid and the
+      next legal bid above it tick while you look at them, so they are mono. An
+      asking price, a resting floor and a release clause are figures you compare
+      down the board — the serif's job (decision 6).
+
+   5. One primary action. Clause / Offer / Loan were each tinted (gold on the
+      elevated bar is 4.13 in light; the two position hues 1.79 and 2.04 in
+      dark) which gave four buttons four colours and no hierarchy. The bid fills
+      in the accent and carries --color-on-accent; every other action is ink. */
 
 .card {
   background: var(--color-bg-card);
   border: 1px solid var(--color-border-subtle);
-  border-radius: 9px;
+  border-radius: var(--r-shell);
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  /* The muted slot. Lifted to secondary by either wash below; see note 1. */
+  --card-ink: var(--color-text-muted);
 }
 
-/* Bidding live — warm amber. Held to a tint so it reads as heat, not alarm. */
+/* Bidding live — warm amber. Held to a wash so it reads as heat, not alarm. */
 .live {
   background: color-mix(in srgb, var(--color-warning) 7%, var(--color-bg-card));
   border-color: color-mix(in srgb, var(--color-warning) 45%, var(--color-border));
+  --card-ink: var(--color-text-secondary);
 }
 
 /* Your own listing — the accent, used here as belonging rather than action. */
 .mine {
   background: var(--color-accent-dim);
   border-color: var(--color-border-accent);
+  --card-ink: var(--color-text-secondary);
 }
 
 /* ── Identity ───────────────────────────────────────────── */
 
 .top {
   display: flex;
-  gap: 0.7rem;
-  padding: 0.75rem 0.75rem 0.6rem;
+  gap: var(--s3);
+  padding: var(--s3);
 }
 
+/* A bare hit area. The portrait declares its own frame, ground, hairline and
+   shadow, so the button adds no surface of its own — elevation once. */
 .photoBtn {
-  width: 52px;
-  height: 52px;
-  border-radius: 6px;
-  flex-shrink: 0;
-  background: var(--color-bg-elevated);
   border: none;
+  background: none;
   padding: 0;
   cursor: pointer;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-shrink: 0;
+  line-height: 0;
+  border-radius: var(--r-control);
 }
 
-.photo {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: top center;
-}
-
-.photoFallback {
-  font-family: var(--font-serif);
-  font-weight: 700;
-  font-size: 1.375rem;
-  color: var(--color-text-muted);
+.photoBtn:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
 }
 
 .identity {
@@ -67,17 +98,15 @@
 }
 
 /* PositionBadge sits to the LEFT of the name, never underneath it in small
-   text — the position is identity, not metadata. */
-.nameRow {
-  display: flex;
-  align-items: center;
-  gap: 0.45rem;
-}
+   text — the position is identity, not metadata. Layout and the chip's optical
+   lift both come from `.g-namerow`; see globals.css for why centring alone
+   leaves the badge sitting low. */
+.nameRow { --g-chip-lift: 2.45px; }   /* the name here is --t-17 */
 
 .name {
   font-family: var(--font-serif);
   font-weight: 700;
-  font-size: 1.0625rem;
+  font-size: var(--t-17);
   letter-spacing: -0.01em;
   line-height: 1.05;
   color: var(--color-text-primary);
@@ -86,30 +115,33 @@
   text-overflow: ellipsis;
 }
 
+/* The player's club is gone from this line — the portrait's crest carries it
+   now, the same trade the auction room's row made. What is left is the market
+   value and who is selling him, which is what the line is actually for. */
 .meta {
-  font-size: 0.66rem;
-  color: var(--color-text-muted);
-  margin-top: 0.2rem;
+  font-size: var(--t-11);
+  color: var(--card-ink);
+  margin-top: var(--s1);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-/* Doubles as the squad-peek trigger; button chrome stripped so it reads as a badge. */
+/* The squad-peek trigger. LAYOUT ONLY — the press treatment belongs to
+   SquadPeekButton.module.css, which owns it for every crest in the app.
+
+   This used to restate it, and had drifted to a superseded version: a hard
+   `box-shadow` ring instead of the current lift + silhouette drop-shadow. The
+   ring also rendered as a tall ellipse, because `border-radius: 50%` was being
+   applied to a box that STRETCHED to the row height — a flex child with no
+   `align-self` fills its line, and the row grew to 78px when the portrait moved
+   to the lot size. Two bugs from one duplicated rule: a stale copy, and a copy
+   whose geometry assumptions had quietly stopped holding.
+
+   `align-self` also keeps the hit area to the crest instead of the full row. */
 .crest {
   flex-shrink: 0;
-  display: flex;
-  align-items: flex-start;
-  padding: 0;
-  border: none;
-  background: none;
-  cursor: pointer;
-  border-radius: 50%;
-  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
-}
-.crest:hover {
-  transform: scale(1.06);
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-accent) 45%, transparent);
+  align-self: flex-start;
 }
 
 /* ── The three-price ladder ─────────────────────────────── */
@@ -121,7 +153,7 @@
 }
 
 .price {
-  padding: 0.5rem 0.625rem;
+  padding: var(--s2) var(--s3);
   border-right: 1px solid var(--color-border-subtle);
   min-width: 0;
 }
@@ -129,124 +161,122 @@
 .priceLast { border-right: none; }
 
 .priceLabel {
+  font-family: var(--font-condensed);
   font-size: var(--t-10);
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--color-text-muted);
+  color: var(--card-ink);
 }
 
+/* Settled money: serif, tabular, compared down the board. */
 .priceValue {
-  font-family: var(--font-mono);
+  font-family: var(--font-serif);
   font-weight: 700;
-  font-size: 0.9375rem;
-  margin-top: 0.125rem;
+  font-size: var(--t-15);
+  font-variant-numeric: tabular-nums lining-nums;
+  margin-top: var(--s1);
   color: var(--color-text-primary);
 }
 
-.accent { color: var(--color-accent); }
-.gold   { color: var(--color-gold); }
-.warn   { color: var(--color-warning); }
-
-/* --color-gold (#93702F) is tuned for the cream theme and is not overridden for
-   dark, where it lands as a dark mustard on #252B3D — around 2.8:1, too low for
-   a figure someone is meant to read a price off. Lifted in lightness only
-   (hsl 41°, 51%, 38% → 60%) so the hue does not drift toward yellow.
-   Scoped here rather than overriding the token: it is also the app-wide colour
-   for leader / #1 figures, which sit on different surfaces. */
-:global([data-theme='dark']) .gold { color: #CBA85F; }
-/* Same fix as .gold above, same reason: this pill's text sits directly on
-   --color-gold and needs the same dark-mode lift to stay readable. */
-:global([data-theme='dark']) .clause { color: #CBA85F; }
-
-.priceOff {
-  color: var(--color-text-muted);
-  font-weight: 400;
-  font-size: 0.8125rem;
+/* Live money: mono, because it ticks — a standing bid moves while you look at
+   it, and the next legal bid moves with it. */
+.priceLive {
+  font-family: var(--font-mono);
+  font-size: var(--t-15);
 }
 
-/* ── Gate pills ─────────────────────────────────────────── */
+/* --color-accent is a fill; --color-accent-ink is the text. The fill token as a
+   figure measured 4.33 on a dark card. */
+.accent { color: var(--color-accent-ink); }
+.gold   { color: var(--color-gold); }
+
+/* --color-warning is a FILL and has no dark value — as an ink on the light card
+   it measured 2.09. --color-warning-text is the ink half of the pair, and is
+   defined for both themes. */
+.warn   { color: var(--color-warning-text); }
+
+.priceOff {
+  color: var(--card-ink);
+  font-weight: 400;
+  font-size: var(--t-13);
+}
+
+/* ── The stance chip ────────────────────────────────────── */
 
 .gates {
   display: flex;
-  gap: 0.3rem;
-  padding: 0.55rem 0.75rem 0;
+  gap: var(--s1);
+  padding: var(--s2) var(--s3) 0;
   align-items: center;
   flex-wrap: wrap;
 }
 
 .gate {
-  font-size: 0.53rem;
+  font-family: var(--font-condensed);
+  font-size: var(--t-10);
   font-weight: 700;
   letter-spacing: 0.09em;
   text-transform: uppercase;
-  padding: 0.19rem 0.44rem;
-  border-radius: 999px;
+  padding: var(--s1) var(--s2);
+  border-radius: var(--r-control);
   border: 1px solid currentColor;
   white-space: nowrap;
+  color: var(--color-text-secondary);
 }
 
 /* One chip stating the seller's position, not three stating permissions. Since
-   088 nothing here refuses an approach, so "No trade" would be a lie — the
-   colour just says which way they are leaning. */
-.players {
-  color: var(--color-pos-cb);
-  background: color-mix(in srgb, var(--color-pos-cb) 8%, transparent);
-}
+   088 nothing here refuses an approach, so "No trade" would be a lie — the chip
+   says which way they are leaning. */
+.players,
+.loan,
+.open { color: var(--color-text-secondary); }
 
-.sale {
-  color: var(--color-accent);
-  background: var(--color-accent-dim);
-}
+/* Cash is the one stance the accent legitimately names: it means money and
+   actions everywhere else in this feature. */
+.sale { color: var(--color-accent-ink); }
 
-.loan {
-  color: var(--color-pos-wb);
-  background: color-mix(in srgb, var(--color-pos-wb) 8%, transparent);
-}
+/* No min_bid (114): no open auction at all. Gold ties the chip to the Clause
+   figure in the ladder above — the two are the same fact stated twice. */
+.clause { color: var(--color-gold); }
 
-.open {
-  color: var(--color-text-secondary);
-  background: color-mix(in srgb, var(--color-text-secondary) 7%, transparent);
-}
+/* An absence is a dashed rule, never a colour. No min_bid and no clause: the
+   only door in is a private Offer. */
+.offers { border-style: dashed; }
 
-/* No min_bid (114): this listing has no open auction at all. Gold ties it to
-   the Clause figure in the price ladder above. */
-.clause {
-  color: var(--color-gold);
-  background: color-mix(in srgb, var(--color-gold) 8%, transparent);
-}
-
-/* No min_bid and no buy_now_price: the only door in is a private Offer. */
-.offers {
-  color: var(--color-text-secondary);
-  background: color-mix(in srgb, var(--color-text-secondary) 7%, transparent);
-  border-style: dashed;
-}
-
-/* Bidding is live: the private paths really are gone, so this one IS an
-   absence. Dashed and grey to read as such. */
+/* Bidding is live, so the private paths really are gone. */
 .gateShut {
-  color: var(--color-text-muted);
+  color: var(--card-ink);
   border-style: dashed;
 }
+
+/* The wash has already said it — see note 3. */
+.mine .gate,
+.live .gate { color: var(--color-text-primary); }
 
 .clock {
   margin-left: auto;
   font-family: var(--font-mono);
-  font-size: 0.66rem;
-  color: var(--color-text-muted);
+  font-size: var(--t-11);
+  font-variant-numeric: tabular-nums lining-nums;
+  color: var(--card-ink);
 }
 
+/* Closing soon is a warning, not a liveness marker. On the amber card the wash
+   is already carrying it, so the clock goes to ink for the same reason the chip
+   does. */
 .clockHot {
-  color: var(--color-warning);
+  color: var(--color-warning-text);
   font-weight: 700;
 }
+
+.live .clockHot { color: var(--color-text-primary); }
 
 /* ── Actions ────────────────────────────────────────────── */
 
 .actions {
   display: flex;
-  margin-top: 0.55rem;
+  margin-top: var(--s2);
   border-top: 1px solid var(--color-border-subtle);
   background: var(--color-bg-elevated);
 }
@@ -254,8 +284,9 @@
 .action {
   flex: 1;
   text-align: center;
-  padding: 0.5rem 0.2rem;
-  font-size: 0.6rem;
+  padding: var(--s2) var(--s1);
+  font-family: var(--font-condensed);
+  font-size: var(--t-10);
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -278,20 +309,20 @@
   color: var(--color-text-muted);
 }
 
+/* The one primary action. --color-on-accent, not --color-text-inverse: dark's
+   inverse ink is a near-white, which on dark's brighter accent measured 2.70.
+   on-accent inverts by theme precisely for this. */
 .actionBid {
   background: var(--color-accent);
-  color: var(--color-text-inverse);
+  color: var(--color-on-accent);
 }
 
 .actionBid:hover:not(:disabled) { background: var(--color-accent-hover); }
 
-.actionClause { color: var(--color-gold); }
-.actionOffer  { color: var(--color-pos-cb); }
-.actionLoan   { color: var(--color-pos-wb); }
-.actionMuted  { color: var(--color-text-muted); }
+.actionMuted { color: var(--color-text-muted); }
 
 @media (max-width: 480px) {
-  .prices { grid-template-columns: repeat(3, 1fr); }
-  .priceValue { font-size: 0.85rem; }
-  .name { font-size: 1rem; }
+  .priceValue,
+  .priceLive { font-size: var(--t-13); }
+  .name { font-size: var(--t-15); }
 }

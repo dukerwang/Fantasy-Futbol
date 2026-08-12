@@ -130,6 +130,14 @@ const P = {
     'accent':        '#146B40',
     'accent-hover':  '#0F5632',
     'accent-ink':    '#146B40',
+    /* The two "label ON a fill" tokens. on-accent INVERTS by theme (dark's
+       accent is the brighter colour); on-warning does NOT, because the warning
+       fill itself is the same in both themes. Both are checked at 4.5 below —
+       a button label is body text, and holding this pair to the 3.0 non-text
+       floor is exactly how a 2.70:1 label shipped. */
+    'on-accent':     '#FFFFFF',
+    'on-warning':    '#1C1A17',
+    'warning':       '#f59e0b',
     'live':          '#B3261E',
     'danger':        '#A32219',
     'warning-text':  '#8A5A0B',
@@ -171,6 +179,9 @@ const P = {
     'accent':        '#1FA35F',
     'accent-hover':  '#37BE77',
     'accent-ink':    '#2FB56C',
+    'on-accent':     '#10141C',
+    'on-warning':    '#1C1A17',
+    'warning':       '#f59e0b',
     'live':          '#F0736A',
     'danger':        '#F0736A',
     'warning-text':  '#E0A63C',
@@ -289,8 +300,14 @@ for (const theme of ['light', 'dark']) {
     check(theme, `text-primary on ${tint}`, p['text-primary'], p[tint], 4.5);
   }
 
-  // Fills that carry a label.
-  check(theme, 'white on accent fill', '#FFFFFF', p['accent'], 3.0);
+  /* Fills that carry a label. These are held to 4.5, not 3.0: what sits on an
+     accent or warning fill is a BUTTON LABEL — body text at 10-13px, not a
+     large figure or a graphical mark. This check used to hardcode '#FFFFFF' at
+     3.0, which passed while dark's real label measured 2.70:1, because white is
+     not the token dark uses and 3.0 is not the floor a label owes. Checking the
+     token the app actually paints is the whole point of this file. */
+  check(theme, 'on-accent on accent fill', p['on-accent'], p['accent'], 4.5);
+  check(theme, 'on-warning on warning fill', p['on-warning'], p['warning'], 4.5);
   check(theme, 'accent fill vs card', p['accent'], p['bg-card'], 3.0);
   check(theme, 'border-strong on page', p['border-strong'], p['bg-primary'], 3.0);
   check(theme, 'border-strong on card', p['border-strong'], p['bg-card'], 3.0);

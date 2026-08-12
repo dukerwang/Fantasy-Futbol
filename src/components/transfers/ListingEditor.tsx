@@ -278,21 +278,21 @@ export default function ListingEditor({
       <div className={styles.section}>
         <span className={styles.label}>What you&rsquo;re after</span>
         <div className={styles.gates}>
-          <label className={`${styles.gate} ${gateSale ? styles.gateOnCash : ''}`}>
+          <label className={`${styles.gate} ${gateSale ? styles.gateOn : ''}`}>
             <input type="checkbox" checked={gateSale} onChange={(e) => setGateSale(e.target.checked)} />
             <span>
               <b>Cash</b>
               <em>You&rsquo;d rather have the budget than a body.</em>
             </span>
           </label>
-          <label className={`${styles.gate} ${gateTrade ? styles.gateOnTrade : ''}`}>
+          <label className={`${styles.gate} ${gateTrade ? styles.gateOn : ''}`}>
             <input type="checkbox" checked={gateTrade} onChange={(e) => setGateTrade(e.target.checked)} />
             <span>
               <b>Players</b>
               <em>You&rsquo;re shopping for a squad, not a balance.</em>
             </span>
           </label>
-          <label className={`${styles.gate} ${gateLoan ? styles.gateOnLoan : ''}`}>
+          <label className={`${styles.gate} ${gateLoan ? styles.gateOn : ''}`}>
             <input type="checkbox" checked={gateLoan} onChange={(e) => setGateLoan(e.target.checked)} />
             <span>
               <b>A loan</b>

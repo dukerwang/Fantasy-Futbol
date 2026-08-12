@@ -139,7 +139,9 @@ export default function AuctionsClient({
   const facets: { key: Facet; label: string; color: string }[] = [
     { key: 'all', label: 'All', color: 'var(--color-text-primary)' },
     { key: 'closing', label: 'Closing inside the hour', color: 'var(--color-warning-text)' },
-    { key: 'leading', label: "You're leading", color: 'var(--color-accent)' },
+    // accent-ink, not accent: an unselected facet paints its colour as TEXT on
+    // the card, where the fill token measures 4.33 in dark.
+    { key: 'leading', label: "You're leading", color: 'var(--color-accent-ink)' },
     { key: 'outbid', label: 'Outbid', color: 'var(--color-danger)' },
     { key: 'free', label: 'Free agents', color: 'var(--color-text-secondary)' },
     { key: 'listed', label: 'Listed', color: 'var(--color-text-secondary)' },
