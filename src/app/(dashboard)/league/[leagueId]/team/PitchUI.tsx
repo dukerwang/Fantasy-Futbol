@@ -12,6 +12,7 @@ import { usePlayerCard } from '@/components/players/PlayerCardProvider';
 import { getPlayerDisplayName } from '@/lib/players/displayName';
 import Portrait from '@/components/players/Portrait';
 import PositionBadge from '@/components/players/PositionBadge';
+import { SPINE, POS_COLOR } from '@/lib/positions/spine';
 import styles from './pitch.module.css';
 import { Icon } from '@/components/ui/Icon';
 
@@ -27,26 +28,10 @@ const BENCH_SLOT_NAMES: BenchSlot[] = ['DEF', 'MID', 'ATT', 'FLEX'];
 
 const DEFAULT_TAXI_AGE_LIMIT = 21;
 
-/** The spine in phase-of-play order — keeper, defence, midfield, attack. */
-const SPINE: GranularPosition[] = ['GK', 'CB', 'LB', 'RB', 'LWB', 'RWB', 'DM', 'CM', 'AM', 'LW', 'RW', 'ST'];
-
-/* Feeds `--pf` for `.g-row`'s hover tint, which is the sanctioned use of a
-   position hue outside a badge: it grounds the row you are pointing at and
-   teaches the taxonomy while doing it. Nothing here paints a fill. */
-const POS_COLOR: Record<GranularPosition, string> = {
-    GK: 'var(--color-pos-gk)',
-    CB: 'var(--color-pos-cb)',
-    LB: 'var(--color-pos-lb)',
-    RB: 'var(--color-pos-rb)',
-    LWB: 'var(--color-pos-lwb)',
-    RWB: 'var(--color-pos-rwb)',
-    DM: 'var(--color-pos-dm)',
-    CM: 'var(--color-pos-cm)',
-    AM: 'var(--color-pos-am)',
-    LW: 'var(--color-pos-lw)',
-    RW: 'var(--color-pos-rw)',
-    ST: 'var(--color-pos-st)',
-};
+/* SPINE (phase-of-play order) and POS_COLOR now live in
+   src/lib/positions/spine.ts — the stats pool is the second panel to qualify
+   for the spectrum, and two copies of the twelve hues is how the device stops
+   meaning the same thing on both. */
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
