@@ -160,6 +160,39 @@
   --color-tint-danger:   #F5E3DD;
   --color-tint-warning:  #EFE8DD;
 
+  /* --- The pitch (2026-08-11) ---
+     The grass, and the white it is marked out in. Added by the `team` port,
+     which found the pitch was the one surface in the app the palette had never
+     been checked against at all: 1.0 painted a fixed #5A8F6A in BOTH themes and
+     then laid white on it. Measured, every ink it carried was below floor —
+     touchline 2.23:1, team label 2.67:1, the empty-slot label 2.94:1.
+
+     Most of that was the FADE, not the green: the same white at full strength
+     measured 3.77:1. So two things move together — the ink stops being
+     alpha-faded, and the grass moves to a value full white actually clears.
+     #497D59 is 1.0's own hue and chroma with lightness walked down until white
+     reaches 4.8 (the ramp's reasoning: solving to 4.5 exactly lands one nudge
+     from failing, and this ground also carries a vignette and a mown stripe).
+     `scratch/solve_pitch_grass.mjs`.
+
+     ONE VALUE IN BOTH THEMES, deliberately. The grass is not a semantic colour
+     — it is a depicted object, the same category as a club crest or a kit, so
+     it does not owe the accent's "one job per colour" law any more than a red
+     Man Utd shirt does. It is also what makes the maths work: a legal grass is
+     darker than the dark theme's own card, so no single green can separate from
+     a cream chip and a navy chip by FILL. The chip takes a white keyline
+     instead — the spine's own rule, that the line and not the fill is what has
+     to clear 3:1 — and the pitch ends up with exactly one line colour for
+     touchlines and player chips alike, which is how a real pitch is marked.
+
+     `-line` at full strength is 4.81:1 on the field. It is faded only for
+     interior furniture (penalty box, arc, centre circle, halfway line), which
+     carries no information and is not interactive; the field boundary and every
+     chip keyline run at full. */
+  --color-pitch:       #497D59;
+  --color-pitch-band:  #417551;   /* the mown stripe — darker, so it only ever improves the ink */
+  --color-pitch-line:  #FFFFFF;
+
   /* --- The performance ramp (2026-08-10) ---
      Colours a figure by how it sits against the player's own positional
      median: the baseline-rule numbers and the points figure. Five stops,

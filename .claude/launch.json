@@ -21,6 +21,11 @@
       "runtimeArgs": ["node_modules/next/dist/bin/next", "start"],
       "port": 3005,
       "autoPort": true
+    },
+    {
+      "name": "gaffa-attach-3000",
+      "port": 3000,
+      "url": "http://localhost:3000"
     }
   ]
 }

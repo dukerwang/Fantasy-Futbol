@@ -216,9 +216,9 @@ export default function ClubClient({
   }
 
   return (
-    <div className={styles.shell}>
+    <div className={`${styles.shell} ${styles.page} g-page`}>
       {/* ── Masthead ── */}
-      <header className={styles.masthead}>
+      <header className={`${styles.masthead} g-panel`}>
         <div className={styles.mhTop}>
           <div className={styles.mhCrest}>
             <CrestBadge
@@ -234,7 +234,7 @@ export default function ClubClient({
                 headline directly below and the manager is the line under that,
                 so a label naming the kind of thing you're looking at was just
                 repeating the page back at itself. */}
-            <div className={styles.eyebrow}>{club.season} · {club.leagueName}</div>
+            <div className="g-label">{club.season} · {club.leagueName}</div>
             <h1 className={styles.mhClub}>{club.name}</h1>
             <div className={styles.mhMeta}>
               <span>{club.manager}</span>
@@ -298,19 +298,19 @@ export default function ClubClient({
             </button>
           ))}
         </div>
-        <span className={styles.eyebrow}>{shown.length} of {entries.length} shown</span>
+        <span className={styles.tbLabel}>{shown.length} of {entries.length} shown</span>
         <div className={styles.tbSpacer} />
 
         <ToDo items={todos} onAct={handleTodo} />
 
         <div className={styles.tbGroup}>
-          <span className={styles.eyebrow}>Show</span>
+          <span className={styles.tbLabel}>Show</span>
           <select className={styles.tbSelect} value={filter} onChange={(e) => setFilter(e.target.value)}>
             {FILTERS.map((f) => <option key={f.k} value={f.k}>{f.label}</option>)}
           </select>
         </div>
         <div className={styles.tbGroup}>
-          <span className={styles.eyebrow}>Sort</span>
+          <span className={styles.tbLabel}>Sort</span>
           <select className={styles.tbSelect} value={sort} onChange={(e) => setSort(e.target.value)}>
             {SORTS.map((s) => <option key={s.k} value={s.k}>{s.label}</option>)}
           </select>
@@ -363,7 +363,7 @@ export default function ClubClient({
 function Fig({ label, value, sub }: { label: string; value: string; sub: string }) {
   return (
     <div className={styles.fig}>
-      <div className={styles.eyebrow}>{label}</div>
+      <div className="g-label">{label}</div>
       <div className={styles.figValue}>{value}</div>
       <div className={styles.figSub}>{sub}</div>
     </div>

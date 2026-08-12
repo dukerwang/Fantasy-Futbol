@@ -32,7 +32,7 @@ export default function ClubSwitcher({
 
   return (
     <nav className={styles.switcher} aria-label="Clubs in this league">
-      <span className={styles.switcherLabel}>Clubs</span>
+      <span className={`${styles.tbLabel} ${styles.switcherLabel}`}>Clubs</span>
       <div className={styles.switcherStrip}>
         {clubs.map((c) => {
           const isCurrent = c.teamId === currentTeamId;

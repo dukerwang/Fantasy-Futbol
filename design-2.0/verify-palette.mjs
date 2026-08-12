@@ -163,6 +163,16 @@ const P = {
     'perf-low':      '#9B5B2B',
     'perf-good':     '#42764E',
     'perf-best':     '#147B47',
+    /* The pitch. ONE grass in both themes: it is a depicted object, the same
+       category as a club crest or a kit, so it owes the colour law nothing —
+       and a legal grass is darker than the dark theme's own card, so no single
+       green can separate from a cream chip AND a navy chip by fill. The chip
+       takes the white keyline instead. 1.0's #5A8F6A put white at 3.77:1 even
+       at full strength, and it never painted white at full strength.
+       scratch/solve_pitch_grass.mjs. */
+    'pitch':         '#497D59',
+    'pitch-band':    '#417551',
+    'pitch-line':    '#FFFFFF',
   },
   dark: {
     'bg-primary':    '#1A1F2E',
@@ -195,6 +205,9 @@ const P = {
     'perf-low':      '#CC8758',
     'perf-good':     '#6DA378',
     'perf-best':     '#4EA972',
+    'pitch':         '#497D59',
+    'pitch-band':    '#417551',
+    'pitch-line':    '#FFFFFF',
   },
 };
 
@@ -311,6 +324,17 @@ for (const theme of ['light', 'dark']) {
   check(theme, 'accent fill vs card', p['accent'], p['bg-card'], 3.0);
   check(theme, 'border-strong on page', p['border-strong'], p['bg-primary'], 3.0);
   check(theme, 'border-strong on card', p['border-strong'], p['bg-card'], 3.0);
+
+  /* The pitch. One grass in both themes — it is a depicted object, not a
+     semantic colour (see globals.css § "The pitch") — so both theme passes
+     check the same pair, and that is deliberate: it is what proves the single
+     value is legal on both sides rather than only on the one it was drawn for.
+     1.0's #5A8F6A put white at 3.77:1 here even at full strength, and every
+     ink it actually painted was faded well below that. */
+  check(theme, 'pitch-line on grass', p['pitch-line'], p['pitch'], 4.5);
+  check(theme, 'pitch-line on mown stripe', p['pitch-line'], p['pitch-band'], 4.5);
+  check(theme, 'card chip on grass (keyline carries the edge)', p['pitch-line'], p['pitch'], 3.0);
+  check(theme, 'grass vs page', p['pitch'], p['bg-primary'], 3.0);
 
   // Band separation wants to be visible but not stripey. Only a floor is
   // meaningful, so this is informational.

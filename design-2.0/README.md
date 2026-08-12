@@ -8,7 +8,10 @@ followed on 2026-08-10 (see "Not done yet"). **`transfers/auctions` was ported 2
 data, and the first to be fully free of raw hex and 1.0 scales. **The rest of the Market
 hub followed the same day** — `transfers`, `transfers/listings`, `transfers/free-agents`,
 `transfers/deals`, plus `TransfersSubNav` and `ListingCard` — so the whole section is on
-2.0 together. Every other surface still runs 1.0.
+2.0 together. **The squad pages followed on 2026-08-11**: `team` (the pitch) and
+`team/roster` (the club), which also ports `clubs/[teamId]` for free — it is the same
+ClubClient. That pass added the pitch to the palette and put the spectrum on a page for
+the first time. Every other surface still runs 1.0.
 
 - **Prototype:** Claude Design project `f4858479-5b36-4ba3-9a4f-04da9725c7db`, built
   **unbound** (the bound "Fantasy Futbol Design System" has the wrong accent, fonts and
@@ -190,7 +193,8 @@ below the fold.
   A theme is allowed to solve something differently.
 - **Spectrum** twelve hues as a 3px rule, **rationed exactly like the tracked label**: only on
   a panel representing a whole squad or the whole player pool, where all twelve positions are
-  genuinely in play. Anywhere else it is decoration.
+  genuinely in play. Anywhere else it is decoration. *First used 2026-08-11*, on the pitch
+  board and the depth chart — the first two panels in the app that qualify.
 - **Scoreline** figures on the top line, margin axis full width beneath. The figure stays in
   **ink** — a red score reads as danger, not as live, and live already has its own marker.
   Your side is ruled in the accent, because accent means "yours".
@@ -310,6 +314,31 @@ bottom contact ellipse (a fake shadow), the shield crop (its point drives a V th
 chest), a full-strength floodlight (studio-portrait, not product), and a desaturated
 treatment (throws away the only real photography the product has).
 
+## The pitch
+
+**Added 2026-08-11**, by the `team` port, as `--color-pitch` / `-band` / `-line` in
+`globals.css`. It is a surface rather than a component, and it is the only one in the
+system that depicts a real object.
+
+`#497D59` grass, `#417551` for the mown stripe, `#FFFFFF` for every line. Derived by
+holding 1.0's own hue and chroma and walking lightness down until full white clears **4.8**
+(`scratch/solve_pitch_grass.mjs`) — the ramp's reasoning, since a ground carrying a
+vignette and a stripe should not be solved to the AA floor exactly.
+
+- **One value in both themes.** Twice over. A depicted object owes the colour law nothing —
+  grass is grass, the same category as crest art or a kit — and a legal grass is *darker
+  than the dark theme's own card*, so no single green could separate from a cream chip and
+  a navy chip by fill anyway.
+- **The chip keyline is the pitch's own white line**, which is what makes that work, and it
+  is the spine's rule applied to a surface: the line clears 3:1, not the fill.
+- **No faded ink.** Labels and the field boundary run at full strength. Alpha survives only
+  on interior furniture (penalty box, arc, centre circle, halfway line), which carries no
+  information and is not interactive.
+- **The vignette only darkens**, so it can only improve every white pair measured against
+  the flat grass.
+
+`MatchupPitch` still draws 1.0's grass; it moves with port 5.
+
 ## Position spine
 
 Hue is ramped by phase of play — keeper gold, defender blues, midfield violets,
@@ -347,7 +376,7 @@ unnecessary — those values already existed as `--s2`/`--s3`. Enforcement, not 
 node design-2.0/verify-palette.mjs --emit
 ```
 
-Checks 110 text/surface pairs across both themes and exits non-zero on any failure. Where
+Checks 194 text/surface pairs across both themes and exits non-zero on any failure. Where
 a pair fails it reports the nearest passing value, walking OKLCH **lightness only** and
 holding hue and chroma — move lightness or the colour reads as a different brand, which
 is the lesson from the dark-accent retune that produced `#1FA35F`.
@@ -537,7 +566,8 @@ Both are now in `verify-palette.mjs`, which had a real hole here: it checked
 `'white on accent fill'` at **3.0**, and passed, while the label dark actually paints
 measured **2.70**. Two errors compounding — it tested a colour the app does not use, at a
 floor a button label does not owe. It now checks `on-accent` and `on-warning` themselves at
-4.5. (186 pairs, up from 184.) Worth knowing when trusting a green run: the verifier's
+4.5. (186 pairs, up from 184; 194 once the squad-page port added the pitch.) Worth knowing
+when trusting a green run: the verifier's
 tables are a **hand-maintained copy** of `globals.css`, not a parse of it, so they can still
 drift — reconciliation is a manual pass, last done 2026-08-10.
 
@@ -632,6 +662,119 @@ tracked field label are now written four times across the dialogs. They are cons
 today because they were ported in one pass; point 2 above is the argument for not leaving
 them that way.
 
+## What the squad pages established (2026-08-11)
+
+`team` (the pitch) and `team/roster` (the club). Both stylesheets end at **0 raw hex, 0
+rem font-sizes, 0 1.0 scale tokens, 0 radius literals**, and **110 measured colour pairs
+pass in both themes** (`scratch/verify_squad_pages.mjs`).
+
+**1. The pitch was a surface the palette had never been checked against, and everything
+on it was failing.** 1.0 painted a fixed `#5A8F6A` grass in *both* themes and laid white
+on it: touchline **2.23:1**, team label **2.67:1**, empty-slot label **2.94:1**. The
+alpha *fade* was most of it — the same white at full strength measured 3.77. So two
+things moved together: the ink stopped being faded, and the grass moved to `--color-pitch`
+`#497D59`, which is 1.0's own hue and chroma with lightness walked down until full white
+reaches **4.8** (`scratch/solve_pitch_grass.mjs`). Alpha survives only on interior
+furniture — penalty box, arc, centre circle, halfway line — which carries no information
+and is not interactive.
+
+Three things generalise out of it:
+
+- **A depicted object is not a semantic colour.** Grass owes the "one job per colour" law
+  no more than a red Man Utd shirt does, which is why the pitch is one value in both
+  themes rather than a themed pair. It is the same category as the crest art the portrait
+  chips on.
+- **It also had to be one value, because no single green can work by fill in both
+  themes.** A legal grass is darker than the *dark* theme's own card, so a green that
+  separates from a cream chip cannot separate from a navy one. The chip takes a white
+  keyline instead — the spine's own rule, that the line and not the fill clears 3:1 — and
+  the pitch ends up with exactly one line colour for touchlines and player chips alike,
+  which is how a real pitch is marked out.
+- **A wash of the ink's own colour is the worst possible ground for it.** The empty slot
+  had a 14%-white chip carrying a white label: **3.70:1**. The dashed keyline was already
+  saying "empty", so the fill went and the label sits on bare grass at 4.81.
+
+**2. "A board is one panel" is not a table rule.** Written for the auction room's
+list-plus-rail, it applies just as hard to a pitch plus its squad rail — you move players
+between them, and the rail's counts are arithmetic on what is on the grass. It was a bare
+pitch beside four floating cards: **five elevation declarations for one composition**. It
+is now one `.g-panel`, two columns, one internal hairline that turns horizontal when the
+layout stacks, with the four tiers as sections of the rail. Being four separate rulesets,
+the tiers had already drifted apart in padding, hover and selected state; one row class
+serves all four now.
+
+**3. The spectrum's first use in the app.** Every earlier port correctly left it off and
+said so. A board carrying eleven positions on the field plus every reserve is exactly the
+"whole squad or whole pool" panel it was rationed for. The depth chart is the second.
+
+**4. "One tracked label per panel" rations a DEVICE, not an element.** The auction room's
+four stat captions look like a breach of decision 5 and are not — a set of figures sharing
+one caption style is one device used once. What the rule is actually against showed up on
+the depth chart, where eight zone heads plus a formations block wanted to be nine tracked
+caps lines down a single panel. Those became headings; the panel's one rationed label is
+its head caption. Same call in the club toolbar, where "Show", "Sort" and the shown-count
+went to plain muted text.
+
+**5. An ordinal ramp of four steps is not available in this palette on one ground.** The
+age profile was accent / a raw `#5A9F73` / `--color-gold` / `--color-defeat` — four
+colours for a quantity that runs young to old, one invented, one a medal token, one a
+match-result token with no dark value (**1.89:1**). Two replacements failed in opposite
+directions, which is the useful part:
+
+| ramp | vs the panel | vs its neighbour |
+|---|---|---|
+| accent → `bg-inset` | **1.66** light, **1.08** dark | 1.50–1.60 ✓ |
+| accent → `text-muted` | 4.33 ✓ | **1.00–1.08** |
+| accent → `text-primary` (best available) | 4.33 ✓ | 1.30 |
+
+The second failure is the instructive one: both endpoints were chosen to be legible on the
+*same* ground, which is another way of saying they sit at the same luminance. Nothing in
+the palette clears both constraints, so the fourth axis is **form** — a 2px gap of panel
+between segments — which is the hub port's rule for exactly this case. With the segments
+separated, adjacency stops being a contrast problem. `scratch/solve_age_ramp.mjs`.
+
+**6. A `color` set inline cannot be overridden, which is how a wash defect stays
+invisible.** The club page's status word takes its tone from a data table and painted it
+as an inline `style={{ color }}`, so no rule could lift it when a selected tile put an
+accent wash underneath — accent-on-accent at **3.13:1** in dark, and the stylesheet looked
+correct because the offending declaration was not in it. The tone now arrives as a custom
+property (`--tone`) and the wash wins. Same move lifts every muted cell in a washed row to
+secondary through `--row-ink`.
+
+**7. A duplicated component decays into a wrong one.** The club page carried its own
+position badge — a plain coloured rectangle keyed off `--color-pos-*` — which made it the
+one surface in the app where **LB and RB, and LWB and RWB, were the same badge**. Those
+pairs share a hue by design and are told apart by a clipped corner only the real
+`PositionBadge` draws. This is `ListingCard`'s crest lesson again, one step further along:
+the copy had stopped merely drifting and started being incorrect.
+
+**8. A colour ramp on a raw point total is a second performance ramp, and there is only
+one.** The pitch coloured its points badge through `getScoreIntensityColor()` — six stops
+of invented hex, unverified in either theme. Beyond the palette problem it means what the
+performance ramp means while keying on a different quantity: the raw total rather than the
+composite that produced it, which the ramp explicitly forbids. The figure went to serif
+ink. (`scoreColor.ts` stays: `MatchupPitch` still uses it, and that route is port 5.)
+
+**9. A fill token is not a mark token.** The doubt indicator is a 5px dot and used
+`--color-warning`, which is the bright amber a dark *label* sits on — **2.09:1** as a
+standalone mark on cream. It takes `--color-warning-text`. Where a dot is the sole carrier
+of a state it is held to the legible value, not the fill value.
+
+**Two other things worth recording.** The pitch's node dropped its three-letter club
+abbreviation, because the portrait's crest chip is where the club goes — the same deletion
+"the club is a crest, not a line of text" made everywhere else, and it is what let the node
+lose a row of type. And `my-team.module.css` **lost two thirds of itself**: 42 unreferenced
+classes belonging to an earlier lineup editor `PitchUI` replaced, plus every class of
+`RosterManager.tsx`, a 226-line client component nothing had imported since before the club
+page existed (deleted; drop, transfer-out and the IR transitions all live on the club
+page's Inspector, against the same endpoints). A page redesigned *in place* leaves its old
+stylesheet behind almost intact, and the dead half is invisible until someone has to
+migrate it.
+
+**Also fixed in passing:** `Inspector` has always passed `styles.posNet` / `styles.negNet`
+for "Net vs. fee" and `club.module.css` has never defined them, so the one figure on that
+card carrying a direction rendered in plain ink. Found by porting, not by looking.
+
 ## Port order for the remaining routes
 
 **Order by adjacency first, then by how much a surface exercises the system.** The first
@@ -643,7 +786,8 @@ alone put a 2.0 page in the middle of four 1.0 ones, so a manager crossed the se
 two clicks without leaving the section. A seam between distant sections is a blemish; a
 seam inside one section is a bug. `free-agents` and `listings` were not on the list at all.
 
-Six surfaces are on 2.0 (League Home, and the whole Market hub).
+Nine surfaces are on 2.0 (League Home, the whole Market hub, and the two squad pages —
+which is three routes, because `clubs/[teamId]` renders the club page too).
 
 1. ~~**`transfers/auctions`**~~ — **done 2026-08-11.** Exercised the portrait at both row
    and lot size, the countdown (mono), `--color-live`, the panel, the condensed face and the
@@ -651,9 +795,12 @@ Six surfaces are on 2.0 (League Home, and the whole Market hub).
 2. ~~**The rest of the Market hub**~~ — **done 2026-08-11.** `transfers`,
    `transfers/listings`, `transfers/free-agents`, `transfers/deals`, `TransfersSubNav`,
    `ListingCard`. See "What finishing the hub established" below.
-3. **`team` + `team/roster`** — the pitch and the squad. The twelve-position spine at full
-   density, and the biggest raw-hex debt (`pitch.module.css`, 98 hex literals). Note
-   `ListingEditor` is shared with this route, so the dialog pass below overlaps it.
+3. ~~**`team` + `team/roster`**~~ — **done 2026-08-11.** The pitch and the squad. Cleared
+   the biggest raw-hex debt in the app (`pitch.module.css`, 101 literals and 38 rem
+   font-sizes), added `--color-pitch*` to the palette, and put the spectrum on a page for
+   the first time. `clubs/[teamId]` came with it. See "What the squad pages established"
+   above. (`ListingEditor` is shared with this route and was already ported with the
+   dialogs.)
 4. **`players` / `stats`** — where the **baseline rule** finally becomes a real component
    rather than prototype CSS.
 5. **`matchups` + `matchups/[id]`** — the scoreline treatment from turn 1.
@@ -672,9 +819,9 @@ from it for the public login carousel. `admin/*` never faces a manager.
 
 ## Not done yet
 
-- 25 dashboard routes still on 1.0; 31 stylesheets still hold raw hex (was 38).
-- 91 `font-size` declarations between 8 and 10px, to move with their page — 39 in `rem`,
-  52 in `px` (was 141 before the auctions port, 130 after it, 103 after the hub surfaces).
+- 22 dashboard routes still on 1.0; 27 stylesheets still hold raw hex (was 38).
+- 73 `font-size` declarations between 8 and 10px, to move with their page (was 141 before
+  the auctions port, 130 after it, 103 after the hub surfaces, 91 after the dialogs).
 - Radius literals decision 3 was written to kill: 2px ×30, 3px ×24, 5px ×1, 7px ×0. The
   dialogs cleared every 7px in the app and all but one 5px.
 - Elevation: 177 `box-shadow` against 590 `1px solid`. The rule is now stated in

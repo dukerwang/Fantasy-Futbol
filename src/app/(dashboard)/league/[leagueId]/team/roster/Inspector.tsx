@@ -31,7 +31,7 @@ export default function Inspector({ entry, teamId, leagueId, viewerIsOwner, acad
 
   if (!entry) {
     return (
-      <aside className={styles.panel}>
+      <aside className={`${styles.panel} g-panel`}>
         <div className={styles.panelHead}><h2 className={styles.panelTitle}>Player File</h2></div>
         <div className={styles.inspEmpty}>
           <div className={styles.inspEmptyMark}>☆</div>
@@ -115,10 +115,10 @@ export default function Inspector({ entry, teamId, leagueId, viewerIsOwner, acad
     <div>
       <PremiumPlayerCard player={p} />
 
-      <section className={styles.panel} style={{ marginTop: 16 }}>
+      <section className={`${styles.panel} g-panel`} style={{ marginTop: 16 }}>
         <div className={styles.panelHead}>
           <h2 className={styles.panelTitle}>Club File</h2>
-          <span className={styles.eyebrow}>{statusMeta(entry.status).label}</span>
+          <span className="g-label">{statusMeta(entry.status).label}</span>
         </div>
 
         <div className={styles.fileRows}>
