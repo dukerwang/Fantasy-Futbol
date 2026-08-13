@@ -22,13 +22,27 @@ import {
 } from '@/lib/players/cardCache';
 import styles from './PremiumPlayerCard.module.css';
 
+/**
+ * The display-rating band, as a CSS variable rather than a literal.
+ *
+ * The six bands read exactly as they always have — green / green / gold /
+ * orange / red / grey — but the values now live in PremiumPlayerCard.module.css
+ * on `.container`, where the header records what each one measured and what it
+ * was solved to. Five of the six were failing against the card face, the worst
+ * at 2.28:1; they were re-solved holding hue and chroma and walking OKLCH
+ * lightness only, so the ramp looks like itself and is legible.
+ *
+ * Returning `var(...)` rather than a hex is what lets the values be tokens at
+ * all: these are applied through inline `style`, so there is nowhere else to
+ * put them.
+ */
 function ratingHex(r: number | null): string {
-    if (r == null) return '#9A9488';
-    if (r >= 8.5) return '#3A6B4A';
-    if (r >= 7.5) return '#5A9F73';
-    if (r >= 6.5) return '#C8A642';
-    if (r >= 5.5) return '#D17D3B';
-    return '#EF4444';
+    if (r == null) return 'var(--rating-none)';
+    if (r >= 8.5) return 'var(--rating-elite)';
+    if (r >= 7.5) return 'var(--rating-good)';
+    if (r >= 6.5) return 'var(--rating-fair)';
+    if (r >= 5.5) return 'var(--rating-poor)';
+    return 'var(--rating-bad)';
 }
 
 const POS_LONG: Record<string, string> = {
@@ -419,7 +433,12 @@ export default function PremiumPlayerCard({
     } as React.CSSProperties;
 
     return (
-        <div className={styles.container}>
+        /* `g-theme-light` re-supplies globals.css's light palette to this
+           subtree. The card is a light-only object by design — a trading card
+           is a printed thing — and it used to pin itself by keeping its own
+           copy of 25 tokens, which went stale. See the header of
+           PremiumPlayerCard.module.css. */
+        <div className={`${styles.container} g-theme-light`}>
             {/* Flat Action Buttons — Outside stage to prevent jitter and 3D issues */}
             <div className={styles.cardActionsOverlay}>
                 <button className={styles.actionIconBtn} onClick={handleFlip} aria-label={flipped ? 'Flip to front' : 'Flip to game log'}>

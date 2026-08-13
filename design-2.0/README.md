@@ -775,6 +775,126 @@ migrate it.
 for "Net vs. fee" and `club.module.css` has never defined them, so the one figure on that
 card carrying a direction rendered in plain ink. Found by porting, not by looking.
 
+## What the stats pool established (2026-08-12)
+
+`stats`, plus the deletion of `players`. `stats.module.css` ends at **0 raw hex, 0 rem
+font-sizes, 0 1.0 scale tokens, 0 radius literals**, and **140 measured colour pairs pass
+in both themes** (`scratch/verify_stats_page.mjs`).
+
+**1. A washed row carries primary and secondary ink only — now under a POSITION hue.**
+Rule 1 from the auctions port, arriving on a page whose rows sit on the *page ground*
+rather than inside a `.g-panel`. That is the difference that bites: the ground has less
+headroom to spend on a wash. Under `.g-row:hover`'s 12% tint the club caption's muted ink
+measured **4.40 (ST)**, **4.50 (DM)**, **4.51 (CB)** — three of twelve at or under the
+floor, and the rest of the spine only just over it. It lifts to secondary through
+`--row-ink`, the club page's own move.
+
+**2. The spectrum's third use, and the first that is literally the pool.** The device is
+rationed to "a whole squad or the whole player pool"; the pitch board and depth chart are a
+squad, this is everyone. It sits at the head of the page because the page *is* the panel
+here — like Free Agency and the listings board this is a full-bleed browse surface, so
+elevation is declared once, as the page, and there is no inner panel to hang it on.
+
+**3. `SPINE` / `POS_COLOR` are now `src/lib/positions/spine.ts`.** The spectrum's second
+consumer would otherwise have been a second copy of the twelve hues in a second file. Same
+defect as ListingCard's crest and the club page's position badge, caught before it landed
+rather than after.
+
+**Found and NOT fixed, because it is not one page's to diverge on:** every `input` and
+`select` on every ported surface draws its boundary in `--color-border` — **1.58:1 light,
+1.72:1 dark**, against WCAG 1.4.11's 3:1 for a control boundary. `--color-border-strong`
+clears it. See "Not done yet".
+
+## What the player card established (2026-08-12)
+
+`PremiumPlayerCard` + `PlayerDetailsModal`. **Duke's call: the design does not change.**
+Two prototype revisions were built and both rejected — the first read as a 2.0 panel rather
+than a card, the second overcorrected into a 430×610 trading card — and the decision was
+that the shipping card's design is the one to keep. So this is a **token-and-contrast port
+only**: no layout moved, no region was added or removed.
+
+That constraint is what makes the findings worth recording, because they are all defects
+rather than preferences.
+
+**1. A component that pins itself to one theme by COPYING the palette is the worst case of
+the duplicated-rule defect.** The card is deliberately light-only in both themes — a
+trading card is a printed thing, the same category as the pitch grass. It implemented that
+by restating 25 tokens inside `[data-theme="dark"] .container`, and the copy had gone
+stale:
+
+| token | the card's copy | measured | what globals.css holds |
+|---|---|---|---|
+| `--color-text-muted` | `#9A9488` | **2.94** on the card, **2.47** on the inset | `#6B6356` (5.78 / 4.85) |
+| `--color-text-secondary` | `#4A4A4A` | passes | the warm `#4A453D` |
+| `--color-text-primary` | `#1C1C1C` | passes | the warm `#1C1A17` |
+| `--color-accent-hover` | `#1B8350` | the hover that **lightens** | `#0F5632` |
+
+The muted value is the damaging one, and the irony is exact: `globals.css` replaced
+`#9A9488` *because* it "measured 2.73–2.94:1 … and carried essentially every label,
+caption, column head and timestamp in the app". The card kept the failing value and so
+never got its own fix — every caption on it has been failing since.
+
+The fix is **`.g-theme-light`** in `globals.css`: `:root, .g-theme-light { … }`, one line,
+so a subtree can re-adopt the light palette instead of copying it. Custom properties
+inherit from the nearest ancestor that sets them, so a `.g-theme-light` element inside
+`[data-theme="dark"]` wins. There is now exactly one definition of the light palette.
+**Any future light-locked surface should use this rather than pinning by hand.**
+
+**2. A position FILL colour used as text fails even on a light ground.** `.posSpineText`
+— the vertical role label down the card's edge — painted `--pos-color` at `opacity: .65`.
+Worst pair (GK on an Aston Villa card) measured **2.17**, and **3.49** even at full
+strength. The spine's own rule resolves it: the keyline carries the hue, the text goes to
+ink. The rules above and below keep `--pos-color` and are decorative, because the word
+itself says the position. Nothing else moves — same size, tracking and opacity.
+
+**3. A per-club gradient is 27 unverified grounds, and the arithmetic has to be done
+properly.** `.frontBg` runs the card face into `--team-color-deep` (the club colour at 33%
+alpha) over the lower 58% of a fixed 520px card, and two regions carry ink over it. A first
+pass assumed the ink sat on *full* team-deep and reported the identity bar failing on 13 of
+27 clubs. **That was wrong.** Computing from the CSS literals — `height: 520px`,
+`.posSpine { top: 56px; bottom: 193px }`, the identity bar's own wash reaching full
+`bg-card` at 70% — the gradient has only travelled 36% by the time it reaches the spine and
+the bar's own wash dominates above it. Measured correctly, the identity bar passes on
+**all 27** (muted 5.12 worst). Recorded because reporting a failure that is not real is
+worse than not checking: a gradient's contrast has to be evaluated **at the y the ink
+actually sits at**, not at its endpoint.
+
+**4. The rating ramp was six invented hex stops and five of them failed.** Re-solved
+holding hue and chroma, walking OKLCH lightness only, to 4.8 against the card face — so it
+reads as the same green/gold/orange/red ramp and is legible:
+
+| band | was | measured | now |
+|---|---|---|---|
+| ≥ 8.5 | `#3A6B4A` | 6.05 | unchanged |
+| ≥ 7.5 | `#5A9F73` | **3.08** | `#387D53` (4.84) |
+| ≥ 6.5 | `#C8A642` | **2.28** | `#8C6C00` (4.80) |
+| ≥ 5.5 | `#D17D3B` | **3.05** | `#AC5B0E` (4.81) |
+| < 5.5 | `#EF4444` | **3.67** | `#D72930` (4.82) |
+| null | `#9A9488` | **2.94** | `#757064` (4.81) |
+
+They are declared on `.container`, **not** in `globals.css`, and `ratingHex()` returns
+`var(…)` rather than a literal so they can be tokens at all (they are applied through
+inline `style`). Keeping them component-scoped is deliberate: the colour law says there is
+one performance ramp and it keys on the sigmoid score, while this keys on the 1–10 display
+rating. The two are in fact monotonically related — `curveFinalRating()` is a monotone
+function of the same composite — so this is arguably the same ramp on another scale rather
+than a second one. *Arguably* is not *certainly*, so it stays out of the global token set.
+
+**5. On a fixed canvas, the geometry IS the design, so the scale migration stops at
+colour and type.** The card is a `360×520` fixed canvas packed to the pixel. Font sizes and
+the two radius roles that land exactly on tokens were converted; the 3/5/6/7/10/11/14px
+spacing nudges and the 18/27/60px type were **kept at their measured values**, because
+snapping them reflows a card this port has no business reflowing. Same judgement
+`globals.css` already makes for its own 5px and 6px values, and the dialogs port for
+sub-floor optical nudges. Four `font-size: 9px` did move to `var(--t-10)` — that is the
+stated floor rule, not a preference.
+
+`.statGold` also went from `#B8893E` (**2.57**) to `--color-gold` (4.92), and
+`PlayerDetailsModal`'s primary action from a hardcoded `#ffffff` on
+`--color-accent-green` to `--color-on-accent` on `--color-accent` — the same
+"`--color-accent` is a fill, `--color-on-accent` is the label on it" defect the auctions
+port named, still present in a shared dialog. `scratch/verify_player_card.mjs`.
+
 ## Port order for the remaining routes
 
 **Order by adjacency first, then by how much a surface exercises the system.** The first
@@ -801,8 +921,12 @@ which is three routes, because `clubs/[teamId]` renders the club page too).
    the first time. `clubs/[teamId]` came with it. See "What the squad pages established"
    above. (`ListingEditor` is shared with this route and was already ported with the
    dialogs.)
-4. **`players` / `stats`** — where the **baseline rule** finally becomes a real component
-   rather than prototype CSS.
+4. ~~**`players` / `stats`**~~ — **done 2026-08-12.** `stats` (the pool) plus the player
+   card. `players` was **deleted, not ported**: it was the pre-hub transfer market, out of
+   the nav with zero inbound links, superseded wholesale by `transfers/auctions` and
+   `transfers/free-agents`. See "What the stats pool established" and "What the player card
+   established" below. **The baseline rule still has no home in the app** — see "Not done
+   yet".
 5. **`matchups` + `matchups/[id]`** — the scoreline treatment from turn 1.
 6. **`standings`, `history`, `finance`** — table-heavy, mostly typographic, low risk.
 7. **`draft`** — largest and most literal-ridden (1,519 lines), and dormant between
@@ -819,7 +943,12 @@ from it for the public login carousel. `admin/*` never faces a manager.
 
 ## Not done yet
 
-- 22 dashboard routes still on 1.0; 27 stylesheets still hold raw hex (was 38).
+- 21 dashboard routes still on 1.0 (`players` is gone, not ported); **25** stylesheets still
+  hold raw hex outside comments (was 27, and 38 before the hub). Two of the remaining are in
+  `components/players/`: `PremiumPlayerCard.module.css`, whose only hex is the six
+  `--rating-*` declarations themselves — those ARE the token definitions — and
+  `PlayerCard.module.css`, the small hover-preview card, which was not in port 4's scope
+  and still carries 18.
 - 73 `font-size` declarations between 8 and 10px, to move with their page (was 141 before
   the auctions port, 130 after it, 103 after the hub surfaces, 91 after the dialogs).
 - Radius literals decision 3 was written to kill: 2px ×30, 3px ×24, 5px ×1, 7px ×0. The
@@ -834,6 +963,20 @@ from it for the public login carousel. `admin/*` never faces a manager.
   `ds-eyebrow` (12), `ds-eyebrow-serif` (7) and `ds-label` (15). Mapping: a genuine
   dateline or metadata line keeps `ds-label`; a label sitting above a heading is deleted
   (the heading carries its own weight); everything else becomes `t-heading`.
+- **The baseline rule is still rendered by nothing.** Port 4 was meant to be where it
+  became real; the card was its intended home, and the card's design is staying as it is
+  (see above), so it did not land. Two prototype revisions exploring a home for it are in
+  the design project as `Gaffa 2.0 Player Card.dc.html` (rev 2 in the file, rev 1 in its
+  history) — both rejected, and the second one's argument, that a football card's front
+  already has an attribute block and the six weighted components *are* those attributes, is
+  worth keeping if the question reopens. `scratch/season_baseline_breakdown.mjs` produces
+  real season-averaged breakdowns straight out of `matchRating.ts` for any future attempt.
+  Candidate homes not yet tried: the match report, `matchups/[id]` (port 5), or a row
+  expansion on the stats pool.
+- Every `input` and `select` on every ported surface draws its boundary in
+  `--color-border` — **1.58:1 light, 1.72:1 dark**, against WCAG 1.4.11's 3:1 for a control
+  boundary. `--color-border-strong` clears it. App-wide, so it wants one pass rather than a
+  per-page divergence.
 - ~~The baseline rule has no component in `src/`.~~ **Landed 2026-08-10** as `.g-baseline*` in
   `globals.css` + `src/components/players/BaselineRule.tsx`, which takes
   `MatchRating.breakdown` straight from the engine. See "The baseline rule" above.

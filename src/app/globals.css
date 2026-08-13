@@ -9,7 +9,25 @@
    Refined typography (Hanken Grotesk + Newsreader).
    ============================================================ */
 
-:root {
+/* `.g-theme-light` re-supplies this whole block to a SUBTREE, so a component
+   that must stay on the cream palette in both themes can opt in instead of
+   keeping its own copy of the values.
+
+   Why it exists: PremiumPlayerCard is a light-only object by design — a trading
+   card is a printed thing, the same category as the pitch grass — and it pinned
+   itself by hardcoding 25 tokens inside `[data-theme="dark"] .container`. That
+   copy went stale exactly the way design-2.0/README.md records twice for
+   duplicated components: it still ran `--color-text-muted: #9A9488`, the value
+   the comment 20 lines below says was replaced *because it measured 2.73–2.94:1
+   and carried essentially every label and caption in the app*. Also stale:
+   #1C1C1C / #4A4A4A for the warm inks, and the #1B8350 hover that lightens
+   rather than darkens.
+
+   Custom properties inherit from the nearest ancestor that sets them, so a
+   `.g-theme-light` subtree inside `[data-theme="dark"]` wins — and there is now
+   exactly one definition of the light palette to keep correct. */
+:root,
+.g-theme-light {
   /* --- Surfaces (warm cream → near-white, light theme) --- */
   --color-bg-primary:    #F7F3ED;   /* page / content field — clean off-white */
   --color-bg-secondary:  #EDE8DE;   /* nav bar, rails — warm cream anchor */

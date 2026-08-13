@@ -7,47 +7,61 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 16px;
+  gap: var(--s4);
   position: relative;
 }
 
-/* The trading card stays on the light/cream palette even when the app is
-   in dark mode — pins every token this component reads back to its :root
-   (light-theme) value so descendants asking for var(--color-*) never see
-   the [data-theme="dark"] override. Covers .stage/.card and the sibling
-   .cardActionsOverlay, both children of .container. */
-[data-theme="dark"] .container {
-  --color-bg-primary:    #F7F3ED;
-  --color-bg-secondary:  #EDE8DE;
-  --color-bg-card:       #FDFCF9;
-  --color-bg-card-hover: #EDE8E0;
-  --color-bg-card-alt:   #f9f6f1;
-  --color-bg-elevated:   #EDE8DE;
-  --color-bg-overlay:    rgba(237, 232, 216, 0.95);
+/* THE CARD IS A LIGHT-ONLY OBJECT, and that is deliberate: a trading card is a
+   printed thing, the same category as the pitch grass, so it stays on the cream
+   palette even when the app is in dark mode.
 
-  --color-border:         #C8C3BC;
-  --color-border-subtle:  #D9D4CD;
-  --color-border-accent:  rgba(20, 107, 64, 0.40);
+   It used to pin itself by restating 25 tokens here, inside
+   `[data-theme="dark"] .container`. That copy went stale exactly the way
+   design-2.0/README.md records for ListingCard's crest and the club page's
+   position badge — a duplicated rule does not merely drift, it becomes wrong:
 
-  --color-text-primary:   #1C1C1C;
-  --color-text-secondary: #4A4A4A;
-  --color-text-muted:     #9A9488;
-  --color-text-inverse:   #FFFFFF;
+     --color-text-muted      #9A9488  →  2.94 on the card, 2.47 on the inset
+     --color-text-secondary  #4A4A4A  →  superseded by the warm #4A453D
+     --color-text-primary    #1C1C1C  →  superseded by the warm #1C1A17
+     --color-accent-hover    #1B8350  →  the hover that LIGHTENS, replaced by
+                                          #0F5632 so it moves away from the ground
 
-  --color-accent:             #146B40;
-  --color-accent-hover:       #1B8350;
-  --color-accent-dim:         rgba(20, 107, 64, 0.10);
-  --color-accent-green:       #146B40;
-  --color-accent-green-dim:   rgba(20, 107, 64, 0.10);
-  --color-accent-blue:        #146B40;
-  --color-accent-blue-hover:  #1B8350;
+   The muted value is the damaging one: globals.css replaced it precisely
+   because it "measured 2.73-2.94:1 ... and carried essentially every label,
+   caption, column head and timestamp in the app". This card never got the fix.
 
-  --color-success: #146B40;
+   `.g-theme-light` (globals.css) now re-supplies the whole light block to this
+   subtree, so there is one definition of the palette and no copy to go stale.
+   The class is applied by PremiumPlayerCard.tsx on .container. */
 
-  --shadow-sm: 0 1px 3px rgba(28, 28, 28, 0.08);
-  --shadow-md: 0 4px 12px rgba(28, 28, 28, 0.10);
-  --shadow-lg: 0 8px 24px rgba(28, 28, 28, 0.14);
-  --shadow-xl: 0 16px 48px rgba(28, 28, 28, 0.18);
+/* ── The rating ramp ─────────────────────────────────────────
+   Six bands, kept exactly as they read today — green / green / gold / orange /
+   red / grey — because the DESIGN is not what this port is changing. Only the
+   lightness moved, holding hue and chroma, solved to 4.8 against the card face
+   (scratch/verify_player_card.mjs). Five of the six were failing:
+
+     >= 8.5  #3A6B4A  6.05  (kept, it already cleared)
+     >= 7.5  #5A9F73  3.08  ->  #387D53  4.84
+     >= 6.5  #C8A642  2.28  ->  #8C6C00  4.80
+     >= 5.5  #D17D3B  3.05  ->  #AC5B0E  4.81
+     <  5.5  #EF4444  3.67  ->  #D72930  4.82
+     null    #9A9488  2.94  ->  #757064  4.81
+
+   These live on .container rather than in globals.css on purpose. The colour
+   law says there is ONE performance ramp, and it keys on the sigmoid score
+   against the positional median; this one keys on the 1-10 display rating.
+   The two are in fact monotonically related — curveFinalRating() is a monotone
+   function of the same composite — so this is arguably the same ramp on a
+   different scale rather than a second one. Arguably is not certainly, so it
+   stays scoped to the component instead of entering the global token set.
+   ratingHex() in the .tsx reads these. */
+.container {
+  --rating-elite: #3A6B4A;
+  --rating-good:  #387D53;
+  --rating-fair:  #8C6C00;
+  --rating-poor:  #AC5B0E;
+  --rating-bad:   #D72930;
+  --rating-none:  #757064;
 }
 
 .stage {
@@ -290,7 +304,7 @@
   border: none;
   background: none;
   cursor: pointer;
-  border-radius: var(--radius-sm);
+  border-radius: var(--r-control);
   transition: transform var(--transition-fast);
 }
 .loanCrestCol:hover { transform: scale(1.06); }
@@ -307,7 +321,7 @@
 
 .loanArrow {
   font-family: var(--font-sans);
-  font-size: 11px;
+  font-size: var(--t-11);
   font-weight: 700;
   color: var(--color-text-secondary);
   margin-bottom: 8px;
@@ -316,15 +330,15 @@
 .crest {
   width: 28px;
   height: 28px;
-  border-radius: 4px;
+  border-radius: var(--r-control);
   display: flex;
   align-items: center;
   justify-content: center;
   font-family: var(--font-serif);
   font-weight: 700;
   font-style: italic;
-  font-size: 13px;
-  color: #fff;
+  font-size: var(--t-13);
+  color: var(--color-text-inverse);
   flex-shrink: 0;
   border: 1px solid rgba(255, 255, 255, 0.22);
   position: relative;
@@ -335,7 +349,7 @@
   width: 28px;
   height: 28px;
   object-fit: contain;
-  border-radius: 4px;
+  border-radius: var(--r-control);
   flex-shrink: 0;
 }
 
@@ -356,7 +370,7 @@
 
 .mastheadName {
   font-family: var(--font-serif);
-  font-size: 13px;
+  font-size: var(--t-13);
   font-weight: 700;
   color: var(--color-text-primary);
   letter-spacing: -0.01em;
@@ -367,7 +381,7 @@
 
 .mastheadClub {
   font-family: var(--font-sans);
-  font-size: 10px;
+  font-size: var(--t-10);
   font-weight: 500;
   color: var(--color-text-secondary);
   margin-top: 1px;
@@ -397,7 +411,14 @@
   font-weight: 700;
   letter-spacing: 0.28em;
   text-transform: uppercase;
-  color: var(--pos-color);
+  /* THE KEYLINE CARRIES THE HUE, THE TEXT GOES TO INK — the position spine's
+     own rule, applied to the one place in this card that broke it. A position
+     FILL colour is designed to hold white text on it, not to be text: as ink
+     here it measured 2.17:1 at this opacity (worst pair GK on an Aston Villa
+     card), and 3.49 even at full strength. The rules above and below keep
+     --pos-color and are decorative, because the word itself says the position.
+     Nothing else moves — same size, same tracking, same 0.65. */
+  color: var(--color-text-primary);
   padding: 12px 0;
   border-top: 1px solid var(--pos-color);
   border-bottom: 1px solid var(--pos-color);
@@ -512,7 +533,7 @@
 
 .injuryLabel {
   font-family: var(--font-sans);
-  font-size: 9px;
+  font-size: var(--t-10);
   font-weight: 700;
   line-height: 1;
   letter-spacing: 0.08em;
@@ -541,12 +562,12 @@
   width: max-content;
   max-width: 200px;
   padding: 6px 8px;
-  border-radius: 4px;
+  border-radius: var(--r-control);
   background: var(--color-bg-elevated);
   border: 1px solid var(--color-border);
   box-shadow: 0 8px 20px -8px rgba(28, 28, 28, 0.35);
   font-family: var(--font-sans);
-  font-size: 10px;
+  font-size: var(--t-10);
   font-weight: 500;
   line-height: 1.35;
   letter-spacing: 0.01em;
@@ -610,7 +631,7 @@
 
 .ratingVal {
   font-family: var(--font-serif);
-  font-size: 15px;
+  font-size: var(--t-15);
   font-weight: 700;
   line-height: 1;
   font-variant-numeric: tabular-nums;
@@ -628,7 +649,7 @@
 
 .firstName {
   font-family: var(--font-sans);
-  font-size: 10px;
+  font-size: var(--t-10);
   font-weight: 600;
   letter-spacing: 0.04em;
   color: var(--color-text-secondary);
@@ -650,7 +671,7 @@
   gap: 5px;
   flex-wrap: wrap;
   margin-top: 3px;
-  font-size: 10px;
+  font-size: var(--t-10);
   font-family: var(--font-sans);
   color: var(--color-text-secondary);
 }
@@ -659,9 +680,9 @@
   font-size: var(--t-10);
   font-weight: 700;
   letter-spacing: 0.08em;
-  color: #fff;
+  color: var(--color-text-inverse);
   padding: 2px 5px;
-  border-radius: 2px;
+  border-radius: var(--r-micro);
 }
 
 .dot {
@@ -707,7 +728,7 @@
   line-height: 1;
 }
 
-.statGold { color: #B8893E; }
+.statGold { color: var(--color-gold); }
 .statGreen { color: var(--color-accent-green); }
 
 .statLbl {
@@ -725,7 +746,7 @@
 .rankStrip {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--s2);
   padding: 7px 18px 9px;
   background: var(--color-bg-card);
   border-top: 1px solid var(--color-border-subtle);
@@ -753,7 +774,7 @@
 
 .rankEmpty {
   font-family: var(--font-sans);
-  font-size: 11px;
+  font-size: var(--t-11);
   color: var(--color-text-muted);
 }
 
@@ -766,7 +787,7 @@
   background: var(--color-bg-elevated);
   border: 1px solid var(--color-border-subtle);
   font-family: var(--font-sans);
-  font-size: 10px;
+  font-size: var(--t-10);
   line-height: 1;
   cursor: pointer;
   color: inherit;
@@ -791,7 +812,7 @@
   font-size: var(--t-10);
   font-weight: 700;
   letter-spacing: 0.06em;
-  color: #fff;
+  color: var(--color-text-inverse);
   background: var(--chip-color, var(--color-accent-green));
   padding: 1px 3px;
   border-radius: 1px;
@@ -801,7 +822,7 @@
   font-family: var(--font-serif);
   font-style: italic;
   font-weight: 700;
-  font-size: 11px;
+  font-size: var(--t-11);
   color: var(--color-text-primary);
   font-variant-numeric: tabular-nums;
 }
@@ -818,7 +839,7 @@
   flex-direction: row;
   align-items: center;
   justify-content: flex-end;
-  gap: 12px;
+  gap: var(--s3);
   width: 100%;
   max-width: 360px;
   z-index: 1000;
@@ -842,7 +863,7 @@
   justify-content: center;
   transition: border-color var(--transition-base), color var(--transition-base), transform var(--transition-base), background var(--transition-base);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
-  font-size: 20px;
+  font-size: var(--t-20);
   line-height: 1;
 }
 
@@ -967,7 +988,7 @@
 
 .backName {
   font-family: var(--font-serif);
-  font-size: 17px;
+  font-size: var(--t-17);
   font-weight: 700;
   letter-spacing: -0.01em;
   color: var(--color-text-primary);
@@ -983,7 +1004,7 @@
 .formSection {
   display: flex;
   align-items: flex-end;
-  gap: 12px;
+  gap: var(--s3);
   padding-bottom: 10px;
   border-bottom: 1px solid var(--color-border-subtle);
   margin-bottom: 8px;
@@ -1007,13 +1028,13 @@
 }
 
 .barHigh { background: var(--color-accent-green); }
-.barMid  { background: #C8A642; }
-.barLow  { background: #D17D3B; }
+.barMid  { background: var(--rating-fair); }
+.barLow  { background: var(--rating-poor); }
 .barDnp  { background: var(--color-border-subtle); }
 
 .formEmpty {
   font-family: var(--font-sans);
-  font-size: 11px;
+  font-size: var(--t-11);
   color: var(--color-text-muted);
   display: flex;
   align-items: flex-end;
@@ -1050,7 +1071,7 @@
 
 .backTabs {
   display: flex;
-  gap: 12px;
+  gap: var(--s3);
   margin-bottom: 8px;
   border-bottom: 1px solid var(--color-border-subtle);
   flex-shrink: 0;
@@ -1061,7 +1082,7 @@
   border: none;
   padding: 6px 0;
   font-family: var(--font-sans);
-  font-size: 9px;
+  font-size: var(--t-10);
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -1110,12 +1131,12 @@
 }
 
 .glWrap::-webkit-scrollbar { width: 4px; }
-.glWrap::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 2px; }
+.glWrap::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: var(--r-micro); }
 
 .glTable {
   width: 100%;
   font-family: var(--font-sans);
-  font-size: 11px;
+  font-size: var(--t-11);
   border-collapse: collapse;
 }
 
@@ -1163,7 +1184,7 @@
 }
 
 .resTag {
-  font-size: 9px;
+  font-size: var(--t-10);
   font-weight: 700;
   letter-spacing: 0.04em;
   margin-left: 4px;
@@ -1172,7 +1193,7 @@
 .ptsTd {
   font-family: var(--font-serif);
   font-weight: 700;
-  font-size: 12px;
+  font-size: var(--t-12);
 }
 
 .dnpRow td { opacity: 0.55; }
@@ -1184,10 +1205,10 @@
 }
 
 .emptyState {
-  padding: var(--space-6) var(--space-4);
+  padding: var(--s6) var(--s4);
   text-align: center;
   color: var(--color-text-muted);
-  font-size: var(--text-sm);
+  font-size: var(--t-13);
   font-family: var(--font-sans);
 }
 
@@ -1223,14 +1244,14 @@
 
 .bdName {
   font-family: var(--font-sans);
-  font-size: 11px;
+  font-size: var(--t-11);
   font-weight: 600;
   color: var(--color-text-primary);
 }
 
 .bdWt {
   font-family: var(--font-sans);
-  font-size: 9px;
+  font-size: var(--t-10);
   font-weight: 700;
   letter-spacing: 0.10em;
   color: var(--color-text-muted);
@@ -1239,19 +1260,19 @@
 .bdTrack {
   height: 5px;
   background: var(--color-bg-elevated);
-  border-radius: 2px;
+  border-radius: var(--r-micro);
   overflow: hidden;
 }
 
 .bdFill {
   height: 100%;
-  border-radius: 2px;
+  border-radius: var(--r-micro);
   transition: width 600ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .bdDetail {
   font-family: var(--font-sans);
-  font-size: 10px;
+  font-size: var(--t-10);
   color: var(--color-text-muted);
 }
 
