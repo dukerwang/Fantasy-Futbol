@@ -377,7 +377,7 @@ export default function ChatClient({
             >
               <Icon name="message-square" className={styles.icon} size={16} />
               <span style={{ flex: 1, fontWeight: activeTab.type === 'lobby' ? 'bold' : 'normal' }}>
-                league-lobby
+                League lobby
               </span>
             </button>
           </div>
@@ -443,7 +443,7 @@ export default function ChatClient({
             {activeTab.type === 'lobby' ? (
               <>
                 <Icon name="message-square" size={18} strokeWidth={2} />
-                <span>league-lobby</span>
+                <span>League lobby</span>
                 <span className={styles.panelSubtitle}>Public message board for everyone</span>
               </>
             ) : (
@@ -540,11 +540,11 @@ export default function ChatClient({
           ) : (
             <div className={styles.emptyState}>
               <div className={styles.emptyTitle}>
-                {activeTab.type === 'lobby' ? 'Start the Conversation!' : `Message ${activeTab.username}`}
+                {activeTab.type === 'lobby' ? 'Start the conversation' : `Message ${activeTab.username}`}
               </div>
               <p className={styles.emptyDesc}>
                 {activeTab.type === 'lobby'
-                  ? 'Welcome to the league lobby. Share draft strategies, make roster announcements, or engage in friendly banter.'
+                  ? 'Welcome to the League lobby. Share draft strategies, make roster announcements, or engage in friendly banter.'
                   : `Send a direct, private message to ${activeTab.username}. Private messages are highly encrypted and visible only to the two of you.`}
               </p>
             </div>
@@ -560,7 +560,7 @@ export default function ChatClient({
                 className={styles.inputField}
                 placeholder={
                   activeTab.type === 'lobby'
-                    ? 'Type a message to the league lobby...'
+                    ? 'Type a message to the League lobby…'
                     : `Send a private message to ${activeTab.username}...`
                 }
                 value={inputValue}

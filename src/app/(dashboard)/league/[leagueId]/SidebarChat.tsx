@@ -173,7 +173,7 @@ export default function SidebarChat({
   return (
     <div className={styles.chatContainer}>
       <header className={styles.chatHeader}>
-        <h3 className={styles.chatTitle}>League lobby chat</h3>
+        <h3 className={styles.chatTitle}>League lobby</h3>
         <span className={styles.chatSubtitle}>• public banter</span>
       </header>
 
@@ -227,7 +227,7 @@ export default function SidebarChat({
         <form className={styles.form} onSubmit={handleSubmit}>
           <textarea
             className={styles.inputField}
-            placeholder="Type a lobby message..."
+            placeholder="Type a message to the League lobby…"
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             onKeyDown={handleKeyDown}

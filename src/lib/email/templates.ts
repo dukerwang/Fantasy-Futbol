@@ -301,7 +301,7 @@ export const getDraftScheduledEmail = (leagueName: string, scheduledTime: string
     <div style="background-color: #F7F3ED; padding: 20px; border-radius: 8px; border: 2px solid #1a1a1a; text-align: center; margin: 24px 0;">
       <p style="font-size: 0.9em; text-transform: uppercase; color: #666; margin-top: 0;">Scheduled Kickoff Time</p>
       <p style="font-family: 'Georgia', serif; font-size: 1.4em; font-weight: bold; margin: 8px 0;">${scheduledTime}</p>
-      <a href="${lobbyUrl}" class="button" style="margin-top: 12px;">Enter Pre-Draft Lobby</a>
+      <a href="${lobbyUrl}" class="button" style="margin-top: 12px;">Go to League lobby</a>
     </div>
     <p>Please review your queue, research players, and ensure you are in the Draft Room before the timer hits zero!</p>
   `;
@@ -313,7 +313,7 @@ export const getDraftCancelledEmail = (leagueName: string, lobbyUrl: string) => 
     <p>The draft schedule for <strong>${leagueName}</strong> has been cancelled or postponed by the commissioner.</p>
     <p>The league status remains in the Pre-Draft setup phase. A new scheduled time will be determined by your commissioner.</p>
     <div style="text-align: center; margin: 24px 0;">
-      <a href="${lobbyUrl}" class="button">Go to League Lobby</a>
+      <a href="${lobbyUrl}" class="button">Go to League lobby</a>
     </div>
   `;
   return baseTemplate(`Draft Schedule Cancelled: ${leagueName}`, body);

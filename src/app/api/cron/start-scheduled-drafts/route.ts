@@ -76,7 +76,7 @@ export async function POST(req: NextRequest) {
               <p>Dear Commissioner,</p>
               <p>The scheduled draft kickoff for your Gaffa league <strong>${league.name}</strong> was aborted because the league does not meet the minimum requirements to start.</p>
               <p><strong>Gaffa leagues require at least 4 registered managers to start drafting.</strong> Currently, only ${teams.length} manager(s) have joined your league.</p>
-              <p>The draft schedule has been cleared. Once you have at least 4 managers, you can schedule a new draft kickoff time in the Pre-Draft Lobby.</p>
+              <p>The draft schedule has been cleared. Once you have at least 4 managers, you can schedule a new draft kickoff time in the League lobby.</p>
               <p>Best of luck,</p>
               <p>Gaffa Administration</p>
             `
