@@ -64,7 +64,7 @@ export default function LeagueGrid({ leagues }: { leagues: LeagueCardData[] }) {
   return (
     <>
       <div className={styles.controlsRow}>
-        <span className={styles.sectionLabel}>Your Clubs</span>
+        <span className={styles.sectionLabel}>Your clubs</span>
         <div className={styles.sortField}>
           <span className={styles.sectionLabel}>Sort</span>
           <select
@@ -165,7 +165,7 @@ function DraftingBody({ league }: { league: LeagueCardData }) {
       <div className={styles.cardStats}>
         <div className={styles.stat}>
           <span className={styles.statValue}>{league.yourPickSlot ? ordinal(league.yourPickSlot) : '—'}</span>
-          <span className={styles.statLabel}>Your Pick</span>
+          <span className={styles.statLabel}>Your pick</span>
         </div>
         <div className={styles.stat}>
           <span className={styles.statValue}>€{league.faabBudget}m</span>

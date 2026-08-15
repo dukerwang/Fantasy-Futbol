@@ -33,7 +33,7 @@ export type {
 // ── Toolbar option sets ──────────────────────────────────────────────────────
 
 const VIEWS = [
-  { k: 'depth', label: 'Depth Chart' },
+  { k: 'depth', label: 'Depth chart' },
   { k: 'gallery', label: 'Gallery' },
   { k: 'table', label: 'Table' },
 ];
@@ -270,14 +270,14 @@ export default function ClubClient({
 
         <div className={styles.figs}>
           <Fig label="Club Balance" value={money(club.balance)} sub="Available to spend" />
-          <Fig label="Squad Value" value={money(totals.value)} sub={`${entries.length} players under contract`} />
+          <Fig label="Squad value" value={money(totals.value)} sub={`${entries.length} players under contract`} />
           <Fig
-            label="Points For"
+            label="Points for"
             value={standing.pointsFor.toLocaleString('en-GB')}
             sub={standing.pointsForRank ? `${ordinal(standing.pointsForRank)}-most · GW${club.gw}` : `GW${club.gw}`}
           />
           <Fig
-            label="Squad Age"
+            label="Squad age"
             value={totals.avgAge ? totals.avgAge.toFixed(1) : '—'}
             sub={`${totals.buckets[0].n} under 21 · ${totals.buckets[2].n + totals.buckets[3].n} over 26`}
           />

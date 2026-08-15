@@ -173,7 +173,7 @@ export default function SidebarChat({
   return (
     <div className={styles.chatContainer}>
       <header className={styles.chatHeader}>
-        <h3 className={styles.chatTitle}>League Lobby Chat</h3>
+        <h3 className={styles.chatTitle}>League lobby chat</h3>
         <span className={styles.chatSubtitle}>• public banter</span>
       </header>
 
@@ -214,7 +214,7 @@ export default function SidebarChat({
           })
         ) : (
           <div className={styles.emptyState}>
-            <div className={styles.emptyTitle}>Lobby is Quiet</div>
+            <div className={styles.emptyTitle}>Lobby is quiet</div>
             <p className={styles.emptyDesc}>
               Banter, draft strategies, or announcements start right here. Write the first message!
             </p>

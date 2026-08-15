@@ -32,7 +32,7 @@ export default function Inspector({ entry, teamId, leagueId, viewerIsOwner, acad
   if (!entry) {
     return (
       <aside className={`${styles.panel} g-panel`}>
-        <div className={styles.panelHead}><h2 className={styles.panelTitle}>Player File</h2></div>
+        <div className={styles.panelHead}><h2 className={styles.panelTitle}>Player file</h2></div>
         <div className={styles.inspEmpty}>
           <div className={styles.inspEmptyMark}>☆</div>
           <p>Select any player to open their card, contract history and squad actions.</p>
@@ -104,7 +104,7 @@ export default function Inspector({ entry, teamId, leagueId, viewerIsOwner, acad
   const primary: { label: string; run: () => void }[] = [];
   if (!viewerIsOwner) { /* no transitions offered */ }
   else if (entry.status === 'ir') primary.push({ label: 'Activate from IR', run: () => call(`/api/teams/${teamId}/ir`, { playerId: entry.playerId, action: 'activate' }) });
-  else if (entry.status === 'taxi') primary.push({ label: 'Promote to Squad', run: () => call(`/api/teams/${teamId}/taxi`, { playerId: entry.playerId, action: 'activate' }) });
+  else if (entry.status === 'taxi') primary.push({ label: 'Promote to squad', run: () => call(`/api/teams/${teamId}/taxi`, { playerId: entry.playerId, action: 'activate' }) });
   else {
     const f = p.fpl_status;
     if (f === 'i' || f === 'd' || f === 'u') primary.push({ label: 'Place on IR', run: () => call(`/api/teams/${teamId}/ir`, { playerId: entry.playerId, action: 'move_to_ir' }) });
@@ -117,7 +117,7 @@ export default function Inspector({ entry, teamId, leagueId, viewerIsOwner, acad
 
       <section className={`${styles.panel} g-panel`} style={{ marginTop: 16 }}>
         <div className={styles.panelHead}>
-          <h2 className={styles.panelTitle}>Club File</h2>
+          <h2 className={styles.panelTitle}>Club file</h2>
           <span className="g-label">{statusMeta(entry.status).label}</span>
         </div>
 

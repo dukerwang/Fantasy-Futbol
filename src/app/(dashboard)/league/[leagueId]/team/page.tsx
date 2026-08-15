@@ -46,7 +46,7 @@ export default async function MyTeamPage({ params }: Props) {
         <h2 className={styles.emptyTitle}>No team found</h2>
         <p className={styles.emptyText}>You do not have a team in this league.</p>
         <a href="/dashboard" className={styles.backLink}>
-          &larr; Back to Dashboard
+          &larr; Back to dashboard
         </a>
       </div>
     );

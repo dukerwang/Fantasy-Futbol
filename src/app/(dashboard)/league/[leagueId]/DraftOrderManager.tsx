@@ -126,7 +126,7 @@ export default function DraftOrderManager({ leagueId, initialTeams }: Props) {
   return (
     <div className={styles.draftOrderSection}>
       <div className={styles.draftOrderHeader}>
-        <h3 className={styles.draftOrderTitle}>Draft Order</h3>
+        <h3 className={styles.draftOrderTitle}>Draft order</h3>
         <button
           type="button"
           onClick={randomize}

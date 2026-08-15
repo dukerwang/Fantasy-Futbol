@@ -45,7 +45,7 @@ export default function Intel({ entries, totals }: { entries: SquadEntry[]; tota
       {/* Age Profile */}
       <section className={`${styles.panel} g-panel`}>
         <div className={styles.panelHead}>
-          <h2 className={styles.panelTitle}>Age Profile</h2>
+          <h2 className={styles.panelTitle}>Age profile</h2>
           <span className="g-label">Dynasty curve</span>
         </div>
         <div className={styles.ageSummary}>
@@ -74,7 +74,7 @@ export default function Intel({ entries, totals }: { entries: SquadEntry[]; tota
       {/* Scoring Contribution */}
       <section className={`${styles.panel} g-panel`}>
         <div className={styles.panelHead}>
-          <h2 className={styles.panelTitle}>Scoring Contribution</h2>
+          <h2 className={styles.panelTitle}>Scoring contribution</h2>
           <span className="g-label">Total points · this season</span>
         </div>
         <div className={styles.scoreRows}>

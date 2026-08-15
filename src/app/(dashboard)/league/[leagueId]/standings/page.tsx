@@ -183,7 +183,7 @@ export default async function StandingsPage({ params }: Props) {
                 </div>
 
                 {isLeader && (
-                  <div className={styles.podiumLeaderBadge}>★ League Leader</div>
+                  <div className={styles.podiumLeaderBadge}>★ League leader</div>
                 )}
 
                 <h2 className={styles.podiumTeamName}>

@@ -238,7 +238,7 @@ export default function HistoryClient({ leagueName, currentSeason, seasons, high
           <div className={styles.emptyIcon} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
             <Icon name="layout" size={48} style={{ color: 'var(--color-text-muted)' }} />
           </div>
-          <h2 className={styles.emptyTitle}>The History Books Are Empty</h2>
+          <h2 className={styles.emptyTitle}>The history books are empty</h2>
           <p className={styles.emptyDesc}>
             Season archives will appear here once a season is completed and saved.
             <br />

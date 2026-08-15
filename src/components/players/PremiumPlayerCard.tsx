@@ -671,7 +671,7 @@ export default function PremiumPlayerCard({
 
                     {/* Position rank strip — chips select which slot's scoring the card shows */}
                     <div className={styles.rankStrip}>
-                        <span className={styles.rankLbl}>Pos Rank</span>
+                        <span className={styles.rankLbl}>Pos rank</span>
                         <div className={styles.rankChips} role="group" aria-label="Score as position">
                             {resolvedPlayer.position_ranks && resolvedPlayer.position_ranks.length > 0 ? (
                                 [...resolvedPlayer.position_ranks].sort((a, b) => a.rank - b.rank).map((r) => {
@@ -864,7 +864,7 @@ export default function PremiumPlayerCard({
                                                     <th className={styles.ctrTh}>Points</th>
                                                     <th className={styles.ctrTh}>PPG</th>
                                                     <th className={styles.ctrTh}>OVR</th>
-                                                    <th>Pos Rank</th>
+                                                    <th>Pos rank</th>
                                                 </tr>
                                             </thead>
                                             <tbody>

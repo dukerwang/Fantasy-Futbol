@@ -1048,11 +1048,44 @@ are not labels:
 already means *the number of players currently listed* in `MarketClient` — same words, two
 meanings, one section apart.
 
-**Still open, a different copy defect:** capitalisation is inconsistent across the app —
-"Club Credentials", "Commissioner Controls", "Depth Chart", "Retained List", "Spending
-Breakdown" in Title Case against "Bid history", "Closest match", "Season high", "Roster
-size" in sentence case. It spans ported and unported surfaces alike and wants one decision
-(sentence case, on the evidence of the newer pages) applied in a single pass.
+### Capitalisation: sentence case, and the exceptions are a list
+
+**Swept 2026-08-12**, app-wide, in one pass. The house style was asserted before it was
+measured, so it got measured: on the ported 2.0 surfaces, counting only multi-word labels
+that render *as written*, it was **93 sentence case against 14 Title Case** — 87%. Sentence
+case is the style. It is now 100 against 7, and those seven are all deliberate.
+
+**Two things made the audit non-obvious, and both are worth reusing.**
+
+- **Most Title Case in the source is invisible.** 300-odd classes carry
+  `text-transform: uppercase`, so the casing a developer typed never reaches the screen.
+  Auditing the strings alone would have produced a long list of changes with no visual
+  effect and missed the ones that matter. The audit resolves each label's class against the
+  set of uppercasing selectors first, and only then judges the text.
+- **A capitalised word is not automatically wrong.** The exceptions are the product's own
+  defined vocabulary, and `docs/USER_GUIDE.md` is the authority: it capitalises **Retained
+  List**, **Injured Reserve** and **Academy**, and CLAUDE.md mandates **Club Balance**. The
+  named rooms of the Market keep theirs too — **Free Agency**, and the four
+  "Transfer Market → …" breadcrumbs, which are route names rather than descriptions. Those
+  seven survivors are exactly that list.
+
+Changed on **23 files**: `Age Profile`→`Age profile`, `Club File`/`Player File`→`… file`,
+`Depth Chart`→`Depth chart`, `Fieldable Formations`, `Scoring Contribution`, `Pos Rank`,
+`Club Ledger`, `Spending Breakdown`, `Club Credentials`, `Commissioner Controls`,
+`Club Registrations`, `League Lobby`, `Direct Messages`, `Draft Order`, `Your Clubs`,
+`Your Pick`, `Squad Age`/`Squad Value`/`Points For`, `All Positions`,
+`Wide Defenders (…)`, `All Played Games (…)`, `Starter Games (…)`,
+`Auction Draft (Waivers Only)`, the seven CrestBuilder swatch labels, and
+`The History Books Are Empty`.
+
+**Deliberately out of scope:** `privacy` and `terms` (legal headings are conventionally
+Title Case), `admin/*` (never faces a manager), and `trades/` (legacy, out of the nav).
+
+**Found, not fixed, because it is a naming defect rather than a casing one:** the league
+chat is called **"League lobby chat"** in `SidebarChat`, **"League chat lobby"** in
+`ChatNavIcon`'s tooltip, and **"League lobby"** in `PreDraftLobby` — three names for one
+feature. Both were sentence-cased and neither was renamed; picking the name is a separate
+decision.
 
 **Two things found in passing, both app-wide rather than this page's:**
 

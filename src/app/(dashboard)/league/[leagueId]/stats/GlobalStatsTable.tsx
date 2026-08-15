@@ -52,10 +52,10 @@ const WIDE_DEF_POSITIONS: GranularPosition[] = ['LB', 'RB', 'LWB', 'RWB'];
 const WING_POSITIONS: GranularPosition[] = ['LW', 'RW'];
 
 const POS_FILTER_OPTIONS: { label: string; value: PosFilter }[] = [
-  { label: 'All Positions', value: 'ALL' },
+  { label: 'All positions', value: 'ALL' },
   { label: 'GK', value: 'GK' },
   { label: 'DEF (CB/LB/RB/LWB/RWB)', value: 'DEF' },
-  { label: 'Wide Defenders (LB/RB/LWB/RWB)', value: 'WIDE_DEF' },
+  { label: 'Wide defenders (LB/RB/LWB/RWB)', value: 'WIDE_DEF' },
   { label: 'MID (DM/CM/AM)', value: 'MID' },
   { label: 'ATT (LW/RW/ST)', value: 'ATT' },
   { label: 'Wingers (LW/RW)', value: 'WING' },

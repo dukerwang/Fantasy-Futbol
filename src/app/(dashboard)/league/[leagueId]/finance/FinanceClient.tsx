@@ -304,7 +304,7 @@ export default function FinanceClient({
         <section className={styles.section}>
           <div className={styles.sectionHeader}>
             <span className={styles.sectionKicker}>BY CATEGORY</span>
-            <h2 className={styles.sectionTitle}>Spending Breakdown</h2>
+            <h2 className={styles.sectionTitle}>Spending breakdown</h2>
           </div>
           <BreakdownBar breakdown={breakdown} max={maxCategoryTotal} />
         </section>
@@ -315,7 +315,7 @@ export default function FinanceClient({
         <div className={styles.sectionHeader}>
           <div>
             <span className={styles.sectionKicker}>ALL TRANSACTIONS</span>
-            <h2 className={styles.sectionTitle}>Club Ledger</h2>
+            <h2 className={styles.sectionTitle}>Club ledger</h2>
           </div>
           {/* Filter tabs */}
           <div className={styles.filterTabs} role="tablist">
@@ -346,7 +346,7 @@ export default function FinanceClient({
                   <tr>
                     <th>Date</th>
                     <th>Type</th>
-                    <th>Player / Notes</th>
+                    <th>Player / notes</th>
                     <th className={styles.thRight}>Amount</th>
                   </tr>
                 </thead>

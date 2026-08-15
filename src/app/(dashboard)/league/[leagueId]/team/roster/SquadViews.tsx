@@ -138,7 +138,7 @@ export function DepthChart({
   return (
     <section className={`${styles.panel} g-panel`}>
       <div className={styles.panelHead}>
-        <h2 className={styles.panelTitle}>Depth Chart</h2>
+        <h2 className={styles.panelTitle}>Depth chart</h2>
         <span className="g-label">By tactical position · attack first</span>
       </div>
 
@@ -168,7 +168,7 @@ export function DepthChart({
       })}
 
       <div className={styles.forms}>
-        <span className={styles.zoneLabel}>Fieldable Formations</span>
+        <span className={styles.zoneLabel}>Fieldable formations</span>
         <div className={styles.formChips}>
           {forms.map((f) => (
             <span key={f.name} className={`${styles.fchip} ${f.ok ? styles.fchipOk : ''}`}>

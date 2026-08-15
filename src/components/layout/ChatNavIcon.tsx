@@ -94,8 +94,8 @@ export default function ChatNavIcon({ leagueId, onNavigate }: ChatNavIconProps) 
       <Link
         href={`/league/${leagueId}/chat`}
         className={`${topBarStyles.iconBtn} ${isActive ? topBarStyles.iconBtnActive : ''}`}
-        title="League Chat Lobby"
-        aria-label="League Chat Lobby"
+        title="League chat lobby"
+        aria-label="League chat lobby"
         onClick={() => onNavigate?.()}
       >
         <Icon name="message-square" size={18} strokeWidth={1.5} />
