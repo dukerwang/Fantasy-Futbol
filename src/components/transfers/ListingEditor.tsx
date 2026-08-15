@@ -276,7 +276,7 @@ export default function ListingEditor({
       )}
 
       <div className={styles.section}>
-        <span className={styles.label}>What you&rsquo;re after</span>
+        <span className={styles.label}>In return</span>
         <div className={styles.gates}>
           <label className={`${styles.gate} ${gateSale ? styles.gateOn : ''}`}>
             <input type="checkbox" checked={gateSale} onChange={(e) => setGateSale(e.target.checked)} />
@@ -307,7 +307,7 @@ export default function ListingEditor({
       </div>
 
       <div className={styles.section}>
-        <span className={styles.label}>How the board will read him</span>
+        <span className={styles.label}>Board preview</span>
         <div className={styles.stance}>
           <b>{stance.headline}</b>
           {/* With no minimum bid, the headline already states the mechanism

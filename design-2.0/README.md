@@ -1006,6 +1006,54 @@ the roundup is the round's standfirst on the page ground. The roles it needed al
 existed: the kicker is the panel's one rationed `.g-label`, the byline is the dateline
 `.g-label-quiet` was written for.
 
+**On the copy — a label NAMES a thing, it does not NARRATE one.**
+
+The breakdown shipped labelled "How the score was built", which Duke called out as corny.
+It was: the 1.0 name was "Player Points Breakdown", and the port replaced a label that
+names with one that narrates. That is the whole distinction, and it is worth having because
+the app has plenty of both and the good kind is not "plain" — it is football's own
+vocabulary. **"Under the hammer", "Gone this week", "On the board", "Standing bid",
+"Release clause", "The bidding"** all name things and all carry voice. **"How the board
+will read him", "Where it stands", "When everything closes", "Who comes off"** describe
+what a region is *for*, in a sentence, which is how a thing sounds when it is explaining
+itself rather than being itself.
+
+Swept 2026-08-12, across the app rather than this port:
+
+| was | now | where |
+|---|---|---|
+| How the score was built | Points breakdown | `MatchupPitch` |
+| Elsewhere in the round | Other fixtures | `matchups` |
+| Read the detail / Hide the detail | Show more / Show less | `MatchReportCard` |
+| How the board will read him | Board preview | `ListingEditor` |
+| What you're after | In return | `ListingEditor` |
+| Where it stands | The bidding | `AuctionsClient` |
+| When everything closes | Deadlines | `MarketClient` |
+| Who comes off | Player to drop | `BidDialog` |
+| Would loan out | Open to loans | `ListingsClient` |
+
+**Three things were deliberately NOT swept**, because the rule is about labels and these
+are not labels:
+
+- **Empty states are sentences and should stay sentences.** "Nothing is under the hammer
+  right now", "Nothing has moved yet this season", "Nothing needs you". A region with no
+  content has nothing to name.
+- **Captions under a figure explain what the figure means**, which is prose doing its job:
+  "Committed if you win", "Free after that", "Priced off his form and the length",
+  "Reverts to you free if he returns".
+- **`trades/` is legacy** and out of the nav ("Click to offer" / "Click to request" live
+  there). Editing copy in dead code is noise.
+
+"Board preview" rather than the more idiomatic "On the board" because that exact string
+already means *the number of players currently listed* in `MarketClient` — same words, two
+meanings, one section apart.
+
+**Still open, a different copy defect:** capitalisation is inconsistent across the app —
+"Club Credentials", "Commissioner Controls", "Depth Chart", "Retained List", "Spending
+Breakdown" in Title Case against "Bid history", "Closest match", "Season high", "Roster
+size" in sentence case. It spans ported and unported surfaces alike and wants one decision
+(sentence case, on the evidence of the newer pages) applied in a single pass.
+
 **Two things found in passing, both app-wide rather than this page's:**
 
 - **`.playercard-clickable-btn:hover` painted `--color-accent-green`** — the *fill* token as

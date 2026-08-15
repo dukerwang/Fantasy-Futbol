@@ -282,7 +282,7 @@ export default function BidDialog({
 
       {rosterFull && (
         <label className={styles.field}>
-          <span className={styles.fieldLabel}>Who comes off</span>
+          <span className={styles.fieldLabel}>Player to drop</span>
           <select className={styles.select} value={dropId} onChange={(e) => setDropId(e.target.value)}>
             <option value="">Send him to the academy if there is room</option>
             {droppable.map((r) => (

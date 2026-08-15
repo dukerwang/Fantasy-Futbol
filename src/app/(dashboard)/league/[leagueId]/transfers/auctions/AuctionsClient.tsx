@@ -559,7 +559,7 @@ function Lot({
             </div>
 
             <div>
-              <div className={`g-label ${styles.exTitle}`}>Where it stands</div>
+              <div className={`g-label ${styles.exTitle}`}>The bidding</div>
               <div className={styles.ladder}>
                 <div className={styles.rung}>
                   <span className="g-label">

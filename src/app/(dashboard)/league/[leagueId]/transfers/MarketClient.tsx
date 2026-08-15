@@ -340,7 +340,7 @@ export default function MarketClient({
 
           {/* ── Schedule ────────────────────────────────── */}
           <div className={`${styles.sect} ${styles.sectSpaced}`}>
-            <h2 className={styles.sectTitle}>When everything closes</h2>
+            <h2 className={styles.sectTitle}>Deadlines</h2>
             <span className={styles.sectHint}>next seven days</span>
           </div>
 

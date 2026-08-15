@@ -221,10 +221,10 @@ export default function ListingsClient({
             <div className={`g-label-quiet ${styles.statLabel}`}>Bidding live</div>
           </div>
           {/* No colour: the loan count used --color-pos-wb, a wing-back field
-              colour standing in for "would loan out". Its label says it. */}
+              colour standing in for "open to loans". Its label says it. */}
           <div className={styles.stat}>
             <div className={styles.statValue}>{count('loan')}</div>
-            <div className={`g-label-quiet ${styles.statLabel}`}>Would loan out</div>
+            <div className={`g-label-quiet ${styles.statLabel}`}>Open to loans</div>
           </div>
           <div className={styles.stat}>
             <div className={styles.statValue}>{count('mine')}</div>
