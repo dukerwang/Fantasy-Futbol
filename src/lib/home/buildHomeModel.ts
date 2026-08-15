@@ -42,11 +42,12 @@ import {
 } from '@/lib/scoring/matchups';
 
 import { resolveClub } from '@/lib/clubs/registry';
+import { DRAW_THRESHOLD } from '@/lib/scoring/drawBand';
 
 type AdminClient = ReturnType<typeof createAdminClient>;
 
-/** The draw band. Mirrors DRAW_THRESHOLD and the league_standings view. */
-const DRAW_BAND = 10;
+/** The draw band. `league_standings` encodes the same number in SQL. */
+const DRAW_BAND = DRAW_THRESHOLD;
 
 // ── Public shapes ─────────────────────────────────────────────
 
@@ -461,7 +462,7 @@ export async function buildHomeModel(
       .select('id, type, faab_bid, compensation_amount, notes, processed_at, team:teams(id, team_name), player:players(id, web_name, name, primary_position)')
       .eq('league_id', leagueId)
       .order('processed_at', { ascending: false })
-      .limit(6),
+      .limit(20),
     admin
       .from('season_standings_archive')
       .select('season, team_id, final_rank')
@@ -1399,7 +1400,18 @@ export async function buildHomeModel(
       : `${money(balance)} to spend · the most in the league`;
 
   // ── the wire ────────────────────────────────────────────────
-  const wire: WireItem[] = transactions.slice(0, 5).map((tx) => ({
+  // A single auction/drop can fan out one solidarity_payment row per recipient club, all
+  // with identical notes/timing — collapse those into one Wire entry so the feed doesn't
+  // read as spam.
+  const seenSolidarityNotes = new Set<string>();
+  const dedupedTransactions = transactions.filter((tx) => {
+    if (tx.type !== 'solidarity_payment') return true;
+    if (seenSolidarityNotes.has(tx.notes)) return false;
+    seenSolidarityNotes.add(tx.notes);
+    return true;
+  });
+
+  const wire: WireItem[] = dedupedTransactions.slice(0, 5).map((tx) => ({
     id: tx.id,
     text: generateTransactionHeadline({
       type: tx.type,

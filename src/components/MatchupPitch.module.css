@@ -1,78 +1,135 @@
-/* MatchupPitch — two vertically oriented half-pitches (side by side) */
-.wrapper { display: flex; flex-direction: column; width: 100%; }
+/* MatchupPitch — Gaffa 2.0, port 5.
 
-/* ── Outer surface: neutral pad so each half reads as its own pitch, not one green slab ── */
-.pitchSurface {
-    position: relative;
-    width: 100%;
-    /* Standardize height so it doesn't shift by formation, while keeping it from becoming a tower */
-    aspect-ratio: 1.6 / 1;
-    max-height: 720px;
-    padding: 14px;
-    background: var(--color-bg-secondary, #ede8de);
-    border: 1px solid rgba(210, 196, 183, 0.45);
-    border-radius: 6px;
+   Two vertically oriented half-pitches side by side, their benches, and the
+   points breakdown. The squad-page port (2026-08-11) ported `team`'s pitch,
+   fixed the grass and then wrote "MatchupPitch still draws 1.0's grass; it
+   moves with port 5." This is that move, and everything the squad pages
+   established about a pitch applies here unchanged:
+
+   1. THE GRASS. It was a fixed #5A8F6A in both themes with faded white on it —
+      the exact surface measured at touchline 2.23:1 and team label 2.67:1. It
+      is --color-pitch now, the ink on it is full strength, and alpha survives
+      only on interior furniture (penalty box, arc, six-yard box, the top
+      semicircle) which carries no information and is not interactive.
+
+   2. THE CHIP'S KEYLINE IS THE PITCH'S OWN WHITE LINE. A legal grass is darker
+      than the dark theme's own card, so no single green separates from a cream
+      chip and a navy chip by fill. The line carries it — the spine's rule, and
+      also how a real pitch marks out anything on it.
+
+   3. NO COLOUR RAMP ON A RAW POINT TOTAL. Every chip ran its points through
+      getScoreIntensityColor(), six stops of invented hex unverified in either
+      theme, meaning what the performance ramp means while keying on a
+      different quantity — the raw total rather than the composite that produced
+      it, which the ramp explicitly forbids. The figure is serif ink. That was
+      the last consumer, so `scoreColor.ts` is deleted with this port.
+
+   TWO THINGS THIS SURFACE ADDS.
+
+   4. A MATCH IS ONE BOARD. It was a bare pitch pad, two bench slabs and a
+      breakdown block — four elevation declarations, three of them painting
+      --color-bg-secondary directly. They are one composition: the benches are
+      the players who did not start on the grass above them, and the breakdown
+      is the arithmetic that produced the scoreline. One .g-panel, three
+      sections, internal hairlines. Same call as the auction room's board and
+      the squad pitch.
+
+   5. THE SPECTRUM'S FOURTH USE, AND ITS FIRST ON TWO SQUADS AT ONCE. Rationed
+      to a panel representing a whole squad or the whole pool; this board
+      carries two complete XIs plus both benches, which is that condition twice
+      over. Earlier ports correctly left it off lists of lots and fixtures.
+
+   The position chip was hand-rolled here — an inline background off a local
+   SLOT_COLOR map that mapped LB and RB to one token and LWB and RWB to another.
+   That is the club page's defect exactly, one further along: the copy had
+   stopped drifting and become incorrect, because those pairs share a hue BY
+   DESIGN and are told apart by a clipped corner only the real PositionBadge
+   draws. It uses PositionBadge now. */
+
+/* ── The board ──────────────────────────────────────────── */
+
+/* NOT `width: 100%` alongside the margin — that is 100% PLUS 48px, so the
+   board overflowed its container, pushed the second half-pitch off-screen and
+   gave the page a horizontal scrollbar. The half then had the full page width
+   to satisfy its aspect-ratio with, which is what made the grass render as a
+   slab nearly 1000px tall. A margin already leaves a block at the right width. */
+.board {
+    display: flex;
+    flex-direction: column;
+    margin: 0 var(--s6);
 }
 
-/* Two columns: two separate vertically oriented half-pitches */
-.pitchHalvesGrid {
+.spectrum { flex-shrink: 0; }
+
+/* ── The grass ──────────────────────────────────────────── */
+
+.pitchGrid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 12px;
     align-items: stretch;
-    height: 100%;
+    /* The divider between the two halves is a hairline of the panel, not a
+       gap: they are one match. */
+    border-bottom: 1px solid var(--color-border);
 }
 
-.halfOuter {
+.half {
     position: relative;
     display: flex;
     flex-direction: column;
     min-width: 0;
+    padding: var(--s3);
     background: repeating-linear-gradient(
         to bottom,
-        #5A8F6A,
-        #5A8F6A 60px,
-        #528361 60px,
-        #528361 120px
+        var(--color-pitch),
+        var(--color-pitch) 60px,
+        var(--color-pitch-band) 60px,
+        var(--color-pitch-band) 120px
     );
-    padding: 12px;
-    border-radius: 6px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12);
 }
 
-/* Inner playing rectangle — no top border here (avoids double stroke with .halfTopLine) */
+.half + .half { border-left: 1px solid var(--color-border); }
+
+/* The playing rectangle. No top border — .halfTopLine draws the byline, and
+   two strokes in the same place read as one thick one. The boundary carries
+   information (where the pitch ends) so it runs at full strength. */
 .halfField {
     position: relative;
     flex: 1;
     display: flex;
     flex-direction: column;
-    border: 2px solid rgba(255, 255, 255, 0.65);
+    aspect-ratio: 0.78;
+    border: 2px solid var(--color-pitch-line);
     border-top: none;
     overflow: hidden;
     min-height: 0;
 }
 
-/* Subtle stadium lighting vignette */
+/* Stadium lighting. Only ever darkens the ground, so it can only improve every
+   white pair measured against the flat grass. */
 .halfField::after {
     content: '';
     position: absolute;
     inset: 0;
-    background: radial-gradient(circle at center, transparent 30%, rgba(24, 43, 31, 0.22) 100%);
+    background: radial-gradient(circle at center, transparent 30%, rgba(18, 34, 25, 0.24) 100%);
     pointer-events: none;
-    z-index: 1;
+    z-index: var(--z-base);
 }
 
-/* Top byline only — single 2px stroke */
 .halfTopLine {
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
     height: 2px;
-    background: rgba(255, 255, 255, 0.55);
+    background: var(--color-pitch-line);
     pointer-events: none;
-    z-index: 1;
+    z-index: var(--z-base);
 }
+
+/* ── Interior furniture ─────────────────────────────────────
+   Decorative: it conveys nothing the lineup does not already state and none of
+   it is interactive, so this is the one place on the surface where the line
+   keeps its alpha. */
 
 .halfTopCircle {
     position: absolute;
@@ -81,14 +138,13 @@
     transform: translateX(-50%);
     width: 80px;
     height: 40px;
-    border: 2px solid rgba(255, 255, 255, 0.45);
+    border: 2px solid color-mix(in srgb, var(--color-pitch-line) 45%, transparent);
     border-top: none;
     border-radius: 0 0 40px 40px;
     pointer-events: none;
-    z-index: 1;
+    z-index: var(--z-base);
 }
 
-/* Goal end (bottom of each half): penalty box, arc, six-yard box */
 .halfPenaltyBox {
     position: absolute;
     bottom: 0;
@@ -96,10 +152,10 @@
     transform: translateX(-50%);
     width: 58%;
     height: 22%;
-    border: 2px solid rgba(255, 255, 255, 0.5);
+    border: 2px solid color-mix(in srgb, var(--color-pitch-line) 48%, transparent);
     border-bottom: none;
     pointer-events: none;
-    z-index: 1;
+    z-index: var(--z-base);
 }
 
 .halfPenaltyArc {
@@ -109,11 +165,11 @@
     transform: translateX(-50%);
     width: 72px;
     height: 36px;
-    border: 2px solid rgba(255, 255, 255, 0.42);
+    border: 2px solid color-mix(in srgb, var(--color-pitch-line) 40%, transparent);
     border-bottom: none;
     border-radius: 36px 36px 0 0;
     pointer-events: none;
-    z-index: 1;
+    z-index: var(--z-base);
 }
 
 .halfGoalBox {
@@ -123,355 +179,423 @@
     transform: translateX(-50%);
     width: 26%;
     height: 8%;
-    border: 2px solid rgba(255, 255, 255, 0.4);
+    border: 2px solid color-mix(in srgb, var(--color-pitch-line) 38%, transparent);
     border-bottom: none;
     pointer-events: none;
-    z-index: 1;
+    z-index: var(--z-base);
 }
 
-/* Top-left corner — clear of center arc, does not reserve a huge band above ATT */
+/* Top-left of the field, clear of the centre arc. Full-strength white: this is
+   10px text and the fade is exactly what put the 1.0 version at 2.67:1. */
 .halfTeamLabel {
     position: absolute;
-    top: 8px;
-    left: 10px;
-    right: 10px;
-    max-width: 55%;
+    top: var(--s2);
+    left: var(--s3);
+    right: var(--s3);
+    display: flex;
+    align-items: center;
+    gap: var(--s2);
+    max-width: 70%;
     pointer-events: none;
     z-index: 3;
 }
 
-.halfTeamLabel span {
-    display: block;
-    font-family: var(--font-sans);
-    font-size: 0.58rem;
-    font-weight: 700;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: rgba(255, 255, 255, 0.75);
+.halfTeamName {
+    color: var(--color-pitch-line);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    min-width: 0;
 }
 
-/* Zone stack: ATT … GK top → bottom within each half */
-.pitchHalfZones {
+/* ── Zones ──────────────────────────────────────────────────
+   ATT … GK, top to bottom. Every row renders even when empty, so CMZ stays at
+   3/7 regardless of formation. */
+
+.zones {
     display: flex;
     flex-direction: column;
     flex: 1;
-    /* Just clear line (2px) + semicircle (~40px) + small gap before forwards */
-    padding: 48px 0 12px;
+    /* Clears the byline (2px) and the centre semicircle (~40px). */
+    padding: var(--s12) 0 var(--s3);
     position: relative;
     z-index: 2;
 }
 
-.pitchHalfZoneRow {
+.zoneRow {
     display: flex;
     flex-direction: column;
     flex: 1;
     min-height: 0;
 }
 
-.halfZone {
+.zone {
     display: flex;
     flex-wrap: nowrap;
     justify-content: space-around;
     align-items: center;
-    gap: 6px;
-    padding: 8px 8px;
+    gap: var(--s1);
+    padding: var(--s2);
     flex: 1;
-    min-height: 72px;
+    min-height: 68px;
 }
 
-.halfZoneWBZ {
+.zoneWBZ {
     justify-content: space-between;
-    padding: 8px 12px;
+    padding: var(--s2) var(--s3);
 }
 
-/* ── Player chip — card style from prototype ──────────────────────── */
+/* An unset lineup. It rendered as a bare green rectangle several hundred pixels
+   tall with nothing in it at all — absence shown is fine, absence shown as a
+   void is not. Sits over the zones so it reads as "this pitch is empty" rather
+   than as a row that failed to load. */
+.emptyLineup {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--s6);
+    text-align: center;
+    color: var(--color-pitch-line);
+    font-family: var(--font-serif);
+    font-size: var(--t-15);
+    font-style: italic;
+    pointer-events: none;
+    z-index: 3;
+}
+
+/* ── The chip ───────────────────────────────────────────────
+   Card ground, pitch-line keyline. Elevation is the keyline; the shadow it
+   used to carry as well was decision 1's ghost-card tell. */
+
 .chip {
     position: relative;
-    background: white;
-    padding: 8px;
+    display: block;
     width: 100px;
     flex-shrink: 0;
-    border: 1px solid rgba(210,196,183,0.6);
-    box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+    padding: var(--s1) 5px 5px;
+    text-align: left;
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-pitch-line);
+    border-radius: var(--r-control);
     overflow: visible;
+    font: inherit;
+    cursor: pointer;
+    transition: border-color var(--dur-fast) var(--ease-standard);
 }
 
-.chipPosRow {
+.chip:hover { border-color: var(--color-accent); }
+
+.chipBadgeRow {
     display: flex;
     align-items: center;
     margin-bottom: 3px;
 }
 
-.chipPosLabel {
-    display: inline-block;
-    padding: 1.5px 5px;
-    font-family: var(--font-sans);
-    font-size: var(--t-10);
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    color: white;
-}
-
 .chipName {
     display: block;
-    font-family: var(--font-sans);
-    font-size: 0.58rem;
+    font-family: var(--font-serif);
+    font-size: var(--t-12);
     font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.02em;
-    color: #1c1c19;
+    letter-spacing: 0.005em;
+    color: var(--color-text-primary);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    padding-right: 2px;
+    margin: 0;
 }
 
-.chipScore {
-    position: absolute;
-    top: -5px;
-    right: -5px;
-    font-family: var(--font-sans);
+/* The match line — goals, assists, saves, rating. Condensed, because it is a
+   set of abbreviated column-head-shaped tokens rather than prose. */
+.chipStats {
+    display: block;
+    font-family: var(--font-condensed);
     font-size: var(--t-10);
-    font-weight: 800;
-    padding: 2px 4px;
-    line-height: 1.2;
-    letter-spacing: 0.01em;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+    letter-spacing: 0.03em;
+    color: var(--color-text-secondary);
+    font-variant-numeric: tabular-nums lining-nums;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin: 1px 0 0;
+}
+
+/* Serif, tabular, ink — a settled figure compared across the field, which is
+   decision 6's serif job. Not a colour ramp: see the header comment. */
+.chipPts {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    font-family: var(--font-serif);
+    font-size: var(--t-11);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums lining-nums;
+    color: var(--color-text-primary);
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-pitch-line);
+    border-radius: var(--r-control);
+    padding: 1px var(--s1);
+    line-height: 1.25;
     z-index: 5;
 }
 
-.subIconPitch {
+/* A sub is a direction, and the arrow is what says which way. The hue is
+   secondary to it, which is why in and out can share one shape and differ only
+   in rotation and token. */
+.subMark {
     position: absolute;
-    top: -6px;
-    left: -6px;
+    top: -7px;
+    left: -7px;
     z-index: 6;
-    background: white;
-    border-radius: 50%;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
-    color: #16a34a;
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 2px;
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-pitch-line);
+    border-radius: var(--r-round);
 }
 
-/* ── Bench ────────────────────────────────────────────────────────── */
-.benchSection {
-    background: var(--color-bg-secondary, #EDE8DE);
-    padding: 12px 16px;
-    border-top: 1px solid rgba(210,196,183,0.5);
-    border-left: 1px solid var(--color-border, rgba(210,196,183,0.5));
-    border-right: 1px solid var(--color-border, rgba(210,196,183,0.5));
+.subIn { color: var(--color-accent-ink); }
+.subOut { color: var(--color-danger); }
+
+/* ── Benches ────────────────────────────────────────────────
+   A section of the board, not a slab of its own. Off the grass, so the chip's
+   keyline goes back to the panel's own hairline. */
+
+.benches {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    border-bottom: 1px solid var(--color-border);
 }
 
-.benchHeaderRow {
+.bench {
+    padding: var(--s3) var(--s4) var(--s4);
+    min-width: 0;
+}
+
+.bench + .bench { border-left: 1px solid var(--color-border); }
+
+.benchHead {
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    margin-bottom: 10px;
+    align-items: baseline;
+    gap: var(--s3);
+    margin-bottom: var(--s2);
 }
 
-.benchSectionLabel {
-    font-family: var(--font-sans);
-    font-size: 0.58rem;
+/* A heading, not a second tracked label. The panel's one rationed label is the
+   breakdown's head; four bench captions would be the "a device that introduces
+   every group signals nothing" failure decision 5 was written against. */
+.benchName {
+    font-family: var(--font-serif);
+    font-size: var(--t-13);
     font-weight: 700;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: rgba(78,69,59,0.6);
+    letter-spacing: -0.01em;
+    color: var(--color-text-primary);
+    margin: 0;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
-.benchTotalLabel {
-    font-family: var(--font-sans);
-    font-size: 0.65rem;
+.benchBonus {
+    font-family: var(--font-serif);
+    font-size: var(--t-12);
     font-weight: 700;
     color: var(--color-text-primary);
+    font-variant-numeric: tabular-nums lining-nums;
+    flex-shrink: 0;
 }
 
-.benchChipsRow {
+.benchChips {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: var(--s2);
 }
 
 .benchChip {
     position: relative;
-    background: white;
-    padding: 7px;
-    width: 84px;
-    flex-shrink: 0;
-    border: 1px solid rgba(210,196,183,0.3);
-    box-shadow: 0 1px 2px rgba(0,0,0,0.15);
-    overflow: visible;
-}
-
-.benchChipName {
     display: block;
-    font-family: var(--font-sans);
-    font-size: var(--t-10);
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.02em;
-    color: #1c1c19;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    padding-right: 18px;
+    width: 88px;
+    flex-shrink: 0;
+    padding: var(--s1) 5px 5px;
+    text-align: left;
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--r-control);
+    overflow: visible;
+    font: inherit;
+    cursor: pointer;
+    transition: border-color var(--dur-fast) var(--ease-standard);
 }
 
-.benchScore {
-    position: absolute;
-    top: -5px;
-    right: -5px;
-    font-family: var(--font-sans);
-    font-size: var(--t-10);
-    font-weight: 800;
-    padding: 2px 3px;
-    line-height: 1.2;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.4);
-    z-index: 5;
-}
+.benchChip:hover { border-color: var(--color-accent); }
 
-.subIconBench {
-    position: absolute;
-    top: -6px;
-    left: -6px;
-    z-index: 6;
-    background: white;
-    border-radius: 50%;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
-    color: #dc2626;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 2px;
-}
+.benchChip .chipPts { border-color: var(--color-border); }
+.benchChip .subMark { border-color: var(--color-border); }
 
-/* ── Player Points Breakdown ──────────────────────────────────────── */
-.breakdown { margin-top: 2.5rem; }
+/* ── The breakdown ──────────────────────────────────────────
+   The arithmetic that produced the scoreline at the top of the page, which is
+   why it is a section of this panel rather than a block beneath it. */
 
-.breakdownHeaderRow {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 1.25rem;
-}
+.breakdown { padding: var(--s4) 0 var(--s2); }
 
-.breakdownTitle {
-    font-family: var(--font-sans);
-    font-size: 0.65rem;
-    font-weight: 700;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--color-text-muted);
+/* The panel's one rationed tracked label. */
+.breakdownHead {
+    display: block;
+    padding: 0 var(--s4) var(--s3);
+    letter-spacing: 0.16em;
 }
 
 .breakdownGrid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 2rem;
 }
 
-.breakdownCol { display: flex; flex-direction: column; }
-
-.breakdownColHeader {
+.breakdownCol {
     display: flex;
-    align-items: center;
+    flex-direction: column;
+    min-width: 0;
+    padding: 0 var(--s4) var(--s3);
+}
+
+.breakdownCol + .breakdownCol { border-left: 1px solid var(--color-border-subtle); }
+
+.breakdownColHead {
+    display: flex;
+    align-items: baseline;
     justify-content: space-between;
-    padding-bottom: 1rem;
-    border-bottom: 1px solid rgba(210,196,183,0.7);
-    margin-bottom: 0;
+    gap: var(--s3);
+    padding-bottom: var(--s2);
+    border-bottom: 1px solid var(--color-border);
+    margin-bottom: var(--s1);
 }
 
 .breakdownColName {
     font-family: var(--font-serif);
-    font-size: 1.15rem;
+    font-size: var(--t-15);
     font-weight: 700;
+    letter-spacing: -0.01em;
     color: var(--color-text-primary);
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
+/* Serif ink, not the accent. A team total is a figure compared against the one
+   in the next column, which is decision 6's serif job — and the accent means
+   "yours", which this is only half the time. */
 .breakdownColTotal {
-    font-family: var(--font-sans);
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: #3A6B4A;
+    font-family: var(--font-serif);
+    font-size: var(--t-17);
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--color-text-primary);
+    font-variant-numeric: tabular-nums lining-nums;
+    flex-shrink: 0;
 }
 
 .breakdownRow {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 10px 12px;
-    background: var(--color-bg-primary, #f7f3ee);
+    gap: var(--s2);
+    padding: var(--s2) var(--s2);
+    border-radius: var(--r-control);
+    min-width: 0;
 }
 
-.breakdownRowAlt { background: var(--color-bg-card-alt, rgba(247,243,238,0.5)); }
+.breakdownRowAlt { background: var(--color-bg-card-alt); }
 
 .breakdownLeft {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: var(--s2);
+    min-width: 0;
 }
 
-.breakdownBar {
-    display: block;
-    width: 4px;
-    height: 24px;
-    flex-shrink: 0;
-}
+.breakdownIdentity { min-width: 0; }
 
 .breakdownName {
     display: flex;
     align-items: center;
-    gap: 4px;
-    font-family: var(--font-sans);
-    font-size: 0.8125rem;
+    gap: var(--s1);
+    font-family: var(--font-serif);
+    font-size: var(--t-13);
     font-weight: 700;
-    text-transform: uppercase;
     color: var(--color-text-primary);
+    margin: 0;
+    min-width: 0;
+}
+
+.breakdownNameText {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .breakdownSubIcon {
-    color: #16a34a;
+    color: var(--color-accent-ink);
     display: flex;
     align-items: center;
-    justify-content: center;
+    flex-shrink: 0;
 }
 
 .breakdownStats {
-    font-family: var(--font-sans);
-    font-size: 0.625rem;
-    color: rgba(78,69,59,0.6);
-    margin-top: 1px;
+    font-family: var(--font-condensed);
+    font-size: var(--t-10);
+    letter-spacing: 0.03em;
+    color: var(--color-text-secondary);
+    font-variant-numeric: tabular-nums lining-nums;
+    margin: 1px 0 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .breakdownPts {
-    font-family: var(--font-sans);
-    font-size: 0.875rem;
+    font-family: var(--font-serif);
+    font-size: var(--t-13);
     font-weight: 700;
     color: var(--color-text-primary);
+    font-variant-numeric: tabular-nums lining-nums;
+    flex-shrink: 0;
 }
 
-/* --- Mobile Matchups Vertical Stacking --- */
+/* The bench contribution is a line of arithmetic, not a player, so it takes no
+   badge — where the row loses the position hue it loses it entirely rather
+   than substituting a grey one. */
+.breakdownBonusRow .breakdownName { font-weight: var(--font-medium); color: var(--color-text-secondary); }
+
+/* ── Responsive ─────────────────────────────────────────────
+   The two halves stack before the chips have to shrink. */
+
 @media (max-width: 768px) {
-    .pitchSurface {
-        aspect-ratio: auto;
-        max-height: none;
-        height: auto;
-        padding: 8px;
+    .pitchGrid, .benches, .breakdownGrid { grid-template-columns: 1fr; }
+    /* The divider TURNS rather than disappearing — still one field. */
+    .half + .half,
+    .bench + .bench,
+    .breakdownCol + .breakdownCol {
+        border-left: none;
+        border-top: 1px solid var(--color-border);
     }
-    .pitchHalvesGrid {
-        grid-template-columns: 1fr;
-        gap: 16px;
+    .breakdownCol + .breakdownCol {
+        border-top-color: var(--color-border-subtle);
+        padding-top: var(--s3);
+        margin-top: var(--s2);
     }
-    .halfOuter {
-        height: 520px; /* Standalone portrait height on mobile */
-    }
-    .breakdownGrid {
-        grid-template-columns: 1fr;
-        gap: 1.5rem;
-    }
+    /* Stacked, the field must not take the panel's full width or it becomes a
+       slab several screens tall. Cap it and centre it. */
+    .halfField { aspect-ratio: 0.78; max-width: 460px; margin: 0 auto; width: 100%; }
+}
+
+@media (max-width: 600px) {
+    .board { margin: 0 var(--s4); }
+    .chip { width: 88px; }
 }

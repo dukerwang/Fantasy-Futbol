@@ -6,6 +6,7 @@ import { sendEmail } from '@/lib/email/client';
 import { getMatchweekSummaryEmail } from '@/lib/email/templates';
 import { executeAdvanceTournament } from '@/lib/tournaments/advanceTournament';
 import { payMeritPeriod } from '@/lib/economy/payMeritPeriod';
+import { DRAW_THRESHOLD } from '@/lib/scoring/drawBand';
 
 export async function processMatchupsForGameweek(gameweek: number, finished: boolean) {
     const admin = createAdminClient();
@@ -182,7 +183,6 @@ export async function processMatchupsForGameweek(gameweek: number, finished: boo
     }
 
     // 5. Resolve matchups
-    const DRAW_THRESHOLD = 10;
     let updated = 0;
     const updateErrors: string[] = [];
 

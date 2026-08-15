@@ -36,7 +36,8 @@
    six-stop ramp of invented hex, unverified in either theme, and it means the
    same thing the performance ramp means while keying on a different quantity —
    the raw point total rather than the composite that produced it, which the
-   ramp explicitly forbids. The figure goes to ink. */
+   ramp explicitly forbids. The figure goes to ink. (MatchupPitch was the last
+   other consumer; port 5 made the same call there and deleted scoreColor.ts.) */
 
 .pitchUI {
     display: flex;

@@ -11,7 +11,10 @@ hub followed the same day** — `transfers`, `transfers/listings`, `transfers/fr
 2.0 together. **The squad pages followed on 2026-08-11**: `team` (the pitch) and
 `team/roster` (the club), which also ports `clubs/[teamId]` for free — it is the same
 ClubClient. That pass added the pitch to the palette and put the spectrum on a page for
-the first time. Every other surface still runs 1.0.
+the first time. **`stats` and the player card followed 2026-08-12**, and **`matchups` +
+`matchups/[id]` the same day** — the port that finally rendered the scoreline, gave the
+margin axis something to measure, and moved `MatchupPitch` onto the real grass. Every
+other surface still runs 1.0.
 
 - **Prototype:** Claude Design project `f4858479-5b36-4ba3-9a4f-04da9725c7db`, built
   **unbound** (the bound "Fantasy Futbol Design System" has the wrong accent, fonts and
@@ -337,7 +340,7 @@ vignette and a stripe should not be solved to the AA floor exactly.
 - **The vignette only darkens**, so it can only improve every white pair measured against
   the flat grass.
 
-`MatchupPitch` still draws 1.0's grass; it moves with port 5.
+~~`MatchupPitch` still draws 1.0's grass; it moves with port 5.~~ **Moved 2026-08-12** — see "What the round established".
 
 ## Position spine
 
@@ -895,6 +898,227 @@ stated floor rule, not a preference.
 "`--color-accent` is a fill, `--color-on-accent` is the label on it" defect the auctions
 port named, still present in a shared dialog. `scratch/verify_player_card.mjs`.
 
+## What the round established (2026-08-12)
+
+`matchups`, `matchups/[matchupId]` and `MatchupPitch`. All three stylesheets end at
+**0 raw hex outside comments, 0 rem font-sizes, 0 1.0 scale tokens, 0 radius literals**,
+151 2.0 token uses, and **148 measured colour pairs pass in both themes**
+(`scratch/verify_matchups.mjs`).
+
+**1. The scoreline had been locked for two days and rendered by nothing, and the thing
+that was missing was not CSS.** `.g-score` landed in `globals.css` on 2026-08-10 out of
+turn 1. Porting it was half an hour; the reason no page had used it is that the spec said
+"margin axis full width beneath" and left open what the axis *measures*. A bar with no
+quantity is decoration.
+
+**Gaffa has a quantity no other fantasy app has: a matchup inside 10 points is a draw.**
+So the axis is built the way the baseline rule is built — engrave the reference, lay the
+ink over it, let the reference still show through. Centre is level, a marked zone either
+side is the draw band, and the ink runs from the centre toward whoever leads, so its
+*direction* is the result and its *length* is the size of it. A fixture you can see
+sitting inside the band needs no sentence explaining why it drew.
+
+It is `.g-axis*` in `globals.css` beside `.g-score`, driven by
+`src/components/matchups/MarginAxis.tsx`, because both routes in this port draw one and
+the clamp, the percentages and the verdict wording would otherwise exist twice on day one.
+Two details worth keeping:
+
+- **The tick is the same 2px of `--color-text-primary`, declared after the ink, as
+  `.g-baseline-tick`.** Two components that share an argument should share a look; that is
+  what makes them read as one family rather than two bars that happen to be near each other.
+- **The half-scale is 50 points and margins beyond it clamp**, which puts the ±10 band at
+  the middle fifth. That proportion is what makes the band read as a band instead of as a
+  hairline pair.
+
+**2. A token that clears 3:1 on one ground does not clear it on another.** The band edges
+were drawn in `--color-border-strong`, which is exactly what that token is for — and it
+measured **2.83** in light. `border-strong` was solved against the *page*; a `.g-track` is
+recessed and darker than the page, so the headroom is not the same. They are
+`--color-text-muted` now (4.59 / 6.17), which also leaves a clean three-step hierarchy:
+primary for the tick that is level, muted for the rule that is the band, a wash for the
+zone. This is the "a gradient ground is not free" lesson one scale down, and it is worth
+generalising: **the surface a token was verified against is part of the token.**
+
+**3. A hover that LIGHTENS spends the headroom every ink on the card was verified with.**
+`--color-bg-card-hover` is `#2C3344` against a `#252B3D` card — lighter, in dark. Measured
+on it, `--color-live` lands at **4.43** and even `text-muted` at **4.53**. This is the
+auctions port's rule 1 arriving through a different door: not a tint, just the default
+hover token, and it only bites in dark because dark's inks start with less room.
+
+The fix is the panel gradient's own rule applied to a state instead of a surface — **the
+row hover only ever darkens**, in both themes, so it can only improve every pair. It takes
+`--color-bg-inset`, which is darker than the card in light *and* dark, and it reads as the
+row being pressed in, which is what a recessed value is for. Worth grepping before the next
+port: `--color-bg-card-hover` under coloured or muted ink is a dark-mode failure waiting,
+the same way a token with no dark value is.
+
+**4. The pitch's defects were the squad pitch's defects, unfixed, one route over.** The
+squad-page port wrote "`MatchupPitch` still draws 1.0's grass; it moves with port 5", and
+everything it had found was still here: a fixed `#5A8F6A` in both themes, faded white on
+it, and `getScoreIntensityColor()` on every chip — six stops of invented hex, unverified in
+either theme, meaning what the performance ramp means while keying on the raw point total
+the ramp explicitly forbids. That was the last consumer, so **`src/lib/utils/scoreColor.ts`
+is deleted.** Nothing generalises out of it except the obvious: a note in a stylesheet
+saying another file has the same bug is not a fix, and the bug lives exactly as long as the
+note does.
+
+**5. The position chip was the club page's defect a third time, and further along.**
+`MatchupPitch` hand-rolled its badge from a local `SLOT_COLOR` map that put LB and RB on one
+token and LWB and RWB on another — so on this surface those pairs were **the same badge**.
+They share a hue *by design* and are told apart by a clipped corner only the real
+`PositionBadge` draws. Third occurrence (after `ListingCard`'s crest and the club page's own
+badge), and the pattern is now reliable enough to state as a rule: **a component copied
+rather than imported does not drift, it becomes wrong** — and the copy is always the one
+that misses the fix.
+
+The same map also painted the bench *category* (def / mid / atk / flex) in position hues,
+which is the hub port's "the hue already means centre-back everywhere else" defect. A bench
+category is not a position; flex had no hue at all and borrowed `text-muted`. A bench chip
+takes the player's own position, and where there is no player there is no badge.
+
+**6. A board is one panel, for the fourth time, and a round is one too.** The list page was
+a bordered gazette banner, a floating hero card, N floating fixture cards and a floating
+glance strip — up to nine elevation declarations for one gameweek, where the glance figures
+are arithmetic on the fixtures directly above them. The match board was a pitch pad, two
+bench slabs and a breakdown block, three of them painting `--color-bg-secondary` directly.
+Both are one `.g-panel` with internal hairlines now.
+
+The featured fixture reads as featured through **size, position and the accent rule under
+your figure**, not by being the thing that floats — which is worth recording because the
+first instinct was option 3, keeping the hero separate so that "featured" had a carrier.
+It did not need one.
+
+**6b. An unset lineup rendered as a void.** A club with no lineup got a bare green
+rectangle several hundred pixels tall with nothing in it — absence shown is right, absence
+shown as a hole is not. It carries a sentence now, in the pitch's own white at 4.82:1.
+
+**7. The spectrum's fourth use, and its first on two squads at once.** Rationed to a panel
+representing a whole squad or the whole pool; the match board carries two complete XIs plus
+both benches. The *list* correctly does not get it — a set of fixtures is neither.
+
+**8. The Gazette kept its writing and lost its newsprint.** The match report was a clipping:
+a tracked serif "THE FOOTBALL GAZETTE" kicker, a 2px double rule, an italic byline and a
+2.25rem accent drop cap; the list page had the same device as "ROUNDUP GAZETTE". That is
+four devices introducing one paragraph, and 2.0 gives the italic/tracked serif exactly one
+job — the section or card heading, which a kicker and a byline are not. Every generated
+word survives. What changed is that the report is now a headline and a lead in a panel, and
+the roundup is the round's standfirst on the page ground. The roles it needed already
+existed: the kicker is the panel's one rationed `.g-label`, the byline is the dateline
+`.g-label-quiet` was written for.
+
+**Two things found in passing, both app-wide rather than this page's:**
+
+- **`.playercard-clickable-btn:hover` painted `--color-accent-green`** — the *fill* token as
+  text, **4.33:1 in dark**, in a class every narrative surface renders. Rule 5 from the
+  auctions port, still live a day after the dialogs port fixed six other instances of it.
+  It is `--color-accent-ink` now; in light the two tokens are the same value, so this
+  changes nothing there and fixes dark.
+- **`renderBoldedText` emits a `<strong>` or a `<button class="playercard-clickable-btn">`**
+  depending only on whether the bolded phrase resolved to a player id — and that button is
+  `color: inherit`. So the same emphasis rendered in two different tones on the same line,
+  keyed on a distinction the reader cannot act on. Any surface styling `strong` inside
+  generated prose has to style both.
+
+### The crest bug: a duplicated query that silently disagreed
+
+**The single most valuable thing this port found, and it is not a design defect at all.**
+Duke's report was "team crests don't even display properly" — every club on the matchups
+list was rendering the generic green fallback shield instead of its own crest, while the
+matchup DETAIL page next door showed them correctly.
+
+`matchups/page.tsx` fetched its matchups twice: an initial select carrying `crest_config`,
+and a post-sync re-fetch that did not — and the re-fetch **overwrites** the first result.
+So `CrestBadge` received `config: undefined` for all twelve clubs and fell through to its
+designed no-config state.
+
+Three things make this worth recording rather than just fixing:
+
+- **It fires under one specific condition, and it is the worst one.** The re-fetch is gated
+  on `needsSync`, which is true when the current gameweek is still 0-0 — i.e. every live
+  gameweek from kickoff until the first points land, which is exactly when managers are on
+  this page. Outside that window the crests are correct, which is why it survived.
+- **Nothing fails.** No error, no console warning, no missing element. The fallback crest is
+  a *real designed state*, so the page looks entirely intentional while showing the wrong
+  club identity for every club on it. This is the failure mode a good empty state buys you,
+  and the reason a designed fallback needs its trigger checked as carefully as its look.
+- **It is the duplicated-rule defect in a query.** Same shape as `ListingCard`'s crest, the
+  club page's position badge, `MatchupPitch`'s SLOT_COLOR map and `DRAW_THRESHOLD` — but in
+  a `.select()` string, where none of the usual tells apply: no component to compare, no
+  constant to grep, and the two copies sit 40 lines apart in one file. The select is
+  `MATCHUP_SELECT`, declared once, now.
+
+**The general rule: a duplicated query does not drift, it silently disagrees.** Worth a
+grep on any surface whose data is re-fetched after a mutation — the second query is the one
+written in a hurry, and a dropped join column degrades to a plausible-looking default rather
+than to an error. (Checked app-wide during this port: every other `teams!` join missing
+`crest_config` feeds a name-only surface that renders no crest.)
+
+### What only showed up on screen
+
+Every number in this port passed before anyone looked at it: build green, 148 pairs green,
+palette green. Duke looked and the surface was wrong. **Four defects, none of which a
+contrast verifier can see**, and the pattern is worth naming — a colour checker proves that
+ink is legible on its ground, and says nothing about whether the thing exists, has a size,
+or fits its container.
+
+**1. The margin axis was never given its track.** `.g-axis` shipped with
+`background: rgba(0,0,0,0)` and `box-shadow: none` — an invisible 574px strip with a 115px
+band floating in the middle of nothing. The band read as a stray grey lozenge because there
+was no scale for it to be a zone *of*. `globals.css` § "6. Recessed tracks" literally names
+"a margin axis" as the thing `.g-track` was written for, and the component did not apply it.
+**The spec named the class and the port still did not use it**, because "recessed" reads as
+a finish rather than as load-bearing.
+
+**2. `width: 100%` alongside a margin is an overflow.** `.board` had both, so it ran 48px
+wider than its container, pushed the second half-pitch off-screen and gave the page a
+horizontal scrollbar. The half then had the *page* width to satisfy `aspect-ratio: 0.78`
+with, which is what rendered the grass as a slab nearly 1000px tall. One declaration, three
+symptoms, and every one of them looks like a design failure rather than a box-model one.
+
+**3. A crest below ~28px is not a crest.** (Separate from the crest BUG above — this is
+about size, that was about identity; both were live at once, which is why the row crests
+read as meaningless green blobs.) The shield is a 100×120 viewBox with its initials
+at `font-size: 26px`, so at the 20px used in a fixture row the lettering lands at about 5px
+— an illegible green blob. The port had actually made them *smaller* than 1.0 (36→30 in the
+hero, 22→20 in rows) while removing the W/L/D badges, so the surface lost its last colour
+twice over. They are 44px in a scoreline and 28px in a row now. **Crests are where a
+football page keeps its colour**, and they earn the size the same way the portrait's crest
+chip earns its exception: real club identity art, not a status pill.
+
+**4. Deleting a device is not the same as replacing it.** Six removals were each defensible
+by a rule — the gazette banner, the W/L/D squares, the hero card's elevation, the filled
+score badges, the bench category hues, the position-hue bar in the breakdown. The *sum* was
+a page with no colour, no rules between rows and nothing tying one fixture to the next.
+Three things brought the structure back without reintroducing anything the law forbids:
+hairlines between fixture rows (a results list is a list), a rule under the section head,
+and the club record moved from an orphaned line into the identity block beside the crest.
+
+**5. A scoreline needs a measure.** Full-bleed on a 1184px panel, the two figures fly to
+opposite ends and 600px of nothing sits between them — the hollow middle Duke read as "so
+much white space". The round's content is capped at **920px and centred**, sections still
+full-bleed so hairlines and hovers run edge to edge. It is what makes the scoreline read as
+two sides facing each other across a centre, which is the only reason it has a middle.
+
+**The process lesson, stated plainly:** these ports have been verified by measurement and
+by build, and both were green on a page with an invisible component, a horizontal
+scrollbar, illegible crests and the wrong club identity on every row. **Measurement checks
+the pairs you thought to write down; a build checks that the code runs.** Neither can see
+a component that renders nothing, a box that overflows, art that is too small to read, or
+correct code fetching incomplete data. Every port from here ends by opening the page.
+
+### The draw band is now one constant
+
+`DRAW_THRESHOLD = 10` was written **seven times**: a local `const` inside
+`matchupProcessor`, a `DRAW_BAND` in `buildHomeModel` whose comment already said *"Mirrors
+DRAW_THRESHOLD"* (which is the tell), and bare `<= 10` literals in the matchups list, the
+matchup detail, `LiveMatchupCard` and `matchReport`. The margin axis needed an eighth.
+
+It is `src/lib/scoring/drawBand.ts` now — the same move the stats pool made when the
+spectrum's second consumer would have been a second copy of the twelve hues. **The SQL side
+is deliberately not covered**: `league_standings` encodes the same 10 in its own `CASE`, and
+only a migration can reach a view, so changing the band still means changing two things.
+That is written at the top of the file rather than left to be discovered.
+
 ## Port order for the remaining routes
 
 **Order by adjacency first, then by how much a surface exercises the system.** The first
@@ -906,8 +1130,9 @@ alone put a 2.0 page in the middle of four 1.0 ones, so a manager crossed the se
 two clicks without leaving the section. A seam between distant sections is a blemish; a
 seam inside one section is a bug. `free-agents` and `listings` were not on the list at all.
 
-Nine surfaces are on 2.0 (League Home, the whole Market hub, and the two squad pages —
-which is three routes, because `clubs/[teamId]` renders the club page too).
+Eleven surfaces are on 2.0 (League Home, the whole Market hub, the two squad pages —
+which is three routes, because `clubs/[teamId]` renders the club page too — the stats
+pool, and both matchups routes).
 
 1. ~~**`transfers/auctions`**~~ — **done 2026-08-11.** Exercised the portrait at both row
    and lot size, the countdown (mono), `--color-live`, the panel, the condensed face and the
@@ -927,7 +1152,9 @@ which is three routes, because `clubs/[teamId]` renders the club page too).
    `transfers/free-agents`. See "What the stats pool established" and "What the player card
    established" below. **The baseline rule still has no home in the app** — see "Not done
    yet".
-5. **`matchups` + `matchups/[id]`** — the scoreline treatment from turn 1.
+5. ~~**`matchups` + `matchups/[id]`**~~ — **done 2026-08-12.** The scoreline treatment
+   from turn 1, rendered for the first time, plus the margin axis it had been waiting
+   for and `MatchupPitch`. See "What the round established" below.
 6. **`standings`, `history`, `finance`** — table-heavy, mostly typographic, low risk.
 7. **`draft`** — largest and most literal-ridden (1,519 lines), and dormant between
    seasons, so it is last and cheapest to defer.
@@ -943,14 +1170,15 @@ from it for the public login carousel. `admin/*` never faces a manager.
 
 ## Not done yet
 
-- 21 dashboard routes still on 1.0 (`players` is gone, not ported); **25** stylesheets still
-  hold raw hex outside comments (was 27, and 38 before the hub). Two of the remaining are in
+- 19 dashboard routes still on 1.0 (`players` is gone, not ported); **23** stylesheets still
+  hold raw hex outside comments (was 25, and 38 before the hub). Two of the remaining are in
   `components/players/`: `PremiumPlayerCard.module.css`, whose only hex is the six
   `--rating-*` declarations themselves — those ARE the token definitions — and
   `PlayerCard.module.css`, the small hover-preview card, which was not in port 4's scope
   and still carries 18.
-- 73 `font-size` declarations between 8 and 10px, to move with their page (was 141 before
-  the auctions port, 130 after it, 103 after the hub surfaces, 91 after the dialogs).
+- 69 `font-size` declarations between 8 and 10px, to move with their page (was 141 before
+  the auctions port, 130 after it, 103 after the hub surfaces, 91 after the dialogs, 73
+  after the stats pool).
 - Radius literals decision 3 was written to kill: 2px ×30, 3px ×24, 5px ×1, 7px ×0. The
   dialogs cleared every 7px in the app and all but one 5px.
 - Elevation: 177 `box-shadow` against 590 `1px solid`. The rule is now stated in
@@ -973,6 +1201,25 @@ from it for the public login carousel. `admin/*` never faces a manager.
   real season-averaged breakdowns straight out of `matchRating.ts` for any future attempt.
   Candidate homes not yet tried: the match report, `matchups/[id]` (port 5), or a row
   expansion on the stats pool.
+
+  **Port 5 looked at `matchups/[id]` and did not do it, and the reason is a data problem
+  rather than a design one — which is the useful finding.** The rule needs
+  `MatchRating.breakdown`, and **nothing stores it**: there is no `rating_breakdown` column
+  on `player_stats`, so rendering it means re-running `calculateMatchRating()` on the stored
+  `stats` JSON at read time. That page deliberately does not do that — the JSON can carry
+  zeroed BPS/ICT when the sync ran before FPL finalised bonus, which is exactly why the
+  authoritative value is the `fantasy_points` *column*. And `calculateMatchRating()` returns
+  `breakdown` and `fantasyPoints` from the same pass, so a stale JSON gives you six
+  components explaining a total the page is not showing. That is not a crash, it is the
+  quiet kind: **a second derivation of a number an authoritative column already holds**,
+  which is the same defect shape as every duplicated rule catalogued above.
+
+  **The unblocker is not a design decision.** Store the breakdown at sync time — a
+  `rating_breakdown` column written by the pass that already computes `fantasy_points` —
+  and the rule becomes a lookup that cannot disagree with the figure beside it, on every
+  candidate surface at once. One migration plus a change to the stats writer. Until then
+  the component is correct and homeless for a reason, and building it on a re-derivation
+  would be spending the signature component to hide a data gap.
 - Every `input` and `select` on every ported surface draws its boundary in
   `--color-border` — **1.58:1 light, 1.72:1 dark**, against WCAG 1.4.11's 3:1 for a control
   boundary. `--color-border-strong` clears it. App-wide, so it wants one pass rather than a

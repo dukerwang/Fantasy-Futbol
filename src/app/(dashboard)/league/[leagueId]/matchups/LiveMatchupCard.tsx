@@ -5,6 +5,8 @@ import NavigationLink from '@/components/ui/NavigationLink';
 import { createClient } from '@/lib/supabase/client';
 import type { Matchup } from '@/types';
 import CrestBadge from '@/components/crest/CrestBadge';
+import MarginAxis, { marginVerdict } from '@/components/matchups/MarginAxis';
+import { isDrawMargin } from '@/lib/scoring/drawBand';
 import styles from './matchups.module.css';
 
 interface TeamRecord {
@@ -54,7 +56,7 @@ export default function LiveMatchupCard({
     const crestA = (matchup as any).team_a?.crest_config;
     const crestB = (matchup as any).team_b?.crest_config;
 
-    const myTeamSide =
+    const myTeamSide: 'a' | 'b' | null =
         myTeamId === teamAId ? 'a' : myTeamId === teamBId ? 'b' : null;
 
     // Ensure state stays synced when the matchup prop changes (e.g. user toggles gameweeks)
@@ -103,133 +105,112 @@ export default function LiveMatchupCard({
     const scoreA = liveScore.score_a;
     const scoreB = liveScore.score_b;
 
-    // Draw rule: abs(score_a - score_b) <= 10 → draw
-    const isDraw = isCompleted && Math.abs(scoreA - scoreB) <= 10;
+    const isDraw = isCompleted && isDrawMargin(scoreA, scoreB);
     const aWins = isCompleted && !isDraw && scoreA > scoreB;
     const bWins = isCompleted && !isDraw && scoreB > scoreA;
 
     const href = `/league/${matchup.league_id}/matchups/${matchup.id}`;
 
-    // ── Hero (featured matchup) variant ────────────────────────────────────────
+    const axisProps = {
+        scoreA, scoreB, isCompleted, teamAName, teamBName, myTeamSide,
+    };
+
+    /* Two states, not three words. "Live" is the system's own marker (.ds-live,
+       on --color-live); "Final" and "Scheduled" are plain quiet labels, because
+       neither is a status that needs a colour to be understood. */
+    const stateNode = isLive
+        ? <span className="ds-live">Live</span>
+        : <span className="g-label-quiet">{isCompleted ? 'Final' : 'Scheduled'}</span>;
+
+    // ── Featured fixture — the panel-scale scoreline ───────────────────────────
     if (featured) {
         return (
-            <NavigationLink href={href} className={styles.heroCard}>
-                
-                {/* Team A — left column */}
-                <div className={styles.heroTeamCol} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
-                    {teamAId && <CrestBadge config={crestA} size={36} teamName={teamAName} teamId={teamAId} />}
-                    <span className={styles.heroTeamName}>
-                        {teamAName}
-                    </span>
-                    {recordA && (
-                        <span className={styles.heroRecord}>
-                            {recordA.W}W · {recordA.D}D · {recordA.L}L
-                        </span>
-                    )}
-                </div>
+            <NavigationLink href={href} className={styles.featured}>
+                <span className={`g-label ${styles.featuredLabel}`}>
+                    {myTeamSide ? 'Your fixture' : 'Featured fixture'}
+                </span>
 
-                {/* Center — scores + badge */}
-                <div className={styles.heroCenter}>
-                    <span className={styles.heroSectionLabelCentered}>
-                        Your Fixture · GW {matchup.gameweek}
-                    </span>
-                    <div className={styles.heroScoreRow}>
-                        <span className={`${styles.heroScore} ${bWins ? styles.loser : ''}`}>
+                <div className="g-score">
+                    {/* Home */}
+                    <div className={myTeamSide === 'a' ? 'g-score-mine' : undefined}>
+                        <div className={styles.scoreClub}>
+                            {teamAId && <CrestBadge config={crestA} size={44} teamName={teamAName} teamId={teamAId} />}
+                            <span className={styles.scoreId}>
+                                <span className={styles.scoreName}>{teamAName}</span>
+                                {recordA && (
+                                    <span className="g-label-quiet">
+                                        {recordA.W}W · {recordA.D}D · {recordA.L}L
+                                    </span>
+                                )}
+                            </span>
+                        </div>
+                        <span className={`g-score-v ${bWins ? styles.scoreLoser : ''}`}>
                             {scoreA.toFixed(2)}
                         </span>
-                        <span className={styles.heroDash}>–</span>
-                        <span className={`${styles.heroScore} ${aWins ? styles.loser : ''}`}>
+                    </div>
+
+                    {/* Away */}
+                    <div className={`g-score-away ${myTeamSide === 'b' ? 'g-score-mine' : ''}`}>
+                        <div className={`${styles.scoreClub} ${styles.scoreClubAway}`}>
+                            {teamBId && <CrestBadge config={crestB} size={44} teamName={teamBName} teamId={teamBId} />}
+                            <span className={styles.scoreId}>
+                                <span className={styles.scoreName}>{teamBName}</span>
+                                {recordB && (
+                                    <span className="g-label-quiet">
+                                        {recordB.W}W · {recordB.D}D · {recordB.L}L
+                                    </span>
+                                )}
+                            </span>
+                        </div>
+                        <span className={`g-score-v ${aWins ? styles.scoreLoser : ''}`}>
                             {scoreB.toFixed(2)}
                         </span>
                     </div>
 
-                    {isCompleted && (
-                        <span className={`${styles.heroWinBadge} ${isDraw ? styles.draw : ''} ${(!isDraw && myTeamSide && ((myTeamSide === 'a' && bWins) || (myTeamSide === 'b' && aWins))) ? styles.loss : ''}`}>
-                            {isDraw 
-                                ? 'Draw' 
-                                : myTeamSide 
-                                    ? ((myTeamSide === 'a' && aWins) || (myTeamSide === 'b' && bWins) ? 'You Won' : 'You Lost')
-                                    : (aWins ? `${teamAName} Win` : `${teamBName} Win`)}
-                        </span>
-                    )}
-                    {isLive && (
-                        <span className={`${styles.heroWinBadge} ${styles.live}`}>
-                            <span className={styles.livePulse} /> Live
-                        </span>
-                    )}
-                    {effectiveStatus === 'scheduled' && (
-                        <span className={`${styles.heroWinBadge} ${styles.draw}`}>Scheduled</span>
-                    )}
-                </div>
-
-                {/* Team B — right column (same depth as team A so names align) */}
-                <div className={`${styles.heroTeamCol} ${styles.right}`} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
-                    {teamBId && <CrestBadge config={crestB} size={36} teamName={teamBName} teamId={teamBId} />}
-                    <span className={styles.heroTeamName}>
-                        {teamBName}
-                    </span>
-                    {recordB && (
-                        <span className={styles.heroRecord}>
-                            {recordB.W}W · {recordB.D}D · {recordB.L}L
-                        </span>
-                    )}
+                    {/* The margin axis, full width beneath both figures. */}
+                    <div className="g-score-axis">
+                        <MarginAxis {...axisProps} />
+                        <div className="g-axis-foot">
+                            <span className={styles.axisState}>{stateNode}</span>
+                            <span className="g-axis-verdict">{marginVerdict(axisProps)}</span>
+                        </div>
+                    </div>
                 </div>
             </NavigationLink>
         );
     }
 
-    // ── Grid card (compact) variant ────────────────────────────────────────────
-    // Each team gets its own W/L/D badge on the outer edge
-    const getTeamBadge = (wins: boolean, loses: boolean): { cls: string; text: string } => {
-        if (isLive) return { cls: styles.sideBadgeLive, text: '▶' };
-        if (!isCompleted) return { cls: styles.sideBadgeEmpty, text: '' };
-        if (isDraw) return { cls: styles.sideBadgeDraw, text: 'D' };
-        if (wins) return { cls: styles.sideBadgeWin, text: 'W' };
-        if (loses) return { cls: styles.sideBadgeLoss, text: 'L' };
-        return { cls: styles.sideBadgeEmpty, text: '' };
-    };
-
-    const badgeA = getTeamBadge(aWins, bWins);
-    const badgeB = getTeamBadge(bWins, aWins);
-
-    const statusText = isLive ? 'Live' : isCompleted ? 'Final' : 'Sched';
-
+    // ── A fixture row — the same language at row scale ─────────────────────────
     return (
-        <NavigationLink href={href} className={styles.matchupCardLink}>
-            <div className={styles.matchupCard}>
-                {/* Team A half: [badge] [name ... score] */}
-                <div className={styles.cardHalf}>
-                    <div className={`${styles.sideBadge} ${badgeA.cls}`}>
-                        {isLive && badgeA.text === '▶' ? <span className={styles.livePulse} /> : badgeA.text}
-                    </div>
-                    {teamAId && <CrestBadge config={crestA} size={22} teamName={teamAName} teamId={teamAId} />}
-                    <div className={styles.halfInfo}>
-                        <span className={[styles.halfName, myTeamSide === 'a' ? styles.myTeam : ''].filter(Boolean).join(' ')}>
-                            {teamAName}
-                        </span>
-                        <span className={`${styles.halfScore} ${bWins ? styles.loser : ''}`}>
-                            {scoreA.toFixed(2)}
-                        </span>
-                    </div>
+        <NavigationLink href={href} className={styles.fixtureLink}>
+            <div className={styles.fixture}>
+                <div className={styles.fixtureSide}>
+                    {teamAId && <CrestBadge config={crestA} size={28} teamName={teamAName} teamId={teamAId} />}
+                    <span className={styles.fixtureName}>{teamAName}</span>
+                    <span className={[
+                        styles.fixtureScore,
+                        bWins ? styles.scoreLoser : '',
+                        myTeamSide === 'a' ? styles.fixtureScoreMine : '',
+                    ].filter(Boolean).join(' ')}>
+                        {scoreA.toFixed(2)}
+                    </span>
                 </div>
 
-                {/* Center */}
-                <div className={styles.cardMiddle}>{statusText}</div>
+                <div className={styles.fixtureCentre}>
+                    <MarginAxis {...axisProps} size="sm" />
+                    <span className={styles.fixtureState}>{stateNode}</span>
+                </div>
 
-                {/* Team B half: [score ... name] [badge] — NO row-reverse so score stays left of name */}
-                <div className={`${styles.cardHalf} ${styles.cardHalfRight}`}>
-                    <div className={styles.halfInfo}>
-                        <span className={`${styles.halfScore} ${aWins ? styles.loser : ''}`}>
-                            {scoreB.toFixed(2)}
-                        </span>
-                        <span className={[styles.halfName, styles.right, myTeamSide === 'b' ? styles.myTeam : ''].filter(Boolean).join(' ')}>
-                            {teamBName}
-                        </span>
-                    </div>
-                    {teamBId && <CrestBadge config={crestB} size={22} teamName={teamBName} teamId={teamBId} />}
-                    <div className={`${styles.sideBadge} ${badgeB.cls}`}>
-                        {isLive && badgeB.text === '▶' ? <span className={styles.livePulse} /> : badgeB.text}
-                    </div>
+                <div className={`${styles.fixtureSide} ${styles.fixtureSideAway}`}>
+                    {teamBId && <CrestBadge config={crestB} size={28} teamName={teamBName} teamId={teamBId} />}
+                    <span className={styles.fixtureName}>{teamBName}</span>
+                    <span className={[
+                        styles.fixtureScore,
+                        aWins ? styles.scoreLoser : '',
+                        myTeamSide === 'b' ? styles.fixtureScoreMine : '',
+                    ].filter(Boolean).join(' ')}>
+                        {scoreB.toFixed(2)}
+                    </span>
                 </div>
             </div>
         </NavigationLink>

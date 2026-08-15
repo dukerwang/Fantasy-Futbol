@@ -1,75 +1,151 @@
-/* ============================================================
-   Matchups Page — Cream Editorial Design System
-   ============================================================ */
+/* Matchups — the round. Gaffa 2.0, port 5.
 
-.container {
-    padding: var(--space-8) var(--space-6);
+   See design-2.0/README.md § "Port order for the remaining routes" and
+   § "What the round established". This page pays its own scale migration:
+   --t-* / --s* / --r-* throughout, no rem literals and no raw hex.
+
+   FOUR THINGS THIS SURFACE DECIDES.
+
+   1. IT IS THE SCORELINE'S FIRST CONSUMER. `.g-score` has been in globals.css
+      since 2026-08-10, locked out of turn 1, and rendered by nothing. Both
+      routes in this port have a scoreline, so this is where it becomes real:
+      the two figures on the top line, the margin axis full width beneath, and
+      nothing squeezed between the numbers.
+
+   2. THE MARGIN AXIS ENGRAVES THE DRAW BAND. The axis had no defined content
+      beyond "the state of the tie", and Gaffa has a state of the tie no other
+      fantasy app has — a matchup inside 10 points is a draw. So the axis is
+      built the way the baseline rule is built: engrave the reference, lay the
+      ink over it, and let the reference still show through. The centre tick is
+      level, a marked zone either side of it is the draw band, and the ink runs
+      from the centre toward whoever leads. A fixture you can see is inside the
+      band needs no sentence explaining why it was a draw.
+
+      Same layering as `.g-baseline`, deliberately: the tick is 2px of
+      --color-text-primary declared AFTER the ink so it paints over it. That is
+      what makes the two components read as one family rather than two bars.
+
+   3. A ROUND IS ONE PANEL. "A board is one panel" was written for the auction
+      room's list-plus-rail and has since survived a pitch-plus-squad-rail; a
+      gameweek is the same shape one more time. It was a bordered banner, a
+      floating hero, N floating fixture cards and a floating glance strip —
+      four to nine elevation declarations for one gameweek, where the glance
+      figures are arithmetic on the fixtures directly above them. Now one
+      .g-panel with internal hairlines. The featured fixture reads as featured
+      through size, position and the accent rule under your figure, not by
+      being the thing that floats.
+
+   4. THE W/L/D BADGES ARE GONE, NOT RECOLOURED. Four filled squares —
+      --color-accent-green and --color-defeat with white ink — restating what
+      the scoreline and the axis already say. --color-defeat has no dark value
+      at all (1.89:1, the hub port's named predictor of a dark failure), so the
+      easy move was to give it one. The right move was the hub's rule: where
+      the element carries a word, delete the hue and do not replace it. Here
+      the letter was not even carrying anything the row did not already show.
+
+   The gazette banner also went. The blurb stays word for word — it is the only
+   writing on the page — but the newsprint costume around it did not survive
+   contact with 2.0: a tracked serif kicker and an accent left-rule are two
+   devices introducing one sentence. It is the round's standfirst now, set on
+   the page ground above the panel, which is what a standfirst is. */
+
+.page {
     display: flex;
     flex-direction: column;
-    gap: var(--space-8);
+    width: 100%;
+    min-height: 100%;
 }
 
-/* ── Page Header ── */
-.pageHeader {
+/* ── Masthead ───────────────────────────────────────────────
+   On the page ground, above the panel: the title names the round, the panel
+   IS the round. */
+
+.masthead {
     display: flex;
-    align-items: flex-end;
     justify-content: space-between;
-    gap: var(--space-4);
+    align-items: flex-end;
+    gap: var(--s6);
+    padding: var(--s6) var(--s6) var(--s3);
     flex-wrap: wrap;
 }
 
-.pageTitleGroup {
+.mastheadTitles {
     display: flex;
     flex-direction: column;
-    gap: var(--space-1);
+    min-width: 0;
 }
 
-.pageSupertitle {
-    font-family: var(--font-sans);
-    font-size: 10px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.14em;
-    color: var(--color-text-muted);
-}
+.kicker { letter-spacing: 0.16em; }
 
-.pageTitle {
+.title {
     font-family: var(--font-serif);
-    font-size: 2rem;
-    font-weight: 700;
-    color: var(--color-accent-green);
-    line-height: 1.1;
-    margin: 0;
+    font-weight: 800;
+    font-size: var(--t-32);
+    letter-spacing: -0.035em;
+    line-height: 1;
+    margin: var(--s1) 0 0;
+    color: var(--color-text-primary);
 }
 
-/* ── GW Selector ── */
+/* The blurb. Serif, because it is prose rather than an interface label, and
+   secondary because it sits under the title it elaborates. No container, no
+   kicker, no drop cap — a standfirst is a paragraph in a smaller size, and
+   that is the whole device. */
+.lead {
+    font-family: var(--font-serif);
+    font-size: var(--t-15);
+    line-height: 1.5;
+    color: var(--color-text-secondary);
+    margin: 0;
+    padding: 0 var(--s6) var(--s5);
+    max-width: 68ch;
+}
+
+/* renderBoldedText emits a <strong> for a plain bolded phrase and a
+   <button class="playercard-clickable-btn"> when the phrase resolved to a
+   player — and that button is `color: inherit`. Without the second selector the
+   same emphasis renders in two different tones depending on whether the name
+   happened to match a player, which is not a distinction the reader can act on. */
+.lead strong,
+.lead :global(.playercard-clickable-btn) {
+    color: var(--color-text-primary);
+    font-weight: 700;
+}
+
+/* ── The gameweek selector ──────────────────────────────────
+   A control group, so elevation is a hairline and the radius is --r-control. */
+
 .gwSelectorBar {
     display: flex;
     align-items: center;
     background: var(--color-bg-card);
     border: 1px solid var(--color-border);
-    height: 40px;
+    border-radius: var(--r-control);
+    height: 36px;
     flex-shrink: 0;
+    overflow: hidden;
 }
 
 .gwArrow {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 40px;
-    height: 40px;
+    width: 34px;
+    height: 100%;
     background: none;
     border: none;
-    font-size: 1rem;
+    font-size: var(--t-13);
     color: var(--color-text-secondary);
     cursor: pointer;
-    transition: color var(--transition-fast);
+    transition: color var(--dur-fast) var(--ease-standard),
+                background var(--dur-fast) var(--ease-standard);
     flex-shrink: 0;
     font-family: var(--font-sans);
 }
 
 .gwArrow:hover:not(:disabled) {
     color: var(--color-text-primary);
+    background: var(--color-bg-card-hover);
 }
 
 .gwArrow:disabled {
@@ -79,397 +155,319 @@
 
 .gwSeparator {
     width: 1px;
-    height: 24px;
-    background: var(--color-border);
+    align-self: stretch;
+    background: var(--color-border-subtle);
     flex-shrink: 0;
 }
 
+/* The condensed face: a gameweek number is a column head, not a value that
+   ticks. */
 .gwPill {
-    font-family: var(--font-sans);
-    font-size: 0.875rem;
-    font-weight: 600;
+    font-family: var(--font-condensed);
+    font-size: var(--t-13);
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
     color: var(--color-text-primary);
     background: transparent;
     border: none;
-    padding: 0 1rem;
+    padding: 0 var(--s3);
     height: 100%;
     cursor: pointer;
     outline: none;
     appearance: none;
     -webkit-appearance: none;
     text-align: center;
-    min-width: 80px;
+    min-width: 76px;
+    font-variant-numeric: tabular-nums lining-nums;
 }
 
-/* ── Hero Featured Matchup Card ── */
-.heroCard {
-    background: var(--color-bg-card);
-    padding: var(--space-10) var(--space-10) var(--space-8);
-    display: flex;
-    align-items: center;
-    gap: var(--space-8);
-    box-shadow: var(--shadow-card);
-    position: relative;
+.gwPill:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: -2px;
+}
+
+/* ── The round ──────────────────────────────────────────────
+   One panel. Featured fixture, hairline, the rest of the round, hairline,
+   the glance footer. */
+
+.round {
+    margin: 0 var(--s6) var(--s8);
+}
+
+/* ONE MEASURE FOR THE ROUND.
+   A scoreline is an instrument, not a banner. On a 1184px panel the two figures
+   fly to opposite ends and the middle goes hollow — a club hard against the left
+   edge, its opponent hard against the right, and 600px of nothing between them.
+   Capping the content and centring it is what makes it read as two sides facing
+   each other across a centre, which is the only reason a scoreline has a middle.
+
+   Every part of the round shares the measure — label, scoreline, section head,
+   fixture rows, glance — so the panel has one column rather than five regions
+   each finding their own width. The sections themselves stay full-bleed, so
+   hairlines and hovers still run edge to edge. */
+.featuredLabel,
+.featured :global(.g-score),
+.fixturesHead,
+.fixture,
+.glance {
+    max-width: 920px;
+    margin-inline: auto;
+    box-sizing: border-box;
+}
+
+/* ── The featured fixture ───────────────────────────────────
+   The full scoreline treatment, at panel scale. */
+
+.featured {
+    display: block;
     text-decoration: none;
     color: inherit;
-    transition: box-shadow var(--transition-base);
-    margin-top: var(--space-2);
-    border-radius: var(--radius-lg);
+    border-bottom: 1px solid var(--color-border);
+    transition: background var(--dur-fast) var(--ease-standard);
 }
 
-.heroCard:hover {
-    box-shadow: var(--shadow-card-lift);
+/* The hover DARKENS, in both themes. --color-bg-card-hover lightens in dark
+   (#2C3344 against a #252B3D card), and a hover that lightens spends the
+   headroom every ink on the card was verified with: measured on it, "Live"
+   lands at 4.43 and even text-muted at 4.53. --color-bg-inset is darker than
+   the card in both themes, so it can only improve every pair — which is the
+   panel gradient's own rule ("travels only in the direction that improves
+   contrast") applied to a state instead of a surface. It also reads as the row
+   being pressed IN, which is what a recessed value is for. */
+.featured:hover { background: var(--color-bg-inset); }
+
+/* A two-team league in a gameweek with no scores yet leaves the featured
+   fixture as the panel's only child, and .g-panel clips to its radius — so the
+   section hairline would land flush on the bottom edge and read as a stray
+   rule rather than a divider. */
+.featured:last-child { border-bottom: none; }
+
+/* The panel's one rationed tracked label (decision 5). The section heading
+   below and the glance captions are deliberately other devices. */
+.featuredLabel {
+    display: block;
+    padding: var(--s4) var(--s4) 0;
 }
 
-.heroSectionLabelCentered {
-    font-family: var(--font-sans);
-    font-size: 10px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.14em;
-    color: var(--color-text-muted);
-}
-
-.heroTeamCol {
-    flex: 1;
+/* `.g-score` supplies the grid, the figures and the axis row; these are the
+   club identities that sit above them inside each cell. */
+.scoreClub {
     display: flex;
-    flex-direction: column;
-    gap: var(--space-1);
-    align-items: flex-start;
-    justify-content: center;
-}
-
-.heroTeamCol.right {
-    align-items: flex-end;
-    text-align: right;
-}
-
-.heroTeamName {
-    font-family: var(--font-serif);
-    font-size: var(--text-xl);
-    font-weight: 700;
-    color: var(--color-text-primary);
-    line-height: 1.2;
-}
-
-.heroRecord {
-    font-family: var(--font-sans);
-    font-size: var(--text-xs);
-    color: var(--color-text-muted);
-    font-weight: 500;
-    letter-spacing: 0.02em;
-}
-
-.heroViewLink {
-    font-family: var(--font-sans);
-    font-size: var(--text-xs);
-    color: var(--color-accent-green);
-    text-decoration: none;
-    margin-top: var(--space-2);
-    font-weight: 500;
-}
-
-.heroCenter {
-    flex-shrink: 0;
-    display: flex;
-    flex-direction: column;
     align-items: center;
-    gap: var(--space-2);
-    padding: var(--space-2) var(--space-4);
+    gap: var(--s2);
+    min-width: 0;
+    margin-bottom: var(--s1);
 }
 
-.heroScoreRow {
+.scoreClubAway { flex-direction: row-reverse; }
+
+/* Name over record, beside the crest. The record used to be a line of its own
+   between the club row and the figure, where it read as orphaned — a 10px
+   caption stranded between a 17px name and a 40px number, attached to neither. */
+.scoreId {
     display: flex;
-    align-items: baseline;
-    gap: var(--space-3);
+    flex-direction: column;
+    gap: 1px;
+    min-width: 0;
 }
 
-.heroScore {
+.scoreClubAway .scoreId { align-items: flex-end; }
+
+.scoreName {
     font-family: var(--font-serif);
-    font-size: var(--text-5xl);
+    font-size: var(--t-20);
     font-weight: 700;
+    letter-spacing: -0.015em;
     color: var(--color-text-primary);
-    line-height: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
 }
 
-.heroScore.loser {
+/* The figure stays in INK in every state. A red score reads as danger rather
+   than as live, and live has its own marker on the axis foot. The losing side
+   steps back in weight and tone; it does not change hue. */
+.scoreLoser {
     color: var(--color-text-muted);
     font-weight: 400;
 }
 
-.heroDash {
+/* ── The margin axis ────────────────────────────────────────
+   The axis itself is `.g-axis*` in globals.css, beside `.g-score` — the
+   detail page draws one too, and two copies of a clamp is how a rule goes
+   stale. Only what is local to this page lives here. */
+
+.axisState { flex-shrink: 0; }
+
+/* ── The rest of the round ──────────────────────────────────
+   Rows, not cards. The same scoreline language at row scale: two figures with
+   the margin axis between them. */
+
+.fixtures { padding: var(--s4) 0 var(--s3); }
+
+/* A heading, NOT the tracked label — decision 5 rations that device to one per
+   panel and it is spent on the featured fixture above. Same call the depth
+   chart's zone heads made. */
+.fixturesHead {
+    width: 100%;
+    padding: 0 var(--s4) var(--s2);
     font-family: var(--font-serif);
-    font-size: var(--text-2xl);
-    color: var(--color-border);
-    line-height: 1;
-    flex-shrink: 0;
-}
-
-.heroWinBadge {
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    font-family: var(--font-serif);
-    font-style: italic;
-    font-weight: 600;
-    font-size: 13px;
-    color: var(--color-accent-green);
-    white-space: nowrap;
-}
-
-.heroWinBadge.loss {
-    color: var(--color-defeat);
-}
-
-.heroWinBadge.draw {
-    color: var(--color-text-secondary);
-}
-
-.heroWinBadge.live {
-    color: var(--color-accent-green);
-}
-
-/* ── Section Label ── */
-.sectionLabel {
-    font-family: var(--font-sans);
-    font-size: 10px;
+    font-size: var(--t-15);
     font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.12em;
-    color: var(--color-text-muted);
-    padding-bottom: var(--space-3);
+    letter-spacing: -0.01em;
+    color: var(--color-text-primary);
+    margin: 0 auto var(--s2);
     border-bottom: 1px solid var(--color-border-subtle);
 }
 
-/* ── Matchup Grid ── */
-.matchupGrid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: var(--space-3);
-}
-
-@media (max-width: 720px) {
-    .matchupGrid {
-        grid-template-columns: 1fr;
-    }
-}
-
-.matchupCardLink {
+.fixtureLink {
+    display: block;
     text-decoration: none;
     color: inherit;
-    display: block;
 }
 
-.matchupCard {
-    background: var(--color-bg-card);
-    padding: var(--space-4) var(--space-5);
+.fixture {
     display: grid;
-    grid-template-columns: 1fr auto 1fr;
+    grid-template-columns: minmax(0, 1fr) 150px minmax(0, 1fr);
     align-items: center;
-    gap: var(--space-2);
-    box-shadow: var(--shadow-sm);
-    transition: box-shadow var(--transition-fast);
-    border-radius: var(--radius-sm);
+    gap: var(--s4);
+    padding: var(--s3) var(--s4);
+    transition: background var(--dur-fast) var(--ease-standard);
 }
 
-.matchupCard:hover {
-    box-shadow: var(--shadow-md);
+/* A round is a results list, and a list has rules. Without them the fixtures
+   floated in the panel with nothing tying one to the next, which is most of
+   what made the surface read as barebones. */
+.fixtureLink + .fixtureLink .fixture {
+    border-top: 1px solid var(--color-border-subtle);
 }
 
-/* Each team's half */
-.cardHalf {
+.fixtureLink:hover .fixture { background: var(--color-bg-inset); }
+
+.fixtureSide {
     display: flex;
     align-items: center;
-    gap: 10px;
-}
-
-.cardHalfRight {
-    justify-content: flex-end;
-}
-
-/* Info block inside each half */
-.halfInfo {
-    display: flex;
-    align-items: center;
-    gap: 10px;
+    gap: var(--s2);
     min-width: 0;
-    flex: 1;
 }
 
-.halfInfoRight {
-    flex-direction: row-reverse;
-}
+/* Reversed so the away score still lands adjacent to the axis. */
+.fixtureSideAway { flex-direction: row-reverse; }
 
-.halfName {
+.fixtureName {
     font-family: var(--font-serif);
-    font-size: var(--text-sm);
+    font-size: var(--t-13);
     font-weight: 700;
     color: var(--color-text-primary);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     flex: 1;
+    min-width: 0;
 }
 
-.halfName.right {
-    text-align: right;
-}
+.fixtureSideAway .fixtureName { text-align: right; }
 
-.halfName.myTeam {
-    color: var(--color-accent-green);
-}
-
-.halfScore {
-    font-family: var(--font-sans);
-    font-size: var(--text-sm);
+.fixtureScore {
+    font-family: var(--font-serif);
+    font-size: var(--t-17);
     font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.02em;
     color: var(--color-text-primary);
+    font-variant-numeric: tabular-nums lining-nums;
     flex-shrink: 0;
-    min-width: 3.5ch;
     text-align: center;
+    min-width: 5ch;
 }
 
-.halfScore.loser {
-    color: var(--color-text-muted);
-    font-weight: 400;
+/* "Yours" at row scale is the same rule under the same figure as the hero's,
+   so one device answers it on both. */
+.fixtureScoreMine {
+    border-bottom: 2px solid var(--color-accent);
+    padding-bottom: 3px;
 }
 
-/* Center status text */
-.cardMiddle {
-    font-family: var(--font-sans);
-    font-size: 10px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--color-text-muted);
-    padding: 0 var(--space-3);
-    flex-shrink: 0;
+.fixtureCentre {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    min-width: 0;
+}
+
+.fixtureState {
+    text-align: center;
     white-space: nowrap;
 }
 
-/* Square W / L / D badge on each team's outer edge */
-.sideBadge {
-    width: 32px;
-    height: 32px;
+/* ── The glance footer ──────────────────────────────────────
+   Arithmetic on the fixtures above it, which is the whole reason it is a
+   section of this panel rather than a card beside it. */
+
+.glance {
     display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: var(--font-sans);
-    font-size: var(--text-xs);
-    font-weight: 800;
-    border-radius: var(--radius-sm);
-    flex-shrink: 0;
-    letter-spacing: 0.02em;
-}
-
-.sideBadgeWin  { background: var(--color-accent-green); color: #fff; }
-.sideBadgeLoss { background: var(--color-defeat); color: #fff; }
-.sideBadgeDraw { background: var(--color-bg-elevated); color: var(--color-text-secondary); border: 1px solid var(--color-border); }
-.sideBadgeLive { background: var(--color-accent-green); color: #fff; }
-.sideBadgeEmpty { background: transparent; }
-
-/* Live pulse dot */
-.livePulse {
-    display: inline-block;
-    width: 5px;
-    height: 5px;
-    background: currentColor;
-    border-radius: 50%;
-    animation: pulse 1.5s ease-in-out infinite;
-    flex-shrink: 0;
-}
-
-@keyframes pulse {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.4; transform: scale(0.6); }
-}
-
-/* ── GW At a Glance Strip ── */
-.glanceStrip {
-    background: var(--color-bg-card);
-    display: flex;
-    box-shadow: var(--shadow-sm);
-    border-radius: var(--radius-sm);
-    overflow: hidden;
+    border-top: 1px solid var(--color-border);
 }
 
 .glanceStat {
     flex: 1;
-    padding: var(--space-6) var(--space-8);
+    padding: var(--s4) var(--s4) var(--s5);
     display: flex;
     flex-direction: column;
-    gap: var(--space-1);
+    gap: var(--s1);
+    min-width: 0;
 }
 
 .glanceStat + .glanceStat {
     border-left: 1px solid var(--color-border-subtle);
 }
 
-.glanceLabel {
-    font-family: var(--font-sans);
-    font-size: 10px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.12em;
-    color: var(--color-text-muted);
-}
-
 .glanceValue {
     font-family: var(--font-serif);
-    font-size: var(--text-3xl);
+    font-size: var(--t-25);
     font-weight: 700;
     color: var(--color-text-primary);
-    line-height: 1.1;
+    line-height: 1;
+    letter-spacing: -0.03em;
+    font-variant-numeric: tabular-nums lining-nums;
 }
 
 .glanceSub {
     font-family: var(--font-sans);
-    font-size: var(--text-xs);
+    font-size: var(--t-12);
     color: var(--color-text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-/* ── Empty State ── */
-.emptyCard {
-    background: var(--color-bg-card);
-    padding: var(--space-12) var(--space-8);
+/* ── Empty state ────────────────────────────────────────────
+   Absence shown, never faked. */
+
+.emptyPanel {
+    margin: 0 var(--s6) var(--s8);
+    padding: var(--s16) var(--s8);
     text-align: center;
-    font-size: var(--text-sm);
-    color: var(--color-text-muted);
     font-family: var(--font-sans);
-}
-
-.liveNote {
-    font-size: var(--text-xs);
+    font-size: var(--t-13);
     color: var(--color-text-muted);
-    text-align: center;
-    margin-top: var(--space-1);
 }
 
-/* ── Responsive ── */
-@media (max-width: 600px) {
-    .container {
-        padding: var(--space-4) var(--space-5);
-        gap: var(--space-5);
+/* ── Responsive ─────────────────────────────────────────────
+   The axis is the first thing to run out of room, so the fixture row stacks
+   its centre column rather than crushing it. */
+
+@media (max-width: 760px) {
+    .fixture {
+        grid-template-columns: minmax(0, 1fr) 88px minmax(0, 1fr);
+        gap: var(--s3);
+        padding: var(--s3);
     }
 
-    .heroCard {
-        flex-direction: column;
-        gap: var(--space-5);
-        padding: var(--space-8) var(--space-5) var(--space-6);
-    }
-
-    .heroTeamCol.right {
-        align-items: flex-start;
-        text-align: left;
-    }
-
-    .heroCenter {
-        width: 100%;
-    }
-
-    .glanceStrip {
-        flex-direction: column;
-    }
+    .glance { flex-direction: column; }
 
     .glanceStat + .glanceStat {
         border-left: none;
@@ -477,33 +475,13 @@
     }
 }
 
-/* ── Gazette Summary Banner ── */
-.gazetteBanner {
-    background: var(--color-bg-card);
-    border: 1px solid var(--color-border);
-    padding: var(--space-5) var(--space-6);
-    margin-top: var(--space-2);
-    box-shadow: var(--shadow-sm);
-    border-left: 4px solid var(--color-accent);
+@media (max-width: 600px) {
+    .masthead { padding: var(--s5) var(--s4) var(--s3); }
+    .lead { padding: 0 var(--s4) var(--s4); }
+    .round, .emptyPanel { margin: 0 var(--s4) var(--s6); }
+    .title { font-size: var(--t-25); }
+    .fixturesHead, .fixture { padding-left: var(--s3); padding-right: var(--s3); }
+    .fixtureName { font-size: var(--t-12); }
+    .fixtureScore { font-size: var(--t-15); min-width: 4.5ch; }
+    .fixtureScore { font-size: var(--t-15); min-width: 4.5ch; }
 }
-
-.gazetteBannerTitle {
-    font-family: var(--font-serif);
-    font-size: var(--text-xs);
-    font-weight: 700;
-    letter-spacing: 0.12em;
-    color: var(--color-accent);
-    text-transform: uppercase;
-    margin-bottom: 0.25rem;
-    display: block;
-}
-
-.gazetteBannerText {
-    font-family: var(--font-serif);
-    font-size: var(--text-base);
-    font-style: italic;
-    line-height: 1.45;
-    color: var(--color-text-primary);
-    margin: 0;
-}
-

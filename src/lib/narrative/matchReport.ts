@@ -1,4 +1,5 @@
 import { getPlayerDisplayName } from '@/lib/players/displayName';
+import { isDrawMargin } from '@/lib/scoring/drawBand';
 
 function hashId(id: string): number {
   if (!id) return 0;
@@ -86,7 +87,7 @@ export function generateMatchReport(
   const scoreB = matchup.status === 'completed' ? Number(matchup.score_b) : computedScoreB;
 
   const margin = Math.abs(scoreA - scoreB);
-  const isDraw = Math.abs(scoreA - scoreB) <= 10;
+  const isDraw = isDrawMargin(scoreA, scoreB);
   const aWins = !isDraw && scoreA > scoreB;
   const bWins = !isDraw && scoreB > scoreA;
 

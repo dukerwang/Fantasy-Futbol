@@ -755,8 +755,14 @@ svg {
   transition: color 0.15s ease-in-out;
 }
 
+/* accent-INK, not accent-green. --color-accent-green is the fill token, and as
+   text in dark (#1FA35F) it measures 4.33:1 on a card — the rule-5 defect the
+   auctions port named, still live in a class every narrative surface renders.
+   In light the two tokens are the same value, so this changes nothing there and
+   fixes dark. Found by port 5, whose standfirst and match report are made almost
+   entirely of these buttons. */
 .playercard-clickable-btn:hover {
-  color: var(--color-accent-green, #146B40);
+  color: var(--color-accent-ink);
   text-decoration: underline;
 }
 
@@ -988,6 +994,95 @@ svg {
 }
 .g-score-away { text-align: right; }
 .g-score-axis { grid-column: 1 / -1; display: flex; flex-direction: column; gap: 5px; }
+
+/* --- 4a. The margin axis ---
+   Added 2026-08-12, by port 5, which is the scoreline's first consumer. The
+   locked spec said "margin axis full width beneath" and left what the axis
+   MEASURES open; this fills it in, and it belongs here rather than in a page
+   because the matchups list and the matchup detail both draw one.
+
+   WHAT IT MEASURES. Gaffa has a state of the tie no other fantasy app has: a
+   matchup inside 10 points is a draw. So the axis is built the way the
+   baseline rule is built — engrave the reference, lay the ink over it, and let
+   the reference still show through. Centre is level; a marked zone either side
+   is the draw band; the ink runs from the centre toward whoever leads, so its
+   DIRECTION is the result and its LENGTH is the size of it. A fixture you can
+   see sitting inside the band needs no sentence explaining why it drew.
+
+   The half-scale is 50 points and margins beyond it clamp, which puts the
+   ±10 band at the middle fifth. That proportion is what makes the band read as
+   a band rather than as a hairline pair.
+
+   The tick is 2px of --color-text-primary declared AFTER the ink so it paints
+   over it — the same width, the same token and the same layering as
+   `.g-baseline-tick`, because it is the same idea. Two components that share
+   an argument should share a look. */
+.g-axis { position: relative; height: 10px; width: 100%; }
+.g-axis-sm { height: 8px; }
+
+/* Marked by its EDGES, with only the faintest wash inside. The spine's rule
+   applied to a zone: the line is what clears 3:1, the fill carries nothing.
+
+   The edges are --color-text-muted and NOT --color-border-strong, which is what
+   they were first drawn in. border-strong was solved to clear 3:1 against the
+   PAGE; a recessed track is darker than the page, and on it the same token
+   measures 2.83 in light. A token that clears on one ground does not clear on
+   another — the "a gradient ground is not free" lesson, one scale down. Muted
+   measures 4.59 / 6.17 and leaves a clean hierarchy: primary for the tick that
+   is level, muted for the band that is the rule, a wash for the zone itself. */
+.g-axis-band {
+  position: absolute;
+  inset-block: 0;
+  left: 40%;
+  right: 40%;
+  border-left: 1px solid var(--color-text-muted);
+  border-right: 1px solid var(--color-text-muted);
+  background: color-mix(in srgb, var(--color-text-muted) 14%, transparent);
+  pointer-events: none;
+}
+
+/* Ink, never the accent. The accent is spent on "which side is yours" and
+   means nothing else; a margin is a quantity, not a verdict. */
+.g-axis-ink {
+  position: absolute;
+  top: 3px;
+  height: 4px;
+  background: var(--color-text-primary);
+  border-radius: var(--r-micro);
+}
+.g-axis-sm .g-axis-ink { top: 2px; }
+
+.g-axis-tick {
+  position: absolute;
+  left: 50%;
+  inset-block: 0;
+  width: 2px;
+  margin-left: -1px;
+  background: var(--color-text-primary);
+}
+
+.g-axis-foot {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s3);
+}
+
+/* The verdict in prose, not in a badge. The axis has already drawn "won by
+   14.20"; the words are for anyone reading rather than scanning — and for a
+   screen reader, which cannot see a bar at all. */
+.g-axis-verdict {
+  font-family: var(--font-serif);
+  font-size: var(--t-13);
+  color: var(--color-text-secondary);
+  text-align: right;
+  min-width: 0;
+}
+.g-axis-verdict strong {
+  color: var(--color-text-primary);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums lining-nums;
+}
 
 /* Labels and axis ticks are the condensed face, not mono: a club name is a
    name. Mono is reserved for values that genuinely tick. */
