@@ -41,17 +41,17 @@ interface Props {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-const CUP_COLORS: Record<string, string> = {
-  'Champions Cup': '#D4AF37',   // Gold
-  'League Cup': '#A8A9AD',      // Silver
-  'Consolation Cup': '#CD7F32', // Bronze
+// Named cups take the medal ramp — the same three tokens the podium's own
+// trophy icons use, not a fourth arbitrary hue. An unrecognised cup name
+// falls through to plain ink rather than guessing a tier.
+const CUP_MEDAL_CLASS: Record<string, string> = {
+  'Champions Cup': 'medalGold',
+  'League Cup': 'medalSilver',
+  'Consolation Cup': 'medalBronze',
 };
 
-function medalStyle(rank: number) {
-  if (rank === 1) return { border: '2px solid #D4AF37', background: 'rgba(212,175,55,0.06)' };
-  if (rank === 2) return { border: '2px solid #A8A9AD', background: 'rgba(168,169,173,0.06)' };
-  if (rank === 3) return { border: '2px solid #CD7F32', background: 'rgba(205,127,50,0.06)' };
-  return {};
+function medalClassFor(rank: number): string {
+  return rank === 1 ? 'medalGold' : rank === 2 ? 'medalSilver' : 'medalBronze';
 }
 
 // ─── Season Panel ─────────────────────────────────────────────────────────────
@@ -62,67 +62,58 @@ function SeasonPanel({ entry }: { entry: SeasonEntry }) {
   const hasCups = Object.keys(entry.cupWinners).length > 0;
 
   return (
-    <article className={styles.seasonPanel}>
+    <article className={`g-panel ${styles.seasonPanel}`}>
       {/* Season header */}
       <div className={styles.seasonHeader}>
-        <div className={styles.seasonHeaderLeft}>
-          <span className={styles.seasonBadge}>{entry.season}</span>
-          <div>
-            <h2 className={styles.seasonTitle}>Season {entry.season}</h2>
-            {champion && (
-              <p className={styles.seasonChampion} style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                <Icon name="trophy" size={14} style={{ color: '#D4AF37' }} /> Champion: <strong>{champion.team?.team_name ?? 'Unknown'}</strong>
-                {champion.team?.user?.username ? ` · ${champion.team.user.username}` : ''}
-              </p>
-            )}
-          </div>
+        <div>
+          <h2 className={styles.seasonTitle}>Season {entry.season}</h2>
+          {champion && (
+            <p className={styles.seasonChampion}>
+              <Icon name="trophy" size={13} className={styles.medalGold} /> Champion:{' '}
+              <strong>{champion.team?.team_name ?? 'Unknown'}</strong>
+              {champion.team?.user?.username ? ` · ${champion.team.user.username}` : ''}
+            </p>
+          )}
         </div>
 
         {/* Cup winners */}
         {hasCups && (
           <div className={styles.cupRow}>
-            {Object.entries(entry.cupWinners).map(([cupName, winner]) => (
-              <div key={cupName} className={styles.cupBadge} style={{ borderLeftColor: CUP_COLORS[cupName] ?? 'var(--color-border)' }}>
-                <span className={styles.cupIcon} style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Icon name="trophy" size={16} style={{ color: CUP_COLORS[cupName] ?? 'var(--color-text-muted)' }} />
-                </span>
-                <div>
-                  <span className={styles.cupName}>{cupName}</span>
-                  <span className={styles.cupWinner}>{winner}</span>
+            {Object.entries(entry.cupWinners).map(([cupName, winner]) => {
+              const medalClass = styles[CUP_MEDAL_CLASS[cupName] ?? ''] ?? '';
+              return (
+                <div key={cupName} className={styles.cupBadge}>
+                  <Icon name="trophy" size={15} className={medalClass || styles.cupIconPlain} />
+                  <div>
+                    <span className={`g-label-quiet ${styles.cupName}`}>{cupName}</span>
+                    <span className={styles.cupWinner}>{winner}</span>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
 
-      {/* Podium — top 3 */}
+      {/* Podium — top 3, same board grammar as standings: tiers of one panel,
+          told apart by a hairline, never separate cards. */}
       {top3.length > 0 && (
         <div className={styles.podium}>
           {top3.map(row => {
+            const isLeader = row.final_rank === 1;
             return (
-              <div key={row.final_rank} className={`${styles.podiumCard} ${row.final_rank === 1 ? styles.podiumCardFirst : ''}`} style={medalStyle(row.final_rank)}>
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
+              <div
+                key={row.final_rank}
+                className={`${styles.podiumTier} ${isLeader ? styles.podiumTierLeader : ''}`}
+              >
+                <div className={styles.podiumTop}>
                   {row.team?.id && (
                     <CrestBadge config={row.team.crest_config as CrestConfig | null} size={40} teamName={row.team.team_name} teamId={row.team.id} />
                   )}
-                  <span className={styles.podiumMedal} style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <Icon
-                      name="trophy"
-                      size={18}
-                      style={{
-                        color:
-                          row.final_rank === 1
-                            ? '#D4AF37'
-                            : row.final_rank === 2
-                            ? '#A8A9AD'
-                            : '#CD7F32',
-                      }}
-                    />
-                  </span>
+                  <Icon name="trophy" size={isLeader ? 20 : 16} className={styles[medalClassFor(row.final_rank)]} />
                 </div>
                 <span className={styles.podiumTeam}>{row.team?.team_name ?? 'Unknown'}</span>
-                <span className={styles.podiumManager}>{row.team?.user?.username ?? ''}</span>
+                <span className="g-label-quiet">{row.team?.user?.username ?? ''}</span>
                 <span className={styles.podiumPts}>{row.total_points?.toLocaleString()} pts</span>
               </div>
             );
@@ -132,54 +123,39 @@ function SeasonPanel({ entry }: { entry: SeasonEntry }) {
 
       {/* Full standings table */}
       {entry.standings.length > 0 ? (
-        <div className={styles.tableWrap}>
-          <table className={styles.table}>
-            <thead>
-              <tr className={styles.tableHeadRow}>
-                <th>#</th>
-                <th className={styles.thTeam}>Team</th>
-                <th className={styles.thManager}>Manager</th>
-                <th className={styles.thPts}>Points</th>
-              </tr>
-            </thead>
-            <tbody>
-              {entry.standings.map(row => (
-                <tr key={row.final_rank} className={`${styles.tableRow} ${row.final_rank <= 3 ? styles.tableRowMedal : ''}`}>
-                  <td className={styles.tdRank}>
-                    {row.final_rank <= 3 ? (
-                      <span className={styles.medalBadge} style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <Icon
-                          name="trophy"
-                          size={14}
-                          style={{
-                            color:
-                              row.final_rank === 1
-                                ? '#D4AF37'
-                                : row.final_rank === 2
-                                ? '#A8A9AD'
-                                : '#CD7F32',
-                          }}
-                        />
-                      </span>
-                    ) : (
-                      <span className={styles.rankNum}>{row.final_rank}</span>
+        <table className={styles.table}>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th className={styles.thTeam}>Team</th>
+              <th className={styles.thManager}>Manager</th>
+              <th className={styles.thPts}>Points</th>
+            </tr>
+          </thead>
+          <tbody>
+            {entry.standings.map(row => (
+              <tr key={row.final_rank} className={styles.tableRow}>
+                <td className={styles.tdRank}>
+                  {row.final_rank <= 3 ? (
+                    <Icon name="trophy" size={13} className={styles[medalClassFor(row.final_rank)]} />
+                  ) : (
+                    <span className={styles.rankNum}>{row.final_rank}</span>
+                  )}
+                </td>
+                <td className={styles.tdTeam}>
+                  <div className={styles.tdTeamInner}>
+                    {row.team?.id && (
+                      <CrestBadge config={row.team.crest_config as CrestConfig | null} size={22} teamName={row.team.team_name} teamId={row.team.id} />
                     )}
-                  </td>
-                  <td className={styles.tdTeam}>
-                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
-                      {row.team?.id && (
-                        <CrestBadge config={row.team.crest_config as CrestConfig | null} size={22} teamName={row.team.team_name} teamId={row.team.id} />
-                      )}
-                      <span>{row.team?.team_name ?? 'Unknown'}</span>
-                    </span>
-                  </td>
-                  <td className={styles.tdManager}>{row.team?.user?.username ?? '—'}</td>
-                  <td className={styles.tdPts}>{row.total_points?.toLocaleString()}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                    <span>{row.team?.team_name ?? 'Unknown'}</span>
+                  </div>
+                </td>
+                <td className={styles.tdManager}>{row.team?.user?.username ?? '—'}</td>
+                <td className={styles.tdPts}>{row.total_points?.toLocaleString()}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       ) : (
         <p className={styles.emptyText}>No standings recorded for this season.</p>
       )}
@@ -193,39 +169,33 @@ export default function HistoryClient({ leagueName, currentSeason, seasons, high
   const hasHistory = seasons.length > 0;
 
   return (
-    <div className={styles.page}>
-      {/* ── Header ── */}
-      <header className={styles.header}>
-        <div>
-          <p className={styles.eyebrow}>{leagueName} · Dynasty League</p>
-          <h1 className={styles.title}>League History</h1>
-          <p className={styles.subtitle}>Past season standings, cup winners & records</p>
-        </div>
+    <div className={`${styles.page} g-page`}>
+      {/* ── Masthead ── */}
+      <header className={styles.masthead}>
+        <span className={`g-label ${styles.kicker}`}>{leagueName} · Dynasty league</span>
+        <h1 className={styles.title}>League history</h1>
+        <p className={styles.subtitle}>Past season standings, cup winners & records</p>
       </header>
 
       {/* ── All-time records strip ── */}
       {highestGwScore && (
-        <div className={styles.recordsStrip}>
-          <span className={styles.recordsKicker}>ALL-TIME RECORDS</span>
+        <div className={`g-panel ${styles.recordsStrip}`}>
+          <span className="g-label">All-time records</span>
           <div className={styles.recordsGrid}>
             <div className={styles.recordCard}>
-              <span className={styles.recordIcon} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <Icon name="activity" size={20} style={{ color: 'var(--color-accent-green)' }} />
-              </span>
+              <Icon name="activity" size={20} className={styles.recordIconAccent} />
               <div>
-                <span className={styles.recordLabel}>Highest Single GW Score</span>
+                <span className="g-label-quiet">Highest single-GW score</span>
                 <span className={styles.recordValue}>{highestGwScore.score.toFixed(1)} pts</span>
                 <span className={styles.recordMeta}>{highestGwScore.teamName} · GW{highestGwScore.gameweek}</span>
               </div>
             </div>
             <div className={styles.recordCard}>
-              <span className={styles.recordIcon} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <Icon name="layout" size={20} style={{ color: 'var(--color-accent-blue)' }} />
-              </span>
+              <Icon name="layout" size={20} className={styles.recordIconAccent} />
               <div>
-                <span className={styles.recordLabel}>Seasons Played</span>
+                <span className="g-label-quiet">Seasons played</span>
                 <span className={styles.recordValue}>{seasons.length}</span>
-                <span className={styles.recordMeta}>Since Season {seasons[seasons.length - 1]?.season ?? '—'}</span>
+                <span className={styles.recordMeta}>Since season {seasons[seasons.length - 1]?.season ?? '—'}</span>
               </div>
             </div>
           </div>
@@ -234,10 +204,8 @@ export default function HistoryClient({ leagueName, currentSeason, seasons, high
 
       {/* ── Content ── */}
       {!hasHistory ? (
-        <div className={styles.emptyState}>
-          <div className={styles.emptyIcon} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
-            <Icon name="layout" size={48} style={{ color: 'var(--color-text-muted)' }} />
-          </div>
+        <div className={`g-panel ${styles.emptyState}`}>
+          <Icon name="layout" size={40} className={styles.emptyIcon} />
           <h2 className={styles.emptyTitle}>The history books are empty</h2>
           <p className={styles.emptyDesc}>
             Season archives will appear here once a season is completed and saved.

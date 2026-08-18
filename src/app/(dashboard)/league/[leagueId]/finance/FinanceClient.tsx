@@ -143,20 +143,24 @@ function computeBreakdown(transactions: Transaction[]): BreakdownData {
   return { totalSpent, totalEarned, byCategory };
 }
 
+/* A category-per-hue bar chart cannot exist under the colour law: ten real
+   categories (Signings, Drops, Trades, Transfers, Recirculation, Draft,
+   Prizes, Revenue, Sales, Loans) is twice what the Wire's five event kinds
+   already found no room for, and the old CAT_COLORS map only ever covered
+   seven of them — Recirculation, Revenue, Sales and Loans silently fell
+   through to plain muted grey, a real (if quiet) bug.
+
+   The category name is already the row's label, so colour was never doing
+   identity work here — it can carry something more useful instead: each
+   row's OWN spent/earned split, the split every other figure on this page
+   already colours (the summary strip, the ledger's amount chips). A row's
+   overall length still compares magnitude across categories; the two
+   segments inside it now show composition. Recessed on `.g-track`, the same
+   primitive the baseline rule and the margin axis lay their own ink over. */
 function BreakdownBar({ breakdown, max }: { breakdown: BreakdownData; max: number }) {
   const categories = Object.entries(breakdown.byCategory)
     .filter(([, v]) => v.spent > 0 || v.earned > 0)
     .sort((a, b) => (b[1].spent + b[1].earned) - (a[1].spent + a[1].earned));
-
-  const CAT_COLORS: Record<string, string> = {
-    Signings:  'var(--color-accent-green)',
-    Drops:     '#ef4444',
-    Transfers: '#a855f7',
-    Rebates:   '#f59e0b',
-    Prizes:    '#3b82f6',
-    Trades:    'var(--color-text-muted)',
-    Draft:     '#6b7280',
-  };
 
   if (max === 0) return null;
 
@@ -164,18 +168,20 @@ function BreakdownBar({ breakdown, max }: { breakdown: BreakdownData; max: numbe
     <div className={styles.breakdown}>
       {categories.map(([cat, vals]) => {
         const total = vals.spent + vals.earned;
-        const width = Math.max(2, (total / max) * 100);
+        const rowWidth = Math.max(2, (total / max) * 100);
+        const spentPct = total > 0 ? (vals.spent / total) * 100 : 0;
         return (
           <div key={cat} className={styles.breakdownRow}>
             <span className={styles.breakdownLabel}>{cat}</span>
-            <div className={styles.breakdownBarWrap}>
-              <div
-                className={styles.breakdownBarFill}
-                style={{
-                  width: `${width}%`,
-                  backgroundColor: CAT_COLORS[cat] ?? 'var(--color-text-muted)',
-                }}
-              />
+            <div className={`g-track ${styles.breakdownTrack}`}>
+              <div className={styles.breakdownBar} style={{ width: `${rowWidth}%` }}>
+                {vals.spent > 0 && (
+                  <div className={styles.breakdownFillOut} style={{ width: `${spentPct}%` }} />
+                )}
+                {vals.earned > 0 && (
+                  <div className={styles.breakdownFillIn} style={{ width: `${100 - spentPct}%` }} />
+                )}
+              </div>
             </div>
             <span className={styles.breakdownAmount}>
               {vals.spent > 0 && <span className={styles.breakdownOut}>-€{vals.spent}</span>}
@@ -254,95 +260,85 @@ export default function FinanceClient({
   }, [breakdown]);
 
   return (
-    <div className={styles.page}>
-      {/* ── Header ── */}
-      <header className={styles.header}>
-        <div>
-          <p className={styles.eyebrow}>{leagueName} · {season}</p>
-          <h1 className={styles.title}>Finance Ledger</h1>
-          <p className={styles.subtitle}>{teamName} — full transaction history</p>
-        </div>
+    <div className={`${styles.page} g-page`}>
+      {/* ── Masthead ── */}
+      <header className={styles.masthead}>
+        <span className={`g-label ${styles.kicker}`}>{leagueName} · Season {season?.replace('-', '/') ?? season}</span>
+        <h1 className={styles.title}>Finance ledger</h1>
+        <p className={styles.subtitle}>{teamName} — full transaction history</p>
       </header>
 
-      {/* ── Summary Strip ── */}
-      <div className={styles.summaryStrip}>
-        <div className={styles.summaryCard}>
-          <span className={styles.summaryLabel}>CURRENT BUDGET</span>
-          <span className={styles.summaryValue}>€{currentBudget}m</span>
-        </div>
-        <div className={styles.summaryDivider} />
-        <div className={styles.summaryCard}>
-          <span className={styles.summaryLabel}>TOTAL SPENT</span>
-          <span className={`${styles.summaryValue} ${styles.summaryOut}`}>-€{breakdown.totalSpent}m</span>
-        </div>
-        <div className={styles.summaryDivider} />
-        <div className={styles.summaryCard}>
-          <span className={styles.summaryLabel}>TOTAL EARNED</span>
-          <span className={`${styles.summaryValue} ${styles.summaryIn}`}>+€{breakdown.totalEarned}m</span>
-        </div>
-        <div className={styles.summaryDivider} />
-        <div className={styles.summaryCard}>
-          <span className={styles.summaryLabel}>NET CHANGE</span>
-          <span className={`${styles.summaryValue} ${netPositive ? styles.summaryIn : styles.summaryOut}`}>
-            {netPositive ? '+' : ''}€{net}m
-          </span>
-        </div>
-        <div className={styles.summaryDivider} />
-        <div className={styles.summaryCard}>
-          <span className={styles.summaryLabel}>MONEY CREATED</span>
-          <span className={`${styles.summaryValue} ${styles.summaryIn}`}>€{netCreated}m</span>
-        </div>
-        <div className={styles.summaryDivider} />
-        <div className={styles.summaryCard}>
-          <span className={styles.summaryLabel}>MONEY DESTROYED</span>
-          <span className={`${styles.summaryValue} ${styles.summaryOut}`}>€{netDestroyed}m</span>
-        </div>
-      </div>
+      {/* One panel: the summary, the category breakdown and the ledger are
+          all arithmetic on the same transaction list, not three surfaces. */}
+      <div className={`g-panel ${styles.panel}`}>
 
-      {/* ── Breakdown Bar Chart ── */}
-      {Object.keys(breakdown.byCategory).length > 0 && (
+        {/* ── Summary strip ── */}
+        <div className={styles.summaryStrip}>
+          <div className={styles.summaryCard}>
+            <span className="g-label-quiet">Current budget</span>
+            <span className={styles.summaryValue}>€{currentBudget}m</span>
+          </div>
+          <div className={styles.summaryCard}>
+            <span className="g-label-quiet">Total spent</span>
+            <span className={`${styles.summaryValue} ${styles.summaryOut}`}>-€{breakdown.totalSpent}m</span>
+          </div>
+          <div className={styles.summaryCard}>
+            <span className="g-label-quiet">Total earned</span>
+            <span className={`${styles.summaryValue} ${styles.summaryIn}`}>+€{breakdown.totalEarned}m</span>
+          </div>
+          <div className={styles.summaryCard}>
+            <span className="g-label-quiet">Net change</span>
+            <span className={`${styles.summaryValue} ${netPositive ? styles.summaryIn : styles.summaryOut}`}>
+              {netPositive ? '+' : ''}€{net}m
+            </span>
+          </div>
+          <div className={styles.summaryCard}>
+            <span className="g-label-quiet">Money created</span>
+            <span className={`${styles.summaryValue} ${styles.summaryIn}`}>€{netCreated}m</span>
+          </div>
+          <div className={styles.summaryCard}>
+            <span className="g-label-quiet">Money destroyed</span>
+            <span className={`${styles.summaryValue} ${styles.summaryOut}`}>€{netDestroyed}m</span>
+          </div>
+        </div>
+
+        {/* ── Breakdown bar chart ── */}
+        {Object.keys(breakdown.byCategory).length > 0 && (
+          <section className={styles.section}>
+            <h2 className={styles.sectionHead}>Spending breakdown</h2>
+            <BreakdownBar breakdown={breakdown} max={maxCategoryTotal} />
+          </section>
+        )}
+
+        {/* ── Transaction ledger ── */}
         <section className={styles.section}>
-          <div className={styles.sectionHeader}>
-            <span className={styles.sectionKicker}>BY CATEGORY</span>
-            <h2 className={styles.sectionTitle}>Spending breakdown</h2>
+          <div className={styles.ledgerHeader}>
+            <h2 className={styles.sectionHead}>Club ledger</h2>
+            {/* Filter tabs — same segmented-control grammar as the stats
+                pool's position filter: filled in ink, not the accent, since
+                this is a view toggle rather than "yours". */}
+            <div className={styles.segmented} role="tablist">
+              {(['all', 'out', 'in'] as FilterKey[]).map(f => (
+                <button
+                  key={f}
+                  role="tab"
+                  aria-selected={filter === f}
+                  className={`${styles.segment} ${filter === f ? styles.segmentOn : ''}`}
+                  onClick={() => { setFilter(f); setPage(0); }}
+                  type="button"
+                >
+                  {f === 'all' ? 'All' : f === 'out' ? 'Spending' : 'Earnings'}
+                </button>
+              ))}
+            </div>
           </div>
-          <BreakdownBar breakdown={breakdown} max={maxCategoryTotal} />
-        </section>
-      )}
 
-      {/* ── Transaction Ledger ── */}
-      <section className={styles.section}>
-        <div className={styles.sectionHeader}>
-          <div>
-            <span className={styles.sectionKicker}>ALL TRANSACTIONS</span>
-            <h2 className={styles.sectionTitle}>Club ledger</h2>
-          </div>
-          {/* Filter tabs */}
-          <div className={styles.filterTabs} role="tablist">
-            {(['all', 'out', 'in'] as FilterKey[]).map(f => (
-              <button
-                key={f}
-                role="tab"
-                aria-selected={filter === f}
-                className={`${styles.filterTab} ${filter === f ? styles.filterTabActive : ''}`}
-                onClick={() => { setFilter(f); setPage(0); }}
-                type="button"
-              >
-                {f === 'all' ? 'All' : f === 'out' ? 'Spending' : 'Earnings'}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {filtered.length === 0 ? (
-          <div className={styles.emptyState}>
+          {filtered.length === 0 ? (
             <p className={styles.emptyText}>No transactions found.</p>
-          </div>
-        ) : (
-          <>
-            <div className={styles.tableWrap}>
+          ) : (
+            <>
               <table className={styles.ledgerTable}>
-                <thead className={styles.ledgerHead}>
+                <thead>
                   <tr>
                     <th>Date</th>
                     <th>Type</th>
@@ -356,34 +352,34 @@ export default function FinanceClient({
                   ))}
                 </tbody>
               </table>
-            </div>
 
-            {totalPages > 1 && (
-              <div className={styles.pagination}>
-                <button
-                  className={styles.pageBtn}
-                  onClick={() => setPage(p => Math.max(0, p - 1))}
-                  disabled={page === 0}
-                  type="button"
-                >
-                  ← Prev
-                </button>
-                <span className={styles.pageInfo}>
-                  Page {page + 1} of {totalPages} · {filtered.length} transactions
-                </span>
-                <button
-                  className={styles.pageBtn}
-                  onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))}
-                  disabled={page >= totalPages - 1}
-                  type="button"
-                >
-                  Next →
-                </button>
-              </div>
-            )}
-          </>
-        )}
-      </section>
+              {totalPages > 1 && (
+                <div className={styles.pagination}>
+                  <button
+                    className={styles.pageBtn}
+                    onClick={() => setPage(p => Math.max(0, p - 1))}
+                    disabled={page === 0}
+                    type="button"
+                  >
+                    ← Prev
+                  </button>
+                  <span className={styles.pageInfo}>
+                    Page {page + 1} of {totalPages} · {filtered.length} transactions
+                  </span>
+                  <button
+                    className={styles.pageBtn}
+                    onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))}
+                    disabled={page >= totalPages - 1}
+                    type="button"
+                  >
+                    Next →
+                  </button>
+                </div>
+              )}
+            </>
+          )}
+        </section>
+      </div>
     </div>
   );
 }

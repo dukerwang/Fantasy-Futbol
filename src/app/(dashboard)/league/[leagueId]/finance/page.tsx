@@ -37,7 +37,15 @@ export default async function FinancePage({ params }: Props) {
 
   if (!myTeam) {
     return (
-      <div style={{ padding: '48px 32px', textAlign: 'center', color: 'var(--color-text-muted)' }}>
+      <div
+        style={{
+          padding: 'var(--s16) var(--s8)',
+          textAlign: 'center',
+          fontFamily: 'var(--font-sans)',
+          fontSize: 'var(--t-13)',
+          color: 'var(--color-text-muted)',
+        }}
+      >
         You do not have a team in this league.
       </div>
     );
