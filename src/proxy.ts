@@ -56,6 +56,11 @@ export async function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    // manifest.webmanifest and sw-push.js must stay reachable without a
+    // session — browsers fetch both opportunistically (the <link rel=
+    // "manifest"> tag, and the service worker registration) regardless of
+    // auth state, so gating them behind login silently breaks PWA install
+    // and push registration for anyone not already logged in.
+    '/((?!_next/static|_next/image|favicon.ico|manifest.webmanifest|sw-push.js|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 };
