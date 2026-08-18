@@ -51,13 +51,18 @@ export async function POST(req: NextRequest) {
 
   const admin = createAdminClient();
 
-  if (markAll && leagueId) {
-    // Mark all read for this league
-    const { error } = await admin
+  if (markAll) {
+    // Mark all read — scoped to a league if given, otherwise every league
+    let query = admin
       .from('notifications')
       .update({ read: true })
-      .eq('user_id', user.id)
-      .eq('league_id', leagueId);
+      .eq('user_id', user.id);
+
+    if (leagueId) {
+      query = query.eq('league_id', leagueId);
+    }
+
+    const { error } = await query;
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });

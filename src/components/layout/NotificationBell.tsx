@@ -68,12 +68,11 @@ export default function NotificationBell({ leagueId, onNavigate }: NotificationB
   const displayNotifications = notifications.slice(0, 5); // Show latest 5
 
   const handleMarkAllRead = async () => {
-    if (!leagueId) return;
     try {
       const res = await fetch('/api/notifications', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ leagueId, markAll: true })
+        body: JSON.stringify({ leagueId: leagueId ?? undefined, markAll: true })
       });
       if (res.ok) {
         setNotifications(prev => prev.map(n => ({ ...n, read: true })));
