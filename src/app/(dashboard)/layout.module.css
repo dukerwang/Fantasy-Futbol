@@ -1,9 +1,24 @@
+/* The 2.0 ground (design-2.0/README.md § "The surface") lives here, not on
+   the per-page `.g-page` div one level in. `.main`'s own padding used to sit
+   OUTSIDE the gradient, showing the flat page colour in the gutter while
+   `.g-page` opened on near-white right past it — a hard rectangle framing
+   every masthead. Painting the ground on the element that owns the padding
+   means the gradient's brightest point is the true top of the page, with
+   nothing flatter framing it. */
 .main {
   min-height: calc(100vh - var(--nav-height));
   padding: var(--space-8) var(--space-6);
   max-width: var(--content-max-width);
   margin: 0 auto;
   width: 100%;
+  background-color: var(--color-bg-primary);
+  background-image: radial-gradient(120% 90% at 50% -18%,
+    #FFFFFF 0%, #FBF8F3 38%, var(--color-bg-primary) 100%);
+  background-repeat: no-repeat;
+}
+[data-theme="dark"] .main {
+  background-image: radial-gradient(85% 62% at 50% -6%,
+    #292E3E 0%, #1F2536 44%, var(--color-bg-primary) 100%);
 }
 
 @media (max-width: 768px) {
