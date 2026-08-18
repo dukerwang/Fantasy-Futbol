@@ -47,7 +47,7 @@ export interface KickoffPreflightResult {
 // Moved to src/lib/players/plPresence.ts so departure detection shares exactly
 // this check. It previously lived here alone, which is why the mid-season
 // auto-release path shipped without it.
-import { looksLikeSamePlayer, fetchFplElements, type FplElement } from '@/lib/players/plPresence';
+import { findStillInPl, fetchFplElements, type FplElement } from '@/lib/players/plPresence';
 
 export async function runKickoffPreflight(
   admin: SupabaseClient,
@@ -110,13 +110,13 @@ export async function runKickoffPreflight(
       message: 'Could not reach the FPL API — skipped the duplicate-player check.',
     });
   } else {
-    const stillInPl: string[] = [];
-    for (const p of departures) {
-      const hit = elements.find((el) => looksLikeSamePlayer(p.name, el));
-      if (hit) {
-        stillInPl.push(`${p.name} → FPL "${hit.first_name} ${hit.second_name}" [${hit.web_name}]`);
-      }
-    }
+    const hits = findStillInPl(departures, elements);
+    const stillInPl = departures
+      .filter((p) => hits.has(p.id))
+      .map((p) => {
+        const hit = hits.get(p.id)!;
+        return `${p.name} → FPL "${hit.first_name} ${hit.second_name}" [${hit.web_name}]`;
+      });
     if (stillInPl.length > 0) {
       issues.push({
         severity: 'blocker',

@@ -32,6 +32,7 @@ export interface FplElement {
   second_name: string;
   web_name: string;
   team: number;
+  status: string;
 }
 
 function normalize(str: string | null | undefined): string {
@@ -95,14 +96,23 @@ export async function fetchFplElements(): Promise<FplElement[] | null> {
 /**
  * Of the given players, which are still present in the FPL squad list despite
  * being marked inactive? Those are corrupted rows, not departures.
+ *
+ * FPL does not remove a departed player's element when it flags him — that's
+ * the `status: 'u'` signal `syncPlayersFromFpl` deactivates on in the first
+ * place, and the row sticks around in the bootstrap indefinitely afterward.
+ * Matching against it unfiltered means every genuine 'u' departure finds
+ * itself here and gets waved off as a duplicate, which is the opposite of
+ * this function's job. Only a *live* element (any status but 'u') counts as
+ * evidence the player is still in the league.
  */
 export function findStillInPl<T extends { id: string; name: string }>(
   players: T[],
   elements: FplElement[],
 ): Map<string, FplElement> {
+  const liveElements = elements.filter((el) => el.status !== 'u');
   const hits = new Map<string, FplElement>();
   for (const p of players) {
-    const match = elements.find((el) => looksLikeSamePlayer(p.name, el));
+    const match = liveElements.find((el) => looksLikeSamePlayer(p.name, el));
     if (match) hits.set(p.id, match);
   }
   return hits;

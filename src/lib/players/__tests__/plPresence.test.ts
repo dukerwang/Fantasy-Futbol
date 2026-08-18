@@ -21,7 +21,7 @@ import { describe, it, expect } from 'vitest';
 import { looksLikeSamePlayer, findStillInPl, type FplElement } from '../plPresence';
 
 function element(first_name: string, second_name: string, overrides: Partial<FplElement> = {}): FplElement {
-    return { id: 1, first_name, second_name, web_name: second_name, team: 1, ...overrides };
+    return { id: 1, first_name, second_name, web_name: second_name, team: 1, status: 'a', ...overrides };
 }
 
 describe('looksLikeSamePlayer — real departure must not be blocked', () => {
@@ -83,6 +83,20 @@ describe('findStillInPl', () => {
         const elements = [element('Erling', 'Haaland'), element('Rodrigo', 'Bentancur')];
 
         const hits = findStillInPl([rodri], elements);
+
+        expect(hits.size).toBe(0);
+    });
+
+    it('does not flag a genuine departure whose own element is still in the bootstrap with status "u"', () => {
+        // FPL flags a departure by setting status: 'u' on the player's existing
+        // element — it does not remove the element. Cristian Romero leaving for
+        // Atlético Madrid: his row stays in the bootstrap, status 'u', and
+        // findStillInPl must not match him against it or a real departure never
+        // opens a decision.
+        const romero = { id: 'romero-id', name: 'Cristian Romero' };
+        const elements = [element('Cristian', 'Romero', { status: 'u' })];
+
+        const hits = findStillInPl([romero], elements);
 
         expect(hits.size).toBe(0);
     });
