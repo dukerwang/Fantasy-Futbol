@@ -1,11 +1,38 @@
 // HTML Email Templates for Gaffa
+//
+// Colors, radii and fonts mirror the Gaffa 2.0 "Cream Editorial" light theme
+// tokens in src/app/globals.css. Email has no dark-mode media query support
+// worth relying on, so the container is always styled against the light
+// palette regardless of the recipient's mail client theme.
 
 import { getValueTier, TIER_COPY } from '@/lib/notifications/valueTiers';
 import { buildHereWeGo } from '@/lib/notifications/hereWeGo';
 
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://gaffa.live';
+const LOGO_URL = `${BASE_URL}/brand/gaffa-mark.png`;
+
+/** Mirrors src/app/globals.css :root (light theme) custom properties. */
+const INK = '#1C1A17'; // --color-text-primary
+const TEXT_SECONDARY = '#4A453D'; // --color-text-secondary
+const TEXT_MUTED = '#6B6356'; // --color-text-muted
+const BORDER = '#C8C3BC'; // --color-border
+const BORDER_SUBTLE = '#D9D4CD'; // --color-border-subtle
+const BG_PAGE = '#F7F3ED'; // --color-bg-primary
+const BG_CARD = '#FDFCF9'; // --color-bg-card
+const BG_ELEVATED = '#EDE8DE'; // --color-bg-elevated
+const ACCENT = '#146B40'; // --color-accent
+const ON_ACCENT = '#FFFFFF'; // --color-on-accent
+
 /** Thin gold rule/text — mirrors the app's --color-gold convention (globals.css):
  *  reserved for standout figures, never a filled badge. */
-const GOLD = '#93702F';
+const GOLD = '#8A6A1F';
+
+/** Matches --font-serif / --font-sans fallback chains, with the actual Google
+ *  Fonts faces layered on top for the mail clients that render web fonts
+ *  (Apple Mail, most webmail). Clients that strip @font-face (Gmail, Outlook
+ *  desktop) fall straight back to Georgia / system sans, same as before. */
+const FONT_SERIF = `'Newsreader', Georgia, 'Times New Roman', serif`;
+const FONT_SANS = `'Hanken Grotesk', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif`;
 
 const tierEyebrowHtml = (marketValue: number) => {
   const copy = TIER_COPY[getValueTier(marketValue)];
@@ -18,21 +45,30 @@ const baseTemplate = (title: string, body: string) => `
 <html>
 <head>
   <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #F7F3ED; margin: 0; padding: 20px; color: #1a1a1a; }
-    .container { max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 8px; padding: 32px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05); }
-    .header { border-bottom: 2px solid #1a1a1a; padding-bottom: 16px; margin-bottom: 24px; }
-    .title { font-family: "Georgia", serif; font-size: 24px; font-weight: bold; margin: 0; color: #1a1a1a; }
-    .content { font-size: 16px; line-height: 1.6; }
-    .button { display: inline-block; background-color: #1a1a1a; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: bold; margin-top: 24px; }
-    .footer { margin-top: 32px; font-size: 12px; color: #666; text-align: center; border-top: 1px solid #eee; padding-top: 16px; }
+    @import url('https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,400;0,600;0,700;1,400&family=Hanken+Grotesk:wght@400;500;600;700&display=swap');
+    body { font-family: ${FONT_SANS}; background-color: ${BG_PAGE}; margin: 0; padding: 20px; color: ${INK}; }
+    .container { max-width: 600px; margin: 0 auto; background: ${BG_CARD}; border-radius: 8px; padding: 32px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05); }
+    .header { border-bottom: 2px solid ${INK}; padding-bottom: 16px; margin-bottom: 24px; }
+    .brand { margin-bottom: 12px; }
+    .brand img { display: inline-block; width: 20px; height: 20px; vertical-align: middle; margin-right: 8px; }
+    .brandName { display: inline-block; vertical-align: middle; font-family: ${FONT_SERIF}; font-size: 13px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: ${INK}; line-height: 20px; }
+    .title { font-family: ${FONT_SERIF}; font-size: 24px; font-weight: bold; margin: 0; color: ${INK}; }
+    .content { font-size: 16px; line-height: 1.6; color: ${TEXT_SECONDARY}; }
+    .content strong { color: ${INK}; }
+    .button { display: inline-block; background-color: ${ACCENT}; color: ${ON_ACCENT}; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: bold; margin-top: 24px; }
+    .footer { margin-top: 32px; font-size: 12px; color: ${TEXT_MUTED}; text-align: center; border-top: 1px solid ${BORDER_SUBTLE}; padding-top: 16px; }
     ul { list-style-type: none; padding-left: 0; }
-    li { background: #F7F3ED; padding: 12px; margin-bottom: 8px; border-radius: 4px; border-left: 4px solid #1a1a1a; }
+    li { background: ${BG_ELEVATED}; padding: 12px; margin-bottom: 8px; border-radius: 4px; border-left: 4px solid ${INK}; color: ${INK}; }
     .strong { font-weight: 600; }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="header">
+      <div class="brand">
+        <img src="${LOGO_URL}" width="20" height="20" alt="" />
+        <span class="brandName">Gaffa</span>
+      </div>
       <h1 class="title">${title}</h1>
     </div>
     <div class="content">
@@ -57,17 +93,17 @@ export const getTradeProposedEmail = (
   dealName = 'An offer',
 ) => {
   const body = `
-    <h2 style="font-family: 'Georgia', serif; font-size: 1.5em; margin-top: 0;">${dealName} from ${proposerName}</h2>
+    <h2 style="font-family: ${FONT_SERIF}; font-size: 1.5em; margin-top: 0; color: ${INK};">${dealName} from ${proposerName}</h2>
     <p>The boardroom is buzzing. <strong>${proposerName}</strong> has put ${dealName.toLowerCase()} on the table for your consideration.</p>
 
     <div style="display: flex; gap: 20px; margin: 24px 0;">
-      <div style="flex: 1; background-color: #F7F3ED; padding: 15px; border-radius: 8px;">
-        <p style="font-size: 0.8em; text-transform: uppercase; color: #666; margin-top: 0;">You Receive</p>
-        <p style="font-weight: bold; margin-bottom: 0;">${giving.join(', ')}</p>
+      <div style="flex: 1; background-color: rgba(20, 107, 64, 0.10); padding: 15px; border-radius: 8px; border-left: 3px solid ${ACCENT};">
+        <p style="font-size: 0.8em; text-transform: uppercase; color: ${TEXT_MUTED}; margin-top: 0;">You Receive</p>
+        <p style="font-weight: bold; margin-bottom: 0; color: ${INK};">${giving.join(', ')}</p>
       </div>
-      <div style="flex: 1; background-color: #f0f0f0; padding: 15px; border-radius: 8px;">
-        <p style="font-size: 0.8em; text-transform: uppercase; color: #666; margin-top: 0;">You Give Up</p>
-        <p style="font-weight: bold; margin-bottom: 0;">${receiving.join(', ')}</p>
+      <div style="flex: 1; background-color: ${BG_ELEVATED}; padding: 15px; border-radius: 8px;">
+        <p style="font-size: 0.8em; text-transform: uppercase; color: ${TEXT_MUTED}; margin-top: 0;">You Give Up</p>
+        <p style="font-weight: bold; margin-bottom: 0; color: ${INK};">${receiving.join(', ')}</p>
       </div>
     </div>
 
@@ -142,11 +178,11 @@ export const getSystemAuctionsEmail = (
     .map((p) => {
       const copy = TIER_COPY[getValueTier(p.value)]!;
       return `
-        <div style="background-color: #fff; padding: 20px; border-radius: 8px; border-left: 4px solid ${GOLD}; margin: 0 0 16px;">
+        <div style="background-color: ${BG_CARD}; padding: 20px; border-radius: 8px; border-left: 4px solid ${GOLD}; margin: 0 0 16px;">
           ${tierEyebrowHtml(p.value)}
-          <p style="margin: 0; font-family: 'Georgia', serif; font-size: 1.3em; font-weight: bold;">${p.name}</p>
-          <p style="margin: 4px 0 8px; font-size: 1.1em;">€${p.value}m</p>
-          <p style="margin: 0; font-size: 0.9em; color: #666;">${copy.description}</p>
+          <p style="margin: 0; font-family: ${FONT_SERIF}; font-size: 1.3em; font-weight: bold; color: ${INK};">${p.name}</p>
+          <p style="margin: 4px 0 8px; font-size: 1.1em; color: ${INK};">€${p.value}m</p>
+          <p style="margin: 0; font-size: 0.9em; color: ${TEXT_MUTED};">${copy.description}</p>
         </div>
       `;
     })
@@ -198,16 +234,16 @@ export const getAuctionWonEmail = (
 
   const body = `
     ${eyebrow ? `<p style="margin: 0 0 4px; font-size: 0.75em; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: ${GOLD};">${eyebrow}</p>` : ''}
-    <p style="font-family: 'Georgia', serif; font-size: 1.2em; margin-top: 0;">${lead}</p>
-    <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; border-left: 4px solid ${tier === 'standard' ? '#1a1a1a' : GOLD}; margin: 20px 0;">
-      <p style="margin-top: 0; font-size: 0.9em; text-transform: uppercase; color: #666;">Auction Details</p>
+    <p style="font-family: ${FONT_SERIF}; font-size: 1.2em; margin-top: 0; color: ${INK};">${lead}</p>
+    <div style="background-color: ${BG_ELEVATED}; padding: 20px; border-radius: 8px; border-left: 4px solid ${tier === 'standard' ? INK : GOLD}; margin: 20px 0;">
+      <p style="margin-top: 0; font-size: 0.9em; text-transform: uppercase; color: ${TEXT_MUTED};">Auction Details</p>
       <p><strong>Winning Bid:</strong> €${winningBid}m</p>
       <p style="margin-bottom: 0;"><strong>Atmosphere:</strong> ${intensity}</p>
-      <p style="font-size: 0.85em; color: #666; margin-top: 4px;">${intensityDesc} (${bidderCount} active bidder${bidderCount === 1 ? '' : 's'})</p>
+      <p style="font-size: 0.85em; color: ${TEXT_MUTED}; margin-top: 4px;">${intensityDesc} (${bidderCount} active bidder${bidderCount === 1 ? '' : 's'})</p>
     </div>
     <p>The player was ${sourceInfo}.</p>
     ${droppedPlayerName ? `
-      <div style="background-color: #F7F3ED; padding: 20px; border-radius: 8px; margin: 20px 0; border: 1px dashed #d1d1d1;">
+      <div style="background-color: ${BG_PAGE}; padding: 20px; border-radius: 8px; margin: 20px 0; border: 1px dashed ${BORDER};">
         <p style="margin: 0;"><strong>The Clearing:</strong> To complete the registration, ${winnerClub} has released <strong>${droppedPlayerName}</strong> into the waiver pool.</p>
       </div>
     ` : ''}
@@ -229,7 +265,7 @@ export const getPlayerSoldEmail = (
 
   const body = `
     ${eyebrow ? `<p style="margin: 0 0 4px; font-size: 0.75em; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: ${GOLD};">${eyebrow}</p>` : ''}
-    <p style="font-family: 'Georgia', serif; font-size: 1.2em; margin-top: 0;">${lead}</p>
+    <p style="font-family: ${FONT_SERIF}; font-size: 1.2em; margin-top: 0; color: ${INK};">${lead}</p>
     <a href="${leagueUrl}/team" class="button">View Your Team</a>
   `;
   return baseTemplate('Player Sold!', body);
@@ -249,8 +285,8 @@ export const getDraftStartedEmail = (leagueName: string, draftUrl: string) => {
   const body = `
     <p>The commissioner has officially started the draft for <strong>${leagueName}</strong>!</p>
     <p>The Draft Room is now open. Head over immediately to start making your picks.</p>
-    <div style="background-color: #F7F3ED; padding: 20px; border-radius: 8px; border: 2px solid #1a1a1a; text-align: center; margin: 24px 0;">
-      <p style="font-family: 'Georgia', serif; font-size: 1.2em; font-weight: bold; margin-top: 0;">DRAFT IS LIVE</p>
+    <div style="background-color: ${BG_PAGE}; padding: 20px; border-radius: 8px; border: 2px solid ${INK}; text-align: center; margin: 24px 0;">
+      <p style="font-family: ${FONT_SERIF}; font-size: 1.2em; font-weight: bold; margin-top: 0; color: ${INK};">DRAFT IS LIVE</p>
       <a href="${draftUrl}" class="button" style="margin-top: 0;">Enter Draft Room</a>
     </div>
     <p>Good luck, and may your scouting pay off.</p>
@@ -266,25 +302,25 @@ export const getMatchweekSummaryEmail = (
   leagueUrl: string
 ) => {
   const resultsHtml = results.map(r => `
-    <div style="border-bottom: 1px solid #e0e0e0; padding: 12px 0; display: flex; justify-content: space-between; align-items: center;">
-      <div style="flex: 1; text-align: right; ${r.winner === r.teamA ? 'font-weight: bold;' : ''}">${r.teamA}</div>
-      <div style="width: 80px; text-align: center; font-family: 'Courier New', monospace; font-weight: bold;">${r.scoreA} - ${r.scoreB}</div>
-      <div style="flex: 1; text-align: left; ${r.winner === r.teamB ? 'font-weight: bold;' : ''}">${r.teamB}</div>
+    <div style="border-bottom: 1px solid ${BORDER_SUBTLE}; padding: 12px 0; display: flex; justify-content: space-between; align-items: center;">
+      <div style="flex: 1; text-align: right; color: ${INK}; ${r.winner === r.teamA ? 'font-weight: bold;' : ''}">${r.teamA}</div>
+      <div style="width: 80px; text-align: center; font-family: 'Courier New', monospace; font-weight: bold; color: ${INK};">${r.scoreA} - ${r.scoreB}</div>
+      <div style="flex: 1; text-align: left; color: ${INK}; ${r.winner === r.teamB ? 'font-weight: bold;' : ''}">${r.teamB}</div>
     </div>
   `).join('');
 
   const body = `
-    <p style="text-transform: uppercase; letter-spacing: 2px; font-size: 0.8em; color: #666; margin-bottom: 4px;">Monday Review • Gameweek ${gameweek}</p>
-    <h1 style="font-family: 'Georgia', serif; font-size: 2em; margin-top: 0; line-height: 1.1;">${highScorer.teamName} Sets the Pace in ${leagueName}</h1>
-    
+    <p style="text-transform: uppercase; letter-spacing: 2px; font-size: 0.8em; color: ${TEXT_MUTED}; margin-bottom: 4px;">Monday Review • Gameweek ${gameweek}</p>
+    <h1 style="font-family: ${FONT_SERIF}; font-size: 2em; margin-top: 0; line-height: 1.1; color: ${INK};">${highScorer.teamName} Sets the Pace in ${leagueName}</h1>
+
     <p>The dust has settled on another weekend of action. Here is how your league fared:</p>
-    
-    <div style="margin: 24px 0; border-top: 2px solid #1a1a1a; border-bottom: 2px solid #1a1a1a; padding: 8px 0;">
+
+    <div style="margin: 24px 0; border-top: 2px solid ${INK}; border-bottom: 2px solid ${INK}; padding: 8px 0;">
       ${resultsHtml}
     </div>
 
-    <div style="background-color: #F7F3ED; padding: 20px; border-radius: 8px; margin: 24px 0;">
-      <p style="margin-top: 0; font-weight: bold; text-transform: uppercase; font-size: 0.9em;">Performance of the Week</p>
+    <div style="background-color: ${BG_ELEVATED}; padding: 20px; border-radius: 8px; margin: 24px 0;">
+      <p style="margin-top: 0; font-weight: bold; text-transform: uppercase; font-size: 0.9em; color: ${INK};">Performance of the Week</p>
       <p style="font-size: 1.1em; margin-bottom: 0;"><strong>${highScorer.teamName}</strong> dominated the field with a massive <strong>${highScorer.score.toFixed(1)}</strong> points.</p>
     </div>
 
@@ -298,9 +334,9 @@ export const getMatchweekSummaryEmail = (
 export const getDraftScheduledEmail = (leagueName: string, scheduledTime: string, lobbyUrl: string) => {
   const body = `
     <p>The commissioner has scheduled the draft for <strong>${leagueName}</strong>!</p>
-    <div style="background-color: #F7F3ED; padding: 20px; border-radius: 8px; border: 2px solid #1a1a1a; text-align: center; margin: 24px 0;">
-      <p style="font-size: 0.9em; text-transform: uppercase; color: #666; margin-top: 0;">Scheduled Kickoff Time</p>
-      <p style="font-family: 'Georgia', serif; font-size: 1.4em; font-weight: bold; margin: 8px 0;">${scheduledTime}</p>
+    <div style="background-color: ${BG_PAGE}; padding: 20px; border-radius: 8px; border: 2px solid ${INK}; text-align: center; margin: 24px 0;">
+      <p style="font-size: 0.9em; text-transform: uppercase; color: ${TEXT_MUTED}; margin-top: 0;">Scheduled Kickoff Time</p>
+      <p style="font-family: ${FONT_SERIF}; font-size: 1.4em; font-weight: bold; margin: 8px 0; color: ${INK};">${scheduledTime}</p>
       <a href="${lobbyUrl}" class="button" style="margin-top: 12px;">Go to League lobby</a>
     </div>
     <p>Please review your queue, research players, and ensure you are in the Draft Room before the timer hits zero!</p>
@@ -321,11 +357,11 @@ export const getDraftCancelledEmail = (leagueName: string, lobbyUrl: string) => 
 
 export const getLoanProposedEmail = (lenderName: string, playerName: string, loanFee: number, startGw: number, endGw: number, leagueUrl: string) => {
   const body = `
-    <h2 style="font-family: 'Georgia', serif; font-size: 1.5em; margin-top: 0;">Loan Proposal from ${lenderName}</h2>
+    <h2 style="font-family: ${FONT_SERIF}; font-size: 1.5em; margin-top: 0; color: ${INK};">Loan Proposal from ${lenderName}</h2>
     <p>A loan proposal has been submitted. <strong>${lenderName}</strong> offers to loan out <strong>${playerName}</strong> to your club.</p>
-    
-    <div style="background-color: #F7F3ED; padding: 20px; border-radius: 8px; border-left: 4px solid #1a1a1a; margin: 20px 0;">
-      <p style="margin-top: 0; font-size: 0.9em; text-transform: uppercase; color: #666;">Loan Details</p>
+
+    <div style="background-color: ${BG_ELEVATED}; padding: 20px; border-radius: 8px; border-left: 4px solid ${INK}; margin: 20px 0;">
+      <p style="margin-top: 0; font-size: 0.9em; text-transform: uppercase; color: ${TEXT_MUTED};">Loan Details</p>
       <p><strong>Player:</strong> ${playerName}</p>
       <p><strong>Term:</strong> GW${startGw} to GW${endGw} (${endGw - startGw} gameweeks)</p>
       <p style="margin-bottom: 0;"><strong>Loan Fee:</strong> €${loanFee}m</p>
