@@ -17,7 +17,7 @@ type Zone = 'ATT' | 'AMZ' | 'CMZ' | 'DMZ' | 'WBZ' | 'DEF' | 'GK';
 
 const ZONE_ORDER: Zone[] = ['ATT', 'AMZ', 'CMZ', 'DMZ', 'WBZ', 'DEF', 'GK'];
 
-const SLOT_TO_ZONE: Record<string, Zone> = {
+const SLOT_TO_ZONE = {
     // ATT row: pure attackers (LW, ST, RW)
     LW: 'ATT', ST: 'ATT', RW: 'ATT',
     // AMZ row: AM
@@ -31,16 +31,29 @@ const SLOT_TO_ZONE: Record<string, Zone> = {
     // Defenders
     CB: 'DEF', LB: 'DEF', RB: 'DEF',
     GK: 'GK',
-};
+} satisfies Record<string, Zone>;
 
 /** The twelve are only ever a taxonomy here — never a fill. */
 const isGranular = (p: unknown): p is GranularPosition =>
     typeof p === 'string' && (SPINE as string[]).includes(p);
 
 /* ── Stats formatter — "2G · 4 SOT · 8.9 rating" ─────────────────── */
-function fmtStats(stats: Record<string, any> | undefined, slot: string): string {
+interface MatchStatsSnapshot {
+    goals_scored?: number;
+    assists?: number;
+    clean_sheets?: number;
+    minutes_played?: number;
+    rating?: number;
+    saves?: number;
+    tackles?: number;
+    key_passes?: number;
+    shots_on_target?: number;
+}
+
+function fmtStats(stats: MatchStatsSnapshot | undefined, slot: string): string {
     if (!stats) return '';
-    const zone = SLOT_TO_ZONE[slot] ?? 'CMZ';
+    // SAFETY: lineup slots are always one of the 12 GranularPosition values, never an arbitrary string.
+    const zone = SLOT_TO_ZONE[slot as GranularPosition] ?? 'CMZ';
     const parts: string[] = [];
     const g = Number(stats.goals_scored ?? 0);
     const a = Number(stats.assists ?? 0);
@@ -71,7 +84,7 @@ function fmtStats(stats: Record<string, any> | undefined, slot: string): string 
 }
 
 /* ── Sub-components ───────────────────────────────────────────────── */
-type Detail = { points: number; stats?: Record<string, any> };
+type Detail = { points: number; stats?: MatchStatsSnapshot };
 
 /**
  * A sub marker. One shape, two tokens: the arrow says the direction and the
@@ -156,7 +169,8 @@ function groupByZone(starters: { player_id: string; slot: string; isSubIn?: bool
     const z: Record<Zone, { player_id: string; slot: string; isSubIn?: boolean }[]> = {
         ATT: [], AMZ: [], CMZ: [], DMZ: [], WBZ: [], DEF: [], GK: [],
     };
-    for (const s of starters) z[SLOT_TO_ZONE[s.slot] ?? 'CMZ'].push(s);
+    // SAFETY: lineup slots are always one of the 12 GranularPosition values, never an arbitrary string.
+    for (const s of starters) z[SLOT_TO_ZONE[s.slot as GranularPosition] ?? 'CMZ'].push(s);
     return z;
 }
 

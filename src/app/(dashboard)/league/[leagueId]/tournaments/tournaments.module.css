@@ -66,8 +66,10 @@
     transition: color 0.15s, border-color 0.15s;
     margin-bottom: -1px;
 }
-.tab:hover {
-    color: var(--color-text-secondary);
+@media (hover: hover) and (pointer: fine) {
+  .tab:hover {
+      color: var(--color-text-secondary);
+  }
 }
 
 .tabActive {
@@ -78,7 +80,9 @@
 /* Deprecated, remove or keep empty */
 .tabInactive {
 }
-.tabInactive:hover {
+@media (hover: hover) and (pointer: fine) {
+  .tabInactive:hover {
+  }
 }
 
 /* Info Bar */

@@ -143,9 +143,11 @@
     font-family: var(--font-sans);
 }
 
-.gwArrow:hover:not(:disabled) {
-    color: var(--color-text-primary);
-    background: var(--color-bg-card-hover);
+@media (hover: hover) and (pointer: fine) {
+  .gwArrow:hover:not(:disabled) {
+      color: var(--color-text-primary);
+      background: var(--color-bg-card-hover);
+  }
 }
 
 .gwArrow:disabled {
@@ -235,7 +237,9 @@
    panel gradient's own rule ("travels only in the direction that improves
    contrast") applied to a state instead of a surface. It also reads as the row
    being pressed IN, which is what a recessed value is for. */
-.featured:hover { background: var(--color-bg-inset); }
+@media (hover: hover) and (pointer: fine) {
+  .featured:hover { background: var(--color-bg-inset); }
+}
 
 /* A two-team league in a gameweek with no scores yet leaves the featured
    fixture as the panel's only child, and .g-panel clips to its radius — so the
@@ -344,7 +348,9 @@
     border-top: 1px solid var(--color-border-subtle);
 }
 
-.fixtureLink:hover .fixture { background: var(--color-bg-inset); }
+@media (hover: hover) and (pointer: fine) {
+  .fixtureLink:hover .fixture { background: var(--color-bg-inset); }
+}
 
 .fixtureSide {
     display: flex;

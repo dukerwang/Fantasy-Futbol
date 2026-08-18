@@ -172,6 +172,11 @@
      that the fill happens to be theme-invariant today. Added during the Market
      hub port, which found a #1C1C1C literal doing this job by hand. */
   --color-on-warning:    #1C1A17;
+  /* The label ON a danger fill. Inverts the same way on-accent does: dark's
+     danger, like dark's accent, is the brighter fill (white on #F0736A is
+     2.85:1), so the dark block below swaps to dark ink. League Home hand-rolled
+     this exact toggle for its form pips and primary button before this existed. */
+  --color-on-danger:     #FFFFFF;
   --color-live:          #B3261E;
   --color-warning-text:  #8A5A0B;
   --color-tint-accent:   #E2EAE1;
@@ -447,6 +452,11 @@
   --color-gold:        #D6B052;
   --color-silver:      #AEB4BA;
   --color-bronze:      #CD8450;
+  /* Never had a dark value before — #9B2C3A measured 1.89:1 on a dark card,
+     the token-with-one-value failure the matchups port named as a reliable
+     predictor. Solved to 4.8, holding hue and chroma. First real dark
+     consumer: the standings form dot (design-2.0/README.md § standings). */
+  --color-defeat:      #EA747B;
 
   /* --- Gaffa 2.0 additions, dark ---
      Note --color-accent-hover stays DARKER than --color-accent here: it
@@ -458,6 +468,7 @@
   --color-accent-ink:    #2FB56C;
   --color-on-accent:     #10141C;   /* dark ink on the brighter dark accent — see the light block */
   --color-on-warning:    #1C1A17;   /* does NOT invert — the warning fill is the same in both themes */
+  --color-on-danger:     #10141C;   /* dark ink on the brighter dark danger — see the light block */
   --color-live:          #F0736A;
   --color-warning-text:  #E0A63C;
   --color-tint-accent:   #2A4647;
@@ -533,6 +544,11 @@ html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   color-scheme: light;
+  /* Prevents the browser-chrome pull-to-refresh/rubber-band gesture from
+     hijacking scroll at the top/bottom of a page — the app has its own
+     scroll containers and shouldn't fight the OS gesture. */
+  overscroll-behavior: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 body {
@@ -540,7 +556,18 @@ body {
   background-color: var(--color-bg-primary);
   color: var(--color-text-primary);
   line-height: 1.6;
-  min-height: 100vh;
+  /* dvh tracks the real visible viewport as mobile browser chrome (URL bar,
+     toolbars) shows/hides, instead of 100vh's fixed-at-load height, which
+     either clips content under the chrome or leaves a gap once it retracts. */
+  min-height: 100dvh;
+  overscroll-behavior: none;
+  /* Baseline notch/home-indicator clearance now that viewport-fit=cover lets
+     the page draw under them. Individual edge-hugging bars (see TopBar) pad
+     themselves too, since body padding alone doesn't reach fixed/sticky
+     descendants removed from normal flow. */
+  padding-left: env(safe-area-inset-left, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -554,8 +581,10 @@ a {
   transition: color var(--transition-fast);
 }
 
-a:hover {
-  color: var(--color-accent-blue-hover);
+@media (hover: hover) and (pointer: fine) {
+  a:hover {
+    color: var(--color-accent-blue-hover);
+  }
 }
 
 button {
@@ -564,6 +593,13 @@ button {
   background: none;
   font-family: inherit;
   font-size: inherit;
+  /* manipulation drops the ~300ms tap delay browsers otherwise wait to see
+     if a second tap makes it a double-tap-to-zoom gesture. user-select
+     stops a long-press from selecting the label text instead of registering
+     as a press — both are what make a tap feel instant instead of mushy. */
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 input,
@@ -611,8 +647,10 @@ svg {
   background: var(--color-border);
   border-radius: var(--radius-full);
 }
-::-webkit-scrollbar-thumb:hover {
-  background: var(--color-text-muted);
+@media (hover: hover) and (pointer: fine) {
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--color-text-muted);
+  }
 }
 
 /* ============================================================
@@ -761,9 +799,11 @@ svg {
    In light the two tokens are the same value, so this changes nothing there and
    fixes dark. Found by port 5, whose standfirst and match report are made almost
    entirely of these buttons. */
-.playercard-clickable-btn:hover {
-  color: var(--color-accent-ink);
-  text-decoration: underline;
+@media (hover: hover) and (pointer: fine) {
+  .playercard-clickable-btn:hover {
+    color: var(--color-accent-ink);
+    text-decoration: underline;
+  }
 }
 
 /* ============================================================
@@ -1162,9 +1202,11 @@ svg {
    that state the moment the pointer touched it. The first real consumer of
    this rule (transfers/auctions) is where that surfaced. A row with no
    background-color of its own renders identically either way. */
-.g-row:hover {
-  background-image: linear-gradient(90deg,
+@media (hover: hover) and (pointer: fine) {
+  .g-row:hover {
+    background-image: linear-gradient(90deg,
     color-mix(in oklab, var(--pf) 12%, transparent) 0%, transparent 60%);
+  }
 }
 
 /* --- 6. Recessed tracks ---
@@ -1537,4 +1579,81 @@ svg {
 }
 .g-portrait-md .g-portrait-fallback { font-size: 26px; }
 .g-portrait-sm .g-portrait-fallback { font-size: 17px; }
+
+/* ============================================================
+   GAFFA 2.0 — THE DIALOG CONTROLS.  Added 2026-08-17.
+
+   The ghost/primary button pair, the error box and the tracked field label
+   were written four times over — Modal's shell, then independently again in
+   BidDialog, ListingEditor and ProposeBuilder ("What the dialogs added",
+   design-2.0/README.md) — consistent only because they were ported in one
+   pass. They had already started to drift: ProposeBuilder's error box lost
+   the left rail and coloured its own text in --color-danger on
+   --color-danger-dim, which measures 3.92:1 in dark — the exact failure the
+   other two dialogs' own comments warn against ("the wash carries the
+   alarm, so the message is ink"). And every .ghost's border was
+   --color-border, the same 1.58/1.72:1 boundary the inputs and selects were
+   found on — a button is a control too. Declared once here; each dialog
+   composes from it and adds only its own layout (margin, spacing). */
+
+.g-dialog-ghost,
+.g-dialog-go,
+.g-dialog-danger {
+  padding: var(--s2) var(--s5);
+  border-radius: var(--r-control);
+  font-family: var(--font-condensed);
+  font-size: var(--t-12);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+.g-dialog-ghost {
+  border-color: var(--color-border-strong);
+  color: var(--color-text-secondary);
+  background: none;
+}
+.g-dialog-danger {
+  border-color: var(--color-border-strong);
+  color: var(--color-danger);
+  background: none;
+}
+@media (hover: hover) and (pointer: fine) {
+  .g-dialog-ghost:hover:not(:disabled),
+  .g-dialog-danger:hover:not(:disabled) { background: var(--color-bg-card-hover); }
+}
+.g-dialog-go {
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+}
+@media (hover: hover) and (pointer: fine) {
+  .g-dialog-go:hover:not(:disabled) { background: var(--color-accent-hover); }
+}
+.g-dialog-go:disabled,
+.g-dialog-ghost:disabled,
+.g-dialog-danger:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* The wash carries the alarm, so the message is ink — the rule down the
+   left is the second carrier. Margin is each dialog's own layout, not
+   declared here. */
+.g-dialog-error {
+  padding: var(--s2) var(--s3);
+  border-radius: var(--r-control);
+  border-left: 3px solid var(--color-danger);
+  background: var(--color-danger-dim);
+  color: var(--color-text-primary);
+  font-size: var(--t-12);
+  line-height: 1.45;
+}
+
+.g-dialog-label {
+  display: block;
+  font-family: var(--font-condensed);
+  font-size: var(--t-10);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
 

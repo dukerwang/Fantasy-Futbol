@@ -111,7 +111,9 @@
   white-space: nowrap;
 }
 
-.sectMore:hover { color: var(--color-accent-hover); }
+@media (hover: hover) and (pointer: fine) {
+  .sectMore:hover { color: var(--color-accent-hover); }
+}
 
 .empty {
   font-size: var(--t-13);
@@ -163,7 +165,9 @@
   min-width: 0;
 }
 
-.closingName:hover { text-decoration: underline; }
+@media (hover: hover) and (pointer: fine) {
+  .closingName:hover { text-decoration: underline; }
+}
 
 .closingCrest { margin-left: auto; flex-shrink: 0; display: flex; }
 
@@ -240,7 +244,9 @@
   cursor: pointer;
 }
 
-.closingGo:hover { background: var(--color-accent-hover); }
+@media (hover: hover) and (pointer: fine) {
+  .closingGo:hover { background: var(--color-accent-hover); }
+}
 
 /* Already leading — no reason to shout at yourself. */
 .closingGoGhost {
@@ -248,9 +254,11 @@
   color: var(--color-accent-ink);
 }
 
-.closingGoGhost:hover {
-  background: var(--color-accent-dim);
-  color: var(--color-text-primary);
+@media (hover: hover) and (pointer: fine) {
+  .closingGoGhost:hover {
+    background: var(--color-accent-dim);
+    color: var(--color-text-primary);
+  }
 }
 
 /* ── Board slice ────────────────────────────────────────── */
@@ -280,7 +288,9 @@
   flex-direction: column;
 }
 
-.door:hover { background: var(--color-bg-card-hover); }
+@media (hover: hover) and (pointer: fine) {
+  .door:hover { background: var(--color-bg-card-hover); }
+}
 
 .doorTop { padding: var(--s3); flex: 1; }
 

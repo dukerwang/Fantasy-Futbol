@@ -75,9 +75,11 @@
   transition: background 0.15s, color 0.15s, border-color 0.15s;
 }
 
-.chip:hover {
-  background: var(--color-bg-card-hover);
-  color: var(--color-text-primary);
+@media (hover: hover) and (pointer: fine) {
+  .chip:hover {
+    background: var(--color-bg-card-hover);
+    color: var(--color-text-primary);
+  }
 }
 
 .chipActive {
@@ -86,9 +88,11 @@
   border-color: var(--color-accent-green);
 }
 
-.chipActive:hover {
-  background: var(--color-accent-green);
-  color: #fff;
+@media (hover: hover) and (pointer: fine) {
+  .chipActive:hover {
+    background: var(--color-accent-green);
+    color: #fff;
+  }
 }
 
 /* ── Feed Content ── */
@@ -150,9 +154,11 @@
   transition: box-shadow 0.15s, background 0.15s;
 }
 
-.card:hover {
-  background: var(--color-bg-card-hover);
-  box-shadow: var(--shadow-card-lift);
+@media (hover: hover) and (pointer: fine) {
+  .card:hover {
+    background: var(--color-bg-card-hover);
+    box-shadow: var(--shadow-card-lift);
+  }
 }
 
 /* ── Icon Slot ── */
@@ -451,8 +457,10 @@
   transition: opacity 0.15s;
 }
 
-.widgetFooterLink:hover {
-  opacity: 0.75;
+@media (hover: hover) and (pointer: fine) {
+  .widgetFooterLink:hover {
+    opacity: 0.75;
+  }
 }
 
 /* ── Live Auctions ── */

@@ -302,7 +302,9 @@
 .action:last-child,
 .actionLast { border-right: none; }
 
-.action:hover:not(:disabled) { background: var(--color-bg-card-hover); }
+@media (hover: hover) and (pointer: fine) {
+  .action:hover:not(:disabled) { background: var(--color-bg-card-hover); }
+}
 
 .action:disabled {
   cursor: default;
@@ -317,7 +319,9 @@
   color: var(--color-on-accent);
 }
 
-.actionBid:hover:not(:disabled) { background: var(--color-accent-hover); }
+@media (hover: hover) and (pointer: fine) {
+  .actionBid:hover:not(:disabled) { background: var(--color-accent-hover); }
+}
 
 .actionMuted { color: var(--color-text-muted); }
 

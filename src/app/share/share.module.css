@@ -78,10 +78,12 @@
   transition: all var(--transition-fast);
 }
 
-.signInBtn:hover {
-  background: var(--color-accent);
-  color: #ffffff;
-  border-color: var(--color-accent);
+@media (hover: hover) and (pointer: fine) {
+  .signInBtn:hover {
+    background: var(--color-accent);
+    color: #ffffff;
+    border-color: var(--color-accent);
+  }
 }
 
 /* ── Main Layout Wrapper ── */

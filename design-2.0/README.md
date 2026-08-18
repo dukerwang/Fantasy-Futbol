@@ -1,6 +1,7 @@
 # Gaffa 2.0 — design system
 
-Status: **partially implemented.** The 2.0 tokens landed in `src/app/globals.css`
+Status: **every route ported; a cross-cutting punch list remains** (see "Not done yet").
+The 2.0 tokens landed in `src/app/globals.css`
 additively on 2026-08-08 alongside the League Home redesign (see
 `LEAGUE_HOME_HANDOFF.md`); both spec files, `--font-condensed` and the `Portrait` component
 followed on 2026-08-10 (see "Not done yet"). **`transfers/auctions` was ported 2026-08-11**
@@ -13,8 +14,15 @@ hub followed the same day** — `transfers`, `transfers/listings`, `transfers/fr
 ClubClient. That pass added the pitch to the palette and put the spectrum on a page for
 the first time. **`stats` and the player card followed 2026-08-12**, and **`matchups` +
 `matchups/[id]` the same day** — the port that finally rendered the scoreline, gave the
-margin axis something to measure, and moved `MatchupPitch` onto the real grass. Every
-other surface still runs 1.0.
+margin axis something to measure, and moved `MatchupPitch` onto the real grass.
+**`standings`, `history` and `finance` followed 2026-08-15** — the podium and the full table
+merged into one `.g-panel`, a third named colour-law exception, the first dark value
+`--color-defeat` has ever had, and (on `finance`) an uncolourable ten-category bar chart
+resolved by splitting each row into its own spent/earned segments instead. **`draft` closed
+out the list the same day** — the final route, a fourth hand-rolled position badge replaced
+by the shared component, and six controls' worth of a fill-token bug (`--color-text-inverse`
+on an accent fill) fixed in one pass. Every dashboard route is now on 2.0; only the legacy
+`trades` page and `admin/*` remain on 1.0, both deliberately.
 
 - **Prototype:** Claude Design project `f4858479-5b36-4ba3-9a4f-04da9725c7db`, built
   **unbound** (the bound "Fantasy Futbol Design System" has the wrong accent, fonts and
@@ -43,7 +51,7 @@ rebuilt is the system underneath.
 
 | Problem in 1.0 | 2.0 |
 |---|---|
-| Green meant brand, live, success, hover, 3 positions, and neutral status | **One job per colour.** Green = Gaffa and "yours". Live is a broadcast tally red. Two knowing exceptions, both recorded with their cost: the winger sage, and the performance ramp. |
+| Green meant brand, live, success, hover, 3 positions, and neutral status | **One job per colour.** Green = Gaffa and "yours". Live is a broadcast tally red. Three knowing exceptions, all recorded with their cost: the winger sage, the performance ramp, and the standings form dot (win, not "yours"). |
 | — | Dark **keeps** Gaffa's charcoal-navy. A warm-derived dark was tried and rejected: warm light with a cool dark is a legitimate pairing, and the navy reads clean |
 | GK badge 2.4:1, CM 3.3:1, several position hues ~2.3:1 as dark-mode text | **104 pairs verified at build time**, both themes |
 | Gold `#93702F` and bronze `#92400E` converged | Pulled apart; medal ramp reads 1/2/3 at a glance |
@@ -976,6 +984,27 @@ which is the hub port's "the hue already means centre-back everywhere else" defe
 category is not a position; flex had no hue at all and borrowed `text-muted`. A bench chip
 takes the player's own position, and where there is no player there is no badge.
 
+**5b. An import breaks the opposite way a copy does — not by drifting, but the instant its
+source is renamed underneath it.** Found 2026-08-17, reported as "the login carousel's
+position taxonomy screen is messed up": `AuthShowcase.tsx`'s `PositionsVisual` genuinely
+`import`s `MatchupPitch.module.css` (not a copy) and builds a standalone pitch from four of
+its classes — `halfOuter`, `pitchHalfZones`, `pitchHalfZoneRow`, `halfZone`. This port
+renamed all four (`half`, `zones`, `zoneRow`, `zone`) while giving `MatchupPitch.tsx` itself
+the real pitch and zone layout. `AuthShowcase` was never touched, so those four lookups
+silently resolved to `undefined` — no build error, no console warning, just a missing
+`class` attribute on each div — and eleven bare `PositionBadge`s fell back to plain
+block-flow, stacking in one vertical column with no pitch beneath them. The five classes
+that *didn't* rename (`halfField`, `halfTopLine`, `halfTopCircle`, `halfPenaltyBox`,
+`halfPenaltyArc`, `halfGoalBox`) kept working, which is what made the break look like a
+layout bug rather than a naming one. Fixed by renaming the four references to match; the
+zone-row's `WBZ` modifier (`zoneWBZ`) was added at the same time since the real component
+carries it and the taxonomy slide had silently never had it. Confirmed via the page's own
+SSR output (`curl`, no session — every referenced class now resolves to a real hashed
+name); `next build` clean. **The lesson is the mirror of 5 above: a genuine import doesn't
+drift, but nothing stops its source from moving out from under it — and unlike a copy, grep
+for the literal class name finds every consumer, so the fix is one search away once anyone
+looks.**
+
 **6. A board is one panel, for the fourth time, and a round is one too.** The list page was
 a bordered gazette banner, a floating hero card, N floating fixture cards and a floating
 glance strip — up to nine elevation declarations for one gameweek, where the glance figures
@@ -1200,6 +1229,210 @@ is deliberately not covered**: `league_standings` encodes the same 10 in its own
 only a migration can reach a view, so changing the band still means changing two things.
 That is written at the top of the file rather than left to be discovered.
 
+## What standings established (2026-08-15)
+
+`standings` alone — `history` and `finance` are still open. `standings.module.css` ends at
+**0 raw hex, 0 rem literals, 0 1.0 scale tokens, 0 radius literals**, and **49 measured
+colour pairs pass in both themes** (46 in `scratch/verify_standings.mjs`, 3 more — the form
+dots — in `scratch/solve_defeat_dark.mjs`, where they sit beside the derivation that made
+one of them legal).
+
+**1. The podium and the table are a board, for the fifth time.** 1.0 had three podium tiles
+each with their own border and shadow, floating above a separately-elevated table section —
+four elevation declarations for one composition, where the podium is arithmetic on the
+table's own first three rows (exactly the auction room's rail, one page later in the port
+order). Now one `.g-panel` with an internal hairline. The leader tile reads as featured
+through size (taller padding, larger type), position (centre of the 2nd | 1st | 3rd order)
+and the medal ramp painted onto the trophy icon itself — never a second surface.
+
+**2. Green is the win colour for the form dots — a third named colour-law exception,
+Duke's call.** The law's own table only recorded two ("the winger sage, and the performance
+ramp"); this is the first one made mid-port rather than inherited. Duke's reasoning: green
+reading as "win" is closer to a sports-universal convention than to a Gaffa-specific rule,
+and the law was "a bit overblown" here. Recorded with its cost, the same way the other two
+are.
+
+The cost turned out smaller than it looked. The risk was green-on-green: the "own row" wash
+is 12% accent, so a win dot in your own recent form paints solid accent over an
+already-green-tinted row. Measured as a graphical mark against WCAG 1.4.11's 3:1 floor (a
+filled 8px dot is not a text-contrast case) rather than the 4.5 text floor, every combination
+clears — dark win-on-wash is the tightest at 3.72. Draw takes `--color-warning-text` and loss
+takes `--color-defeat`, both already-established "a dot takes the legible value, not the fill
+value" moves from the squad-page port's doubt indicator.
+
+**3. `--color-defeat` had never had a dark value**, one value serving both themes since it
+was introduced — exactly the pattern the matchups port named as the reliable predictor of a
+dark-mode failure, measured here at **1.89:1** on a dark card. Solved to 4.8 holding hue and
+chroma, the same method as every other ramp in this file: **`#EA747B`**, now in `globals.css`
+and cleared for its first real consumer, the loss dot.
+
+**4. A washed row lifts EVERY muted slot, not just the ones that were already being
+watched.** Rule 1 from the auctions port says a tinted ground carries primary and secondary
+ink only; porting it here the first time, the rank number was left on a hardcoded
+`--color-text-muted` while the manager cell correctly took `--row-ink`. `verify_standings.mjs`
+caught it at **4.34** in dark, just under the floor — the rank cell now takes `--row-ink` too.
+Worth naming because it is a narrower version of the duplicated-rule defect: not a second copy
+of a whole rule, but one cell inside a single component that didn't get the memo the cell next
+to it did.
+
+**5. A ninth copy of the draw-band constant.** The matchups-port sweep found and collapsed
+seven, plus an eighth for the margin axis, and missed this file because it computes a form
+result (W/D/L) rather than drawing a scoreline — a different shape of the same 10, easy to
+miss when grepping for `<= 10` near a score. It now imports `isDrawMargin` from
+`src/lib/scoring/drawBand.ts`.
+
+**6. The squad-peek trigger finally stopped restating `SquadPeekButton`'s press treatment.**
+Named in "What the dialogs added" as still owed after `ListingCard`'s copy was found stale and
+geometrically broken (its `border-radius: 50%` rendered as an ellipse once the row grew). This
+page's copy was still in sync — nothing was visibly wrong — but "in sync today" is exactly the
+state that precedes drift, so it is deleted rather than left as the one remaining place a
+crest's hover has to be kept in agreement by hand.
+
+**Also found and removed, unreferenced:** `.podiumEmoji` and `.podiumCardLeader .podiumEmoji`
+(a leftover from an emoji treatment the trophy `Icon` had already replaced), and `.gdPos` /
+`.gdNeg` (goal-difference cell styling for a column the table has never rendered — `gd` is
+computed in the row data and was never wired to a `<td>`).
+
+## What history and finance established (2026-08-15)
+
+The rest of port 6, done the same day as standings. Both stylesheets end at **0 raw hex, 0
+rem literals, 0 1.0 scale tokens, 0 radius literals**, and **86 measured colour pairs pass in
+both themes** (`scratch/verify_history_finance.mjs`).
+
+**1. The same podium grammar, reused rather than reinvented.** History's per-season podium
+had the identical defect standings' did — three tiles each carrying their own border and
+shadow, nested inside the season's own already-elevated card — so it takes the same fix:
+tiers of one panel, told apart by a hairline. Left-to-right rank order stayed as it was
+(not standings' 2nd | 1st | 3rd "stage" order); reordering a repeated historical record is a
+product decision this port doesn't make on its own. **No colour-law exception was needed
+here.** The medal ramp already exists for exactly this job, and unlike standings' form dots
+this page never has an "own row" for green to collide with — nothing on it is scoped to the
+viewing manager, so the ramp's ordinary "thin ring/text, never a fill" rule was enough.
+Reused a second time on this page, for named cups: Champions Cup takes gold, League Cup
+silver, Consolation Cup bronze — the tier the trophy already means, not a fourth hue.
+
+**2. A finance page scoped to one manager makes green-for-earned NOT an exception.**
+Worth stating plainly because standings' form dots and this page's summary strip look like
+the same move and are not. `finance/page.tsx` queries one team's transactions start to
+finish; every green figure on this page genuinely IS "yours" in the sense the law already
+grants. So `--color-accent-green` (a 1.0 token, same value as 2.0's `--color-accent`) simply
+becomes `--color-accent-ink` for text and `--color-accent` for fills — a retoken, not a
+third exception layered on the second.
+
+**3. A ten-category bar chart has nowhere near enough hues, and the map covering it was
+already silently wrong.** The spending breakdown coloured each category by a hand-picked
+hex, but `TX_META` defines ten real categories and the map only ever had seven — Recirculation,
+Revenue, Sales and Loans fell through to a flat `--color-text-muted`, unnoticed because a
+grey bar still looks like a bar. Even fixed, ten hues is twice what the Wire's five event
+kinds already found no room for (README, "What finishing the hub established"). The category
+name is already the row's own label, so colour was never doing identification work — it now
+carries each row's own spent/earned split instead (`--color-danger` / `--color-accent`,
+the same split as everything else on the page), two segments inside one `.g-track`. A row's
+overall length still compares magnitude across categories; the fill now also shows
+composition, which the flat colour never did.
+
+**4. Three separately-elevated cards for one transaction list, collapsed to one panel.**
+Finance's summary strip, category breakdown and ledger table are all arithmetic on the exact
+same array — `totalSpent`/`totalEarned` and the per-category splits are computed from the
+same `transactions` prop the ledger rows render — so it is the "board is one panel" rule
+applied to three stacked sections instead of a list-plus-rail. One `.g-panel`, internal
+hairlines between the three, elevation declared once for the whole ledger rather than three
+times for one list.
+
+**5. The redundant eyebrow-above-a-heading pattern, twice more.** Both pages' `sectionKicker`
+("BY CATEGORY", "ALL TRANSACTIONS") sat above a `sectionTitle` that already said the same
+thing in words ("Spending breakdown", "Club ledger") — exactly the case the matchups port's
+copy sweep named for deletion: "a label sitting above a heading is deleted (the heading
+carries its own weight)". Both kickers are gone; the headings carry it alone. The `eyebrow`
+composing `ds-eyebrow-serif` in both pages' old masthead is the same defect one level up —
+1.0's eyebrow roles are deliberately absent from 2.0 (see "Not done yet") — and both mastheads
+now use the established `g-label` kicker instead. History's `seasonBadge`, an italicised serif
+season year sitting beside a title that already said "Season 2025-26", was the same pattern a
+third time and is deleted outright rather than restyled — it is also the one place this port
+touched the italic serif accent, which 2.0 gives exactly one job (the section/card heading)
+and this badge was not one.
+
+**6. The filter tabs and the position filter are the same control**, so finance's pill-shaped
+tabs are now literally `stats.module.css`'s `.segmented`/`.segment`/`.segmentOn` grammar:
+filled in ink on selection, not the accent — a view toggle, not "yours" — which is also the
+fix for a real dark-mode number: the 1.0 version's active tab used a raw
+`box-shadow: 0 1px 3px rgba(0,0,0,.08)` that did nothing on Gaffa's own dark card.
+
+Nothing else surfaced worth a numbered lesson — both ports were exactly what the port order
+predicted: table-heavy, mostly typographic, low risk.
+
+## What the draft room established (2026-08-15)
+
+`draft` — the final route, and the one the port order deliberately deferred: largest and
+most literal-ridden stylesheet in the app (1,519 lines) and dormant between seasons, since
+the draft happens exactly once per league, ever (docs/USER_GUIDE.md), so it was cheap to
+defer and never urgent. `draft.module.css` ends at **0 raw hex, 0 rem literals, 0 1.0 scale
+tokens**, and **106 measured colour pairs pass in both themes**
+(`scratch/verify_draft.mjs`). Structural dimensions — the 540px sidebar, the 220px sticky
+player column, the 60px stat columns, the 68px pick-cell height — stayed in px un-tokenised,
+the same call the dialogs port made for `ProposeBuilder`'s own column tracks: a control's own
+dimension is not a spacing value.
+
+**1. A fourth hand-rolled position badge, and the first one missing a whole axis of the
+spine rather than just drifting from it.** The draft room built its own from a local
+`.posBadge` + twelve-entry colour map, and — like `ListingCard`'s crest, the club page's own
+badge, and `MatchupPitch`'s `SLOT_COLOR` map before it — put LB and RB on one shared token
+and LWB and RWB on another. Every earlier occurrence at least drew *some* badge for the pair;
+this one drew the identical badge, full stop, because the hand-rolled version never
+implemented the clipped corner at all — the side was carried by nothing. Four call sites
+(the scouting table's row, the board's picked-cell, the roster list, the queue list) now
+render `<PositionBadge size="sm">`, and each name row that sits beside one takes
+`.g-namerow`, the same optical-lift primitive the stats pool's rows use. "A component copied
+rather than imported does not drift, it becomes wrong" (the round's own finding) — four
+occurrences in is where that stops being a coincidence and starts being the reliable
+prediction for any page that pre-dates the shared component.
+
+**2. `--color-text-inverse` on an accent fill is rule 5, a seventh time**, and the most
+repeated single defect in this file: six declarations across the banner's complete-CTA, the
+on-the-clock clock block and the draft/queue-draft buttons. `--color-text-inverse` is not
+white in dark — it's `#EDEAE2`, close to `--color-text-primary` — so every one of those
+controls read at roughly the fill-token bug's usual ~2.5:1 in dark. All six are
+`--color-on-accent` now, the token actually built for a label sitting on the fill, which
+inverts by theme because dark's accent is the brighter colour.
+
+**3. Three more view toggles move from the accent fill to ink**, extending the stats pool's
+rule (`.segment`/`.segmentOn`, "a view toggle, not 'yours'") to the position filter row, the
+role-matching toggle (Primary/Secondary/Both) and the roster sort toggle (By draft
+pick/By position). None of the three says anything about which club is yours, and the roster
+toggle's active state was also carrying an inline `box-shadow: 0 1px 3px rgba(0,0,0,.1)` —
+elevation on a chip that never floats, dropped along with the accent fill.
+
+**4. A tag that fails as text in BOTH themes, not just the usual dark-only case.**
+`--color-accent-purple`, used for the "new to the Premier League" tag, has exactly one value
+for both themes — 3.86:1 in light, 3.56 in dark, both under the 4.5 floor. Every other
+single-value token this project has found (`--color-defeat`, `--color-accent-purple`'s own
+neighbours) failed only in dark, because dark inks generally start with less headroom; this
+one failed everywhere, which is what a colour with no verified pairing at all looks like.
+A twelfth hue for one draft-only tag was never going to clear the law's "no free hues"
+constraint regardless (the Wire's five event kinds already found none for fewer, README "What
+finishing the hub established"), and the word already says "new" — the hub port's rule
+applies directly: where the element carries a word, delete the hue and do not replace it. It
+is a plain ink chip now, told apart by a dashed keyline in `--color-text-muted` — not
+`--color-border-strong`, which was solved against the *page* and measures 2.91/2.87 against
+this chip's `--color-bg-elevated` ground, under the graphical 3:1 floor. The same lesson the
+margin axis's band edges hit one port ago: a token verified on one ground does not clear on
+another.
+
+**5. Two more `pickCellFilled`/`myTeamCell` hover states moved to darken-only**, the
+matchups port's rule (`--color-bg-inset`, never `--color-bg-card-hover`, which lightens in
+dark and spends the headroom every ink on the cell was verified with) — the board's pick
+cells and the scouting table's player rows both had it.
+
+**Found and removed, unreferenced:** `.playerRowRight` / `.playerPpg`, a leftover from an
+earlier row layout that showed PPG inline; the current row renders points, PPG, rating and
+value as their own stat columns, and nothing had imported these two classes since before that
+layout existed.
+
+**With this, all fifteen dashboard routes design-2.0 set out to cover are on 2.0.** Only
+`trades` (legacy, out of the nav, kept alive solely because `AuthShowcase.tsx` imports
+`TradeCard` for the login carousel) and `admin/*` (no manager ever sees it) remain on 1.0,
+both by deliberate exclusion rather than by being left over.
+
 ## Port order for the remaining routes
 
 **Order by adjacency first, then by how much a surface exercises the system.** The first
@@ -1211,9 +1444,11 @@ alone put a 2.0 page in the middle of four 1.0 ones, so a manager crossed the se
 two clicks without leaving the section. A seam between distant sections is a blemish; a
 seam inside one section is a bug. `free-agents` and `listings` were not on the list at all.
 
-Eleven surfaces are on 2.0 (League Home, the whole Market hub, the two squad pages —
-which is three routes, because `clubs/[teamId]` renders the club page too — the stats
-pool, and both matchups routes).
+**Every route is on 2.0.** Fifteen surfaces (League Home, the whole Market hub, the two
+squad pages — which is three routes, because `clubs/[teamId]` renders the club page too —
+the stats pool, both matchups routes, standings, history, finance, and draft). `trades` and
+`admin/*` are the only dashboard pages still on 1.0, and both are deliberate: legacy/no
+manager ever sees them — see below.
 
 1. ~~**`transfers/auctions`**~~ — **done 2026-08-11.** Exercised the portrait at both row
    and lot size, the countdown (mono), `--color-live`, the panel, the condensed face and the
@@ -1236,9 +1471,19 @@ pool, and both matchups routes).
 5. ~~**`matchups` + `matchups/[id]`**~~ — **done 2026-08-12.** The scoreline treatment
    from turn 1, rendered for the first time, plus the margin axis it had been waiting
    for and `MatchupPitch`. See "What the round established" below.
-6. **`standings`, `history`, `finance`** — table-heavy, mostly typographic, low risk.
-7. **`draft`** — largest and most literal-ridden (1,519 lines), and dormant between
-   seasons, so it is last and cheapest to defer.
+6. ~~**`standings`, `history`, `finance`**~~ — **done 2026-08-15.** `standings` merged the
+   podium and the full table into one `.g-panel`, a third colour-law exception (green as the
+   form-dot win colour, Duke's call), and `--color-defeat`'s first-ever dark value.
+   `history` reused that exact podium grammar per season; `finance` collapsed three
+   separately-elevated cards (summary, breakdown, ledger) into one panel and replaced an
+   uncolourable ten-category bar chart with a spent/earned split. See "What standings
+   established" and "What history and finance established" below.
+7. ~~**`draft`**~~ — **done 2026-08-15. The final route.** Position badges moved to the
+   shared `<PositionBadge>` component (a fourth occurrence of the hand-rolled-badge defect,
+   this time missing the LB/RB and LWB/RWB clipped corners entirely), `--color-text-inverse`
+   on an accent fill came off six controls, three view toggles moved from the accent fill to
+   ink, and a colour-illegible-in-both-themes "NEW" tag lost its purple. See "What the draft
+   room established" below.
 
 The `transfers/` **dialogs** — `Modal`, `BidDialog`, `ListingEditor`, `ProposeBuilder` —
 followed the surfaces on 2026-08-11. See "What the dialogs added" below. The section is now
@@ -1251,27 +1496,86 @@ from it for the public login carousel. `admin/*` never faces a manager.
 
 ## Not done yet
 
-- 19 dashboard routes still on 1.0 (`players` is gone, not ported); **23** stylesheets still
-  hold raw hex outside comments (was 25, and 38 before the hub). Two of the remaining are in
-  `components/players/`: `PremiumPlayerCard.module.css`, whose only hex is the six
-  `--rating-*` declarations themselves — those ARE the token definitions — and
-  `PlayerCard.module.css`, the small hover-preview card, which was not in port 4's scope
-  and still carries 18.
-- 69 `font-size` declarations between 8 and 10px, to move with their page (was 141 before
-  the auctions port, 130 after it, 103 after the hub surfaces, 91 after the dialogs, 73
-  after the stats pool).
+- **0 dashboard routes left on 1.0** (`players` is gone, not ported; `standings`, `history`,
+  `finance` and `draft` all came off 2026-08-15). `trades` and `admin/*` stay on 1.0
+  deliberately — see "What the draft room established". **19** stylesheets still hold raw
+  hex outside comments (was 21, 25, and 38 before the hub) — `draft.module.css` was never one
+  of them, all of its colour already ran through tokens before this port touched it. Two of
+  the remaining are in `components/players/`: `PremiumPlayerCard.module.css`, whose only hex
+  is the six `--rating-*` declarations themselves — those ARE the token definitions — and
+  `PlayerCard.module.css`, the small hover-preview card, which was not in port 4's scope and
+  still carries 18. The rest sit in pages this project never targeted at all — `admin/*`,
+  `trades`, `team-setup`, `activity`, `inbox`, `tournaments`, `league/create`, the top-level
+  `/dashboard` leagues grid, the (auth) forms, `/share`, and shared layout chrome
+  (`NotificationBell`, `ChatNavIcon`) — all still on 1.0 tokens, none of them one of the
+  fifteen ported routes.
+
+  **One of the 21 was a real regression, found sweeping the rest: `_home/home.module.css`
+  (League Home, the very first port) still hand-rolled the on-accent inversion** — `.pipW`,
+  `.pipL` and `.btnPrimary` set `color: #fff` and then overrode it to `#10141c` under
+  `[data-theme='dark']`, the exact hand-rolled toggle `--color-on-accent` exists to replace,
+  caught six times before across other ports (rule 5, "What the first route port
+  established"). `.pipL` sits on `--color-danger`, not `--color-accent`, and no `on-danger`
+  token existed — `globals.css`'s own comment on `--color-danger`'s dark value had already
+  flagged that gap ("any new [fill] must invert, the same move .btn-primary makes") without
+  anyone closing it. **`--color-on-danger` is now a token** (`#FFFFFF` light / `#10141C`
+  dark, the same inversion as `on-accent`, both measured well clear of 4.5 against danger's
+  fill in either theme) and checked in `verify-palette.mjs` alongside `on-accent` /
+  `on-warning` (196 pairs now, up from 194). Fixed 2026-08-17.
+- **26** `font-size` declarations between 8 and 10px (was 34; the count above hadn't been
+  re-measured since history/finance). Re-auditing while sweeping this and the two items
+  below found the "all now sit in pages that ARE on 2.0" claim didn't hold: token-checking
+  each file, only **one** (`_home/home.module.css`'s `.pip`, 9px) was actually on a
+  2.0-tokenised stylesheet — **fixed 2026-08-17**, to `var(--t-10)`. The other 25 are spread
+  across pages this project never targeted — `league.module.css` (shared per-league layout),
+  `activity`, `trades`, `tournaments`, `AuthShowcase`, `NegotiationCard`,
+  `DepartureDecisionModal`, `SquadPeek` — all still majority 1.0 tokens by an actual count,
+  not per-component debt inside ported routes as previously stated.
 - Radius literals decision 3 was written to kill: 2px ×30, 3px ×24, 5px ×1, 7px ×0. The
-  dialogs cleared every 7px in the app and all but one 5px.
+  dialogs cleared every 7px in the app and all but one 5px. **Checked 2026-08-17**, same
+  audit as the font-size line above: every remaining 2px/3px literal is either on an
+  unported page (`admin/*`, `trades`, `activity`, `league.module.css`, `AuthShowcase`,
+  `NegotiationCard`, `DepartureDecisionModal`, `SquadPeek`, and `.ds-meter` /
+  `.ds-shield` in `globals.css`, both consumed only by the unported top-level `/dashboard`
+  leagues grid) or deliberately fixed-canvas geometry the README already excludes —
+  `PremiumPlayerCard`'s "the geometry IS the design" literals and the pitch's penalty-arc
+  radii. Zero in-scope fixes; nothing changed.
 - Elevation: 177 `box-shadow` against 590 `1px solid`. The rule is now stated in
-  `globals.css`; surfaces carrying both get reconciled as they are ported.
-- The dialog controls (ghost/primary buttons, error box, tracked field label) are written
-  four times over — see "What the dialogs added".
-- `standings` carries its own copy of the squad-peek press treatment, currently in sync with
-  `SquadPeekButton.module.css`. Collapse it before it drifts, as `ListingCard`'s copy did.
+  `globals.css`; surfaces carrying both get reconciled as they are ported. **Checked
+  2026-08-17** on the fifteen ported routes for the specific violation decision 1 names — a
+  panel or floating element carrying BOTH a border and a shadow. Found four; fixed one.
+  **`team/roster`'s `.todoPop`** (the to-do dropdown) had `border-subtle` plus `shadow-lg` —
+  a floating popover is exactly "things that genuinely float," so the border is gone,
+  matching `Modal.module.css`'s own `.panel` ("Elevation declared ONCE: shadow, no
+  border."). The other three — `PremiumPlayerCard`'s `.injuryTip` and `.actionIconBtn`, and
+  `PlayerDetailsModal`'s `.actionBtn` — are left alone: both files are under the explicit
+  "Duke's call: the design does not change" lock from the player-card port (a
+  token-and-contrast port only, no layout or style-law changes), so decision 1 loses to that
+  lock the same way the winger sage and the performance ramp already do to the colour law.
+  `next build` clean.
+- ~~The dialog controls (ghost/primary buttons, error box, tracked field label) are written
+  four times over~~ **Fixed 2026-08-17.** `.g-dialog-ghost` / `-go` / `-danger` / `-error` /
+  `-label` in `globals.css`; `BidDialog`, `ListingEditor` and `ProposeBuilder` now `composes:
+  … from global` rather than restating them (Modal itself never had a copy — it's the shell,
+  the three real dialogs each redeclared this inside it). Fixing the duplication surfaced two
+  live defects the drift had already produced: **`ProposeBuilder`'s error box painted its
+  text `--color-danger` on `--color-danger-dim`** — 3.92:1 in dark, the exact wash-and-word
+  collision the other two dialogs' own comments warn against ("the wash carries the alarm,
+  so the message is ink") — and lacked the left rail the other two use as the second carrier.
+  And **every `.ghost`'s border was `--color-border`**, the same 1.58/1.72:1 boundary the
+  input/select sweep found — a button is a control too, so it now takes
+  `--color-border-strong` like the rest. Three small layout deltas fell out along the way:
+  ListingEditor's footer buttons move from `--s4` to `--s5` padding and ProposeBuilder's from
+  `--t-11` to `--t-12` type, both now matching the other two rather than each dialog's own
+  guess. `verify-palette.mjs` unaffected (196/196, no new tokens); `next build` clean.
 - The 1.0 eyebrow roles are deliberately absent from 2.0 — 34 call sites across
   `ds-eyebrow` (12), `ds-eyebrow-serif` (7) and `ds-label` (15). Mapping: a genuine
   dateline or metadata line keeps `ds-label`; a label sitting above a heading is deleted
-  (the heading carries its own weight); everything else becomes `t-heading`.
+  (the heading carries its own weight); everything else becomes `t-heading`. **Checked
+  2026-08-17**: all 34 sites are in `admin/offseason`, the top-level `/dashboard` (`LeagueGrid`,
+  `dashboard.module.css`), `activity`, `chat/Chat.module.css`, the mock draft room,
+  `league.module.css` and `preDraftLobby.module.css` — none of the fifteen ported routes use
+  any of the three classes. Zero in-scope fixes; nothing changed.
 - **The baseline rule is still rendered by nothing.** Port 4 was meant to be where it
   became real; the card was its intended home, and the card's design is staying as it is
   (see above), so it did not land. Two prototype revisions exploring a home for it are in
@@ -1301,10 +1605,19 @@ from it for the public login carousel. `admin/*` never faces a manager.
   candidate surface at once. One migration plus a change to the stats writer. Until then
   the component is correct and homeless for a reason, and building it on a re-derivation
   would be spending the signature component to hide a data gap.
-- Every `input` and `select` on every ported surface draws its boundary in
-  `--color-border` — **1.58:1 light, 1.72:1 dark**, against WCAG 1.4.11's 3:1 for a control
-  boundary. `--color-border-strong` clears it. App-wide, so it wants one pass rather than a
-  per-page divergence.
+- ~~Every `input` and `select` on every ported surface draws its boundary in
+  `--color-border`~~ **Fixed 2026-08-17.** `--color-border` measured **1.58:1 light, 1.72:1
+  dark** against WCAG 1.4.11's 3:1 for a control boundary. Nine rules across seven
+  stylesheets — `transfers/listings`, `transfers/free-agents`, `team/roster` (`.tbSelect`,
+  which was on the even weaker `--color-border-subtle`), `stats`, and the three dialogs
+  (`BidDialog`, `ProposeBuilder` — `.message` and `.pickerSearch`, the latter also on
+  `-subtle`, `ListingEditor`) — moved to `--color-border-strong`, which clears the floor at
+  **3.20:1**, the tightest pair in the palette but a real pass. `draft.module.css`'s
+  `.filterSelect` already used `-strong`; `ProposeBuilder`'s borderless underline fields
+  (`.cashInline`, `ListingEditor`'s `.priceInput`) and the type=range sliders carry no
+  boundary and needed nothing. Left alone deliberately: `trades/`, `admin/*`,
+  `team-setup`, `PreDraftLobby`, the mock draft room, and the (auth) forms — all still on
+  1.0 tokens, frozen by the scale policy above, not part of this pass.
 - ~~The baseline rule has no component in `src/`.~~ **Landed 2026-08-10** as `.g-baseline*` in
   `globals.css` + `src/components/players/BaselineRule.tsx`, which takes
   `MatchRating.breakdown` straight from the engine. See "The baseline rule" above.
@@ -1349,4 +1662,5 @@ from it for the public login carousel. `admin/*` never faces a manager.
     recycled row does not inherit the previous occupant's failures.
 - Breakpoints are documented in `globals.css` but cannot be tokenised: custom properties
   do not resolve inside a media query. Twelve distinct widths are in use against five legal.
-- The login carousel says "one of 7 supported formations"; the real number is 10.
+- ~~The login carousel says "one of 7 supported formations"; the real number is 10.~~
+  **Fixed 2026-08-17**, `AuthShowcase.tsx`.

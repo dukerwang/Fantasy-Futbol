@@ -153,8 +153,10 @@
   transition: background var(--transition-fast);
 }
 
-.submitBtn:hover:not(:disabled) {
-  background: var(--color-accent);
+@media (hover: hover) and (pointer: fine) {
+  .submitBtn:hover:not(:disabled) {
+    background: var(--color-accent);
+  }
 }
 
 .submitBtn:disabled {

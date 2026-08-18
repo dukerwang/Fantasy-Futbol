@@ -283,9 +283,11 @@
   border-radius: 50%;
   transition: transform var(--transition-fast), box-shadow var(--transition-fast);
 }
-.ownerCrest:hover {
-  transform: scale(1.06);
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-accent) 45%, transparent);
+@media (hover: hover) and (pointer: fine) {
+  .ownerCrest:hover {
+    transform: scale(1.06);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-accent) 45%, transparent);
+  }
 }
 
 .loanCrests {
@@ -307,7 +309,9 @@
   border-radius: var(--r-control);
   transition: transform var(--transition-fast);
 }
-.loanCrestCol:hover { transform: scale(1.06); }
+@media (hover: hover) and (pointer: fine) {
+  .loanCrestCol:hover { transform: scale(1.06); }
+}
 
 .loanRole {
   font-family: var(--font-sans);
@@ -577,9 +581,14 @@
   pointer-events: none;
 }
 
-.injuryStamp:hover .injuryTip,
 .injuryStamp:focus-visible .injuryTip {
   display: block;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .injuryStamp:hover .injuryTip {
+    display: block;
+  }
 }
 
 /* ── Identity bar ───────────────────────────────────────────── */
@@ -794,8 +803,10 @@
   transition: border-color 0.15s ease, background 0.15s ease;
 }
 
-.rankChip:hover {
-  border-color: color-mix(in srgb, var(--chip-color, var(--color-accent-green)) 55%, var(--color-border-subtle));
+@media (hover: hover) and (pointer: fine) {
+  .rankChip:hover {
+    border-color: color-mix(in srgb, var(--chip-color, var(--color-accent-green)) 55%, var(--color-border-subtle));
+  }
 }
 
 .rankChip:focus-visible {
@@ -867,19 +878,25 @@
   line-height: 1;
 }
 
-.actionIconBtn:hover {
-  border-color: var(--color-accent-green);
-  color: var(--color-accent-green);
+@media (hover: hover) and (pointer: fine) {
+  .actionIconBtn:hover {
+    border-color: var(--color-accent-green);
+    color: var(--color-accent-green);
+  }
 }
 
-.actionIconBtn[aria-label="Close"]:hover {
-  border-color: var(--color-accent-red);
-  color: var(--color-accent-red);
-  transform: none;
+@media (hover: hover) and (pointer: fine) {
+  .actionIconBtn[aria-label="Close"]:hover {
+    border-color: var(--color-accent-red);
+    color: var(--color-accent-red);
+    transform: none;
+  }
 }
 
-.actionIconBtn[aria-label^="Flip"]:hover {
-  transform: rotate(180deg);
+@media (hover: hover) and (pointer: fine) {
+  .actionIconBtn[aria-label^="Flip"]:hover {
+    transform: rotate(180deg);
+  }
 }
 
 .crestImg {
@@ -1092,7 +1109,9 @@
   transition: color 150ms ease;
 }
 
-.backTab:hover { color: var(--color-text-primary); }
+@media (hover: hover) and (pointer: fine) {
+  .backTab:hover { color: var(--color-text-primary); }
+}
 
 .backTabActive { color: var(--color-text-primary); }
 

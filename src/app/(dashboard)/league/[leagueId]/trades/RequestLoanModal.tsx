@@ -222,7 +222,7 @@ export default function RequestLoanModal({
     border: '1px solid var(--color-border)',
     background: 'var(--color-bg-card)',
     color: 'var(--color-text-primary)',
-    fontSize: '14px',
+    fontSize: '16px',
     width: '100%',
     boxSizing: 'border-box' as const,
   };

@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Archivo_Narrow, Hanken_Grotesk, JetBrains_Mono, Newsreader } from 'next/font/google';
 import { ThemeProvider } from '@/context/ThemeContext';
 import './globals.css';
@@ -68,6 +68,16 @@ export const metadata: Metadata = {
       { url: '/apple-icon.png', sizes: '180x180', type: 'image/png' },
     ],
   },
+};
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  viewportFit: 'cover',
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#F7F3ED' },
+    { media: '(prefers-color-scheme: dark)', color: '#1A1F2E' },
+  ],
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

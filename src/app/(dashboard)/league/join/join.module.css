@@ -18,8 +18,10 @@
   text-decoration: none;
 }
 
-.breadcrumb a:hover {
-  color: var(--color-text-primary);
+@media (hover: hover) and (pointer: fine) {
+  .breadcrumb a:hover {
+    color: var(--color-text-primary);
+  }
 }
 
 .title {
@@ -112,8 +114,10 @@
   transition: background var(--transition-fast);
 }
 
-.submitBtn:hover:not(:disabled) {
-  background: var(--color-accent);
+@media (hover: hover) and (pointer: fine) {
+  .submitBtn:hover:not(:disabled) {
+    background: var(--color-accent);
+  }
 }
 
 .submitBtn:disabled {

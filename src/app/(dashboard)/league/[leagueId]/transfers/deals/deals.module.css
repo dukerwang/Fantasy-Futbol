@@ -173,7 +173,9 @@
   white-space: nowrap;
 }
 
-.proposeBtn:hover { background: var(--color-accent-hover); }
+@media (hover: hover) and (pointer: fine) {
+  .proposeBtn:hover { background: var(--color-accent-hover); }
+}
 
 /* The two loan routes are the same action at lower rank, not different actions
    in a different colour. */
@@ -183,7 +185,9 @@
   color: var(--color-text-secondary);
 }
 
-.proposeBtnGhost:hover { background: var(--color-bg-card-hover); }
+@media (hover: hover) and (pointer: fine) {
+  .proposeBtnGhost:hover { background: var(--color-bg-card-hover); }
+}
 
 /* ── Deal cards ─────────────────────────────────────────── */
 
@@ -298,7 +302,9 @@
   cursor: pointer;
 }
 
-.assetName:hover { text-decoration: underline; }
+@media (hover: hover) and (pointer: fine) {
+  .assetName:hover { text-decoration: underline; }
+}
 
 /* Settled money: a proposed figure sits there until someone answers it. Serif,
    and in ink on the washed card for the reason the tag is. */
@@ -351,7 +357,9 @@
 }
 
 .dealBtn:last-child { border-right: none; }
-.dealBtn:hover:not(:disabled) { background: var(--color-bg-card-hover); }
+@media (hover: hover) and (pointer: fine) {
+  .dealBtn:hover:not(:disabled) { background: var(--color-bg-card-hover); }
+}
 .dealBtn:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .dealBtnYes {
@@ -359,7 +367,9 @@
   color: var(--color-on-accent);
 }
 
-.dealBtnYes:hover:not(:disabled) { background: var(--color-accent-hover); }
+@media (hover: hover) and (pointer: fine) {
+  .dealBtnYes:hover:not(:disabled) { background: var(--color-accent-hover); }
+}
 
 .dealStatus {
   flex: 1;

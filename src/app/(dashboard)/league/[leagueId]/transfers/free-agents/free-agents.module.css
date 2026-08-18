@@ -116,7 +116,9 @@
   min-width: 0;
 }
 
-.chipName:hover { text-decoration: underline; }
+@media (hover: hover) and (pointer: fine) {
+  .chipName:hover { text-decoration: underline; }
+}
 
 .chipMeta {
   font-size: var(--t-11);
@@ -172,10 +174,14 @@
   cursor: pointer;
 }
 
-.chipGo:hover { background: var(--color-accent-hover); }
+@media (hover: hover) and (pointer: fine) {
+  .chipGo:hover { background: var(--color-accent-hover); }
+}
 
 .chipGoGhost { background: transparent; color: var(--color-accent-ink); }
-.chipGoGhost:hover { background: var(--color-accent-dim); color: var(--color-text-primary); }
+@media (hover: hover) and (pointer: fine) {
+  .chipGoGhost:hover { background: var(--color-accent-dim); color: var(--color-text-primary); }
+}
 
 /* ── Tools ──────────────────────────────────────────────── */
 
@@ -191,11 +197,11 @@
   flex: 1;
   min-width: 200px;
   padding: var(--s2) var(--s3);
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--color-border-strong);
   border-radius: var(--r-control);
   background: var(--color-bg-card);
   font-family: var(--font-sans);
-  font-size: var(--t-13);
+  font-size: var(--text-base);
   color: var(--color-text-primary);
 }
 
@@ -203,7 +209,7 @@
 
 .select {
   padding: var(--s2) var(--s3);
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--color-border-strong);
   border-radius: var(--r-control);
   background: var(--color-bg-card);
   font-family: var(--font-sans);
@@ -233,16 +239,24 @@
   min-width: 34px;
 }
 
-.pos:hover { background: var(--color-bg-card-hover); }
+@media (hover: hover) and (pointer: fine) {
+  .pos:hover { background: var(--color-bg-card-hover); }
+}
 
 /* Filled in ink, not in the position's own field colour. A row of twelve filled
    position hues is the paint chart the row-tint rule warns about, and the two
    that would have carried it here measured 2.61 and 2.98 as fills in dark. */
-.posOn,
-.posOn:hover {
+.posOn {
   background: var(--color-text-primary);
   border-color: var(--color-text-primary);
   color: var(--color-bg-primary);
+}
+@media (hover: hover) and (pointer: fine) {
+  .posOn:hover {
+    background: var(--color-text-primary);
+    border-color: var(--color-text-primary);
+    color: var(--color-bg-primary);
+  }
 }
 
 /* ── Table ──────────────────────────────────────────────── */
@@ -321,7 +335,9 @@
   min-width: 0;
 }
 
-.playerName:hover { text-decoration: underline; }
+@media (hover: hover) and (pointer: fine) {
+  .playerName:hover { text-decoration: underline; }
+}
 
 .club {
   white-space: nowrap;
@@ -364,7 +380,9 @@
   cursor: pointer;
 }
 
-.bidBtn:hover { background: var(--color-accent); color: var(--color-on-accent); }
+@media (hover: hover) and (pointer: fine) {
+  .bidBtn:hover { background: var(--color-accent); color: var(--color-on-accent); }
+}
 
 /* The action column's header is empty on screen but must not be empty to a
    screen reader reading the row. */
@@ -413,7 +431,9 @@
   cursor: pointer;
 }
 
-.pageBtn:hover:not(:disabled) { background: var(--color-bg-card-hover); }
+@media (hover: hover) and (pointer: fine) {
+  .pageBtn:hover:not(:disabled) { background: var(--color-bg-card-hover); }
+}
 .pageBtn:disabled { opacity: 0.4; cursor: not-allowed; }
 
 .pageOf {

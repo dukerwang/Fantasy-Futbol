@@ -13,10 +13,12 @@
   padding: 0;
 }
 
-.toggle:hover {
-  color: var(--color-text-primary);
-  border-color: var(--color-text-muted);
-  background: var(--color-bg-card-hover);
+@media (hover: hover) and (pointer: fine) {
+  .toggle:hover {
+    color: var(--color-text-primary);
+    border-color: var(--color-text-muted);
+    background: var(--color-bg-card-hover);
+  }
 }
 
 .icon {

@@ -74,9 +74,11 @@
   flex-shrink: 0;
 }
 
-.close:hover {
-  color: var(--color-text-primary);
-  background: var(--color-bg-card-hover);
+@media (hover: hover) and (pointer: fine) {
+  .close:hover {
+    color: var(--color-text-primary);
+    background: var(--color-bg-card-hover);
+  }
 }
 
 .close:focus-visible {

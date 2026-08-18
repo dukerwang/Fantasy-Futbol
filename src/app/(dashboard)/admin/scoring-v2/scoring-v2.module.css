@@ -273,7 +273,7 @@
   border-radius: var(--radius-sm, 4px);
   background: var(--color-bg-card);
   color: var(--color-text-primary);
-  font-size: 14px;
+  font-size: 16px;
   font-family: var(--font-sans);
 }
 
@@ -348,8 +348,10 @@
   margin-left: 2px;
 }
 
-.shadowRow:hover {
-  background: var(--color-bg-card-hover);
+@media (hover: hover) and (pointer: fine) {
+  .shadowRow:hover {
+    background: var(--color-bg-card-hover);
+  }
 }
 
 .shadowTdPlayer {
@@ -523,8 +525,10 @@
   transition: transform 0.1s ease;
 }
 
-.sliderInput::-webkit-slider-thumb:hover {
-  transform: scale(1.2);
+@media (hover: hover) and (pointer: fine) {
+  .sliderInput::-webkit-slider-thumb:hover {
+    transform: scale(1.2);
+  }
 }
 
 .sliderInput::-moz-range-thumb {
@@ -537,8 +541,10 @@
   transition: transform 0.1s ease;
 }
 
-.sliderInput::-moz-range-thumb:hover {
-  transform: scale(1.2);
+@media (hover: hover) and (pointer: fine) {
+  .sliderInput::-moz-range-thumb:hover {
+    transform: scale(1.2);
+  }
 }
 
 /* --- Premium Segmented Toggle --- */
@@ -567,9 +573,11 @@
   border-right: none;
 }
 
-.toggleButton:hover {
-  background: var(--color-bg-secondary);
-  color: var(--color-text-primary);
+@media (hover: hover) and (pointer: fine) {
+  .toggleButton:hover {
+    background: var(--color-bg-secondary);
+    color: var(--color-text-primary);
+  }
 }
 
 .activeToggle {

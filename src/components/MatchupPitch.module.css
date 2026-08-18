@@ -285,7 +285,9 @@
     transition: border-color var(--dur-fast) var(--ease-standard);
 }
 
-.chip:hover { border-color: var(--color-accent); }
+@media (hover: hover) and (pointer: fine) {
+  .chip:hover { border-color: var(--color-accent); }
+}
 
 .chipBadgeRow {
     display: flex;
@@ -432,7 +434,9 @@
     transition: border-color var(--dur-fast) var(--ease-standard);
 }
 
-.benchChip:hover { border-color: var(--color-accent); }
+@media (hover: hover) and (pointer: fine) {
+  .benchChip:hover { border-color: var(--color-accent); }
+}
 
 .benchChip .chipPts { border-color: var(--color-border); }
 .benchChip .subMark { border-color: var(--color-border); }

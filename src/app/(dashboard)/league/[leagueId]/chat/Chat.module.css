@@ -68,20 +68,31 @@
   position: relative;
 }
 
-.sidebarBtn:hover {
-  background: var(--color-bg-card-hover);
-  color: var(--color-text-primary);
+@media (hover: hover) and (pointer: fine) {
+  .sidebarBtn:hover {
+    background: var(--color-bg-card-hover);
+    color: var(--color-text-primary);
+  }
 }
 
-.sidebarBtnActive,
-.sidebarBtnActive:hover {
+.sidebarBtnActive {
   background: var(--color-text-primary);
   color: var(--color-bg-primary) !important;
   font-weight: var(--font-medium);
 }
 
-.sidebarBtnActive:hover {
-  opacity: 0.95;
+@media (hover: hover) and (pointer: fine) {
+  .sidebarBtnActive:hover {
+    background: var(--color-text-primary);
+    color: var(--color-bg-primary) !important;
+    font-weight: var(--font-medium);
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .sidebarBtnActive:hover {
+    opacity: 0.95;
+  }
 }
 
 .sidebarBtnActive .icon {
@@ -98,8 +109,10 @@
   padding-left: calc(var(--space-5) - 3px);
 }
 
-.sidebarBtnUnread:hover {
-  background: var(--color-accent-green-dim);
+@media (hover: hover) and (pointer: fine) {
+  .sidebarBtnUnread:hover {
+    background: var(--color-accent-green-dim);
+  }
 }
 
 .sidebarBtnUnread .managerName {
@@ -357,7 +370,7 @@
   border-radius: var(--radius-sm);
   padding: 12px var(--space-4);
   font-family: var(--font-sans);
-  font-size: var(--text-sm);
+  font-size: var(--text-base);
   color: var(--color-text-primary);
   resize: none;
   outline: none;
@@ -386,9 +399,11 @@
   white-space: nowrap;
 }
 
-.sendBtn:hover:not(:disabled) {
-  background: var(--color-accent);
-  color: var(--color-text-inverse);
+@media (hover: hover) and (pointer: fine) {
+  .sendBtn:hover:not(:disabled) {
+    background: var(--color-accent);
+    color: var(--color-text-inverse);
+  }
 }
 
 .sendBtn:disabled {

@@ -6,7 +6,7 @@ import type { GranularPosition, RatingBreakdownItem } from '@/types';
  * abbreviation; this is for the places that need a phrase — "median for an
  * attacking midfielder", "graded as a left wing-back".
  */
-export const POSITION_LONG: Record<GranularPosition, string> = {
+export const POSITION_LONG = {
   GK: 'goalkeeper',
   CB: 'centre-back',
   LB: 'left-back',
@@ -19,7 +19,7 @@ export const POSITION_LONG: Record<GranularPosition, string> = {
   LW: 'left winger',
   RW: 'right winger',
   ST: 'striker',
-};
+} satisfies Record<GranularPosition, string>;
 
 interface Props {
   /** `MatchRating.breakdown` — already scored and normalised by the engine. */

@@ -52,7 +52,9 @@
     margin: var(--s6) var(--s6) 0;
 }
 
-.backLink:hover { text-decoration: underline; text-underline-offset: 3px; }
+@media (hover: hover) and (pointer: fine) {
+  .backLink:hover { text-decoration: underline; text-underline-offset: 3px; }
+}
 
 /* ── The scoreline ──────────────────────────────────────── */
 
@@ -91,9 +93,11 @@
     min-width: 0;
 }
 
-.clubLink:hover {
-    text-decoration: underline;
-    text-underline-offset: 4px;
+@media (hover: hover) and (pointer: fine) {
+  .clubLink:hover {
+      text-decoration: underline;
+      text-underline-offset: 4px;
+  }
 }
 
 /* Ink in every state. The losing side steps back in weight and tone; it never
@@ -228,7 +232,9 @@
     transition: color var(--dur-fast) var(--ease-standard);
 }
 
-.reportToggle:hover { text-decoration: underline; text-underline-offset: 3px; }
+@media (hover: hover) and (pointer: fine) {
+  .reportToggle:hover { text-decoration: underline; text-underline-offset: 3px; }
+}
 
 /* ── Responsive ─────────────────────────────────────────── */
 

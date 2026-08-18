@@ -60,7 +60,9 @@
   text-decoration: none;
 }
 
-.kicker a:hover { text-decoration: underline; }
+@media (hover: hover) and (pointer: fine) {
+  .kicker a:hover { text-decoration: underline; }
+}
 
 .title {
   font-family: var(--font-serif);
@@ -106,11 +108,11 @@
   min-width: 160px;
   max-width: 260px;
   padding: var(--s2) var(--s3);
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--color-border-strong);
   border-radius: var(--r-control);
   background: var(--color-bg-card);
   font-family: var(--font-sans);
-  font-size: var(--t-13);
+  font-size: var(--text-base);
   color: var(--color-text-primary);
 }
 
@@ -123,7 +125,7 @@
 
 .select {
   padding: var(--s2) var(--s3);
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--color-border-strong);
   border-radius: var(--r-control);
   background: var(--color-bg-card);
   font-family: var(--font-sans);
@@ -227,17 +229,25 @@
 }
 
 .segment:last-child { border-right: none; }
-.segment:hover { background: var(--color-bg-card-hover); }
+@media (hover: hover) and (pointer: fine) {
+  .segment:hover { background: var(--color-bg-card-hover); }
+}
 
 /* Filled in ink, not in the accent. This is a view toggle, not "yours" — and
    the 1.0 version painted `--color-accent` with a hardcoded #FFFFFF label,
    which is 2.5:1 in dark where the accent is the brighter colour. Free
    Agency's position chips took the same ink treatment for the same reason. */
-.segmentOn,
-.segmentOn:hover {
+.segmentOn {
   background: var(--color-text-primary);
   border-color: var(--color-text-primary);
   color: var(--color-bg-primary);
+}
+@media (hover: hover) and (pointer: fine) {
+  .segmentOn:hover {
+    background: var(--color-text-primary);
+    border-color: var(--color-text-primary);
+    color: var(--color-bg-primary);
+  }
 }
 
 /* ── Table ──────────────────────────────────────────────── */
@@ -315,7 +325,9 @@
   min-width: 0;
 }
 
-.row:hover .playerName { text-decoration: underline; }
+@media (hover: hover) and (pointer: fine) {
+  .row:hover .playerName { text-decoration: underline; }
+}
 
 /* The club is a crest everywhere else in 2.0, and a crest is what the portrait
    chips. In a fixed 190px-minimum name column there is no room for one beside
@@ -344,7 +356,9 @@
    and the rest of the spine only just over it. Lifting the one muted slot to
    secondary through a single variable is the same move the club page made.
    `scratch/verify_stats_page.mjs`. */
-.row:hover { --row-ink: var(--color-text-secondary); }
+@media (hover: hover) and (pointer: fine) {
+  .row:hover { --row-ink: var(--color-text-secondary); }
+}
 
 .owner {
   white-space: nowrap;
@@ -397,7 +411,9 @@
   gap: var(--s1);
 }
 
-.sortable:hover { color: var(--color-text-primary); }
+@media (hover: hover) and (pointer: fine) {
+  .sortable:hover { color: var(--color-text-primary); }
+}
 
 .table thead th.num .sortable { flex-direction: row-reverse; }
 

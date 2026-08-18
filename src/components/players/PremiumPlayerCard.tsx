@@ -4,6 +4,7 @@ import { useState, useRef, useCallback, useEffect } from 'react';
 import type { Player, PlayerOwnership, PlayerSeasonArchive } from '@/types';
 import type { CrestConfig } from '@/components/crest/types';
 import { getPlayerDisplayName, playerInitial } from '@/lib/players/displayName';
+import { portraitUrl } from '@/lib/players/photo';
 import { useParams } from 'next/navigation';
 import CrestBadge from '@/components/crest/CrestBadge';
 import SquadPeekButton from '@/components/teams/SquadPeekButton';
@@ -184,7 +185,7 @@ function scoreAtPosition(
     g: CardGamelogEntry,
     pos: string,
     primary: string,
-): { fantasy_points: number; match_rating: number | null } {
+) {
     const scored = g.by_position?.[pos];
     if (scored) return scored;
     if (pos === primary) {
@@ -255,24 +256,58 @@ export default function PremiumPlayerCard({
         setBack(staticOnly ? { gamelog: [], history: [] } : getCachedBack(player.id, leagueId));
     }
 
-    // ── Photo: fixed slot, instant when warm, crossfade when cold ─────────────
-    const photoUrl = resolvedPlayer.photo_url ?? null;
-    const [photoState, setPhotoState] = useState<{ url: string | null; loaded: boolean; failed: boolean }>(
-        () => ({ url: photoUrl, loaded: isImageReady(photoUrl), failed: false }),
+    // ── Photo: fixed slot, cascades through FPL's two cut-outs before initials,
+    // instant when warm, grace-then-crossfade when cold ───────────────────────
+    // `photo_url` is the 110x140 cut-out the card's box is tuned to; the
+    // 500x500 one is a different crop (see photo.ts) but coverage isn't
+    // nested, so trying it before giving up on a photo entirely closes real
+    // gaps for players missing just the one FPL happens to serve at 110x140.
+    const rawPhotoUrl = resolvedPlayer.photo_url ?? null;
+    const photoAltUrl = portraitUrl(rawPhotoUrl);
+    const photoSources = [rawPhotoUrl, photoAltUrl].filter((u): u is string => u !== null);
+    const sourcesKey = `${resolvedPlayer.id}|${photoSources.join('|')}`;
+
+    const [photoState, setPhotoState] = useState<{ key: string; n: number; loaded: boolean }>(
+        () => ({ key: sourcesKey, n: 0, loaded: isImageReady(photoSources[0] ?? null) }),
     );
-    if (photoState.url !== photoUrl) {
-        setPhotoState({ url: photoUrl, loaded: isImageReady(photoUrl), failed: false });
+    if (photoState.key !== sourcesKey) {
+        setPhotoState({ key: sourcesKey, n: 0, loaded: isImageReady(photoSources[0] ?? null) });
     }
+    const photoUrl = photoSources[photoState.n] ?? null;
+
+    const advancePhoto = useCallback(() => {
+        setPhotoState((s) => ({ key: s.key, n: s.n + 1, loaded: false }));
+    }, []);
 
     // An <img> whose bytes are already in the HTTP cache can finish before React
     // attaches onLoad, so mount-time completeness has to be checked directly or
-    // a warm photo would still fade in.
+    // a warm photo would still fade in. A source that 403s before that handler
+    // attaches never fires onError either — caught the same way, by advancing
+    // the cascade instead of getting stuck on a dead source.
     const photoRef = useCallback((node: HTMLImageElement | null) => {
-        if (node && node.complete && node.naturalWidth > 0) {
+        if (!node || !node.complete) return;
+        if (node.naturalWidth > 0) {
             markImageReady(node.currentSrc || node.src);
             setPhotoState((s) => (s.loaded ? s : { ...s, loaded: true }));
+        } else {
+            setPhotoState((s) => ({ key: s.key, n: s.n + 1, loaded: false }));
         }
     }, []);
+
+    // The placeholder is armed (allowed to render) immediately when there's no
+    // photo to even try; for one that's in flight it waits a beat, so a
+    // cache-fast paint never gets a single frame with the initial visible
+    // before the crossfade takes over.
+    const [placeholderArmed, setPlaceholderArmed] = useState(() => !photoUrl);
+    useEffect(() => {
+        if (!photoUrl || photoState.loaded) {
+            setPlaceholderArmed(!photoUrl);
+            return;
+        }
+        setPlaceholderArmed(false);
+        const t = setTimeout(() => setPlaceholderArmed(true), 100);
+        return () => clearTimeout(t);
+    }, [photoUrl, photoState.loaded]);
 
     useEffect(() => {
         if (staticOnly) return;
@@ -324,7 +359,8 @@ export default function PremiumPlayerCard({
     const primaryPosVar = POS_CSS_VAR[primaryPos] ?? 'var(--color-accent-green)';
 
     /** True once a real photo is on screen and the fallback initial can recede. */
-    const photoShowing = !!photoUrl && !photoState.failed && photoState.loaded;
+    const photoShowing = !!photoUrl && photoState.loaded;
+    const showPlaceholder = !photoShowing && placeholderArmed;
 
     const gamelog = back?.gamelog ?? [];
     const history = back?.history ?? [];
@@ -572,7 +608,7 @@ export default function PremiumPlayerCard({
                         {/* Fixed-size slot. The photo and its fallback occupy the exact
                             same box, so nothing around them can ever move. */}
                         <div className={styles.photoSlot}>
-                            {photoUrl && !photoState.failed && (
+                            {photoUrl && (
                                 // eslint-disable-next-line @next/next/no-img-element
                                 <img
                                     key={photoUrl}
@@ -588,16 +624,16 @@ export default function PremiumPlayerCard({
                                     referrerPolicy="no-referrer"
                                     onLoad={(e) => {
                                         markImageReady(e.currentTarget.currentSrc || e.currentTarget.src);
-                                        setPhotoState((s) => ({ ...s, loaded: true }));
+                                        setPhotoState((s) => (s.loaded ? s : { ...s, loaded: true }));
                                     }}
-                                    onError={() => setPhotoState((s) => ({ ...s, failed: true }))}
+                                    onError={advancePhoto}
                                 />
                             )}
                             {/* Stays mounted and fades out as the photo fades in.
                                 Unmounting it instead would flash the card
                                 background through a transparent cutout PNG. */}
                             <div
-                                className={`${styles.photoPlaceholder} ${photoShowing ? styles.photoPlaceholderHidden : ''}`}
+                                className={`${styles.photoPlaceholder} ${showPlaceholder ? '' : styles.photoPlaceholderHidden}`}
                                 style={{ '--placeholder-tint': teamColor } as React.CSSProperties}
                                 aria-hidden={photoShowing ? 'true' : undefined}
                             >

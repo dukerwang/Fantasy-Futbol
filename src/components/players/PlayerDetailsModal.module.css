@@ -92,9 +92,11 @@
   border-color: var(--color-accent);
 }
 
-.actionBtnPrimary:hover {
-  background: var(--color-accent-hover);
-  border-color: var(--color-accent-hover);
+@media (hover: hover) and (pointer: fine) {
+  .actionBtnPrimary:hover {
+    background: var(--color-accent-hover);
+    border-color: var(--color-accent-hover);
+  }
 }
 
 @media (max-width: 768px) {

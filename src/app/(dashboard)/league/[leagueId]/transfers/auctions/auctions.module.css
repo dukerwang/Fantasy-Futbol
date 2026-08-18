@@ -102,8 +102,13 @@
   white-space: nowrap;
 }
 
-.facet:hover { background: var(--color-bg-card-hover); }
-.facetOn, .facetOn:hover { color: var(--color-on-accent) !important; }
+@media (hover: hover) and (pointer: fine) {
+  .facet:hover { background: var(--color-bg-card-hover); }
+}
+.facetOn { color: var(--color-on-accent) !important; }
+@media (hover: hover) and (pointer: fine) {
+  .facetOn:hover { color: var(--color-on-accent) !important; }
+}
 
 .facetCount {
   font-variant-numeric: tabular-nums lining-nums;
@@ -251,7 +256,9 @@
   text-align: left;
 }
 
-.lotName:hover { text-decoration: underline; }
+@media (hover: hover) and (pointer: fine) {
+  .lotName:hover { text-decoration: underline; }
+}
 
 /* The club is gone from this line — the portrait's crest carries it now, which
    is what lets the row hold at two short lines instead of three. */
@@ -403,13 +410,17 @@
   min-width: 0;
 }
 
-.go:hover { background: var(--color-accent-hover); border-color: var(--color-accent-hover); }
+@media (hover: hover) and (pointer: fine) {
+  .go:hover { background: var(--color-accent-hover); border-color: var(--color-accent-hover); }
+}
 
 .goGhost { background: transparent; color: var(--color-accent-ink); }
 /* The wash arrives, so the label goes to ink: accent-ink on accent-dim is
    4.41 in dark. The keyline and the tint are the hover; the word need not be
    green as well. */
-.goGhost:hover { background: var(--color-accent-dim); border-color: var(--color-accent); color: var(--color-text-primary); }
+@media (hover: hover) and (pointer: fine) {
+  .goGhost:hover { background: var(--color-accent-dim); border-color: var(--color-accent); color: var(--color-text-primary); }
+}
 
 .goMuted {
   background: transparent;
@@ -430,7 +441,9 @@
   cursor: pointer;
 }
 
-.toggle:hover { background: var(--color-bg-card-hover); color: var(--color-text-primary); }
+@media (hover: hover) and (pointer: fine) {
+  .toggle:hover { background: var(--color-bg-card-hover); color: var(--color-text-primary); }
+}
 
 /* ── Expanded lot ───────────────────────────────────────── */
 
@@ -555,13 +568,19 @@
   cursor: pointer;
 }
 
-.q:hover { background: var(--color-accent-dim); color: var(--color-text-primary); }
+@media (hover: hover) and (pointer: fine) {
+  .q:hover { background: var(--color-accent-dim); color: var(--color-text-primary); }
+}
 
 .qOn { background: var(--color-accent); color: var(--color-on-accent); }
-.qOn:hover { background: var(--color-accent-hover); }
+@media (hover: hover) and (pointer: fine) {
+  .qOn:hover { background: var(--color-accent-hover); }
+}
 
 .qGold { border-color: var(--color-gold); color: var(--color-gold); }
-.qGold:hover { background: color-mix(in oklab, var(--color-gold) 12%, transparent); }
+@media (hover: hover) and (pointer: fine) {
+  .qGold:hover { background: color-mix(in oklab, var(--color-gold) 12%, transparent); }
+}
 
 .exNote {
   font-size: var(--t-11);

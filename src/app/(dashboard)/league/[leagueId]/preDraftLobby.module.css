@@ -105,9 +105,11 @@
   transition: color 0.15s ease, background 0.15s ease;
 }
 
-.inviteCodeCopyBtn:hover {
-  color: var(--color-accent);
-  background: var(--color-bg-secondary);
+@media (hover: hover) and (pointer: fine) {
+  .inviteCodeCopyBtn:hover {
+    color: var(--color-accent);
+    background: var(--color-bg-secondary);
+  }
 }
 
 /* ── CTA card ───────────────────────────────────────────── */
@@ -146,9 +148,11 @@
   transition: background var(--transition-fast), color var(--transition-fast);
 }
 
-.ctaBtn:hover {
-  background: var(--color-accent);
-  color: var(--color-text-inverse);
+@media (hover: hover) and (pointer: fine) {
+  .ctaBtn:hover {
+    background: var(--color-accent);
+    color: var(--color-text-inverse);
+  }
 }
 
 .mockDraftBtn {
@@ -168,9 +172,11 @@
   transition: border-color var(--transition-fast), color var(--transition-fast);
 }
 
-.mockDraftBtn:hover {
-  border-color: var(--color-accent);
-  color: var(--color-accent);
+@media (hover: hover) and (pointer: fine) {
+  .mockDraftBtn:hover {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+  }
 }
 
 /* ── Section card (Club Registrations, Commissioner Controls) ── */
@@ -314,8 +320,10 @@
   transition: color var(--transition-fast);
 }
 
-.editIdentityBtn:hover {
-  color: var(--color-accent-hover);
+@media (hover: hover) and (pointer: fine) {
+  .editIdentityBtn:hover {
+    color: var(--color-accent-hover);
+  }
 }
 
 /* ── Modal ──────────────────────────────────────────────── */
@@ -368,8 +376,10 @@
   transition: color var(--transition-fast);
 }
 
-.modalCloseBtn:hover {
-  color: var(--color-text-primary);
+@media (hover: hover) and (pointer: fine) {
+  .modalCloseBtn:hover {
+    color: var(--color-text-primary);
+  }
 }
 
 .modalBody {
@@ -392,7 +402,7 @@
 .textInput {
   width: 100%;
   padding: var(--space-3);
-  font-size: var(--text-sm);
+  font-size: var(--text-base);
   background: var(--color-bg-primary);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
@@ -425,9 +435,11 @@
   transition: all var(--transition-fast);
 }
 
-.cancelBtn:hover {
-  color: var(--color-text-primary);
-  border-color: var(--color-text-muted);
+@media (hover: hover) and (pointer: fine) {
+  .cancelBtn:hover {
+    color: var(--color-text-primary);
+    border-color: var(--color-text-muted);
+  }
 }
 
 .saveBtn {
@@ -442,9 +454,11 @@
   transition: background var(--transition-fast);
 }
 
-.saveBtn:hover:not(:disabled) {
-  background: var(--color-accent);
-  color: var(--color-text-inverse);
+@media (hover: hover) and (pointer: fine) {
+  .saveBtn:hover:not(:disabled) {
+    background: var(--color-accent);
+    color: var(--color-text-inverse);
+  }
 }
 
 .saveBtn:disabled {
@@ -607,9 +621,11 @@
   transition: all var(--transition-fast);
 }
 
-.reorderBtn:hover:not(:disabled) {
-  border-color: var(--color-text-muted);
-  color: var(--color-text-primary);
+@media (hover: hover) and (pointer: fine) {
+  .reorderBtn:hover:not(:disabled) {
+    border-color: var(--color-text-muted);
+    color: var(--color-text-primary);
+  }
 }
 
 .reorderBtn:disabled {
@@ -631,9 +647,11 @@
   transition: all var(--transition-fast);
 }
 
-.randomizeBtn:hover:not(:disabled) {
-  border-color: var(--color-text-muted);
-  color: var(--color-text-primary);
+@media (hover: hover) and (pointer: fine) {
+  .randomizeBtn:hover:not(:disabled) {
+    border-color: var(--color-text-muted);
+    color: var(--color-text-primary);
+  }
 }
 
 .draftOrderError {
@@ -672,9 +690,11 @@
   text-align: center;
 }
 
-.saveOrderBtn:hover:not(:disabled) {
-  color: var(--color-text-primary);
-  border-color: var(--color-text-muted);
+@media (hover: hover) and (pointer: fine) {
+  .saveOrderBtn:hover:not(:disabled) {
+    color: var(--color-text-primary);
+    border-color: var(--color-text-muted);
+  }
 }
 
 .startDraftBtn {
@@ -694,10 +714,12 @@
   text-align: center;
 }
 
-.startDraftBtn:hover:not(:disabled) {
-  background: var(--color-accent);
-  border-color: var(--color-accent);
-  color: var(--color-text-inverse);
+@media (hover: hover) and (pointer: fine) {
+  .startDraftBtn:hover:not(:disabled) {
+    background: var(--color-accent);
+    border-color: var(--color-accent);
+    color: var(--color-text-inverse);
+  }
 }
 
 .startDraftBtn:disabled, .saveOrderBtn:disabled {
@@ -732,8 +754,10 @@
   flex: 1;
 }
 
-.fullSetupLink:hover {
-  border-color: var(--color-accent);
+@media (hover: hover) and (pointer: fine) {
+  .fullSetupLink:hover {
+    border-color: var(--color-accent);
+  }
 }
 
 /* ── Scheduling & Countdown Timer ───────────────────────── */
@@ -821,7 +845,7 @@
   color: var(--color-text-primary);
   border-radius: var(--radius-sm);
   padding: var(--space-2) var(--space-3);
-  font-size: var(--text-sm);
+  font-size: var(--text-base);
   font-family: inherit;
   outline: none;
   transition: border-color var(--transition-fast);
@@ -851,10 +875,12 @@
   transition: all var(--transition-fast);
 }
 
-.saveScheduleBtn:hover:not(:disabled) {
-  background: var(--color-accent);
-  border-color: var(--color-accent);
-  color: var(--color-text-inverse);
+@media (hover: hover) and (pointer: fine) {
+  .saveScheduleBtn:hover:not(:disabled) {
+    background: var(--color-accent);
+    border-color: var(--color-accent);
+    color: var(--color-text-inverse);
+  }
 }
 
 .cancelScheduleBtn {
@@ -869,9 +895,11 @@
   transition: all var(--transition-fast);
 }
 
-.cancelScheduleBtn:hover:not(:disabled) {
-  border-color: var(--color-danger);
-  background: var(--color-danger-dim);
+@media (hover: hover) and (pointer: fine) {
+  .cancelScheduleBtn:hover:not(:disabled) {
+    border-color: var(--color-danger);
+    background: var(--color-danger-dim);
+  }
 }
 
 .saveScheduleBtn:disabled,

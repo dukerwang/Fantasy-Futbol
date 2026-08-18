@@ -91,7 +91,7 @@
 .textInput {
   width: 100%;
   padding: 0.75rem 1rem;
-  font-size: 0.925rem;
+  font-size: 1rem;
   background: var(--color-bg-primary);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
@@ -197,10 +197,12 @@
   width: fit-content;
 }
 
-.fileUploadLabel:hover {
-  background: var(--color-border);
-  color: var(--color-text-primary);
-  border-color: var(--color-text-secondary);
+@media (hover: hover) and (pointer: fine) {
+  .fileUploadLabel:hover {
+    background: var(--color-border);
+    color: var(--color-text-primary);
+    border-color: var(--color-text-secondary);
+  }
 }
 
 .hiddenFileInput {
@@ -225,9 +227,11 @@
   transition: opacity 0.2s ease;
 }
 
-.removeLogoBtn:hover {
-  text-decoration: underline;
-  opacity: 0.8;
+@media (hover: hover) and (pointer: fine) {
+  .removeLogoBtn:hover {
+    text-decoration: underline;
+    opacity: 0.8;
+  }
 }
 
 .urlInputFallback {
@@ -343,8 +347,10 @@
   transition: all 0.2s;
 }
 
-.cropCancelBtn:hover {
-  background: var(--color-bg-secondary);
+@media (hover: hover) and (pointer: fine) {
+  .cropCancelBtn:hover {
+    background: var(--color-bg-secondary);
+  }
 }
 
 .cropApplyBtn {
@@ -360,8 +366,10 @@
   box-shadow: 0 2px 8px rgba(58, 107, 74, 0.2);
 }
 
-.cropApplyBtn:hover {
-  opacity: 0.9;
+@media (hover: hover) and (pointer: fine) {
+  .cropApplyBtn:hover {
+    opacity: 0.9;
+  }
 }
 
 /* Submit Actions */
@@ -382,8 +390,10 @@
   margin-top: 1rem;
 }
 
-.submitBtn:hover:not(:disabled) {
-  background: var(--color-accent);
+@media (hover: hover) and (pointer: fine) {
+  .submitBtn:hover:not(:disabled) {
+    background: var(--color-accent);
+  }
 }
 
 .submitBtn:disabled {

@@ -134,9 +134,11 @@
   box-shadow: var(--shadow-sm);
 }
 
-.auctionCard:hover {
-  border-color: var(--color-border);
-  box-shadow: var(--shadow-md);
+@media (hover: hover) and (pointer: fine) {
+  .auctionCard:hover {
+    border-color: var(--color-border);
+    box-shadow: var(--shadow-md);
+  }
 }
 
 .auctionCardUrgent {
@@ -327,8 +329,10 @@
   transition: background var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
 }
 
-.auctionBidBtnMini:hover {
-  background: var(--color-accent);
+@media (hover: hover) and (pointer: fine) {
+  .auctionBidBtnMini:hover {
+    background: var(--color-accent);
+  }
 }
 
 .ab-leading .auctionBidBtnMini {
@@ -337,10 +341,12 @@
   border: 1px solid var(--color-border) !important;
 }
 
-.ab-leading .auctionBidBtnMini:hover {
-  background: rgba(58, 107, 74, 0.08) !important;
-  border-color: var(--color-accent) !important;
-  color: var(--color-accent) !important;
+@media (hover: hover) and (pointer: fine) {
+  .ab-leading .auctionBidBtnMini:hover {
+    background: rgba(58, 107, 74, 0.08) !important;
+    border-color: var(--color-accent) !important;
+    color: var(--color-accent) !important;
+  }
 }
 
 /* ============================================================
@@ -454,10 +460,12 @@
   box-shadow: var(--shadow-sm);
 }
 
-.carouselNavBtn:hover {
-  border-color: var(--color-accent-green);
-  color: var(--color-accent-green);
-  background: var(--color-accent-green-dim);
+@media (hover: hover) and (pointer: fine) {
+  .carouselNavBtn:hover {
+    border-color: var(--color-accent-green);
+    color: var(--color-accent-green);
+    background: var(--color-accent-green-dim);
+  }
 }
 
 .deckScale {
@@ -516,8 +524,10 @@
   transition: background var(--transition-base);
 }
 
-.deckDot:hover {
-  background: var(--color-text-muted);
+@media (hover: hover) and (pointer: fine) {
+  .deckDot:hover {
+    background: var(--color-text-muted);
+  }
 }
 
 .deckDotActive {
@@ -880,8 +890,10 @@
   transition: border-color var(--transition-fast);
 }
 
-.cupCard:hover {
-  border-color: var(--color-border);
+@media (hover: hover) and (pointer: fine) {
+  .cupCard:hover {
+    border-color: var(--color-border);
+  }
 }
 
 .cupHeader {
@@ -996,8 +1008,10 @@
   transition: background var(--transition-base);
 }
 
-.dot:hover {
-  background: var(--color-text-muted);
+@media (hover: hover) and (pointer: fine) {
+  .dot:hover {
+    background: var(--color-text-muted);
+  }
 }
 
 .dotActive {
@@ -1030,10 +1044,12 @@
   transition: border-color var(--transition-fast), color var(--transition-fast), background var(--transition-fast);
 }
 
-.arrow:hover {
-  border-color: var(--color-accent-green);
-  color: var(--color-accent-green);
-  background: var(--color-accent-green-dim);
+@media (hover: hover) and (pointer: fine) {
+  .arrow:hover {
+    border-color: var(--color-accent-green);
+    color: var(--color-accent-green);
+    background: var(--color-accent-green-dim);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

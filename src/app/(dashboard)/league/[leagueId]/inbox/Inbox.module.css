@@ -59,10 +59,12 @@
   color: var(--color-text-secondary);
 }
 
-.btn:hover {
-  color: var(--color-text-primary);
-  border-color: var(--color-text-muted);
-  background: var(--color-bg-card-hover);
+@media (hover: hover) and (pointer: fine) {
+  .btn:hover {
+    color: var(--color-text-primary);
+    border-color: var(--color-text-muted);
+    background: var(--color-bg-card-hover);
+  }
 }
 
 .btnDanger {
@@ -70,10 +72,12 @@
   border-color: rgba(217, 56, 58, 0.2);
 }
 
-.btnDanger:hover {
-  background: rgba(217, 56, 58, 0.05);
-  border-color: #d9383a;
-  color: #d9383a;
+@media (hover: hover) and (pointer: fine) {
+  .btnDanger:hover {
+    background: rgba(217, 56, 58, 0.05);
+    border-color: #d9383a;
+    color: #d9383a;
+  }
 }
 
 .btnPrimary {
@@ -82,11 +86,13 @@
   color: var(--color-text-inverse);
 }
 
-.btnPrimary:hover {
-  background: var(--color-accent-green);
-  opacity: 0.9;
-  border-color: var(--color-accent-green);
-  color: var(--color-text-inverse);
+@media (hover: hover) and (pointer: fine) {
+  .btnPrimary:hover {
+    background: var(--color-accent-green);
+    opacity: 0.9;
+    border-color: var(--color-accent-green);
+    color: var(--color-text-inverse);
+  }
 }
 
 .controls {
@@ -123,9 +129,11 @@
   color: var(--color-bg-primary);
 }
 
-.tab:not(.tabActive):hover {
-  background: var(--color-bg-card-hover);
-  color: var(--color-text-primary);
+@media (hover: hover) and (pointer: fine) {
+  .tab:not(.tabActive):hover {
+    background: var(--color-bg-card-hover);
+    color: var(--color-text-primary);
+  }
 }
 
 .ledger {
@@ -158,8 +166,10 @@
   padding-left: calc(var(--space-6) - 3px);
 }
 
-.row:hover {
-  background: var(--color-bg-card-hover);
+@media (hover: hover) and (pointer: fine) {
+  .row:hover {
+    background: var(--color-bg-card-hover);
+  }
 }
 
 .iconWrapper {
@@ -266,13 +276,17 @@
   color: var(--color-text-muted);
 }
 
-.row:hover .deleteBtn {
-  opacity: 1;
+@media (hover: hover) and (pointer: fine) {
+  .row:hover .deleteBtn {
+    opacity: 1;
+  }
 }
 
-.deleteBtn:hover {
-  color: #d9383a;
-  background: rgba(217, 56, 58, 0.05);
+@media (hover: hover) and (pointer: fine) {
+  .deleteBtn:hover {
+    color: #d9383a;
+    background: rgba(217, 56, 58, 0.05);
+  }
 }
 
 .emptyState {

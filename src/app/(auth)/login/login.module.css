@@ -61,9 +61,11 @@
   transition: color var(--transition-fast);
 }
 
-.topNavLink:hover {
-  color: var(--color-accent-hover);
-  text-decoration: underline;
+@media (hover: hover) and (pointer: fine) {
+  .topNavLink:hover {
+    color: var(--color-accent-hover);
+    text-decoration: underline;
+  }
 }
 
 @media (max-width: 980px) {
@@ -161,9 +163,11 @@
   transition: border-color var(--transition-base), background-color var(--transition-base);
 }
 
-.providerBtn:hover {
-  border-color: var(--color-accent-green);
-  background: var(--color-bg-card-hover);
+@media (hover: hover) and (pointer: fine) {
+  .providerBtn:hover {
+    border-color: var(--color-accent-green);
+    background: var(--color-bg-card-hover);
+  }
 }
 
 .providerBtn svg {

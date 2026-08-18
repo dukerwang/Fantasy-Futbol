@@ -137,6 +137,7 @@ const P = {
        floor is exactly how a 2.70:1 label shipped. */
     'on-accent':     '#FFFFFF',
     'on-warning':    '#1C1A17',
+    'on-danger':     '#FFFFFF',
     'warning':       '#f59e0b',
     'live':          '#B3261E',
     'danger':        '#A32219',
@@ -191,6 +192,7 @@ const P = {
     'accent-ink':    '#2FB56C',
     'on-accent':     '#10141C',
     'on-warning':    '#1C1A17',
+    'on-danger':     '#10141C',
     'warning':       '#f59e0b',
     'live':          '#F0736A',
     'danger':        '#F0736A',
@@ -321,6 +323,7 @@ for (const theme of ['light', 'dark']) {
      token the app actually paints is the whole point of this file. */
   check(theme, 'on-accent on accent fill', p['on-accent'], p['accent'], 4.5);
   check(theme, 'on-warning on warning fill', p['on-warning'], p['warning'], 4.5);
+  check(theme, 'on-danger on danger fill', p['on-danger'], p['danger'], 4.5);
   check(theme, 'accent fill vs card', p['accent'], p['bg-card'], 3.0);
   check(theme, 'border-strong on page', p['border-strong'], p['bg-primary'], 3.0);
   check(theme, 'border-strong on card', p['border-strong'], p['bg-card'], 3.0);

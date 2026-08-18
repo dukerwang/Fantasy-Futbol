@@ -22,20 +22,14 @@
 }
 
 .label {
-  display: block;
-  font-family: var(--font-condensed);
-  font-size: var(--t-10);
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--color-text-muted);
+  composes: g-dialog-label from global;
   margin-bottom: var(--s2);
 }
 
 .select {
   width: 100%;
   padding: var(--s2) var(--s3);
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--color-border-strong);
   border-radius: var(--r-control);
   background: var(--color-bg-card);
   font-family: var(--font-sans);
@@ -211,59 +205,17 @@
 
 /* The wash carries the alarm; the message is ink. */
 .error {
+  composes: g-dialog-error from global;
   margin: 0 var(--s5) var(--s3);
-  padding: var(--s2) var(--s3);
-  border-radius: var(--r-control);
-  border-left: 3px solid var(--color-danger);
-  background: var(--color-danger-dim);
-  color: var(--color-text-primary);
-  font-size: var(--t-12);
-  line-height: 1.45;
 }
 
 /* ── Footer ─────────────────────────────────────────────── */
 
 .spacer { flex: 1; }
 
-.ghost,
-.go,
-.danger {
-  padding: var(--s2) var(--s4);
-  border-radius: var(--r-control);
-  font-family: var(--font-condensed);
-  font-size: var(--t-12);
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  cursor: pointer;
-  border: 1px solid transparent;
-}
-
-.ghost {
-  border-color: var(--color-border);
-  color: var(--color-text-secondary);
-  background: none;
-}
-
-.danger {
-  border-color: var(--color-border);
-  color: var(--color-danger);
-  background: none;
-}
-
-.ghost:hover:not(:disabled),
-.danger:hover:not(:disabled) { background: var(--color-bg-card-hover); }
-
-.go {
-  background: var(--color-accent);
-  color: var(--color-on-accent);
-}
-
-.go:hover:not(:disabled) { background: var(--color-accent-hover); }
-
-.go:disabled,
-.ghost:disabled,
-.danger:disabled { opacity: 0.5; cursor: not-allowed; }
+.ghost { composes: g-dialog-ghost from global; }
+.go { composes: g-dialog-go from global; }
+.danger { composes: g-dialog-danger from global; }
 
 @media (max-width: 480px) {
   .prices { grid-template-columns: 1fr; }

@@ -7,7 +7,14 @@
   position: sticky;
   top: 0;
   z-index: 100;
-  height: var(--nav-height);
+  /* viewport-fit=cover lets the page draw under the notch/Dynamic Island;
+     grow the bar into that space via safe-area-inset-top rather than
+     letting the notch overlap the nav content. */
+  height: calc(var(--nav-height) + env(safe-area-inset-top, 0px));
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-left: env(safe-area-inset-left, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
+  box-sizing: border-box;
   background: var(--color-bg-secondary);
   border-bottom: 1px solid var(--color-border);
   overflow: visible;
@@ -102,9 +109,11 @@
   border: none;
 }
 
-.navLink:hover {
-  color: var(--color-text-primary);
-  background: var(--color-bg-card-hover);
+@media (hover: hover) and (pointer: fine) {
+  .navLink:hover {
+    color: var(--color-text-primary);
+    background: var(--color-bg-card-hover);
+  }
 }
 
 .navLinkActive {
@@ -112,8 +121,10 @@
   font-weight: var(--font-semibold);
 }
 
-.navLinkActive:hover {
-  color: var(--color-accent-green);
+@media (hover: hover) and (pointer: fine) {
+  .navLinkActive:hover {
+    color: var(--color-accent-green);
+  }
 }
 
 .chevron {
@@ -154,9 +165,11 @@
   white-space: nowrap;
 }
 
-.dropdownLink:hover {
-  color: var(--color-text-primary);
-  background: var(--color-bg-card-hover);
+@media (hover: hover) and (pointer: fine) {
+  .dropdownLink:hover {
+    color: var(--color-text-primary);
+    background: var(--color-bg-card-hover);
+  }
 }
 
 .dropdownLinkActive {
@@ -196,9 +209,11 @@
   transition: border-color var(--transition-fast), background var(--transition-fast);
 }
 
-.leagueSwitcherBtn:hover {
-  border-color: var(--color-border);
-  background: var(--color-bg-card-hover);
+@media (hover: hover) and (pointer: fine) {
+  .leagueSwitcherBtn:hover {
+    border-color: var(--color-border);
+    background: var(--color-bg-card-hover);
+  }
 }
 
 .leagueLabel {
@@ -257,8 +272,10 @@
   cursor: pointer;
 }
 
-.leagueDropdownItem:hover {
-  background: var(--color-bg-card-hover);
+@media (hover: hover) and (pointer: fine) {
+  .leagueDropdownItem:hover {
+    background: var(--color-bg-card-hover);
+  }
 }
 
 .leagueDropdownItemActive {
@@ -313,9 +330,11 @@
   transition: color var(--transition-fast), background var(--transition-fast);
 }
 
-.leagueDropdownAction:hover {
-  color: var(--color-accent-green);
-  background: var(--color-bg-card-hover);
+@media (hover: hover) and (pointer: fine) {
+  .leagueDropdownAction:hover {
+    color: var(--color-accent-green);
+    background: var(--color-bg-card-hover);
+  }
 }
 
 /* --- User Avatar --- */
@@ -346,10 +365,12 @@
     background var(--transition-fast);
 }
 
-.signOut:hover {
-  color: var(--color-text-primary);
-  border-color: var(--color-text-muted);
-  background: var(--color-bg-card-hover);
+@media (hover: hover) and (pointer: fine) {
+  .signOut:hover {
+    color: var(--color-text-primary);
+    border-color: var(--color-text-muted);
+    background: var(--color-bg-card-hover);
+  }
 }
 
 /* --- Responsive --- */
@@ -409,10 +430,12 @@
   text-decoration: none;
 }
 
-.iconBtn:hover {
-  color: var(--color-text-primary);
-  border-color: var(--color-text-muted);
-  background: var(--color-bg-card-hover);
+@media (hover: hover) and (pointer: fine) {
+  .iconBtn:hover {
+    color: var(--color-text-primary);
+    border-color: var(--color-text-muted);
+    background: var(--color-bg-card-hover);
+  }
 }
 
 .iconBtnActive {
@@ -435,10 +458,12 @@
   transition: all var(--transition-fast);
 }
 
-.balancePill:hover {
-  color: var(--color-text-primary);
-  border-color: var(--color-text-muted);
-  background: var(--color-bg-card-hover);
+@media (hover: hover) and (pointer: fine) {
+  .balancePill:hover {
+    color: var(--color-text-primary);
+    border-color: var(--color-text-muted);
+    background: var(--color-bg-card-hover);
+  }
 }
 
 .balancePillAmount {
@@ -465,10 +490,12 @@
   flex-shrink: 0;
 }
 
-.menuToggle:hover {
-  color: var(--color-text-primary);
-  border-color: var(--color-text-muted);
-  background: var(--color-bg-card-hover);
+@media (hover: hover) and (pointer: fine) {
+  .menuToggle:hover {
+    color: var(--color-text-primary);
+    border-color: var(--color-text-muted);
+    background: var(--color-bg-card-hover);
+  }
 }
 
 .mobileDrawer {
@@ -624,10 +651,12 @@
   transition: all var(--transition-fast);
 }
 
-.mobileDrawerSignOut:hover {
-  color: var(--color-text-primary);
-  border-color: var(--color-text-muted);
-  background: var(--color-bg-card-hover);
+@media (hover: hover) and (pointer: fine) {
+  .mobileDrawerSignOut:hover {
+    color: var(--color-text-primary);
+    border-color: var(--color-text-muted);
+    background: var(--color-bg-card-hover);
+  }
 }
 
 @media (max-width: 768px) {
@@ -654,8 +683,10 @@
   transition: transform var(--transition-fast);
 }
 
-.avatarBtn:hover {
-  transform: scale(1.05);
+@media (hover: hover) and (pointer: fine) {
+  .avatarBtn:hover {
+    transform: scale(1.05);
+  }
 }
 
 .userDropdown {
@@ -716,8 +747,10 @@
   margin-top: 2px;
 }
 
-.editCrestLink:hover {
-  text-decoration: underline;
+@media (hover: hover) and (pointer: fine) {
+  .editCrestLink:hover {
+    text-decoration: underline;
+  }
 }
 
 .dropdownDivider {
@@ -757,8 +790,10 @@
   cursor: pointer;
 }
 
-.dropdownItem:hover {
-  background: var(--color-bg-card-hover);
+@media (hover: hover) and (pointer: fine) {
+  .dropdownItem:hover {
+    background: var(--color-bg-card-hover);
+  }
 }
 
 .dropdownItemActive {
@@ -791,8 +826,10 @@
   text-decoration: none;
 }
 
-.dropdownActionLink:hover {
-  color: var(--color-accent-green);
+@media (hover: hover) and (pointer: fine) {
+  .dropdownActionLink:hover {
+    color: var(--color-accent-green);
+  }
 }
 
 .dropdownSignOutBtn {
@@ -809,8 +846,10 @@
   transition: background var(--transition-fast);
 }
 
-.dropdownSignOutBtn:hover {
-  background: var(--color-bg-card-hover);
+@media (hover: hover) and (pointer: fine) {
+  .dropdownSignOutBtn:hover {
+    background: var(--color-bg-card-hover);
+  }
 }
 
 .mobileDrawerCrest {

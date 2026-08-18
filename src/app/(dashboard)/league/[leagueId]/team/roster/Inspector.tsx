@@ -84,7 +84,7 @@ export default function Inspector({ entry, teamId, leagueId, viewerIsOwner, acad
     ? []
     : [{ ...(p as unknown as EnrichedPlayer), status: entry.status, recent_ppg: 0, listing: null }];
 
-  async function call(path: string, body: Record<string, unknown>) {
+  async function call(path: string, body: { playerId: string; action?: string; actionType?: string }) {
     setBusy(true); setErr(null); setConfirmDrop(false);
     try {
       const res = await fetch(path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });

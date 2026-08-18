@@ -68,9 +68,11 @@
   background: var(--color-text-primary);
   color: var(--color-bg-card);
 }
-.btnPrimary:hover {
-  background: var(--color-accent);
-  color: var(--color-text-inverse);
+@media (hover: hover) and (pointer: fine) {
+  .btnPrimary:hover {
+    background: var(--color-accent);
+    color: var(--color-text-inverse);
+  }
 }
 
 .btnSecondary {
@@ -78,9 +80,11 @@
   color: var(--color-text-secondary);
   border: 1px solid var(--color-border);
 }
-.btnSecondary:hover {
-  color: var(--color-text-primary);
-  border-color: var(--color-text-muted);
+@media (hover: hover) and (pointer: fine) {
+  .btnSecondary:hover {
+    color: var(--color-text-primary);
+    border-color: var(--color-text-muted);
+  }
 }
 
 /* ---- Gameweek banner ---- */

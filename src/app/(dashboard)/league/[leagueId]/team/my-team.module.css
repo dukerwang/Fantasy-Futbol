@@ -152,7 +152,9 @@
   text-decoration: underline;
   white-space: nowrap;
 }
-.capacityLink:hover { color: var(--color-text-primary); }
+@media (hover: hover) and (pointer: fine) {
+  .capacityLink:hover { color: var(--color-text-primary); }
+}
 
 /* ── Empty state ──────────────────────────────────────────── */
 

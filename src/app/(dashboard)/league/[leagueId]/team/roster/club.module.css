@@ -53,7 +53,9 @@
   background: var(--color-accent); color: var(--color-on-accent);
   transition: background var(--dur-fast) var(--ease-standard);
 }
-.mhCta:hover { background: var(--color-accent-hover); border-color: var(--color-accent-hover); color: var(--color-on-accent); }
+@media (hover: hover) and (pointer: fine) {
+  .mhCta:hover { background: var(--color-accent-hover); border-color: var(--color-accent-hover); color: var(--color-on-accent); }
+}
 
 /* The only "this one is yours" marker in the masthead, now that the eyebrow
    no longer says so. Tinted ground, primary ink — the tint is the statement,
@@ -109,16 +111,25 @@
     border-color var(--dur-fast) var(--ease-standard),
     background var(--dur-fast) var(--ease-standard);
 }
-.switcherItem:hover {
-  color: var(--color-text-primary);
-  border-color: var(--color-border-strong);
+@media (hover: hover) and (pointer: fine) {
+  .switcherItem:hover {
+    color: var(--color-text-primary);
+    border-color: var(--color-border-strong);
+  }
 }
 
-.switcherItemOn,
-.switcherItemOn:hover {
+.switcherItemOn {
   background: var(--color-text-primary);
   border-color: var(--color-text-primary);
   color: var(--color-bg-primary);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .switcherItemOn:hover {
+    background: var(--color-text-primary);
+    border-color: var(--color-text-primary);
+    color: var(--color-bg-primary);
+  }
 }
 
 .switcherLabel { flex: none; }
@@ -155,10 +166,15 @@
   letter-spacing: 0.05em; text-transform: uppercase; color: var(--color-text-secondary);
   transition: background var(--dur-fast) var(--ease-standard), color var(--dur-fast) var(--ease-standard);
 }
-.segBtn:hover { color: var(--color-text-primary); }
+@media (hover: hover) and (pointer: fine) {
+  .segBtn:hover { color: var(--color-text-primary); }
+}
 /* The keyline and the ground are the state; the label stays ink. It read
    --color-accent before, which is the fill token doing a text job. */
-.segBtnOn, .segBtnOn:hover { background: var(--color-bg-card); border-color: var(--color-border); color: var(--color-text-primary); }
+.segBtnOn { background: var(--color-bg-card); border-color: var(--color-border); color: var(--color-text-primary); }
+@media (hover: hover) and (pointer: fine) {
+  .segBtnOn:hover { background: var(--color-bg-card); border-color: var(--color-border); color: var(--color-text-primary); }
+}
 .tbSpacer { flex: 1 1 auto; }
 .tbGroup { display: inline-flex; align-items: center; gap: var(--s2); }
 /* Field labels and a count — plain, for the same reason the zone heads are:
@@ -166,7 +182,7 @@
 .tbLabel { font-size: var(--t-12); color: var(--color-text-muted); white-space: nowrap; }
 .tbSelect {
   height: 32px; padding: 0 var(--s2); background: var(--color-bg-card); color: var(--color-text-primary);
-  border: 1px solid var(--color-border-subtle); border-radius: var(--r-control);
+  border: 1px solid var(--color-border-strong); border-radius: var(--r-control);
   font-family: var(--font-sans); font-size: var(--t-12); font-weight: var(--font-medium); cursor: pointer;
 }
 
@@ -178,7 +194,10 @@
   color: var(--color-text-secondary); cursor: pointer;
   transition: background var(--dur-fast) var(--ease-standard), border-color var(--dur-fast) var(--ease-standard), color var(--dur-fast) var(--ease-standard);
 }
-.todoBtn:hover, .todoBtnOpen { background: var(--color-bg-card-hover); color: var(--color-text-primary); border-color: var(--color-border); }
+.todoBtnOpen { background: var(--color-bg-card-hover); color: var(--color-text-primary); border-color: var(--color-border); }
+@media (hover: hover) and (pointer: fine) {
+  .todoBtn:hover { background: var(--color-bg-card-hover); color: var(--color-text-primary); border-color: var(--color-border); }
+}
 .todoBtnUrgent { border-color: var(--color-warning); color: var(--color-text-primary); }
 .todoBadge {
   min-width: 17px; height: 16px; padding: 0 var(--s1); border-radius: var(--r-micro);
@@ -192,7 +211,7 @@
 .todoPop {
   position: absolute; top: calc(100% + var(--s1)); right: 0; z-index: calc(var(--z-dropdown) + 1);
   width: 344px; max-width: 92vw; max-height: 366px; overflow-y: auto;
-  background: var(--color-bg-card); border: 1px solid var(--color-border-subtle);
+  background: var(--color-bg-card);
   border-radius: var(--r-shell); box-shadow: var(--shadow-lg);
 }
 .todoGrp + .todoGrp { border-top: 1px solid var(--color-border-subtle); }
@@ -206,7 +225,9 @@
   color: var(--color-accent-ink); background: none; border: 0; border-bottom: 1px solid transparent;
   transition: color var(--dur-fast) var(--ease-standard), border-color var(--dur-fast) var(--ease-standard);
 }
-.todoAct:hover { color: var(--color-accent-hover); border-bottom-color: var(--color-border-accent); }
+@media (hover: hover) and (pointer: fine) {
+  .todoAct:hover { color: var(--color-accent-hover); border-bottom-color: var(--color-border-accent); }
+}
 
 /* ---- Layout + panels -------------------------------------- */
 .layout { margin-top: var(--s5); display: grid; grid-template-columns: minmax(0, 1fr) 372px; gap: var(--s5); align-items: start; }
@@ -255,7 +276,9 @@
   background: var(--color-bg-card); border: 1px solid var(--color-border-subtle); border-radius: var(--r-control);
   transition: background var(--dur-fast) var(--ease-standard), border-color var(--dur-fast) var(--ease-standard);
 }
-.tile:hover { background: var(--color-bg-card-hover); border-color: var(--color-border); }
+@media (hover: hover) and (pointer: fine) {
+  .tile:hover { background: var(--color-bg-card-hover); border-color: var(--color-border); }
+}
 
 /* SELECTED IS A WASH, AND A WASH SPENDS THE INK'S HEADROOM.
    Both rules the auction room established, on a surface that has neither rows
@@ -342,15 +365,21 @@
 
 .acts { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; padding: var(--s3) var(--s4) var(--s4); }
 .act { padding: 9px var(--s2); border-radius: var(--r-control); cursor: pointer; text-align: center; background: var(--color-bg-elevated); border: 1px solid var(--color-border-subtle); font-family: var(--font-condensed); font-size: var(--t-12); font-weight: 700; letter-spacing: 0.04em; color: var(--color-text-secondary); transition: background var(--dur-fast) var(--ease-standard), color var(--dur-fast) var(--ease-standard), border-color var(--dur-fast) var(--ease-standard); }
-.act:hover { background: var(--color-bg-card-hover); color: var(--color-text-primary); border-color: var(--color-border); }
+@media (hover: hover) and (pointer: fine) {
+  .act:hover { background: var(--color-bg-card-hover); color: var(--color-text-primary); border-color: var(--color-border); }
+}
 .act:active { transform: translateY(1px); }
 .act:disabled { opacity: 0.5; cursor: not-allowed; }
 .actPrimary { background: var(--color-accent); border-color: var(--color-accent); color: var(--color-on-accent); }
-.actPrimary:hover { background: var(--color-accent-hover); border-color: var(--color-accent-hover); color: var(--color-on-accent); }
+@media (hover: hover) and (pointer: fine) {
+  .actPrimary:hover { background: var(--color-accent-hover); border-color: var(--color-accent-hover); color: var(--color-on-accent); }
+}
 .actDanger { color: var(--color-danger); }
 /* The tint is the state, so the label steps to ink rather than staying danger
    on a danger wash. */
-.actDanger:hover { background: var(--color-tint-danger); border-color: var(--color-danger); color: var(--color-text-primary); }
+@media (hover: hover) and (pointer: fine) {
+  .actDanger:hover { background: var(--color-tint-danger); border-color: var(--color-danger); color: var(--color-text-primary); }
+}
 .actWide { grid-column: 1 / -1; }
 
 /* ---- Intelligence ---------------------------------------- */
@@ -404,7 +433,9 @@
 .sval { font-family: var(--font-serif); font-size: var(--t-13); font-weight: 700; color: var(--color-text-primary); text-align: right; font-variant-numeric: tabular-nums lining-nums; }
 .sval small { display: block; font-family: var(--font-condensed); font-size: var(--t-10); font-weight: 500; letter-spacing: 0.04em; color: var(--color-text-muted); margin-top: 1px; }
 .showAll { display: block; width: calc(100% - var(--s8)); margin: 2px var(--s4) var(--s3); padding: var(--s2); text-align: center; cursor: pointer; font-family: var(--font-condensed); font-size: var(--t-12); font-weight: 700; letter-spacing: 0.04em; color: var(--color-text-secondary); background: var(--color-bg-elevated); border: 1px solid var(--color-border-subtle); border-radius: var(--r-control); transition: background var(--dur-fast) var(--ease-standard), color var(--dur-fast) var(--ease-standard); }
-.showAll:hover { background: var(--color-bg-card-hover); color: var(--color-text-primary); }
+@media (hover: hover) and (pointer: fine) {
+  .showAll:hover { background: var(--color-bg-card-hover); color: var(--color-text-primary); }
+}
 .legend { display: flex; gap: var(--s4); padding: 0 var(--s4) var(--s4); font-size: var(--t-11); color: var(--color-text-muted); }
 .legend span { display: inline-flex; align-items: center; gap: var(--s1); }
 .legend i { width: 10px; height: 10px; border-radius: var(--r-micro); display: block; }
@@ -437,12 +468,18 @@
 .retReturned { flex: none; font-family: var(--font-condensed); font-size: var(--t-10); font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-text-primary); }
 .retActions { display: flex; gap: var(--s1); flex: none; }
 .retBtn { cursor: pointer; padding: 7px var(--s3); border-radius: var(--r-control); font-family: var(--font-condensed); font-size: var(--t-12); font-weight: 700; letter-spacing: 0.04em; background: var(--color-bg-elevated); border: 1px solid var(--color-border-subtle); color: var(--color-text-secondary); transition: background var(--dur-fast) var(--ease-standard), color var(--dur-fast) var(--ease-standard), border-color var(--dur-fast) var(--ease-standard); }
-.retBtn:hover { background: var(--color-bg-card-hover); color: var(--color-text-primary); border-color: var(--color-border); }
+@media (hover: hover) and (pointer: fine) {
+  .retBtn:hover { background: var(--color-bg-card-hover); color: var(--color-text-primary); border-color: var(--color-border); }
+}
 .retBtn:active { transform: translateY(1px); }
 .retBtnPrimary { background: var(--color-accent); border-color: var(--color-accent); color: var(--color-on-accent); }
-.retBtnPrimary:hover { background: var(--color-accent-hover); border-color: var(--color-accent-hover); color: var(--color-on-accent); }
+@media (hover: hover) and (pointer: fine) {
+  .retBtnPrimary:hover { background: var(--color-accent-hover); border-color: var(--color-accent-hover); color: var(--color-on-accent); }
+}
 .retBtnDanger { color: var(--color-danger); }
-.retBtnDanger:hover { background: var(--color-tint-danger); border-color: var(--color-danger); color: var(--color-text-primary); }
+@media (hover: hover) and (pointer: fine) {
+  .retBtnDanger:hover { background: var(--color-tint-danger); border-color: var(--color-danger); color: var(--color-text-primary); }
+}
 .retFoot { padding: var(--s3) var(--s4); font-size: var(--t-12); color: var(--color-text-muted); border-top: 1px solid var(--color-border-subtle); line-height: 1.5; }
 
 /* ---- Responsive ------------------------------------------ */

@@ -21,7 +21,7 @@ interface CrestBuilderProps {
 }
 
 function getRandomConfig(): CrestConfig {
-  const randomShape = SHIELDS[Math.floor(Math.random() * SHIELDS.length)].id;
+  const randomOutline = SHIELDS[Math.floor(Math.random() * SHIELDS.length)].id;
   const randomDivision = DIVISIONS[Math.floor(Math.random() * DIVISIONS.length)].id;
   
   // Pick primary, secondary, border colors from palette
@@ -58,7 +58,7 @@ function getRandomConfig(): CrestConfig {
   }
 
   return {
-    shape: randomShape,
+    shape: randomOutline,
     division: randomDivision,
     primaryColor: pCol,
     secondaryColor: sCol,

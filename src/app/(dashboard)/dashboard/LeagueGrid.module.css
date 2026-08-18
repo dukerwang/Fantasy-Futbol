@@ -46,12 +46,20 @@
     box-shadow var(--transition-fast), transform var(--transition-base);
 }
 
-.card:hover,
 .card:focus-visible {
   border-color: var(--color-border-accent);
   background: var(--color-bg-card-hover);
   box-shadow: var(--shadow-card-lift), var(--shadow-glow);
   transform: translateY(-2px);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .card:hover {
+    border-color: var(--color-border-accent);
+    background: var(--color-bg-card-hover);
+    box-shadow: var(--shadow-card-lift), var(--shadow-glow);
+    transform: translateY(-2px);
+  }
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -192,8 +200,10 @@
   transition: transform var(--transition-fast);
 }
 
-.card:hover .cardCta svg {
-  transform: translateX(3px);
+@media (hover: hover) and (pointer: fine) {
+  .card:hover .cardCta svg {
+    transform: translateX(3px);
+  }
 }
 
 .liveNote {

@@ -71,23 +71,21 @@ export default function Attention({
   const hiddenCount = items.length - visible.length;
 
   if (visible.length === 0) {
+    // Nothing to act on and nothing dismissed — hide the section entirely.
+    if (hiddenCount === 0) return null;
+
+    // There are dismissed items; show a minimal strip so the user can restore them.
     return (
       <section className={styles.attn} aria-label="Nothing needs you">
         <div className={styles.attnHd}>
           <h2 className={styles.attnT}>Nothing needs you</h2>
-          {hiddenCount > 0 && (
-            <button type="button" className={styles.attnRestore} onClick={restore}>
-              Show {hiddenCount} dismissed
-            </button>
-          )}
+          <button type="button" className={styles.attnRestore} onClick={restore}>
+            Show {hiddenCount} dismissed
+          </button>
         </div>
         <div className={styles.attnEmpty}>
           <span className={`${styles.tag} ${styles.tagOwn}`}>Clear</span>
-          <span>
-            {items.length === 0
-              ? 'Your XI is set, no offers are waiting, and nothing you have bid on closes today.'
-              : 'Everything here has been dismissed. Anything that changes will come back on its own.'}
-          </span>
+          <span>Everything here has been dismissed. Anything that changes will come back on its own.</span>
         </div>
       </section>
     );

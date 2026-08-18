@@ -144,7 +144,9 @@
 }
 
 .btn:last-child { border-right: none; }
-.btn:hover:not(:disabled) { background: var(--color-bg-card-hover); }
+@media (hover: hover) and (pointer: fine) {
+  .btn:hover:not(:disabled) { background: var(--color-bg-card-hover); }
+}
 .btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .btnYes {
@@ -152,7 +154,9 @@
   color: #FFFFFF;
 }
 
-.btnYes:hover:not(:disabled) { background: var(--color-accent-hover); }
+@media (hover: hover) and (pointer: fine) {
+  .btnYes:hover:not(:disabled) { background: var(--color-accent-hover); }
+}
 
 .status {
   flex: 1;

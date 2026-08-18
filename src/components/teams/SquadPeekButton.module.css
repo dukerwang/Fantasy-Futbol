@@ -12,9 +12,11 @@
   transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), filter 0.2s ease;
 }
 
-.peekButton:hover {
-  transform: translateY(-1.5px) scale(1.06);
-  filter: drop-shadow(0 4px 10px color-mix(in srgb, var(--color-accent) 40%, transparent));
+@media (hover: hover) and (pointer: fine) {
+  .peekButton:hover {
+    transform: translateY(-1.5px) scale(1.06);
+    filter: drop-shadow(0 4px 10px color-mix(in srgb, var(--color-accent) 40%, transparent));
+  }
 }
 
 .peekButton:active {

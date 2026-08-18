@@ -728,11 +728,21 @@ export default function ActivityClient({
   const grouped = useMemo(() => {
     const items: FeedItem[] = [];
 
+    // A single auction/drop can fan out one solidarity_payment row per recipient club, all
+    // with identical notes/timing — collapse those into one card so the feed isn't spammed.
+    const seenSolidarityNotes = new Set<string | null>();
+    const dedupedTransactions = transactions.filter((tx) => {
+      if (tx.type !== 'solidarity_payment') return true;
+      if (seenSolidarityNotes.has(tx.notes)) return false;
+      seenSolidarityNotes.add(tx.notes);
+      return true;
+    });
+
     // Completed transactions — respect the active filter
     const filteredTx =
       filter === 'all'
-        ? transactions
-        : transactions.filter((tx) => FILTER_MAP[filter].includes(tx.type));
+        ? dedupedTransactions
+        : dedupedTransactions.filter((tx) => FILTER_MAP[filter].includes(tx.type));
     for (const tx of filteredTx) {
       items.push({ kind: 'tx', ts: tx.processed_at, data: tx });
     }
