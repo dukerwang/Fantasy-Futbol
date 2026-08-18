@@ -1,4 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { sendPushToUser } from '@/lib/push/sendPush';
 
 interface CreateNotificationParams {
   leagueId: string;
@@ -9,7 +10,10 @@ interface CreateNotificationParams {
 }
 
 /**
- * Creates an in-game notification/mail record for a specific user and league.
+ * Creates an in-game notification/mail record for a specific user and league,
+ * and fans it out as a push notification to any devices they've subscribed —
+ * every trigger site in the app goes through this one function, so push
+ * doesn't need its own call sites.
  */
 export async function createNotification(
   admin: SupabaseClient,
@@ -34,5 +38,11 @@ export async function createNotification(
     }
   } catch (err) {
     console.error('[createNotification] Failed to create notification:', err);
+  }
+
+  try {
+    await sendPushToUser(admin, userId, { title, body: content, url });
+  } catch (err) {
+    console.error('[createNotification] Push send failed:', err);
   }
 }
