@@ -57,8 +57,11 @@ export interface DepartureDecision {
  * How long a manager gets to choose on a departure detected mid-season.
  * Offseason departures use Kickoff as their deadline instead — it is the
  * commissioner action that ends the grace period, and it can be weeks away.
+ * Was 72h (3 days) until 2026-08-18 — a real window, but tight enough that a
+ * manager away for a weekend could miss it and get auto-released without ever
+ * seeing the choice. A week gives a normal travel/busy-week gap real room.
  */
-export const MIDSEASON_DECISION_HOURS = 72;
+export const MIDSEASON_DECISION_HOURS = 24 * 7;
 
 /**
  * How long a rights holder gets to make roster room once a retained player is

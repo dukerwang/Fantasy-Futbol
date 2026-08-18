@@ -419,7 +419,9 @@ When a rostered player **leaves the Premier League** — transfer abroad, relega
 
 The rate is deliberately below full value. Paid in full, taking the cash would beat keeping the rights in almost every case, and the Retained List would be decoration. At 60% the trade is real: cash now against a claim on a player who might come back.
 
-Retention uses **scarce slots**, commonly **3** — not an expiry clock.
+**You get one week to choose.** A departure spotted mid-season gives you until the deadline shown on the decision to pick Release or Retain — if you let it pass, he's **released automatically** at the compensation rate above, same as choosing Release yourself. (A departure caught during the offseason has no clock — Kickoff is the deadline instead, since there's no need to force a call before the commissioner's own action ends the grace period anyway.)
+
+Retention itself uses **scarce slots**, commonly **3** — not an expiry clock.
 
 **Why it works this way.** The original design paid you out automatically and deleted the player, which created a genuine exploit: a player paid out at kickoff can sign for a Premier League club before the window shuts weeks later. The ex-owner then held a windfall equal to his value *and* could spend it bidding on him at the return auction — a free option nobody else had. An established player at a relegated club is the single most likely profile for exactly that. Forcing the choice closes it: take the money and you're excluded from the buy-back, or keep the claim and take no money.
 

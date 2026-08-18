@@ -96,8 +96,8 @@ export async function recordDepartures(
   // identical to a departure. Opening a decision on one of those ends in real
   // compensation being paid for a player who is still playing — the Murillo /
   // Joelinton / Konaté / Gordon failure, which Kickoff has long been gated
-  // against and which this path would otherwise walk straight into on a 72h
-  // timer with no operator in the loop.
+  // against and which this path would otherwise walk straight into on a
+  // one-week timer (MIDSEASON_DECISION_HOURS) with no operator in the loop.
   //
   // If FPL is unreachable we record nothing. An unverifiable departure is not a
   // departure, and waiting for the next sync costs nothing.
