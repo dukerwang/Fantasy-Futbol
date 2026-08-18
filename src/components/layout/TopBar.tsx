@@ -6,6 +6,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import ThemeToggle from './ThemeToggle';
 import NotificationBell from './NotificationBell';
+import NotificationsToggle from './NotificationsToggle';
 import ChatNavIcon from './ChatNavIcon';
 import { Icon } from '@/components/ui/Icon';
 import CrestBadge from '@/components/crest/CrestBadge';
@@ -545,6 +546,10 @@ export default function TopBar() {
 
                 <div className={styles.dropdownDivider} />
 
+                <NotificationsToggle leagueId={currentLeagueId} />
+
+                <div className={styles.dropdownDivider} />
+
                 {/* Mobile settings / Sign out */}
                 <div style={{ padding: '4px 0' }}>
                   <button onClick={handleSignOut} className={styles.dropdownSignOutBtn} type="button">
@@ -706,6 +711,8 @@ export default function TopBar() {
                   <ThemeToggle />
                 </div>
               </div>
+              <div className={styles.mobileDrawerUserDivider} />
+              <NotificationsToggle />
               <div className={styles.mobileDrawerUserDivider} />
               <button onClick={handleSignOut} className={styles.mobileDrawerSignOut} type="button">
                 Sign out
