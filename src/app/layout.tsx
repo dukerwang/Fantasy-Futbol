@@ -68,6 +68,11 @@ export const metadata: Metadata = {
       { url: '/apple-icon.png', sizes: '180x180', type: 'image/png' },
     ],
   },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'Gaffa',
+  },
 };
 
 export const viewport: Viewport = {
