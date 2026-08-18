@@ -10,10 +10,21 @@ export async function POST(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const { leagueId } = await request.json() as { leagueId?: string };
-  if (!leagueId) return NextResponse.json({ error: 'Missing leagueId' }, { status: 400 });
-
   const admin = createAdminClient();
+
+  let { leagueId } = await request.json() as { leagueId?: string };
+  if (!leagueId) {
+    const { data: team } = await admin
+      .from('teams')
+      .select('league_id')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    leagueId = team?.league_id;
+  }
+  if (!leagueId) return NextResponse.json({ error: 'No league found for this user' }, { status: 400 });
+
   await createNotification(admin, {
     leagueId,
     userId: user.id,

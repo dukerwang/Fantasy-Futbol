@@ -43,12 +43,11 @@ export default function NotificationsToggle({ leagueId }: NotificationsTogglePro
   const isOn = state === 'subscribed';
 
   async function handleSendTest() {
-    if (!leagueId) return;
     setTestSent(true);
     await fetch('/api/push/test', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ leagueId }),
+      body: JSON.stringify(leagueId ? { leagueId } : {}),
     });
     setTimeout(() => setTestSent(false), 3000);
   }
@@ -69,7 +68,7 @@ export default function NotificationsToggle({ leagueId }: NotificationsTogglePro
           <span className={styles.switchThumb} />
         </button>
       </div>
-      {isOn && leagueId && (
+      {isOn && (
         <button type="button" onClick={handleSendTest} className={styles.testLink}>
           {testSent ? 'Test notification sent' : 'Send test notification'}
         </button>
