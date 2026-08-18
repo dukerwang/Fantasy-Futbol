@@ -7,8 +7,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { List } from 'react-window';
 import { createClient } from '@/lib/supabase/client';
 import { getPlayerDisplayName } from '@/lib/players/displayName';
-import type { League, Team, Player, DraftPick, PlayerOwnership } from '@/types';
+import type { League, Team, Player, DraftPick, PlayerOwnership, GranularPosition } from '@/types';
 import { usePlayerCard } from '@/components/players/PlayerCardProvider';
+import PositionBadge from '@/components/players/PositionBadge';
 import SidebarChat from '../SidebarChat';
 import styles from './draft.module.css';
 
@@ -105,16 +106,12 @@ function PlayerRow({
       {/* Sticky Player + Actions Column */}
       <div className={styles.tdPlayerSticky}>
         <div className={styles.playerRowLeft}>
-          <div className={styles.posRow}>
-            <span className={`${styles.posBadge} ${styles[`pos${player.primary_position}` as keyof typeof styles]}`}>
-              {player.primary_position}
-            </span>
+          <div className={`g-namerow ${styles.posRow}`}>
+            <PositionBadge position={player.primary_position as GranularPosition} size="sm" />
             {player.primary_position !== activePos && (
               <>
                 <span className={styles.secArrow} title={`Primary position: ${player.primary_position} — evaluated as ${activePos}`}>→</span>
-                <span className={`${styles.posBadge} ${styles[`pos${activePos}` as keyof typeof styles]}`}>
-                  {activePos}
-                </span>
+                <PositionBadge position={activePos as GranularPosition} size="sm" />
               </>
             )}
           </div>
@@ -818,7 +815,7 @@ export default function DraftRoom({
         {/* Draft Board */}
         <main className={styles.boardPanel}>
           <div className={styles.boardHeader}>
-            <h1 className={styles.boardHeadline}>The Draft Room</h1>
+            <h1 className={styles.boardHeadline}>The draft room</h1>
             <p className={styles.boardSubtitle}>
               Dynasty League · Round {currentRound}/{league.roster_size} · {effectivePicks.length} picks made
             </p>
@@ -894,11 +891,9 @@ export default function DraftRoom({
                                   }
                                 }}
                               >
-                                <span
-                                  className={`${styles.posBadge} ${styles[`pos${pick.player?.primary_position}` as keyof typeof styles]}`}
-                                >
-                                  {pick.player?.primary_position}
-                                </span>
+                                {pick.player?.primary_position && (
+                                  <PositionBadge position={pick.player.primary_position as GranularPosition} size="sm" />
+                                )}
                                 <span className={styles.pickedName}>
                                   {getPlayerDisplayName(pick.player, 'initial_last')}
                                 </span>
@@ -938,7 +933,7 @@ export default function DraftRoom({
               className={`${styles.sidebarTab} ${sidebarTab === 'roster' ? styles.sidebarTabActive : ''}`}
               onClick={() => setSidebarTab('roster')}
             >
-              My Roster{myRoster.length > 0 ? ` (${myRoster.length})` : ''}
+              My roster{myRoster.length > 0 ? ` (${myRoster.length})` : ''}
             </button>
             <button
               type="button"
@@ -1143,11 +1138,9 @@ export default function DraftRoom({
                           layout
                         >
                           <span className={styles.rosterPickNum}>#{pick.pick}</span>
-                          <span
-                            className={`${styles.posBadge} ${styles[`pos${pick.player?.primary_position}` as keyof typeof styles]}`}
-                          >
-                            {pick.player?.primary_position}
-                          </span>
+                          {pick.player?.primary_position && (
+                            <PositionBadge position={pick.player.primary_position as GranularPosition} size="sm" />
+                          )}
                           <div className={styles.rosterPlayerInfo}>
                             <span
                               className={`${styles.rosterPlayerName} ${styles.rosterPlayerNameClickable}`}
@@ -1195,11 +1188,7 @@ export default function DraftRoom({
                       return (
                         <li key={playerId} className={styles.queueItem}>
                           <span className={styles.queueRank}>{idx + 1}</span>
-                          <span
-                            className={`${styles.posBadge} ${styles[`pos${player.primary_position}` as keyof typeof styles]}`}
-                          >
-                            {player.primary_position}
-                          </span>
+                          <PositionBadge position={player.primary_position as GranularPosition} size="sm" />
                           <div className={styles.queuePlayerInfo}>
                             <span className={styles.queuePlayerName}>
                               {getPlayerDisplayName(player, 'initial_last')}

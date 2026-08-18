@@ -36,8 +36,10 @@
   font-size: var(--text-sm);
 }
 
-.exitLink:hover {
-  color: var(--color-text-primary);
+@media (hover: hover) and (pointer: fine) {
+  .exitLink:hover {
+    color: var(--color-text-primary);
+  }
 }
 
 .card {
@@ -109,9 +111,11 @@
   transition: background var(--transition-fast), color var(--transition-fast);
 }
 
-.primaryBtn:hover {
-  background: var(--color-accent);
-  color: var(--color-text-inverse);
+@media (hover: hover) and (pointer: fine) {
+  .primaryBtn:hover {
+    background: var(--color-accent);
+    color: var(--color-text-inverse);
+  }
 }
 
 .secondaryBtn {
@@ -126,9 +130,11 @@
   transition: border-color var(--transition-fast), color var(--transition-fast);
 }
 
-.secondaryBtn:hover {
-  border-color: var(--color-accent);
-  color: var(--color-accent);
+@media (hover: hover) and (pointer: fine) {
+  .secondaryBtn:hover {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+  }
 }
 
 .controlsCol {
@@ -158,9 +164,11 @@
   transition: border-color var(--transition-fast), color var(--transition-fast);
 }
 
-.controlBtn:hover {
-  border-color: var(--color-accent);
-  color: var(--color-accent);
+@media (hover: hover) and (pointer: fine) {
+  .controlBtn:hover {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+  }
 }
 
 /* ── Recap ─────────────────────────────────────────────────────────── */
