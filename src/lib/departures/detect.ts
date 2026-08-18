@@ -152,7 +152,19 @@ export async function recordDepartures(
     if (!ownerByPlayer.has(playerId)) ownerByPlayer.set(playerId, e.team_id as string);
   }
 
-  const rows: Record<string, unknown>[] = [];
+  interface DepartureDecisionRow {
+    league_id: string;
+    team_id: string;
+    original_team_id: string;
+    player_id: string;
+    season_from: string;
+    status: string;
+    market_value_at_departure: number;
+    compensation_offered: number;
+    decide_by: string | null;
+  }
+
+  const rows: DepartureDecisionRow[] = [];
   const recorded: RecordedDeparture[] = [];
 
   for (const player of departed) {

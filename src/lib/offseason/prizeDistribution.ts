@@ -145,7 +145,7 @@ export async function buildCupPrizes(
 
   if (error || !tournaments || tournaments.length === 0) return [];
 
-  const CUP_PRIZE_MAP: Record<string, { winner: string; runnerUp: string; winnerLabel: string; ruLabel: string }> = {
+  const CUP_PRIZE_MAP = {
     primary_cup: {
       winner: 'champions_cup_winner',
       runnerUp: 'champions_cup_runner_up',
@@ -164,12 +164,13 @@ export async function buildCupPrizes(
       winnerLabel: 'Consolation Cup Winner',
       ruLabel: 'Consolation Cup Runner-Up',
     },
-  };
+  } satisfies Record<string, { winner: string; runnerUp: string; winnerLabel: string; ruLabel: string }>;
 
   const entries: PrizeEntry[] = [];
 
   for (const t of tournaments) {
-    const prizeKeys = CUP_PRIZE_MAP[t.type];
+    // SAFETY: an unrecognized tournament type falls through the `if (!prizeKeys) continue` guard below.
+    const prizeKeys = CUP_PRIZE_MAP[t.type as keyof typeof CUP_PRIZE_MAP];
     if (!prizeKeys) continue;
 
     // Find the final round (highest round_number)

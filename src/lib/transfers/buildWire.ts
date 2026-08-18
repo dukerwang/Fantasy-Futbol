@@ -172,13 +172,13 @@ export function buildWire(model: TransfersModel, limit = 12): WireEvent[] {
  * a loan is the same ink as a trade, drawn hollow. A player who goes back is a
  * ring rather than a disc, which is a better reading of a loan than a colour was.
  */
-export const WIRE_COLORS: Record<WireKind, string> = {
+export const WIRE_COLORS = {
   bid: 'var(--color-warning)',
   offer: 'var(--color-accent)',
   trade: 'var(--color-text-primary)',
   loan: 'var(--color-text-primary)',
   listing: 'var(--color-text-muted)',
-};
+} satisfies Record<WireKind, string>;
 
 /** Kinds drawn as a ring rather than a filled disc. See WIRE_COLORS. */
 export const WIRE_HOLLOW: ReadonlySet<WireKind> = new Set<WireKind>(['loan']);

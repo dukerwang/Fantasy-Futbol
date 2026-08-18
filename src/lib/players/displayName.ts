@@ -45,7 +45,7 @@ function normalize(str: string): string {
  * football. Add an entry here (not by editing a player's stored `name`)
  * whenever a player should render as a single name.
  */
-const MONONYM_MAP: Record<string, string> = {
+const MONONYM_MAP = {
   "rodrigo 'rodri' hernandez cascante": 'Rodri',
   'rodrigo hernandez cascante': 'Rodri',
   rodri: 'Rodri',
@@ -78,7 +78,7 @@ const MONONYM_MAP: Record<string, string> = {
   'kepa arrizabalaga': 'Kepa',
   'diogo jota': 'Jota',
   'luiz diaz': 'Díaz',
-};
+} satisfies Record<string, string>;
 
 const PREFIXES = new Set(['van', 'de', 'di', 'da', 'del', 'le', 'dos', 'el']);
 
@@ -148,7 +148,7 @@ function initialLast(dbName: string, webName = ''): string {
   return `${firstInitial}. ${lastName}`;
 }
 
-function splitName(dbName: string, webName = ''): { first: string; last: string } {
+function splitName(dbName: string, webName = '') {
   const preferred = preferWebSurname(dbName, webName);
   if (preferred) return preferred;
 

@@ -17,6 +17,7 @@
  */
 
 import type { createAdminClient } from '@/lib/supabase/admin';
+import type { GranularPosition } from '@/types';
 import { getFplStatus } from '@/lib/fpl/api';
 import { getPlayerDisplayName } from '@/lib/players/displayName';
 import {
@@ -827,7 +828,8 @@ export async function buildHomeModel(
      */
     for (const s of xi) {
       if (s.state !== 'flag') continue;
-      const eligible = POSITION_FLEX_MAP[s.slot] ?? [s.slot];
+      // SAFETY: lineup slots are always one of the 12 GranularPosition values, never an arbitrary string.
+      const eligible = POSITION_FLEX_MAP[s.slot as GranularPosition] ?? [s.slot];
       const covered = benchSummary.some((b) => b.positions.some((pos) => eligible.includes(pos)));
       if (!covered) coverGaps.push({ slot: s.slot, starter: s.name });
     }
@@ -1291,11 +1293,11 @@ export async function buildHomeModel(
     ...DEFAULT_PRIZE_CONFIG,
     ...((league.prize_config as PrizeConfig | null) ?? {}),
   };
-  const cupPrizes: Record<string, number> = {
+  const cupPrizes = {
     primary_cup: prizeConfig.champions_cup_winner,
     secondary_cup: prizeConfig.league_cup_winner,
     consolation_cup: prizeConfig.consolation_cup_winner,
-  };
+  } satisfies Record<string, number>;
   for (const t of tournaments) {
     const won = archiveCups.some(
       (c) => c.tournament_name === t.name && c.winner_id === myTeamId && c.season === season,
@@ -1304,7 +1306,8 @@ export async function buildHomeModel(
       competition: t.name,
       value: won ? 'Winners' : t.status === 'completed' ? 'Out' : 'In it',
       sub: won ? 'Champions' : t.status === 'completed' ? 'Knocked out' : 'Still alive',
-      prize: `${seasonOver ? 'Paid' : 'Pays'} ${money(cupPrizes[t.type] ?? 25)}`,
+      // SAFETY: t.type is always one of the three cup tournament types (see TournamentType in @/types).
+      prize: `${seasonOver ? 'Paid' : 'Pays'} ${money(cupPrizes[t.type as keyof typeof cupPrizes] ?? 25)}`,
       tone: won ? 'won' : t.status === 'completed' ? 'out' : 'plain',
     });
   }
@@ -1547,7 +1550,8 @@ export async function buildHomeModel(
           ? ` · ${cupWins
               .map((c) => {
                 const t = tournaments.find((x) => x.name === c.tournament_name);
-                return `${c.tournament_name} ${money(cupPrizes[t?.type ?? ''] ?? 0)}`;
+                // SAFETY: a missing/unmatched type falls through to the `?? 0` default below.
+                return `${c.tournament_name} ${money(cupPrizes[(t?.type ?? '') as keyof typeof cupPrizes] ?? 0)}`;
               })
               .join(' · ')}`
           : ''

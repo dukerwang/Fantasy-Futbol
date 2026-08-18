@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { processMatchupsForGameweek } from '@/lib/scoring/matchupProcessor';
 import { generateValidLineup } from '@/lib/lineups/generateValidLineup';
+import type { MatchupLineup } from '@/types';
+
+type MatchupLineupUpdate = { lineup_a?: MatchupLineup; lineup_b?: MatchupLineup };
 
 export const maxDuration = 60;
 
@@ -83,7 +86,7 @@ export async function GET(req: NextRequest) {
   }
 
   const prevGw = targetGw - 1;
-  const prevLineupByTeam = new Map<string, unknown>();
+  const prevLineupByTeam = new Map<string, MatchupLineup>();
   if (prevGw >= 1) {
     let pq = admin
       .from('matchups')
@@ -103,7 +106,7 @@ export async function GET(req: NextRequest) {
   const debugLog: string[] = [];
 
   for (const matchup of matchups) {
-    const updates: { lineup_a?: unknown; lineup_b?: unknown } = {};
+    const updates: MatchupLineupUpdate = {};
 
     if (!isStoredLineupComplete(matchup.lineup_a)) {
       let lineup = prevLineupByTeam.get(matchup.team_a_id) ?? null;

@@ -135,7 +135,9 @@ export function needScore(
  *   picksMade 0 → need 0.25 / quality 0.75
  *   picksMade 6 → need 0.55 / quality 0.45 (capped)
  */
-export function needQualityWeights(counts: PositionCounts): { needWeight: number; qualityWeight: number } {
+type NeedQualityWeights = { needWeight: number; qualityWeight: number };
+
+export function needQualityWeights(counts: PositionCounts): NeedQualityWeights {
   const made = picksMade(counts);
   const needWeight = Math.min(0.55, 0.25 + made * 0.05);
   return { needWeight, qualityWeight: 1 - needWeight };

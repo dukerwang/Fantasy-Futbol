@@ -25,7 +25,7 @@ interface TierCopy {
 }
 
 /** Editorial labels only — no emoji, per house style. `standard` gets no special treatment. */
-export const TIER_COPY: Record<ValueTier, TierCopy | null> = {
+export const TIER_COPY = {
   standard: null,
   blockbuster: {
     eyebrow: 'Blockbuster Signing',
@@ -35,7 +35,7 @@ export const TIER_COPY: Record<ValueTier, TierCopy | null> = {
     eyebrow: 'Galactico Arrival',
     description: 'A genuine marquee arrival — the kind of fee that redraws a market.',
   },
-};
+} satisfies Record<ValueTier, TierCopy | null>;
 
 /**
  * Escalates an email subject line when the batch includes a Blockbuster+

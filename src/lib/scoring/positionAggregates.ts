@@ -113,19 +113,22 @@ export function buildPositionAggregates(
     }
   }
 
-  const result: PositionAggregateMap = {};
-  for (const [pid, byPosition] of acc) {
-    result[pid] = {};
-    for (const [pos, ex] of byPosition) {
-      result[pid][pos] = {
-        gp: ex.gp,
-        total_points: ex.pts,
-        avg_rating: ex.gp > 0 ? ex.sumR / ex.gp : 0,
-        total_minutes: ex.mins,
-      };
-    }
-  }
-  return result;
+  return Object.fromEntries(
+    Array.from(acc, ([pid, byPosition]) => [
+      pid,
+      Object.fromEntries(
+        Array.from(byPosition, ([pos, ex]) => [
+          pos,
+          {
+            gp: ex.gp,
+            total_points: ex.pts,
+            avg_rating: ex.gp > 0 ? ex.sumR / ex.gp : 0,
+            total_minutes: ex.mins,
+          },
+        ]),
+      ),
+    ]),
+  );
 }
 
 /**

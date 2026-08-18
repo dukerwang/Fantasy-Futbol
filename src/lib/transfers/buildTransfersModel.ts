@@ -72,12 +72,12 @@ export interface LoanRow {
   bonus_rate: number;
   bonus_cap: number;
   has_recall: boolean;
+  slot_buyback_used: boolean;
   /** Who made the running. The OTHER side is the one who answers. */
   proposed_by: 'lender' | 'borrower';
   lender_team?: Pick<Team, 'id' | 'team_name'> & { user_id: string };
   borrower_team?: Pick<Team, 'id' | 'team_name'> & { user_id: string };
   player?: EnrichedPlayer | null;
-  [key: string]: unknown;
 }
 
 // ── Model ─────────────────────────────────────────────────────

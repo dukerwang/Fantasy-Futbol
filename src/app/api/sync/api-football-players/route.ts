@@ -124,7 +124,16 @@ export async function POST(req: NextRequest) {
 
         // 3. Match and Update
         let matchedCount = 0;
-        const updates = [];
+        interface PlayerUpdate {
+            id: string;
+            api_football_id: number;
+            date_of_birth: string | null;
+            nationality: string | null;
+            height_cm: number | null;
+            secondary_positions?: string[];
+        }
+
+        const updates: PlayerUpdate[] = [];
 
         for (const apiData of allApiPlayers) {
             const apiPlayer = apiData.player;
@@ -174,7 +183,7 @@ export async function POST(req: NextRequest) {
                 // is too coarse to infer granular secondary positions reliably.
                 // Granular positions (LW/RW/CM/DM/CB etc.) come from SoFIFA and should
                 // not be overwritten by this coarse API data.
-                const update: Record<string, unknown> = {
+                const update: PlayerUpdate = {
                     id: bestMatchObj.id,
                     api_football_id: apiPlayer.id,
                     date_of_birth: dob,
@@ -196,7 +205,7 @@ export async function POST(req: NextRequest) {
 
                 await Promise.all(
                     chunk.map((u) => {
-                        const fields: Record<string, unknown> = {
+                        const fields: Omit<PlayerUpdate, 'id'> = {
                             api_football_id: u.api_football_id,
                             date_of_birth: u.date_of_birth,
                             nationality: u.nationality,

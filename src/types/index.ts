@@ -5,24 +5,30 @@
 // --- Granular Position System ---
 export type GranularPosition = 'GK' | 'CB' | 'LB' | 'RB' | 'LWB' | 'RWB' | 'DM' | 'CM' | 'AM' | 'LW' | 'RW' | 'ST';
 
+// Widens each flex-map entry to GranularPosition[] instead of the single-literal
+// tuple type array literals would otherwise keep under `satisfies` — without this,
+// indexing the map by a union-typed slot (as every caller does) infers `never` for
+// element type and breaks `.includes()` at every call site.
+const onlyPositions = (...positions: GranularPosition[]): GranularPosition[] => positions;
+
 // Maps each formation slot to which player positions can fill it.
 // Flexibility is intentionally strict — a slot only accepts its own position type.
 // A player's ability to fill alternate slots comes from their secondary_positions (from SoFIFA),
 // not from static inference rules.
-export const POSITION_FLEX_MAP: Record<GranularPosition, GranularPosition[]> = {
-  GK: ['GK'],
-  CB: ['CB'],
-  LB: ['LB'],
-  RB: ['RB'],
-  LWB: ['LWB'],
-  RWB: ['RWB'],
-  DM: ['DM'],
-  CM: ['CM'],
-  AM: ['AM'],
-  LW: ['LW'],
-  RW: ['RW'],
-  ST: ['ST'],
-};
+export const POSITION_FLEX_MAP = {
+  GK: onlyPositions('GK'),
+  CB: onlyPositions('CB'),
+  LB: onlyPositions('LB'),
+  RB: onlyPositions('RB'),
+  LWB: onlyPositions('LWB'),
+  RWB: onlyPositions('RWB'),
+  DM: onlyPositions('DM'),
+  CM: onlyPositions('CM'),
+  AM: onlyPositions('AM'),
+  LW: onlyPositions('LW'),
+  RW: onlyPositions('RW'),
+  ST: onlyPositions('ST'),
+} satisfies Record<GranularPosition, GranularPosition[]>;
 
 // Share of their own points that an unused bench player who played contributes
 // to the team total (see README § Matchups, docs/USER_GUIDE.md § 5).
@@ -41,7 +47,7 @@ export const BENCH_DEPTH_BONUS_LABEL = `${Math.round(BENCH_DEPTH_BONUS * 100)}%`
 // Slots are ordered left-to-right within each zone row for direct visual rendering.
 export type Formation = '4-3-3' | '4-2-1-3' | '4-2-2-2' | '3-4-1-2' | '3-5-2' | '3-4-3' | '5-3-2' | '3-4-2-1' | '4-3-1-2' | '4-3-2-1';
 
-export const FORMATION_SLOTS: Record<Formation, GranularPosition[]> = {
+export const FORMATION_SLOTS = {
   // Slots ordered left-to-right within each zone so PitchUI renders them correctly without re-sorting.
   '4-3-3': ['GK', 'LB', 'CB', 'CB', 'RB', 'CM', 'DM', 'CM', 'LW', 'ST', 'RW'],
   // 4-2-1-3: double pivot (DM/DM) + central AM + wingers + ST
@@ -62,7 +68,7 @@ export const FORMATION_SLOTS: Record<Formation, GranularPosition[]> = {
   '4-3-1-2': ['GK', 'LB', 'CB', 'CB', 'RB', 'DM', 'CM', 'CM', 'AM', 'ST', 'ST'],
   // 4-3-2-1: Christmas tree — 4-3-3 with the wingers swapped for two AMs
   '4-3-2-1': ['GK', 'LB', 'CB', 'CB', 'RB', 'CM', 'DM', 'CM', 'AM', 'AM', 'ST'],
-};
+} satisfies Record<Formation, GranularPosition[]>;
 
 export const ALL_FORMATIONS: Formation[] = Object.keys(FORMATION_SLOTS) as Formation[];
 
@@ -458,20 +464,20 @@ export interface LeagueStanding {
 
 export type BenchSlot = 'DEF' | 'MID' | 'ATT' | 'FLEX';
 
-export const BENCH_SLOT_LABELS: Record<BenchSlot, string> = {
+export const BENCH_SLOT_LABELS = {
   DEF: 'Defender',
   MID: 'Midfielder',
   ATT: 'Attacker',
   FLEX: 'Flex',
-};
+} satisfies Record<BenchSlot, string>;
 
-export const BENCH_FLEX_MAP: Record<BenchSlot, GranularPosition[]> = {
-  DEF: ['CB', 'LB', 'RB', 'LWB', 'RWB'],
-  MID: ['DM', 'CM', 'AM'],
-  ATT: ['ST', 'LW', 'RW'],
+export const BENCH_FLEX_MAP = {
+  DEF: onlyPositions('CB', 'LB', 'RB', 'LWB', 'RWB'),
+  MID: onlyPositions('DM', 'CM', 'AM'),
+  ATT: onlyPositions('ST', 'LW', 'RW'),
   /** True flex: any starter-eligible position including emergency GK. */
-  FLEX: ['CB', 'LB', 'RB', 'LWB', 'RWB', 'DM', 'CM', 'AM', 'LW', 'RW', 'ST', 'GK'],
-};
+  FLEX: onlyPositions('CB', 'LB', 'RB', 'LWB', 'RWB', 'DM', 'CM', 'AM', 'LW', 'RW', 'ST', 'GK'),
+} satisfies Record<BenchSlot, GranularPosition[]>;
 
 // Always returns the 4 semantic bench slots regardless of league bench_size setting
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -616,11 +622,11 @@ export interface TournamentWithBracket extends Tournament {
   rounds: (TournamentRound & { matchups: TournamentMatchup[] })[];
 }
 
-export const TOURNAMENT_LABELS: Record<TournamentType, { name: string; short: string }> = {
+export const TOURNAMENT_LABELS = {
   primary_cup: { name: 'Champions League', short: 'UCL' },
   secondary_cup: { name: 'League Cup', short: 'Cup' },
   consolation_cup: { name: 'Conference League', short: 'UECL' },
-};
+} satisfies Record<TournamentType, { name: string; short: string }>;
 
 export interface FplLivePlayerStats {
   id: number;

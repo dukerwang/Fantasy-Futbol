@@ -23,7 +23,7 @@ export const SPINE: GranularPosition[] = [
  * design-2.0/README.md § "What finishing the hub established" catalogues the
  * nine places they were borrowed to mean something else.
  */
-export const POS_COLOR: Record<GranularPosition, string> = {
+export const POS_COLOR = {
   GK: 'var(--color-pos-gk)',
   CB: 'var(--color-pos-cb)',
   LB: 'var(--color-pos-lb)',
@@ -36,4 +36,4 @@ export const POS_COLOR: Record<GranularPosition, string> = {
   LW: 'var(--color-pos-lw)',
   RW: 'var(--color-pos-rw)',
   ST: 'var(--color-pos-st)',
-};
+} satisfies Record<GranularPosition, string>;

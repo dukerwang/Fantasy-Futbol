@@ -132,8 +132,19 @@ export async function processRelegationCompensation(
   const playerById = new Map((players ?? []).map((p) => [p.id as string, p]));
   const teamById = new Map((teams ?? []).map((t) => [t.id as string, t]));
 
+  interface SeasonTransitionRow {
+    league_id: string;
+    season_from: string;
+    season_to: string;
+    event_type: string;
+    player_id: string;
+    team_id: string;
+    team_name: string;
+    notes: string;
+  }
+
   const results: RelegationResult[] = [];
-  const transitionRows: Record<string, unknown>[] = [];
+  const transitionRows: SeasonTransitionRow[] = [];
 
   for (const decision of pending) {
     const player = playerById.get(decision.player_id);

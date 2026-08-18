@@ -111,8 +111,10 @@ export async function fetchPlayersByTeam(teamId: number, page = 1): Promise<ApiP
 /**
  * Fetch fixtures for the Premier League (optionally for a specific round).
  */
+type PLFixturesParams = { league: number; season: number; round?: string };
+
 export async function fetchPLFixtures(round?: string): Promise<ApiFixture[]> {
-  const params: Record<string, string | number> = {
+  const params: PLFixturesParams = {
     league: PL_LEAGUE_ID,
     season: CURRENT_SEASON,
   };
