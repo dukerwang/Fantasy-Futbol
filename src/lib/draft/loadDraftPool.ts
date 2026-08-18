@@ -177,19 +177,22 @@ const loadDraftStatsForSeason = unstable_cache(
       }
     }
 
-    const result: Record<string, Record<string, ShadowPosStats>> = {};
-    for (const [pid, playerMapEntry] of shadowAgg) {
-      result[pid] = {};
-      for (const [pos, ex] of playerMapEntry) {
-        result[pid][pos] = {
-          gp: ex.gp,
-          total_points: ex.pts,
-          avg_rating: ex.gp > 0 ? ex.sumR / ex.gp : 0,
-          total_minutes: ex.mins,
-        };
-      }
-    }
-    return result;
+    return Object.fromEntries(
+      Array.from(shadowAgg, ([pid, playerMapEntry]) => [
+        pid,
+        Object.fromEntries(
+          Array.from(playerMapEntry, ([pos, ex]) => [
+            pos,
+            {
+              gp: ex.gp,
+              total_points: ex.pts,
+              avg_rating: ex.gp > 0 ? ex.sumR / ex.gp : 0,
+              total_minutes: ex.mins,
+            },
+          ]),
+        ),
+      ]),
+    );
   }
 
     return {

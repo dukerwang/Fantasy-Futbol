@@ -1,33 +1,43 @@
-/* ── Page header ── */
+/* The Pitch page's own chrome — masthead, over-capacity notice, empty state.
+   Gaffa 2.0; the board itself is pitch.module.css.
+
+   THIS FILE LOST TWO THIRDS OF ITSELF IN THE PORT. It carried 42 unreferenced
+   classes: a whole earlier lineup editor (.starterGrid, .benchSlot, .swapHint,
+   .slotValidTarget and the rest) that PitchUI replaced, plus every class
+   belonging to RosterManager.tsx — a 226-line client component nothing had
+   imported since before the club page existed. Both are deleted rather than
+   ported. Nothing was lost with RosterManager: drop, transfer-out and the IR
+   transitions all live on team/roster's Inspector, against the same endpoints.
+
+   Worth stating as a rule, because a port is when you find this out: a page
+   that has been redesigned in place leaves its old stylesheet behind almost
+   intact, and the dead half is invisible until someone has to migrate it. */
+
+.page { min-height: 100%; }
+
+/* ── Masthead ─────────────────────────────────────────────── */
+
 .header {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: var(--space-1);
-  margin-bottom: var(--space-5);
-  padding-bottom: var(--space-4);
+  gap: var(--s1);
+  margin-bottom: var(--s5);
+  padding-bottom: var(--s4);
   border-bottom: 1px solid var(--color-border-subtle);
 }
 
-/* Meta row: league label · rank · roster count */
+/* League · gameweek · opponent · roster count. */
 .headerMeta {
   display: flex;
-  align-items: center;
-  gap: var(--space-2);
+  align-items: baseline;
+  gap: var(--s2);
   flex-wrap: wrap;
 }
 
-.leagueName {
-  font-size: var(--text-xs);
-  font-weight: var(--font-medium);
-  color: var(--color-text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-
 .metaDot {
-  color: var(--color-border);
-  font-size: var(--text-xs);
+  color: var(--color-border-strong);
+  font-size: var(--t-12);
   user-select: none;
   line-height: 1;
 }
@@ -38,35 +48,43 @@
   gap: 0.3em;
 }
 
+/* A settled figure you read across the page, so serif and tabular. */
 .metaValue {
   font-family: var(--font-serif);
-  font-size: var(--text-sm);
-  font-weight: var(--font-bold);
+  font-size: var(--t-13);
+  font-weight: 700;
   color: var(--color-text-secondary);
-  font-variant-numeric: tabular-nums;
+  font-variant-numeric: tabular-nums lining-nums;
 }
 
 .metaLabel {
-  font-size: var(--text-xs);
+  font-size: var(--t-12);
   color: var(--color-text-muted);
 }
 
 .loanBadge {
-  font-size: 10px;
-  font-weight: var(--font-semibold);
-  color: var(--color-accent-green);
+  font-family: var(--font-condensed);
+  font-size: var(--t-10);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--color-text-secondary);
   margin-left: 2px;
 }
 
+/* Live is the broadcast tally red, not the brand green and not the generic
+   danger red — --color-live exists so a match in progress reads as a match in
+   progress. This was --color-accent-red, which is the raw #ef4444 the palette
+   retuned out of the app. */
 .liveBadge {
-  font-size: var(--text-xs);
-  font-weight: var(--font-semibold);
-  color: var(--color-accent-red);
-  letter-spacing: 0.04em;
+  font-family: var(--font-condensed);
+  font-size: var(--t-12);
+  font-weight: 700;
+  color: var(--color-live);
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--s1);
 }
 
 .liveBadge::before {
@@ -74,8 +92,8 @@
   display: inline-block;
   width: 6px;
   height: 6px;
-  border-radius: 50%;
-  background: var(--color-accent-red);
+  border-radius: var(--r-round);
+  background: var(--color-live);
   animation: livePulse 1.4s ease-in-out infinite;
 }
 
@@ -84,594 +102,88 @@
   50% { opacity: 0.3; }
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .liveBadge::before { animation: none; }
+}
 
 .teamName {
   font-family: var(--font-serif);
-  font-size: var(--text-3xl);
-  font-weight: var(--font-bold);
-  color: var(--color-text-primary);
-  letter-spacing: -0.02em;
-  line-height: 1.1;
-}
-
-.sections {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-8);
-}
-
-
-
-.sectionTitle {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  font-size: var(--text-sm);
-  font-weight: var(--font-semibold);
-  color: var(--color-text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  margin-bottom: var(--space-3);
-}
-
-.sectionDot {
-  width: 8px;
-  height: 8px;
-  border-radius: var(--radius-full);
-  flex-shrink: 0;
-}
-
-.playerList {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-}
-
-/* Roster row: slot label + card wrapper */
-.rosterRow {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-}
-
-.rosterSlot {
-  width: 36px;
-  font-size: 0.7rem;
+  font-size: var(--t-32);
   font-weight: 700;
-  color: var(--color-text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  text-align: center;
-  flex-shrink: 0;
-}
-
-.rosterPlayerWrapper {
-  flex: 1;
-  min-width: 0;
-}
-
-.emptyCard {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 56px;
-  border: 1px dashed var(--color-border);
-  border-radius: var(--radius-sm);
-  font-size: var(--text-sm);
-  color: var(--color-text-muted);
-  font-style: italic;
-}
-
-/* ===================================
-   ROSTER MANAGER (drop / transfer out)
-   =================================== */
-.rosterManager {
-  margin-top: var(--space-8);
-  padding-top: var(--space-6);
-  border-top: 1px solid var(--color-border);
-}
-
-.rosterManagerTitle {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  font-size: var(--text-sm);
-  font-weight: var(--font-semibold);
-  color: var(--color-text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  margin-bottom: var(--space-4);
-}
-
-.rosterList {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-}
-
-.rosterItem {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-3);
-  padding: var(--space-3) var(--space-4);
-  background: var(--color-bg-card);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-card);
-}
-
-@media (max-width: 600px) {
-  .rosterItem {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--space-2);
-  }
-}
-
-.rosterItemInfo {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  flex: 1;
-  min-width: 0;
-}
-
-.posBadge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 22px;
-  font-size: 0.7rem;
-  font-weight: 700;
-  border-radius: var(--radius-sm);
-  flex-shrink: 0;
-}
-
-.rosterItemNameBtn {
-  background: none;
-  border: none;
-  padding: 0;
-  font-size: var(--text-sm);
-  font-weight: var(--font-semibold);
   color: var(--color-text-primary);
-  cursor: pointer;
-  text-align: left;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  flex: 1;
-  min-width: 0;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
 }
 
-.rosterItemNameBtn:hover {
-  color: var(--color-accent-blue);
+/* ── Over-capacity notice ─────────────────────────────────────
+   A tinted ground carries PRIMARY ink only (decision 4) — this was an inline
+   style block with a raw rgba wash, a #ef4444 literal and a 14px font-size
+   written on the element. */
+
+.capacityNote {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  padding: var(--s3) var(--s4);
+  margin-bottom: var(--s5);
+  background: var(--color-tint-danger);
+  border-radius: var(--r-control);
+  color: var(--color-text-primary);
+  font-size: var(--t-13);
+  font-weight: var(--font-semibold);
+}
+
+.capacityIcon {
+  display: flex;
+  align-items: center;
+  color: var(--color-danger);
+  flex-shrink: 0;
+}
+
+/* Primary ink on the wash, not accent-ink — measured 3.69:1 in dark, which is
+   the auction room's rule again: a tinted ground carries primary and secondary
+   ink only. The underline is what says "link"; it does not need the colour
+   as well. */
+.capacityLink {
+  margin-left: auto;
+  flex-shrink: 0;
+  color: var(--color-text-primary);
+  font-weight: var(--font-semibold);
   text-decoration: underline;
-}
-
-.rosterItemClub {
-  font-size: var(--text-xs);
-  color: var(--color-text-muted);
   white-space: nowrap;
 }
-
-.rosterItemValue {
-  font-size: var(--text-xs);
-  font-weight: var(--font-medium);
-  color: var(--color-accent-green);
-  white-space: nowrap;
+@media (hover: hover) and (pointer: fine) {
+  .capacityLink:hover { color: var(--color-text-primary); }
 }
 
-.rosterItemActions {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  flex-shrink: 0;
-}
+/* ── Empty state ──────────────────────────────────────────── */
 
-.dropBtn {
-  padding: var(--space-1) var(--space-3);
-  border: 1px solid var(--color-accent-red, #ef4444);
-  border-radius: var(--radius-sm);
-  color: var(--color-accent-red, #ef4444);
-  font-size: var(--text-xs);
-  font-weight: var(--font-medium);
-  background: transparent;
-  cursor: pointer;
-  transition: background var(--transition-fast);
-}
-
-.dropBtn:hover {
-  background: rgba(239, 68, 68, 0.1);
-}
-
-.dropBtn:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
-.transferOutBtn {
-  padding: var(--space-1) var(--space-3);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  color: var(--color-text-muted);
-  font-size: var(--text-xs);
-  font-weight: var(--font-medium);
-  background: transparent;
-  cursor: pointer;
-  transition: background var(--transition-fast), color var(--transition-fast);
-}
-
-.transferOutBtn:hover {
-  background: var(--color-bg-elevated);
-  color: var(--color-text-primary);
-}
-
-.transferOutBtn:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
-.emptySection {
-  font-size: var(--text-sm);
-  color: var(--color-text-muted);
-  padding: var(--space-4);
-  border: 1px dashed var(--color-border);
-  border-radius: var(--radius-sm);
-  text-align: center;
-}
-
-/* --- Empty State --- */
 .empty {
   text-align: center;
-  padding: var(--space-16) var(--space-6);
+  padding: var(--s16) var(--s6);
 }
 
 .emptyIcon {
-  font-size: 3rem;
-  margin-bottom: var(--space-4);
+  font-size: var(--t-40);
+  margin-bottom: var(--s4);
 }
 
 .emptyTitle {
-  font-size: var(--text-2xl);
-  font-weight: var(--font-bold);
+  font-family: var(--font-serif);
+  font-size: var(--t-25);
+  font-weight: 700;
+  letter-spacing: -0.02em;
   color: var(--color-text-primary);
-  margin-bottom: var(--space-3);
+  margin-bottom: var(--s3);
 }
 
 .emptyText {
-  font-size: var(--text-base);
+  font-size: var(--t-15);
   color: var(--color-text-secondary);
-  margin-bottom: var(--space-6);
+  margin-bottom: var(--s6);
 }
 
 .backLink {
-  font-size: var(--text-sm);
-  color: var(--color-accent-blue);
-  text-decoration: none;
-}
-
-.backLink:hover {
-  color: var(--color-accent-blue-hover);
-}
-
-/* ===================================
-   LINEUP EDITOR
-   =================================== */
-.lineupEditor {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-6);
-}
-
-.formationRow {
-  display: flex;
-  align-items: center;
-  gap: var(--space-4);
-}
-
-.formationLabel {
-  font-size: var(--text-sm);
-  font-weight: var(--font-semibold);
-  color: var(--color-text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  white-space: nowrap;
-}
-
-.formationPills {
-  display: flex;
-  gap: var(--space-2);
-  flex-wrap: wrap;
-}
-
-.formationPill {
-  padding: var(--space-2) var(--space-3);
-  background: var(--color-bg-card);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  color: var(--color-text-secondary);
-  font-size: var(--text-sm);
-  font-weight: var(--font-medium);
-  cursor: pointer;
-}
-
-.formationPill:hover {
-  border-color: var(--color-text-muted);
-}
-
-.formationPillActive {
-  background: var(--color-accent-blue, #3A6B4A);
-  color: #fff;
-  border-color: var(--color-accent-blue, #3A6B4A);
-}
-
-/* Swap hint banner */
-.swapHint {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  padding: var(--space-3) var(--space-4);
-  background: var(--color-accent-green-dim, rgba(58, 107, 74, 0.08));
-  border: 1px solid var(--color-border-accent, rgba(58, 107, 74, 0.3));
-  border-radius: var(--radius-sm);
-  font-size: var(--text-sm);
-  color: var(--color-text-primary);
-}
-
-.cancelSwap {
-  padding: var(--space-1) var(--space-3);
-  background: transparent;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  color: var(--color-text-secondary);
-  font-size: var(--text-xs);
-  cursor: pointer;
-}
-
-/* Starting XI grid */
-.starterGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: var(--space-2);
-}
-
-@media (max-width: 600px) {
-  .starterGrid {
-    grid-template-columns: 1fr;
-  }
-}
-
-.starterSlot {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  padding: var(--space-3) var(--space-4);
-  background: var(--color-bg-card);
-  border: 2px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  text-align: left;
-  transition: border-color 0.15s, background 0.15s;
-}
-
-.starterSlot:hover {
-  border-color: var(--color-text-muted);
-}
-
-.slotSelected {
-  border-color: var(--color-accent-blue, #3A6B4A) !important;
-  background: var(--color-accent-green-dim, rgba(58, 107, 74, 0.08));
-}
-
-.slotValidTarget {
-  border-color: var(--color-accent-green, #3A6B4A) !important;
-  background: var(--color-accent-green-dim, rgba(58, 107, 74, 0.06));
-}
-
-.slotValidTarget:hover {
-  background: rgba(58, 107, 74, 0.12);
-}
-
-.slotEmpty {
-  border-style: dashed;
-}
-
-.slotPlayerInfo {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-}
-
-.slotPlayerName {
-  font-size: var(--text-sm);
-  font-weight: var(--font-semibold);
-  color: var(--color-text-primary);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.slotPlayerMeta {
-  font-size: var(--text-xs);
-  color: var(--color-text-muted);
-}
-
-.slotEmptyLabel {
-  font-size: var(--text-sm);
-  color: var(--color-text-muted);
-  font-style: italic;
-}
-
-/* Tier header (shared by Starting XI / Bench / Reserves) */
-.tierHeader {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  font-size: var(--text-sm);
-  font-weight: var(--font-semibold);
-  color: var(--color-text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  margin-bottom: var(--space-3);
-}
-
-/* Bench slot type labels (DEF / MID / ATT / FLEX) */
-.benchSlotLabel {
-  font-size: 0.65rem;
-  font-weight: 800;
-  color: var(--color-text-muted);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  padding: 1px 5px;
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-
-.benchSlotDesc {
-  font-size: var(--text-xs);
-  color: var(--color-text-muted);
-  font-style: italic;
-  flex-shrink: 0;
-}
-
-/* Reserves list */
-.reserveList {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: var(--space-2);
-}
-
-/* Bench */
-.benchSection {
-  margin-top: var(--space-2);
-}
-
-.benchTitle {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  font-size: var(--text-sm);
-  font-weight: var(--font-semibold);
-  color: var(--color-text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  margin-bottom: var(--space-3);
-}
-
-.benchGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: var(--space-2);
-}
-
-.benchSlot {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  padding: var(--space-3) var(--space-4);
-  background: var(--color-bg-card);
-  border: 2px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  text-align: left;
-  transition: border-color 0.15s, background 0.15s;
-}
-
-.benchSlot:hover {
-  border-color: var(--color-text-muted);
-}
-
-.benchSlotName {
-  font-size: var(--text-sm);
-  font-weight: var(--font-medium);
-  color: var(--color-text-primary);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.benchSlotClub {
-  font-size: var(--text-xs);
-  color: var(--color-text-muted);
-  margin-left: auto;
-  flex-shrink: 0;
-}
-
-/* IR */
-.irSection {
-  margin-top: var(--space-2);
-}
-
-.irTitle {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  font-size: var(--text-sm);
-  font-weight: var(--font-semibold);
-  color: var(--color-text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  margin-bottom: var(--space-3);
-}
-
-.irList {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-}
-
-.irItem {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  padding: var(--space-3) var(--space-4);
-  background: var(--color-bg-card);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-card);
-  opacity: 0.6;
-}
-
-/* Save row */
-.saveRow {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: var(--space-4);
-  padding-top: var(--space-4);
-  border-top: 1px solid var(--color-border);
-}
-
-.errorText {
-  font-size: var(--text-sm);
-  color: var(--color-accent-red, #ef4444);
-}
-
-.successText {
-  font-size: var(--text-sm);
-  color: var(--color-accent-green, #3A6B4A);
-}
-
-.saveBtn {
-  padding: var(--space-3) var(--space-6);
-  background: var(--color-accent-green, #3A6B4A);
-  color: #fff;
-  border: none;
-  border-radius: var(--radius-sm);
-  font-size: var(--text-sm);
-  font-weight: var(--font-semibold);
-  cursor: pointer;
-}
-
-.saveBtn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.saveBtn:not(:disabled):hover {
-  opacity: 0.9;
+  font-size: var(--t-13);
+  color: var(--color-accent-ink);
 }

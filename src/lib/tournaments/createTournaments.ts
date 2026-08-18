@@ -134,11 +134,11 @@ export async function createTournament(
     };
   }
 
-  const names: Record<TournamentType, string> = {
+  const names = {
     primary_cup: 'Champions Cup',
     secondary_cup: 'League Cup',
     consolation_cup: 'Consolation Cup',
-  };
+  } satisfies Record<TournamentType, string>;
 
   // 1. Insert tournament row
   const { data: tournament, error: tErr } = await admin

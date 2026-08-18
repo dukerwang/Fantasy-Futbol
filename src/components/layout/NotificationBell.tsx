@@ -169,7 +169,7 @@ export default function NotificationBell({ leagueId, onNavigate }: NotificationB
               ))
             ) : (
               <div className={styles.empty}>
-                <span className={styles.emptyTitle}>All Caught Up!</span>
+                <span className={styles.emptyTitle}>All caught up</span>
                 <span className={styles.emptyText}>You don&apos;t have any notifications right now.</span>
               </div>
             )}

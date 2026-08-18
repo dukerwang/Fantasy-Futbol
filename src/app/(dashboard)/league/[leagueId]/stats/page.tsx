@@ -84,6 +84,7 @@ export default async function StatsPage({ params }: Props) {
       leagueId={leagueId}
       leagueName={league.name}
       players={statPlayers}
+      season={season}
       shadowMaps={shadowMaps}
     />
   );

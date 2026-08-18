@@ -6,7 +6,8 @@ import LiveMatchupCard from './LiveMatchupCard';
 import GameweekSelector from './GameweekSelector';
 import { getFplStatus } from '@/lib/fpl/api';
 import { processMatchupsForGameweek } from '@/lib/scoring/matchupProcessor';
-import RoundupGazetteBanner from './RoundupGazetteBanner';
+import RoundLead from './RoundLead';
+import { isDrawMargin, DRAW_THRESHOLD } from '@/lib/scoring/drawBand';
 import styles from './matchups.module.css';
 
 export const dynamic = 'force-dynamic';
@@ -17,6 +18,28 @@ interface Props {
 }
 
 interface TeamRecord { W: number; L: number; D: number; }
+
+/**
+ * The matchup select, written ONCE.
+ *
+ * It was written twice — the initial fetch and the post-sync re-fetch — and the
+ * second copy was missing `crest_config`. Since the re-fetch OVERWRITES the
+ * first result, every club on the page silently fell back to the generic green
+ * shield, and it did so under exactly one condition: `needsSync`, which is true
+ * when the current gameweek is still 0-0. That is every live gameweek up to the
+ * first points of the weekend — the window in which managers are most likely to
+ * be looking at this page.
+ *
+ * Nothing errors, nothing logs, and the fallback crest is a real designed state,
+ * so the page looks intentional while showing the wrong club identity for all
+ * twelve teams. A duplicated query is a duplicated rule: it does not drift, it
+ * silently disagrees.
+ */
+const MATCHUP_SELECT = `
+    *,
+    team_a:teams!matchups_team_a_id_fkey(id, team_name, user_id, crest_config),
+    team_b:teams!matchups_team_b_id_fkey(id, team_name, user_id, crest_config)
+`;
 
 function computeRecord(
     teamId: string,
@@ -29,7 +52,7 @@ function computeRecord(
         if (!isA && !isB) continue;
         const myScore = isA ? m.score_a : m.score_b;
         const oppScore = isA ? m.score_b : m.score_a;
-        if (Math.abs(myScore - oppScore) <= 10) D++;
+        if (isDrawMargin(myScore, oppScore)) D++;
         else if (myScore > oppScore) W++;
         else L++;
     }
@@ -52,7 +75,7 @@ function generateGameweekSummaryText(
         const teamA = closestMatch.team_a?.team_name ? `**${closestMatch.team_a.team_name}**` : 'Team A';
         const teamB = closestMatch.team_b?.team_name ? `**${closestMatch.team_b.team_name}**` : 'Team B';
         const diff = Math.abs(closestMatch.score_a - closestMatch.score_b);
-        if (diff <= 10) {
+        if (diff <= DRAW_THRESHOLD) {
             closestStr = ` Meanwhile, ${teamA} and ${teamB} played out a nail-biting ${diff.toFixed(2)}-point stalemate.`;
         } else {
             closestStr = ` Meanwhile, the closest duel of the week saw ${teamA} edge out ${teamB} by just ${diff.toFixed(2)} points.`;
@@ -170,11 +193,7 @@ export default async function MatchupsPage({ params, searchParams }: Props) {
     // Fetch matchups for target GW (include user_id for featured matchup detection)
     let { data: matchupsData } = await admin
         .from('matchups')
-        .select(`
-            *,
-            team_a:teams!matchups_team_a_id_fkey(id, team_name, user_id, crest_config),
-            team_b:teams!matchups_team_b_id_fkey(id, team_name, user_id, crest_config)
-        `)
+        .select(MATCHUP_SELECT)
         .eq('league_id', leagueId)
         .eq('gameweek', targetGw);
 
@@ -193,11 +212,7 @@ export default async function MatchupsPage({ params, searchParams }: Props) {
         // Re-fetch fresh data for the render
         const { data: freshData } = await admin
             .from('matchups')
-            .select(`
-                *,
-                team_a:teams!matchups_team_a_id_fkey(id, team_name, user_id),
-                team_b:teams!matchups_team_b_id_fkey(id, team_name, user_id)
-            `)
+            .select(MATCHUP_SELECT)
             .eq('league_id', leagueId)
             .eq('gameweek', targetGw);
         matchupsData = freshData;
@@ -288,12 +303,12 @@ export default async function MatchupsPage({ params, searchParams }: Props) {
     const formattedSeason = displaySeason.replace(/^\d{2}(\d{2})-(\d{2})$/, '$1/$2');
 
     return (
-        <div className={styles.container}>
-            {/* Header */}
-            <header className={styles.pageHeader}>
-                <div className={styles.pageTitleGroup}>
-                    <span className={styles.pageSupertitle}>Premier League Season {formattedSeason}</span>
-                    <h1 className={styles.pageTitle}>Gameweek {targetGw}</h1>
+        <div className={`${styles.page} g-page`}>
+            {/* The masthead names the round; the panel below IS the round. */}
+            <header className={styles.masthead}>
+                <div className={styles.mastheadTitles}>
+                    <span className={`g-label ${styles.kicker}`}>Premier League Season {formattedSeason}</span>
+                    <h1 className={styles.title}>Gameweek {targetGw}</h1>
                 </div>
                 {gameweeks.length > 0 && (
                     <GameweekSelector targetGw={targetGw} gameweeks={gameweeks} leagueId={leagueId} />
@@ -301,30 +316,33 @@ export default async function MatchupsPage({ params, searchParams }: Props) {
             </header>
 
             {matchups.length === 0 ? (
-                <div className={styles.emptyCard}>No matchups scheduled for Gameweek {targetGw}.</div>
+                <div className={`${styles.emptyPanel} g-panel`}>
+                    No matchups scheduled for Gameweek {targetGw}.
+                </div>
             ) : (
                 <>
-                    {/* Gazette Roundup Banner */}
-                    <RoundupGazetteBanner summaryText={summaryText} />
+                    {/* The round's standfirst. Was a bordered "Roundup Gazette" banner;
+                        the writing is unchanged, the newsprint around it is gone. */}
+                    <RoundLead summaryText={summaryText} />
 
-                    {/* Featured hero matchup */}
-                    {myMatchup && (
-                        <LiveMatchupCard
-                            matchup={myMatchup}
-                            myTeamId={myTeam?.id}
-                            currentFplGw={currentFplGw}
-                            isCurrentFplGwFinished={isCurrentFplGwFinished}
-                            featured={true}
-                            recordA={recordA}
-                            recordB={recordB}
-                        />
-                    )}
+                    <section className={`${styles.round} g-panel`}>
+                        {myMatchup && (
+                            <LiveMatchupCard
+                                matchup={myMatchup}
+                                myTeamId={myTeam?.id}
+                                currentFplGw={currentFplGw}
+                                isCurrentFplGwFinished={isCurrentFplGwFinished}
+                                featured={true}
+                                recordA={recordA}
+                                recordB={recordB}
+                            />
+                        )}
 
-                    {/* Other matchups grid */}
-                    {otherMatchups.length > 0 && (
-                        <>
-                            <div className={styles.sectionLabel}>All GW {targetGw} Results</div>
-                            <div className={styles.matchupGrid}>
+                        {otherMatchups.length > 0 && (
+                            <div className={styles.fixtures}>
+                                <h2 className={styles.fixturesHead}>
+                                    {myMatchup ? 'Other fixtures' : `Gameweek ${targetGw} fixtures`}
+                                </h2>
                                 {otherMatchups.map((m) => (
                                     <LiveMatchupCard
                                         key={m.id}
@@ -335,39 +353,40 @@ export default async function MatchupsPage({ params, searchParams }: Props) {
                                     />
                                 ))}
                             </div>
-                        </>
-                    )}
+                        )}
 
-                    {/* GW at a Glance */}
-                    {highestThisGw.score > 0 && (
-                        <div className={styles.glanceStrip}>
-                            <div className={styles.glanceStat}>
-                                <span className={styles.glanceLabel}>Highest Score</span>
-                                <span className={styles.glanceValue}>{highestThisGw.score.toFixed(2)}</span>
-                                <span className={styles.glanceSub}>{highestThisGw.team}</span>
+                        {/* Arithmetic on the fixtures above it, which is why it is a
+                            section of this panel rather than a card beside it. */}
+                        {highestThisGw.score > 0 && (
+                            <div className={styles.glance}>
+                                <div className={styles.glanceStat}>
+                                    <span className="g-label-quiet">Highest score</span>
+                                    <span className={styles.glanceValue}>{highestThisGw.score.toFixed(2)}</span>
+                                    <span className={styles.glanceSub}>{highestThisGw.team}</span>
+                                </div>
+                                <div className={styles.glanceStat}>
+                                    <span className="g-label-quiet">Closest match</span>
+                                    <span className={styles.glanceValue}>
+                                        {closestMatch
+                                            ? Math.abs(closestMatch.score_a - closestMatch.score_b).toFixed(2)
+                                            : '—'}
+                                    </span>
+                                    <span className={styles.glanceSub}>
+                                        {closestMatch
+                                            ? `${(closestMatch as any).team_a?.team_name} v ${(closestMatch as any).team_b?.team_name}`
+                                            : '—'}
+                                    </span>
+                                </div>
+                                <div className={styles.glanceStat}>
+                                    <span className="g-label-quiet">Season high</span>
+                                    <span className={styles.glanceValue}>
+                                        {seasonHigh.score > 0 ? seasonHigh.score.toFixed(2) : '—'}
+                                    </span>
+                                    <span className={styles.glanceSub}>{seasonHigh.team}</span>
+                                </div>
                             </div>
-                            <div className={styles.glanceStat}>
-                                <span className={styles.glanceLabel}>Closest Match</span>
-                                <span className={styles.glanceValue}>
-                                    {closestMatch
-                                        ? `${Math.abs(closestMatch.score_a - closestMatch.score_b).toFixed(2)} pts`
-                                        : '—'}
-                                </span>
-                                <span className={styles.glanceSub}>
-                                    {closestMatch
-                                        ? `${(closestMatch as any).team_a?.team_name} vs ${(closestMatch as any).team_b?.team_name}`
-                                        : '—'}
-                                </span>
-                            </div>
-                            <div className={styles.glanceStat}>
-                                <span className={styles.glanceLabel}>Season High</span>
-                                <span className={styles.glanceValue}>
-                                    {seasonHigh.score > 0 ? seasonHigh.score.toFixed(2) : '—'}
-                                </span>
-                                <span className={styles.glanceSub}>{seasonHigh.team}</span>
-                            </div>
-                        </div>
-                    )}
+                        )}
+                    </section>
                 </>
             )}
         </div>

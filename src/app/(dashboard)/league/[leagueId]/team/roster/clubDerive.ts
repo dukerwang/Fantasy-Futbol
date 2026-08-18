@@ -40,19 +40,32 @@ export const ZONES: { key: string; label: string; positions: string[] }[] = [
 ];
 
 // ── Status ───────────────────────────────────────────────────────────────────
+/**
+ * Every `tone` here is an INK — it is painted as `color` on a status word — so
+ * each one has to be the text-role token rather than the fill-role one. Three
+ * were not, and each failed in exactly one theme:
+ *
+ *   --color-accent       on "First XI"   4.33:1 dark   -> --color-accent-ink
+ *   --color-warning      on "Academy"    2.09:1 light  -> --color-warning-text
+ *   --color-accent-green on "Loan In"    (the 1.0 alias for the same fill)
+ *
+ * This is rule 5 from the auction room port — accent is a fill,
+ * --color-accent-ink is the text — and rule 4 from the hub, which added
+ * --color-warning-text for the same reason.
+ */
 export const STATUS: Record<string, { label: string; short: string; tone: string }> = {
-  active: { label: 'First XI', short: 'First XI', tone: 'var(--color-accent)' },
+  active: { label: 'First XI', short: 'First XI', tone: 'var(--color-accent-ink)' },
   bench: { label: 'Bench', short: 'Bench', tone: 'var(--color-text-muted)' },
   ir: { label: 'Injured Reserve', short: 'IR', tone: 'var(--color-danger)' },
-  taxi: { label: 'Academy', short: 'Academy', tone: 'var(--color-warning)' },
-  loan_in: { label: 'Loan In', short: 'Loan In', tone: 'var(--color-accent-green)' },
+  taxi: { label: 'Academy', short: 'Academy', tone: 'var(--color-warning-text)' },
+  loan_in: { label: 'Loan In', short: 'Loan In', tone: 'var(--color-accent-ink)' },
   loan_out: { label: 'Loan Out', short: 'Loan Out', tone: 'var(--color-text-muted)' },
-  pending_activation: { label: 'Returning', short: 'Returning', tone: 'var(--color-warning)' },
+  pending_activation: { label: 'Returning', short: 'Returning', tone: 'var(--color-warning-text)' },
 };
 export const statusMeta = (s: string) => STATUS[s] ?? { label: s, short: s, tone: 'var(--color-text-muted)' };
 
 export const INJURY: Record<string, { label: string; tone: string }> = {
-  d: { label: 'Doubt', tone: 'var(--color-warning)' },
+  d: { label: 'Doubt', tone: 'var(--color-warning-text)' },
   i: { label: 'Injured', tone: 'var(--color-danger)' },
   s: { label: 'Susp', tone: 'var(--color-danger)' },
   u: { label: 'Out', tone: 'var(--color-danger)' },

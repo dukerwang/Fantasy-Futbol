@@ -6,6 +6,7 @@ import CrestBadge from '@/components/crest/CrestBadge';
 import NavigationLink from '@/components/ui/NavigationLink';
 import SquadPeekButton from '@/components/teams/SquadPeekButton';
 import { clubHref } from '@/lib/teams/clubHref';
+import { isDrawMargin } from '@/lib/scoring/drawBand';
 import styles from './standings.module.css';
 
 export const dynamic = 'force-dynamic';
@@ -32,9 +33,6 @@ interface StandingRow {
 
 type FormResult = 'W' | 'D' | 'L';
 
-// Medals are rendered using custom-colored trophy SVGs
-const DRAW_MARGIN = 10;
-
 function formatRank(n: number): string {
   return String(n).padStart(2, '0');
 }
@@ -55,7 +53,7 @@ function computeForm(teamId: string, matchups: any[]): FormResult[] {
       continue;
     }
 
-    if (Math.abs(myScore - theirScore) <= DRAW_MARGIN) {
+    if (isDrawMargin(myScore, theirScore)) {
       results.push('D');
     } else if (myScore > theirScore) {
       results.push('W');
@@ -145,160 +143,164 @@ export default async function StandingsPage({ params }: Props) {
     : top3;
 
   const myTeamId = membership?.id;
+  const formattedSeason = league.season?.replace('-', '/') ?? league.season;
 
   return (
-    <div className={styles.page}>
+    <div className={`${styles.page} g-page`}>
 
-      {/* Header */}
-      <header className={styles.header}>
-        <p className={styles.eyebrow}>{league.name} · Season {league.season}</p>
+      {/* Masthead — on the page ground, above the panel. The panel below IS
+          the table (and the podium is arithmetic on its top three rows). */}
+      <header className={styles.masthead}>
+        <span className={`g-label ${styles.kicker}`}>{league.name} · Season {formattedSeason}</span>
         <h1 className={styles.title}>Standings</h1>
         <p className={styles.subtitle}>Dynasty format · Season winner takes all</p>
       </header>
 
-      {/* Podium */}
-      {standings.length >= 1 && (
-        <div className={styles.podium}>
-          {podiumOrder.map((row) => {
-            const isLeader = row.rank === 1;
-            return (
-              <div
-                key={row.teamId}
-                className={`${styles.podiumCard} ${isLeader ? styles.podiumCardLeader : ''}`}
-              >
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                  <CrestBadge config={row.crestConfig} size={64} teamName={row.teamName} teamId={row.teamId} />
-                  <Icon
-                    name="trophy"
-                    size={20}
-                    style={{
-                      color:
-                        row.rank === 1
-                          ? '#D4AF37'
-                          : row.rank === 2
-                          ? '#A8A9AD'
-                          : '#CD7F32',
-                    }}
-                  />
-                </div>
-
-                {isLeader && (
-                  <div className={styles.podiumLeaderBadge}>★ League Leader</div>
-                )}
-
-                <h2 className={styles.podiumTeamName}>
-                  <NavigationLink
-                    href={clubHref(leagueId, row.teamId, row.teamId === myTeamId)}
-                    className={styles.teamLink}
-                  >
-                    {row.teamName}
-                  </NavigationLink>
-                </h2>
-                <p className={styles.podiumManager}>{row.username}</p>
-
-                <div className={styles.podiumBottom}>
-                  <div className={styles.podiumRecordGroup}>
-                    <span className={styles.podiumStatLabel}>Record</span>
-                    <span className={styles.podiumRecord}>
-                      {row.wins}-{row.draws}-{row.losses}
-                    </span>
-                  </div>
-                  <div className={styles.podiumPointsGroup}>
-                    <span className={styles.podiumStatLabel}>Total Pts</span>
-                    <span className={styles.podiumStatValue}>{row.pts}</span>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
-
-      {/* Full standings table */}
-      <section className={styles.tableSection}>
+      {/* One panel: the podium and the full table are one board, not two —
+          the top three tiles are the same three rows the table shows first,
+          just arithmetic on the same standings rather than a second surface. */}
+      <div className={`g-panel ${styles.panel}`}>
         {standings.length === 0 ? (
           <p className={styles.emptyState}>No completed matches yet — check back after Gameweek 1.</p>
         ) : (
-          <table className={styles.table}>
-            <thead className={styles.tableHead}>
-              <tr>
-                <th>#</th>
-                <th className={styles.teamHeading}>Team</th>
-                <th className={styles.managerHeading}>Manager</th>
-                <th>Pts</th>
-                <th>W</th>
-                <th>D</th>
-                <th>L</th>
-                <th>PF</th>
-                <th>PA</th>
-                <th className={styles.formHeading}>Form</th>
-              </tr>
-            </thead>
-            <tbody>
-              {standings.map((row, i) => {
-                const isOwn = row.teamId === myTeamId;
-                const form = formMap.get(row.teamId) ?? [];
+          <>
+            <div className={styles.podium}>
+              {podiumOrder.map((row) => {
+                const isLeader = row.rank === 1;
+                const medalClass =
+                  row.rank === 1 ? styles.medalGold : row.rank === 2 ? styles.medalSilver : styles.medalBronze;
                 return (
-                  <tr
+                  <div
                     key={row.teamId}
-                    className={`${styles.tableRow} ${isOwn ? styles.ownRow : ''}`}
+                    className={`${styles.podiumTier} ${isLeader ? styles.podiumTierLeader : ''}`}
                   >
-                    <td className={styles.rankCell}>{formatRank(i + 1)}</td>
-                    <td className={styles.teamCell}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        {/* The crest peeks, the name navigates — a glance and a
-                            visit are different intentions and shouldn't share
-                            one target. */}
-                        <SquadPeekButton
-                          teamId={row.teamId}
-                          teamName={row.teamName}
-                          className={styles.crestPeek}
-                          title={`Peek at ${row.teamName}`}
-                        >
-                          <CrestBadge config={row.crestConfig} size={28} teamName={row.teamName} />
-                        </SquadPeekButton>
-                        <NavigationLink
-                          href={clubHref(leagueId, row.teamId, isOwn)}
-                          className={`${styles.teamCellName} ${styles.teamLink}`}
-                        >
-                          {row.teamName}
-                        </NavigationLink>
+                    <div className={styles.podiumTop}>
+                      <CrestBadge config={row.crestConfig} size={64} teamName={row.teamName} teamId={row.teamId} />
+                      <Icon name="trophy" size={isLeader ? 22 : 18} className={medalClass} />
+                    </div>
+
+                    {isLeader && (
+                      <div className={styles.podiumLeaderBadge}>League leader</div>
+                    )}
+
+                    <h2 className={styles.podiumTeamName}>
+                      <NavigationLink
+                        href={clubHref(leagueId, row.teamId, row.teamId === myTeamId)}
+                        className={styles.teamLink}
+                      >
+                        {row.teamName}
+                      </NavigationLink>
+                    </h2>
+                    <p className={`g-label-quiet ${styles.podiumManager}`}>{row.username}</p>
+
+                    <div className={styles.podiumBottom}>
+                      <div className={styles.podiumStatGroup}>
+                        <span className={`g-label-quiet ${styles.podiumStatLabel}`}>Record</span>
+                        <span className={styles.podiumRecord}>
+                          {row.wins}-{row.draws}-{row.losses}
+                        </span>
                       </div>
-                    </td>
-                    <td className={styles.managerCell}>{row.username}</td>
-                    <td className={styles.ptsCell}>{row.pts}</td>
-                    <td>{row.wins}</td>
-                    <td>{row.draws}</td>
-                    <td>{row.losses}</td>
-                    <td>{row.pf.toFixed(2)}</td>
-                    <td>{row.pa.toFixed(2)}</td>
-                    <td className={styles.formCell}>
-                      <div className={styles.formDots}>
-                        {form.map((result, idx) => (
-                          <span
-                            key={idx}
-                            className={`${styles.formDot} ${
-                              result === 'W'
-                                ? styles.formDotW
-                                : result === 'D'
-                                ? styles.formDotD
-                                : styles.formDotL
-                            }`}
-                          />
-                        ))}
-                        {/* Pad with grey dots if fewer than 5 results */}
-                        {Array.from({ length: Math.max(0, 5 - form.length) }).map((_, idx) => (
-                          <span key={`empty-${idx}`} className={`${styles.formDot} ${styles.formDotEmpty}`} />
-                        ))}
+                      <div className={`${styles.podiumStatGroup} ${styles.podiumStatGroupEnd}`}>
+                        <span className={`g-label-quiet ${styles.podiumStatLabel}`}>Total pts</span>
+                        <span
+                          className={`${styles.podiumStatValue} ${
+                            row.teamId === myTeamId ? styles.podiumStatValueMine : ''
+                          }`}
+                        >
+                          {row.pts}
+                        </span>
                       </div>
-                    </td>
-                  </tr>
+                    </div>
+                  </div>
                 );
               })}
-            </tbody>
-          </table>
+            </div>
+
+            {/* A heading, not the tracked label — decision 5 rations that
+                device to one per panel and the podium's own g-label-quiet
+                captions are already spent here. */}
+            <h2 className={styles.sectionHead}>Full standings</h2>
+
+            <table className={styles.table}>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th className={styles.teamHeading}>Team</th>
+                  <th className={styles.managerHeading}>Manager</th>
+                  <th>Pts</th>
+                  <th>W</th>
+                  <th>D</th>
+                  <th>L</th>
+                  <th>PF</th>
+                  <th>PA</th>
+                  <th className={styles.formHeading}>Form</th>
+                </tr>
+              </thead>
+              <tbody>
+                {standings.map((row, i) => {
+                  const isOwn = row.teamId === myTeamId;
+                  const form = formMap.get(row.teamId) ?? [];
+                  return (
+                    <tr
+                      key={row.teamId}
+                      className={`${styles.tableRow} ${isOwn ? styles.ownRow : ''}`}
+                    >
+                      <td className={styles.rankCell}>{formatRank(i + 1)}</td>
+                      <td className={styles.teamCell}>
+                        <div className={styles.teamCellInner}>
+                          {/* The crest peeks, the name navigates — a glance and a
+                              visit are different intentions and shouldn't share
+                              one target. */}
+                          <SquadPeekButton
+                            teamId={row.teamId}
+                            teamName={row.teamName}
+                            title={`Peek at ${row.teamName}`}
+                          >
+                            <CrestBadge config={row.crestConfig} size={28} teamName={row.teamName} />
+                          </SquadPeekButton>
+                          <NavigationLink
+                            href={clubHref(leagueId, row.teamId, isOwn)}
+                            className={`${styles.teamCellName} ${styles.teamLink}`}
+                          >
+                            {row.teamName}
+                          </NavigationLink>
+                        </div>
+                      </td>
+                      <td className={styles.managerCell}>{row.username}</td>
+                      <td className={styles.ptsCell}>{row.pts}</td>
+                      <td>{row.wins}</td>
+                      <td>{row.draws}</td>
+                      <td>{row.losses}</td>
+                      <td>{row.pf.toFixed(2)}</td>
+                      <td>{row.pa.toFixed(2)}</td>
+                      <td className={styles.formCell}>
+                        <div className={styles.formDots}>
+                          {form.map((result, idx) => (
+                            <span
+                              key={idx}
+                              className={`${styles.formDot} ${
+                                result === 'W'
+                                  ? styles.formDotW
+                                  : result === 'D'
+                                  ? styles.formDotD
+                                  : styles.formDotL
+                              }`}
+                            />
+                          ))}
+                          {/* Pad with empty dots if fewer than 5 results */}
+                          {Array.from({ length: Math.max(0, 5 - form.length) }).map((_, idx) => (
+                            <span key={`empty-${idx}`} className={`${styles.formDot} ${styles.formDotEmpty}`} />
+                          ))}
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </>
         )}
-      </section>
+      </div>
 
     </div>
   );

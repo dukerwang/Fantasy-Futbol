@@ -11,11 +11,13 @@
   overflow: visible; /* Don't clip player photos */
 }
 
-.card:hover {
-  border-color: var(--color-border);
-  box-shadow: var(--shadow-md);
-  transform: translateY(-2px);
-  z-index: 10;
+@media (hover: hover) and (pointer: fine) {
+  .card:hover {
+    border-color: var(--color-border);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+    z-index: 10;
+  }
 }
 
 .compact {
@@ -246,9 +248,11 @@
   color: var(--color-accent-red);
 }
 
-.dropBtn:hover {
-  background: var(--color-accent-red);
-  color: white;
+@media (hover: hover) and (pointer: fine) {
+  .dropBtn:hover {
+    background: var(--color-accent-red);
+    color: white;
+  }
 }
 
 .bidBtn {
@@ -256,9 +260,11 @@
   color: var(--color-accent-green);
 }
 
-.bidBtn:hover {
-  background: var(--color-accent-green);
-  color: white;
+@media (hover: hover) and (pointer: fine) {
+  .bidBtn:hover {
+    background: var(--color-accent-green);
+    color: white;
+  }
 }
 
 .bidPendingTag {

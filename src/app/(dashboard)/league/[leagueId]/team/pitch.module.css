@@ -1,73 +1,121 @@
-/* ============================================================
-   PitchUI — Cream Editorial Visual Pitch + Sidebar Layout
-   Trigger Deploy: 2
-   ============================================================ */
+/* The Pitch — Gaffa 2.0.
+   Third route port. See design-2.0/README.md § "Port order for the remaining
+   routes" and § "What the squad pages established".
+
+   This page pays its own scale migration: --t-* / --s* / --r-* throughout, no
+   rem literals and no raw hex. It went in carrying the biggest colour debt in
+   the app — 101 hex literals and 38 rem font-sizes — and four things it was
+   doing turned out to be system-level rather than local:
+
+   1. THE PITCH IS A SURFACE, AND IT HAD NEVER BEEN VERIFIED. 1.0 painted a
+      fixed #5A8F6A grass in BOTH themes and laid white on it. Every ink it
+      carried was under floor: touchline 2.23:1, team label 2.67:1, empty-slot
+      label 2.94:1. The fade was most of it — the same white at full strength
+      measured 3.77:1. The grass is now --color-pitch (see globals.css), the ink
+      on it is full-strength, and alpha survives only on interior furniture that
+      carries no information.
+
+   2. A BOARD IS ONE PANEL — the auction room's rule, applied to a surface that
+      is not a table. The XI on the grass and the four squad tiers beside it are
+      one squad: you move players between them, and the rail's counts are
+      arithmetic on what is on the grass. It was a bare pitch plus four floating
+      cards, which is five elevation declarations for one composition. Now one
+      .g-panel, two columns, one internal hairline; the tiers are sections
+      within the rail rather than cards of their own.
+
+   3. THE SPECTRUM'S FIRST REAL USE. It is rationed to a panel representing a
+      whole squad or the whole pool. Every earlier port correctly left it off. A
+      board showing all eleven positions on the field plus every reserve is
+      exactly the panel it was reserved for.
+
+   4. THE CLUB IS A CREST HERE TOO. The node carried a three-letter club
+      abbreviation as text, which is the line the portrait's crest chip replaced
+      everywhere else. Deleting it is what let the node lose a row of type.
+
+   Rejected: keeping getScoreIntensityColor() on the points badge. It is a
+   six-stop ramp of invented hex, unverified in either theme, and it means the
+   same thing the performance ramp means while keying on a different quantity —
+   the raw point total rather than the composite that produced it, which the
+   ramp explicitly forbids. The figure goes to ink. (MatchupPitch was the last
+   other consumer; port 5 made the same call there and deleted scoreColor.ts.) */
 
 .pitchUI {
     display: flex;
     flex-direction: column;
-    gap: var(--space-4, 1rem);
+    gap: var(--s4);
 }
 
-/* ── Formation bar ── */
+/* ── Formation bar ─────────────────────────────────────────
+   A toolbar above the board, not part of it — the same relationship the
+   auction room's facet strip has to its board. */
+
 .formationBar {
     display: flex;
     align-items: center;
-    gap: var(--space-4, 1rem);
+    gap: var(--s3);
     flex-wrap: wrap;
-}
-
-.formationLabel {
-    font-size: 0.7rem;
-    font-weight: 700;
-    color: var(--color-text-muted, #9A9488);
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    white-space: nowrap;
 }
 
 .formationPills {
     display: flex;
-    gap: 0.375rem;
+    gap: var(--s1);
     flex-wrap: wrap;
 }
 
 .formationBarTrailer {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
+    gap: var(--s3);
     margin-left: auto;
     flex-wrap: wrap;
 }
 
 .formationLockedNote {
-    font-size: 0.68rem;
-    color: var(--color-text-muted, #9A9488);
-    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--s1);
+    font-size: var(--t-12);
+    color: var(--color-text-secondary);
+    font-weight: var(--font-semibold);
     white-space: nowrap;
 }
 
 .formationPill {
-    padding: 0.375rem 0.875rem;
-    background: var(--color-bg-card, #FDFCF9);
-    border: 1px solid var(--color-border, #C8C3BC);
-    border-radius: 999px;
-    color: var(--color-text-secondary, #4A4A4A);
-    font-size: 0.78rem;
-    font-weight: 600;
+    font-family: var(--font-condensed);
+    font-size: var(--t-12);
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    padding: var(--s1) var(--s2);
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--r-control);
+    color: var(--color-text-secondary);
+    font-variant-numeric: tabular-nums lining-nums;
     cursor: pointer;
-    transition: border-color 0.15s, background 0.15s;
+    white-space: nowrap;
+    transition: border-color var(--dur-fast) var(--ease-standard),
+                background var(--dur-fast) var(--ease-standard);
 }
 
-.formationPill:hover {
-    border-color: var(--color-text-muted, #9A9488);
-    background: var(--color-bg-card-hover, #EDE8E0);
+@media (hover: hover) and (pointer: fine) {
+  .formationPill:hover {
+      background: var(--color-bg-card-hover);
+      border-color: var(--color-border);
+  }
 }
 
 .formationPillActive {
-    background: var(--color-accent-green, #3A6B4A);
-    color: #fff;
-    border-color: var(--color-accent-green, #3A6B4A);
+    background: var(--color-accent);
+    color: var(--color-on-accent);
+    border-color: var(--color-accent);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .formationPillActive:hover {
+      background: var(--color-accent);
+      color: var(--color-on-accent);
+      border-color: var(--color-accent);
+  }
 }
 
 .formationPillDisabled {
@@ -76,25 +124,32 @@
     pointer-events: none;
 }
 
-/* ── Selection indicator — lives inside the formation bar row, no extra row added ── */
+/* Selection indicator — rides in the formation bar's trailer rather than
+   adding a row of its own. */
 .selectionIndicator {
     display: flex;
     align-items: center;
-    gap: 0.4rem;
+    gap: var(--s1);
+    padding: var(--s1) var(--s2);
+    border-radius: var(--r-control);
+    background: var(--color-tint-accent);
+    min-width: 0;
 }
 
 .selectionDot {
     width: 6px;
     height: 6px;
-    border-radius: 50%;
-    background: var(--color-accent-green, #3A6B4A);
+    border-radius: var(--r-round);
+    background: var(--color-accent);
     flex-shrink: 0;
 }
 
+/* The wash is the state; the label goes to ink. Accent-on-accent is the
+   defect the dialogs port found six times over. */
 .selectionLabel {
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: var(--color-text-primary, #1C1C1C);
+    font-size: var(--t-12);
+    font-weight: var(--font-semibold);
+    color: var(--color-text-primary);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -109,90 +164,101 @@
     height: 18px;
     padding: 0;
     background: transparent;
-    border: 1px solid var(--color-border, #C8C3BC);
-    border-radius: 50%;
-    color: var(--color-text-secondary, #4A4A4A);
-    font-size: 0.75rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--r-round);
+    color: var(--color-text-secondary);
+    font-size: var(--t-12);
     line-height: 1;
     cursor: pointer;
     flex-shrink: 0;
 }
 
-.selectionCancelBtn:hover {
-    border-color: var(--color-accent-green, #3A6B4A);
-    color: var(--color-accent-green, #3A6B4A);
-    background: var(--color-bg-card-hover, #EDE8E0);
+@media (hover: hover) and (pointer: fine) {
+  .selectionCancelBtn:hover {
+      border-color: var(--color-border-strong);
+      color: var(--color-text-primary);
+  }
 }
 
-/* ── 2-column layout ── */
-.pitchLayout {
+/* ── The board ─────────────────────────────────────────────
+   One panel, two columns, one internal hairline. See the header comment and
+   design-2.0/README.md § "A board is one panel". */
+
+.spectrum { flex-shrink: 0; }
+
+.board {
     display: grid;
-    grid-template-columns: 3fr 2fr;
-    gap: var(--space-6, 1.5rem);
-    align-items: start;
-}
-
-@media (max-width: 960px) {
-    .pitchLayout {
-        grid-template-columns: 1fr;
-    }
+    grid-template-columns: minmax(0, 1fr) 392px;
+    align-items: stretch;
 }
 
 .pitchCol {
     display: flex;
     flex-direction: column;
-    gap: var(--space-3, 0.75rem);
+    min-width: 0;
+    border-right: 1px solid var(--color-border);
 }
 
 .sidebarCol {
     display: flex;
     flex-direction: column;
-    gap: var(--space-4, 1rem);
+    min-width: 0;
 }
 
-/* ── Outer pitch container — green run-off outside the white touchlines ── */
+@media (max-width: 1080px) {
+    .board { grid-template-columns: minmax(0, 1fr); }
+    /* The divider TURNS rather than disappearing — the two columns are still
+       one field when they stack. */
+    .pitchCol { border-right: none; border-bottom: 1px solid var(--color-border); }
+}
+
+/* ── The grass ─────────────────────────────────────────────
+   Full-bleed inside its column; the panel's own radius clips it. */
+
 .pitchContainer {
     width: 100%;
     background: repeating-linear-gradient(
         to bottom,
-        #5A8F6A,
-        #5A8F6A 60px,
-        #528361 60px,
-        #528361 120px
+        var(--color-pitch),
+        var(--color-pitch) 60px,
+        var(--color-pitch-band) 60px,
+        var(--color-pitch-band) 120px
     );
-    padding: 18px 14px;
+    padding: var(--s5) var(--s4);
     display: flex;
     flex-direction: column;
 }
 
-/* ── Inner pitch field — portrait (taller than wide column feels like a real pitch) ── */
+/* Standard pitch ratio is ~105x68m (0.647); 2/3 reads as a real pitch in a
+   tall column. The max-height stops it going absurd on an ultrawide. */
 .pitchField {
     position: relative;
     width: 100%;
-    /* 
-       Standard pitch ratio is ~105m x 68m (0.647). 
-       Using 2/3 (0.666) for a consistent, premium tall aesthetic.
-       Max-height prevents it from becoming absurdly large on ultrawide monitors.
-    */
     aspect-ratio: 2 / 3;
     max-height: 980px;
     display: flex;
     flex-direction: column;
-    border: 2px solid rgba(255, 255, 255, 0.65);
+    /* The field boundary carries information — where the pitch ends — so it
+       runs at full strength (4.81:1 on the grass). Interior furniture below
+       does not, and keeps its alpha. */
+    border: 2px solid var(--color-pitch-line);
     overflow: hidden;
 }
 
-/* Subtle stadium lighting vignette */
+/* Stadium lighting. Only ever darkens the ground, so it can only improve
+   every white pair measured against the flat grass. */
 .pitchField::after {
     content: '';
     position: absolute;
     inset: 0;
-    background: radial-gradient(circle at center, transparent 30%, rgba(24, 43, 31, 0.22) 100%);
+    background: radial-gradient(circle at center, transparent 30%, rgba(18, 34, 25, 0.24) 100%);
     pointer-events: none;
-    z-index: 1;
+    z-index: var(--z-base);
 }
 
-/* Halfway line — horizontal at midfield (lineup runs top → bottom with play direction) */
+/* Interior markings — decorative furniture, not content: they convey nothing
+   the lineup does not already state and nothing is interactive, so these are
+   the one place on this surface where the line stays faded. */
 .pitchHalftimeLine {
     position: absolute;
     left: 0;
@@ -200,12 +266,11 @@
     top: 50%;
     height: 2px;
     margin-top: -1px;
-    background: rgba(255, 255, 255, 0.35);
-    z-index: 1;
+    background: color-mix(in srgb, var(--color-pitch-line) 35%, transparent);
+    z-index: var(--z-base);
     pointer-events: none;
 }
 
-/* Center circle */
 .centerCircle {
     position: absolute;
     top: 50%;
@@ -213,130 +278,88 @@
     transform: translate(-50%, -50%);
     width: 80px;
     height: 80px;
-    border: 2px solid rgba(255, 255, 255, 0.35);
-    border-radius: 50%;
-    z-index: 1;
+    border: 2px solid color-mix(in srgb, var(--color-pitch-line) 35%, transparent);
+    border-radius: var(--r-round);
+    z-index: var(--z-base);
     pointer-events: none;
 }
 
-/* ── Goal ends (MatchupPitch-style proportions) ── */
-
-/* Top (attacking) penalty area + D + six-yard */
-.pitchTopPenaltyBox {
-    position: absolute;
-    top: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 58%;
-    height: 20%;
-    border: 2px solid rgba(255, 255, 255, 0.48);
-    border-top: none;
-    pointer-events: none;
-    z-index: 1;
-}
-
-.pitchTopPenaltyArc {
-    position: absolute;
-    top: 20%;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 72px;
-    height: 36px;
-    border: 2px solid rgba(255, 255, 255, 0.4);
-    border-top: none;
-    border-radius: 0 0 36px 36px;
-    pointer-events: none;
-    z-index: 1;
-}
-
-.pitchTopSixBox {
-    position: absolute;
-    top: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 26%;
-    height: 7%;
-    border: 2px solid rgba(255, 255, 255, 0.38);
-    border-top: none;
-    pointer-events: none;
-    z-index: 1;
-}
-
-/* Bottom (GK) penalty area + D + six-yard */
+.pitchTopPenaltyBox,
 .pitchBottomPenaltyBox {
     position: absolute;
-    bottom: 0;
     left: 50%;
     transform: translateX(-50%);
     width: 58%;
     height: 20%;
-    border: 2px solid rgba(255, 255, 255, 0.48);
-    border-bottom: none;
+    border: 2px solid color-mix(in srgb, var(--color-pitch-line) 48%, transparent);
     pointer-events: none;
-    z-index: 1;
+    z-index: var(--z-base);
 }
+.pitchTopPenaltyBox { top: 0; border-top: none; }
+.pitchBottomPenaltyBox { bottom: 0; border-bottom: none; }
 
+.pitchTopPenaltyArc,
 .pitchBottomPenaltyArc {
     position: absolute;
-    bottom: 20%;
     left: 50%;
     transform: translateX(-50%);
     width: 72px;
     height: 36px;
-    border: 2px solid rgba(255, 255, 255, 0.4);
-    border-bottom: none;
-    border-radius: 36px 36px 0 0;
+    border: 2px solid color-mix(in srgb, var(--color-pitch-line) 40%, transparent);
     pointer-events: none;
-    z-index: 1;
+    z-index: var(--z-base);
 }
+.pitchTopPenaltyArc { top: 20%; border-top: none; border-radius: 0 0 36px 36px; }
+.pitchBottomPenaltyArc { bottom: 20%; border-bottom: none; border-radius: 36px 36px 0 0; }
 
+.pitchTopSixBox,
 .pitchBottomSixBox {
     position: absolute;
-    bottom: 0;
     left: 50%;
     transform: translateX(-50%);
     width: 26%;
     height: 7%;
-    border: 2px solid rgba(255, 255, 255, 0.38);
-    border-bottom: none;
+    border: 2px solid color-mix(in srgb, var(--color-pitch-line) 38%, transparent);
     pointer-events: none;
-    z-index: 1;
+    z-index: var(--z-base);
 }
+.pitchTopSixBox { top: 0; border-top: none; }
+.pitchBottomSixBox { bottom: 0; border-bottom: none; }
 
-/* Team label — same typography as MatchupPitch .pitchLabelLeft */
+/* Team + roster count across the top of the field. Full-strength white: this
+   is 10px text and the fade is exactly what put it at 2.67:1. */
 .pitchLabels {
     position: absolute;
-    top: 10px;
+    top: var(--s3);
     left: 0;
     right: 0;
     display: flex;
     justify-content: space-between;
-    padding: 0 16px;
+    gap: var(--s3);
+    padding: 0 var(--s4);
     pointer-events: none;
     z-index: 2;
 }
 
 .pitchLabelLeft,
 .pitchLabelRight {
-    font-family: var(--font-sans);
-    font-size: 0.58rem;
-    font-weight: 700;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: rgba(255, 255, 255, 0.7);
+    color: var(--color-pitch-line);
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
+.pitchLabelRight { font-variant-numeric: tabular-nums lining-nums; }
 
-/* ── Pitch zones — same vertical rhythm as MatchupPitch .pitchZones ── */
 .pitchZones {
     display: flex;
     flex-direction: column;
     flex: 1;
-    padding: 38px 0 14px;
+    padding: var(--s10) 0 var(--s3);
     position: relative;
     z-index: 2;
 }
 
-/* Individual zone rows */
 .pitchZone {
     display: flex;
     flex-direction: column;
@@ -344,21 +367,21 @@
     overflow: visible;
 }
 
-/* Zone heights: slight CM/GK nudge for portrait strip above chips */
+/* Zone heights: a slight CM/GK nudge, because those rows carry the portrait
+   strip above their chips. */
 .zoneATT { flex: 1.22; }
 .zoneAMZ { flex: 1.52; }
-.zoneCMZ { flex: 1.05; margin-top: 14px; }
+.zoneCMZ { flex: 1.05; margin-top: var(--s3); }
 .zoneDMZ { flex: 1.05; }
 .zoneWBZ { flex: 1.05; }
 .zoneDEF { flex: 1.22; }
-.zoneGK  { flex: 0.85; margin-top: 12px; }
+.zoneGK  { flex: 0.85; margin-top: var(--s3); }
 
 .zoneWBZ .pitchRow {
     justify-content: space-between;
-    padding: 8px 16px;
+    padding: var(--s2) var(--s4);
 }
 
-/* Full-width row: horizontal spacing matches MatchupPitch .halfZone (space-around) */
 .pitchRow {
     display: flex;
     flex-direction: row;
@@ -368,17 +391,21 @@
     flex: 1;
     width: 100%;
     min-height: 118px;
-    padding: 8px 10px;
-    gap: 8px;
+    padding: var(--s2) var(--s3);
+    gap: var(--s2);
     overflow: visible;
 }
 
-/* ── Pitch node: floating photo + chip (stacked, not flush) ── */
+/* ── The node ──────────────────────────────────────────────
+   Portrait above a chip. The portrait is <Portrait size="md">, so the crop,
+   the lit ground, the silhouette shadow and the club crest all come from the
+   system rather than from a hand-rolled 66x76 frame with object-fit: cover. */
+
 .pitchNodeWrap {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 6px;
+    gap: var(--s1);
     position: relative;
     width: auto;
     min-width: 108px;
@@ -390,145 +417,94 @@
     cursor: pointer;
     box-shadow: none;
     text-align: center;
-    transition: filter 0.12s;
 }
 
-.pitchNodeWrap:hover .pitchNode {
-    box-shadow: var(--shadow-md, 0 4px 12px rgba(28, 28, 28, 0.1));
-    /* Subtly tint the card border with position color on hover */
-    border-color: color-mix(in srgb, var(--pos-color, #C8C3BC) 40%, #C8C3BC 60%);
+/* Hover is an interaction affordance, so it is the accent, not the position
+   hue. The hue is on the badge, which carries the letters too — the "where
+   the element carries a word, delete the hue" rule from the hub port. */
+@media (hover: hover) and (pointer: fine) {
+  .pitchNodeWrap:hover .pitchNode {
+      border-color: var(--color-accent);
+  }
 }
 
-.pitchNodeWrap:hover .nodePhotoMount {
-    /* Solid position color border on hover */
-    border-color: var(--pos-color, #C8C3BC);
-    /* Classy glowing halo ring using the position color on hover */
-    box-shadow: 
-        0 0 0 2.5px color-mix(in srgb, var(--pos-color, transparent) 25%, transparent),
-        0 4px 12px rgba(28, 28, 28, 0.15);
+.nodePortrait {
+    /* The portrait brings its own lit ground, hairline and silhouette
+       drop-shadow, so this wrapper exists only to take the click. */
+    display: block;
+    flex-shrink: 0;
 }
 
 .nodeWrapSelected {
-    outline: 2px solid var(--color-accent-green, #3A6B4A) !important;
+    outline: 2px solid var(--color-accent);
     outline-offset: 3px;
-    border-radius: var(--radius-sm, 4px);
+    border-radius: var(--r-control);
 }
 
 .nodeWrapValidTarget {
-    outline: 2px dashed rgba(58, 107, 74, 0.65) !important;
+    outline: 2px dashed var(--color-accent);
     outline-offset: 3px;
-    border-radius: var(--radius-sm, 4px);
-}
-
-.nodeWrapEmpty .nodePhotoMount {
-    border-style: dashed;
-    background: transparent;
-    box-shadow: none !important;
-}
-
-.nodeWrapEmpty .nodePhotoPlaceholder {
-    color: rgba(255, 255, 255, 0.45);
-}
-
-.pitchNodeWrap:not(.nodeWrapEmpty) .nodePhotoPlaceholder {
-    color: var(--color-text-secondary, #4a4a4a);
+    border-radius: var(--r-control);
 }
 
 .nodeWrapInvalid {
-    outline: 2px solid #ef4444 !important;
+    outline: 2px solid var(--color-danger);
     outline-offset: 3px;
-    border-radius: var(--radius-sm, 4px);
+    border-radius: var(--r-control);
 }
 
-.nodePhotoMount {
-    flex-shrink: 0;
-    width: 66px;
-    height: 76px;
-    padding: 0;
-    box-sizing: border-box;
-    border-radius: 6px;
-    position: relative;
-    /* Subtly tinted position border (40% pos color, 60% border) for a classy outline */
-    border: 1.5px solid color-mix(in srgb, var(--pos-color, #C8C3BC) 40%, #C8C3BC 60%);
-    /* Elegant, neutral studio backdrop (no colored tint behind player image) */
-    background: linear-gradient(to bottom, #FDFCF9, #EDE8DE);
-    overflow: hidden;
-    transition: border-color var(--transition-fast, 150ms),
-                box-shadow var(--transition-fast, 150ms);
-    /* Soft neutral shadow */
-    box-shadow: 
-        0 2px 6px rgba(28, 28, 28, 0.06),
-        0 1px 2px rgba(0, 0, 0, 0.04);
-}
+.nodeWrapEmpty .nodePortrait { opacity: 0.55; }
 
-.nodePhotoImg {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: top center;
-    display: block;
-    /* Soft entrance transition */
-    animation: fadeIn 0.3s var(--ease-out-expo, cubic-bezier(0.22, 1, 0.36, 1));
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: scale(0.96); }
-    to { opacity: 1; transform: scale(1); }
-}
-
-.nodePhotoPlaceholder {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: var(--font-serif);
-    font-size: 1.15rem;
-    font-weight: 700;
-}
-
+/* The chip. Its keyline is the pitch's own white line — the field is darker
+   than the dark theme's card, so no single grass separates from a cream chip
+   and a navy chip by fill. The line carries it, which is the spine's rule and
+   also how a real pitch marks out anything on it. */
 .pitchNode {
     position: relative;
     width: 100%;
     min-width: 100px;
     padding: 0;
-    background: #fdfcf9;
-    border: 1px solid rgba(210, 196, 183, 0.65);
-    border-radius: var(--radius-sm, 4px);
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-pitch-line);
+    border-radius: var(--r-control);
     overflow: visible;
-    transition: box-shadow var(--transition-fast, 150ms), border-color var(--transition-fast, 150ms);
-    box-shadow: var(--shadow-sm, 0 1px 3px rgba(28, 28, 28, 0.08));
+    transition: border-color var(--dur-fast) var(--ease-standard);
 }
 
+/* An empty slot is an OUTLINE, not a filled thing. It first carried a 14%
+   white wash, which put its own white label at 3.70:1 — a wash of the ink's
+   own colour is the worst possible ground for it, and the dashed keyline was
+   already saying "empty" on its own. On bare grass the label is 4.81:1. */
 .nodeChipEmpty {
     border-style: dashed;
-    border-color: rgba(255, 255, 255, 0.45) !important;
-    background: rgba(255, 255, 255, 0.16) !important;
-    box-shadow: none;
+    background: transparent;
 }
 
+/* Serif, tabular, ink — a settled figure compared across the field, which is
+   decision 6's serif job. Not a colour ramp: see the header comment. */
 .nodePtsBadge {
     position: absolute;
-    top: -5px;
-    right: -10px; /* shifted slightly right of original -5px */
-    font-family: var(--font-sans);
-    font-size: 0.48rem;
-    font-weight: 800;
-    padding: 2px 5px;
-    line-height: 1.2;
-    letter-spacing: 0.03em;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+    top: -8px;
+    right: -8px;
+    font-family: var(--font-serif);
+    font-size: var(--t-11);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums lining-nums;
+    color: var(--color-text-primary);
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-pitch-line);
+    border-radius: var(--r-control);
+    padding: 1px var(--s1);
+    line-height: 1.25;
     z-index: 5;
-    border-radius: 3px;
-    color: #fff;
 }
 
 .nodeChipBody {
-    padding: 7px 10px 8px 6px;
+    padding: var(--s1) var(--s2);
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 4px;
+    gap: var(--s1);
 }
 
 .nodePlayerNameCenter {
@@ -537,111 +513,100 @@
     -webkit-box-orient: vertical;
     overflow: hidden;
     font-family: var(--font-serif);
-    font-size: 0.72rem;
+    font-size: var(--t-12);
     font-weight: 700;
     line-height: 1.2;
     letter-spacing: 0.01em;
-    color: #1c1c19;
+    color: var(--color-text-primary);
     text-align: center;
     width: 100%;
     word-break: break-word;
 }
 
+.nodeNameInvalid { color: var(--color-danger); }
+
 .nodeMetaChipRow {
     display: flex;
     align-items: center;
     justify-content: center;
-    flex-wrap: wrap;
-    gap: 5px;
+    gap: var(--s1);
     width: 100%;
-}
-
-.nodePosBadge {
-    display: inline-block;
-    padding: 1.5px 5px;
-    font-family: var(--font-sans);
-    font-size: 0.45rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    color: white;
-    flex-shrink: 0;
-    border-radius: 0;
-}
-
-.nodeTeamChip {
-    font-family: var(--font-sans);
-    font-size: 0.45rem;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--color-text-secondary, #4a4a4a);
-    max-width: 40px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
 }
 
 .nodeLockCorner {
     position: absolute;
     bottom: 2px;
     right: 3px;
-    font-size: 0.42rem;
     line-height: 1;
-    opacity: 0.9;
+    color: var(--color-text-muted);
     pointer-events: none;
     z-index: 4;
 }
 
 .nodeEmptyLabel {
-    font-size: 0.55rem;
-    color: rgba(255, 255, 255, 0.78);
+    font-size: var(--t-10);
+    color: var(--color-pitch-line);
     font-style: italic;
 }
 
+/* Two states, not four. 1.0 had a hue each for injured / doubtful / suspended /
+   unavailable — one of them an invented purple — where the only distinction
+   the pitch needs is "cannot play" against "might not". Both tokens already
+   existed.
+
+   Doubt takes --color-warning-TEXT rather than --color-warning, even though
+   this is a fill. The fill token is the bright amber a dark LABEL sits on; as a
+   standalone 5px mark on a cream card it measures 2.09:1, under the 3:1 a
+   graphical indicator owes. A dot that is the sole carrier of a state is held
+   to the legible value, not the fill value — the same argument as the spine's
+   keyline. */
 .nodeStatusDot {
     width: 5px;
     height: 5px;
-    border-radius: 50%;
+    border-radius: var(--r-round);
     flex-shrink: 0;
+    background: var(--color-danger);
 }
-.nodeStatusDot[data-status='i'] { background: #ef4444; }
-.nodeStatusDot[data-status='d'] { background: #f59e0b; }
-.nodeStatusDot[data-status='s'] { background: #8b5cf6; }
-.nodeStatusDot[data-status='u'] { background: #6b7280; }
+.nodeStatusDot[data-status='d'] { background: var(--color-warning-text); }
 
-/* ── Save row ── */
+/* ── Save row ──────────────────────────────────────────────
+   Inside the pitch column, under the grass — it acts on what is above it. */
+
 .saveRow {
     display: flex;
     align-items: center;
     justify-content: flex-end;
-    gap: 1rem;
+    gap: var(--s3);
+    padding: var(--s3) var(--s4);
+    border-top: 1px solid var(--color-border-subtle);
 }
 
 .errorText {
-    font-size: 0.8rem;
-    color: #ef4444;
+    font-size: var(--t-12);
+    color: var(--color-danger);
     flex: 1;
 }
 
 .successText {
-    font-size: 0.8rem;
-    color: var(--color-accent-green, #3A6B4A);
+    font-size: var(--t-12);
+    color: var(--color-accent-ink);
     flex: 1;
 }
 
 .saveBtn {
-    padding: 0.5rem 1.5rem;
-    background: var(--color-accent-green, #3A6B4A);
-    color: #fff;
-    border: none;
-    border-radius: var(--radius-sm, 4px);
-    font-size: 0.8rem;
+    padding: var(--s2) var(--s5);
+    background: var(--color-accent);
+    color: var(--color-on-accent);
+    border: 1px solid var(--color-accent);
+    border-radius: var(--r-control);
+    font-family: var(--font-condensed);
+    font-size: var(--t-13);
     font-weight: 700;
     letter-spacing: 0.06em;
+    text-transform: uppercase;
     cursor: pointer;
-    transition: opacity 0.15s;
     white-space: nowrap;
+    transition: background var(--dur-fast) var(--ease-standard);
 }
 
 .saveBtn:disabled {
@@ -649,572 +614,335 @@
     cursor: not-allowed;
 }
 
-.saveBtn:not(:disabled):hover {
-    opacity: 0.88;
+@media (hover: hover) and (pointer: fine) {
+  .saveBtn:not(:disabled):hover {
+      background: var(--color-accent-hover);
+      border-color: var(--color-accent-hover);
+  }
 }
 
-/* ── Sidebar cards ── */
-.sidebarCard {
-    background: var(--color-bg-card, #FDFCF9);
-    border: 1px solid var(--color-border, #C8C3BC);
-    border-radius: var(--radius-sm, 4px);
-    overflow: hidden;
-}
+/* ── The squad rail ────────────────────────────────────────
+   Four tiers as sections of one column, divided by hairlines. They were four
+   independent cards, which is four elevation declarations inside a
+   composition that already has one. */
 
-.sidebarCardDropTarget {
-    border-color: var(--color-accent-green, #3A6B4A);
-    box-shadow: 0 0 0 2px rgba(58, 107, 74, 0.15);
-}
+.tier { display: flex; flex-direction: column; }
+.tier + .tier { border-top: 1px solid var(--color-border); }
 
-.sidebarCardHeader {
+.tierHead {
     display: flex;
-    align-items: center;
+    align-items: baseline;
     justify-content: space-between;
-    padding: 0.75rem 1rem 0.5rem;
-    border-bottom: 1px solid var(--color-border-subtle, #D9D4CD);
+    gap: var(--s3);
+    padding: var(--s3) var(--s4) var(--s2);
 }
 
-.sidebarCardTitle {
-    font-size: 0.72rem;
+.tierTitle {
+    font-family: var(--font-serif);
+    font-size: var(--t-15);
     font-weight: 700;
-    color: var(--color-text-secondary, #4A4A4A);
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
+    letter-spacing: -0.015em;
+    color: var(--color-text-primary);
     margin: 0;
 }
 
-.irTitle {
-    color: #ef4444;
+.tierDropTarget {
+    background: var(--color-tint-accent);
 }
 
-.sidebarCardMeta {
-    font-size: 0.65rem;
-    font-weight: 600;
-    color: var(--color-text-muted, #9A9488);
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-}
+/* ── Rows, shared by every tier ────────────────────────────
+   Bench, reserves, academy and IR were four near-identical rulesets that had
+   already drifted apart in padding, hover and selected treatment. One row. */
 
-/* ── Bench card rows ── */
-.benchList {
-    display: flex;
-    flex-direction: column;
-}
-
-.benchRow {
+.row {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 1rem;
-    border-bottom: 1px solid var(--color-border-subtle, #D9D4CD);
+    gap: var(--s2);
+    padding: var(--s2) var(--s4);
+    border-top: 1px solid var(--color-border-subtle);
     background: transparent;
     border-left: none;
     border-right: none;
-    border-top: none;
-    cursor: pointer;
-    text-align: left;
-    width: 100%;
-    transition: background 0.12s;
-}
-
-.benchRow:last-child {
     border-bottom: none;
+    width: 100%;
+    text-align: left;
+    transition: background var(--dur-fast) var(--ease-standard);
 }
 
-.benchRow:hover {
-    background: var(--color-bg-card-hover, #EDE8E0);
+/* Hover is `.g-row` from globals.css — the position hue grounds the row on
+   hover only, which is the one place a squad list is allowed to teach the
+   taxonomy without turning into a paint chart. It paints `background-image`,
+   so a row already carrying a state colour keeps it. */
+.rowBtn { cursor: pointer; }
+
+/* A washed row carries primary and secondary ink only — the auction room's
+   rule. --row-ink is what the meta reads, so one variable lifts every muted
+   cell in the row at once. */
+.rowSelected {
+    background: var(--color-tint-accent);
+    --row-ink: var(--color-text-secondary);
+}
+@media (hover: hover) and (pointer: fine) {
+  .rowSelected:hover {
+      background: var(--color-tint-accent);
+      --row-ink: var(--color-text-secondary);
+  }
 }
 
-.benchRowSelected {
-    background: rgba(58, 107, 74, 0.08) !important;
-    outline: 2px solid var(--color-accent-green, #3A6B4A);
-    outline-offset: -2px;
+.rowTarget {
+    background: var(--color-tint-accent);
+    --row-ink: var(--color-text-secondary);
 }
 
-.benchRowTarget {
-    background: rgba(58, 107, 74, 0.05);
-    outline: 1px solid rgba(58, 107, 74, 0.5);
-    outline-offset: -1px;
+.rowDimmed {
+    opacity: 0.35;
+    pointer-events: none;
 }
 
-.benchRowEmpty {
-    opacity: 0.55;
-}
+.rowLocked { opacity: 0.72; }
+.rowEmpty { opacity: 0.55; }
 
-.benchSlotBadge {
+.rowSpacer { flex: 1; min-width: 0; }
+
+.slotBadge {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-width: 32px;
-    height: 18px;
-    font-size: 0.58rem;
-    font-weight: 800;
-    color: var(--color-text-muted, #9A9488);
-    border: 1px solid var(--color-border, #C8C3BC);
-    border-radius: 2px;
-    padding: 0 4px;
+    min-width: 34px;
+    font-family: var(--font-condensed);
+    font-size: var(--t-10);
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--r-micro);
+    padding: 2px var(--s1);
     flex-shrink: 0;
-    letter-spacing: 0.06em;
 }
 
-.benchSlotDesc {
-    font-size: 0.68rem;
-    color: var(--color-text-muted, #9A9488);
-    font-style: italic;
-    flex-shrink: 0;
-    min-width: 48px;
-}
-
-.benchPlayerName {
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: var(--color-text-primary, #1C1C1C);
+.rowName {
+    font-size: var(--t-13);
+    font-weight: var(--font-semibold);
+    color: var(--color-text-primary);
     flex: 0 1 auto;
-    max-width: 50%;
+    max-width: 52%;
     min-width: 0;
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
     cursor: pointer;
-    padding: 4px 0;
+    background: none;
+    border: none;
+    padding: var(--s1) 0;
+    text-align: left;
 }
 
-.benchPlayerName:hover {
-    text-decoration: underline;
+@media (hover: hover) and (pointer: fine) {
+  .rowName:hover { text-decoration: underline; }
 }
 
-.benchPts {
-    font-size: 0.7rem;
-    font-weight: 700;
+.rowClub {
+    font-family: var(--font-condensed);
+    font-weight: 500;
+    font-size: var(--t-10);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--row-ink, var(--color-text-muted));
     flex-shrink: 0;
     white-space: nowrap;
 }
 
-.benchEmpty {
-    font-size: 0.75rem;
-    color: var(--color-text-muted, #9A9488);
+/* Settled figure, compared down the column. */
+.rowPts {
+    font-family: var(--font-serif);
+    font-size: var(--t-12);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums lining-nums;
+    color: var(--color-text-primary);
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+
+.rowEmptyMark {
+    font-size: var(--t-12);
+    color: var(--row-ink, var(--color-text-muted));
     font-style: italic;
     flex: 1;
 }
 
 .lockIcon {
-    font-size: 0.7rem;
     flex-shrink: 0;
-}
-
-/* ── Reserves card ── */
-.reservesEmpty {
-    font-size: 0.78rem;
-    color: var(--color-text-muted, #9A9488);
-    font-style: italic;
-    padding: 0.75rem 1rem;
-    margin: 0;
-}
-
-.reservesList {
-    display: flex;
-    flex-direction: column;
-}
-
-.reserveRow {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.4rem 1rem;
-    border-bottom: 1px solid var(--color-border-subtle, #D9D4CD);
-    background: transparent;
-    border-left: none;
-    border-right: none;
-    border-top: none;
-    cursor: pointer;
-    text-align: left;
-    width: 100%;
-    transition: background 0.12s;
-}
-
-.reserveRow:last-child {
-    border-bottom: none;
-}
-
-.reserveRow:hover {
-    background: var(--color-bg-card-hover, #EDE8E0);
-}
-
-.reserveRowTarget {
-    background: rgba(58, 107, 74, 0.06);
-    outline: 1px solid rgba(58, 107, 74, 0.5);
-    outline-offset: -1px;
-}
-
-.reserveRowSelected {
-    background: rgba(58, 107, 74, 0.08) !important;
-    outline: 2px solid var(--color-accent-green, #3A6B4A);
-    outline-offset: -2px;
-}
-
-.reserveRowDimmed {
-    opacity: 0.35;
-    pointer-events: none;
-}
-
-.reserveRowLocked {
-    opacity: 0.72;
-}
-
-.reservePosBadge {
+    color: var(--color-text-muted);
     display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 28px;
-    height: 16px;
-    font-size: 0.55rem;
-    font-weight: 800;
-    color: #fff;
-    border-radius: 2px;
-    padding: 0 3px;
-    flex-shrink: 0;
 }
 
-.reserveName {
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: var(--color-text-primary, #1C1C1C);
-    flex: 0 1 auto;
-    max-width: 50%;
-    min-width: 0;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    cursor: pointer;
-    padding: 4px 0;
-}
-
-.reserveName:hover {
-    text-decoration: underline;
-}
-
-.rowSpacer {
-    flex: 1;
-    min-width: 0;
-}
-
-.reserveClub {
-    font-size: 0.65rem;
-    color: var(--color-text-muted, #9A9488);
-    flex-shrink: 0;
-    white-space: nowrap;
+/* A loan is a ring, not a hue — the Wire's form-axis rule. The word is right
+   there, so the marker only has to say "different kind of thing". */
+.loanTag {
+    font-family: var(--font-condensed);
+    font-size: var(--t-10);
+    font-weight: 700;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
-    letter-spacing: 0.04em;
-}
-
-.u21Badge {
-    font-size: 0.55rem;
-    font-weight: 800;
-    color: var(--color-text-muted, #9A9488);
-    border-left: 2px solid var(--color-border, #C8C3BC);
-    padding-left: 4px;
+    color: var(--row-ink, var(--color-text-muted));
+    border: 1px solid var(--color-border);
+    border-radius: var(--r-micro);
+    padding: 0 var(--s1);
     flex-shrink: 0;
-    letter-spacing: 0.04em;
 }
 
-.injuryBadge {
-    font-size: 0.55rem;
-    font-weight: 800;
-    color: #ef4444;
-    border-left: 2px solid #ef4444;
-    padding-left: 4px;
+.eligibleTag {
+    font-family: var(--font-condensed);
+    font-size: var(--t-10);
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-text-secondary);
+    border-left: 2px solid var(--color-border-strong);
+    padding-left: var(--s1);
     flex-shrink: 0;
 }
 
 .statusDot {
     width: 6px;
     height: 6px;
-    border-radius: 50%;
+    border-radius: var(--r-round);
     flex-shrink: 0;
+    background: var(--color-danger);
 }
-.statusDot[data-status='i'] { background: #ef4444; }
-.statusDot[data-status='d'] { background: #f59e0b; }
-.statusDot[data-status='s'] { background: #8b5cf6; }
-.statusDot[data-status='u'] { background: #6b7280; }
+.statusDot[data-status='d'] { background: var(--color-warning-text); }
 
-/* ── Taxi card ── */
-.taxiList {
-    display: flex;
-    flex-direction: column;
-}
-
-.taxiRow {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 1rem;
-    border-bottom: 1px solid var(--color-border-subtle, #D9D4CD);
-    transition: background 0.12s;
+.tierEmpty {
+    font-size: var(--t-12);
+    color: var(--color-text-muted);
+    font-style: italic;
+    padding: var(--s2) var(--s4) var(--s3);
+    margin: 0;
 }
 
-.taxiRow:last-child {
-    border-bottom: none;
-}
+/* ── Row actions (academy / IR) ────────────────────────────
+   One accent fill plus an ink sibling, never two colours competing — the
+   listing card's "one primary action" rule, at row scale. */
 
-.taxiRowSelected {
-    background: rgba(58, 107, 74, 0.08);
-    outline: 1px solid rgba(58, 107, 74, 0.4);
-    outline-offset: -1px;
-}
-
-.taxiName {
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: var(--color-text-primary, #1C1C1C);
-    flex: 0 1 auto;
-    max-width: 50%;
-    min-width: 0;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    cursor: pointer;
-    padding: 4px 0;
-}
-
-.taxiName:hover {
-    text-decoration: underline;
-}
-
-.taxiClub {
-    font-size: 0.65rem;
-    color: var(--color-text-muted, #9A9488);
-    flex-shrink: 0;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-}
-
-.taxiActions {
+.rowActions {
     display: flex;
     align-items: center;
-    gap: 0.375rem;
+    gap: var(--s1);
     flex-shrink: 0;
 }
 
-.taxiSwapBtn {
-    padding: 0.2rem 0.5rem;
-    border: 1px solid var(--color-border, #C8C3BC);
-    border-radius: 3px;
+.rowBtnGhost {
+    padding: 2px var(--s2);
+    border: 1px solid var(--color-border);
+    border-radius: var(--r-control);
     background: transparent;
-    color: var(--color-text-muted, #9A9488);
-    font-size: 0.65rem;
-    font-weight: 600;
+    color: var(--color-text-secondary);
+    font-family: var(--font-condensed);
+    font-size: var(--t-11);
+    font-weight: 700;
+    letter-spacing: 0.04em;
     cursor: pointer;
-    transition: all 0.12s;
+    transition: border-color var(--dur-fast) var(--ease-standard),
+                color var(--dur-fast) var(--ease-standard);
 }
 
-.taxiSwapBtn:hover {
-    border-color: var(--color-accent-green, #3A6B4A);
-    color: var(--color-accent-green, #3A6B4A);
+@media (hover: hover) and (pointer: fine) {
+  .rowBtnGhost:hover {
+      border-color: var(--color-border-strong);
+      color: var(--color-text-primary);
+  }
 }
 
-.taxiSwapBtnActive {
-    border-color: var(--color-accent-green, #3A6B4A) !important;
-    color: var(--color-accent-green, #3A6B4A) !important;
-    background: rgba(58, 107, 74, 0.08) !important;
+/* Selected: the keyline and the tint are the state, so the label goes to ink.
+   An accent-ink control that gains an accent wash on its own active state is
+   the single most repeated defect the dialogs port found. */
+.rowBtnGhostOn {
+    border-color: var(--color-accent);
+    background: var(--color-tint-accent);
+    color: var(--color-text-primary);
+}
+@media (hover: hover) and (pointer: fine) {
+  .rowBtnGhostOn:hover {
+      border-color: var(--color-accent);
+      background: var(--color-tint-accent);
+      color: var(--color-text-primary);
+  }
 }
 
-.taxiSwapBtn:disabled, .taxiActivateBtn:disabled {
+.rowBtnPrimary {
+    padding: 2px var(--s2);
+    border: 1px solid var(--color-accent);
+    border-radius: var(--r-control);
+    background: var(--color-accent);
+    color: var(--color-on-accent);
+    font-family: var(--font-condensed);
+    font-size: var(--t-11);
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    transition: background var(--dur-fast) var(--ease-standard);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .rowBtnPrimary:hover {
+      background: var(--color-accent-hover);
+      border-color: var(--color-accent-hover);
+  }
+}
+
+.rowBtnGhost:disabled,
+.rowBtnPrimary:disabled {
     opacity: 0.4;
     cursor: not-allowed;
 }
 
-.taxiActivateBtn {
-    padding: 0.2rem 0.5rem;
-    border: 1px solid var(--color-accent-green, #3A6B4A);
-    border-radius: 3px;
-    background: transparent;
-    color: var(--color-accent-green, #3A6B4A);
-    font-size: 0.65rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.12s;
-}
+/* ── Rail error banner ─────────────────────────────────────
+   Tinted ground, primary ink (decision 4). */
 
-.taxiActivateBtn:hover {
-    background: var(--color-accent-green, #3A6B4A);
-    color: #fff;
-}
-
-/* ── IR card ── */
-.irList {
-    display: flex;
-    flex-direction: column;
-}
-
-.irRow {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 1rem;
-    border-bottom: 1px solid var(--color-border-subtle, #D9D4CD);
-    transition: background 0.12s;
-}
-
-.irRow:last-child {
-    border-bottom: none;
-}
-
-.irRowSelected {
-    background: rgba(239, 68, 68, 0.06);
-    outline: 1px solid rgba(239, 68, 68, 0.4);
-    outline-offset: -1px;
-}
-
-.irName {
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: var(--color-text-primary, #1C1C1C);
-    flex: 0 1 auto;
-    max-width: 50%;
-    min-width: 0;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    cursor: pointer;
-    opacity: 0.7;
-    padding: 4px 0;
-}
-
-.irName:hover {
-    text-decoration: underline;
-    opacity: 1;
-}
-
-.irClub {
-    font-size: 0.65rem;
-    color: var(--color-text-muted, #9A9488);
-    flex-shrink: 0;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-}
-
-.irActions {
-    display: flex;
-    align-items: center;
-    gap: 0.375rem;
-    flex-shrink: 0;
-}
-
-.irSwapBtn {
-    padding: 0.2rem 0.5rem;
-    border: 1px solid var(--color-border, #C8C3BC);
-    border-radius: 3px;
-    background: transparent;
-    color: var(--color-text-muted, #9A9488);
-    font-size: 0.65rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.12s;
-}
-
-.irSwapBtn:hover {
-    border-color: #ef4444;
-    color: #ef4444;
-}
-
-.irSwapBtnActive {
-    border-color: #ef4444 !important;
-    color: #ef4444 !important;
-    background: rgba(239, 68, 68, 0.06) !important;
-}
-
-.irSwapBtn:disabled, .irActivateBtn:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-}
-
-.irActivateBtn {
-    padding: 0.2rem 0.5rem;
-    border: 1px solid #ef4444;
-    border-radius: 3px;
-    background: transparent;
-    color: #ef4444;
-    font-size: 0.65rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.12s;
-}
-
-.irActivateBtn:hover {
-    background: #ef4444;
-    color: #fff;
-}
-
-/* ── Sidebar error banner ── */
 .sidebarError {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 0.5rem;
-    padding: 0.5rem 0.75rem;
-    background: rgba(239, 68, 68, 0.08);
-    border: 1px solid rgba(239, 68, 68, 0.3);
-    border-radius: var(--radius-sm, 4px);
-    font-size: 0.78rem;
-    color: #ef4444;
+    gap: var(--s2);
+    margin: var(--s3) var(--s4) 0;
+    padding: var(--s2) var(--s3);
+    background: var(--color-tint-danger);
+    border-radius: var(--r-control);
+    font-size: var(--t-12);
+    color: var(--color-text-primary);
 }
 
 .sidebarErrorDismiss {
     background: none;
     border: none;
     cursor: pointer;
-    color: #ef4444;
-    font-size: 0.7rem;
+    color: var(--color-text-secondary);
+    font-size: var(--t-11);
     padding: 0;
     flex-shrink: 0;
     line-height: 1;
 }
 
-/* --- Mobile Pitch Responsive Scaling --- */
+/* ── Mobile ────────────────────────────────────────────────
+   The node shrinks; the portrait steps down to its row size, which is the
+   only size the system has below 66x78. */
+
 @media (max-width: 600px) {
-    .pitchContainer {
-        padding: 10px 6px;
-    }
+    .pitchContainer { padding: var(--s2) var(--s1); }
     .pitchRow {
-        padding: 4px;
-        gap: 4px;
+        padding: var(--s1);
+        gap: var(--s1);
         min-height: 80px;
     }
     .pitchNodeWrap {
-        min-width: 60px;
-        max-width: 72px;
+        min-width: 64px;
+        max-width: 78px;
         gap: 3px;
     }
-    .nodePhotoMount {
-        width: 42px;
-        height: 48px;
-        border-width: 2px;
-    }
-    .nodePhotoPlaceholder {
-        font-size: 0.85rem;
-    }
-    .pitchNode {
-        min-width: 60px;
-    }
-    .nodeChipBody {
-        padding: 3px 2px 4px 2px;
-        gap: 2px;
-    }
-    .nodePlayerNameCenter {
-        font-size: 0.55rem;
-    }
-    .nodePosBadge,
-    .nodeTeamChip {
-        font-size: 0.42rem;
-        padding: 1px 3px;
-    }
-    .nodePtsBadge {
-        font-size: 0.4rem;
-        top: -4px;
-        right: -4px;
-        padding: 1px 3px;
-    }
-    .nodeEmptyLabel {
-        font-size: 0.5rem;
-    }
+    .pitchNode { min-width: 60px; }
+    .nodeChipBody { padding: 3px var(--s1) var(--s1); gap: 2px; }
+    .nodePlayerNameCenter { font-size: var(--t-10); }
+    .nodePtsBadge { font-size: var(--t-10); top: -6px; right: -5px; }
+    .pitchZones { padding: var(--s8) 0 var(--s2); }
 }

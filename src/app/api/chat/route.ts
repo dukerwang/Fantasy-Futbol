@@ -75,7 +75,26 @@ export async function GET(req: NextRequest) {
   const tradeIds = Array.from(new Set((messages ?? []).map((m) => m.trade_id).filter((id): id is string => !!id)));
   const loanIds = Array.from(new Set((messages ?? []).map((m) => m.loan_id).filter((id): id is string => !!id)));
 
-  const trades: Record<string, unknown> = {};
+  interface TradeSummary {
+    id: string;
+    status: string;
+    teamAId: string;
+    teamAName: string;
+    teamBId: string;
+    teamBName: string;
+    offeredPlayers: { id: string; name: string }[];
+    requestedPlayers: { id: string; name: string }[];
+    offeredRights: { id: string; name: string }[];
+    requestedRights: { id: string; name: string }[];
+    offeredFaab: number;
+    requestedFaab: number;
+    saleListingId: string | null;
+    parentTradeId: string | null;
+    message: string | null;
+    createdAt: string;
+  }
+
+  const trades: Record<string, TradeSummary> = {};
   if (tradeIds.length > 0) {
     const { data: tradeRows } = await admin
       .from('trade_proposals')
@@ -135,7 +154,28 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  const loans: Record<string, unknown> = {};
+  interface LoanSummary {
+    id: string;
+    status: string;
+    lenderTeamId: string;
+    lenderTeamName: string;
+    borrowerTeamId: string;
+    borrowerTeamName: string;
+    playerId: string;
+    playerName: string;
+    loanFee: number;
+    startGameweek: number;
+    endGameweek: number;
+    bonusRate: number;
+    bonusCap: number;
+    hasRecall: boolean;
+    proposedBy: string;
+    parentLoanId: string | null;
+    message: string | null;
+    createdAt: string;
+  }
+
+  const loans: Record<string, LoanSummary> = {};
   if (loanIds.length > 0) {
     const { data: loanRows } = await admin
       .from('player_loans')

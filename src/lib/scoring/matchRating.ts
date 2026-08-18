@@ -30,7 +30,7 @@ type ComponentScores = Record<RatingComponent, number>;
 // Position Weight Profiles (all 12 granular positions)
 // ════════════════════════════════════════════════════════════════════════════
 
-export const FLEX_CONFIG: Record<GranularPosition, { flex: number; components: RatingComponent[] }> = {
+export const FLEX_CONFIG = {
     GK: { flex: 0.20, components: ['save_score', 'defensive'] },
     CB: { flex: 0.25, components: ['defensive', 'match_impact', 'goal_involvement'] },
     LB: { flex: 0.25, components: ['defensive', 'match_impact', 'goal_involvement'] },
@@ -47,10 +47,10 @@ export const FLEX_CONFIG: Record<GranularPosition, { flex: number; components: R
     LW: { flex: 0.25, components: ['goal_involvement', 'threat', 'creativity'] },
     RW: { flex: 0.25, components: ['goal_involvement', 'threat', 'creativity'] },
     ST: { flex: 0.25, components: ['threat', 'goal_involvement', 'finishing'] },
-};
+} satisfies Record<GranularPosition, { flex: number; components: RatingComponent[] }>;
 
 //                                                                                                       Σ = 1.00
-export const POSITION_WEIGHTS: Record<GranularPosition, Record<RatingComponent, number>> = {
+export const POSITION_WEIGHTS = {
     GK: { match_impact: 0.14, influence: 0.06, creativity: 0.00, threat: 0.00, defensive: 0.42, goal_involvement: 0.00, finishing: 0.00, save_score: 0.18 },
     CB: { match_impact: 0.30, influence: 0.05, creativity: 0.05, threat: 0.00, defensive: 0.25, goal_involvement: 0.05, finishing: 0.05, save_score: 0.00 },
     LB: { match_impact: 0.30, influence: 0.05, creativity: 0.10, threat: 0.00, defensive: 0.20, goal_involvement: 0.10, finishing: 0.00, save_score: 0.00 },
@@ -63,7 +63,7 @@ export const POSITION_WEIGHTS: Record<GranularPosition, Record<RatingComponent, 
     LW: { match_impact: 0.15, influence: 0.05, creativity: 0.05, threat: 0.10, defensive: 0.00, goal_involvement: 0.15, finishing: 0.25, save_score: 0.00 },
     RW: { match_impact: 0.15, influence: 0.05, creativity: 0.05, threat: 0.10, defensive: 0.00, goal_involvement: 0.15, finishing: 0.25, save_score: 0.00 },
     ST: { match_impact: 0.15, influence: 0.10, creativity: 0.10, threat: 0.15, defensive: 0.00, goal_involvement: 0.15, finishing: 0.10, save_score: 0.00 },
-};
+} satisfies Record<GranularPosition, Record<RatingComponent, number>>;
 
 // ════════════════════════════════════════════════════════════════════════════
 // Position Group Mapping
@@ -138,7 +138,7 @@ function sigmoidNormalize(value: number, median: number, stddev: number): number
 // Component Display Names
 // ════════════════════════════════════════════════════════════════════════════
 
-const COMPONENT_DISPLAY: Record<RatingComponent, string> = {
+const COMPONENT_DISPLAY = {
     match_impact: 'Match Impact',
     influence: 'Influence',
     creativity: 'Creativity',
@@ -147,7 +147,7 @@ const COMPONENT_DISPLAY: Record<RatingComponent, string> = {
     goal_involvement: 'Goal Involvement',
     finishing: 'Finishing',
     save_score: 'Save Score',
-};
+} satisfies Record<RatingComponent, string>;
 
 // ════════════════════════════════════════════════════════════════════════════
 // Step 1 implementation — Compute 9 per-component scores
@@ -163,7 +163,7 @@ function computeComponentScores(
     position: GranularPosition,
     refStats: Record<GranularPosition, ReferenceStats>,
     primaryPosition?: GranularPosition,
-): Record<RatingComponent, ComponentResult> {
+) {
     const ref = refStats[position]
         ?? (position === 'LWB' ? refStats.LB : undefined)
         ?? (position === 'RWB' ? refStats.RB : undefined)
@@ -367,7 +367,7 @@ function computeComponentScores(
         goal_involvement: goalInvolvement,
         finishing,
         save_score: saveScore,
-    };
+    } satisfies Record<RatingComponent, ComponentResult>;
 }
 
 // ════════════════════════════════════════════════════════════════════════════
@@ -377,7 +377,7 @@ function computeComponentScores(
 export function applyPositionWeights(
     scores: ComponentScores,
     position: GranularPosition
-): { composite: number; breakdown: RatingBreakdownItem[] } {
+) {
     const normalizedPos = normalizePosition(position);
     const weights = POSITION_WEIGHTS[normalizedPos] || POSITION_WEIGHTS.CM;
     const flexConfig = FLEX_CONFIG[normalizedPos] || FLEX_CONFIG.CM;
@@ -420,7 +420,10 @@ export function applyPositionWeights(
         });
     }
 
-    return { composite: Math.min(1.0, composite), breakdown };
+    return { composite: Math.min(1.0, composite), breakdown } satisfies {
+        composite: number;
+        breakdown: RatingBreakdownItem[];
+    };
 }
 
 // ════════════════════════════════════════════════════════════════════════════
@@ -543,7 +546,7 @@ function makeRef(
 //
 // Values below were generated from 2025-26 FPL live data (GW1-35, minutes>=45).
 //                 match_impact   influence      creativity     threat         defensive       goal_invol     finishing       save_score
-export const DEFAULT_REFERENCE_STATS: Record<GranularPosition, ReferenceStats> = {
+export const DEFAULT_REFERENCE_STATS = {
     GK:  makeRef([12.00, 10.17], [21.00, 12.42], [ 0.00,  2.08], [ 0.00,  1.29], [ 3.50, 10.72], [0.00, 0.33], [ 0.000, 0.04], [ 6.00,  4.55]),
     CB:  makeRef([10.00,  9.84], [20.00, 11.85], [ 1.40,  6.41], [ 2.00, 10.33], [ 8.80,  9.19], [0.00, 1.55], [-0.010, 0.22], [0.00, 1.00]),
     LB:  makeRef([10.00,  9.86], [14.80, 10.64], [ 8.30, 12.79], [ 2.00,  8.82], [12.45,  9.79], [0.00, 1.66], [-0.020, 0.22], [0.00, 1.00]),
@@ -556,7 +559,7 @@ export const DEFAULT_REFERENCE_STATS: Record<GranularPosition, ReferenceStats> =
     LW:  makeRef([10.00,  7.02], [ 9.60, 16.12], [15.20, 15.29], [14.00, 15.63], [10.60,  4.95], [0.00, 2.91], [-0.065, 0.39], [0.00, 1.00]),
     RW:  makeRef([10.00,  7.02], [ 9.60, 16.12], [15.20, 15.29], [14.00, 15.63], [10.60,  4.95], [0.00, 2.91], [-0.065, 0.39], [0.00, 1.00]),
     ST:  makeRef([ 6.00,  9.21], [ 6.80, 20.62], [ 6.10,  9.30], [19.00, 21.93], [ 9.00,  4.29], [0.00, 3.77], [-0.050, 0.47], [0.00, 1.00]),
-};
+} satisfies Record<GranularPosition, ReferenceStats>;
 
 // ════════════════════════════════════════════════════════════════════════════
 // Main Entry Point

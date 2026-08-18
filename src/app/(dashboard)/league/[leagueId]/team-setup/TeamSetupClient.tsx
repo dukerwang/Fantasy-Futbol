@@ -92,7 +92,7 @@ export default function TeamSetupClient({ leagueId, leagueName, team, username }
         <div style={{ width: '100%', maxWidth: '1000px', margin: '0 auto' }}>
           <div style={{ marginBottom: '24px', textAlign: 'center' }}>
             <span className={styles.previewTitle}>Step 2 of 2</span>
-            <h1 className={styles.panelTitle} style={{ marginTop: '4px' }}>Club Crest design</h1>
+            <h1 className={styles.panelTitle} style={{ marginTop: '4px' }}>Club crest</h1>
             <p className={styles.panelSubtitle}>
               Design the custom crest that represents <strong>{name}</strong> in the league standings.
             </p>
@@ -120,7 +120,7 @@ export default function TeamSetupClient({ leagueId, leagueName, team, username }
         <div className={styles.setupPanel}>
           <div className={styles.panelHeader}>
             <span className={styles.previewTitle}>Step 1 of 2</span>
-            <h1 className={styles.panelTitle}>Club Credentials</h1>
+            <h1 className={styles.panelTitle}>Club credentials</h1>
             <p className={styles.panelSubtitle}>
               Configure your credentials for <strong>{leagueName}</strong> before entering the draft room.
             </p>

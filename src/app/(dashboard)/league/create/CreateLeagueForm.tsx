@@ -137,7 +137,7 @@ export default function CreateLeagueForm() {
               className={styles.select}
             >
               <option value="snake">Snake Draft</option>
-              <option value="auction" disabled>Auction Draft (Waivers Only)</option>
+              <option value="auction" disabled>Auction draft (waivers only)</option>
             </select>
           </div>
 

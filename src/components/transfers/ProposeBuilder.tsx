@@ -925,7 +925,7 @@ export default function ProposeBuilder({
                 onChange={(s, e) => { setStartGw(s); setEndGw(e); }}
               />
 
-              <label className={styles.recall} style={{ marginTop: '0.85rem' }}>
+              <label className={styles.recall} style={{ marginTop: 'var(--s3)' }}>
                 <input
                   type="checkbox"
                   checked={hasRecall}
@@ -1034,7 +1034,7 @@ export default function ProposeBuilder({
                   Paid on signing
                 </span>
                 <span>
-                  <span className={styles.legendSw} style={{ background: 'var(--color-pos-wb)' }} />
+                  <span className={styles.legendSw} style={{ background: 'var(--color-warning-text)' }} />
                   Paid only if he performs
                 </span>
               </div>

@@ -197,7 +197,8 @@ export default function BidDialog({
       <div className={styles.ladder}>
         <div className={styles.rung}>
           <div className={styles.rungLabel}>{live ? 'Standing bid' : 'No bids yet'}</div>
-          <div className={`${styles.rungValue} ${live ? styles.warn : styles.off}`}>
+          {/* Mono only while it is actually ticking — an em dash does not. */}
+          <div className={`${styles.rungValue} ${live ? `${styles.rungLive} ${styles.warn}` : styles.off}`}>
             {live ? money(standing) : '—'}
           </div>
         </div>
@@ -213,7 +214,10 @@ export default function BidDialog({
         </div>
         <div className={styles.rung}>
           <div className={styles.rungLabel}>Closes</div>
-          <div className={styles.rungValue}>{expiresAt ? formatRemaining(msLeft) : '—'}</div>
+          {/* The countdown is the canonical mono case. */}
+          <div className={`${styles.rungValue} ${expiresAt ? styles.rungLive : ''}`}>
+            {expiresAt ? formatRemaining(msLeft) : '—'}
+          </div>
         </div>
       </div>
 
@@ -278,7 +282,7 @@ export default function BidDialog({
 
       {rosterFull && (
         <label className={styles.field}>
-          <span className={styles.fieldLabel}>Who comes off</span>
+          <span className={styles.fieldLabel}>Player to drop</span>
           <select className={styles.select} value={dropId} onChange={(e) => setDropId(e.target.value)}>
             <option value="">Send him to the academy if there is room</option>
             {droppable.map((r) => (

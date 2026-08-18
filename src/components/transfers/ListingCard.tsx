@@ -6,10 +6,11 @@ import type { TransfersAuction, TransfersListing, TransfersTeam } from '@/lib/tr
 import CrestBadge from '@/components/crest/CrestBadge';
 import SquadPeekButton from '@/components/teams/SquadPeekButton';
 import PositionBadge from '@/components/players/PositionBadge';
+import Portrait from '@/components/players/Portrait';
 import { useTick, formatRemaining, isClosing } from './useTick';
 import { listingStance } from '@/lib/transfers/listingStance';
 import styles from './ListingCard.module.css';
-import { getPlayerDisplayName, playerInitial } from '@/lib/players/displayName';
+import { getPlayerDisplayName } from '@/lib/players/displayName';
 
 /**
  * A listing, as one card.
@@ -91,32 +92,30 @@ export default function ListingCard({
   return (
     <article className={`${styles.card} ${stateClass}`}>
       <div className={styles.top}>
+        {/* The lot size (66x78). A listing card IS the lot given room — the size
+            the system names for exactly this — and its crest chip is what lets
+            the meta line below drop the club. */}
         <button
           type="button"
           className={styles.photoBtn}
           onClick={() => onOpenPlayer?.(player.id)}
           aria-label={`Open ${player.name}`}
         >
-          {player.photo_url ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={player.photo_url}
-              alt={getPlayerDisplayName(player, 'full')}
-              className={styles.photo}
-              referrerPolicy="no-referrer"
-            />
-          ) : (
-            <span className={styles.photoFallback}>{playerInitial(player)}</span>
-          )}
+          <Portrait
+            photoUrl={player.photo_url}
+            name={getPlayerDisplayName(player, 'full')}
+            club={player.pl_team}
+            size="md"
+          />
         </button>
 
         <div className={styles.identity}>
-          <div className={styles.nameRow}>
+          <div className={`g-namerow ${styles.nameRow}`}>
             <PositionBadge position={player.primary_position as GranularPosition} size="sm" />
             <span className={styles.name}>{getPlayerDisplayName(player, 'initial_last')}</span>
           </div>
           <div className={styles.meta}>
-            {player.pl_team} · {money(Number(player.market_value) || 0)} ·{' '}
+            {money(Number(player.market_value) || 0)} ·{' '}
             {isMine ? 'Yours' : listing.seller_team_name ?? 'Unknown club'}
           </div>
         </div>
@@ -140,17 +139,21 @@ export default function ListingCard({
 
       {/* The three-price ladder. Live auctions swap the seller's asking price for
           the standing bid, because an asking price nobody can accept any more is
-          not information — the auction has overtaken it. */}
+          not information — the auction has overtaken it.
+
+          Mono once the lot is live, serif while it rests: the standing bid and
+          the next legal bid above it tick, an asking price and a resting floor
+          do not. The clause never does. */}
       <div className={styles.prices}>
         <div className={styles.price}>
           <div className={styles.priceLabel}>{live ? 'Standing bid' : 'Asking'}</div>
-          <div className={`${styles.priceValue} ${live ? styles.warn : styles.accent}`}>
+          <div className={`${styles.priceValue} ${live ? `${styles.priceLive} ${styles.warn}` : styles.accent}`}>
             {live ? money(standing) : money(listing.ask_price)}
           </div>
         </div>
         <div className={styles.price}>
           <div className={styles.priceLabel}>Bid from</div>
-          <div className={styles.priceValue}>{money(bidFrom)}</div>
+          <div className={`${styles.priceValue} ${live ? styles.priceLive : ''}`}>{money(bidFrom)}</div>
         </div>
         <div className={`${styles.price} ${styles.priceLast}`}>
           <div className={styles.priceLabel}>Clause</div>
@@ -191,8 +194,11 @@ export default function ListingCard({
             {/* Once bidding starts the offer paths are simply gone. Short of
                 that, every path is open to everyone — what the seller is after
                 is stated above, not enforced here. */}
+            {/* One primary action per card — the bid. Clause, Offer and Loan
+                were each tinted, which gave four buttons four colours and no
+                hierarchy; two of those tints were position field colours. */}
             {!live && (
-              <button type="button" className={`${styles.action} ${styles.actionOffer}`} onClick={() => onOffer?.(listing)}>
+              <button type="button" className={styles.action} onClick={() => onOffer?.(listing)}>
                 Offer
               </button>
             )}
@@ -206,12 +212,12 @@ export default function ListingCard({
               </button>
             )}
             {listing.buy_now_price != null && (
-              <button type="button" className={`${styles.action} ${styles.actionClause}`} onClick={() => onClause?.(listing)}>
+              <button type="button" className={styles.action} onClick={() => onClause?.(listing)}>
                 Clause
               </button>
             )}
             {!live && (
-              <button type="button" className={`${styles.action} ${styles.actionLoan}`} onClick={() => onLoan?.(listing)}>
+              <button type="button" className={styles.action} onClick={() => onLoan?.(listing)}>
                 Loan
               </button>
             )}

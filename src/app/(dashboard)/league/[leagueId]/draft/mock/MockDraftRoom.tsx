@@ -733,7 +733,7 @@ export default function MockDraftRoom({ leagueId, league, players, shadowMaps, m
           <div className={draftStyles.completeBanner}>
             <span className={draftStyles.completeText}>Mock draft complete — see how your squad stacks up.</span>
             <div className={styles.btnRow}>
-              <button type="button" className={styles.secondaryBtn} onClick={restartDraft}>Start New Mock Draft</button>
+              <button type="button" className={styles.secondaryBtn} onClick={restartDraft}>Start new mock draft</button>
               <NavigationLink href={`/league/${leagueId}`} className={draftStyles.goToTeamBtn}>Back to Lobby →</NavigationLink>
             </div>
           </div>
@@ -802,7 +802,7 @@ export default function MockDraftRoom({ leagueId, league, players, shadowMaps, m
       <div className={draftStyles.mainArea}>
         <main className={draftStyles.boardPanel}>
           <div className={draftStyles.boardHeader}>
-            <h1 className={draftStyles.boardHeadline}>Mock Draft Board</h1>
+            <h1 className={draftStyles.boardHeadline}>Mock draft board</h1>
             <p className={draftStyles.boardSubtitle}>
               Practice run · Round {currentRound}/{session?.rosterSize} · {session?.picks.length ?? 0} picks made
             </p>
@@ -946,14 +946,14 @@ export default function MockDraftRoom({ leagueId, league, players, shadowMaps, m
               {advancedOpen && (
                 <div className={draftStyles.advancedFiltersPanel}>
                   <div className={draftStyles.filterGroup}>
-                    <label className={draftStyles.filterLabel}>Minutes Filter</label>
+                    <label className={draftStyles.filterLabel}>Minutes filter</label>
                     <select
                       className={draftStyles.filterSelect}
                       value={minMins}
                       onChange={(e) => setMinMins(e.target.value as 'all' | 'gt45')}
                     >
-                      <option value="all">All Played Games (&ge;15 mins)</option>
-                      <option value="gt45">Starter Games (&gt;45 mins only)</option>
+                      <option value="all">All played games (&ge;15 mins)</option>
+                      <option value="gt45">Starter games (&gt;45 mins only)</option>
                     </select>
                   </div>
                   <div className={draftStyles.filterGroup}>
@@ -968,7 +968,7 @@ export default function MockDraftRoom({ leagueId, league, players, shadowMaps, m
                     />
                   </div>
                   <div className={draftStyles.filterGroup}>
-                    <label className={draftStyles.filterLabel}>Role Matching</label>
+                    <label className={draftStyles.filterLabel}>Role matching</label>
                     <div className={draftStyles.segmentedToggle}>
                       {(['primary', 'secondary', 'both'] as const).map((t) => (
                         <button

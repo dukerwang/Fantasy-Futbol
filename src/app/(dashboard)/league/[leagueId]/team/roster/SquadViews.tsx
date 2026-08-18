@@ -1,33 +1,37 @@
 'use client';
 
-import { useMemo, useState } from 'react';
-import type { Player } from '@/types';
+import { useMemo } from 'react';
+import type { GranularPosition, Player } from '@/types';
 import { getPlayerDisplayName } from '@/lib/players/displayName';
-import { plTeamThreeLetter } from '@/lib/plTeamAbbrev';
+import Portrait from '@/components/players/Portrait';
+import PositionBadge from '@/components/players/PositionBadge';
 import type { SquadEntry } from './ClubClient';
 import {
-  posColor, ZONES, statusMeta, INJURY,
+  ZONES, statusMeta, INJURY, posColor,
   money, ppgOf, seasonPts, valueOf, ageOf, formationReport, shortages,
 } from './clubDerive';
 import styles from './club.module.css';
 
 // ── Small shared bits ────────────────────────────────────────────────────────
 
+/**
+ * The shared PositionBadge, with a ghost wrapper for a secondary position.
+ *
+ * This page had its own copy — a plain coloured rectangle keyed off
+ * `--color-pos-*` — which meant it was the one surface in the app where LB and
+ * RB, and LWB and RWB, were the same badge. Those pairs share a hue by design
+ * and are separated by a clipped corner that only the real component draws.
+ * Same lesson as ListingCard's duplicated crest treatment: a copied rule
+ * decays, and here it had decayed into being wrong.
+ */
 export function PosBadge({ pos, ghost }: { pos: string; ghost?: boolean }) {
-  const c = posColor(pos);
-  return (
-    <span
-      className={`${styles.posbadge} ${ghost ? styles.posbadgeGhost : ''}`}
-      style={ghost ? ({ ['--posbadge-color' as string]: c } as React.CSSProperties) : { background: c }}
-    >
-      {pos}
-    </span>
-  );
+  const badge = <PositionBadge position={pos as GranularPosition} size="sm" />;
+  return ghost ? <span className={styles.ghostBadge}>{badge}</span> : badge;
 }
 
 function StatusTag({ status, short }: { status: string; short?: boolean }) {
   const s = statusMeta(status);
-  return <span className={styles.tstatus} style={{ color: s.tone }}>{short ? s.short : s.label}</span>;
+  return <span className={styles.tstatus} style={{ ['--tone' as string]: s.tone }}>{short ? s.short : s.label}</span>;
 }
 
 function InjuryTag({ player, hideOnIr, status }: { player: Player; hideOnIr?: boolean; status?: string }) {
@@ -36,7 +40,7 @@ function InjuryTag({ player, hideOnIr, status }: { player: Player; hideOnIr?: bo
   if (hideOnIr && status === 'ir') return null;
   const i = INJURY[f];
   if (!i) return null;
-  return <span className={styles.tstatus} style={{ color: i.tone }}>{i.label}</span>;
+  return <span className={styles.tstatus} style={{ ['--tone' as string]: i.tone }}>{i.label}</span>;
 }
 
 /** Fitness-first single status token for a compact tile. */
@@ -46,20 +50,7 @@ function TileStatus({ e }: { e: SquadEntry }) {
   if (e.status === 'ir') { label = statusMeta('ir').short; tone = statusMeta('ir').tone; }
   else if (f && f !== 'a' && INJURY[f]) { label = INJURY[f].label; tone = INJURY[f].tone; }
   else { const s = statusMeta(e.status); label = s.short; tone = s.tone; }
-  return <span className={styles.tstatus} style={{ color: tone }}>{label}</span>;
-}
-
-function Photo({ url, name, className }: { url: string | null | undefined; name: string; className?: string }) {
-  const [failed, setFailed] = useState(false);
-  if (!url || failed) {
-    return (
-      <div className={`${styles.vphoto} ${className ?? ''}`}>
-        <span className={styles.vphotoInitial}>{name.charAt(0)}</span>
-      </div>
-    );
-  }
-  // eslint-disable-next-line @next/next/no-img-element
-  return <img src={url} alt={name} className={`${styles.photoImg} ${className ?? ''}`} referrerPolicy="no-referrer" onError={() => setFailed(true)} />;
+  return <span className={styles.tstatus} style={{ ['--tone' as string]: tone }}>{label}</span>;
 }
 
 function Spark({ form }: { form: number[] }) {
@@ -80,14 +71,14 @@ function TileCompact({ e, sel, onClick }: { e: SquadEntry; sel: boolean; onClick
   const p = e.player;
   return (
     <button type="button" className={`${styles.tile} ${styles.tileC} ${sel ? styles.tileSel : ''}`} onClick={onClick}>
-      <div className={styles.tcPhoto}>
-        <Photo url={p.photo_url} name={getPlayerDisplayName(p, 'full')} />
-      </div>
+      {/* The club is the crest on the portrait, not a three-letter abbreviation
+          beside the badge — the same line the crest chip replaced everywhere
+          else. Deleting it is what lets the meta row be the badge alone. */}
+      <Portrait photoUrl={p.photo_url} name={getPlayerDisplayName(p, 'full')} club={p.pl_team} size="sm" />
       <div className={styles.tcBody}>
         <div className={styles.tcName}>{getPlayerDisplayName(p, 'initial_last')}</div>
         <div className={styles.tcMeta}>
           <PosBadge pos={p.primary_position} />
-          <span>{plTeamThreeLetter(p.pl_team_id, p.pl_team)}</span>
         </div>
       </div>
       <div className={styles.tcRight}>
@@ -106,7 +97,7 @@ function TileGallery({ e, sel, onClick }: { e: SquadEntry; sel: boolean; onClick
   return (
     <button type="button" className={`${styles.tile} ${styles.tileG} ${sel ? styles.tileSel : ''}`} onClick={onClick}>
       <div className={styles.tgPhoto}>
-        <Photo url={p.photo_url} name={getPlayerDisplayName(p, 'full')} />
+        <Portrait photoUrl={p.photo_url} name={getPlayerDisplayName(p, 'full')} club={p.pl_team} size="lg" />
         <span className={styles.tgValchip}>{money(valueOf(e))}</span>
         {inj && <span className={styles.tgInjchip} style={{ color: inj.tone }}>{inj.label}</span>}
       </div>
@@ -121,7 +112,6 @@ function TileGallery({ e, sel, onClick }: { e: SquadEntry; sel: boolean; onClick
         <div className={styles.tgBadges}>
           <PosBadge pos={p.primary_position} />
           {(p.secondary_positions ?? []).map((s) => <PosBadge key={s} pos={s} ghost />)}
-          <span className={styles.tgClub}>{plTeamThreeLetter(p.pl_team_id, p.pl_team)}</span>
         </div>
         <div className={styles.tgStatline}>
           <span className={styles.tgStatnum}>{seasonPts(e)}</span><span className={styles.tgStatunit}>pts</span>
@@ -146,10 +136,10 @@ export function DepthChart({
   const needLine = short.map((s) => (s.have === 0 ? `any ${s.pos}` : `${s.need - s.have} more ${s.pos}`)).join(', ');
 
   return (
-    <section className={styles.panel}>
+    <section className={`${styles.panel} g-panel`}>
       <div className={styles.panelHead}>
-        <h2 className={styles.panelTitle}>Depth Chart</h2>
-        <span className={styles.eyebrow}>By tactical position · attack first</span>
+        <h2 className={styles.panelTitle}>Depth chart</h2>
+        <span className="g-label">By tactical position · attack first</span>
       </div>
 
       {ZONES.map((z) => {
@@ -159,7 +149,7 @@ export function DepthChart({
         return (
           <div className={styles.zone} key={z.key}>
             <div className={styles.zoneHead}>
-              <span className={styles.eyebrow}>{z.label}</span>
+              <span className={styles.zoneLabel}>{z.label}</span>
               <span className={styles.zoneCount}>{inZone.length}</span>
               {absent.map((s) => <span className={styles.zoneFlag} key={s.pos}>No {s.pos} cover</span>)}
               {thin.map((s) => <span className={styles.zoneFlag} key={s.pos}>{s.pos} — {s.have} of {s.need} needed</span>)}
@@ -167,7 +157,7 @@ export function DepthChart({
             <div className={styles.strip}>
               {inZone.map((e) => <TileCompact key={e.id} e={e} sel={e.id === selId} onClick={() => onSelect(e.id)} />)}
               {absent.map((s) => (
-                <div className={styles.gapChip} key={s.pos}><PosBadge pos={s.pos} ghost /><span>No cover</span></div>
+                <div className={`${styles.gapChip} g-namerow`} key={s.pos}><PosBadge pos={s.pos} ghost /><span>No cover</span></div>
               ))}
               {inZone.length === 0 && absent.length === 0 && (
                 <div className={styles.gapSlot}>Nobody in this zone matches the current filter.</div>
@@ -178,7 +168,7 @@ export function DepthChart({
       })}
 
       <div className={styles.forms}>
-        <span className={styles.eyebrow}>Fieldable Formations</span>
+        <span className={styles.zoneLabel}>Fieldable formations</span>
         <div className={styles.formChips}>
           {forms.map((f) => (
             <span key={f.name} className={`${styles.fchip} ${f.ok ? styles.fchipOk : ''}`}>
@@ -199,10 +189,10 @@ export function DepthChart({
 
 export function Gallery({ entries, selId, onSelect }: { entries: SquadEntry[]; selId: string | null; onSelect: (id: string) => void }) {
   return (
-    <section className={styles.panel}>
+    <section className={`${styles.panel} g-panel`}>
       <div className={styles.panelHead}>
         <h2 className={styles.panelTitle}>Squad</h2>
-        <span className={styles.eyebrow}>{entries.length} players</span>
+        <span className="g-label">{entries.length} players</span>
       </div>
       <div className={styles.grid}>
         {entries.map((e) => <TileGallery key={e.id} e={e} sel={e.id === selId} onClick={() => onSelect(e.id)} />)}
@@ -215,10 +205,10 @@ export function Gallery({ entries, selId, onSelect }: { entries: SquadEntry[]; s
 
 export function SquadTable({ entries, selId, onSelect }: { entries: SquadEntry[]; selId: string | null; onSelect: (id: string) => void }) {
   return (
-    <section className={styles.panel}>
+    <section className={`${styles.panel} g-panel`}>
       <div className={styles.panelHead}>
         <h2 className={styles.panelTitle}>Squad</h2>
-        <span className={styles.eyebrow}>{entries.length} players</span>
+        <span className="g-label">{entries.length} players</span>
       </div>
       <div className={styles.tableWrap}>
         <table className={styles.tbl}>
@@ -234,7 +224,15 @@ export function SquadTable({ entries, selId, onSelect }: { entries: SquadEntry[]
               const p = e.player;
               const age = ageOf(p.date_of_birth);
               return (
-                <tr key={e.id} className={e.id === selId ? styles.trSel : ''} onClick={() => onSelect(e.id)}>
+                <tr
+                  key={e.id}
+                  /* The position hue on hover only, which is the one place a
+                     squad list is allowed to teach the taxonomy. A whole-squad
+                     table is exactly the surface `.g-row` was written for. */
+                  className={`g-row ${e.id === selId ? styles.trSel : ''}`}
+                  style={{ ['--pf' as string]: posColor(p.primary_position) }}
+                  onClick={() => onSelect(e.id)}
+                >
                   <td><PosBadge pos={p.primary_position} /></td>
                   <td className={styles.nm}>
                     {getPlayerDisplayName(p, 'full')} <InjuryTag player={p} status={e.status} hideOnIr />

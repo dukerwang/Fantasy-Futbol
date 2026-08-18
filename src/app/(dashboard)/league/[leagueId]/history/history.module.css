@@ -1,98 +1,83 @@
-/* ─────────────────────────────────────────────
-   League History — CSS Module
-   Design: Cream Editorial
-   ───────────────────────────────────────────── */
+/* League History — Gaffa 2.0, port 6b.
 
-.page {
-  display: flex;
-  flex-direction: column;
-  gap: 32px;
+   See design-2.0/README.md § "Port order for the remaining routes". This page
+   pays its own scale migration: --t-* / --s* / --r-* throughout, no rem
+   literals, no raw hex, no 1.0 scale tokens.
+
+   THE SAME BOARD GRAMMAR AS STANDINGS, PER SEASON. Each season's podium and
+   full table were already one bordered card in 1.0 — the defect was a nested
+   one: the podium tiles and the table each carried their OWN border/shadow
+   inside that outer card, so a single season was three-to-five elevation
+   declarations for one record. Now each season is one `.g-panel`, and the
+   podium tiles are told apart by a hairline the way standings' are, not by
+   their own cards. No colour-law exception was needed here — the medal ramp
+   (gold/silver/bronze) already exists for exactly this job, and unlike
+   standings' form dots this page never has an "own row" to collide with:
+   nothing here is scoped to the viewing manager. */
+
+.page { min-height: 100%; }
+
+/* ── Masthead ───────────────────────────────────────────── */
+
+.masthead {
+  padding: var(--s6) var(--s6) var(--s3);
 }
 
-/* ── Header ── */
-.header {
-  padding-bottom: 24px;
-  border-bottom: 1px solid var(--color-border-subtle);
-}
-
-.eyebrow {
-  composes: ds-eyebrow-serif from global;
-}
+.kicker { letter-spacing: 0.16em; }
 
 .title {
   font-family: var(--font-serif);
-  font-size: 32px;
-  font-weight: 700;
+  font-weight: 800;
+  font-size: var(--t-32);
+  letter-spacing: -0.035em;
+  line-height: 1;
+  margin: var(--s1) 0 0;
   color: var(--color-text-primary);
-  margin: 0 0 4px;
-  line-height: 1.1;
 }
 
 .subtitle {
   font-family: var(--font-sans);
-  font-size: 13px;
-  color: var(--color-text-muted);
-  margin: 0;
+  font-size: var(--t-13);
+  color: var(--color-text-secondary);
+  margin: var(--s2) 0 0;
 }
 
-/* ── Records Strip ── */
+/* ── Records strip ──────────────────────────────────────── */
+
 .recordsStrip {
-  background: var(--color-bg-card);
-  border: 1px solid var(--color-border-subtle);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-card);
-  padding: 20px 24px;
+  margin: 0 var(--s6) var(--s6);
+  padding: var(--s5) var(--s6);
   display: flex;
   flex-direction: column;
-  gap: 12px;
-}
-
-.recordsKicker {
-  font-family: var(--font-sans);
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: var(--color-text-muted);
+  gap: var(--s3);
 }
 
 .recordsGrid {
   display: flex;
-  gap: 24px;
+  gap: var(--s6);
   flex-wrap: wrap;
 }
 
 .recordCard {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: var(--s4);
   flex: 1;
   min-width: 220px;
 }
 
-.recordIcon {
-  font-size: 28px;
-  flex-shrink: 0;
-}
+.recordIconAccent { color: var(--color-accent-ink); flex-shrink: 0; }
 
 .recordCard > div {
   display: flex;
   flex-direction: column;
   gap: 2px;
-}
-
-.recordLabel {
-  font-family: var(--font-sans);
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--color-text-muted);
+  min-width: 0;
 }
 
 .recordValue {
   font-family: var(--font-serif);
-  font-size: 22px;
+  font-size: var(--t-25);
   font-weight: 700;
   color: var(--color-text-primary);
   line-height: 1.1;
@@ -100,93 +85,82 @@
 
 .recordMeta {
   font-family: var(--font-sans);
-  font-size: 11px;
+  font-size: var(--t-11);
   color: var(--color-text-muted);
 }
 
-/* ── Season List ── */
+/* ── Season list ────────────────────────────────────────── */
+
 .seasonList {
   display: flex;
   flex-direction: column;
-  gap: 32px;
+  gap: var(--s6);
+  margin: 0 var(--s6) var(--s8);
 }
 
-/* ── Season Panel ── */
 .seasonPanel {
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  background: var(--color-bg-card);
-  border: 1px solid var(--color-border-subtle);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-card);
-  overflow: hidden;
-  padding: 32px;
+  padding: var(--s6);
 }
 
 .seasonHeader {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 24px;
+  gap: var(--s6);
   flex-wrap: wrap;
-  padding-bottom: 20px;
+  padding-bottom: var(--s5);
   border-bottom: 1px solid var(--color-border-subtle);
-}
-
-.seasonHeaderLeft {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
-.seasonBadge {
-  font-family: var(--font-serif);
-  font-size: 15px;
-  font-weight: 700;
-  font-style: italic;
-  color: var(--color-accent-green);
-  flex-shrink: 0;
+  margin-bottom: var(--s5);
 }
 
 .seasonTitle {
   font-family: var(--font-serif);
-  font-size: 22px;
+  font-size: var(--t-20);
   font-weight: 700;
   color: var(--color-text-primary);
-  margin: 0 0 4px;
+  margin: 0 0 var(--s1);
   line-height: 1.2;
 }
 
 .seasonChampion {
+  display: flex;
+  align-items: center;
+  gap: var(--s1);
   font-family: var(--font-sans);
-  font-size: 13px;
-  color: var(--color-text-muted);
+  font-size: var(--t-13);
+  color: var(--color-text-secondary);
   margin: 0;
 }
 
 .seasonChampion strong {
   color: var(--color-text-primary);
+  font-weight: 700;
 }
 
-/* ── Cup Row ── */
+/* The medal ramp — a thin ring/text colour, never a filled badge. Reused
+   verbatim from standings' trophy-icon treatment for the podium AND, here,
+   for a named cup's own prestige tier. */
+.medalGold   { color: var(--color-gold); }
+.medalSilver { color: var(--color-silver); }
+.medalBronze { color: var(--color-bronze); }
+
+/* ── Cup row ────────────────────────────────────────────── */
+
 .cupRow {
   display: flex;
-  gap: 12px;
+  gap: var(--s5);
   flex-wrap: wrap;
 }
 
 .cupBadge {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 4px 0 4px 10px;
-  border-left: 2px solid var(--color-border);
+  gap: var(--s2);
 }
 
-.cupIcon {
-  font-size: 18px;
-}
+.cupIconPlain { color: var(--color-text-muted); }
 
 .cupBadge > div {
   display: flex;
@@ -194,159 +168,139 @@
   gap: 1px;
 }
 
-.cupName {
-  font-family: var(--font-sans);
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--color-text-muted);
-}
+.cupName { display: block; }
 
 .cupWinner {
   font-family: var(--font-serif);
-  font-size: 13px;
+  font-size: var(--t-13);
   font-weight: 700;
   color: var(--color-text-primary);
 }
 
-/* ── Podium ── */
+/* ── Podium ─────────────────────────────────────────────── */
+/* Same grammar as standings: tiers of ONE panel, told apart by a hairline —
+   never separate cards. Left-to-right rank order (not standings' 2nd | 1st |
+   3rd "stage" order) — kept as it always was, since reordering a repeated
+   historical record is a product decision this port doesn't make. */
+
 .podium {
   display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
+  align-items: flex-end;
+  border-bottom: 1px solid var(--color-border);
+  margin-bottom: var(--s5);
 }
 
-.podiumCard {
+.podiumTier {
   flex: 1;
-  min-width: 160px;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
-  padding: 20px 16px;
-  background: var(--color-bg-elevated);
-  border: 1px solid var(--color-border-subtle);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-card);
   text-align: center;
-  transition: transform 0.15s;
+  gap: var(--s1);
+  padding: var(--s5) var(--s4) var(--s5);
 }
 
-.podiumCard:hover {
-  transform: translateY(-2px);
+.podiumTier + .podiumTier {
+  border-left: 1px solid var(--color-border-subtle);
 }
 
-.podiumCardFirst {
-  background: rgba(58, 107, 74, 0.04);
-}
+.podiumTierLeader { padding-top: var(--s6); }
 
-.podiumMedal {
-  font-size: 28px;
-  line-height: 1;
+.podiumTop {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s2);
+  margin-bottom: var(--s1);
 }
 
 .podiumTeam {
   font-family: var(--font-serif);
-  font-size: 16px;
+  font-size: var(--t-15);
   font-weight: 700;
   color: var(--color-text-primary);
   line-height: 1.2;
 }
 
-.podiumManager {
-  font-family: var(--font-sans);
-  font-size: 11px;
-  color: var(--color-text-muted);
-}
+.podiumTierLeader .podiumTeam { font-size: var(--t-17); }
 
 .podiumPts {
-  font-family: var(--font-sans);
-  font-size: 12px;
+  font-family: var(--font-serif);
+  font-size: var(--t-13);
   font-weight: 700;
-  color: var(--color-accent-green);
-  margin-top: 4px;
+  color: var(--color-text-primary);
+  margin-top: var(--s1);
+  font-variant-numeric: tabular-nums lining-nums;
 }
 
-/* ── Table ── */
-.tableWrap {
-  border: 1px solid var(--color-border-subtle);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-card);
-  overflow: hidden;
-}
+/* ── Table ──────────────────────────────────────────────── */
 
 .table {
   width: 100%;
   border-collapse: collapse;
+  font-size: var(--t-13);
 }
 
-.tableHeadRow {
-  background: var(--color-bg-elevated);
-  border-bottom: 1px solid var(--color-border-subtle);
-}
-
-.tableHeadRow th {
-  font-family: var(--font-sans);
-  font-size: 9px;
+.table thead th {
+  text-align: left;
+  font-family: var(--font-condensed);
+  font-size: var(--t-10);
   font-weight: 700;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--color-text-muted);
-  padding: 10px 16px;
-  text-align: left;
+  padding: var(--s2) var(--s3);
+  border-bottom: 1px solid var(--color-border);
 }
 
-.thPts { text-align: right !important; }
+.thPts { text-align: right; }
 
 .tableRow {
-  border-bottom: 1px solid var(--color-border-subtle);
-  transition: background 0.12s;
+  border-top: 1px solid var(--color-border-subtle);
+  transition: background var(--dur-fast) var(--ease-standard);
 }
 
-.tableRow:last-child {
-  border-bottom: none;
-}
-
-.tableRow:hover {
-  background: var(--color-bg-elevated);
-}
-
-.tableRowMedal {
-  background: rgba(58, 107, 74, 0.02);
+.tableRow:first-child { border-top: none; }
+@media (hover: hover) and (pointer: fine) {
+  .tableRow:hover { background: var(--color-bg-inset); }
 }
 
 .tdRank {
-  padding: 12px 16px;
-  width: 56px;
-}
-
-.medalBadge {
-  font-size: 16px;
+  padding: var(--s3);
+  width: 40px;
+  text-align: center;
 }
 
 .rankNum {
-  font-family: var(--font-sans);
-  font-size: 12px;
+  font-family: var(--font-serif);
+  font-size: var(--t-13);
   font-weight: 700;
   color: var(--color-text-muted);
 }
 
 .tdTeam {
   font-family: var(--font-serif);
-  font-size: 15px;
+  font-size: var(--t-15);
   font-weight: 700;
   color: var(--color-text-primary);
-  padding: 12px 16px;
+  padding: var(--s3);
+}
+
+.tdTeamInner {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  min-width: 0;
 }
 
 .thTeam { width: 100%; }
 
 .tdManager {
   font-family: var(--font-sans);
-  font-size: 12px;
+  font-size: var(--t-12);
   color: var(--color-text-muted);
-  padding: 12px 16px;
+  padding: var(--s3);
   white-space: nowrap;
 }
 
@@ -354,36 +308,32 @@
 
 .tdPts {
   font-family: var(--font-sans);
-  font-size: 14px;
+  font-size: var(--t-15);
   font-weight: 700;
   color: var(--color-text-primary);
   text-align: right;
-  padding: 12px 16px;
+  padding: var(--s3);
   white-space: nowrap;
+  font-variant-numeric: tabular-nums lining-nums;
 }
 
-/* ── Empty State ── */
+/* ── Empty states ───────────────────────────────────────── */
+
 .emptyState {
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  padding: 80px 32px;
-  background: var(--color-bg-card);
-  border: 1px solid var(--color-border-subtle);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-card);
-  gap: 16px;
+  gap: var(--s4);
+  padding: var(--s16) var(--s8);
+  margin: 0 var(--s6) var(--s8);
 }
 
-.emptyIcon {
-  font-size: 48px;
-  line-height: 1;
-}
+.emptyIcon { color: var(--color-text-muted); }
 
 .emptyTitle {
   font-family: var(--font-serif);
-  font-size: 22px;
+  font-size: var(--t-20);
   font-weight: 700;
   color: var(--color-text-primary);
   margin: 0;
@@ -391,7 +341,7 @@
 
 .emptyDesc {
   font-family: var(--font-sans);
-  font-size: 14px;
+  font-size: var(--t-13);
   color: var(--color-text-muted);
   line-height: 1.6;
   margin: 0;
@@ -400,9 +350,34 @@
 
 .emptyText {
   font-family: var(--font-sans);
-  font-size: 13px;
+  font-size: var(--t-13);
   color: var(--color-text-muted);
-  font-style: italic;
-  padding: 12px 0;
+  padding: var(--s3) 0;
   margin: 0;
+}
+
+/* ── Responsive ─────────────────────────────────────────── */
+
+@media (max-width: 768px) {
+  .podium {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .podiumTier + .podiumTier {
+    border-left: none;
+    border-top: 1px solid var(--color-border-subtle);
+  }
+
+  .podiumTierLeader { padding-top: var(--s5); }
+
+  .thManager, .tdManager { display: none; }
+}
+
+@media (max-width: 600px) {
+  .masthead { padding: var(--s5) var(--s4) var(--s3); }
+  .title { font-size: var(--t-25); }
+  .recordsStrip { margin: 0 var(--s4) var(--s5); }
+  .seasonList { margin: 0 var(--s4) var(--s6); }
+  .seasonPanel { padding: var(--s4); }
 }

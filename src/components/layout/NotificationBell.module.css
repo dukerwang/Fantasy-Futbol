@@ -18,10 +18,12 @@
   transition: all var(--transition-fast);
 }
 
-.bellBtn:hover {
-  color: var(--color-text-primary);
-  border-color: var(--color-text-muted);
-  background: var(--color-bg-card-hover);
+@media (hover: hover) and (pointer: fine) {
+  .bellBtn:hover {
+    color: var(--color-text-primary);
+    border-color: var(--color-text-muted);
+    background: var(--color-bg-card-hover);
+  }
 }
 
 .bellBtnActive {
@@ -106,8 +108,10 @@
   transition: background var(--transition-fast);
 }
 
-.markAllBtn:hover {
-  background: rgba(58, 107, 74, 0.08);
+@media (hover: hover) and (pointer: fine) {
+  .markAllBtn:hover {
+    background: rgba(58, 107, 74, 0.08);
+  }
 }
 
 .list {
@@ -166,8 +170,10 @@
   padding-left: calc(var(--space-4) - 3px);
 }
 
-.item:hover {
-  background: var(--color-bg-card-hover);
+@media (hover: hover) and (pointer: fine) {
+  .item:hover {
+    background: var(--color-bg-card-hover);
+  }
 }
 
 .itemHeader {
@@ -219,9 +225,11 @@
   transition: all var(--transition-fast);
 }
 
-.footerLink:hover {
-  color: var(--color-text-primary);
-  background: var(--color-bg-card-hover);
+@media (hover: hover) and (pointer: fine) {
+  .footerLink:hover {
+    color: var(--color-text-primary);
+    background: var(--color-bg-card-hover);
+  }
 }
 
 @media (max-width: 768px) {

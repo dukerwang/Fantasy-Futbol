@@ -145,8 +145,10 @@
   border-bottom: none;
 }
 
-.table tbody tr:hover {
-  background: var(--color-bg-hover, rgba(0,0,0,0.02));
+@media (hover: hover) and (pointer: fine) {
+  .table tbody tr:hover {
+    background: var(--color-bg-hover, rgba(0,0,0,0.02));
+  }
 }
 
 .playerName, .teamName, .leagueName {
@@ -214,8 +216,10 @@
   transition: background var(--transition-fast);
 }
 
-.btnPrimary:hover {
-  background: var(--color-accent);
+@media (hover: hover) and (pointer: fine) {
+  .btnPrimary:hover {
+    background: var(--color-accent);
+  }
 }
 
 .btnPrimary:disabled {
@@ -235,8 +239,10 @@
   transition: opacity 0.15s;
 }
 
-.btnDanger:hover {
-  opacity: 0.85;
+@media (hover: hover) and (pointer: fine) {
+  .btnDanger:hover {
+    opacity: 0.85;
+  }
 }
 
 .btnSecondary {
@@ -251,8 +257,10 @@
   transition: background 0.15s;
 }
 
-.btnSecondary:hover {
-  background: var(--color-bg-card, #f5f3ee);
+@media (hover: hover) and (pointer: fine) {
+  .btnSecondary:hover {
+    background: var(--color-bg-card, #f5f3ee);
+  }
 }
 
 .btnSmall {

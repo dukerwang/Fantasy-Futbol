@@ -1,45 +1,59 @@
+/* The listing editor — Gaffa 2.0.
+
+   THE GATES NO LONGER BORROW POSITION HUES. Each open gate used to take
+   --color-pos-cb (trade) or --color-pos-wb (loan) as a border plus a wash, and
+   the note here said it did so "to take the colour its pill wears on the card,
+   so the dialog and the board agree without a legend". The card's pills have
+   since dropped those hues — they were centre-back and wing-back field colours
+   naming two kinds of deal, 2.00 and 2.28 as ink in dark — so that agreement is
+   re-made here rather than left pointing at a treatment that no longer exists.
+
+   What agrees now is the STATE, not the hue: an open gate is a selected control,
+   drawn the way this system draws selection — the accent keyline plus its tint,
+   with the gate's own words saying which it is. Three gates in three colours
+   were never telling you anything the labels did not.
+
+   The three price inputs are serif, not mono, and that is deliberate: they are
+   the same three figures the card's ladder shows, and the card compares them
+   down a column. What you type here should be the face you see there. */
+
 .section {
-  padding: 0.9rem 1.25rem 0;
+  padding: var(--s3) var(--s5) 0;
 }
 
 .label {
-  display: block;
-  font-size: 0.55rem;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--color-text-muted);
-  margin-bottom: 0.45rem;
+  composes: g-dialog-label from global;
+  margin-bottom: var(--s2);
 }
 
 .select {
   width: 100%;
-  padding: 0.55rem 0.7rem;
-  border: 1px solid var(--color-border);
-  border-radius: 7px;
+  padding: var(--s2) var(--s3);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--r-control);
   background: var(--color-bg-card);
   font-family: var(--font-sans);
-  font-size: 0.8125rem;
+  font-size: var(--t-13);
   color: var(--color-text-primary);
 }
 
 .identity {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.9rem 1.25rem 0;
+  gap: var(--s2);
+  padding: var(--s3) var(--s5) 0;
   flex-wrap: wrap;
 }
 
 .name {
   font-family: var(--font-serif);
   font-weight: 700;
-  font-size: 1.125rem;
+  font-size: var(--t-17);
   color: var(--color-text-primary);
 }
 
 .meta {
-  font-size: 0.69rem;
+  font-size: var(--t-12);
   color: var(--color-text-muted);
 }
 
@@ -48,25 +62,29 @@
 .gates {
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
+  gap: var(--s1);
 }
 
 .gate {
   display: flex;
   align-items: flex-start;
-  gap: 0.55rem;
-  padding: 0.6rem 0.7rem;
+  gap: var(--s2);
+  padding: var(--s2) var(--s3);
   border: 1px solid var(--color-border-subtle);
-  border-radius: 7px;
+  border-radius: var(--r-control);
   background: var(--color-bg-card);
   cursor: pointer;
 }
 
-.gate input { margin-top: 0.2rem; flex-shrink: 0; }
+.gate input {
+  margin-top: 2px;
+  flex-shrink: 0;
+  accent-color: var(--color-accent);
+}
 
 .gate b {
   display: block;
-  font-size: 0.8125rem;
+  font-size: var(--t-13);
   font-weight: 600;
   color: var(--color-text-primary);
 }
@@ -74,63 +92,64 @@
 .gate em {
   display: block;
   font-style: normal;
-  font-size: 0.66rem;
+  font-size: var(--t-11);
   color: var(--color-text-muted);
   line-height: 1.45;
-  margin-top: 0.1rem;
+  margin-top: var(--s1);
 }
 
-/* Each open gate takes the colour its pill wears on the card, so the dialog and
-   the board agree without a legend. */
-.gateOnTrade {
-  border-color: var(--color-pos-cb);
-  background: color-mix(in srgb, var(--color-pos-cb) 7%, var(--color-bg-card));
-}
-
-.gateOnCash {
-  border-color: var(--color-accent);
+/* One selected state for all three. The wash carries it, so the words inside
+   stay ink — the same rule the board's rows follow. */
+.gateOn {
+  border-color: var(--color-border-accent);
   background: var(--color-accent-dim);
 }
 
-.gateOnLoan {
-  border-color: var(--color-pos-wb);
-  background: color-mix(in srgb, var(--color-pos-wb) 7%, var(--color-bg-card));
-}
+.gateOn em { color: var(--color-text-secondary); }
 
 /* ── Prices ─────────────────────────────────────────────── */
 
 .prices {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 0.5rem;
+  gap: var(--s2);
 }
 
 .priceField {
   border: 1px solid var(--color-border-subtle);
-  border-radius: 7px;
-  padding: 0.5rem 0.625rem;
+  border-radius: var(--r-control);
+  padding: var(--s2) var(--s3);
   background: var(--color-bg-card);
   display: block;
 }
 
+.priceField:focus-within {
+  border-color: var(--color-accent);
+  outline: 2px solid var(--color-border-accent);
+  outline-offset: -1px;
+}
+
 .priceLabel {
   display: block;
-  font-size: 0.5rem;
+  font-family: var(--font-condensed);
+  font-size: var(--t-10);
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--color-text-muted);
 }
 
+/* Settled money — the same face the card's ladder gives these three. */
 .priceInput {
   width: 100%;
   border: none;
   background: none;
-  font-family: var(--font-mono);
+  font-family: var(--font-serif);
   font-weight: 700;
-  font-size: 1.0625rem;
+  font-size: var(--t-17);
+  font-variant-numeric: tabular-nums lining-nums;
   color: var(--color-text-primary);
-  padding: 0.15rem 0 0;
+  padding: var(--s1) 0 0;
 }
 
 .priceInput:focus { outline: none; }
@@ -149,11 +168,11 @@
 .priceInput { -moz-appearance: textfield; appearance: textfield; }
 
 .hint {
-  font-size: 0.66rem;
+  font-size: var(--t-11);
   color: var(--color-text-muted);
-  margin-top: 0.5rem;
+  margin-top: var(--s2);
   line-height: 1.5;
-  padding-bottom: 1rem;
+  padding-bottom: var(--s4);
 }
 
 /* A preview of the headline the board will show, so the seller can see what
@@ -161,80 +180,42 @@
 .stance {
   display: flex;
   align-items: baseline;
-  gap: 0.6rem;
-  padding: 0.55rem 0.7rem;
+  gap: var(--s2);
+  padding: var(--s2) var(--s3);
   border: 1px solid var(--color-border-subtle);
-  border-radius: 7px;
+  border-radius: var(--r-control);
   background: var(--color-bg-card);
 }
 
 .stance b {
   font-family: var(--font-serif);
   font-weight: 700;
-  font-size: 0.95rem;
+  font-size: var(--t-15);
   color: var(--color-text-primary);
 }
 
+/* A caption, not a ticking value — the condensed face, not mono. */
 .stance span {
   margin-left: auto;
-  font-family: var(--font-mono);
-  font-size: 0.66rem;
+  font-family: var(--font-condensed);
+  font-size: var(--t-11);
+  letter-spacing: 0.04em;
   color: var(--color-text-muted);
 }
 
+/* The wash carries the alarm; the message is ink. */
 .error {
-  margin: 0 1.25rem 0.75rem;
-  padding: 0.5rem 0.7rem;
-  border-radius: 6px;
-  background: var(--color-danger-dim);
-  color: var(--color-danger);
-  font-size: 0.72rem;
-  line-height: 1.45;
+  composes: g-dialog-error from global;
+  margin: 0 var(--s5) var(--s3);
 }
 
 /* ── Footer ─────────────────────────────────────────────── */
 
 .spacer { flex: 1; }
 
-.ghost,
-.go,
-.danger {
-  padding: 0.6rem 1.125rem;
-  border-radius: 5px;
-  font-family: var(--font-sans);
-  font-size: 0.69rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  cursor: pointer;
-  border: 1px solid transparent;
-}
-
-.ghost {
-  border-color: var(--color-border);
-  color: var(--color-text-secondary);
-  background: none;
-}
-
-.danger {
-  border-color: var(--color-border);
-  color: var(--color-danger);
-  background: none;
-}
-
-.ghost:hover:not(:disabled),
-.danger:hover:not(:disabled) { background: var(--color-bg-card-hover); }
-
-.go {
-  background: var(--color-accent);
-  color: #FFFFFF;
-}
-
-.go:hover:not(:disabled) { background: var(--color-accent-hover); }
-
-.go:disabled,
-.ghost:disabled,
-.danger:disabled { opacity: 0.5; cursor: not-allowed; }
+.ghost { composes: g-dialog-ghost from global; }
+.go { composes: g-dialog-go from global; }
+.danger { composes: g-dialog-danger from global; }
 
 @media (max-width: 480px) {
   .prices { grid-template-columns: 1fr; }

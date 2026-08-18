@@ -1,322 +1,316 @@
-/* ─────────────────────────────────────────────
-   Finance — CSS Module
-   Design: Cream Editorial
-   ───────────────────────────────────────────── */
+/* Finance ledger — Gaffa 2.0, port 6c.
 
-.page {
-  display: flex;
-  flex-direction: column;
-  gap: 32px;
+   See design-2.0/README.md § "Port order for the remaining routes". This page
+   pays its own scale migration: --t-* / --s* / --r-* throughout, no rem
+   literals, no raw hex, no 1.0 scale tokens.
+
+   ONE PANEL, NOT THREE. The summary strip, the category breakdown and the
+   ledger table were three separately-elevated cards in 1.0, each a view of
+   the SAME transaction list — the summary strip's totals, the breakdown's
+   per-category split and the ledger's rows are all arithmetic on one array.
+   "A board is one panel" applies here the way it applies to a list-plus-rail:
+   one relationship, one elevation declaration, internal hairlines instead of
+   three gaps.
+
+   GREEN-FOR-EARNED IS NOT A COLOUR-LAW EXCEPTION HERE, UNLIKE STANDINGS'
+   FORM DOTS. This page is scoped to the viewing manager's own team start to
+   finish (`myTeam` in page.tsx) — every green figure on it genuinely IS
+   "yours" in the sense the law already grants, so accent-ink for earned and
+   danger for spent is a straightforward retoken, not a new exception.
+
+   THE CATEGORY BREAKDOWN BAR NO LONGER COLOURS BY CATEGORY. Ten real
+   categories (Signings, Drops, Trades, Transfers, Recirculation, Draft,
+   Prizes, Revenue, Sales, Loans) is twice what the Wire's five event kinds
+   already had no free hues for, and the old map only covered seven of them —
+   Recirculation, Revenue, Sales and Loans silently fell through to flat grey.
+   Colour now carries each row's own spent/earned split instead (danger /
+   accent-ink, the same split as everything else on the page), recessed on
+   `.g-track`. See FinanceClient.tsx's BreakdownBar for the full reasoning. */
+
+.page { min-height: 100%; }
+
+/* ── Masthead ───────────────────────────────────────────── */
+
+.masthead {
+  padding: var(--s6) var(--s6) var(--s3);
 }
 
-/* ── Header ── */
-.header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 16px;
-  padding-bottom: 24px;
-  border-bottom: 1px solid var(--color-border-subtle);
-}
-
-.eyebrow {
-  composes: ds-eyebrow-serif from global;
-}
+.kicker { letter-spacing: 0.16em; }
 
 .title {
   font-family: var(--font-serif);
-  font-size: 32px;
-  font-weight: 700;
+  font-weight: 800;
+  font-size: var(--t-32);
+  letter-spacing: -0.035em;
+  line-height: 1;
+  margin: var(--s1) 0 0;
   color: var(--color-text-primary);
-  margin: 0 0 4px;
-  line-height: 1.1;
 }
 
 .subtitle {
   font-family: var(--font-sans);
-  font-size: 13px;
-  color: var(--color-text-muted);
-  margin: 0;
+  font-size: var(--t-13);
+  color: var(--color-text-secondary);
+  margin: var(--s2) 0 0;
 }
 
-/* ── Summary Strip ── */
+/* ── The panel ──────────────────────────────────────────── */
+
+.panel { margin: 0 var(--s6) var(--s8); }
+
+/* ── Summary strip ──────────────────────────────────────── */
+
 .summaryStrip {
   display: flex;
-  background: var(--color-bg-card);
-  border: 1px solid var(--color-border-subtle);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-card);
-  overflow: hidden;
+  flex-wrap: wrap;
+  border-bottom: 1px solid var(--color-border);
 }
 
 .summaryCard {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  padding: 24px 32px;
+  gap: var(--s1);
+  padding: var(--s5) var(--s5);
   flex: 1;
+  min-width: 150px;
 }
 
-.summaryDivider {
-  width: 1px;
-  background: var(--color-border-subtle);
-  flex-shrink: 0;
-}
-
-.summaryLabel {
-  font-family: var(--font-sans);
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--color-text-muted);
+.summaryCard + .summaryCard {
+  border-left: 1px solid var(--color-border-subtle);
 }
 
 .summaryValue {
   font-family: var(--font-serif);
-  font-size: 26px;
+  font-size: var(--t-25);
   font-weight: 700;
   color: var(--color-text-primary);
   line-height: 1;
+  font-variant-numeric: tabular-nums lining-nums;
 }
 
-.summaryIn { color: var(--color-accent-green); }
-.summaryOut { color: #dc2626; }
+.summaryIn { color: var(--color-accent-ink); }
+.summaryOut { color: var(--color-danger); }
 
-@media (max-width: 768px) {
-  .summaryStrip {
-    flex-direction: column;
-  }
-  .summaryDivider {
-    width: 100%;
-    height: 1px;
-  }
-  .summaryCard {
-    padding: 16px 20px;
-  }
+@media (max-width: 900px) {
+  .summaryCard { min-width: 33%; }
+  .summaryCard:nth-child(3n+1) { border-left: none; }
 }
 
-/* ── Sections ── */
+@media (max-width: 560px) {
+  .summaryCard { min-width: 50%; }
+  .summaryCard:nth-child(2n+1) { border-left: none; }
+}
+
+/* ── Sections ───────────────────────────────────────────── */
+
 .section {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+  padding: var(--s5) var(--s6) var(--s6);
+  border-bottom: 1px solid var(--color-border);
 }
 
-.sectionHeader {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 16px;
-}
+.section:last-child { border-bottom: none; }
 
-.sectionKicker {
-  display: block;
-  font-family: var(--font-sans);
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--color-text-muted);
-  margin-bottom: 4px;
-}
-
-.sectionTitle {
+/* A heading, not the tracked label — decision 5 rations that device to one
+   per panel, and the summary strip's own g-label-quiet captions already
+   spend it. */
+.sectionHead {
   font-family: var(--font-serif);
-  font-size: 18px;
+  font-size: var(--t-15);
   font-weight: 700;
+  letter-spacing: -0.01em;
   color: var(--color-text-primary);
-  margin: 0;
+  margin: 0 0 var(--s4);
 }
 
-/* ── Breakdown Bar Chart ── */
+/* ── Breakdown bar chart ────────────────────────────────── */
+
 .breakdown {
-  background: var(--color-bg-card);
-  border: 1px solid var(--color-border-subtle);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-card);
-  padding: 24px 28px;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: var(--s3);
 }
 
 .breakdownRow {
   display: grid;
-  grid-template-columns: 90px 1fr 120px;
+  grid-template-columns: 90px 1fr 110px;
   align-items: center;
-  gap: 16px;
+  gap: var(--s4);
 }
 
 .breakdownLabel {
-  font-family: var(--font-sans);
-  font-size: 11px;
+  font-family: var(--font-condensed);
+  font-size: var(--t-11);
   font-weight: 700;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
   color: var(--color-text-secondary);
   text-align: right;
-  text-transform: uppercase;
 }
 
-.breakdownBarWrap {
+.breakdownTrack {
   height: 8px;
-  background: var(--color-bg-elevated);
-  border-radius: 4px;
   overflow: hidden;
 }
 
-.breakdownBarFill {
+.breakdownBar {
   height: 100%;
-  border-radius: 4px;
-  transition: width 0.4s ease;
+  display: flex;
 }
+
+.breakdownFillOut { height: 100%; background: var(--color-danger); }
+.breakdownFillIn  { height: 100%; background: var(--color-accent); }
 
 .breakdownAmount {
   display: flex;
-  gap: 8px;
+  gap: var(--s2);
   justify-content: flex-end;
 }
 
 .breakdownOut {
   font-family: var(--font-sans);
-  font-size: 11px;
+  font-size: var(--t-11);
   font-weight: 700;
-  color: #dc2626;
+  color: var(--color-danger);
 }
 
 .breakdownIn {
   font-family: var(--font-sans);
-  font-size: 11px;
+  font-size: var(--t-11);
   font-weight: 700;
-  color: var(--color-accent-green);
+  color: var(--color-accent-ink);
 }
 
-/* ── Filter Tabs ── */
-.filterTabs {
+/* ── Ledger header + filter tabs ────────────────────────── */
+
+.ledgerHeader {
   display: flex;
-  gap: 4px;
-  background: var(--color-bg-elevated);
-  padding: 3px;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--color-border-subtle);
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--s4);
+  flex-wrap: wrap;
+  margin-bottom: var(--s4);
 }
 
-.filterTab {
-  font-family: var(--font-sans);
-  font-size: 11px;
+.ledgerHeader .sectionHead { margin-bottom: 0; }
+
+/* Segmented control — same grammar as the stats pool's position filter
+   (stats.module.css .segmented/.segment/.segmentOn): filled in ink on
+   selection, not the accent, because this is a view toggle rather than
+   "yours". */
+.segmented {
+  display: inline-flex;
+  border: 1px solid var(--color-border);
+  border-radius: var(--r-control);
+  overflow: hidden;
+  background: var(--color-bg-card);
+}
+
+.segment {
+  background: transparent;
+  border: none;
+  border-right: 1px solid var(--color-border);
+  padding: var(--s2) var(--s3);
+  font-family: var(--font-condensed);
+  font-size: var(--t-12);
   font-weight: 700;
   letter-spacing: 0.05em;
-  padding: 5px 14px;
-  border: none;
-  background: transparent;
-  color: var(--color-text-muted);
-  border-radius: 2px;
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
   cursor: pointer;
-  transition: background 0.15s, color 0.15s;
 }
 
-.filterTabActive {
-  background: var(--color-bg-card);
-  color: var(--color-text-primary);
-  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+.segment:last-child { border-right: none; }
+@media (hover: hover) and (pointer: fine) {
+  .segment:hover { background: var(--color-bg-card-hover); }
 }
 
-/* ── Table ── */
-.tableWrap {
-  background: var(--color-bg-card);
-  border: 1px solid var(--color-border-subtle);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-card);
-  overflow: hidden;
+.segmentOn {
+  background: var(--color-text-primary);
+  border-color: var(--color-text-primary);
+  color: var(--color-bg-primary);
 }
+
+@media (hover: hover) and (pointer: fine) {
+  .segmentOn:hover {
+    background: var(--color-text-primary);
+    border-color: var(--color-text-primary);
+    color: var(--color-bg-primary);
+  }
+}
+
+/* ── Ledger table ───────────────────────────────────────── */
 
 .ledgerTable {
   width: 100%;
   border-collapse: collapse;
+  font-size: var(--t-13);
 }
 
-.ledgerHead {
-  background: var(--color-bg-elevated);
-  border-bottom: 1px solid var(--color-border-subtle);
-}
-
-.ledgerHead th {
-  font-family: var(--font-sans);
-  font-size: 9px;
+.ledgerTable thead th {
+  text-align: left;
+  font-family: var(--font-condensed);
+  font-size: var(--t-10);
   font-weight: 700;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--color-text-muted);
-  padding: 10px 16px;
-  text-align: left;
+  padding: var(--s2) var(--s3);
+  border-bottom: 1px solid var(--color-border);
 }
 
-.thRight {
-  text-align: right !important;
-}
+.thRight { text-align: right; }
 
 .ledgerRow {
-  border-bottom: 1px solid var(--color-border-subtle);
-  transition: background 0.12s;
+  border-top: 1px solid var(--color-border-subtle);
+  transition: background var(--dur-fast) var(--ease-standard);
 }
 
-.ledgerRow:last-child {
-  border-bottom: none;
-}
-
-.ledgerRow:hover {
-  background: var(--color-bg-elevated);
+.ledgerRow:first-child { border-top: none; }
+@media (hover: hover) and (pointer: fine) {
+  .ledgerRow:hover { background: var(--color-bg-inset); }
 }
 
 .ledgerDate {
   font-family: var(--font-sans);
-  font-size: 11px;
+  font-size: var(--t-11);
   color: var(--color-text-muted);
-  padding: 12px 16px;
+  padding: var(--s3);
   white-space: nowrap;
   width: 90px;
 }
 
 .ledgerType {
-  padding: 12px 16px;
+  padding: var(--s3);
   width: 160px;
 }
 
 .typePill {
   display: inline-block;
-  font-family: var(--font-sans);
-  font-size: 9px;
+  font-family: var(--font-condensed);
+  font-size: var(--t-10);
   font-weight: 700;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   white-space: nowrap;
   border-left: 2px solid currentColor;
-  padding-left: 7px;
+  padding-left: var(--s2);
 }
 
-.typePill_in {
-  color: var(--color-accent-green);
-}
-
-.typePill_out {
-  color: var(--color-danger-dark);
-}
-
-.typePill_none {
-  color: var(--color-text-muted);
-}
+.typePill_in { color: var(--color-accent-ink); }
+.typePill_out { color: var(--color-danger); }
+.typePill_none { color: var(--color-text-muted); }
 
 .ledgerPlayer {
   font-family: var(--font-serif);
-  font-size: 14px;
+  font-size: var(--t-15);
   font-weight: 700;
   color: var(--color-text-primary);
-  padding: 12px 16px;
+  padding: var(--s3);
 }
 
 .ledgerNotes {
   font-family: var(--font-sans);
-  font-size: 12px;
+  font-size: var(--t-12);
   font-weight: 400;
   color: var(--color-text-secondary);
   font-style: italic;
@@ -325,11 +319,11 @@
 .ledgerDash {
   color: var(--color-text-muted);
   font-family: var(--font-sans);
-  font-size: 12px;
+  font-size: var(--t-12);
 }
 
 .ledgerAmount {
-  padding: 12px 16px;
+  padding: var(--s3);
   text-align: right;
   width: 120px;
 }
@@ -337,40 +331,43 @@
 .amountChip {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--s1);
   font-family: var(--font-sans);
-  font-size: 13px;
+  font-size: var(--t-13);
   font-weight: 700;
   white-space: nowrap;
+  font-variant-numeric: tabular-nums lining-nums;
 }
 
-.amountIn  { color: var(--color-accent-green); }
-.amountOut { color: #dc2626; }
+.amountIn  { color: var(--color-accent-ink); }
+.amountOut { color: var(--color-danger); }
 .amountNone { color: var(--color-text-muted); }
 
-/* ── Pagination ── */
+/* ── Pagination ─────────────────────────────────────────── */
+
 .pagination {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 4px;
+  gap: var(--s3);
+  padding-top: var(--s4);
 }
 
 .pageBtn {
   font-family: var(--font-sans);
-  font-size: 12px;
+  font-size: var(--t-12);
   font-weight: 700;
-  color: var(--color-accent-green);
+  color: var(--color-accent-ink);
   background: transparent;
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  padding: 6px 16px;
+  border-radius: var(--r-control);
+  padding: var(--s2) var(--s4);
   cursor: pointer;
-  transition: background 0.15s;
+  transition: background var(--dur-fast) var(--ease-standard);
 }
 
-.pageBtn:hover:not(:disabled) {
-  background: var(--color-bg-elevated);
+@media (hover: hover) and (pointer: fine) {
+  .pageBtn:hover:not(:disabled) { background: var(--color-bg-card-hover); }
 }
 
 .pageBtn:disabled {
@@ -381,24 +378,28 @@
 
 .pageInfo {
   font-family: var(--font-sans);
-  font-size: 11px;
+  font-size: var(--t-11);
   color: var(--color-text-muted);
 }
 
-/* ── Empty State ── */
-.emptyState {
-  background: var(--color-bg-card);
-  border: 1px solid var(--color-border-subtle);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-card);
-  padding: 48px 32px;
-  text-align: center;
-}
+/* ── Empty state ────────────────────────────────────────── */
 
 .emptyText {
   font-family: var(--font-sans);
-  font-size: 14px;
+  font-size: var(--t-13);
   color: var(--color-text-muted);
-  font-style: italic;
+  padding: var(--s6) 0;
   margin: 0;
+  text-align: center;
+}
+
+/* ── Responsive ─────────────────────────────────────────── */
+
+@media (max-width: 600px) {
+  .masthead { padding: var(--s5) var(--s4) var(--s3); }
+  .title { font-size: var(--t-25); }
+  .panel { margin: 0 var(--s4) var(--s6); }
+  .section { padding: var(--s4); }
+  .summaryCard { padding: var(--s4); }
+  .breakdownRow { grid-template-columns: 70px 1fr 90px; gap: var(--s2); }
 }

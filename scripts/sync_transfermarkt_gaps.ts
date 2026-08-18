@@ -49,6 +49,21 @@ const UA =
 const REQUEST_DELAY_MS = 1500;
 const NAME_THRESHOLD = 0.6;
 
+// Retry a single request a few times with backoff — covers transient network
+// blips and short rate-limit windows. Separate from the cooldown below, which
+// handles the longer block that shows up once retries stop being enough.
+const FETCH_RETRIES = 3;
+const RETRY_BASE_MS = 3000;
+
+// Observed failure mode: a run resolves fine for a while, then every
+// remaining request fails outright — Transfermarkt blocking the IP mid-run
+// rather than a one-off blip. A handful of consecutive whole-player failures
+// (search + all retries exhausted) is the signal; pausing well past a typical
+// rate-limit window gives the block a chance to lift instead of burning
+// through the rest of the target list as guaranteed failures.
+const COOLDOWN_AFTER_N_FAILURES = 5;
+const COOLDOWN_MS = 90_000;
+
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 function loadEnvLocal(): void {
@@ -75,9 +90,28 @@ function parseValue(num: string, unit: string): number | null {
 }
 
 async function tmFetch(url: string): Promise<string> {
-  const res = await fetch(url, { headers: { 'User-Agent': UA, 'Accept-Language': 'en-US,en;q=0.9' } });
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  return res.text();
+  let lastErr: unknown;
+  for (let attempt = 0; attempt <= FETCH_RETRIES; attempt++) {
+    try {
+      const res = await fetch(url, { headers: { 'User-Agent': UA, 'Accept-Language': 'en-US,en;q=0.9' } });
+      if (!res.ok) {
+        // 429/403 carry a Retry-After when Transfermarkt bothers to send one —
+        // honor it over our own backoff guess.
+        if ((res.status === 429 || res.status === 403) && attempt < FETCH_RETRIES) {
+          const retryAfter = Number(res.headers.get('retry-after'));
+          const wait = Number.isFinite(retryAfter) && retryAfter > 0 ? retryAfter * 1000 : RETRY_BASE_MS * 2 ** attempt;
+          await sleep(wait);
+          continue;
+        }
+        throw new Error(`HTTP ${res.status}`);
+      }
+      return await res.text();
+    } catch (err) {
+      lastErr = err;
+      if (attempt < FETCH_RETRIES) await sleep(RETRY_BASE_MS * 2 ** attempt);
+    }
+  }
+  throw lastErr instanceof Error ? lastErr : new Error(String(lastErr));
 }
 
 interface Candidate { tmId: string; name: string; url: string }
@@ -214,11 +248,16 @@ async function main() {
 
   const results: { id: string; name: string; from: number; to: number; club: string; matched: string; score: number; how: 'full' | 'token'; asOf: string | null }[] = [];
   const failures: { name: string; reason: string }[] = [];
+  let consecutiveFailures = 0;
 
   for (const [i, p] of targets.entries()) {
     process.stdout.write(`[${i + 1}/${targets.length}] ${p.name} … `);
     try {
       const candidates = await searchPlayer(p.name);
+      // A request that completes at all — even with no hits — proves the IP
+      // isn't blocked right now, so it clears the cooldown counter same as a
+      // full success would.
+      consecutiveFailures = 0;
       await sleep(REQUEST_DELAY_MS);
       if (candidates.length === 0) {
         console.log('no search results');
@@ -235,6 +274,7 @@ async function main() {
         continue;
       }
       const profile = await fetchProfile(best.c.url);
+      consecutiveFailures = 0;
       await sleep(REQUEST_DELAY_MS);
       if (profile.value == null) {
         console.log('no market value on profile');
@@ -250,6 +290,12 @@ async function main() {
       const msg = err instanceof Error ? err.message : String(err);
       console.log(`error: ${msg}`);
       failures.push({ name: p.name, reason: msg });
+      consecutiveFailures++;
+      if (consecutiveFailures >= COOLDOWN_AFTER_N_FAILURES) {
+        console.log(`  [cooldown] ${consecutiveFailures} requests failed in a row — pausing ${COOLDOWN_MS / 1000}s\n`);
+        await sleep(COOLDOWN_MS);
+        consecutiveFailures = 0;
+      }
     }
   }
 

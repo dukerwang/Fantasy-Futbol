@@ -322,7 +322,7 @@ export default function AuthShowcase() {
 const PITCH_ZONE_ORDER = ['ATT', 'AMZ', 'CMZ', 'DMZ', 'WBZ', 'DEF', 'GK'] as const;
 type PitchZone = typeof PITCH_ZONE_ORDER[number];
 
-const SLOT_TO_ZONE: Record<GranularPosition, PitchZone> = {
+const SLOT_TO_ZONE = {
   LW: 'ATT', ST: 'ATT', RW: 'ATT',
   AM: 'AMZ',
   CM: 'CMZ',
@@ -330,7 +330,7 @@ const SLOT_TO_ZONE: Record<GranularPosition, PitchZone> = {
   DM: 'DMZ',
   CB: 'DEF', LB: 'DEF', RB: 'DEF',
   GK: 'GK',
-};
+} satisfies Record<GranularPosition, PitchZone>;
 
 const FORMATION_433: GranularPosition[] = ['LW', 'ST', 'RW', 'CM', 'CM', 'DM', 'LB', 'CB', 'CB', 'RB', 'GK'];
 
@@ -344,17 +344,17 @@ function PositionsVisual() {
   const zones = groupByZone(FORMATION_433);
   return (
     <div className={styles.pitchWrap}>
-      <div className={mp.halfOuter} style={{ width: '100%', maxWidth: 440, height: 520 }}>
+      <div className={mp.half} style={{ width: '100%', maxWidth: 480 }}>
         <div className={mp.halfField}>
           <div className={mp.halfTopLine} />
           <div className={mp.halfTopCircle} />
           <div className={mp.halfPenaltyBox} />
           <div className={mp.halfPenaltyArc} />
           <div className={mp.halfGoalBox} />
-          <div className={mp.pitchHalfZones}>
+          <div className={mp.zones}>
             {PITCH_ZONE_ORDER.map((zone) => (
-              <div key={zone} className={mp.pitchHalfZoneRow}>
-                <div className={mp.halfZone}>
+              <div key={zone} className={mp.zoneRow}>
+                <div className={`${mp.zone} ${zone === 'WBZ' ? mp.zoneWBZ : ''}`}>
                   {zones[zone].map((pos, i) => (
                     <div key={`${pos}-${i}`} className={styles.posSlot}>
                       <div className={styles.posBadgeScale}>
@@ -368,7 +368,7 @@ function PositionsVisual() {
           </div>
         </div>
       </div>
-      <div className={styles.pitchCaption}>4-3-3 · one of 7 supported formations</div>
+      <div className={styles.pitchCaption}>4-3-3 · one of 10 supported formations</div>
     </div>
   );
 }
@@ -526,10 +526,10 @@ function ScoutingDeckVisual() {
 /* ============================================================
    SLIDE — Trades & Loans: the real TradeCard
    ============================================================ */
-const DEMO_PLAYER_MAP: Record<string, SimplePlayer> = {
+const DEMO_PLAYER_MAP = {
   'p-saka': { id: 'p-saka', name: 'Bukayo Saka', web_name: 'Saka', full_name: null, pl_team: 'Arsenal', primary_position: 'RW' },
   'p-palmer': { id: 'p-palmer', name: 'Cole Palmer', web_name: 'Palmer', full_name: null, pl_team: 'Chelsea', primary_position: 'AM' },
-};
+} satisfies Record<string, SimplePlayer>;
 
 const DEMO_TRADE: TradeRecord = {
   id: 'demo-trade',

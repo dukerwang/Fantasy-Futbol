@@ -17,6 +17,7 @@
  */
 
 import type { createAdminClient } from '@/lib/supabase/admin';
+import type { GranularPosition } from '@/types';
 import { getFplStatus } from '@/lib/fpl/api';
 import { getPlayerDisplayName } from '@/lib/players/displayName';
 import {
@@ -42,11 +43,12 @@ import {
 } from '@/lib/scoring/matchups';
 
 import { resolveClub } from '@/lib/clubs/registry';
+import { DRAW_THRESHOLD } from '@/lib/scoring/drawBand';
 
 type AdminClient = ReturnType<typeof createAdminClient>;
 
-/** The draw band. Mirrors DRAW_THRESHOLD and the league_standings view. */
-const DRAW_BAND = 10;
+/** The draw band. `league_standings` encodes the same number in SQL. */
+const DRAW_BAND = DRAW_THRESHOLD;
 
 // ── Public shapes ─────────────────────────────────────────────
 
@@ -461,7 +463,7 @@ export async function buildHomeModel(
       .select('id, type, faab_bid, compensation_amount, notes, processed_at, team:teams(id, team_name), player:players(id, web_name, name, primary_position)')
       .eq('league_id', leagueId)
       .order('processed_at', { ascending: false })
-      .limit(6),
+      .limit(20),
     admin
       .from('season_standings_archive')
       .select('season, team_id, final_rank')
@@ -826,7 +828,8 @@ export async function buildHomeModel(
      */
     for (const s of xi) {
       if (s.state !== 'flag') continue;
-      const eligible = POSITION_FLEX_MAP[s.slot] ?? [s.slot];
+      // SAFETY: lineup slots are always one of the 12 GranularPosition values, never an arbitrary string.
+      const eligible = POSITION_FLEX_MAP[s.slot as GranularPosition] ?? [s.slot];
       const covered = benchSummary.some((b) => b.positions.some((pos) => eligible.includes(pos)));
       if (!covered) coverGaps.push({ slot: s.slot, starter: s.name });
     }
@@ -1290,11 +1293,11 @@ export async function buildHomeModel(
     ...DEFAULT_PRIZE_CONFIG,
     ...((league.prize_config as PrizeConfig | null) ?? {}),
   };
-  const cupPrizes: Record<string, number> = {
+  const cupPrizes = {
     primary_cup: prizeConfig.champions_cup_winner,
     secondary_cup: prizeConfig.league_cup_winner,
     consolation_cup: prizeConfig.consolation_cup_winner,
-  };
+  } satisfies Record<string, number>;
   for (const t of tournaments) {
     const won = archiveCups.some(
       (c) => c.tournament_name === t.name && c.winner_id === myTeamId && c.season === season,
@@ -1303,7 +1306,8 @@ export async function buildHomeModel(
       competition: t.name,
       value: won ? 'Winners' : t.status === 'completed' ? 'Out' : 'In it',
       sub: won ? 'Champions' : t.status === 'completed' ? 'Knocked out' : 'Still alive',
-      prize: `${seasonOver ? 'Paid' : 'Pays'} ${money(cupPrizes[t.type] ?? 25)}`,
+      // SAFETY: t.type is always one of the three cup tournament types (see TournamentType in @/types).
+      prize: `${seasonOver ? 'Paid' : 'Pays'} ${money(cupPrizes[t.type as keyof typeof cupPrizes] ?? 25)}`,
       tone: won ? 'won' : t.status === 'completed' ? 'out' : 'plain',
     });
   }
@@ -1399,7 +1403,18 @@ export async function buildHomeModel(
       : `${money(balance)} to spend · the most in the league`;
 
   // ── the wire ────────────────────────────────────────────────
-  const wire: WireItem[] = transactions.slice(0, 5).map((tx) => ({
+  // A single auction/drop can fan out one solidarity_payment row per recipient club, all
+  // with identical notes/timing — collapse those into one Wire entry so the feed doesn't
+  // read as spam.
+  const seenSolidarityNotes = new Set<string>();
+  const dedupedTransactions = transactions.filter((tx) => {
+    if (tx.type !== 'solidarity_payment') return true;
+    if (seenSolidarityNotes.has(tx.notes)) return false;
+    seenSolidarityNotes.add(tx.notes);
+    return true;
+  });
+
+  const wire: WireItem[] = dedupedTransactions.slice(0, 5).map((tx) => ({
     id: tx.id,
     text: generateTransactionHeadline({
       type: tx.type,
@@ -1535,7 +1550,8 @@ export async function buildHomeModel(
           ? ` · ${cupWins
               .map((c) => {
                 const t = tournaments.find((x) => x.name === c.tournament_name);
-                return `${c.tournament_name} ${money(cupPrizes[t?.type ?? ''] ?? 0)}`;
+                // SAFETY: a missing/unmatched type falls through to the `?? 0` default below.
+                return `${c.tournament_name} ${money(cupPrizes[(t?.type ?? '') as keyof typeof cupPrizes] ?? 0)}`;
               })
               .join(' · ')}`
           : ''

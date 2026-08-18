@@ -28,7 +28,7 @@ function formatFixtureLine(f: GwFixture): string {
   return `${f.homeShort} ${f.homeScore ?? 0}–${f.awayScore ?? 0} ${f.awayShort}`;
 }
 
-function formatFixtureMeta(f: GwFixture): { text: string; live: boolean } {
+function formatFixtureMeta(f: GwFixture) {
   if (f.started && !f.finished) return { text: `${f.minutes}′`, live: true };
   if (f.finished) return { text: 'Full-time', live: false };
   if (f.kickoff) {

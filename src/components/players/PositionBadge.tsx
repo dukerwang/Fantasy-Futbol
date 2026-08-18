@@ -20,6 +20,12 @@ export default function PositionBadge({ position, size = 'md' }: Props) {
   return (
     <span
       className={[
+        // A stable, unhashed hook so `.g-namerow` in globals.css can give the
+        // badge its optical lift when it sits beside a player's name. It rides
+        // on the component rather than on each call site, because "remember to
+        // pass a class" is exactly the step that gets forgotten — and a badge
+        // that is conditionally rendered makes a :first-child selector wrong.
+        'g-poschip',
         styles.badge,
         styles[`size_${size}`],
         styles[`pos_${position}`],

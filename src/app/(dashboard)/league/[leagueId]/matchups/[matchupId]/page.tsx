@@ -10,9 +10,10 @@ import { generateMatchReport } from '@/lib/narrative/matchReport';
 import { getCurrentFplSeason } from '@/lib/season/currentSeason';
 import { clubHref } from '@/lib/teams/clubHref';
 import CrestBadge from '@/components/crest/CrestBadge';
-import type { CrestConfig } from '@/components/crest/types';
 import MatchReportCard from './MatchReportCard';
 import MatchupLiveRefresh from './MatchupLiveRefresh';
+import MarginAxis, { marginVerdict } from '@/components/matchups/MarginAxis';
+import { isDrawMargin } from '@/lib/scoring/drawBand';
 import styles from './matchup-detail.module.css';
 
 export const dynamic = 'force-dynamic';
@@ -118,7 +119,7 @@ export default async function MatchupDetailPage({ params }: Props) {
     const isLive      = matchup.status === 'live';
     const scoreA      = isCompleted ? matchup.score_a : computedScoreA;
     const scoreB      = isCompleted ? matchup.score_b : computedScoreB;
-    const isDraw      = isCompleted && Math.abs(scoreA - scoreB) <= 10;
+    const isDraw      = isCompleted && isDrawMargin(scoreA, scoreB);
     const aWins       = isCompleted && !isDraw && scoreA > scoreB;
     const bWins       = isCompleted && !isDraw && scoreB > scoreA;
     const teamAName   = matchup.team_a?.team_name ?? 'Team A';
@@ -126,48 +127,58 @@ export default async function MatchupDetailPage({ params }: Props) {
 
     const report = generateMatchReport(matchup, lineupA, lineupB, playerMap, detailMap);
 
+    const myTeamSide: 'a' | 'b' | null =
+        member?.id && matchup.team_a?.id === member.id ? 'a'
+        : member?.id && matchup.team_b?.id === member.id ? 'b'
+        : null;
+
+    const axisProps = { scoreA, scoreB, isCompleted, teamAName, teamBName, myTeamSide };
+
     return (
-        <div className={styles.container}>
+        <div className={`${styles.page} g-page`}>
             {isLive && <MatchupLiveRefresh matchupId={matchup.id} />}
 
             <NavigationLink href={`/league/${leagueId}/matchups?gw=${matchup.gameweek}`} className={styles.backLink}>
-                ← Gameweeks
+                ← Gameweek {matchup.gameweek}
             </NavigationLink>
 
-            {/* Score banner */}
-            <div className={styles.matchHeader}>
-                <h1 className={styles.matchTitle}>
-                    <ClubLink leagueId={leagueId} teamId={matchup.team_a?.id} myTeamId={member?.id} name={teamAName} crestConfig={matchup.team_a?.crest_config} />
-                    {' vs '}
-                    <ClubLink leagueId={leagueId} teamId={matchup.team_b?.id} myTeamId={member?.id} name={teamBName} crestConfig={matchup.team_b?.crest_config} />
-                </h1>
+            {/* The scoreline — the same instrument the round's list draws, at
+                panel scale. See design-2.0/README.md § "The surface". */}
+            <section className={`${styles.headPanel} g-panel`}>
+                <span className={`g-label ${styles.headLabel}`}>Gameweek {matchup.gameweek}</span>
 
-                <div className={styles.scoreRow}>
-                    <span className={`${styles.bannerScore} ${bWins ? styles.loser : ''}`}>
-                        {scoreA.toFixed(2)}
-                    </span>
-                    <span className={styles.scoreDash}>–</span>
-                    <span className={`${styles.bannerScore} ${aWins ? styles.loser : ''}`}>
-                        {scoreB.toFixed(2)}
-                    </span>
-
-                    {isCompleted && (
-                        <span className={`${styles.winBadge} ${isDraw ? styles.draw : ''}`}>
-                            {aWins ? `${teamAName} Win` : bWins ? `${teamBName} Win` : 'Draw'}
+                <div className="g-score">
+                    <div className={myTeamSide === 'a' ? 'g-score-mine' : undefined}>
+                        <div className={styles.scoreClub}>
+                            <ClubLink leagueId={leagueId} teamId={matchup.team_a?.id} myTeamId={member?.id} name={teamAName} crestConfig={matchup.team_a?.crest_config} />
+                        </div>
+                        <span className={`g-score-v ${bWins ? styles.scoreLoser : ''}`}>
+                            {scoreA.toFixed(2)}
                         </span>
-                    )}
-                    {isLive && (
-                        <span className={`${styles.winBadge} ${styles.live}`}>Live</span>
-                    )}
-                    {!isCompleted && !isLive && (
-                        <span className={`${styles.winBadge} ${styles.draw}`}>Scheduled</span>
-                    )}
-                </div>
+                    </div>
 
-                <div className={styles.gwMeta}>
-                    <span className={styles.gwLabel}>Game Week {matchup.gameweek}</span>
+                    <div className={`g-score-away ${myTeamSide === 'b' ? 'g-score-mine' : ''}`}>
+                        <div className={`${styles.scoreClub} ${styles.scoreClubAway}`}>
+                            <ClubLink leagueId={leagueId} teamId={matchup.team_b?.id} myTeamId={member?.id} name={teamBName} crestConfig={matchup.team_b?.crest_config} />
+                        </div>
+                        <span className={`g-score-v ${aWins ? styles.scoreLoser : ''}`}>
+                            {scoreB.toFixed(2)}
+                        </span>
+                    </div>
+
+                    <div className="g-score-axis">
+                        <MarginAxis {...axisProps} />
+                        <div className="g-axis-foot">
+                            <span className={styles.axisState}>
+                                {isLive
+                                    ? <span className="ds-live">Live</span>
+                                    : <span className="g-label-quiet">{isCompleted ? 'Final' : 'Scheduled'}</span>}
+                            </span>
+                            <span className="g-axis-verdict">{marginVerdict(axisProps)}</span>
+                        </div>
+                    </div>
                 </div>
-            </div>
+            </section>
 
             <MatchReportCard report={report} />
 
@@ -189,21 +200,26 @@ export default async function MatchupDetailPage({ params }: Props) {
 }
 
 /**
- * A club name in the score banner, linked to that club's squad.
+ * A club's crest and name inside a scoreline cell, linked to that club's squad.
  *
  * The lineup below shows the eleven that played this week; the link answers the
  * question that immediately follows it — what else is on that roster.
+ *
+ * It returns the crest and the name as SIBLINGS rather than wrapping them in a
+ * flex box of its own: the cell already lays them out, and the away cell
+ * reverses that layout. A wrapper here would have to reverse too, which is one
+ * more place to keep in sync for nothing.
  */
 function ClubLink({
     leagueId, teamId, myTeamId, name, crestConfig,
 }: { leagueId: string; teamId?: string; myTeamId?: string; name: string; crestConfig?: any }) {
-    if (!teamId) return <>{name}</>;
+    if (!teamId) return <span className={styles.clubLink}>{name}</span>;
     return (
-        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
-            <CrestBadge config={crestConfig} size={28} teamName={name} teamId={teamId} />
+        <>
+            <CrestBadge config={crestConfig} size={44} teamName={name} teamId={teamId} />
             <NavigationLink href={clubHref(leagueId, teamId, teamId === myTeamId)} className={styles.clubLink}>
                 {name}
             </NavigationLink>
-        </span>
+        </>
     );
 }

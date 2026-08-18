@@ -93,7 +93,9 @@
   border-radius: var(--radius-sm);
   flex-shrink: 0;
 }
-.close:hover { color: var(--color-text-primary); background: var(--color-bg-card-hover); }
+@media (hover: hover) and (pointer: fine) {
+  .close:hover { color: var(--color-text-primary); background: var(--color-bg-card-hover); }
+}
 
 /* ── Body ── */
 .body {
@@ -348,17 +350,21 @@
   transition: background var(--transition-fast), color var(--transition-fast),
     border-color var(--transition-fast);
 }
-.footBtn:hover { color: var(--color-text-primary); border-color: var(--color-border); }
+@media (hover: hover) and (pointer: fine) {
+  .footBtn:hover { color: var(--color-text-primary); border-color: var(--color-border); }
+}
 
 .footBtnPrimary {
   background: var(--color-accent);
   border-color: transparent;
   color: var(--color-text-inverse);
 }
-.footBtnPrimary:hover {
-  background: var(--color-accent-hover);
-  color: var(--color-text-inverse);
-  border-color: transparent;
+@media (hover: hover) and (pointer: fine) {
+  .footBtnPrimary:hover {
+    background: var(--color-accent-hover);
+    color: var(--color-text-inverse);
+    border-color: transparent;
+  }
 }
 
 /* Only one button when peeking at your own club — let it fill the row. */

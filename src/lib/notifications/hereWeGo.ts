@@ -25,11 +25,11 @@ export interface HereWeGoLine {
 }
 
 /** Deal-type label used to keep transaction type unambiguous in headlines/subjects. */
-export const DEAL_TYPE_LABEL: Record<DealType, string> = {
+export const DEAL_TYPE_LABEL = {
   signing: 'Signing',
   trade: 'Trade',
   loan: 'Loan',
-};
+} satisfies Record<DealType, string>;
 
 /** Eyebrow text is dealType-aware — a trade is a "Blockbuster Trade", not a "Blockbuster Signing". */
 function tierEyebrow(tier: ValueTier, dealType: DealType): string | null {

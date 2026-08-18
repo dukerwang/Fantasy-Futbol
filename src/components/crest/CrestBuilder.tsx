@@ -21,7 +21,7 @@ interface CrestBuilderProps {
 }
 
 function getRandomConfig(): CrestConfig {
-  const randomShape = SHIELDS[Math.floor(Math.random() * SHIELDS.length)].id;
+  const randomOutline = SHIELDS[Math.floor(Math.random() * SHIELDS.length)].id;
   const randomDivision = DIVISIONS[Math.floor(Math.random() * DIVISIONS.length)].id;
   
   // Pick primary, secondary, border colors from palette
@@ -58,7 +58,7 @@ function getRandomConfig(): CrestConfig {
   }
 
   return {
-    shape: randomShape,
+    shape: randomOutline,
     division: randomDivision,
     primaryColor: pCol,
     secondaryColor: sCol,
@@ -102,7 +102,7 @@ export default function CrestBuilder({
       {/* Left side: Controls */}
       <div className={styles.controlsCol}>
         <div className={styles.headerRow}>
-          <h2 className={styles.builderTitle}>Design your Crest</h2>
+          <h2 className={styles.builderTitle}>Design your crest</h2>
           <button 
             type="button" 
             onClick={handleRandomise} 
@@ -169,7 +169,7 @@ export default function CrestBuilder({
             {/* Primary */}
             <div>
               <div style={{ fontSize: '12px', fontWeight: 600, marginBottom: '6px', color: 'var(--color-text-secondary)' }}>
-                Primary (Base Shield)
+                Primary (base shield)
               </div>
               <div className={styles.colorGrid}>
                 {CREST_PALETTE.map((c) => (
@@ -189,7 +189,7 @@ export default function CrestBuilder({
             {config.division !== 'solid' && (
               <div>
                 <div style={{ fontSize: '12px', fontWeight: 600, marginBottom: '6px', color: 'var(--color-text-secondary)' }}>
-                  Secondary (Pattern Details)
+                  Secondary (pattern details)
                 </div>
                 <div className={styles.colorGrid}>
                   {CREST_PALETTE.map((c) => (
@@ -209,7 +209,7 @@ export default function CrestBuilder({
             {/* Border */}
             <div>
               <div style={{ fontSize: '12px', fontWeight: 600, marginBottom: '6px', color: 'var(--color-text-secondary)' }}>
-                Shield Border
+                Shield border
               </div>
               <div className={styles.colorGrid}>
                 {CREST_PALETTE.map((c) => (
@@ -229,7 +229,7 @@ export default function CrestBuilder({
             {selectedDivision?.usesTertiary && (
               <div>
                 <div style={{ fontSize: '12px', fontWeight: 600, marginBottom: '6px', color: 'var(--color-text-secondary)' }}>
-                  Tertiary (Third Band)
+                  Tertiary (third band)
                 </div>
                 <div className={styles.colorGrid}>
                   {CREST_PALETTE.map((c) => (
@@ -283,7 +283,7 @@ export default function CrestBuilder({
             {config.icon && (
               <div>
                 <div style={{ fontSize: '12px', fontWeight: 600, marginBottom: '6px', color: 'var(--color-text-secondary)' }}>
-                  Motif Color
+                  Motif color
                 </div>
                 <div className={styles.colorGrid}>
                   {CREST_PALETTE.map((c) => (
@@ -321,7 +321,7 @@ export default function CrestBuilder({
           {config.showText && (
             <div>
               <div style={{ fontSize: '12px', fontWeight: 600, marginBottom: '6px', color: 'var(--color-text-secondary)' }}>
-                Text Color
+                Text color
               </div>
               <div className={styles.colorGrid}>
                 {CREST_PALETTE.map((c) => (

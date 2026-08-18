@@ -43,7 +43,7 @@ export const Icon: React.FC<IconProps> = ({
   className,
   ...props 
 }) => {
-  const paths: Record<IconName, React.ReactNode> = {
+  const paths = {
     lock: (
       <>
         <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
@@ -180,7 +180,7 @@ export const Icon: React.FC<IconProps> = ({
       </g>
     ),
     plus: <path d="M12 5v14M5 12h14" />,
-  };
+  } satisfies Record<IconName, React.ReactNode>;
 
   return (
     <svg

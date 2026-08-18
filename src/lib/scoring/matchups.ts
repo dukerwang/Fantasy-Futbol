@@ -9,12 +9,12 @@ export type RefStatsMap = Record<string, ReferenceStats>;
  * Map of which positions can fill which slots.
  * Currently strict: each slot only accepts its own position type.
  */
-export const POSITION_FLEX_MAP: Record<string, string[]> = {
+export const POSITION_FLEX_MAP = {
   GK: ['GK'], CB: ['CB'], LB: ['LB'], RB: ['RB'],
   LWB: ['LWB'], RWB: ['RWB'],
   DM: ['DM'], CM: ['CM'],
   AM: ['AM'], LW: ['LW'], RW: ['RW'], ST: ['ST'],
-};
+} satisfies Record<string, string[]>;
 
 export interface PlayerScoreRecord {
   /**
@@ -194,7 +194,8 @@ export function calculateTeamScore(
       let covered = false;
 
       if (fixtureFinished) {
-        const slotAllowedPos = POSITION_FLEX_MAP[starter.slot] ?? [];
+        // SAFETY: lineup slots are always one of the 12 GranularPosition values, never an arbitrary string.
+        const slotAllowedPos = POSITION_FLEX_MAP[starter.slot as GranularPosition] ?? [];
 
         for (const benchId of benchIds) {
           if (usedBenchIds.has(benchId)) continue;

@@ -28,6 +28,7 @@ export default async function GlobalPublicStatsPage() {
         leagueId=""
         leagueName="Global Leaderboard"
         players={PRECOMPUTED_STATS_2025_26.players as StatPlayer[]}
+        season="2025-26"
         shadowMaps={PRECOMPUTED_STATS_2025_26.shadowMaps}
       />
     );
@@ -48,6 +49,7 @@ export default async function GlobalPublicStatsPage() {
       leagueId=""
       leagueName="Global Leaderboard"
       players={statPlayers}
+      season={season}
       shadowMaps={shadowMaps}
     />
   );

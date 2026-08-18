@@ -224,7 +224,7 @@ export default function ListPlayerModal({
                   border: '1px solid var(--color-border)',
                   background: 'var(--color-bg-card)',
                   color: 'var(--color-text-primary)',
-                  fontSize: '14px',
+                  fontSize: '16px',
                 }}
               />
               <span style={{ fontSize: '11px', color: 'var(--color-text-muted)' }}>
@@ -249,7 +249,7 @@ export default function ListPlayerModal({
                   border: '1px solid var(--color-border)',
                   background: 'var(--color-bg-card)',
                   color: 'var(--color-text-primary)',
-                  fontSize: '14px',
+                  fontSize: '16px',
                 }}
               />
               <span style={{ fontSize: '11px', color: 'var(--color-text-muted)' }}>

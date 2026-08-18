@@ -4,7 +4,7 @@ import NavigationLink from '@/components/ui/NavigationLink';
 import type { DepartureView, ClubProps } from './ClubClient';
 import type { DecisionRequest } from '@/components/teams/DepartureDecisionModal';
 import { PosBadge } from './SquadViews';
-import { posColor, money, countdown } from './clubDerive';
+import { money, countdown } from './clubDerive';
 import { getPlayerDisplayName, playerInitial } from '@/lib/players/displayName';
 import styles from './club.module.css';
 
@@ -26,10 +26,10 @@ export default function RetainedList({
   if (!viewerIsOwner && held.length === 0) return null;
 
   return (
-    <section className={`${styles.panel} ${styles.retained}`}>
+    <section className={`${styles.panel} ${styles.retained} g-panel`}>
       <div className={styles.panelHead}>
         <h2 className={styles.panelTitle}>Retained List</h2>
-        <span className={styles.eyebrow}>{slots.used} / {slots.total} slots</span>
+        <span className="g-label">{slots.used} / {slots.total} slots</span>
       </div>
 
       {error && viewerIsOwner && (
@@ -75,10 +75,19 @@ export default function RetainedList({
   );
 }
 
+/**
+ * A retained player has left the Premier League, so there is no cut-out to
+ * show — this is the portrait's "absence shown, never faked" state by hand,
+ * because <Portrait> is keyed on a photo code these rows do not have.
+ *
+ * It used to paint a position hue at 16% as the ground AND the same hue as the
+ * initial on top of it: a tinted ground carrying its own tint's ink, which is
+ * both the thing decision 4 forbids and, in dark, below AA. The position is
+ * already on the badge in the row beneath.
+ */
 function Mono({ d }: { d: DepartureView }) {
-  const c = posColor(d.pos);
   return (
-    <div className={`${styles.mono} ${styles.monoSm}`} style={{ background: `color-mix(in srgb, ${c} 16%, transparent)`, color: c }}>
+    <div className={`${styles.mono} ${styles.monoSm}`}>
       {playerInitial({ name: d.name, web_name: d.webName })}
     </div>
   );
@@ -91,7 +100,7 @@ function PendingRow({ d, onDecision }: { d: DepartureView; onDecision: (r: Decis
       <Mono d={d} />
       <div className={styles.retBody}>
         <div className={styles.retName}>{getPlayerDisplayName({ name: d.name, web_name: d.webName }, 'initial_last')}</div>
-        <div className={styles.retMeta}>
+        <div className={`${styles.retMeta} g-namerow`}>
           <PosBadge pos={d.pos} />
           <span>ex-{d.lastClub} · left {fmtSeason(d.seasonFrom)}</span>
         </div>
@@ -122,7 +131,7 @@ function HeldRow({
       <Mono d={d} />
       <div className={styles.retBody}>
         <div className={styles.retName}>{getPlayerDisplayName({ name: d.name, web_name: d.webName }, 'initial_last')}</div>
-        <div className={styles.retMeta}>
+        <div className={`${styles.retMeta} g-namerow`}>
           <PosBadge pos={d.pos} />
           <span>{returning ? `Back with ${d.backClub ?? 'a PL club'}` : `ex-${d.lastClub} · left ${fmtSeason(d.seasonFrom)}`}</span>
         </div>

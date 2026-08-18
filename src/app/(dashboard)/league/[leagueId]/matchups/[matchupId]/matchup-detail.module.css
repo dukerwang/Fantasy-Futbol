@@ -1,288 +1,176 @@
-/* ============================================================
-   Matchup Detail — Cream Editorial Design System
-   ============================================================ */
+/* The matchup — Gaffa 2.0, port 5.
 
-.container {
+   The other half of the round. See design-2.0/README.md § "What the round
+   established". This file went in with ZERO scale tokens of either generation
+   — 18 rem font-sizes, no --text-*, no --space-* — which is the hub port's
+   "written between systems" shape again: neither scale was obviously the one
+   to reach for, so it reached for literals.
+
+   TWO THINGS IT DECIDES.
+
+   1. THE SCORELINE IS THE SAME INSTRUMENT AS THE LIST'S. Both routes in this
+      port show one fixture's two figures, so both get `.g-score` and the same
+      margin axis — engraved draw band, tick at level, ink from the centre. The
+      old banner ran the two clubs through an <h1> as "A vs B" with the scores
+      on a separate line below, which put the identity and its figure in
+      different places and made the win/draw state a fourth thing floating
+      beside them. One instrument, read once.
+
+   2. THE MATCH REPORT KEEPS ITS WRITING AND LOSES ITS NEWSPRINT. It was a
+      clipping: "THE FOOTBALL GAZETTE" in tracked serif, a 2px double rule, an
+      italic byline and a 2.25rem drop cap on the lead. Every one of those is a
+      device, which is four introducing one paragraph, and 2.0 gives the
+      italic/tracked serif exactly one job — the section or card heading. The
+      generated report is unchanged word for word; it now reads as a headline
+      and a lead in a panel, with the byline as the dateline `.g-label-quiet`
+      is for. The report is good enough not to need a costume. */
+
+.page {
     display: flex;
     flex-direction: column;
-    gap: 2rem;
-    padding: 2rem 2.5rem;
+    width: 100%;
+    min-height: 100%;
+    gap: var(--s5);
+    padding-bottom: var(--s10);
 }
+
+/* ── Back ───────────────────────────────────────────────── */
 
 .backLink {
     display: inline-flex;
     align-items: center;
-    gap: 0.375rem;
+    gap: var(--s1);
     font-family: var(--font-sans);
-    font-size: 0.8125rem;
-    color: var(--color-accent-green);
+    font-size: var(--t-13);
+    font-weight: var(--font-medium);
+    /* accent-ink, not accent: the fill token as text measures 4.33 in dark.
+       design-2.0/README.md § "What the first route port established", rule 5. */
+    color: var(--color-accent-ink);
     text-decoration: none;
-    transition: opacity var(--transition-fast);
+    transition: color var(--dur-fast) var(--ease-standard);
     width: fit-content;
+    margin: var(--s6) var(--s6) 0;
 }
 
-.backLink:hover {
-    opacity: 0.75;
+@media (hover: hover) and (pointer: fine) {
+  .backLink:hover { text-decoration: underline; text-underline-offset: 3px; }
 }
 
-/* ── Match Header (prototype 1 style) ── */
-.matchHeader {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    padding-bottom: 1.5rem;
-    border-bottom: 1px solid var(--color-border-subtle);
+/* ── The scoreline ──────────────────────────────────────── */
+
+.headPanel { margin: 0 var(--s6); }
+
+.headLabel {
+    display: block;
+    padding: var(--s4) var(--s4) 0;
+    letter-spacing: 0.16em;
 }
 
-.matchTitle {
-    font-family: var(--font-serif);
-    font-size: 1.75rem;
-    font-weight: 700;
-    color: var(--color-accent-green);
-    line-height: 1.2;
-}
-
-/* Club names in the banner lead to their squads. Underline only on hover, so
-   the headline still reads as a headline. */
-.clubLink {
-    color: inherit;
-    text-decoration: none;
-}
-.clubLink:hover {
-    text-decoration: underline;
-    text-underline-offset: 4px;
-}
-
-.scoreRow {
+/* Inside each `.g-score` cell: the club identity above its figure. */
+.scoreClub {
     display: flex;
     align-items: center;
-    gap: 1rem;
-    flex-wrap: wrap;
+    gap: var(--s2);
+    min-width: 0;
+    margin-bottom: var(--s2);
 }
 
-.bannerScore {
+.scoreClubAway { flex-direction: row-reverse; }
+
+/* Club names lead to their squads — the lineup below shows the eleven that
+   played, and the link answers the question that immediately follows. Underline
+   on hover only, so the name still reads as a name. */
+.clubLink {
     font-family: var(--font-serif);
-    font-size: 3rem;
+    font-size: var(--t-20);
     font-weight: 700;
+    letter-spacing: -0.02em;
     color: var(--color-text-primary);
-    line-height: 1;
+    text-decoration: none;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
 }
 
-.bannerScore.loser {
+@media (hover: hover) and (pointer: fine) {
+  .clubLink:hover {
+      text-decoration: underline;
+      text-underline-offset: 4px;
+  }
+}
+
+/* Ink in every state. The losing side steps back in weight and tone; it never
+   changes hue, because a red score reads as danger rather than as beaten. */
+.scoreLoser {
     color: var(--color-text-muted);
     font-weight: 400;
 }
 
-.scoreDash {
-    font-family: var(--font-serif);
-    font-size: 2rem;
-    color: var(--color-border);
-    line-height: 1;
-    flex-shrink: 0;
+.axisState { flex-shrink: 0; }
+
+/* ── The match report ───────────────────────────────────── */
+
+.report {
+    margin: 0 var(--s6);
+    padding: var(--s5) var(--s6) var(--s5);
 }
 
-.winBadge {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    font-family: var(--font-serif);
-    font-style: italic;
-    font-weight: 700;
-    font-size: 0.95rem;
-    color: var(--color-accent-green);
-    white-space: nowrap;
-    align-self: center;
-}
-
-.winBadge.draw {
-    color: var(--color-text-muted);
-    font-weight: 500;
-}
-
-.winBadge.live {
-    color: var(--color-warning);
-}
-
-.winBadge.live::before {
-    content: "";
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: currentColor;
-    flex-shrink: 0;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-    .winBadge.live::before { animation: ds-pulse 1.8s ease-in-out infinite; }
-}
-
-.gwMeta {
-    position: absolute;
-    top: 0;
-    right: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 0.125rem;
-}
-
-.gwLabel {
-    font-family: var(--font-sans);
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: var(--color-text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-}
-
-/* ── Side-by-side pitch grid ── */
-.pitchGrid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1.5rem;
-    align-items: start;
-}
-
-@media (max-width: 900px) {
-    .pitchGrid {
-        grid-template-columns: 1fr;
-    }
-}
-
-.pitchPanel {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-}
-
-.benchTotal {
-    font-family: var(--font-sans);
-    font-size: 0.8125rem;
-    color: var(--color-text-secondary);
-    text-align: right;
-    padding: 0.375rem 0;
-}
-
-.benchTotal strong {
-    color: var(--color-text-primary);
-    font-weight: 700;
-}
-
-.noLineup {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    min-height: 200px;
-    padding: 2rem;
-    text-align: center;
-    background: var(--color-bg-card);
-    border: 1px dashed var(--color-border);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-card);
-    color: var(--color-text-secondary);
-    font-size: 0.9375rem;
-    font-family: var(--font-sans);
-}
-
-/* ── Responsive ── */
-@media (max-width: 600px) {
-    .container {
-        padding: 1rem 1.25rem;
-        gap: 1.25rem;
-    }
-
-    .matchTitle {
-        font-size: 1.25rem;
-    }
-
-    .bannerScore {
-        font-size: 2.25rem;
-    }
-
-    .gwMeta {
-        position: static;
-        align-items: flex-start;
-        margin-top: 0.25rem;
-    }
-}
-
-/* ── Press Desk Match Report Newspaper Clipping ── */
-.reportContainer {
-    background: var(--color-bg-card);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-lg);
-    padding: 1.5rem 1.75rem;
-    position: relative;
-    font-family: var(--font-sans);
-    margin-bottom: 0.5rem;
-    box-shadow: var(--shadow-card);
-}
-
-.reportHeader {
+.reportHead {
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    border-bottom: 2px double var(--color-border);
-    padding-bottom: 0.375rem;
-    margin-bottom: 0.75rem;
+    align-items: baseline;
+    gap: var(--s4);
+    flex-wrap: wrap;
+    margin-bottom: var(--s3);
 }
 
-.reportKicker {
-    font-family: var(--font-serif);
-    font-size: 0.75rem;
-    font-weight: 700;
-    letter-spacing: 0.12em;
-    color: var(--color-accent);
-}
-
-.reportByline {
-    font-family: var(--font-serif);
-    font-size: 0.6875rem;
-    font-style: italic;
-    color: var(--color-text-muted);
-}
+/* The panel's one rationed tracked label. */
+.reportKicker { letter-spacing: 0.16em; }
 
 .reportHeadline {
     font-family: var(--font-serif);
-    font-size: 1.5rem;
+    font-size: var(--t-25);
     font-weight: 700;
     line-height: 1.15;
+    letter-spacing: -0.02em;
     color: var(--color-text-primary);
-    margin: 0 0 0.5rem;
-    letter-spacing: -0.01em;
+    margin: 0 0 var(--s2);
+    max-width: 42ch;
 }
 
 .reportLead {
     font-family: var(--font-serif);
-    font-size: 0.9375rem;
-    line-height: 1.5;
+    font-size: var(--t-15);
+    line-height: 1.55;
     color: var(--color-text-secondary);
     margin: 0;
+    max-width: 68ch;
 }
 
-/* Large first-letter styling */
-.reportLead::first-letter {
-    font-size: 2.25rem;
+/* The clickable-player variant of the same emphasis — see the note on
+   `.lead` in matchups.module.css. */
+.reportHeadline :global(.playercard-clickable-btn),
+.reportLead strong,
+.reportLead :global(.playercard-clickable-btn),
+.reportDetail strong,
+.reportDetail :global(.playercard-clickable-btn) {
+    color: var(--color-text-primary);
     font-weight: 700;
-    float: left;
-    line-height: 0.85;
-    padding-right: 6px;
-    padding-top: 2px;
-    color: var(--color-accent);
-    font-family: var(--font-serif);
 }
 
-.reportExpandedContent {
-    margin-top: 1rem;
-    padding-top: 1rem;
-    border-top: 1px dashed var(--color-border);
-    animation: fadeIn 0.25s ease-out;
+.reportExpanded {
+    margin-top: var(--s4);
+    padding-top: var(--s4);
+    border-top: 1px solid var(--color-border-subtle);
+    animation: reportIn var(--dur-base) var(--ease-standard);
 }
 
-@keyframes fadeIn {
+@media (prefers-reduced-motion: reduce) {
+    .reportExpanded { animation: none; }
+}
+
+@keyframes reportIn {
     from { opacity: 0; transform: translateY(-4px); }
     to { opacity: 1; transform: translateY(0); }
 }
@@ -290,62 +178,74 @@
 .reportGrid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 1.5rem;
-}
-
-@media (max-width: 600px) {
-    .reportGrid {
-        grid-template-columns: 1fr;
-        gap: 1rem;
-    }
+    gap: var(--s6);
 }
 
 .reportCol {
     display: flex;
     flex-direction: column;
-    gap: 0.25rem;
+    gap: var(--s1);
 }
 
-.reportSectionHeader {
-    font-family: var(--font-sans);
-    font-size: 0.6875rem;
-    font-weight: 800;
-    letter-spacing: 0.08em;
-    color: var(--color-text-muted);
-    text-transform: uppercase;
+/* A heading, not a second tracked label — decision 5 rations that device to
+   one per panel and the kicker has it. Same call the depth chart's zone heads
+   and this port's fixture heading make. */
+.reportColHead {
+    display: flex;
+    align-items: center;
+    gap: var(--s1);
+    font-family: var(--font-serif);
+    font-size: var(--t-15);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: var(--color-text-primary);
     margin: 0;
 }
 
-.reportDetailText {
+/* The two icons are the only place on this panel that carries a hue, and each
+   is the sole carrier of its own meaning — so both take a legible text token
+   rather than a fill token. */
+.reportIconStar { color: var(--color-accent-ink); flex-shrink: 0; }
+.reportIconAlert { color: var(--color-danger); flex-shrink: 0; }
+
+.reportDetail {
     font-family: var(--font-sans);
-    font-size: 0.8125rem;
-    line-height: 1.45;
+    font-size: var(--t-13);
+    line-height: 1.5;
     color: var(--color-text-secondary);
     margin: 0;
 }
 
-.reportDetailText strong {
-    color: var(--color-text-primary);
-}
-
-.reportToggleButton {
+.reportToggle {
     background: none;
     border: none;
     padding: 0;
-    margin: 0.75rem 0 0;
+    margin: var(--s3) 0 0;
     font-family: var(--font-sans);
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: var(--color-accent);
+    font-size: var(--t-12);
+    font-weight: var(--font-semibold);
+    color: var(--color-accent-ink);
     cursor: pointer;
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    gap: 0.25rem;
-    transition: color 0.15s;
+    gap: var(--s1);
+    transition: color var(--dur-fast) var(--ease-standard);
 }
 
-.reportToggleButton:hover {
-    color: var(--color-accent-hover);
-    text-decoration: underline;
+@media (hover: hover) and (pointer: fine) {
+  .reportToggle:hover { text-decoration: underline; text-underline-offset: 3px; }
 }
 
+/* ── Responsive ─────────────────────────────────────────── */
+
+@media (max-width: 700px) {
+    .reportGrid { grid-template-columns: 1fr; gap: var(--s4); }
+}
+
+@media (max-width: 600px) {
+    .backLink { margin: var(--s4) var(--s4) 0; }
+    .headPanel, .report { margin: 0 var(--s4); }
+    .report { padding: var(--s4); }
+    .clubLink { font-size: var(--t-15); }
+    .reportHeadline { font-size: var(--t-20); }
+}

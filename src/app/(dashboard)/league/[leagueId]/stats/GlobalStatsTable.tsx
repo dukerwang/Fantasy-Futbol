@@ -8,6 +8,7 @@ import PlayerDetailsModal from '@/components/players/PlayerDetailsModal';
 import PosBadge from '@/components/players/PositionBadge';
 import FormArrow from '@/components/players/FormArrow';
 import { getPlayerDisplayName } from '@/lib/players/displayName';
+import { SPINE, POS_COLOR } from '@/lib/positions/spine';
 import { Icon } from '@/components/ui/Icon';
 import styles from './stats.module.css';
 
@@ -22,6 +23,8 @@ interface Props {
   leagueId: string;
   leagueName: string;
   players: StatPlayer[];
+  /** "YYYY-YY". Optional so a caller that doesn't resolve one still renders. */
+  season?: string;
   shadowMaps: {
     // Optional: archived/precomputed snapshots predate this bucket and fall back to `all`.
     played?: Record<string, Record<string, PositionStats>>;
@@ -49,10 +52,10 @@ const WIDE_DEF_POSITIONS: GranularPosition[] = ['LB', 'RB', 'LWB', 'RWB'];
 const WING_POSITIONS: GranularPosition[] = ['LW', 'RW'];
 
 const POS_FILTER_OPTIONS: { label: string; value: PosFilter }[] = [
-  { label: 'All Positions', value: 'ALL' },
+  { label: 'All positions', value: 'ALL' },
   { label: 'GK', value: 'GK' },
   { label: 'DEF (CB/LB/RB/LWB/RWB)', value: 'DEF' },
-  { label: 'Wide Defenders (LB/RB/LWB/RWB)', value: 'WIDE_DEF' },
+  { label: 'Wide defenders (LB/RB/LWB/RWB)', value: 'WIDE_DEF' },
   { label: 'MID (DM/CM/AM)', value: 'MID' },
   { label: 'ATT (LW/RW/ST)', value: 'ATT' },
   { label: 'Wingers (LW/RW)', value: 'WING' },
@@ -98,7 +101,7 @@ function resolveActivePosition(
   return null;
 }
 
-export default function GlobalStatsTable({ leagueId, leagueName, players, shadowMaps }: Props) {
+export default function GlobalStatsTable({ leagueId, leagueName, players, season, shadowMaps }: Props) {
   const [search, setSearch] = useState('');
   const [posFilter, setPosFilter] = useState<PosFilter>('ALL');
   const [minMins, setMinMins] = useState<'played' | 'all' | 'gt45'>('all');
@@ -183,57 +186,91 @@ export default function GlobalStatsTable({ leagueId, leagueName, players, shadow
     });
   }, [filtered, shadowByPlayer, sortKey, sortDir]);
 
-  function sortIndicator(key: SortKey) {
-    if (sortKey !== key) {
-      return (
-        <span className={styles.sortNeutral}>
-          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="m7 15 5 5 5-5" />
-            <path d="m7 9 5-5 5 5" />
-          </svg>
-        </span>
-      );
-    }
+  /**
+   * A sortable column head. It is a real <button> inside the <th>, not a click
+   * handler on the <th> — six of this table's eight columns are sortable and
+   * none of them could be reached from the keyboard before.
+   */
+  function SortHead({ label, sortBy, title }: { label: string; sortBy: SortKey; title?: string }) {
+    const active = sortKey === sortBy;
     return (
-      <span className={styles.sortActive}>
-        {sortDir === 'desc' ? (
-          <Icon name="arrow-down" size={12} strokeWidth={2.5} />
-        ) : (
-          <Icon name="arrow-up" size={12} strokeWidth={2.5} />
-        )}
-      </span>
+      <button
+        type="button"
+        className={styles.sortable}
+        onClick={() => handleSort(sortBy)}
+        title={title}
+      >
+        {label}
+        <span className={`${styles.sortIcon} ${active ? styles.sortIconOn : ''}`} aria-hidden>
+          {active ? (
+            <Icon name={sortDir === 'desc' ? 'arrow-down' : 'arrow-up'} size={11} strokeWidth={2.5} />
+          ) : (
+            <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="m7 15 5 5 5-5" />
+              <path d="m7 9 5-5 5 5" />
+            </svg>
+          )}
+        </span>
+      </button>
     );
   }
 
+  function ariaSort(key: SortKey): 'ascending' | 'descending' | 'none' {
+    if (sortKey !== key) return 'none';
+    return sortDir === 'desc' ? 'descending' : 'ascending';
+  }
+
   return (
-    <div className={styles.page}>
-      {/* Header */}
+    <div className={`${styles.page} g-page`}>
+      {/* The spectrum. Rationed to a panel representing a whole squad or the
+          whole pool — this page is the pool, which is the phrase it was
+          reserved for. Third use in the app, after the pitch board and the
+          depth chart. */}
+      <div className={`g-spectrum ${styles.spectrum}`} aria-hidden>
+        {SPINE.map((p) => <i key={p} style={{ background: POS_COLOR[p] }} />)}
+      </div>
+
       <header className={styles.header}>
         <div>
-          {leagueId && (
-            <p className={styles.breadcrumb}>
-              <NavigationLink href={`/league/${leagueId}`}>{leagueName}</NavigationLink> / Stats
-            </p>
-          )}
-          <h1 className={styles.title}>Player Stats</h1>
-          <p className={styles.subtitle}>
-            {players.length} players · season totals · click a row to scout
-          </p>
+          <div className={`g-label ${styles.kicker}`}>
+            {leagueId ? (
+              <>
+                <NavigationLink href={`/league/${leagueId}`}>{leagueName}</NavigationLink> → The Pool
+              </>
+            ) : (
+              <>{leagueName} → The Pool</>
+            )}
+          </div>
+          <h1 className={styles.title}>
+            Player Stats{season ? ` ${season.replace('-', '/')}` : ''}
+          </h1>
+        </div>
+
+        <div className={styles.stats}>
+          <div className={styles.stat}>
+            <div className={`${styles.statValue} ${styles.statAccent}`}>{sorted.length}</div>
+            <div className={`g-label-quiet ${styles.statLabel}`}>Shown</div>
+          </div>
+          <div className={styles.stat}>
+            <div className={styles.statValue}>{players.length}</div>
+            <div className={`g-label-quiet ${styles.statLabel}`}>In the pool</div>
+          </div>
         </div>
       </header>
 
-      {/* Controls */}
-      <div className={styles.controls}>
+      <div className={styles.tools}>
         <input
-          className={styles.searchInput}
+          className={styles.input}
           placeholder="Search player…"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
+          aria-label="Search player"
         />
         <select
-          className={styles.posSelect}
+          className={styles.select}
           value={posFilter}
           onChange={(e) => setPosFilter(e.target.value as PosFilter)}
+          aria-label="Position"
         >
           {POS_FILTER_OPTIONS.map((opt) => (
             <option key={opt.value} value={opt.value}>
@@ -242,19 +279,20 @@ export default function GlobalStatsTable({ leagueId, leagueName, players, shadow
           ))}
         </select>
         <select
-          className={styles.posSelect}
+          className={styles.select}
           value={minMins}
           onChange={(e) => setMinMins(e.target.value as 'played' | 'all' | 'gt45')}
+          aria-label="Minutes filter"
         >
           <option value="played">Played (&gt;0 mins)</option>
           <option value="all">Meaningful (&ge;15 mins)</option>
           <option value="gt45">Starters (&gt;45 mins)</option>
         </select>
 
-        {/* Dynamic Games Played Slider */}
-        <div className={styles.sliderContainer}>
-          <span className={styles.sliderLabel}>Min Games: <strong>{minGames}</strong></span>
+        <div className={styles.slider}>
+          <label className={styles.sliderLabel} htmlFor="minGames">Min games</label>
           <input
+            id="minGames"
             type="range"
             min="0"
             max="38"
@@ -262,60 +300,47 @@ export default function GlobalStatsTable({ leagueId, leagueName, players, shadow
             onChange={(e) => setMinGames(parseInt(e.target.value))}
             className={styles.sliderInput}
           />
+          <span className={styles.sliderValue}>{minGames}</span>
         </div>
 
-        {/* Position Type Segmented Control */}
-        <div className={styles.segmentedToggle}>
-          <button
-            type="button"
-            className={`${styles.toggleButton} ${posType === 'primary' ? styles.activeToggle : ''}`}
-            onClick={() => setPosType('primary')}
-          >
-            Primary
-          </button>
-          <button
-            type="button"
-            className={`${styles.toggleButton} ${posType === 'secondary' ? styles.activeToggle : ''}`}
-            onClick={() => setPosType('secondary')}
-          >
-            Secondary
-          </button>
-          <button
-            type="button"
-            className={`${styles.toggleButton} ${posType === 'both' ? styles.activeToggle : ''}`}
-            onClick={() => setPosType('both')}
-          >
-            Both
-          </button>
+        <div className={styles.segmented} role="group" aria-label="Which positions count">
+          {(['primary', 'secondary', 'both'] as const).map((t) => (
+            <button
+              key={t}
+              type="button"
+              className={`${styles.segment} ${posType === t ? styles.segmentOn : ''}`}
+              aria-pressed={posType === t}
+              onClick={() => setPosType(t)}
+            >
+              {t}
+            </button>
+          ))}
         </div>
-
-        <span className={styles.resultCount}>{sorted.length} players</span>
       </div>
 
-      {/* Table */}
-      <div className={styles.tableWrapper}>
+      <div className={styles.tableWrap}>
         <table className={styles.table}>
           <thead>
             <tr>
               <th className={styles.thPlayer}>Player</th>
-              <th className={styles.th}>Owner</th>
-              <th className={`${styles.th} ${styles.thNum} ${styles.sortable}`} onClick={() => handleSort('total_minutes')}>
-                GP {sortIndicator('total_minutes')}
+              <th className={styles.thOwner}>Owner</th>
+              <th className={`${styles.thNum} ${styles.num}`} aria-sort={ariaSort('total_minutes')}>
+                <SortHead label="GP" sortBy="total_minutes" title="Games played — sorted by minutes" />
               </th>
-              <th className={`${styles.th} ${styles.thNum} ${styles.sortable}`} onClick={() => handleSort('total_points')}>
-                Pts {sortIndicator('total_points')}
+              <th className={`${styles.thNum} ${styles.num}`} aria-sort={ariaSort('total_points')}>
+                <SortHead label="Pts" sortBy="total_points" />
               </th>
-              <th className={`${styles.th} ${styles.thNum} ${styles.sortable}`} onClick={() => handleSort('ppg')}>
-                PPG {sortIndicator('ppg')}
+              <th className={`${styles.thNum} ${styles.num}`} aria-sort={ariaSort('ppg')}>
+                <SortHead label="PPG" sortBy="ppg" />
               </th>
-              <th className={`${styles.th} ${styles.thNum} ${styles.sortable}`} onClick={() => handleSort('avg_rating')}>
-                Avg Rating {sortIndicator('avg_rating')}
+              <th className={`${styles.thNum} ${styles.num}`} aria-sort={ariaSort('avg_rating')}>
+                <SortHead label="Rating" sortBy="avg_rating" />
               </th>
-              <th className={`${styles.th} ${styles.thNum} ${styles.sortable}`} onClick={() => handleSort('form')}>
-                Form {sortIndicator('form')}
+              <th className={`${styles.thNum} ${styles.num}`} aria-sort={ariaSort('form')}>
+                <SortHead label="Form" sortBy="form" />
               </th>
-              <th className={`${styles.th} ${styles.thNum} ${styles.sortable}`} onClick={() => handleSort('market_value')}>
-                Value {sortIndicator('market_value')}
+              <th className={`${styles.thNum} ${styles.num}`} aria-sort={ariaSort('market_value')}>
+                <SortHead label="Value" sortBy="market_value" />
               </th>
             </tr>
           </thead>
@@ -325,59 +350,63 @@ export default function GlobalStatsTable({ leagueId, leagueName, players, shadow
               const gp = s ? s.gp : 0;
               const totalPoints = s ? s.total_points : 0;
               // PPG must equal Pts/GP under the active minutes filter.
-              const ppg = s && s.gp > 0 ? (s.total_points / s.gp).toFixed(2) : 'n/a';
-              const avgRating = s && s.gp > 0 ? s.avg_rating.toFixed(2) : 'n/a';
+              const ppg = s && s.gp > 0 ? (s.total_points / s.gp).toFixed(2) : null;
+              const avgRating = s && s.gp > 0 ? s.avg_rating.toFixed(2) : null;
               const isOwned = player.owner_team_name !== null;
 
               return (
                 <tr
                   key={player.id}
-                  className={styles.row}
+                  className={`g-row ${styles.row}`}
+                  style={{ ['--pf' as string]: POS_COLOR[activePos] }}
                   onClick={() => setViewingPlayer(player)}
                   title="Click to scout player"
                 >
                   <td className={styles.tdPlayer}>
-                    <div className={styles.badgeWrapper}>
+                    <div className={`g-namerow ${styles.playerCell}`}>
                       <PosBadge position={player.primary_position as GranularPosition} />
                       {player.primary_position !== activePos && (
                         <>
-                          <span className={styles.secArrow} title={`Primary position: ${player.primary_position} — evaluated as ${activePos}`}>→</span>
+                          <span
+                            className={styles.asArrow}
+                            title={`Primary position: ${player.primary_position} — evaluated as ${activePos}`}
+                          >
+                            →
+                          </span>
                           <PosBadge position={activePos} />
                         </>
                       )}
-                    </div>
-                    <div className={styles.playerInfo}>
                       <span className={styles.playerName}>
                         {getPlayerDisplayName(player, 'full')}
                       </span>
-                      <span className={styles.playerClub}>{player.pl_team}</span>
                     </div>
+                    <div className={`g-label-quiet ${styles.playerClub}`}>{player.pl_team}</div>
                   </td>
-                  <td className={styles.td}>
+                  <td>
                     {isOwned ? (
-                      <span className={styles.ownerTag}>{player.owner_team_name}</span>
+                      <div className={styles.owner}>{player.owner_team_name}</div>
                     ) : (
-                      <span className={styles.freeAgentTag}>Free Agent</span>
+                      <div className={`${styles.owner} ${styles.free}`}>Free agent</div>
                     )}
                   </td>
-                  <td className={`${styles.td} ${styles.tdNum}`}>{s ? gp : 'n/a'}</td>
-                  <td className={`${styles.td} ${styles.tdNum}`}>
-                    {s ? totalPoints.toFixed(2) : 'n/a'}
+                  <td className={`${styles.num} ${s ? '' : styles.na}`}>{s ? gp : '—'}</td>
+                  <td className={`${styles.num} ${s ? '' : styles.na}`}>
+                    {s ? totalPoints.toFixed(1) : '—'}
                   </td>
-                  <td className={`${styles.td} ${styles.tdNum}`}>{ppg}</td>
-                  <td className={`${styles.td} ${styles.tdNum}`}>{avgRating}</td>
-                  <td className={`${styles.td} ${styles.tdNum}`}>
+                  <td className={`${styles.num} ${ppg ? '' : styles.na}`}>{ppg ?? '—'}</td>
+                  <td className={`${styles.num} ${avgRating ? '' : styles.na}`}>{avgRating ?? '—'}</td>
+                  <td className={styles.num}>
                     <FormArrow rating={player.form_rating} size={14} />
                   </td>
-                  <td className={`${styles.td} ${styles.tdNum}`}>
-                    {player.market_value != null ? `€${Number(player.market_value).toFixed(1)}m` : 'n/a'}
+                  <td className={`${styles.num} ${player.market_value != null ? '' : styles.na}`}>
+                    {player.market_value != null ? `€${Number(player.market_value).toFixed(1)}m` : '—'}
                   </td>
                 </tr>
               );
             })}
             {sorted.length === 0 && (
               <tr>
-                <td colSpan={8} className={styles.emptyRow}>
+                <td colSpan={8} className={styles.empty}>
                   No players match your filters.
                 </td>
               </tr>

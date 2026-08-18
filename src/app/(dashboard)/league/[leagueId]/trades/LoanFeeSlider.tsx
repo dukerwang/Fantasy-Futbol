@@ -20,13 +20,13 @@ const MV_TO_ANCHOR = 0.008;
 
 type ZoneLabel = 'Free' | 'Low' | 'Fair' | 'Premium' | 'Steep';
 
-const ZONE_COLORS: Record<ZoneLabel, string> = {
+const ZONE_COLORS = {
   Free:    '#9ca3af',
   Low:     '#22c55e',
   Fair:    '#3b82f6',
   Premium: '#f59e0b',
   Steep:   '#ef4444',
-};
+} satisfies Record<ZoneLabel, string>;
 
 interface ZoneThresholds {
   lowEnd: number;

@@ -1,20 +1,20 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
     FORMATION_SLOTS,
     POSITION_FLEX_MAP,
     BENCH_FLEX_MAP,
-    BENCH_SLOT_LABELS,
 } from '@/types';
 import type { Formation, GranularPosition, Player, BenchSlot, RosterEntry } from '@/types';
 import { usePlayerCard } from '@/components/players/PlayerCardProvider';
 import { getPlayerDisplayName } from '@/lib/players/displayName';
-import { plTeamThreeLetter } from '@/lib/plTeamAbbrev';
+import Portrait from '@/components/players/Portrait';
+import PositionBadge from '@/components/players/PositionBadge';
+import { SPINE, POS_COLOR } from '@/lib/positions/spine';
 import styles from './pitch.module.css';
 import { Icon } from '@/components/ui/Icon';
-import { getScoreIntensityColor } from '@/lib/utils/scoreColor';
 
 
 // ─── Constants ──────────────────────────────────────────────────────────────
@@ -28,20 +28,10 @@ const BENCH_SLOT_NAMES: BenchSlot[] = ['DEF', 'MID', 'ATT', 'FLEX'];
 
 const DEFAULT_TAXI_AGE_LIMIT = 21;
 
-const POS_COLOR: Record<GranularPosition, string> = {
-    GK: 'var(--color-pos-gk)',
-    CB: 'var(--color-pos-cb)',
-    LB: 'var(--color-pos-fb)',
-    RB: 'var(--color-pos-fb)',
-    LWB: 'var(--color-pos-wb)',
-    RWB: 'var(--color-pos-wb)',
-    DM: 'var(--color-pos-dm)',
-    CM: 'var(--color-pos-cm)',
-    AM: 'var(--color-pos-am)',
-    LW: 'var(--color-pos-lw)',
-    RW: 'var(--color-pos-rw)',
-    ST: 'var(--color-pos-st)',
-};
+/* SPINE (phase-of-play order) and POS_COLOR now live in
+   src/lib/positions/spine.ts — the stats pool is the second panel to qualify
+   for the spectrum, and two copies of the twelve hues is how the device stops
+   meaning the same thing on both. */
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -142,11 +132,6 @@ interface PitchNodeProps {
 }
 
 function PitchNode({ slotPos, player, isSelected, isValidTarget, isEmpty, isInvalid, isLocked, onClick, onViewDetails, points }: PitchNodeProps) {
-    const [imgError, setImgError] = useState(false);
-    useEffect(() => {
-        setImgError(false);
-    }, [player?.id, player?.photo_url]);
-    const frameColor = isInvalid ? '#ef4444' : POS_COLOR[slotPos];
     const wrapCls = [
         styles.pitchNodeWrap,
         isSelected ? styles.nodeWrapSelected : '',
@@ -160,8 +145,6 @@ function PitchNode({ slotPos, player, isSelected, isValidTarget, isEmpty, isInva
         isEmpty ? styles.nodeChipEmpty : '',
     ].filter(Boolean).join(' ');
 
-    const scoreColor = points !== undefined ? getScoreIntensityColor(points) : null;
-
     return (
         <button
             type="button"
@@ -173,15 +156,15 @@ function PitchNode({ slotPos, player, isSelected, isValidTarget, isEmpty, isInva
                     onClick();
                 }
             }}
-            style={isLocked ? { opacity: 0.7, cursor: 'pointer' } : undefined}
+            style={isLocked ? { opacity: 0.7 } : undefined}
             title={isLocked ? 'Match started (Locked) — click to view' : isInvalid ? 'Player is not eligible for this position' : undefined}
         >
-            <div
-                className={styles.nodePhotoMount}
-                style={{
-                    borderColor: isEmpty ? 'rgba(255,255,255,0.35)' : undefined,
-                    ['--pos-color' as any]: frameColor,
-                }}
+            {/* The lot-size portrait, with the club on its crest chip. The node
+                used to carry a three-letter club abbreviation as a line of text
+                beside the badge — the exact line the crest replaced everywhere
+                else, and the reason the chip needed two rows of type. */}
+            <span
+                className={styles.nodePortrait}
                 onClick={(e) => {
                     if (player && !isLocked) {
                         e.stopPropagation();
@@ -189,33 +172,17 @@ function PitchNode({ slotPos, player, isSelected, isValidTarget, isEmpty, isInva
                     }
                 }}
             >
-                {player?.photo_url && !imgError ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                        src={player.photo_url}
-                        alt={pitchFullName(player)}
-                        className={styles.nodePhotoImg}
-                        referrerPolicy="no-referrer"
-                        onError={() => setImgError(true)}
-                    />
-                ) : (
-                    <span className={styles.nodePhotoPlaceholder} aria-hidden>
-                        {player ? displayName(player).charAt(0) : slotPos.charAt(0)}
-                    </span>
-                )}
-            </div>
+                <Portrait
+                    photoUrl={player?.photo_url}
+                    name={player ? pitchFullName(player) : slotPos}
+                    club={player?.pl_team}
+                    size="md"
+                />
+            </span>
 
             <div className={chipCls}>
                 {points !== undefined && (
-                    <span
-                        className={styles.nodePtsBadge}
-                        style={{
-                            backgroundColor: scoreColor?.bg,
-                            color: scoreColor?.text,
-                        }}
-                    >
-                        {points.toFixed(2)}
-                    </span>
+                    <span className={styles.nodePtsBadge}>{points.toFixed(1)}</span>
                 )}
                 {isLocked && player && (
                     <span className={styles.nodeLockCorner} title="Locked">
@@ -225,22 +192,11 @@ function PitchNode({ slotPos, player, isSelected, isValidTarget, isEmpty, isInva
                 <div className={styles.nodeChipBody}>
                     {player ? (
                         <>
-                            <span
-                                className={styles.nodePlayerNameCenter}
-                                style={isInvalid ? { color: '#ef4444' } : {}}
-                            >
+                            <span className={`${styles.nodePlayerNameCenter} ${isInvalid ? styles.nodeNameInvalid : ''}`}>
                                 {displayName(player)}
                             </span>
                             <div className={styles.nodeMetaChipRow}>
-                                <span
-                                    className={styles.nodePosBadge}
-                                    style={{ background: isInvalid ? '#ef4444' : POS_COLOR[slotPos] }}
-                                >
-                                    {slotPos}
-                                </span>
-                                <span className={styles.nodeTeamChip}>
-                                    {plTeamThreeLetter(player.pl_team_id, player.pl_team)}
-                                </span>
+                                <PositionBadge position={slotPos} size="sm" />
                                 {player.fpl_status && player.fpl_status !== 'a' && (
                                     <span className={styles.nodeStatusDot} data-status={player.fpl_status} />
                                 )}
@@ -250,12 +206,7 @@ function PitchNode({ slotPos, player, isSelected, isValidTarget, isEmpty, isInva
                         <>
                             <span className={styles.nodeEmptyLabel}>Empty</span>
                             <div className={styles.nodeMetaChipRow}>
-                                <span
-                                    className={styles.nodePosBadge}
-                                    style={{ background: isInvalid ? '#ef4444' : POS_COLOR[slotPos] }}
-                                >
-                                    {slotPos}
-                                </span>
+                                <PositionBadge position={slotPos} size="sm" />
                             </div>
                         </>
                     )}
@@ -938,7 +889,7 @@ export default function PitchUI({
         <div className={styles.pitchUI}>
             {/* ── Formation bar ── */}
             <div className={styles.formationBar}>
-                <span className={styles.formationLabel}>Formation</span>
+                <span className="g-label">Formation</span>
                 <div className={styles.formationPills}>
                     {FORMATIONS.map((f) => (
                         <button
@@ -983,14 +934,28 @@ export default function PitchUI({
                 </div>
             </div>
 
-            {/* ── 2-column layout: Pitch (left) + Sidebar (right) ── */}
-            <div className={styles.pitchLayout}>
+            {/* ── The board ──
+                One panel: the grass and the squad rail are two columns of one
+                field, divided by a hairline, not two things that float. You
+                move players between them and the rail's counts are arithmetic
+                on what is on the grass. See design-2.0/README.md § "A board is
+                one panel". */}
+            <div className="g-panel">
+                {/* The spectrum's first use in the app. It is rationed to a panel
+                    representing a whole squad or the whole pool — every earlier
+                    port correctly left it off, and a board carrying the eleven on
+                    the field plus every reserve is what it was reserved for. */}
+                <div className={`g-spectrum ${styles.spectrum}`} aria-hidden>
+                    {SPINE.map((p) => <i key={p} style={{ background: POS_COLOR[p] }} />)}
+                </div>
+
+                <div className={styles.board}>
 
                 {/* ── LEFT: Full pitch — horizontal halfway line + center circle match
                     vertical lineup (attack top, GK bottom); not the matchup L/R halves. ── */}
                 <div className={styles.pitchCol}>
                     <div className={styles.pitchContainer}>
-                        {/* Outer green padding; inner pitchField = white touchlines inside the grass */}
+                        {/* Outer green run-off; inner pitchField = touchlines inside the grass */}
                         <div className={styles.pitchField}>
                         {/* Attacking end (top) */}
                         <div className={styles.pitchTopPenaltyBox} />
@@ -1004,9 +969,9 @@ export default function PitchUI({
                         <div className={styles.pitchBottomPenaltyArc} />
                         {(teamName || activeRosterCount !== undefined) && (
                             <div className={styles.pitchLabels}>
-                                {teamName && <span className={styles.pitchLabelLeft}>{teamName}</span>}
+                                {teamName && <span className={`g-label ${styles.pitchLabelLeft}`}>{teamName}</span>}
                                 {activeRosterCount !== undefined && (
-                                    <span className={styles.pitchLabelRight}>
+                                    <span className={`g-label ${styles.pitchLabelRight}`}>
                                         {activeRosterCount}/{maxRosterSize} Active Roster
                                     </span>
                                 )}
@@ -1061,283 +1026,259 @@ export default function PitchUI({
                     </div>
                 </div>
 
-                {/* ── RIGHT: Sidebar ── */}
+
+                {/* ── RIGHT: the squad rail ──
+                    Four tiers as sections of one column, divided by hairlines.
+                    They were four independent cards floating beside a bare
+                    pitch — five elevation declarations for one composition —
+                    and, being separate rulesets, their padding, hover and
+                    selected states had already drifted apart. One row class
+                    serves all four now. */}
                 <div className={styles.sidebarCol}>
 
-                    {/* Sidebar error/loading */}
                     {sidebarError && (
                         <div className={styles.sidebarError}>
                             {sidebarError}
-                            <button type="button" onClick={() => setSidebarError(null)} className={styles.sidebarErrorDismiss}>✕</button>
+                            <button type="button" onClick={() => setSidebarError(null)} className={styles.sidebarErrorDismiss} aria-label="Dismiss">✕</button>
                         </div>
                     )}
 
-                    {/* ── BENCH CARD ── */}
-                    <div className={styles.sidebarCard}>
-                        <div className={styles.sidebarCardHeader}>
-                            <h3 className={styles.sidebarCardTitle}>Bench</h3>
-                            <span className={styles.sidebarCardMeta}>Substitutes</span>
+                    {/* ── BENCH ── */}
+                    <section className={styles.tier}>
+                        <div className={styles.tierHead}>
+                            <h3 className={styles.tierTitle}>Bench</h3>
+                            <span className="g-label">Substitutes</span>
                         </div>
-                        <div className={styles.benchList}>
-                            {BENCH_SLOT_NAMES.map((slot) => {
-                                const pid = benchAssignments[slot];
-                                const entry = pid ? playerMap.get(pid) : undefined;
-                                const isSelected = lineupSelection?.type === 'bench-slot' && lineupSelection.slot === slot;
-                                const isValidTarget = validLineupTargets.has(`bench-${slot}`);
-                                const isLocked = !!pid && !!entry && entry.player.pl_team_id !== null && lockedTeamIds?.has(entry.player.pl_team_id);
-                                return (
-                                    <button
-                                        key={slot}
-                                        type="button"
-                                        className={`${styles.benchRow} ${isSelected ? styles.benchRowSelected : ''} ${isValidTarget ? styles.benchRowTarget : ''} ${!pid ? styles.benchRowEmpty : ''}`}
-                                        onClick={isLocked && entry ? () => setViewingPlayer(entry.player) : () => handleBenchSlotClick(slot)}
-                                        title={isLocked ? 'Match started (Locked)' : undefined}
-                                    >
-                                        <span className={styles.benchSlotBadge}>{slot}</span>
+                        {BENCH_SLOT_NAMES.map((slot) => {
+                            const pid = benchAssignments[slot];
+                            const entry = pid ? playerMap.get(pid) : undefined;
+                            const isSelected = lineupSelection?.type === 'bench-slot' && lineupSelection.slot === slot;
+                            const isValidTarget = validLineupTargets.has(`bench-${slot}`);
+                            const isLocked = !!pid && !!entry && entry.player.pl_team_id !== null && lockedTeamIds?.has(entry.player.pl_team_id);
+                            const pts = scoreMap && pid ? scoreMap[pid] : undefined;
+                            return (
+                                <button
+                                    key={slot}
+                                    type="button"
+                                    className={[
+                                        'g-row', 'g-namerow', styles.row, styles.rowBtn,
+                                        isSelected ? styles.rowSelected : '',
+                                        isValidTarget ? styles.rowTarget : '',
+                                        !pid ? styles.rowEmpty : '',
+                                    ].filter(Boolean).join(' ')}
+                                    style={entry ? { ['--pf' as string]: POS_COLOR[entry.player.primary_position] } : undefined}
+                                    onClick={isLocked && entry ? () => setViewingPlayer(entry.player) : () => handleBenchSlotClick(slot)}
+                                    title={isLocked ? 'Match started (Locked)' : undefined}
+                                >
+                                    <span className={styles.slotBadge}>{slot}</span>
 
-                                        {entry ? (
-                                            <>
-                                                <span
-                                                    className={styles.reservePosBadge}
-                                                    style={{ background: POS_COLOR[entry.player.primary_position] }}
-                                                >
-                                                    {entry.player.primary_position}
-                                                </span>
-                                                <span
-                                                    className={styles.benchPlayerName}
-                                                    onClick={(e) => { e.stopPropagation(); setViewingPlayer(entry.player); }}
-                                                >
-                                                    {displayName(entry.player)}
-                                                </span>
-                                                <span className={styles.rowSpacer} />
-                                                {entry.status === 'loan_in' && (
-                                                    <span style={{ fontSize: '9px', padding: '1px 4px', background: 'rgba(16,185,129,0.15)', border: '1px solid var(--color-accent-green)', color: 'var(--color-accent-green)', borderRadius: '2px', fontWeight: 'bold', marginLeft: '6px' }}>
-                                                        LOAN
-                                                    </span>
-                                                )}
-                                                <span className={styles.reserveClub}>{entry.player.pl_team}</span>
-                                                {scoreMap && pid && scoreMap[pid] !== undefined && (() => {
-                                                    const pts = scoreMap[pid];
-                                                    const sc = getScoreIntensityColor(pts);
-                                                    return (
-                                                        <span className={styles.benchPts} style={{ color: sc.bg }}>
-                                                            {pts.toFixed(2)}
-                                                        </span>
-                                                    );
-                                                })()}
-                                                {isLocked && <span className={styles.lockIcon}><Icon name="lock" size={14} /></span>}
-                                            </>
-                                        ) : (
-                                            <span className={styles.benchEmpty}>—</span>
-                                        )}
-                                    </button>
-                                );
-                            })}
-                        </div>
-                    </div>
+                                    {entry ? (
+                                        <>
+                                            <PositionBadge position={entry.player.primary_position} size="sm" />
+                                            <span
+                                                className={styles.rowName}
+                                                onClick={(e) => { e.stopPropagation(); setViewingPlayer(entry.player); }}
+                                            >
+                                                {displayName(entry.player)}
+                                            </span>
+                                            <span className={styles.rowSpacer} />
+                                            {entry.status === 'loan_in' && <span className={styles.loanTag}>Loan</span>}
+                                            <span className={styles.rowClub}>{entry.player.pl_team}</span>
+                                            {pts !== undefined && <span className={styles.rowPts}>{pts.toFixed(1)}</span>}
+                                            {isLocked && <span className={styles.lockIcon}><Icon name="lock" size={14} /></span>}
+                                        </>
+                                    ) : (
+                                        <span className={styles.rowEmptyMark}>—</span>
+                                    )}
+                                </button>
+                            );
+                        })}
+                    </section>
 
-                    {/* ── RESERVES CARD ── */}
-                    <div
-                        className={`${styles.sidebarCard} ${lineupSelection && lineupSelection.type !== 'pool' ? styles.sidebarCardDropTarget : ''}`}
+                    {/* ── RESERVES ── */}
+                    <section
+                        className={`${styles.tier} ${lineupSelection && lineupSelection.type !== 'pool' ? styles.tierDropTarget : ''}`}
                         onClick={(e) => {
-                            // Only drop-to-reserves when clicking the card background (not a player row)
+                            // Drop-to-reserves only when the click lands on the section
+                            // itself, never on a player row.
                             if (e.target === e.currentTarget && (lineupSelection?.type === 'starter' || lineupSelection?.type === 'bench-slot')) {
                                 dropToReserves();
                             }
                         }}
                     >
                         <div
-                            className={styles.sidebarCardHeader}
-                            style={{ cursor: (lineupSelection?.type === 'starter' || lineupSelection?.type === 'bench-slot') ? 'pointer' : 'default' }}
+                            className={styles.tierHead}
+                            style={{ cursor: (lineupSelection?.type === 'starter' || lineupSelection?.type === 'bench-slot') ? 'pointer' : undefined }}
                             onClick={() => {
                                 if (lineupSelection?.type === 'starter' || lineupSelection?.type === 'bench-slot') dropToReserves();
                             }}
                             title={(lineupSelection?.type === 'starter' || lineupSelection?.type === 'bench-slot') ? 'Click to drop selected player to reserves' : undefined}
                         >
-                            <h3 className={styles.sidebarCardTitle}>Reserves</h3>
-                            <span className={styles.sidebarCardMeta}>{poolEntries.length} available</span>
+                            <h3 className={styles.tierTitle}>Reserves</h3>
+                            <span className="g-label">{poolEntries.length} available</span>
                         </div>
 
                         {poolEntries.length === 0 ? (
-                            <p className={styles.reservesEmpty}>All players assigned to XI or bench.</p>
+                            <p className={styles.tierEmpty}>All players assigned to XI or bench.</p>
                         ) : (
-                            <div className={styles.reservesList}>
-                                {poolEntries.map((entry) => {
-                                    const isLocked = isPlMatchLocked(entry.player, lockedTeamIds);
-                                    const isLineupTarget = validLineupTargets.has(`pool-${entry.player.id}`);
-                                    const isSidebarTarget = validSidebarTargets.has(`pool-${entry.player.id}`);
-                                    const isHighlighted = isLineupTarget || isSidebarTarget;
-                                    const isSelected = lineupSelection?.type === 'pool' && lineupSelection.playerId === entry.player.id;
-                                    const isU21 = isU21Eligible(entry.player, academyAgeLimit);
-                                    const isInjured = isIrEligible(entry.player);
-                                    // Grey out non-eligible players when sidebar selection is active
-                                    const isDimmed = sidebarSelection
-                                        ? (sidebarSelection.type === 'taxi' ? !isU21 : !isInjured)
-                                        : false;
-                                    return (
-                                        <button
-                                            key={entry.id}
-                                            type="button"
-                                            className={`${styles.reserveRow} ${isLocked ? styles.reserveRowLocked : ''} ${isHighlighted ? styles.reserveRowTarget : ''} ${isSelected ? styles.reserveRowSelected : ''} ${isDimmed ? styles.reserveRowDimmed : ''}`}
-                                            onClick={isLocked ? () => setViewingPlayer(entry.player) : () => handlePoolClick(entry.player.id)}
-                                            title={isLocked ? 'Match started (Locked)' : undefined}
+                            poolEntries.map((entry) => {
+                                const isLocked = isPlMatchLocked(entry.player, lockedTeamIds);
+                                const isLineupTarget = validLineupTargets.has(`pool-${entry.player.id}`);
+                                const isSidebarTarget = validSidebarTargets.has(`pool-${entry.player.id}`);
+                                const isHighlighted = isLineupTarget || isSidebarTarget;
+                                const isSelected = lineupSelection?.type === 'pool' && lineupSelection.playerId === entry.player.id;
+                                const isU21 = isU21Eligible(entry.player, academyAgeLimit);
+                                const isInjured = isIrEligible(entry.player);
+                                // Grey out non-eligible players while an academy/IR swap is armed.
+                                const isDimmed = sidebarSelection
+                                    ? (sidebarSelection.type === 'taxi' ? !isU21 : !isInjured)
+                                    : false;
+                                return (
+                                    <button
+                                        key={entry.id}
+                                        type="button"
+                                        className={[
+                                            'g-row', 'g-namerow', styles.row, styles.rowBtn,
+                                            isLocked ? styles.rowLocked : '',
+                                            isHighlighted ? styles.rowTarget : '',
+                                            isSelected ? styles.rowSelected : '',
+                                            isDimmed ? styles.rowDimmed : '',
+                                        ].filter(Boolean).join(' ')}
+                                        style={{ ['--pf' as string]: POS_COLOR[entry.player.primary_position] }}
+                                        onClick={isLocked ? () => setViewingPlayer(entry.player) : () => handlePoolClick(entry.player.id)}
+                                        title={isLocked ? 'Match started (Locked)' : undefined}
+                                    >
+                                        <PositionBadge position={entry.player.primary_position} size="sm" />
+                                        <span
+                                            className={styles.rowName}
+                                            onClick={(e) => { e.stopPropagation(); setViewingPlayer(entry.player); }}
                                         >
-                                            <span
-                                                className={styles.reservePosBadge}
-                                                style={{ background: POS_COLOR[entry.player.primary_position] }}
-                                            >
-                                                {entry.player.primary_position}
-                                            </span>
-                                            <span
-                                                className={styles.reserveName}
-                                                onClick={(e) => { e.stopPropagation(); setViewingPlayer(entry.player); }}
-                                            >
-                                                {displayName(entry.player)}
-                                            </span>
-                                            <span className={styles.rowSpacer} />
-                                            {entry.status === 'loan_in' && (
-                                                <span style={{ fontSize: '9px', padding: '1px 4px', background: 'rgba(16,185,129,0.15)', border: '1px solid var(--color-accent-green)', color: 'var(--color-accent-green)', borderRadius: '2px', fontWeight: 'bold', marginLeft: '6px' }}>
-                                                    LOAN
-                                                </span>
-                                            )}
-                                            <span className={styles.reserveClub}>{entry.player.pl_team}</span>
-                                            {isU21 && sidebarSelection?.type === 'taxi' && (
-                                                <span className={styles.u21Badge}>U21</span>
-                                            )}
-                                            {isInjured && sidebarSelection?.type === 'ir' && (
-                                                <span className={styles.injuryBadge}>
-                                                    {entry.player.fpl_status?.toUpperCase()}
-                                                </span>
-                                            )}
-                                            {entry.player.fpl_status && entry.player.fpl_status !== 'a' && !sidebarSelection && (
-                                                <span className={styles.statusDot} data-status={entry.player.fpl_status} />
-                                            )}
-                                            {isLocked && <span className={styles.lockIcon}><Icon name="lock" size={14} /></span>}
-                                        </button>
-                                    );
-                                })}
-                            </div>
+                                            {displayName(entry.player)}
+                                        </span>
+                                        <span className={styles.rowSpacer} />
+                                        {entry.status === 'loan_in' && <span className={styles.loanTag}>Loan</span>}
+                                        <span className={styles.rowClub}>{entry.player.pl_team}</span>
+                                        {isU21 && sidebarSelection?.type === 'taxi' && (
+                                            <span className={styles.eligibleTag}>U21</span>
+                                        )}
+                                        {isInjured && sidebarSelection?.type === 'ir' && (
+                                            <span className={styles.eligibleTag}>{entry.player.fpl_status?.toUpperCase()}</span>
+                                        )}
+                                        {entry.player.fpl_status && entry.player.fpl_status !== 'a' && !sidebarSelection && (
+                                            <span className={styles.statusDot} data-status={entry.player.fpl_status} />
+                                        )}
+                                        {isLocked && <span className={styles.lockIcon}><Icon name="lock" size={14} /></span>}
+                                    </button>
+                                );
+                            })
                         )}
-                    </div>
+                    </section>
 
-                    {/* ── TAXI SQUAD CARD ── */}
-                    {(taxiEntries.length > 0 || true) && (
-                        <div className={styles.sidebarCard}>
-                            <div className={styles.sidebarCardHeader}>
-                                <h3 className={styles.sidebarCardTitle}>Academy</h3>
-                                <span className={styles.sidebarCardMeta}>{taxiEntries.length} / 3 slots</span>
-                            </div>
-                            {taxiEntries.length === 0 ? (
-                                <p className={styles.reservesEmpty}>No players in academy.</p>
-                            ) : (
-                                <div className={styles.taxiList}>
-                                    {taxiEntries.map((entry) => {
-                                        const isSelected = sidebarSelection?.type === 'taxi' && sidebarSelection.playerId === entry.player.id;
-                                        return (
-                                            <div key={entry.id} className={`${styles.taxiRow} ${isSelected ? styles.taxiRowSelected : ''}`}>
-                                                <span
-                                                    className={styles.reservePosBadge}
-                                                    style={{ background: POS_COLOR[entry.player.primary_position] }}
-                                                >
-                                                    {entry.player.primary_position}
-                                                </span>
-                                                <span
-                                                    className={styles.taxiName}
-                                                    onClick={() => setViewingPlayer(entry.player)}
-                                                >
-                                                    {displayName(entry.player)}
-                                                </span>
-                                                <span className={styles.rowSpacer} />
-                                                <span className={styles.taxiClub}>{entry.player.pl_team}</span>
-                                                <div className={styles.taxiActions}>
-                                                    <button
-                                                        type="button"
-                                                        className={`${styles.taxiSwapBtn} ${isSelected ? styles.taxiSwapBtnActive : ''}`}
-                                                        onClick={() => {
-                                                            if (isSelected) { setSidebarSelection(null); return; }
-                                                            activateSidebarSelection({ type: 'taxi', playerId: entry.player.id });
-                                                        }}
-                                                        disabled={sidebarLoading}
-                                                        title="Select to swap with a U21 reserve"
-                                                    >
-                                                        {isSelected ? 'Cancel' : 'Swap'}
-                                                    </button>
-                                                    <button
-                                                        type="button"
-                                                        className={styles.taxiActivateBtn}
-                                                        onClick={() => handleTaxiActivate(entry.player.id)}
-                                                        disabled={sidebarLoading}
-                                                        title="Promote to active roster"
-                                                    >
-                                                        {sidebarLoading ? '…' : 'Activate'}
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        );
-                                    })}
-                                </div>
-                            )}
+                    {/* ── ACADEMY ── */}
+                    <section className={styles.tier}>
+                        <div className={styles.tierHead}>
+                            <h3 className={styles.tierTitle}>Academy</h3>
+                            <span className="g-label">{taxiEntries.length} / 3 slots</span>
                         </div>
-                    )}
-
-                    {/* ── IR CARD ── */}
-                    {irEntries.length > 0 && (
-                        <div className={styles.sidebarCard}>
-                            <div className={styles.sidebarCardHeader}>
-                                <h3 className={`${styles.sidebarCardTitle} ${styles.irTitle}`}>Injured Reserve</h3>
-                                <span className={styles.sidebarCardMeta}>{irEntries.length} players</span>
-                            </div>
-                            <div className={styles.irList}>
-                                {irEntries.map((entry) => {
-                                    const isSelected = sidebarSelection?.type === 'ir' && sidebarSelection.playerId === entry.player.id;
-                                    return (
-                                        <div key={entry.id} className={`${styles.irRow} ${isSelected ? styles.irRowSelected : ''}`}>
-                                            <span
-                                                className={styles.reservePosBadge}
-                                                style={{ background: POS_COLOR[entry.player.primary_position] }}
+                        {taxiEntries.length === 0 ? (
+                            <p className={styles.tierEmpty}>No players in academy.</p>
+                        ) : (
+                            taxiEntries.map((entry) => {
+                                const isSelected = sidebarSelection?.type === 'taxi' && sidebarSelection.playerId === entry.player.id;
+                                return (
+                                    <div
+                                        key={entry.id}
+                                        className={`g-row g-namerow ${styles.row} ${isSelected ? styles.rowSelected : ''}`}
+                                        style={{ ['--pf' as string]: POS_COLOR[entry.player.primary_position] }}
+                                    >
+                                        <PositionBadge position={entry.player.primary_position} size="sm" />
+                                        <span className={styles.rowName} onClick={() => setViewingPlayer(entry.player)}>
+                                            {displayName(entry.player)}
+                                        </span>
+                                        <span className={styles.rowSpacer} />
+                                        <span className={styles.rowClub}>{entry.player.pl_team}</span>
+                                        <div className={styles.rowActions}>
+                                            <button
+                                                type="button"
+                                                className={`${styles.rowBtnGhost} ${isSelected ? styles.rowBtnGhostOn : ''}`}
+                                                onClick={() => {
+                                                    if (isSelected) { setSidebarSelection(null); return; }
+                                                    activateSidebarSelection({ type: 'taxi', playerId: entry.player.id });
+                                                }}
+                                                disabled={sidebarLoading}
+                                                title="Select to swap with a U21 reserve"
                                             >
-                                                {entry.player.primary_position}
-                                            </span>
-                                            <span
-                                                className={styles.irName}
-                                                onClick={() => setViewingPlayer(entry.player)}
+                                                {isSelected ? 'Cancel' : 'Swap'}
+                                            </button>
+                                            <button
+                                                type="button"
+                                                className={styles.rowBtnPrimary}
+                                                onClick={() => handleTaxiActivate(entry.player.id)}
+                                                disabled={sidebarLoading}
+                                                title="Promote to active roster"
                                             >
-                                                {displayName(entry.player)}
-                                            </span>
-                                            <span className={styles.rowSpacer} />
-                                            <span className={styles.irClub}>{entry.player.pl_team}</span>
-                                            <div className={styles.irActions}>
-                                                <button
-                                                    type="button"
-                                                    className={`${styles.irSwapBtn} ${isSelected ? styles.irSwapBtnActive : ''}`}
-                                                    onClick={() => {
-                                                        if (isSelected) { setSidebarSelection(null); return; }
-                                                        activateSidebarSelection({ type: 'ir', playerId: entry.player.id });
-                                                    }}
-                                                    disabled={sidebarLoading}
-                                                    title="Select to swap with an injured reserve"
-                                                >
-                                                    {isSelected ? 'Cancel' : 'Swap'}
-                                                </button>
-                                                <button
-                                                    type="button"
-                                                    className={styles.irActivateBtn}
-                                                    onClick={() => handleIrActivate(entry.player.id)}
-                                                    disabled={sidebarLoading}
-                                                    title="Activate from IR"
-                                                >
-                                                    {sidebarLoading ? '…' : 'Activate'}
-                                                </button>
-                                            </div>
+                                                {sidebarLoading ? '…' : 'Activate'}
+                                            </button>
                                         </div>
-                                    );
-                                })}
+                                    </div>
+                                );
+                            })
+                        )}
+                    </section>
+
+                    {/* ── INJURED RESERVE ── */}
+                    {irEntries.length > 0 && (
+                        <section className={styles.tier}>
+                            <div className={styles.tierHead}>
+                                <h3 className={styles.tierTitle}>Injured Reserve</h3>
+                                <span className="g-label">{irEntries.length} players</span>
                             </div>
-                        </div>
+                            {irEntries.map((entry) => {
+                                const isSelected = sidebarSelection?.type === 'ir' && sidebarSelection.playerId === entry.player.id;
+                                return (
+                                    <div
+                                        key={entry.id}
+                                        className={`g-row g-namerow ${styles.row} ${isSelected ? styles.rowSelected : ''}`}
+                                        style={{ ['--pf' as string]: POS_COLOR[entry.player.primary_position] }}
+                                    >
+                                        <PositionBadge position={entry.player.primary_position} size="sm" />
+                                        <span className={styles.rowName} onClick={() => setViewingPlayer(entry.player)}>
+                                            {displayName(entry.player)}
+                                        </span>
+                                        <span className={styles.rowSpacer} />
+                                        <span className={styles.rowClub}>{entry.player.pl_team}</span>
+                                        <div className={styles.rowActions}>
+                                            <button
+                                                type="button"
+                                                className={`${styles.rowBtnGhost} ${isSelected ? styles.rowBtnGhostOn : ''}`}
+                                                onClick={() => {
+                                                    if (isSelected) { setSidebarSelection(null); return; }
+                                                    activateSidebarSelection({ type: 'ir', playerId: entry.player.id });
+                                                }}
+                                                disabled={sidebarLoading}
+                                                title="Select to swap with an injured reserve"
+                                            >
+                                                {isSelected ? 'Cancel' : 'Swap'}
+                                            </button>
+                                            <button
+                                                type="button"
+                                                className={styles.rowBtnPrimary}
+                                                onClick={() => handleIrActivate(entry.player.id)}
+                                                disabled={sidebarLoading}
+                                                title="Activate from IR"
+                                            >
+                                                {sidebarLoading ? '…' : 'Activate'}
+                                            </button>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </section>
                     )}
 
                 </div>
-            </div>
+                </div>{/* end board */}
+            </div>{/* end panel */}
 
             {/* The player card modal is owned by PlayerCardProvider in the dashboard layout. */}
         </div>

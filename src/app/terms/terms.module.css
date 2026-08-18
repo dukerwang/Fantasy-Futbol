@@ -26,8 +26,10 @@
   transition: color 0.15s ease;
 }
 
-.backBtn:hover {
-  color: var(--color-accent-green);
+@media (hover: hover) and (pointer: fine) {
+  .backBtn:hover {
+    color: var(--color-accent-green);
+  }
 }
 
 .header {

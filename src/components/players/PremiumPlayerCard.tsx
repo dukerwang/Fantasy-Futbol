@@ -4,6 +4,7 @@ import { useState, useRef, useCallback, useEffect } from 'react';
 import type { Player, PlayerOwnership, PlayerSeasonArchive } from '@/types';
 import type { CrestConfig } from '@/components/crest/types';
 import { getPlayerDisplayName, playerInitial } from '@/lib/players/displayName';
+import { portraitUrl } from '@/lib/players/photo';
 import { useParams } from 'next/navigation';
 import CrestBadge from '@/components/crest/CrestBadge';
 import SquadPeekButton from '@/components/teams/SquadPeekButton';
@@ -22,13 +23,27 @@ import {
 } from '@/lib/players/cardCache';
 import styles from './PremiumPlayerCard.module.css';
 
+/**
+ * The display-rating band, as a CSS variable rather than a literal.
+ *
+ * The six bands read exactly as they always have — green / green / gold /
+ * orange / red / grey — but the values now live in PremiumPlayerCard.module.css
+ * on `.container`, where the header records what each one measured and what it
+ * was solved to. Five of the six were failing against the card face, the worst
+ * at 2.28:1; they were re-solved holding hue and chroma and walking OKLCH
+ * lightness only, so the ramp looks like itself and is legible.
+ *
+ * Returning `var(...)` rather than a hex is what lets the values be tokens at
+ * all: these are applied through inline `style`, so there is nowhere else to
+ * put them.
+ */
 function ratingHex(r: number | null): string {
-    if (r == null) return '#9A9488';
-    if (r >= 8.5) return '#3A6B4A';
-    if (r >= 7.5) return '#5A9F73';
-    if (r >= 6.5) return '#C8A642';
-    if (r >= 5.5) return '#D17D3B';
-    return '#EF4444';
+    if (r == null) return 'var(--rating-none)';
+    if (r >= 8.5) return 'var(--rating-elite)';
+    if (r >= 7.5) return 'var(--rating-good)';
+    if (r >= 6.5) return 'var(--rating-fair)';
+    if (r >= 5.5) return 'var(--rating-poor)';
+    return 'var(--rating-bad)';
 }
 
 const POS_LONG: Record<string, string> = {
@@ -170,7 +185,7 @@ function scoreAtPosition(
     g: CardGamelogEntry,
     pos: string,
     primary: string,
-): { fantasy_points: number; match_rating: number | null } {
+) {
     const scored = g.by_position?.[pos];
     if (scored) return scored;
     if (pos === primary) {
@@ -241,24 +256,58 @@ export default function PremiumPlayerCard({
         setBack(staticOnly ? { gamelog: [], history: [] } : getCachedBack(player.id, leagueId));
     }
 
-    // ── Photo: fixed slot, instant when warm, crossfade when cold ─────────────
-    const photoUrl = resolvedPlayer.photo_url ?? null;
-    const [photoState, setPhotoState] = useState<{ url: string | null; loaded: boolean; failed: boolean }>(
-        () => ({ url: photoUrl, loaded: isImageReady(photoUrl), failed: false }),
+    // ── Photo: fixed slot, cascades through FPL's two cut-outs before initials,
+    // instant when warm, grace-then-crossfade when cold ───────────────────────
+    // `photo_url` is the 110x140 cut-out the card's box is tuned to; the
+    // 500x500 one is a different crop (see photo.ts) but coverage isn't
+    // nested, so trying it before giving up on a photo entirely closes real
+    // gaps for players missing just the one FPL happens to serve at 110x140.
+    const rawPhotoUrl = resolvedPlayer.photo_url ?? null;
+    const photoAltUrl = portraitUrl(rawPhotoUrl);
+    const photoSources = [rawPhotoUrl, photoAltUrl].filter((u): u is string => u !== null);
+    const sourcesKey = `${resolvedPlayer.id}|${photoSources.join('|')}`;
+
+    const [photoState, setPhotoState] = useState<{ key: string; n: number; loaded: boolean }>(
+        () => ({ key: sourcesKey, n: 0, loaded: isImageReady(photoSources[0] ?? null) }),
     );
-    if (photoState.url !== photoUrl) {
-        setPhotoState({ url: photoUrl, loaded: isImageReady(photoUrl), failed: false });
+    if (photoState.key !== sourcesKey) {
+        setPhotoState({ key: sourcesKey, n: 0, loaded: isImageReady(photoSources[0] ?? null) });
     }
+    const photoUrl = photoSources[photoState.n] ?? null;
+
+    const advancePhoto = useCallback(() => {
+        setPhotoState((s) => ({ key: s.key, n: s.n + 1, loaded: false }));
+    }, []);
 
     // An <img> whose bytes are already in the HTTP cache can finish before React
     // attaches onLoad, so mount-time completeness has to be checked directly or
-    // a warm photo would still fade in.
+    // a warm photo would still fade in. A source that 403s before that handler
+    // attaches never fires onError either — caught the same way, by advancing
+    // the cascade instead of getting stuck on a dead source.
     const photoRef = useCallback((node: HTMLImageElement | null) => {
-        if (node && node.complete && node.naturalWidth > 0) {
+        if (!node || !node.complete) return;
+        if (node.naturalWidth > 0) {
             markImageReady(node.currentSrc || node.src);
             setPhotoState((s) => (s.loaded ? s : { ...s, loaded: true }));
+        } else {
+            setPhotoState((s) => ({ key: s.key, n: s.n + 1, loaded: false }));
         }
     }, []);
+
+    // The placeholder is armed (allowed to render) immediately when there's no
+    // photo to even try; for one that's in flight it waits a beat, so a
+    // cache-fast paint never gets a single frame with the initial visible
+    // before the crossfade takes over.
+    const [placeholderArmed, setPlaceholderArmed] = useState(() => !photoUrl);
+    useEffect(() => {
+        if (!photoUrl || photoState.loaded) {
+            setPlaceholderArmed(!photoUrl);
+            return;
+        }
+        setPlaceholderArmed(false);
+        const t = setTimeout(() => setPlaceholderArmed(true), 100);
+        return () => clearTimeout(t);
+    }, [photoUrl, photoState.loaded]);
 
     useEffect(() => {
         if (staticOnly) return;
@@ -310,7 +359,8 @@ export default function PremiumPlayerCard({
     const primaryPosVar = POS_CSS_VAR[primaryPos] ?? 'var(--color-accent-green)';
 
     /** True once a real photo is on screen and the fallback initial can recede. */
-    const photoShowing = !!photoUrl && !photoState.failed && photoState.loaded;
+    const photoShowing = !!photoUrl && photoState.loaded;
+    const showPlaceholder = !photoShowing && placeholderArmed;
 
     const gamelog = back?.gamelog ?? [];
     const history = back?.history ?? [];
@@ -419,7 +469,12 @@ export default function PremiumPlayerCard({
     } as React.CSSProperties;
 
     return (
-        <div className={styles.container}>
+        /* `g-theme-light` re-supplies globals.css's light palette to this
+           subtree. The card is a light-only object by design — a trading card
+           is a printed thing — and it used to pin itself by keeping its own
+           copy of 25 tokens, which went stale. See the header of
+           PremiumPlayerCard.module.css. */
+        <div className={`${styles.container} g-theme-light`}>
             {/* Flat Action Buttons — Outside stage to prevent jitter and 3D issues */}
             <div className={styles.cardActionsOverlay}>
                 <button className={styles.actionIconBtn} onClick={handleFlip} aria-label={flipped ? 'Flip to front' : 'Flip to game log'}>
@@ -553,7 +608,7 @@ export default function PremiumPlayerCard({
                         {/* Fixed-size slot. The photo and its fallback occupy the exact
                             same box, so nothing around them can ever move. */}
                         <div className={styles.photoSlot}>
-                            {photoUrl && !photoState.failed && (
+                            {photoUrl && (
                                 // eslint-disable-next-line @next/next/no-img-element
                                 <img
                                     key={photoUrl}
@@ -569,16 +624,16 @@ export default function PremiumPlayerCard({
                                     referrerPolicy="no-referrer"
                                     onLoad={(e) => {
                                         markImageReady(e.currentTarget.currentSrc || e.currentTarget.src);
-                                        setPhotoState((s) => ({ ...s, loaded: true }));
+                                        setPhotoState((s) => (s.loaded ? s : { ...s, loaded: true }));
                                     }}
-                                    onError={() => setPhotoState((s) => ({ ...s, failed: true }))}
+                                    onError={advancePhoto}
                                 />
                             )}
                             {/* Stays mounted and fades out as the photo fades in.
                                 Unmounting it instead would flash the card
                                 background through a transparent cutout PNG. */}
                             <div
-                                className={`${styles.photoPlaceholder} ${photoShowing ? styles.photoPlaceholderHidden : ''}`}
+                                className={`${styles.photoPlaceholder} ${showPlaceholder ? '' : styles.photoPlaceholderHidden}`}
                                 style={{ '--placeholder-tint': teamColor } as React.CSSProperties}
                                 aria-hidden={photoShowing ? 'true' : undefined}
                             >
@@ -652,7 +707,7 @@ export default function PremiumPlayerCard({
 
                     {/* Position rank strip — chips select which slot's scoring the card shows */}
                     <div className={styles.rankStrip}>
-                        <span className={styles.rankLbl}>Pos Rank</span>
+                        <span className={styles.rankLbl}>Pos rank</span>
                         <div className={styles.rankChips} role="group" aria-label="Score as position">
                             {resolvedPlayer.position_ranks && resolvedPlayer.position_ranks.length > 0 ? (
                                 [...resolvedPlayer.position_ranks].sort((a, b) => a.rank - b.rank).map((r) => {
@@ -845,7 +900,7 @@ export default function PremiumPlayerCard({
                                                     <th className={styles.ctrTh}>Points</th>
                                                     <th className={styles.ctrTh}>PPG</th>
                                                     <th className={styles.ctrTh}>OVR</th>
-                                                    <th>Pos Rank</th>
+                                                    <th>Pos rank</th>
                                                 </tr>
                                             </thead>
                                             <tbody>

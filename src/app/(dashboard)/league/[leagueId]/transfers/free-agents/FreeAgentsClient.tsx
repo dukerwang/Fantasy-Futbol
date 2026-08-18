@@ -128,21 +128,21 @@ export default function FreeAgentsClient({
 
       <header className={styles.header}>
         <div>
-          <div className={styles.kicker}>Transfer Market → Free Agency</div>
+          <div className={`g-label ${styles.kicker}`}>Transfer Market → Free Agency</div>
           <h1 className={styles.title}>Free Agency</h1>
         </div>
         <div className={styles.stats}>
           <div className={styles.stat}>
             <div className={`${styles.statValue} ${styles.statAccent}`}>{money(model.myTeam.faab_budget)}</div>
-            <div className={styles.statLabel}>Club Balance</div>
+            <div className={`g-label-quiet ${styles.statLabel}`}>Club Balance</div>
           </div>
           <div className={styles.stat}>
             <div className={`${styles.statValue} ${styles.statWarn}`}>{liveAuctions.length}</div>
-            <div className={styles.statLabel}>Under the hammer</div>
+            <div className={`g-label-quiet ${styles.statLabel}`}>Under the hammer</div>
           </div>
           <div className={styles.stat}>
             <div className={styles.statValue}>{total || model.counts.freeAgents}</div>
-            <div className={styles.statLabel}>Available</div>
+            <div className={`g-label-quiet ${styles.statLabel}`}>Available</div>
           </div>
         </div>
       </header>
@@ -219,13 +219,17 @@ export default function FreeAgentsClient({
           </thead>
           <tbody className={loading ? styles.loading : ''}>
             {rows.map((p) => (
-              <tr key={p.id}>
+              <tr
+                key={p.id}
+                className="g-row"
+                style={{ '--pf': `var(--color-pos-${String(p.primary_position).toLowerCase()})` } as React.CSSProperties}
+              >
                 {/* The flex row lives in a div, not on the <td>. `display: flex`
                     on a table cell overrides `display: table-cell` and drops it
                     out of the column model, which breaks both the row rule and
                     the alignment of every column after it. */}
                 <td className={styles.tdPlayer}>
-                  <span className={styles.playerCell}>
+                  <span className={`g-namerow ${styles.playerCell}`}>
                     <PositionBadge position={p.primary_position as GranularPosition} size="sm" />
                     <button
                       type="button"
@@ -328,7 +332,7 @@ function AuctionChip({
 
   return (
     <article className={`${styles.chip} ${hot ? styles.chipHot : ''}`}>
-      <div className={styles.chipTop}>
+      <div className={`g-namerow ${styles.chipTop}`}>
         {auction.player && (
           <PositionBadge position={auction.player.primary_position as GranularPosition} size="sm" />
         )}

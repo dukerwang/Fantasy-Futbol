@@ -1,10 +1,10 @@
-export interface ShieldShape {
+export interface ShieldOutline {
   id: string;
   label: string;
   path: string;
 }
 
-export const SHIELDS: ShieldShape[] = [
+export const SHIELDS: ShieldOutline[] = [
   {
     id: 'classic',
     label: 'Classic Shield',

@@ -6,6 +6,17 @@ import { sendEmail } from '@/lib/email/client';
 import { getMatchweekSummaryEmail } from '@/lib/email/templates';
 import { executeAdvanceTournament } from '@/lib/tournaments/advanceTournament';
 import { payMeritPeriod } from '@/lib/economy/payMeritPeriod';
+import { DRAW_THRESHOLD } from '@/lib/scoring/drawBand';
+import type { MatchupLineup } from '@/types';
+
+type MatchupUpdatePayload = {
+    score_a: number;
+    score_b: number;
+    status: 'completed' | 'live';
+    lineup_a?: MatchupLineup;
+    lineup_b?: MatchupLineup;
+    winner_team_id?: string | null;
+};
 
 export async function processMatchupsForGameweek(gameweek: number, finished: boolean) {
     const admin = createAdminClient();
@@ -182,7 +193,6 @@ export async function processMatchupsForGameweek(gameweek: number, finished: boo
     }
 
     // 5. Resolve matchups
-    const DRAW_THRESHOLD = 10;
     let updated = 0;
     const updateErrors: string[] = [];
 
@@ -228,7 +238,7 @@ export async function processMatchupsForGameweek(gameweek: number, finished: boo
             ? (scoreA > scoreB ? m.team_a_id : m.team_b_id)
             : null;
 
-        const updatePayload: Record<string, any> = {
+        const updatePayload: MatchupUpdatePayload = {
             score_a: scoreA,
             score_b: scoreB,
             status: newStatus,

@@ -160,11 +160,25 @@ export function buildWire(model: TransfersModel, limit = 12): WireEvent[] {
     .slice(0, limit);
 }
 
-/** Dot colour per event kind, matching the schedule legend below it. */
-export const WIRE_COLORS: Record<WireKind, string> = {
+/**
+ * Dot colour per event kind, matching the schedule legend below it.
+ *
+ * Trade and loan used --color-pos-cb and --color-pos-wb: centre-back and
+ * wing-back FIELD colours standing in for two kinds of deal. On a dot, colour is
+ * the only carrier, so unlike the tags elsewhere in this feature these could not
+ * simply drop the hue — five kinds genuinely need five marks. The palette has no
+ * five free hues (every remaining one already means medal, live, or danger), so
+ * the fifth axis is FORM, exactly as the auction room's provenance tag does it:
+ * a loan is the same ink as a trade, drawn hollow. A player who goes back is a
+ * ring rather than a disc, which is a better reading of a loan than a colour was.
+ */
+export const WIRE_COLORS = {
   bid: 'var(--color-warning)',
   offer: 'var(--color-accent)',
-  trade: 'var(--color-pos-cb)',
-  loan: 'var(--color-pos-wb)',
+  trade: 'var(--color-text-primary)',
+  loan: 'var(--color-text-primary)',
   listing: 'var(--color-text-muted)',
-};
+} satisfies Record<WireKind, string>;
+
+/** Kinds drawn as a ring rather than a filled disc. See WIRE_COLORS. */
+export const WIRE_HOLLOW: ReadonlySet<WireKind> = new Set<WireKind>(['loan']);

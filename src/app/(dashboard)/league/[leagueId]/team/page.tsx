@@ -46,7 +46,7 @@ export default async function MyTeamPage({ params }: Props) {
         <h2 className={styles.emptyTitle}>No team found</h2>
         <p className={styles.emptyText}>You do not have a team in this league.</p>
         <a href="/dashboard" className={styles.backLink}>
-          &larr; Back to Dashboard
+          &larr; Back to dashboard
         </a>
       </div>
     );
@@ -316,10 +316,10 @@ export default async function MyTeamPage({ params }: Props) {
   const taxiAgeLimit: number = league?.taxi_age_limit ?? 21;
 
   return (
-    <div>
+    <div className={`${styles.page} g-page`}>
       <header className={styles.header}>
         <div className={styles.headerMeta}>
-          <span className={styles.leagueName}>{league.name}</span>
+          <span className="g-label">{league.name}</span>
           {matchup ? (
             <>
               <span className={styles.metaDot}>·</span>
@@ -351,24 +351,12 @@ export default async function MyTeamPage({ params }: Props) {
       </header>
 
       {pendingActivations && pendingActivations.length > 0 && (
-        <div style={{
-          background: 'rgba(239, 68, 68, 0.1)',
-          border: '1px solid rgba(239, 68, 68, 0.3)',
-          borderRadius: '4px',
-          padding: '12px 16px',
-          marginBottom: '20px',
-          color: '#ef4444',
-          fontSize: '14px',
-          fontWeight: 600,
-          display: 'flex',
-          alignItems: 'center',
-          gap: '8px'
-        }}>
-          <span style={{ display: 'flex', alignItems: 'center' }}><Icon name="alert" size={16} /></span>
+        <div className={styles.capacityNote}>
+          <span className={styles.capacityIcon}><Icon name="alert" size={16} /></span>
           <span>
             Roster Over Capacity. Drop a player to activate returned loan: {pendingActivations.map(p => (p.player as any)?.name).join(', ')}.
           </span>
-          <NavigationLink href={`/league/${leagueId}/team/roster`} style={{ marginLeft: 'auto', textDecoration: 'underline', color: 'inherit' }}>
+          <NavigationLink href={`/league/${leagueId}/team/roster`} className={styles.capacityLink}>
             Go to Roster →
           </NavigationLink>
         </div>

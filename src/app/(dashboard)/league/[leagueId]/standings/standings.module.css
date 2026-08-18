@@ -1,269 +1,302 @@
-/* ============================================================
-   League Standings — Pitch Archivist editorial aesthetic
-   ============================================================ */
+/* League Standings — Gaffa 2.0, port 6.
 
-.page {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-12);
+   See design-2.0/README.md § "Port order for the remaining routes". This page
+   pays its own scale migration: --t-* / --s* / --r-* throughout, no rem
+   literals, no raw hex, no 1.0 scale tokens.
+
+   TWO THINGS THIS PAGE DECIDES.
+
+   1. THE PODIUM AND THE FULL TABLE ARE ONE BOARD, NOT TWO. 1.0 had three
+      floating podium cards (their own border + shadow each) sitting above a
+      separately-elevated table section — four elevation declarations for one
+      composition, where the top three podium tiles are arithmetic on the
+      table's own first three rows. "A board is one panel" (README, first
+      named on the auction room, since repeated on the pitch, the market and
+      the round) applies here for the same reason: it is one relationship,
+      so it is one .g-panel with an internal hairline, not a gap between two
+      cards. The leader tile reads as featured through size, position (centre
+      of the 2nd | 1st | 3rd order) and the medal ramp — not by floating
+      separately from the other two.
+
+   2. GREEN IS THE WIN COLOUR FOR THE FORM DOTS — Duke's call, and a third
+      named colour-law exception alongside the winger sage and the
+      performance ramp (README § "What 2.0 is"). The risk was green-on-green:
+      the "own row" wash below is 12% accent, so a win dot in your own recent
+      form paints solid accent over an already-green-tinted row. Checked as a
+      graphical mark against WCAG 1.4.11's 3:1 (a filled 8px dot is not a
+      text-contrast case), not the 4.5 text floor — worst case is dark, win
+      dot on the wash, at 3.72. `scratch/solve_defeat_dark.mjs` has the
+      numbers for all three dot colours in both themes, on and off the wash.
+      That script is also where --color-defeat picked up its first-ever dark
+      value (globals.css): a single #9B2C3A had served both themes at 1.89:1
+      on a dark card, the reliable dark-mode-failure predictor named in the
+      matchups port, and the loss dot is its first real dark consumer.
+
+   Also fixed in passing: this page had its own DRAW_MARGIN = 10, a ninth
+   copy of the constant `src/lib/scoring/drawBand.ts` was written to collect
+   — the matchups-port sweep of "seven, then an eighth for the margin axis"
+   missed this one because it computes form (W/D/L) rather than a scoreline.
+   It now imports `isDrawMargin`. And the crest-peek trigger no longer
+   restates SquadPeekButton's press treatment — README's dialogs section
+   already named this page as still owing that collapse, after ListingCard's
+   copy was found to have drifted to a stale, geometrically-broken version of
+   the same rule. */
+
+.page { min-height: 100%; }
+
+/* ── Masthead ───────────────────────────────────────────── */
+
+.masthead {
+  padding: var(--s6) var(--s6) var(--s3);
 }
 
-/* ── Header ── */
-.header {
-  margin-bottom: var(--space-4);
-}
-
-.eyebrow {
-  composes: ds-eyebrow-serif from global;
-}
+.kicker { letter-spacing: 0.16em; }
 
 .title {
   font-family: var(--font-serif);
-  font-size: clamp(2.5rem, 4vw, 3rem);
-  font-weight: 700;
-  color: var(--color-accent-green);
-  letter-spacing: -0.03em;
-  margin: 0 0 var(--space-2) 0;
+  font-weight: 800;
+  font-size: var(--t-32);
+  letter-spacing: -0.035em;
   line-height: 1;
+  margin: var(--s1) 0 0;
+  color: var(--color-text-primary);
 }
 
 .subtitle {
-  font-size: var(--text-base);
+  font-family: var(--font-sans);
+  font-size: var(--t-13);
+  color: var(--color-text-secondary);
+  margin: var(--s2) 0 0;
+}
+
+/* ── The panel ──────────────────────────────────────────── */
+
+.panel { margin: 0 var(--s6) var(--s8); }
+
+.emptyState {
+  padding: var(--s16) var(--s8);
+  text-align: center;
+  font-family: var(--font-sans);
+  font-size: var(--t-13);
   color: var(--color-text-muted);
-  margin: 0;
 }
 
-/* ── Podium ── */
+/* ── Podium ─────────────────────────────────────────────── */
+/* Three columns of the SAME panel, told apart by an internal hairline —
+   never three cards. Order stays 2nd | 1st | 3rd; the leader is taller via
+   its own top padding, not a second elevation. */
+
 .podium {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: var(--space-6);
-  align-items: end;
+  display: flex;
+  align-items: flex-end;
+  border-bottom: 1px solid var(--color-border);
 }
 
-/* Base card — 2nd and 3rd */
-.podiumCard {
-  background: var(--color-bg-card);
-  padding: var(--space-8);
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--color-border-subtle);
-  box-shadow: var(--shadow-card);
+.podiumTier {
+  flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
-  position: relative;
-  overflow: hidden;
-  height: 240px;
+  align-items: center;
+  text-align: center;
+  padding: var(--s6) var(--s5) var(--s5);
 }
 
-/* 1st place — taller, gold ring accent (leader gold stays a ring, never a fill) */
-.podiumCardLeader {
-  height: 280px;
-  border: 1.5px solid var(--color-gold);
-  box-shadow: var(--shadow-card);
+.podiumTier + .podiumTier {
+  border-left: 1px solid var(--color-border-subtle);
 }
 
-/* Emoji top-right */
-.podiumEmoji {
-  position: absolute;
-  top: var(--space-5);
-  right: var(--space-6);
-  font-size: 2.25rem;
-  line-height: 1;
-  opacity: 0.85;
+.podiumTierLeader { padding-top: var(--s8); }
+
+.podiumTop {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s2);
+  margin-bottom: var(--s3);
 }
 
-.podiumCardLeader .podiumEmoji {
-  font-size: 3rem;
-  top: var(--space-6);
-}
+/* The medal ramp — a thin ring/text colour, never a filled badge (README §
+   "Position spine" / the palette reconciliation notes). The icon itself IS
+   the ring, so painting it in the medal hue rather than a swatch behind it
+   is what keeps the rule. */
+.medalGold   { color: var(--color-gold); }
+.medalSilver { color: var(--color-silver); }
+.medalBronze { color: var(--color-bronze); }
 
 .podiumLeaderBadge {
-  font-family: var(--font-serif);
-  font-style: italic;
-  font-weight: 600;
-  font-size: 13px;
+  font-family: var(--font-condensed);
+  font-weight: 700;
+  font-size: var(--t-11);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   color: var(--color-gold);
-  margin-bottom: var(--space-4);
-  align-self: flex-start;
+  margin-bottom: var(--s3);
 }
 
 .podiumTeamName {
   font-family: var(--font-serif);
-  font-size: var(--text-2xl);
+  font-size: var(--t-17);
   font-weight: 700;
   color: var(--color-text-primary);
-  margin: 0 0 var(--space-1) 0;
+  margin: 0 0 var(--s1) 0;
   letter-spacing: -0.01em;
   line-height: 1.2;
 }
 
-.podiumCardLeader .podiumTeamName {
-  font-size: var(--text-3xl);
-}
+.podiumTierLeader .podiumTeamName { font-size: var(--t-20); }
 
-.podiumManager {
-  font-size: var(--text-sm);
-  color: var(--color-text-muted);
-  margin: 0 0 var(--space-4) 0;
-}
+.podiumManager { margin: 0 0 var(--s4) 0; }
 
 .podiumBottom {
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
+  gap: var(--s4);
+  width: 100%;
+  margin-top: auto;
 }
 
-.podiumRecordGroup,
-.podiumPointsGroup {
+.podiumStatGroup {
   display: flex;
   flex-direction: column;
   gap: 2px;
+  align-items: flex-start;
 }
 
-.podiumPointsGroup {
-  align-items: flex-end;
-}
-
-.podiumStatLabel {
-  font-family: var(--font-sans);
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  color: var(--color-text-muted);
-  text-transform: uppercase;
-}
+.podiumStatGroupEnd { align-items: flex-end; }
 
 .podiumRecord {
   font-family: var(--font-sans);
-  font-size: var(--text-sm);
+  font-size: var(--t-13);
   font-weight: 600;
   color: var(--color-text-secondary);
-  font-variant-numeric: tabular-nums;
+  font-variant-numeric: tabular-nums lining-nums;
 }
 
 .podiumStatValue {
   font-family: var(--font-serif);
-  font-size: var(--text-3xl);
+  font-size: var(--t-25);
   font-weight: 700;
-  color: var(--color-accent-green);
-  letter-spacing: -0.03em;
+  color: var(--color-text-primary);
+  letter-spacing: -0.02em;
   line-height: 1;
+  font-variant-numeric: tabular-nums lining-nums;
 }
 
-/* ── Table ── */
-.tableSection {
-  /* Use the header color as the section background so rounded-corner
-     clipping never reveals a white bleed behind the thead */
-  background: var(--color-bg-secondary);
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-  box-shadow: var(--shadow-card);
-  border: 1px solid var(--color-border-subtle);
+.podiumTierLeader .podiumStatValue { font-size: var(--t-32); }
+
+/* "Yours" at podium scale is the same rule under the same figure as the
+   scoreline's — .g-score-mine .g-score-v draws it identically. */
+.podiumStatValueMine {
+  display: inline-block;
+  border-bottom: 2px solid var(--color-accent);
+  padding-bottom: 3px;
 }
 
+/* ── Section head ───────────────────────────────────────── */
+/* A heading, not the tracked label — decision 5 rations that device to one
+   per panel, and the podium's own g-label-quiet captions already spend it. */
+
+.sectionHead {
+  font-family: var(--font-serif);
+  font-size: var(--t-15);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--color-text-primary);
+  margin: var(--s5) var(--s6) var(--s2);
+  padding-bottom: var(--s2);
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+/* ── Table ──────────────────────────────────────────────── */
 
 .table {
   width: 100%;
   border-collapse: collapse;
+  font-size: var(--t-13);
 }
 
-.tableHead th {
-  padding: var(--space-3) var(--space-6);
-  font-family: var(--font-sans);
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.15em;
-  color: var(--color-text-secondary);
-  text-transform: uppercase;
+.table thead th {
   text-align: right;
-  white-space: nowrap;
+  font-family: var(--font-condensed);
+  font-size: var(--t-10);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  padding: var(--s2) var(--s3);
   border-bottom: 1px solid var(--color-border);
-  background: var(--color-bg-secondary);
+  white-space: nowrap;
 }
 
-.tableHead th:first-child {
-  text-align: center;
-  width: 60px;
-}
+.table thead th:first-child { text-align: center; width: 60px; }
+.table thead th.teamHeading,
+.table thead th.managerHeading { text-align: left; }
+.table thead th.formHeading { text-align: center; }
 
-.tableHead th.teamHeading {
-  text-align: left;
-}
-
-.tableHead th.managerHeading {
-  text-align: left;
-}
-
-.tableHead th.formHeading {
-  text-align: center;
-}
-
-/* Rows — explicit background on every row so the section's beige never bleeds through */
 .tableRow {
-  border-top: 1px solid rgba(200, 195, 188, 0.3);
-  transition: background var(--transition-fast);
-  background: var(--color-bg-card);
+  border-top: 1px solid var(--color-border-subtle);
+  transition: background var(--dur-fast) var(--ease-standard);
 }
 
-.tableRow:first-child {
-  border-top: none;
+.tableRow:first-child { border-top: none; }
+
+@media (hover: hover) and (pointer: fine) {
+  .tableRow:hover { background: var(--color-bg-inset); }
 }
 
-.tableRow:nth-child(odd) {
-  background: var(--color-bg-card-alt);
-}
-
-.tableRow:hover {
-  background: var(--color-bg-card-hover);
-}
-
-/* Own team */
+/* Own team: a wash, not a filled badge or a recoloured rank — the wash IS
+   the state. A second carrier on the same row (accent rank number, accent
+   points figure) is the auctions port's rule 2: the wash and the colour are
+   alternatives, not partners. */
 .tableRow.ownRow {
-  background: rgba(58, 107, 74, 0.05);
+  background: color-mix(in oklab, var(--color-accent) 12%, transparent);
+  --row-ink: var(--color-text-secondary);
 }
 
-.tableRow.ownRow:hover {
-  background: rgba(58, 107, 74, 0.09);
-}
-
-/* Inset shadow accent — no box-model impact, no border-collapse conflict */
-.tableRow.ownRow td:first-child {
-  box-shadow: inset 4px 0 0 var(--color-accent-green);
+@media (hover: hover) and (pointer: fine) {
+  .tableRow.ownRow:hover {
+    background: color-mix(in oklab, var(--color-accent) 18%, transparent);
+  }
 }
 
 .tableRow td {
-  padding: var(--space-5) var(--space-6);
-  font-size: var(--text-sm);
-  color: var(--color-text-secondary);
+  padding: var(--s4) var(--s3);
+  color: var(--row-ink, var(--color-text-secondary));
   text-align: right;
-  font-variant-numeric: tabular-nums;
+  font-variant-numeric: tabular-nums lining-nums;
   white-space: nowrap;
 }
 
-/* Rank */
 .tableRow td.rankCell {
   text-align: center;
   font-family: var(--font-serif);
-  font-size: var(--text-xl);
+  font-size: var(--t-20);
   font-weight: 700;
-  color: var(--color-text-muted);
+  /* --row-ink, not a hardcoded muted — rule 1 (auctions port): a washed row
+     lifts EVERY muted slot to secondary, and this one was measured at 4.34
+     in dark before the fix (scratch/verify_standings.mjs). Muted at rest,
+     same as the manager cell below. */
+  color: var(--row-ink, var(--color-text-muted));
   width: 60px;
 }
 
-.tableRow.ownRow td.rankCell {
-  color: var(--color-accent-green);
-}
-
-/* Team */
 .tableRow td.teamCell {
   text-align: left;
   min-width: 150px;
 }
 
+.teamCellInner {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  min-width: 0;
+}
+
 .teamCellName {
   font-family: var(--font-serif);
-  font-size: var(--text-lg);
+  font-size: var(--t-17);
   font-weight: 500;
   color: var(--color-text-primary);
   letter-spacing: -0.01em;
@@ -275,100 +308,57 @@
   color: inherit;
   text-decoration: none;
 }
-.teamLink:hover {
-  color: var(--color-accent);
-  text-decoration: underline;
-  text-underline-offset: 3px;
+@media (hover: hover) and (pointer: fine) {
+  .teamLink:hover {
+    color: var(--color-accent-ink);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
 }
 
-/* The crest becomes a peek trigger — a bare button, styled as the badge it wraps. */
-.crestPeek {
-  display: inline-flex;
-  padding: 0;
-  border: none;
-  background: none;
-  cursor: pointer;
-  line-height: 0;
-  border-radius: 4px;
-  transition: transform var(--transition-fast), filter var(--transition-fast);
-}
-.crestPeek:hover {
-  transform: translateY(-1.5px) scale(1.06);
-  filter: drop-shadow(0 4px 10px color-mix(in srgb, var(--color-accent) 40%, transparent));
-}
-
-/* Manager */
 .tableRow td.managerCell {
   text-align: left;
   min-width: 110px;
-  color: var(--color-text-muted);
-  font-size: var(--text-sm);
+  color: var(--row-ink, var(--color-text-muted));
 }
 
-/* Pts — bold, larger */
 .tableRow td.ptsCell {
   font-family: var(--font-sans);
-  font-size: var(--text-lg);
+  font-size: var(--t-15);
   font-weight: 700;
   color: var(--color-text-primary);
 }
 
-/* GD */
-.tableRow td.gdPos {
-  font-weight: 600;
-  color: var(--color-accent-green);
-}
+/* ── Form dots ──────────────────────────────────────────── */
+/* The only place on this page that shows a last-5 record at a glance, so
+   unlike the matchups port's W/L/D badges (deleted, not recoloured, because
+   they restated a scoreline already on screen) these are the sole carrier
+   and stay. See the file header for the colour-law exception and the
+   dark-mode fix that made the loss dot legal. */
 
-.tableRow td.gdNeg {
-  font-weight: 600;
-  color: #c0392b;
-}
-
-/* Form dots */
-.tableRow td.formCell {
-  text-align: center;
-}
+.tableRow td.formCell { text-align: center; }
 
 .formDots {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 4px;
+  gap: var(--s1);
 }
 
 .formDot {
   width: 8px;
   height: 8px;
-  border-radius: 50%;
+  border-radius: var(--r-round);
   flex-shrink: 0;
 }
 
-.formDotW {
-  background: var(--color-accent-green);
-}
+.formDotW { background: var(--color-accent); }
+.formDotD { background: var(--color-warning-text); }
+.formDotL { background: var(--color-defeat); }
+.formDotEmpty { background: var(--color-border); }
 
-.formDotD {
-  background: #f59e0b;
-}
+/* ── Responsive ─────────────────────────────────────────── */
 
-.formDotL {
-  background: #c0392b;
-}
-
-.formDotEmpty {
-  background: var(--color-border);
-}
-
-/* Empty state */
-.emptyState {
-  padding: var(--space-16) var(--space-6);
-  text-align: center;
-  color: var(--color-text-muted);
-  font-size: var(--text-sm);
-  font-style: italic;
-}
-
-/* ── Responsive ── */
 @media (max-width: 1024px) {
   .managerCell,
   .managerHeading {
@@ -378,27 +368,28 @@
 
 @media (max-width: 768px) {
   .podium {
-    grid-template-columns: 1fr;
+    flex-direction: column;
     align-items: stretch;
   }
 
-  .podiumCard {
-    height: auto;
-    min-height: 200px;
+  .podiumTier + .podiumTier {
+    border-left: none;
+    border-top: 1px solid var(--color-border-subtle);
   }
 
-  .podiumCardLeader {
-    height: auto;
-    min-height: 220px;
-  }
-
-  .tableHead th,
-  .tableRow td {
-    padding: var(--space-3) var(--space-3);
-  }
+  .podiumTierLeader { padding-top: var(--s6); }
 
   .formCell,
-  .tableHead th:last-child {
+  .table thead th:last-child {
     display: none;
   }
+}
+
+@media (max-width: 600px) {
+  .masthead { padding: var(--s5) var(--s4) var(--s3); }
+  .title { font-size: var(--t-25); }
+  .panel { margin: 0 var(--s4) var(--s6); }
+  .sectionHead { margin-left: var(--s4); margin-right: var(--s4); }
+  .table thead th,
+  .tableRow td { padding: var(--s3); }
 }

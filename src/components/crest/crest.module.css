@@ -25,10 +25,12 @@
   text-decoration: none;
 }
 
-.interactiveCrest:hover,
-.interactiveCrestBtn:hover {
-  transform: scale(1.05);
-  filter: brightness(1.1);
+@media (hover: hover) and (pointer: fine) {
+  .interactiveCrest:hover,
+  .interactiveCrestBtn:hover {
+    transform: scale(1.05);
+    filter: brightness(1.1);
+  }
 }
 
 .interactiveCrest:active,
@@ -111,8 +113,10 @@
   background: var(--color-border-subtle);
   border-radius: var(--radius-full);
 }
-.controlsCol::-webkit-scrollbar-thumb:hover {
-  background: var(--color-border);
+@media (hover: hover) and (pointer: fine) {
+  .controlsCol::-webkit-scrollbar-thumb:hover {
+    background: var(--color-border);
+  }
 }
 
 .headerRow {
@@ -195,10 +199,12 @@
   color: var(--color-text-secondary);
 }
 
-.optionBtn:hover {
-  border-color: var(--color-border);
-  background: var(--color-bg-card-hover);
-  color: var(--color-text-primary);
+@media (hover: hover) and (pointer: fine) {
+  .optionBtn:hover {
+    border-color: var(--color-border);
+    background: var(--color-bg-card-hover);
+    color: var(--color-text-primary);
+  }
 }
 
 .optionBtnActive {
@@ -225,9 +231,11 @@
   padding: 0;
 }
 
-.colorBtn:hover {
-  transform: scale(1.1);
-  z-index: 2;
+@media (hover: hover) and (pointer: fine) {
+  .colorBtn:hover {
+    transform: scale(1.1);
+    z-index: 2;
+  }
 }
 
 .colorBtnActive {
@@ -378,8 +386,10 @@ input:checked + .slider:before {
   transition: background var(--transition-fast);
 }
 
-.submitBtn:hover {
-  background: var(--color-accent-hover);
+@media (hover: hover) and (pointer: fine) {
+  .submitBtn:hover {
+    background: var(--color-accent-hover);
+  }
 }
 
 .submitBtn:disabled {
@@ -401,10 +411,12 @@ input:checked + .slider:before {
   transition: all var(--transition-fast);
 }
 
-.secondaryBtn:hover {
-  border-color: var(--color-text-muted);
-  color: var(--color-text-primary);
-  background: var(--color-bg-card-hover);
+@media (hover: hover) and (pointer: fine) {
+  .secondaryBtn:hover {
+    border-color: var(--color-text-muted);
+    color: var(--color-text-primary);
+    background: var(--color-bg-card-hover);
+  }
 }
 
 .shuffleBtn {
@@ -422,8 +434,10 @@ input:checked + .slider:before {
   transition: all var(--transition-fast);
 }
 
-.shuffleBtn:hover {
-  border-color: var(--color-text-muted);
-  color: var(--color-text-primary);
-  background: var(--color-bg-card-hover);
+@media (hover: hover) and (pointer: fine) {
+  .shuffleBtn:hover {
+    border-color: var(--color-text-muted);
+    color: var(--color-text-primary);
+    background: var(--color-bg-card-hover);
+  }
 }

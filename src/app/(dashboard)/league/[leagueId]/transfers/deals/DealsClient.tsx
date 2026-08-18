@@ -228,10 +228,7 @@ export default function DealsClient({
           <span className={styles.dealTitle}>
             {incoming ? `${them} → you` : `you → ${them}`}
           </span>
-          <span
-            className={styles.dealTag}
-            style={{ background: p.sale_listing_id ? 'var(--color-accent)' : 'var(--color-pos-cb)' }}
-          >
+          <span className={`${styles.dealTag} ${p.sale_listing_id ? styles.dealTagMine : ''}`}>
             {naming.headline}{p.sale_listing_id ? ' · on your listing' : ''}
           </span>
         </header>
@@ -313,7 +310,7 @@ export default function DealsClient({
           <span className={styles.dealTitle}>
             {l.player ? getPlayerDisplayName(l.player, 'full') : 'A player'} {lending ? '→' : '←'} {other}
           </span>
-          <span className={styles.dealTag} style={{ background: 'var(--color-pos-wb)' }}>
+          <span className={styles.dealTag}>
             Loan · GW{l.start_gameweek}–{l.end_gameweek}
           </span>
         </header>
@@ -420,28 +417,30 @@ export default function DealsClient({
 
       <header className={styles.header}>
         <div>
-          <div className={styles.kicker}>Transfer Market → Deals</div>
+          <div className={`g-label ${styles.kicker}`}>Transfer Market → Deals</div>
           <h1 className={styles.title}>Your Deals</h1>
         </div>
         <div className={styles.stats}>
           <div className={styles.stat}>
             <div className={`${styles.statValue} ${answerCount ? styles.statRed : ''}`}>{answerCount}</div>
-            <div className={styles.statLabel}>To answer</div>
+            <div className={`g-label-quiet ${styles.statLabel}`}>To answer</div>
           </div>
           <div className={styles.stat}>
             <div className={styles.statValue}>{sent.length + loansSent.length}</div>
-            <div className={styles.statLabel}>Sent</div>
+            <div className={`g-label-quiet ${styles.statLabel}`}>Sent</div>
           </div>
           <div className={styles.stat}>
             <div className={styles.statValue}>{myListings.length}</div>
-            <div className={styles.statLabel}>Your listings</div>
+            <div className={`g-label-quiet ${styles.statLabel}`}>Your listings</div>
           </div>
+          {/* No colour: the loan-slot figure ran on --color-pos-wb, a wing-back
+              field colour, and measured 2.65 on the dark page. */}
           <div className={styles.stat}>
-            <div className={`${styles.statValue} ${styles.statTeal}`}>
+            <div className={styles.statValue}>
               {runningLoans.filter((l) => l.borrower_team_id === me).length} of{' '}
               {model.league.max_loan_ins ?? 2}
             </div>
-            <div className={styles.statLabel}>Loan slots</div>
+            <div className={`g-label-quiet ${styles.statLabel}`}>Loan slots</div>
           </div>
         </div>
       </header>
@@ -453,26 +452,26 @@ export default function DealsClient({
             <span className={styles.proposeText}>
               <b>Start something.</b> You don&rsquo;t need a listing — propose on any player in the league.
             </span>
+            {/* One filled action, two ghosts — the offer is the bar's point and
+                the two loan routes are the same action at lower rank. They were
+                three filled buttons in two position-field colours. */}
             <button
               type="button"
               className={styles.proposeBtn}
-              style={{ background: 'var(--color-pos-cb)' }}
               onClick={() => { setProposeRightId(null); setProposeTeamId(null); setProposePlayerId(null); setProposeCounterSeed(null); setPropose('offer'); }}
             >
               Make an offer
             </button>
             <button
               type="button"
-              className={styles.proposeBtn}
-              style={{ background: 'var(--color-pos-wb)' }}
+              className={`${styles.proposeBtn} ${styles.proposeBtnGhost}`}
               onClick={() => { setProposeLoanDirection('borrow'); setProposeTeamId(null); setProposePlayerId(null); setProposeCounterSeed(null); setPropose('loan'); }}
             >
               Request a loan
             </button>
             <button
               type="button"
-              className={styles.proposeBtn}
-              style={{ background: 'var(--color-pos-wb)' }}
+              className={`${styles.proposeBtn} ${styles.proposeBtnGhost}`}
               onClick={() => { setProposeLoanDirection('lend'); setProposeTeamId(null); setProposePlayerId(null); setProposeCounterSeed(null); setPropose('loan'); }}
             >
               Propose a loan

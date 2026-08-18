@@ -301,16 +301,20 @@
   transition: background 0.15s;
 }
 
-.standingsRow:hover {
-  background: var(--color-bg-elevated);
+@media (hover: hover) and (pointer: fine) {
+  .standingsRow:hover {
+    background: var(--color-bg-elevated);
+  }
 }
 
 .myStandingsRow {
   background: rgba(58, 107, 74, 0.06) !important;
 }
 
-.myStandingsRow:hover {
-  background: rgba(58, 107, 74, 0.1) !important;
+@media (hover: hover) and (pointer: fine) {
+  .myStandingsRow:hover {
+    background: rgba(58, 107, 74, 0.1) !important;
+  }
 }
 
 .standingsColRnk {
@@ -360,7 +364,7 @@
 
 .youTag {
   font-family: var(--font-sans);
-  font-size: 8px;
+  font-size: var(--t-10);
   font-weight: 700;
   letter-spacing: 0.1em;
   padding: 2px 5px;
@@ -431,8 +435,10 @@
   transition: background 0.15s;
 }
 
-.playerChip:hover {
-  background: var(--color-bg-card-hover);
+@media (hover: hover) and (pointer: fine) {
+  .playerChip:hover {
+    background: var(--color-bg-card-hover);
+  }
 }
 
 .myPlayerChip {
@@ -676,9 +682,11 @@
   transition: border-color 0.15s;
 }
 
-.actionBtn:hover {
-  border-color: var(--color-accent-green);
-  color: var(--color-accent-green);
+@media (hover: hover) and (pointer: fine) {
+  .actionBtn:hover {
+    border-color: var(--color-accent-green);
+    color: var(--color-accent-green);
+  }
 }
 
 /* --- REBUILT DASHBOARD CLASSES FOR CREAM EDITORIAL --- */
@@ -702,10 +710,12 @@
   transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.faabCardLink:hover .faabCard {
-  border-color: var(--color-accent-green);
-  box-shadow: var(--shadow-card-lift);
-  transform: translateY(-2px);
+@media (hover: hover) and (pointer: fine) {
+  .faabCardLink:hover .faabCard {
+    border-color: var(--color-accent-green);
+    box-shadow: var(--shadow-card-lift);
+    transform: translateY(-2px);
+  }
 }
 
 .cardPadding {
@@ -912,10 +922,12 @@
   transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.matchupHeroLink:hover .matchupHero {
-  border-color: var(--color-accent-green);
-  box-shadow: var(--shadow-card-lift);
-  transform: translateY(-2px);
+@media (hover: hover) and (pointer: fine) {
+  .matchupHeroLink:hover .matchupHero {
+    border-color: var(--color-accent-green);
+    box-shadow: var(--shadow-card-lift);
+    transform: translateY(-2px);
+  }
 }
 
 .matchupHeader {
@@ -1416,8 +1428,10 @@
   text-align: left;
 }
 
-.perfName:hover {
-  text-decoration: underline;
+@media (hover: hover) and (pointer: fine) {
+  .perfName:hover {
+    text-decoration: underline;
+  }
 }
 
 .perfTeamName {
@@ -1546,9 +1560,11 @@
   box-shadow: 0 2px 4px rgba(217, 119, 6, 0.2);
 }
 
-.bannerButton:hover {
-  background: #b45309;
-  transform: translateY(-1px);
+@media (hover: hover) and (pointer: fine) {
+  .bannerButton:hover {
+    background: #b45309;
+    transform: translateY(-1px);
+  }
 }
 
 .bannerButton:active {

@@ -93,7 +93,9 @@
   line-height: 1;
   transition: background var(--transition-fast), color var(--transition-fast);
 }
-.close:hover { background: var(--color-bg-card-hover); color: var(--color-text-primary); }
+@media (hover: hover) and (pointer: fine) {
+  .close:hover { background: var(--color-bg-card-hover); color: var(--color-text-primary); }
+}
 
 .err {
   margin: 12px 20px 0;
@@ -133,7 +135,9 @@
   border: 1px solid var(--color-border-subtle);
   transition: background var(--transition-fast), border-color var(--transition-fast);
 }
-.opt:hover { border-color: var(--color-accent); background: var(--color-accent-dim); }
+@media (hover: hover) and (pointer: fine) {
+  .opt:hover { border-color: var(--color-accent); background: var(--color-accent-dim); }
+}
 .opt:active { transform: translateY(1px); }
 .opt:disabled { opacity: 0.55; cursor: not-allowed; }
 .optTitle { font-size: var(--text-sm); font-weight: var(--font-bold); color: var(--color-text-primary); }
@@ -184,13 +188,19 @@
   color: var(--color-text-secondary);
   transition: background var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
 }
-.btn:hover { background: var(--color-bg-card-hover); color: var(--color-text-primary); border-color: var(--color-border); }
+@media (hover: hover) and (pointer: fine) {
+  .btn:hover { background: var(--color-bg-card-hover); color: var(--color-text-primary); border-color: var(--color-border); }
+}
 .btn:active { transform: translateY(1px); }
 .btn:disabled { opacity: 0.55; cursor: not-allowed; }
 .btnPrimary { background: var(--color-accent); border-color: var(--color-accent); color: var(--color-text-inverse); }
-.btnPrimary:hover { background: var(--color-accent-hover); color: var(--color-text-inverse); }
+@media (hover: hover) and (pointer: fine) {
+  .btnPrimary:hover { background: var(--color-accent-hover); color: var(--color-text-inverse); }
+}
 .btnDanger { flex: none; color: var(--color-danger); }
-.btnDanger:hover { background: var(--color-danger-dim); border-color: var(--color-danger); color: var(--color-danger); }
+@media (hover: hover) and (pointer: fine) {
+  .btnDanger:hover { background: var(--color-danger-dim); border-color: var(--color-danger); color: var(--color-danger); }
+}
 .btnGrow { flex: 1 1 auto; }
 
 @media (max-width: 460px) {

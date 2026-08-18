@@ -134,9 +134,11 @@
   box-shadow: var(--shadow-sm);
 }
 
-.auctionCard:hover {
-  border-color: var(--color-border);
-  box-shadow: var(--shadow-md);
+@media (hover: hover) and (pointer: fine) {
+  .auctionCard:hover {
+    border-color: var(--color-border);
+    box-shadow: var(--shadow-md);
+  }
 }
 
 .auctionCardUrgent {
@@ -221,7 +223,7 @@
 }
 
 .posBadgeMini {
-  font-size: 8px;
+  font-size: var(--t-10);
   font-weight: var(--font-bold);
   color: #fff;
   padding: 1px 4px;
@@ -251,7 +253,7 @@
 }
 
 .statLabelMini {
-  font-size: 8px;
+  font-size: var(--t-10);
   font-weight: var(--font-bold);
   letter-spacing: 0.05em;
   text-transform: uppercase;
@@ -281,7 +283,7 @@
 }
 
 .auctionLabelMini {
-  font-size: 8px;
+  font-size: var(--t-10);
   font-weight: var(--font-bold);
   text-transform: uppercase;
   color: var(--color-text-muted);
@@ -327,8 +329,10 @@
   transition: background var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
 }
 
-.auctionBidBtnMini:hover {
-  background: var(--color-accent);
+@media (hover: hover) and (pointer: fine) {
+  .auctionBidBtnMini:hover {
+    background: var(--color-accent);
+  }
 }
 
 .ab-leading .auctionBidBtnMini {
@@ -337,10 +341,12 @@
   border: 1px solid var(--color-border) !important;
 }
 
-.ab-leading .auctionBidBtnMini:hover {
-  background: rgba(58, 107, 74, 0.08) !important;
-  border-color: var(--color-accent) !important;
-  color: var(--color-accent) !important;
+@media (hover: hover) and (pointer: fine) {
+  .ab-leading .auctionBidBtnMini:hover {
+    background: rgba(58, 107, 74, 0.08) !important;
+    border-color: var(--color-accent) !important;
+    color: var(--color-accent) !important;
+  }
 }
 
 /* ============================================================
@@ -454,10 +460,12 @@
   box-shadow: var(--shadow-sm);
 }
 
-.carouselNavBtn:hover {
-  border-color: var(--color-accent-green);
-  color: var(--color-accent-green);
-  background: var(--color-accent-green-dim);
+@media (hover: hover) and (pointer: fine) {
+  .carouselNavBtn:hover {
+    border-color: var(--color-accent-green);
+    color: var(--color-accent-green);
+    background: var(--color-accent-green-dim);
+  }
 }
 
 .deckScale {
@@ -516,8 +524,10 @@
   transition: background var(--transition-base);
 }
 
-.deckDot:hover {
-  background: var(--color-text-muted);
+@media (hover: hover) and (pointer: fine) {
+  .deckDot:hover {
+    background: var(--color-text-muted);
+  }
 }
 
 .deckDotActive {
@@ -563,7 +573,7 @@
 
 .clockLabel {
   font-family: var(--font-sans);
-  font-size: 6px;
+  font-size: var(--t-10);
   font-weight: 700;
   letter-spacing: 0.15em;
   text-transform: uppercase;
@@ -618,7 +628,7 @@
 
 .stripPickLabel {
   font-family: var(--font-serif);
-  font-size: 8px;
+  font-size: var(--t-10);
   font-style: italic;
   color: var(--color-text-muted);
   line-height: 1;
@@ -630,7 +640,7 @@
 
 .stripTeamName {
   font-family: var(--font-sans);
-  font-size: 8px;
+  font-size: var(--t-10);
   font-weight: 700;
   text-transform: uppercase;
   color: var(--color-text-primary);
@@ -649,7 +659,7 @@
 
 .bannerRoundLabel {
   font-family: var(--font-sans);
-  font-size: 8px;
+  font-size: var(--t-10);
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -708,7 +718,7 @@
 
 .boardSubtitle {
   font-family: var(--font-sans);
-  font-size: 8px;
+  font-size: var(--t-10);
   letter-spacing: 0.05em;
   text-transform: uppercase;
   color: var(--color-text-muted);
@@ -724,7 +734,7 @@
   width: 32px;
   background: var(--color-bg-secondary);
   font-family: var(--font-sans);
-  font-size: 8px;
+  font-size: var(--t-10);
   font-weight: 700;
   text-transform: uppercase;
   color: var(--color-text-muted);
@@ -736,7 +746,7 @@
 .teamHeaderCell {
   background: var(--color-bg-secondary);
   font-family: var(--font-sans);
-  font-size: 8px;
+  font-size: var(--t-10);
   font-weight: 700;
   text-transform: uppercase;
   text-align: center;
@@ -756,7 +766,7 @@
 .roundCell {
   background: var(--color-bg-secondary);
   font-family: var(--font-sans);
-  font-size: 8px;
+  font-size: var(--t-10);
   font-weight: 700;
   color: var(--color-text-muted);
   text-align: center;
@@ -789,7 +799,7 @@
   top: 2px;
   left: 3px;
   font-family: var(--font-sans);
-  font-size: 7px;
+  font-size: var(--t-10);
   color: var(--color-text-muted);
   line-height: 1;
 }
@@ -809,7 +819,7 @@
   align-items: center;
   justify-content: center;
   font-family: var(--font-sans);
-  font-size: 7px;
+  font-size: var(--t-10);
   font-weight: 700;
   color: #fff;
   border-radius: 2px;
@@ -819,7 +829,7 @@
 
 .pickedName {
   font-family: var(--font-sans);
-  font-size: 8px;
+  font-size: var(--t-10);
   font-weight: 600;
   color: var(--color-text-primary);
   text-align: center;
@@ -844,7 +854,7 @@
 }
 
 .onClockText {
-  font-size: 7px;
+  font-size: var(--t-10);
   font-weight: var(--font-bold);
   color: var(--color-accent-green);
   letter-spacing: 0.05em;
@@ -880,8 +890,10 @@
   transition: border-color var(--transition-fast);
 }
 
-.cupCard:hover {
-  border-color: var(--color-border);
+@media (hover: hover) and (pointer: fine) {
+  .cupCard:hover {
+    border-color: var(--color-border);
+  }
 }
 
 .cupHeader {
@@ -891,7 +903,7 @@
 }
 
 .cupEyebrow {
-  font-size: 8px;
+  font-size: var(--t-10);
   font-weight: var(--font-bold);
   text-transform: uppercase;
   color: var(--color-text-muted);
@@ -916,7 +928,7 @@
 }
 
 .cupTieHeader {
-  font-size: 8px;
+  font-size: var(--t-10);
   font-weight: var(--font-bold);
   color: var(--color-text-muted);
   letter-spacing: 0.05em;
@@ -960,7 +972,7 @@
 
 .cupScore small {
   font-family: var(--font-sans);
-  font-size: 8px;
+  font-size: var(--t-10);
   color: var(--color-text-muted);
   font-weight: normal;
 }
@@ -996,8 +1008,10 @@
   transition: background var(--transition-base);
 }
 
-.dot:hover {
-  background: var(--color-text-muted);
+@media (hover: hover) and (pointer: fine) {
+  .dot:hover {
+    background: var(--color-text-muted);
+  }
 }
 
 .dotActive {
@@ -1030,10 +1044,12 @@
   transition: border-color var(--transition-fast), color var(--transition-fast), background var(--transition-fast);
 }
 
-.arrow:hover {
-  border-color: var(--color-accent-green);
-  color: var(--color-accent-green);
-  background: var(--color-accent-green-dim);
+@media (hover: hover) and (pointer: fine) {
+  .arrow:hover {
+    border-color: var(--color-accent-green);
+    color: var(--color-accent-green);
+    background: var(--color-accent-green-dim);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

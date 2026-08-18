@@ -16,7 +16,7 @@ import { loadReferenceStats } from '@/lib/scoring/matchups';
 import { resolveAllStalledGameweeks, processMatchupsForGameweek } from '@/lib/scoring/matchupProcessor';
 import { getCurrentFplSeason, getLatestReferenceStatsSeason } from '@/lib/season/currentSeason';
 import { snapshotCurrentFplFixtures } from '@/lib/fixtures/upsertFixtures';
-import { recomputePositionRanks } from '@/lib/stats/seasonStats';
+import { recomputePositionRanks, type RecomputeResult } from '@/lib/stats/seasonStats';
 import type { GranularPosition, FplLivePlayerStats } from '@/types';
 import { createClient } from '@supabase/supabase-js';
 import { NextRequest, NextResponse } from 'next/server';
@@ -320,7 +320,7 @@ async function syncFplLiveRatings(gameweek: number): Promise<NextResponse> {
 
   // Positional ranks are re-scored per position (migration 085) and so must be
   // recomputed here, once totals are settled, rather than derived in the view.
-  let positionRanks: unknown = null;
+  let positionRanks: RecomputeResult | null = null;
   try {
     positionRanks = await recomputePositionRanks(supabase, fplSeason);
   } catch (err) {

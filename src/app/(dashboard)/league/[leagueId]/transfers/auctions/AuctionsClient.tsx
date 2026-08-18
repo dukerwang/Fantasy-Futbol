@@ -7,8 +7,9 @@ import type { TransfersAuction, TransfersModel } from '@/lib/transfers/buildTran
 import type { CrestConfig } from '@/components/crest/types';
 import CrestBadge from '@/components/crest/CrestBadge';
 import PositionBadge from '@/components/players/PositionBadge';
+import Portrait from '@/components/players/Portrait';
 import { usePlayerCard } from '@/components/players/PlayerCardProvider';
-import { getPlayerDisplayName, playerInitial } from '@/lib/players/displayName';
+import { getPlayerDisplayName } from '@/lib/players/displayName';
 import TransfersSubNav from '@/components/transfers/TransfersSubNav';
 import BidDialog, { type BidMode } from '@/components/transfers/BidDialog';
 import { setServerClock, useTick, formatRemaining, isClosing } from '@/components/transfers/useTick';
@@ -34,6 +35,7 @@ import styles from './auctions.module.css';
 type Facet = 'all' | 'closing' | 'leading' | 'outbid' | 'free' | 'listed' | 'affordable';
 
 const money = (n: number) => `€${n}m`;
+const bids = (n: number) => `${n} bid${n === 1 ? '' : 's'}`;
 
 export default function AuctionsClient({
   leagueId,
@@ -120,13 +122,29 @@ export default function AuctionsClient({
     .filter((a) => a.highest_bidder_team_id === me)
     .reduce((s, a) => s + a.highest_bid, 0);
 
+  /**
+   * These are set as TEXT on a card, so each has to clear 4.5:1 in both themes.
+   * Three of them did not, and each theme failed differently — which is exactly
+   * why 2.0 verifies every pair in both:
+   *
+   *   light  --color-warning  2.09  (the raw amber is a fill, never an ink)
+   *   dark   --color-defeat   1.89  (a match result, and it has no dark value)
+   *   dark   --color-pos-cb   2.00  (a position FIELD colour, read as a label)
+   *
+   * So: the ink-safe warning, danger for "outbid" (defeat means a lost
+   * matchup, not a lost auction), and plain ink for "listed" — a provenance
+   * filter is not a state, and borrowing a position hue for it broke both the
+   * colour law and the contrast floor at once.
+   */
   const facets: { key: Facet; label: string; color: string }[] = [
     { key: 'all', label: 'All', color: 'var(--color-text-primary)' },
-    { key: 'closing', label: 'Closing inside the hour', color: 'var(--color-warning)' },
-    { key: 'leading', label: "You're leading", color: 'var(--color-accent)' },
-    { key: 'outbid', label: 'Outbid', color: 'var(--color-defeat)' },
+    { key: 'closing', label: 'Closing inside the hour', color: 'var(--color-warning-text)' },
+    // accent-ink, not accent: an unselected facet paints its colour as TEXT on
+    // the card, where the fill token measures 4.33 in dark.
+    { key: 'leading', label: "You're leading", color: 'var(--color-accent-ink)' },
+    { key: 'outbid', label: 'Outbid', color: 'var(--color-danger)' },
     { key: 'free', label: 'Free agents', color: 'var(--color-text-secondary)' },
-    { key: 'listed', label: 'Listed', color: 'var(--color-pos-cb)' },
+    { key: 'listed', label: 'Listed', color: 'var(--color-text-secondary)' },
     { key: 'affordable', label: 'Within budget', color: 'var(--color-text-secondary)' },
   ];
 
@@ -151,30 +169,32 @@ export default function AuctionsClient({
   }, [biddableAuctions, me]);
 
   return (
-    <div className={styles.page}>
+    <div className={`${styles.page} g-page`}>
       <TransfersSubNav leagueId={leagueId} counts={model.counts} />
 
       <header className={styles.header}>
         <div>
-          <div className={styles.kicker}>Transfer Market → Auctions</div>
+          <div className={`g-label ${styles.kicker}`}>Transfer Market → Auctions</div>
           <h1 className={styles.title}>The Auction Room</h1>
         </div>
         <div className={styles.stats}>
           <div className={styles.stat}>
             <div className={`${styles.statValue} ${styles.statAccent}`}>{money(budget)}</div>
-            <div className={styles.statLabel}>Club Balance</div>
+            <div className={`g-label-quiet ${styles.statLabel}`}>Club Balance</div>
           </div>
           <div className={styles.stat}>
-            <div className={`${styles.statValue} ${styles.statWarn}`}>{biddableAuctions.length}</div>
-            <div className={styles.statLabel}>Lots live</div>
+            {/* Plain ink. A count of live lots is not a warning, and amber was
+                doing nothing here but spending a colour that has a job. */}
+            <div className={styles.statValue}>{biddableAuctions.length}</div>
+            <div className={`g-label-quiet ${styles.statLabel}`}>Lots live</div>
           </div>
           <div className={styles.stat}>
             <div className={`${styles.statValue} ${leadingCount ? styles.statAccent : ''}`}>{leadingCount}</div>
-            <div className={styles.statLabel}>You&rsquo;re leading</div>
+            <div className={`g-label-quiet ${styles.statLabel}`}>You&rsquo;re leading</div>
           </div>
           <div className={styles.stat}>
             <div className={`${styles.statValue} ${outbidCount ? styles.statRed : ''}`}>{outbidCount}</div>
-            <div className={styles.statLabel}>Outbid</div>
+            <div className={`g-label-quiet ${styles.statLabel}`}>Outbid</div>
           </div>
         </div>
       </header>
@@ -194,15 +214,23 @@ export default function AuctionsClient({
       </div>
 
       <div className={styles.body}>
+        {/* One panel, two columns — the list and its rail are one instrument.
+            See design-2.0/README.md § "A board is one panel". */}
+        <div className={`${styles.board} g-panel`}>
         <main className={styles.main}>
-          <div className={styles.lotHead}>
-            <span className={styles.lh}>Lot</span>
-            <span className={`${styles.lh} ${styles.r}`}>Standing bid</span>
-            <span className={`${styles.lh} ${styles.r}`}>Leader</span>
-            <span className={`${styles.lh} ${styles.r}`}>You</span>
-            <span className={`${styles.lh} ${styles.r}`}>Closes</span>
-            <span className={styles.lh} />
-          </div>
+          {/* Column heads only when there are columns to head. With an empty
+              room they rendered as a bare ruled strip above "nothing is under
+              the hammer" — a table header for a table that isn't there. */}
+          {visible.length > 0 && (
+            <div className={styles.lotHead}>
+              <span className="g-label">Lot</span>
+              <span className={`g-label ${styles.r}`}>Standing bid</span>
+              <span className={`g-label ${styles.r}`}>Leader</span>
+              <span className={`g-label ${styles.r}`}>You</span>
+              <span className={`g-label ${styles.r}`}>Closes</span>
+              <span className="g-label" />
+            </div>
+          )}
 
           {visible.length === 0 ? (
             <p className={styles.empty}>
@@ -249,10 +277,17 @@ export default function AuctionsClient({
                     <div className={styles.goneName}>
                       {g.player ? getPlayerDisplayName(g.player, 'initial_last') : 'A player'}
                     </div>
+                    {/* Three outcomes, not two. A lot that drew bids but found
+                        no valid winner — every bidder's roster full, or short of
+                        the money once severance was added — is "unsold", not
+                        "no bids". Saying "no bids" there is what made the strip
+                        wrong even once the figures behind it were right. */}
                     <div className={styles.goneMeta}>
                       {g.winner_team_id
-                        ? `${g.winner_team_id === me ? 'you won' : g.winner_team_name} · ${g.bid_count} bid${g.bid_count === 1 ? '' : 's'}`
-                        : 'expired — no bids'}
+                        ? `${g.winner_team_id === me ? 'you won' : g.winner_team_name} · ${bids(g.bid_count)}`
+                        : g.bid_count > 0
+                          ? `unsold · ${bids(g.bid_count)}`
+                          : 'expired — no bids'}
                     </div>
                     <div
                       className={`${styles.goneValue} ${g.winner_team_id === me ? styles.statAccent : ''}`}
@@ -277,9 +312,11 @@ export default function AuctionsClient({
           ) : (
             ticker.map((e) => (
               <div key={e.id} className={styles.event}>
+                {/* Accent means "yours" and nothing else. Another manager's bid
+                    is not a warning, so it takes plain ink rather than amber. */}
                 <span
                   className={styles.eventDot}
-                  style={{ background: e.mine ? 'var(--color-accent)' : 'var(--color-warning)' }}
+                  style={{ background: e.mine ? 'var(--color-accent)' : 'var(--color-text-muted)' }}
                 />
                 <div>
                   <div className={styles.eventText}>
@@ -311,6 +348,7 @@ export default function AuctionsClient({
             </div>
           </div>
         </aside>
+        </div>
       </div>
 
       {bid?.auction.player && (
@@ -382,32 +420,35 @@ function Lot({
   const next = a.highest_bid > 0 ? a.highest_bid + 1 : floor;
 
   const state = mine ? styles.lotMine : leading ? styles.lotLead : hot ? styles.lotHot : '';
+  const fullName = getPlayerDisplayName(p, 'full');
+
+  // The position hue the 2.0 row tint paints on hover. It answers "which one am
+  // I on" and teaches the taxonomy at the same time; at rest the row stays
+  // clean, so a room full of lots is not a paint chart.
+  const hue = { '--pf': `var(--color-pos-${String(p.primary_position).toLowerCase()})` } as React.CSSProperties;
 
   return (
     <>
-      <div className={`${styles.lot} ${state}`}>
+      <div className={`${styles.lot} ${state} g-row`} style={hue}>
         <div className={styles.lotId}>
-          <button type="button" className={styles.lotPhoto} onClick={onOpenPlayer} aria-label={`Open ${getPlayerDisplayName(p, 'full')}`}>
-            {p.photo_url ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={p.photo_url} alt={getPlayerDisplayName(p, 'full')} className={styles.photo} referrerPolicy="no-referrer" />
-            ) : (
-              <span>{playerInitial(p)}</span>
-            )}
+          <button type="button" className={styles.lotFace} onClick={onOpenPlayer} aria-label={`Open ${fullName}`}>
+            <Portrait photoUrl={p.photo_url} name={fullName} club={p.pl_team} size="sm" />
           </button>
           <div className={styles.lotIdBody}>
             <div className={styles.lotNameRow}>
               <PositionBadge position={p.primary_position as GranularPosition} size="sm" />
-              <button type="button" className={styles.lotName} onClick={onOpenPlayer} title={getPlayerDisplayName(p, 'full')}>
+              <button type="button" className={styles.lotName} onClick={onOpenPlayer} title={fullName}>
                 {getPlayerDisplayName(p, 'initial_last')}
               </button>
             </div>
+            {/* The club is gone from this line — the portrait's crest says it,
+                without words and without running long. What is left is the one
+                thing a crest cannot carry: who is selling him. */}
             <div className={styles.lotSub}>
               <span className={`${styles.src} ${a.kind === 'free_agent' ? styles.srcFa : styles.srcLi}`}>
                 {a.kind === 'free_agent' ? 'Free agent' : 'Listed'}
               </span>
-              {p.pl_team}
-              {a.kind === 'listing' && ` · ${mine ? 'Yours' : seller?.team_name ?? a.seller_team_name}`}
+              {a.kind === 'listing' && (mine ? 'Yours' : seller?.team_name ?? a.seller_team_name)}
             </div>
           </div>
         </div>
@@ -480,9 +521,26 @@ function Lot({
 
       {expanded && (
         <div className={`${styles.ex} ${state}`}>
+          {/* The lot-size portrait (66x78) belongs here, not in the row. The
+              row's name column was already 10px short of the string it wanted
+              at 1280; a 66px portrait there would have made a measured problem
+              worse. The drawer has the room, and it gives the expansion
+              something to reveal beyond a table of numbers. */}
+          <div className={styles.exWho}>
+            <Portrait photoUrl={p.photo_url} name={fullName} club={p.pl_team} size="md" />
+            <div className={styles.exWhoBody}>
+              <div className={styles.exWhoName}>{fullName}</div>
+              <div className={`g-label-quiet ${styles.exWhoMeta}`}>
+                {a.kind === 'free_agent'
+                  ? 'Free agent'
+                  : `Listed by ${mine ? 'you' : seller?.team_name ?? a.seller_team_name}`}
+              </div>
+            </div>
+          </div>
+
           <div className={styles.exGrid}>
             <div>
-              <div className={styles.exTitle}>Bid history</div>
+              <div className={`g-label ${styles.exTitle}`}>Bid history</div>
               {a.bids.length === 0 ? (
                 <p className={styles.exEmpty}>Nobody has bid yet. The floor is {money(floor)}.</p>
               ) : (
@@ -501,26 +559,29 @@ function Lot({
             </div>
 
             <div>
-              <div className={styles.exTitle}>Where it stands</div>
+              <div className={`g-label ${styles.exTitle}`}>The bidding</div>
               <div className={styles.ladder}>
                 <div className={styles.rung}>
-                  <span className={styles.rungLabel}>
+                  <span className="g-label">
                     {a.kind === 'listing' ? "Seller's floor" : 'Opening floor'}
                   </span>
                   <span className={styles.rungValue}>{money(sellerFloor ?? floor)}</span>
                 </div>
                 <div className={styles.rung}>
-                  <span className={styles.rungLabel}>Standing bid</span>
-                  <span className={`${styles.rungValue} ${styles.warn}`}>
+                  <span className="g-label">Standing bid</span>
+                  {/* Ink, not amber. The standing bid is the ladder's key
+                      figure, not a warning about anything; emphasis is the
+                      job of weight and the rule beside it. */}
+                  <span className={styles.rungValue}>
                     {a.highest_bid > 0 ? money(a.highest_bid) : '—'}
                   </span>
                 </div>
                 <div className={styles.rung}>
-                  <span className={styles.rungLabel}>Your last bid</span>
+                  <span className="g-label">Your last bid</span>
                   <span className={styles.rungValue}>{a.my_bid != null ? money(a.my_bid) : '—'}</span>
                 </div>
                 <div className={`${styles.rung} ${styles.rungLast}`}>
-                  <span className={styles.rungLabel}>Release clause</span>
+                  <span className="g-label">Release clause</span>
                   <span className={`${styles.rungValue} ${clause != null ? styles.gold : styles.off}`}>
                     {clause != null ? money(clause) : '—'}
                   </span>

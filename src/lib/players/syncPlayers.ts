@@ -105,8 +105,8 @@ export async function syncPlayersFromFpl(admin: SupabaseClient): Promise<SyncPla
     id: string;
     fpl_id: number | null;
     is_active: boolean;
-    primary_position: string;
-    secondary_positions: string[];
+    primary_position: GranularPosition;
+    secondary_positions: GranularPosition[];
     market_value: number | null;
     name: string;
     web_name: string | null;
@@ -387,11 +387,9 @@ export async function syncPlayersFromFpl(admin: SupabaseClient): Promise<SyncPla
     // fplCode is a matching key derived from el.photo, not a column.
     const { fplCode: _fplCode, ...dbRow } = row;
 
-    return {
-      ...(existing ? { id: existing.id } : {}),
+    const finalRow: typeof dbRow & { id?: string; full_name?: string | null } = {
       ...dbRow,
       name: finalName,
-      ...(clearBadFullName ? { full_name: null } : {}),
       primary_position: primaryPosition,
       // row.secondary_positions is only ever non-empty here for a brand-new
       // player matched against the SoFIFA reference cache above -- existing
@@ -407,6 +405,9 @@ export async function syncPlayersFromFpl(admin: SupabaseClient): Promise<SyncPla
       // separate source (api-football sync) has already populated.
       date_of_birth: existing?.date_of_birth ?? row.date_of_birth,
     };
+    if (existing) finalRow.id = existing.id;
+    if (clearBadFullName) finalRow.full_name = null;
+    return finalRow;
   });
 
   const updateRows = finalRows.filter((r) => 'id' in r && r.id != null);

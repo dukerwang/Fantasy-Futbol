@@ -110,10 +110,19 @@ const P = {
     'bg-primary':    '#F7F3ED',
     'bg-secondary':  '#EDE8DE',
     'bg-card':       '#FDFCF9',
-    'bg-card-alt':   '#F3EFE6',
+    /* Three values below are the APP's, not 2.0's earlier proposals, because
+       measuring settled them the other way:
+         bg-card-alt  #F3EFE6 gave a zebra separation of 1.118 — above this
+                      file's own 1.03-1.10 target, i.e. stripey. #f9f6f1 is 1.051.
+         border /     2.0's #D6D0C4 / #E3DED3 are FAINTER than the app's
+         border-subtle (1.39 vs 1.58 on the page). Neither carries an AA
+                      obligation, and the audit's strongest finding was that
+                      hairlines are what make the newer pages read as precise.
+                      Softening 591 call sites to no benefit is not a fix. */
+    'bg-card-alt':   '#f9f6f1',
     'bg-inset':      '#E8E2D6',
-    'border':        '#D6D0C4',
-    'border-subtle': '#E3DED3',
+    'border':        '#C8C3BC',
+    'border-subtle': '#D9D4CD',
     'border-strong': '#8F877B',
     'text-primary':  '#1C1A17',
     'text-secondary':'#4A453D',
@@ -121,6 +130,15 @@ const P = {
     'accent':        '#146B40',
     'accent-hover':  '#0F5632',
     'accent-ink':    '#146B40',
+    /* The two "label ON a fill" tokens. on-accent INVERTS by theme (dark's
+       accent is the brighter colour); on-warning does NOT, because the warning
+       fill itself is the same in both themes. Both are checked at 4.5 below —
+       a button label is body text, and holding this pair to the 3.0 non-text
+       floor is exactly how a 2.70:1 label shipped. */
+    'on-accent':     '#FFFFFF',
+    'on-warning':    '#1C1A17',
+    'on-danger':     '#FFFFFF',
+    'warning':       '#f59e0b',
     'live':          '#B3261E',
     'danger':        '#A32219',
     'warning-text':  '#8A5A0B',
@@ -130,6 +148,32 @@ const P = {
     'tint-accent':   '#E2EAE1',
     'tint-danger':   '#F5E3DD',
     'tint-warning':  '#EFE8DD',
+    /* Performance ramp. Colours a figure by how it sits against the player's
+       OWN positional median. Solved in OKLCH, lightness only, against the
+       HARDER of card and page — these are 11px figures. Derived at 4.8 rather
+       than the 4.5 the check enforces: solving to the floor exactly put every
+       stop at 4.50:1, the tightest pairs in the palette, one background nudge
+       from failing. Same reason the keylines aim past 3.0.
+       Cost recorded, not argued, exactly like the winger sage below: `perf-best`
+       is 1 degree in hue from the accent and `perf-poor` 1 degree from danger,
+       so a strong figure is the same green as "yours" and a weak one the same
+       red as danger. A teal-to-clay ramp 47-56 degrees off the accent was built,
+       measured and set aside — green-to-red reads instantly and Duke judged that
+       worth the collision. Contained to TEXT ON FIGURES; never fills or badges. */
+    'perf-poor':     '#B04B3D',
+    'perf-low':      '#9B5B2B',
+    'perf-good':     '#42764E',
+    'perf-best':     '#147B47',
+    /* The pitch. ONE grass in both themes: it is a depicted object, the same
+       category as a club crest or a kit, so it owes the colour law nothing —
+       and a legal grass is darker than the dark theme's own card, so no single
+       green can separate from a cream chip AND a navy chip by fill. The chip
+       takes the white keyline instead. 1.0's #5A8F6A put white at 3.77:1 even
+       at full strength, and it never painted white at full strength.
+       scratch/solve_pitch_grass.mjs. */
+    'pitch':         '#497D59',
+    'pitch-band':    '#417551',
+    'pitch-line':    '#FFFFFF',
   },
   dark: {
     'bg-primary':    '#1A1F2E',
@@ -146,6 +190,10 @@ const P = {
     'accent':        '#1FA35F',
     'accent-hover':  '#37BE77',
     'accent-ink':    '#2FB56C',
+    'on-accent':     '#10141C',
+    'on-warning':    '#1C1A17',
+    'on-danger':     '#10141C',
+    'warning':       '#f59e0b',
     'live':          '#F0736A',
     'danger':        '#F0736A',
     'warning-text':  '#E0A63C',
@@ -155,6 +203,13 @@ const P = {
     'tint-accent':   '#2A4647',
     'tint-danger':   '#533E4A',
     'tint-warning':  '#4D4745',
+    'perf-poor':     '#E37969',
+    'perf-low':      '#CC8758',
+    'perf-good':     '#6DA378',
+    'perf-best':     '#4EA972',
+    'pitch':         '#497D59',
+    'pitch-band':    '#417551',
+    'pitch-line':    '#FFFFFF',
   },
 };
 
@@ -236,6 +291,16 @@ for (const theme of ['light', 'dark']) {
     }
   }
 
+  // The performance ramp carries the 11px baseline-rule figures, so it gets the
+  // full 4.5 — no large-text discount, even though the points figure it also
+  // colours is 32px. `perf-mid` is not listed: it IS text-primary, already
+  // checked above against every surface.
+  for (const ink of ['perf-poor', 'perf-low', 'perf-good', 'perf-best']) {
+    for (const surface of ['bg-primary', 'bg-card', 'bg-card-alt']) {
+      check(theme, `${ink} on ${surface}`, p[ink], p[surface], 4.5);
+    }
+  }
+
   // The medal ramp is rank 1/2/3 only — large figures and thin rings, never
   // body copy — so it is held to the large-text/non-text floor of 3:1.
   for (const ink of ['gold', 'silver', 'bronze']) {
@@ -250,11 +315,29 @@ for (const theme of ['light', 'dark']) {
     check(theme, `text-primary on ${tint}`, p['text-primary'], p[tint], 4.5);
   }
 
-  // Fills that carry a label.
-  check(theme, 'white on accent fill', '#FFFFFF', p['accent'], 3.0);
+  /* Fills that carry a label. These are held to 4.5, not 3.0: what sits on an
+     accent or warning fill is a BUTTON LABEL — body text at 10-13px, not a
+     large figure or a graphical mark. This check used to hardcode '#FFFFFF' at
+     3.0, which passed while dark's real label measured 2.70:1, because white is
+     not the token dark uses and 3.0 is not the floor a label owes. Checking the
+     token the app actually paints is the whole point of this file. */
+  check(theme, 'on-accent on accent fill', p['on-accent'], p['accent'], 4.5);
+  check(theme, 'on-warning on warning fill', p['on-warning'], p['warning'], 4.5);
+  check(theme, 'on-danger on danger fill', p['on-danger'], p['danger'], 4.5);
   check(theme, 'accent fill vs card', p['accent'], p['bg-card'], 3.0);
   check(theme, 'border-strong on page', p['border-strong'], p['bg-primary'], 3.0);
   check(theme, 'border-strong on card', p['border-strong'], p['bg-card'], 3.0);
+
+  /* The pitch. One grass in both themes — it is a depicted object, not a
+     semantic colour (see globals.css § "The pitch") — so both theme passes
+     check the same pair, and that is deliberate: it is what proves the single
+     value is legal on both sides rather than only on the one it was drawn for.
+     1.0's #5A8F6A put white at 3.77:1 here even at full strength, and every
+     ink it actually painted was faded well below that. */
+  check(theme, 'pitch-line on grass', p['pitch-line'], p['pitch'], 4.5);
+  check(theme, 'pitch-line on mown stripe', p['pitch-line'], p['pitch-band'], 4.5);
+  check(theme, 'card chip on grass (keyline carries the edge)', p['pitch-line'], p['pitch'], 3.0);
+  check(theme, 'grass vs page', p['pitch'], p['bg-primary'], 3.0);
 
   // Band separation wants to be visible but not stripey. Only a floor is
   // meaningful, so this is informational.
