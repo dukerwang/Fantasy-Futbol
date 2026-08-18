@@ -45,7 +45,7 @@ const archivoNarrow = Archivo_Narrow({
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://gaffa.live'),
-  title: 'Gaffa — Dynasty Fantasy Football',
+  title: 'Gaffa',
   description: 'Dynasty fantasy football for the Premier League, with granular tactical positions, a live transfer market, and a scoring engine that judges every player against the role they actually played.',
   openGraph: {
     title: 'Gaffa — Dynasty Fantasy Football',
@@ -67,6 +67,11 @@ export const metadata: Metadata = {
     apple: [
       { url: '/apple-icon.png', sizes: '180x180', type: 'image/png' },
     ],
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'Gaffa',
   },
 };
 

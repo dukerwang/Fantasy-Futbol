@@ -941,16 +941,18 @@ svg {
 /* --- 1. The ground ---
    One light source, high and centred, falling into the verified page
    colour. Checked at every stop against text-muted, accent-ink, live,
-   danger, warning-text, the medal ramp and border-strong. */
+   danger, warning-text, the medal ramp and border-strong.
+
+   The gradient itself is painted by the dashboard shell's `.main` (see
+   layout.module.css), not here. It used to live on this class, one level
+   in — but `.main` pads every ported page before `.g-page` starts, so the
+   gutter showed the FLAT page colour while `.g-page` opened on near-white,
+   a hard rectangle framing every masthead. Painting the ground on the
+   element that owns the padding removes the seam instead of hiding it.
+   `.g-page` stays as the marker for "this is a 2.0 surface" and is
+   otherwise transparent. */
 .g-page {
-  background-color: var(--color-bg-primary);
-  background-image: radial-gradient(120% 90% at 50% -18%,
-    #FFFFFF 0%, #FBF8F3 38%, var(--color-bg-primary) 100%);
-  background-repeat: no-repeat;
-}
-[data-theme="dark"] .g-page {
-  background-image: radial-gradient(85% 62% at 50% -6%,
-    #292E3E 0%, #1F2536 44%, var(--color-bg-primary) 100%);
+  background: transparent;
 }
 
 /* --- 2. The panel ---
