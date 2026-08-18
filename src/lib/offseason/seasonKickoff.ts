@@ -325,7 +325,7 @@ export async function runSeasonKickoff(admin: SupabaseClient, leagueId: string):
         await createNotification(admin, {
           leagueId,
           userId: t.user_id,
-          title: 'New Season Started!',
+          title: 'Season Started',
           content: `The new season has officially kicked off! Rosters are unlocked, and **${playersToAuction.length}** high-value summer arrivals have been added to the transfer auction block.${featuredNotice}`,
           url: `/league/${leagueId}`,
         });
@@ -339,7 +339,7 @@ export async function runSeasonKickoff(admin: SupabaseClient, leagueId: string):
             await createNotification(admin, {
               leagueId,
               userId,
-              title: '💸 Relegation Compensation Paid',
+              title: 'Relegation Paid',
               content: `**${r.playerName}** (${r.club}) has been dropped due to relegation. You have been compensated with **+€${r.compensationFaab}m**.`,
               url: `/league/${leagueId}/finance`,
             });

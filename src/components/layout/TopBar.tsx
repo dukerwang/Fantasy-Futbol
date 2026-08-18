@@ -80,6 +80,7 @@ export default function TopBar() {
   const userDropdownRef = useRef<HTMLDivElement>(null);
   const pageNavRef = useRef<HTMLDivElement>(null);
   const dropdownTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const navTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Extract current leagueId from URL — exclude static segments like 'create', 'join'
   const RESERVED_SEGMENTS = new Set(['create', 'join']);
@@ -99,13 +100,26 @@ export default function TopBar() {
     setOpenDropdown(null);
     setMobileMenuOpen(false);
     setUserDropdownOpen(false);
+    if (navTimeoutRef.current) {
+      clearTimeout(navTimeoutRef.current);
+      navTimeoutRef.current = null;
+    }
   }, [pathname]);
 
-  // Listen for global navigation-start events fired by NavigationLink
+  // Listen for global navigation-start events fired by NavigationLink. A push to the
+  // page you're already on never changes `pathname`, so the effect above never fires —
+  // this timeout is a safety net so the loading bar can't get stuck forever in that case.
   useEffect(() => {
-    function handleNavStart() { setIsNavigating(true); }
+    function handleNavStart() {
+      setIsNavigating(true);
+      if (navTimeoutRef.current) clearTimeout(navTimeoutRef.current);
+      navTimeoutRef.current = setTimeout(() => setIsNavigating(false), 4000);
+    }
     window.addEventListener('navigation-start', handleNavStart);
-    return () => window.removeEventListener('navigation-start', handleNavStart);
+    return () => {
+      window.removeEventListener('navigation-start', handleNavStart);
+      if (navTimeoutRef.current) clearTimeout(navTimeoutRef.current);
+    };
   }, []);
 
   // Fetch user's teams + leagues (includes each team's Club Balance) on every
@@ -546,7 +560,7 @@ export default function TopBar() {
 
                 <div className={styles.dropdownDivider} />
 
-                <NotificationsToggle leagueId={currentLeagueId} />
+                <NotificationsToggle />
 
                 <div className={styles.dropdownDivider} />
 

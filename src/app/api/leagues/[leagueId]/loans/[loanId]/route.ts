@@ -103,7 +103,7 @@ export async function POST(req: NextRequest, { params }: Props) {
       await createNotification(admin, {
         leagueId,
         userId: lenderTeam.user_id,
-        title: 'Loan Proposal Rejected',
+        title: 'Loan Rejected',
         content: `**${borrowerTeam.team_name}** has rejected your proposal to loan **${player.name}**.`,
         url: `/league/${leagueId}/transfers/deals`
       });
@@ -267,7 +267,7 @@ export async function POST(req: NextRequest, { params }: Props) {
         await createNotification(admin, {
           leagueId,
           userId: lenderTeam.user_id,
-          title: 'Loan Agreed (Pending GW End)',
+          title: 'Loan Agreed',
           content: `Loan of **${player.name}** has been agreed but deferred until the current gameweek completes because the player is locked.`,
           url: `/league/${leagueId}/transfers/deals`
         });
@@ -330,7 +330,7 @@ export async function POST(req: NextRequest, { params }: Props) {
       await createNotification(admin, {
         leagueId,
         userId: lenderTeam.user_id,
-        title: 'Loan Proposal Accepted!',
+        title: 'Loan Accepted',
         content: `**${borrowerTeam.team_name}** has accepted your proposal to loan **${player.name}** for GW${loan.start_gameweek}-GW${loan.end_gameweek}.`,
         url: `/league/${leagueId}/transfers/deals`
       });

@@ -93,7 +93,7 @@ export async function POST(req: NextRequest, { params }: Props) {
           await createNotification(admin, {
             leagueId,
             userId: t.user_id,
-            title: 'Draft Scheduled',
+            title: 'Draft Set',
             content: `The commissioner has scheduled the draft for **${league.name}** for **${formattedTime}**!`,
             url: `/league/${leagueId}`
           });
@@ -113,7 +113,7 @@ export async function POST(req: NextRequest, { params }: Props) {
           await createNotification(admin, {
             leagueId,
             userId: t.user_id,
-            title: 'Draft Postponed',
+            title: 'Draft Delayed',
             content: `The scheduled draft for **${league.name}** has been cancelled or postponed.`,
             url: `/league/${leagueId}`
           });

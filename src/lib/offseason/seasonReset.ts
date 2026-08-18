@@ -334,7 +334,7 @@ async function sendChampionsNotifications(
           await createNotification(admin, {
             leagueId,
             userId: t.user_id,
-            title: 'League Champions Crowned!',
+            title: 'Champions!',
             content: `**${leagueChamp}** are your ${shortSeason} League Champions!`,
             url: `/league/${leagueId}/history`
           });
@@ -345,7 +345,7 @@ async function sendChampionsNotifications(
           await createNotification(admin, {
             leagueId,
             userId: t.user_id,
-            title: 'Champions Cup Winner!',
+            title: 'Champions Cup',
             content: `**${championsCupWinner}** have won the Champions Cup!`,
             url: `/league/${leagueId}/tournaments`
           });
@@ -356,7 +356,7 @@ async function sendChampionsNotifications(
           await createNotification(admin, {
             leagueId,
             userId: t.user_id,
-            title: 'League Cup Winner!',
+            title: 'League Cup',
             content: `**${leagueCupWinner}** have won the League Cup!`,
             url: `/league/${leagueId}/tournaments`
           });
@@ -367,7 +367,7 @@ async function sendChampionsNotifications(
           await createNotification(admin, {
             leagueId,
             userId: t.user_id,
-            title: 'Consolation Cup Winner!',
+            title: 'Consolation Cup',
             content: `**${consolationCupWinner}** have won the Consolation Cup!`,
             url: `/league/${leagueId}/tournaments`
           });

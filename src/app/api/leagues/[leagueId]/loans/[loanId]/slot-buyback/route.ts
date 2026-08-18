@@ -85,7 +85,7 @@ export async function POST(req: NextRequest, { params }: Props) {
       await createNotification(admin, {
         leagueId,
         userId: user.id,
-        title: 'Slot Buyback Activated',
+        title: 'Slot Buyback',
         content: `You have successfully bought back a roster slot for €${resData.fee_paid}m. You can now sign an additional player while the loan of ${player.name} is active.`,
         url: `/league/${leagueId}/team`
       });
@@ -106,7 +106,7 @@ export async function POST(req: NextRequest, { params }: Props) {
               ? createNotification(admin, {
                   leagueId,
                   userId: recipient.user_id,
-                  title: 'Solidarity Payment',
+                  title: 'Solidarity Paid',
                   content: `You received **€${amount}m** in solidarity from **${myTeam.team_name}**'s loan slot buyback fee.`,
                   url: `/league/${leagueId}/finance`,
                 })

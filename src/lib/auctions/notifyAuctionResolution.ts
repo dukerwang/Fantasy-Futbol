@@ -12,7 +12,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import { sendEmail } from '@/lib/email/client';
 import { getAuctionWonEmail, getPlayerSoldEmail } from '@/lib/email/templates';
 import { createNotification } from '@/lib/notifications/createNotification';
-import { buildHereWeGo } from '@/lib/notifications/hereWeGo';
+import { buildHereWeGo, pushTitleForEyebrow } from '@/lib/notifications/hereWeGo';
 
 export interface AuctionResolutionResult {
   success: boolean;
@@ -118,6 +118,7 @@ export async function notifyAuctionResolution(
         leagueId,
         userId: winnerUserId,
         title: eyebrow || 'Auction Won!',
+        pushTitle: pushTitleForEyebrow(eyebrow, 'Auction Won'),
         content: `${lead}${resData.winner_severance ? ` **${dropPlayerName}** was dropped to waivers to clear roster space.` : ''}`,
         url: `/league/${leagueId}/team`,
       });
@@ -139,7 +140,7 @@ export async function notifyAuctionResolution(
       await createNotification(admin, {
         leagueId,
         userId: resData.scout_user_id,
-        title: "Scout's Fee!",
+        title: 'Scout Fee',
         content: `You earned **€${resData.scout_amount}m** for opening the auction on **${playerName}** — won by **${winnerTeamName ?? 'another club'}** for €${winnerBid}m.`,
         url: `/league/${leagueId}/finance`,
       });
@@ -155,7 +156,7 @@ export async function notifyAuctionResolution(
           await createNotification(admin, {
             leagueId,
             userId: recipient.user_id,
-            title: 'Solidarity Payment',
+            title: 'Solidarity Paid',
             content: `You received **€${amount}m** in solidarity from ${winnerTeamName ?? 'another club'}'s **€${winnerBid}m** signing of **${playerName}**.`,
             url: `/league/${leagueId}/finance`,
           });
@@ -178,6 +179,7 @@ export async function notifyAuctionResolution(
           leagueId,
           userId: sellerTeam.user_id,
           title: sellLine.eyebrow || 'Player Sold!',
+          pushTitle: pushTitleForEyebrow(sellLine.eyebrow, 'Player Sold'),
           content: sellLine.lead,
           url: `/league/${leagueId}/team`,
         });
@@ -206,7 +208,7 @@ export async function notifyAuctionResolution(
           await createNotification(admin, {
             leagueId,
             userId: loser.user_id,
-            title: 'Waiver Auction Lost',
+            title: 'Waiver Lost',
             content: `Your waiver bid of **€${loser.faab_bid}m** for **${playerName}** was unsuccessful. **${winnerTeamName ?? 'Another team'}** won the signature for **€${winnerBid}m**.`,
             url: `/league/${leagueId}/transfers/auctions`,
           });

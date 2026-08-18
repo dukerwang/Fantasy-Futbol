@@ -111,7 +111,7 @@ async function openReturnWindows(admin: SupabaseClient, summary: ResolveSummary)
         await createNotification(admin, {
           leagueId: decision.league_id as string,
           userId: team.user_id,
-          title: 'Your retained player is back',
+          title: 'Player Returned',
           content:
             `**${name}** has returned to the Premier League${player.pl_team ? ` with ${player.pl_team}` : ''}. ` +
             `You hold his rights — reinstate him within **${RETURN_WINDOW_HOURS} hours** or he goes to auction. ` +

@@ -171,9 +171,10 @@ export async function POST(req: NextRequest, { params }: Props) {
       await createNotification(admin, {
         leagueId,
         userId: res.outbid_team_user_id,
-        title: 'Outbid Warning!',
+        title: 'Outbid!',
         content: `You have been outbid on the market for **${playerData?.name ?? 'a player'}**. The new high bid is now **€${bidAmount}m**.`,
         url: `/league/${leagueId}/transfers/listings`,
+        tag: `outbid-listing-${listingId}`,
       });
     } catch (err) {
       console.error('[listing-bid] Failed to send outbid notification:', err);

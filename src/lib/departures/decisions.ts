@@ -147,7 +147,7 @@ export async function releaseDeparture(
       await createNotification(admin, {
         leagueId: decision.league_id,
         userId: team.user_id,
-        title: 'Departure — compensation paid',
+        title: 'Compensated',
         content: `**${await playerName(admin, decision.player_id)}** has been released. Your club balance has been credited **€${row.compensation}m**.`,
         url: `/league/${decision.league_id}/finance`,
       });

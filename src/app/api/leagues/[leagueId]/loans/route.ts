@@ -575,7 +575,7 @@ export async function POST(req: NextRequest, { params }: Props) {
       await createNotification(admin, {
         leagueId,
         userId: counterpartyTeam.user_id,
-        title: 'Loan Request Received!',
+        title: 'Loan Requested',
         content: `**${myTeam.team_name}** is requesting to loan **${player.name}** for GW${startGameweek}-GW${endGameweek}. Proposed fee: €${loanFee}m.${message ? ` Message: "${message}"` : ''}`,
         url: `/league/${leagueId}/transfers/deals`
       });
@@ -583,7 +583,7 @@ export async function POST(req: NextRequest, { params }: Props) {
       await createNotification(admin, {
         leagueId,
         userId: counterpartyTeam.user_id,
-        title: 'New Loan Proposal!',
+        title: 'Loan Offered',
         content: `**${myTeam.team_name}** has proposed to loan **${player.name}** to your club for GW${startGameweek}-GW${endGameweek}. Fee: €${loanFee}m.${message ? ` Message: "${message}"` : ''}`,
         url: `/league/${leagueId}/transfers/deals`
       });

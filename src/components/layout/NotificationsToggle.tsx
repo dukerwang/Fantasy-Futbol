@@ -4,13 +4,8 @@ import { useEffect, useState } from 'react';
 import { getPushAvailability, subscribeToPush, unsubscribeFromPush, type PushAvailability } from '@/lib/push/subscribe';
 import styles from './NotificationsToggle.module.css';
 
-interface NotificationsToggleProps {
-  leagueId?: string | null;
-}
-
-export default function NotificationsToggle({ leagueId }: NotificationsToggleProps) {
+export default function NotificationsToggle() {
   const [state, setState] = useState<PushAvailability | 'loading'>('loading');
-  const [testSent, setTestSent] = useState(false);
 
   useEffect(() => {
     getPushAvailability().then(setState);
@@ -42,37 +37,20 @@ export default function NotificationsToggle({ leagueId }: NotificationsTogglePro
 
   const isOn = state === 'subscribed';
 
-  async function handleSendTest() {
-    setTestSent(true);
-    await fetch('/api/push/test', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(leagueId ? { leagueId } : {}),
-    });
-    setTimeout(() => setTestSent(false), 3000);
-  }
-
   return (
-    <>
-      <div className={styles.row}>
-        <span className={styles.label}>Push notifications</span>
-        <button
-          type="button"
-          role="switch"
-          aria-checked={isOn}
-          aria-label="Toggle push notifications"
-          disabled={state === 'loading'}
-          onClick={handleToggle}
-          className={`${styles.switch} ${isOn ? styles.switchOn : ''}`}
-        >
-          <span className={styles.switchThumb} />
-        </button>
-      </div>
-      {isOn && (
-        <button type="button" onClick={handleSendTest} className={styles.testLink}>
-          {testSent ? 'Test notification sent' : 'Send test notification'}
-        </button>
-      )}
-    </>
+    <div className={styles.row}>
+      <span className={styles.label}>Push notifications</span>
+      <button
+        type="button"
+        role="switch"
+        aria-checked={isOn}
+        aria-label="Toggle push notifications"
+        disabled={state === 'loading'}
+        onClick={handleToggle}
+        className={`${styles.switch} ${isOn ? styles.switchOn : ''}`}
+      >
+        <span className={styles.switchThumb} />
+      </button>
+    </div>
   );
 }

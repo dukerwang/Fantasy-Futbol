@@ -154,7 +154,7 @@ export async function POST(req: NextRequest, { params }: Props) {
       await createNotification(admin, {
         leagueId,
         userId: borrowerTeam.user_id,
-        title: 'Loan Recalled Early',
+        title: 'Loan Recalled',
         content: `**${myTeam.team_name}** has recalled **${player.name}** early. You received €${resData.penalty}m recall penalty.${resData.bonus_paid && resData.bonus_paid > 0 ? ` Paid €${resData.bonus_paid}m performance bonus.` : ''}`,
         url: `/league/${leagueId}/transfers/deals`
       });
@@ -171,7 +171,7 @@ export async function POST(req: NextRequest, { params }: Props) {
         await createNotification(admin, {
           leagueId,
           userId: user.id,
-          title: 'Roster Over Capacity!',
+          title: 'Roster Full',
           content: `**${player.name}** has returned from loan but your roster is full. Please drop a player to activate them.`,
           url: `/league/${leagueId}/team`
         });

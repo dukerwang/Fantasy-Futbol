@@ -87,7 +87,7 @@ export async function POST(req: NextRequest) {
         await createNotification(admin, {
           leagueId: league.id,
           userId: league.commissioner_id,
-          title: 'Draft Postponed: 4-Team Min',
+          title: 'Draft Delayed',
           content: `Draft kickoff cancelled: only ${teams.length} of the required minimum 4 managers joined. Invite more managers to reschedule!`,
           url: `/league/${league.id}`
         });
@@ -162,7 +162,7 @@ export async function POST(req: NextRequest) {
         await createNotification(admin, {
           leagueId: league.id,
           userId: t.user_id,
-          title: 'Draft Started!',
+          title: 'Draft Started',
           content: `The scheduled kickoff has arrived! The draft for **${league.name}** has officially started! The Draft Room is now open.`,
           url: `/league/${league.id}/draft`
         });

@@ -140,7 +140,7 @@ async function notifyLeague(
       await createNotification(admin, {
         leagueId,
         userId: t.user_id,
-        title: 'New Transfer Auction Open',
+        title: 'Auction Open',
         content: `**${candidates.length}** new high-value or promoted-club arrival(s) have hit the transfer market and gone up for a 48-hour system auction.${featuredNotice}`,
         url: `/league/${leagueId}/transfers/auctions`,
       });

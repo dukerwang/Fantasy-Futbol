@@ -5,6 +5,7 @@ interface PushPayload {
   title: string;
   body: string;
   url?: string;
+  /** Grouping key — a new push with the same tag replaces the previous one on the device instead of stacking. */
   tag?: string;
 }
 
@@ -18,6 +19,16 @@ function ensureConfigured(): boolean {
   webpush.setVapidDetails(subject, publicKey, privateKey);
   configured = true;
   return true;
+}
+
+/**
+ * Notification content is written in the app's lightweight `**bold**`
+ * markdown (see FormattedText.tsx), which the in-app inbox renders properly.
+ * A push notification banner is plain OS chrome with no markdown support, so
+ * without this the asterisks show up literally.
+ */
+function stripMarkdown(text: string): string {
+  return text.replace(/\*\*(.+?)\*\*/g, '$1');
 }
 
 /**
@@ -36,12 +47,19 @@ export async function sendPushToUser(admin: SupabaseClient, userId: string, payl
 
   if (!subscriptions || subscriptions.length === 0) return;
 
+  const body = JSON.stringify({
+    title: stripMarkdown(payload.title),
+    body: stripMarkdown(payload.body),
+    url: payload.url,
+    tag: payload.tag,
+  });
+
   await Promise.all(
     subscriptions.map(async (sub) => {
       try {
         await webpush.sendNotification(
           { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
-          JSON.stringify(payload)
+          body
         );
       } catch (err) {
         const statusCode = (err as { statusCode?: number }).statusCode;

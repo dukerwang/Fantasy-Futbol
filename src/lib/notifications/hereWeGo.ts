@@ -62,6 +62,19 @@ export function buildHereWeGo(
   return { eyebrow: '', lead: `${detail}${pendingClause}, here we go!` };
 }
 
+/**
+ * Short push-notification title for a hype eyebrow. `eyebrow` is shared
+ * branding text also used in emails and UI badges (e.g. "Blockbuster
+ * Signing"), so it isn't edited to fit iOS's push title width — this gives
+ * push its own short version instead, falling back to `fallback` for the
+ * standard tier (empty eyebrow).
+ */
+export function pushTitleForEyebrow(eyebrow: string, fallback: string): string {
+  if (eyebrow.startsWith('Blockbuster')) return 'Blockbuster!';
+  if (eyebrow.startsWith('Galactico')) return 'Galactico!';
+  return fallback;
+}
+
 /** "Sam Rook, Alex Kim and €10m" — joins an asset list the way a trade report would. */
 export function formatAssetList(playerNames: string[], faab: number): string {
   const parts = [...playerNames];

@@ -273,7 +273,7 @@ async function notifyDepartures(
       await createNotification(admin, {
         leagueId,
         userId,
-        title: 'Departure — decision required',
+        title: 'Decision Needed',
         content:
           `**${d.playerName}**${d.club ? ` (${d.club})` : ''} has left the Premier League. ` +
           `Release him for **€${d.compensationOffered}m**, or retain his rights and keep him if he ever returns.` +
@@ -303,7 +303,7 @@ async function notifyLoanTermination(
     await createNotification(admin, {
       leagueId,
       userId: team.user_id,
-      title: 'Loan ended — player left the Premier League',
+      title: 'Loan Ended',
       content:
         `**${playerName}** has left the Premier League, so your loan has ended early and your squad place is free again. ` +
         `Any performance bonus owed has been settled; the loan fee is not refunded.`,

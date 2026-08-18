@@ -433,7 +433,7 @@ export async function processMatchupsForGameweek(gameweek: number, finished: boo
                         await createNotification(admin, {
                             leagueId: leagueId,
                             userId: t.user_id,
-                            title: `Gameweek ${gameweek} Review`,
+                            title: `GW${gameweek} Results`,
                             content: `Matchweek ${gameweek} is finalized! **${summary.highScorer.teamName}** top-scored with **${summary.highScorer.score.toFixed(1)}** points. Check all results now.`,
                             url: `/league/${leagueId}`
                         });

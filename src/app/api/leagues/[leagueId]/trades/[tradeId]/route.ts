@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { sendEmail } from '@/lib/email/client';
 import { getTradeAcceptedEmail } from '@/lib/email/templates';
-import { buildHereWeGo, formatAssetList } from '@/lib/notifications/hereWeGo';
+import { buildHereWeGo, formatAssetList, pushTitleForEyebrow } from '@/lib/notifications/hereWeGo';
 import { getValueTier } from '@/lib/notifications/valueTiers';
 
 interface Props {
@@ -58,7 +58,7 @@ export async function POST(req: NextRequest, { params }: Props) {
       await createNotification(admin, {
         leagueId,
         userId: teamB.user_id,
-        title: 'Trade Proposal Withdrawn',
+        title: 'Trade Withdrawn',
         content: `**${teamA.team_name}** has withdrawn their trade proposal to you.`,
         url: `/league/${leagueId}/transfers/deals`
       });
@@ -80,7 +80,7 @@ export async function POST(req: NextRequest, { params }: Props) {
       await createNotification(admin, {
         leagueId,
         userId: teamA.user_id,
-        title: 'Trade Proposal Rejected',
+        title: 'Trade Rejected',
         content: `Your trade proposal to **${teamB.team_name}** has been declined.`,
         url: `/league/${leagueId}/transfers/deals`
       });
@@ -326,6 +326,7 @@ export async function POST(req: NextRequest, { params }: Props) {
         ? `**${soldPlayerName}** to **${teamA.team_name}** for €${dealAmount}m`
         : `**${teamA.team_name}** send ${offeredAssetsPlain} to **${teamB.team_name}** for ${requestedAssetsPlain}`;
       const { eyebrow, lead } = buildHereWeGo(isListingSale ? 'signing' : 'trade', detailMd, tierValue);
+      const pushTitle = pushTitleForEyebrow(eyebrow, isListingSale ? 'Signed' : 'Trade Done');
 
       // Create in-game notifications for the league
       const { createNotification } = await import('@/lib/notifications/createNotification');
@@ -334,6 +335,7 @@ export async function POST(req: NextRequest, { params }: Props) {
           leagueId,
           userId: t.user_id,
           title: eyebrow || (isListingSale ? 'Signing Confirmed' : 'Trade Completed'),
+          pushTitle,
           content: lead,
           url: `/league/${leagueId}`
         });

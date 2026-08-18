@@ -125,7 +125,7 @@ export async function executeDrop(
                                     ? createNotification(admin, {
                                           leagueId: team.league_id,
                                           userId: recipient.user_id,
-                                          title: 'Solidarity Payment',
+                                          title: 'Solidarity Paid',
                                           content: `You received **€${amount}m** in solidarity from **${team.team_name}**'s severance fee for dropping **${player.name}**.`,
                                           url: `/league/${team.league_id}/finance`,
                                       })
@@ -196,7 +196,7 @@ export async function executeDrop(
                     await createNotification(admin, {
                         leagueId: team.league_id,
                         userId: t.user_id,
-                        title: 'Waiver Alert: Player Dropped',
+                        title: 'Player Dropped',
                         content: `**${team.team_name}** dropped **${player.name}** to the waiver pool. A 72-hour transfer auction has automatically begun.`,
                         url: `/league/${team.league_id}/transfers/auctions`
                     });
@@ -256,7 +256,7 @@ export async function executeDrop(
                 await createNotification(admin, {
                     leagueId: team.league_id,
                     userId: team.user_id,
-                    title: 'Returned Loan Activated!',
+                    title: 'Loan Activated',
                     content: `Roster capacity restored. **${(pendingLoan.player as any)?.name}** has returned to your bench.`,
                     url: `/league/${team.league_id}/team`
                 });

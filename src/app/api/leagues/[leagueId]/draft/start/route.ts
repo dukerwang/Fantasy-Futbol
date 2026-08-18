@@ -103,7 +103,7 @@ export async function POST(req: NextRequest, { params }: Props) {
           await createNotification(admin, {
             leagueId,
             userId: t.user_id,
-            title: 'Draft Started!',
+            title: 'Draft Started',
             content: `The commissioner has officially started the draft for **${league.name}**! The Draft Room is now open.`,
             url: `/league/${leagueId}/draft`
           });

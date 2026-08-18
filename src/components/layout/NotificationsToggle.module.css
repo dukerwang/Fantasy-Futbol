@@ -12,25 +12,6 @@
   color: var(--color-text-secondary);
 }
 
-.testLink {
-  display: block;
-  width: 100%;
-  padding: 0 var(--space-4) var(--space-2);
-  background: transparent;
-  border: none;
-  font-family: var(--font-sans);
-  font-size: 11px;
-  color: var(--color-text-muted);
-  text-align: left;
-  cursor: pointer;
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .testLink:hover {
-    color: var(--color-accent-green);
-  }
-}
-
 .hint {
   padding: var(--space-1) var(--space-4) var(--space-2);
   font-family: var(--font-sans);

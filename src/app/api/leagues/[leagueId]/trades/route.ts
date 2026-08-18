@@ -452,6 +452,7 @@ export async function POST(req: NextRequest, { params }: Props) {
         leagueId,
         userId: targetTeam.user_id,
         title: `${dealName} from ${myTeam.team_name}`,
+        pushTitle: 'Trade Offer',
         content: `**${myTeam.team_name}** are offering: **${offeredNames.join(', ')}** in exchange for: **${requestedNames.join(', ')}**.${message ? ` Message: "${message}"` : ''}`,
         url: `/league/${leagueId}/transfers/deals`
       });
