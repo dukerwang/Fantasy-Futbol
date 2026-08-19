@@ -62,3 +62,6 @@ ds-bundle/
 # scrapers (chromium.launchPersistentContext). Pure runtime cache — ~130MB
 # that churns on every scraper run. Playwright recreates it automatically.
 playwright-profile/
+
+# Brainstorming skill's visual-companion mockups/state — scratch, not a deliverable.
+.superpowers/
