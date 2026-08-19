@@ -1593,13 +1593,48 @@
    MOBILE
    ===================== */
 @media (max-width: 900px) {
+  /* Board stays the primary view, matching desktop, instead of being
+     hidden outright — the tabbed panel becomes a drag-open bottom drawer
+     over it rather than taking the full screen. See
+     docs/superpowers/specs/2026-08-19-mobile-draft-drawer-design.md. */
+  .mainArea {
+    position: relative;
+  }
+
   .boardPanel {
-    display: none;
+    border-right: none;
   }
 
   .sidebarPanel {
-    width: 100%;
-    flex: 1;
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: auto;
+    height: 64px;
+    border-left: none;
+    border-top: 1px solid var(--color-border);
+    box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.25);
+    transition: height var(--dur-base) var(--ease-standard);
+    z-index: 30;
+  }
+
+  .sidebarPanelExpanded {
+    height: 72dvh;
+  }
+
+  .drawerHandle {
+    flex-shrink: 0;
+    width: 36px;
+    height: 4px;
+    border-radius: var(--r-micro);
+    background: var(--color-border-strong);
+    margin: var(--s2) auto;
+    cursor: grab;
+    /* Isolates the drag gesture to the handle itself (see DraftRoom.tsx) —
+       without this, a vertical touch-drag here can also try to scroll the
+       page behind it before Framer Motion's pointer handling takes over. */
+    touch-action: none;
   }
 
   .topBanner {
@@ -1613,6 +1648,80 @@
 
   .bannerMeta {
     padding: 0 var(--s3);
+  }
+
+  /* ── Players tab: card list instead of the 580px table ── */
+
+  .mobileCard {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--s3);
+    padding: 0 var(--s4);
+    border-bottom: 1px solid var(--color-border-subtle);
+    cursor: pointer;
+    box-sizing: border-box;
+  }
+
+  .mobileCardLeft {
+    display: flex;
+    align-items: center;
+    gap: var(--s2);
+    min-width: 0;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  .mobileCardRight {
+    display: flex;
+    align-items: center;
+    gap: var(--s3);
+    flex-shrink: 0;
+  }
+
+  .mobileCardStats {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 1px;
+  }
+
+  .mobileCardRank {
+    font-family: var(--font-mono);
+    font-size: var(--t-13);
+    font-weight: 700;
+    color: var(--color-accent-ink);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .mobileCardSub {
+    font-family: var(--font-mono);
+    font-size: var(--t-10);
+    color: var(--color-text-muted);
+    white-space: nowrap;
+  }
+
+  .mobileSortRow {
+    flex-shrink: 0;
+    display: flex;
+    gap: var(--s2);
+    padding: 0 var(--s4) var(--s2);
+  }
+
+  .mobileSortRow .filterSelect {
+    flex: 1;
+  }
+
+  .mobileSortDirBtn {
+    width: 36px;
+    flex-shrink: 0;
+    font-family: var(--font-mono);
+    font-size: var(--t-15);
+    background: var(--color-bg-primary);
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--r-micro);
+    color: var(--color-text-primary);
+    cursor: pointer;
   }
 }
 

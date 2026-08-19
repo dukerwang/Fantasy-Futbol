@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import NavigationLink from '@/components/ui/NavigationLink';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, type PanInfo } from 'framer-motion';
 import { List } from 'react-window';
 import { createClient } from '@/lib/supabase/client';
 import { getPlayerDisplayName } from '@/lib/players/displayName';
@@ -169,6 +169,89 @@ function PlayerRow({
   );
 }
 
+// Mobile equivalent of PlayerRow — same row-props shape (so both can share
+// one react-window List's plumbing across the desktop/mobile branch), but
+// a two-line card instead of six fixed-width table columns, since a 580px
+// table has nowhere to go on a ~350px phone. Shows the three numbers a
+// manager is most likely to actually use mid-draft (Rank, PPG, Value); GP
+// and Avg rating are dropped rather than tucked behind a tap-to-expand —
+// variable-height rows would break react-window's fixed rowHeight.
+function MobilePlayerCard({
+  index,
+  style,
+  players,
+  queue,
+  myTurn,
+  picking,
+  draftDone,
+  shadowByPlayer,
+  onToggleQueue,
+  onMakePick,
+  onSelectPlayer,
+  onPrefetchPlayer,
+}: { index: number; style: React.CSSProperties; ariaAttributes: Record<string, unknown> } & PlayerRowCustomProps) {
+  const item = players[index];
+  if (!item) return null;
+  const { player, activePos } = item;
+  const isQueued = queue.includes(player.id);
+  const isMyPick = myTurn && !picking && !draftDone;
+
+  const s = shadowByPlayer[player.id]?.[activePos];
+  const ppg = s && s.gp > 0 ? (s.total_points / s.gp).toFixed(1) : '—';
+  const value = player.market_value != null ? `€${Number(player.market_value).toFixed(1)}m` : '—';
+  const rank = player.draftRank != null ? String(player.draftRank) : '—';
+  const isUnavailable = !!player.fpl_status && player.fpl_status !== 'a';
+
+  return (
+    <div
+      style={style}
+      className={styles.mobileCard}
+      onClick={() => onSelectPlayer(player)}
+      onPointerEnter={() => onPrefetchPlayer(player)}
+    >
+      <div className={styles.mobileCardLeft}>
+        <div className={`g-namerow ${styles.posRow}`}>
+          <PositionBadge position={player.primary_position as GranularPosition} size="sm" />
+        </div>
+        <div className={styles.playerInfo}>
+          <span className={styles.playerName}>{getPlayerDisplayName(player, 'initial_last')}</span>
+          {isUnavailable && player.fpl_news ? (
+            <span className={styles.injuryNote} title={player.fpl_news}>{player.fpl_news}</span>
+          ) : (
+            <span className={styles.playerClub}>{player.pl_team}</span>
+          )}
+        </div>
+      </div>
+      <div className={styles.mobileCardRight}>
+        <div className={styles.mobileCardStats}>
+          <span className={styles.mobileCardRank}>#{rank}</span>
+          <span className={styles.mobileCardSub}>
+            {player.isNewToPrem ? 'NEW' : `${ppg} PPG`} · {value}
+          </span>
+        </div>
+        <div className={styles.rowActions}>
+          <button
+            type="button"
+            className={`${styles.queueBtn} ${isQueued ? styles.queueBtnActive : ''}`}
+            onClick={(e) => { e.stopPropagation(); onToggleQueue(player.id); }}
+            title={isQueued ? 'Remove from queue' : 'Add to queue'}
+          >
+            {isQueued ? '★' : '☆'}
+          </button>
+          <button
+            type="button"
+            className={`${styles.draftBtn} ${!isMyPick ? styles.draftBtnDisabled : ''}`}
+            onClick={(e) => { e.stopPropagation(); onMakePick(player.id); }}
+            disabled={!isMyPick}
+          >
+            Draft
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 const pickVariants = {
   hidden: { opacity: 0, scale: 0.5 },
   visible: { opacity: 1, scale: 1, transition: { type: 'spring' as const, stiffness: 300, damping: 24 } },
@@ -216,6 +299,30 @@ export default function DraftRoom({
   const { openPlayer, prefetchPlayer } = usePlayerCard();
   const [sidebarTab, setSidebarTab] = useState<'players' | 'roster' | 'queue' | 'chat'>('players');
   const [rosterSortMode, setRosterSortMode] = useState<'draft' | 'position'>('draft');
+
+  // Mobile: the board is the primary view (matching desktop) and the tabbed
+  // panel becomes a drag-open drawer instead of taking the full screen —
+  // see docs/superpowers/specs/2026-08-19-mobile-draft-drawer-design.md.
+  const [isMobile, setIsMobile] = useState(false);
+  const [drawerExpanded, setDrawerExpanded] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 900px)');
+    setIsMobile(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
+
+  const selectSidebarTab = useCallback((tab: 'players' | 'roster' | 'queue' | 'chat') => {
+    setSidebarTab(tab);
+    setDrawerExpanded(true);
+  }, []);
+
+  const handleDrawerDragEnd = useCallback((_e: unknown, info: PanInfo) => {
+    const THRESHOLD = 40;
+    if (drawerExpanded && info.offset.y > THRESHOLD) setDrawerExpanded(false);
+    else if (!drawerExpanded && info.offset.y < -THRESHOLD) setDrawerExpanded(true);
+  }, [drawerExpanded]);
 
   // Scouting Leaderboard Advanced Filters & Sorting States
   const [advancedOpen, setAdvancedOpen] = useState(false);
@@ -960,41 +1067,59 @@ export default function DraftRoom({
           </div>
         </main>
 
-        {/* Right Sidebar */}
-        <aside className={styles.sidebarPanel}>
+        {/* Right Sidebar — a static side panel on desktop, a drag-open bottom
+            drawer on mobile (isMobile gates the drag props/handle; the CSS
+            positioning switch lives entirely in the 900px media query). */}
+        <aside className={`${styles.sidebarPanel} ${isMobile && drawerExpanded ? styles.sidebarPanelExpanded : ''}`}>
+          {isMobile && (
+            // Drag lives on the handle alone, not the panel — the panel also
+            // contains scrollable lists (players/roster/queue), and dragging
+            // the whole thing would hijack their touch-scroll gesture instead
+            // of letting it through.
+            <motion.div
+              className={styles.drawerHandle}
+              drag="y"
+              dragConstraints={{ top: 0, bottom: 0 }}
+              dragElastic={0.2}
+              onDragEnd={handleDrawerDragEnd}
+              onClick={() => setDrawerExpanded((v) => !v)}
+            />
+          )}
           <div className={styles.sidebarTabs}>
             <button
               type="button"
               className={`${styles.sidebarTab} ${sidebarTab === 'players' ? styles.sidebarTabActive : ''}`}
-              onClick={() => setSidebarTab('players')}
+              onClick={() => selectSidebarTab('players')}
             >
               Players
             </button>
             <button
               type="button"
               className={`${styles.sidebarTab} ${sidebarTab === 'roster' ? styles.sidebarTabActive : ''}`}
-              onClick={() => setSidebarTab('roster')}
+              onClick={() => selectSidebarTab('roster')}
             >
               My roster{myRoster.length > 0 ? ` (${myRoster.length})` : ''}
             </button>
             <button
               type="button"
               className={`${styles.sidebarTab} ${sidebarTab === 'queue' ? styles.sidebarTabActive : ''}`}
-              onClick={() => setSidebarTab('queue')}
+              onClick={() => selectSidebarTab('queue')}
             >
               Queue{activeQueuePlayers.length > 0 ? ` (${activeQueuePlayers.length})` : ''}
             </button>
             <button
               type="button"
               className={`${styles.sidebarTab} ${sidebarTab === 'chat' ? styles.sidebarTabActive : ''}`}
-              onClick={() => setSidebarTab('chat')}
+              onClick={() => selectSidebarTab('chat')}
             >
               Chat
             </button>
           </div>
 
-          {/* Players Tab */}
-          {sidebarTab === 'players' && (
+          {/* Players Tab — not rendered while the mobile drawer is collapsed,
+              so the virtualized list/filters don't do work behind a 56px
+              strip nobody can see. */}
+          {(!isMobile || drawerExpanded) && sidebarTab === 'players' && (
             <div className={styles.tabContent}>
               <div className={styles.searchRow}>
                 <input
@@ -1096,39 +1221,38 @@ export default function DraftRoom({
 
               {pickError && <p className={styles.pickError}>{pickError}</p>}
 
-              {/* Premium Scrollable Stats Table */}
-              <div className={styles.tableScroller}>
-                <div className={styles.tableStatsLayout}>
-                  {/* Table Header Row */}
-                  <div className={styles.tableStatsHeader}>
-                    <div className={styles.thSticky}>Player</div>
-                    <div className={`${styles.th} ${sortKey === 'draft_rank' ? styles.thActive : ''}`} onClick={() => handleSort('draft_rank')} title="Gaffa's synthetic pre-draft ranking — market value and prior-season performance, not a real historical ADP">
-                      Rank {sortIndicator('draft_rank')}
-                    </div>
-                    <div className={`${styles.th} ${sortKey === 'gp' ? styles.thActive : ''}`} onClick={() => handleSort('gp')}>
-                      GP {sortIndicator('gp')}
-                    </div>
-                    <div className={`${styles.th} ${sortKey === 'total_points' ? styles.thActive : ''}`} onClick={() => handleSort('total_points')}>
-                      Pts {sortIndicator('total_points')}
-                    </div>
-                    <div className={`${styles.th} ${sortKey === 'ppg' ? styles.thActive : ''}`} onClick={() => handleSort('ppg')}>
-                      PPG {sortIndicator('ppg')}
-                    </div>
-                    <div className={`${styles.th} ${sortKey === 'avg_rating' ? styles.thActive : ''}`} onClick={() => handleSort('avg_rating')}>
-                      Avg {sortIndicator('avg_rating')}
-                    </div>
-                    <div className={`${styles.th} ${sortKey === 'market_value' ? styles.thActive : ''}`} onClick={() => handleSort('market_value')}>
-                      Val {sortIndicator('market_value')}
-                    </div>
+              {isMobile ? (
+                <>
+                  {/* No columns to click on a card list — a compact sort
+                      control replaces the table's clickable headers. */}
+                  <div className={styles.mobileSortRow}>
+                    <select
+                      className={styles.filterSelect}
+                      value={sortKey}
+                      onChange={(e) => handleSort(e.target.value as SortKey)}
+                    >
+                      <option value="draft_rank">Sort: Rank</option>
+                      <option value="ppg">Sort: PPG</option>
+                      <option value="total_points">Sort: Points</option>
+                      <option value="market_value">Sort: Value</option>
+                      <option value="gp">Sort: GP</option>
+                      <option value="avg_rating">Sort: Avg rating</option>
+                    </select>
+                    <button
+                      type="button"
+                      className={styles.mobileSortDirBtn}
+                      onClick={() => setSortDir((d) => (d === 'desc' ? 'asc' : 'desc'))}
+                      title="Reverse sort direction"
+                    >
+                      {sortDir === 'desc' ? '↓' : '↑'}
+                    </button>
                   </div>
-
-                  {/* Virtualized Player Rows */}
                   <div className={styles.playerList} ref={playerListRef}>
                     {sortedAndFiltered.length > 0 ? (
                       <List<PlayerRowCustomProps>
-                        rowComponent={PlayerRow}
+                        rowComponent={MobilePlayerCard}
                         rowCount={sortedAndFiltered.length}
-                        rowHeight={60}
+                        rowHeight={64}
                         rowProps={rowProps}
                         overscanCount={10}
                         style={{ height: listHeight }}
@@ -1137,13 +1261,57 @@ export default function DraftRoom({
                       <p className={styles.emptyState}>No players match your filters.</p>
                     )}
                   </div>
+                </>
+              ) : (
+                /* Premium Scrollable Stats Table */
+                <div className={styles.tableScroller}>
+                  <div className={styles.tableStatsLayout}>
+                    {/* Table Header Row */}
+                    <div className={styles.tableStatsHeader}>
+                      <div className={styles.thSticky}>Player</div>
+                      <div className={`${styles.th} ${sortKey === 'draft_rank' ? styles.thActive : ''}`} onClick={() => handleSort('draft_rank')} title="Gaffa's synthetic pre-draft ranking — market value and prior-season performance, not a real historical ADP">
+                        Rank {sortIndicator('draft_rank')}
+                      </div>
+                      <div className={`${styles.th} ${sortKey === 'gp' ? styles.thActive : ''}`} onClick={() => handleSort('gp')}>
+                        GP {sortIndicator('gp')}
+                      </div>
+                      <div className={`${styles.th} ${sortKey === 'total_points' ? styles.thActive : ''}`} onClick={() => handleSort('total_points')}>
+                        Pts {sortIndicator('total_points')}
+                      </div>
+                      <div className={`${styles.th} ${sortKey === 'ppg' ? styles.thActive : ''}`} onClick={() => handleSort('ppg')}>
+                        PPG {sortIndicator('ppg')}
+                      </div>
+                      <div className={`${styles.th} ${sortKey === 'avg_rating' ? styles.thActive : ''}`} onClick={() => handleSort('avg_rating')}>
+                        Avg {sortIndicator('avg_rating')}
+                      </div>
+                      <div className={`${styles.th} ${sortKey === 'market_value' ? styles.thActive : ''}`} onClick={() => handleSort('market_value')}>
+                        Val {sortIndicator('market_value')}
+                      </div>
+                    </div>
+
+                    {/* Virtualized Player Rows */}
+                    <div className={styles.playerList} ref={playerListRef}>
+                      {sortedAndFiltered.length > 0 ? (
+                        <List<PlayerRowCustomProps>
+                          rowComponent={PlayerRow}
+                          rowCount={sortedAndFiltered.length}
+                          rowHeight={60}
+                          rowProps={rowProps}
+                          overscanCount={10}
+                          style={{ height: listHeight }}
+                        />
+                      ) : (
+                        <p className={styles.emptyState}>No players match your filters.</p>
+                      )}
+                    </div>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           )}
 
           {/* My Roster Tab */}
-          {sidebarTab === 'roster' && (
+          {(!isMobile || drawerExpanded) && sidebarTab === 'roster' && (
             <div className={styles.tabContentScrollable}>
               {myRoster.length > 0 && (
                 <div className={styles.rosterToggleBar}>
@@ -1209,7 +1377,7 @@ export default function DraftRoom({
           )}
 
           {/* Queue Tab */}
-          {sidebarTab === 'queue' && (
+          {(!isMobile || drawerExpanded) && sidebarTab === 'queue' && (
             <div className={styles.tabContentScrollable}>
               {activeQueuePlayers.length === 0 ? (
                 <div className={styles.emptyStateWrap}>
