@@ -10,6 +10,7 @@ import { FULL_PLAYER_SELECT } from '@/lib/constants/queries';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { getLatestReferenceStatsSeason, resolveDraftStatsSeason } from '@/lib/season/currentSeason';
 import { calculateMatchRating, DEFAULT_REFERENCE_STATS } from '@/lib/scoring/matchRating';
+import { MEANINGFUL_MINUTES } from '@/lib/scoring/positionAggregates';
 import { scoreDraftPool, rankDraftPool, type DraftCandidate } from '@/lib/draft/autoPickEngine';
 import type { Player } from '@/types';
 
@@ -20,7 +21,11 @@ export type ShadowPosStats = {
   total_minutes: number;
 };
 
+// Three buckets, matching the stats page's minutes filter exactly
+// (GlobalStatsTable.tsx / buildShadowMaps in seasonStats.ts) — the draft
+// room used to have its own, different two-option version.
 export type DraftShadowMaps = {
+  played: Record<string, Record<string, ShadowPosStats>>;
   all: Record<string, Record<string, ShadowPosStats>>;
   gt45: Record<string, Record<string, ShadowPosStats>>;
 };
@@ -196,8 +201,9 @@ const loadDraftStatsForSeason = unstable_cache(
     );
   }
 
-    const shadowMaps = {
-      all: buildStatsAgg(15),
+    const shadowMaps: DraftShadowMaps = {
+      played: buildStatsAgg(1),
+      all: buildStatsAgg(MEANINGFUL_MINUTES),
       gt45: buildStatsAgg(45),
     };
 

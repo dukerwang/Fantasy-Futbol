@@ -11,6 +11,7 @@ import type { League, Team, Player, DraftPick, PlayerOwnership, GranularPosition
 import { usePlayerCard } from '@/components/players/PlayerCardProvider';
 import PositionBadge from '@/components/players/PositionBadge';
 import SidebarChat from '../SidebarChat';
+import type { DraftShadowMaps } from '@/lib/draft/loadDraftPool';
 import styles from './draft.module.css';
 
 
@@ -47,10 +48,7 @@ interface Props {
   allPlayers: Player[];
   myUserId: string;
   myTeam: Team | null;
-  shadowMaps: {
-    all: Record<string, Record<string, { gp: number; total_points: number; avg_rating: number; total_minutes: number }>>;
-    gt45: Record<string, Record<string, { gp: number; total_points: number; avg_rating: number; total_minutes: number }>>;
-  };
+  shadowMaps: DraftShadowMaps;
 }
 
 const POSITION_ORDER = ['GK', 'CB', 'LB', 'RB', 'LWB', 'RWB', 'DM', 'CM', 'AM', 'LW', 'RW', 'ST'] as const;
@@ -368,7 +366,9 @@ export default function DraftRoom({
 
   // Scouting Leaderboard Advanced Filters & Sorting States
   const [advancedOpen, setAdvancedOpen] = useState(false);
-  const [minMins, setMinMins] = useState<'all' | 'gt45'>('all');
+  // Matches the stats page's minutes filter exactly (GlobalStatsTable.tsx) —
+  // the draft room used to have its own, different two-option version.
+  const [minMins, setMinMins] = useState<'played' | 'all' | 'gt45'>('all');
   const [minGames, setMinGames] = useState<number>(0);
   const [posType, setPosType] = useState<'primary' | 'secondary' | 'both'>('primary');
   // Default sort is Draft Rank, not raw points — the whole point of the
@@ -662,7 +662,8 @@ export default function DraftRoom({
     return map;
   }, [effectivePicks, teams]);
 
-  const shadowByPlayer = minMins === 'all' ? shadowMaps.all : shadowMaps.gt45;
+  const shadowByPlayer =
+    minMins === 'played' ? shadowMaps.played : minMins === 'all' ? shadowMaps.all : shadowMaps.gt45;
 
   const unpickedPlayers = useMemo(() => {
     return allPlayers.filter((p) => !pickedPlayerIds.has(p.id));
@@ -1245,10 +1246,11 @@ export default function DraftRoom({
                     <select
                       className={styles.filterSelect}
                       value={minMins}
-                      onChange={(e) => setMinMins(e.target.value as 'all' | 'gt45')}
+                      onChange={(e) => setMinMins(e.target.value as 'played' | 'all' | 'gt45')}
                     >
-                      <option value="all">All played games (&ge;15 mins)</option>
-                      <option value="gt45">Starter games (&gt;45 mins only)</option>
+                      <option value="played">Played (&gt;0 mins)</option>
+                      <option value="all">Meaningful (&ge;15 mins)</option>
+                      <option value="gt45">Starters (&gt;45 mins)</option>
                     </select>
                   </div>
 

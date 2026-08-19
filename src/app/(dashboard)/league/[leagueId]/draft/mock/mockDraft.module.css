@@ -206,3 +206,23 @@
   background: var(--color-accent-subtle, rgba(31, 163, 95, 0.08));
   font-weight: var(--font-semibold);
 }
+
+/* The real draft room's banner only has plain text (bannerMeta) on the
+   right; this one also carries three buttons (Pause/Restart/Exit) in
+   .controlsCol, on top of the same clock block + pick strip squeeze that
+   draft.module.css's own mobile block already tightens — needs its own
+   shrink or it dominates an already-tight mobile banner. */
+@media (max-width: 900px) {
+  .controlsCol {
+    gap: 2px;
+  }
+
+  .controlBtns {
+    gap: var(--space-1);
+  }
+
+  .controlBtn {
+    padding: 3px var(--space-2);
+    font-size: 10px;
+  }
+}

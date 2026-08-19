@@ -196,6 +196,7 @@
   padding: 0 var(--s4);
   scrollbar-width: none;
   min-width: 0;
+  overscroll-behavior: none;
 }
 
 .pickStripWrap::-webkit-scrollbar {
@@ -383,11 +384,13 @@
   flex: 1;
   overflow: auto;
   background: var(--color-bg-primary);
-  /* Without this, mobile Safari/Chrome let the board rubber-band past its
-     own edges (visually "stretching") on both axes before the OS-level
-     bounce takes over — contain stops it at the scroll container's own
-     boundary instead. */
-  overscroll-behavior: contain;
+  /* `contain` still allows the element's OWN rubber-band/bounce at its
+     edges — it only stops that bounce from chaining to the page (no
+     pull-to-refresh). `none` is what actually suppresses the local bounce
+     itself, which is what "wobbles past its boundary" meant. Matches the
+     `overscroll-behavior: none` already set on `body` in globals.css, for
+     the same reason. */
+  overscroll-behavior: none;
 }
 
 .boardTable {

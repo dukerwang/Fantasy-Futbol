@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import NavigationLink from '@/components/ui/NavigationLink';
-import { motion } from 'framer-motion';
+import { motion, type PanInfo } from 'framer-motion';
 import { List } from 'react-window';
 import { getPlayerDisplayName } from '@/lib/players/displayName';
 import { usePlayerCard } from '@/components/players/PlayerCardProvider';
@@ -20,7 +20,7 @@ const TIMER_SECONDS = 120;
 const BOT_PICK_DELAY_MS = 650;
 const POSITION_ORDER: GranularPosition[] = ['GK', 'CB', 'LB', 'RB', 'LWB', 'RWB', 'DM', 'CM', 'AM', 'LW', 'RW', 'ST'];
 
-type SortKey = 'total_points' | 'ppg' | 'avg_rating' | 'market_value' | 'gp';
+type SortKey = 'total_points' | 'ppg' | 'avg_rating' | 'market_value' | 'gp' | 'draft_rank';
 type SortDir = 'desc' | 'asc';
 
 const BOT_NAMES = [
@@ -123,6 +123,8 @@ function PlayerRow({
   const ppg = s && s.gp > 0 ? (s.total_points / s.gp).toFixed(1) : '—';
   const avgRating = s && s.gp > 0 ? s.avg_rating.toFixed(1) : '—';
   const value = player.market_value != null ? `€${Number(player.market_value).toFixed(1)}m` : '—';
+  const rank = player.draftRank != null ? String(player.draftRank) : '—';
+  const isUnavailable = !!player.fpl_status && player.fpl_status !== 'a';
 
   return (
     <div
@@ -148,7 +150,11 @@ function PlayerRow({
           </div>
           <div className={draftStyles.playerInfo}>
             <span className={draftStyles.playerName}>{getPlayerDisplayName(player, 'initial_last')}</span>
-            <span className={draftStyles.playerClub}>{player.pl_team}</span>
+            {isUnavailable && player.fpl_news ? (
+              <span className={draftStyles.injuryNote} title={player.fpl_news}>{player.fpl_news}</span>
+            ) : (
+              <span className={draftStyles.playerClub}>{player.pl_team}</span>
+            )}
           </div>
         </div>
         <div className={draftStyles.rowActions}>
@@ -171,6 +177,8 @@ function PlayerRow({
         </div>
       </div>
 
+      <div className={draftStyles.tdNum}>{rank}</div>
+
       {player.isNewToPrem ? (
         <div className={draftStyles.newStatsCell} title="New to the Premier League this season — no prior-season stats">
           <span className={draftStyles.newTag}>NEW</span>
@@ -184,6 +192,95 @@ function PlayerRow({
         </>
       )}
       <div className={draftStyles.tdNum}>{value}</div>
+    </div>
+  );
+}
+
+// Mobile equivalent of PlayerRow — mirrors DraftRoom.tsx's MobilePlayerCard.
+// Same reasoning: a fixed 2-line card instead of table columns (no room on
+// a phone regardless of container width), GP/Avg rating dropped rather than
+// tucked behind a tap-to-expand (would need variable row heights, which
+// breaks react-window's fixed rowHeight).
+function MobilePlayerCard({
+  index,
+  style,
+  players,
+  queue,
+  myTurn,
+  picking,
+  draftDone,
+  shadowByPlayer,
+  onToggleQueue,
+  onMakePick,
+  onSelectPlayer,
+  onPrefetchPlayer,
+}: { index: number; style: React.CSSProperties; ariaAttributes: Record<string, unknown> } & PlayerRowCustomProps) {
+  const item = players[index];
+  if (!item) return null;
+  const { player, activePos } = item;
+  const isQueued = queue.includes(player.id);
+  const isMyPick = myTurn && !picking && !draftDone;
+
+  const s = shadowByPlayer[player.id]?.[activePos];
+  const ppg = s && s.gp > 0 ? (s.total_points / s.gp).toFixed(1) : '—';
+  const totalPoints = s && s.gp > 0 ? String(Math.round(s.total_points)) : '—';
+  const value = player.market_value != null ? `€${Number(player.market_value).toFixed(1)}m` : '—';
+  const rank = player.draftRank != null ? String(player.draftRank) : '—';
+  const isUnavailable = !!player.fpl_status && player.fpl_status !== 'a';
+
+  return (
+    <div
+      style={style}
+      className={draftStyles.mobileCard}
+      onClick={() => onSelectPlayer(player)}
+      onPointerEnter={() => onPrefetchPlayer(player)}
+    >
+      <div className={draftStyles.mobileCardLeft}>
+        <div className={draftStyles.posRow}>
+          <span className={`${draftStyles.posBadge} ${draftStyles[`pos${player.primary_position}` as keyof typeof draftStyles]}`}>
+            {player.primary_position}
+          </span>
+        </div>
+        <div className={draftStyles.playerInfo}>
+          <span className={draftStyles.playerName}>{getPlayerDisplayName(player, 'initial_last')}</span>
+          {isUnavailable && player.fpl_news ? (
+            <span className={draftStyles.injuryNote} title={player.fpl_news}>{player.fpl_news}</span>
+          ) : (
+            <span className={draftStyles.playerClub}>{player.pl_team}</span>
+          )}
+        </div>
+      </div>
+      <div className={draftStyles.mobileCardRight}>
+        <div className={draftStyles.mobileCardStats}>
+          <span className={draftStyles.mobileCardRank}>#{rank}</span>
+          {player.isNewToPrem ? (
+            <span className={draftStyles.mobileCardSub}>NEW · {value}</span>
+          ) : (
+            <>
+              <span className={draftStyles.mobileCardSub}>{ppg} PPG · {totalPoints} Pts</span>
+              <span className={draftStyles.mobileCardSub}>{value}</span>
+            </>
+          )}
+        </div>
+        <div className={draftStyles.rowActions}>
+          <button
+            type="button"
+            className={`${draftStyles.queueBtn} ${isQueued ? draftStyles.queueBtnActive : ''}`}
+            onClick={(e) => { e.stopPropagation(); onToggleQueue(player.id); }}
+            title={isQueued ? 'Remove from queue' : 'Add to queue'}
+          >
+            {isQueued ? '★' : '☆'}
+          </button>
+          <button
+            type="button"
+            className={`${draftStyles.draftBtn} ${!isMyPick ? draftStyles.draftBtnDisabled : ''}`}
+            onClick={(e) => { e.stopPropagation(); onMakePick(player.id); }}
+            disabled={!isMyPick}
+          >
+            Draft
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
@@ -212,11 +309,13 @@ export default function MockDraftRoom({ leagueId, league, players, shadowMaps, m
   const [posFilter, setPosFilter] = useState<string>('ALL');
   const [newToPremOnly, setNewToPremOnly] = useState(false);
   const [advancedOpen, setAdvancedOpen] = useState(false);
-  const [minMins, setMinMins] = useState<'all' | 'gt45'>('all');
+  // Matches the stats page's minutes filter exactly (GlobalStatsTable.tsx).
+  const [minMins, setMinMins] = useState<'played' | 'all' | 'gt45'>('all');
   const [minGames, setMinGames] = useState(0);
   const [posType, setPosType] = useState<'primary' | 'secondary' | 'both'>('primary');
-  const [sortKey, setSortKey] = useState<SortKey>('total_points');
-  const [sortDir, setSortDir] = useState<SortDir>('desc');
+  // Matches DraftRoom.tsx's default — see Draft Rank spec.
+  const [sortKey, setSortKey] = useState<SortKey>('draft_rank');
+  const [sortDir, setSortDir] = useState<SortDir>('asc');
   const [sidebarTab, setSidebarTab] = useState<'players' | 'roster' | 'queue' | 'recap'>('players');
   const [rosterSortMode, setRosterSortMode] = useState<'draft' | 'position'>('draft');
 
@@ -225,6 +324,59 @@ export default function MockDraftRoom({ leagueId, league, players, shadowMaps, m
 
   const playerListRef = useRef<HTMLDivElement>(null);
   const [listHeight, setListHeight] = useState(500);
+
+  // Mobile drawer — mirrors DraftRoom.tsx exactly (board primary, drawer for
+  // the tabs; transform-based drag with live finger tracking, not a height
+  // transition). See docs/superpowers/specs/2026-08-19-mobile-draft-drawer-design.md
+  // and the follow-up real-device fixes in DraftRoom.tsx.
+  const [isMobile, setIsMobile] = useState(false);
+  const [drawerExpanded, setDrawerExpanded] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 900px)');
+    setIsMobile(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
+
+  const selectSidebarTab = useCallback((tab: 'players' | 'roster' | 'queue' | 'recap') => {
+    setSidebarTab(tab);
+    setDrawerExpanded(true);
+  }, []);
+
+  const [drawerLiveOffset, setDrawerLiveOffset] = useState<number | null>(null);
+  const drawerMaxOffsetRef = useRef(0);
+  const drawerPanStartRef = useRef(0);
+
+  useEffect(() => {
+    const updateMax = () => {
+      drawerMaxOffsetRef.current = Math.round(window.innerHeight * 0.72) - 64;
+    };
+    updateMax();
+    window.addEventListener('resize', updateMax);
+    return () => window.removeEventListener('resize', updateMax);
+  }, []);
+
+  const handleDrawerPanStart = useCallback(() => {
+    drawerPanStartRef.current = drawerExpanded ? 0 : drawerMaxOffsetRef.current;
+  }, [drawerExpanded]);
+
+  const handleDrawerPan = useCallback((_e: unknown, info: PanInfo) => {
+    const max = drawerMaxOffsetRef.current;
+    setDrawerLiveOffset(Math.min(max, Math.max(0, drawerPanStartRef.current + info.offset.y)));
+  }, []);
+
+  const handleDrawerPanEnd = useCallback((_e: unknown, info: PanInfo) => {
+    const max = drawerMaxOffsetRef.current;
+    const current = drawerPanStartRef.current + info.offset.y;
+    const FLICK_VELOCITY = 300;
+    if (info.velocity.y < -FLICK_VELOCITY) setDrawerExpanded(true);
+    else if (info.velocity.y > FLICK_VELOCITY) setDrawerExpanded(false);
+    else setDrawerExpanded(current < max / 2);
+    setDrawerLiveOffset(null);
+  }, []);
+
+  const currentStripItemRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const loaded = loadSession(leagueId, league.roster_size);
@@ -280,7 +432,10 @@ export default function MockDraftRoom({ leagueId, league, players, shadowMaps, m
     : 'drafting';
 
   useEffect(() => {
-    if (phase === 'complete') setSidebarTab('recap');
+    if (phase === 'complete') {
+      setSidebarTab('recap');
+      setDrawerExpanded(true);
+    }
   }, [phase]);
 
   const pickedIds = useMemo(() => new Set((session?.picks ?? []).map((p) => p.playerId)), [session]);
@@ -329,6 +484,14 @@ export default function MockDraftRoom({ leagueId, league, players, shadowMaps, m
   const isMyTurn = phase === 'drafting' && currentSlot === session?.mySlot;
   const currentRound = session ? Math.ceil(currentPickNumber / session.numTeams) : 1;
   const totalPicks = session ? session.numTeams * session.rosterSize : 0;
+
+  useEffect(() => {
+    currentStripItemRef.current?.scrollIntoView({
+      behavior: 'smooth',
+      inline: 'center',
+      block: 'nearest',
+    });
+  }, [currentPickNumber]);
 
   // Reset pick lock + pause accounting whenever a new pick lands.
   useEffect(() => {
@@ -457,7 +620,8 @@ export default function MockDraftRoom({ leagueId, league, players, shadowMaps, m
     return slot === session.mySlot ? 'YOU' : `B${slot}`;
   }
 
-  const shadowByPlayer = minMins === 'all' ? shadowMaps.all : shadowMaps.gt45;
+  const shadowByPlayer =
+    minMins === 'played' ? shadowMaps.played : minMins === 'all' ? shadowMaps.all : shadowMaps.gt45;
 
   const unpickedPlayers = useMemo(() => players.filter((p) => !pickedIds.has(p.id)), [players, pickedIds]);
 
@@ -536,6 +700,9 @@ export default function MockDraftRoom({ leagueId, league, players, shadowMaps, m
       } else if (sortKey === 'gp') {
         av = sa ? sa.gp : 0;
         bv = sb ? sb.gp : 0;
+      } else if (sortKey === 'draft_rank') {
+        av = aObj.player.draftRank ?? Infinity;
+        bv = bObj.player.draftRank ?? Infinity;
       }
       return sortDir === 'desc' ? bv - av : av - bv;
     });
@@ -627,7 +794,9 @@ export default function MockDraftRoom({ leagueId, league, players, shadowMaps, m
     if (sortKey === key) setSortDir((d) => (d === 'desc' ? 'asc' : 'desc'));
     else {
       setSortKey(key);
-      setSortDir('desc');
+      // Every other column's "best" is the highest number; Draft Rank's is
+      // the lowest (#1) — see DraftRoom.tsx's handleSort.
+      setSortDir(key === 'draft_rank' ? 'asc' : 'desc');
     }
   }
 
@@ -759,6 +928,7 @@ export default function MockDraftRoom({ leagueId, league, players, shadowMaps, m
                   <div key={item.pickNum} className={draftStyles.pickStripItemWrap}>
                     {i > 0 && <span className={draftStyles.stripChevron}>›</span>}
                     <div
+                      ref={item.isCurrent ? currentStripItemRef : undefined}
                       className={[
                         draftStyles.stripItem,
                         item.isCurrent ? draftStyles.stripItemCurrent : '',
@@ -816,7 +986,8 @@ export default function MockDraftRoom({ leagueId, league, players, shadowMaps, m
           <div className={draftStyles.boardScroll}>
             <table
               className={draftStyles.boardTable}
-              style={{ width: `min(100%, calc(34px + ${numTeams} * 140px))` } as React.CSSProperties}
+              // Natural width always — see DraftRoom.tsx's identical fix.
+              style={{ width: `calc(34px + ${numTeams} * 140px)` } as React.CSSProperties}
             >
               <thead>
                 <tr>
@@ -892,25 +1063,44 @@ export default function MockDraftRoom({ leagueId, league, players, shadowMaps, m
           </div>
         </main>
 
-        <aside className={draftStyles.sidebarPanel}>
+        <aside
+          className={draftStyles.sidebarPanel}
+          style={isMobile ? {
+            transform: `translateY(${
+              drawerLiveOffset ?? (drawerExpanded ? 0 : drawerMaxOffsetRef.current)
+            }px)`,
+            transition: drawerLiveOffset != null ? 'none' : 'transform 220ms ease',
+          } : undefined}
+        >
+          {isMobile && (
+            <motion.div
+              className={draftStyles.drawerGrip}
+              onPanStart={handleDrawerPanStart}
+              onPan={handleDrawerPan}
+              onPanEnd={handleDrawerPanEnd}
+              onClick={() => setDrawerExpanded((v) => !v)}
+            >
+              <div className={draftStyles.drawerHandle} />
+            </motion.div>
+          )}
           <div className={draftStyles.sidebarTabs}>
-            <button type="button" className={`${draftStyles.sidebarTab} ${sidebarTab === 'players' ? draftStyles.sidebarTabActive : ''}`} onClick={() => setSidebarTab('players')}>
+            <button type="button" className={`${draftStyles.sidebarTab} ${sidebarTab === 'players' ? draftStyles.sidebarTabActive : ''}`} onClick={() => selectSidebarTab('players')}>
               Players
             </button>
-            <button type="button" className={`${draftStyles.sidebarTab} ${sidebarTab === 'roster' ? draftStyles.sidebarTabActive : ''}`} onClick={() => setSidebarTab('roster')}>
+            <button type="button" className={`${draftStyles.sidebarTab} ${sidebarTab === 'roster' ? draftStyles.sidebarTabActive : ''}`} onClick={() => selectSidebarTab('roster')}>
               My Roster{myRoster.length > 0 ? ` (${myRoster.length})` : ''}
             </button>
-            <button type="button" className={`${draftStyles.sidebarTab} ${sidebarTab === 'queue' ? draftStyles.sidebarTabActive : ''}`} onClick={() => setSidebarTab('queue')}>
+            <button type="button" className={`${draftStyles.sidebarTab} ${sidebarTab === 'queue' ? draftStyles.sidebarTabActive : ''}`} onClick={() => selectSidebarTab('queue')}>
               Queue{activeQueuePlayers.length > 0 ? ` (${activeQueuePlayers.length})` : ''}
             </button>
             {phase === 'complete' && (
-              <button type="button" className={`${draftStyles.sidebarTab} ${sidebarTab === 'recap' ? draftStyles.sidebarTabActive : ''}`} onClick={() => setSidebarTab('recap')}>
+              <button type="button" className={`${draftStyles.sidebarTab} ${sidebarTab === 'recap' ? draftStyles.sidebarTabActive : ''}`} onClick={() => selectSidebarTab('recap')}>
                 Recap
               </button>
             )}
           </div>
 
-          {sidebarTab === 'players' && (
+          {(!isMobile || drawerExpanded) && sidebarTab === 'players' && (
             <div className={draftStyles.tabContent}>
               <div className={draftStyles.searchRow}>
                 <input
@@ -956,10 +1146,11 @@ export default function MockDraftRoom({ leagueId, league, players, shadowMaps, m
                     <select
                       className={draftStyles.filterSelect}
                       value={minMins}
-                      onChange={(e) => setMinMins(e.target.value as 'all' | 'gt45')}
+                      onChange={(e) => setMinMins(e.target.value as 'played' | 'all' | 'gt45')}
                     >
-                      <option value="all">All played games (&ge;15 mins)</option>
-                      <option value="gt45">Starter games (&gt;45 mins only)</option>
+                      <option value="played">Played (&gt;0 mins)</option>
+                      <option value="all">Meaningful (&ge;15 mins)</option>
+                      <option value="gt45">Starters (&gt;45 mins)</option>
                     </select>
                   </div>
                   <div className={draftStyles.filterGroup}>
@@ -991,33 +1182,36 @@ export default function MockDraftRoom({ leagueId, league, players, shadowMaps, m
                 </div>
               )}
 
-              <div className={draftStyles.tableScroller}>
-                <div className={draftStyles.tableStatsLayout}>
-                  <div className={draftStyles.tableStatsHeader}>
-                    <div className={draftStyles.thSticky}>Player</div>
-                    <div className={`${draftStyles.th} ${sortKey === 'gp' ? draftStyles.thActive : ''}`} onClick={() => handleSort('gp')}>
-                      GP {sortIndicator('gp')}
-                    </div>
-                    <div className={`${draftStyles.th} ${sortKey === 'total_points' ? draftStyles.thActive : ''}`} onClick={() => handleSort('total_points')}>
-                      Pts {sortIndicator('total_points')}
-                    </div>
-                    <div className={`${draftStyles.th} ${sortKey === 'ppg' ? draftStyles.thActive : ''}`} onClick={() => handleSort('ppg')}>
-                      PPG {sortIndicator('ppg')}
-                    </div>
-                    <div className={`${draftStyles.th} ${sortKey === 'avg_rating' ? draftStyles.thActive : ''}`} onClick={() => handleSort('avg_rating')}>
-                      Avg {sortIndicator('avg_rating')}
-                    </div>
-                    <div className={`${draftStyles.th} ${sortKey === 'market_value' ? draftStyles.thActive : ''}`} onClick={() => handleSort('market_value')}>
-                      Val {sortIndicator('market_value')}
-                    </div>
+              {isMobile ? (
+                <>
+                  <div className={draftStyles.mobileSortRow}>
+                    <select
+                      className={draftStyles.filterSelect}
+                      value={sortKey}
+                      onChange={(e) => handleSort(e.target.value as SortKey)}
+                    >
+                      <option value="draft_rank">Sort: Rank</option>
+                      <option value="ppg">Sort: PPG</option>
+                      <option value="total_points">Sort: Points</option>
+                      <option value="market_value">Sort: Value</option>
+                      <option value="gp">Sort: GP</option>
+                      <option value="avg_rating">Sort: Avg rating</option>
+                    </select>
+                    <button
+                      type="button"
+                      className={draftStyles.mobileSortDirBtn}
+                      onClick={() => setSortDir((d) => (d === 'desc' ? 'asc' : 'desc'))}
+                      title="Reverse sort direction"
+                    >
+                      {sortDir === 'desc' ? '↓' : '↑'}
+                    </button>
                   </div>
-
                   <div className={draftStyles.playerList} ref={playerListRef}>
                     {sortedAndFiltered.length > 0 ? (
                       <List<PlayerRowCustomProps>
-                        rowComponent={PlayerRow}
+                        rowComponent={MobilePlayerCard}
                         rowCount={sortedAndFiltered.length}
-                        rowHeight={60}
+                        rowHeight={72}
                         rowProps={rowProps}
                         overscanCount={10}
                         style={{ height: listHeight }}
@@ -1026,12 +1220,53 @@ export default function MockDraftRoom({ leagueId, league, players, shadowMaps, m
                       <p className={draftStyles.emptyState}>No players match your filters.</p>
                     )}
                   </div>
+                </>
+              ) : (
+                <div className={draftStyles.tableScroller}>
+                  <div className={draftStyles.tableStatsLayout}>
+                    <div className={draftStyles.tableStatsHeader}>
+                      <div className={draftStyles.thSticky}>Player</div>
+                      <div className={`${draftStyles.th} ${sortKey === 'draft_rank' ? draftStyles.thActive : ''}`} onClick={() => handleSort('draft_rank')} title="Gaffa's synthetic pre-draft ranking — market value and prior-season performance, not a real historical ADP">
+                        Rank {sortIndicator('draft_rank')}
+                      </div>
+                      <div className={`${draftStyles.th} ${sortKey === 'gp' ? draftStyles.thActive : ''}`} onClick={() => handleSort('gp')}>
+                        GP {sortIndicator('gp')}
+                      </div>
+                      <div className={`${draftStyles.th} ${sortKey === 'total_points' ? draftStyles.thActive : ''}`} onClick={() => handleSort('total_points')}>
+                        Pts {sortIndicator('total_points')}
+                      </div>
+                      <div className={`${draftStyles.th} ${sortKey === 'ppg' ? draftStyles.thActive : ''}`} onClick={() => handleSort('ppg')}>
+                        PPG {sortIndicator('ppg')}
+                      </div>
+                      <div className={`${draftStyles.th} ${sortKey === 'avg_rating' ? draftStyles.thActive : ''}`} onClick={() => handleSort('avg_rating')}>
+                        Avg {sortIndicator('avg_rating')}
+                      </div>
+                      <div className={`${draftStyles.th} ${sortKey === 'market_value' ? draftStyles.thActive : ''}`} onClick={() => handleSort('market_value')}>
+                        Val {sortIndicator('market_value')}
+                      </div>
+                    </div>
+
+                    <div className={draftStyles.playerList} ref={playerListRef}>
+                      {sortedAndFiltered.length > 0 ? (
+                        <List<PlayerRowCustomProps>
+                          rowComponent={PlayerRow}
+                          rowCount={sortedAndFiltered.length}
+                          rowHeight={60}
+                          rowProps={rowProps}
+                          overscanCount={10}
+                          style={{ height: listHeight }}
+                        />
+                      ) : (
+                        <p className={draftStyles.emptyState}>No players match your filters.</p>
+                      )}
+                    </div>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           )}
 
-          {sidebarTab === 'roster' && (
+          {(!isMobile || drawerExpanded) && sidebarTab === 'roster' && (
             <div className={draftStyles.tabContentScrollable}>
               {myRoster.length > 0 && (
                 <div className={draftStyles.rosterToggleBar}>
@@ -1083,7 +1318,7 @@ export default function MockDraftRoom({ leagueId, league, players, shadowMaps, m
             </div>
           )}
 
-          {sidebarTab === 'queue' && (
+          {(!isMobile || drawerExpanded) && sidebarTab === 'queue' && (
             <div className={draftStyles.tabContentScrollable}>
               {activeQueuePlayers.length === 0 ? (
                 <div className={draftStyles.emptyStateWrap}>
@@ -1126,7 +1361,7 @@ export default function MockDraftRoom({ leagueId, league, players, shadowMaps, m
             </div>
           )}
 
-          {sidebarTab === 'recap' && phase === 'complete' && (
+          {(!isMobile || drawerExpanded) && sidebarTab === 'recap' && phase === 'complete' && (
             <div className={draftStyles.tabContentScrollable}>
               <div className={styles.recapSection}>
                 <h3 className={styles.recapSectionTitle}>Squad Value Leaderboard</h3>
