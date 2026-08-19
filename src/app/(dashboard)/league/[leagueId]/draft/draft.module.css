@@ -1611,30 +1611,40 @@
     right: 0;
     bottom: 0;
     width: auto;
-    height: 64px;
+    /* Fixed height always — collapsed/expanded is purely a `transform:
+       translateY()` set inline from DraftRoom.tsx (GPU-composited, unlike
+       animating height, which forces a layout reflow every frame and was
+       the main source of the jank the first version had). 72dvh here has
+       to match the 0.72 factor DraftRoom.tsx uses to compute the drag's
+       max offset. */
+    height: 72dvh;
     border-left: none;
     border-top: 1px solid var(--color-border);
     box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.25);
-    transition: height var(--dur-base) var(--ease-standard);
     z-index: 30;
   }
 
-  .sidebarPanelExpanded {
-    height: 72dvh;
+  .drawerGrip {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* The real touch target — a bare 36×4px bar is unreliable to grab with
+       a thumb. Combined with .sidebarTabs' own height below, this has to
+       match the 64 DraftRoom.tsx subtracts when computing the collapsed
+       drag offset. */
+    height: 24px;
+    cursor: grab;
+    /* Without this, a vertical touch-drag here can also try to scroll the
+       page behind it before Framer Motion's pan recognizer takes over. */
+    touch-action: none;
   }
 
   .drawerHandle {
-    flex-shrink: 0;
     width: 36px;
     height: 4px;
     border-radius: var(--r-micro);
     background: var(--color-border-strong);
-    margin: var(--s2) auto;
-    cursor: grab;
-    /* Isolates the drag gesture to the handle itself (see DraftRoom.tsx) —
-       without this, a vertical touch-drag here can also try to scroll the
-       page behind it before Framer Motion's pointer handling takes over. */
-    touch-action: none;
   }
 
   .topBanner {

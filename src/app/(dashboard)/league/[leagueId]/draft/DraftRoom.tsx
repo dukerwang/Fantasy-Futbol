@@ -318,11 +318,47 @@ export default function DraftRoom({
     setDrawerExpanded(true);
   }, []);
 
-  const handleDrawerDragEnd = useCallback((_e: unknown, info: PanInfo) => {
-    const THRESHOLD = 40;
-    if (drawerExpanded && info.offset.y > THRESHOLD) setDrawerExpanded(false);
-    else if (!drawerExpanded && info.offset.y < -THRESHOLD) setDrawerExpanded(true);
+  // Drawer position, in pixels, while an active drag is tracking the
+  // finger 1:1 — null means "not currently dragging, use the resting CSS
+  // transform for `drawerExpanded`". A CSS `height` transition (the first
+  // version of this) forces a layout reflow every frame and is janky on
+  // mobile; `transform: translateY()` is GPU-composited and smooth, and
+  // driving it from `onPan`/`onPanEnd` (rather than only reacting after
+  // release, which is what the first version did) gives real live feedback
+  // during the gesture instead of nothing happening until you let go.
+  const [drawerLiveOffset, setDrawerLiveOffset] = useState<number | null>(null);
+  const drawerMaxOffsetRef = useRef(0);
+  const drawerPanStartRef = useRef(0);
+
+  useEffect(() => {
+    const updateMax = () => {
+      // COLLAPSED_PX (64) must match .drawerGrip + .sidebarTabs' combined
+      // height in draft.module.css's mobile block.
+      drawerMaxOffsetRef.current = Math.round(window.innerHeight * 0.72) - 64;
+    };
+    updateMax();
+    window.addEventListener('resize', updateMax);
+    return () => window.removeEventListener('resize', updateMax);
+  }, []);
+
+  const handleDrawerPanStart = useCallback(() => {
+    drawerPanStartRef.current = drawerExpanded ? 0 : drawerMaxOffsetRef.current;
   }, [drawerExpanded]);
+
+  const handleDrawerPan = useCallback((_e: unknown, info: PanInfo) => {
+    const max = drawerMaxOffsetRef.current;
+    setDrawerLiveOffset(Math.min(max, Math.max(0, drawerPanStartRef.current + info.offset.y)));
+  }, []);
+
+  const handleDrawerPanEnd = useCallback((_e: unknown, info: PanInfo) => {
+    const max = drawerMaxOffsetRef.current;
+    const current = drawerPanStartRef.current + info.offset.y;
+    const FLICK_VELOCITY = 300;
+    if (info.velocity.y < -FLICK_VELOCITY) setDrawerExpanded(true);
+    else if (info.velocity.y > FLICK_VELOCITY) setDrawerExpanded(false);
+    else setDrawerExpanded(current < max / 2);
+    setDrawerLiveOffset(null);
+  }, []);
 
   // Scouting Leaderboard Advanced Filters & Sorting States
   const [advancedOpen, setAdvancedOpen] = useState(false);
@@ -972,7 +1008,12 @@ export default function DraftRoom({
           <div className={styles.boardScroll} ref={boardScrollRef}>
             <table
               className={styles.boardTable}
-              style={{ width: `min(100%, calc(34px + ${numTeams} * 140px))` } as React.CSSProperties}
+              // Natural width always, never shrunk to fit — `.boardScroll`'s
+              // overflow:auto scrolls instead when it doesn't fit, rather
+              // than squeezing every column down to unreadable widths on a
+              // many-team board or a narrow phone (both hit the same cap
+              // before this fix, since it read `min(100%, ...)`).
+              style={{ width: `calc(34px + ${numTeams} * 140px)` } as React.CSSProperties}
             >
               <thead>
                 <tr>
@@ -1068,22 +1109,34 @@ export default function DraftRoom({
         </main>
 
         {/* Right Sidebar — a static side panel on desktop, a drag-open bottom
-            drawer on mobile (isMobile gates the drag props/handle; the CSS
-            positioning switch lives entirely in the 900px media query). */}
-        <aside className={`${styles.sidebarPanel} ${isMobile && drawerExpanded ? styles.sidebarPanelExpanded : ''}`}>
+            drawer on mobile. Position is `transform: translateY()`, not a
+            toggled height class — see the drawerLiveOffset comment above for
+            why. isMobile gates the drag/transform; desktop is untouched. */}
+        <aside
+          className={styles.sidebarPanel}
+          style={isMobile ? {
+            transform: `translateY(${
+              drawerLiveOffset ?? (drawerExpanded ? 0 : drawerMaxOffsetRef.current)
+            }px)`,
+            transition: drawerLiveOffset != null ? 'none' : 'transform 220ms ease',
+          } : undefined}
+        >
           {isMobile && (
-            // Drag lives on the handle alone, not the panel — the panel also
-            // contains scrollable lists (players/roster/queue), and dragging
-            // the whole thing would hijack their touch-scroll gesture instead
-            // of letting it through.
+            // The grip is a full-width ~44px touch target, not just the
+            // thin visual bar — a 36×4px hit area is unreliable on a real
+            // finger. Pan gesture lives here, not on the whole panel: the
+            // panel also contains scrollable lists (players/roster/queue),
+            // and dragging the whole thing would hijack their touch-scroll
+            // instead of letting it through.
             <motion.div
-              className={styles.drawerHandle}
-              drag="y"
-              dragConstraints={{ top: 0, bottom: 0 }}
-              dragElastic={0.2}
-              onDragEnd={handleDrawerDragEnd}
+              className={styles.drawerGrip}
+              onPanStart={handleDrawerPanStart}
+              onPan={handleDrawerPan}
+              onPanEnd={handleDrawerPanEnd}
               onClick={() => setDrawerExpanded((v) => !v)}
-            />
+            >
+              <div className={styles.drawerHandle} />
+            </motion.div>
           )}
           <div className={styles.sidebarTabs}>
             <button
