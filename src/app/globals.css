@@ -359,7 +359,15 @@
   --ease-out-expo: cubic-bezier(0.22, 1, 0.36, 1); /* card flips, slide-ins */
 
   /* --- Layout --- */
-  --nav-height: 52px;
+  /* Every consumer of --nav-height (TopBar itself, .main, chat, activity,
+     crest, the notification dropdown) sizes itself relative to "how tall is
+     the bar" — so the notch/Dynamic Island allowance has to live in the
+     variable itself, not just in TopBar's own box. Growing only TopBar's
+     rendered height locally left every one of those other layouts undercounting
+     the bar by the inset amount on a real notched phone, clipping whatever they
+     bound to it (e.g. the pitch board's overflow: hidden field lost its bottom
+     row — the exact bug this was written to fix). */
+  --nav-height: calc(52px + env(safe-area-inset-top, 0px));
   --content-max-width: 1280px;
 
   /* --- Stacking ---

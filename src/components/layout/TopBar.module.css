@@ -9,8 +9,10 @@
   z-index: 100;
   /* viewport-fit=cover lets the page draw under the notch/Dynamic Island;
      grow the bar into that space via safe-area-inset-top rather than
-     letting the notch overlap the nav content. */
-  height: calc(var(--nav-height) + env(safe-area-inset-top, 0px));
+     letting the notch overlap the nav content. --nav-height already carries
+     the inset (globals.css) so every other layout that sizes itself off the
+     same variable stays in sync with the bar's real height. */
+  height: var(--nav-height);
   padding-top: env(safe-area-inset-top, 0px);
   padding-left: env(safe-area-inset-left, 0px);
   padding-right: env(safe-area-inset-right, 0px);
