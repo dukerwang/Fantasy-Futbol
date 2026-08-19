@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
-import { sendEmail } from '@/lib/email/client';
-import { getOutbidEmail } from '@/lib/email/templates';
 import {
   calculateExpiresAt,
 } from '@/lib/auction/timer';
@@ -421,6 +419,7 @@ export async function POST(req: NextRequest, { params }: Props) {
     outbid_team_user_id?: string;
     outbid_user_email?: string;
     previous_highest_bid?: number;
+    is_first_bid?: boolean;
   };
 
   if (!resData.success) {
@@ -473,20 +472,8 @@ export async function POST(req: NextRequest, { params }: Props) {
   // resolver sends them a proper "auction lost" notice instead.
   if (!resData.is_buy_now && resData.outbid_team_id && resData.outbid_team_user_id) {
     try {
-      if (resData.outbid_user_email) {
-        const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://gaffa.live';
-        await sendEmail({
-          to: [resData.outbid_user_email],
-          subject: `Outbid! ${playerData?.name ?? 'A player'} auction update`,
-          html: getOutbidEmail(
-            playerData?.name ?? 'Unknown Player',
-            bidAmount,
-            `${baseUrl}/league/${leagueId}`
-          )
-        });
-      }
-
-      // Create in-game notification
+      // In-app + push only — outbid fires on every raise in a bidding war, too
+      // frequent for email now that the PWA covers always-on notifications.
       const { createNotification } = await import('@/lib/notifications/createNotification');
       await createNotification(admin, {
         leagueId,
@@ -498,6 +485,45 @@ export async function POST(req: NextRequest, { params }: Props) {
       });
     } catch (err) {
       console.error('[bid] Failed to send outbid notifications:', err);
+    }
+  }
+
+  // ── NEW BID NOTIFICATION (opening bid only) ──
+  //
+  // Fires only when nobody had a live bid on this player before this one —
+  // `is_first_bid` is false both for an outbid (handled above) and for an
+  // uncontested self-raise, so this never doubles up with those. In-app +
+  // push only, deliberately no email: this is a frequent, low-stakes event
+  // now that the PWA covers always-on notifications, and email should stay
+  // reserved for the rarer/bigger ones (outbid, auction won/lost, etc).
+  if (!resData.is_buy_now && resData.is_first_bid) {
+    try {
+      const { data: otherTeams } = await admin
+        .from('teams')
+        .select('user_id')
+        .eq('league_id', leagueId)
+        .neq('id', myTeam.id);
+
+      if (otherTeams && otherTeams.length > 0) {
+        const { createNotification } = await import('@/lib/notifications/createNotification');
+        const destUrl = resData.is_listing
+          ? `/league/${leagueId}/transfers/listings`
+          : `/league/${leagueId}/transfers/auctions`;
+        await Promise.all(
+          otherTeams.map((t) =>
+            createNotification(admin, {
+              leagueId,
+              userId: t.user_id,
+              title: 'Bidding Open',
+              content: `**${playerData?.name ?? 'A player'}** just received its first bid — **€${bidAmount}m**. Bidding is now open.`,
+              url: destUrl,
+              tag: `first-bid-auction-${saleListingId ?? playerId}`,
+            })
+          )
+        );
+      }
+    } catch (err) {
+      console.error('[bid] Failed to send new-bid notifications:', err);
     }
   }
 

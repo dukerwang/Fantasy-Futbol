@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
-import { sendEmail } from '@/lib/email/client';
-import { getLoanProposedEmail } from '@/lib/email/templates';
 import { FULL_PLAYER_SELECT } from '@/lib/constants/queries';
 
 interface Props {
@@ -547,29 +545,11 @@ export async function POST(req: NextRequest, { params }: Props) {
     return NextResponse.json({ error: insertError.message }, { status: 500 });
   }
 
-  // 12. Send notifications & private DM to the counterparty (the one who needs to accept)
+  // 12. Send in-app notification & private DM to the counterparty (the one who
+  // needs to accept). In-app + push only — a proposal is routine, pre-decision
+  // noise; the completion email still fires once the loan is actually agreed
+  // (see loans/[loanId]/route.ts).
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://gaffa.live';
-    const actionUrl = `${baseUrl}/league/${leagueId}/transfers/deals`;
-
-    const { data: targetUser } = await admin.from('users').select('email').eq('id', counterpartyTeam.user_id).single();
-    if (targetUser?.email) {
-      if (requestMode) {
-        await sendEmail({
-          to: targetUser.email,
-          subject: `Loan Request from ${myTeam.team_name}`,
-          html: getLoanProposedEmail(myTeam.team_name, player.name, loanFee, startGameweek, endGameweek, actionUrl)
-        });
-      } else {
-        await sendEmail({
-          to: targetUser.email,
-          subject: `New Loan Proposal from ${myTeam.team_name}`,
-          html: getLoanProposedEmail(myTeam.team_name, player.name, loanFee, startGameweek, endGameweek, actionUrl)
-        });
-      }
-    }
-
-    // Create in-game notification for the counterparty
     const { createNotification } = await import('@/lib/notifications/createNotification');
     if (requestMode) {
       await createNotification(admin, {

@@ -1,6 +1,4 @@
 import { SupabaseClient } from '@supabase/supabase-js';
-import { sendEmail } from '@/lib/email/client';
-import { getPlayerDroppedEmail } from '@/lib/email/templates';
 import { getDepartureCompensationRate } from '@/lib/transfers/compensation';
 import { initialAuctionExpiry } from '@/lib/auction/timer';
 import { getLeagueAuctionSettings } from '@/lib/auction/leagueAuctionSettings';
@@ -173,24 +171,12 @@ export async function executeDrop(
             market_value_at_auction: marketValue,
         });
 
-        // --- SEND EMAIL NOTIFICATION ---
+        // --- SEND IN-APP NOTIFICATION ---
+        // In-app + push only — routine market churn, too frequent for email now
+        // that the PWA covers always-on notifications.
         try {
             const { data: allTeams } = await admin.from('teams').select('user_id, team_name').eq('league_id', team.league_id);
             if (allTeams && allTeams.length > 0) {
-                const userIds = allTeams.map(t => t.user_id);
-                const { data: users } = await admin.from('users').select('email').in('id', userIds);
-                const emails = (users ?? []).map(u => u.email).filter(Boolean);
-
-                if (emails.length > 0) {
-                    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://gaffa.live';
-                    await sendEmail({
-                        to: emails,
-                        subject: `Waiver Alert: ${player.name} Dropped`,
-                        html: getPlayerDroppedEmail(team.team_name, player.name, `${baseUrl}/league/${team.league_id}`)
-                    });
-                }
-
-                // Create in-game notifications
                 const { createNotification } = await import('@/lib/notifications/createNotification');
                 for (const t of allTeams) {
                     await createNotification(admin, {

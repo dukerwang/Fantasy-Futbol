@@ -82,37 +82,6 @@ const baseTemplate = (title: string, body: string) => `
 </html>
 `;
 
-/** `dealName` is the derived shape of the offer — "A bid", "A part-exchange" —
- *  from `describeDeal`, so the subject line matches what the Deals page will
- *  call the same proposal when they open it. */
-export const getTradeProposedEmail = (
-  proposerName: string,
-  giving: string[],
-  receiving: string[],
-  leagueUrl: string,
-  dealName = 'An offer',
-) => {
-  const body = `
-    <h2 style="font-family: ${FONT_SERIF}; font-size: 1.5em; margin-top: 0; color: ${INK};">${dealName} from ${proposerName}</h2>
-    <p>The boardroom is buzzing. <strong>${proposerName}</strong> has put ${dealName.toLowerCase()} on the table for your consideration.</p>
-
-    <div style="display: flex; gap: 20px; margin: 24px 0;">
-      <div style="flex: 1; background-color: rgba(20, 107, 64, 0.10); padding: 15px; border-radius: 8px; border-left: 3px solid ${ACCENT};">
-        <p style="font-size: 0.8em; text-transform: uppercase; color: ${TEXT_MUTED}; margin-top: 0;">You Receive</p>
-        <p style="font-weight: bold; margin-bottom: 0; color: ${INK};">${giving.join(', ')}</p>
-      </div>
-      <div style="flex: 1; background-color: ${BG_ELEVATED}; padding: 15px; border-radius: 8px;">
-        <p style="font-size: 0.8em; text-transform: uppercase; color: ${TEXT_MUTED}; margin-top: 0;">You Give Up</p>
-        <p style="font-weight: bold; margin-bottom: 0; color: ${INK};">${receiving.join(', ')}</p>
-      </div>
-    </div>
-
-    <p>A response is expected. Review the terms and decide the future of your squad.</p>
-    <a href="${leagueUrl}/transfers/deals" class="button">Enter Negotiations</a>
-  `;
-  return baseTemplate('Formal Trade Proposal Received', body);
-};
-
 export const getTradeAcceptedEmail = (params: {
   /** True when this is really a listing purchase (one side paid cash for a listed player), not a genuine two-way trade. */
   isListingSale: boolean;
@@ -147,15 +116,6 @@ export const getTradeAcceptedEmail = (params: {
     <a href="${leagueUrl}/activity" class="button">View League Activity</a>
   `;
   return baseTemplate(title, body);
-};
-
-export const getPlayerDroppedEmail = (clubName: string, playerName: string, leagueUrl: string) => {
-  const body = `
-    <p><strong>${clubName}</strong> has dropped <strong>${playerName}</strong>.</p>
-    <p>A 48-hour transfer auction has automatically begun. If you want to claim this player, head to the Free Agency market to place your bid.</p>
-    <a href="${leagueUrl}/players" class="button">View Player Market</a>
-  `;
-  return baseTemplate('Player Dropped to Waivers', body);
 };
 
 export const getSystemAuctionsEmail = (
@@ -271,16 +231,6 @@ export const getPlayerSoldEmail = (
   return baseTemplate('Player Sold!', body);
 };
 
-export const getOutbidEmail = (playerName: string, currentHighBid: number, leagueUrl: string) => {
-  const body = `
-    <p>You have been outbid for <strong>${playerName}</strong>.</p>
-    <p>The current high bid is now <strong>€${currentHighBid}m</strong>.</p>
-    <p>If you want to stay in the race, you'll need to increase your bid before the auction expires.</p>
-    <a href="${leagueUrl}/players" class="button">Return to Auction</a>
-  `;
-  return baseTemplate('You have been outbid!', body);
-};
-
 export const getDraftStartedEmail = (leagueName: string, draftUrl: string) => {
   const body = `
     <p>The commissioner has officially started the draft for <strong>${leagueName}</strong>!</p>
@@ -353,24 +303,6 @@ export const getDraftCancelledEmail = (leagueName: string, lobbyUrl: string) => 
     </div>
   `;
   return baseTemplate(`Draft Schedule Cancelled: ${leagueName}`, body);
-};
-
-export const getLoanProposedEmail = (lenderName: string, playerName: string, loanFee: number, startGw: number, endGw: number, leagueUrl: string) => {
-  const body = `
-    <h2 style="font-family: ${FONT_SERIF}; font-size: 1.5em; margin-top: 0; color: ${INK};">Loan Proposal from ${lenderName}</h2>
-    <p>A loan proposal has been submitted. <strong>${lenderName}</strong> offers to loan out <strong>${playerName}</strong> to your club.</p>
-
-    <div style="background-color: ${BG_ELEVATED}; padding: 20px; border-radius: 8px; border-left: 4px solid ${INK}; margin: 20px 0;">
-      <p style="margin-top: 0; font-size: 0.9em; text-transform: uppercase; color: ${TEXT_MUTED};">Loan Details</p>
-      <p><strong>Player:</strong> ${playerName}</p>
-      <p><strong>Term:</strong> GW${startGw} to GW${endGw} (${endGw - startGw} gameweeks)</p>
-      <p style="margin-bottom: 0;"><strong>Loan Fee:</strong> €${loanFee}m</p>
-    </div>
-
-    <p>Please review the details and accept or reject the proposal.</p>
-    <a href="${leagueUrl}/transfers/deals" class="button">Review Loan Offer</a>
-  `;
-  return baseTemplate('Player Loan Proposal Received', body);
 };
 
 export const getLoanAcceptedEmail = (lenderName: string, borrowerName: string, playerName: string, startGw: number, endGw: number, leagueUrl: string) => {

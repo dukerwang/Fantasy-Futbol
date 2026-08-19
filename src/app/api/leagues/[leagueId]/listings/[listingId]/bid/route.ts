@@ -22,8 +22,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
-import { sendEmail } from '@/lib/email/client';
-import { getOutbidEmail } from '@/lib/email/templates';
 import { calculateExpiresAt } from '@/lib/auction/timer';
 import { getLeagueAuctionSettings } from '@/lib/auction/leagueAuctionSettings';
 import { getLockedPlTeamIds } from '@/lib/auction/lockedClubs';
@@ -133,6 +131,7 @@ export async function POST(req: NextRequest, { params }: Props) {
     outbid_team_id?: string;
     outbid_team_user_id?: string;
     outbid_user_email?: string;
+    is_first_bid?: boolean;
   };
 
   if (!res.success) {
@@ -159,14 +158,7 @@ export async function POST(req: NextRequest, { params }: Props) {
 
   if (!res.is_buy_now && res.outbid_team_id && res.outbid_team_user_id) {
     try {
-      const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://gaffa.live';
-      if (res.outbid_user_email) {
-        await sendEmail({
-          to: [res.outbid_user_email],
-          subject: `Outbid! ${playerData?.name ?? 'A player'} market update`,
-          html: getOutbidEmail(playerData?.name ?? 'Unknown Player', bidAmount, `${baseUrl}/league/${leagueId}`),
-        });
-      }
+      // In-app + push only — see the matching note in /auctions/bid.
       const { createNotification } = await import('@/lib/notifications/createNotification');
       await createNotification(admin, {
         leagueId,
@@ -178,6 +170,36 @@ export async function POST(req: NextRequest, { params }: Props) {
       });
     } catch (err) {
       console.error('[listing-bid] Failed to send outbid notification:', err);
+    }
+  }
+
+  // See the matching block in /auctions/bid — same "opening bid only" gate,
+  // in-app + push only, no email.
+  if (!res.is_buy_now && res.is_first_bid) {
+    try {
+      const { data: otherTeams } = await admin
+        .from('teams')
+        .select('user_id')
+        .eq('league_id', leagueId)
+        .neq('id', myTeam.id);
+
+      if (otherTeams && otherTeams.length > 0) {
+        const { createNotification } = await import('@/lib/notifications/createNotification');
+        await Promise.all(
+          otherTeams.map((t) =>
+            createNotification(admin, {
+              leagueId,
+              userId: t.user_id,
+              title: 'Bidding Open',
+              content: `**${playerData?.name ?? 'A player'}** just received its first bid — **€${bidAmount}m**. Bidding is now open.`,
+              url: `/league/${leagueId}/transfers/listings`,
+              tag: `first-bid-auction-${listingId}`,
+            })
+          )
+        );
+      }
+    } catch (err) {
+      console.error('[listing-bid] Failed to send new-bid notifications:', err);
     }
   }
 

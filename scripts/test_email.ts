@@ -1,5 +1,5 @@
 import { sendEmail } from '../src/lib/email/client';
-import { getTradeProposedEmail } from '../src/lib/email/templates';
+import { getTradeAcceptedEmail } from '../src/lib/email/templates';
 
 async function test() {
   const testEmail = process.argv[2];
@@ -14,18 +14,22 @@ async function test() {
     console.log('If it is in .env.local, try running with: npx tsx --env-file=.env.local scripts/test_email.ts');
   }
 
-  console.log(`Sending test trade proposal email to ${testEmail}...`);
+  console.log(`Sending test trade accepted email to ${testEmail}...`);
 
   try {
     const result = await sendEmail({
       to: [testEmail],
       subject: 'Gaffa Test Email',
-      html: getTradeProposedEmail(
-        'Test Proposer FC',
-        ['Erling Haaland (MCI)'],
-        ['Mohamed Salah (LIV)'],
-        'https://gaffa.live/league/test-id'
-      )
+      html: getTradeAcceptedEmail({
+        isListingSale: false,
+        teamA: 'Test Proposer FC',
+        teamB: 'Test Recipient FC',
+        offeredAssets: 'Erling Haaland (MCI)',
+        requestedAssets: 'Mohamed Salah (LIV)',
+        tierValue: 0,
+        pending: false,
+        leagueUrl: 'https://gaffa.live/league/test-id',
+      })
     });
 
     console.log('Success! Resend Response:', result);
