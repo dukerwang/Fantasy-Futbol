@@ -67,6 +67,11 @@ export default function NotificationBell({ leagueId, onNavigate }: NotificationB
   const unreadCount = notifications.filter(n => !n.read).length;
   const displayNotifications = notifications.slice(0, 5); // Show latest 5
 
+  // There's no cross-league inbox page — outside a league context (e.g. the
+  // dashboard bell), fall back to whichever league the most recent notification
+  // belongs to rather than linking to the current page itself.
+  const inboxLeagueId = leagueId ?? notifications[0]?.league_id ?? null;
+
   const handleMarkAllRead = async () => {
     try {
       const res = await fetch('/api/notifications', {
@@ -174,18 +179,20 @@ export default function NotificationBell({ leagueId, onNavigate }: NotificationB
             )}
           </div>
 
-          <div className={styles.footer}>
-            <Link
-              href={leagueId ? `/league/${leagueId}/inbox` : '/dashboard'}
-              className={styles.footerLink}
-              onClick={() => {
-                setIsOpen(false);
-                if (onNavigate) onNavigate();
-              }}
-            >
-              View All Inbox
-            </Link>
-          </div>
+          {inboxLeagueId && (
+            <div className={styles.footer}>
+              <Link
+                href={`/league/${inboxLeagueId}/inbox`}
+                className={styles.footerLink}
+                onClick={() => {
+                  setIsOpen(false);
+                  if (onNavigate) onNavigate();
+                }}
+              >
+                View All Inbox
+              </Link>
+            </div>
+          )}
         </div>
       )}
     </div>
