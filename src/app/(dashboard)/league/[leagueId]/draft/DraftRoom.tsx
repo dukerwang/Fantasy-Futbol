@@ -721,7 +721,12 @@ export default function DraftRoom({
           const full = p.name.toLowerCase();
           const web = (p.web_name || '').toLowerCase();
           const club = (p.pl_team || '').toLowerCase();
-          if (!full.includes(q) && !web.includes(q) && !club.includes(q)) return false;
+          // Word-start prefix, not substring — .includes() matched "es"
+          // against the middle of "Magalhães"/"Guimarães" (both genuinely
+          // contain the letters "es"), which isn't what typing the start of
+          // a first or last name means.
+          const startsWithQuery = (text: string) => text.split(/\s+/).some((word) => word.startsWith(q));
+          if (!startsWithQuery(full) && !startsWithQuery(web) && !startsWithQuery(club)) return false;
         }
 
         if (newToPremOnly && !p.isNewToPrem) return false;
@@ -944,7 +949,14 @@ export default function DraftRoom({
     const h = el.getBoundingClientRect().height;
     if (h > 0) setListHeight(h);
     return () => observer.disconnect();
-  }, [sidebarTab]);
+    // On mobile, the Players tab content (including this ref) isn't rendered
+    // at all while the drawer is collapsed — el was null and this bailed out
+    // on mount, and since sidebarTab never changed once the drawer opened,
+    // the observer never attached and listHeight stayed stuck at the 500
+    // default forever, regardless of the drawer's real expanded height
+    // (visible as a short list sitting in a mostly-empty tall drawer).
+    // isMobile/drawerExpanded re-run this once the ref actually mounts.
+  }, [sidebarTab, isMobile, drawerExpanded]);
 
   const timerMm = String(Math.floor(secondsLeft / 60));
   const timerSs = String(secondsLeft % 60).padStart(2, '0');

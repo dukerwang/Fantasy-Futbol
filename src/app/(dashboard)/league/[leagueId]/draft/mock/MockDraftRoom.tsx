@@ -671,7 +671,9 @@ export default function MockDraftRoom({ leagueId, league, players, shadowMaps, m
           const full = p.name.toLowerCase();
           const web = (p.web_name || '').toLowerCase();
           const club = (p.pl_team || '').toLowerCase();
-          if (!full.includes(q) && !web.includes(q) && !club.includes(q)) return false;
+          // Word-start prefix, not substring — see DraftRoom.tsx's identical fix.
+          const startsWithQuery = (text: string) => text.split(/\s+/).some((word) => word.startsWith(q));
+          if (!startsWithQuery(full) && !startsWithQuery(web) && !startsWithQuery(club)) return false;
         }
         if (newToPremOnly && !p.isNewToPrem) return false;
         const s = shadowByPlayer[p.id]?.[activePos];
@@ -831,7 +833,11 @@ export default function MockDraftRoom({ leagueId, league, players, shadowMaps, m
     const h = el.getBoundingClientRect().height;
     if (h > 0) setListHeight(h);
     return () => observer.disconnect();
-  }, [sidebarTab]);
+    // See DraftRoom.tsx's identical fix — the Players tab isn't rendered at
+    // all on mobile while the drawer is collapsed, so the ref is null on
+    // first mount and this bailed out before ever attaching; nothing after
+    // that re-ran it once the drawer actually opened.
+  }, [sidebarTab, isMobile, drawerExpanded]);
 
   const timerPct = (secondsLeft / TIMER_SECONDS) * 100;
   const timerColor = timerPct > 50 ? 'var(--color-accent)' : timerPct > 25 ? 'var(--color-warning)' : 'var(--color-danger)';
