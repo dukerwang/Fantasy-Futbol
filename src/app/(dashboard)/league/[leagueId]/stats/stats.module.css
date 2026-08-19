@@ -309,13 +309,11 @@
 
 /* Badge(s) beside a two-line name+club column, not beside the name alone —
    so the club indents under the name instead of sitting flush under the
-   badge (where it used to read as the badge's own caption, with the badge
-   then looking like it was centered across both lines rather than sitting
-   on the name's line). `align-items: flex-start` keeps the badge pinned to
-   the name's line even though its sibling column is two lines tall. */
+   badge. `align-items: center` sits the badge between the two lines, as a
+   two-line list item's leading icon normally does. */
 .playerRow {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: var(--s2);
   min-width: 0;
 }
@@ -326,10 +324,10 @@
   min-width: 0;
 }
 
-/* Layout and the badge's optical lift come from `.g-namerow`. Lift is tuned
-   against the name's line only — flex-start above is what keeps it aimed at
-   that line rather than the name+club column as a whole. */
-.playerBadges { --g-chip-lift: 1.88px; }   /* .playerName is --t-15 at normal leading */
+/* `.g-namerow`'s chip lift is tuned to sit a badge on a single line of text
+   next to it — it doesn't apply here, where the badge is centered against a
+   two-line column instead, so it's zeroed out rather than inherited. */
+.playerBadges { --g-chip-lift: 0px; }
 
 /* The evaluated-at badge, when a player is being ranked in a position that is
    not his own. The arrow is the carrier; both badges keep their own hue. */
