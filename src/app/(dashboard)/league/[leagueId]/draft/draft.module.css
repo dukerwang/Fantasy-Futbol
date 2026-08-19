@@ -383,6 +383,11 @@
   flex: 1;
   overflow: auto;
   background: var(--color-bg-primary);
+  /* Without this, mobile Safari/Chrome let the board rubber-band past its
+     own edges (visually "stretching") on both axes before the OS-level
+     bounce takes over — contain stops it at the scroll container's own
+     boundary instead. */
+  overscroll-behavior: contain;
 }
 
 .boardTable {
@@ -1652,12 +1657,25 @@
     min-height: 60px;
   }
 
+  /* Both fixed-width neighbors were sized for desktop's 900px+ banner and
+     left the flexible pick strip between them down to a sliver on a phone —
+     shrinking them gives it real room. The strip itself already scrolls
+     (.pickStripWrap) and now auto-centers the current pick (DraftRoom.tsx),
+     which was the main cause of it looking broken: with no auto-scroll, a
+     random mid-scroll fragment showed instead of the pick actually on the
+     clock. */
+  .clockBlock {
+    width: 76px;
+    padding: 0 var(--s2);
+  }
+
   .pickStripWrap {
-    padding: 0 var(--s3);
+    padding: 0 var(--s2);
   }
 
   .bannerMeta {
     padding: 0 var(--s3);
+    gap: 1px;
   }
 
   /* ── Players tab: card list instead of the 580px table ── */

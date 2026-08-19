@@ -39,6 +39,15 @@ import type { GranularPosition } from '@/types';
 // blend. Below this, weight ramps down linearly toward 0 at zero games.
 const GAMES_FLOOR = 10;
 
+// Ceiling on how much weight a full-sample player's season stats (points +
+// PPG percentile) get against market value — value gets the rest. Started
+// at 0.45; pulled back after real drafting feedback that a standout PPG
+// season (e.g. a lesser-known DM) could outrank a much higher-value,
+// higher-pedigree player on a fairly small value gap. Lower this further if
+// that still happens too often, raise it if the rank starts feeling too
+// reputation-heavy and ignores real in-season form.
+const MAX_PERFORMANCE_WEIGHT = 0.35;
+
 // Applied multiplicatively to the final composite. Deliberately modest and
 // flat — not a severity grade, just enough that an unavailable player isn't
 // shown as the literal #1 recommended pick.
@@ -118,7 +127,7 @@ export function scoreDraftPool(candidates: DraftCandidate[]): ScoredDraftCandida
     const statsPct = (pointsPct[i] + ppgPct[i]) / 2;
 
     const confidence = Math.min(1, c.gp / GAMES_FLOOR);
-    const performanceWeight = 0.45 * confidence;
+    const performanceWeight = MAX_PERFORMANCE_WEIGHT * confidence;
     const valueWeight = 1 - performanceWeight;
     const base = valueWeight * (valuePct[i] * 100) + performanceWeight * (statsPct * 100);
 

@@ -198,6 +198,7 @@ function MobilePlayerCard({
 
   const s = shadowByPlayer[player.id]?.[activePos];
   const ppg = s && s.gp > 0 ? (s.total_points / s.gp).toFixed(1) : '—';
+  const totalPoints = s && s.gp > 0 ? String(Math.round(s.total_points)) : '—';
   const value = player.market_value != null ? `€${Number(player.market_value).toFixed(1)}m` : '—';
   const rank = player.draftRank != null ? String(player.draftRank) : '—';
   const isUnavailable = !!player.fpl_status && player.fpl_status !== 'a';
@@ -225,9 +226,14 @@ function MobilePlayerCard({
       <div className={styles.mobileCardRight}>
         <div className={styles.mobileCardStats}>
           <span className={styles.mobileCardRank}>#{rank}</span>
-          <span className={styles.mobileCardSub}>
-            {player.isNewToPrem ? 'NEW' : `${ppg} PPG`} · {value}
-          </span>
+          {player.isNewToPrem ? (
+            <span className={styles.mobileCardSub}>NEW · {value}</span>
+          ) : (
+            <>
+              <span className={styles.mobileCardSub}>{ppg} PPG · {totalPoints} Pts</span>
+              <span className={styles.mobileCardSub}>{value}</span>
+            </>
+          )}
         </div>
         <div className={styles.rowActions}>
           <button
@@ -375,6 +381,7 @@ export default function DraftRoom({
 
   const currentCellRef = useRef<HTMLTableCellElement>(null);
   const boardScrollRef = useRef<HTMLDivElement>(null);
+  const currentStripItemRef = useRef<HTMLDivElement>(null);
   const playerListRef = useRef<HTMLDivElement>(null);
   const autoPickTriggeredRef = useRef(false);
   // loadingPick is state, so two clicks landing in the same tick both read it
@@ -618,6 +625,19 @@ export default function DraftRoom({
       container.scrollTo({ left: cellRight - container.clientWidth + 40, behavior: 'smooth' });
     }
   }, [effectivePicks.length]);
+
+  // The top banner's pick strip (.pickStripWrap) never had this — it rendered
+  // a window of picks around the current one but nothing scrolled that
+  // window into view within its own container, so on a narrow screen (where
+  // only 2-3 items fit) the current pick was often just off-screen with no
+  // way to tell without manually scrolling.
+  useEffect(() => {
+    currentStripItemRef.current?.scrollIntoView({
+      behavior: 'smooth',
+      inline: 'center',
+      block: 'nearest',
+    });
+  }, [currentPickNumber]);
 
   const pickedPlayerIds = useMemo(
     () => new Set(effectivePicks.map((p) => p.player_id)),
@@ -953,6 +973,7 @@ export default function DraftRoom({
                   <div key={item.pickNum} className={styles.pickStripItemWrap}>
                     {i > 0 && <span className={styles.stripChevron}>›</span>}
                     <div
+                      ref={item.isCurrent ? currentStripItemRef : undefined}
                       className={[
                         styles.stripItem,
                         item.isCurrent ? styles.stripItemCurrent : '',
@@ -1305,7 +1326,7 @@ export default function DraftRoom({
                       <List<PlayerRowCustomProps>
                         rowComponent={MobilePlayerCard}
                         rowCount={sortedAndFiltered.length}
-                        rowHeight={64}
+                        rowHeight={72}
                         rowProps={rowProps}
                         overscanCount={10}
                         style={{ height: listHeight }}
