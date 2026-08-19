@@ -266,6 +266,49 @@ export async function executeAdvanceTournament(
         .update({ winner_id: winnerId, status: 'completed' })
         .eq('id', matchup.id);
 
+      // Tell both sides how their tie went. In-app + push only — cup results
+      // land automatically off the gameweek cron, so this is the only way a
+      // manager finds out short of checking the Tournaments page.
+      if (winnerId) {
+        try {
+          const loserId = winnerId === matchup.team_a_id ? matchup.team_b_id : matchup.team_a_id;
+          const winnerScore = winnerId === matchup.team_a_id ? totalA : totalB;
+          const loserScore = winnerId === matchup.team_a_id ? totalB : totalA;
+          const isFinal = !matchup.next_matchup_id;
+
+          const { data: sides } = await admin
+            .from('teams')
+            .select('id, user_id, team_name')
+            .in('id', [matchup.team_a_id, matchup.team_b_id]);
+          const winnerTeam = sides?.find((t) => t.id === winnerId);
+          const loserTeam = sides?.find((t) => t.id === loserId);
+
+          const { createNotification } = await import('@/lib/notifications/createNotification');
+          if (winnerTeam) {
+            await createNotification(admin, {
+              leagueId: tournament.league_id,
+              userId: winnerTeam.user_id,
+              title: isFinal ? 'Cup Won!' : 'Cup Win',
+              content: isFinal
+                ? `You beat **${loserTeam?.team_name ?? 'your opponent'}** ${winnerScore.toFixed(1)}-${loserScore.toFixed(1)} in the ${round.name} to win the **${tournament.name}**!`
+                : `You beat **${loserTeam?.team_name ?? 'your opponent'}** ${winnerScore.toFixed(1)}-${loserScore.toFixed(1)} in the ${round.name} of the **${tournament.name}**. Through to the next round!`,
+              url: `/league/${tournament.league_id}/tournaments`,
+            });
+          }
+          if (loserTeam) {
+            await createNotification(admin, {
+              leagueId: tournament.league_id,
+              userId: loserTeam.user_id,
+              title: 'Cup Elimination',
+              content: `You lost to **${winnerTeam?.team_name ?? 'your opponent'}** ${loserScore.toFixed(1)}-${winnerScore.toFixed(1)} in the ${round.name} of the **${tournament.name}**.`,
+              url: `/league/${tournament.league_id}/tournaments`,
+            });
+          }
+        } catch (err) {
+          console.error('[advanceTournament] Failed to send cup result notifications:', err);
+        }
+      }
+
       if (matchup.next_matchup_id && winnerId) {
         await advanceWinner(admin, matchup.next_matchup_id, winnerId, matchup.bracket_position);
       }

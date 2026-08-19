@@ -17,6 +17,9 @@ interface PickResult {
   round?: number;
   team_id?: string;
   is_complete?: boolean;
+  next_pick_number?: number;
+  next_round?: number;
+  next_team_user_id?: string;
 }
 
 export async function POST(req: NextRequest, { params }: Props) {
@@ -82,6 +85,22 @@ export async function POST(req: NextRequest, { params }: Props) {
     // Schedule AND all three cup brackets — see ensureSeasonScaffold for why
     // these must not be called separately.
     await ensureSeasonScaffold(admin, leagueId);
+  } else if (result.next_team_user_id) {
+    // "You're on the clock" — the realtime broadcast above only reaches
+    // managers who already have the Draft Room open. In-app + push only.
+    try {
+      const { createNotification } = await import('@/lib/notifications/createNotification');
+      await createNotification(admin, {
+        leagueId,
+        userId: result.next_team_user_id,
+        title: 'On the Clock',
+        content: `**Round ${result.next_round}, Pick ${result.next_pick_number}** — you're up. Head to the Draft Room to make your pick.`,
+        url: `/league/${leagueId}/draft`,
+        tag: `draft-turn-${leagueId}`,
+      });
+    } catch (err) {
+      console.error('[draft/pick] Failed to send on-the-clock notification:', err);
+    }
   }
 
   return NextResponse.json({

@@ -256,7 +256,7 @@ export async function POST(req: NextRequest) {
 
   const { data: myTeam } = await admin
     .from('teams')
-    .select('id')
+    .select('id, team_name')
     .eq('league_id', leagueId)
     .eq('user_id', user.id)
     .single();
@@ -282,6 +282,32 @@ export async function POST(req: NextRequest) {
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  // Private DMs only — a public lobby message would notify the whole league on
+  // every line of banter, which is exactly the noise the "big or occasional"
+  // email philosophy was meant to avoid on the push side too. A DM is the one
+  // chat event that's genuinely personal and otherwise invisible unless the
+  // recipient already has the chat tab open. Tagged per sender so a burst of
+  // messages collapses to the latest instead of stacking pushes.
+  if (recipientId) {
+    try {
+      const senderName = myTeam?.team_name ?? 'The Commissioner';
+      const trimmed = message.trim();
+      const preview = trimmed.length > 140 ? `${trimmed.slice(0, 140)}…` : trimmed;
+      const { createNotification } = await import('@/lib/notifications/createNotification');
+      await createNotification(admin, {
+        leagueId,
+        userId: recipientId,
+        title: `Message from ${senderName}`,
+        pushTitle: senderName,
+        content: preview,
+        url: `/league/${leagueId}/chat`,
+        tag: `dm-${leagueId}-${user.id}`,
+      });
+    } catch (err) {
+      console.error('[chat] Failed to send DM notification:', err);
+    }
   }
 
   return NextResponse.json({ ok: true, message: chatMsg });

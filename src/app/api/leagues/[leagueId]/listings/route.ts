@@ -65,7 +65,7 @@ export async function POST(req: NextRequest, { params }: Props) {
   // 2. Caller must have a team in this league
   const { data: myTeam } = await admin
     .from('teams')
-    .select('id')
+    .select('id, team_name')
     .eq('league_id', leagueId)
     .eq('user_id', user.id)
     .single();
@@ -312,6 +312,41 @@ export async function POST(req: NextRequest, { params }: Props) {
 
   if (insertError) {
     return NextResponse.json({ error: insertError.message }, { status: 500 });
+  }
+
+  // Tell the rest of the league a player just hit the market. In-app + push
+  // only — this is routine transfer-window activity, same reasoning as the
+  // bidding-open notice on the demand side (see /auctions/bid).
+  try {
+    const { data: otherTeams } = await admin
+      .from('teams')
+      .select('user_id')
+      .eq('league_id', leagueId)
+      .neq('id', myTeam.id);
+
+    if (otherTeams && otherTeams.length > 0) {
+      const priceBits: string[] = [];
+      if (hasMinBid) priceBits.push(`min bid €${minBid}m`);
+      if (hasBuyNow) priceBits.push(`release clause €${buyNowPrice}m`);
+      if (hasAsk) priceBits.push(`asking €${askPrice}m`);
+      const priceLine = priceBits.length > 0 ? ` (${priceBits.join(', ')})` : '';
+
+      const { createNotification } = await import('@/lib/notifications/createNotification');
+      await Promise.all(
+        otherTeams.map((t) =>
+          createNotification(admin, {
+            leagueId,
+            userId: t.user_id,
+            title: 'Player Listed',
+            content: `**${myTeam.team_name}** has listed **${playerRow?.name ?? 'a player'}** for sale${priceLine}.`,
+            url: `/league/${leagueId}/transfers/listings`,
+            tag: `listed-${listing.id}`,
+          })
+        )
+      );
+    }
+  } catch (err) {
+    console.error('[listings] Failed to send new-listing notifications:', err);
   }
 
   return NextResponse.json({ ok: true, listing }, { status: 201 });
