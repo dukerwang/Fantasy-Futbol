@@ -223,9 +223,8 @@ export default function GlobalStatsTable({ leagueId, leagueName, players, season
   return (
     <div className={`${styles.page} g-page`}>
       {/* The spectrum. Rationed to a panel representing a whole squad or the
-          whole pool — this page is the pool, which is the phrase it was
-          reserved for. Third use in the app, after the pitch board and the
-          depth chart. */}
+          whole player database. Third use in the app, after the pitch board
+          and the depth chart. */}
       <div className={`g-spectrum ${styles.spectrum}`} aria-hidden>
         {SPINE.map((p) => <i key={p} style={{ background: POS_COLOR[p] }} />)}
       </div>
@@ -234,11 +233,9 @@ export default function GlobalStatsTable({ leagueId, leagueName, players, season
         <div>
           <div className={`g-label ${styles.kicker}`}>
             {leagueId ? (
-              <>
-                <NavigationLink href={`/league/${leagueId}`}>{leagueName}</NavigationLink> → The Pool
-              </>
+              <NavigationLink href={`/league/${leagueId}`}>{leagueName}</NavigationLink>
             ) : (
-              <>{leagueName} → The Pool</>
+              leagueName
             )}
           </div>
           <h1 className={styles.title}>
@@ -249,11 +246,9 @@ export default function GlobalStatsTable({ leagueId, leagueName, players, season
         <div className={styles.stats}>
           <div className={styles.stat}>
             <div className={`${styles.statValue} ${styles.statAccent}`}>{sorted.length}</div>
-            <div className={`g-label-quiet ${styles.statLabel}`}>Shown</div>
-          </div>
-          <div className={styles.stat}>
-            <div className={styles.statValue}>{players.length}</div>
-            <div className={`g-label-quiet ${styles.statLabel}`}>In the pool</div>
+            <div className={`g-label-quiet ${styles.statLabel}`}>
+              {sorted.length === players.length ? 'Players' : `Shown of ${players.length}`}
+            </div>
           </div>
         </div>
       </header>
@@ -363,24 +358,28 @@ export default function GlobalStatsTable({ leagueId, leagueName, players, season
                   title="Click to scout player"
                 >
                   <td className={styles.tdPlayer}>
-                    <div className={`g-namerow ${styles.playerCell}`}>
-                      <PosBadge position={player.primary_position as GranularPosition} />
-                      {player.primary_position !== activePos && (
-                        <>
-                          <span
-                            className={styles.asArrow}
-                            title={`Primary position: ${player.primary_position} — evaluated as ${activePos}`}
-                          >
-                            →
-                          </span>
-                          <PosBadge position={activePos} />
-                        </>
-                      )}
-                      <span className={styles.playerName}>
-                        {getPlayerDisplayName(player, 'full')}
+                    <div className={styles.playerRow}>
+                      <span className={`g-namerow ${styles.playerBadges}`}>
+                        <PosBadge position={player.primary_position as GranularPosition} />
+                        {player.primary_position !== activePos && (
+                          <>
+                            <span
+                              className={styles.asArrow}
+                              title={`Primary position: ${player.primary_position} — evaluated as ${activePos}`}
+                            >
+                              →
+                            </span>
+                            <PosBadge position={activePos} />
+                          </>
+                        )}
                       </span>
+                      <div className={styles.playerText}>
+                        <span className={styles.playerName}>
+                          {getPlayerDisplayName(player, 'full')}
+                        </span>
+                        <div className={`g-label-quiet ${styles.playerClub}`}>{player.pl_team}</div>
+                      </div>
                     </div>
-                    <div className={`g-label-quiet ${styles.playerClub}`}>{player.pl_team}</div>
                   </td>
                   <td>
                     {isOwned ? (

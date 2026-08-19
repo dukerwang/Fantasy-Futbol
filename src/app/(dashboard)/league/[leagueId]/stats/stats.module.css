@@ -307,8 +307,29 @@
 
 .tdPlayer { overflow: hidden; }
 
-/* Layout and the badge's optical lift come from `.g-namerow`. */
-.playerCell { --g-chip-lift: 1.88px; }   /* .playerName is --t-15 at normal leading */
+/* Badge(s) beside a two-line name+club column, not beside the name alone —
+   so the club indents under the name instead of sitting flush under the
+   badge (where it used to read as the badge's own caption, with the badge
+   then looking like it was centered across both lines rather than sitting
+   on the name's line). `align-items: flex-start` keeps the badge pinned to
+   the name's line even though its sibling column is two lines tall. */
+.playerRow {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s2);
+  min-width: 0;
+}
+
+.playerText {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+/* Layout and the badge's optical lift come from `.g-namerow`. Lift is tuned
+   against the name's line only — flex-start above is what keeps it aimed at
+   that line rather than the name+club column as a whole. */
+.playerBadges { --g-chip-lift: 1.88px; }   /* .playerName is --t-15 at normal leading */
 
 /* The evaluated-at badge, when a player is being ranked in a position that is
    not his own. The arrow is the carrier; both badges keep their own hue. */
@@ -336,8 +357,9 @@
 
 /* The club is a crest everywhere else in 2.0, and a crest is what the portrait
    chips. In a fixed 190px-minimum name column there is no room for one beside
-   the badges, so the club stays a quiet caption here — the one place the
-   "club is a crest" rule yields, because the cell has no portrait to chip.
+   the badges, so the club stays a quiet caption under the name here — the one
+   place the "club is a crest" rule yields, because the cell has no portrait
+   to chip.
 
    It takes `--row-ink` rather than .g-label-quiet's own muted colour, for the
    reason below. */
