@@ -353,28 +353,28 @@ export default function GlobalStatsTable({ leagueId, leagueName, players, season
             <tr>
               <th className={styles.thPlayer}>Player</th>
               <th className={styles.thOwner}>Owner</th>
-              <th className={`${styles.thNum} ${styles.num}`} aria-sort={ariaSort('total_minutes')}>
+              <th className={`${styles.thNarrow} ${styles.num}`} aria-sort={ariaSort('total_minutes')}>
                 <SortHead label="GP" sortBy="total_minutes" title="Games played — sorted by minutes" />
               </th>
-              <th className={`${styles.thNum} ${styles.num}`} aria-sort={ariaSort('goals')}>
+              <th className={`${styles.thNarrow} ${styles.num}`} aria-sort={ariaSort('goals')}>
                 <SortHead label="G" sortBy="goals" title="Goals" />
               </th>
-              <th className={`${styles.thNum} ${styles.num}`} aria-sort={ariaSort('assists')}>
+              <th className={`${styles.thNarrow} ${styles.num}`} aria-sort={ariaSort('assists')}>
                 <SortHead label="A" sortBy="assists" title="Assists" />
               </th>
-              <th className={`${styles.thNum} ${styles.num}`} aria-sort={ariaSort('total_points')}>
+              <th className={`${styles.thWide} ${styles.num}`} aria-sort={ariaSort('total_points')}>
                 <SortHead label="Pts" sortBy="total_points" />
               </th>
-              <th className={`${styles.thNum} ${styles.num}`} aria-sort={ariaSort('ppg')}>
+              <th className={`${styles.thWide} ${styles.num}`} aria-sort={ariaSort('ppg')}>
                 <SortHead label="PPG" sortBy="ppg" />
               </th>
-              <th className={`${styles.thNum} ${styles.num}`} aria-sort={ariaSort('avg_rating')}>
+              <th className={`${styles.thNarrow} ${styles.num}`} aria-sort={ariaSort('avg_rating')}>
                 <SortHead label="Rating" sortBy="avg_rating" />
               </th>
-              <th className={`${styles.thNum} ${styles.num}`} aria-sort={ariaSort('form')}>
+              <th className={`${styles.thNarrow} ${styles.num}`} aria-sort={ariaSort('form')}>
                 <SortHead label="Form" sortBy="form" />
               </th>
-              <th className={`${styles.thNum} ${styles.num}`} aria-sort={ariaSort('market_value')}>
+              <th className={`${styles.thWide} ${styles.num}`} aria-sort={ariaSort('market_value')}>
                 <SortHead label="Value" sortBy="market_value" />
               </th>
             </tr>

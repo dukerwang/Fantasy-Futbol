@@ -300,10 +300,17 @@
 .row { cursor: pointer; }
 
 /* Column widths. One rule per column type, on both th and td, which is the
-   only arrangement that keeps a head over its own cells. */
-.thPlayer { width: auto; min-width: 190px; }
-.thOwner  { width: 15%; }
-.thNum    { width: 9%; }
+   only arrangement that keeps a head over its own cells.
+
+   Eight numeric columns now share the row with Player and Owner (was six,
+   pre goals/assists) — at the old flat 9% each they ate 72% of the table on
+   their own and squeezed Player down to its 190px floor. Split by how wide
+   the figure actually is instead: a bare 1-2 digit count (GP/G/A/Rating/Form)
+   needs far less room than "792.6", "22.64" or "€220.0m" (Pts/PPG/Value). */
+.thPlayer  { width: auto; min-width: 190px; }
+.thOwner   { width: 14%; }
+.thNarrow  { width: 6%; }
+.thWide    { width: 8%; }
 
 .tdPlayer { overflow: hidden; }
 
