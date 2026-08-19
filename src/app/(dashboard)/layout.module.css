@@ -1,24 +1,32 @@
 /* The 2.0 ground (design-2.0/README.md § "The surface") lives here, not on
-   the per-page `.g-page` div one level in. `.main`'s own padding used to sit
-   OUTSIDE the gradient, showing the flat page colour in the gutter while
-   `.g-page` opened on near-white right past it — a hard rectangle framing
-   every masthead. Painting the ground on the element that owns the padding
-   means the gradient's brightest point is the true top of the page, with
-   nothing flatter framing it. */
-.main {
+   `.main` and not on the per-page `.g-page` div two levels in. It was on
+   `.main` briefly, but `.main` is capped at `--content-max-width` and
+   centred — so on any viewport wider than that cap, the flat page colour
+   showed on both sides of the gradient, the same hard-edged mismatch as
+   before, just moved from the top edge to the left/right ones. `.ground`
+   is the one element with no width cap: it runs the full viewport, so the
+   gradient's percentage sizing (120% of ITS OWN box) resolves against the
+   real page width at any screen size, and there is no un-gradiented strip
+   left over for the flat colour to show through. `.main` goes back to
+   doing only the one job it has left: capping and centring the content. */
+.ground {
   min-height: calc(100vh - var(--nav-height));
-  padding: var(--space-8) var(--space-6);
-  max-width: var(--content-max-width);
-  margin: 0 auto;
   width: 100%;
   background-color: var(--color-bg-primary);
   background-image: radial-gradient(120% 90% at 50% -18%,
     #FFFFFF 0%, #FBF8F3 38%, var(--color-bg-primary) 100%);
   background-repeat: no-repeat;
 }
-[data-theme="dark"] .main {
+[data-theme="dark"] .ground {
   background-image: radial-gradient(85% 62% at 50% -6%,
     #292E3E 0%, #1F2536 44%, var(--color-bg-primary) 100%);
+}
+
+.main {
+  padding: var(--space-8) var(--space-6);
+  max-width: var(--content-max-width);
+  margin: 0 auto;
+  width: 100%;
 }
 
 @media (max-width: 768px) {

@@ -12,7 +12,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <SquadPeekProvider>
         <TeamLogoPreloader />
         <TopBar />
-        <main className={styles.main}>{children}</main>
+        <div className={styles.ground}>
+          <main className={styles.main}>{children}</main>
+        </div>
       </SquadPeekProvider>
     </PlayerCardProvider>
   );
