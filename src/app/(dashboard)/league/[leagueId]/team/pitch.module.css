@@ -569,28 +569,18 @@
 }
 .nodeStatusDot[data-status='d'] { background: var(--color-warning-text); }
 
-/* ── Save row ──────────────────────────────────────────────
-   Inside the pitch column, under the grass — it acts on what is above it. */
-
-.saveRow {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: var(--s3);
-    padding: var(--s3) var(--s4);
-    border-top: 1px solid var(--color-border-subtle);
-}
+/* ── Save action ───────────────────────────────────────────
+   Rides in the formation bar's trailer, same reasoning as the selection
+   indicator above — a toolbar action, not a row of its own under the grass. */
 
 .errorText {
     font-size: var(--t-12);
     color: var(--color-danger);
-    flex: 1;
 }
 
 .successText {
     font-size: var(--t-12);
     color: var(--color-accent-ink);
-    flex: 1;
 }
 
 .saveBtn {
@@ -941,8 +931,35 @@
         gap: 3px;
     }
     .pitchNode { min-width: 60px; }
+    /* The wrapper above shrinks, but Portrait's own g-portrait-md class is a
+       fixed 66x78 regardless of viewport — left alone, its height alone blows
+       past the 80px row budget below, and the smallest zone (GK, last before
+       the pitch's overflow:hidden edge) is what visibly gets clipped. Step it
+       down to row size (g-portrait-sm's own numbers) so the node actually
+       fits its row on narrow screens. */
+    .pitchNodeWrap :global(.g-portrait-md) {
+        width: 44px;
+        height: 44px;
+        --g-portrait-zoom: 150%;
+        --g-portrait-zoom-alt: 136%;
+        --g-portrait-inset: 4px;
+        --g-crest: 16px;
+    }
+    /* The fallback initial (no cut-out on file) sizes off .g-portrait-md's own
+       26px rule, which assumes the 66x78 frame above — left alone it renders
+       nearly as tall as the shrunk 44x44 frame itself, next to photographed
+       teammates' properly-proportioned crop. Match g-portrait-sm's 17px. */
+    .pitchNodeWrap :global(.g-portrait-md) :global(.g-portrait-fallback) {
+        font-size: 17px;
+    }
     .nodeChipBody { padding: 3px var(--s1) var(--s1); gap: 2px; }
     .nodePlayerNameCenter { font-size: var(--t-10); }
     .nodePtsBadge { font-size: var(--t-10); top: -6px; right: -5px; }
-    .pitchZones { padding: var(--s8) 0 var(--s2); }
+    .pitchZones { padding: var(--s8) 0 var(--s3); }
+    /* Taller than the 2/3 desktop ratio. A two-line surname (name can clamp to
+       2 lines, see .nodePlayerNameCenter above) in even one row on this
+       breakpoint was enough to push the last zone past this box's
+       overflow:hidden edge — the fixed 2/3 ratio budgeted for single-line
+       names only. */
+    .pitchField { aspect-ratio: 2 / 3.4; }
 }

@@ -931,6 +931,11 @@ export default function PitchUI({
                             </button>
                         </span>
                     )}
+                    {saveError && <span className={styles.errorText}>{saveError}</span>}
+                    {saveSuccess && !saveError && <span className={styles.successText}>Lineup saved!</span>}
+                    <button className={styles.saveBtn} onClick={handleSave} disabled={!canSave}>
+                        {saving ? 'Saving…' : 'Save Lineup'}
+                    </button>
                 </div>
             </div>
 
@@ -979,7 +984,7 @@ export default function PitchUI({
                         )}
 
                         <div className={styles.pitchZones}>
-                            {ZONE_ORDER.map((zone) => {
+                            {ZONE_ORDER.filter((zone) => zonedSlots[zone].length > 0).map((zone) => {
                                 const zoneSlots = zonedSlots[zone];
                                 return (
                                     <div key={zone} className={`${styles.pitchZone} ${styles[`zone${zone}`]}`}>
@@ -1014,15 +1019,6 @@ export default function PitchUI({
                             })}
                         </div>
                         </div>{/* end pitchField */}
-                    </div>
-
-                    {/* Save row below pitch */}
-                    <div className={styles.saveRow}>
-                        {saveError && <span className={styles.errorText}>{saveError}</span>}
-                        {saveSuccess && !saveError && <span className={styles.successText}>Lineup saved!</span>}
-                        <button className={styles.saveBtn} onClick={handleSave} disabled={!canSave}>
-                            {saving ? 'Saving…' : 'Save Lineup'}
-                        </button>
                     </div>
                 </div>
 
