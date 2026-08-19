@@ -28,6 +28,8 @@ export interface PositionAggregate {
   total_points: number;
   avg_rating: number;
   total_minutes: number;
+  goals: number;
+  assists: number;
 }
 
 /** playerId → position → aggregate */
@@ -48,7 +50,7 @@ export interface AggregatableStatRow {
   player_id: string;
   match_rating: number | null;
   fantasy_points: number | null;
-  stats: { minutes_played?: number } | null;
+  stats: { minutes_played?: number; goals?: number; assists?: number } | null;
 }
 
 type RefStatsMap = Parameters<typeof calculateMatchRating>[2];
@@ -59,7 +61,10 @@ export function buildPositionAggregates(
   refStats: RefStatsMap,
   minMinutes: number,
 ): PositionAggregateMap {
-  const acc = new Map<string, Map<string, { gp: number; pts: number; sumR: number; mins: number }>>();
+  const acc = new Map<
+    string,
+    Map<string, { gp: number; pts: number; sumR: number; mins: number; goals: number; assists: number }>
+  >();
 
   for (const r of rows) {
     const minutes = Number(r.stats?.minutes_played ?? 0);
@@ -68,6 +73,10 @@ export function buildPositionAggregates(
 
     const p = players.get(r.player_id);
     if (!p) continue;
+
+    // Real-world counts, not re-scored per position like points/rating below.
+    const goals = Number(r.stats?.goals ?? 0);
+    const assists = Number(r.stats?.assists ?? 0);
 
     let byPosition = acc.get(r.player_id);
     if (!byPosition) {
@@ -79,13 +88,15 @@ export function buildPositionAggregates(
     if (primPos) {
       let primAcc = byPosition.get(primPos);
       if (!primAcc) {
-        primAcc = { gp: 0, pts: 0, sumR: 0, mins: 0 };
+        primAcc = { gp: 0, pts: 0, sumR: 0, mins: 0, goals: 0, assists: 0 };
         byPosition.set(primPos, primAcc);
       }
       primAcc.gp += 1;
       primAcc.pts += Number(r.fantasy_points ?? 0);
       primAcc.sumR += Number(r.match_rating ?? 0);
       primAcc.mins += minutes;
+      primAcc.goals += goals;
+      primAcc.assists += assists;
     }
 
     for (const secPos of p.secondary_positions ?? []) {
@@ -94,7 +105,7 @@ export function buildPositionAggregates(
 
       let secAcc = byPosition.get(posKey);
       if (!secAcc) {
-        secAcc = { gp: 0, pts: 0, sumR: 0, mins: 0 };
+        secAcc = { gp: 0, pts: 0, sumR: 0, mins: 0, goals: 0, assists: 0 };
         byPosition.set(posKey, secAcc);
       }
 
@@ -110,6 +121,8 @@ export function buildPositionAggregates(
       secAcc.pts += rescored.fantasyPoints;
       secAcc.sumR += rescored.rating;
       secAcc.mins += minutes;
+      secAcc.goals += goals;
+      secAcc.assists += assists;
     }
   }
 
@@ -124,6 +137,8 @@ export function buildPositionAggregates(
             total_points: ex.pts,
             avg_rating: ex.gp > 0 ? ex.sumR / ex.gp : 0,
             total_minutes: ex.mins,
+            goals: ex.goals,
+            assists: ex.assists,
           },
         ]),
       ),

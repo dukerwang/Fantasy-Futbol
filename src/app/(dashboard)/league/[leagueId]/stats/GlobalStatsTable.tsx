@@ -17,6 +17,8 @@ interface PositionStats {
   total_points: number;
   avg_rating: number;
   total_minutes: number;
+  goals: number;
+  assists: number;
 }
 
 interface Props {
@@ -39,7 +41,9 @@ type SortKey =
   | 'avg_rating'
   | 'market_value'
   | 'form'
-  | 'total_minutes';
+  | 'total_minutes'
+  | 'goals'
+  | 'assists';
 
 type SortDir = 'desc' | 'asc';
 
@@ -104,6 +108,7 @@ function resolveActivePosition(
 export default function GlobalStatsTable({ leagueId, leagueName, players, season, shadowMaps }: Props) {
   const [search, setSearch] = useState('');
   const [posFilter, setPosFilter] = useState<PosFilter>('ALL');
+  const [clubFilter, setClubFilter] = useState<string>('ALL');
   const [minMins, setMinMins] = useState<'played' | 'all' | 'gt45'>('all');
   const [minGames, setMinGames] = useState<number>(0);
   // 'both' by default so a position's table lists everyone who plays there,
@@ -118,6 +123,14 @@ export default function GlobalStatsTable({ leagueId, leagueName, players, season
 
   const shadowByPlayer =
     minMins === 'played' ? (shadowMaps.played ?? shadowMaps.all) : minMins === 'all' ? shadowMaps.all : shadowMaps.gt45;
+
+  const clubOptions = useMemo(() => {
+    const set = new Set<string>();
+    for (const p of players) {
+      if (p.pl_team) set.add(p.pl_team);
+    }
+    return Array.from(set).sort((a, b) => a.localeCompare(b));
+  }, [players]);
 
   function handleSort(key: SortKey) {
     if (sortKey === key) {
@@ -139,6 +152,8 @@ export default function GlobalStatsTable({ leagueId, leagueName, players, season
         const { player: p, activePos } = item;
         if (!activePos) return false;
 
+        if (clubFilter !== 'ALL' && p.pl_team !== clubFilter) return false;
+
         if (q) {
           const full = getPlayerDisplayName(p, 'full').toLowerCase();
           if (!full.includes(q) && !p.name.toLowerCase().includes(q)) return false;
@@ -150,7 +165,7 @@ export default function GlobalStatsTable({ leagueId, leagueName, players, season
 
         return true;
       });
-  }, [players, search, posFilter, posType, shadowByPlayer, minGames]);
+  }, [players, search, posFilter, posType, clubFilter, shadowByPlayer, minGames]);
 
   const sorted = useMemo(() => {
     return [...filtered].sort((aObj, bObj) => {
@@ -180,6 +195,12 @@ export default function GlobalStatsTable({ leagueId, leagueName, players, season
       } else if (sortKey === 'total_minutes') {
         av = sa ? sa.total_minutes : 0;
         bv = sb ? sb.total_minutes : 0;
+      } else if (sortKey === 'goals') {
+        av = sa ? sa.goals : 0;
+        bv = sb ? sb.goals : 0;
+      } else if (sortKey === 'assists') {
+        av = sa ? sa.assists : 0;
+        bv = sb ? sb.assists : 0;
       }
 
       return sortDir === 'desc' ? bv - av : av - bv;
@@ -188,7 +209,7 @@ export default function GlobalStatsTable({ leagueId, leagueName, players, season
 
   /**
    * A sortable column head. It is a real <button> inside the <th>, not a click
-   * handler on the <th> — six of this table's eight columns are sortable and
+   * handler on the <th> — eight of this table's ten columns are sortable and
    * none of them could be reached from the keyboard before.
    */
   function SortHead({ label, sortBy, title }: { label: string; sortBy: SortKey; title?: string }) {
@@ -275,6 +296,19 @@ export default function GlobalStatsTable({ leagueId, leagueName, players, season
         </select>
         <select
           className={styles.select}
+          value={clubFilter}
+          onChange={(e) => setClubFilter(e.target.value)}
+          aria-label="Club"
+        >
+          <option value="ALL">All clubs</option>
+          {clubOptions.map((club) => (
+            <option key={club} value={club}>
+              {club}
+            </option>
+          ))}
+        </select>
+        <select
+          className={styles.select}
           value={minMins}
           onChange={(e) => setMinMins(e.target.value as 'played' | 'all' | 'gt45')}
           aria-label="Minutes filter"
@@ -321,6 +355,12 @@ export default function GlobalStatsTable({ leagueId, leagueName, players, season
               <th className={styles.thOwner}>Owner</th>
               <th className={`${styles.thNum} ${styles.num}`} aria-sort={ariaSort('total_minutes')}>
                 <SortHead label="GP" sortBy="total_minutes" title="Games played — sorted by minutes" />
+              </th>
+              <th className={`${styles.thNum} ${styles.num}`} aria-sort={ariaSort('goals')}>
+                <SortHead label="G" sortBy="goals" title="Goals" />
+              </th>
+              <th className={`${styles.thNum} ${styles.num}`} aria-sort={ariaSort('assists')}>
+                <SortHead label="A" sortBy="assists" title="Assists" />
               </th>
               <th className={`${styles.thNum} ${styles.num}`} aria-sort={ariaSort('total_points')}>
                 <SortHead label="Pts" sortBy="total_points" />
@@ -389,6 +429,8 @@ export default function GlobalStatsTable({ leagueId, leagueName, players, season
                     )}
                   </td>
                   <td className={`${styles.num} ${s ? '' : styles.na}`}>{s ? gp : '—'}</td>
+                  <td className={`${styles.num} ${s ? '' : styles.na}`}>{s ? s.goals : '—'}</td>
+                  <td className={`${styles.num} ${s ? '' : styles.na}`}>{s ? s.assists : '—'}</td>
                   <td className={`${styles.num} ${s ? '' : styles.na}`}>
                     {s ? totalPoints.toFixed(1) : '—'}
                   </td>
@@ -405,7 +447,7 @@ export default function GlobalStatsTable({ leagueId, leagueName, players, season
             })}
             {sorted.length === 0 && (
               <tr>
-                <td colSpan={8} className={styles.empty}>
+                <td colSpan={10} className={styles.empty}>
                   No players match your filters.
                 </td>
               </tr>

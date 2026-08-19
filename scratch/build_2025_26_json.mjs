@@ -187,6 +187,8 @@ async function buildArchivedDataset() {
           total_points: Number(ex.total_points.toFixed(2)),
           avg_rating: Number(ex.avg_rating.toFixed(2)),
           total_minutes: ex.total_minutes,
+          goals: ex.goals,
+          assists: ex.assists,
         };
       }
     }
