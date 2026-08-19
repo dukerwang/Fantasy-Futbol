@@ -339,7 +339,7 @@ export default function PreDraftLobby({
         {/* Club Roster Board */}
         <div className={styles.sectionCard}>
           <div className={styles.sectionHeader}>
-            <h2 className={styles.sectionTitle}>Club registrations</h2>
+            <h2 className={styles.sectionTitle}>Club Registrations</h2>
             <span className={styles.memberCount}>
               {teams.length} / {league.max_teams} joined
             </span>
@@ -403,13 +403,13 @@ export default function PreDraftLobby({
         {isCommissioner && !isActive && (
           <div className={`${styles.sectionCard} ${styles.commCard}`}>
             <div className={`${styles.sectionHeader} ${styles.commHeader}`}>
-              <h2 className={`${styles.sectionTitle} ${styles.commTitle}`}>Commissioner controls</h2>
+              <h2 className={`${styles.sectionTitle} ${styles.commTitle}`}>Commissioner Controls</h2>
               <span className={styles.memberCount}>Setup phase</span>
             </div>
 
             {/* Scheduling Section */}
             <div className={styles.schedulerSection}>
-              <h3 className={styles.schedulerTitle}>Schedule draft kickoff</h3>
+              <h3 className={styles.schedulerTitle}>Schedule Draft Kickoff</h3>
               <p className={styles.schedulerHint}>
                 Set a date and time for the draft to automatically begin. A minimum of 4 managers must be joined.
               </p>
@@ -475,7 +475,7 @@ export default function PreDraftLobby({
         <div className={styles.modalOverlay} onClick={() => setModalOpen(false)}>
           <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
             <div className={styles.modalHeader}>
-              <h3 className={styles.modalTitle}>Edit club identity</h3>
+              <h3 className={styles.modalTitle}>Edit Club Identity</h3>
               <button
                 type="button"
                 className={styles.modalCloseBtn}

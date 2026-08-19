@@ -138,7 +138,7 @@ export function DepthChart({
   return (
     <section className={`${styles.panel} g-panel`}>
       <div className={styles.panelHead}>
-        <h2 className={styles.panelTitle}>Depth chart</h2>
+        <h2 className={styles.panelTitle}>Depth Chart</h2>
         <span className="g-label">By tactical position · attack first</span>
       </div>
 

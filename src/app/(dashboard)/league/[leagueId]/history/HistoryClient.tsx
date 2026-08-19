@@ -173,7 +173,7 @@ export default function HistoryClient({ leagueName, currentSeason, seasons, high
       {/* ── Masthead ── */}
       <header className={styles.masthead}>
         <span className={`g-label ${styles.kicker}`}>{leagueName} · Dynasty league</span>
-        <h1 className={styles.title}>League history</h1>
+        <h1 className={styles.title}>League History</h1>
         <p className={styles.subtitle}>Past season standings, cup winners & records</p>
       </header>
 

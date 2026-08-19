@@ -508,7 +508,7 @@ export default function DealsClient({
           )}
 
           <div className={`${styles.sect} ${styles.sectSpaced}`}>
-            <h2 className={styles.sectTitle}>Your listings</h2>
+            <h2 className={styles.sectTitle}>Your Listings</h2>
             <span className={styles.sectHint}>
               {myListings.length} · manage terms and answer offers
             </span>
@@ -540,7 +540,7 @@ export default function DealsClient({
           {runningLoans.length > 0 && (
             <>
               <div className={`${styles.sect} ${styles.sectSpaced}`}>
-                <h2 className={styles.sectTitle}>Loans running</h2>
+                <h2 className={styles.sectTitle}>Loans Running</h2>
                 <span className={styles.sectHint}>
                   {runningLoans.filter((l) => l.lender_team_id === me).length} out ·{' '}
                   {runningLoans.filter((l) => l.borrower_team_id === me).length} in
@@ -554,7 +554,7 @@ export default function DealsClient({
         {/* ── The other clubs ───────────────────────────── */}
         <aside className={styles.rail}>
           <div className={styles.railHead}>
-            <h2 className={styles.railTitle}>The other clubs</h2>
+            <h2 className={styles.railTitle}>The Other Clubs</h2>
           </div>
 
           <div className={styles.clubList}>

@@ -231,7 +231,7 @@ export default function ShadowStatsTable({ statsSeason, players, shadowMaps }: P
 
   return (
     <section className={styles.section}>
-      <h2 className={styles.sectionTitle}>Full season leaderboard (v1 vs v2)</h2>
+      <h2 className={styles.sectionTitle}>Full Season Leaderboard (v1 vs v2)</h2>
       <p className={styles.sectionHint}>
         Every active player, same filters/sort UX as league <strong>Stats</strong>.{' '}
         <strong>GP</strong> counts v2-populated fixtures in <strong>{statsSeason}</strong> where the player had

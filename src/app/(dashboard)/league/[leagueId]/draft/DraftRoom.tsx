@@ -36,7 +36,7 @@ function cellPickLabel(roundNum: number, teamDraftOrder: number, numTeams: numbe
   return `${String(roundNum).padStart(2, '0')}.${String(posInRound).padStart(2, '0')}`;
 }
 
-type SortKey = 'total_points' | 'ppg' | 'avg_rating' | 'market_value' | 'gp';
+type SortKey = 'total_points' | 'ppg' | 'avg_rating' | 'market_value' | 'gp' | 'draft_rank';
 type SortDir = 'desc' | 'asc';
 
 interface Props {
@@ -95,6 +95,8 @@ function PlayerRow({
   const ppg = s && s.gp > 0 ? (s.total_points / s.gp).toFixed(1) : '—';
   const avgRating = s && s.gp > 0 ? s.avg_rating.toFixed(1) : '—';
   const value = player.market_value != null ? `€${Number(player.market_value).toFixed(1)}m` : '—';
+  const rank = player.draftRank != null ? String(player.draftRank) : '—';
+  const isUnavailable = !!player.fpl_status && player.fpl_status !== 'a';
 
   return (
     <div
@@ -117,7 +119,11 @@ function PlayerRow({
           </div>
           <div className={styles.playerInfo}>
             <span className={styles.playerName}>{getPlayerDisplayName(player, 'initial_last')}</span>
-            <span className={styles.playerClub}>{player.pl_team}</span>
+            {isUnavailable && player.fpl_news ? (
+              <span className={styles.injuryNote} title={player.fpl_news}>{player.fpl_news}</span>
+            ) : (
+              <span className={styles.playerClub}>{player.pl_team}</span>
+            )}
           </div>
         </div>
         <div className={styles.rowActions}>
@@ -139,6 +145,11 @@ function PlayerRow({
           </button>
         </div>
       </div>
+
+      {/* Draft Rank — shown for every player, including isNewToPrem (that's
+          exactly the case its confidence-weighting exists for), unlike the
+          stat columns below which have nothing to show for them. */}
+      <div className={styles.tdNum}>{rank}</div>
 
       {/* Scrollable Stats Columns */}
       {player.isNewToPrem ? (
@@ -211,8 +222,13 @@ export default function DraftRoom({
   const [minMins, setMinMins] = useState<'all' | 'gt45'>('all');
   const [minGames, setMinGames] = useState<number>(0);
   const [posType, setPosType] = useState<'primary' | 'secondary' | 'both'>('primary');
-  const [sortKey, setSortKey] = useState<SortKey>('total_points');
-  const [sortDir, setSortDir] = useState<SortDir>('desc');
+  // Default sort is Draft Rank, not raw points — the whole point of the
+  // ranking is that a manager who touches nothing sees the recommended
+  // order first, not a stat they may not know how to weigh.
+  const [sortKey, setSortKey] = useState<SortKey>('draft_rank');
+  // 'asc' so Draft Rank (the default sortKey) starts at #1, not the highest
+  // rank number — see handleSort for the same asc-by-default on reselecting it.
+  const [sortDir, setSortDir] = useState<SortDir>('asc');
 
   const currentCellRef = useRef<HTMLTableCellElement>(null);
   const boardScrollRef = useRef<HTMLDivElement>(null);
@@ -221,6 +237,7 @@ export default function DraftRoom({
   // loadingPick is state, so two clicks landing in the same tick both read it
   // as false and both POST. The ref flips synchronously.
   const pickInFlightRef = useRef(false);
+  const hadDisconnectRef = useRef(false);
 
   const [draftQueue, setDraftQueue] = useState<string[]>([]);
   useEffect(() => {
@@ -271,9 +288,16 @@ export default function DraftRoom({
     const supabase = createClient();
     
     const sendHeartbeat = () => {
+      // last_seen_at only — consecutive_autopicks resets in make_draft_pick_rpc
+      // when this team actually completes a pick, not here. Resetting it on
+      // mere presence let a manager who reconnects without picking dodge the
+      // "2 misses in a row skips the wait" escalation in
+      // auto_pick_expired_drafts() forever: a live league produced exactly
+      // that pattern, one team maxing out the full timeout for its last 5
+      // picks in a row because its heartbeat kept re-arming the grace period.
       supabase
         .from('teams')
-        .update({ last_seen_at: new Date().toISOString(), consecutive_autopicks: 0 })
+        .update({ last_seen_at: new Date().toISOString() })
         .eq('id', myTeam.id)
         .then();
     };
@@ -356,7 +380,20 @@ export default function DraftRoom({
         setPickError(null);
       })
       .on('broadcast', { event: 'draft_complete' }, () => { router.refresh(); })
-      .subscribe();
+      .subscribe((status) => {
+        // A tab whose socket drops (network blip, laptop sleep, tab
+        // backgrounded) misses every broadcast/postgres_changes event sent
+        // while it's down, and previously had no way to notice — it just
+        // sat stale until the next 15s poll below. Refetch once the channel
+        // comes back up so a reconnect closes the gap immediately instead
+        // of leaving up to 15s of missed picks on screen.
+        if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
+          hadDisconnectRef.current = true;
+        } else if (status === 'SUBSCRIBED' && hadDisconnectRef.current) {
+          hadDisconnectRef.current = false;
+          router.refresh();
+        }
+      });
 
     return () => { supabase.removeChannel(channel); };
   }, [leagueId, router]);
@@ -554,6 +591,9 @@ export default function DraftRoom({
       } else if (sortKey === 'gp') {
         av = sa ? sa.gp : 0;
         bv = sb ? sb.gp : 0;
+      } else if (sortKey === 'draft_rank') {
+        av = aObj.player.draftRank ?? Infinity;
+        bv = bObj.player.draftRank ?? Infinity;
       }
 
       return sortDir === 'desc' ? bv - av : av - bv;
@@ -702,7 +742,9 @@ export default function DraftRoom({
       setSortDir((d) => (d === 'desc' ? 'asc' : 'desc'));
     } else {
       setSortKey(key);
-      setSortDir('desc');
+      // Every other column's "best" value is the highest number; Draft
+      // Rank's is the lowest (#1), so it starts ascending instead.
+      setSortDir(key === 'draft_rank' ? 'asc' : 'desc');
     }
   }
 
@@ -815,7 +857,7 @@ export default function DraftRoom({
         {/* Draft Board */}
         <main className={styles.boardPanel}>
           <div className={styles.boardHeader}>
-            <h1 className={styles.boardHeadline}>The draft room</h1>
+            <h1 className={styles.boardHeadline}>The Draft Room</h1>
             <p className={styles.boardSubtitle}>
               Dynasty League · Round {currentRound}/{league.roster_size} · {effectivePicks.length} picks made
             </p>
@@ -1060,6 +1102,9 @@ export default function DraftRoom({
                   {/* Table Header Row */}
                   <div className={styles.tableStatsHeader}>
                     <div className={styles.thSticky}>Player</div>
+                    <div className={`${styles.th} ${sortKey === 'draft_rank' ? styles.thActive : ''}`} onClick={() => handleSort('draft_rank')} title="Gaffa's synthetic pre-draft ranking — market value and prior-season performance, not a real historical ADP">
+                      Rank {sortIndicator('draft_rank')}
+                    </div>
                     <div className={`${styles.th} ${sortKey === 'gp' ? styles.thActive : ''}`} onClick={() => handleSort('gp')}>
                       GP {sortIndicator('gp')}
                     </div>

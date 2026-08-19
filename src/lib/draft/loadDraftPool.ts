@@ -10,6 +10,7 @@ import { FULL_PLAYER_SELECT } from '@/lib/constants/queries';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { getLatestReferenceStatsSeason, resolveDraftStatsSeason } from '@/lib/season/currentSeason';
 import { calculateMatchRating, DEFAULT_REFERENCE_STATS } from '@/lib/scoring/matchRating';
+import { scoreDraftPool, rankDraftPool, type DraftCandidate } from '@/lib/draft/autoPickEngine';
 import type { Player } from '@/types';
 
 export type ShadowPosStats = {
@@ -195,13 +196,39 @@ const loadDraftStatsForSeason = unstable_cache(
     );
   }
 
-    return {
-      players,
-      shadowMaps: {
-        all: buildStatsAgg(15),
-        gt45: buildStatsAgg(45),
-      },
+    const shadowMaps = {
+      all: buildStatsAgg(15),
+      gt45: buildStatsAgg(45),
     };
+
+    // Draft Rank ("ADP" in spirit — see loadDraftStatsForSeason's own docs/
+    // superpowers spec) is computed once here, fixed for the whole pool load,
+    // deliberately independent of the Players tab's minutes-filter toggle
+    // (`all` vs `gt45`) — a display filter shouldn't change a player's rank.
+    // Always sourced from the `all` (15-min) bucket, matching the app-wide
+    // MEANINGFUL_MINUTES threshold used everywhere else.
+    const candidates: DraftCandidate[] = players.map((p) => {
+      const s = shadowMaps.all[p.id]?.[String(p.primary_position).toUpperCase()];
+      const gp = s?.gp ?? 0;
+      return {
+        id: p.id,
+        primaryPosition: p.primary_position,
+        marketValue: p.market_value,
+        totalPoints: gp > 0 ? s!.total_points : null,
+        ppg: gp > 0 ? s!.total_points / gp : null,
+        gp,
+        fplStatus: p.fpl_status,
+      };
+    });
+    const scored = scoreDraftPool(candidates);
+    const ranks = rankDraftPool(scored);
+    const scoreById = new Map(scored.map((c) => [c.id, c.qualityScore]));
+    for (const p of players) {
+      p.draftRank = ranks.get(p.id);
+      p.draftQualityScore = scoreById.get(p.id);
+    }
+
+    return { players, shadowMaps };
   },
   ['draft-pool-stats-by-season'],
   { revalidate: 60 },

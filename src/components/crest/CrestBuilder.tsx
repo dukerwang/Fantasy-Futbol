@@ -102,7 +102,7 @@ export default function CrestBuilder({
       {/* Left side: Controls */}
       <div className={styles.controlsCol}>
         <div className={styles.headerRow}>
-          <h2 className={styles.builderTitle}>Design your crest</h2>
+          <h2 className={styles.builderTitle}>Design Your Crest</h2>
           <button 
             type="button" 
             onClick={handleRandomise} 

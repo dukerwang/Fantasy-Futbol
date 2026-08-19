@@ -264,7 +264,7 @@ export default function FinanceClient({
       {/* ── Masthead ── */}
       <header className={styles.masthead}>
         <span className={`g-label ${styles.kicker}`}>{leagueName} · Season {season?.replace('-', '/') ?? season}</span>
-        <h1 className={styles.title}>Finance ledger</h1>
+        <h1 className={styles.title}>Finance Ledger</h1>
         <p className={styles.subtitle}>{teamName} — full transaction history</p>
       </header>
 
@@ -305,7 +305,7 @@ export default function FinanceClient({
         {/* ── Breakdown bar chart ── */}
         {Object.keys(breakdown.byCategory).length > 0 && (
           <section className={styles.section}>
-            <h2 className={styles.sectionHead}>Spending breakdown</h2>
+            <h2 className={styles.sectionHead}>Spending Breakdown</h2>
             <BreakdownBar breakdown={breakdown} max={maxCategoryTotal} />
           </section>
         )}
@@ -313,7 +313,7 @@ export default function FinanceClient({
         {/* ── Transaction ledger ── */}
         <section className={styles.section}>
           <div className={styles.ledgerHeader}>
-            <h2 className={styles.sectionHead}>Club ledger</h2>
+            <h2 className={styles.sectionHead}>Club Ledger</h2>
             {/* Filter tabs — same segmented-control grammar as the stats
                 pool's position filter: filled in ink, not the accent, since
                 this is a view toggle rather than "yours". */}
@@ -337,21 +337,23 @@ export default function FinanceClient({
             <p className={styles.emptyText}>No transactions found.</p>
           ) : (
             <>
-              <table className={styles.ledgerTable}>
-                <thead>
-                  <tr>
-                    <th>Date</th>
-                    <th>Type</th>
-                    <th>Player / notes</th>
-                    <th className={styles.thRight}>Amount</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {pageSlice.map(tx => (
-                    <LedgerRow key={tx.id} tx={tx} />
-                  ))}
-                </tbody>
-              </table>
+              <div className={styles.ledgerTableWrap}>
+                <table className={styles.ledgerTable}>
+                  <thead>
+                    <tr>
+                      <th>Date</th>
+                      <th>Type</th>
+                      <th>Player / notes</th>
+                      <th className={styles.thRight}>Amount</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {pageSlice.map(tx => (
+                      <LedgerRow key={tx.id} tx={tx} />
+                    ))}
+                  </tbody>
+                </table>
+              </div>
 
               {totalPages > 1 && (
                 <div className={styles.pagination}>

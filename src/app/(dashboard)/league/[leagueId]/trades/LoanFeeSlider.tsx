@@ -137,7 +137,7 @@ export default function LoanFeeSlider({ value, ppg, marketValue: mv, duration, o
       <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: '10px' }}>
         <span style={{
           fontSize: '24px', fontWeight: 700,
-          fontFamily: "'Noto Serif', serif",
+          fontFamily: 'var(--font-serif)',
           color: 'var(--color-text-primary)',
         }}>
           {value === 0 ? 'Free' : `€${value}m`}

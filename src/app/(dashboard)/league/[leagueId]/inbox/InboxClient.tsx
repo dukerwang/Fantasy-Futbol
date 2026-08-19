@@ -264,7 +264,7 @@ export default function InboxClient({ leagueId, leagueName }: InboxClientProps) 
             <Icon name="mail" size={48} strokeWidth={1} />
           </div>
           <h2 className={styles.emptyTitle}>
-            {filter === 'unread' ? 'No Unread Alerts' : 'Inbox is Empty'}
+            {filter === 'unread' ? 'No Unread Alerts' : 'Inbox Is Empty'}
           </h2>
           <p className={styles.emptyDesc}>
             {filter === 'unread'

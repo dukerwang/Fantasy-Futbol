@@ -89,7 +89,7 @@ export default function Rail({ model }: { model: HomeModel }) {
 
       <div className={styles.railCard}>
         <div className={styles.railHd}>
-          <h2 className={styles.railT}>The club</h2>
+          <h2 className={styles.railT}>The Club</h2>
         </div>
         <div className={styles.dyn}>
           {model.clubFacts.map((f, i) => (

@@ -7,7 +7,6 @@ import { List } from 'react-window';
 import { getPlayerDisplayName } from '@/lib/players/displayName';
 import { usePlayerCard } from '@/components/players/PlayerCardProvider';
 import {
-  scoreDraftPool,
   pickBestCandidate,
   type ScoredDraftCandidate,
   type PositionCounts,
@@ -245,17 +244,24 @@ export default function MockDraftRoom({ leagueId, league, players, shadowMaps, m
     return map;
   }, [players]);
 
+  // loadDraftPool.ts already scores every player once (draftQualityScore) using
+  // the correct resolved-season stats — recomputing here used to read the live
+  // players.total_points/ppg columns instead, which are the *current*
+  // (in-progress, often preseason-empty) season, not the prior completed one
+  // the rest of the draft room uses. Reading the precomputed value keeps the
+  // bot's picks consistent with the displayed Rank column and fixes that.
   const scoredPool = useMemo<ScoredDraftCandidate[]>(
     () =>
-      scoreDraftPool(
-        players.map((p) => ({
-          id: p.id,
-          primaryPosition: p.primary_position,
-          marketValue: p.market_value,
-          totalPoints: p.total_points,
-          ppg: p.ppg,
-        })),
-      ),
+      players.map((p) => ({
+        id: p.id,
+        primaryPosition: p.primary_position,
+        marketValue: p.market_value,
+        totalPoints: p.total_points,
+        ppg: p.ppg,
+        gp: 0, // Not read post-scoring — qualityScore below is already final.
+        fplStatus: p.fpl_status,
+        qualityScore: p.draftQualityScore ?? 0,
+      })),
     [players],
   );
 
@@ -675,7 +681,7 @@ export default function MockDraftRoom({ leagueId, league, players, shadowMaps, m
           <NavigationLink href={`/league/${leagueId}`} className={styles.exitLink}>← Back to lobby</NavigationLink>
         </div>
         <div className={styles.card}>
-          <h1 className={styles.title}>Practice your draft</h1>
+          <h1 className={styles.title}>Practice Your Draft</h1>
           <p className={styles.desc}>
             Run a full snake draft against AI-controlled bots using the real player pool, before the
             real draft starts. Nothing here touches your league — picks, teams, and rosters are
@@ -802,7 +808,7 @@ export default function MockDraftRoom({ leagueId, league, players, shadowMaps, m
       <div className={draftStyles.mainArea}>
         <main className={draftStyles.boardPanel}>
           <div className={draftStyles.boardHeader}>
-            <h1 className={draftStyles.boardHeadline}>Mock draft board</h1>
+            <h1 className={draftStyles.boardHeadline}>Mock Draft Board</h1>
             <p className={draftStyles.boardSubtitle}>
               Practice run · Round {currentRound}/{session?.rosterSize} · {session?.picks.length ?? 0} picks made
             </p>
@@ -1123,7 +1129,7 @@ export default function MockDraftRoom({ leagueId, league, players, shadowMaps, m
           {sidebarTab === 'recap' && phase === 'complete' && (
             <div className={draftStyles.tabContentScrollable}>
               <div className={styles.recapSection}>
-                <h3 className={styles.recapSectionTitle}>Squad value leaderboard</h3>
+                <h3 className={styles.recapSectionTitle}>Squad Value Leaderboard</h3>
                 <table className={styles.leaderboard}>
                   <thead>
                     <tr>

@@ -59,7 +59,7 @@ export default function CrestEditClient({ leagueId, team }: Props) {
     <div className={styles.setupLayout} style={{ padding: '3rem 1rem' }}>
       <div style={{ width: '100%', maxWidth: '1000px', margin: '0 auto' }}>
         <div style={{ marginBottom: '32px', textAlign: 'center' }}>
-          <h1 className={styles.panelTitle}>Customize club crest</h1>
+          <h1 className={styles.panelTitle}>Customize Club Crest</h1>
           <p className={styles.panelSubtitle}>
             Update the credentials and visual colors for <strong>{team.team_name}</strong>.
           </p>

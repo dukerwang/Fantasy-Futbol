@@ -62,11 +62,21 @@
 /* Not `.g-page` — that gradient is built for a scrollable content page
    ("no seam below the fold"); every pixel here is chrome, edge to edge,
    with no page ground showing through, so a flat surface is the honest
-   one. */
+   one. This is the part that wasn't true in practice: the dashboard layout's
+   `.main` still wraps every route in its own padding, and this root claimed
+   a flat `100vh` on top of that — taller than the box it actually sits in by
+   `.main`'s padding plus `--nav-height`, with nowhere for the overflow to go
+   but under `overflow: hidden`. On mobile, where there's no headroom to
+   spare, that ate the bottom of the sidebar panel outright. The negative
+   margins cancel `.main`'s padding so this fills the real box edge to edge
+   as intended; `dvh` (see globals.css `body`) tracks the actual visible
+   viewport as mobile browser chrome shows/hides instead of clipping under
+   it or leaving a gap once it retracts. */
 .draftRoot {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  height: calc(100dvh - var(--nav-height));
+  margin: calc(-1 * var(--space-8)) calc(-1 * var(--space-6));
   overflow: hidden;
   background: var(--color-bg-primary);
   color: var(--color-text-primary);
@@ -864,6 +874,20 @@
   text-overflow: ellipsis;
 }
 
+/* Replaces .playerClub when a player isn't fully available — the real
+   fpl_news text (e.g. "Achilles injury - Unknown return date"), not a
+   severity grade the data can't reliably support. See Draft Rank spec,
+   docs/superpowers/specs/2026-08-19-draft-rank-design.md. */
+.injuryNote {
+  display: block;
+  font-family: var(--font-sans);
+  font-size: var(--t-10);
+  color: var(--color-danger);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .queueBtn {
   width: 26px;
   height: 26px;
@@ -1397,8 +1421,8 @@
 }
 
 .tableStatsLayout {
-  width: 520px;
-  min-width: 520px;
+  width: 580px;
+  min-width: 580px;
   display: flex;
   flex-direction: column;
   flex: 1;
@@ -1589,5 +1613,15 @@
 
   .bannerMeta {
     padding: 0 var(--s3);
+  }
+}
+
+/* Matches `.main`'s own breakpoint (layout.module.css) where its padding
+   shrinks from `--space-8/6` to `--space-4/3` — the negative margin above
+   has to shrink with it or a gap reappears on one side while the other
+   overflows. */
+@media (max-width: 768px) {
+  .draftRoot {
+    margin: calc(-1 * var(--space-4)) calc(-1 * var(--space-3));
   }
 }

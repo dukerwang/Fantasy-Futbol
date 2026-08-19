@@ -384,7 +384,7 @@ export default function ChatClient({
 
           {/* DMs Group */}
           <div className={styles.section}>
-            <div className={styles.sectionHeader}>Direct messages</div>
+            <div className={styles.sectionHeader}>Direct Messages</div>
             {otherManagers.length > 0 ? (
               otherManagers.map((team) => {
                 const isActive = activeTab.type === 'dm' && activeTab.userId === team.user_id;

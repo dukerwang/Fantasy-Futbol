@@ -265,7 +265,7 @@ export default function AuctionsClient({
           {model.recentlyResolved.length > 0 && (
             <section className={styles.gone}>
               <div className={styles.goneHead}>
-                <h2 className={styles.goneTitle}>Gone this week</h2>
+                <h2 className={styles.goneTitle}>Gone This Week</h2>
                 <span className={styles.goneSub}>
                   what the room has already paid — the only running record of what a player is worth
                   in this league
@@ -303,7 +303,7 @@ export default function AuctionsClient({
 
         <aside className={styles.rail}>
           <div className={styles.railHead}>
-            <h2 className={styles.railTitle}>The saleroom</h2>
+            <h2 className={styles.railTitle}>The Saleroom</h2>
             <span className={styles.railLive}>● Live</span>
           </div>
 

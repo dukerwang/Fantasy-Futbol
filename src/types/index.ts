@@ -211,6 +211,12 @@ export interface Player {
   overall_rank?: number | null; // From player_rankings view
   position_ranks?: { position: string; rank: number }[] | null; // From player_rankings view
   isNewToPrem?: boolean; // Computed server-side: no player_season_clubs row for the prior season
+  draftRank?: number; // Computed server-side per draft-pool load (loadDraftPool.ts) — a synthetic
+                       // pre-draft ranking, not `adp` above (which is a real-historical-average
+                       // concept, unpopulated, and unrelated to this).
+  draftQualityScore?: number; // The 0-100 composite draftRank is sorted by (scoreDraftPool()) — the
+                               // real draft room only needs draftRank, but the mock draft's bot
+                               // reads this to blend with positional need per pick (pickBestCandidate()).
   created_at: string;
   updated_at: string;
 }

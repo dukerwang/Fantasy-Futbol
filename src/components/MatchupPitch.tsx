@@ -349,7 +349,7 @@ export default function MatchupPitch({
                 {sides.map(({ key, name, bench, bonus }) => (
                     <div key={key} className={styles.bench}>
                         <div className={styles.benchHead}>
-                            <h3 className={styles.benchName}>{name} — bench</h3>
+                            <h3 className={styles.benchName}>{name} — Bench</h3>
                             {bonus > 0 && (
                                 <span className={styles.benchBonus}>+{bonus.toFixed(1)}</span>
                             )}

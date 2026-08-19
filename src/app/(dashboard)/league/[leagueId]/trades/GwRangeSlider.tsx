@@ -85,13 +85,13 @@ export default function GwRangeSlider({
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', borderBottom: '1px dashed var(--color-border)', paddingBottom: '12px' }}>
         <div style={{ textAlign: 'center' }}>
           <div style={sliderLabelStyle}>Start Week</div>
-          <div style={{ fontSize: '20px', fontWeight: 700, fontFamily: "'Noto Serif', serif", color: 'var(--color-accent-blue)' }}>
+          <div style={{ fontSize: '20px', fontWeight: 700, fontFamily: 'var(--font-serif)', color: 'var(--color-accent-blue)' }}>
             GW{startGw}
           </div>
         </div>
 
         <div style={{ textAlign: 'center' }}>
-          <div style={{ fontSize: '18px', fontWeight: 700, fontFamily: "'Noto Serif', serif", color: 'var(--color-text-secondary)' }}>
+          <div style={{ fontSize: '18px', fontWeight: 700, fontFamily: 'var(--font-serif)', color: 'var(--color-text-secondary)' }}>
             {endGw - startGw} GWs
           </div>
           <div style={sliderLabelStyle}>Duration</div>
@@ -99,7 +99,7 @@ export default function GwRangeSlider({
 
         <div style={{ textAlign: 'center' }}>
           <div style={sliderLabelStyle}>End Week</div>
-          <div style={{ fontSize: '20px', fontWeight: 700, fontFamily: "'Noto Serif', serif", color: 'var(--color-accent-blue)' }}>
+          <div style={{ fontSize: '20px', fontWeight: 700, fontFamily: 'var(--font-serif)', color: 'var(--color-accent-blue)' }}>
             GW{endGw}
           </div>
         </div>

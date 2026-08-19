@@ -268,7 +268,7 @@
 }
 
 .abbrBadge {
-  font-family: var(--font-mono);
+  font-family: var(--font-condensed);
   font-size: 10px;
   font-weight: 700;
   background: var(--color-bg-secondary);

@@ -1,20 +1,49 @@
 /**
  * Shared bot decision-making for auto-drafting — used by the mock draft
- * simulator (client-side) and mirrored in
- * `auto_pick_expired_drafts()` (supabase/migrations/089_autopick_stats_weighting.sql)
- * for the real draft's timeout/autopilot auto-picks. Keep the two in sync if
- * either changes.
+ * simulator (client-side), the real draft room's displayed "Rank" column
+ * (via loadDraftPool.ts), and mirrored in `auto_pick_expired_drafts()`
+ * (supabase/migrations/125_draft_rank_formula.sql) for the real draft's
+ * timeout/autopilot auto-picks. Keep the two in sync if either changes —
+ * see docs/superpowers/specs/2026-08-19-draft-rank-design.md.
  *
  * Philosophy:
  * - Early picks are Best Player Available (quality-heavy). Forcing a GK at #1
  *   just because the roster has zero GKs is wrong — that's how Donnarumma was
  *   going first overall.
  * - Need weight ramps up as a team's roster fills, so late picks fill holes.
- * - Quality = 55% market value + 45% season stats (total points & PPG), each
- *   as a percentile within the candidate pool so the scales combine cleanly.
+ * - Quality = market value + season stats (total points & PPG), each as a
+ *   percentile across the WHOLE pool — unpartitioned by position. This was
+ *   nearly "fixed" to partition by position to correct an assumed
+ *   cross-position bias (defenders/GKs allegedly buried under strikers), but
+ *   checking real 2025-26 archive data disproved it: Gabriel Magalhães (CB)
+ *   ranks 11th overall by total_points, David Raya (GK) 12th, both ahead of
+ *   most strikers — Gaffa's position-baseline scoring already produces a fair
+ *   global ordering. Do not reintroduce position-partitioning here without
+ *   new evidence it's needed.
+ * - The market-value/stats split isn't flat 55/45 for every player: stats
+ *   weight scales with games played (`confidence`), so a player with little
+ *   or no prior-season sample (new arrivals, promoted-club signings) ranks
+ *   on reputation instead of a noisy or absent stat line.
+ * - A modest status multiplier deranks currently injured/suspended/doubtful
+ *   players. It does not attempt to grade injury *severity* from FPL's free
+ *   -text news field — that data doesn't support it reliably (an Achilles
+ *   tear and a one-week knock both read as "Unknown return date"). The
+ *   severity judgment is left to the manager reading the actual news text,
+ *   which the UI surfaces separately.
  */
 
 import type { GranularPosition } from '@/types';
+
+// Games played (meaningful minutes, matching the app-wide MEANINGFUL_MINUTES
+// threshold) at which a player's stats percentile earns full weight in the
+// blend. Below this, weight ramps down linearly toward 0 at zero games.
+const GAMES_FLOOR = 10;
+
+// Applied multiplicatively to the final composite. Deliberately modest and
+// flat — not a severity grade, just enough that an unavailable player isn't
+// shown as the literal #1 recommended pick.
+const INJURY_SUSPENDED_MULTIPLIER = 0.85;
+const DOUBTFUL_MULTIPLIER = 0.95;
 
 export type PositionCategory = 'GK' | 'DEF' | 'MID' | 'FWD';
 
@@ -37,10 +66,14 @@ export interface DraftCandidate {
   marketValue: number | null;
   totalPoints: number | null;
   ppg: number | null;
+  /** Meaningful-minutes games played last season. 0 for a player with no prior-season sample. */
+  gp: number;
+  /** 'a'=available, 'i'=injured, 'd'=doubtful, 's'=suspended, 'u'=unavailable, or null/unknown. */
+  fplStatus: string | null;
 }
 
 export interface ScoredDraftCandidate extends DraftCandidate {
-  /** 0-100 blend of market value (55%) and season stats — total points & PPG averaged (45%). */
+  /** 0-100 composite: market value + confidence-weighted season stats, status-adjusted. */
   qualityScore: number;
 }
 
@@ -83,9 +116,31 @@ export function scoreDraftPool(candidates: DraftCandidate[]): ScoredDraftCandida
 
   return candidates.map((c, i) => {
     const statsPct = (pointsPct[i] + ppgPct[i]) / 2;
-    const qualityScore = 0.55 * (valuePct[i] * 100) + 0.45 * (statsPct * 100);
-    return { ...c, qualityScore };
+
+    const confidence = Math.min(1, c.gp / GAMES_FLOOR);
+    const performanceWeight = 0.45 * confidence;
+    const valueWeight = 1 - performanceWeight;
+    const base = valueWeight * (valuePct[i] * 100) + performanceWeight * (statsPct * 100);
+
+    const statusMultiplier =
+      c.fplStatus === 'i' || c.fplStatus === 's'
+        ? INJURY_SUSPENDED_MULTIPLIER
+        : c.fplStatus === 'd'
+          ? DOUBTFUL_MULTIPLIER
+          : 1;
+
+    return { ...c, qualityScore: base * statusMultiplier };
   });
+}
+
+/**
+ * Assigns 1-indexed draftRank (1 = best) by sorting on qualityScore — the
+ * "Rank" column shown in the Players tab and the mock draft's own ranking.
+ * Ties keep insertion order (stable sort), matching the pool's own order.
+ */
+export function rankDraftPool(candidates: ScoredDraftCandidate[]): Map<string, number> {
+  const sorted = [...candidates].sort((a, b) => b.qualityScore - a.qualityScore);
+  return new Map(sorted.map((c, i) => [c.id, i + 1]));
 }
 
 /**

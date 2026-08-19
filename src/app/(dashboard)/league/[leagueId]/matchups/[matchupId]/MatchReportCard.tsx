@@ -47,7 +47,7 @@ export default function MatchReportCard({ report }: { report: MatchReport }) {
             <div className={styles.reportCol}>
               <h3 className={styles.reportColHead}>
                 <Icon name="star" size={15} className={styles.reportIconStar} />
-                Star of the match
+                Star of the Match
               </h3>
               <p className={styles.reportDetail}>
                 {renderBoldedText(report.starHighlight, handlePlayerClick)}
@@ -56,7 +56,7 @@ export default function MatchReportCard({ report }: { report: MatchReport }) {
             <div className={styles.reportCol}>
               <h3 className={styles.reportColHead}>
                 <Icon name="alert" size={15} className={styles.reportIconAlert} />
-                Boardroom notes
+                Boardroom Notes
               </h3>
               <p className={styles.reportDetail}>
                 {renderBoldedText(report.disappointmentHighlight, handlePlayerClick)}

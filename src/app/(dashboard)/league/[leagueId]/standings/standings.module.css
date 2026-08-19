@@ -211,6 +211,16 @@
 
 /* ── Table ──────────────────────────────────────────────── */
 
+/* Without this wrapper the table had no way to grow past the panel's own
+   overflow: hidden (the rounded-corner card clip) — at 375px it just cut
+   off L/PF/PA with no indication there was more to see. Auto layout (the
+   default here, unlike the fixed-layout player tables) already refuses to
+   compress columns below their content, so this alone is enough to make
+   the excess scrollable instead of clipped. */
+.tableWrap {
+  overflow-x: auto;
+}
+
 .table {
   width: 100%;
   border-collapse: collapse;
@@ -367,17 +377,46 @@
 }
 
 @media (max-width: 768px) {
+  /* Leader on its own row, 2nd/3rd side by side underneath — 2 rows instead
+     of 3 full-width cards stacked. Every tile's row AND column are placed
+     explicitly (not left to auto-placement): sparse packing's cursor only
+     moves forward, so once the leader's 2-column span pushed it to row 2,
+     an auto-placed 2nd/3rd tile would never backfill row 1's empty second
+     cell — it'd start a row 3 instead, undoing the point of the grid.
+     Markup order is fixed (2nd | 1st | 3rd, see the file header), so
+     first-child/last-child reliably mean 2nd/3rd. */
   .podium {
-    flex-direction: column;
-    align-items: stretch;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .podiumTier + .podiumTier {
     border-left: none;
+  }
+
+  .podiumTierLeader {
+    grid-row: 1;
+    grid-column: 1 / -1;
+    padding-top: var(--s6);
+  }
+
+  .podiumTier:first-child {
+    grid-row: 2;
+    grid-column: 1;
+  }
+
+  .podiumTier:last-child {
+    grid-row: 2;
+    grid-column: 2;
+  }
+
+  .podiumTier:not(.podiumTierLeader) {
     border-top: 1px solid var(--color-border-subtle);
   }
 
-  .podiumTierLeader { padding-top: var(--s6); }
+  .podiumTier:last-child {
+    border-left: 1px solid var(--color-border-subtle);
+  }
 
   .formCell,
   .table thead th:last-child {

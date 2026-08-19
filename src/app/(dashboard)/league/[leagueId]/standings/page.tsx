@@ -219,8 +219,9 @@ export default async function StandingsPage({ params }: Props) {
             {/* A heading, not the tracked label — decision 5 rations that
                 device to one per panel and the podium's own g-label-quiet
                 captions are already spent here. */}
-            <h2 className={styles.sectionHead}>Full standings</h2>
+            <h2 className={styles.sectionHead}>Full Standings</h2>
 
+            <div className={styles.tableWrap}>
             <table className={styles.table}>
               <thead>
                 <tr>
@@ -298,6 +299,7 @@ export default async function StandingsPage({ params }: Props) {
                 })}
               </tbody>
             </table>
+            </div>
           </>
         )}
       </div>

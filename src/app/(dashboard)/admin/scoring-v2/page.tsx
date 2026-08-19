@@ -503,7 +503,7 @@ export default async function ScoringV2Page() {
 
       {/* Per-position summary */}
       <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>Per-position averages</h2>
+        <h2 className={styles.sectionTitle}>Per-Position Averages</h2>
         <p className={styles.sectionHint}>Avg v2−v1 rating and fantasy-point delta across all player-fixtures, bucketed by primary position.</p>
         <table className={styles.table}>
           <thead>
@@ -537,7 +537,7 @@ export default async function ScoringV2Page() {
 
       {/* Top movers */}
       <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>Top movers</h2>
+        <h2 className={styles.sectionTitle}>Top Movers</h2>
         <p className={styles.sectionHint}>Players with the largest avg fantasy-point delta per game (min 2 fixtures with both v1 and v2 points).</p>
         <div className={styles.moverGrid}>
           <div>
@@ -592,7 +592,7 @@ export default async function ScoringV2Page() {
 
       {/* Named anchors */}
       <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>Named anchors</h2>
+        <h2 className={styles.sectionTitle}>Named Anchors</h2>
         <p className={styles.sectionHint}>
           Players you flagged as miscalibrated under v1. Each row is one gameweek (one row per fixture if DGW). Read across: v1 vs v2 <strong>rating</strong> (1–10 match quality) and <strong>pts</strong> (fantasy points that week).
         </p>
@@ -646,7 +646,7 @@ export default async function ScoringV2Page() {
 
       {/* Matchup deltas */}
       <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>Matchup score deltas (|Δ| &gt; 5)</h2>
+        <h2 className={styles.sectionTitle}>Matchup Score Deltas (|Δ| &gt; 5)</h2>
         <p className={styles.sectionHint}>Matchups where role-aware v2 scoring meaningfully changed the team score.</p>
         <table className={styles.table}>
           <thead>

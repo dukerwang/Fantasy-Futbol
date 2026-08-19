@@ -264,7 +264,7 @@ export default function MarketClient({
 
           {/* ── Listings slice ──────────────────────────── */}
           <div className={`${styles.sect} ${styles.sectSpaced}`}>
-            <h2 className={styles.sectTitle}>On the listings board</h2>
+            <h2 className={styles.sectTitle}>On the Listings Board</h2>
             <span className={styles.sectHint}>what other clubs have made available, and on what terms</span>
             <NavigationLink href={`/league/${leagueId}/transfers/listings`} className={styles.sectMore}>
               All {model.counts.listings} listings →

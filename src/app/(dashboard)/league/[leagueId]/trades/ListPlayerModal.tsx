@@ -198,7 +198,7 @@ export default function ListPlayerModal({
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: 'var(--color-bg-elevated)', padding: '16px', borderRadius: 'var(--radius-sm)' }}>
               <PositionBadge position={selectedPlayer.primary_position as any} size="md" />
               <div>
-                <h3 style={{ margin: 0, fontFamily: 'Noto Serif, serif', fontSize: '16px', fontWeight: 700, color: 'var(--color-text-primary)' }}>
+                <h3 style={{ margin: 0, fontFamily: 'var(--font-serif)', fontSize: '16px', fontWeight: 700, color: 'var(--color-text-primary)' }}>
                   {getPlayerDisplayName(selectedPlayer, 'full')}
                 </h3>
                 <span style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-text-muted)', fontWeight: 600 }}>

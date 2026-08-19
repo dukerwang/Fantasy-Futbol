@@ -25,7 +25,7 @@ export function Market({ model }: { model: HomeModel }) {
     <section aria-label="In the market">
       <div className={styles.sect}>
         <h2 className={styles.sectT}>
-          {model.phase === 'market' ? 'The week in the market' : 'In the market'}
+          {model.phase === 'market' ? 'The Week in the Market' : 'In the Market'}
         </h2>
         {model.phase === 'market' && (
           <span className={styles.sectHint}>nothing kicks off for days</span>
@@ -93,7 +93,7 @@ export function Fronts({ model }: { model: HomeModel }) {
     <section aria-label="Competitions">
       <div className={styles.sect}>
         <h2 className={styles.sectT}>
-          {model.phase === 'closed' ? 'How it finished' : 'On all fronts'}
+          {model.phase === 'closed' ? 'How It Finished' : 'On All Fronts'}
         </h2>
       </div>
       <div className={styles.fronts}>
@@ -205,7 +205,7 @@ export function StandingsTable({ model }: { model: HomeModel }) {
     <section aria-label="Standings">
       <div className={styles.sect}>
         <h2 className={styles.sectT}>
-          {model.phase === 'closed' ? 'The final table' : 'The table'}
+          {model.phase === 'closed' ? 'The Final Table' : 'The Table'}
         </h2>
         <NavigationLink href={`/league/${model.leagueId}/standings`} className={styles.sectMore}>
           Full standings &rarr;
@@ -321,7 +321,7 @@ export function YourGameweek({ model }: { model: HomeModel }) {
     <section aria-label="Your gameweek">
       <div className={styles.sect}>
         <h2 className={styles.sectT}>
-          {model.phase === 'closed' ? 'Your season' : 'Your gameweek'}
+          {model.phase === 'closed' ? 'Your Season' : 'Your Gameweek'}
         </h2>
         <span className={styles.sectHint}>against the median for each position</span>
         <NavigationLink

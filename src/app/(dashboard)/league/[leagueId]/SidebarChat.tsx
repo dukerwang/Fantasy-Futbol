@@ -173,7 +173,7 @@ export default function SidebarChat({
   return (
     <div className={styles.chatContainer}>
       <header className={styles.chatHeader}>
-        <h3 className={styles.chatTitle}>League lobby</h3>
+        <h3 className={styles.chatTitle}>League Lobby</h3>
         <span className={styles.chatSubtitle}>• public banter</span>
       </header>
 

@@ -341,7 +341,7 @@ export default async function MatchupsPage({ params, searchParams }: Props) {
                         {otherMatchups.length > 0 && (
                             <div className={styles.fixtures}>
                                 <h2 className={styles.fixturesHead}>
-                                    {myMatchup ? 'Other fixtures' : `Gameweek ${targetGw} fixtures`}
+                                    {myMatchup ? 'Other Fixtures' : `Gameweek ${targetGw} Fixtures`}
                                 </h2>
                                 {otherMatchups.map((m) => (
                                     <LiveMatchupCard

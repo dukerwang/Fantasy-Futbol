@@ -260,6 +260,11 @@
 
 .table {
   width: 100%;
+  /* A floor under the fixed layout below. Without it, "100%" on a 375px
+     screen forces the six percentage-width number columns down to ~20px
+     each — too narrow for their own nowrap content, which then overflows
+     the cell and overlaps the next column instead of scrolling to it. */
+  min-width: 760px;
   border-collapse: collapse;
   font-size: var(--t-13);
   /* Fixed, so the widths below are honoured exactly and the figures stay in a

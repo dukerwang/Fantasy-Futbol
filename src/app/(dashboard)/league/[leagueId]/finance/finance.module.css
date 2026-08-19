@@ -240,6 +240,12 @@
 
 /* ── Ledger table ───────────────────────────────────────── */
 
+/* Without this, the table had no way to grow past the section's own clip
+   and the Amount column just cut off at the edge with no scroll affordance. */
+.ledgerTableWrap {
+  overflow-x: auto;
+}
+
 .ledgerTable {
   width: 100%;
   border-collapse: collapse;
