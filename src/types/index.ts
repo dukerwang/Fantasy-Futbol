@@ -274,20 +274,6 @@ export interface MatchupLineup {
   bench: { player_id: string; slot: BenchSlot }[]; // player_ids in priority order
 }
 
-export interface PlayerStats {
-  id: string;
-  player_id: string;
-  match_id: number; // API-Football match ID
-  gameweek: number;
-  season: string;
-  stats: RawStats;
-  fantasy_points: number;
-  match_rating?: number; // 1.0 – 10.0 (from match rating engine)
-  created_at: string;
-  // Joined fields
-  player?: Player;
-}
-
 export interface RawStats {
   // Minutes
   minutes_played: number;
@@ -342,30 +328,6 @@ export interface RawStats {
   fpl_def_contrib?: number;
 }
 
-export type TransactionType =
-  | 'waiver_claim'
-  | 'free_agent_pickup'
-  | 'drop'
-  | 'trade'
-  | 'transfer_compensation'
-  | 'draft_pick';
-
-export interface Transaction {
-  id: string;
-  league_id: string;
-  team_id: string;
-  player_id: string | null;
-  type: TransactionType;
-  faab_bid: number | null;
-  compensation_amount: number | null;
-  notes: string | null;
-  processed_at: string;
-  created_at: string;
-  // Joined fields
-  player?: Player;
-  team?: Team;
-}
-
 export interface DraftPick {
   id: string;
   league_id: string;
@@ -377,62 +339,6 @@ export interface DraftPick {
   // Joined fields
   player?: Player;
   team?: Team;
-}
-
-export interface WaiverClaim {
-  id: string;
-  league_id: string;
-  team_id: string;
-  player_id: string; // player to add
-  drop_player_id: string | null; // player to drop
-  faab_bid: number;
-  priority: number;
-  status: 'pending' | 'approved' | 'rejected';
-  gameweek: number;
-  created_at: string;
-}
-
-// --- API Response Types ---
-
-export interface ApiFootballFixture {
-  fixture: {
-    id: number;
-    date: string;
-    status: { short: string; elapsed: number | null };
-  };
-  league: { id: number; season: number; round: string };
-  teams: {
-    home: { id: number; name: string };
-    away: { id: number; name: string };
-  };
-  goals: { home: number | null; away: number | null };
-}
-
-export interface ApiFootballPlayerStats {
-  player: { id: number; name: string };
-  statistics: {
-    games: { minutes: number | null; position: string };
-    goals: { total: number | null; assists: number | null };
-    shots: { total: number | null; on: number | null };
-    passes: { total: number | null; accuracy: string | null; key: number | null };
-    tackles: { total: number | null; interceptions: number | null };
-    duels: { total: number | null; won: number | null };
-    dribbles: { attempts: number | null; success: number | null };
-    fouls: { drawn: number | null; committed: number | null };
-    cards: { yellow: number; red: number };
-    penalty: { scored: number | null; missed: number | null; saved: number | null };
-  }[];
-}
-
-// --- UI / Component Types ---
-
-export interface PlayerCardProps {
-  player: Player;
-  rosterEntry?: RosterEntry;
-  showStats?: boolean;
-  onAdd?: (player: Player) => void;
-  onDrop?: (player: Player) => void;
-  onBid?: (player: Player) => void;
 }
 
 export type TradeProposalStatus = 'pending' | 'accepted' | 'rejected' | 'cancelled';
@@ -457,25 +363,7 @@ export interface TradeProposal {
   team_b?: Team;
 }
 
-export interface LeagueStanding {
-  rank: number;
-  team: Team;
-  wins: number;
-  losses: number;
-  draws: number;
-  points_for: number;
-  points_against: number;
-  total_points: number;
-}
-
 export type BenchSlot = 'DEF' | 'MID' | 'ATT' | 'FLEX';
-
-export const BENCH_SLOT_LABELS = {
-  DEF: 'Defender',
-  MID: 'Midfielder',
-  ATT: 'Attacker',
-  FLEX: 'Flex',
-} satisfies Record<BenchSlot, string>;
 
 export const BENCH_FLEX_MAP = {
   DEF: onlyPositions('CB', 'LB', 'RB', 'LWB', 'RWB'),
@@ -560,17 +448,6 @@ export interface ComponentRefStats {
 /** Per-component median/stddev for sigmoid normalization. */
 export type ReferenceStats = Record<RatingComponent, ComponentRefStats>;
 
-export interface RatingCurveConfig {
-  base: number;      // Points at exactly 6.0 rating
-  scale: number;     // Multiplier for above-average
-  penalty: number;   // Multiplier for below-average
-  exponent: number;  // Convexity (higher = steeper reward curve)
-}
-
-/**
- * Shape of a single player element from FPL event/{gw}/live/ endpoint.
- * ICT metrics arrive as strings; callers must parseFloat.
- */
 // ============================================================
 // Tournament Types (Phase 15)
 // ============================================================
@@ -623,17 +500,10 @@ export interface TournamentMatchup {
   winner?: Team;
 }
 
-/** Full tournament with rounds and matchups loaded for bracket rendering. */
-export interface TournamentWithBracket extends Tournament {
-  rounds: (TournamentRound & { matchups: TournamentMatchup[] })[];
-}
-
-export const TOURNAMENT_LABELS = {
-  primary_cup: { name: 'Champions League', short: 'UCL' },
-  secondary_cup: { name: 'League Cup', short: 'Cup' },
-  consolation_cup: { name: 'Conference League', short: 'UECL' },
-} satisfies Record<TournamentType, { name: string; short: string }>;
-
+/**
+ * Shape of a single player element from FPL event/{gw}/live/ endpoint.
+ * ICT metrics arrive as strings; callers must parseFloat.
+ */
 export interface FplLivePlayerStats {
   id: number;
   stats: {

@@ -1405,7 +1405,7 @@ export function TradeCard({ trade, myTeamId, playerMap, onAction, onCounter, onV
 
 // ── LoanCard ──────────────────────────────────────────────────────────────
 
-export function LoanCard({
+function LoanCard({
   loan,
   myTeamId,
   onAction,

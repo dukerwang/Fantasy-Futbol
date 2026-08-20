@@ -12,7 +12,7 @@ import type { GranularPosition, Player } from '@/types';
 import type { SquadEntry } from './ClubClient';
 
 // ── Position colour + labels ────────────────────────────────────────────────
-export const POS_VAR: Record<string, string> = {
+const POS_VAR: Record<string, string> = {
   GK: '--color-pos-gk', CB: '--color-pos-cb',
   LB: '--color-pos-fb', RB: '--color-pos-fb',
   LWB: '--color-pos-wb', RWB: '--color-pos-wb',
@@ -20,12 +20,6 @@ export const POS_VAR: Record<string, string> = {
   LW: '--color-pos-lw', RW: '--color-pos-rw', ST: '--color-pos-st',
 };
 export const posColor = (p: string): string => `var(${POS_VAR[p] || '--color-text-muted'})`;
-
-export const POS_LONG: Record<string, string> = {
-  GK: 'Goalkeeper', CB: 'Centre-Back', LB: 'Left-Back', RB: 'Right-Back',
-  LWB: 'Left Wing-Back', RWB: 'Right Wing-Back', DM: 'Defensive Mid',
-  CM: 'Central Mid', AM: 'Attacking Mid', LW: 'Left Winger', RW: 'Right Winger', ST: 'Striker',
-};
 
 // Depth-chart zones, attack first — matches PitchUI's vertical flow.
 export const ZONES: { key: string; label: string; positions: string[] }[] = [
@@ -53,7 +47,7 @@ export const ZONES: { key: string; label: string; positions: string[] }[] = [
  * --color-accent-ink is the text — and rule 4 from the hub, which added
  * --color-warning-text for the same reason.
  */
-export const STATUS: Record<string, { label: string; short: string; tone: string }> = {
+const STATUS: Record<string, { label: string; short: string; tone: string }> = {
   active: { label: 'First XI', short: 'First XI', tone: 'var(--color-accent-ink)' },
   bench: { label: 'Bench', short: 'Bench', tone: 'var(--color-text-muted)' },
   ir: { label: 'Injured Reserve', short: 'IR', tone: 'var(--color-danger)' },
@@ -98,7 +92,7 @@ export function countdown(iso: string | null): string | null {
 }
 
 // ── Player helpers ────────────────────────────────────────────────────────────
-export const positionsOf = (p: Player): string[] => [p.primary_position, ...((p.secondary_positions as string[]) ?? [])];
+const positionsOf = (p: Player): string[] => [p.primary_position, ...((p.secondary_positions as string[]) ?? [])];
 export const avgForm = (form: number[]): number => (form.length ? form.reduce((a, b) => a + b, 0) / form.length : 0);
 export const seasonPts = (e: SquadEntry): number => Number(e.player.total_points ?? 0);
 export const ppgOf = (e: SquadEntry): number => Number(e.player.ppg ?? 0);
@@ -106,7 +100,7 @@ export const valueOf = (e: SquadEntry): number => Number(e.player.market_value ?
 
 // ── Squad-level derivations ──────────────────────────────────────────────────
 const LINEUP_STATUSES = new Set(['active', 'bench', 'loan_in']);
-export const lineupPool = (entries: SquadEntry[]) => entries.filter((e) => LINEUP_STATUSES.has(e.status));
+const lineupPool = (entries: SquadEntry[]) => entries.filter((e) => LINEUP_STATUSES.has(e.status));
 
 export function squadTotals(entries: SquadEntry[]) {
   const value = entries.reduce((a, e) => a + valueOf(e), 0);

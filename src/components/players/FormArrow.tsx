@@ -32,7 +32,7 @@ const DESCRIPTIONS = [
   'in excellent form',
 ] as const;
 
-export function formArrowFraction(rating: number): number {
+function formArrowFraction(rating: number): number {
   return Math.max(0, Math.min(1, (rating - FLOOR) / (CEIL - FLOOR)));
 }
 

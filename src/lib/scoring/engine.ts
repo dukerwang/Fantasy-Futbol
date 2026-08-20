@@ -11,12 +11,8 @@ import type { RawStats } from '@/types';
 // ── Re-exports from the Match Rating Engine ─────────────────────────────
 export {
   calculateMatchRating,
-  getPositionGroup,
-  POSITION_WEIGHTS,
   DEFAULT_REFERENCE_STATS,
 } from './matchRating';
-
-export type { MatchRating, RatingBreakdownItem } from '@/types';
 
 // ── Legacy: Map FPL live stats to RawStats ──────────────────────────────
 
