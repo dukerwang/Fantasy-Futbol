@@ -175,6 +175,7 @@
 }
 
 .podiumStatValue {
+  display: inline-block;
   font-family: var(--font-serif);
   font-size: var(--t-25);
   font-weight: 700;
@@ -182,6 +183,14 @@
   letter-spacing: -0.02em;
   line-height: 1;
   font-variant-numeric: tabular-nums lining-nums;
+  /* Reserved on every value, not just .podiumStatValueMine below, so the
+     "yours" underline never changes a tile's own height — the podium's
+     dividers are each tile's own border (see the file header), and
+     align-items: flex-end means a taller tile pushes its own top edge (and
+     divider) out of line with its neighbours. A transparent border here
+     keeps every tile's box the same height whether or not it's marked. */
+  border-bottom: 2px solid transparent;
+  padding-bottom: 3px;
 }
 
 .podiumTierLeader .podiumStatValue { font-size: var(--t-32); }
@@ -189,9 +198,7 @@
 /* "Yours" at podium scale is the same rule under the same figure as the
    scoreline's — .g-score-mine .g-score-v draws it identically. */
 .podiumStatValueMine {
-  display: inline-block;
-  border-bottom: 2px solid var(--color-accent);
-  padding-bottom: 3px;
+  border-bottom-color: var(--color-accent);
 }
 
 /* ── Section head ───────────────────────────────────────── */
