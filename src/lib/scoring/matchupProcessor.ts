@@ -470,10 +470,54 @@ export async function processMatchupsForGameweek(gameweek: number, finished: boo
 }
 
 /**
+ * How long to wait, after the LAST fixture in a gameweek kicks off, before
+ * treating finished_provisional as good enough to lock scores. FPL flips
+ * finished_provisional the moment full-time whistles blow across the GW, but
+ * bonus points and the influence/creativity/threat/ict_index triad aren't
+ * published until sometime after that — usually well within this window, but
+ * not instantly. Locking on finished_provisional with no wait bakes in
+ * player_stats rows where those fields are still zero (an FPL live-endpoint
+ * gap, not a scoring-engine bug — see the 2026-08-21 Arsenal v Coventry
+ * investigation), which permanently distorts ratings for anyone whose
+ * position weights those components heavily (e.g. Declan Rice's influence-
+ * heavy DM weighting). 180 min ≈ a full match + stoppage (~120 min) plus a
+ * ~60 min buffer for FPL's post-match bonus/ICT pass, while still resolving
+ * same-day rather than waiting on the `finished` flag, which can occasionally
+ * take until the next morning.
+ */
+const FINISHED_PROVISIONAL_GRACE_MINUTES = 180;
+
+/**
+ * Latest kickoff_time across a gameweek's fixtures, or null if the fixtures
+ * fetch fails or none have a kickoff_time yet.
+ */
+async function getLatestKickoffForGameweek(gw: number): Promise<Date | null> {
+    try {
+        const res = await fetch(`https://fantasy.premierleague.com/api/fixtures/?event=${gw}`, {
+            next: { revalidate: 0 },
+            headers: { 'User-Agent': 'FantasyFutbol/1.0' },
+        });
+        if (!res.ok) return null;
+        const fixtures = (await res.json()) as { kickoff_time: string | null }[];
+        const kickoffs = fixtures
+            .map(f => f.kickoff_time)
+            .filter((t): t is string => !!t)
+            .map(t => new Date(t).getTime());
+        if (kickoffs.length === 0) return null;
+        return new Date(Math.max(...kickoffs));
+    } catch {
+        return null;
+    }
+}
+
+/**
  * Scans the DB for ANY matchups still in 'live' status across ALL gameweeks.
  * For each stalled GW, checks FPL's bootstrap-static to see if the GW is
- * finished (bonus points locked) OR finished_provisional (all fixtures done,
- * bonus points pending). Either is sufficient to lock in match scores.
+ * finished (bonus points locked — always sufficient to lock in match scores)
+ * OR finished_provisional (all fixtures done, bonus/ICT pending — sufficient
+ * only once FINISHED_PROVISIONAL_GRACE_MINUTES have passed since the GW's
+ * last kickoff, giving FPL time to publish bonus points and the
+ * influence/creativity/threat/ict_index fields the scoring engine weighs).
  *
  * After resolving a GW, any active tournaments are advanced for that GW so
  * cup brackets stay in sync.
@@ -513,12 +557,16 @@ export async function resolveAllStalledGameweeks(): Promise<{
         }
 
         const bsData = await bsRes.json();
-        // Accept finished (bonus locked) OR finished_provisional (all matches done, bonus pending).
-        // finished_provisional fires hours before finished — eliminates most overnight delays.
-        const resolveableSet = new Set<number>(
-            (bsData.events as any[])
-                .filter((e: any) => e.finished === true || e.finished_provisional === true)
-                .map((e: any) => e.id as number)
+        // finished (bonus locked) always resolves. finished_provisional (all
+        // matches done, bonus/ICT pending) resolves only after a grace period
+        // — see FINISHED_PROVISIONAL_GRACE_MINUTES — so this eliminates most
+        // overnight `finished` delays without locking in scores computed from
+        // still-zero bonus/ICT fields the moment full-time whistles blow.
+        const finishedSet = new Set<number>(
+            (bsData.events as any[]).filter((e: any) => e.finished === true).map((e: any) => e.id as number)
+        );
+        const finishedProvisionalSet = new Set<number>(
+            (bsData.events as any[]).filter((e: any) => e.finished_provisional === true).map((e: any) => e.id as number)
         );
 
         // 3. Resolve each stalled GW
@@ -527,7 +575,15 @@ export async function resolveAllStalledGameweeks(): Promise<{
         let tournamentsAdvanced = 0;
 
         for (const gw of stalledGws) {
-            if (!resolveableSet.has(gw)) {
+            let resolveable = finishedSet.has(gw);
+            if (!resolveable && finishedProvisionalSet.has(gw)) {
+                const latestKickoff = await getLatestKickoffForGameweek(gw);
+                if (latestKickoff) {
+                    const minutesSinceKickoff = (Date.now() - latestKickoff.getTime()) / 60000;
+                    resolveable = minutesSinceKickoff >= FINISHED_PROVISIONAL_GRACE_MINUTES;
+                }
+            }
+            if (!resolveable) {
                 skipped.push(gw);
                 continue;
             }
