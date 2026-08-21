@@ -14,6 +14,7 @@
 import { calculateMatchRating, mapFplLiveToRawStats } from '@/lib/scoring/engine';
 import { loadReferenceStats } from '@/lib/scoring/matchups';
 import { resolveAllStalledGameweeks, processMatchupsForGameweek } from '@/lib/scoring/matchupProcessor';
+import { isFinishedProvisionalGraceElapsed } from '@/lib/scoring/gameweekTiming';
 import { getCurrentFplSeason, getLatestReferenceStatsSeason } from '@/lib/season/currentSeason';
 import { snapshotCurrentFplFixtures } from '@/lib/fixtures/upsertFixtures';
 import { recomputePositionRanks, type RecomputeResult } from '@/lib/stats/seasonStats';
@@ -43,6 +44,18 @@ interface GameweekWindow {
  * The current gameweek, plus whether it's actually worth running a live sync
  * for it right now. Backs the pg_cron tick's idle short-circuit (below) — an
  * explicit `?gw=` call always runs the full sync regardless of this flag.
+ *
+ * A GW stays "live" through finished_provisional (all fixtures blew full
+ * time) until FINISHED_PROVISIONAL_GRACE_MINUTES have passed since its last
+ * kickoff — matching resolveAllStalledGameweeks' lock gate. Without this,
+ * the sync self-skipped the instant finished_provisional flipped true, so
+ * player_stats froze on whatever it last captured — which, right at that
+ * moment, is typically still missing bonus points and the
+ * influence/creativity/threat/ict_index fields FPL only publishes some time
+ * after full time. That's what zeroed out Declan Rice's DM rating on
+ * 2026-08-21: nothing was ever going to re-sync the real numbers in, grace
+ * period on the lock or not. Keeping the sync itself alive through the same
+ * window is what actually gives it a chance to catch the corrected data.
  */
 async function getCurrentGameweekWindow(): Promise<GameweekWindow> {
     const res = await fetch('https://fantasy.premierleague.com/api/bootstrap-static/', {
@@ -51,14 +64,20 @@ async function getCurrentGameweekWindow(): Promise<GameweekWindow> {
     const data = await res.json();
     const now = new Date();
     let gw = 0;
-    let isLiveWindow = false;
+    let finished = false;
+    let finishedProvisional = false;
     for (const ev of data.events as any[]) {
         if (ev.deadline_time && new Date(ev.deadline_time) <= now && ev.id >= gw) {
             gw = ev.id;
-            isLiveWindow = !ev.finished && !ev.finished_provisional;
+            finished = !!ev.finished;
+            finishedProvisional = !!ev.finished_provisional;
         }
     }
-    return { gw, isLiveWindow };
+    if (!gw) return { gw, isLiveWindow: false };
+    if (finished) return { gw, isLiveWindow: false };
+    if (!finishedProvisional) return { gw, isLiveWindow: true };
+    const graceElapsed = await isFinishedProvisionalGraceElapsed(gw);
+    return { gw, isLiveWindow: !graceElapsed };
 }
 
 export async function GET(req: NextRequest) { return POST(req); }
@@ -82,8 +101,10 @@ export async function POST(req: NextRequest) {
     let gw = parseInt(gwParam ?? '0', 10);
     // An explicit ?gw= is a deliberate call (manual backfill/re-sync) and
     // always runs the full sync. Auto-derived gw is the pg_cron tick — cheap
-    // to run every 2 minutes only because most of those ticks land outside an
-    // actual live window and skip before touching the ~600-player payload.
+    // to run every 2 minutes most of the time because most ticks land outside
+    // an actual live window and skip before touching the ~600-player payload,
+    // though it stays "live" (and keeps paying that cost) through the
+    // finished_provisional grace window too — see getCurrentGameweekWindow.
     let isLiveWindow = true;
     if (!gw) {
       const window = await getCurrentGameweekWindow();
