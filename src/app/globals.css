@@ -7,10 +7,15 @@
    Gaffa — Global CSS Design System
    Cream + forest green. Hanken Grotesk + Archivo Narrow.
 
-   Default tokens are the 2026-08-20 lock. The previous (shipped) palette
-   is preserved on html[data-palette="shipped"] so it can be judged live
-   via the PalettePreview chip. Once a side is chosen, delete the shipped
-   override block, the chip, and the data-palette plumbing.
+   Every colour below was generated in OKLCH with hue and chroma held to a
+   rule, then verified against ground/sunken/card/inset in both themes. When a
+   pair fails, resolve it by moving lightness ONLY — moving hue makes it a
+   different brand.
+
+   WARNING: `design-2.0/verify-palette.mjs` does NOT read this file. It carries
+   its own hardcoded copy of the tokens (see its POS map), so it has drifted
+   and will happily report "196 pass" against values that are no longer here.
+   Re-point it at this file before trusting it again.
    ============================================================ */
 
 /* `.g-theme-light` re-supplies this whole block to a SUBTREE, so a component
@@ -425,145 +430,6 @@
 
 }
 
-/* ============================================================
-   SHIPPED PALETTE — revert overlay
-   html[data-palette="shipped"] restores the tokens that were live
-   before the 2026-08-20 lock, including Newsreader / JetBrains Mono.
-   Driven by PalettePreview. Delete this whole block when a side wins.
-   ============================================================ */
-
-html[data-palette="shipped"],
-html[data-palette="shipped"] .g-theme-light {
-  --color-bg-primary:    #F7F3ED;
-  --color-bg-secondary:  #EDE8DE;
-  --color-bg-card:       #FDFCF9;
-  --color-bg-card-hover: #EDE8E0;
-  --color-bg-card-alt:   #f9f6f1;
-  --color-bg-elevated:   #EDE8DE;
-  --color-bg-overlay:    rgba(237, 232, 216, 0.95);
-  --color-border:        #C8C3BC;
-  --color-border-subtle: #D9D4CD;
-  --color-border-accent: rgba(20, 107, 64, 0.40);
-  --color-text-primary:  #1C1A17;
-  --color-text-secondary:#4A453D;
-  --color-text-muted:    #6B6356;
-  --color-text-inverse:  #FFFFFF;
-  --color-topbar:        #1A5C3A;
-  --color-accent:        #146B40;
-  --color-accent-hover:  #0F5632;
-  --color-accent-dim:    rgba(20, 107, 64, 0.10);
-  --color-accent-green:  #146B40;
-  --color-accent-green-dim: rgba(20, 107, 64, 0.10);
-  --color-accent-blue:   #146B40;
-  --color-accent-blue-hover: #0F5632;
-  --color-accent-red:    #ef4444;
-  --color-accent-red-dim: rgba(239, 68, 68, 0.15);
-  --color-accent-yellow: #f59e0b;
-  --color-accent-yellow-dim: rgba(245, 158, 11, 0.15);
-  --color-success:       #146B40;
-  --color-warning:       #f59e0b;
-  --color-warning-dim:   rgba(245, 158, 11, 0.15);
-  --color-danger:        #A32219;
-  --color-danger-dim:    rgba(163, 34, 25, 0.12);
-  --color-danger-dark:   #8A1C14;
-  --color-defeat:        #9B2C3A;
-  --color-gold:          #8A6A1F;
-  --color-silver:        #6C7176;
-  --color-bronze:        #8A4A22;
-  --color-pos-gk: #9E6D00;  --color-pos-gk-on: #FFFFFF;  --color-pos-gk-line: #9E6D00;
-  --color-pos-cb: #2A5A92;  --color-pos-cb-on: #FFFFFF;  --color-pos-cb-line: #2A5A92;
-  --color-pos-lb: #2C6FD8;  --color-pos-lb-on: #FFFFFF;  --color-pos-lb-line: #2C6FD8;
-  --color-pos-rb: #2C6FD8;  --color-pos-rb-on: #FFFFFF;  --color-pos-rb-line: #2C6FD8;
-  --color-pos-lwb: #1F6B70; --color-pos-lwb-on: #FFFFFF; --color-pos-lwb-line: #1F6B70;
-  --color-pos-rwb: #1F6B70; --color-pos-rwb-on: #FFFFFF; --color-pos-rwb-line: #1F6B70;
-  --color-pos-dm: #6A47A0;  --color-pos-dm-on: #FFFFFF;  --color-pos-dm-line: #6A47A0;
-  --color-pos-cm: #8763AC;  --color-pos-cm-on: #FFFFFF;  --color-pos-cm-line: #8763AC;
-  --color-pos-am: #A8406C;  --color-pos-am-on: #FFFFFF;  --color-pos-am-line: #A8406C;
-  --color-pos-lw: #2F7A4E;  --color-pos-lw-on: #FFFFFF;  --color-pos-lw-line: #2F7A4E;
-  --color-pos-rw: #2F7A4E;  --color-pos-rw-on: #FFFFFF;  --color-pos-rw-line: #2F7A4E;
-  --color-pos-st: #A62626;  --color-pos-st-on: #FFFFFF;  --color-pos-st-line: #A62626;
-  --color-bg-inset:      #E8E2D6;
-  --color-border-strong: #8F877B;
-  --color-accent-ink:    #146B40;
-  --color-on-accent:     #FFFFFF;
-  --color-on-warning:    #1C1A17;
-  --color-on-danger:     #FFFFFF;
-  --color-live:          #B3261E;
-  --color-warning-text:  #8A5A0B;
-  --color-tint-accent:   #E2EAE1;
-  --color-tint-danger:   #F5E3DD;
-  --color-tint-warning:  #EFE8DD;
-  --color-pitch:         #497D59;
-  --color-pitch-band:    #417551;
-  --shadow-glow:         0 0 20px rgba(20, 107, 64, 0.15);
-  --shadow-glow-blue:    0 0 20px rgba(20, 107, 64, 0.15);
-  --shadow-glow-green:   0 0 20px rgba(20, 107, 64, 0.15);
-  --font-serif: var(--font-newsreader), Georgia, 'Times New Roman', serif;
-  --font-sans:  var(--font-hanken-grotesk), -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --font-mono:  var(--font-jetbrains-mono), 'Fira Code', ui-monospace, monospace;
-  --font-condensed: var(--font-archivo-narrow), 'Archivo Narrow', 'Arial Narrow', sans-serif;
-}
-
-html[data-palette="shipped"][data-theme="dark"] {
-  --color-topbar:        #1A5C3A;
-  --color-bg-primary:    #1A1F2E;
-  --color-bg-secondary:  #232A3D;
-  --color-bg-card:       #252B3D;
-  --color-bg-card-hover: #2C3344;
-  --color-bg-card-alt:   #1F2436;
-  --color-bg-elevated:   #2C3344;
-  --color-bg-overlay:    rgba(26, 31, 46, 0.95);
-  --color-border:        #3E4559;
-  --color-border-subtle: #2C3344;
-  --color-border-accent: rgba(31, 163, 95, 0.35);
-  --color-text-primary:  #EDEAE2;
-  --color-text-secondary:#B7B2A8;
-  --color-text-muted:    #949BAB;
-  --color-text-inverse:  #EDEAE2;
-  --color-accent:        #1FA35F;
-  --color-accent-hover:  #37BE77;
-  --color-accent-dim:    rgba(31, 163, 95, 0.14);
-  --color-accent-green:  #1FA35F;
-  --color-accent-green-dim: rgba(31, 163, 95, 0.14);
-  --color-accent-blue:   #1FA35F;
-  --color-accent-blue-hover: #37BE77;
-  --color-success:       #1FA35F;
-  --color-danger:        #F0736A;
-  --color-danger-dim:    rgba(240, 115, 106, 0.16);
-  --color-danger-dark:   #D95A50;
-  --color-gold:          #D6B052;
-  --color-silver:        #AEB4BA;
-  --color-bronze:        #CD8450;
-  --color-defeat:        #EA747B;
-  --color-bg-inset:      #161B28;
-  --color-border-strong: #6E7893;
-  --color-accent-ink:    #2FB56C;
-  --color-on-accent:     #10141C;
-  --color-on-warning:    #1C1A17;
-  --color-on-danger:     #10141C;
-  --color-live:          #F0736A;
-  --color-warning-text:  #E0A63C;
-  --color-tint-accent:   #2A4647;
-  --color-tint-danger:   #533E4A;
-  --color-tint-warning:  #4D4745;
-  --color-pos-gk-line: #B38126;
-  --color-pos-cb-line: #5B8DC8;
-  --color-pos-lb-line: #4387F2;
-  --color-pos-rb-line: #4387F2;
-  --color-pos-lwb-line: #4D959A;
-  --color-pos-rwb-line: #4D959A;
-  --color-pos-dm-line: #9A78D6;
-  --color-pos-cm-line: #9E79C4;
-  --color-pos-am-line: #D1658F;
-  --color-pos-lw-line: #4F986A;
-  --color-pos-rw-line: #4F986A;
-  --color-pos-st-line: #E15F57;
-  --shadow-glow:       0 0 20px rgba(31, 163, 95, 0.20);
-  --shadow-glow-blue:  0 0 20px rgba(31, 163, 95, 0.20);
-  --shadow-glow-green: 0 0 20px rgba(31, 163, 95, 0.20);
-  --shadow-card:      0 2px 6px rgba(0, 0, 0, .30), 0 16px 40px -12px rgba(0, 0, 0, .45);
-  --shadow-card-lift: 0 4px 10px rgba(0, 0, 0, .35), 0 24px 56px -14px rgba(0, 0, 0, .50), 0 0 0 1px rgba(31, 163, 95, .14) inset;
-}
 
 /* --- Reset & Base --- */
 *,

@@ -2,7 +2,6 @@ import type { Metadata, Viewport } from 'next';
 import Script from 'next/script';
 import { Archivo_Narrow, Hanken_Grotesk, JetBrains_Mono, Newsreader } from 'next/font/google';
 import { ThemeProvider } from '@/context/ThemeContext';
-import PalettePreview from '@/components/layout/PalettePreview';
 import './globals.css';
 
 /**
@@ -89,28 +88,24 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html
       lang="en"
-      data-palette="lock"
       className={`${newsreader.variable} ${hankenGrotesk.variable} ${jetbrainsMono.variable} ${archivoNarrow.variable}`}
-      // The bootstrap script below writes data-theme and data-palette onto this
-      // element before React hydrates — that is the whole point of it, since
-      // waiting for hydration would flash the wrong theme. React then compares
-      // server HTML against the mutated DOM and reports a mismatch on those two
-      // attributes. Scoped to this element only: it does not suppress warnings
-      // for any descendant, so real mismatches inside the app still surface.
+      // The bootstrap script below writes data-theme onto this element before
+      // React hydrates — that is the whole point of it, since waiting for
+      // hydration would flash the wrong theme. React then compares server HTML
+      // against the mutated DOM and reports a mismatch on that attribute.
+      // Scoped to this element only: it does not suppress warnings for any
+      // descendant, so real mismatches inside the app still surface.
       suppressHydrationWarning
     >
       <body>
         <Script
-          id="gaffa-palette-init"
+          id="gaffa-theme-init"
           strategy="beforeInteractive"
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var p=localStorage.getItem('gaffa-palette');if(p==='shipped'||p==='lock')document.documentElement.setAttribute('data-palette',p);var t=localStorage.getItem('theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t);}catch(e){}})();`,
+            __html: `(function(){try{var t=localStorage.getItem('theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t);}catch(e){}})();`,
           }}
         />
-        <ThemeProvider>
-          {children}
-          <PalettePreview />
-        </ThemeProvider>
+        <ThemeProvider>{children}</ThemeProvider>
       </body>
     </html>
   );
