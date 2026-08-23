@@ -22,6 +22,12 @@
  *
  * Baseline captured: scoring v2 (DEFAULT_REFERENCE_STATS generated from 2025-26
  * FPL live data, GW1-35, minutes>=45).
+ *
+ * Revised when APPEARANCE_CREDIT was extended from keepers to everyone. Only
+ * fantasy points moved, and only for outfielders — every rating is unchanged,
+ * both keeper cases are unchanged, and did-not-play stays at zero. Each outfield
+ * case rose by exactly 2.5 x minutes/90, except oop-striker-at-cb, which rose
+ * 2.00 because the out-of-position haircut is applied to the total.
  */
 
 import { describe, it, expect } from 'vitest';
@@ -29,17 +35,17 @@ import { calculateMatchRating, calculateFantasyPoints } from '../matchRating';
 import { CASES } from './fixtures';
 
 const BASELINE: Record<string, { rating: number; fantasyPoints: number }> = {
-    'st-brace': { rating: 9.01, fantasyPoints: 36.72 },
-    'st-quiet': { rating: 6.92, fantasyPoints: 7.38 },
+    'st-brace': { rating: 9.01, fantasyPoints: 39.22 },
+    'st-quiet': { rating: 6.92, fantasyPoints: 9.88 },
     'gk-busy-loss': { rating: 6.47, fantasyPoints: 4.86 },
     'gk-quiet-clean-sheet': { rating: 8.63, fantasyPoints: 24.32 },
-    'cb-clean-sheet': { rating: 8.41, fantasyPoints: 26.94 },
-    'cm-assist': { rating: 8.34, fantasyPoints: 25.79 },
-    'am-two-assists': { rating: 8.94, fantasyPoints: 35.57 },
-    'lwb-assist-clean-sheet': { rating: 8.57, fantasyPoints: 29.4 },
-    'cm-poor-game': { rating: 5.5, fantasyPoints: 0 },
-    'oop-striker-at-cb': { rating: 6.08, fantasyPoints: 12.25 },
-    'cameo-five-minutes': { rating: 6.14, fantasyPoints: 1.08 },
+    'cb-clean-sheet': { rating: 8.41, fantasyPoints: 29.44 },
+    'cm-assist': { rating: 8.34, fantasyPoints: 28.29 },
+    'am-two-assists': { rating: 8.94, fantasyPoints: 38.07 },
+    'lwb-assist-clean-sheet': { rating: 8.57, fantasyPoints: 31.9 },
+    'cm-poor-game': { rating: 5.5, fantasyPoints: 2.5 },
+    'oop-striker-at-cb': { rating: 6.08, fantasyPoints: 14.25 },
+    'cameo-five-minutes': { rating: 6.14, fantasyPoints: 1.22 },
     'did-not-play': { rating: 0, fantasyPoints: 0 },
 };
 

@@ -491,6 +491,19 @@ export function curveFinalRating(composite: number, minutesPlayed: number): numb
  * comparison — see scripts/backfill-scoring-v2.mjs and docs/USER_GUIDE.md §4,
  * which publishes the table above to players.
  */
+/**
+ * Points credited for appearing, scaled by minutes — 2.5 for a full match.
+ * Every position gets it; see the call site for why it was keeper-only before.
+ */
+export const APPEARANCE_CREDIT = 2.5;
+
+/**
+ * Keepers' curve output is multiplied by this before the appearance credit.
+ * Compensates for GK composite being ~56% more dispersed than an outfielder's,
+ * which a convex curve would otherwise turn into a standing points advantage.
+ */
+export const GK_CURVE_SCALE = 0.72;
+
 export function calculateFantasyPoints(rating: number, minutesPlayed: number): number {
     if (minutesPlayed === 0 || rating === 0) return 0;
 
@@ -608,9 +621,33 @@ export function calculateMatchRating(
     // never affected by display-scale adjustments.
     const scoringRating = computeScoringRating(composite, stats.minutes_played);
     let fantasyPoints = calculateFantasyPoints(scoringRating, stats.minutes_played);
+
+    // Keepers' curve output stays compressed. Their composite is far more
+    // dispersed than an outfielder's (sd 0.245 vs 0.157 across 2025-26): a
+    // keeper who concedes four without a save has nothing to show, one with
+    // eight saves and a clean sheet is off the scale, while outfielders regress
+    // to the middle. A convex points curve turns that spread into points, so
+    // without this keepers average 10.62 to an outfielder's 7.27.
     if (position === 'GK') {
-        const baseMinutesFloor = (stats.minutes_played / 90) * 2.5;
-        fantasyPoints = baseMinutesFloor + fantasyPoints * 0.72;
+        fantasyPoints *= GK_CURVE_SCALE;
+    }
+
+    // Appearance credit, pro-rated by time on the pitch, applied AFTER the
+    // keeper scaling so it is worth the same to everyone.
+    //
+    // This used to be keeper-only, which inverted the two scales against each
+    // other: the points curve pays nothing below ~5.84 display rating, so a
+    // keeper who did nothing banked 2.5 while a better-rated outfielder banked
+    // zero. GW1 2026-27 had Roefs (4.65 rating) out-scoring Rice (6.16) 2.50 to
+    // 1.23. There is no principle under which turning out is worth credit for
+    // one position and not the others.
+    //
+    // Note this does not GRADE poor games — everything under the curve's
+    // threshold still lands on the same figure, just 2.5 rather than 0. Closing
+    // that gap means recutting the curve, which compresses the spread between
+    // teams badly enough to push the draw rate from 18% to ~46%.
+    if (stats.minutes_played > 0) {
+        fantasyPoints += (stats.minutes_played / 90) * APPEARANCE_CREDIT;
     }
 
     // Out-of-Position (OOP) penalty:

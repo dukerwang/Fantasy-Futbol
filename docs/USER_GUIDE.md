@@ -124,17 +124,22 @@ Each match a player earns a **rating from roughly 1.0 to 10.0**, calibrated so a
 
 Your **fantasy points** come from the same performance, but they are *not* a straightforward conversion of the rating on the card — the two run on separate scales. The practical effect surprises everyone once:
 
-| Displayed rating | Fantasy points |
-|---|---|
-| 5.5 | **0.00** |
-| 6.0 | 0.44 |
-| 6.5 *(an average starter)* | 3.54 |
-| 7.0 | 8.18 |
-| 7.5 | 13.98 |
-| 8.0 | 20.71 |
-| 9.0 | 36.60 |
+Every player who gets on the pitch is credited **2.5 points for the appearance**, scaled by how long he played — a full 90 earns the whole 2.5, half an hour earns a third of it. On top of that sits the performance curve. For a full 90 minutes:
 
-Two things follow. **A displayed rating of 5.84 or below scores exactly zero** — a below-par performance is worth nothing, not a small amount. And the curve is steeply front-loaded: 7.0 → 8.0 gains you more than 6.0 → 7.0 did. One genuinely excellent performance outweighs several adequate ones, which is the intended shape. Gaffa rewards players who *decide* matches, not players who merely appear in them. Points never go negative; zero is the floor.
+| Displayed rating | Appearance | Performance | Total |
+|---|---|---|---|
+| 5.5 | 2.50 | 0.00 | **2.50** |
+| 5.84 *(the payout threshold)* | 2.50 | 0.00 | **2.50** |
+| 6.0 | 2.50 | 0.44 | 2.94 |
+| 6.5 *(an average starter)* | 2.50 | 3.54 | 6.04 |
+| 7.0 | 2.50 | 8.18 | 10.68 |
+| 7.5 | 2.50 | 13.98 | 16.48 |
+| 8.0 | 2.50 | 20.71 | 23.21 |
+| 9.0 | 2.50 | 36.60 | 39.10 |
+
+Two things follow. **The performance curve pays nothing at or below a 5.84 displayed rating**, so a below-par game leaves you with the appearance credit and nothing else — and every game under that line is worth the same, whether it rated 4.0 or 5.8. And the curve is steeply front-loaded: 7.0 → 8.0 gains you more than 6.0 → 7.0 did. One genuinely excellent performance outweighs several adequate ones, which is the intended shape. Points never go negative; zero is the floor, and only a player who never came on scores it.
+
+Goalkeepers get the same appearance credit, but their performance figure is scaled down slightly. Keeper displays swing much harder than outfielders' — conceding four without a save and keeping a clean sheet with eight are both routine — and without the adjustment that spread alone would leave keepers permanently ahead on points.
 
 ### The out-of-position penalty
 
@@ -144,9 +149,9 @@ If a player whose primary position is a midfield or attacking role (DM, CM, AM, 
 
 ### Common questions
 
-**My player started and played 90 minutes. Why did he score zero?**
+**My player started and played 90 minutes. Why did he score so little?**
 
-Because he was below par, and below par is worth nothing. Anything at or under a 5.84 displayed rating scores 0. This is the most common surprise in Gaffa and it's deliberate: appearing in a match isn't an achievement, so there are no participation points. A full 90 minutes of doing very little is worth what it was worth.
+Because he was below par, and below par earns only the appearance credit. Anything at or under a 5.84 displayed rating scores 2.5 for a full match and nothing more — and everything below that line scores the same 2.5, so a dreadful game and a merely poor one are worth an identical amount. That flat spot is deliberate: separating them out would mean flattening the whole curve, which would take most of the meaning out of a genuinely big performance.
 
 **Why did my centre-back outscore my striker?**
 
@@ -154,7 +159,9 @@ Because they're graded against different expectations. A centre-back who keeps a
 
 **Does a substitute get punished for only playing 20 minutes?**
 
-No. There's no minutes multiplier — a short appearance rates low only because it usually accumulates too little to beat the baseline. But a substitute who *does* something is credited for it. A five-minute cameo with a goal in it rates about **7.8 and pays around 18 points**; the same five minutes with nothing in them pays about 1. Impact counts, not time served.
+Not by any rule that says so. There's no minutes multiplier on the performance curve — a short appearance rates low only because it usually accumulates too little to beat the baseline. The one place minutes count directly is the appearance credit, which is pro-rated, so twenty minutes earns roughly 0.6 of it.
+
+A substitute who *does* something is credited for it. A five-minute cameo with a goal in it rates about **7.8 and pays around 18 points**; the same five minutes with nothing in them pays about 1.2. Across last season, players who scored inside 25 minutes averaged a 7.95 rating and 20 points — comfortably ahead of the 6.82 and 8.6 that a full 90 minutes without a goal or assist returned. Impact counts, not time served.
 
 **What about a double gameweek?**
 
