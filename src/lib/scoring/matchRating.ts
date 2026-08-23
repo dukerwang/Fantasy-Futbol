@@ -51,7 +51,7 @@ export const FLEX_CONFIG = {
 
 //                                                                                                       Σ = 1.00
 export const POSITION_WEIGHTS = {
-    GK: { match_impact: 0.14, influence: 0.06, creativity: 0.00, threat: 0.00, defensive: 0.34, goal_involvement: 0.00, finishing: 0.00, save_score: 0.26 },
+    GK: { match_impact: 0.14, influence: 0.06, creativity: 0.00, threat: 0.00, defensive: 0.38, goal_involvement: 0.00, finishing: 0.00, save_score: 0.22 },
     CB: { match_impact: 0.30, influence: 0.05, creativity: 0.05, threat: 0.00, defensive: 0.25, goal_involvement: 0.05, finishing: 0.05, save_score: 0.00 },
     LB: { match_impact: 0.30, influence: 0.05, creativity: 0.10, threat: 0.00, defensive: 0.20, goal_involvement: 0.10, finishing: 0.00, save_score: 0.00 },
     RB: { match_impact: 0.30, influence: 0.05, creativity: 0.10, threat: 0.00, defensive: 0.20, goal_involvement: 0.10, finishing: 0.00, save_score: 0.00 },
@@ -507,16 +507,41 @@ export function curveFinalRating(composite: number, minutesPlayed: number): numb
  * the clean sheet so dominant that the component stopped discriminating: 193
  * clean sheets in 2025-26 produced ratings with a standard deviation of 0.21.
  *
- * Fitted against all 767 keeper appearances of that season. The binding
- * constraint was not the dispersion itself but its consequence — keepers used
- * to need a 0.72 haircut on their points to stop a convex curve turning that
- * spread into a standing advantage. At these values the keeper-to-outfielder
- * points gap is 0.01 with no haircut at all, so the haircut is gone.
+ * Fitted against all 767 keeper appearances of that season, against SEASON-level
+ * targets rather than per-match dispersion. A first attempt optimised per-match
+ * spread alone (clean sheet 5, conceded 2.6, xGC 4.5, weights 0.34/0.26) and got
+ * the per-match behaviour right while wrecking the leaderboard: cutting the
+ * clean sheet that hard removed what actually separates keepers over 38 games,
+ * so season-average spread fell from 0.271 to 0.181 and the best keepers were
+ * hit hardest — Raya 7.14 to 6.58, Donnarumma 7.21 to 6.76. Per-match spread was
+ * the wrong objective; how keepers rank across a season is the visible one.
+ *
+ * These values keep both: season mean 6.67 against the old 6.72, and per-match
+ * spread among clean sheets 0.34 against the old 0.21 — so an earned shutout
+ * still separates from an untroubled one. Season spread lands at 0.19 against
+ * the old 0.271; keepers sit slightly closer together over a season than they
+ * did, which is the residual cost of the clean sheet counting for less.
+ *
+ * Note the weights are constrained: match_impact 0.14 + influence 0.06 +
+ * defensive + save_score + the 0.20 flex must total exactly 1.00, so defensive
+ * and save_score have to sum to 0.60. weights.test.ts enforces it.
  */
-export const GK_CLEAN_SHEET = 5;
+export const GK_CLEAN_SHEET = 20;
 export const GK_CLEAN_SHEET_SAVE_CAP = 10;
-export const GK_GOAL_CONCEDED = 2.6;
-export const GK_XGC_DIFF = 4.5;
+export const GK_GOAL_CONCEDED = 3.4;
+export const GK_XGC_DIFF = 2.5;
+
+/**
+ * Keeper curve output is scaled by this before it becomes points.
+ *
+ * Was 0.72 and briefly deleted. Keeper composite is genuinely more dispersed
+ * than an outfielder's even once the rating is fixed, and a convex points curve
+ * turns spread into points, so some scaling is needed to keep the two positions
+ * level. At 0.80 keepers average 7.27 points an appearance, exactly matching
+ * outfielders. Deleting it entirely is only possible by flattening the rating so
+ * far that the leaderboard stops distinguishing keepers at all.
+ */
+export const GK_CURVE_SCALE = 0.84;
 
 export function calculateFantasyPoints(rating: number, minutesPlayed: number): number {
     if (minutesPlayed === 0 || rating === 0) return 0;
@@ -574,7 +599,7 @@ function makeRef(
 // Values below were generated from 2025-26 FPL live data (GW1-35, minutes>=45).
 //                 match_impact   influence      creativity     threat         defensive       goal_invol     finishing       save_score
 export const DEFAULT_REFERENCE_STATS = {
-    GK:  makeRef([12.00, 10.17], [21.00, 12.42], [ 0.00,  2.08], [ 0.00,  1.29], [ 4.435, 12.552], [0.00, 0.33], [ 0.000, 0.04], [ 7.500,  5.429]),
+    GK:  makeRef([12.00, 10.17], [21.00, 12.42], [ 0.00,  2.08], [ 0.00,  1.29], [ 2.950, 16.416], [0.00, 0.33], [ 0.000, 0.04], [ 7.500,  5.429]),
     CB:  makeRef([10.00,  9.84], [20.00, 11.85], [ 1.40,  6.41], [ 2.00, 10.33], [ 8.80,  9.19], [0.00, 1.55], [-0.010, 0.22], [0.00, 1.00]),
     LB:  makeRef([10.00,  9.86], [14.80, 10.64], [ 8.30, 12.79], [ 2.00,  8.82], [12.45,  9.79], [0.00, 1.66], [-0.020, 0.22], [0.00, 1.00]),
     RB:  makeRef([10.00,  9.86], [14.80, 10.64], [ 8.30, 12.79], [ 2.00,  8.82], [12.45,  9.79], [0.00, 1.66], [-0.020, 0.22], [0.00, 1.00]),
@@ -636,12 +661,11 @@ export function calculateMatchRating(
     const scoringRating = computeScoringRating(composite, stats.minutes_played);
     let fantasyPoints = calculateFantasyPoints(scoringRating, stats.minutes_played);
 
-    // No keeper haircut. Keepers used to have their curve output multiplied by
-    // 0.72, compensating at the points layer for a rating that was really a
-    // clean-sheet switch. With the GK `defensive` weighting fixed above, keeper
-    // composite is no longer inflated and the two positions land within 0.01
-    // points of each other unaided — so the compensation is gone rather than
-    // merely smaller, which was the test of whether the rating fix worked.
+    // Keeper curve output is scaled so the two positions bank the same points on
+    // average — see GK_CURVE_SCALE.
+    if (position === 'GK') {
+        fantasyPoints *= GK_CURVE_SCALE;
+    }
 
     // There is no appearance credit, for any position. Turning out is not an
     // achievement, so a game below the curve's ~5.84 display-rating threshold

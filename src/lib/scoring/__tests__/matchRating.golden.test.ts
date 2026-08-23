@@ -29,8 +29,8 @@
  * goalkeeping rather than the scoreline — only the two GK cases move, and they
  * move in opposite directions, which is the whole point:
  *
- *   gk-busy-loss          6.47 / 2.36  ->  6.83 / 6.44   (he was making saves)
- *   gk-quiet-clean-sheet  8.63 / 21.82 ->  7.53 / 14.41  (he was not troubled)
+ *   gk-busy-loss          6.47 / 2.36  ->  6.84 / 5.54   (he was making saves)
+ *   gk-quiet-clean-sheet  8.63 / 21.82 ->  8.05 / 18.00  (he was not troubled)
  *
  * Every outfield case is untouched by that second change.
  */
@@ -42,8 +42,8 @@ import { CASES } from './fixtures';
 const BASELINE: Record<string, { rating: number; fantasyPoints: number }> = {
     'st-brace': { rating: 9.01, fantasyPoints: 36.72 },
     'st-quiet': { rating: 6.92, fantasyPoints: 7.38 },
-    'gk-busy-loss': { rating: 6.83, fantasyPoints: 6.44 },
-    'gk-quiet-clean-sheet': { rating: 7.53, fantasyPoints: 14.41 },
+    'gk-busy-loss': { rating: 6.84, fantasyPoints: 5.54 },
+    'gk-quiet-clean-sheet': { rating: 8.05, fantasyPoints: 18 },
     'cb-clean-sheet': { rating: 8.41, fantasyPoints: 26.94 },
     'cm-assist': { rating: 8.34, fantasyPoints: 25.79 },
     'am-two-assists': { rating: 8.94, fantasyPoints: 35.57 },

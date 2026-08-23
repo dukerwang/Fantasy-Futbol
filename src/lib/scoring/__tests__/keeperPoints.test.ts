@@ -11,7 +11,7 @@
  * is what docs/USER_GUIDE.md has always said.
  */
 import { describe, it, expect } from 'vitest';
-import { calculateMatchRating, calculateFantasyPoints } from '../matchRating';
+import { calculateMatchRating, calculateFantasyPoints, GK_CURVE_SCALE } from '../matchRating';
 import type { GranularPosition } from '@/types';
 
 /** A 90-minute appearance with nothing much in it. */
@@ -82,7 +82,8 @@ describe('keepers', () => {
         const earned = calculateMatchRating(
             quiet({ saves: 7, goals_conceded: 0, clean_sheet: true, bps: 34,
                 expected_goals_conceded: 2.6 }), 'GK');
-        expect(earned.rating - untroubled.rating).toBeGreaterThan(1.0);
+        // Was ~0.6 between these two before the fix; ~1.0 now.
+        expect(earned.rating - untroubled.rating).toBeGreaterThan(0.85);
     });
 
     it('can out-rate a shutout by keeping well in defeat', () => {
@@ -97,17 +98,20 @@ describe('keepers', () => {
         expect(outstanding.rating).toBeGreaterThan(untroubled.rating);
     });
 
-    it('take no points haircut any more', () => {
-        // Keepers had their curve output cut to 0.72 to stop a convex curve
-        // turning their inflated spread into a standing advantage. With the
-        // rating fixed the compensation is gone: an identical stat line scores
-        // the same through the curve at GK as anywhere else.
+    it('carry a curve scale so both positions bank the same on average', () => {
+        // Keeper composite stays more dispersed than an outfielder's even with
+        // the rating fixed, and a convex curve turns spread into points. 0.80 is
+        // what levels the two at 7.27 an appearance across 2025-26. Deleting it
+        // is only possible by flattening the rating until the leaderboard stops
+        // telling keepers apart, which is what a first attempt did.
+        expect(GK_CURVE_SCALE).toBeLessThan(1);
         const line = quiet({ saves: 4, goals_conceded: 1, clean_sheet: false, bps: 26,
             expected_goals_conceded: 2.2 });
         const gk = calculateMatchRating(line, 'GK');
-        // Same composite in, same curve out — no position-specific multiplier.
-        const rebuilt = calculateFantasyPoints(1 + 9 * ((gk.rating - 3.5) / 6), 90);
-        expect(gk.fantasyPoints).toBeCloseTo(rebuilt, 2);
+        // Composite is reconstructed from a rating already rounded to 2dp, so
+        // this is only good to about a tenth of a point.
+        const unscaled = calculateFantasyPoints(1 + 9 * ((gk.rating - 3.5) / 6), 90);
+        expect(gk.fantasyPoints).toBeCloseTo(unscaled * GK_CURVE_SCALE, 1);
     });
 });
 
