@@ -40,6 +40,13 @@ export interface CardFront {
 export interface CardBack {
   gamelog: CardGamelogEntry[];
   history: PlayerSeasonArchive[];
+  /**
+   * Which season the game log describes. Resolved server-side by
+   * resolveCardSeason — a league that has rolled over before FPL kicks off
+   * still shows last season — so the card must label what it was given rather
+   * than assume the current one.
+   */
+  season?: string | null;
 }
 
 /**
@@ -138,12 +145,13 @@ export function fetchFront(
 // ── Back ─────────────────────────────────────────────────────────────────────
 
 export function getCachedBack(playerId: string, leagueId?: string | null): CardBack | null {
-  // v3: secondary ratings skip post-curve OOP so Rtg tracks Pts on the card.
-  return backCache.get(`${cacheKey(playerId, leagueId)}|v3`) ?? null;
+  // v4: payload now carries `season`, and ratings changed under ICT imputation
+  // — bumping the version drops caches holding pre-imputation numbers.
+  return backCache.get(`${cacheKey(playerId, leagueId)}|v4`) ?? null;
 }
 
 export function fetchBack(playerId: string, leagueId?: string | null): Promise<CardBack | null> {
-  const key = `${cacheKey(playerId, leagueId)}|v3`;
+  const key = `${cacheKey(playerId, leagueId)}|v4`;
   const cached = backCache.get(key);
   if (cached) return Promise.resolve(cached);
 
@@ -155,7 +163,7 @@ export function fetchBack(playerId: string, leagueId?: string | null): Promise<C
     .then((r) => (r.ok ? r.json() : null))
     .then((data) => {
       if (!data) return null;
-      const back: CardBack = { gamelog: data.gamelog ?? [], history: data.history ?? [] };
+      const back: CardBack = { gamelog: data.gamelog ?? [], history: data.history ?? [], season: data.season ?? null };
       backCache.set(key, back);
       return back;
     })

@@ -96,20 +96,26 @@ export default async function MatchupDetailPage({ params }: Props) {
     // the one already shown. fantasy_points is written at sync time (against
     // imputed ICT while the block is missing — see lib/scoring/ictImputation.ts)
     // and is the authoritative value until the post-lockdown pass rewrites it.
-    const detailMap: Record<string, { points: number; stats?: any }> = {};
+    const detailMap: Record<string, { points: number; rating?: number | null; stats?: any }> = {};
     if (playerIds.size > 0 && matchupData.gameweek) {
         // Scope by season too — gameweek numbers repeat every season, and
         // player_stats keeps every past season's rows (never archived/cleared).
         const statsSeason = await getCurrentFplSeason(undefined, true);
         const { data: statsRows } = await admin
             .from('player_stats')
-            .select('player_id, fantasy_points, stats')
+            // match_rating is its own column, never a key inside stats — the pitch
+            // chip needs it passed through explicitly.
+            .select('player_id, fantasy_points, match_rating, stats')
             .eq('season', statsSeason)
             .eq('gameweek', matchupData.gameweek)
             .in('player_id', Array.from(playerIds));
 
         for (const s of statsRows ?? []) {
-            detailMap[s.player_id] = { points: Number(s.fantasy_points), stats: s.stats || {} };
+            detailMap[s.player_id] = {
+                points: Number(s.fantasy_points),
+                rating: s.match_rating != null ? Number(s.match_rating) : null,
+                stats: s.stats || {},
+            };
         }
     }
 

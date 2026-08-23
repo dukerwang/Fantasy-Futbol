@@ -38,27 +38,40 @@ const isGranular = (p: unknown): p is GranularPosition =>
     typeof p === 'string' && (SPINE as string[]).includes(p);
 
 /* ── Stats formatter — "2G · 4 SOT · 8.9 rating" ─────────────────── */
+/**
+ * Keys here must match what /api/sync/stats actually writes into
+ * player_stats.stats — see mapFplLiveToRawStats. Four of them didn't: this read
+ * `goals_scored`, `clean_sheets`, `tackles` and `rating`, none of which exist,
+ * so every chip silently rendered "0.0 rating" and nothing else. The rating in
+ * particular has never lived in the stats JSON at all; it is its own column, so
+ * it arrives on Detail rather than here.
+ *
+ * `key_passes` and `shots_on_target` are real keys but FPL's live feed leaves
+ * them at 0, so they simply never render.
+ */
 interface MatchStatsSnapshot {
-    goals_scored?: number;
+    goals?: number;
     assists?: number;
-    clean_sheets?: number;
+    clean_sheet?: boolean;
     minutes_played?: number;
-    rating?: number;
     saves?: number;
-    tackles?: number;
+    fpl_tackles?: number;
     key_passes?: number;
     shots_on_target?: number;
 }
 
-function fmtStats(stats: MatchStatsSnapshot | undefined, slot: string): string {
+function fmtStats(detail: Detail | undefined, slot: string): string {
+    const stats = detail?.stats;
     if (!stats) return '';
     // SAFETY: lineup slots are always one of the 12 GranularPosition values, never an arbitrary string.
     const zone = SLOT_TO_ZONE[slot as GranularPosition] ?? 'CMZ';
     const parts: string[] = [];
-    const g = Number(stats.goals_scored ?? 0);
+    const g = Number(stats.goals ?? 0);
     const a = Number(stats.assists ?? 0);
-    const cs = Number(stats.clean_sheets ?? 0);
-    const rtg = stats.minutes_played ? Number(stats.rating ?? 0).toFixed(1) : null;
+    const cs = stats.clean_sheet ? 1 : 0;
+    const rtg = stats.minutes_played && detail?.rating != null
+        ? Number(detail.rating).toFixed(1)
+        : null;
 
     if (zone === 'GK') {
         const sv = Number(stats.saves ?? 0);
@@ -66,7 +79,7 @@ function fmtStats(stats: MatchStatsSnapshot | undefined, slot: string): string {
         if (cs) parts.push('CS');
     } else if (zone === 'DEF' || zone === 'DMZ') {
         if (cs) parts.push('CS');
-        const tk = Number(stats.tackles ?? 0);
+        const tk = Number(stats.fpl_tackles ?? 0);
         if (tk) parts.push(`${tk} Tk`);
     } else if (zone === 'CMZ' || zone === 'AMZ') {
         if (g) parts.push(`${g}G`);
@@ -84,7 +97,7 @@ function fmtStats(stats: MatchStatsSnapshot | undefined, slot: string): string {
 }
 
 /* ── Sub-components ───────────────────────────────────────────────── */
-type Detail = { points: number; stats?: MatchStatsSnapshot };
+type Detail = { points: number; rating?: number | null; stats?: MatchStatsSnapshot };
 
 /**
  * A sub marker. One shape, two tokens: the arrow says the direction and the
@@ -122,7 +135,7 @@ function PlayerChip({ slot, player, detail, isSubIn, onClick }: {
             )}
             <p className={styles.chipName}>{name}</p>
             {detail?.stats && (
-                <p className={styles.chipStats}>{fmtStats(detail.stats, slot)}</p>
+                <p className={styles.chipStats}>{fmtStats(detail, slot)}</p>
             )}
         </button>
     );
@@ -402,7 +415,7 @@ export default function MatchupPitch({
                                                 </p>
                                                 {detail?.stats && (
                                                     <p className={styles.breakdownStats}>
-                                                        {fmtStats(detail.stats, s.slot)}
+                                                        {fmtStats(detail, s.slot)}
                                                     </p>
                                                 )}
                                             </div>

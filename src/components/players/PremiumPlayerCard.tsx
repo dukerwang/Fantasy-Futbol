@@ -11,6 +11,7 @@ import SquadPeekButton from '@/components/teams/SquadPeekButton';
 import FormArrow from '@/components/players/FormArrow';
 import { clubBadgePath, clubColor } from '@/lib/clubs/registry';
 import {
+  type CardBack,
   type CardGamelogEntry,
   fetchBack,
   fetchFront,
@@ -247,7 +248,7 @@ export default function PremiumPlayerCard({
     const resolvedOwnership = snapshot.ownership ?? null;
 
     // ── Back face: fetched after paint, never gates anything ──────────────────
-    const [back, setBack] = useState<{ gamelog: CardGamelogEntry[]; history: PlayerSeasonArchive[] } | null>(
+    const [back, setBack] = useState<CardBack | null>(
         () => (staticOnly ? { gamelog: [], history: [] } : getCachedBack(player.id, leagueId)),
     );
     const [backRenderedId, setBackRenderedId] = useState(player.id);
@@ -755,7 +756,10 @@ export default function PremiumPlayerCard({
                         <div className={styles.backHead}>
                             <div>
                                 <span className={styles.backEyebrow}>
-                                    Form Guide · 2025/26
+                                    {/* Whatever season the server actually resolved — this
+                                        read "2025/26" hardcoded, so it kept claiming the old
+                                        season after the rollover. */}
+                                    Form Guide{back?.season ? ` · ${back.season.replace('-', '/')}` : ''}
                                     {!isPrimaryView ? ` · as ${viewPos}` : ''}
                                 </span>
                                 <div className={styles.backName}>
