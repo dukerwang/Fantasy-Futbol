@@ -290,8 +290,8 @@ export async function executeAdvanceTournament(
               userId: winnerTeam.user_id,
               title: isFinal ? 'Cup Won!' : 'Cup Win',
               content: isFinal
-                ? `You beat **${loserTeam?.team_name ?? 'your opponent'}** ${winnerScore.toFixed(1)}-${loserScore.toFixed(1)} in the ${round.name} to win the **${tournament.name}**!`
-                : `You beat **${loserTeam?.team_name ?? 'your opponent'}** ${winnerScore.toFixed(1)}-${loserScore.toFixed(1)} in the ${round.name} of the **${tournament.name}**. Through to the next round!`,
+                ? `You beat **${loserTeam?.team_name ?? 'your opponent'}** ${winnerScore.toFixed(2)}-${loserScore.toFixed(2)} in the ${round.name} to win the **${tournament.name}**!`
+                : `You beat **${loserTeam?.team_name ?? 'your opponent'}** ${winnerScore.toFixed(2)}-${loserScore.toFixed(2)} in the ${round.name} of the **${tournament.name}**. Through to the next round!`,
               url: `/league/${tournament.league_id}/tournaments`,
             });
           }
@@ -300,7 +300,7 @@ export async function executeAdvanceTournament(
               leagueId: tournament.league_id,
               userId: loserTeam.user_id,
               title: 'Cup Elimination',
-              content: `You lost to **${winnerTeam?.team_name ?? 'your opponent'}** ${loserScore.toFixed(1)}-${winnerScore.toFixed(1)} in the ${round.name} of the **${tournament.name}**.`,
+              content: `You lost to **${winnerTeam?.team_name ?? 'your opponent'}** ${loserScore.toFixed(2)}-${winnerScore.toFixed(2)} in the ${round.name} of the **${tournament.name}**.`,
               url: `/league/${tournament.league_id}/tournaments`,
             });
           }

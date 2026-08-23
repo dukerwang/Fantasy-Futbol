@@ -315,7 +315,7 @@ export default function RequestLoanModal({
                           <span className={styles.blockToggleClub}>
                             {p.pl_team ?? ''}
                             {p.market_value ? ` · €${p.market_value.toFixed(1)}m` : ''}
-                            {p.ppg ? ` · ${p.ppg.toFixed(1)} PPG` : ''}
+                            {p.ppg ? ` · ${p.ppg.toFixed(2)} PPG` : ''}
                           </span>
                         </div>
                       </div>
@@ -344,7 +344,7 @@ export default function RequestLoanModal({
                 <div style={{ fontSize: '11px', color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginTop: '2px' }}>
                   {allTeams.find(t => t.id === selectedTeamId)?.team_name} · {selectedPlayer.pl_team ?? ''}
                   {selectedPlayer.market_value ? ` · €${selectedPlayer.market_value.toFixed(1)}m MV` : ''}
-                  {` · ${recentPPG.toFixed(1)} Projected PPG`}
+                  {` · ${recentPPG.toFixed(2)} Projected PPG`}
                 </div>
               </div>
               <button
@@ -437,7 +437,7 @@ export default function RequestLoanModal({
                     Bonus: €{templateTerms.balanced.rate.toFixed(3)}m/pt
                   </span>
                   <span style={{ fontSize: '9px', color: 'var(--color-text-muted)', lineHeight: '1.2' }}>
-                    Moderate upfront fee. Capped at {balancedMaxPpg.toFixed(1)} PPG average (+{balancedHeadroom.toFixed(1)} over baseline).
+                    Moderate upfront fee. Capped at {balancedMaxPpg.toFixed(2)} PPG average (+{balancedHeadroom.toFixed(1)} over baseline).
                   </span>
                 </button>
 
@@ -467,7 +467,7 @@ export default function RequestLoanModal({
                     Bonus: €{templateTerms.performance.rate.toFixed(3)}m/pt
                   </span>
                   <span style={{ fontSize: '9px', color: 'var(--color-text-muted)', lineHeight: '1.2' }}>
-                    Low upfront fee. Capped at {perfMaxPpg.toFixed(1)} PPG average (+{perfHeadroom.toFixed(1)} over baseline).
+                    Low upfront fee. Capped at {perfMaxPpg.toFixed(2)} PPG average (+{perfHeadroom.toFixed(1)} over baseline).
                   </span>
                 </button>
 
@@ -571,7 +571,7 @@ export default function RequestLoanModal({
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', borderTop: '1px dashed var(--color-border)', paddingTop: '4px', marginTop: '2px' }}>
                       <span style={{ color: 'var(--color-text-muted)' }}>Est. performance bonus payout</span>
                       <span style={{ fontWeight: 600, color: 'var(--color-text-secondary)', textAlign: 'right' }}>
-                        €{estBonusPayout.toFixed(2)}m <span style={{ fontSize: '10px', color: 'var(--color-text-muted)', fontWeight: 'normal', display: 'block' }}>(based on {recentPPG.toFixed(1)} Projected PPG)</span>
+                        €{estBonusPayout.toFixed(2)}m <span style={{ fontSize: '10px', color: 'var(--color-text-muted)', fontWeight: 'normal', display: 'block' }}>(based on {recentPPG.toFixed(2)} Projected PPG)</span>
                       </span>
                     </div>
                   </>

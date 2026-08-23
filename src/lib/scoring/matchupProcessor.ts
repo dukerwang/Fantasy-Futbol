@@ -459,7 +459,7 @@ export async function processMatchupsForGameweek(
                             leagueId: leagueId,
                             userId: t.user_id,
                             title: `GW${gameweek} Results`,
-                            content: `Matchweek ${gameweek} is finalized! **${summary.highScorer.teamName}** top-scored with **${summary.highScorer.score.toFixed(1)}** points. Check all results now.`,
+                            content: `Matchweek ${gameweek} is finalized! **${summary.highScorer.teamName}** top-scored with **${summary.highScorer.score.toFixed(2)}** points. Check all results now.`,
                             url: `/league/${leagueId}`
                         });
                     }

@@ -89,9 +89,9 @@ function PlayerRow({
   const s = shadowByPlayer[player.id]?.[activePos];
   const gp = s ? s.gp : 0;
   // PPG = Pts/GP for the active minutes filter (not a frozen archive column).
-  const totalPoints = s && s.gp > 0 ? s.total_points.toFixed(1) : '—';
-  const ppg = s && s.gp > 0 ? (s.total_points / s.gp).toFixed(1) : '—';
-  const avgRating = s && s.gp > 0 ? s.avg_rating.toFixed(1) : '—';
+  const totalPoints = s && s.gp > 0 ? s.total_points.toFixed(2) : '—';
+  const ppg = s && s.gp > 0 ? (s.total_points / s.gp).toFixed(2) : '—';
+  const avgRating = s && s.gp > 0 ? s.avg_rating.toFixed(2) : '—';
   const value = player.market_value != null ? `€${Number(player.market_value).toFixed(1)}m` : '—';
   const rank = player.draftRank != null ? String(player.draftRank) : '—';
   const isUnavailable = !!player.fpl_status && player.fpl_status !== 'a';
@@ -195,7 +195,7 @@ function MobilePlayerCard({
   const isMyPick = myTurn && !picking && !draftDone;
 
   const s = shadowByPlayer[player.id]?.[activePos];
-  const ppg = s && s.gp > 0 ? (s.total_points / s.gp).toFixed(1) : '—';
+  const ppg = s && s.gp > 0 ? (s.total_points / s.gp).toFixed(2) : '—';
   const totalPoints = s && s.gp > 0 ? String(Math.round(s.total_points)) : '—';
   const value = player.market_value != null ? `€${Number(player.market_value).toFixed(1)}m` : '—';
   const rank = player.draftRank != null ? String(player.draftRank) : '—';

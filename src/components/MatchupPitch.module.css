@@ -367,10 +367,13 @@
 .ptsFair  { background: #8C6C00; }   /* >= 7  */
 .ptsPoor  { background: #AC5B0E; }   /* >= 3  */
 
-/* Under 3 keeps the plain pill: a low score is information, not an alarm, and
-   painting every quiet game red made the pitch unreadable at a glance. */
-.ptsBlank {
-    color: var(--color-text-secondary);
+/* Under 3 is red, same as the pre-2.0 ramp. A blank pill was indistinguishable
+   from a chip with no data, which is the exact confusion the pending/DNP states
+   exist to remove — a bad return should read as a bad return. */
+.ptsBad {
+    color: #fff;
+    background: #9B2335;
+    border-color: transparent;
 }
 
 /* Yet to play — outlined and dashed, so an empty chip reads as "still to come"

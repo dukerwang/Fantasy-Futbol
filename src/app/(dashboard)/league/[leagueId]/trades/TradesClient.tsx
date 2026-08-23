@@ -1529,7 +1529,7 @@ function LoanCard({
             const headroom = maxAvgPpg - baseline;
             return (
               <span style={{ fontSize: '10px', color: 'var(--color-text-muted)', display: 'block' }}>
-                Cap: €{loan.bonus_cap}m (max {maxAvgPpg.toFixed(1)} PPG / +{headroom.toFixed(1)} headroom)
+                Cap: €{loan.bonus_cap}m (max {maxAvgPpg.toFixed(2)} PPG / +{headroom.toFixed(1)} headroom)
               </span>
             );
           })()}

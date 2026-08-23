@@ -93,7 +93,7 @@ export default function Intel({ entries, totals }: { entries: SquadEntry[]; tota
                     style={{ width: `${(seasonPts(e) / maxPts) * 100}%` }}
                   />
                 </div>
-                <span className={styles.sval}>{seasonPts(e)}<small>{ppgOf(e).toFixed(1)} pg</small></span>
+                <span className={styles.sval}>{seasonPts(e)}<small>{ppgOf(e).toFixed(2)} pg</small></span>
               </div>
             );
           })}

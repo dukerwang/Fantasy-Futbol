@@ -70,7 +70,7 @@ export default function FormArrow({ rating, size = 16, showValue = false, classN
   // Base glyph points right, so -90deg is straight up and +90deg straight down.
   const angle = (0.5 - t) * 180;
   const band = Math.min(TONES.length - 1, Math.floor(t * TONES.length));
-  const label = `Form ${rating.toFixed(1)} — ${DESCRIPTIONS[band]}`;
+  const label = `Form ${rating.toFixed(2)} — ${DESCRIPTIONS[band]}`;
 
   return (
     <span
@@ -85,7 +85,7 @@ export default function FormArrow({ rating, size = 16, showValue = false, classN
           <path d="M4 12h13M12 6l6 6-6 6" />
         </g>
       </svg>
-      {showValue && <span className={styles.value}>{rating.toFixed(1)}</span>}
+      {showValue && <span className={styles.value}>{rating.toFixed(2)}</span>}
     </span>
   );
 }

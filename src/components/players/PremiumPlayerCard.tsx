@@ -388,7 +388,7 @@ export default function PremiumPlayerCard({
                 gp += 1;
             }
             viewTotalPts = pts;
-            viewPpg = gp > 0 ? Math.round((pts / gp) * 10) / 10 : 0;
+            viewPpg = gp > 0 ? Math.round((pts / gp) * 100) / 100 : 0;
         } else {
             viewTotalPts = null;
             viewPpg = null;
@@ -408,7 +408,7 @@ export default function PremiumPlayerCard({
             .map(g => scoreAtPosition(g, viewPos, primaryPos).match_rating)
             .filter((r): r is number => r != null);
         if (rated.length === 0) return null;
-        return Math.round((rated.reduce((sum, r) => sum + r, 0) / rated.length) * 10) / 10;
+        return Math.round((rated.reduce((sum, r) => sum + r, 0) / rated.length) * 100) / 100;
     })();
     // Secondary form only exists once the back has by_position; until then keep
     // the primary form so the bubble doesn't flash empty on a chip click.
@@ -651,7 +651,7 @@ export default function PremiumPlayerCard({
                                     className={styles.ratingBubble}
                                     style={{ borderColor: ratingHex(rating), color: ratingHex(rating) }}
                                 >
-                                    <span className={styles.ratingVal}>{rating.toFixed(1)}</span>
+                                    <span className={styles.ratingVal}>{rating.toFixed(2)}</span>
                                     <span className={styles.ratingLbl}>Rtg</span>
                                 </div>
                             )}
@@ -694,7 +694,7 @@ export default function PremiumPlayerCard({
                         </div>
                         <div className={styles.statCell}>
                             <span className={styles.statVal}>
-                                {viewPpg != null ? viewPpg.toFixed(1) : 'n/a'}
+                                {viewPpg != null ? viewPpg.toFixed(2) : 'n/a'}
                             </span>
                             <span className={styles.statLbl}>PPG</span>
                         </div>
@@ -783,7 +783,7 @@ export default function PremiumPlayerCard({
                                             key={i}
                                             className={`${styles.formBar} ${barCls}`}
                                             style={{ height: `${h}px` }}
-                                            title={`GW${g.gameweek} · ${ratingVal.toFixed(1)} Rtg`}
+                                            title={`GW${g.gameweek} · ${ratingVal.toFixed(2)} Rtg`}
                                         />
                                     );
                                 }) : backPending ? (
@@ -870,11 +870,11 @@ export default function PremiumPlayerCard({
                                                             <td className={styles.ctrTd}>{g.stats?.minutes_played ?? '—'}</td>
                                                             <td className={styles.ctrTd}>{g.stats?.goals ?? 0}</td>
                                                             <td className={styles.ctrTd}>{g.stats?.assists ?? 0}</td>
-                                                            <td className={styles.ptsTd}>{gameScore.fantasy_points.toFixed(1)}</td>
+                                                            <td className={styles.ptsTd}>{gameScore.fantasy_points.toFixed(2)}</td>
                                                             <td>
                                                                 {gameScore.match_rating != null ? (
                                                                     <span style={{ color: ratingHex(gameScore.match_rating) }}>
-                                                                        {gameScore.match_rating.toFixed(1)}
+                                                                        {gameScore.match_rating.toFixed(2)}
                                                                     </span>
                                                                 ) : '—'}
                                                             </td>
@@ -916,8 +916,8 @@ export default function PremiumPlayerCard({
                                                     return (
                                                         <tr key={h.season ?? index}>
                                                             <td className={styles.gwTd}>{h.season.replace('-', '/')}</td>
-                                                            <td className={styles.ctrTd}>{Number(h.total_points).toFixed(1)}</td>
-                                                            <td className={styles.ctrTd}>{Number(h.ppg).toFixed(1)}</td>
+                                                            <td className={styles.ctrTd}>{Number(h.total_points).toFixed(2)}</td>
+                                                            <td className={styles.ctrTd}>{Number(h.ppg).toFixed(2)}</td>
                                                             <td className={styles.ctrTd}>#{h.overall_rank}</td>
                                                             <td>
                                                                 {bestPosRank ? (

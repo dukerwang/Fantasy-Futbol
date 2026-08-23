@@ -641,7 +641,7 @@ function LiveAuctionsVisual() {
             <div className={styles.auctionCardStats}>
               <div className={styles.statColMini}>
                 <span className={styles.statLabelMini}>PPG</span>
-                <span className={styles.statValueMini}>{auction.player.ppg.toFixed(1)}</span>
+                <span className={styles.statValueMini}>{auction.player.ppg.toFixed(2)}</span>
               </div>
               <div className={styles.statColMini}>
                 <span className={styles.statLabelMini}>Pts</span>

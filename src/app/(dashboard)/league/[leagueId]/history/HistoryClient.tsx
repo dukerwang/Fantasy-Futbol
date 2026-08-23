@@ -186,7 +186,7 @@ export default function HistoryClient({ leagueName, currentSeason, seasons, high
               <Icon name="activity" size={20} className={styles.recordIconAccent} />
               <div>
                 <span className="g-label-quiet">Highest single-GW score</span>
-                <span className={styles.recordValue}>{highestGwScore.score.toFixed(1)} pts</span>
+                <span className={styles.recordValue}>{highestGwScore.score.toFixed(2)} pts</span>
                 <span className={styles.recordMeta}>{highestGwScore.teamName} · GW{highestGwScore.gameweek}</span>
               </div>
             </div>

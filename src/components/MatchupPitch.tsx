@@ -70,7 +70,7 @@ function fmtStats(detail: Detail | undefined, slot: string): string {
     const a = Number(stats.assists ?? 0);
     const cs = stats.clean_sheet ? 1 : 0;
     const rtg = stats.minutes_played && detail?.rating != null
-        ? Number(detail.rating).toFixed(1)
+        ? Number(detail.rating).toFixed(2)
         : null;
 
     if (zone === 'GK') {
@@ -127,7 +127,7 @@ function ptsBand(points: number): string {
     if (points >= 12) return styles.ptsGood;
     if (points >= 7) return styles.ptsFair;
     if (points >= 3) return styles.ptsPoor;
-    return styles.ptsBlank;
+    return styles.ptsBad;
 }
 
 function PointsBadge({ detail, status }: { detail?: Detail; status: PlayStatus }) {
@@ -138,7 +138,7 @@ function PointsBadge({ detail, status }: { detail?: Detail; status: PlayStatus }
         return <span className={`${styles.chipPts} ${styles.ptsDnp}`} title="Did not play">DNP</span>;
     }
     const pts = detail?.points ?? 0;
-    return <span className={`${styles.chipPts} ${ptsBand(pts)}`}>{pts.toFixed(1)}</span>;
+    return <span className={`${styles.chipPts} ${ptsBand(pts)}`}>{pts.toFixed(2)}</span>;
 }
 
 /**
@@ -177,7 +177,7 @@ function PlayerChip({ slot, player, detail, status, isSubIn, onClick }: {
             aria-label={`${name}, ${slot}, ${
                 status === 'pending' ? 'yet to play'
                     : status === 'dnp' ? 'did not play'
-                    : `${(detail?.points ?? 0).toFixed(1)} points`
+                    : `${(detail?.points ?? 0).toFixed(2)} points`
             }`}
         >
             {isSubIn && <SubMark dir="in" />}
@@ -437,7 +437,7 @@ export default function MatchupPitch({
                         <div className={styles.benchHead}>
                             <h3 className={styles.benchName}>{name} — Bench</h3>
                             {bonus > 0 && (
-                                <span className={styles.benchBonus}>+{bonus.toFixed(1)}</span>
+                                <span className={styles.benchBonus}>+{bonus.toFixed(2)}</span>
                             )}
                         </div>
                         <div className={styles.benchChips}>
@@ -464,7 +464,7 @@ export default function MatchupPitch({
                         <div key={key} className={styles.breakdownCol}>
                             <div className={styles.breakdownColHead}>
                                 <span className={styles.breakdownColName}>{name}</span>
-                                <span className={styles.breakdownColTotal}>{total.toFixed(1)}</span>
+                                <span className={styles.breakdownColTotal}>{total.toFixed(2)}</span>
                             </div>
                             {starters.map((s, i) => {
                                 const p = playerMap[s.player_id];
@@ -495,7 +495,7 @@ export default function MatchupPitch({
                                             </div>
                                         </div>
                                         <span className={styles.breakdownPts}>
-                                            {detail?.points.toFixed(1) ?? '—'}
+                                            {detail?.points.toFixed(2) ?? '—'}
                                         </span>
                                     </div>
                                 );
@@ -509,7 +509,7 @@ export default function MatchupPitch({
                                             </span>
                                         </p>
                                     </div>
-                                    <span className={styles.breakdownPts}>{bonus.toFixed(1)}</span>
+                                    <span className={styles.breakdownPts}>{bonus.toFixed(2)}</span>
                                 </div>
                             )}
                         </div>

@@ -116,7 +116,7 @@ function TileGallery({ e, sel, onClick }: { e: SquadEntry; sel: boolean; onClick
         <div className={styles.tgStatline}>
           <span className={styles.tgStatnum}>{seasonPts(e)}</span><span className={styles.tgStatunit}>pts</span>
           <span className={styles.tgStatsep}>·</span>
-          <span className={styles.tgStatnum}>{ppgOf(e).toFixed(1)}</span><span className={styles.tgStatunit}>ppg</span>
+          <span className={styles.tgStatnum}>{ppgOf(e).toFixed(2)}</span><span className={styles.tgStatunit}>ppg</span>
           <span className={styles.tgSpacer} />
           <Spark form={e.form} />
         </div>
@@ -242,7 +242,7 @@ export function SquadTable({ entries, selId, onSelect }: { entries: SquadEntry[]
                   <td className={styles.tdMuted}>{p.pl_team}</td>
                   <td className={styles.num}>{money(valueOf(e))}</td>
                   <td className={styles.num}>{seasonPts(e)}</td>
-                  <td className={styles.num}>{ppgOf(e).toFixed(1)}</td>
+                  <td className={styles.num}>{ppgOf(e).toFixed(2)}</td>
                   <td className={styles.num}>{age ?? '—'}</td>
                   <td><StatusTag status={e.status} /></td>
                 </tr>

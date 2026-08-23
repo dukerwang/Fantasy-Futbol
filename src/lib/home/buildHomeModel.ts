@@ -1164,7 +1164,7 @@ export async function buildHomeModel(
           points: p.points.toFixed(2),
           inkPct,
           medianPct: 58,
-          ratingLabel: `rating ${p.rating.toFixed(1)}`,
+          ratingLabel: `rating ${p.rating.toFixed(2)}`,
         });
       }
       yourGameweekNote = 'A rating of 5.84 or less scores exactly zero points.';

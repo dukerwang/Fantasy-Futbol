@@ -172,11 +172,11 @@ export function generateMatchReport(
 
   // Generate highlight summaries
   const starHighlight = starPlayerId 
-    ? `Man of the Match honors go to ${starPlayerName} of **${starPlayerTeamName}**, who delivered a sterling performance, scoring **${starPlayerPoints.toFixed(1)} points** to anchor the team sheet.`
+    ? `Man of the Match honors go to ${starPlayerName} of **${starPlayerTeamName}**, who delivered a sterling performance, scoring **${starPlayerPoints.toFixed(2)} points** to anchor the team sheet.`
     : `A balanced team effort was key, as no single player dominated the scores.`;
 
   const disappointmentHighlight = flopPlayerId
-    ? `Conversely, **${flopPlayerTeamName}** suffered from a difficult outing by ${flopPlayerName}, who returned just **${flopPlayerPoints.toFixed(1)} points**, leaving the board to regret the starting selection.`
+    ? `Conversely, **${flopPlayerTeamName}** suffered from a difficult outing by ${flopPlayerName}, who returned just **${flopPlayerPoints.toFixed(2)} points**, leaving the board to regret the starting selection.`
     : `Roster managers kept errors to a minimum, with no major lineup errors reported on either team sheet.`;
 
   // Live Matchup
@@ -211,10 +211,10 @@ export function generateMatchReport(
       byline,
       leadParagraph: leads[hash % leads.length],
       starHighlight: starPlayerId 
-        ? `Live standout ${starPlayerName} of **${starPlayerTeamName}** is currently setting the pace with **${starPlayerPoints.toFixed(1)} points**.`
+        ? `Live standout ${starPlayerName} of **${starPlayerTeamName}** is currently setting the pace with **${starPlayerPoints.toFixed(2)} points**.`
         : starHighlight,
       disappointmentHighlight: flopPlayerId
-        ? `Manager adjustments may be needed as ${flopPlayerName} struggles to return value, sitting on just **${flopPlayerPoints.toFixed(1)} points**.`
+        ? `Manager adjustments may be needed as ${flopPlayerName} struggles to return value, sitting on just **${flopPlayerPoints.toFixed(2)} points**.`
         : disappointmentHighlight
     };
   }
@@ -224,7 +224,7 @@ export function generateMatchReport(
     const headlines = [
       `Tense Stalemate Between **${teamAName}** and **${teamBName}**`,
       `**${teamAName}** and **${teamBName}** Split Points in Stalemate`,
-      `**${teamAName}** and **${teamBName}** Draw **${scoreA.toFixed(1)} - ${scoreB.toFixed(1)}**`,
+      `**${teamAName}** and **${teamBName}** Draw **${scoreA.toFixed(2)} - ${scoreB.toFixed(2)}**`,
       `Tactical Clashes End in Draw for **${teamAName}** and **${teamBName}**`,
       `Points Divided After Grinding Match at Gaffa Desk`,
       `No Separation: **${teamAName}** and **${teamBName}** Split Gameweek ${gw} Spoils`,
@@ -319,7 +319,7 @@ export function generateMatchReport(
       `**${winner}** Squeaks Past **${loser}** in Gameweek ${gw} Thriller`,
       `**${winner}** Survives Late Surge to Defeat **${loser}**`,
       `**${winner}** Wins Tight Encounter Against **${loser}**`,
-      `**${winner}** Defeats **${loser}** by a Mere **${margin.toFixed(1)} Points**`,
+      `**${winner}** Defeats **${loser}** by a Mere **${margin.toFixed(2)} Points**`,
       `**${winner}** Secures Narrow Victory Over Rival **${loser}**`,
       `**${winner}** Edges **${loser}** in Nerve-Wracking Finish`,
       `Late Bonus Points Seal Victory for **${winner}** Over **${loser}**`,

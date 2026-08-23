@@ -879,7 +879,7 @@ export default function ProposeBuilder({
                     {getPlayerDisplayName(loanPlayer, 'full')}
                   </button>
                   <span className={styles.pickMeta}>
-                    {loanPlayer.pl_team} · {recentPPG.toFixed(1)} projected PPG
+                    {loanPlayer.pl_team} · {recentPPG.toFixed(2)} projected PPG
                   </span>
                 </span>
                 <span className={styles.pickValue}>{money(Number(loanPlayer.market_value) || 0)}</span>
@@ -999,7 +999,7 @@ export default function ProposeBuilder({
                     />
                   </span>
                   <span className={styles.templateNote}>
-                    Bonus stops at {balancedMaxPpg.toFixed(1)} PPG — {balancedHeadroom.toFixed(1)} above his baseline.
+                    Bonus stops at {balancedMaxPpg.toFixed(2)} PPG — {balancedHeadroom.toFixed(2)} above his baseline.
                   </span>
                 </button>
 
@@ -1023,7 +1023,7 @@ export default function ProposeBuilder({
                     />
                   </span>
                   <span className={styles.templateNote}>
-                    Bonus stops at {perfMaxPpg.toFixed(1)} PPG — {perfHeadroom.toFixed(1)} above his baseline.
+                    Bonus stops at {perfMaxPpg.toFixed(2)} PPG — {perfHeadroom.toFixed(2)} above his baseline.
                   </span>
                 </button>
               </div>
@@ -1086,7 +1086,7 @@ export default function ProposeBuilder({
                       <span className={`${styles.ledgerVal} ${styles.risk}`}>up to {money(loanFinalTerms.cap)}</span>
                     </div>
                     <div className={styles.ledgerRow}>
-                      <span>Likely bonus if he holds {recentPPG.toFixed(1)} PPG</span>
+                      <span>Likely bonus if he holds {recentPPG.toFixed(2)} PPG</span>
                       <span className={styles.ledgerDots} />
                       <span className={styles.ledgerVal}>≈ €{loanEstBonusPayout.toFixed(1)}m</span>
                     </div>
@@ -1094,7 +1094,7 @@ export default function ProposeBuilder({
                       <span>Bonus runs out at</span>
                       <span className={styles.ledgerDots} />
                       <span className={styles.ledgerVal}>
-                        {loanFinalMaxPpg.toFixed(1)} PPG · +{loanFinalHeadroom.toFixed(1)}
+                        {loanFinalMaxPpg.toFixed(2)} PPG · +{loanFinalHeadroom.toFixed(2)}
                       </span>
                     </div>
                   </>

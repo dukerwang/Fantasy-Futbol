@@ -432,7 +432,7 @@ export default function GlobalStatsTable({ leagueId, leagueName, players, season
                   <td className={`${styles.num} ${s ? '' : styles.na}`}>{s ? s.goals : '—'}</td>
                   <td className={`${styles.num} ${s ? '' : styles.na}`}>{s ? s.assists : '—'}</td>
                   <td className={`${styles.num} ${s ? '' : styles.na}`}>
-                    {s ? totalPoints.toFixed(1) : '—'}
+                    {s ? totalPoints.toFixed(2) : '—'}
                   </td>
                   <td className={`${styles.num} ${ppg ? '' : styles.na}`}>{ppg ?? '—'}</td>
                   <td className={`${styles.num} ${avgRating ? '' : styles.na}`}>{avgRating ?? '—'}</td>

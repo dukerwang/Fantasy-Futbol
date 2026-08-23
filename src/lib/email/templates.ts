@@ -271,7 +271,7 @@ export const getMatchweekSummaryEmail = (
 
     <div style="background-color: ${BG_ELEVATED}; padding: 20px; border-radius: 8px; margin: 24px 0;">
       <p style="margin-top: 0; font-weight: bold; text-transform: uppercase; font-size: 0.9em; color: ${INK};">Performance of the Week</p>
-      <p style="font-size: 1.1em; margin-bottom: 0;"><strong>${highScorer.teamName}</strong> dominated the field with a massive <strong>${highScorer.score.toFixed(1)}</strong> points.</p>
+      <p style="font-size: 1.1em; margin-bottom: 0;"><strong>${highScorer.teamName}</strong> dominated the field with a massive <strong>${highScorer.score.toFixed(2)}</strong> points.</p>
     </div>
 
     <p style="text-align: center;">

@@ -182,7 +182,7 @@ function PitchNode({ slotPos, player, isSelected, isValidTarget, isEmpty, isInva
 
             <div className={chipCls}>
                 {points !== undefined && (
-                    <span className={styles.nodePtsBadge}>{points.toFixed(1)}</span>
+                    <span className={styles.nodePtsBadge}>{points.toFixed(2)}</span>
                 )}
                 {isLocked && player && (
                     <span className={styles.nodeLockCorner} title="Locked">
@@ -1080,7 +1080,7 @@ export default function PitchUI({
                                             <span className={styles.rowSpacer} />
                                             {entry.status === 'loan_in' && <span className={styles.loanTag}>Loan</span>}
                                             <span className={styles.rowClub}>{entry.player.pl_team}</span>
-                                            {pts !== undefined && <span className={styles.rowPts}>{pts.toFixed(1)}</span>}
+                                            {pts !== undefined && <span className={styles.rowPts}>{pts.toFixed(2)}</span>}
                                             {isLocked && <span className={styles.lockIcon}><Icon name="lock" size={14} /></span>}
                                         </>
                                     ) : (

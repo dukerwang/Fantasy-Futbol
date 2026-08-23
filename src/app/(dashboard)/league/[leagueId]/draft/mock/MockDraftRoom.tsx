@@ -119,9 +119,9 @@ function PlayerRow({
 
   const s = shadowByPlayer[player.id]?.[activePos];
   const gp = s ? s.gp : 0;
-  const totalPoints = s && s.gp > 0 ? s.total_points.toFixed(1) : '—';
-  const ppg = s && s.gp > 0 ? (s.total_points / s.gp).toFixed(1) : '—';
-  const avgRating = s && s.gp > 0 ? s.avg_rating.toFixed(1) : '—';
+  const totalPoints = s && s.gp > 0 ? s.total_points.toFixed(2) : '—';
+  const ppg = s && s.gp > 0 ? (s.total_points / s.gp).toFixed(2) : '—';
+  const avgRating = s && s.gp > 0 ? s.avg_rating.toFixed(2) : '—';
   const value = player.market_value != null ? `€${Number(player.market_value).toFixed(1)}m` : '—';
   const rank = player.draftRank != null ? String(player.draftRank) : '—';
   const isUnavailable = !!player.fpl_status && player.fpl_status !== 'a';
@@ -222,7 +222,7 @@ function MobilePlayerCard({
   const isMyPick = myTurn && !picking && !draftDone;
 
   const s = shadowByPlayer[player.id]?.[activePos];
-  const ppg = s && s.gp > 0 ? (s.total_points / s.gp).toFixed(1) : '—';
+  const ppg = s && s.gp > 0 ? (s.total_points / s.gp).toFixed(2) : '—';
   const totalPoints = s && s.gp > 0 ? String(Math.round(s.total_points)) : '—';
   const value = player.market_value != null ? `€${Number(player.market_value).toFixed(1)}m` : '—';
   const rank = player.draftRank != null ? String(player.draftRank) : '—';
@@ -1388,7 +1388,7 @@ export default function MockDraftRoom({ leagueId, league, players, shadowMaps, m
                         <td>{row.label}{row.slot === session?.mySlot ? ' (You)' : ''}</td>
                         <td>€{row.value.toFixed(0)}m</td>
                         <td>{row.points.toFixed(0)}</td>
-                        <td>{row.ppg.toFixed(1)}</td>
+                        <td>{row.ppg.toFixed(2)}</td>
                       </tr>
                     ))}
                   </tbody>
