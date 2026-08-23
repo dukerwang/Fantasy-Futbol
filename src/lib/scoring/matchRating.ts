@@ -492,8 +492,14 @@ export function curveFinalRating(composite: number, minutesPlayed: number): numb
  * which publishes the table above to players.
  */
 /**
- * Points credited for appearing, scaled by minutes — 2.5 for a full match.
- * Every position gets it; see the call site for why it was keeper-only before.
+ * Points credited for appearing. Flat: getting on the pitch is worth the same
+ * to everyone, whether that is five minutes or ninety.
+ *
+ * Deliberately NOT scaled by minutes. Rating carries no minutes term, so a
+ * minutes term in points would let two players on the same rating bank
+ * different scores — and the card presents rating and points as the same
+ * performance on two scales. Time on the pitch already tells in the rating
+ * itself, through the stats a player accumulates while he is out there.
  */
 export const APPEARANCE_CREDIT = 2.5;
 
@@ -632,8 +638,8 @@ export function calculateMatchRating(
         fantasyPoints *= GK_CURVE_SCALE;
     }
 
-    // Appearance credit, pro-rated by time on the pitch, applied AFTER the
-    // keeper scaling so it is worth the same to everyone.
+    // Appearance credit, applied AFTER the keeper scaling so it is worth the
+    // same to every position.
     //
     // This used to be keeper-only, which inverted the two scales against each
     // other: the points curve pays nothing below ~5.84 display rating, so a
@@ -647,7 +653,7 @@ export function calculateMatchRating(
     // that gap means recutting the curve, which compresses the spread between
     // teams badly enough to push the draw rate from 18% to ~46%.
     if (stats.minutes_played > 0) {
-        fantasyPoints += (stats.minutes_played / 90) * APPEARANCE_CREDIT;
+        fantasyPoints += APPEARANCE_CREDIT;
     }
 
     // Out-of-Position (OOP) penalty:

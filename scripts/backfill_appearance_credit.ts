@@ -30,6 +30,9 @@
  * all, 3 move by 0.10 or more, and the mean absolute move is 0.0033. The two
  * largest movers have 4 and 2 appearances.
  *
+ * Re-run whenever the engine moves stored points. It is idempotent: a second
+ * pass over already-corrected data reports nothing to write.
+ *
  * --check-only re-scores and reports without writing, and exits non-zero if any
  * rating fails to reproduce. Useful as a drift alarm once a season is settled.
  *
@@ -160,22 +163,35 @@ if (!APPLY) {
 
 console.log('\nwriting...');
 let written = 0;
-const BATCH = 500;
-for (let i = 0; i < changes.length; i += BATCH) {
-    const slice = changes.slice(i, i + BATCH);
-    // One statement per row: the values differ per row and PostgREST's upsert
-    // would need every NOT NULL column restated, which risks clobbering more
-    // than intended on a table this wide.
-    await Promise.all(slice.map(async (c) => {
-        const { error } = await sb.from('player_stats')
-            .update({ fantasy_points: c.points, match_rating: c.rating })
-            .eq('id', c.id);
-        if (error) throw new Error(`update ${c.id}: ${error.message}`);
-    }));
-    written += slice.length;
-    process.stdout.write(`\r  ${written}/${changes.length}`);
+// One statement per row: the values differ per row, and PostgREST's upsert would
+// need every NOT NULL column restated, which risks clobbering more than intended
+// on a table this wide. Kept to a modest concurrency with retries — 500 in
+// flight at once reliably tripped `fetch failed` partway through the season.
+const CONCURRENCY = 25;
+const RETRIES = 4;
+
+async function writeOne(c: Change): Promise<void> {
+    for (let attempt = 1; ; attempt++) {
+        try {
+            const { error } = await sb.from('player_stats')
+                .update({ fantasy_points: c.points, match_rating: c.rating })
+                .eq('id', c.id);
+            if (error) throw new Error(error.message);
+            return;
+        } catch (err) {
+            if (attempt > RETRIES) throw new Error(`update ${c.id} failed after ${RETRIES} retries: ${err}`);
+            await new Promise((r) => setTimeout(r, 250 * 2 ** (attempt - 1)));
+        }
+    }
 }
-console.log(`\ndone — ${written} rows updated.`);
+
+for (let i = 0; i < changes.length; i += CONCURRENCY) {
+    await Promise.all(changes.slice(i, i + CONCURRENCY).map(writeOne));
+    written += Math.min(CONCURRENCY, changes.length - i);
+    if (written % 500 < CONCURRENCY) process.stdout.write(`\r  ${written}/${changes.length}`);
+}
+console.log(`\r  ${written}/${changes.length}\ndone — ${written} rows updated.`);
+console.log('Re-run without --apply to confirm nothing is left to write.');
 console.log('\nNext, in order:');
 console.log(`  select archive_player_season_stats('${SEASON}');`);
 console.log(`  recompute position ranks for ${SEASON}`);

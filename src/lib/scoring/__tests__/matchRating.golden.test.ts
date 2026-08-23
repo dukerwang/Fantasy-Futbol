@@ -26,8 +26,11 @@
  * Revised when APPEARANCE_CREDIT was extended from keepers to everyone. Only
  * fantasy points moved, and only for outfielders — every rating is unchanged,
  * both keeper cases are unchanged, and did-not-play stays at zero. Each outfield
- * case rose by exactly 2.5 x minutes/90, except oop-striker-at-cb, which rose
- * 2.00 because the out-of-position haircut is applied to the total.
+ * case rose by the flat 2.5 credit, except oop-striker-at-cb, which rose 2.00
+ * because the out-of-position haircut is applied to the total.
+ *
+ * The credit was briefly scaled by minutes; it is flat now, so cameo-five-minutes
+ * carries the same 2.5 as a full appearance rather than a pro-rated 0.14.
  */
 
 import { describe, it, expect } from 'vitest';
@@ -45,7 +48,7 @@ const BASELINE: Record<string, { rating: number; fantasyPoints: number }> = {
     'lwb-assist-clean-sheet': { rating: 8.57, fantasyPoints: 31.9 },
     'cm-poor-game': { rating: 5.5, fantasyPoints: 2.5 },
     'oop-striker-at-cb': { rating: 6.08, fantasyPoints: 14.25 },
-    'cameo-five-minutes': { rating: 6.14, fantasyPoints: 1.22 },
+    'cameo-five-minutes': { rating: 6.14, fantasyPoints: 3.58 },
     'did-not-play': { rating: 0, fantasyPoints: 0 },
 };
 

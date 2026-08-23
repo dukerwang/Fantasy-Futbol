@@ -37,11 +37,23 @@ describe('appearance credit', () => {
         }
     });
 
-    it('scales with minutes', () => {
+    it('is flat, not scaled by minutes', () => {
+        // Rating carries no minutes term. A minutes term in points would let two
+        // players on the same rating bank different scores, and the card shows
+        // the two as one performance on two scales.
         const full = pts(quiet({ minutes_played: 90, bps: 0 }), 'CB');
-        const half = pts(quiet({ minutes_played: 45, bps: 0 }), 'CB');
+        const cameo = pts(quiet({ minutes_played: 5, bps: 0 }), 'CB');
         expect(full).toBeCloseTo(APPEARANCE_CREDIT, 2);
-        expect(half).toBeCloseTo(APPEARANCE_CREDIT / 2, 2);
+        expect(cameo).toBeCloseTo(APPEARANCE_CREDIT, 2);
+    });
+
+    it('keeps points a function of rating alone, for a given position', () => {
+        // The property the flat credit exists to preserve: same rating in,
+        // same points out, whatever the minutes.
+        const a = calculateMatchRating(quiet({ minutes_played: 90 }), 'CM');
+        const b = calculateMatchRating(quiet({ minutes_played: 20 }), 'CM');
+        expect(b.rating).toBeCloseTo(a.rating, 5);
+        expect(b.fantasyPoints).toBeCloseTo(a.fantasyPoints, 5);
     });
 
     it('pays nothing to a player who never came on', () => {
@@ -57,9 +69,12 @@ describe('appearance credit', () => {
         const curveOnly = scored.fantasyPoints - APPEARANCE_CREDIT;
         expect(curveOnly).toBeGreaterThanOrEqual(0);
         // The credit is worth full value to a keeper too, not 0.72 of it.
-        const halfGk = calculateMatchRating(quiet({ ...gk, minutes_played: 45 }), 'GK');
-        expect(scored.fantasyPoints - halfGk.fantasyPoints)
-            .toBeGreaterThan((APPEARANCE_CREDIT / 2) * GK_CURVE_SCALE);
+        // The credit is worth its full value to a keeper too, not 0.72 of it:
+        // strip the credit off and what remains is the scaled curve.
+        expect(curveOnly).toBeLessThan(
+            calculateMatchRating(gk, 'GK').fantasyPoints - APPEARANCE_CREDIT + 0.001,
+        );
+        expect(GK_CURVE_SCALE).toBeLessThan(1);
     });
 
     it('does not change the display rating', () => {

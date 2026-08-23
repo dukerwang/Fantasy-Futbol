@@ -75,13 +75,13 @@ So the gameweek does **not** shut in one go. Until a player's club kicks off you
 Every club's roster is split by status:
 
 - **Active / Bench** — in play this week.
-- **IR (Injured Reserve)** — a parking spot for injured players that doesn't count against your active roster limit.
+- **IR (Injured Reserve)** — a parking spot for injured players that doesn't count against your active roster limit, capped at 2 players.
 - **Academy** — a prospect stash for U21 players (§12).
 - **Loaned out / Loaned in** — players temporarily at another club, or borrowed from one (§10).
 
 Roster size is a league setting, commonly **20**. IR and Academy players don't count toward it.
 
-**IR isn't a free extra slot.** There's no cap on IR, but the game polices it at the point it matters: **you cannot place an auction bid while a healthy player is sitting on IR.** You have to activate him first. Rather than auditing injuries continuously, Gaffa simply blocks the benefit you'd be stashing him for.
+**IR isn't a free extra slot.** IR is capped at **2 players** (a league setting), and on top of that the game polices it at the point it matters: **you cannot place an auction bid while a healthy player is sitting on IR.** You have to activate him first. Rather than auditing injuries continuously, Gaffa blocks the benefit you'd be stashing him for, in addition to bounding how many you can stash at once.
 
 ### Setting up your club
 
@@ -124,7 +124,7 @@ Each match a player earns a **rating from roughly 1.0 to 10.0**, calibrated so a
 
 Your **fantasy points** come from the same performance, but they are *not* a straightforward conversion of the rating on the card — the two run on separate scales. The practical effect surprises everyone once:
 
-Every player who gets on the pitch is credited **2.5 points for the appearance**, scaled by how long he played — a full 90 earns the whole 2.5, half an hour earns a third of it. On top of that sits the performance curve. For a full 90 minutes:
+Every player who gets on the pitch is credited **2.5 points for the appearance** — the same whether he played five minutes or ninety. On top of that sits the performance curve:
 
 | Displayed rating | Appearance | Performance | Total |
 |---|---|---|---|
@@ -159,9 +159,9 @@ Because they're graded against different expectations. A centre-back who keeps a
 
 **Does a substitute get punished for only playing 20 minutes?**
 
-Not by any rule that says so. There's no minutes multiplier on the performance curve — a short appearance rates low only because it usually accumulates too little to beat the baseline. The one place minutes count directly is the appearance credit, which is pro-rated, so twenty minutes earns roughly 0.6 of it.
+No. There's no minutes multiplier anywhere — not on the performance curve, and not on the appearance credit, which is a flat 2.5 for anyone who gets on. A short appearance rates low only because it usually accumulates too little to beat the baseline.
 
-A substitute who *does* something is credited for it. A five-minute cameo with a goal in it rates about **7.8 and pays around 18 points**; the same five minutes with nothing in them pays about 1.2. Across last season, players who scored inside 25 minutes averaged a 7.95 rating and 20 points — comfortably ahead of the 6.82 and 8.6 that a full 90 minutes without a goal or assist returned. Impact counts, not time served.
+A substitute who *does* something is credited for it. A five-minute cameo with a goal in it rates about **7.8 and pays around 18 points**; the same five minutes with nothing in them pays about 3.6 — nearly all of it the appearance credit. Across last season, players who scored inside 25 minutes averaged a 7.95 rating and 20 points — comfortably ahead of the 6.82 and 8.6 that a full 90 minutes without a goal or assist returned. Impact counts, not time served.
 
 **What about a double gameweek?**
 
@@ -316,7 +316,7 @@ Every bid extends the clock by the active inactivity timeout. Because there is n
 
 You can **list one of your rostered players**, and the listing is shaped by which of three prices you set — no separate "auction or negotiation" switch to configure:
 
-- **Minimum bid** opens him to a genuine open auction, same as a free agent. Set at all, it must be at least **80% of the player's market value** — without that floor, two managers could move a €90m striker for €1m and call it a sale.
+- **Minimum bid** opens him to a genuine open auction, same as a free agent. Set at all, it must be at least **60% of the player's market value** — without that floor, two managers could move a €90m striker for €1m and call it a sale.
 - **Release clause** lets anyone buy him outright at that price, no bidding required.
 - **Asking price** is advertising for a negotiated Offer — it names a number without committing to accept it.
 
@@ -358,7 +358,7 @@ Direct manager-to-manager deals. No commissioner approval, no trade deadline.
 - A player with an active sale listing can't be traded until it resolves or is cancelled.
 - The Trades page shows a league-wide feed as well as your own pending offers and history.
 
-**Why no approval and no deadline?** Commissioner veto assumes someone can referee whether a trade is "fair," which in a dynasty league means adjudicating other people's long-term plans. Gaffa polices the mechanisms that make collusion *possible* instead — the 80% listing floor, the deferred-trade rule, the buy-back exclusion — and then lets managers deal freely.
+**Why no approval and no deadline?** Commissioner veto assumes someone can referee whether a trade is "fair," which in a dynasty league means adjudicating other people's long-term plans. Gaffa polices the mechanisms that make collusion *possible* instead — the 60% listing floor, the deferred-trade rule, the buy-back exclusion — and then lets managers deal freely.
 
 ---
 
@@ -487,6 +487,6 @@ The permanent record book: final standings and podium for every past season, eac
 | **Flex boost** | Extra weighting given to a player's strongest role-relevant component that match. |
 | **OOP penalty** | The 20% rating/points penalty when a player whose primary position is a midfield or attacking role is fielded in a defensive slot. |
 | **Academy** | A stash for U21 players that doesn't count against your active roster. |
-| **IR** | Injured Reserve. Doesn't count against your roster — but you can't bid while a healthy player occupies it. |
+| **IR** | Injured Reserve. Doesn't count against your roster, capped at 2 — and you can't bid while a healthy player occupies it. |
 | **Release / Retain** | The choice when a player leaves the Premier League: take his market value and forfeit the buy-back, or keep his rights and take nothing. |
 | **Retained rights** | A tradeable claim on a departed player that matures if he returns to the Premier League. |
