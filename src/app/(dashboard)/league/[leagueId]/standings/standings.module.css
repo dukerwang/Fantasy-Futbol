@@ -48,6 +48,8 @@
 
 .masthead {
   padding: var(--s6) var(--s6) var(--s3);
+  border-bottom: 2px solid var(--color-text-primary);
+  margin-bottom: var(--s5);
 }
 
 .kicker { letter-spacing: 0.16em; }
@@ -71,7 +73,7 @@
 
 /* ── The panel ──────────────────────────────────────────── */
 
-.panel { margin: 0 var(--s6) var(--s8); }
+.panel { margin: 0 var(--s6) var(--s8); overflow: visible; }
 
 .emptyState {
   padding: var(--s16) var(--s8);
@@ -244,6 +246,7 @@
   color: var(--color-text-muted);
   padding: var(--s2) var(--s3);
   border-bottom: 1px solid var(--color-border);
+  background: var(--color-bg-secondary);
   white-space: nowrap;
 }
 
@@ -298,6 +301,10 @@
   color: var(--row-ink, var(--color-text-muted));
   width: 60px;
 }
+
+.rankGold   { color: var(--color-gold) !important; }
+.rankSilver { color: var(--color-silver) !important; }
+.rankBronze { color: var(--color-bronze) !important; }
 
 .tableRow td.teamCell {
   text-align: left;

@@ -106,6 +106,8 @@ export default function ListingCard({
             name={getPlayerDisplayName(player, 'full')}
             club={player.pl_team}
             size="md"
+            headTopPct={player.portrait_head_top_pct}
+            headWidthPct={player.portrait_head_width_pct}
           />
         </button>
 

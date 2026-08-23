@@ -432,7 +432,14 @@ function Lot({
       <div className={`${styles.lot} ${state} g-row`} style={hue}>
         <div className={styles.lotId}>
           <button type="button" className={styles.lotFace} onClick={onOpenPlayer} aria-label={`Open ${fullName}`}>
-            <Portrait photoUrl={p.photo_url} name={fullName} club={p.pl_team} size="sm" />
+            <Portrait
+              photoUrl={p.photo_url}
+              name={fullName}
+              club={p.pl_team}
+              size="sm"
+              headTopPct={p.portrait_head_top_pct}
+              headWidthPct={p.portrait_head_width_pct}
+            />
           </button>
           <div className={styles.lotIdBody}>
             <div className={styles.lotNameRow}>
@@ -527,7 +534,14 @@ function Lot({
               worse. The drawer has the room, and it gives the expansion
               something to reveal beyond a table of numbers. */}
           <div className={styles.exWho}>
-            <Portrait photoUrl={p.photo_url} name={fullName} club={p.pl_team} size="md" />
+            <Portrait
+              photoUrl={p.photo_url}
+              name={fullName}
+              club={p.pl_team}
+              size="md"
+              headTopPct={p.portrait_head_top_pct}
+              headWidthPct={p.portrait_head_width_pct}
+            />
             <div className={styles.exWhoBody}>
               <div className={styles.exWhoName}>{fullName}</div>
               <div className={`g-label-quiet ${styles.exWhoMeta}`}>

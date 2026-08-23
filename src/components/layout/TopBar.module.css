@@ -17,8 +17,8 @@
   padding-left: env(safe-area-inset-left, 0px);
   padding-right: env(safe-area-inset-right, 0px);
   box-sizing: border-box;
-  background: var(--color-bg-secondary);
-  border-bottom: 1px solid var(--color-border);
+  background: var(--color-topbar);
+  border-bottom: none;
   overflow: visible;
 }
 
@@ -29,7 +29,7 @@
   left: 0;
   right: 0;
   height: 2px;
-  background: var(--color-accent-green);
+  background: rgba(255, 255, 255, 0.8);
   animation: navProgress 2.5s ease-out forwards;
   z-index: 101;
   transform-origin: left;
@@ -69,13 +69,14 @@
   font-size: var(--text-lg);
   line-height: 1;
   transform: translateY(-2px);
+  color: #fff;
 }
 
 .brandName {
   font-family: var(--font-serif);
   font-size: 14px;
   font-weight: var(--font-bold);
-  color: var(--color-text-primary);
+  color: #fff;
   letter-spacing: 0.12em;
   text-transform: uppercase;
 }
@@ -102,7 +103,7 @@
   font-family: var(--font-sans);
   font-size: 13px;
   font-weight: var(--font-medium);
-  color: var(--color-text-secondary);
+  color: rgba(255, 255, 255, 0.7);
   text-decoration: none;
   transition: color var(--transition-fast), background var(--transition-fast);
   cursor: pointer;
@@ -113,25 +114,26 @@
 
 @media (hover: hover) and (pointer: fine) {
   .navLink:hover {
-    color: var(--color-text-primary);
-    background: var(--color-bg-card-hover);
+    color: #fff;
+    background: rgba(255, 255, 255, 0.12);
   }
 }
 
 .navLinkActive {
-  color: var(--color-accent-green);
+  color: #fff;
   font-weight: var(--font-semibold);
+  background: rgba(255, 255, 255, 0.12);
 }
 
 @media (hover: hover) and (pointer: fine) {
   .navLinkActive:hover {
-    color: var(--color-accent-green);
+    color: #fff;
   }
 }
 
 .chevron {
   font-size: 10px;
-  opacity: 0.5;
+  opacity: 0.6;
   transition: transform var(--transition-fast);
 }
 
@@ -205,16 +207,16 @@
   gap: var(--space-2);
   padding: 6px 12px;
   border-radius: var(--radius-sm);
-  background: var(--color-bg-primary);
-  border: 1px solid var(--color-border-subtle);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   cursor: pointer;
   transition: border-color var(--transition-fast), background var(--transition-fast);
 }
 
 @media (hover: hover) and (pointer: fine) {
   .leagueSwitcherBtn:hover {
-    border-color: var(--color-border);
-    background: var(--color-bg-card-hover);
+    border-color: rgba(255, 255, 255, 0.35);
+    background: rgba(255, 255, 255, 0.14);
   }
 }
 
@@ -222,7 +224,7 @@
   font-family: var(--font-sans);
   font-size: 10px;
   font-weight: var(--font-semibold);
-  color: var(--color-text-muted);
+  color: rgba(255, 255, 255, 0.5);
   text-transform: uppercase;
   letter-spacing: 0.15em;
   line-height: 1;
@@ -232,7 +234,7 @@
   font-family: var(--font-serif);
   font-size: 14px;
   font-weight: var(--font-medium);
-  color: var(--color-text-primary);
+  color: #fff;
   line-height: 1.2;
   white-space: nowrap;
   overflow: hidden;
@@ -242,7 +244,7 @@
 
 .leagueSwitcherChevron {
   font-size: 10px;
-  color: var(--color-text-muted);
+  color: rgba(255, 255, 255, 0.5);
   margin-left: var(--space-1);
   transition: transform var(--transition-fast);
 }
@@ -359,9 +361,9 @@
   border-radius: var(--radius-sm);
   font-size: 12px;
   font-weight: var(--font-medium);
-  color: var(--color-text-secondary);
+  color: rgba(255, 255, 255, 0.7);
   background: transparent;
-  border: 1px solid var(--color-border);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   cursor: pointer;
   transition: color var(--transition-fast), border-color var(--transition-fast),
     background var(--transition-fast);
@@ -369,9 +371,9 @@
 
 @media (hover: hover) and (pointer: fine) {
   .signOut:hover {
-    color: var(--color-text-primary);
-    border-color: var(--color-text-muted);
-    background: var(--color-bg-card-hover);
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.4);
+    background: rgba(255, 255, 255, 0.12);
   }
 }
 
@@ -425,8 +427,8 @@
   height: 36px;
   border-radius: var(--radius-full);
   background: transparent;
-  border: 1px solid var(--color-border);
-  color: var(--color-text-secondary);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.7);
   cursor: pointer;
   transition: all var(--transition-fast);
   text-decoration: none;
@@ -434,16 +436,16 @@
 
 @media (hover: hover) and (pointer: fine) {
   .iconBtn:hover {
-    color: var(--color-text-primary);
-    border-color: var(--color-text-muted);
-    background: var(--color-bg-card-hover);
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.4);
+    background: rgba(255, 255, 255, 0.12);
   }
 }
 
 .iconBtnActive {
-  color: var(--color-accent-green);
-  border-color: var(--color-accent-green);
-  background: rgba(58, 107, 74, 0.05);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.15);
 }
 
 /* --- Club Balance Pill --- */
@@ -455,16 +457,15 @@
   padding: 0 var(--space-4);
   border-radius: var(--radius-full);
   background: transparent;
-  border: 1px solid var(--color-border);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   text-decoration: none;
   transition: all var(--transition-fast);
 }
 
 @media (hover: hover) and (pointer: fine) {
   .balancePill:hover {
-    color: var(--color-text-primary);
-    border-color: var(--color-text-muted);
-    background: var(--color-bg-card-hover);
+    border-color: rgba(255, 255, 255, 0.5);
+    background: rgba(255, 255, 255, 0.12);
   }
 }
 
@@ -472,7 +473,7 @@
   font-family: var(--font-sans);
   font-size: 13px;
   font-weight: var(--font-semibold);
-  color: var(--color-accent-green);
+  color: #fff;
 }
 
 /* --- Mobile Hamburger Menu & Drawer --- */
@@ -483,8 +484,8 @@
   width: 36px;
   height: 36px;
   border-radius: var(--radius-full);
-  border: 1px solid var(--color-border);
-  color: var(--color-text-secondary);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.7);
   background: transparent;
   cursor: pointer;
   transition: all var(--transition-fast);
@@ -494,9 +495,9 @@
 
 @media (hover: hover) and (pointer: fine) {
   .menuToggle:hover {
-    color: var(--color-text-primary);
-    border-color: var(--color-text-muted);
-    background: var(--color-bg-card-hover);
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.4);
+    background: rgba(255, 255, 255, 0.12);
   }
 }
 
@@ -879,9 +880,9 @@
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  background: var(--color-bg-secondary);
-  border: 1.5px solid var(--color-border);
-  color: var(--color-text-primary);
+  background: rgba(255, 255, 255, 0.15);
+  border: 1.5px solid rgba(255, 255, 255, 0.25);
+  color: #fff;
   font-family: var(--font-sans);
   font-weight: var(--font-bold);
   text-transform: uppercase;

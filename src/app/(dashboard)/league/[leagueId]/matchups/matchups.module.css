@@ -21,9 +21,9 @@
       from the centre toward whoever leads. A fixture you can see is inside the
       band needs no sentence explaining why it was a draw.
 
-      Same layering as `.g-baseline`, deliberately: the tick is 2px of
-      --color-text-primary declared AFTER the ink so it paints over it. That is
-      what makes the two components read as one family rather than two bars.
+      The tick is 2px of --color-text-primary declared AFTER the ink so it
+      paints over it. That layering is what lets the level mark still show
+      when the ink reaches the centre.
 
    3. A ROUND IS ONE PANEL. "A board is one panel" was written for the auction
       room's list-plus-rail and has since survived a pitch-plus-squad-rail; a
@@ -67,6 +67,8 @@
     gap: var(--s6);
     padding: var(--s6) var(--s6) var(--s3);
     flex-wrap: wrap;
+    border-bottom: 2px solid var(--color-text-primary);
+    margin-bottom: var(--s5);
 }
 
 .mastheadTitles {

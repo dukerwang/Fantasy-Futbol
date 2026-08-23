@@ -9,9 +9,11 @@ import { getPlayerDisplayName, playerInitial } from '@/lib/players/displayName';
 import styles from './club.module.css';
 
 export default function RetainedList({
-  leagueId, departures, viewerIsOwner, onDecision, teamId,
+  leagueId, departures, viewerIsOwner, onDecision, teamId, serverNow,
 }: {
   leagueId: string;
+  /** Clock-skew anchor from the server; see `countdown` in clubDerive. */
+  serverNow: string;
   departures: ClubProps['departures'];
   /** False on a rival's club: held rights are public (they're tradeable), the decisions on them are not. */
   viewerIsOwner: boolean;
@@ -41,7 +43,7 @@ export default function RetainedList({
       {pending.length > 0 && (
         <div className={styles.retGroup}>
           <div className={styles.retGroupH}>Awaiting your decision</div>
-          {pending.map((d) => <PendingRow key={d.id} d={d} onDecision={onDecision} />)}
+          {pending.map((d) => <PendingRow key={d.id} d={d} onDecision={onDecision} serverNow={serverNow} />)}
         </div>
       )}
 
@@ -93,8 +95,8 @@ function Mono({ d }: { d: DepartureView }) {
   );
 }
 
-function PendingRow({ d, onDecision }: { d: DepartureView; onDecision: (r: DecisionRequest) => void }) {
-  const when = countdown(d.decideBy);
+function PendingRow({ d, onDecision, serverNow }: { d: DepartureView; onDecision: (r: DecisionRequest) => void; serverNow: string }) {
+  const when = countdown(serverNow, d.decideBy);
   return (
     <div className={styles.retRow}>
       <Mono d={d} />

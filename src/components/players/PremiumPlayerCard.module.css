@@ -476,6 +476,16 @@
   opacity: 1;
 }
 
+/* The 500x500 fallback (photo.ts) is a different, square crop — not the
+   box's own 110x140 aspect. `contain` shrinks it to the box's width and
+   anchors it to the bottom, leaving a bare gap above the head where the
+   photo should be. `cover` scales it to the box's full height instead,
+   matching the primary source's size and cropping evenly at the sides. */
+.photoAlt {
+  object-fit: cover;
+  object-position: top center;
+}
+
 .photoPlaceholder {
   position: absolute;
   left: 50%;

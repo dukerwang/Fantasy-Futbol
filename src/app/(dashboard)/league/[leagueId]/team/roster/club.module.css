@@ -30,8 +30,14 @@
 .empty { padding: var(--s16) var(--s6); text-align: center; color: var(--color-text-muted); }
 
 /* ---- Masthead --------------------------------------------- */
-/* Elevation comes from `.g-panel`; this only shapes what is inside it. */
-.masthead { overflow: hidden; }
+/* Elevation comes from `.g-panel`; this only shapes what is inside it. The
+   2px ink rule that briefly replaced the panel is gone: it was compensating
+   for the lost containment at the bottom edge only, which is why the block
+   read as unfinished at the top and sides. */
+.masthead {
+  overflow: hidden;
+  margin-bottom: var(--s5);
+}
 
 .mhTop { display: flex; align-items: flex-start; gap: var(--s5); padding: var(--s6) var(--s6) var(--s5); }
 .mhCrest { flex: none; }

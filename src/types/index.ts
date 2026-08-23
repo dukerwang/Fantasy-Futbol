@@ -199,6 +199,8 @@ export interface Player {
   adp: number | null;
   projected_points: number | null;
   photo_url: string | null;
+  portrait_head_top_pct?: number | null; // Portrait.tsx per-player crop correction; see portraitCrop.ts
+  portrait_head_width_pct?: number | null;
   height_cm: number | null;
   fpl_status: string | null; // 'a'=available, 'i'=injured, 'd'=doubtful, 's'=suspended, 'u'=unavailable
   fpl_news: string | null;

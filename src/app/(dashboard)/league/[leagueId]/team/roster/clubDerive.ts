@@ -81,10 +81,21 @@ export function ageOf(dob: string | null | undefined): number | null {
   return age;
 }
 
-/** "Xd Yh" until an ISO deadline, or null when past / absent. */
-export function countdown(iso: string | null): string | null {
+/**
+ * "Xd Yh" until an ISO deadline, or null when past / absent.
+ *
+ * `from` is a CLOCK-SKEW ANCHOR and must be a server timestamp, the same
+ * contract `buildHomeModel`'s own countdown has had since League Home was
+ * built. This function used to read `Date.now()` itself, which made it a
+ * hydration hazard rather than a styling nit: the server rendered "5h", the
+ * client hydrated a moment later and could compute "4h", and once a deadline
+ * lapsed between the two it returned `null` on one side and a string on the
+ * other — so an element existed in the server HTML and not in the client tree.
+ * React reports that as a failed hydration and does not patch it.
+ */
+export function countdown(from: string, iso: string | null): string | null {
   if (!iso) return null;
-  const ms = new Date(iso).getTime() - Date.now();
+  const ms = new Date(iso).getTime() - new Date(from).getTime();
   if (ms <= 0) return null;
   const h = Math.floor(ms / 3_600_000);
   const d = Math.floor(h / 24);

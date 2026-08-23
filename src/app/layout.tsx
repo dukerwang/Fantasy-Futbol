@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from 'next';
+import Script from 'next/script';
 import { Archivo_Narrow, Hanken_Grotesk, JetBrains_Mono, Newsreader } from 'next/font/google';
 import { ThemeProvider } from '@/context/ThemeContext';
+import PalettePreview from '@/components/layout/PalettePreview';
 import './globals.css';
 
 /**
@@ -31,14 +33,12 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 /**
- * The condensed face (Gaffa 2.0). It carries column heads, club names and axis
- * labels — the role that had no face in 1.0 and so fell to JetBrains Mono.
- * Mono is now reserved for values that genuinely tick: countdowns, lot numbers,
- * bid clocks. Archivo Narrow is a variable font, so the whole 400–700 range
- * ships in one file and no per-weight list is needed.
+ * Condensed face: column heads, club names in tables, axis labels, buttons.
+ * Newsreader stays the display serif; JetBrains stays on values that tick.
  */
 const archivoNarrow = Archivo_Narrow({
   subsets: ['latin'],
+  style: ['normal', 'italic'],
   display: 'swap',
   variable: '--font-archivo-narrow',
 });
@@ -80,8 +80,8 @@ export const viewport: Viewport = {
   initialScale: 1,
   viewportFit: 'cover',
   themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#F7F3ED' },
-    { media: '(prefers-color-scheme: dark)', color: '#1A1F2E' },
+    { media: '(prefers-color-scheme: light)', color: '#F8F4EC' },
+    { media: '(prefers-color-scheme: dark)', color: '#1B1F29' },
   ],
 };
 
@@ -89,11 +89,27 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html
       lang="en"
+      data-palette="lock"
       className={`${newsreader.variable} ${hankenGrotesk.variable} ${jetbrainsMono.variable} ${archivoNarrow.variable}`}
+      // The bootstrap script below writes data-theme and data-palette onto this
+      // element before React hydrates — that is the whole point of it, since
+      // waiting for hydration would flash the wrong theme. React then compares
+      // server HTML against the mutated DOM and reports a mismatch on those two
+      // attributes. Scoped to this element only: it does not suppress warnings
+      // for any descendant, so real mismatches inside the app still surface.
+      suppressHydrationWarning
     >
       <body>
+        <Script
+          id="gaffa-palette-init"
+          strategy="beforeInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var p=localStorage.getItem('gaffa-palette');if(p==='shipped'||p==='lock')document.documentElement.setAttribute('data-palette',p);var t=localStorage.getItem('theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t);}catch(e){}})();`,
+          }}
+        />
         <ThemeProvider>
           {children}
+          <PalettePreview />
         </ThemeProvider>
       </body>
     </html>

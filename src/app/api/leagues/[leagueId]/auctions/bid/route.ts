@@ -242,8 +242,8 @@ export async function POST(req: NextRequest, { params }: Props) {
         );
       }
     } else if (bidAmount < openListing.min_bid) {
-      // The seller's own floor governs, and 077 already guarantees it is at least
-      // 80% of market value. Applying the free-agent 20% rule on top would be
+      // The seller's own floor governs, and 129 already guarantees it is at least
+      // 60% of market value. Applying the free-agent rule on top would be
       // both redundant and, for a cheap player under an ambitious ask, wrong.
       return NextResponse.json(
         { error: `Bid must be at least the seller's minimum of €${openListing.min_bid}m.` },

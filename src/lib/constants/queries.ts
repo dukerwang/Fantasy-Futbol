@@ -23,6 +23,8 @@ export const FULL_PLAYER_SELECT = `
   market_value_updated_at,
   projected_points,
   photo_url,
+  portrait_head_top_pct,
+  portrait_head_width_pct,
   height_cm,
   fpl_status,
   fpl_news,

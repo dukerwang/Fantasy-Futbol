@@ -616,7 +616,7 @@ export default function PremiumPlayerCard({
                                     ref={photoRef}
                                     src={photoUrl}
                                     alt={getPlayerDisplayName(resolvedPlayer, 'full')}
-                                    className={`${styles.photo} ${photoState.loaded ? styles.photoLoaded : ''}`}
+                                    className={`${styles.photo} ${photoState.n > 0 ? styles.photoAlt : ''} ${photoState.loaded ? styles.photoLoaded : ''}`}
                                     width={196}
                                     height={250}
                                     loading="eager"

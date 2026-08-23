@@ -5,8 +5,12 @@
 
 /* ============================================================
    Gaffa — Global CSS Design System
-   Cream editorial aesthetic with CSS variables for theming.
-   Refined typography (Hanken Grotesk + Newsreader).
+   Cream + forest green. Hanken Grotesk + Archivo Narrow.
+
+   Default tokens are the 2026-08-20 lock. The previous (shipped) palette
+   is preserved on html[data-palette="shipped"] so it can be judged live
+   via the PalettePreview chip. Once a side is chosen, delete the shipped
+   override block, the chip, and the data-palette plumbing.
    ============================================================ */
 
 /* `.g-theme-light` re-supplies this whole block to a SUBTREE, so a component
@@ -28,109 +32,84 @@
    exactly one definition of the light palette to keep correct. */
 :root,
 .g-theme-light {
-  /* --- Surfaces (warm cream → near-white, light theme) --- */
-  --color-bg-primary:    #F7F3ED;   /* page / content field — clean off-white */
-  --color-bg-secondary:  #EDE8DE;   /* nav bar, rails — warm cream anchor */
-  --color-bg-card:       #FDFCF9;   /* card surfaces — near white */
-  --color-bg-card-hover: #EDE8E0;   /* card hover / pressed */
-  --color-bg-card-alt:   #f9f6f1;   /* alternating row background */
-  --color-bg-elevated:   #EDE8DE;   /* inset: inputs, secondary buttons */
-  --color-bg-overlay:    rgba(237, 232, 216, 0.95);
+  /* --- Surfaces (warm cream, hue 82. Chroma falls as the plane recedes.) --- */
+  --color-bg-primary:    #F8F4EC;   /* page / content field */
+  --color-bg-secondary:  #EBE8E2;   /* nav bar, rails */
+  --color-bg-card:       #FCFAF7;   /* card surfaces — near white */
+  --color-bg-card-hover: #EEEBE5;
+  --color-bg-card-alt:   #F9F6F1;
+  --color-bg-elevated:   #EBE8E2;
+  --color-bg-overlay:    rgba(248, 244, 236, 0.95);
 
   /* --- Borders --- */
-  --color-border:         #C8C3BC;  /* standard hairline */
-  --color-border-subtle:  #D9D4CD;  /* faint separator */
-  --color-border-accent:  rgba(20, 107, 64, 0.40);
+  --color-border:         #C2BDB5;  /* standard hairline */
+  --color-border-subtle:  #D9D5CF;  /* faint separator */
+  --color-border-accent:  rgba(12, 109, 62, 0.40);
 
   /* --- Ink / Text --- */
   /* Warm rather than neutral grey, to sit in the cream family instead of on it.
      Marginally higher contrast than the #1C1C1C / #4A4A4A they replace. */
-  --color-text-primary:   #1C1A17;  /* headlines, key figures */
-  --color-text-secondary: #4A453D;  /* body copy */
-  /* Darkened from #9A9488, which measured 2.73-2.94:1 on both the page
-     and card surfaces and carried essentially every label, caption,
-     column head and timestamp in the app. PRODUCT.md makes AA a hard
-     requirement; this clears it while staying the same warm grey. */
-  --color-text-muted:     #6B6356;  /* labels, captions, meta */
+  --color-text-primary:   #1B1915;  /* headlines, key figures */
+  --color-text-secondary: #49443B;  /* body copy */
+  --color-text-muted:     #635D51;  /* labels, captions, meta — AA on inset */
   --color-text-inverse:   #FFFFFF;
+
+  /* --- Topbar ---
+     Deep end of the same green ramp as the accent (hue 155). Dedicated
+     token so it does NOT disturb --color-bg-secondary. Same hex in dark. */
+  --color-topbar: #185B37;
 
   /* --- Accents & Semantic Colors ---
      Deepened (round-3 design review) for more confident color
      usage — the accent now also carries "yours"/live/heading
      surface area, not just stat figures. A second (gold-blended)
      accent was tried and rejected as muddy; stays single-accent. */
-  --color-accent:             #146B40;
-  /* Hover DARKENS. This was #1B8350 — lighter than the base — while the dark
-     theme's hover darkened, so hover moved in opposite directions per theme.
-     White on this fill goes 4.76 -> 8.76:1. */
-  --color-accent-hover:       #0F5632;
-  --color-accent-dim:         rgba(20, 107, 64, 0.10);
-  --color-accent-green:       #146B40;
-  --color-accent-green-dim:   rgba(20, 107, 64, 0.10);
-  --color-accent-blue:        #146B40;
-  /* This one drives `a:hover`, i.e. accent as TEXT. #1B8350 measured 4.31:1 on
-     the page — under AA. Mirrors --color-accent-hover. */
-  --color-accent-blue-hover:  #0F5632;
-  
-  /* Legacy/Additional accents used in app */
-  --color-accent-red:         #ef4444;
-  --color-accent-red-dim:     rgba(239, 68, 68, 0.15);
-  --color-accent-yellow:      #f59e0b;
-  --color-accent-yellow-dim:  rgba(245, 158, 11, 0.15);
+  --color-accent:             #0C6D3E;
+  /* Hover DARKENS on cream, lightens on navy. */
+  --color-accent-hover:       #134F2E;
+  --color-accent-dim:         rgba(12, 109, 62, 0.10);
+  --color-accent-green:       #0C6D3E;
+  --color-accent-green-dim:   rgba(12, 109, 62, 0.10);
+  --color-accent-blue:        #0C6D3E;
+  --color-accent-blue-hover:  #134F2E;
+
+  /* Legacy aliases — pointed at the lock semantics so leftover call sites
+     don't resurrect raw Tailwind. */
+  --color-accent-red:         #AE3C36;
+  --color-accent-red-dim:     rgba(174, 60, 54, 0.15);
+  --color-accent-yellow:      #F0A726;
+  --color-accent-yellow-dim:  rgba(240, 167, 38, 0.15);
   --color-accent-purple:      #a855f7;
 
   /* --- Semantic Status --- */
-  --color-success:      #146B40;
-  --color-warning:      #f59e0b;  --color-warning-dim: rgba(245, 158, 11, 0.15);
-  /* Retuned out of raw Tailwind and into the warm palette. #ef4444 as text
-     measured 3.40:1 on the page and 2.92:1 worst-case across 29 text call
-     sites, and it was never overridden for dark (4.36 page / 3.74 card).
-     #A32219 is 6.78:1 light; #F0736A (below) is 5.76:1 dark. The three fill
-     sites all take white ink or none, so the darker value only helps them. */
-  --color-danger:       #A32219;  --color-danger-dim:  rgba(163, 34, 25, 0.12);
-  --color-danger-dark:  #8A1C14;
-  --color-defeat:       #9B2C3A;
-  /* The medal ramp had NO dark theme — one set served both, so silver measured
-     2.32:1 on the light page and bronze 1.99:1 on a dark card. Both were live
-     AA failures. Separation between gold and bronze is carried by hue (34°) and
-     by silver's near-zero chroma, not by lightness. */
-  --color-gold:         #8A6A1F;  /* leader / #1 figures only — a thin ring/text color, never a filled badge, never blended with accent */
-  --color-silver:       #6C7176;  /* #2 figures, silver medals */
-  --color-bronze:       #8A4A22;  /* #3 figures, bronze medals */
+  --color-success:      #0C6D3E;
+  --color-warning:      #F0A726;  --color-warning-dim: rgba(240, 167, 38, 0.15);
+  --color-danger:       #AE3C36;  --color-danger-dim:  rgba(174, 60, 54, 0.12);
+  --color-danger-dark:  #9A2925;
+  --color-defeat:       #905156;
+  /* Medals: matched L, split by hue + silver's near-zero chroma. Rank ink,
+     never a filled badge. */
+  --color-gold:         #805D00;
+  --color-silver:       #66635C;
+  --color-bronze:       #92532A;
 
   /* --- Position Colors (The Football Spine) ---
-     Gaffa 2.0 spine, verified by design-2.0/verify-palette.mjs. Each
-     position carries three tokens: the field, the label ink (`-on`,
-     chosen per position rather than forcing white on all twelve), and
-     the keyline (`-line`). It is the KEYLINE, not the fill, that has to
-     clear 3:1 against the page — that is what lets a bright hue stay
-     bright instead of being dragged to mud.
-
-     One hue moved from 1.0: LWB/RWB teal went a shade deeper, off the
-     green band. Wingers were also moved (to a terracotta, so that green
-     could mean exactly one thing) and then moved back — see LW/RW below.
-     And goalkeeper amber moved from #D4A017 to #9E6D00: at luminance
-     0.42 it was the one pale badge in a spine that otherwise sits at
-     0.10-0.17, so it was the only position needing dark ink (white on
-     the old amber measured 2.23:1). Holding hue and chroma and moving
-     lightness only, white first clears 4.5:1 at #9E6D00. */
-  --color-pos-gk: #9E6D00;  --color-pos-gk-on: #FFFFFF;  --color-pos-gk-line: #9E6D00;
-  --color-pos-cb: #2A5A92;  --color-pos-cb-on: #FFFFFF;  --color-pos-cb-line: #2A5A92;
-  --color-pos-lb: #2C6FD8;  --color-pos-lb-on: #FFFFFF;  --color-pos-lb-line: #2C6FD8;
-  --color-pos-rb: #2C6FD8;  --color-pos-rb-on: #FFFFFF;  --color-pos-rb-line: #2C6FD8;
-  --color-pos-lwb: #1F6B70; --color-pos-lwb-on: #FFFFFF; --color-pos-lwb-line: #1F6B70;
-  --color-pos-rwb: #1F6B70; --color-pos-rwb-on: #FFFFFF; --color-pos-rwb-line: #1F6B70;
-  --color-pos-dm: #6A47A0;  --color-pos-dm-on: #FFFFFF;  --color-pos-dm-line: #6A47A0;
-  --color-pos-cm: #8763AC;  --color-pos-cm-on: #FFFFFF;  --color-pos-cm-line: #8763AC;
-  --color-pos-am: #A8406C;  --color-pos-am-on: #FFFFFF;  --color-pos-am-line: #A8406C;
-  /* Wingers stay on 1.0's deep sage by Duke's call. Worth knowing what it
-     costs: sage sits close to the accent green, which under the colour law
-     means "Gaffa, and yours" — so on a surface that tints your own row green,
-     a winger badge reads adjacent to ownership. 2.0 moved them to terracotta
-     for exactly that reason. Revisit if the two ever collide in practice. */
-  --color-pos-lw: #2F7A4E;  --color-pos-lw-on: #FFFFFF;  --color-pos-lw-line: #2F7A4E;
-  --color-pos-rw: #2F7A4E;  --color-pos-rw-on: #FFFFFF;  --color-pos-rw-line: #2F7A4E;
-  --color-pos-st: #A62626;  --color-pos-st-on: #FFFFFF;  --color-pos-st-line: #A62626;
+     L54 / C0.118 locked, hue rotated by role. One fill in both themes,
+     white ink everywhere. Light keyline = the fill. Dark keylines are
+     derived (a fill cannot clear white-on-badge AND a dark card).
+     Wingers sit 21° off the accent so green means exactly one thing. */
+  --color-pos-gk: #926500;  --color-pos-gk-on: #FFFFFF;  --color-pos-gk-line: #926500;
+  --color-pos-cb: #0076B2;  --color-pos-cb-on: #FFFFFF;  --color-pos-cb-line: #0076B2;
+  --color-pos-lb: #5667B9;  --color-pos-lb-on: #FFFFFF;  --color-pos-lb-line: #5667B9;
+  --color-pos-rb: #5667B9;  --color-pos-rb-on: #FFFFFF;  --color-pos-rb-line: #5667B9;
+  --color-pos-lwb: #008295; --color-pos-lwb-on: #FFFFFF; --color-pos-lwb-line: #008295;
+  --color-pos-rwb: #008295; --color-pos-rwb-on: #FFFFFF; --color-pos-rwb-line: #008295;
+  --color-pos-dm: #7B56B9;  --color-pos-dm-on: #FFFFFF;  --color-pos-dm-line: #7B56B9;
+  --color-pos-cm: #915397;  --color-pos-cm-on: #FFFFFF;  --color-pos-cm-line: #915397;
+  --color-pos-am: #A34E71;  --color-pos-am-on: #FFFFFF;  --color-pos-am-line: #A34E71;
+  --color-pos-lw: #00866F;  --color-pos-lw-on: #FFFFFF;  --color-pos-lw-line: #00866F;
+  --color-pos-rw: #00866F;  --color-pos-rw-on: #FFFFFF;  --color-pos-rw-line: #00866F;
+  --color-pos-st: #AD4C42;  --color-pos-st-on: #FFFFFF;  --color-pos-st-line: #AD4C42;
   /* Back-compat aliases: 1.0 shared one token across LB/RB and LWB/RWB.
      Existing stylesheets still reference these. */
   --color-pos-fb: var(--color-pos-lb);
@@ -155,97 +134,25 @@
        tint-* ........ one tint strength per theme, replacing ad-hoc
                        color-mix at 4/5/6/7/8%. A tinted ground takes
                        PRIMARY ink only, never the tint's own hue */
-  --color-bg-inset:      #E8E2D6;
-  --color-border-strong: #8F877B;
-  --color-accent-ink:    #146B40;
-  /* The label ON an accent fill. It is NOT text-inverse: the two themes solve
-     it in opposite directions, because the dark theme's accent is the brighter
-     colour. White on light's #146B40 is 6.4:1; white on dark's #1FA35F is only
-     ~2.5:1, so there the label has to go dark instead — the same inversion
-     .btn-primary already makes by hand. Ported surfaces should use this rather
-     than hardcoding #FFFFFF, which is what silently produced a 4.33:1 button
-     label the first time this page was ported. */
+  --color-bg-inset:      #E2DFDA;
+  --color-border-strong: #8C857A;
+  --color-accent-ink:    #1F7144;
   --color-on-accent:     #FFFFFF;
-  /* The label ON a warning fill. Unlike on-accent this does NOT invert, because
-     --color-warning does not: it is #f59e0b in both themes, so its label has to
-     be dark ink in both. Declared in both blocks anyway, so nothing has to know
-     that the fill happens to be theme-invariant today. Added during the Market
-     hub port, which found a #1C1C1C literal doing this job by hand. */
-  --color-on-warning:    #1C1A17;
-  /* The label ON a danger fill. Inverts the same way on-accent does: dark's
-     danger, like dark's accent, is the brighter fill (white on #F0736A is
-     2.85:1), so the dark block below swaps to dark ink. League Home hand-rolled
-     this exact toggle for its form pips and primary button before this existed. */
+  --color-on-warning:    #1B1915;
   --color-on-danger:     #FFFFFF;
-  --color-live:          #B3261E;
-  --color-warning-text:  #8A5A0B;
-  --color-tint-accent:   #E2EAE1;
-  --color-tint-danger:   #F5E3DD;
-  --color-tint-warning:  #EFE8DD;
+  --color-live:          #B23731;
+  --color-warning-text:  #875A04;
+  --color-tint-accent:   #E2EDE5;
+  --color-tint-danger:   #F4E6E4;
+  --color-tint-warning:  #F0E9DE;
 
-  /* --- The pitch (2026-08-11) ---
-     The grass, and the white it is marked out in. Added by the `team` port,
-     which found the pitch was the one surface in the app the palette had never
-     been checked against at all: 1.0 painted a fixed #5A8F6A in BOTH themes and
-     then laid white on it. Measured, every ink it carried was below floor —
-     touchline 2.23:1, team label 2.67:1, the empty-slot label 2.94:1.
-
-     Most of that was the FADE, not the green: the same white at full strength
-     measured 3.77:1. So two things move together — the ink stops being
-     alpha-faded, and the grass moves to a value full white actually clears.
-     #497D59 is 1.0's own hue and chroma with lightness walked down until white
-     reaches 4.8 (the ramp's reasoning: solving to 4.5 exactly lands one nudge
-     from failing, and this ground also carries a vignette and a mown stripe).
-     `scratch/solve_pitch_grass.mjs`.
-
-     ONE VALUE IN BOTH THEMES, deliberately. The grass is not a semantic colour
-     — it is a depicted object, the same category as a club crest or a kit, so
-     it does not owe the accent's "one job per colour" law any more than a red
-     Man Utd shirt does. It is also what makes the maths work: a legal grass is
-     darker than the dark theme's own card, so no single green can separate from
-     a cream chip and a navy chip by FILL. The chip takes a white keyline
-     instead — the spine's own rule, that the line and not the fill is what has
-     to clear 3:1 — and the pitch ends up with exactly one line colour for
-     touchlines and player chips alike, which is how a real pitch is marked.
-
-     `-line` at full strength is 4.81:1 on the field. It is faded only for
-     interior furniture (penalty box, arc, centre circle, halfway line), which
-     carries no information and is not interactive; the field boundary and every
-     chip keyline run at full. */
-  --color-pitch:       #497D59;
-  --color-pitch-band:  #417551;   /* the mown stripe — darker, so it only ever improves the ink */
+  /* --- The pitch ---
+     Same green hue as the brand (155), lightness set so white touchlines
+     clear 4.5:1. One value in both themes — the grass is a depicted object. */
+  --color-pitch:       #417655;
+  --color-pitch-band:  #386A4B;
   --color-pitch-line:  #FFFFFF;
 
-  /* --- The performance ramp (2026-08-10) ---
-     Colours a figure by how it sits against the player's own positional
-     median: the baseline-rule numbers and the points figure. Five stops,
-     every one solved in OKLCH (hue and chroma held, lightness walked)
-     against the harder of card and page in both themes — these are 11px
-     figures. Derived at 4.8 rather than the 4.5 AA requires: solving to
-     the floor exactly put every stop at 4.50:1, the tightest pairs in
-     the whole palette and one background nudge from failing. See
-     scratch/derive_perf_ramp.mjs; verified by design-2.0/verify-palette.mjs.
-
-     THE MIDPOINT IS PLAIN INK, not an amber. The median is not a
-     verdict, and no mid-ramp yellow clears 4.5:1 on cream — so the ramp
-     runs warm / ink / cool rather than red / yellow / green. That is
-     what makes it accessible at all.
-
-     COST, RECORDED RATHER THAN ARGUED — the same way the winger sage is
-     recorded in verify-palette.mjs. This ramp overloads two colours the
-     2.0 law reserves: `perf-best` is 1° in hue from --color-accent and
-     `perf-poor` is 1° from --color-danger, so a strong figure is the
-     same green as "yours" and a weak one the same red as danger. A
-     teal→clay ramp at 47–56° from the accent was built and measured
-     (`Gaffa 2.0 Baseline Rule.dc.html`) and set aside: green-to-red
-     reads instantly and that was judged worth the collision. Do not
-     extend this ramp to fills, badges or status — as TEXT ON FIGURES it
-     is contained, and that containment is the whole mitigation. */
-  --color-perf-poor: #B04B3D;   /* <= 34 */
-  --color-perf-low:  #9B5B2B;   /* 35-44 */
-  --color-perf-mid:  var(--color-text-primary);  /* 45-55, at his median */
-  --color-perf-good: #42764E;   /* 56-69 */
-  --color-perf-best: #147B47;   /* >= 70 */
   --line:        1px solid var(--color-border-subtle);
   --line-strong: 1px solid var(--color-border);
 
@@ -276,13 +183,10 @@
      The --font-*-* vars are injected by next/font (see layout.tsx) and already
      carry their own metric-matched fallback; the families after them only
      matter if the font files fail outright. */
-  --font-serif: var(--font-newsreader), Georgia, 'Times New Roman', serif;   /* display / editorial */
+  --font-serif: var(--font-newsreader), Georgia, 'Times New Roman', serif;   /* display — titles, names, scores */
   --font-sans:  var(--font-hanken-grotesk), -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; /* body / UI */
-  --font-mono:  var(--font-jetbrains-mono), 'Fira Code', ui-monospace, monospace;
-  /* 2.0. Column heads, club names, axis labels — the role 1.0 had no face for,
-     which is why mono took it. Mono now means "this value ticks" and nothing
-     else. Never use --font-condensed for body copy. */
-  --font-condensed: var(--font-archivo-narrow), 'Archivo Narrow', 'Arial Narrow', sans-serif;
+  --font-mono:  var(--font-jetbrains-mono), 'Fira Code', ui-monospace, monospace; /* values that tick */
+  --font-condensed: var(--font-archivo-narrow), 'Archivo Narrow', 'Arial Narrow', sans-serif; /* labels, columns, buttons */
 
   /* Type scale (1rem = 16px) */
   --text-xs:   0.75rem;   /* 12 */
@@ -337,9 +241,9 @@
   --shadow-md: 0 4px 12px rgba(28, 28, 28, 0.10);
   --shadow-lg: 0 8px 24px rgba(28, 28, 28, 0.14);
   --shadow-xl: 0 16px 48px rgba(28, 28, 28, 0.18);
-  --shadow-glow: 0 0 20px rgba(20, 107, 64, 0.15);
-  --shadow-glow-blue: 0 0 20px rgba(20, 107, 64, 0.15);
-  --shadow-glow-green: 0 0 20px rgba(20, 107, 64, 0.15);
+  --shadow-glow: 0 0 20px rgba(12, 109, 62, 0.15);
+  --shadow-glow-blue: 0 0 20px rgba(12, 109, 62, 0.15);
+  --shadow-glow-green: 0 0 20px rgba(12, 109, 62, 0.15);
 
   /* Standard card elevation — apply to every card by default */
   --shadow-card: 0 1px 2px rgba(23, 20, 15, .05), 0 14px 30px -16px rgba(23, 20, 15, .20);
@@ -397,13 +301,211 @@
        600px  phone             1080px desktop content ceiling
        900px  small laptop
      ------------------------------------------------------------------- */
+
+  /* --- The green ramp (2026-08-22) ---
+     A scale, not a hue budget. Gaffa green is ONE hue (OKLCH 155) across eight
+     steps; a role picks a step, and the role may pick a DIFFERENT step per
+     theme. That last part is the point: on cream a fill darkens when pressed,
+     on navy it has to lighten, and a flat set of one-off tokens cannot say that.
+
+     Roles, all verified (see docs/DECISIONS.md for why this replaced the old
+     "one job per colour" rule, which was agent-authored and is not binding):
+       50  row tint "yours"      100 tint hover / chip     200 keyline on a tint
+       300 meter fill / divider  600 accent as TEXT (dark) 700 fill + text (light)
+       800 topbar / chrome       900 deep chrome
+     --color-accent and --color-topbar already point at 700 and 800; these
+     tokens name the rest of the ramp rather than changing anything. */
+  --color-green-50:  #EAF5ED;
+  --color-green-100: #D6EBDC;
+  --color-green-200: #ADD6BA;
+  --color-green-300: #3B8D5D;
+  --color-green-600: #1E7C4A;
+  --color-green-700: #0C6D3E;   /* == --color-accent */
+  --color-green-800: #185B37;   /* == --color-topbar */
+  --color-green-900: #16452A;
+
 }
 
 [data-theme="dark"] {
-  /* Charcoal-navy surface ramp (Futbolpedia's charcoal/charcoal-surface/
-     charcoal-light/charcoal-border, adopted literally) instead of a
-     near-black GitHub-dark ramp — it has hue, so it holds light instead
-     of going flat. */
+  --color-topbar: #185B37;
+
+  /* Charcoal-navy (hue 265), held from the shipped dark identity. */
+  --color-bg-primary:    #1B1F29;
+  --color-bg-secondary:  #242934;
+  --color-bg-card:       #272D39;
+  --color-bg-card-hover: #313743;
+  --color-bg-card-alt:   #202530;
+  --color-bg-elevated:   #313743;
+  --color-bg-overlay:    rgba(27, 31, 41, 0.95);
+
+  --color-border:        #3F4552;
+  --color-border-subtle: #2D333E;
+  --color-border-accent: rgba(40, 165, 100, 0.35);
+
+  --color-text-primary:   #EBE7E1;
+  --color-text-secondary: #B5B0A7;
+  --color-text-muted:     #989389;
+  --color-text-inverse:   #EBE7E1;
+
+  --color-accent:            #28A564;
+  --color-accent-hover:      #43C07A;
+  --color-accent-dim:        rgba(40, 165, 100, 0.14);
+  --color-accent-green:      #28A564;
+  --color-accent-green-dim:  rgba(40, 165, 100, 0.14);
+  --color-accent-blue:       #28A564;
+  --color-accent-blue-hover: #43C07A;
+
+  --color-success: #28A564;
+  --color-warning: #F0A726;  --color-warning-dim: rgba(240, 167, 38, 0.16);
+  --color-danger:      #E27368;  --color-danger-dim: rgba(226, 115, 104, 0.16);
+  --color-danger-dark: #CD6057;
+  --color-gold:        #B38E3B;
+  --color-silver:      #97938B;
+  --color-bronze:      #C7845A;
+  --color-defeat:      #C58186;
+
+  --color-bg-inset:      #131720;
+  --color-border-strong: #707787;
+  --color-accent-ink:    #26A865;
+  --color-on-accent:     #1B1915;
+  --color-on-warning:    #1B1915;
+  --color-on-danger:     #1B1915;
+  --color-live:          #E67066;
+  --color-warning-text:  #BC8A3F;
+  --color-tint-accent:   #26382C;
+  --color-tint-danger:   #422D2A;
+  --color-tint-warning:  #3D3120;
+
+  /* Spine fills stay on :root. Dark only lifts the keyline. */
+  --color-pos-gk-on: #FFFFFF;  --color-pos-gk-line: #B18331;
+  --color-pos-cb-on: #FFFFFF;  --color-pos-cb-line: #4F8FCF;
+  --color-pos-lb-on: #FFFFFF;  --color-pos-lb-line: #638AD3;
+  --color-pos-rb-on: #FFFFFF;  --color-pos-rb-line: #638AD3;
+  --color-pos-lwb-on: #FFFFFF; --color-pos-lwb-line: #2F98A6;
+  --color-pos-rwb-on: #FFFFFF; --color-pos-rwb-line: #2F98A6;
+  --color-pos-dm-on: #FFFFFF;  --color-pos-dm-line: #937ECD;
+  --color-pos-cm-on: #FFFFFF;  --color-pos-cm-line: #A679C3;
+  --color-pos-am-on: #FFFFFF;  --color-pos-am-line: #C5709A;
+  --color-pos-lw-on: #FFFFFF;  --color-pos-lw-line: #2F9B85;
+  --color-pos-rw-on: #FFFFFF;  --color-pos-rw-line: #2F9B85;
+  --color-pos-st-on: #FFFFFF;  --color-pos-st-line: #CD7167;
+
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.30);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.40);
+  --shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.42);
+  --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.55);
+  --shadow-glow:       0 0 20px rgba(40, 165, 100, 0.20);
+  --shadow-glow-blue:  0 0 20px rgba(40, 165, 100, 0.20);
+  --shadow-glow-green: 0 0 20px rgba(40, 165, 100, 0.20);
+
+  --shadow-card:      0 2px 6px rgba(0, 0, 0, .30), 0 16px 40px -12px rgba(0, 0, 0, .45);
+  --shadow-card-lift: 0 4px 10px rgba(0, 0, 0, .35), 0 24px 56px -14px rgba(0, 0, 0, .50), 0 0 0 1px rgba(40, 165, 100, .14) inset;
+
+  /* --- The green ramp (2026-08-22) ---
+     A scale, not a hue budget. Gaffa green is ONE hue (OKLCH 155) across eight
+     steps; a role picks a step, and the role may pick a DIFFERENT step per
+     theme. That last part is the point: on cream a fill darkens when pressed,
+     on navy it has to lighten, and a flat set of one-off tokens cannot say that.
+
+     Roles, all verified (see docs/DECISIONS.md for why this replaced the old
+     "one job per colour" rule, which was agent-authored and is not binding):
+       50  row tint "yours"      100 tint hover / chip     200 keyline on a tint
+       300 meter fill / divider  600 accent as TEXT (dark) 700 fill + text (light)
+       800 topbar / chrome       900 deep chrome
+     --color-accent and --color-topbar already point at 700 and 800; these
+     tokens name the rest of the ramp rather than changing anything. */
+  --color-green-50:  #19281E;
+  --color-green-100: #1C3726;
+  --color-green-200: #1F4D32;
+  --color-green-300: #287B4D;
+  --color-green-600: #3DB975;
+  --color-green-700: #28A564;   /* == --color-accent */
+  --color-green-800: #185B37;   /* == --color-topbar */
+  --color-green-900: #16452A;
+
+}
+
+/* ============================================================
+   SHIPPED PALETTE — revert overlay
+   html[data-palette="shipped"] restores the tokens that were live
+   before the 2026-08-20 lock, including Newsreader / JetBrains Mono.
+   Driven by PalettePreview. Delete this whole block when a side wins.
+   ============================================================ */
+
+html[data-palette="shipped"],
+html[data-palette="shipped"] .g-theme-light {
+  --color-bg-primary:    #F7F3ED;
+  --color-bg-secondary:  #EDE8DE;
+  --color-bg-card:       #FDFCF9;
+  --color-bg-card-hover: #EDE8E0;
+  --color-bg-card-alt:   #f9f6f1;
+  --color-bg-elevated:   #EDE8DE;
+  --color-bg-overlay:    rgba(237, 232, 216, 0.95);
+  --color-border:        #C8C3BC;
+  --color-border-subtle: #D9D4CD;
+  --color-border-accent: rgba(20, 107, 64, 0.40);
+  --color-text-primary:  #1C1A17;
+  --color-text-secondary:#4A453D;
+  --color-text-muted:    #6B6356;
+  --color-text-inverse:  #FFFFFF;
+  --color-topbar:        #1A5C3A;
+  --color-accent:        #146B40;
+  --color-accent-hover:  #0F5632;
+  --color-accent-dim:    rgba(20, 107, 64, 0.10);
+  --color-accent-green:  #146B40;
+  --color-accent-green-dim: rgba(20, 107, 64, 0.10);
+  --color-accent-blue:   #146B40;
+  --color-accent-blue-hover: #0F5632;
+  --color-accent-red:    #ef4444;
+  --color-accent-red-dim: rgba(239, 68, 68, 0.15);
+  --color-accent-yellow: #f59e0b;
+  --color-accent-yellow-dim: rgba(245, 158, 11, 0.15);
+  --color-success:       #146B40;
+  --color-warning:       #f59e0b;
+  --color-warning-dim:   rgba(245, 158, 11, 0.15);
+  --color-danger:        #A32219;
+  --color-danger-dim:    rgba(163, 34, 25, 0.12);
+  --color-danger-dark:   #8A1C14;
+  --color-defeat:        #9B2C3A;
+  --color-gold:          #8A6A1F;
+  --color-silver:        #6C7176;
+  --color-bronze:        #8A4A22;
+  --color-pos-gk: #9E6D00;  --color-pos-gk-on: #FFFFFF;  --color-pos-gk-line: #9E6D00;
+  --color-pos-cb: #2A5A92;  --color-pos-cb-on: #FFFFFF;  --color-pos-cb-line: #2A5A92;
+  --color-pos-lb: #2C6FD8;  --color-pos-lb-on: #FFFFFF;  --color-pos-lb-line: #2C6FD8;
+  --color-pos-rb: #2C6FD8;  --color-pos-rb-on: #FFFFFF;  --color-pos-rb-line: #2C6FD8;
+  --color-pos-lwb: #1F6B70; --color-pos-lwb-on: #FFFFFF; --color-pos-lwb-line: #1F6B70;
+  --color-pos-rwb: #1F6B70; --color-pos-rwb-on: #FFFFFF; --color-pos-rwb-line: #1F6B70;
+  --color-pos-dm: #6A47A0;  --color-pos-dm-on: #FFFFFF;  --color-pos-dm-line: #6A47A0;
+  --color-pos-cm: #8763AC;  --color-pos-cm-on: #FFFFFF;  --color-pos-cm-line: #8763AC;
+  --color-pos-am: #A8406C;  --color-pos-am-on: #FFFFFF;  --color-pos-am-line: #A8406C;
+  --color-pos-lw: #2F7A4E;  --color-pos-lw-on: #FFFFFF;  --color-pos-lw-line: #2F7A4E;
+  --color-pos-rw: #2F7A4E;  --color-pos-rw-on: #FFFFFF;  --color-pos-rw-line: #2F7A4E;
+  --color-pos-st: #A62626;  --color-pos-st-on: #FFFFFF;  --color-pos-st-line: #A62626;
+  --color-bg-inset:      #E8E2D6;
+  --color-border-strong: #8F877B;
+  --color-accent-ink:    #146B40;
+  --color-on-accent:     #FFFFFF;
+  --color-on-warning:    #1C1A17;
+  --color-on-danger:     #FFFFFF;
+  --color-live:          #B3261E;
+  --color-warning-text:  #8A5A0B;
+  --color-tint-accent:   #E2EAE1;
+  --color-tint-danger:   #F5E3DD;
+  --color-tint-warning:  #EFE8DD;
+  --color-pitch:         #497D59;
+  --color-pitch-band:    #417551;
+  --shadow-glow:         0 0 20px rgba(20, 107, 64, 0.15);
+  --shadow-glow-blue:    0 0 20px rgba(20, 107, 64, 0.15);
+  --shadow-glow-green:   0 0 20px rgba(20, 107, 64, 0.15);
+  --font-serif: var(--font-newsreader), Georgia, 'Times New Roman', serif;
+  --font-sans:  var(--font-hanken-grotesk), -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono:  var(--font-jetbrains-mono), 'Fira Code', ui-monospace, monospace;
+  --font-condensed: var(--font-archivo-narrow), 'Archivo Narrow', 'Arial Narrow', sans-serif;
+}
+
+html[data-palette="shipped"][data-theme="dark"] {
+  --color-topbar:        #1A5C3A;
   --color-bg-primary:    #1A1F2E;
   --color-bg-secondary:  #232A3D;
   --color-bg-card:       #252B3D;
@@ -411,129 +513,54 @@
   --color-bg-card-alt:   #1F2436;
   --color-bg-elevated:   #2C3344;
   --color-bg-overlay:    rgba(26, 31, 46, 0.95);
-
   --color-border:        #3E4559;
   --color-border-subtle: #2C3344;
   --color-border-accent: rgba(31, 163, 95, 0.35);
-
-  /* Warmed toward cream rather than cool blue-gray — ties dark mode back
-     to the light theme's own cream identity instead of borrowing a
-     colder off-white. */
-  --color-text-primary:   #EDEAE2;
-  --color-text-secondary: #B7B2A8;
-  /* #8C8982 passed only against --color-bg-primary and failed (4.03:1)
-     on every card surface, which is where most muted text actually
-     sits. Lifted to clear AA on cards too. */
-  --color-text-muted:     #949BAB;
-  /* Every usage of this token pairs it with a saturated, theme-stable
-     surface (accent green, gold, purple, position/crest colors) — never
-     with a surface that goes light in dark mode. Literal-inverting to
-     navy here made those surfaces render dark-on-dark; stay cream. */
-  --color-text-inverse:   #EDEAE2;
-
-  /* Same accent hue as the light theme's forest green, lifted in
-     lightness/saturation so it doesn't read muddy on a dark surface —
-     lands next to Futbolpedia's emerald-500 without forking their
-     brand color outright. */
-  --color-accent:            #1FA35F;
-  /* Hover moves AWAY from the ground: darker on cream, lighter on navy. This
-     was #18814D, which darkened — and .btn-primary carries dark ink (#10141C)
-     in this theme, so the hover state measured 3.76:1 and failed AA on every
-     primary button. #37BE77 with the same ink is 7.72:1. */
-  --color-accent-hover:      #37BE77;
-  --color-accent-dim:        rgba(31, 163, 95, 0.14);
-  --color-accent-green:      #1FA35F;
-  --color-accent-green-dim:  rgba(31, 163, 95, 0.14);
-  --color-accent-blue:       #1FA35F;
-  /* `a:hover` in dark. #18814D measured 2.87:1 on a card — every hovered link
-     in the dark theme was failing AA. */
+  --color-text-primary:  #EDEAE2;
+  --color-text-secondary:#B7B2A8;
+  --color-text-muted:    #949BAB;
+  --color-text-inverse:  #EDEAE2;
+  --color-accent:        #1FA35F;
+  --color-accent-hover:  #37BE77;
+  --color-accent-dim:    rgba(31, 163, 95, 0.14);
+  --color-accent-green:  #1FA35F;
+  --color-accent-green-dim: rgba(31, 163, 95, 0.14);
+  --color-accent-blue:   #1FA35F;
   --color-accent-blue-hover: #37BE77;
-
-  --color-success: #1FA35F;
-
-  /* Dark values for the semantics that previously had none. Each is the light
-     hue lifted in OKLCH lightness only. Note #F0736A wants DARK ink when used
-     as a fill (white on it is 2.85:1); the three current fill sites carry no
-     ink, but any new one must invert, the same move .btn-primary makes. */
-  --color-danger:      #F0736A;  --color-danger-dim: rgba(240, 115, 106, 0.16);
-  --color-danger-dark: #D95A50;
-  --color-gold:        #D6B052;
-  --color-silver:      #AEB4BA;
-  --color-bronze:      #CD8450;
-  /* Never had a dark value before — #9B2C3A measured 1.89:1 on a dark card,
-     the token-with-one-value failure the matchups port named as a reliable
-     predictor. Solved to 4.8, holding hue and chroma. First real dark
-     consumer: the standings form dot (design-2.0/README.md § standings). */
-  --color-defeat:      #EA747B;
-
-  /* --- Gaffa 2.0 additions, dark ---
-     Note --color-accent-hover stays DARKER than --color-accent here: it
-     is the fill-hover for buttons, where darkening is correct. Accent as
-     TEXT uses --color-accent-ink, which is lighter than the fill so it
-     clears AA on a card (#1FA35F as 13px text was 4.33:1). */
+  --color-success:       #1FA35F;
+  --color-danger:        #F0736A;
+  --color-danger-dim:    rgba(240, 115, 106, 0.16);
+  --color-danger-dark:   #D95A50;
+  --color-gold:          #D6B052;
+  --color-silver:        #AEB4BA;
+  --color-bronze:        #CD8450;
+  --color-defeat:        #EA747B;
   --color-bg-inset:      #161B28;
   --color-border-strong: #6E7893;
   --color-accent-ink:    #2FB56C;
-  --color-on-accent:     #10141C;   /* dark ink on the brighter dark accent — see the light block */
-  --color-on-warning:    #1C1A17;   /* does NOT invert — the warning fill is the same in both themes */
-  --color-on-danger:     #10141C;   /* dark ink on the brighter dark danger — see the light block */
+  --color-on-accent:     #10141C;
+  --color-on-warning:    #1C1A17;
+  --color-on-danger:     #10141C;
   --color-live:          #F0736A;
   --color-warning-text:  #E0A63C;
   --color-tint-accent:   #2A4647;
   --color-tint-danger:   #533E4A;
   --color-tint-warning:  #4D4745;
-
-  /* The performance ramp, dark. Same derivation, same 4.5:1 floor against
-     the harder of card and page; only lightness moves. */
-  --color-perf-poor: #E37969;
-  --color-perf-low:  #CC8758;
-  --color-perf-mid:  var(--color-text-primary);
-  --color-perf-good: #6DA378;
-  --color-perf-best: #4EA972;
-
-  /* --- The spine in dark ---
-     One fill per position across BOTH themes, with white ink everywhere.
-
-     Dark previously lightened all twelve fills and switched the label to dark
-     ink, which meant a position was literally a different colour depending on
-     the theme — awkward for the one token set where hue carries identity.
-     Keeping the fills fixed makes the badge the same object in both themes
-     and lets the ink be white throughout.
-
-     The fills sit in a narrow band that satisfies both constraints at once:
-     white text needs luminance <= 0.183 to clear 4.5:1, so the fill cannot be
-     lightened for dark. What it loses that way is its EDGE against a dark
-     card, and that is what `-line` is for — the keyline carries 4.7-9.1:1
-     against both the dark page and the dark card, so the badge still reads as
-     a distinct object without the fill having to move. */
-  /* Keylines emitted by design-2.0/verify-palette.mjs --emit. Each is the
-     fill's own hue lifted in OKLCH lightness until it clears 4.0:1 against
-     whichever of the dark page and the dark card is harder — the check
-     enforces 3.0, the derivation aims past it so the edge is visible rather
-     than merely compliant. */
-  --color-pos-gk-on: #FFFFFF;  --color-pos-gk-line: #B38126;
-  --color-pos-cb-on: #FFFFFF;  --color-pos-cb-line: #5B8DC8;
-  --color-pos-lb-on: #FFFFFF;  --color-pos-lb-line: #4387F2;
-  --color-pos-rb-on: #FFFFFF;  --color-pos-rb-line: #4387F2;
-  --color-pos-lwb-on: #FFFFFF; --color-pos-lwb-line: #4D959A;
-  --color-pos-rwb-on: #FFFFFF; --color-pos-rwb-line: #4D959A;
-  --color-pos-dm-on: #FFFFFF;  --color-pos-dm-line: #9A78D6;
-  --color-pos-cm-on: #FFFFFF;  --color-pos-cm-line: #9E79C4;
-  --color-pos-am-on: #FFFFFF;  --color-pos-am-line: #D1658F;
-  --color-pos-lw-on: #FFFFFF;  --color-pos-lw-line: #4F986A;
-  --color-pos-rw-on: #FFFFFF;  --color-pos-rw-line: #4F986A;
-  --color-pos-st-on: #FFFFFF;  --color-pos-st-line: #E15F57;
-
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.30);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.40);
-  --shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.42);
-  --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.55);
+  --color-pos-gk-line: #B38126;
+  --color-pos-cb-line: #5B8DC8;
+  --color-pos-lb-line: #4387F2;
+  --color-pos-rb-line: #4387F2;
+  --color-pos-lwb-line: #4D959A;
+  --color-pos-rwb-line: #4D959A;
+  --color-pos-dm-line: #9A78D6;
+  --color-pos-cm-line: #9E79C4;
+  --color-pos-am-line: #D1658F;
+  --color-pos-lw-line: #4F986A;
+  --color-pos-rw-line: #4F986A;
+  --color-pos-st-line: #E15F57;
   --shadow-glow:       0 0 20px rgba(31, 163, 95, 0.20);
   --shadow-glow-blue:  0 0 20px rgba(31, 163, 95, 0.20);
   --shadow-glow-green: 0 0 20px rgba(31, 163, 95, 0.20);
-
-  /* Bigger, softer diffusion than the light theme's tight card shadow —
-     a tight shadow all but disappears against a dark page. */
   --shadow-card:      0 2px 6px rgba(0, 0, 0, .30), 0 16px 40px -12px rgba(0, 0, 0, .45);
   --shadow-card-lift: 0 4px 10px rgba(0, 0, 0, .35), 0 24px 56px -14px rgba(0, 0, 0, .50), 0 0 0 1px rgba(31, 163, 95, .14) inset;
 }
@@ -561,6 +588,7 @@ html {
 
 body {
   font-family: var(--font-sans);
+  font-variant-numeric: tabular-nums lining-nums;
   background-color: var(--color-bg-primary);
   color: var(--color-text-primary);
   line-height: 1.6;
@@ -1064,9 +1092,8 @@ svg {
    a band rather than as a hairline pair.
 
    The tick is 2px of --color-text-primary declared AFTER the ink so it paints
-   over it — the same width, the same token and the same layering as
-   `.g-baseline-tick`, because it is the same idea. Two components that share
-   an argument should share a look. */
+   over it — the same width and the same token as the matchup axis. Two
+   components that share an argument should share a look. */
 .g-axis { position: relative; height: 10px; width: 100%; }
 .g-axis-sm { height: 8px; }
 
@@ -1220,7 +1247,7 @@ svg {
 }
 
 /* --- 6. Recessed tracks ---
-   Anything a value is laid into — a baseline track, a margin axis — is
+   Anything a value is laid into — a margin axis, a finance breakdown — is
    recessed rather than drawn, so the ink reads as sitting IN the panel. */
 .g-track {
   position: relative;
@@ -1231,197 +1258,6 @@ svg {
 [data-theme="dark"] .g-track {
   background: rgba(10, 14, 24, .62);
   box-shadow: none;
-}
-
-/* ============================================================
-   GAFFA 2.0 — THE PLAYER HEAD.  Locked 2026-08-10.
-
-   Portrait | identity | figure, on one row, centred against each
-   other — with the baseline rule spanning the full width beneath it.
-
-   WHY THE FIGURE HAS ITS OWN COLUMN. It used to be the last flex child
-   of the name line with `margin-left: auto`, which is what made it read
-   as floating: pinned to the far right of a row whose only other
-   content was a short name, tied to nothing, with no baseline of its
-   own. A column plus a caption turns it into an instrument reading.
-
-   `minmax(0, 1fr)` and the ellipsis on the identity column are
-   load-bearing, not tidiness. With `min-width: 0` and a nowrap name, a
-   long name SPILLS out of its column and sits on top of the figure —
-   measured at a 31px overlap on "Bruno Fernandes" at hero type in a
-   430px card. Names should never truncate at real panel widths; this is
-   the guard for when they otherwise would collide.
-   ============================================================ */
-.g-player-head {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  gap: var(--s4);
-  align-items: center;
-}
-.g-player-id {
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-.g-player-name-row {
-  display: flex;
-  flex-wrap: nowrap;
-  align-items: center;
-  gap: var(--s2);
-  min-width: 0;
-}
-.g-player-name-row > :first-child { flex: 0 0 auto; }  /* the position badge */
-.g-player-name {
-  font-weight: 700;
-  font-size: var(--t-20);
-  letter-spacing: -.015em;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  min-width: 0;
-}
-/* The figure column: right-aligned, caption sharing the edge so the number
-   has a foot to stand on. */
-.g-player-figure {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 3px;
-  flex: 0 0 auto;
-}
-.g-player-points {
-  font-family: var(--font-serif);
-  font-weight: 700;
-  font-size: var(--t-32);
-  line-height: 1;
-  letter-spacing: -.03em;
-  font-variant-numeric: tabular-nums lining-nums;
-}
-
-/* The performance ramp as figure colour. Only ever text on a figure — see the
-   containment note on the tokens. Drive the class from `perfClass()`
-   (src/lib/scoring/perfBand.ts) so the bands are defined in exactly one place.
-   The points figure takes the band of the COMPOSITE that produced it, never of
-   the raw point total, or its colour would mean something different from the
-   baseline-rule numbers directly beneath it. */
-.g-perf-poor { color: var(--color-perf-poor); }
-.g-perf-low  { color: var(--color-perf-low); }
-.g-perf-mid  { color: var(--color-perf-mid); }
-.g-perf-good { color: var(--color-perf-good); }
-.g-perf-best { color: var(--color-perf-best); }
-
-/* ============================================================
-   GAFFA 2.0 — THE BASELINE RULE.  Locked 2026-08-10.
-   Driven by <BaselineRule> (src/components/players/BaselineRule.tsx).
-
-   The signature component: the one no other fantasy app can copy,
-   because no other fantasy app scores this way. A stat is never a bar
-   filling toward a maximum. The median for the player's OWN position is
-   engraved as a fixed rule and his ink is laid over it, so you read
-   "against his role" rather than "out of some total".
-
-   WHY THE RULE IS STRAIGHT. sigmoidNormalize() in matchRating.ts is
-   centred on the positional median — z = K(value − median) / stddev,
-   then 1/(1+e^−z) — so a score of 0.5 IS the median, for every
-   component and every position. The tick is not a per-row lookup, it is
-   a constant 50%, and nothing needs to read rating_reference_stats at
-   render time. That is what lets the ticks stack into ONE continuous
-   vertical line down the card.
-
-   WHY THE FIGURE IS 0–100. The score is already a logistic CDF value,
-   so ×100 reads as a position-relative mark where 50 is his own median,
-   and it is the SAME number as the bar length — the bar fills to 87 and
-   the label says 87. A signed ±50 reading (0 at the rule) was built and
-   tried; it makes the figure agree with the rule but disagree with the
-   ink, and it made a plain component feel like a statistics readout.
-   Also rejected: σ (ln(s/(1−s))). Both live in
-   `Gaffa 2.0 Baseline Rule.dc.html` if the question reopens.
-
-   Caveat worth keeping in view: this is the engine's own logistic
-   scale, not an empirical rank of the pool. 87 is not "better than 87%
-   of attacking midfielders", it is 87 on the curve that produced his
-   points.
-
-   LAYOUT, for whoever builds the surface around this: give it the FULL
-   width of the panel, on its own row beneath the player's identity. In
-   a two-column hero it gets whatever the portrait leaves — measured at
-   76px of track inside a 430px card, against 310px full-width — and
-   with six rows the text column outgrows the portrait, so an
-   `align-items: end` hero drops the photograph to the floor with a hole
-   above it. The header that belongs above it is `.g-player-head`.
-
-   HOW THE CONTINUITY IS BUILT. Not with one element spanning the grid:
-   the rows are `display: contents` and auto-place, so an explicitly
-   placed spanning child shoves every track a column to the right (it
-   did — tracks rendered at the value column's width). Instead each
-   row's tick fills its own row box and `row-gap` is 0, so consecutive
-   ticks butt together exactly at any row height. No magic offsets to
-   re-tune when the type scale moves.
-   ============================================================ */
-.g-baseline {
-  display: grid;
-  grid-template-columns: 104px minmax(0, 1fr) 30px;
-  column-gap: var(--s3);
-  row-gap: 0;
-}
-.g-baseline-row { display: contents; }
-.g-baseline-label {
-  font-size: var(--t-11);
-  color: var(--color-text-secondary);
-  align-self: center;
-}
-.g-baseline-value {
-  font-size: var(--t-11);
-  font-weight: 700;
-  text-align: right;
-  align-self: center;
-  font-variant-numeric: tabular-nums;
-  color: var(--color-text-primary);
-}
-
-/* Full row height, so the tick has a box to fill. */
-.g-baseline-track {
-  position: relative;
-  align-self: stretch;
-  min-height: 24px;
-  display: flex;
-  align-items: center;
-}
-.g-baseline-bar { position: relative; width: 100%; height: 7px; }
-.g-baseline-ink {
-  position: absolute;
-  inset-block: 0;
-  left: 0;
-  width: var(--v);
-  background: var(--pf, var(--color-accent));
-  border-radius: var(--r-micro);
-}
-.g-baseline-tick {
-  position: absolute;
-  left: 50%;
-  inset-block: 0;
-  width: 2px;
-  margin-left: -1px;
-  background: var(--color-text-primary);
-}
-
-/* Below his own median, the ink steps back — the figure's own colour now
-   carries the verdict, via the performance ramp, so the bar does not need to
-   shout it a second time. (An earlier version also muted the figure here; that
-   would override the ramp, which is the thing actually saying "below".) */
-.g-baseline-row.is-under .g-baseline-ink { opacity: .55; }
-
-/* One caption teaches the scale; the rule the bars cross IS the 50 line, so
-   nothing more than this is needed. */
-.g-baseline-caption {
-  margin-top: 5px;
-  font-family: var(--font-condensed);
-  font-weight: 500;
-  font-size: var(--t-10);
-  letter-spacing: .05em;
-  text-transform: uppercase;
-  color: var(--color-text-muted);
 }
 
 /* ============================================================
@@ -1475,12 +1311,25 @@ svg {
    (`scratch/solve_portrait_zoom.mjs`, exact match 1.418). The insets do
    not move — the head is flush to the top edge in both sources, so
    "push the image down, never crop higher" carries over untouched. */
-/* These are the spec's own measured values. They are correct, and for a while
-   they were not reaching the screen — see `max-width` on .g-portrait-img. */
+/* The zoom values are the spec's own measured ones, and for a while they were
+   not reaching the screen — see `max-width` on .g-portrait-img.
+
+   The insets are NOT the spec's original values (which were 9/6/4px, "head
+   flush to the top edge"). Duke found that flush framing left too much blank
+   ground above the head and asked (2026-08-23) for every portrait moved up
+   universally, so these are negative — the image's top edge sits above the
+   frame, `overflow: hidden` on .g-portrait-frame clips the difference, and the
+   head itself lands lower in the crop than before. Do not "restore" these to
+   9/6/4 as a correctness fix.
+
+   SIZE_DEFAULTS in src/lib/players/portraitCrop.ts hard-codes matching
+   insetPx/zoomPct per size — the per-player crop correction solves against
+   those as its target, so the two must be changed together or a measured
+   player's portrait stops matching an unmeasured one at the same size. */
 .g-portrait { display: block; position: relative; flex-shrink: 0; }
-.g-portrait-lg { width: 104px; height: 120px; --g-portrait-zoom: 156.25%; --g-portrait-zoom-alt: 142%; --g-portrait-inset: 9px; --g-crest: 28px; }  /* hero */
-.g-portrait-md { width: 66px;  height: 78px;  --g-portrait-zoom: 156.25%; --g-portrait-zoom-alt: 142%; --g-portrait-inset: 6px; --g-crest: 22px; }  /* lot  */
-.g-portrait-sm { width: 44px;  height: 44px;  --g-portrait-zoom: 150%;    --g-portrait-zoom-alt: 136%; --g-portrait-inset: 4px; --g-crest: 16px; }  /* row  */
+.g-portrait-lg { width: 104px; height: 120px; --g-portrait-zoom: 156.25%; --g-portrait-zoom-alt: 142%; --g-portrait-inset: -3px; --g-crest: 28px; }  /* hero */
+.g-portrait-md { width: 66px;  height: 78px;  --g-portrait-zoom: 156.25%; --g-portrait-zoom-alt: 142%; --g-portrait-inset: -2px; --g-crest: 22px; }  /* lot  */
+.g-portrait-sm { width: 44px;  height: 44px;  --g-portrait-zoom: 150%;    --g-portrait-zoom-alt: 136%; --g-portrait-inset: -2px; --g-crest: 16px; }  /* row  */
 
 .g-portrait-frame {
   display: block;

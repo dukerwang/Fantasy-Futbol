@@ -86,6 +86,30 @@ export async function POST(req: NextRequest, { params }: Props) {
             return NextResponse.json({ error: 'Player is not eligible for IR. They must be officially Injured (i) or Unavailable (u).' }, { status: 400 });
         }
 
+        // IR slot availability check
+        const { data: league } = await admin
+            .from('leagues')
+            .select('ir_size')
+            .eq('id', team.league_id)
+            .single();
+
+        const irSize = league?.ir_size ?? 2;
+
+        const { data: currentIr, error: irCountErr } = await admin
+            .from('roster_entries')
+            .select('id')
+            .eq('team_id', teamId)
+            .eq('status', 'ir');
+
+        if (irCountErr) return NextResponse.json({ error: irCountErr.message }, { status: 500 });
+
+        if ((currentIr?.length ?? 0) >= irSize) {
+            return NextResponse.json(
+                { error: `IR is full (${irSize} slots). Activate or drop an IR player first.` },
+                { status: 400 },
+            );
+        }
+
         const { error } = await admin
             .from('roster_entries')
             .update({ status: 'ir' })

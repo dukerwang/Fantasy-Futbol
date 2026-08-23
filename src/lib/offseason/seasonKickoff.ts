@@ -78,6 +78,19 @@ export async function findPromotedClubsAndArrivals(
    * them apart. Omitted by the mid-season sweep, which falls back to tags.
    */
   previousClubs?: Set<string>,
+  options?: {
+    /**
+     * Kickoff wants every unowned high-value player as its one-time initial
+     * pool — there's no prior state to compare against, so "high-value" alone
+     * is the right bar. The ongoing mid-season sweep reuses this same
+     * eligibility check, but its whole premise (see seedHighValueAuctions.ts)
+     * is catching players who transfer in *after* kickoff — so for it,
+     * "unowned and expensive" isn't enough on its own, or any star who simply
+     * never got drafted reads as a fresh arrival. Set true to also require
+     * `pl_team_changed_at` evidence that the player's club actually changed.
+     */
+    requireTransferEvidence?: boolean;
+  },
 ): Promise<{ promotedClubs: Set<string>; candidates: SummerArrival[] }> {
   // roster_entries has no league_id column — ownership is only reachable
   // through teams. The previous query silently errored, which left the
@@ -147,13 +160,16 @@ export async function findPromotedClubsAndArrivals(
 
   const { data: allCandidatePlayers } = await admin
     .from('players')
-    .select('id, name, web_name, market_value, pl_team')
+    .select('id, name, web_name, market_value, pl_team, pl_team_changed_at')
     .eq('is_active', true);
+
+  const requireTransferEvidence = options?.requireTransferEvidence ?? false;
 
   const candidates = (allCandidatePlayers ?? [])
     .filter((p) => {
       if (ownedPlayerIds.has(p.id) || auctionPlayerIds.has(p.id)) return false;
-      const isHighValue = Number(p.market_value || 0) >= AUCTION_THRESHOLD;
+      let isHighValue = Number(p.market_value || 0) >= AUCTION_THRESHOLD;
+      if (isHighValue && requireTransferEvidence) isHighValue = p.pl_team_changed_at != null;
       const isPromoted = !!(p.pl_team && promotedClubs.has(p.pl_team));
       return isHighValue || isPromoted;
     })

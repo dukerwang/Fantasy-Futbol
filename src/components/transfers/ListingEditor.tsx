@@ -20,7 +20,7 @@ import { listingStance } from '@/lib/transfers/listingStance';
  * league will read. The auction is mandatory and runs either way, which is why
  * there is no switch for it.
  *
- * The one price that binds is `minBid`: the 80%-of-market-value trigger sets
+ * The one price that binds is `minBid`: the 60%-of-market-value trigger sets
  * where it can sit, and a cash offer must clear it. That is about not
  * undercutting your own auction, not about taste. The asking price is optional
  * advertising, and only the release clause executes on contact.
@@ -49,10 +49,10 @@ interface Props {
 
 const money = (n: number) => `€${n}m`;
 
-/** The 80% market-value floor for a roster player, so a new listing can default to it. */
+/** The 60% market-value floor for a roster player, so a new listing can default to it. */
 function floorFor(roster: RosterPlayer[], pid: string): number {
   const mv = Number(roster.find((p) => p.id === pid)?.market_value) || 0;
-  return mv > 0 ? Math.floor(mv * 0.8) : 0;
+  return mv > 0 ? Math.floor(mv * 0.6) : 0;
 }
 
 export default function ListingEditor({
@@ -61,7 +61,7 @@ export default function ListingEditor({
   const editing = Boolean(listing);
 
   const [playerId, setPlayerId] = useState<string>(listing?.player_id ?? initialPlayerId ?? '');
-  // Defaults to the 80% floor for a new listing — most sellers want the open
+  // Defaults to the 60% floor for a new listing — most sellers want the open
   // auction, so that stays the path of least resistance — but since 114 it can
   // be cleared to null: no minimum bid means no open auction at all, only
   // whatever the release clause and/or asking price allow.
@@ -102,7 +102,7 @@ export default function ListingEditor({
   const marketValue = Number(selected?.market_value) || 0;
   // The 077 trigger is the real enforcement; this mirrors it so the seller sees
   // the number instead of a raised exception.
-  const floor = marketValue > 0 ? Math.floor(marketValue * 0.8) : 0;
+  const floor = marketValue > 0 ? Math.floor(marketValue * 0.6) : 0;
 
   // Empty-while-typing is stored as NaN so the box can clear without saving a
   // half-typed number; a resting null (all three prices can be null since 114)
@@ -396,7 +396,7 @@ export default function ListingEditor({
 
       {belowFloor && floor > 0 && (
         <p className={styles.error}>
-          The minimum bid must be at least {money(floor)} — 80% of his {money(marketValue)} market value.
+          The minimum bid must be at least {money(floor)} — 60% of his {money(marketValue)} market value.
         </p>
       )}
       {askInvalid && (

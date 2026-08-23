@@ -149,11 +149,11 @@ export async function PATCH(req: NextRequest, { params }: Props) {
 
     const marketValue = Number(playerRow?.market_value ?? 0);
     if (marketValue > 0) {
-      const floor = Math.floor(marketValue * 0.8);
+      const floor = Math.floor(marketValue * 0.6);
       if ((minBid as number) < floor) {
         return NextResponse.json(
           {
-            error: `Minimum bid must be at least €${floor}m — 80% of ${playerRow?.name ?? 'this player'}'s €${marketValue}m market value.`,
+            error: `Minimum bid must be at least €${floor}m — 60% of ${playerRow?.name ?? 'this player'}'s €${marketValue}m market value.`,
             floor,
             marketValue,
           },

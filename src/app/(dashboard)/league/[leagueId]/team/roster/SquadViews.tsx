@@ -74,7 +74,14 @@ function TileCompact({ e, sel, onClick }: { e: SquadEntry; sel: boolean; onClick
       {/* The club is the crest on the portrait, not a three-letter abbreviation
           beside the badge — the same line the crest chip replaced everywhere
           else. Deleting it is what lets the meta row be the badge alone. */}
-      <Portrait photoUrl={p.photo_url} name={getPlayerDisplayName(p, 'full')} club={p.pl_team} size="sm" />
+      <Portrait
+        photoUrl={p.photo_url}
+        name={getPlayerDisplayName(p, 'full')}
+        club={p.pl_team}
+        size="sm"
+        headTopPct={p.portrait_head_top_pct}
+        headWidthPct={p.portrait_head_width_pct}
+      />
       <div className={styles.tcBody}>
         <div className={styles.tcName}>{getPlayerDisplayName(p, 'initial_last')}</div>
         <div className={styles.tcMeta}>
@@ -97,7 +104,14 @@ function TileGallery({ e, sel, onClick }: { e: SquadEntry; sel: boolean; onClick
   return (
     <button type="button" className={`${styles.tile} ${styles.tileG} ${sel ? styles.tileSel : ''}`} onClick={onClick}>
       <div className={styles.tgPhoto}>
-        <Portrait photoUrl={p.photo_url} name={getPlayerDisplayName(p, 'full')} club={p.pl_team} size="lg" />
+        <Portrait
+          photoUrl={p.photo_url}
+          name={getPlayerDisplayName(p, 'full')}
+          club={p.pl_team}
+          size="lg"
+          headTopPct={p.portrait_head_top_pct}
+          headWidthPct={p.portrait_head_width_pct}
+        />
         <span className={styles.tgValchip}>{money(valueOf(e))}</span>
         {inj && <span className={styles.tgInjchip} style={{ color: inj.tone }}>{inj.label}</span>}
       </div>

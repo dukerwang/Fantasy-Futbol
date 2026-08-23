@@ -12,24 +12,24 @@
   height: 36px;
   border-radius: var(--radius-full);
   background: transparent;
-  border: 1px solid var(--color-border);
-  color: var(--color-text-secondary);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.7);
   cursor: pointer;
   transition: all var(--transition-fast);
 }
 
 @media (hover: hover) and (pointer: fine) {
   .bellBtn:hover {
-    color: var(--color-text-primary);
-    border-color: var(--color-text-muted);
-    background: var(--color-bg-card-hover);
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.4);
+    background: rgba(255, 255, 255, 0.12);
   }
 }
 
 .bellBtnActive {
-  color: var(--color-accent-green);
-  border-color: var(--color-accent-green);
-  background: rgba(58, 107, 74, 0.05);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.15);
 }
 
 .badge {
@@ -48,7 +48,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 2px solid var(--color-bg-secondary);
+  border: 2px solid var(--color-topbar);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 

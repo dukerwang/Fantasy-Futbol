@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { clubBadgePath, resolveClub } from '@/lib/clubs/registry';
 import { portraitInitials, portraitSources } from '@/lib/players/photo';
+import { customPortraitCrop, type PortraitSize } from '@/lib/players/portraitCrop';
 
 interface Props {
   /** Either a stored `players.photo_url` or a bare FPL `elements[].code`. */
@@ -19,8 +20,18 @@ interface Props {
    */
   club?: string | null;
   /** hero 104x120 · lot 66x78 · row 44x44. */
-  size?: 'lg' | 'md' | 'sm';
+  size?: PortraitSize;
   className?: string;
+  /**
+   * `players.portrait_head_top_pct` / `portrait_head_width_pct` (migration
+   * 134) — per-player measurements of the primary 500x500 source, used to
+   * correct the shared crop for photos PL has framed differently (see
+   * portraitCrop.ts). Omit or leave null for a player the backfill hasn't
+   * measured yet; the shared crop applies unchanged, same as before these
+   * existed.
+   */
+  headTopPct?: number | null;
+  headWidthPct?: number | null;
 }
 
 /**
@@ -39,7 +50,7 @@ interface Props {
  * <img>'s error event — 27% of the pool misses the square source, so this
  * cascade is load-bearing rather than defensive.
  */
-export default function Portrait({ photoUrl, name, club, size = 'sm', className }: Props) {
+export default function Portrait({ photoUrl, name, club, size = 'sm', className, headTopPct, headWidthPct }: Props) {
   const sources = portraitSources(photoUrl);
   const key = sources[0] ?? '';
 
@@ -74,8 +85,16 @@ export default function Portrait({ photoUrl, name, club, size = 'sm', className 
   const badge = clubBadgePath(club);
   const clubName = resolveClub(club)?.name ?? club ?? '';
 
+  // Only the primary (500x500) source is measured — n > 0 means the fallback
+  // 220x280 picture is showing instead, which the shared `-alt` crop already
+  // handles and this player's measurements don't describe.
+  const crop = n === 0 ? customPortraitCrop(size, headTopPct, headWidthPct) : null;
+  const cropStyle = crop
+    ? ({ '--g-portrait-zoom': `${crop.zoomPct}%`, '--g-portrait-inset': `${crop.insetPx}px` } as React.CSSProperties)
+    : undefined;
+
   return (
-    <span className={`g-portrait g-portrait-${size}${className ? ` ${className}` : ''}`}>
+    <span className={`g-portrait g-portrait-${size}${className ? ` ${className}` : ''}`} style={cropStyle}>
       <span className="g-portrait-frame">
         {src ? (
           <img

@@ -114,12 +114,13 @@ export async function syncPlayersFromFpl(admin: SupabaseClient): Promise<SyncPla
     pl_team: string | null;
     date_of_birth: string | null;
     photo_url: string | null;
+    pl_team_changed_at: string | null;
   }
 
   // Snapshot existing players to preserve manual overrides and detect transfer-outs
   const { data: rawPlayers } = await admin
     .from('players')
-    .select('id, fpl_id, is_active, primary_position, secondary_positions, market_value, name, web_name, full_name, pl_team, date_of_birth, photo_url');
+    .select('id, fpl_id, is_active, primary_position, secondary_positions, market_value, name, web_name, full_name, pl_team, date_of_birth, photo_url, pl_team_changed_at');
 
   const existingPlayers: DbPlayer[] = (rawPlayers as DbPlayer[]) ?? [];
 
@@ -387,7 +388,7 @@ export async function syncPlayersFromFpl(admin: SupabaseClient): Promise<SyncPla
     // fplCode is a matching key derived from el.photo, not a column.
     const { fplCode: _fplCode, ...dbRow } = row;
 
-    const finalRow: typeof dbRow & { id?: string; full_name?: string | null } = {
+    const finalRow: typeof dbRow & { id?: string; full_name?: string | null; pl_team_changed_at: string | null } = {
       ...dbRow,
       name: finalName,
       primary_position: primaryPosition,
@@ -404,6 +405,18 @@ export async function syncPlayersFromFpl(admin: SupabaseClient): Promise<SyncPla
       // is always null) — don't let this upsert clobber whatever a slower,
       // separate source (api-football sync) has already populated.
       date_of_birth: existing?.date_of_birth ?? row.date_of_birth,
+      // Evidence for the high-value auction sweep (seedHighValueAuctions) that
+      // a player actually just transferred, rather than merely being unowned
+      // and expensive. A brand-new row (no `existing`) counts as an arrival in
+      // its own right; an existing row only counts when its club actually
+      // changed since the last sync — otherwise it keeps whatever value (or
+      // null) it already had, so a player who's sat at the same club all along
+      // never reads as "just arrived".
+      pl_team_changed_at: !existing
+        ? new Date().toISOString()
+        : existing.pl_team !== row.pl_team
+          ? new Date().toISOString()
+          : existing.pl_team_changed_at,
     };
     if (existing) finalRow.id = existing.id;
     if (clearBadFullName) finalRow.full_name = null;

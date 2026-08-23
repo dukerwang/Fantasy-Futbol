@@ -159,7 +159,7 @@ export default async function StandingsPage({ params }: Props) {
       {/* One panel: the podium and the full table are one board, not two —
           the top three tiles are the same three rows the table shows first,
           just arithmetic on the same standings rather than a second surface. */}
-      <div className={`g-panel ${styles.panel}`}>
+      <div className={styles.panel}>
         {standings.length === 0 ? (
           <p className={styles.emptyState}>No completed matches yet — check back after Gameweek 1.</p>
         ) : (
@@ -246,7 +246,9 @@ export default async function StandingsPage({ params }: Props) {
                       key={row.teamId}
                       className={`${styles.tableRow} ${isOwn ? styles.ownRow : ''}`}
                     >
-                      <td className={styles.rankCell}>{formatRank(i + 1)}</td>
+                      <td className={`${styles.rankCell} ${
+                        i === 0 ? styles.rankGold : i === 1 ? styles.rankSilver : i === 2 ? styles.rankBronze : ''
+                      }`}>{formatRank(i + 1)}</td>
                       <td className={styles.teamCell}>
                         <div className={styles.teamCellInner}>
                           {/* The crest peeks, the name navigates — a glance and a

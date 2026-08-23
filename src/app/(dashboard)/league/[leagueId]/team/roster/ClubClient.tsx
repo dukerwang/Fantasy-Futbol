@@ -66,19 +66,19 @@ interface TodoItem {
   entryId?: string;
 }
 
-function buildTodos(entries: SquadEntry[], departures: ClubProps['departures'], academyAgeLimit: number): TodoItem[] {
+function buildTodos(serverNow: string, entries: SquadEntry[], departures: ClubProps['departures'], academyAgeLimit: number): TodoItem[] {
   const out: TodoItem[] = [];
 
   departures.pending.forEach((d) =>
     out.push({
       group: 'decision', subject: getPlayerDisplayName({ name: d.name, web_name: d.webName }, 'initial_last'), detail: 'left the Premier League',
-      when: countdown(d.decideBy), act: 'Decide', decision: { mode: 'decide', dep: d },
+      when: countdown(serverNow, d.decideBy), act: 'Decide', decision: { mode: 'decide', dep: d },
     }),
   );
   departures.held.filter((d) => d.status === 'return_pending').forEach((d) =>
     out.push({
       group: 'decision', subject: getPlayerDisplayName({ name: d.name, web_name: d.webName }, 'initial_last'), detail: 'is back in the Premier League',
-      when: countdown(d.reinstateBy), act: 'Reinstate', decision: { mode: 'reinstate', dep: d },
+      when: countdown(serverNow, d.reinstateBy), act: 'Reinstate', decision: { mode: 'reinstate', dep: d },
     }),
   );
 
@@ -163,7 +163,7 @@ function ToDo({ items, onAct }: { items: TodoItem[]; onAct: (t: TodoItem) => voi
 // ── Page ──────────────────────────────────────────────────────────────────────
 
 export default function ClubClient({
-  leagueId, teamId, clubs, viewerIsOwner, club, standing, entries, departures,
+  leagueId, teamId, serverNow, clubs, viewerIsOwner, club, standing, entries, departures,
 }: ClubProps) {
   const router = useRouter();
   const [view, setView] = useState('depth');
@@ -206,7 +206,7 @@ export default function ClubClient({
   // A to-do list is a list of things YOU must act on. On a rival's club it
   // would be a list of things you can see but can't touch — worse than absent.
   const todos = useMemo(
-    () => (viewerIsOwner ? buildTodos(entries, departures, club.academyAgeLimit) : []),
+    () => (viewerIsOwner ? buildTodos(serverNow, entries, departures, club.academyAgeLimit) : []),
     [viewerIsOwner, entries, departures, club.academyAgeLimit],
   );
 
@@ -218,6 +218,14 @@ export default function ClubClient({
   return (
     <div className={`${styles.shell} ${styles.page} g-page`}>
       {/* ── Masthead ── */}
+      {/* The masthead is a bounded OBJECT, not a page section: crest, club name,
+          record, the club switcher and four figures are one identity card, and
+          its internal hairlines and column rules were drawn to terminate inside
+          a container. Flattening it (design-system rework, 2026-08-20) left
+          those rules running into nothing and the block open on three sides,
+          with a 2px ink rule at the bottom doing all the containment by itself.
+          The rework's own spec keeps `.g-panel` for "small, distinct units …
+          bounded objects, not page containers" — this is one. */}
       <header className={`${styles.masthead} g-panel`}>
         <div className={styles.mhTop}>
           <div className={styles.mhCrest}>
@@ -326,6 +334,7 @@ export default function ClubClient({
           <RetainedList
             leagueId={leagueId}
             teamId={teamId}
+            serverNow={serverNow}
             departures={departures}
             viewerIsOwner={viewerIsOwner}
             onDecision={setDecision}

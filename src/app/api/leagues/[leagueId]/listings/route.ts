@@ -275,11 +275,11 @@ export async function POST(req: NextRequest, { params }: Props) {
   // release-clause-only or negotiation-only listing (no minBid) has nothing
   // for this check to apply to.
   if (hasMinBid && marketValue > 0) {
-    const floor = Math.floor(marketValue * 0.8);
+    const floor = Math.floor(marketValue * 0.6);
     if ((minBid as number) < floor) {
       return NextResponse.json(
         {
-          error: `Minimum bid must be at least €${floor}m — 80% of ${playerRow?.name ?? 'this player'}'s €${marketValue}m market value.`,
+          error: `Minimum bid must be at least €${floor}m — 60% of ${playerRow?.name ?? 'this player'}'s €${marketValue}m market value.`,
           floor,
           marketValue,
         },

@@ -177,6 +177,8 @@ function PitchNode({ slotPos, player, isSelected, isValidTarget, isEmpty, isInva
                     name={player ? pitchFullName(player) : slotPos}
                     club={player?.pl_team}
                     size="md"
+                    headTopPct={player?.portrait_head_top_pct}
+                    headWidthPct={player?.portrait_head_width_pct}
                 />
             </span>
 

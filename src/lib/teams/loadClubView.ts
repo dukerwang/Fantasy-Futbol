@@ -89,6 +89,13 @@ export interface ClubSwitcherEntry {
 export interface ClubProps {
   leagueId: string;
   teamId: string;
+  /**
+   * Clock-skew anchor, taken once on the server. Every countdown on this page
+   * offsets against it rather than calling `Date.now()` at render — same
+   * contract as `HomeModel.serverNow`. Reading the clock during render makes
+   * the server and client trees disagree and breaks hydration.
+   */
+  serverNow: string;
   /** Every club in the league, so the page you're on is also the way to the next one. */
   clubs: ClubSwitcherEntry[];
   /**
@@ -423,6 +430,7 @@ export async function loadClubView(
   return {
     leagueId,
     teamId: team.id,
+    serverNow: new Date().toISOString(),
     clubs,
     viewerIsOwner,
     club: {

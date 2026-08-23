@@ -68,7 +68,9 @@ export async function seedHighValueAuctions(admin: SupabaseClient): Promise<Seed
 
   for (const league of (leagues ?? []) as LeagueRow[]) {
     try {
-      const { candidates } = await findPromotedClubsAndArrivals(admin, league.id, league.previous_season);
+      const { candidates } = await findPromotedClubsAndArrivals(admin, league.id, league.previous_season, undefined, {
+        requireTransferEvidence: true,
+      });
       if (candidates.length === 0) continue;
 
       // One window for every seeding path — see initialAuctionExpiry's docblock
