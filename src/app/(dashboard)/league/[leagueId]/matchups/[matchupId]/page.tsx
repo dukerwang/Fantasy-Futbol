@@ -2,12 +2,13 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { createClient } from '@/lib/supabase/server';
 import { notFound, redirect } from 'next/navigation';
 import NavigationLink from '@/components/ui/NavigationLink';
-import type { Matchup, MatchupLineup, Player } from '@/types';
+import type { Matchup, MatchupLineup, Player, RawStats } from '@/types';
 import MatchupPitch from '@/components/MatchupPitch';
 import { FULL_PLAYER_SELECT } from '@/lib/constants/queries';
 import { normalizeMatchupLineup } from '@/lib/lineups/normalizeMatchupLineup';
 import { generateMatchReport } from '@/lib/narrative/matchReport';
-import { getCurrentFplSeason } from '@/lib/season/currentSeason';
+import { getCurrentFplSeason, getLatestReferenceStatsSeason } from '@/lib/season/currentSeason';
+import { attachLineupSlotScores, loadReferenceStats, type MatchupPlayerDetail } from '@/lib/scoring/matchups';
 import { isGameweekFinalised } from '@/lib/scoring/gameweekState';
 import { getLockedPlTeamIds } from '@/lib/fixtures/lockout';
 import { clubHref } from '@/lib/teams/clubHref';
@@ -90,34 +91,45 @@ export default async function MatchupDetailPage({ params }: Props) {
         }
     }
 
-    // Load pre-computed fantasy_points from player_stats.
-    // We do NOT re-run calculateMatchRating here. Mid-gameweek the stored stats
-    // JSON carries provisional BPS and, from 2026/27, an ICT block FPL withholds
-    // until lockdown; recalculating from it would produce a different number than
-    // the one already shown. fantasy_points is written at sync time (against
-    // imputed ICT while the block is missing — see lib/scoring/ictImputation.ts)
-    // and is the authoritative value until the post-lockdown pass rewrites it.
-    const detailMap: Record<string, { points: number; rating?: number | null; stats?: any }> = {};
+    // Stored fantasy_points / match_rating are primary-position scores — the
+    // same numbers the player browser and PPG use. The pitch has to show the
+    // slot the manager actually fielded (Szoboszlai at RB is not his AM game).
+    // We re-score secondaries from the stored stats JSON, which already carries
+    // imputed ICT from sync; we do not re-derive the primary, so live ICT
+    // can't drift from the number already written.
+    const detailMap: Record<string, MatchupPlayerDetail> = {};
     if (playerIds.size > 0 && matchupData.gameweek) {
         // Scope by season too — gameweek numbers repeat every season, and
         // player_stats keeps every past season's rows (never archived/cleared).
-        const statsSeason = await getCurrentFplSeason(undefined, true);
-        const { data: statsRows } = await admin
-            .from('player_stats')
-            // match_rating is its own column, never a key inside stats — the pitch
-            // chip needs it passed through explicitly.
-            .select('player_id, fantasy_points, match_rating, stats')
-            .eq('season', statsSeason)
-            .eq('gameweek', matchupData.gameweek)
-            .in('player_id', Array.from(playerIds));
+        const [statsSeason, refSeason] = await Promise.all([
+            getCurrentFplSeason(undefined, true),
+            getLatestReferenceStatsSeason(admin),
+        ]);
+        const [{ data: statsRows }, refStats] = await Promise.all([
+            admin
+                .from('player_stats')
+                // match_rating is its own column, never a key inside stats — the pitch
+                // chip needs it passed through explicitly.
+                .select('player_id, fantasy_points, match_rating, stats')
+                .eq('season', statsSeason)
+                .eq('gameweek', matchupData.gameweek)
+                .in('player_id', Array.from(playerIds)),
+            loadReferenceStats(admin, refSeason),
+        ]);
 
         for (const s of statsRows ?? []) {
             detailMap[s.player_id] = {
                 points: Number(s.fantasy_points),
                 rating: s.match_rating != null ? Number(s.match_rating) : null,
-                stats: s.stats || {},
+                stats: (s.stats as RawStats | undefined) ?? undefined,
             };
         }
+
+        const playerPrimary = new Map<string, string | undefined>();
+        for (const [id, p] of Object.entries(playerMap)) {
+            playerPrimary.set(id, p.primary_position);
+        }
+        attachLineupSlotScores(detailMap, [lineupA, lineupB], playerPrimary, refStats);
     }
 
     let computedScoreA = 0;

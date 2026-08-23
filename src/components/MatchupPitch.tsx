@@ -97,7 +97,23 @@ function fmtStats(detail: Detail | undefined, slot: string): string {
 }
 
 /* ── Sub-components ───────────────────────────────────────────────── */
-type Detail = { points: number; rating?: number | null; stats?: MatchStatsSnapshot };
+type Detail = {
+    points: number;
+    rating?: number | null;
+    stats?: MatchStatsSnapshot;
+    bySlot?: Record<string, { points: number; rating: number | null }>;
+};
+
+/**
+ * The number the chip should show for this slot, not the player's stored
+ * primary-position score. Bench bonus still reads `detail.points` (no slot).
+ */
+function detailAtSlot(detail: Detail | undefined, slot: string): Detail | undefined {
+    if (!detail) return undefined;
+    const slotted = detail.bySlot?.[slot];
+    if (!slotted) return detail;
+    return { ...detail, points: slotted.points, rating: slotted.rating };
+}
 
 /**
  * Why a 0.0 is ambiguous without this.
@@ -353,8 +369,10 @@ export default function MatchupPitch({
     const benchBonusA = calcBenchBonus(resolvedA.bench);
     const benchBonusB = calcBenchBonus(resolvedB.bench);
 
-    const totalA = resolvedA.starters.reduce((s, x) => s + (detailMap[x.player_id]?.points ?? 0), 0) + benchBonusA;
-    const totalB = resolvedB.starters.reduce((s, x) => s + (detailMap[x.player_id]?.points ?? 0), 0) + benchBonusB;
+    const starterPts = (playerId: string, slot: string) =>
+        detailAtSlot(detailMap[playerId], slot)?.points ?? 0;
+    const totalA = resolvedA.starters.reduce((s, x) => s + starterPts(x.player_id, x.slot), 0) + benchBonusA;
+    const totalB = resolvedB.starters.reduce((s, x) => s + starterPts(x.player_id, x.slot), 0) + benchBonusB;
 
     function renderHalf(
         zones: ReturnType<typeof groupByZone> | null,
@@ -395,7 +413,7 @@ export default function MatchupPitch({
                                                 <PlayerChip
                                                     slot={s.slot}
                                                     player={playerMap[s.player_id]}
-                                                    detail={detailMap[s.player_id]}
+                                                    detail={detailAtSlot(detailMap[s.player_id], s.slot)}
                                                     status={statusOf(s.player_id)}
                                                     isSubIn={s.isSubIn}
                                                     onClick={() => setViewingPlayer(playerMap[s.player_id] ?? null)}
@@ -468,7 +486,7 @@ export default function MatchupPitch({
                             </div>
                             {starters.map((s, i) => {
                                 const p = playerMap[s.player_id];
-                                const detail = detailMap[s.player_id];
+                                const detail = detailAtSlot(detailMap[s.player_id], s.slot);
                                 return (
                                     <div
                                         key={s.player_id}

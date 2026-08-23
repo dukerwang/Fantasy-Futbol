@@ -55,6 +55,113 @@ function rateAtSlot(
   return fantasyPoints;
 }
 
+export type SlotAppearance = { points: number; rating: number | null };
+
+export type MatchupPlayerDetail = {
+  points: number;
+  rating?: number | null;
+  stats?: RawStats;
+  /**
+   * Points/rating at each lineup slot this player might fill. Primary-position
+   * stays on `points` / `rating` so the bench depth bonus (which is not a slot)
+   * still reads the stored number.
+   */
+  bySlot?: Record<string, SlotAppearance>;
+};
+
+/**
+ * What the matchup pitch should print for one appearance in one slot.
+ *
+ * Same split as the player card: points take the OOP haircut (that's what the
+ * team is actually awarded); display rating is the performance under that
+ * slot's weights without the post-curve squash, otherwise a great game at RB
+ * reads as ~6.5 next to ~18 pts.
+ *
+ * When the slot IS the primary, we keep the sync-written numbers rather than
+ * re-running the engine — live ICT is already imputed into the stored stats
+ * JSON, and re-deriving the primary score is how this page used to drift from
+ * the number already on the board.
+ */
+export function scoreAppearanceAtSlot(
+  stats: RawStats | null | undefined,
+  slot: string,
+  primaryPosition: string | undefined,
+  refStats: Record<string, ReferenceStats>,
+  stored: SlotAppearance,
+): SlotAppearance {
+  if (!stats) return stored;
+  if (!(stats.minutes_played > 0)) {
+    return { points: 0, rating: stored.rating };
+  }
+  const slotPos = slot.toUpperCase();
+  const primary = (primaryPosition ?? '').toUpperCase();
+  if (primary && slotPos === primary) return stored;
+  return {
+    points: rateAtSlot(stats, slotPos, refStats, primary || undefined),
+    rating: calculateMatchRating(
+      stats,
+      slotPos as GranularPosition,
+      refStats as Record<GranularPosition, ReferenceStats>,
+    ).rating,
+  };
+}
+
+/**
+ * Annotate a matchup's detailMap so chips / breakdown / match report all
+ * read the score at the slot the player was actually fielded in, not the
+ * stored primary-position number.
+ *
+ * Bench players keep their stored primary on `points` (bench bonus is not a
+ * slot). Starters have `points` overwritten to the slot score so any caller
+ * that still keys by player_id — live header, match report — agrees with the
+ * chip. Auto-subs look up `bySlot[filledSlot]` instead.
+ */
+export function attachLineupSlotScores(
+  detailMap: Record<string, MatchupPlayerDetail>,
+  lineups: Array<{
+    starters?: { player_id: string; slot: string }[];
+    bench?: { player_id: string; slot?: string }[];
+  } | null>,
+  playerPrimary: Map<string, string | undefined> | Record<string, string | undefined>,
+  refStats: Record<string, ReferenceStats>,
+): void {
+  const primaryOf = (id: string) =>
+    playerPrimary instanceof Map ? playerPrimary.get(id) : playerPrimary[id];
+
+  for (const lineup of lineups) {
+    if (!lineup) continue;
+    const slots = [...new Set((lineup.starters ?? []).map((s) => s.slot).filter(Boolean))];
+    const ids = [
+      ...(lineup.starters ?? []).map((s) => s.player_id),
+      ...((lineup.bench ?? []) as { player_id: string }[]).map((b) => b.player_id),
+    ].filter(Boolean);
+
+    for (const id of ids) {
+      const d = detailMap[id];
+      if (!d) continue;
+      const stored: SlotAppearance = { points: d.points, rating: d.rating ?? null };
+      d.bySlot ??= {};
+      for (const slot of slots) {
+        d.bySlot[slot] = scoreAppearanceAtSlot(
+          (d.stats as RawStats | null) ?? null,
+          slot,
+          primaryOf(id),
+          refStats,
+          stored,
+        );
+      }
+    }
+
+    for (const s of lineup.starters ?? []) {
+      const d = detailMap[s.player_id];
+      const slotted = d?.bySlot?.[s.slot];
+      if (!d || !slotted) continue;
+      d.points = slotted.points;
+      d.rating = slotted.rating;
+    }
+  }
+}
+
 /**
  * What the scorer actually did, for surfaces that have to explain a result
  * rather than just print it.
