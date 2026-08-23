@@ -90,180 +90,117 @@ function nudge(fgHex, bgRgb, target) {
   return fgHex;
 }
 
-/* ---------- the palette ----------
+/* ---------- the palette, READ FROM globals.css ----------
  *
- * Authored, not generated. Notes worth keeping:
- *   dark surfaces  keep Gaffa's charcoal-navy. A warm-derived dark was built
- *                  and rejected: warm light with a cool dark is a legitimate
- *                  pairing, and the warm cream TEXT on cool navy is the
- *                  tension that keeps it recognisably Gaffa.
- *   accent         --color-accent is a FILL and large-text token;
- *                  --color-accent-ink is the body-text one. #1FA35F on a dark
- *                  card is 4.33:1, so the token splits by role rather than
- *                  moving a pinned brand value.
- *   warning        stays the bright amber because stylesheets use it as a
- *                  FILL with dark ink on top; warning-as-TEXT is its own
- *                  token, because the amber is 1.87:1 on cream.
+ * This file used to carry its own hardcoded copy of every token. That copy
+ * drifted: by 2026-08-23 it still held the pre-lock spine (GK at #9E6D00) and
+ * reported "196 pass" against a palette the app no longer shipped — a verifier
+ * that agrees with itself rather than with the code. It now parses
+ * src/app/globals.css, so it cannot pass unless the SHIPPED tokens pass.
+ *
+ * Gaffa's identity colours are pinned (the cream, the forest green, the
+ * position hues), so this does NOT generate a palette. It reads the authored
+ * hex, checks every text/surface pair that can legally occur, and where one
+ * fails it walks OKLCH lightness — holding hue and chroma — to report the
+ * nearest passing value. Holding H and C is the rule from the dark-accent
+ * work: move lightness, or the colour reads as a different brand.
  */
-const P = {
-  light: {
-    'bg-primary':    '#F7F3ED',
-    'bg-secondary':  '#EDE8DE',
-    'bg-card':       '#FDFCF9',
-    /* Three values below are the APP's, not 2.0's earlier proposals, because
-       measuring settled them the other way:
-         bg-card-alt  #F3EFE6 gave a zebra separation of 1.118 — above this
-                      file's own 1.03-1.10 target, i.e. stripey. #f9f6f1 is 1.051.
-         border /     2.0's #D6D0C4 / #E3DED3 are FAINTER than the app's
-         border-subtle (1.39 vs 1.58 on the page). Neither carries an AA
-                      obligation, and the audit's strongest finding was that
-                      hairlines are what make the newer pages read as precise.
-                      Softening 591 call sites to no benefit is not a fix. */
-    'bg-card-alt':   '#f9f6f1',
-    'bg-inset':      '#E8E2D6',
-    'border':        '#C8C3BC',
-    'border-subtle': '#D9D4CD',
-    'border-strong': '#8F877B',
-    'text-primary':  '#1C1A17',
-    'text-secondary':'#4A453D',
-    'text-muted':    '#6B6356',
-    'accent':        '#146B40',
-    'accent-hover':  '#0F5632',
-    'accent-ink':    '#146B40',
-    /* The two "label ON a fill" tokens. on-accent INVERTS by theme (dark's
-       accent is the brighter colour); on-warning does NOT, because the warning
-       fill itself is the same in both themes. Both are checked at 4.5 below —
-       a button label is body text, and holding this pair to the 3.0 non-text
-       floor is exactly how a 2.70:1 label shipped. */
-    'on-accent':     '#FFFFFF',
-    'on-warning':    '#1C1A17',
-    'on-danger':     '#FFFFFF',
-    'warning':       '#f59e0b',
-    'live':          '#B3261E',
-    'danger':        '#A32219',
-    'warning-text':  '#8A5A0B',
-    'gold':          '#8A6A1F',
-    'silver':        '#6C7176',
-    'bronze':        '#8A4A22',
-    'tint-accent':   '#E2EAE1',
-    'tint-danger':   '#F5E3DD',
-    'tint-warning':  '#EFE8DD',
-    /* Performance ramp. Colours a figure by how it sits against the player's
-       OWN positional median. Solved in OKLCH, lightness only, against the
-       HARDER of card and page — these are 11px figures. Derived at 4.8 rather
-       than the 4.5 the check enforces: solving to the floor exactly put every
-       stop at 4.50:1, the tightest pairs in the palette, one background nudge
-       from failing. Same reason the keylines aim past 3.0.
-       Cost recorded, not argued, exactly like the winger sage below: `perf-best`
-       is 1 degree in hue from the accent and `perf-poor` 1 degree from danger,
-       so a strong figure is the same green as "yours" and a weak one the same
-       red as danger. A teal-to-clay ramp 47-56 degrees off the accent was built,
-       measured and set aside — green-to-red reads instantly and Duke judged that
-       worth the collision. Contained to TEXT ON FIGURES; never fills or badges. */
-    'perf-poor':     '#B04B3D',
-    'perf-low':      '#9B5B2B',
-    'perf-good':     '#42764E',
-    'perf-best':     '#147B47',
-    /* The pitch. ONE grass in both themes: it is a depicted object, the same
-       category as a club crest or a kit, so it owes the colour law nothing —
-       and a legal grass is darker than the dark theme's own card, so no single
-       green can separate from a cream chip AND a navy chip by fill. The chip
-       takes the white keyline instead. 1.0's #5A8F6A put white at 3.77:1 even
-       at full strength, and it never painted white at full strength.
-       scratch/solve_pitch_grass.mjs. */
-    'pitch':         '#497D59',
-    'pitch-band':    '#417551',
-    'pitch-line':    '#FFFFFF',
-  },
-  dark: {
-    'bg-primary':    '#1A1F2E',
-    'bg-secondary':  '#232A3D',
-    'bg-card':       '#252B3D',
-    'bg-card-alt':   '#1F2436',
-    'bg-inset':      '#161B28',
-    'border':        '#3E4559',
-    'border-subtle': '#2C3344',
-    'border-strong': '#6E7893',
-    'text-primary':  '#EDEAE2',
-    'text-secondary':'#B7B2A8',
-    'text-muted':    '#949BAB',
-    'accent':        '#1FA35F',
-    'accent-hover':  '#37BE77',
-    'accent-ink':    '#2FB56C',
-    'on-accent':     '#10141C',
-    'on-warning':    '#1C1A17',
-    'on-danger':     '#10141C',
-    'warning':       '#f59e0b',
-    'live':          '#F0736A',
-    'danger':        '#F0736A',
-    'warning-text':  '#E0A63C',
-    'gold':          '#D6B052',
-    'silver':        '#AEB4BA',
-    'bronze':        '#CD8450',
-    'tint-accent':   '#2A4647',
-    'tint-danger':   '#533E4A',
-    'tint-warning':  '#4D4745',
-    'perf-poor':     '#E37969',
-    'perf-low':      '#CC8758',
-    'perf-good':     '#6DA378',
-    'perf-best':     '#4EA972',
-    'pitch':         '#497D59',
-    'pitch-band':    '#417551',
-    'pitch-line':    '#FFFFFF',
-  },
-};
+
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import { dirname, resolve } from 'node:path';
+
+const CSS_PATH = resolve(dirname(fileURLToPath(import.meta.url)), '..', 'src', 'app', 'globals.css');
+const CSS = readFileSync(CSS_PATH, 'utf8');
+
+/**
+ * Pull `--color-*` declarations out of one rule block.
+ *
+ * `startRe` matches the block's selector; we then take everything up to the
+ * first line that is a bare `}` at column 0, which is how every token block in
+ * globals.css closes. Nested at-rules inside a token block would break this,
+ * and there are none — if that changes, this needs a real parser.
+ */
+function blockTokens(startRe) {
+  const lines = CSS.split('\n');
+  const start = lines.findIndex((l) => startRe.test(l));
+  if (start < 0) throw new Error(`verify-palette: no block matching ${startRe} in ${CSS_PATH}`);
+  const out = {};
+  for (let i = start; i < lines.length; i++) {
+    if (i > start && lines[i] === '}') break;
+    // Several tokens share a line (`--color-warning: X;  --color-warning-dim: Y;`).
+    for (const m of lines[i].matchAll(/--color-([a-z0-9-]+)\s*:\s*([^;]+);/g)) {
+      out[m[1]] = m[2].trim();
+    }
+  }
+  return out;
+}
+
+/** Resolve `var(--color-x)` aliases, and drop anything that is not plain hex. */
+function resolveHex(map) {
+  const out = {};
+  for (const [k, raw] of Object.entries(map)) {
+    let v = raw;
+    for (let hops = 0; hops < 4 && /^var\(/.test(v); hops++) {
+      const ref = v.match(/var\(\s*--color-([a-z0-9-]+)/);
+      if (!ref) break;
+      v = map[ref[1]] ?? v;
+    }
+    if (/^#[0-9a-fA-F]{6}$/.test(v)) out[k] = v.toUpperCase();
+  }
+  return out;
+}
+
+const lightRaw = blockTokens(/^\.g-theme-light\s*\{/);
+const darkRaw = blockTokens(/^\[data-theme="dark"\]\s*\{/);
+
+const light = resolveHex(lightRaw);
+// The dark block only RE-declares what changes; everything else cascades from
+// :root. Merging light-under-dark is what the browser actually resolves, and
+// checking dark against a partial map is how a token with no dark value (the
+// pitch, the warning fill) silently escapes verification.
+const dark = resolveHex({ ...lightRaw, ...darkRaw });
+
+const P = { light, dark };
 
 /* ---------- position spine ----------
  *
- * ONE fill per position across BOTH themes, white ink throughout.
- *
- * Dark used to lighten all twelve and switch the label to dark ink, which made
- * a position a different colour depending on the theme — awkward for the one
- * token set where hue carries identity. White text needs the fill at luminance
- * <= 0.183 to clear 4.5:1, so the fill cannot be lightened for dark; what it
- * loses that way is its EDGE against a dark card, and that is exactly what the
- * keyline (derived below) restores.
- *
- * Goalkeeper moved from 1.0's #D4A017 to #9E6D00: at luminance 0.42 it was the
- * one pale badge in a spine that otherwise sits at 0.10-0.17, so it was the
- * only position that needed dark ink. Holding hue and chroma and moving
- * lightness only, white first clears 4.5:1 at #9E6D00.
- *
- * Wingers were briefly moved to a terracotta so that green could mean one
- * thing (Gaffa, and "yours"). Duke reverted them to 1.0's deep sage. The cost
- * is recorded rather than argued: sage sits near the accent, so a winger badge
- * reads adjacent to ownership on surfaces that tint your own row green.
+ * ONE fill per position across BOTH themes, with a per-position label ink.
+ * Read from the same source: `--color-pos-<k>` is the field, `-on` the label,
+ * `-line` the keyline. The keyline — not the fill — is what has to separate a
+ * badge from the page, which frees the fill to sit wherever the label needs it.
  */
-const SPINE = {
-  gk:  '#9E6D00',
-  cb:  '#2A5A92',
-  lb:  '#2C6FD8',
-  rb:  '#2C6FD8',
-  lwb: '#1F6B70',
-  rwb: '#1F6B70',
-  dm:  '#6A47A0',
-  cm:  '#8763AC',
-  am:  '#A8406C',
-  lw:  '#2F7A4E',
-  rw:  '#2F7A4E',
-  st:  '#A62626',
-};
+const POS_KEYS = ['gk', 'cb', 'lb', 'rb', 'lwb', 'rwb', 'dm', 'cm', 'am', 'lw', 'rw', 'st'];
 
-const POS = {
-  light: Object.fromEntries(
-    Object.entries(SPINE).map(([k, field]) => [k, { field, on: '#FFFFFF' }]),
-  ),
-  dark: Object.fromEntries(
-    Object.entries(SPINE).map(([k, field]) => [k, { field, on: '#FFFFFF' }]),
-  ),
-};
+function spineFor(themeMap) {
+  return Object.fromEntries(
+    POS_KEYS.map((k) => {
+      const field = themeMap[`pos-${k}`];
+      if (!field) throw new Error(`verify-palette: --color-pos-${k} missing from ${CSS_PATH}`);
+      return [k, { field, on: themeMap[`pos-${k}-on`] ?? '#FFFFFF', line: themeMap[`pos-${k}-line`] ?? field }];
+    }),
+  );
+}
+
+const POS = { light: spineFor(light), dark: spineFor(dark) };
 
 /* ---------- checks ---------- */
 
 const fails = [];
 const passes = [];
 
+const missing = [];
+
 function check(theme, label, fgHex, bgHex, min) {
+  /* A token this file asks for but globals.css does not declare is a FAILURE,
+     not a crash and not a silent skip. While this file carried its own copy of
+     the palette, a renamed or deleted token simply went on passing against the
+     stale value; now it is named in the report so the check list and the
+     stylesheet stay honest about each other. */
+  if (!fgHex || !bgHex) {
+    missing.push(`${theme} · ${label} — ${!fgHex ? 'ink' : 'surface'} token not declared in globals.css`);
+    return;
+  }
   const fg = hexToRgb(fgHex), bg = hexToRgb(bgHex);
   const ratio = contrast(fg, bg);
   const row = { theme, label, ratio, min, fgHex, bgHex };
@@ -291,15 +228,14 @@ for (const theme of ['light', 'dark']) {
     }
   }
 
-  // The performance ramp carries the 11px baseline-rule figures, so it gets the
-  // full 4.5 — no large-text discount, even though the points figure it also
-  // colours is 32px. `perf-mid` is not listed: it IS text-primary, already
-  // checked above against every surface.
-  for (const ink of ['perf-poor', 'perf-low', 'perf-good', 'perf-best']) {
-    for (const surface of ['bg-primary', 'bg-card', 'bg-card-alt']) {
-      check(theme, `${ink} on ${surface}`, p[ink], p[surface], 4.5);
-    }
-  }
+  /* The performance ramp used to be checked here (perf-poor/low/good/best at
+     the full 4.5, because it carried the 11px baseline-rule figures). Removed
+     because the ramp is gone: `--color-perf-*` is declared nowhere in
+     globals.css and nothing in src/ references it. Those four checks kept
+     passing only because this file held its own copy of the tokens — the exact
+     drift that reading globals.css is meant to make impossible. Re-add them if
+     the ramp comes back; `check` will now report a missing token by name
+     rather than passing it or throwing. */
 
   // The medal ramp is rank 1/2/3 only — large figures and thin rings, never
   // body copy — so it is held to the large-text/non-text floor of 3:1.
@@ -398,7 +334,13 @@ const fmt = (r) =>
   `  ${r.ratio >= r.min ? '✓' : '✗'} ${(r.theme + ' · ' + r.label).padEnd(w)} ${r.ratio.toFixed(2)}:1 (needs ${r.min})` +
   (r.suggestion ? `  → nearest passing: ${r.suggestion}` : '');
 
-console.log(`Gaffa 2.0 palette — ${total} pairs checked\n`);
+console.log(`Gaffa palette — ${total} pairs checked, read from src/app/globals.css\n`);
+
+if (missing.length) {
+  console.log(`${missing.length} MISSING TOKEN(S) — this file asks for colours globals.css does not declare:\n`);
+  for (const m of missing) console.log(`  ✗ ${m}`);
+  console.log('');
+}
 
 if (fails.length) {
   console.log(`${fails.length} FAIL:\n`);
@@ -421,4 +363,7 @@ for (const theme of ['light', 'dark']) {
   );
 }
 
-process.exit(fails.length ? 1 : 0);
+// A missing token is as much a failure as a failing ratio: it means the check
+// list and the stylesheet have drifted apart, which is the whole thing this
+// file now exists to prevent.
+process.exit(fails.length || missing.length ? 1 : 0);

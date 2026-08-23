@@ -12,10 +12,15 @@
    pair fails, resolve it by moving lightness ONLY — moving hue makes it a
    different brand.
 
-   WARNING: `design-2.0/verify-palette.mjs` does NOT read this file. It carries
-   its own hardcoded copy of the tokens (see its POS map), so it has drifted
-   and will happily report "196 pass" against values that are no longer here.
-   Re-point it at this file before trusting it again.
+   THIS FILE IS THE SOURCE OF TRUTH, and the verifier now reads it:
+
+     node design-2.0/verify-palette.mjs     # exits 1 on any failure
+
+   It parses the two token blocks below, merges light under dark exactly as the
+   cascade does, and checks 172 pairs. It used to hold its own hardcoded copy
+   and had silently drifted four values behind, reporting "196 pass" against a
+   palette that no longer shipped — so a token renamed or deleted here is now
+   reported by name rather than quietly passing against a stale value.
    ============================================================ */
 
 /* `.g-theme-light` re-supplies this whole block to a SUBTREE, so a component
