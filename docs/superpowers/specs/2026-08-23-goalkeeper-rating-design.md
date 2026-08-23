@@ -177,8 +177,9 @@ theoretical. Prize distribution is placement-based.
 2. Land the formula change plus `recompute_reference_stats.mjs` together.
 3. Regenerate the golden baseline, checking each keeper case by hand rather than
    accepting the new output wholesale.
-4. Run the `/share/stats` gate in §7 and get sign-off.
-5. Backfill 2025-26 behind the shadow-column pattern; compare; promote.
+4. Backfill `player_stats` for 2025-26 behind the shadow-column pattern;
+   compare; promote. This has to precede the snapshot, not follow it — see §7.
+5. Regenerate the `/share/stats` snapshot, run the gate in §7, get sign-off.
 6. Recompute position ranks.
 
 **Timing: after a gameweek locks, never mid-scoring.**
@@ -223,17 +224,55 @@ Adopt the regenerated snapshot only on explicit sign-off. If the balance of that
 page is worse, the calibration in §3 is wrong and gets refit — the page is the
 acceptance test, not a downstream consequence.
 
-### Already outstanding, independent of this work
+### Measured: what regenerating today actually does
 
 The checked-in snapshot was generated **2026-08-19**, before `APPEARANCE_CREDIT`
-was extended to every position (commit `ed27bf3`, 2026-08-23). The live engine and
-the frozen page have therefore already diverged: regenerating today would raise
-every outfielder's `total_points` by 2.5 per appearance and leave keepers where
-they are, compressing the gap between them across the whole table.
+was extended to every position (`ed27bf3`, 2026-08-23). The gate was run against
+that divergence on 2026-08-23 — regenerated to a scratch copy, diffed, and the
+checked-in file restored and md5-verified. Results:
 
-Nothing is visibly wrong today, because the page serves the file. But the same
-review is owed for that change too, and the two are cleaner to review together
-than one on top of the other.
+**The headline table does not move at all.** `total_points`, `ppg`,
+`overall_rank` and `form_rating` are identical for all 646 players. Zero rank
+changes. Those values are read from `season_player_stats_archive`, not recomputed
+through the engine, so a scoring change cannot reach them. The leaderboard is
+structurally insulated.
+
+**No rating moves anywhere.** `avg_rating` delta is 0.000 across all three shadow
+pools, confirming the credit is points-only as designed.
+
+**But the snapshot comes out internally inconsistent**, and this is the finding
+that matters:
+
+| Shadow entries (`played` pool) | n | Changed |
+|---|---|---|
+| Player's PRIMARY position | 516 | **0** |
+| Player's SECONDARY positions | 453 | **453** |
+
+The split is total and clean. `positionAggregates.ts` keeps the stored
+`player_stats.fantasy_points` for a player's primary position and re-scores his
+secondary positions through the live engine — the same primary/secondary
+asymmetry `attachPositionScores` uses in `cardData.ts`. Since `player_stats` has
+not been backfilled, regenerating today writes **every primary position on the
+old scale and every secondary position on the new one**.
+
+The visible damage is to the position comparison, which is what the shadow maps
+exist to support: 725 of 919 position-rank entries move (78.9%), 203 of them by
+five or more places. Secondary-position points rise ~23.9 on average while
+primary stays flat, so a player's secondary rank improves against his primary for
+no footballing reason. Ødegaard drops 49 → 67 at CM; Sadiki climbs 51 → 28 at DM.
+None of that movement is real.
+
+**Consequence for ordering: `player_stats.fantasy_points` must be backfilled for
+2025-26 BEFORE the snapshot is regenerated**, never after and never without. This
+applies to the keeper work in this spec exactly as it does to the appearance
+credit.
+
+**Also note regeneration is not scoring-only.** It re-reads current `players`
+rows, so it picks up whatever has drifted since the last build — in this run
+`updated_at` on all 646, plus `fpl_status` (27), `fpl_news` (32),
+`market_value_updated_at` (179), `is_active` (8) and a few `web_name` / `fpl_id` /
+`date_of_birth` corrections. Harmless, but it means a snapshot diff is never a
+clean read of a scoring change unless those fields are filtered out first.
 
 ---
 
