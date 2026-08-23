@@ -2,6 +2,10 @@
     "crons": [
         {
             "path": "/api/sync/stats?mode=fpl_live",
+            "schedule": "15 8 * * *"
+        },
+        {
+            "path": "/api/sync/stats?mode=fpl_live",
             "schedule": "0 18 * * *"
         },
         {

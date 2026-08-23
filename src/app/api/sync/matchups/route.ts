@@ -40,13 +40,17 @@ export async function POST(req: NextRequest) {
         gameweek = await getCurrentGameweek();
     }
     const finished = searchParams.get('finished') === 'true';
+    // Escape hatch for deliberate admin use. Without it, `finished=true` only
+    // locks a gameweek whose post-lockdown stats pass has already run — see
+    // processMatchupsForGameweek.
+    const force = searchParams.get('force') === 'true';
 
     if (!gameweek || gameweek < 1) {
         return NextResponse.json({ error: 'gameweek required (positive integer)' }, { status: 400 });
     }
 
     try {
-        const result = await processMatchupsForGameweek(gameweek, finished);
+        const result = await processMatchupsForGameweek(gameweek, finished, { force });
         return NextResponse.json(result);
     } catch (err: any) {
         return NextResponse.json({ error: 'Failed to process matchups', details: err.message }, { status: 500 });

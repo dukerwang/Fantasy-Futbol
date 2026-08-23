@@ -8,6 +8,7 @@ import { FULL_PLAYER_SELECT } from '@/lib/constants/queries';
 import { normalizeMatchupLineup } from '@/lib/lineups/normalizeMatchupLineup';
 import { generateMatchReport } from '@/lib/narrative/matchReport';
 import { getCurrentFplSeason } from '@/lib/season/currentSeason';
+import { isGameweekFinalised } from '@/lib/scoring/gameweekState';
 import { clubHref } from '@/lib/teams/clubHref';
 import CrestBadge from '@/components/crest/CrestBadge';
 import MatchReportCard from './MatchReportCard';
@@ -89,10 +90,12 @@ export default async function MatchupDetailPage({ params }: Props) {
     }
 
     // Load pre-computed fantasy_points from player_stats.
-    // We do NOT re-run calculateMatchRating here — the stored stats JSON often has
-    // zeroed BPS/ICT fields when the sync ran before FPL finalized bonus points,
-    // which would produce wrong recalculated scores. The fantasy_points column is
-    // computed at sync time with the full data and is the authoritative value.
+    // We do NOT re-run calculateMatchRating here. Mid-gameweek the stored stats
+    // JSON carries provisional BPS and, from 2026/27, an ICT block FPL withholds
+    // until lockdown; recalculating from it would produce a different number than
+    // the one already shown. fantasy_points is written at sync time (against
+    // imputed ICT while the block is missing — see lib/scoring/ictImputation.ts)
+    // and is the authoritative value until the post-lockdown pass rewrites it.
     const detailMap: Record<string, { points: number; stats?: any }> = {};
     if (playerIds.size > 0 && matchupData.gameweek) {
         // Scope by season too — gameweek numbers repeat every season, and
@@ -114,6 +117,15 @@ export default async function MatchupDetailPage({ params }: Props) {
     lineupA?.starters.forEach(s => { computedScoreA += detailMap[s.player_id]?.points || 0; });
     let computedScoreB = 0;
     lineupB?.starters.forEach(s => { computedScoreB += detailMap[s.player_id]?.points || 0; });
+
+    // Whether we hold FPL's reviewed stats for this gameweek yet. Until the
+    // post-lockdown pass runs, the scoreline is an estimate and must not be
+    // labelled "Final" — see src/lib/scoring/gameweekState.ts.
+    const finalised = await isGameweekFinalised(
+        admin,
+        await getCurrentFplSeason(undefined, true),
+        matchupData.gameweek,
+    );
 
     const isCompleted = matchup.status === 'completed';
     const isLive      = matchup.status === 'live';
@@ -172,7 +184,9 @@ export default async function MatchupDetailPage({ params }: Props) {
                             <span className={styles.axisState}>
                                 {isLive
                                     ? <span className="ds-live">Live</span>
-                                    : <span className="g-label-quiet">{isCompleted ? 'Final' : 'Scheduled'}</span>}
+                                    : <span className="g-label-quiet">
+                                          {isCompleted ? (finalised ? 'Final' : 'Provisional') : 'Scheduled'}
+                                      </span>}
                             </span>
                             <span className="g-axis-verdict">{marginVerdict(axisProps)}</span>
                         </div>

@@ -20,6 +20,13 @@ interface Props {
     myTeamId?: string;
     currentFplGw: number;
     isCurrentFplGwFinished?: boolean;
+    /**
+     * Whether we hold FPL's reviewed stats for this gameweek. FPL withholds the
+     * ICT block and final bonus until its 09:00-UK lockdown the day after the
+     * last match, so a score can look settled hours before it actually is.
+     * Defaults to true so callers that never show in-play scores are unaffected.
+     */
+    finalised?: boolean;
     featured?: boolean;
     recordA?: TeamRecord | null;
     recordB?: TeamRecord | null;
@@ -30,6 +37,7 @@ export default function LiveMatchupCard({
     myTeamId,
     currentFplGw,
     isCurrentFplGwFinished,
+    finalised = true,
     featured = false,
     recordA,
     recordB,
@@ -116,11 +124,19 @@ export default function LiveMatchupCard({
     };
 
     /* Two states, not three words. "Live" is the system's own marker (.ds-live,
-       on --color-live); "Final" and "Scheduled" are plain quiet labels, because
-       neither is a status that needs a colour to be understood. */
+       on --color-live); the rest are plain quiet labels, because none of them is
+       a status that needs a colour to be understood.
+
+       "Final" is only honest once we hold FPL's reviewed stats. FPL withholds
+       the ICT block and final bonus until its lockdown at 09:00 UK the day
+       after the last match, so between the final whistle and that pass the
+       score is settled-looking but still an estimate — say so rather than
+       stamping a number that is about to move. */
     const stateNode = isLive
         ? <span className="ds-live">Live</span>
-        : <span className="g-label-quiet">{isCompleted ? 'Final' : 'Scheduled'}</span>;
+        : <span className="g-label-quiet">
+              {isCompleted ? (finalised ? 'Final' : 'Provisional') : 'Scheduled'}
+          </span>;
 
     // ── Featured fixture — the panel-scale scoreline ───────────────────────────
     if (featured) {

@@ -12,6 +12,7 @@
  */
 
 import { calculateMatchRating, mapFplLiveToRawStats } from '@/lib/scoring/engine';
+import { applyIctImputation, isIctBlockAbsent } from '@/lib/scoring/ictImputation';
 import { loadReferenceStats } from '@/lib/scoring/matchups';
 import { resolveAllStalledGameweeks, processMatchupsForGameweek } from '@/lib/scoring/matchupProcessor';
 import { getCurrentFplSeason, getLatestReferenceStatsSeason } from '@/lib/season/currentSeason';
@@ -35,14 +36,22 @@ const SYNTHETIC_MATCH_ID_FLOOR = 1000;
 
 interface GameweekWindow {
     gw: number;
-    /** Deadline has passed and FPL hasn't marked it finished — worth a live sync. */
-    isLiveWindow: boolean;
+    /** FPL has locked the gameweek down, so its reviewed stats are now available. */
+    isFinished: boolean;
 }
 
 /**
- * The current gameweek, plus whether it's actually worth running a live sync
- * for it right now. Backs the pg_cron tick's idle short-circuit (below) — an
- * explicit `?gw=` call always runs the full sync regardless of this flag.
+ * The current gameweek, plus where it sits relative to FPL's lockdown.
+ *
+ * For 2026/27 the lockdown moved to 09:00 UK on the day after a gameweek's
+ * final match, so that post-match Opta review data can be folded into the BPS
+ * and defensive contribution points. The ICT block (influence / creativity /
+ * threat) reads 0.0 for every player until it fires. A gameweek therefore
+ * needs one more sync AFTER `finished` flips — that pass is the only one that
+ * ever sees the reviewed numbers.
+ *
+ * `syncFplLiveRatings` runs that pass once and records it in
+ * `gameweek_sync_state`; subsequent ticks short-circuit.
  */
 async function getCurrentGameweekWindow(): Promise<GameweekWindow> {
     const res = await fetch('https://fantasy.premierleague.com/api/bootstrap-static/', {
@@ -51,14 +60,27 @@ async function getCurrentGameweekWindow(): Promise<GameweekWindow> {
     const data = await res.json();
     const now = new Date();
     let gw = 0;
-    let isLiveWindow = false;
+    let isFinished = false;
     for (const ev of data.events as any[]) {
         if (ev.deadline_time && new Date(ev.deadline_time) <= now && ev.id >= gw) {
             gw = ev.id;
-            isLiveWindow = !ev.finished && !ev.finished_provisional;
+            // `finished_provisional` lives on FIXTURES, not events. Reading it
+            // here only ever yielded undefined, so it never gated anything.
+            isFinished = ev.finished === true;
         }
     }
-    return { gw, isLiveWindow };
+    return { gw, isFinished };
+}
+
+/** Whether FPL has locked down one specific gameweek. */
+async function isEventFinished(gw: number): Promise<boolean> {
+    const res = await fetch(`${FPL_BASE}/bootstrap-static/`, {
+        headers: { 'User-Agent': 'FantasyFutbol/1.0' },
+        next: { revalidate: 0 },
+    });
+    if (!res.ok) return false;
+    const data = await res.json();
+    return (data.events as any[]).find((e) => e.id === gw)?.finished === true;
 }
 
 export async function GET(req: NextRequest) { return POST(req); }
@@ -80,21 +102,20 @@ export async function POST(req: NextRequest) {
   if (mode === 'fpl_live') {
     const gwParam = searchParams.get('gw');
     let gw = parseInt(gwParam ?? '0', 10);
-    // An explicit ?gw= is a deliberate call (manual backfill/re-sync) and
-    // always runs the full sync. Auto-derived gw is the pg_cron tick — cheap
-    // to run every 2 minutes only because most of those ticks land outside an
-    // actual live window and skip before touching the ~600-player payload.
-    let isLiveWindow = true;
-    if (!gw) {
+    // An explicit ?gw= is a deliberate call (manual backfill/re-sync) and always
+    // runs the full sync, even for a gameweek already finalised. Auto-derived gw
+    // is the cron tick, which goes idle once the post-lockdown pass has run.
+    const force = gw > 0;
+    let isFinished: boolean;
+    if (force) {
+      isFinished = await isEventFinished(gw);
+    } else {
       const window = await getCurrentGameweekWindow();
       gw = window.gw;
-      isLiveWindow = window.isLiveWindow;
+      isFinished = window.isFinished;
     }
     if (!gw) return NextResponse.json({ error: 'gw could not be determined' }, { status: 400 });
-    if (!isLiveWindow) {
-      return NextResponse.json({ ok: true, mode: 'fpl_live', gameweek: gw, skipped: 'not_live_window' });
-    }
-    return syncFplLiveRatings(gw);
+    return syncFplLiveRatings(gw, isFinished, force);
   }
 
   return NextResponse.json(
@@ -105,11 +126,36 @@ export async function POST(req: NextRequest) {
 
 // ── FPL Live Ratings Sync ─────────────────────────────────────────────────
 
-async function syncFplLiveRatings(gameweek: number): Promise<NextResponse> {
+async function syncFplLiveRatings(
+  gameweek: number,
+  isFinished = false,
+  force = false,
+): Promise<NextResponse> {
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!,
   );
+
+  const fplSeason = await getCurrentFplSeason(undefined, true);
+
+  // Once FPL has locked the gameweek down we want exactly one more pass, to
+  // pick up the reviewed stats it withholds until then (the whole ICT block,
+  // plus final bonus). After that the gameweek is settled — go idle rather
+  // than re-fetching a ~600-player payload on every tick until the next
+  // deadline rolls the window forward.
+  if (isFinished && !force) {
+    const { data: state } = await supabase
+      .from('gameweek_sync_state')
+      .select('final_synced_at')
+      .eq('season', fplSeason)
+      .eq('gameweek', gameweek)
+      .maybeSingle();
+    if (state?.final_synced_at) {
+      return NextResponse.json({
+        ok: true, mode: 'fpl_live', gameweek, skipped: 'already_finalised',
+      });
+    }
+  }
 
   // 1. Fetch live data from FPL
   const fplRes = await fetch(`${FPL_BASE}/event/${gameweek}/live/`, {
@@ -124,10 +170,25 @@ async function syncFplLiveRatings(gameweek: number): Promise<NextResponse> {
   const fplData = await fplRes.json();
   const elements = (fplData.elements ?? []) as FplLivePlayerStats[];
 
+  // From 2026/27 FPL withholds influence/creativity/threat until the gameweek
+  // lockdown, so mid-gameweek the whole block reads 0.0. Scoring against that
+  // is not neutral — ICT is up to 50% of an AM's weight and 6% of a GK's, so
+  // zeroes quietly punish midfielders. Estimate the block instead; the
+  // post-lockdown pass overwrites it with FPL's real numbers.
+  //
+  // Decided per gameweek, not per player: an individual can legitimately post
+  // 0.0 across all three, but a whole gameweek reading zero means FPL is
+  // withholding.
+  const ictAbsent = isIctBlockAbsent(
+    elements.map((el) => ({
+      minutes: el.stats.minutes ?? 0,
+      ictIndex: parseFloat(el.stats.ict_index) || 0,
+    })),
+  );
+
   // 2. Load Reference Stats once for the entire batch
   const refStatsSeason = await getLatestReferenceStatsSeason(supabase as any);
   const refStats = await loadReferenceStats(supabase as any, refStatsSeason);
-  const fplSeason = await getCurrentFplSeason(undefined, true);
 
   // 3. Fetch fixtures to map teams to fixture IDs (for DGW support)
   const fixturesRes = await fetch(`${FPL_BASE}/fixtures/?event=${gameweek}`);
@@ -250,7 +311,10 @@ async function syncFplLiveRatings(gameweek: number): Promise<NextResponse> {
               defensive_contribution: Math.round((el.stats.defensive_contribution ?? 0) * ratio),
             };
 
-            const rawStats = mapFplLiveToRawStats(fixtureFplStats);
+            const mapped = mapFplLiveToRawStats(fixtureFplStats);
+            const rawStats = ictAbsent
+              ? applyIctImputation(mapped, dbPlayer.primary_position)
+              : mapped;
             // Calculate using the official promoted V2 scoring engine
             const v2 = calculateMatchRating(
               rawStats,
@@ -337,6 +401,18 @@ async function syncFplLiveRatings(gameweek: number): Promise<NextResponse> {
     await processMatchupsForGameweek(gameweek, false);
   } catch (err) {
     console.error('processMatchupsForGameweek (live pass) failed:', err);
+  }
+
+  // Mark the post-lockdown pass BEFORE resolving. resolveAllStalledGameweeks
+  // refuses to lock a gameweek that has not had one, so the ordering here is
+  // what guarantees matchups are settled against reviewed stats rather than
+  // whatever the last in-play sync happened to write.
+  if (isFinished) {
+    const now = new Date().toISOString();
+    await supabase.from('gameweek_sync_state').upsert(
+      { season: fplSeason, gameweek, final_synced_at: now, updated_at: now },
+      { onConflict: 'season,gameweek' },
+    );
   }
 
   // Resolve all stalled GWs — not just the one being synced.

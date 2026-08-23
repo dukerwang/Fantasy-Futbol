@@ -6,6 +6,8 @@ import LiveMatchupCard from './LiveMatchupCard';
 import GameweekSelector from './GameweekSelector';
 import { getFplStatus } from '@/lib/fpl/api';
 import { processMatchupsForGameweek } from '@/lib/scoring/matchupProcessor';
+import { isGameweekFinalised } from '@/lib/scoring/gameweekState';
+import { getCurrentFplSeason } from '@/lib/season/currentSeason';
 import RoundLead from './RoundLead';
 import { isDrawMargin, DRAW_THRESHOLD } from '@/lib/scoring/drawBand';
 import styles from './matchups.module.css';
@@ -197,7 +199,14 @@ export default async function MatchupsPage({ params, searchParams }: Props) {
         .eq('league_id', leagueId)
         .eq('gameweek', targetGw);
 
-    // SERVER-SIDE SYNC: If we are in the current gameweek and scores are 0.0, 
+    // Whether we hold FPL's reviewed stats for this gameweek yet. FPL now
+    // withholds the ICT block and final bonus until its 09:00-UK lockdown, so
+    // until the post-lockdown sync runs these scores are estimates and the card
+    // must not call them "Final".
+    const statsSeason = await getCurrentFplSeason(undefined, true);
+    const isTargetGwFinalised = await isGameweekFinalised(admin, statsSeason, targetGw);
+
+    // SERVER-SIDE SYNC: If we are in the current gameweek and scores are 0.0,
     // force a sync before rendering to prevent the "0.0 flash" in the UI.
     const isCurrentGw = targetGw === currentFplGw;
     const needsSync = isCurrentGw && (matchupsData ?? []).some(m => 
@@ -316,7 +325,7 @@ export default async function MatchupsPage({ params, searchParams }: Props) {
             </header>
 
             {matchups.length === 0 ? (
-                <div className={`${styles.emptyPanel} g-panel`}>
+                <div className={styles.emptyPanel}>
                     No matchups scheduled for Gameweek {targetGw}.
                 </div>
             ) : (
@@ -325,13 +334,14 @@ export default async function MatchupsPage({ params, searchParams }: Props) {
                         the writing is unchanged, the newsprint around it is gone. */}
                     <RoundLead summaryText={summaryText} />
 
-                    <section className={`${styles.round} g-panel`}>
+                    <section className={styles.round}>
                         {myMatchup && (
                             <LiveMatchupCard
                                 matchup={myMatchup}
                                 myTeamId={myTeam?.id}
                                 currentFplGw={currentFplGw}
                                 isCurrentFplGwFinished={isCurrentFplGwFinished}
+                                finalised={isTargetGwFinalised}
                                 featured={true}
                                 recordA={recordA}
                                 recordB={recordB}
@@ -350,6 +360,7 @@ export default async function MatchupsPage({ params, searchParams }: Props) {
                                         myTeamId={myTeam?.id}
                                         currentFplGw={currentFplGw}
                                         isCurrentFplGwFinished={isCurrentFplGwFinished}
+                                        finalised={isTargetGwFinalised}
                                     />
                                 ))}
                             </div>

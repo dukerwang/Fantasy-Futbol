@@ -18,7 +18,11 @@ type MatchupUpdatePayload = {
     winner_team_id?: string | null;
 };
 
-export async function processMatchupsForGameweek(gameweek: number, finished: boolean) {
+export async function processMatchupsForGameweek(
+    gameweek: number,
+    finished: boolean,
+    opts: { force?: boolean } = {},
+) {
     const admin = createAdminClient();
 
     // Match stats are keyed by (season, gameweek), but a gameweek number repeats every
@@ -27,6 +31,27 @@ export async function processMatchupsForGameweek(gameweek: number, finished: boo
     // Use the RAW season (no offseason bump) so this always matches the string the stats
     // writer in /api/sync/stats stamps onto player_stats.
     const statsSeason = await getCurrentFplSeason(undefined, true);
+
+    // `finished` locks scores in permanently — status flips to 'completed' and
+    // step 1 below never selects the matchup again. It is therefore only safe
+    // once our own DB holds FPL's reviewed stats for the gameweek, which the
+    // post-lockdown pass records as `gameweek_sync_state.final_synced_at`.
+    //
+    // Callers pass `finished` from FPL's own event flag, which now flips at the
+    // 09:00-UK lockdown — several hours before, and independently of, our sync.
+    // Three separate paths reach here that way (the resolve cron, the stats
+    // sync, and a plain page load on the matchups screen), so the check belongs
+    // at this chokepoint rather than at each call site. Falling back to a live
+    // pass costs nothing: the scores still update, they just stay unlocked.
+    if (finished && !opts.force) {
+        const { data: syncState } = await admin
+            .from('gameweek_sync_state')
+            .select('final_synced_at')
+            .eq('season', statsSeason)
+            .eq('gameweek', gameweek)
+            .maybeSingle();
+        if (!syncState?.final_synced_at) finished = false;
+    }
 
     // 1. Fetch incomplete matchups for this GW.
     // Only leagues that are actually playing: a league still in setup/drafting/offseason
@@ -471,9 +496,17 @@ export async function processMatchupsForGameweek(gameweek: number, finished: boo
 
 /**
  * Scans the DB for ANY matchups still in 'live' status across ALL gameweeks.
- * For each stalled GW, checks FPL's bootstrap-static to see if the GW is
- * finished (bonus points locked) OR finished_provisional (all fixtures done,
- * bonus points pending). Either is sufficient to lock in match scores.
+ * A stalled GW is locked in only when BOTH are true:
+ *
+ *   1. FPL reports the event `finished` — its 09:00-UK-next-day lockdown, after
+ *      which the ICT block and final bonus stop reading zero; and
+ *   2. Gaffa has run its own post-lockdown stats pass for that GW, recorded as
+ *      `gameweek_sync_state.final_synced_at`.
+ *
+ * Condition 2 matters because locking is irreversible in normal operation:
+ * `processMatchupsForGameweek` skips anything already 'completed'. Resolving on
+ * (1) alone would freeze scores computed from provisional stats whenever this
+ * cron beat the stats sync to the punch.
  *
  * After resolving a GW, any active tournaments are advanced for that GW so
  * cup brackets stay in sync.
@@ -513,12 +546,35 @@ export async function resolveAllStalledGameweeks(): Promise<{
         }
 
         const bsData = await bsRes.json();
-        // Accept finished (bonus locked) OR finished_provisional (all matches done, bonus pending).
-        // finished_provisional fires hours before finished — eliminates most overnight delays.
-        const resolveableSet = new Set<number>(
+        // `finished` is FPL's lockdown flag. For 2026/27 it fires at 09:00 UK on
+        // the day after the gameweek's last match, which is also when the ICT
+        // block and final bonus stop reading zero.
+        //
+        // (An earlier version also accepted `finished_provisional`. That field
+        // exists on fixtures, not events, so the check was always undefined and
+        // never actually widened anything.)
+        const finishedGws = new Set<number>(
             (bsData.events as any[])
-                .filter((e: any) => e.finished === true || e.finished_provisional === true)
+                .filter((e: any) => e.finished === true)
                 .map((e: any) => e.id as number)
+        );
+
+        // Lockdown alone is not enough: locking a score means freezing it
+        // forever (`processMatchupsForGameweek` skips anything already
+        // 'completed'), so the reviewed stats must be in our own DB first.
+        // `gameweek_sync_state.final_synced_at` is set by the post-lockdown
+        // stats pass. Until that lands, leave the gameweek live.
+        const statsSeason = await getCurrentFplSeason(undefined, true);
+        const { data: syncState } = await admin
+            .from('gameweek_sync_state')
+            .select('gameweek')
+            .eq('season', statsSeason)
+            .not('final_synced_at', 'is', null)
+            .in('gameweek', stalledGws);
+        const finalSyncedGws = new Set<number>((syncState ?? []).map((r: any) => r.gameweek));
+
+        const resolveableSet = new Set<number>(
+            [...finishedGws].filter(gw => finalSyncedGws.has(gw))
         );
 
         // 3. Resolve each stalled GW
