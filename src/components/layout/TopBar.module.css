@@ -22,24 +22,47 @@
   overflow: visible;
 }
 
-/* Navigation progress bar — shown immediately on link click */
+/* Navigation progress bar — shown immediately on link click.
+ *
+ * INSIDE the bar, not hanging off it. It used to sit at `bottom: -2px`, i.e.
+ * on the page ground below the chrome, which was survivable while it was
+ * painted --color-accent-green. The design-system rework swept every colour in
+ * this file to white-alpha for the green topbar and took the progress bar with
+ * it — but this is the one element that is not on the green, so white-on-cream
+ * made it invisible. Moving it to `bottom: 0` puts it on the green it is now
+ * coloured for: white on --color-topbar measures 8.11:1.
+ *
+ * It also animated `width`, a layout property, from inside a rule that set
+ * both `left` and `right`. It scales instead: transform is composited, and the
+ * bar is the one thing on screen during a navigation the main thread is busy
+ * with — the exact case where an animation on a layout property drops frames.
+ */
 .loadingBar {
   position: absolute;
-  bottom: -2px;
+  bottom: 0;
   left: 0;
   right: 0;
   height: 2px;
-  background: rgba(255, 255, 255, 0.8);
-  animation: navProgress 2.5s ease-out forwards;
+  background: #fff;
   z-index: 101;
   transform-origin: left;
+  animation: navProgress 2.5s var(--ease-standard) forwards;
 }
 
+/* Eases toward 92% and stops: a progress bar that reaches 100% before the page
+   arrives is lying. The unmount when navigation completes is what ends it. */
 @keyframes navProgress {
-  0%   { width: 0%; opacity: 1; }
-  60%  { width: 80%; opacity: 1; }
-  90%  { width: 92%; opacity: 1; }
-  100% { width: 100%; opacity: 0.5; }
+  0%   { transform: scaleX(0);    opacity: 1; }
+  60%  { transform: scaleX(0.8);  opacity: 1; }
+  100% { transform: scaleX(0.92); opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loadingBar {
+    animation: none;
+    transform: scaleX(1);
+    opacity: 0.6;
+  }
 }
 
 
