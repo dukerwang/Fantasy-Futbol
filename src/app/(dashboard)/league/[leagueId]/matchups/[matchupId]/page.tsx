@@ -9,6 +9,7 @@ import { normalizeMatchupLineup } from '@/lib/lineups/normalizeMatchupLineup';
 import { generateMatchReport } from '@/lib/narrative/matchReport';
 import { getCurrentFplSeason } from '@/lib/season/currentSeason';
 import { isGameweekFinalised } from '@/lib/scoring/gameweekState';
+import { getLockedPlTeamIds } from '@/lib/fixtures/lockout';
 import { clubHref } from '@/lib/teams/clubHref';
 import CrestBadge from '@/components/crest/CrestBadge';
 import MatchReportCard from './MatchReportCard';
@@ -133,6 +134,25 @@ export default async function MatchupDetailPage({ params }: Props) {
         matchupData.gameweek,
     );
 
+    // Which of these players' own clubs have kicked off. A chip showing 0.0 is
+    // meaningless without it — the reader can't tell "played, did nothing" from
+    // "hasn't started yet". Reuses the lineup lockout's kickoff signal rather
+    // than deriving a second one; a failure returns an empty set, which the
+    // pitch treats as "unknown" and falls back to showing plain scores.
+    // Undefined, not [], when we can't tell: an empty array means "nobody has
+    // kicked off", and getLockedPlTeamIds also returns an empty set when FPL is
+    // unreachable. Conflating the two would stamp "yet to play" across a
+    // finished match, so only a non-empty result is treated as known.
+    let startedPlayerIds: string[] | undefined;
+    try {
+        const lockedTeamIds = await getLockedPlTeamIds(admin, matchupData.gameweek);
+        if (lockedTeamIds.size > 0) {
+            startedPlayerIds = Object.values(playerMap)
+                .filter((p) => p?.id && p.pl_team_id != null && lockedTeamIds.has(Number(p.pl_team_id)))
+                .map((p) => p!.id as string);
+        }
+    } catch { /* stays undefined — pitch falls back to plain scores */ }
+
     const isCompleted = matchup.status === 'completed';
     const isLive      = matchup.status === 'live';
     const scoreA      = isCompleted ? matchup.score_a : computedScoreA;
@@ -206,6 +226,7 @@ export default async function MatchupDetailPage({ params }: Props) {
                 lineupA={lineupA}
                 lineupB={lineupB}
                 playerMap={playerMap}
+                startedPlayerIds={startedPlayerIds}
                 detailMap={detailMap}
                 teamAName={teamAName}
                 teamBName={teamBName}

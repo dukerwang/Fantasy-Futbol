@@ -100,6 +100,48 @@ function fmtStats(detail: Detail | undefined, slot: string): string {
 type Detail = { points: number; rating?: number | null; stats?: MatchStatsSnapshot };
 
 /**
+ * Why a 0.0 is ambiguous without this.
+ *
+ * A chip reading 0.0 could mean the player turned out and did nothing, or that
+ * his club has not kicked off yet. Those are opposite pieces of news to someone
+ * checking a live matchup, and the pitch rendered them identically.
+ *
+ * `startedPlayerIds` carries the players whose own club is under way, derived
+ * from getLockedPlTeamIds — the same fixture-kickoff signal the lineup lockout
+ * uses, rather than a second one invented here.
+ */
+type PlayStatus = 'pending' | 'played' | 'dnp';
+
+function playStatus(detail: Detail | undefined, hasStarted: boolean): PlayStatus {
+    if (!hasStarted) return 'pending';
+    return Number(detail?.stats?.minutes_played ?? 0) > 0 ? 'played' : 'dnp';
+}
+
+/**
+ * Points band for the badge fill. Restores the ramp that the 2.0 pitch port
+ * dropped when it replaced .chipScore with a single flat colour — scanning a
+ * pitch for who actually returned is the whole job of that number.
+ */
+function ptsBand(points: number): string {
+    if (points >= 18) return styles.ptsElite;
+    if (points >= 12) return styles.ptsGood;
+    if (points >= 7) return styles.ptsFair;
+    if (points >= 3) return styles.ptsPoor;
+    return styles.ptsBlank;
+}
+
+function PointsBadge({ detail, status }: { detail?: Detail; status: PlayStatus }) {
+    if (status === 'pending') {
+        return <span className={`${styles.chipPts} ${styles.ptsPending}`} title="Yet to play">–</span>;
+    }
+    if (status === 'dnp') {
+        return <span className={`${styles.chipPts} ${styles.ptsDnp}`} title="Did not play">DNP</span>;
+    }
+    const pts = detail?.points ?? 0;
+    return <span className={`${styles.chipPts} ${ptsBand(pts)}`}>{pts.toFixed(1)}</span>;
+}
+
+/**
  * A sub marker. One shape, two tokens: the arrow says the direction and the
  * colour only reinforces it, which is the hub port's "add a form axis rather
  * than a hue" applied to a mark that already had one.
@@ -116,18 +158,30 @@ function SubMark({ dir }: { dir: 'in' | 'out' }) {
     );
 }
 
-function PlayerChip({ slot, player, detail, isSubIn, onClick }: {
+function PlayerChip({ slot, player, detail, status, isSubIn, onClick }: {
     slot: string;
     player?: Partial<Player>;
     detail?: Detail;
+    status: PlayStatus;
     isSubIn?: boolean;
     onClick?: () => void;
 }) {
     const name = player ? getPlayerDisplayName(player) : '—';
+    const stateCls = status === 'pending' ? styles.chipPending
+        : status === 'dnp' ? styles.chipDnp : '';
     return (
-        <button type="button" className={styles.chip} onClick={onClick} aria-label={`${name}, ${slot}`}>
+        <button
+            type="button"
+            className={`${styles.chip} ${stateCls}`}
+            onClick={onClick}
+            aria-label={`${name}, ${slot}, ${
+                status === 'pending' ? 'yet to play'
+                    : status === 'dnp' ? 'did not play'
+                    : `${(detail?.points ?? 0).toFixed(1)} points`
+            }`}
+        >
             {isSubIn && <SubMark dir="in" />}
-            {detail && <span className={styles.chipPts}>{detail.points.toFixed(1)}</span>}
+            {player && <PointsBadge detail={detail} status={status} />}
             {isGranular(slot) && (
                 <span className={styles.chipBadgeRow}>
                     <PositionBadge position={slot} size="sm" />
@@ -148,18 +202,21 @@ function PlayerChip({ slot, player, detail, isSubIn, onClick }: {
  * "the hue already means centre-back everywhere else" defect: a bench category
  * is not a position, and flex had no hue at all so it borrowed text-muted.
  */
-function BenchChip({ player, detail, isSubOut, onClick }: {
+function BenchChip({ player, detail, status, isSubOut, onClick }: {
     player?: Partial<Player>;
     detail?: Detail;
+    status: PlayStatus;
     isSubOut?: boolean;
     onClick?: () => void;
 }) {
     const pos = player?.primary_position;
     const name = player ? getPlayerDisplayName(player) : '—';
+    const stateCls = status === 'pending' ? styles.chipPending
+        : status === 'dnp' ? styles.chipDnp : '';
     return (
-        <button type="button" className={styles.benchChip} onClick={onClick} aria-label={name}>
+        <button type="button" className={`${styles.benchChip} ${stateCls}`} onClick={onClick} aria-label={name}>
             {isSubOut && <SubMark dir="out" />}
-            {detail && <span className={styles.chipPts}>{detail.points.toFixed(1)}</span>}
+            {player && <PointsBadge detail={detail} status={status} />}
             {isGranular(pos) && (
                 <span className={styles.chipBadgeRow}>
                     <PositionBadge position={pos} size="sm" />
@@ -251,11 +308,26 @@ interface Props {
     crestA?: CrestConfig | null;
     crestB?: CrestConfig | null;
     matchupStatus?: string;
+    /**
+     * Players whose own club has kicked off. Anything not in here is still to
+     * come, so its 0.0 means "not yet", not "did nothing" — see PlayStatus.
+     * An array rather than a Set because this crosses the server/client
+     * boundary as an RSC prop.
+     */
+    startedPlayerIds?: string[];
 }
 
 export default function MatchupPitch({
     lineupA, lineupB, playerMap, detailMap, teamAName, teamBName, teamAId, teamBId, crestA, crestB, matchupStatus = 'live',
+    startedPlayerIds,
 }: Props) {
+    // Undefined means the page could not resolve kickoffs (FPL unreachable).
+    // Treat every player as started in that case: showing a real 0.0 to someone
+    // who has played is a smaller error than labelling a finished match "yet to
+    // play".
+    const started = startedPlayerIds ? new Set(startedPlayerIds) : null;
+    const statusOf = (playerId: string): PlayStatus =>
+        playStatus(detailMap[playerId], started ? started.has(playerId) : true);
     // Pitch tiles hold only a partial player, so the card resolves by id off
     // the shared cache rather than painting a half-filled front.
     const { openPlayerById } = usePlayerCard();
@@ -324,6 +396,7 @@ export default function MatchupPitch({
                                                     slot={s.slot}
                                                     player={playerMap[s.player_id]}
                                                     detail={detailMap[s.player_id]}
+                                                    status={statusOf(s.player_id)}
                                                     isSubIn={s.isSubIn}
                                                     onClick={() => setViewingPlayer(playerMap[s.player_id] ?? null)}
                                                 />
@@ -373,6 +446,7 @@ export default function MatchupPitch({
                                     key={b.player_id}
                                     player={playerMap[b.player_id]}
                                     detail={detailMap[b.player_id]}
+                                    status={statusOf(b.player_id)}
                                     isSubOut={b.isSubOut}
                                     onClick={() => setViewingPlayer(playerMap[b.player_id] ?? null)}
                                 />

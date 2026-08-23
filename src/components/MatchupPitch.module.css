@@ -323,8 +323,17 @@
     margin: 1px 0 0;
 }
 
-/* Serif, tabular, ink — a settled figure compared across the field, which is
-   decision 6's serif job. Not a colour ramp: see the header comment. */
+/* Serif, tabular — a settled figure compared across the field.
+ *
+ * It DOES carry a colour ramp. The 2.0 port flattened this to a single ink
+ * colour, which cost the pitch its only at-a-glance answer to "who returned?".
+ * Bands below match the player card's rating ramp so a good game is the same
+ * green in both places; they are set on .chipPts modifiers, not here, so the
+ * pending and DNP states can opt out entirely.
+ *
+ * Values are duplicated from PremiumPlayerCard.module.css rather than hoisted
+ * into globals.css: that file is being rewritten on the palette branch and a
+ * token added here would collide. Fold them together when it lands. */
 .chipPts {
     position: absolute;
     top: -8px;
@@ -341,6 +350,54 @@
     line-height: 1.25;
     z-index: 5;
 }
+
+/* ── Points bands ──────────────────────────────────────────────────────────
+   Filled, because the badge sits on a green pitch where a tinted outline reads
+   as noise at 11px. White text on all four so the ramp is legible in both
+   themes without a second set of tokens. */
+.ptsElite,
+.ptsGood,
+.ptsFair,
+.ptsPoor {
+    color: #fff;
+    border-color: transparent;
+}
+.ptsElite { background: #2D6A4F; }   /* >= 18 — a return that decides a week */
+.ptsGood  { background: #387D53; }   /* >= 12 */
+.ptsFair  { background: #8C6C00; }   /* >= 7  */
+.ptsPoor  { background: #AC5B0E; }   /* >= 3  */
+
+/* Under 3 keeps the plain pill: a low score is information, not an alarm, and
+   painting every quiet game red made the pitch unreadable at a glance. */
+.ptsBlank {
+    color: var(--color-text-secondary);
+}
+
+/* Yet to play — outlined and dashed, so an empty chip reads as "still to come"
+   rather than "did nothing". */
+.ptsPending {
+    color: var(--color-text-muted);
+    background: transparent;
+    border-style: dashed;
+    border-color: var(--color-text-muted);
+}
+
+/* Turned out but never featured. Distinct from both a real 0.0 and a pending
+   chip, because it is final. */
+.ptsDnp {
+    font-family: var(--font-sans);
+    font-size: var(--t-10);
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--color-text-muted);
+    background: var(--color-bg-card);
+    border-color: var(--color-text-muted);
+}
+
+/* Chip-level state. Kept light: the name must stay legible, so these lower the
+   surface rather than fading the text. */
+.chipPending { opacity: 0.78; }
+.chipDnp { opacity: 0.62; }
 
 /* A sub is a direction, and the arrow is what says which way. The hue is
    secondary to it, which is why in and out can share one shape and differ only
