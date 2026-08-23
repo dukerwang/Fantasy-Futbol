@@ -11,7 +11,7 @@
  * is what docs/USER_GUIDE.md has always said.
  */
 import { describe, it, expect } from 'vitest';
-import { calculateMatchRating, GK_CURVE_SCALE } from '../matchRating';
+import { calculateMatchRating, calculateFantasyPoints } from '../matchRating';
 import type { GranularPosition } from '@/types';
 
 /** A 90-minute appearance with nothing much in it. */
@@ -72,18 +72,42 @@ describe('keepers', () => {
         expect(dm.fantasyPoints).toBeGreaterThanOrEqual(gk.fantasyPoints);
     });
 
-    it('still have their curve output compressed', () => {
-        // GK composite is ~56% more dispersed than an outfielder's (sd 0.245 vs
-        // 0.157) and a convex curve turns spread into points, so without this
-        // keepers average 10.62 to an outfielder's 7.27. It goes away only when
-        // the GK rating itself stops being a clean-sheet switch — see
-        // docs/superpowers/specs/2026-08-23-goalkeeper-rating-design.md
-        expect(GK_CURVE_SCALE).toBeLessThan(1);
-        const strong = quiet({ saves: 6, goals_conceded: 0, clean_sheet: true, bps: 30,
-            expected_goals_conceded: 2.4 });
-        const asGk = calculateMatchRating(strong, 'GK').fantasyPoints;
-        const asCb = calculateMatchRating(strong, 'CB').fantasyPoints;
-        expect(asGk).toBeLessThan(asCb / GK_CURVE_SCALE);
+    it('are rated on their own work, not on whether the defence held', () => {
+        // The defect this replaced: a clean sheet was worth +20 in `defensive`
+        // and floored `save_score` at 0.86, so an untroubled shutout and a
+        // seven-save one landed within 0.2 of each other.
+        const untroubled = calculateMatchRating(
+            quiet({ saves: 0, goals_conceded: 0, clean_sheet: true, bps: 18,
+                expected_goals_conceded: 0.4 }), 'GK');
+        const earned = calculateMatchRating(
+            quiet({ saves: 7, goals_conceded: 0, clean_sheet: true, bps: 34,
+                expected_goals_conceded: 2.6 }), 'GK');
+        expect(earned.rating - untroubled.rating).toBeGreaterThan(1.0);
+    });
+
+    it('can out-rate a shutout by keeping well in defeat', () => {
+        // Fotmob would have the eight-save keeper in a 2-1 loss well clear of one
+        // who watched a comfortable 0-0. Gaffa used to have it the other way.
+        const untroubled = calculateMatchRating(
+            quiet({ saves: 0, goals_conceded: 0, clean_sheet: true, bps: 18,
+                expected_goals_conceded: 0.4 }), 'GK');
+        const outstanding = calculateMatchRating(
+            quiet({ saves: 8, goals_conceded: 1, clean_sheet: false, bps: 32,
+                expected_goals_conceded: 3.0 }), 'GK');
+        expect(outstanding.rating).toBeGreaterThan(untroubled.rating);
+    });
+
+    it('take no points haircut any more', () => {
+        // Keepers had their curve output cut to 0.72 to stop a convex curve
+        // turning their inflated spread into a standing advantage. With the
+        // rating fixed the compensation is gone: an identical stat line scores
+        // the same through the curve at GK as anywhere else.
+        const line = quiet({ saves: 4, goals_conceded: 1, clean_sheet: false, bps: 26,
+            expected_goals_conceded: 2.2 });
+        const gk = calculateMatchRating(line, 'GK');
+        // Same composite in, same curve out — no position-specific multiplier.
+        const rebuilt = calculateFantasyPoints(1 + 9 * ((gk.rating - 3.5) / 6), 90);
+        expect(gk.fantasyPoints).toBeCloseTo(rebuilt, 2);
     });
 });
 

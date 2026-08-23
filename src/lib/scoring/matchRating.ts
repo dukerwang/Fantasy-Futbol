@@ -51,7 +51,7 @@ export const FLEX_CONFIG = {
 
 //                                                                                                       Σ = 1.00
 export const POSITION_WEIGHTS = {
-    GK: { match_impact: 0.14, influence: 0.06, creativity: 0.00, threat: 0.00, defensive: 0.42, goal_involvement: 0.00, finishing: 0.00, save_score: 0.18 },
+    GK: { match_impact: 0.14, influence: 0.06, creativity: 0.00, threat: 0.00, defensive: 0.34, goal_involvement: 0.00, finishing: 0.00, save_score: 0.26 },
     CB: { match_impact: 0.30, influence: 0.05, creativity: 0.05, threat: 0.00, defensive: 0.25, goal_involvement: 0.05, finishing: 0.05, save_score: 0.00 },
     LB: { match_impact: 0.30, influence: 0.05, creativity: 0.10, threat: 0.00, defensive: 0.20, goal_involvement: 0.10, finishing: 0.00, save_score: 0.00 },
     RB: { match_impact: 0.30, influence: 0.05, creativity: 0.10, threat: 0.00, defensive: 0.20, goal_involvement: 0.10, finishing: 0.00, save_score: 0.00 },
@@ -268,17 +268,24 @@ function computeComponentScores(
 
     let defensiveRaw: number;
     if (position === 'GK') {
+        // Weighted toward "did he concede fewer than the chances warranted"
+        // rather than "did the clean sheet survive". The clean sheet used to be
+        // worth +20 with saves capped at +4 on top, which made the component a
+        // switch: across 193 clean sheets in 2025-26 keeper ratings moved by a
+        // standard deviation of 0.21, one routine save and eight outstanding
+        // ones both landing on ~8.65. Now the shutout is worth GK_CLEAN_SHEET
+        // and the saves that earned it carry up to GK_CLEAN_SHEET_SAVE_CAP.
         let gkCsVal = 0;
         const sv = Math.max(0, stats.saves ?? 0);
         if (stats.clean_sheet && canGetCS) {
-            gkCsVal = 20 + Math.min(4, sv * 1.0);
+            gkCsVal = GK_CLEAN_SHEET + Math.min(GK_CLEAN_SHEET_SAVE_CAP, sv * 1.0);
         }
         const xgcDiff = Math.max(-2.5, Math.min(2.5, xgc - gc));
         let zeroSavePenalty = 0;
         if (!stats.clean_sheet && sv === 0 && gc >= 1) {
             zeroSavePenalty = 4.5 * gc;
         }
-        defensiveRaw = defActionsRaw + gkCsVal - gc * 4.2 + xgcDiff * 2.5 - zeroSavePenalty;
+        defensiveRaw = defActionsRaw + gkCsVal - gc * GK_GOAL_CONCEDED + xgcDiff * GK_XGC_DIFF - zeroSavePenalty;
     } else {
         defensiveRaw = defActionsRaw + csBonus + xgcOutperf - gcPenalty;
     }
@@ -345,10 +352,11 @@ function computeComponentScores(
         const saveVolScore = sigmoidNormalize(saveVolRaw, ref.save_score.median, ref.save_score.stddev);
         const savePctScore = sigmoidNormalize(matchSavePct, 0.70, 0.15);
 
-        let scoreVal = saveVolScore * 0.45 + savePctScore * 0.55;
-        if (stats.clean_sheet && canGetCS) {
-            scoreVal = Math.max(scoreVal, 0.86);
-        }
+        // No clean-sheet floor. This used to read
+        // `if (clean_sheet) scoreVal = Math.max(scoreVal, 0.86)`, which overrode
+        // the very thing the component measures — a keeper who touched nothing
+        // scored the same here as one who made eight saves to earn the shutout.
+        const scoreVal = saveVolScore * 0.45 + savePctScore * 0.55;
 
         saveScore = {
             score: scoreVal,
@@ -492,11 +500,23 @@ export function curveFinalRating(composite: number, minutesPlayed: number): numb
  * which publishes the table above to players.
  */
 /**
- * Keepers' curve output is multiplied by this before the appearance credit.
- * Compensates for GK composite being ~56% more dispersed than an outfielder's,
- * which a convex curve would otherwise turn into a standing points advantage.
+ * Goalkeeper `defensive` knobs.
+ *
+ * These four decide how much of a keeper's rating is the scoreline and how much
+ * is his own work. Before 2026-08-23 they were 20 / 4.2 / 2.5 / 4, which made
+ * the clean sheet so dominant that the component stopped discriminating: 193
+ * clean sheets in 2025-26 produced ratings with a standard deviation of 0.21.
+ *
+ * Fitted against all 767 keeper appearances of that season. The binding
+ * constraint was not the dispersion itself but its consequence — keepers used
+ * to need a 0.72 haircut on their points to stop a convex curve turning that
+ * spread into a standing advantage. At these values the keeper-to-outfielder
+ * points gap is 0.01 with no haircut at all, so the haircut is gone.
  */
-export const GK_CURVE_SCALE = 0.72;
+export const GK_CLEAN_SHEET = 5;
+export const GK_CLEAN_SHEET_SAVE_CAP = 10;
+export const GK_GOAL_CONCEDED = 2.6;
+export const GK_XGC_DIFF = 4.5;
 
 export function calculateFantasyPoints(rating: number, minutesPlayed: number): number {
     if (minutesPlayed === 0 || rating === 0) return 0;
@@ -554,7 +574,7 @@ function makeRef(
 // Values below were generated from 2025-26 FPL live data (GW1-35, minutes>=45).
 //                 match_impact   influence      creativity     threat         defensive       goal_invol     finishing       save_score
 export const DEFAULT_REFERENCE_STATS = {
-    GK:  makeRef([12.00, 10.17], [21.00, 12.42], [ 0.00,  2.08], [ 0.00,  1.29], [ 3.50, 10.72], [0.00, 0.33], [ 0.000, 0.04], [ 6.00,  4.55]),
+    GK:  makeRef([12.00, 10.17], [21.00, 12.42], [ 0.00,  2.08], [ 0.00,  1.29], [ 4.435, 12.552], [0.00, 0.33], [ 0.000, 0.04], [ 7.500,  5.429]),
     CB:  makeRef([10.00,  9.84], [20.00, 11.85], [ 1.40,  6.41], [ 2.00, 10.33], [ 8.80,  9.19], [0.00, 1.55], [-0.010, 0.22], [0.00, 1.00]),
     LB:  makeRef([10.00,  9.86], [14.80, 10.64], [ 8.30, 12.79], [ 2.00,  8.82], [12.45,  9.79], [0.00, 1.66], [-0.020, 0.22], [0.00, 1.00]),
     RB:  makeRef([10.00,  9.86], [14.80, 10.64], [ 8.30, 12.79], [ 2.00,  8.82], [12.45,  9.79], [0.00, 1.66], [-0.020, 0.22], [0.00, 1.00]),
@@ -616,15 +636,12 @@ export function calculateMatchRating(
     const scoringRating = computeScoringRating(composite, stats.minutes_played);
     let fantasyPoints = calculateFantasyPoints(scoringRating, stats.minutes_played);
 
-    // Keepers' curve output stays compressed. Their composite is far more
-    // dispersed than an outfielder's (sd 0.245 vs 0.157 across 2025-26): a
-    // keeper who concedes four without a save has nothing to show, one with
-    // eight saves and a clean sheet is off the scale, while outfielders regress
-    // to the middle. A convex points curve turns that spread into points, so
-    // without this keepers average 10.62 to an outfielder's 7.27.
-    if (position === 'GK') {
-        fantasyPoints *= GK_CURVE_SCALE;
-    }
+    // No keeper haircut. Keepers used to have their curve output multiplied by
+    // 0.72, compensating at the points layer for a rating that was really a
+    // clean-sheet switch. With the GK `defensive` weighting fixed above, keeper
+    // composite is no longer inflated and the two positions land within 0.01
+    // points of each other unaided — so the compensation is gone rather than
+    // merely smaller, which was the test of whether the rating fix worked.
 
     // There is no appearance credit, for any position. Turning out is not an
     // achievement, so a game below the curve's ~5.84 display-rating threshold

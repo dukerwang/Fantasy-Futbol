@@ -23,10 +23,16 @@
  * Baseline captured: scoring v2 (DEFAULT_REFERENCE_STATS generated from 2025-26
  * FPL live data, GW1-35, minutes>=45).
  *
- * Revised when the keeper-only appearance credit was removed. Every outfield
- * figure is back to what it was before that credit was briefly extended to all
- * positions, and the two keeper cases are 2.5 lower than they had been for as
- * long as this baseline has existed. No rating moves; did-not-play stays zero.
+ * Revised twice on 2026-08-23. First when the keeper-only appearance credit was
+ * removed, which put every outfield figure back where it had been and took 2.5
+ * off the keepers. Then when the goalkeeper rating was rebuilt to measure
+ * goalkeeping rather than the scoreline — only the two GK cases move, and they
+ * move in opposite directions, which is the whole point:
+ *
+ *   gk-busy-loss          6.47 / 2.36  ->  6.83 / 6.44   (he was making saves)
+ *   gk-quiet-clean-sheet  8.63 / 21.82 ->  7.53 / 14.41  (he was not troubled)
+ *
+ * Every outfield case is untouched by that second change.
  */
 
 import { describe, it, expect } from 'vitest';
@@ -36,8 +42,8 @@ import { CASES } from './fixtures';
 const BASELINE: Record<string, { rating: number; fantasyPoints: number }> = {
     'st-brace': { rating: 9.01, fantasyPoints: 36.72 },
     'st-quiet': { rating: 6.92, fantasyPoints: 7.38 },
-    'gk-busy-loss': { rating: 6.47, fantasyPoints: 2.36 },
-    'gk-quiet-clean-sheet': { rating: 8.63, fantasyPoints: 21.82 },
+    'gk-busy-loss': { rating: 6.83, fantasyPoints: 6.44 },
+    'gk-quiet-clean-sheet': { rating: 7.53, fantasyPoints: 14.41 },
     'cb-clean-sheet': { rating: 8.41, fantasyPoints: 26.94 },
     'cm-assist': { rating: 8.34, fantasyPoints: 25.79 },
     'am-two-assists': { rating: 8.94, fantasyPoints: 35.57 },

@@ -85,6 +85,13 @@ function positionGroup(pos) {
   return 'ATT';
 }
 
+// Keep in step with src/lib/scoring/matchRating.ts. Duplicated rather than
+// imported because this script runs as plain .mjs outside the Next build.
+const GK_CLEAN_SHEET = 5;
+const GK_CLEAN_SHEET_SAVE_CAP = 10;
+const GK_GOAL_CONCEDED = 2.6;
+const GK_XGC_DIFF = 4.5;
+
 function defensiveRawInput(s, pos) {
   const gc = s.goals_conceded ?? 0;
   const xgc = parseFloat(s.expected_goals_conceded) || 0;
@@ -105,8 +112,20 @@ function defensiveRawInput(s, pos) {
   const dc = Math.max(0, s.defensive_contribution ?? 0);
 
   if (pos === 'GK') {
-    const defActionsRaw = recoveries * 0.5 + cbi * 0.5;
-    return defActionsRaw + csBonus - gc * 4.0;
+    // Must mirror the GK branch of computeComponentScores in
+    // src/lib/scoring/matchRating.ts exactly. It did not: this returned
+    // `recoveries*0.5 + cbi*0.5 + 16 - gc*4.0` while the engine computed
+    // something else entirely, so the median and stddev written here were
+    // derived from a formula the sigmoid never sees. The stored stddev came out
+    // at 10.72 against the engine's true 17.18, making the curve ~60% too steep
+    // for keepers and forcing their scores toward the extremes. If the engine's
+    // GK constants move, move them here too.
+    const sv = Math.max(0, s.saves ?? 0);
+    const cleanSheetHere = cleanSheet && minutes >= 60;
+    const gkCsVal = cleanSheetHere ? GK_CLEAN_SHEET + Math.min(GK_CLEAN_SHEET_SAVE_CAP, sv) : 0;
+    const xgcDiff = Math.max(-2.5, Math.min(2.5, xgc - gc));
+    const zeroSavePenalty = !cleanSheetHere && sv === 0 && gc >= 1 ? 4.5 * gc : 0;
+    return recoveries * 0.4 + gkCsVal - gc * GK_GOAL_CONCEDED + xgcDiff * GK_XGC_DIFF - zeroSavePenalty;
   }
 
   const xgcOutperf = Math.max(0, xgc - gc) * 5;
@@ -120,9 +139,11 @@ function defensiveRawInput(s, pos) {
 }
 
 function saveScoreRaw(s) {
+  // Mirrors the engine's saveVolRaw. Was `sv*2 + psav*5` against the engine's
+  // `sv*2.5 + psav*6` — same drift as defensiveRawInput above.
   const sv = s.saves ?? 0;
   const psav = s.penalties_saved ?? 0;
-  return sv * 2 + psav * 5;
+  return sv * 2.5 + psav * 6;
 }
 
 function median(arr) {
