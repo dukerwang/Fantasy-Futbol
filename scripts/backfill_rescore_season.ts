@@ -2,12 +2,11 @@
  * Re-scores a completed season's `player_stats` through the current engine.
  *
  *   node --experimental-strip-types --no-warnings --import ./scratch/register-ts.mjs \
- *     scripts/backfill_appearance_credit.ts [--season 2025-26] [--apply]
+ *     scripts/backfill_rescore_season.ts [--season 2025-26] [--apply]
  *
- * Written for the APPEARANCE_CREDIT change (2026-08-23), which extended the
- * appearance credit from goalkeepers to every position and so moved
- * `fantasy_points` for every outfield appearance already on record. It is not
- * specific to that change though — any engine change that moves stored points
+ * Written for the 2026-08-23 removal of the goalkeeper-only appearance credit,
+ * which moved `fantasy_points` on every keeper appearance already on record. It
+ * is not specific to that change — any engine change that moves stored points
  * needs the same pass.
  *
  * Why not /api/admin/backfill-scoring-v2: that route refetches

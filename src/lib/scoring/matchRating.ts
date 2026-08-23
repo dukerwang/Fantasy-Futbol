@@ -492,18 +492,6 @@ export function curveFinalRating(composite: number, minutesPlayed: number): numb
  * which publishes the table above to players.
  */
 /**
- * Points credited for appearing. Flat: getting on the pitch is worth the same
- * to everyone, whether that is five minutes or ninety.
- *
- * Deliberately NOT scaled by minutes. Rating carries no minutes term, so a
- * minutes term in points would let two players on the same rating bank
- * different scores — and the card presents rating and points as the same
- * performance on two scales. Time on the pitch already tells in the rating
- * itself, through the stats a player accumulates while he is out there.
- */
-export const APPEARANCE_CREDIT = 2.5;
-
-/**
  * Keepers' curve output is multiplied by this before the appearance credit.
  * Compensates for GK composite being ~56% more dispersed than an outfielder's,
  * which a convex curve would otherwise turn into a standing points advantage.
@@ -638,23 +626,19 @@ export function calculateMatchRating(
         fantasyPoints *= GK_CURVE_SCALE;
     }
 
-    // Appearance credit, applied AFTER the keeper scaling so it is worth the
-    // same to every position.
+    // There is no appearance credit, for any position. Turning out is not an
+    // achievement, so a game below the curve's ~5.84 display-rating threshold
+    // is worth nothing rather than a small amount.
     //
-    // This used to be keeper-only, which inverted the two scales against each
-    // other: the points curve pays nothing below ~5.84 display rating, so a
-    // keeper who did nothing banked 2.5 while a better-rated outfielder banked
-    // zero. GW1 2026-27 had Roefs (4.65 rating) out-scoring Rice (6.16) 2.50 to
-    // 1.23. There is no principle under which turning out is worth credit for
-    // one position and not the others.
-    //
-    // Note this does not GRADE poor games — everything under the curve's
-    // threshold still lands on the same figure, just 2.5 rather than 0. Closing
-    // that gap means recutting the curve, which compresses the spread between
-    // teams badly enough to push the draw rate from 18% to ~46%.
-    if (stats.minutes_played > 0) {
-        fantasyPoints += APPEARANCE_CREDIT;
-    }
+    // Keepers used to be the exception, holding a 2.5 credit nobody else had.
+    // That inverted the two scales against each other: a keeper who did nothing
+    // banked 2.5 while a better-rated outfielder banked zero — GW1 2026-27 had
+    // Roefs (4.65 rating) out-scoring Rice (6.16) 2.50 to 1.23. Removing the
+    // keeper credit closes that gap to 0.38 without touching anyone else's
+    // score. Extending the credit to everyone would close it by exactly the
+    // same amount, since a constant added to all positions changes no relative
+    // standing — it would just inflate every total by 2.5 an appearance and
+    // reverse the no-participation-points rule as a side effect.
 
     // Out-of-Position (OOP) penalty:
     // If a player's primary role is a midfielder or attacker (DM, CM, AM, LW, RW, ST)
