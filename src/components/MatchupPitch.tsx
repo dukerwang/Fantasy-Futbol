@@ -300,7 +300,7 @@ export default function MatchupPitch({
                     )}
 
                     <div className={styles.zones}>
-                        {ZONE_ORDER.map((zone) => (
+                        {ZONE_ORDER.filter((zone) => (zones?.[zone] ?? []).length > 0).map((zone) => (
                             <div key={`${sideKey}-${zone}`} className={styles.zoneRow}>
                                 <div className={`${styles.zone} ${zone === 'WBZ' ? styles.zoneWBZ : ''}`}>
                                     {(zones?.[zone] ?? []).map((s) => {

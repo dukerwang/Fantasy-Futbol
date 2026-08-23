@@ -535,7 +535,7 @@ export async function resolveAllStalledGameweeks(): Promise<{
 
         const stalledGws = [...new Set(liveMatchups.map(m => m.gameweek))].sort((a, b) => a - b);
 
-        // 2. Fetch FPL bootstrap once — covers all GW finished/finished_provisional flags
+        // 2. Fetch FPL bootstrap once — covers every stalled GW's `finished` flag
         const bsRes = await fetch('https://fantasy.premierleague.com/api/bootstrap-static/', {
             next: { revalidate: 0 },
             headers: { 'User-Agent': 'FantasyFutbol/1.0' },
@@ -550,9 +550,13 @@ export async function resolveAllStalledGameweeks(): Promise<{
         // the day after the gameweek's last match, which is also when the ICT
         // block and final bonus stop reading zero.
         //
-        // (An earlier version also accepted `finished_provisional`. That field
-        // exists on fixtures, not events, so the check was always undefined and
-        // never actually widened anything.)
+        // This replaces a grace-window approach that keyed off
+        // `finished_provisional`. That field is only present on FPL *fixtures*,
+        // never on events, so `e.finished_provisional === true` was always
+        // `undefined === true` — the set stayed empty and the window never
+        // opened. Waiting on our own completed sync is also a stronger
+        // guarantee than any timer: it waits for the data itself to land
+        // rather than for a duration we hope is long enough.
         const finishedGws = new Set<number>(
             (bsData.events as any[])
                 .filter((e: any) => e.finished === true)

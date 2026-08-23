@@ -50,6 +50,12 @@ interface GameweekWindow {
  * needs one more sync AFTER `finished` flips — that pass is the only one that
  * ever sees the reviewed numbers.
  *
+ * This is what zeroed Declan Rice's DM rating on 2026-08-21: the sync went
+ * idle the moment `finished` flipped, so nothing was ever going to fetch the
+ * corrected numbers. An earlier fix tried to hold the window open on
+ * `finished_provisional`, but that field exists only on FPL *fixtures*, never
+ * on events, so the condition never fired.
+ *
  * `syncFplLiveRatings` runs that pass once and records it in
  * `gameweek_sync_state`; subsequent ticks short-circuit.
  */
