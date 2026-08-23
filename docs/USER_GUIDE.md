@@ -113,7 +113,7 @@ Each match a player earns a **rating from roughly 1.0 to 10.0**, calibrated so a
 - **Overall match impact** — influence beyond the box score: involvement, pressing, contribution to build-up
 - **Creativity and attacking threat** — chances created, shots, dangerous touches
 - **Defensive work** — tackles, interceptions, clearances, blocks, recoveries; weighted far more heavily for defenders and defensive midfielders than for wingers
-- **Clean sheets** — a large bonus for goalkeepers and defenders, smaller for central midfielders, none for attackers
+- **Clean sheets** — a bonus for goalkeepers and defenders, smaller for central midfielders, none for attackers. For a keeper it is deliberately modest: the saves that earned the shutout count for more than the shutout itself
 - **Goals conceded** — costly for goalkeepers; for outfielders, measured against how many the team's performance suggested they *should* have conceded, not the raw scoreline
 - **Goals and assists** — rewarded identically regardless of position, with a bonus for beating your expected-goals numbers
 - **Saves** (goalkeepers) — including a larger bonus for penalty saves
@@ -139,7 +139,7 @@ There are no points for turning up. Your score comes from the performance curve 
 
 Two things follow. **A displayed rating of 5.84 or below scores exactly zero** — a below-par performance is worth nothing, not a small amount, and every game under that line is worth the same whether it rated 4.0 or 5.8. And the curve is steeply front-loaded: 7.0 → 8.0 gains you more than 6.0 → 7.0 did. One genuinely excellent performance outweighs several adequate ones, which is the intended shape. Gaffa rewards players who *decide* matches, not players who merely appear in them. Points never go negative; zero is the floor.
 
-Goalkeepers run on the same table, with their figure scaled down slightly. Keeper displays swing much harder than outfielders' — conceding four without a save and keeping a clean sheet with eight are both routine — and without that adjustment the spread alone would leave keepers permanently ahead on points.
+Goalkeepers run on exactly the same table, with no adjustment. A keeper is rated on how he kept, not on whether the defence held: the saves he made, and how the goals he conceded compare with the quality of the chances he faced. A clean sheet helps, but an untroubled one is worth far less than one he earned — and a keeper can rate highly in a defeat, which is how it should be.
 
 ### The out-of-position penalty
 

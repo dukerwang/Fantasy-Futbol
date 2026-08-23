@@ -1,7 +1,8 @@
 # Goalkeeper rating — measure the goalkeeping, not the scoreline
 
 **Date:** 2026-08-23
-**Status:** Scoped, not implemented. Blocked on a `/share/stats` review gate (§7).
+**Status:** IMPLEMENTED 2026-08-23 (`ce6657c`). Kept for the reasoning and the
+measurements; §9 records what actually shipped and where it differed.
 **Scope:** The GK branch of `src/lib/scoring/matchRating.ts` — the `defensive` and
 `save_score` components, their position weights, and the `GK_CURVE_SCALE` patch
 that currently absorbs the fallout at the points layer.
@@ -285,3 +286,55 @@ clean read of a scoring change unless those fields are filtered out first.
   only touches one position, but it makes the `/share/stats` gate reviewable
   against real stored numbers instead of a model.
 - **Review the appearance-credit divergence in the same pass?** Recommend yes.
+
+---
+
+## 9. What shipped
+
+Implemented in `ce6657c`. Three departures from the scope above.
+
+**A plain bug did much of the damage, and §1 missed it.**
+`scripts/recompute_reference_stats.mjs` carried its own copy of the GK formula
+and it had drifted from the engine — it wrote medians from `recoveries*0.5 +
+cbi*0.5 + 16 - gc*4.0` while `computeComponentScores` calculated something else,
+and `sv*2 + psav*5` against the engine's `sv*2.5 + psav*6`. The stored stddev
+was 10.72 where the engine's own output has 17.18, so the sigmoid ran ~60% too
+steep for keepers and pushed their scores toward the extremes. Correcting that
+alone took composite SD from 0.245 to 0.209 before a single knob moved. Both
+functions now mirror the engine.
+
+**Fitted values, from sweeping all 767 keeper appearances rather than the eight
+archetypes:** `GK_CLEAN_SHEET` 5, `GK_GOAL_CONCEDED` 2.6, `GK_XGC_DIFF` 4.5,
+save cap 10, weights `defensive` 0.34 / `save_score` 0.26. Close to §2's guesses
+except the weights, which came out the other way round — defensive above save
+score, not below.
+
+**Target 1 was not met, and did not need to be.** Composite SD landed at 0.193
+against the outfield's 0.157, not the 0.157 the spec asked for. Every objective
+in the sweep converged there, so it is a floor for this structure. It did not
+matter: SD was only ever a proxy for target 4, and target 4 passed outright —
+keepers and outfielders now both average **exactly 7.27 points** with
+`GK_CURVE_SCALE` deleted rather than merely reduced.
+
+Target 2 came in at 6.48 mean rating against the 6.67 asked for. Lifting it
+reopens the points gap, so it was traded away deliberately.
+
+### Measured after
+
+| | Before | After |
+|---|---|---|
+| Clean sheets | 8.65 ± **0.21** | 7.66 ± **0.49**, range 6.86–9.03 |
+| Conceded | 6.01 ± 1.06 | 6.09 ± 1.05, range 4.07–**8.41** |
+| Mean GK rating | 6.67 | 6.48 (outfield 6.66) |
+| Mean GK points | 10.12 | **7.27** (outfield 7.27) |
+
+A keeper who concedes can now reach 8.41, which the old clean-sheet band made
+impossible, so the two bands overlap.
+
+### Ordering note for next time
+
+The `rating_reference_stats` rows were updated before the code deployed, leaving
+a window where the live engine scored keepers against medians belonging to a
+formula it did not yet have. Harmless here — 2026-27 GW1 is re-synced every two
+minutes and self-corrected on deploy — but the correct order is deploy first,
+then reference stats, then backfill.
