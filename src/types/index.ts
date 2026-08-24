@@ -201,6 +201,8 @@ export interface Player {
   photo_url: string | null;
   portrait_head_top_pct?: number | null; // Portrait.tsx per-player crop correction; see portraitCrop.ts
   portrait_head_width_pct?: number | null;
+  portrait_tall_head_top_pct?: number | null; // PremiumPlayerCard.tsx equivalent, tall 220x280 source
+  portrait_tall_head_width_pct?: number | null;
   height_cm: number | null;
   fpl_status: string | null; // 'a'=available, 'i'=injured, 'd'=doubtful, 's'=suspended, 'u'=unavailable
   fpl_news: string | null;

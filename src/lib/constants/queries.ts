@@ -25,6 +25,8 @@ export const FULL_PLAYER_SELECT = `
   photo_url,
   portrait_head_top_pct,
   portrait_head_width_pct,
+  portrait_tall_head_top_pct,
+  portrait_tall_head_width_pct,
   height_cm,
   fpl_status,
   fpl_news,

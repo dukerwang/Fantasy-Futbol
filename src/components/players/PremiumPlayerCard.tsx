@@ -5,6 +5,7 @@ import type { Player, PlayerOwnership, PlayerSeasonArchive } from '@/types';
 import type { CrestConfig } from '@/components/crest/types';
 import { getPlayerDisplayName, playerInitial } from '@/lib/players/displayName';
 import { portraitUrl } from '@/lib/players/photo';
+import { customTallPortraitCrop } from '@/lib/players/portraitCrop';
 import { useParams } from 'next/navigation';
 import CrestBadge from '@/components/crest/CrestBadge';
 import SquadPeekButton from '@/components/teams/SquadPeekButton';
@@ -279,6 +280,19 @@ export default function PremiumPlayerCard({
     const advancePhoto = useCallback(() => {
         setPhotoState((s) => ({ key: s.key, n: s.n + 1, loaded: false }));
     }, []);
+
+    // Per-player correction for the tall (110x140/220x280) source's own
+    // framing inconsistency — see portraitCrop.ts. Only meaningful while that
+    // source is the one showing (n === 0); the square fallback keeps its
+    // existing untuned `.photoAlt` treatment, since it isn't measured against
+    // this box.
+    const tallCrop =
+        photoState.n === 0
+            ? customTallPortraitCrop(196, resolvedPlayer.portrait_tall_head_top_pct, resolvedPlayer.portrait_tall_head_width_pct)
+            : null;
+    const photoStyle = tallCrop
+        ? ({ '--pc-photo-zoom': `${tallCrop.zoomPct}%`, '--pc-photo-inset': `${tallCrop.insetPx}px` } as React.CSSProperties)
+        : undefined;
 
     // An <img> whose bytes are already in the HTTP cache can finish before React
     // attaches onLoad, so mount-time completeness has to be checked directly or
@@ -617,6 +631,7 @@ export default function PremiumPlayerCard({
                                     src={photoUrl}
                                     alt={getPlayerDisplayName(resolvedPlayer, 'full')}
                                     className={`${styles.photo} ${photoState.n > 0 ? styles.photoAlt : ''} ${photoState.loaded ? styles.photoLoaded : ''}`}
+                                    style={photoStyle}
                                     width={196}
                                     height={250}
                                     loading="eager"

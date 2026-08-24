@@ -1,18 +1,23 @@
 /**
  * backfill_portrait_crops.ts
  *
- * Measures each player's own PL 500x500 cut-out and stores where their head
- * starts and how wide it is (`players.portrait_head_top_pct` /
- * `portrait_head_width_pct`, migration 134). Portrait.tsx uses these
- * (src/lib/players/portraitCrop.ts) to correct the shared portrait crop
- * per-player instead of applying one fixed zoom/inset to every photo -- see
- * that file's doc comment for why: PL has started serving some players'
- * photos (not just new signings) with the head bigger and flush to the top
- * of the frame instead of the ~13%-down headroom most photos still have.
+ * Measures each player's own PL cut-outs and stores where their head starts
+ * and how wide it is, for BOTH sources (photo.ts):
+ *   - 500x500 square  -> portrait_head_top_pct / portrait_head_width_pct (134)
+ *   - 220x280 tall     -> portrait_tall_head_top_pct / portrait_tall_head_width_pct (135)
+ * Portrait.tsx (avatars) and PremiumPlayerCard.tsx (the roster Inspector /
+ * PlayerDetailsModal flip-card) each use one of these sources as their
+ * primary image and correct against the matching measurement
+ * (src/lib/players/portraitCrop.ts) instead of applying one fixed zoom/inset
+ * to every photo -- see that file's doc comment for why: PL has started
+ * serving some players' photos (not just new signings, and not always both
+ * sources in sync) with the head bigger and flush to the top of the frame
+ * instead of the ~13%-down headroom most photos still have.
  *
- * A player with no 500x500 cut-out (photo.ts: ~27% of the pool) is left with
- * both columns NULL -- Portrait.tsx already falls back to the shared crop for
- * that case, same as before this script existed.
+ * A player missing a given cut-out (photo.ts: ~27% of the pool has no
+ * 500x500) is left with that pair of columns NULL -- both components already
+ * fall back to their shared default crop for that case, same as before this
+ * script existed.
  *
  * Usage:
  *   node --experimental-strip-types scripts/backfill_portrait_crops.ts
@@ -70,14 +75,20 @@ function isBg(r: number, g: number, b: number, a: number): boolean {
  * (which measured the REF_HEAD_WIDTH_FRAC / REF_HEAD_TOP_FRAC constants this
  * data is compared against in portraitCrop.ts).
  */
-async function measurePortrait(code: string): Promise<{ headTopPct: number; headWidthPct: number } | null> {
-  const res = await fetch(`https://resources.premierleague.com/premierleague25/photos/players/500x500/${code}.png`);
-  if (!res.ok) return null; // 403 = no 500x500 cut-out for this player; not an error.
+async function measurePortrait(
+  code: string,
+  size: '500x500' | '110x140',
+): Promise<{ headTopPct: number; headWidthPct: number } | null> {
+  const res = await fetch(`https://resources.premierleague.com/premierleague25/photos/players/${size}/${code}.png`);
+  if (!res.ok) return null; // 403 = no cut-out at this size for this player; not an error.
 
   const buf = Buffer.from(await res.arrayBuffer());
   const { data, info } = await sharp(buf).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
   const { width: w, height: h, channels: c } = info;
-  if (w < 400 || h < 400) return null;
+  // PL serves these at 2x (500x500 -> 500px, 110x140 -> 220x280) -- a genuine
+  // image is always near that; anything much smaller is a 403's error body.
+  const minWidth = size === '500x500' ? 400 : 180;
+  if (w < minWidth || h < minWidth) return null;
 
   const rowWidths = new Array(h).fill(0);
   for (let y = 0; y < h; y++) {
@@ -133,13 +144,17 @@ async function main() {
     is_active: boolean;
     portrait_head_top_pct: number | null;
     portrait_head_width_pct: number | null;
+    portrait_tall_head_top_pct: number | null;
+    portrait_tall_head_width_pct: number | null;
   };
 
   const rows: Row[] = [];
   for (let from = 0; ; from += PAGE_SIZE) {
     let query = db
       .from('players')
-      .select('id, name, photo_url, is_active, portrait_head_top_pct, portrait_head_width_pct')
+      .select(
+        'id, name, photo_url, is_active, portrait_head_top_pct, portrait_head_width_pct, portrait_tall_head_top_pct, portrait_tall_head_width_pct',
+      )
       .not('photo_url', 'is', null)
       .range(from, from + PAGE_SIZE - 1);
     if (!ALL) query = query.eq('is_active', true);
@@ -154,7 +169,7 @@ async function main() {
     if (data.length < PAGE_SIZE) break;
   }
 
-  const targets = rows.filter((r) => FULL || r.portrait_head_top_pct === null);
+  const targets = rows.filter((r) => FULL || r.portrait_head_top_pct === null || r.portrait_tall_head_top_pct === null);
   console.log(`[info] ${rows.length} candidate players, ${targets.length} to measure (${APPLY ? 'APPLY' : 'DRY RUN'}${ALL ? ', all' : ', active only'}${FULL ? ', full' : ''})`);
 
   let measured = 0;
@@ -165,19 +180,24 @@ async function main() {
     const code = fplPhotoCode(row.photo_url);
     if (!code) return;
     try {
-      const m = await measurePortrait(code);
-      if (!m) {
+      const [square, tall] = await Promise.all([measurePortrait(code, '500x500'), measurePortrait(code, '110x140')]);
+      if (!square && !tall) {
         noCutout++;
         return;
       }
       measured++;
-      console.log(
-        `${APPLY ? '[write]' : '[dry]  '} ${row.name.padEnd(28)} headTop=${(m.headTopPct * 100).toFixed(1)}%  headWidth=${(m.headWidthPct * 100).toFixed(1)}%`,
-      );
+      const fmt = (m: { headTopPct: number; headWidthPct: number } | null) =>
+        m ? `top=${(m.headTopPct * 100).toFixed(1)}% width=${(m.headWidthPct * 100).toFixed(1)}%` : 'n/a';
+      console.log(`${APPLY ? '[write]' : '[dry]  '} ${row.name.padEnd(28)} square(${fmt(square)})  tall(${fmt(tall)})`);
       if (APPLY) {
         const { error } = await db
           .from('players')
-          .update({ portrait_head_top_pct: m.headTopPct, portrait_head_width_pct: m.headWidthPct })
+          .update({
+            portrait_head_top_pct: square?.headTopPct ?? null,
+            portrait_head_width_pct: square?.headWidthPct ?? null,
+            portrait_tall_head_top_pct: tall?.headTopPct ?? null,
+            portrait_tall_head_width_pct: tall?.headWidthPct ?? null,
+          })
           .eq('id', row.id);
         if (error) throw error;
       }

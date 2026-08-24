@@ -456,13 +456,22 @@
   z-index: 3;
 }
 
+/* Primary source (photo_url, the tall 110x140/220x280 cut-out). Positioned
+   like Portrait.tsx's ".g-portrait-img" rather than object-fit, because a
+   per-player correction (customTallPortraitCrop, portraitCrop.ts) needs to
+   move and scale the image itself, not just how it's fit into the box.
+   --pc-photo-zoom/--pc-photo-inset default to 100%/0px — a player with no
+   measured correction (or the reference framing exactly) renders at 1:1,
+   the box's aspect already matching this source's, same as before this
+   correction existed. */
 .photo {
   position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  object-position: bottom center;
+  top: var(--pc-photo-inset, 0px);
+  left: 50%;
+  width: var(--pc-photo-zoom, 100%);
+  max-width: none;
+  height: auto;
+  transform: translateX(-50%);
   filter: drop-shadow(0 6px 16px rgba(28, 28, 28, 0.22));
   image-rendering: -webkit-optimize-contrast;
   image-rendering: crisp-edges;
@@ -477,11 +486,19 @@
 }
 
 /* The 500x500 fallback (photo.ts) is a different, square crop — not the
-   box's own 110x140 aspect. `contain` shrinks it to the box's width and
-   anchors it to the bottom, leaving a bare gap above the head where the
-   photo should be. `cover` scales it to the box's full height instead,
-   matching the primary source's size and cropping evenly at the sides. */
+   box's own 110x140 aspect, and not measured against this box, so it resets
+   back to a plain object-fit rather than using --pc-photo-zoom/-inset.
+   `contain` shrinks it to the box's width and anchors it to the bottom,
+   leaving a bare gap above the head where the photo should be. `cover`
+   scales it to the box's full height instead, matching the primary source's
+   size and cropping evenly at the sides. */
 .photoAlt {
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  transform: none;
   object-fit: cover;
   object-position: top center;
 }

@@ -18,6 +18,14 @@
  * unchanged; anyone measured differently gets a zoom/inset solved to land
  * their head at the same on-screen size and position the shared crop already
  * gets right for everyone else.
+ *
+ * The 220x280 "tall" source (photo.ts) is a DIFFERENT picture from the same
+ * photoshoot, used as PremiumPlayerCard.tsx's primary image rather than a
+ * fallback. It carries the same framing inconsistency, so it gets its own
+ * reference fractions (REF_TALL_*) and correction (customTallPortraitCrop),
+ * measured and stored separately -- see migration 135. Do not reuse the
+ * square source's fractions for it; head position/width do not match between
+ * the two pictures for the same player.
  */
 
 export const REF_HEAD_WIDTH_FRAC = 0.262;
@@ -39,25 +47,64 @@ const SIZE_DEFAULTS: Record<PortraitSize, { zoomPct: number; insetPx: number; bo
 };
 
 /**
- * Solves a per-player (zoom, inset) pair that reproduces, for this player's
- * own measured head-top/head-width fractions, the same rendered head size and
- * position the shared crop already produces for a player at the reference
- * fractions. Only meaningful for the primary 500x500 source -- the fallback
- * 220x280 source is a different picture with its own shared `-alt` crop, and
- * isn't measured by the backfill, so callers should not apply this to it.
+ * Solves a per-player (zoom, inset) pair that reproduces, for a player at
+ * `headTopPct`/`headWidthPct`, the same rendered head size and position a
+ * player at the reference fractions gets under `defaultZoomPct`/`defaultInsetPx`
+ * in a `boxPx`-wide frame.
+ */
+function solveCrop(
+  headTopPct: number | null | undefined,
+  headWidthPct: number | null | undefined,
+  refWidthFrac: number,
+  refTopFrac: number,
+  defaultZoomPct: number,
+  defaultInsetPx: number,
+  boxPx: number,
+): { zoomPct: number; insetPx: number } | null {
+  if (headTopPct == null || headWidthPct == null || headWidthPct <= 0) return null;
+
+  const zoomPct = defaultZoomPct * (refWidthFrac / headWidthPct);
+  const targetHeadTopPx = defaultInsetPx + refTopFrac * (defaultZoomPct / 100) * boxPx;
+  const insetPx = targetHeadTopPx - headTopPct * (zoomPct / 100) * boxPx;
+
+  return { zoomPct, insetPx };
+}
+
+/**
+ * Only meaningful for the primary 500x500 source -- the fallback 220x280
+ * source is a different picture with its own shared `-alt` crop, and isn't
+ * measured by this function, so callers should not apply it to that source.
  */
 export function customPortraitCrop(
   size: PortraitSize,
   headTopPct: number | null | undefined,
   headWidthPct: number | null | undefined,
 ): { zoomPct: number; insetPx: number } | null {
-  if (headTopPct == null || headWidthPct == null || headWidthPct <= 0) return null;
+  const { zoomPct, insetPx, boxPx } = SIZE_DEFAULTS[size];
+  return solveCrop(headTopPct, headWidthPct, REF_HEAD_WIDTH_FRAC, REF_HEAD_TOP_FRAC, zoomPct, insetPx, boxPx);
+}
 
-  const { zoomPct: defaultZoom, insetPx: defaultInset, boxPx } = SIZE_DEFAULTS[size];
+/**
+ * Measured (`scratch/measure_portrait_reference.mjs`, run against the
+ * 110x140 source) across the same reference-cluster players as the square
+ * source's constants above.
+ */
+export const REF_TALL_HEAD_WIDTH_FRAC = 0.2992;
+export const REF_TALL_HEAD_TOP_FRAC = 0.1361;
 
-  const zoomPct = defaultZoom * (REF_HEAD_WIDTH_FRAC / headWidthPct);
-  const targetHeadTopPx = defaultInset + REF_HEAD_TOP_FRAC * (defaultZoom / 100) * boxPx;
-  const insetPx = targetHeadTopPx - headTopPct * (zoomPct / 100) * boxPx;
-
-  return { zoomPct, insetPx };
+/**
+ * PremiumPlayerCard.tsx's box (~196x250) is sized to closely match the tall
+ * source's own aspect ratio, so at the reference fractions no zoom/offset is
+ * needed at all -- unlike the small avatars, this card was never meant to
+ * crop in tight; it shows the whole photo, kit and all. defaultZoomPct: 100,
+ * defaultInsetPx: 0 encode exactly that "do nothing to a normal photo"
+ * baseline; only a player whose tall photo deviates from the reference gets
+ * a correction.
+ */
+export function customTallPortraitCrop(
+  boxPx: number,
+  headTopPct: number | null | undefined,
+  headWidthPct: number | null | undefined,
+): { zoomPct: number; insetPx: number } | null {
+  return solveCrop(headTopPct, headWidthPct, REF_TALL_HEAD_WIDTH_FRAC, REF_TALL_HEAD_TOP_FRAC, 100, 0, boxPx);
 }
