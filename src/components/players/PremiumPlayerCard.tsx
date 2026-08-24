@@ -4,7 +4,7 @@ import { useState, useRef, useCallback, useEffect } from 'react';
 import type { Player, PlayerOwnership, PlayerSeasonArchive } from '@/types';
 import type { CrestConfig } from '@/components/crest/types';
 import { getPlayerDisplayName, playerInitial } from '@/lib/players/displayName';
-import { portraitUrl } from '@/lib/players/photo';
+import { portraitUrl, withVersion } from '@/lib/players/photo';
 import { customTallPortraitCrop } from '@/lib/players/portraitCrop';
 import { useParams } from 'next/navigation';
 import CrestBadge from '@/components/crest/CrestBadge';
@@ -264,8 +264,13 @@ export default function PremiumPlayerCard({
     // 500x500 one is a different crop (see photo.ts) but coverage isn't
     // nested, so trying it before giving up on a photo entirely closes real
     // gaps for players missing just the one FPL happens to serve at 110x140.
-    const rawPhotoUrl = resolvedPlayer.photo_url ?? null;
-    const photoAltUrl = portraitUrl(rawPhotoUrl);
+    // PL sends no Cache-Control on these images, so a browser that cached the
+    // 110x140 URL before PL replaced its bytes never refetches on its own —
+    // photo_version (migration 136) busts that cache; see photo.ts.
+    const rawPhotoUrl = resolvedPlayer.photo_url
+        ? withVersion(resolvedPlayer.photo_url, resolvedPlayer.photo_version)
+        : null;
+    const photoAltUrl = portraitUrl(resolvedPlayer.photo_url, resolvedPlayer.photo_version);
     const photoSources = [rawPhotoUrl, photoAltUrl].filter((u): u is string => u !== null);
     const sourcesKey = `${resolvedPlayer.id}|${photoSources.join('|')}`;
 

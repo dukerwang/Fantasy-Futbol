@@ -81,6 +81,7 @@ function TileCompact({ e, sel, onClick }: { e: SquadEntry; sel: boolean; onClick
         size="sm"
         headTopPct={p.portrait_head_top_pct}
         headWidthPct={p.portrait_head_width_pct}
+        photoVersion={p.photo_version}
       />
       <div className={styles.tcBody}>
         <div className={styles.tcName}>{getPlayerDisplayName(p, 'initial_last')}</div>
@@ -111,6 +112,7 @@ function TileGallery({ e, sel, onClick }: { e: SquadEntry; sel: boolean; onClick
           size="lg"
           headTopPct={p.portrait_head_top_pct}
           headWidthPct={p.portrait_head_width_pct}
+          photoVersion={p.photo_version}
         />
         <span className={styles.tgValchip}>{money(valueOf(e))}</span>
         {inj && <span className={styles.tgInjchip} style={{ color: inj.tone }}>{inj.label}</span>}

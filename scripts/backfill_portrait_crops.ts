@@ -78,9 +78,15 @@ function isBg(r: number, g: number, b: number, a: number): boolean {
 async function measurePortrait(
   code: string,
   size: '500x500' | '110x140',
-): Promise<{ headTopPct: number; headWidthPct: number } | null> {
+): Promise<{ headTopPct: number; headWidthPct: number; lastModified: string | null } | null> {
   const res = await fetch(`https://resources.premierleague.com/premierleague25/photos/players/${size}/${code}.png`);
   if (!res.ok) return null; // 403 = no cut-out at this size for this player; not an error.
+
+  // Captured for players.photo_version (migration 136) -- PL sends no
+  // Cache-Control on these images, so this is what tells the browser a
+  // player's photo changed and its cached copy needs refetching. See
+  // photo.ts's doc comment.
+  const lastModified = res.headers.get('last-modified');
 
   const buf = Buffer.from(await res.arrayBuffer());
   const { data, info } = await sharp(buf).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
@@ -110,7 +116,7 @@ async function measurePortrait(
   const topY = rowWidths.findIndex((wd) => wd > threshold);
   if (topY === -1 || headWidthPct <= 0) return null;
 
-  return { headTopPct: topY / h, headWidthPct };
+  return { headTopPct: topY / h, headWidthPct, lastModified };
 }
 
 async function mapWithConcurrency<T, R>(items: T[], limit: number, fn: (item: T) => Promise<R>): Promise<R[]> {
@@ -189,6 +195,13 @@ async function main() {
       const fmt = (m: { headTopPct: number; headWidthPct: number } | null) =>
         m ? `top=${(m.headTopPct * 100).toFixed(1)}% width=${(m.headWidthPct * 100).toFixed(1)}%` : 'n/a';
       console.log(`${APPLY ? '[write]' : '[dry]  '} ${row.name.padEnd(28)} square(${fmt(square)})  tall(${fmt(tall)})`);
+      // The later of the two -- whichever source PL most recently touched --
+      // as a single version stamp for this player's photo (photo.ts).
+      const lastMods = [square?.lastModified, tall?.lastModified]
+        .filter((s): s is string => !!s)
+        .map((s) => Date.parse(s))
+        .filter((t) => !Number.isNaN(t));
+      const photoVersion = lastMods.length ? String(Math.max(...lastMods)) : null;
       if (APPLY) {
         const { error } = await db
           .from('players')
@@ -197,6 +210,7 @@ async function main() {
             portrait_head_width_pct: square?.headWidthPct ?? null,
             portrait_tall_head_top_pct: tall?.headTopPct ?? null,
             portrait_tall_head_width_pct: tall?.headWidthPct ?? null,
+            photo_version: photoVersion,
           })
           .eq('id', row.id);
         if (error) throw error;

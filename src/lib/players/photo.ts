@@ -28,6 +28,17 @@
  * Coverage is NOT nested — plenty of those 156 do have a 110x140 — which is
  * why the portrait tries the square source, then the tall one, then the serif
  * initial. Each source gets its own measured crop; see `portraitFallbackUrl`.
+ *
+ * CACHE BUSTING. PL's CDN sends no Cache-Control/Expires on these images, so
+ * a browser that already has a URL cached from before PL replaced its bytes
+ * has no way to know to refetch — confirmed 2026-08-24 for Saka and Timber,
+ * whose photos were freshly reshot but whose player-card view (a different
+ * URL, the 110x140 one, from Portrait.tsx's 500x500-primary avatar) kept
+ * showing 2025/26. `players.photo_version` (migration 136) is a version
+ * stamp captured off the CDN's own Last-Modified header by
+ * scripts/backfill_portrait_crops.ts; every helper below appends it as a
+ * `?v=` query param so the browser's cache key changes whenever PL updates a
+ * player's photo, regardless of the missing cache headers.
  */
 
 /** The `.../<size>/<code>.png` filename FPL uses, pulled back out of a stored URL. */
@@ -39,15 +50,22 @@ function codeOf(photoUrlOrCode: string | null | undefined): string | null {
   return fplPhotoCode(photoUrlOrCode) ?? (/^\d+$/.test(photoUrlOrCode ?? '') ? photoUrlOrCode! : null);
 }
 
+export function withVersion(url: string, version: string | null | undefined): string {
+  return version ? `${url}?v=${encodeURIComponent(version)}` : url;
+}
+
 /**
  * The 500x500 cut-out the 2.0 portrait crop is measured against. Returns null
  * when there is no code to build from; a code that has no cut-out on the CDN
  * still yields a URL, and the 403 surfaces as the <img>'s error event.
  */
-export function portraitUrl(photoUrlOrCode: string | null | undefined): string | null {
+export function portraitUrl(
+  photoUrlOrCode: string | null | undefined,
+  version?: string | null,
+): string | null {
   const code = codeOf(photoUrlOrCode);
   return code
-    ? `https://resources.premierleague.com/premierleague25/photos/players/500x500/${code}.png`
+    ? withVersion(`https://resources.premierleague.com/premierleague25/photos/players/500x500/${code}.png`, version)
     : null;
 }
 
@@ -65,16 +83,22 @@ export function portraitUrl(photoUrlOrCode: string | null | undefined): string |
  * Per-player variance is wider in this source than in the square one, so it is
  * a fallback and not a replacement.
  */
-export function portraitFallbackUrl(photoUrlOrCode: string | null | undefined): string | null {
+export function portraitFallbackUrl(
+  photoUrlOrCode: string | null | undefined,
+  version?: string | null,
+): string | null {
   const code = codeOf(photoUrlOrCode);
   return code
-    ? `https://resources.premierleague.com/premierleague25/photos/players/110x140/${code}.png`
+    ? withVersion(`https://resources.premierleague.com/premierleague25/photos/players/110x140/${code}.png`, version)
     : null;
 }
 
 /** The portrait sources in the order they should be tried. */
-export function portraitSources(photoUrlOrCode: string | null | undefined): string[] {
-  return [portraitUrl(photoUrlOrCode), portraitFallbackUrl(photoUrlOrCode)].filter(
+export function portraitSources(
+  photoUrlOrCode: string | null | undefined,
+  version?: string | null,
+): string[] {
+  return [portraitUrl(photoUrlOrCode, version), portraitFallbackUrl(photoUrlOrCode, version)].filter(
     (u): u is string => u !== null,
   );
 }

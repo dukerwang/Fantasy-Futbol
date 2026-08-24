@@ -440,6 +440,7 @@ function Lot({
               size="sm"
               headTopPct={p.portrait_head_top_pct}
               headWidthPct={p.portrait_head_width_pct}
+              photoVersion={p.photo_version}
             />
           </button>
           <div className={styles.lotIdBody}>
@@ -544,6 +545,7 @@ function Lot({
               size="md"
               headTopPct={p.portrait_head_top_pct}
               headWidthPct={p.portrait_head_width_pct}
+              photoVersion={p.photo_version}
             />
             <div className={styles.exWhoBody}>
               <div className={styles.exWhoName}>{fullName}</div>

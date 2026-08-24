@@ -32,6 +32,12 @@ interface Props {
    */
   headTopPct?: number | null;
   headWidthPct?: number | null;
+  /**
+   * `players.photo_version` (migration 136) — cache-busts the photo URL so a
+   * browser that cached it before PL replaced the underlying bytes actually
+   * refetches. See photo.ts's doc comment; omit for no version param.
+   */
+  photoVersion?: string | null;
 }
 
 /**
@@ -50,8 +56,8 @@ interface Props {
  * <img>'s error event — 27% of the pool misses the square source, so this
  * cascade is load-bearing rather than defensive.
  */
-export default function Portrait({ photoUrl, name, club, size = 'sm', className, headTopPct, headWidthPct }: Props) {
-  const sources = portraitSources(photoUrl);
+export default function Portrait({ photoUrl, name, club, size = 'sm', className, headTopPct, headWidthPct, photoVersion }: Props) {
+  const sources = portraitSources(photoUrl, photoVersion);
   const key = sources[0] ?? '';
 
   // Remember WHICH player the failures belong to, not just how many there were.

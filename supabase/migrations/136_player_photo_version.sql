@@ -1,0 +1,35 @@
+-- ============================================================
+-- Migration 136: Cache-busting version for player photo URLs
+-- ============================================================
+--
+-- PROBLEM
+-- -------
+-- PL's photo CDN (resources.premierleague.com) sends no Cache-Control or
+-- Expires header on player photos -- confirmed by hand, `curl -I` against
+-- both the 500x500 and 110x140 sources returns only Last-Modified/ETag, no
+-- explicit freshness directive. Browsers fall back to heuristic caching in
+-- that case, which can keep serving a locally-cached copy of an image for a
+-- long time after PL replaces the bytes at that same URL -- there is no push
+-- notification to the browser that the file changed.
+--
+-- Portrait.tsx (avatars) and PremiumPlayerCard.tsx (the flip-card) request
+-- DIFFERENT URLs for the same player (500x500 vs 110x140 primary), so their
+-- browser-cache staleness is independent: a player whose avatar looks fresh
+-- can still show a stale player-card photo, because the 110x140 URL simply
+-- hasn't been re-fetched by that browser since PL updated it. Bukayo Saka
+-- and Jurriën Timber were both confirmed this way -- fresh bytes at the
+-- origin (verified via `curl -I`, Last-Modified 2026-08-21) but the reported
+-- symptom is a stale 2025/26 image specifically in the player card.
+--
+-- FIX
+-- ---
+-- Store a version stamp per player (the photo's Last-Modified date from PL,
+-- captured by scripts/backfill_portrait_crops.ts, which already fetches
+-- these images to measure their crop) and append it as a `?v=` query
+-- parameter on every photo <img> src. Browsers key their cache on the full
+-- URL including the query string, so a changed version forces a real
+-- refetch regardless of PL's missing cache headers -- see
+-- src/lib/players/photo.ts.
+
+ALTER TABLE public.players
+  ADD COLUMN IF NOT EXISTS photo_version TEXT;

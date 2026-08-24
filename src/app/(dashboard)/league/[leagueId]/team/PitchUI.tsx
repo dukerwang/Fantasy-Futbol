@@ -183,6 +183,7 @@ function PitchNode({ slotPos, player, isSelected, isValidTarget, isEmpty, isInva
                     size="md"
                     headTopPct={player?.portrait_head_top_pct}
                     headWidthPct={player?.portrait_head_width_pct}
+                    photoVersion={player?.photo_version}
                 />
             </span>
 
