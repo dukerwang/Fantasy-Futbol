@@ -285,16 +285,9 @@ export interface RawStats {
   // Attacking
   goals: number;
   assists: number;
-  shots_total: number;
   shots_on_target: number;
   // Possession
-  passes_total: number;
-  passes_accurate: number;
-  pass_completion_pct: number;
   key_passes: number;
-  big_chances_created: number;
-  dribbles_attempted: number;
-  dribbles_successful: number;
   // Defensive
   tackles_total: number;
   tackles_won: number;
