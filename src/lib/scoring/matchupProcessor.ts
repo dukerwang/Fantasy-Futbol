@@ -7,6 +7,7 @@ import { getMatchweekSummaryEmail } from '@/lib/email/templates';
 import { executeAdvanceTournament } from '@/lib/tournaments/advanceTournament';
 import { payMeritPeriod } from '@/lib/economy/payMeritPeriod';
 import { DRAW_THRESHOLD } from '@/lib/scoring/drawBand';
+import { getFinishedPlTeamIds } from '@/lib/fixtures/lockout';
 import type { MatchupLineup } from '@/types';
 
 type MatchupUpdatePayload = {
@@ -90,21 +91,7 @@ export async function processMatchupsForGameweek(
     }
 
     // Fetch FPL fixture data to know which PL teams' matches are finished
-    const finishedPlTeamIds = new Set<number>();
-    try {
-        const fixRes = await fetch(`https://fantasy.premierleague.com/api/fixtures/?event=${gameweek}`, {
-            next: { revalidate: 60 },
-        });
-        if (fixRes.ok) {
-            const fixtures = await fixRes.json();
-            for (const f of fixtures) {
-                if (f.finished || f.finished_provisional) {
-                    finishedPlTeamIds.add(f.team_h);
-                    finishedPlTeamIds.add(f.team_a);
-                }
-            }
-        }
-    } catch { /* Fail open */ }
+    const finishedPlTeamIds = await getFinishedPlTeamIds(gameweek);
 
     // Collect all player IDs (starters + bench) across all matchups.
     // If a matchup has a null lineup, try to resolve it from the most recent past lineup for that team.

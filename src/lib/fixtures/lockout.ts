@@ -90,6 +90,35 @@ export async function getLockedPlTeamIds(
 }
 
 /**
+ * Returns a Set of FPL team IDs whose matches are finished (or provisionally
+ * finished) for the given gameweek — as opposed to {@link getLockedPlTeamIds},
+ * which only tells you a match has kicked off. Auto-sub eligibility needs
+ * "finished", not "locked": a blanked starter isn't covered by a bench player
+ * until his own match is confirmed over. Shared between the matchup processor
+ * (writes the resolved score) and the live matchup detail page (previews it),
+ * so the two can't drift on which matches count as finished.
+ */
+export async function getFinishedPlTeamIds(gameweek: number): Promise<Set<number>> {
+    const finishedPlTeamIds = new Set<number>();
+    try {
+        const res = await fetch(`${FPL_BASE}/fixtures/?event=${gameweek}`, {
+            headers: { 'User-Agent': USER_AGENT },
+            next: { revalidate: 60 },
+        });
+        if (res.ok) {
+            const fixtures = await res.json();
+            for (const f of fixtures as { team_h: number; team_a: number; finished?: boolean; finished_provisional?: boolean }[]) {
+                if (f.finished || f.finished_provisional) {
+                    finishedPlTeamIds.add(f.team_h);
+                    finishedPlTeamIds.add(f.team_a);
+                }
+            }
+        }
+    } catch { /* Fail open — nothing counted as finished */ }
+    return finishedPlTeamIds;
+}
+
+/**
  * Whether this gameweek's last *dated* kickoff has already happened.
  *
  * Null kickoffs are ignored (postponed / unscheduled rows) so one abandoned

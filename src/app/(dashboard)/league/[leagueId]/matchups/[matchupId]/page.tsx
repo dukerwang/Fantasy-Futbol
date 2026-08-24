@@ -8,9 +8,15 @@ import { FULL_PLAYER_SELECT } from '@/lib/constants/queries';
 import { normalizeMatchupLineup } from '@/lib/lineups/normalizeMatchupLineup';
 import { generateMatchReport } from '@/lib/narrative/matchReport';
 import { getCurrentFplSeason, getLatestReferenceStatsSeason } from '@/lib/season/currentSeason';
-import { attachLineupSlotScores, loadReferenceStats, type MatchupPlayerDetail } from '@/lib/scoring/matchups';
+import {
+    attachLineupSlotScores,
+    calculateTeamScore,
+    loadReferenceStats,
+    type MatchupPlayerDetail,
+    type PlayerScoreRecord,
+} from '@/lib/scoring/matchups';
 import { isGameweekFinalised } from '@/lib/scoring/gameweekState';
-import { getLockedPlTeamIds } from '@/lib/fixtures/lockout';
+import { getFinishedPlTeamIds, getLockedPlTeamIds } from '@/lib/fixtures/lockout';
 import { clubHref } from '@/lib/teams/clubHref';
 import CrestBadge from '@/components/crest/CrestBadge';
 import MatchReportCard from './MatchReportCard';
@@ -98,6 +104,10 @@ export default async function MatchupDetailPage({ params }: Props) {
     // imputed ICT from sync; we do not re-derive the primary, so live ICT
     // can't drift from the number already written.
     const detailMap: Record<string, MatchupPlayerDetail> = {};
+    // Hoisted out of the block below: also needed to compute the live team
+    // total (calculateTeamScore) further down, not just the per-player chips.
+    let statsRows: any[] | undefined;
+    let refStats: Awaited<ReturnType<typeof loadReferenceStats>> | undefined;
     if (playerIds.size > 0 && matchupData.gameweek) {
         // Scope by season too — gameweek numbers repeat every season, and
         // player_stats keeps every past season's rows (never archived/cleared).
@@ -105,7 +115,7 @@ export default async function MatchupDetailPage({ params }: Props) {
             getCurrentFplSeason(undefined, true),
             getLatestReferenceStatsSeason(admin),
         ]);
-        const [{ data: statsRows }, refStats] = await Promise.all([
+        const [{ data: fetchedStatsRows }, fetchedRefStats] = await Promise.all([
             admin
                 .from('player_stats')
                 // match_rating is its own column, never a key inside stats — the pitch
@@ -116,6 +126,8 @@ export default async function MatchupDetailPage({ params }: Props) {
                 .in('player_id', Array.from(playerIds)),
             loadReferenceStats(admin, refSeason),
         ]);
+        statsRows = fetchedStatsRows ?? undefined;
+        refStats = fetchedRefStats;
 
         for (const s of statsRows ?? []) {
             detailMap[s.player_id] = {
@@ -132,11 +144,6 @@ export default async function MatchupDetailPage({ params }: Props) {
         attachLineupSlotScores(detailMap, [lineupA, lineupB], playerPrimary, refStats);
     }
 
-    let computedScoreA = 0;
-    lineupA?.starters.forEach(s => { computedScoreA += detailMap[s.player_id]?.points || 0; });
-    let computedScoreB = 0;
-    lineupB?.starters.forEach(s => { computedScoreB += detailMap[s.player_id]?.points || 0; });
-
     // Whether we hold FPL's reviewed stats for this gameweek yet. Until the
     // post-lockdown pass runs, the scoreline is an estimate and must not be
     // labelled "Final" — see src/lib/scoring/gameweekState.ts.
@@ -145,6 +152,36 @@ export default async function MatchupDetailPage({ params }: Props) {
         await getCurrentFplSeason(undefined, true),
         matchupData.gameweek,
     );
+
+    // Live/provisional total, computed the same way the matchup processor
+    // computes the resolved one — auto-subs for blanked starters and the bench
+    // depth bonus included. Only `matchup.score_a/score_b` (the processor's own
+    // output) is used once the matchup is completed, below; this is what the
+    // header shows while still live so the two surfaces can't disagree.
+    let computedScoreA = 0;
+    let computedScoreB = 0;
+    if (matchup.status !== 'completed' && playerIds.size > 0 && matchupData.gameweek) {
+        const playerRecord = new Map<string, PlayerScoreRecord>();
+        for (const s of statsRows ?? []) {
+            const stats = (s.stats as RawStats | null) ?? null;
+            const fixtureMins = stats?.minutes_played ?? 0;
+            playerRecord.set(s.player_id, {
+                fixtures: [{ minutes: fixtureMins, fantasyPoints: Number(s.fantasy_points) || 0, stats }],
+            });
+        }
+
+        const playerPositions = new Map<string, string[]>();
+        const playerPlTeamId = new Map<string, number>();
+        for (const [id, p] of Object.entries(playerMap)) {
+            playerPositions.set(id, [p.primary_position, ...(p.secondary_positions ?? [])].filter(Boolean) as string[]);
+            if (p.pl_team_id != null) playerPlTeamId.set(id, Number(p.pl_team_id));
+        }
+
+        const finishedPlTeamIds = await getFinishedPlTeamIds(matchupData.gameweek);
+
+        computedScoreA = calculateTeamScore(lineupA, playerRecord, playerPositions, playerPlTeamId, refStats ?? {}, finalised, finishedPlTeamIds);
+        computedScoreB = calculateTeamScore(lineupB, playerRecord, playerPositions, playerPlTeamId, refStats ?? {}, finalised, finishedPlTeamIds);
+    }
 
     // Which of these players' own clubs have kicked off. A chip showing 0.0 is
     // meaningless without it — the reader can't tell "played, did nothing" from
