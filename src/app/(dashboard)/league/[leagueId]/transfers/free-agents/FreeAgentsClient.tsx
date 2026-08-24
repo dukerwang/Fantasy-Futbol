@@ -8,7 +8,7 @@ import { usePlayerCard } from '@/components/players/PlayerCardProvider';
 import PositionBadge from '@/components/players/PositionBadge';
 import TransfersSubNav from '@/components/transfers/TransfersSubNav';
 import BidDialog from '@/components/transfers/BidDialog';
-import { setServerClock, useTick, formatRemaining, isClosing } from '@/components/transfers/useTick';
+import { setServerClock, useTick, formatAuctionClock, isClosing } from '@/components/transfers/useTick';
 import { useLiveTransfers } from '@/components/transfers/useLiveTransfers';
 import styles from './free-agents.module.css';
 import { getPlayerDisplayName } from '@/lib/players/displayName';
@@ -323,6 +323,7 @@ function AuctionChip({
   const now = useTick(Boolean(auction.expires_at));
   const msLeft = auction.expires_at ? new Date(auction.expires_at).getTime() - now : 0;
   const hot = Boolean(auction.expires_at) && isClosing(msLeft);
+  const settling = Boolean(auction.expires_at) && msLeft <= 0;
   const leading = auction.highest_bidder_team_id === myTeamId;
   // This chip only ever renders a free_agent auction (filtered above by the
   // caller), which always has a computed minimum_bid — never a listing, so
@@ -349,10 +350,16 @@ function AuctionChip({
           {money(auction.highest_bid > 0 ? auction.highest_bid : floor)}
         </span>
         <span className={`${styles.chipClock} ${hot ? styles.chipClockHot : ''}`}>
-          {auction.expires_at ? formatRemaining(msLeft) : '—'}
+          {auction.expires_at ? formatAuctionClock(msLeft, true) : '—'}
         </span>
       </div>
-      <button type="button" className={`${styles.chipGo} ${leading ? styles.chipGoGhost : ''}`} onClick={onBid}>
+      <button
+        type="button"
+        className={`${styles.chipGo} ${leading ? styles.chipGoGhost : ''}`}
+        onClick={onBid}
+        disabled={settling}
+        title={settling ? 'Auction is settling' : undefined}
+      >
         {leading ? `Raise ${money(next)}` : `Bid ${money(next)}`}
       </button>
     </article>

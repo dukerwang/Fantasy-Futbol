@@ -225,12 +225,9 @@ export function useLiveTransfers(leagueId: string, model: TransfersModel): Trans
   }, [leagueId]);
 
   // Near-instant resolution: nudge any locally-held live auction whose clock
-  // has run out. Deduped so a 1s tick doesn't refire the request every second;
-  // cleared on failure so a transient error gets retried on the next tick.
-  // Only subscribe to the shared per-second tick while there's something to
-  // watch — per useTick.ts's own design goal, a page with no live auction
-  // (Deals, Listings between windows, etc.) should not re-render every second
-  // just because this hook is mounted.
+  // has run out. Deduped so a 1s tick doesn't refire every second. On deferral
+  // or a failed poke, clear after 15s so listings still waiting on a kickoff
+  // lock get retried instead of sitting on "settling" until cron happens to run.
   const hasLiveAuctions = auctions.some((a) => a.expires_at != null);
   const now = useTick(hasLiveAuctions);
   const resolvingRef = useRef<Set<string>>(new Set());
@@ -243,7 +240,16 @@ export function useLiveTransfers(leagueId: string, model: TransfersModel): Trans
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ playerId: a.player_id }),
-      }).catch(() => { resolvingRef.current.delete(a.player_id); });
+      })
+        .then(async (res) => {
+          const data = await res.json().catch(() => ({}));
+          if (!res.ok || data.resolved !== true) {
+            window.setTimeout(() => resolvingRef.current.delete(a.player_id), 15_000);
+          }
+        })
+        .catch(() => {
+          resolvingRef.current.delete(a.player_id);
+        });
     }
   }, [now, auctions, leagueId]);
 

@@ -7,7 +7,7 @@ import CrestBadge from '@/components/crest/CrestBadge';
 import SquadPeekButton from '@/components/teams/SquadPeekButton';
 import PositionBadge from '@/components/players/PositionBadge';
 import Portrait from '@/components/players/Portrait';
-import { useTick, formatRemaining, isClosing } from './useTick';
+import { useTick, isClosing, formatAuctionClock } from './useTick';
 import { listingStance } from '@/lib/transfers/listingStance';
 import styles from './ListingCard.module.css';
 import { getPlayerDisplayName } from '@/lib/players/displayName';
@@ -76,6 +76,7 @@ export default function ListingCard({
   const now = useTick(Boolean(expiresAt));
   const msLeft = expiresAt ? new Date(expiresAt).getTime() - now : 0;
   const hot = Boolean(expiresAt) && isClosing(msLeft);
+  const settling = Boolean(expiresAt) && msLeft <= 0;
 
   if (!player) return null;
 
@@ -171,7 +172,7 @@ export default function ListingCard({
         </span>
         {expiresAt && (
           <span className={`${styles.clock} ${hot ? styles.clockHot : ''}`}>
-            {formatRemaining(msLeft)}
+            {formatAuctionClock(msLeft, live)}
           </span>
         )}
       </div>
@@ -209,7 +210,13 @@ export default function ListingCard({
                 Offer buttons are the only doors in; showing Bid would invite a
                 bid the RPC will just reject. */}
             {listing.min_bid != null && (
-              <button type="button" className={`${styles.action} ${styles.actionBid}`} onClick={() => onBid?.(listing)}>
+              <button
+                type="button"
+                className={`${styles.action} ${styles.actionBid}`}
+                onClick={() => onBid?.(listing)}
+                disabled={settling}
+                title={settling ? 'Auction is settling' : undefined}
+              >
                 {live ? `Bid ${money(bidFrom)}` : 'Bid'}
               </button>
             )}

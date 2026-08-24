@@ -99,6 +99,10 @@ interface Props {
     initialBench: Record<BenchSlot, string | null>;
     scoreMap?: Record<string, number>;
     lockedTeamIds?: Set<number>;
+    /** Scoring-week locks (this GW until it completes). IR uses this; lineup/academy use lockedTeamIds. */
+    scoringLockedTeamIds?: Set<number>;
+    /** When the pitch is next week while this week is still live. */
+    lineupWeekLabel?: string;
     /** Active roster count / cap, shown on the pitch header strip */
     activeRosterCount?: number;
     maxRosterSize?: number;
@@ -232,10 +236,13 @@ export default function PitchUI({
     initialBench,
     scoreMap,
     lockedTeamIds,
+    scoringLockedTeamIds,
+    lineupWeekLabel,
     activeRosterCount,
     maxRosterSize,
 }: Props) {
     const router = useRouter();
+    const irLockedTeamIds = scoringLockedTeamIds ?? lockedTeamIds;
 
     // ── Lineup state ──
     const [formation, setFormation] = useState<Formation>(initialFormation);
@@ -374,12 +381,12 @@ export default function PitchUI({
         }
         if (sidebarSelection.type === 'ir') {
             for (const e of poolEntries) {
-                if (isPlMatchLocked(e.player, lockedTeamIds)) continue;
+                if (isPlMatchLocked(e.player, irLockedTeamIds)) continue;
                 if (isIrEligible(e.player)) targets.add(`pool-${e.player.id}`);
             }
         }
         return targets;
-    }, [sidebarSelection, poolEntries, academyAgeLimit, lockedTeamIds]);
+    }, [sidebarSelection, poolEntries, academyAgeLimit, lockedTeamIds, irLockedTeamIds]);
 
     // ── Selection helpers ──
     function clearAll() {
@@ -653,6 +660,11 @@ export default function PitchUI({
                 }
 
                 if (sidebarSelection.type === 'ir') {
+                    if (isPlMatchLocked(targetEntry.player, irLockedTeamIds)) {
+                        setSidebarError('Match started — this player is locked.');
+                        setSidebarSelection(null);
+                        return;
+                    }
                     if (!isIrEligible(targetEntry.player)) {
                         setSidebarError('This player must be injured or unavailable to be moved to IR.');
                         setSidebarSelection(null); return;
@@ -708,7 +720,7 @@ export default function PitchUI({
                 setSaveError(null); setSaveSuccess(false); setLineupSelection(null); return;
             }
         },
-        [lineupSelection, sidebarSelection, slots, playerMap, poolEntries, academyAgeLimit, lockedTeamIds],
+        [lineupSelection, sidebarSelection, slots, playerMap, poolEntries, academyAgeLimit, lockedTeamIds, irLockedTeamIds],
     );
 
     // ── Taxi swap — sequential: move reserve to taxi first (frees roster slot), then activate taxi player ──
@@ -891,7 +903,7 @@ export default function PitchUI({
         <div className={styles.pitchUI}>
             {/* ── Formation bar ── */}
             <div className={styles.formationBar}>
-                <span className="g-label">Formation</span>
+                <span className="g-label">{lineupWeekLabel ?? 'Formation'}</span>
                 <div className={styles.formationPills}>
                     {FORMATIONS.map((f) => (
                         <button
@@ -1233,6 +1245,7 @@ export default function PitchUI({
                             </div>
                             {irEntries.map((entry) => {
                                 const isSelected = sidebarSelection?.type === 'ir' && sidebarSelection.playerId === entry.player.id;
+                                const irLocked = isPlMatchLocked(entry.player, irLockedTeamIds);
                                 return (
                                     <div
                                         key={entry.id}
@@ -1253,8 +1266,8 @@ export default function PitchUI({
                                                     if (isSelected) { setSidebarSelection(null); return; }
                                                     activateSidebarSelection({ type: 'ir', playerId: entry.player.id });
                                                 }}
-                                                disabled={sidebarLoading}
-                                                title="Select to swap with an injured reserve"
+                                                disabled={sidebarLoading || irLocked}
+                                                title={irLocked ? 'Match started — IR is locked until this week is settled' : 'Select to swap with an injured reserve'}
                                             >
                                                 {isSelected ? 'Cancel' : 'Swap'}
                                             </button>
@@ -1262,8 +1275,8 @@ export default function PitchUI({
                                                 type="button"
                                                 className={styles.rowBtnPrimary}
                                                 onClick={() => handleIrActivate(entry.player.id)}
-                                                disabled={sidebarLoading}
-                                                title="Activate from IR"
+                                                disabled={sidebarLoading || irLocked}
+                                                title={irLocked ? 'Match started — IR is locked until this week is settled' : 'Activate from IR'}
                                             >
                                                 {sidebarLoading ? '…' : 'Activate'}
                                             </button>

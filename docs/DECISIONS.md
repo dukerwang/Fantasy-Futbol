@@ -86,6 +86,27 @@ stated problem.
 
 ---
 
+## 2026-08-23 — Squad editor opens next week at this week's last kickoff
+
+Chose league-wide handoff (option A) over per-manager ("your last player has kicked off"):
+> "alright yeah just do A."
+
+Earlier: keep the two kickoff locks, but stop gluing the squad page to this week until scores
+are final — that window is too small when midweek games roll into a Friday GW.
+> "option 1 makes the most sense, i need to think more about choosing A and B."
+
+A is the last Premier League kickoff of the gameweek, same moment for everyone. B would
+have flipped each manager when their own last squad player kicked off.
+
+---
+
+## 2026-08-24 — Free-agent auctions settle at the clock
+
+Approved options 1 and 3: free-agent auctions resolve when the bidding clock ends, and the card must not say "ended" until settlement. Kickoff deferral stays for manager listings, trades, loans, drops, and a locked drop-player on a winning bid.
+> "ok so you're saying eliminate deferrences altogether. and where are they still - only for trades and stuff like that? i guess that makes sense to me. 1 and 3 is good"
+
+---
+
 ## Earlier — recorded from CLAUDE.md and docs/USER_GUIDE.md
 
 These predate this file and are load-bearing product decisions, kept here as

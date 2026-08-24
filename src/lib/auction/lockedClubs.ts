@@ -2,11 +2,13 @@
  * Which Premier League clubs are "locked" right now — i.e. have already kicked
  * off in the current gameweek.
  *
- * `resolve_single_player_auction_rpc` refuses to move a player whose club is
- * mid-match, because a transfer completing at minute 60 would hand the buyer
- * points the seller's lineup already banked. The cron computed this inline; Buy
- * Now now has to resolve auctions inline too, so both need the same answer and
- * it lives here.
+ * Used to defer roster moves that would change a lineup already in play:
+ * manager listings, a drop-player nominated on a winning bid, trades, loans,
+ * and queued drops. Free-agent auctions settle at the clock even when the
+ * player's club is locked — there is no seller XI to protect (migration 136).
+ *
+ * The cron computed this inline; Buy Now has to resolve auctions inline too,
+ * so both need the same answer and it lives here.
  *
  * Fails OPEN (returns an empty set) on any FPL error. That matches the cron's
  * existing behaviour: a transient FPL outage should not wedge every auction in

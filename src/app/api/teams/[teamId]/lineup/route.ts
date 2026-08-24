@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { FORMATION_SLOTS, POSITION_FLEX_MAP, BENCH_FLEX_MAP, getExpectedBenchSlots } from '@/types';
 import { getPlayerDisplayName } from '@/lib/players/displayName';
+import { resolveLineupEditMatchup } from '@/lib/lineups/editTarget';
 import type { Formation, GranularPosition, MatchupLineup, BenchSlot } from '@/types';
 
 type LineupPlacement = { kind: 'starter'; slot: GranularPosition } | { kind: 'bench'; slot: BenchSlot };
@@ -193,7 +194,7 @@ export async function POST(req: NextRequest, { params }: Props) {
   const benchSet = new Set(benchIds);
 
   // Prefer current FPL GW matchup for lock checks and lineup writes.
-  // Fallback to next scheduled matchup if current GW row is unavailable.
+  // After that GW's last kickoff, writes go to next week — not the frozen row.
   let currentFplGw = 0;
   try {
     const fplRes = await fetch('https://fantasy.premierleague.com/api/bootstrap-static/', {
@@ -210,34 +211,10 @@ export async function POST(req: NextRequest, { params }: Props) {
       }
     }
   } catch {
-    // fail open; fallback query below
+    // fail closed into resolveLineupEditMatchup's scheduled/live fallback
   }
 
-  let matchup: any = null;
-  if (currentFplGw > 0) {
-    const { data: currentGwMatchup } = await admin
-      .from('matchups')
-      .select('id, team_a_id, team_b_id, gameweek, status, lineup_a, lineup_b')
-      .eq('gameweek', currentFplGw)
-      .or(`team_a_id.eq.${teamId},team_b_id.eq.${teamId}`)
-      .maybeSingle();
-    // Only use the current GW matchup if it's not already completed
-    if (currentGwMatchup && currentGwMatchup.status !== 'completed') {
-      matchup = currentGwMatchup;
-    }
-  }
-
-  if (!matchup) {
-    const { data: nextScheduled } = await admin
-      .from('matchups')
-      .select('id, team_a_id, team_b_id, gameweek, status, lineup_a, lineup_b')
-      .eq('status', 'scheduled')
-      .or(`team_a_id.eq.${teamId},team_b_id.eq.${teamId}`)
-      .order('gameweek', { ascending: true })
-      .limit(1)
-      .maybeSingle();
-    matchup = nextScheduled ?? null;
-  }
+  const matchup = await resolveLineupEditMatchup(admin, teamId, currentFplGw);
 
   // --- Kickoff lock: when a saved GW lineup exists, compare XI/bench/reserve placement vs FPL kickoffs.
   // (Roster status alone misses bench↔reserve moves — both are `bench` in DB.)

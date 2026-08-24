@@ -10,7 +10,7 @@ import type {
 } from '@/lib/transfers/buildTransfersModel';
 import PositionBadge from '@/components/players/PositionBadge';
 import Modal from './Modal';
-import { useTick, formatRemaining } from './useTick';
+import { useTick, formatAuctionClock } from './useTick';
 import styles from './BidDialog.module.css';
 import { getPlayerDisplayName } from '@/lib/players/displayName';
 import { isAcademyEligible, type AcademyCapacity } from '@/lib/transfers/academyEligibility';
@@ -110,6 +110,7 @@ export default function BidDialog({
   const expiresAt = auction?.expires_at ?? listing?.auction_expires_at ?? null;
   const now = useTick(open && Boolean(expiresAt));
   const msLeft = expiresAt ? new Date(expiresAt).getTime() - now : 0;
+  const settling = Boolean(expiresAt) && msLeft <= 0;
 
   // A drop is only demanded when the roster is full AND the academy cannot
   // absorb the arrival — the route decides that itself, so this is an offer of
@@ -178,7 +179,7 @@ export default function BidDialog({
             type="button"
             className={styles.go}
             onClick={submit}
-            disabled={busy || belowFloor || tooExpensive}
+            disabled={busy || belowFloor || tooExpensive || settling}
           >
             {busy ? 'Sending…' : wouldTakeClause ? `Pay ${money(amount)}` : `Bid ${money(amount)}`}
           </button>
@@ -216,7 +217,7 @@ export default function BidDialog({
           <div className={styles.rungLabel}>Closes</div>
           {/* The countdown is the canonical mono case. */}
           <div className={`${styles.rungValue} ${expiresAt ? styles.rungLive : ''}`}>
-            {expiresAt ? formatRemaining(msLeft) : '—'}
+            {expiresAt ? formatAuctionClock(msLeft, true) : '—'}
           </div>
         </div>
       </div>

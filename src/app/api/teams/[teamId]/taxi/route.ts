@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { getPlayerDisplayName } from '@/lib/players/displayName';
+import { resolveLineupEditMatchup } from '@/lib/lineups/editTarget';
+import { resolveCurrentGw } from '@/lib/season/currentGameweek';
 
 interface Props {
     params: Promise<{ teamId: string }>;
@@ -68,17 +70,11 @@ export async function POST(req: NextRequest, { params }: Props) {
 
     const player = entry.player as unknown as { id: string; name: string; date_of_birth: string | null; pl_team_id: number | null; web_name: string | null };
 
-    // Kickoff lock check (block moves if player's match has already started)
+    // Kickoff lock: same target week as the squad editor. After this GW's last
+    // kickoff that is next week (unlocked). IR/drops stay on the scoring week.
     if (player.pl_team_id) {
-        // Find the current gameweek matchup for this team
-        const { data: matchup } = await admin
-            .from('matchups')
-            .select('gameweek')
-            .or(`team_a_id.eq.${teamId},team_b_id.eq.${teamId}`)
-            .in('status', ['scheduled', 'live'])
-            .order('gameweek', { ascending: true })
-            .limit(1)
-            .maybeSingle();
+        const currentFplGw = await resolveCurrentGw();
+        const matchup = await resolveLineupEditMatchup(admin, teamId, currentFplGw);
 
         if (matchup) {
             const { getLockedPlTeamIds } = await import('@/lib/fixtures/lockout');

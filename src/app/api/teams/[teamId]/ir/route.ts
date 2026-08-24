@@ -46,9 +46,10 @@ export async function POST(req: NextRequest, { params }: Props) {
     const player = entry.player as unknown as { id: string; name: string; fpl_status: string | null; pl_team_id: number | null; web_name: string | null };
     const fplStatus = player?.fpl_status;
 
-    // Kickoff lock check (block moves if player's match has already started)
+    // Kickoff lock against the *scoring* week, not the squad-editor week.
+    // Final sanitize strips IR from the saved XI, so an IR move after a player
+    // has played would zero his points when the matchup locks in.
     if (player?.pl_team_id) {
-        // Find the current gameweek matchup for this team
         const { data: matchup } = await admin
             .from('matchups')
             .select('gameweek')

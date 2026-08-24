@@ -90,6 +90,68 @@ export async function getLockedPlTeamIds(
 }
 
 /**
+ * Whether this gameweek's last *dated* kickoff has already happened.
+ *
+ * Null kickoffs are ignored (postponed / unscheduled rows) so one abandoned
+ * match cannot freeze the handoff to next week. No dated fixtures at all
+ * means "don't flip" — fail closed rather than open next week before GW1.
+ */
+export function lastDatedKickoffHasPassed(
+    fixtures: { kickoff_time: string | null }[],
+    now: Date = new Date(),
+): boolean {
+    let latest = Number.NEGATIVE_INFINITY;
+    for (const f of fixtures) {
+        if (!f.kickoff_time) continue;
+        const t = new Date(f.kickoff_time).getTime();
+        if (!Number.isFinite(t)) continue;
+        if (t > latest) latest = t;
+    }
+    if (latest === Number.NEGATIVE_INFINITY) return false;
+    return latest <= now.getTime();
+}
+
+/**
+ * DB/FPL-backed version of {@link lastDatedKickoffHasPassed}. Fails closed
+ * (returns false) if we cannot see any fixtures — the squad editor stays on
+ * this week rather than unlocking next week by accident.
+ */
+export async function hasGameweekLastKickoffPassed(
+    admin: SupabaseClient,
+    gameweek: number,
+    now: Date = new Date(),
+): Promise<boolean> {
+    try {
+        const season = await getCurrentFplSeason(undefined, true);
+        const { data: dbFixtures } = await admin
+            .from('pl_fixtures')
+            .select('kickoff_time')
+            .eq('season', season)
+            .eq('gameweek', gameweek);
+
+        if (dbFixtures && dbFixtures.length > 0) {
+            return lastDatedKickoffHasPassed(dbFixtures, now);
+        }
+    } catch (dbErr) {
+        console.error('[lockout] Failed to query last kickoff from pl_fixtures:', dbErr);
+    }
+
+    try {
+        const res = await fetch(`${FPL_BASE}/fixtures/?event=${gameweek}`, {
+            headers: { 'User-Agent': USER_AGENT },
+            next: { revalidate: 0 },
+        });
+        if (res.ok) {
+            return lastDatedKickoffHasPassed(await res.json(), now);
+        }
+    } catch (apiErr) {
+        console.error('[lockout] Failed to fetch FPL fixtures for last kickoff:', apiErr);
+    }
+
+    return false;
+}
+
+/**
  * Opponent lookup for a club in a past (or current) season, from our own
  * fixture snapshot. This is what lets an archived game log name an opponent —
  * FPL no longer serves past-season fixtures, and recycles fixture ids, so it

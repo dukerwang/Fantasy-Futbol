@@ -12,7 +12,7 @@ import { usePlayerCard } from '@/components/players/PlayerCardProvider';
 import { getPlayerDisplayName } from '@/lib/players/displayName';
 import TransfersSubNav from '@/components/transfers/TransfersSubNav';
 import BidDialog, { type BidMode } from '@/components/transfers/BidDialog';
-import { setServerClock, useTick, formatRemaining, isClosing } from '@/components/transfers/useTick';
+import { setServerClock, useTick, formatAuctionClock, isClosing } from '@/components/transfers/useTick';
 import { useLiveTransfers } from '@/components/transfers/useLiveTransfers';
 import styles from './auctions.module.css';
 
@@ -410,6 +410,7 @@ function Lot({
 
   const msLeft = a.expires_at ? new Date(a.expires_at).getTime() - now : 0;
   const hot = Boolean(a.expires_at) && isClosing(msLeft);
+  const settling = Boolean(a.expires_at) && msLeft <= 0;
   const leading = a.highest_bidder_team_id === me;
   const mine = a.seller_team_id === me;
   const outbid = a.my_bid != null && !leading;
@@ -495,7 +496,7 @@ function Lot({
 
         <div className={styles.lotCol}>
           <div className={`${styles.lotClock} ${hot ? styles.lotClockHot : ''}`}>
-            {a.expires_at ? formatRemaining(msLeft) : '—'}
+            {a.expires_at ? formatAuctionClock(msLeft, true) : '—'}
           </div>
           <div className={styles.lotBids}>
             {a.bid_count === 0 ? 'no bids yet' : `${a.bid_count} bid${a.bid_count === 1 ? '' : 's'}`}
@@ -510,6 +511,8 @@ function Lot({
               type="button"
               className={`${styles.go} ${leading ? styles.goGhost : ''}`}
               onClick={onBid}
+              disabled={settling}
+              title={settling ? 'Auction is settling' : undefined}
             >
               {a.highest_bid > 0 ? (leading ? `Raise ${money(next)}` : `Bid ${money(next)}`) : `Open at ${money(next)}`}
             </button>

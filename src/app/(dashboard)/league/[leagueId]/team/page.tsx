@@ -8,6 +8,8 @@ import { FORMATION_SLOTS, POSITION_FLEX_MAP, BENCH_FLEX_MAP } from '@/types';
 import PitchUI from './PitchUI';
 import { FULL_PLAYER_SELECT } from '@/lib/constants/queries';
 import { getCurrentFplSeason, isFplSeasonKickedOff, resolveDraftStatsSeason } from '@/lib/season/currentSeason';
+import { resolveLineupEditMatchup } from '@/lib/lineups/editTarget';
+import { getLockedPlTeamIds } from '@/lib/fixtures/lockout';
 import styles from './my-team.module.css';
 
 export const dynamic = 'force-dynamic';
@@ -160,34 +162,10 @@ export default async function MyTeamPage({ params }: Props) {
     FLEX: null,
   };
 
-  // Prefer this team's current FPL GW matchup for locks/lineup hydration.
-  // Fallback to next scheduled matchup if current GW row is unavailable.
-  let matchup: any = null;
-  if (currentFplGw > 0) {
-    const { data: currentGwMatchup } = await admin
-      .from('matchups')
-      .select('id, team_a_id, team_b_id, lineup_a, lineup_b, gameweek, status')
-      .eq('gameweek', currentFplGw)
-      .or(`team_a_id.eq.${team.id},team_b_id.eq.${team.id}`)
-      .maybeSingle();
-    // Only use the current GW matchup if it's not already completed
-    if (currentGwMatchup && currentGwMatchup.status !== 'completed') {
-      matchup = currentGwMatchup;
-    }
-  }
-  if (!matchup) {
-    const { data: nextScheduled } = await admin
-      .from('matchups')
-      .select('id, team_a_id, team_b_id, lineup_a, lineup_b, gameweek, status')
-      .eq('status', 'scheduled')
-      .or(`team_a_id.eq.${team.id},team_b_id.eq.${team.id}`)
-      .order('gameweek', { ascending: true })
-      .limit(1)
-      .maybeSingle();
-    matchup = nextScheduled ?? null;
-  }
+  // This week until its last kickoff; next week after that — not until scores lock.
+  const matchup = await resolveLineupEditMatchup(admin, team.id, currentFplGw);
 
-  const lockedTeamIds = new Set<number>();
+  let lockedTeamIds = new Set<number>();
 
   // Build a set of active (non-IR) player IDs for sanitization
   const nonIrPlayerIds = new Set(nonIrEntries.map((e) => e.player.id));
@@ -235,30 +213,33 @@ export default async function MyTeamPage({ params }: Props) {
       }
     }
 
-    // Identify which teams have locked for this matchup's gameweek
-    try {
-      const res = await fetch(`https://fantasy.premierleague.com/api/fixtures/?event=${(matchup as any).gameweek}`, {
-        headers: { 'User-Agent': 'FantasyFutbol/1.0' },
-        next: { revalidate: 15 } // Check for match starts frequently
-      });
-      if (res.ok) {
-        const fixtures = await res.json();
-        const now = new Date();
-        for (const f of fixtures) {
-          if (f.kickoff_time && new Date(f.kickoff_time) <= now) {
-            lockedTeamIds.add(f.team_h);
-            lockedTeamIds.add(f.team_a);
-          }
-        }
-      }
-    } catch { /* Fail open */ }
+    lockedTeamIds = await getLockedPlTeamIds(admin, matchup.gameweek);
   }
 
-  // Fetch opponent team name for header context
+  const { data: scoringMatchup } = await admin
+    .from('matchups')
+    .select('id, team_a_id, team_b_id, gameweek, status')
+    .or(`team_a_id.eq.${team.id},team_b_id.eq.${team.id}`)
+    .in('status', ['scheduled', 'live'])
+    .order('gameweek', { ascending: true })
+    .limit(1)
+    .maybeSingle();
+  const scoringLockedTeamIds =
+    scoringMatchup && matchup && scoringMatchup.gameweek === matchup.gameweek
+      ? lockedTeamIds
+      : scoringMatchup
+        ? await getLockedPlTeamIds(admin, scoringMatchup.gameweek)
+        : new Set<number>();
+
+  const editingAhead = !!(
+    matchup && scoringMatchup && matchup.gameweek !== scoringMatchup.gameweek
+  );
+  const displayMatchup = scoringMatchup ?? matchup;
+
   let opponentTeamName: string | null = null;
-  if (matchup) {
-    const isTeamA = (matchup as any).team_a_id === team.id;
-    const opponentId = isTeamA ? (matchup as any).team_b_id : (matchup as any).team_a_id;
+  if (displayMatchup) {
+    const isTeamA = displayMatchup.team_a_id === team.id;
+    const opponentId = isTeamA ? displayMatchup.team_b_id : displayMatchup.team_a_id;
     if (opponentId) {
       const { data: oppTeam } = await admin
         .from('teams')
@@ -268,7 +249,7 @@ export default async function MyTeamPage({ params }: Props) {
       opponentTeamName = oppTeam?.team_name ?? null;
     }
   }
-  const isMatchupLive = lockedTeamIds.size > 0;
+  const isMatchupLive = scoringLockedTeamIds.size > 0;
 
   // If no existing lineup, auto-assign starters based on current roster statuses
   if (Object.keys(initialAssignments).length === 0 && starters.length > 0) {
@@ -320,11 +301,11 @@ export default async function MyTeamPage({ params }: Props) {
       <header className={styles.header}>
         <div className={styles.headerMeta}>
           <span className="g-label">{league.name}</span>
-          {matchup ? (
+          {displayMatchup ? (
             <>
               <span className={styles.metaDot}>·</span>
               <span className={styles.metaChip}>
-                <span className={styles.metaValue}>GW{(matchup as any).gameweek}</span>
+                <span className={styles.metaValue}>GW{displayMatchup.gameweek}</span>
               </span>
               {opponentTeamName && (
                 <>
@@ -336,6 +317,15 @@ export default async function MyTeamPage({ params }: Props) {
                 <>
                   <span className={styles.metaDot}>·</span>
                   <span className={styles.liveBadge}>Live</span>
+                </>
+              )}
+              {editingAhead && matchup && (
+                <>
+                  <span className={styles.metaDot}>·</span>
+                  <span className={styles.metaChip}>
+                    <span className={styles.metaLabel}>Setting</span>
+                    <span className={styles.metaValue}>GW{matchup.gameweek}</span>
+                  </span>
                 </>
               )}
             </>
@@ -374,6 +364,8 @@ export default async function MyTeamPage({ params }: Props) {
         initialBench={initialBench as Record<BenchSlot, string | null>}
         scoreMap={scoreMap}
         lockedTeamIds={lockedTeamIds}
+        scoringLockedTeamIds={scoringLockedTeamIds}
+        lineupWeekLabel={editingAhead && matchup ? `GW${matchup.gameweek} lineup` : undefined}
         activeRosterCount={activeRosterCount}
         maxRosterSize={maxRosterSize}
       />

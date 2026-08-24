@@ -19,7 +19,7 @@ import ListingCard from '@/components/transfers/ListingCard';
 import BidDialog, { type BidMode } from '@/components/transfers/BidDialog';
 import ProposeBuilder, { type ProposeMode } from '@/components/transfers/ProposeBuilder';
 import ListingEditor from '@/components/transfers/ListingEditor';
-import { setServerClock, useTick, formatRemaining, isClosing } from '@/components/transfers/useTick';
+import { setServerClock, useTick, formatAuctionClock, isClosing } from '@/components/transfers/useTick';
 import { useLiveTransfers } from '@/components/transfers/useLiveTransfers';
 import styles from './market.module.css';
 import { getPlayerDisplayName } from '@/lib/players/displayName';
@@ -198,6 +198,7 @@ export default function MarketClient({
               {closing.map((a) => {
                 const msLeft = new Date(a.expires_at!).getTime() - now;
                 const hot = isClosing(msLeft);
+                const settling = msLeft <= 0;
                 const leading = a.highest_bidder_team_id === model.myTeam.id;
                 const mine = a.seller_team_id === model.myTeam.id;
                 // `closing` already filtered out any listing with no min_bid
@@ -242,7 +243,7 @@ export default function MarketClient({
                         {money(a.highest_bid > 0 ? a.highest_bid : floor)}
                       </span>
                       <span className={`${styles.closingClock} ${hot ? styles.closingClockHot : ''}`}>
-                        {formatRemaining(msLeft)}
+                        {formatAuctionClock(msLeft, true)}
                       </span>
                     </div>
                     {mine ? (
@@ -252,6 +253,8 @@ export default function MarketClient({
                         type="button"
                         className={`${styles.closingGo} ${leading ? styles.closingGoGhost : ''}`}
                         onClick={() => setBid({ auction: a, mode: 'bid' })}
+                        disabled={settling}
+                        title={settling ? 'Auction is settling' : undefined}
                       >
                         {leading ? `Raise ${money(next)}` : `Bid ${money(next)}`}
                       </button>

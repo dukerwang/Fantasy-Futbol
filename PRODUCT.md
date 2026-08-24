@@ -51,6 +51,8 @@ Three mechanisms a mainstream fantasy platform could not truthfully claim:
   gameweek finished; auto-subs and role-aware re-scoring run at resolution.
 - **Two independent lockouts.** The formation locks when any squad player's match kicks off;
   an individual player locks only when his own club kicks off. These are not one lock.
+  After the gameweek's last dated kickoff, next week's lineup can be set; this
+  week's scores and live matchup stay up until scores lock.
 - **A live market between matches.** Auctions run a 72h initial window with a decaying
   inactivity timeout and quiet hours. Trades are negotiated manager-to-manager with no
   commissioner sign-off. Loans are capped 1 out / 2 in.

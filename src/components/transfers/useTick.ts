@@ -93,6 +93,12 @@ export function formatRemaining(msLeft: number): string {
   return `${sec}s`;
 }
 
+/** Clock copy for a live auction. Past zero with the lot still open is settling, not ended. */
+export function formatAuctionClock(msLeft: number, stillLive: boolean): string {
+  if (msLeft > 0) return formatRemaining(msLeft);
+  return stillLive ? 'settling' : 'ended';
+}
+
 /** True when the clock is close enough that the card should feel urgent. */
 export function isClosing(msLeft: number): boolean {
   return msLeft > 0 && msLeft < 60 * 60 * 1000;

@@ -68,6 +68,8 @@ There are **two** locks, and they're different:
 
 So the gameweek does **not** shut in one go. Until a player's club kicks off you can still move him, which means you can react to Saturday lunchtime results before the late games. What you can't do is reshape the side after your first player is already out there.
 
+Once **this gameweek's last match kicks off**, you can set **next week's** lineup and move players to academy — same moment for everyone. This week's matchup, scores, and live XI stay up until the week actually settles (the morning review). A postponed match with no kickoff time is ignored, so one abandoned fixture cannot hold the league on this week's editor.
+
 ---
 
 ## 2. Your Squad
@@ -312,6 +314,10 @@ There is no fixed duration and no hard ceiling. The clock is driven by bidding a
 
 Every bid extends the clock by the active inactivity timeout. Because there is no hard ceiling, contested auctions can never freeze on a snipeable public deadline, and quiet hours guarantee no auction resolves while managers are asleep.
 
+When the clock hits zero, **a free-agent auction settles immediately** — the winning bid lands even if that player's Premier League club has already kicked off. There is no seller XI to protect. The card reads **settling** until the win posts, not "ended."
+
+**Listed players wait.** If you put one of your own players up for auction and his club has already kicked off this gameweek, the sale holds until the week finishes, so he cannot leave a lineup that already started. The same wait applies if the winning bidder nominated a locked player to drop to make room.
+
 ### Selling your own players
 
 You can **list one of your rostered players**, and the listing is shaped by which of three prices you set — no separate "auction or negotiation" switch to configure:
@@ -354,7 +360,7 @@ Direct manager-to-manager deals. No commissioner approval, no trade deadline.
 - Offer any combination of your players plus Club Balance against any combination of theirs plus theirs.
 - The other manager can **accept**, **reject**, **ignore**, or **counter** (which cancels the original).
 - **Retained rights** (§13) are tradeable assets and can be included.
-- If any player in an accepted trade has already kicked off in a live gameweek, the trade is marked **deferred** and executes when that gameweek finishes. You can't use a mid-week trade to escape a bad lineup.
+- If any player in an accepted trade has already kicked off in a live gameweek, the trade is marked **deferred** and executes when that gameweek finishes. You can't use a mid-week trade to escape a bad lineup. The same deferral applies to **loans** and to **drops** of a locked player.
 - A player with an active sale listing can't be traded until it resolves or is cancelled.
 - The Trades page shows a league-wide feed as well as your own pending offers and history.
 
@@ -367,6 +373,7 @@ Direct manager-to-manager deals. No commissioner approval, no trade deadline.
 Send a rostered player to another club **temporarily** — for **4 to 16 gameweeks**.
 
 - Either side can open the conversation: **propose** a loan out, or **request** one of theirs. Both sides must agree.
+- If the player has already kicked off in a live gameweek, an accepted loan is **deferred** until that week finishes — same reason as trades.
 - Terms are an **upfront fee** and, optionally, a **performance bonus** paid per fantasy point the player scores while away, subject to a cap. Presets — Fixed Fee Only, Balanced, Performance-Heavy — or hand-adjust.
 - A **recall clause** lets the lender pull him back early for a flat penalty. The lender can instead pay a **slot buyback fee** (commonly **25**) to reclaim the roster spot without recalling the player.
 - The player counts toward the **borrowing** club's active roster while out.
