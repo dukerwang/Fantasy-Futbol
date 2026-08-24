@@ -29,15 +29,8 @@ export function mapFplLiveToRawStats(
     minutes_played: fplStats.minutes,
     goals: fplStats.goals_scored,
     assists: fplStats.assists,
-    shots_total: 0,   // not available per-match from FPL live
-    shots_on_target: 0,
-    passes_total: 0,
-    passes_accurate: 0,
-    pass_completion_pct: 0,
+    shots_on_target: 0,   // not available per-match from FPL live
     key_passes: 0,
-    big_chances_created: 0,
-    dribbles_attempted: 0,
-    dribbles_successful: 0,
     tackles_total: 0,
     tackles_won: 0,
     interceptions: 0,
