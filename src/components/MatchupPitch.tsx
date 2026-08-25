@@ -2,7 +2,8 @@
 
 import { useCallback } from 'react';
 import type { MatchupLineup, Player, GranularPosition } from '@/types';
-import { POSITION_FLEX_MAP, BENCH_DEPTH_BONUS, BENCH_DEPTH_BONUS_LABEL } from '@/types';
+import { BENCH_DEPTH_BONUS_LABEL } from '@/types';
+import type { TeamScoreDetail } from '@/lib/scoring/matchups';
 import { getPlayerDisplayName } from '@/lib/players/displayName';
 import { SPINE, POS_COLOR } from '@/lib/positions/spine';
 import { usePlayerCard } from './players/PlayerCardProvider';
@@ -261,52 +262,36 @@ function groupByZone(starters: { player_id: string; slot: string; isSubIn?: bool
 }
 
 /* ── Resolve Autosubs ─────────────────────────────────────────────── */
+/**
+ * Which starter slots got covered by a bench player, and which bench slots
+ * show the player they covered for — driven entirely by `calculateTeamScore`'s
+ * own `detail.subs`, the same list that produced the score being displayed.
+ *
+ * This used to re-walk the lineup and re-derive eligibility itself, gated on
+ * `matchupStatus === 'completed'` — which meant no sub ever showed while a
+ * matchup was live, and a second implementation of the same eligibility rule
+ * that could (and did) disagree with the one that actually computed the score.
+ */
 function resolveSubs(
     lineup: MatchupLineup | null,
-    detailMap: Record<string, Detail>,
-    playerMap: Record<string, Partial<Player>>,
-    matchupStatus: string
+    detail: TeamScoreDetail | undefined,
 ) {
     if (!lineup) return { starters: [], bench: [] };
 
-    const starters = [...(lineup.starters || [])].map(s => ({ ...s, isSubIn: false }));
-    const bench = [...(lineup.bench as any[] || [])].map(b => ({ ...b, isSubOut: false }));
+    const subsByOutId = new Map((detail?.subs ?? []).map((s) => [s.outId, s]));
+    const subsByInId = new Map((detail?.subs ?? []).map((s) => [s.inId, s]));
 
-    // Only resolve autosubs for completed gameweeks to avoid premature subs
-    if (matchupStatus === 'completed') {
-        const usedBenchIds = new Set<string>();
+    const starters = (lineup.starters || []).map((s) => {
+        const sub = subsByOutId.get(s.player_id);
+        if (sub) return { player_id: sub.inId, slot: s.slot, isSubIn: true };
+        return { ...s, isSubIn: false };
+    });
 
-        for (let i = 0; i < starters.length; i++) {
-            const starterId = starters[i].player_id;
-            const starterMins = detailMap[starterId]?.stats?.minutes_played ?? 0;
-
-            if (starterMins === 0) {
-                const slotAllowedPos = POSITION_FLEX_MAP[starters[i].slot as GranularPosition] ?? [];
-
-                for (let j = 0; j < bench.length; j++) {
-                    const benchId = bench[j].player_id;
-                    if (usedBenchIds.has(benchId)) continue;
-
-                    const benchMins = detailMap[benchId]?.stats?.minutes_played ?? 0;
-                    if (benchMins === 0) continue;
-
-                    const player = playerMap[benchId];
-                    const subPositions = [player?.primary_position, ...(player?.secondary_positions ?? [])];
-                    const canPlaySlot = subPositions.some(pos => slotAllowedPos.includes(pos as GranularPosition));
-
-                    if (canPlaySlot) {
-                        usedBenchIds.add(benchId);
-
-                        // Swap them!
-                        const tempSlot = starters[i].slot;
-                        starters[i] = { player_id: benchId, slot: tempSlot, isSubIn: true };
-                        bench[j] = { ...bench[j], player_id: starterId, isSubOut: true };
-                        break;
-                    }
-                }
-            }
-        }
-    }
+    const bench = (lineup.bench as any[] || []).map((b) => {
+        const sub = subsByInId.get(b.player_id);
+        if (sub) return { ...b, player_id: sub.outId, isSubOut: true };
+        return { ...b, isSubOut: false };
+    });
 
     return { starters, bench };
 }
@@ -323,7 +308,6 @@ interface Props {
     teamBId?: string;
     crestA?: CrestConfig | null;
     crestB?: CrestConfig | null;
-    matchupStatus?: string;
     /**
      * Players whose own club has kicked off. Anything not in here is still to
      * come, so its 0.0 means "not yet", not "did nothing" — see PlayStatus.
@@ -331,11 +315,22 @@ interface Props {
      * boundary as an RSC prop.
      */
     startedPlayerIds?: string[];
+    /**
+     * The scores actually shown in the header — `calculateTeamScore`'s output
+     * (or the persisted `matchup.score_a/b` once completed). The breakdown
+     * total below reads these directly rather than re-summing the lineup
+     * itself, so the two numbers on the page can't disagree.
+     */
+    scoreA?: number;
+    scoreB?: number;
+    /** What `calculateTeamScore` actually did — subs, blanked starters, bench bonus. */
+    detailA?: TeamScoreDetail;
+    detailB?: TeamScoreDetail;
 }
 
 export default function MatchupPitch({
-    lineupA, lineupB, playerMap, detailMap, teamAName, teamBName, teamAId, teamBId, crestA, crestB, matchupStatus = 'live',
-    startedPlayerIds,
+    lineupA, lineupB, playerMap, detailMap, teamAName, teamBName, teamAId, teamBId, crestA, crestB,
+    startedPlayerIds, scoreA = 0, scoreB = 0, detailA, detailB,
 }: Props) {
     // Undefined means the page could not resolve kickoffs (FPL unreachable).
     // Treat every player as started in that case: showing a real 0.0 to someone
@@ -352,27 +347,17 @@ export default function MatchupPitch({
         [openPlayerById],
     );
 
-    const resolvedA = resolveSubs(lineupA, detailMap, playerMap, matchupStatus);
-    const resolvedB = resolveSubs(lineupB, detailMap, playerMap, matchupStatus);
+    const resolvedA = resolveSubs(lineupA, detailA);
+    const resolvedB = resolveSubs(lineupB, detailB);
 
     const zonesA = groupByZone(resolvedA.starters);
     const zonesB = groupByZone(resolvedB.starters);
 
-    function calcBenchBonus(bench: any[]) {
-        const rawBenchPts = bench.reduce((sum, b) => {
-            if (b.isSubOut) return sum; // this was a starter subbed out
-            return sum + (detailMap[b.player_id]?.points ?? 0);
-        }, 0);
-        return rawBenchPts * BENCH_DEPTH_BONUS;
-    }
-
-    const benchBonusA = calcBenchBonus(resolvedA.bench);
-    const benchBonusB = calcBenchBonus(resolvedB.bench);
-
-    const starterPts = (playerId: string, slot: string) =>
-        detailAtSlot(detailMap[playerId], slot)?.points ?? 0;
-    const totalA = resolvedA.starters.reduce((s, x) => s + starterPts(x.player_id, x.slot), 0) + benchBonusA;
-    const totalB = resolvedB.starters.reduce((s, x) => s + starterPts(x.player_id, x.slot), 0) + benchBonusB;
+    // Bench bonus total and the breakdown total both come straight from
+    // `calculateTeamScore`'s own output (via props) rather than being
+    // re-derived here — see the Props doc comment for why.
+    const benchBonusA = detailA?.benchBonusTotal ?? 0;
+    const benchBonusB = detailB?.benchBonusTotal ?? 0;
 
     function renderHalf(
         zones: ReturnType<typeof groupByZone> | null,
@@ -431,8 +416,8 @@ export default function MatchupPitch({
     }
 
     const sides = [
-        { key: 'a', name: teamAName, bench: resolvedA.bench, starters: resolvedA.starters, bonus: benchBonusA, total: totalA },
-        { key: 'b', name: teamBName, bench: resolvedB.bench, starters: resolvedB.starters, bonus: benchBonusB, total: totalB },
+        { key: 'a', name: teamAName, bench: resolvedA.bench, starters: resolvedA.starters, bonus: benchBonusA, total: scoreA },
+        { key: 'b', name: teamBName, bench: resolvedB.bench, starters: resolvedB.starters, bonus: benchBonusB, total: scoreB },
     ];
 
     return (

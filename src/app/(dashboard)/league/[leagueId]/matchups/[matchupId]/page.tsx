@@ -11,9 +11,11 @@ import { getCurrentFplSeason, getLatestReferenceStatsSeason } from '@/lib/season
 import {
     attachLineupSlotScores,
     calculateTeamScore,
+    emptyTeamScoreDetail,
     loadReferenceStats,
     type MatchupPlayerDetail,
     type PlayerScoreRecord,
+    type TeamScoreDetail,
 } from '@/lib/scoring/matchups';
 import { isGameweekFinalised } from '@/lib/scoring/gameweekState';
 import { getFinishedPlTeamIds, getLockedPlTeamIds } from '@/lib/fixtures/lockout';
@@ -158,9 +160,18 @@ export default async function MatchupDetailPage({ params }: Props) {
     // depth bonus included. Only `matchup.score_a/score_b` (the processor's own
     // output) is used once the matchup is completed, below; this is what the
     // header shows while still live so the two surfaces can't disagree.
+    //
+    // Always run this (not just while live): the pitch's sub arrows and points
+    // breakdown need `detailA`/`detailB` — which starters were auto-subbed and
+    // by whom, and the bench bonus per player — for a completed matchup too.
+    // MatchupPitch used to derive that itself by re-walking the lineup, gated
+    // on `matchupStatus === 'completed'`, which both duplicated this logic (and
+    // could disagree with it) and meant no sub arrow ever showed while live.
     let computedScoreA = 0;
     let computedScoreB = 0;
-    if (matchup.status !== 'completed' && playerIds.size > 0 && matchupData.gameweek) {
+    const detailA: TeamScoreDetail = emptyTeamScoreDetail();
+    const detailB: TeamScoreDetail = emptyTeamScoreDetail();
+    if (playerIds.size > 0 && matchupData.gameweek) {
         const playerRecord = new Map<string, PlayerScoreRecord>();
         for (const s of statsRows ?? []) {
             const stats = (s.stats as RawStats | null) ?? null;
@@ -179,8 +190,8 @@ export default async function MatchupDetailPage({ params }: Props) {
 
         const finishedPlTeamIds = await getFinishedPlTeamIds(matchupData.gameweek);
 
-        computedScoreA = calculateTeamScore(lineupA, playerRecord, playerPositions, playerPlTeamId, refStats ?? {}, finalised, finishedPlTeamIds);
-        computedScoreB = calculateTeamScore(lineupB, playerRecord, playerPositions, playerPlTeamId, refStats ?? {}, finalised, finishedPlTeamIds);
+        computedScoreA = calculateTeamScore(lineupA, playerRecord, playerPositions, playerPlTeamId, refStats ?? {}, finalised, finishedPlTeamIds, detailA);
+        computedScoreB = calculateTeamScore(lineupB, playerRecord, playerPositions, playerPlTeamId, refStats ?? {}, finalised, finishedPlTeamIds, detailB);
     }
 
     // Which of these players' own clubs have kicked off. A chip showing 0.0 is
@@ -283,7 +294,10 @@ export default async function MatchupDetailPage({ params }: Props) {
                 teamBId={matchup.team_b?.id}
                 crestA={matchup.team_a?.crest_config}
                 crestB={matchup.team_b?.crest_config}
-                matchupStatus={matchup.status}
+                scoreA={scoreA}
+                scoreB={scoreB}
+                detailA={detailA}
+                detailB={detailB}
             />
         </div>
     );
