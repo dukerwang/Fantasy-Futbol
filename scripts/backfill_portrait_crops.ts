@@ -110,11 +110,22 @@ async function measurePortrait(
     rowWidths[y] = minX === -1 ? 0 : maxX - minX + 1;
   }
 
-  const topRegion = rowWidths.slice(0, Math.floor(h * 0.35));
-  const headWidthPct = Math.max(...topRegion) / w;
   const threshold = w * 0.08;
   const topY = rowWidths.findIndex((wd) => wd > threshold);
-  if (topY === -1 || headWidthPct <= 0) return null;
+  if (topY === -1) return null;
+
+  // Width measured 5-8% of the frame height below the hairline, NOT the
+  // widest point across the whole head region. A player with voluminous hair
+  // (afro, dreadlocks) has it flare out well past this band -- measuring the
+  // widest point anywhere in a broad top-of-frame window was reading THAT as
+  // head width, over-shrinking the whole photo to compensate for a "wide
+  // head" that was actually just hair. This band sits at roughly brow/eye
+  // level, before hair typically flares and before shoulders enter the frame
+  // (confirmed against Jérémy Doku: 36% at the old widest-point measure vs
+  // 28% here, in line with reference).
+  const band = rowWidths.slice(topY + Math.floor(h * 0.05), topY + Math.floor(h * 0.08));
+  const headWidthPct = band.length ? Math.max(...band) / w : 0;
+  if (headWidthPct <= 0) return null;
 
   return { headTopPct: topY / h, headWidthPct, lastModified };
 }

@@ -11,13 +11,21 @@
  *
  * REF_HEAD_WIDTH_FRAC / REF_HEAD_TOP_FRAC are the mean head-width and
  * head-top fractions measured (`scratch/measure_portrait_reference.mjs`)
- * across the players whose photos
- * already match the shared crop's assumption -- i.e. what the existing
- * `--g-portrait-zoom` / `--g-portrait-inset` values are implicitly tuned for.
- * A player measured at exactly these fractions gets the shared crop back
- * unchanged; anyone measured differently gets a zoom/inset solved to land
- * their head at the same on-screen size and position the shared crop already
- * gets right for everyone else.
+ * across the players whose photos already match the shared crop's
+ * assumption -- i.e. what the existing `--g-portrait-zoom` /
+ * `--g-portrait-inset` values are implicitly tuned for. A player measured at
+ * exactly these fractions gets the shared crop back unchanged; anyone
+ * measured differently gets a zoom/inset solved to land their head at the
+ * same on-screen size and position the shared crop already gets right for
+ * everyone else.
+ *
+ * Head width is measured 5-8% of the frame height below the hairline, NOT
+ * the widest point across the whole head region -- a player with voluminous
+ * hair (afro, dreadlocks) has it flare out well past that band, and an
+ * earlier version of the backfill read that flare as head width, shrinking
+ * the whole photo to compensate for a "wide head" that was actually hair
+ * (found via Jérémy Doku, 2026-08-24: measured 36% at the old widest-point
+ * method vs 28% at this one, in line with reference).
  *
  * The 220x280 "tall" source (photo.ts) is a DIFFERENT picture from the same
  * photoshoot, used as PremiumPlayerCard.tsx's primary image rather than a
@@ -28,8 +36,8 @@
  * the two pictures for the same player.
  */
 
-export const REF_HEAD_WIDTH_FRAC = 0.262;
-export const REF_HEAD_TOP_FRAC = 0.1316;
+export const REF_HEAD_WIDTH_FRAC = 0.2365;
+export const REF_HEAD_TOP_FRAC = 0.1310;
 
 export type PortraitSize = 'lg' | 'md' | 'sm';
 
@@ -89,7 +97,7 @@ export function customPortraitCrop(
  * 110x140 source) across the same reference-cluster players as the square
  * source's constants above.
  */
-export const REF_TALL_HEAD_WIDTH_FRAC = 0.2992;
+export const REF_TALL_HEAD_WIDTH_FRAC = 0.2709;
 export const REF_TALL_HEAD_TOP_FRAC = 0.1361;
 
 /**
