@@ -27,13 +27,16 @@
  * (found via Jérémy Doku, 2026-08-24: measured 36% at the old widest-point
  * method vs 28% at this one, in line with reference).
  *
- * The 220x280 "tall" source (photo.ts) is a DIFFERENT picture from the same
- * photoshoot, used as PremiumPlayerCard.tsx's primary image rather than a
- * fallback. It carries the same framing inconsistency, so it gets its own
- * reference fractions (REF_TALL_*) and correction (customTallPortraitCrop),
- * measured and stored separately -- see migration 135. Do not reuse the
- * square source's fractions for it; head position/width do not match between
- * the two pictures for the same player.
+ * PremiumPlayerCard.tsx (the 220x280 "tall" source, a different picture from
+ * the same photoshoot) deliberately does NOT use a correction like this one.
+ * Tried 2026-08-24, reverted the same day: that card's box already closely
+ * matches the tall source's own aspect ratio, so a fixed 1:1 scale already
+ * looks consistent card-to-card. Correcting each player's zoom to normalize
+ * head width traded that away -- every photo became a different size
+ * depending on how PL happened to frame that player, which reads as
+ * inconsistent across a set of cards even though each one is individually
+ * "more correct". Migration 135's portrait_tall_head_top_pct/width_pct
+ * columns are unused as of that revert; left populated rather than dropped.
  */
 
 export const REF_HEAD_WIDTH_FRAC = 0.2365;
@@ -90,29 +93,4 @@ export function customPortraitCrop(
 ): { zoomPct: number; insetPx: number } | null {
   const { zoomPct, insetPx, boxPx } = SIZE_DEFAULTS[size];
   return solveCrop(headTopPct, headWidthPct, REF_HEAD_WIDTH_FRAC, REF_HEAD_TOP_FRAC, zoomPct, insetPx, boxPx);
-}
-
-/**
- * Measured (`scratch/measure_portrait_reference.mjs`, run against the
- * 110x140 source) across the same reference-cluster players as the square
- * source's constants above.
- */
-export const REF_TALL_HEAD_WIDTH_FRAC = 0.2709;
-export const REF_TALL_HEAD_TOP_FRAC = 0.1361;
-
-/**
- * PremiumPlayerCard.tsx's box (~196x250) is sized to closely match the tall
- * source's own aspect ratio, so at the reference fractions no zoom/offset is
- * needed at all -- unlike the small avatars, this card was never meant to
- * crop in tight; it shows the whole photo, kit and all. defaultZoomPct: 100,
- * defaultInsetPx: 0 encode exactly that "do nothing to a normal photo"
- * baseline; only a player whose tall photo deviates from the reference gets
- * a correction.
- */
-export function customTallPortraitCrop(
-  boxPx: number,
-  headTopPct: number | null | undefined,
-  headWidthPct: number | null | undefined,
-): { zoomPct: number; insetPx: number } | null {
-  return solveCrop(headTopPct, headWidthPct, REF_TALL_HEAD_WIDTH_FRAC, REF_TALL_HEAD_TOP_FRAC, 100, 0, boxPx);
 }

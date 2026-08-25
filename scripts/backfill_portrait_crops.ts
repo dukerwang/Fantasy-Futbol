@@ -1,23 +1,29 @@
 /**
  * backfill_portrait_crops.ts
  *
- * Measures each player's own PL cut-outs and stores where their head starts
- * and how wide it is, for BOTH sources (photo.ts):
- *   - 500x500 square  -> portrait_head_top_pct / portrait_head_width_pct (134)
- *   - 220x280 tall     -> portrait_tall_head_top_pct / portrait_tall_head_width_pct (135)
- * Portrait.tsx (avatars) and PremiumPlayerCard.tsx (the roster Inspector /
- * PlayerDetailsModal flip-card) each use one of these sources as their
- * primary image and correct against the matching measurement
+ * Measures each player's own PL 500x500 cut-out and stores where their head
+ * starts and how wide it is (`portrait_head_top_pct` / `portrait_head_width_pct`,
+ * migration 134). Portrait.tsx (avatars) corrects against this measurement
  * (src/lib/players/portraitCrop.ts) instead of applying one fixed zoom/inset
  * to every photo -- see that file's doc comment for why: PL has started
- * serving some players' photos (not just new signings, and not always both
- * sources in sync) with the head bigger and flush to the top of the frame
- * instead of the ~13%-down headroom most photos still have.
+ * serving some players' photos (not just new signings) with the head bigger
+ * and flush to the top of the frame instead of the ~13%-down headroom most
+ * photos still have.
  *
- * A player missing a given cut-out (photo.ts: ~27% of the pool has no
- * 500x500) is left with that pair of columns NULL -- both components already
- * fall back to their shared default crop for that case, same as before this
- * script existed.
+ * A player missing the 500x500 cut-out (photo.ts: ~27% of the pool) is left
+ * with both columns NULL -- Portrait.tsx already falls back to its shared
+ * default crop for that case, same as before this script existed.
+ *
+ * Also fetches the 220x280 "tall" source (PremiumPlayerCard.tsx's primary
+ * image) for its own Last-Modified header, folded into `photo_version`
+ * (migration 136) below -- NOT for a matching per-player crop correction.
+ * That was tried 2026-08-24 and reverted the same day: PremiumPlayerCard's
+ * box already closely matches the tall source's aspect ratio, so showing
+ * every photo at a fixed 1:1 scale already looks consistent card-to-card:
+ * correcting each one's zoom to normalize head width traded that away for a
+ * set of cards whose photos were each a different size. See
+ * portraitCrop.ts's doc comment. portrait_tall_head_top_pct/width_pct
+ * (migration 135) are measured here but no longer read by anything.
  *
  * Usage:
  *   node --experimental-strip-types scripts/backfill_portrait_crops.ts
