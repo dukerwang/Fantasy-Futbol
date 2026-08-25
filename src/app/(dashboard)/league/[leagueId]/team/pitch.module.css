@@ -229,13 +229,24 @@
     flex-direction: column;
 }
 
-/* Standard pitch ratio is ~105x68m (0.647); 2/3 reads as a real pitch in a
-   tall column. The max-height stops it going absurd on an ultrawide. */
+/* NOT a fixed aspect-ratio (was 2/3, "reads as a real pitch in a tall
+ * column", capped at 980px so it didn't go absurd on an ultrawide). A fixed
+ * ratio makes height a function of width alone, but a 6-zone formation's
+ * content height is ~fixed in px (portraits don't shrink) — so a width
+ * where the ratio hadn't yet reached the 980px cap gave less height than the
+ * content needed and the last zone (GK) got clipped by overflow: hidden.
+ * Measured: viewport 650px (pitchCol not yet at the 1080px board-stack
+ * boundary, portrait still md-size) clipped; viewport 900px didn't, only
+ * because the ratio happened to already be pinned at the cap there. That's
+ * fragile by construction. Sizing to content instead — same fix as
+ * MatchupPitch.module.css's .halfField, ported here 2026-08-25 — means every
+ * width is correct, not just the ones that happened to land past the cap.
+ * `min-height` is just a floor so the grass doesn't collapse before data
+ * loads. */
 .pitchField {
     position: relative;
     width: 100%;
-    aspect-ratio: 2 / 3;
-    max-height: 980px;
+    min-height: 480px;
     display: flex;
     flex-direction: column;
     /* The field boundary carries information — where the pitch ends — so it
@@ -988,10 +999,7 @@
     .nodePlayerNameCenter { font-size: var(--t-10); }
     .nodePtsBadge { font-size: var(--t-10); top: -6px; right: -5px; }
     .pitchZones { padding: var(--s8) 0 var(--s3); }
-    /* Taller than the 2/3 desktop ratio. A two-line surname (name can clamp to
-       2 lines, see .nodePlayerNameCenter above) in even one row on this
-       breakpoint was enough to push the last zone past this box's
-       overflow:hidden edge — the fixed 2/3 ratio budgeted for single-line
-       names only. */
-    .pitchField { aspect-ratio: 2 / 3.4; }
+    /* No aspect-ratio override needed here any more — .pitchField sizes to
+       its content now, so the shorter mobile node (portrait stepped down to
+       44x44 above) just produces a shorter box on its own. */
 }

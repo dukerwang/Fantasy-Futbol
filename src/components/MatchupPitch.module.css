@@ -91,17 +91,27 @@
 
 /* The playing rectangle. No top border — .halfTopLine draws the byline, and
    two strokes in the same place read as one thick one. The boundary carries
-   information (where the pitch ends) so it runs at full strength. */
+   information (where the pitch ends) so it runs at full strength.
+ *
+ * NOT a fixed aspect-ratio. It was 0.78 — tuned for the old flat ~90px-tall
+ * chip — and once the chip grew a portrait on top of it (2026-08-25, to match
+ * PitchUI's node) a formation with 6 populated zones needed ~1030px against a
+ * box the ratio only gave ~725px at typical half-width, so the GK row (last
+ * in flow) got pushed past `overflow: hidden` and clipped outright — the
+ * height a fixed ratio produces is a function of width alone, but the
+ * content's height is ~fixed in px (a portrait doesn't shrink) and each half's
+ * width varies a lot across the desktop range these two columns run at. A
+ * fixed ratio can't track that; growing with `.zones`' own content can.
+ * `min-height` is only the empty-lineup floor. */
 .halfField {
     position: relative;
     flex: 1;
     display: flex;
     flex-direction: column;
-    aspect-ratio: 0.78;
+    min-height: 480px;
     border: 2px solid var(--color-pitch-line);
     border-top: none;
     overflow: hidden;
-    min-height: 0;
 }
 
 /* Stadium lighting. Only ever darkens the ground, so it can only improve every
@@ -698,9 +708,11 @@
         padding-top: var(--s3);
         margin-top: var(--s2);
     }
-    /* Stacked, the field must not take the panel's full width or it becomes a
-       slab several screens tall. Cap it and centre it. */
-    .halfField { aspect-ratio: 0.78; max-width: 460px; margin: 0 auto; width: 100%; }
+    /* Stacked, the field must not take the panel's full width or the pitch
+       reads as an odd wide slab next to a single narrow column of chips.
+       No aspect-ratio override here — see .halfField's own comment on why
+       this box sizes to its content instead of a fixed ratio. */
+    .halfField { max-width: 460px; margin: 0 auto; width: 100%; }
 }
 
 @media (max-width: 600px) {
