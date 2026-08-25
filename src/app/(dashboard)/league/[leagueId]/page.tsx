@@ -7,11 +7,10 @@ import { getFplStatus } from '@/lib/fpl/api';
 import { processMatchupsForGameweek } from '@/lib/scoring/matchupProcessor';
 
 import PreDraftLobby from './PreDraftLobby';
-import LeaveLeagueButton from './LeaveLeagueButton';
 import { Masthead } from './_home/Masthead';
 import Attention from './_home/Attention';
 import Fixture, { SeasonClosed } from './_home/Fixture';
-import { Market, Fronts, Matchweek, StandingsTable, YourGameweek } from './_home/Sections';
+import { Market, Fronts, Matchweek, StandingsTable, TopPerformers } from './_home/Sections';
 import Rail from './_home/Rail';
 import styles from './_home/home.module.css';
 
@@ -166,14 +165,10 @@ export default async function LeaguePage({ params }: Props) {
           <Fronts model={model} />
           <Matchweek model={model} />
           <StandingsTable model={model} />
-          <YourGameweek model={model} />
+          <TopPerformers model={model} />
         </main>
 
         <Rail model={model} />
-      </div>
-
-      <div style={{ marginTop: 'var(--s12)' }}>
-        <LeaveLeagueButton leagueId={leagueId} isCommissioner={league.commissioner_id === user.id} />
       </div>
     </div>
   );

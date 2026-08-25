@@ -41,6 +41,11 @@ interface PlayerCardContextValue {
    * Opens the card for a player the caller only has an id for. Resolves the
    * front payload first (usually from cache, so still instant) rather than
    * flashing an empty card.
+   *
+   * Prefer `openPlayer` whenever the page already loaded a Player row —
+   * matchup used to wait on `/api/players/:id/card` on every click for
+   * that reason. `openPlayerById` is for narrative/activity text that
+   * only has an id.
    */
   openPlayerById: (playerId: string, options?: OpenPlayerOptions) => void;
   /** Warms photo + payloads on hover/focus so the click has nothing to wait on. */

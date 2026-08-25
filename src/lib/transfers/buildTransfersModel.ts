@@ -73,6 +73,8 @@ export interface LoanRow {
   bonus_cap: number;
   has_recall: boolean;
   slot_buyback_used: boolean;
+  /** Roster status when the loan started. taxi restores to academy. */
+  origin_status?: string | null;
   /** Who made the running. The OTHER side is the one who answers. */
   proposed_by: 'lender' | 'borrower';
   lender_team?: Pick<Team, 'id' | 'team_name'> & { user_id: string };

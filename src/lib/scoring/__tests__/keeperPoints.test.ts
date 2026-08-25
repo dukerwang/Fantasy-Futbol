@@ -119,10 +119,14 @@ describe('a sub-threshold game', () => {
     it('is worth nothing, and every one of them the same nothing', () => {
         // Deliberate: grading poor games apart means recutting the curve, which
         // compresses team margins enough to take the draw rate from ~18% to ~46%.
-        const bad = calculateMatchRating(quiet({ bps: 0, fpl_def_contrib: 0, fpl_cbi: 0,
-            fpl_recoveries: 0, influence: 0, creativity: 0, threat: 0 }), 'CB');
-        const lessBad = calculateMatchRating(quiet({ bps: 5, fpl_def_contrib: 3, fpl_cbi: 2,
-            fpl_recoveries: 1, influence: 4, creativity: 2, threat: 1 }), 'CB');
+        const bad = calculateMatchRating(quiet({ bps: -6, fpl_def_contrib: 0, fpl_cbi: 0,
+            fpl_recoveries: 0, fpl_tackles: 0, influence: 0, creativity: 0, threat: 0,
+            ict_index: 0, expected_goals: 0, expected_assists: 0, goals_conceded: 4,
+            expected_goals_conceded: 2.0, own_goals: 1 }), 'CB');
+        const lessBad = calculateMatchRating(quiet({ bps: -3, fpl_def_contrib: 1, fpl_cbi: 1,
+            fpl_recoveries: 1, fpl_tackles: 0, influence: 1, creativity: 0, threat: 0,
+            ict_index: 0.1, expected_goals: 0, expected_assists: 0, goals_conceded: 4,
+            expected_goals_conceded: 2.0 }), 'CB');
         expect(lessBad.rating).toBeGreaterThan(bad.rating);
         expect(bad.fantasyPoints).toBe(0);
         expect(lessBad.fantasyPoints).toBe(0);

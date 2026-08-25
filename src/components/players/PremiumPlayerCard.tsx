@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useCallback, useEffect } from 'react';
+import { useState, useRef, useCallback, useEffect, Fragment } from 'react';
 import type { Player, PlayerOwnership, PlayerSeasonArchive } from '@/types';
 import type { CrestConfig } from '@/components/crest/types';
 import { getPlayerDisplayName, playerInitial } from '@/lib/players/displayName';
@@ -22,6 +22,7 @@ import {
   markImageReady,
   primeFront,
 } from '@/lib/players/cardCache';
+import PerformanceBlock from './PerformanceBlock';
 import styles from './PremiumPlayerCard.module.css';
 
 /**
@@ -43,7 +44,8 @@ function ratingHex(r: number | null): string {
     if (r >= 8.5) return 'var(--rating-elite)';
     if (r >= 7.5) return 'var(--rating-good)';
     if (r >= 6.5) return 'var(--rating-fair)';
-    if (r >= 5.5) return 'var(--rating-poor)';
+    if (r >= 6.0) return 'var(--rating-below-avg)';
+    if (r >= 5.5) return 'var(--rating-weak)';
     return 'var(--rating-bad)';
 }
 
@@ -204,6 +206,17 @@ function FlipIcon() {
     );
 }
 
+/** "a centre-back" / "an attacking midfielder" — for the block's centre-line note. */
+const ROLE_NAME: Record<string, string> = {
+    GK: 'a goalkeeper', CB: 'a centre-back', LB: 'a left-back', RB: 'a right-back',
+    LWB: 'a left wing-back', RWB: 'a right wing-back', DM: 'a defensive midfielder',
+    CM: 'a central midfielder', AM: 'an attacking midfielder',
+    LW: 'a left winger', RW: 'a right winger', ST: 'a striker',
+};
+function roleArticle(pos: string | null | undefined): string {
+    return ROLE_NAME[String(pos ?? '').toUpperCase()] ?? 'this position';
+}
+
 export default function PremiumPlayerCard({
     player,
     ownership,
@@ -218,6 +231,9 @@ export default function PremiumPlayerCard({
     // without needing to be re-created on every flip (avoids stale closures).
     const flippedRef = useRef(false);
     const [tab, setTab] = useState<'log' | 'history'>('log');
+    // One row open at a time — an accordion, not a set of toggles. The card
+    // is already a long scroll and two open blocks push the second off-screen.
+    const [openLog, setOpenLog] = useState<string | null>(null);
     const [hovering, setHovering] = useState(false);
     // Position the card is evaluating — chips flip both faces to that slot's scoring.
     const [selectedPos, setSelectedPos] = useState<string>(player.primary_position);
@@ -854,8 +870,17 @@ export default function PremiumPlayerCard({
                                                     const resText = parsedRes?.text ?? g.result;
                                                     const gameScore = scoreAtPosition(g, viewPos, primaryPos);
 
+                                                    const rowKey = `${g.gameweek}-${g.opponent ?? "x"}-${index}`;
+                                                    const isOpen = openLog === rowKey;
+                                                    const hasPerf = (g.perf?.length ?? 0) > 0;
+
                                                     return (
-                                                        <tr key={`${g.gameweek}-${g.opponent ?? "x"}-${index}`}>
+                                                        <Fragment key={rowKey}>
+                                                        <tr
+                                                            className={`${hasPerf ? styles.logRowOpenable : ''} ${isOpen ? styles.logRowOpen : ''}`}
+                                                            onClick={hasPerf ? () => setOpenLog(isOpen ? null : rowKey) : undefined}
+                                                            aria-expanded={hasPerf ? isOpen : undefined}
+                                                        >
                                                             <td className={styles.gwTd}>{g.gameweek}</td>
                                                             <td className={styles.oppTd}>
                                                                 {g.opponent}
@@ -884,6 +909,17 @@ export default function PremiumPlayerCard({
                                                                 ) : '—'}
                                                             </td>
                                                         </tr>
+                                                        {isOpen && hasPerf && (
+                                                            <tr className={styles.logExpandRow}>
+                                                                <td colSpan={7} className={styles.logExpandCell}>
+                                                                    <PerformanceBlock
+                                                                        groups={g.perf!}
+                                                                        note={`Centre line is the median for ${roleArticle(viewPos)}`}
+                                                                    />
+                                                                </td>
+                                                            </tr>
+                                                        )}
+                                                        </Fragment>
                                                     );
                                                 })}
                                             </tbody>

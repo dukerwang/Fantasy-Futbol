@@ -24,7 +24,9 @@ import styles from './matchup-detail.module.css';
  */
 export default function MatchReportCard({ report }: { report: MatchReport }) {
   const [expanded, setExpanded] = useState(false);
-  const { openPlayerById: handlePlayerClick } = usePlayerCard();
+  const { openPlayerById, prefetchPlayer } = usePlayerCard();
+  const handlePlayerClick = (id: string) => openPlayerById(id);
+  const handlePlayerPrefetch = (id: string) => prefetchPlayer({ id });
 
   return (
     <section className={`${styles.report} g-panel`}>
@@ -34,11 +36,11 @@ export default function MatchReportCard({ report }: { report: MatchReport }) {
       </div>
 
       <h2 className={styles.reportHeadline}>
-        {renderBoldedText(report.headline, handlePlayerClick)}
+        {renderBoldedText(report.headline, handlePlayerClick, handlePlayerPrefetch)}
       </h2>
 
       <p className={styles.reportLead}>
-        {renderBoldedText(report.leadParagraph, handlePlayerClick)}
+        {renderBoldedText(report.leadParagraph, handlePlayerClick, handlePlayerPrefetch)}
       </p>
 
       {expanded && (
@@ -50,7 +52,7 @@ export default function MatchReportCard({ report }: { report: MatchReport }) {
                 Star of the Match
               </h3>
               <p className={styles.reportDetail}>
-                {renderBoldedText(report.starHighlight, handlePlayerClick)}
+                {renderBoldedText(report.starHighlight, handlePlayerClick, handlePlayerPrefetch)}
               </p>
             </div>
             <div className={styles.reportCol}>
@@ -59,7 +61,7 @@ export default function MatchReportCard({ report }: { report: MatchReport }) {
                 Boardroom Notes
               </h3>
               <p className={styles.reportDetail}>
-                {renderBoldedText(report.disappointmentHighlight, handlePlayerClick)}
+                {renderBoldedText(report.disappointmentHighlight, handlePlayerClick, handlePlayerPrefetch)}
               </p>
             </div>
           </div>

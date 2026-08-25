@@ -6,7 +6,6 @@ import { usePathname, useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import ThemeToggle from './ThemeToggle';
 import NotificationBell from './NotificationBell';
-import NotificationsToggle from './NotificationsToggle';
 import ChatNavIcon from './ChatNavIcon';
 import { Icon } from '@/components/ui/Icon';
 import CrestBadge from '@/components/crest/CrestBadge';
@@ -560,7 +559,16 @@ export default function TopBar() {
 
                 <div className={styles.dropdownDivider} />
 
-                <NotificationsToggle />
+                <Link
+                  href={currentLeagueId ? `/league/${currentLeagueId}/settings` : '/settings'}
+                  className={styles.dropdownActionLink}
+                  onClick={() => { setUserDropdownOpen(false); setIsNavigating(true); }}
+                >
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+                    <Icon name="settings" size={14} strokeWidth={1.75} />
+                    Settings
+                  </span>
+                </Link>
 
                 <div className={styles.dropdownDivider} />
 
@@ -726,7 +734,16 @@ export default function TopBar() {
                 </div>
               </div>
               <div className={styles.mobileDrawerUserDivider} />
-              <NotificationsToggle />
+              <Link
+                href={currentLeagueId ? `/league/${currentLeagueId}/settings` : '/settings'}
+                className={styles.mobileDrawerLink}
+                onClick={() => {
+                  setIsNavigating(true);
+                  setMobileMenuOpen(false);
+                }}
+              >
+                Settings
+              </Link>
               <div className={styles.mobileDrawerUserDivider} />
               <button onClick={handleSignOut} className={styles.mobileDrawerSignOut} type="button">
                 Sign out

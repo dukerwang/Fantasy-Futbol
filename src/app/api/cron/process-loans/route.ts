@@ -91,6 +91,7 @@ export async function POST(req: NextRequest) {
         success: boolean;
         error?: string;
         pending_activation?: boolean;
+        returned_to?: string;
         bonus_paid?: number;
         bonus_forgiven?: number;
       };
@@ -114,6 +115,7 @@ export async function POST(req: NextRequest) {
       // Notify borrower
       if (borrower_user_id) {
         await createNotification(admin, {
+          kind: 'deals',
           leagueId: loan.league_id,
           userId: borrower_user_id,
           title: 'Loan Ended',
@@ -126,6 +128,7 @@ export async function POST(req: NextRequest) {
       if (lender_user_id) {
         if (resData.pending_activation) {
           await createNotification(admin, {
+            kind: 'deals',
             leagueId: loan.league_id,
             userId: lender_user_id,
             title: 'Roster Full',
@@ -133,11 +136,13 @@ export async function POST(req: NextRequest) {
             url: `/league/${loan.league_id}/team`
           });
         } else {
+          const spot = resData.returned_to === 'taxi' ? 'academy' : 'reserves';
           await createNotification(admin, {
+            kind: 'deals',
             leagueId: loan.league_id,
             userId: lender_user_id,
             title: 'Loan Ended',
-            content: `**${player_name}** has returned to your bench from loan at **${borrower_team_name}**.${resData.bonus_paid && resData.bonus_paid > 0 ? ` Received €${resData.bonus_paid}m performance bonus.` : ''}`,
+            content: `**${player_name}** has returned to your ${spot} from loan at **${borrower_team_name}**.${resData.bonus_paid && resData.bonus_paid > 0 ? ` Received €${resData.bonus_paid}m performance bonus.` : ''}`,
             url: `/league/${loan.league_id}/team`
           });
         }

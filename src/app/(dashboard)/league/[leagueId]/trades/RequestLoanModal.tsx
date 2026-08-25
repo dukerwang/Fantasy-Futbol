@@ -90,7 +90,7 @@ export default function RequestLoanModal({
 
   const teamRoster: SimplePlayer[] = selectedTeamId ? (allRosters[selectedTeamId] ?? []) : [];
   const eligibleRoster = teamRoster.filter(
-    (p) => !p.status || !['ir', 'taxi', 'loan_in', 'loan_out'].includes(p.status)
+    (p) => !p.status || !['ir', 'loan_in', 'loan_out'].includes(p.status)
   );
 
   function handleSelectPlayer(p: SimplePlayer) {
@@ -313,6 +313,7 @@ export default function RequestLoanModal({
                         <div className={styles.blockToggleInfo}>
                           <span className={styles.blockToggleName}>{getPlayerDisplayName(p, 'initial_last')}</span>
                           <span className={styles.blockToggleClub}>
+                            {p.status === 'taxi' ? 'Academy · ' : ''}
                             {p.pl_team ?? ''}
                             {p.market_value ? ` · €${p.market_value.toFixed(1)}m` : ''}
                             {p.ppg ? ` · ${p.ppg.toFixed(2)} PPG` : ''}

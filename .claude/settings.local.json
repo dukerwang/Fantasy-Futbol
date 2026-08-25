@@ -74,5 +74,6 @@
       "Bash(claude plugin *)",
       "Bash(npx --yes vercel logs --help)"
     ]
-  }
+  },
+  "outputStyle": "Concise"
 }

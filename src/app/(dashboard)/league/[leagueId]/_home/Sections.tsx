@@ -302,41 +302,26 @@ export function StandingsTable({ model }: { model: HomeModel }) {
 }
 
 /**
- * Your gameweek.
+ * Top performers.
  *
- * Replaces a league-wide top five — three of whom you did not own, none of
- * whom you could act on, all of it duplicating /stats. What a manager
- * actually wants after a gameweek is their own: who won it, who lost it.
- *
- * The bar is the BASELINE RULE, and it is the only place in the app where the
- * scoring model becomes legible. A stat is never a bar filling toward a
- * maximum: the median for the player's own position is engraved as a fixed
- * tick and his rating is laid over it, so you read "against his role" rather
- * than "out of some total".
+ * League-wide top five by fantasy points for the most recently completed
+ * gameweek. Not actionable — most of these players aren't on your roster —
+ * but it's the scoreboard headline every manager in the league lived through.
  */
-export function YourGameweek({ model }: { model: HomeModel }) {
-  if (model.yourGameweek.length === 0) return null;
+export function TopPerformers({ model }: { model: HomeModel }) {
+  if (model.topPerformers.length === 0) return null;
 
   return (
-    <section aria-label="Your gameweek">
+    <section aria-label="Top performers">
       <div className={styles.sect}>
-        <h2 className={styles.sectT}>
-          {model.phase === 'closed' ? 'Your Season' : 'Your Gameweek'}
-        </h2>
-        <span className={styles.sectHint}>against the median for each position</span>
-        <NavigationLink
-          href={
-            model.fixture
-              ? `/league/${model.leagueId}/matchups/${model.fixture.matchupId}`
-              : `/league/${model.leagueId}/matchups`
-          }
-          className={styles.sectMore}
-        >
-          Full box score &rarr;
+        <h2 className={styles.sectT}>Top Performers</h2>
+        <span className={styles.sectHint}>gameweek {model.topPerformersGw}</span>
+        <NavigationLink href={`/league/${model.leagueId}/stats`} className={styles.sectMore}>
+          Full stats &rarr;
         </NavigationLink>
       </div>
       <div className={styles.yg}>
-        {model.yourGameweek.map((p) => (
+        {model.topPerformers.map((p) => (
           <div key={p.playerId} className={styles.ygRow}>
             <div className={styles.ygPlayer}>
               <PositionBadge position={p.position as GranularPosition} size="sm" />
@@ -345,35 +330,13 @@ export function YourGameweek({ model }: { model: HomeModel }) {
                 <div className={styles.ygClub}>{p.club}</div>
               </div>
             </div>
-            <div className={styles.baseline}>
-              <div className={styles.baselineTrack}>
-                <div
-                  className={styles.baselineInk}
-                  style={{
-                    width: `${p.inkPct}%`,
-                    background: `var(--color-pos-${p.position.toLowerCase()})`,
-                  }}
-                />
-                <div className={styles.baselineMedian} style={{ left: `${p.medianPct}%` }} />
-              </div>
-            </div>
+            <div className={styles.ygOwner}>{p.owner}</div>
             <div className={styles.ygVal}>
               <div className={styles.ygValV}>{p.points}</div>
-              <div className={styles.ygValL}>{p.ratingLabel}</div>
+              <div className={styles.ygValL}>pts</div>
             </div>
           </div>
         ))}
-        <div className={styles.ygKey}>
-          <span className={styles.ygKeyItem}>
-            <i className={styles.keyTick} /> Median for his position
-          </span>
-          <span className={styles.ygKeyItem}>
-            <i className={styles.keyInk} /> His rating this week
-          </span>
-          {model.yourGameweekNote && (
-            <span className={styles.ygKeyItem}>{model.yourGameweekNote}</span>
-          )}
-        </div>
       </div>
     </section>
   );

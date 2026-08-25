@@ -7,6 +7,7 @@ import CrestBadge from '@/components/crest/CrestBadge';
 import SquadPeekButton from '@/components/teams/SquadPeekButton';
 import PositionBadge from '@/components/players/PositionBadge';
 import Portrait from '@/components/players/Portrait';
+import { playerHoverProps, usePlayerCard } from '@/components/players/PlayerCardProvider';
 import { useTick, isClosing, formatAuctionClock } from './useTick';
 import { listingStance } from '@/lib/transfers/listingStance';
 import styles from './ListingCard.module.css';
@@ -69,6 +70,7 @@ export default function ListingCard({
   onOpenPlayer,
 }: ListingCardProps) {
   const player = listing.player;
+  const { prefetchPlayer } = usePlayerCard();
   const live = listing.status === 'active';
 
   // Only subscribe to the shared tick when this card actually shows a clock.
@@ -100,6 +102,7 @@ export default function ListingCard({
           type="button"
           className={styles.photoBtn}
           onClick={() => onOpenPlayer?.(player.id)}
+          {...playerHoverProps(prefetchPlayer, player)}
           aria-label={`Open ${player.name}`}
         >
           <Portrait
@@ -113,7 +116,7 @@ export default function ListingCard({
           />
         </button>
 
-        <div className={styles.identity}>
+        <div className={styles.identity} {...playerHoverProps(prefetchPlayer, player)}>
           <div className={`g-namerow ${styles.nameRow}`}>
             <PositionBadge position={player.primary_position as GranularPosition} size="sm" />
             <span className={styles.name}>{getPlayerDisplayName(player, 'initial_last')}</span>

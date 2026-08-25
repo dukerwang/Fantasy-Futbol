@@ -9,11 +9,15 @@
  * CRON_SECRET — no DB flag needed for a single-operator app).
  */
 
-function getAdminEmails(): string[] {
+export function getSiteAdminEmails(): string[] {
   return (process.env.ADMIN_EMAILS ?? '')
     .split(',')
     .map((e) => e.trim().toLowerCase())
     .filter(Boolean);
+}
+
+function getAdminEmails(): string[] {
+  return getSiteAdminEmails();
 }
 
 export function isSiteAdminEmail(email: string | null | undefined): boolean {

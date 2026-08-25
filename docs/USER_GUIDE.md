@@ -130,18 +130,23 @@ There are no points for turning up. Your score comes from the performance curve 
 
 | Displayed rating | Fantasy points |
 |---|---|
-| 5.5 | **0.00** |
-| 5.84 *(the payout threshold)* | **0.00** |
-| 6.0 | 0.44 |
-| 6.5 *(an average starter)* | 3.54 |
-| 7.0 | 8.18 |
-| 7.5 | 13.98 |
-| 8.0 | 20.71 |
-| 9.0 | 36.60 |
+| 5.5 *(the payout threshold)* | **0.00** |
+| 6.0 | 1.98 |
+| 6.5 *(an average starter)* | 5.59 |
+| 7.0 | 10.26 |
+| 7.5 | 15.80 |
+| 8.0 | 22.07 |
+| 9.0 | 36.58 |
 
-Two things follow. **A displayed rating of 5.84 or below scores exactly zero** — a below-par performance is worth nothing, not a small amount, and every game under that line is worth the same whether it rated 4.0 or 5.8. And the curve is steeply front-loaded: 7.0 → 8.0 gains you more than 6.0 → 7.0 did. One genuinely excellent performance outweighs several adequate ones, which is the intended shape. Gaffa rewards players who *decide* matches, not players who merely appear in them. Points never go negative; zero is the floor.
+Two things follow. **A displayed rating of 5.5 or below scores exactly zero** — a below-par performance is worth nothing, not a small amount, and every game under that line is worth the same whether it rated 4.0 or 5.4. And the curve is steeply front-loaded: 7.0 → 8.0 gains you more than 6.0 → 7.0 did. One genuinely excellent performance outweighs several adequate ones, which is the intended shape. Gaffa rewards players who *decide* matches, not players who merely appear in them. Points never go negative; zero is the floor.
 
 Goalkeepers run on exactly the same table, with no adjustment. A keeper is rated on how he kept, not on whether the defence held: the saves he made, and how the goals he conceded compare with the quality of the chances he faced. A clean sheet helps, but an untroubled one is worth far less than one he earned — and a keeper can rate highly in a defeat, which is how it should be.
+
+### The rare-feat bonus
+
+A hat-trick, three or more assists, or a handful of the season's most exceptional chance-creating performances carry a small bonus on top of what the curve above already pays them — usually **3 to 5 extra points**, growing further for something even rarer.
+
+**Why:** the curve already rewards two goals or two assists heavily, but two goals and three goals were landing within a fraction of a rating point of each other. By the time a player has two goals, almost every part of his rating — not just the goals themselves — is already near its ceiling, so a third goal has almost nowhere left to register. The bonus restores some of that separation for the rarest performances, without inflating the ordinary run of good games underneath it.
 
 ### The out-of-position penalty
 
@@ -153,7 +158,7 @@ If a player whose primary position is a midfield or attacking role (DM, CM, AM, 
 
 **My player started and played 90 minutes. Why did he score zero?**
 
-Because he was below par, and below par is worth nothing. Anything at or under a 5.84 displayed rating scores 0 — and everything below that line scores the same nothing, so a dreadful game and a merely poor one come to the same. This is the most common surprise in Gaffa and it's deliberate on both counts: appearing in a match isn't an achievement, so there are no participation points, and separating out degrees of poor would mean flattening the whole curve, which would take most of the meaning out of a genuinely big performance.
+Because he was below par, and below par is worth nothing. Anything at or under a 5.5 displayed rating scores 0 — and everything below that line scores the same nothing, so a dreadful game and a merely poor one come to the same. This is the most common surprise in Gaffa and it's deliberate on both counts: appearing in a match isn't an achievement, so there are no participation points, and separating out degrees of poor would mean flattening the whole curve, which would take most of the meaning out of a genuinely big performance.
 
 **Why did my centre-back outscore my striker?**
 
@@ -163,7 +168,7 @@ Because they're graded against different expectations. A centre-back who keeps a
 
 No. There's no minutes multiplier anywhere. A short appearance rates low only because it usually accumulates too little to beat the baseline.
 
-A substitute who *does* something is credited for it. A five-minute cameo with a goal in it rates about **7.8 and pays around 18 points**; the same five minutes with nothing in them pays about 1. Across last season, players who scored inside 25 minutes averaged a 7.95 rating and 20 points — comfortably ahead of the 6.82 and 8.6 that a full 90 minutes without a goal or assist returned. Impact counts, not time served.
+A substitute who *does* something is credited for it. A five-minute cameo with a goal in it rates about **7.8 and pays around 19 points**; the same five minutes with nothing in them pays about 2. Impact counts, not time served.
 
 **What about a double gameweek?**
 
@@ -372,13 +377,13 @@ Direct manager-to-manager deals. No commissioner approval, no trade deadline.
 
 Send a rostered player to another club **temporarily** — for **4 to 16 gameweeks**.
 
-- Either side can open the conversation: **propose** a loan out, or **request** one of theirs. Both sides must agree.
+- Either side can open the conversation: **propose** a loan out, or **request** one of theirs. Both sides must agree. Academy players can be loaned the same way.
 - If the player has already kicked off in a live gameweek, an accepted loan is **deferred** until that week finishes — same reason as trades.
 - Terms are an **upfront fee** and, optionally, a **performance bonus** paid per fantasy point the player scores while away, subject to a cap. Presets — Fixed Fee Only, Balanced, Performance-Heavy — or hand-adjust.
 - A **recall clause** lets the lender pull him back early for a flat penalty. The lender can instead pay a **slot buyback fee** (commonly **25**) to reclaim the roster spot without recalling the player.
 - The player counts toward the **borrowing** club's active roster while out.
 - **There are hard caps:** by default you may have only **1 player out on loan** and **2 in** at any time.
-- At expiry everything settles automatically: bonus paid, player returns to the lender's bench, both managers notified. If the lender's roster is full the return waits until space is made — nothing is auto-dropped on your behalf.
+- At expiry everything settles automatically: bonus paid, player returns to the **spot they left** — academy back to academy if they still qualify and a slot is free, otherwise **Reserves**. A returning player is never written into this week's XI or a matchday bench slot. If the lender's roster is full and they can't go back to academy, the return waits until space is made — nothing is auto-dropped on your behalf.
 
 **Why cap loans so tightly?** Without a cap, loans become a way to warehouse a squad you can't field — stash your surplus with a friend, reclaim it when useful. One out and two in keeps a loan what it should be: a specific deal about a specific player, not a second roster.
 
@@ -416,7 +421,7 @@ Note that a win and a loss together pay exactly the same as two draws, so the le
 
 ## 12. The Academy
 
-A stash — commonly **3 slots** — for **U21** players that you want to hold long-term without using an active roster spot.
+A stash — commonly **3 slots** — for **U21** players that you want to hold long-term without using an active roster spot. They can still be listed, traded, or loaned. A loan takes them off the academy for the spell; they come back there if they are still U21 and a slot is free.
 
 The catch: once an Academy player **turns 21** he no longer qualifies. Gaffa checks automatically and promotes him to your active bench if there's room. If your roster is full he stays parked until you make space — nothing is auto-dropped for you.
 

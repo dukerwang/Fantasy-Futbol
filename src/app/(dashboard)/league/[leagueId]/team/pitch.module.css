@@ -441,8 +441,10 @@
 
 .nodePortrait {
     /* The portrait brings its own lit ground, hairline and silhouette
-       drop-shadow, so this wrapper exists only to take the click. */
+       drop-shadow, so this wrapper exists to take the click and to
+       position the points badge against the photo. */
     display: block;
+    position: relative;
     flex-shrink: 0;
 }
 
@@ -498,11 +500,14 @@
  * a flat ink figure lost the pitch its only at-a-glance "who returned?"
  * answer, and for the source of these thresholds). Duplicated rather than
  * shared because these are two separate CSS modules; keep them in step if
- * the ramp is retuned. The class is applied by PitchUI's own `ptsBand()`. */
+ * the ramp is retuned. The class is applied by PitchUI's own `ptsBand()`.
+ *
+ * Anchored to the portrait (top-right of the frame).
+ * Keep in step with MatchupPitch.module.css's .chipPts. */
 .nodePtsBadge {
     position: absolute;
     top: -8px;
-    right: -8px;
+    right: -18px;
     font-family: var(--font-serif);
     font-size: var(--t-11);
     font-weight: 700;
@@ -539,13 +544,9 @@
     gap: var(--s1);
 }
 
-/* The pts badge and the portrait's club crest both hang out of flow past the
-   portrait/chip boundary (see .nodePtsBadge's top:-8px and .g-portrait-crest's
-   bottom:-7px in globals.css) — a corner flourish that costs nothing in
-   layout as long as nothing readable sits directly under it. It used to be
-   the player's name; MatchupPitch's chip never had this problem because its
-   badge row sits ABOVE the name in the flow, not below, so the float lands on
-   a small position pill instead of text. Same order here now. */
+/* The crest hangs off the portrait's lower-left (globals.css
+   .g-portrait-crest, bottom:-7px). That float lands on the position pill
+   rather than the name because the badge row is first in the chip. */
 .nodeMetaChipRow {
     order: -1;
 }
@@ -997,7 +998,7 @@
     }
     .nodeChipBody { padding: 3px var(--s1) var(--s1); gap: 2px; }
     .nodePlayerNameCenter { font-size: var(--t-10); }
-    .nodePtsBadge { font-size: var(--t-10); top: -6px; right: -5px; }
+    .nodePtsBadge { font-size: var(--t-10); top: -6px; right: -14px; }
     .pitchZones { padding: var(--s8) 0 var(--s3); }
     /* No aspect-ratio override needed here any more — .pitchField sizes to
        its content now, so the shorter mobile node (portrait stepped down to

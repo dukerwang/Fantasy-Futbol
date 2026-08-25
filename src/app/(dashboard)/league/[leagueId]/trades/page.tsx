@@ -102,14 +102,14 @@ export default async function TradesPage({ params, searchParams }: Props) {
   if (allTeamIds.length > 0) {
     const { data: dbEntries } = await (admin
       .from('roster_entries')
-      .select(`team_id, on_trade_block, player:players(${FULL_PLAYER_SELECT})`)
+      .select(`team_id, status, on_trade_block, player:players(${FULL_PLAYER_SELECT})`)
       .in('team_id', allTeamIds) as any);
     entries = dbEntries ?? [];
   }
 
   const { data: myRosterEntries } = await (admin
     .from('roster_entries')
-    .select(`on_trade_block, player:players(${FULL_PLAYER_SELECT})`)
+    .select(`status, on_trade_block, player:players(${FULL_PLAYER_SELECT})`)
     .eq('team_id', myTeam.id) as any);
 
   // Compute recent_ppg (last 10 gameweeks) for all players on the rosters
@@ -259,6 +259,7 @@ export default async function TradesPage({ params, searchParams }: Props) {
     if (p) {
       allRosters[e.team_id].push({
         ...p,
+        status: e.status,
         recent_ppg: recentPpgMap[p.id] ?? Math.max(3.0, p.ppg ?? 3.0),
         on_trade_block: e.on_trade_block,
         listing: playerListingsMap[p.id] ?? null
@@ -271,6 +272,7 @@ export default async function TradesPage({ params, searchParams }: Props) {
     if (!p) return null;
     return {
       ...p,
+      status: e.status,
       recent_ppg: recentPpgMap[p.id] ?? Math.max(3.0, p.ppg ?? 3.0),
       on_trade_block: e.on_trade_block,
       listing: playerListingsMap[p.id] ?? null

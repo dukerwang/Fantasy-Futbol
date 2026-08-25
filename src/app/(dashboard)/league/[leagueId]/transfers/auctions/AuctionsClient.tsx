@@ -8,7 +8,7 @@ import type { CrestConfig } from '@/components/crest/types';
 import CrestBadge from '@/components/crest/CrestBadge';
 import PositionBadge from '@/components/players/PositionBadge';
 import Portrait from '@/components/players/Portrait';
-import { usePlayerCard } from '@/components/players/PlayerCardProvider';
+import { playerHoverProps, usePlayerCard } from '@/components/players/PlayerCardProvider';
 import { getPlayerDisplayName } from '@/lib/players/displayName';
 import TransfersSubNav from '@/components/transfers/TransfersSubNav';
 import BidDialog, { type BidMode } from '@/components/transfers/BidDialog';
@@ -406,6 +406,7 @@ function Lot({
   sellerFloor: number | null;
 }) {
   const p = a.player;
+  const { prefetchPlayer } = usePlayerCard();
   if (!p) return null;
 
   const msLeft = a.expires_at ? new Date(a.expires_at).getTime() - now : 0;
@@ -432,7 +433,7 @@ function Lot({
     <>
       <div className={`${styles.lot} ${state} g-row`} style={hue}>
         <div className={styles.lotId}>
-          <button type="button" className={styles.lotFace} onClick={onOpenPlayer} aria-label={`Open ${fullName}`}>
+          <button type="button" className={styles.lotFace} onClick={onOpenPlayer} {...playerHoverProps(prefetchPlayer, p)} aria-label={`Open ${fullName}`}>
             <Portrait
               photoUrl={p.photo_url}
               name={fullName}
@@ -446,7 +447,7 @@ function Lot({
           <div className={styles.lotIdBody}>
             <div className={styles.lotNameRow}>
               <PositionBadge position={p.primary_position as GranularPosition} size="sm" />
-              <button type="button" className={styles.lotName} onClick={onOpenPlayer} title={fullName}>
+              <button type="button" className={styles.lotName} onClick={onOpenPlayer} {...playerHoverProps(prefetchPlayer, p)} title={fullName}>
                 {getPlayerDisplayName(p, 'initial_last')}
               </button>
             </div>

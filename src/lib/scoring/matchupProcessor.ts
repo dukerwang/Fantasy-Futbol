@@ -2,7 +2,7 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { calculateTeamScore, loadReferenceStats, type PlayerScoreRecord } from '@/lib/scoring/matchups';
 import { normalizeMatchupLineup } from '@/lib/lineups/normalizeMatchupLineup';
 import { getCurrentFplSeason, getLatestReferenceStatsSeason } from '@/lib/season/currentSeason';
-import { sendEmail } from '@/lib/email/client';
+import { sendEmailToUsers } from '@/lib/email/sendEmailToUsers';
 import { getMatchweekSummaryEmail } from '@/lib/email/templates';
 import { executeAdvanceTournament } from '@/lib/tournaments/advanceTournament';
 import { payMeritPeriod } from '@/lib/economy/payMeritPeriod';
@@ -421,28 +421,25 @@ export async function processMatchupsForGameweek(
                 
                 if (allTeams && allTeams.length > 0) {
                     const userIds = allTeams.map(t => t.user_id);
-                    const { data: users } = await admin.from('users').select('email').in('id', userIds);
-                    const emails = (users ?? []).map(u => u.email).filter(Boolean);
-
-                    if (emails.length > 0) {
-                        const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://gaffa.live';
-                        await sendEmail({
-                            to: emails,
-                            subject: `Monday Review: GW${gameweek} Summary - ${summary.name}`,
-                            html: getMatchweekSummaryEmail(
-                                summary.name,
-                                gameweek,
-                                summary.results,
-                                summary.highScorer,
-                                `${baseUrl}/league/${leagueId}/standings`
-                            )
-                        });
-                    }
+                    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://gaffa.live';
+                    await sendEmailToUsers(admin, {
+                        userIds,
+                        kind: 'matchdays',
+                        subject: `Monday Review: GW${gameweek} Summary - ${summary.name}`,
+                        html: getMatchweekSummaryEmail(
+                            summary.name,
+                            gameweek,
+                            summary.results,
+                            summary.highScorer,
+                            `${baseUrl}/league/${leagueId}/standings`
+                        ),
+                    });
 
                     // Create in-game notifications
                     const { createNotification } = await import('@/lib/notifications/createNotification');
                     for (const t of allTeams) {
                         await createNotification(admin, {
+                            kind: 'matchdays',
                             leagueId: leagueId,
                             userId: t.user_id,
                             title: `GW${gameweek} Results`,

@@ -121,6 +121,7 @@ export async function executeDrop(
                             recipients.map((recipient) =>
                                 recipient.user_id
                                     ? createNotification(admin, {
+                                          kind: 'club',
                                           leagueId: team.league_id,
                                           userId: recipient.user_id,
                                           title: 'Solidarity Paid',
@@ -182,6 +183,7 @@ export async function executeDrop(
                 const notice = droppedNotice(team, player.name, auctionExpiry);
                 for (const t of allTeams) {
                     await createNotification(admin, {
+                        kind: 'club',
                         leagueId: team.league_id,
                         userId: t.user_id,
                         ...notice,
@@ -216,43 +218,41 @@ export async function executeDrop(
                 .single();
             const rosterSize = league?.roster_size ?? 20;
 
-            const { count: activeCount } = await admin
-                .from('roster_entries')
-                .select('id', { count: 'exact', head: true })
-                .eq('team_id', teamId)
-                .not('status', 'in', '("ir","taxi","loan_in")');
+            const { data: placeRes, error: placeError } = await admin.rpc('place_returning_loanee', {
+                p_lender_team_id: teamId,
+                p_player_id: pendingLoan.player_id,
+                p_league_id: team.league_id,
+                p_origin_status: pendingLoan.origin_status ?? null,
+                p_roster_size: rosterSize,
+            });
 
-            if ((activeCount ?? 0) < rosterSize) {
-                // Return player to bench
-                await admin
-                    .from('roster_entries')
-                    .update({ status: 'bench' })
-                    .eq('team_id', teamId)
-                    .eq('player_id', pendingLoan.player_id)
-                    .eq('status', 'loan_out');
+            if (placeError) {
+                console.error('Failed to place returning loanee:', placeError);
+            } else {
+                const place = placeRes as { pending?: boolean; status?: string };
+                if (!place.pending) {
+                    const finalStatus = pendingLoan.recall_activated ? 'recalled' : 'expired';
+                    await admin
+                        .from('player_loans')
+                        .update({ status: finalStatus, updated_at: new Date().toISOString() })
+                        .eq('id', pendingLoan.id);
 
-                // Mark loan as expired / recalled
-                const finalStatus = pendingLoan.recall_activated ? 'recalled' : 'expired';
-                await admin
-                    .from('player_loans')
-                    .update({ status: finalStatus, updated_at: new Date().toISOString() })
-                    .eq('id', pendingLoan.id);
+                    const spot = place.status === 'taxi' ? 'academy' : 'reserves';
+                    const { createNotification } = await import('@/lib/notifications/createNotification');
+                    await createNotification(admin, {
+                        kind: 'club',
+                        leagueId: team.league_id,
+                        userId: team.user_id,
+                        title: 'Loan Activated',
+                        content: `Roster capacity restored. **${(pendingLoan.player as any)?.name}** has returned to your ${spot}.`,
+                        url: `/league/${team.league_id}/team`
+                    });
 
-                // Notify lender
-                const { createNotification } = await import('@/lib/notifications/createNotification');
-                await createNotification(admin, {
-                    leagueId: team.league_id,
-                    userId: team.user_id,
-                    title: 'Loan Activated',
-                    content: `Roster capacity restored. **${(pendingLoan.player as any)?.name}** has returned to your bench.`,
-                    url: `/league/${team.league_id}/team`
-                });
-
-                // Send a chat message
-                await admin.from('chat_messages').insert({
-                    league_id: team.league_id,
-                    message: `📢 [SYSTEM:ANNOUNCEMENT] Returned loan activated! **${(pendingLoan.player as any)?.name}** has returned to the bench of **${team.team_name}**.`,
-                });
+                    await admin.from('chat_messages').insert({
+                        league_id: team.league_id,
+                        message: `📢 [SYSTEM:ANNOUNCEMENT] Returned loan activated! **${(pendingLoan.player as any)?.name}** has returned to the ${spot} of **${team.team_name}**.`,
+                    });
+                }
             }
         }
     } catch (err) {

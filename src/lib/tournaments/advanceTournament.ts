@@ -286,6 +286,7 @@ export async function executeAdvanceTournament(
           const { createNotification } = await import('@/lib/notifications/createNotification');
           if (winnerTeam) {
             await createNotification(admin, {
+              kind: 'matchdays',
               leagueId: tournament.league_id,
               userId: winnerTeam.user_id,
               title: isFinal ? 'Cup Won!' : 'Cup Win',
@@ -297,6 +298,7 @@ export async function executeAdvanceTournament(
           }
           if (loserTeam) {
             await createNotification(admin, {
+              kind: 'matchdays',
               leagueId: tournament.league_id,
               userId: loserTeam.user_id,
               title: 'Cup Elimination',

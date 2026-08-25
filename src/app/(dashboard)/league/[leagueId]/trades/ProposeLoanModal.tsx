@@ -87,7 +87,7 @@ export default function ProposeLoanModal({
   }, [selectedPlayer, duration]);
 
   const eligiblePlayers = myRoster.filter(
-    (p) => !['ir', 'taxi', 'loan_in', 'loan_out'].includes(p.status)
+    (p) => !['ir', 'loan_in', 'loan_out'].includes(p.status)
   );
 
   // ─── Loan Calculations ───────────────────────────────────────────────────
@@ -274,10 +274,10 @@ export default function ProposeLoanModal({
         {!selectedPlayer ? (
           <>
             <p className={styles.modalHint}>
-              Select an active roster player to loan out to another club.
+              Select a squad or academy player to loan out to another club.
             </p>
             {eligiblePlayers.length === 0 ? (
-              <p className={styles.modalEmpty}>No active roster players are eligible to be loaned out.</p>
+              <p className={styles.modalEmpty}>No players are eligible to be loaned out.</p>
             ) : (
               <div className={styles.blockToggleList}>
                 {eligiblePlayers.map((p) => (
@@ -292,6 +292,7 @@ export default function ProposeLoanModal({
                       <div className={styles.blockToggleInfo}>
                         <span className={styles.blockToggleName}>{getPlayerDisplayName(p, 'initial_last')}</span>
                         <span className={styles.blockToggleClub}>
+                          {p.status === 'taxi' ? 'Academy · ' : ''}
                           {p.pl_team ?? ''}
                           {p.market_value ? ` · €${p.market_value.toFixed(1)}m` : ''}
                           {p.ppg ? ` · ${p.ppg.toFixed(2)} PPG` : ''}

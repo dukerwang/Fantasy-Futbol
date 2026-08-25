@@ -15,7 +15,7 @@
  */
 
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { sendEmail } from '@/lib/email/client';
+import { sendEmailToUsers } from '@/lib/email/sendEmailToUsers';
 import { getSystemAuctionsEmail } from '@/lib/email/templates';
 import { previewRelegationCompensation, processRelegationCompensation } from '@/lib/offseason/relegationHandler';
 import { syncPlayersFromFpl } from '@/lib/players/syncPlayers';
@@ -323,22 +323,19 @@ export async function runSeasonKickoff(admin: SupabaseClient, leagueId: string):
     const { data: allTeams } = await admin.from('teams').select('id, user_id').eq('league_id', leagueId);
     if (allTeams && allTeams.length > 0) {
       const userIds = allTeams.map((t) => t.user_id);
-      const { data: users } = await admin.from('users').select('email').in('id', userIds);
-      const emails = (users ?? []).map((u) => u.email).filter(Boolean);
-
-      if (emails.length > 0) {
-        const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://gaffa.live';
-        const playerInfo = playersToAuction.map((p) => ({ name: p.name, value: p.marketValue }));
-        await sendEmail({
-          to: emails,
-          subject: buildAuctionSubject(playerInfo, 'The Season Has Begun!'),
-          html: getSystemAuctionsEmail(playerInfo, true, `${baseUrl}/league/${leagueId}`, AUCTION_THRESHOLD),
-        });
-      }
+      const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://gaffa.live';
+      const playerInfo = playersToAuction.map((p) => ({ name: p.name, value: p.marketValue }));
+      await sendEmailToUsers(admin, {
+        userIds,
+        kind: 'club',
+        subject: buildAuctionSubject(playerInfo, 'The Season Has Begun!'),
+        html: getSystemAuctionsEmail(playerInfo, true, `${baseUrl}/league/${leagueId}`, AUCTION_THRESHOLD),
+      });
 
       const featuredNotice = buildFeaturedNotice(playersToAuction.map((p) => ({ name: p.name, value: p.marketValue })));
       for (const t of allTeams) {
         await createNotification(admin, {
+          kind: 'club',
           leagueId,
           userId: t.user_id,
           title: 'Season started',
@@ -355,6 +352,7 @@ export async function runSeasonKickoff(admin: SupabaseClient, leagueId: string):
           const userId = userIdByTeamId.get(affected.teamId);
           if (userId) {
             await createNotification(admin, {
+              kind: 'club',
               leagueId,
               userId,
               title: 'Relegation Paid',

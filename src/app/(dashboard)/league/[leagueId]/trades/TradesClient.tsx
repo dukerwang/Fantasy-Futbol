@@ -3,7 +3,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import NavigationLink from '@/components/ui/NavigationLink';
 import PositionBadge from '@/components/players/PositionBadge';
-import { usePlayerCard } from '@/components/players/PlayerCardProvider';
+import { playerHoverProps, usePlayerCard } from '@/components/players/PlayerCardProvider';
 import { Icon } from '@/components/ui/Icon';
 import ListPlayerModal from './ListPlayerModal';
 import ProposeLoanModal from './ProposeLoanModal';
@@ -572,7 +572,7 @@ export default function TradesClient({
                               <PositionBadge position={p.primary_position as any} size="sm" />
                               <span
                                 onClick={(e) => { e.stopPropagation(); setViewingPlayer(p); }}
-                                onPointerEnter={() => prefetchPlayer(p as { id: string })}
+                                {...playerHoverProps(prefetchPlayer, p)}
                                 className={styles.tradePlayerNameLink}
                               >
                                 {playerDisplayName(p)}
@@ -612,7 +612,7 @@ export default function TradesClient({
                               <PositionBadge position={p.primary_position as any} size="sm" />
                               <span
                                 onClick={(e) => { e.stopPropagation(); setViewingPlayer(p); }}
-                                onPointerEnter={() => prefetchPlayer(p as { id: string })}
+                                {...playerHoverProps(prefetchPlayer, p)}
                                 className={styles.tradePlayerNameLink}
                               >
                                 {playerDisplayName(p)}
@@ -1262,6 +1262,7 @@ export interface TradeCardProps {
 }
 
 export function TradeCard({ trade, myTeamId, playerMap, onAction, onCounter, onViewPlayer, error, loading }: TradeCardProps) {
+  const { prefetchPlayer } = usePlayerCard();
   const isProposer = trade.team_a_id === myTeamId;
   const teamAName = (trade.team_a as any)?.team_name ?? 'Team A';
   const teamBName = (trade.team_b as any)?.team_name ?? 'Team B';
@@ -1290,7 +1291,11 @@ export function TradeCard({ trade, myTeamId, playerMap, onAction, onCounter, onV
       <div key={id} className={styles.tcPlayerRow}>
         <span className={styles.tcPosDot} style={{ background: positionColor(p.primary_position) }} />
         <div className={styles.tcPlayerInfo}>
-          <button className={styles.tcPlayerName} onClick={() => onViewPlayer?.(p)}>
+          <button
+            className={styles.tcPlayerName}
+            onClick={() => onViewPlayer?.(p)}
+            {...playerHoverProps(prefetchPlayer, p)}
+          >
             {getPlayerDisplayName(p, 'initial_last')}
           </button>
           <span className={styles.tcPlayerClub}>{p.pl_team}{p.primary_position ? ` · ${p.primary_position}` : ''}</span>
@@ -1426,6 +1431,7 @@ function LoanCard({
   loading: boolean;
   buybackFee: number;
 }) {
+  const { prefetchPlayer } = usePlayerCard();
   const isLender = loan.lender_team_id === myTeamId;
   const isBorrower = loan.borrower_team_id === myTeamId;
   const proposedBy = loan.proposed_by ?? 'lender';
@@ -1486,6 +1492,7 @@ function LoanCard({
             {p ? (
               <button
                 onClick={() => onViewPlayer(p)}
+                {...playerHoverProps(prefetchPlayer, p)}
                 style={{ background: 'none', border: 'none', padding: 0, font: 'inherit', color: 'inherit', cursor: 'pointer', textDecoration: 'underline', textAlign: 'left' }}
               >
                 {getPlayerDisplayName(p, 'full')}
@@ -1641,6 +1648,7 @@ function ListingCard({
   onCancelListing: () => void;
   onViewPlayer: (player: any) => void;
 }) {
+  const { prefetchPlayer } = usePlayerCard();
   const p = listing.player;
   const isPending = listing.status === 'pending';
   const isLive = listing.status === 'active';
@@ -1711,7 +1719,12 @@ function ListingCard({
         )}
         <div className={styles.tbCardInfo}>
           <div className={styles.tbCardInfoTop}>
-            <span className={styles.tbPlayerName} style={{ cursor: 'pointer' }} onClick={() => onViewPlayer(p)}>
+            <span
+              className={styles.tbPlayerName}
+              style={{ cursor: 'pointer' }}
+              onClick={() => onViewPlayer(p)}
+              {...playerHoverProps(prefetchPlayer, p)}
+            >
               {getPlayerDisplayName(p, 'initial_last')}
             </span>
             <div className={styles.tbValueBlock}>

@@ -1,9 +1,11 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { sendPushToUser } from '@/lib/push/sendPush';
+import { wantsChannel, type NotificationKind } from '@/lib/notifications/prefs';
 
 interface CreateNotificationParams {
   leagueId: string;
   userId: string;
+  kind: NotificationKind;
   title: string;
   content: string;
   url?: string;
@@ -28,12 +30,15 @@ interface CreateNotificationParams {
  * and fans it out as a push notification to any devices they've subscribed —
  * every trigger site in the app goes through this one function, so push
  * doesn't need its own call sites.
+ *
+ * In-game mail always writes. Push respects `kind` against the user's
+ * notification_prefs (and still no-ops if they have no subscription).
  */
 export async function createNotification(
   admin: SupabaseClient,
   params: CreateNotificationParams
 ): Promise<void> {
-  const { leagueId, userId, title, content, url, pushTitle, pushBody, tag } = params;
+  const { leagueId, userId, kind, title, content, url, pushTitle, pushBody, tag } = params;
 
   try {
     const { error } = await admin
@@ -55,6 +60,14 @@ export async function createNotification(
   }
 
   try {
+    const { data: row } = await admin
+      .from('users')
+      .select('notification_prefs')
+      .eq('id', userId)
+      .maybeSingle();
+
+    if (!wantsChannel(row?.notification_prefs, kind, 'push')) return;
+
     await sendPushToUser(admin, userId, { title: pushTitle ?? title, body: pushBody ?? content, url, tag });
   } catch (err) {
     console.error('[createNotification] Push send failed:', err);

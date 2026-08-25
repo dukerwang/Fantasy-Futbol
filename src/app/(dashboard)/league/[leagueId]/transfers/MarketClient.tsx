@@ -10,7 +10,7 @@ import type {
   TransfersModel,
 } from '@/lib/transfers/buildTransfersModel';
 import { buildWire, WIRE_COLORS, WIRE_HOLLOW } from '@/lib/transfers/buildWire';
-import { usePlayerCard } from '@/components/players/PlayerCardProvider';
+import { playerHoverProps, usePlayerCard } from '@/components/players/PlayerCardProvider';
 import PositionBadge from '@/components/players/PositionBadge';
 import CrestBadge from '@/components/crest/CrestBadge';
 import type { CrestConfig } from '@/components/crest/types';
@@ -45,7 +45,7 @@ export default function MarketClient({
 }) {
   const router = useRouter();
   const model = useLiveTransfers(leagueId, initial);
-  const { openPlayer, primePlayers } = usePlayerCard();
+  const { openPlayer, prefetchPlayer, primePlayers } = usePlayerCard();
 
   const [bid, setBid] = useState<{ auction: TransfersAuction; mode: BidMode } | null>(null);
   const [propose, setPropose] = useState<{ listing: TransfersListing; mode: ProposeMode } | null>(null);
@@ -218,6 +218,7 @@ export default function MarketClient({
                         type="button"
                         className={styles.closingName}
                         onClick={() => a.player && openPlayer(a.player as unknown as Player)}
+                        {...(a.player ? playerHoverProps(prefetchPlayer, a.player) : {})}
                       >
                         {a.player ? getPlayerDisplayName(a.player, 'initial_last') : ''}
                       </button>

@@ -9,7 +9,7 @@
  * this must be called from every place that can be the one to resolve it.
  */
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { sendEmail } from '@/lib/email/client';
+import { sendEmailToUsers } from '@/lib/email/sendEmailToUsers';
 import { getAuctionWonEmail, getPlayerSoldEmail } from '@/lib/email/templates';
 import { createNotification } from '@/lib/notifications/createNotification';
 import { buildHereWeGo, pushTitleForEyebrow } from '@/lib/notifications/hereWeGo';
@@ -88,27 +88,23 @@ export async function notifyAuctionResolution(
     const tierValue = Math.max(winnerBid, Number(playerMarketValue ?? 0));
 
     const userIds = (leagueTeams ?? []).map((t) => t.user_id);
-    const { data: users } = await admin.from('users').select('email').in('id', userIds);
-    const leagueEmails = (users ?? []).map((u) => u.email).filter(Boolean);
-
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://gaffa.live';
 
-    if (leagueEmails.length > 0) {
-      await sendEmail({
-        to: leagueEmails,
-        subject: `${playerName} to ${winnerTeamName ?? 'a club'} for €${winnerBid}m`,
-        html: getAuctionWonEmail(
-          playerName,
-          winnerTeamName ?? 'Unknown Club',
-          winnerBid,
-          tierValue,
-          bidderCount,
-          dropPlayerName || null,
-          droppedByClub,
-          `${baseUrl}/league/${leagueId}`,
-        ),
-      });
-    }
+    await sendEmailToUsers(admin, {
+      userIds,
+      kind: 'auctions',
+      subject: `${playerName} to ${winnerTeamName ?? 'a club'} for €${winnerBid}m`,
+      html: getAuctionWonEmail(
+        playerName,
+        winnerTeamName ?? 'Unknown Club',
+        winnerBid,
+        tierValue,
+        bidderCount,
+        dropPlayerName || null,
+        droppedByClub,
+        `${baseUrl}/league/${leagueId}`,
+      ),
+    });
 
     const winDetailMd = `**${playerName}** to **${winnerTeamName ?? 'Unknown Club'}** for €${winnerBid}m`;
     const { eyebrow, lead } = buildHereWeGo('signing', winDetailMd, tierValue);
@@ -116,6 +112,7 @@ export async function notifyAuctionResolution(
     // 1. Notify the winner
     if (winnerUserId) {
       await createNotification(admin, {
+        kind: 'auctions',
         leagueId,
         userId: winnerUserId,
         title: eyebrow || 'Auction Won!',
@@ -139,6 +136,7 @@ export async function notifyAuctionResolution(
     // the winner announcement does.
     if (resData.scout_team_id && resData.scout_user_id && resData.scout_amount) {
       await createNotification(admin, {
+        kind: 'auctions',
         leagueId,
         userId: resData.scout_user_id,
         title: 'Scout Fee',
@@ -155,6 +153,7 @@ export async function notifyAuctionResolution(
         solidarityRecipients.map(async (recipient) => {
           if (!recipient.user_id) return;
           await createNotification(admin, {
+            kind: 'auctions',
             leagueId,
             userId: recipient.user_id,
             title: 'Solidarity Paid',
@@ -177,6 +176,7 @@ export async function notifyAuctionResolution(
         const sellDetailMd = `**${playerName}** to **${winnerTeamName}** for €${winnerBid}m`;
         const sellLine = buildHereWeGo('signing', sellDetailMd, tierValue);
         await createNotification(admin, {
+          kind: 'auctions',
           leagueId,
           userId: sellerTeam.user_id,
           title: sellLine.eyebrow || 'Player Sold!',
@@ -185,15 +185,10 @@ export async function notifyAuctionResolution(
           url: `/league/${leagueId}/team`,
         });
 
-        const { data: sellerUser } = await admin
-          .from('users')
-          .select('email')
-          .eq('id', sellerTeam.user_id)
-          .single();
-
-        if (sellerUser?.email) {
-          await sendEmail({
-            to: [sellerUser.email],
+        if (sellerTeam.user_id) {
+          await sendEmailToUsers(admin, {
+            userIds: [sellerTeam.user_id],
+            kind: 'auctions',
             subject: `${playerName} sold to ${winnerTeamName ?? 'another club'} for €${winnerBid}m`,
             html: getPlayerSoldEmail(playerName, winnerTeamName ?? 'Another club', winnerBid, tierValue, `${baseUrl}/league/${leagueId}`),
           });
@@ -212,6 +207,7 @@ export async function notifyAuctionResolution(
         if (loser.user_id) {
           const notice = auctionLostNotice(winnerClub, playerName, winnerBid, loser.faab_bid);
           await createNotification(admin, {
+            kind: 'auctions',
             leagueId,
             userId: loser.user_id,
             ...notice,

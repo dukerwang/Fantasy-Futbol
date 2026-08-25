@@ -20,11 +20,13 @@ import styles from './matchups.module.css';
  * the whole device, and it is what this is now.
  */
 export default function RoundLead({ summaryText }: { summaryText: string }) {
-  const { openPlayerById: handlePlayerClick } = usePlayerCard();
+  const { openPlayerById, prefetchPlayer } = usePlayerCard();
+  const handlePlayerClick = (id: string) => openPlayerById(id);
+  const handlePlayerPrefetch = (id: string) => prefetchPlayer({ id });
 
   return (
     <p className={styles.lead}>
-      {renderBoldedText(summaryText, handlePlayerClick)}
+      {renderBoldedText(summaryText, handlePlayerClick, handlePlayerPrefetch)}
     </p>
   );
 }

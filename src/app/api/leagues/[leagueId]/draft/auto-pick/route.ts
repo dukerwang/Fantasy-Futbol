@@ -91,6 +91,7 @@ export async function POST(_req: NextRequest, { params }: Props) {
       if (nextTeam?.user_id) {
         const { createNotification } = await import('@/lib/notifications/createNotification');
         await createNotification(admin, {
+          kind: 'club',
           leagueId,
           userId: nextTeam.user_id,
           title: 'On the Clock',

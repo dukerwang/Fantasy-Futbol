@@ -91,6 +91,7 @@ export async function POST(req: NextRequest, { params }: Props) {
     try {
       const { createNotification } = await import('@/lib/notifications/createNotification');
       await createNotification(admin, {
+        kind: 'club',
         leagueId,
         userId: result.next_team_user_id,
         title: 'On the Clock',

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
-import { sendEmail } from '@/lib/email/client';
+import { sendEmailToUsers } from '@/lib/email/sendEmailToUsers';
 import { getTradeAcceptedEmail } from '@/lib/email/templates';
 import { buildHereWeGo, formatAssetList, pushTitleForEyebrow } from '@/lib/notifications/hereWeGo';
 import { getValueTier } from '@/lib/notifications/valueTiers';
@@ -56,6 +56,7 @@ export async function POST(req: NextRequest, { params }: Props) {
     try {
       const { createNotification } = await import('@/lib/notifications/createNotification');
       await createNotification(admin, {
+        kind: 'deals',
         leagueId,
         userId: teamB.user_id,
         title: 'Trade Withdrawn',
@@ -78,6 +79,7 @@ export async function POST(req: NextRequest, { params }: Props) {
     try {
       const { createNotification } = await import('@/lib/notifications/createNotification');
       await createNotification(admin, {
+        kind: 'deals',
         leagueId,
         userId: teamA.user_id,
         title: 'Trade Rejected',
@@ -226,28 +228,24 @@ export async function POST(req: NextRequest, { params }: Props) {
       const { data: allTeams } = await admin.from('teams').select('user_id').eq('league_id', leagueId);
       if (allTeams && allTeams.length > 0) {
         const userIds = allTeams.map(t => t.user_id);
-        const { data: users } = await admin.from('users').select('email').in('id', userIds);
-        const emails = (users ?? []).map(u => u.email).filter(Boolean);
-
-        if (emails.length > 0) {
-          const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://gaffa.live';
-          await sendEmail({
-            to: emails,
-            subject: `${dealSubject} (Pending Gameweek Completion)`,
-            html: getTradeAcceptedEmail({
-              isListingSale,
-              teamA: teamA.team_name,
-              teamB: teamB.team_name,
-              playerName: soldPlayerName,
-              dealAmount,
-              offeredAssets: offeredAssetsPlain,
-              requestedAssets: requestedAssetsPlain,
-              tierValue,
-              pending: true,
-              leagueUrl: `${baseUrl}/league/${leagueId}`,
-            })
-          });
-        }
+        const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://gaffa.live';
+        await sendEmailToUsers(admin, {
+          userIds,
+          kind: 'deals',
+          subject: `${dealSubject} (Pending Gameweek Completion)`,
+          html: getTradeAcceptedEmail({
+            isListingSale,
+            teamA: teamA.team_name,
+            teamB: teamB.team_name,
+            playerName: soldPlayerName,
+            dealAmount,
+            offeredAssets: offeredAssetsPlain,
+            requestedAssets: requestedAssetsPlain,
+            tierValue,
+            pending: true,
+            leagueUrl: `${baseUrl}/league/${leagueId}`,
+          }),
+        });
       }
 
       const detailMd = isListingSale
@@ -298,29 +296,25 @@ export async function POST(req: NextRequest, { params }: Props) {
     const { data: allTeams } = await admin.from('teams').select('user_id').eq('league_id', leagueId);
     if (allTeams && allTeams.length > 0) {
       const userIds = allTeams.map(t => t.user_id);
-      const { data: users } = await admin.from('users').select('email').in('id', userIds);
-      const emails = (users ?? []).map(u => u.email).filter(Boolean);
-
       const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://gaffa.live';
 
-      if (emails.length > 0) {
-        await sendEmail({
-          to: emails,
-          subject: dealSubject,
-          html: getTradeAcceptedEmail({
-            isListingSale,
-            teamA: teamA.team_name,
-            teamB: teamB.team_name,
-            playerName: soldPlayerName,
-            dealAmount,
-            offeredAssets: offeredAssetsPlain,
-            requestedAssets: requestedAssetsPlain,
-            tierValue,
-            pending: false,
-            leagueUrl: `${baseUrl}/league/${leagueId}`,
-          })
-        });
-      }
+      await sendEmailToUsers(admin, {
+        userIds,
+        kind: 'deals',
+        subject: dealSubject,
+        html: getTradeAcceptedEmail({
+          isListingSale,
+          teamA: teamA.team_name,
+          teamB: teamB.team_name,
+          playerName: soldPlayerName,
+          dealAmount,
+          offeredAssets: offeredAssetsPlain,
+          requestedAssets: requestedAssetsPlain,
+          tierValue,
+          pending: false,
+          leagueUrl: `${baseUrl}/league/${leagueId}`,
+        }),
+      });
 
       const detailMd = isListingSale
         ? `**${soldPlayerName}** to **${teamA.team_name}** for €${dealAmount}m`
@@ -332,6 +326,7 @@ export async function POST(req: NextRequest, { params }: Props) {
       const { createNotification } = await import('@/lib/notifications/createNotification');
       for (const t of allTeams) {
         await createNotification(admin, {
+          kind: 'deals',
           leagueId,
           userId: t.user_id,
           title: eyebrow || (isListingSale ? 'Signing Confirmed' : 'Trade Completed'),

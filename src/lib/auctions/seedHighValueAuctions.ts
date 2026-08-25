@@ -19,7 +19,7 @@
 
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { findPromotedClubsAndArrivals, AUCTION_THRESHOLD } from '@/lib/offseason/seasonKickoff';
-import { sendEmail } from '@/lib/email/client';
+import { sendEmailToUsers } from '@/lib/email/sendEmailToUsers';
 import { getSystemAuctionsEmail } from '@/lib/email/templates';
 import { createNotification } from '@/lib/notifications/createNotification';
 import { buildAuctionSubject, buildFeaturedNotice } from '@/lib/notifications/valueTiers';
@@ -126,24 +126,21 @@ async function notifyLeague(
     if (!allTeams || allTeams.length === 0) return;
 
     const userIds = allTeams.map((t) => t.user_id);
-    const { data: users } = await admin.from('users').select('email').in('id', userIds);
-    const emails = (users ?? []).map((u) => u.email).filter(Boolean);
-
-    if (emails.length > 0) {
-      const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://gaffa.live';
-      const playerInfo = candidates.map((p) => ({ name: p.name, value: p.marketValue }));
-      await sendEmail({
-        to: emails,
-        subject: buildAuctionSubject(playerInfo, 'Transfer Window Alert: New Players on the Market'),
-        html: getSystemAuctionsEmail(playerInfo, false, `${baseUrl}/league/${leagueId}`, AUCTION_THRESHOLD),
-      });
-    }
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://gaffa.live';
+    const playerInfo = candidates.map((p) => ({ name: p.name, value: p.marketValue }));
+    await sendEmailToUsers(admin, {
+      userIds,
+      kind: 'auctions',
+      subject: buildAuctionSubject(playerInfo, 'Transfer Window Alert: New Players on the Market'),
+      html: getSystemAuctionsEmail(playerInfo, false, `${baseUrl}/league/${leagueId}`, AUCTION_THRESHOLD),
+    });
 
     const featuredNotice = buildFeaturedNotice(candidates.map((c) => ({ name: c.name, value: c.marketValue })));
     const left = timeLeft(expiresAt);
     const clock = left ? ` Auctions open — ${left} to bid.` : ' Auctions are open.';
     for (const t of allTeams) {
       await createNotification(admin, {
+        kind: 'auctions',
         leagueId,
         userId: t.user_id,
         title: 'New arrivals',

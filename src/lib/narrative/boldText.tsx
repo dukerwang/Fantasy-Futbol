@@ -7,7 +7,8 @@ import React from 'react';
  */
 export function renderBoldedText(
   text: string,
-  onPlayerClick?: (playerId: string) => void
+  onPlayerClick?: (playerId: string) => void,
+  onPlayerPrefetch?: (playerId: string) => void,
 ) {
   if (!text) return null;
   const parts = text.split(/\*\*(.*?)\*\*/g);
@@ -20,7 +21,10 @@ export function renderBoldedText(
             return (
               <button
                 key={i}
+                type="button"
                 onClick={() => onPlayerClick(playerId)}
+                onPointerEnter={onPlayerPrefetch ? () => onPlayerPrefetch(playerId) : undefined}
+                onFocus={onPlayerPrefetch ? () => onPlayerPrefetch(playerId) : undefined}
                 className="playercard-clickable-btn"
               >
                 {displayName}

@@ -133,6 +133,7 @@ export async function POST(req: NextRequest, { params }: Props) {
     penalty?: number;
     bonus_paid?: number;
     bonus_forgiven?: number;
+    returned_to?: string;
   };
 
   if (!resData.success) {
@@ -152,6 +153,7 @@ export async function POST(req: NextRequest, { params }: Props) {
       
       // Notify borrower
       await createNotification(admin, {
+        kind: 'deals',
         leagueId,
         userId: borrowerTeam.user_id,
         title: 'Loan Recalled',
@@ -169,10 +171,20 @@ export async function POST(req: NextRequest, { params }: Props) {
       // Notify lender about pending activation if applicable
       if (resData.pending_activation) {
         await createNotification(admin, {
+          kind: 'deals',
           leagueId,
           userId: user.id,
           title: 'Roster Full',
           content: `**${player.name}** has returned from loan but your roster is full. Please drop a player to activate them.`,
+          url: `/league/${leagueId}/team`
+        });
+      } else if (resData.returned_to === 'taxi') {
+        await createNotification(admin, {
+          kind: 'deals',
+          leagueId,
+          userId: user.id,
+          title: 'Loan Recalled',
+          content: `**${player.name}** is back in your academy.`,
           url: `/league/${leagueId}/team`
         });
       }

@@ -1,0 +1,102 @@
+'use client';
+
+import type { PerfBand, PerfGroup } from '@/lib/scoring/perfBand';
+import styles from './PerformanceBlock.module.css';
+
+/**
+ * The performance block — what a manager is told about a match.
+ *
+ * Four display groups (three for a keeper) over the engine's eight components,
+ * BANDED rather than numbered, with the public raw evidence carrying the
+ * detail. See src/lib/scoring/perfBand.ts for the disclosure rule this exists
+ * to enforce, and the `Gaffa 2.0 Performance Block` doc in the Claude Design
+ * system project for the derivation.
+ *
+ * Takes groups already banded by the server. It receives no scores and cannot
+ * render one.
+ */
+
+const BAND_CLASS: Record<PerfBand, string> = {
+    poor: styles.bPoor,
+    low: styles.bLow,
+    mid: styles.bMid,
+    good: styles.bGood,
+    best: styles.bBest,
+    feat: styles.bFeat,
+    feat2: styles.bFeat2,
+};
+
+/** Four-point star. currentColor, so it takes the row's band. Never an emoji. */
+function FeatMark() {
+    return (
+        <svg className={styles.mark} viewBox="0 0 12 12" aria-hidden="true">
+            <path d="M6 0 L7.35 4.65 L12 6 L7.35 7.35 L6 12 L4.65 7.35 L0 6 L4.65 4.65 Z" />
+        </svg>
+    );
+}
+
+export interface PerformanceBlockProps {
+    groups: PerfGroup[];
+    /** e.g. "Centre line is the median for a centre-back". Omit to hide. */
+    note?: string;
+    /** Rank anchors, by group key. Only supply them ABOVE the median — below it
+     *  they say nothing the band has not, and "bottom 40%" is unpleasant
+     *  without being actionable. */
+    ranks?: Partial<Record<PerfGroup['key'], string>>;
+}
+
+export default function PerformanceBlock({ groups, note, ranks }: PerformanceBlockProps) {
+    if (!groups.length) return null;
+
+    return (
+        <div className={styles.ramp}>
+            <div className={styles.block}>
+                {/* Under 200px the rows give way to this. */}
+                <div className={styles.signature} aria-hidden="true">
+                    {groups.map((g) => (
+                        <i
+                            key={g.key}
+                            className={BAND_CLASS[g.band]}
+                            style={{ height: `${Math.round(3 + (g.width / 100) * 13)}px` }}
+                        />
+                    ))}
+                </div>
+
+                <div className={styles.rows}>
+                    {groups.map((g) => {
+                        const isFeat = g.band === 'feat' || g.band === 'feat2';
+                        const rank = ranks?.[g.key];
+                        return (
+                            <div
+                                key={g.key}
+                                className={`${styles.row} ${BAND_CLASS[g.band]} ${g.width < 50 ? styles.under : ''}`}
+                            >
+                                <span className={styles.label}>{g.label}</span>
+                                <div className={styles.track}>
+                                    <div className={`g-track ${styles.bar}`}>
+                                        <div
+                                            className={styles.ink}
+                                            style={{ ['--v' as string]: `${g.width}%` }}
+                                        />
+                                    </div>
+                                    <div className={styles.tick} />
+                                </div>
+                                <span className={styles.verdict}>
+                                    {isFeat && <FeatMark />}
+                                    {g.verdict}
+                                </span>
+                                {(g.evidence || rank) && (
+                                    <div className={styles.foot}>
+                                        <p className={styles.evidence}>{g.evidence}</p>
+                                        {rank && <span className={styles.rank}>{rank}</span>}
+                                    </div>
+                                )}
+                            </div>
+                        );
+                    })}
+                </div>
+            </div>
+            {note && <p className={styles.note}>{note}</p>}
+        </div>
+    );
+}

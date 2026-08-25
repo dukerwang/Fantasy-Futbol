@@ -1,8 +1,8 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { CrestConfig } from '@/components/crest/types';
-import type { GranularPosition } from '@/types';
+import type { GranularPosition, Player } from '@/types';
 import type {
   RosterPlayer,
   TransfersListing,
@@ -104,7 +104,9 @@ const MODES: { key: ProposeMode; label: string }[] = [
 
 const LOAN_MIN_DURATION = 4;
 const LOAN_MAX_DURATION = 16;
-const NOT_LOANABLE_STATUSES = new Set(['ir', 'taxi', 'loan_in', 'loan_out']);
+// Academy (taxi) is a stash, not a lock — those players can be loaned.
+// IR and players already on a loan cannot.
+const NOT_LOANABLE_STATUSES = new Set(['ir', 'loan_in', 'loan_out']);
 
 export default function ProposeBuilder({
   open,
@@ -135,7 +137,11 @@ export default function ProposeBuilder({
     [model.allTeams, model.myTeam.id],
   );
 
-  const { openPlayerById, prefetchPlayer } = usePlayerCard();
+  const { openPlayer, prefetchPlayer, primePlayers } = usePlayerCard();
+  useEffect(() => {
+    const rows = Object.values(model.playerMap) as unknown as Player[];
+    if (rows.length) primePlayers(rows);
+  }, [model.playerMap, primePlayers]);
 
   const [mode, setMode] = useState<ProposeMode>(initialMode);
   const [targetId, setTargetId] = useState<string>(initialTeamId ?? others[0]?.id ?? '');
@@ -429,8 +435,9 @@ export default function ProposeBuilder({
     // A listed player shows his club's stance rather than a raw ask, which used
     // to render "asking €0m" whenever the column had never been filled in.
     const listed = p.listing;
-    if (listed) return `${p.pl_team} · ${listingStance(listed).headline.toLowerCase()}`;
-    return `${p.pl_team} · ${Math.round(p.total_points ?? 0)} pts`;
+    const academy = p.status === 'taxi' ? 'Academy · ' : '';
+    if (listed) return `${academy}${p.pl_team} · ${listingStance(listed).headline.toLowerCase()}`;
+    return `${academy}${p.pl_team} · ${Math.round(p.total_points ?? 0)} pts`;
   };
 
   // A picker row is normally a plain select-to-add button, but the name inside
@@ -459,7 +466,7 @@ export default function ProposeBuilder({
         <button
           type="button"
           className={`${styles.pickName} ${styles.pickNameBtn}`}
-          onClick={(e) => { e.stopPropagation(); openPlayerById(p.id); }}
+          onClick={(e) => { e.stopPropagation(); openPlayer(p as unknown as Player); }}
           {...playerHoverProps(prefetchPlayer, p)}
         >
           {getPlayerDisplayName(p, 'initial_last')}
@@ -494,7 +501,7 @@ export default function ProposeBuilder({
           <button
             type="button"
             className={`${styles.pickName} ${styles.pickNameBtn}`}
-            onClick={(e) => { e.stopPropagation(); openPlayerById(r.player!.id); }}
+            onClick={(e) => { e.stopPropagation(); openPlayer(r.player as unknown as Player); }}
             {...playerHoverProps(prefetchPlayer, r.player)}
           >
             {getPlayerDisplayName(r.player, 'initial_last')}
@@ -524,7 +531,7 @@ export default function ProposeBuilder({
         <button
           type="button"
           className={`${styles.pickName} ${styles.pickNameBtn}`}
-          onClick={() => openPlayerById(p.id)}
+          onClick={() => openPlayer(p as unknown as Player)}
           {...playerHoverProps(prefetchPlayer, p)}
         >
           {getPlayerDisplayName(p, 'initial_last')}
@@ -551,7 +558,7 @@ export default function ProposeBuilder({
           <button
             type="button"
             className={`${styles.pickName} ${styles.pickNameBtn}`}
-            onClick={() => openPlayerById(r.player!.id)}
+            onClick={() => openPlayer(r.player as unknown as Player)}
             {...playerHoverProps(prefetchPlayer, r.player)}
           >
             {getPlayerDisplayName(r.player, 'initial_last')}
@@ -723,12 +730,14 @@ export default function ProposeBuilder({
   })();
 
   // Loan mode picks from my roster when lending, theirs when borrowing — both
-  // filtered to statuses that can actually be loaned.
+  // filtered to statuses that can actually be loaned (active, bench, academy).
   const loanRosterSource = loanDirection === 'lend' ? myRoster : theirRoster;
   const loanEligibleRoster = useMemo(
     () => loanRosterSource.filter((p) => !NOT_LOANABLE_STATUSES.has(p.status)),
     [loanRosterSource],
   );
+  const loanSquad = loanEligibleRoster.filter((p) => p.status !== 'taxi');
+  const loanAcademy = loanEligibleRoster.filter((p) => p.status === 'taxi');
 
   return (
     <Modal
@@ -873,12 +882,13 @@ export default function ProposeBuilder({
                   <button
                     type="button"
                     className={`${styles.pickName} ${styles.pickNameBtn}`}
-                    onClick={() => openPlayerById(loanPlayer.id)}
+                    onClick={() => openPlayer(loanPlayer as unknown as Player)}
                     {...playerHoverProps(prefetchPlayer, loanPlayer)}
                   >
                     {getPlayerDisplayName(loanPlayer, 'full')}
                   </button>
                   <span className={styles.pickMeta}>
+                    {loanPlayer.status === 'taxi' ? 'Academy · ' : ''}
                     {loanPlayer.pl_team} · {recentPPG.toFixed(2)} projected PPG
                   </span>
                 </span>
@@ -892,7 +902,20 @@ export default function ProposeBuilder({
               </p>
             ) : (
               <div className={styles.list}>
-                {loanEligibleRoster.map((p) => (
+                {loanSquad.map((p) => (
+                  <PlayerRow
+                    key={p.id}
+                    p={p}
+                    selected={false}
+                    onPick={() => toggle(want, setWant, p.id, true)}
+                  />
+                ))}
+                {loanAcademy.length > 0 && (
+                  <div className={`${styles.pickerGroup} ${loanSquad.length > 0 ? styles.pickerGroupGap : ''}`}>
+                    Academy
+                  </div>
+                )}
+                {loanAcademy.map((p) => (
                   <PlayerRow
                     key={p.id}
                     p={p}

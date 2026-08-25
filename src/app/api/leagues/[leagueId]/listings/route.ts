@@ -341,6 +341,7 @@ export async function POST(req: NextRequest, { params }: Props) {
       await Promise.all(
         otherTeams.map((t) =>
           createNotification(admin, {
+            kind: 'auctions',
             leagueId,
             userId: t.user_id,
             ...notice,

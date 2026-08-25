@@ -109,6 +109,7 @@ async function openReturnWindows(admin: SupabaseClient, summary: ResolveSummary)
     if (team?.user_id) {
       try {
         await createNotification(admin, {
+          kind: 'club',
           leagueId: decision.league_id as string,
           userId: team.user_id,
           title: 'Player Returned',

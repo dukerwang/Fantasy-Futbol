@@ -17,6 +17,7 @@
  * not issue the same fetch twice.
  */
 
+import type { PerfGroup } from '@/lib/scoring/perfBand';
 import type { Player, PlayerOwnership, PlayerSeasonArchive } from '@/types';
 
 export interface CardGamelogEntry {
@@ -29,6 +30,9 @@ export interface CardGamelogEntry {
   date?: string;
   isDNP?: boolean;
   by_position?: Record<string, { fantasy_points: number; match_rating: number | null }>;
+  /** The match's performance block, banded server-side. Bands only — see the
+   *  header of src/lib/scoring/perfBand.ts for why no score travels here. */
+  perf?: PerfGroup[];
 }
 
 export interface CardFront {

@@ -271,6 +271,7 @@ async function notifyDepartures(
     if (!userId) continue;
     try {
       await createNotification(admin, {
+        kind: 'club',
         leagueId,
         userId,
         title: 'Decision Needed',
@@ -301,6 +302,7 @@ async function notifyLoanTermination(
     if (!team?.user_id) return;
 
     await createNotification(admin, {
+      kind: 'club',
       leagueId,
       userId: team.user_id,
       title: 'Loan Ended',

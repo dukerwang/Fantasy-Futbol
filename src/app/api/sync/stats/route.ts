@@ -290,9 +290,28 @@ async function syncFplLiveRatings(
               minutes: fixtureMinutes,
               goals_scored: findExplain('goals_scored') ?? 0,
               assists: findExplain('assists') ?? 0,
-              clean_sheets: findExplain('clean_sheets') ?? 0,
-              goals_conceded: findExplain('goals_conceded') ?? 0,
-              saves: findExplain('saves') ?? 0,
+              // `explain` only itemises stats that SCORED POINTS for that
+              // position, so a stat worth nothing there is absent entirely and
+              // `?? 0` invents a zero rather than reporting one. Three fields
+              // are affected, and all three fed the scoring engine as zeroes:
+              //
+              //   saves           1 pt per 3, so 1- and 2-save games are absent
+              //   goals_conceded  -1 per 2 and only for GK/DEF, so a single
+              //                   goal is absent for them and EVERY goal is
+              //                   absent for MID/FWD (mean read 0.21 against a
+              //                   mean xGC of 1.23, which handed midfielders an
+              //                   xgcOutperf bonus scaled to how many chances
+              //                   the opposition created)
+              //   clean_sheets    0 pts for a forward, so absent for FWD
+              //
+              // Fall back to the gameweek total on `el.stats`, apportioned by
+              // minutes exactly as bps and the defensive counts below are.
+              // Clean sheets are a per-match flag rather than a count, so they
+              // take the gameweek value as-is.
+              clean_sheets: findExplain('clean_sheets') ?? (el.stats.clean_sheets ?? 0),
+              goals_conceded:
+                findExplain('goals_conceded') ?? Math.round((el.stats.goals_conceded ?? 0) * ratio),
+              saves: findExplain('saves') ?? Math.round((el.stats.saves ?? 0) * ratio),
               penalties_saved: findExplain('penalties_saved') ?? 0,
               penalties_missed: findExplain('penalties_missed') ?? 0,
               yellow_cards: findExplain('yellow_cards') ?? 0,

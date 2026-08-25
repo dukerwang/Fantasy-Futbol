@@ -332,6 +332,7 @@ async function sendChampionsNotifications(
         // Send League Champions notification
         if (leagueChamp) {
           await createNotification(admin, {
+            kind: 'club',
             leagueId,
             userId: t.user_id,
             title: 'Champions!',
@@ -343,6 +344,7 @@ async function sendChampionsNotifications(
         // Send Champions Cup Winner notification
         if (championsCupWinner) {
           await createNotification(admin, {
+            kind: 'club',
             leagueId,
             userId: t.user_id,
             title: 'Champions Cup',
@@ -354,6 +356,7 @@ async function sendChampionsNotifications(
         // Send League Cup Winner notification
         if (leagueCupWinner) {
           await createNotification(admin, {
+            kind: 'club',
             leagueId,
             userId: t.user_id,
             title: 'League Cup',
@@ -365,6 +368,7 @@ async function sendChampionsNotifications(
         // Send Consolation Cup Winner notification
         if (consolationCupWinner) {
           await createNotification(admin, {
+            kind: 'club',
             leagueId,
             userId: t.user_id,
             title: 'Consolation Cup',

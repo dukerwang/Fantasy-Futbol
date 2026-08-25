@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
-import { sendEmail } from '@/lib/email/client';
+import { sendEmailToUsers } from '@/lib/email/sendEmailToUsers';
 import { getLoanAcceptedEmail } from '@/lib/email/templates';
 import { buildHereWeGo } from '@/lib/notifications/hereWeGo';
 
@@ -101,6 +101,7 @@ export async function POST(req: NextRequest, { params }: Props) {
     try {
       const { createNotification } = await import('@/lib/notifications/createNotification');
       await createNotification(admin, {
+        kind: 'deals',
         leagueId,
         userId: lenderTeam.user_id,
         title: 'Loan Rejected',
@@ -172,7 +173,8 @@ export async function POST(req: NextRequest, { params }: Props) {
       return NextResponse.json({ error: 'Player is no longer on the lender\'s roster' }, { status: 400 });
     }
 
-    if (['ir', 'taxi', 'loan_in', 'loan_out'].includes(rosterEntry.status)) {
+    // Academy (taxi) is loanable — IR and in-progress loans are not.
+    if (['ir', 'loan_in', 'loan_out'].includes(rosterEntry.status)) {
       return NextResponse.json({ error: `Player is currently in status '${rosterEntry.status}' and cannot be loaned` }, { status: 400 });
     }
 
@@ -265,6 +267,7 @@ export async function POST(req: NextRequest, { params }: Props) {
       try {
         const { createNotification } = await import('@/lib/notifications/createNotification');
         await createNotification(admin, {
+          kind: 'deals',
           leagueId,
           userId: lenderTeam.user_id,
           title: 'Loan Agreed',
@@ -312,22 +315,18 @@ export async function POST(req: NextRequest, { params }: Props) {
 
       const { data: allTeams } = await admin.from('teams').select('user_id').eq('league_id', leagueId);
       if (allTeams && allTeams.length > 0) {
-        const userIds = allTeams.map(t => t.user_id);
-        const { data: users } = await admin.from('users').select('email').in('id', userIds);
-        const emails = (users ?? []).map(u => u.email).filter(Boolean);
-
-        if (emails.length > 0) {
-          await sendEmail({
-            to: emails,
-            subject: `Player Loan Agreement Finalized`,
-            html: getLoanAcceptedEmail(lenderTeam.team_name, borrowerTeam.team_name, player.name, loan.start_gameweek, loan.end_gameweek, leagueUrl)
-          });
-        }
+        await sendEmailToUsers(admin, {
+          userIds: allTeams.map(t => t.user_id),
+          kind: 'deals',
+          subject: `Player Loan Agreement Finalized`,
+          html: getLoanAcceptedEmail(lenderTeam.team_name, borrowerTeam.team_name, player.name, loan.start_gameweek, loan.end_gameweek, leagueUrl),
+        });
       }
 
       // Create in-game notification for lender
       const { createNotification } = await import('@/lib/notifications/createNotification');
       await createNotification(admin, {
+        kind: 'deals',
         leagueId,
         userId: lenderTeam.user_id,
         title: 'Loan Accepted',

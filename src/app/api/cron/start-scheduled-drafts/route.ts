@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/admin';
-import { sendEmail } from '@/lib/email/client';
+import { sendEmailToUsers } from '@/lib/email/sendEmailToUsers';
 import { getDraftStartedEmail } from '@/lib/email/templates';
 
 export const maxDuration = 60; // 1 minute execution limit
@@ -60,31 +60,23 @@ export async function POST(req: NextRequest) {
           .update({ draft_scheduled_at: null })
           .eq('id', league.id);
 
-        // Fetch commissioner information
-        const { data: commUser } = await admin
-          .from('users')
-          .select('email, username')
-          .eq('id', league.commissioner_id)
-          .single();
-
-        if (commUser && commUser.email) {
-          // Send notification email to commissioner
-          await sendEmail({
-            to: [commUser.email],
-            subject: `Draft Postponed: ${league.name}`,
-            html: `
+        await sendEmailToUsers(admin, {
+          userIds: [league.commissioner_id],
+          kind: 'club',
+          subject: `Draft Postponed: ${league.name}`,
+          html: `
               <p>Dear Commissioner,</p>
               <p>The scheduled draft kickoff for your Gaffa league <strong>${league.name}</strong> was aborted because the league does not meet the minimum requirements to start.</p>
               <p><strong>Gaffa leagues require at least 4 registered managers to start drafting.</strong> Currently, only ${teams.length} manager(s) have joined your league.</p>
               <p>The draft schedule has been cleared. Once you have at least 4 managers, you can schedule a new draft kickoff time in the League lobby.</p>
               <p>Best of luck,</p>
               <p>Gaffa Administration</p>
-            `
-          });
-        }
+            `,
+        });
 
         // Add in-game notification for commissioner
         await createNotification(admin, {
+          kind: 'club',
           leagueId: league.id,
           userId: league.commissioner_id,
           title: 'Draft Delayed',
@@ -145,21 +137,18 @@ export async function POST(req: NextRequest) {
 
       // ── SEND START NOTIFICATIONS ──
       const userIds = teams.map(t => t.user_id);
-      const { data: users } = await admin.from('users').select('email').in('id', userIds);
-      const emails = (users ?? []).map(u => u.email).filter(Boolean);
-
-      if (emails.length > 0) {
-        const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://gaffa.live';
-        await sendEmail({
-          to: emails,
-          subject: 'Gaffa Draft: THE DRAFT HAS BEGUN!',
-          html: getDraftStartedEmail(league.name ?? 'Your League', `${baseUrl}/league/${league.id}/draft`)
-        });
-      }
+      const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://gaffa.live';
+      await sendEmailToUsers(admin, {
+        userIds,
+        kind: 'club',
+        subject: 'Gaffa Draft: THE DRAFT HAS BEGUN!',
+        html: getDraftStartedEmail(league.name ?? 'Your League', `${baseUrl}/league/${league.id}/draft`),
+      });
 
       // Create in-game notifications for all members
       for (const t of teams) {
         await createNotification(admin, {
+          kind: 'club',
           leagueId: league.id,
           userId: t.user_id,
           title: 'Draft Started',

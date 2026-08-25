@@ -300,7 +300,10 @@ export default function DraftRoom({
   const [loadingPick, setLoadingPick] = useState(false);
   const [pickError, setPickError] = useState<string | null>(null);
   const [secondsLeft, setSecondsLeft] = useState(TIMER_SECONDS);
-  const { openPlayer, prefetchPlayer } = usePlayerCard();
+  const { openPlayer, prefetchPlayer, primePlayers } = usePlayerCard();
+  useEffect(() => {
+    if (allPlayers.length) primePlayers(allPlayers);
+  }, [allPlayers, primePlayers]);
   const [sidebarTab, setSidebarTab] = useState<'players' | 'roster' | 'queue' | 'chat'>('players');
   const [rosterSortMode, setRosterSortMode] = useState<'draft' | 'position'>('draft');
 

@@ -35,17 +35,26 @@
    The class is applied by PremiumPlayerCard.tsx on .container. */
 
 /* ── The rating ramp ─────────────────────────────────────────
-   Six bands, kept exactly as they read today — green / green / gold / orange /
-   red / grey — because the DESIGN is not what this port is changing. Only the
-   lightness moved, holding hue and chroma, solved to 4.8 against the card face
-   (scratch/verify_player_card.mjs). Five of the six were failing:
+   Seven bands — green / green / gold / amber / orange / red / grey — because
+   the points curve's zero-line sits at display 5.5 (matchRating.ts,
+   calculateFantasyPoints), and the whole 5.5-6.5 range below the 6.5
+   median-starter floor was one flat "poor" band even though most below-par
+   performances land somewhere in it. Split at 6.0 on 2026-08-24 so a merely
+   below-average game (6.0-6.5) reads distinctly from a genuinely weak one
+   (5.5-6.0), instead of both painting identically.
 
-     >= 8.5  #3A6B4A  6.05  (kept, it already cleared)
-     >= 7.5  #5A9F73  3.08  ->  #387D53  4.84
-     >= 6.5  #C8A642  2.28  ->  #8C6C00  4.80
-     >= 5.5  #D17D3B  3.05  ->  #AC5B0E  4.81
-     <  5.5  #EF4444  3.67  ->  #D72930  4.82
-     null    #9A9488  2.94  ->  #757064  4.81
+   Lightness moved, holding hue and chroma, solved to 4.8 against the card
+   face (scratch/verify_player_card.mjs). The new --rating-below-avg is the
+   OKLCH midpoint of fair and weak, solved the same way
+   (scratch/derive_rating_split_color.mjs):
+
+     >= 8.5  #3A6B4A  6.05
+     >= 7.5  #387D53  4.84
+     >= 6.5  #8C6C00  4.80
+     >= 6.0  #9D6407  4.81  (new)
+     >= 5.5  #AC5B0E  4.81
+     <  5.5  #D72930  4.82
+     null    #757064  4.81
 
    These live on .container rather than in globals.css on purpose. The colour
    law says there is ONE performance ramp, and it keys on the sigmoid score
@@ -56,12 +65,13 @@
    stays scoped to the component instead of entering the global token set.
    ratingHex() in the .tsx reads these. */
 .container {
-  --rating-elite: #3A6B4A;
-  --rating-good:  #387D53;
-  --rating-fair:  #8C6C00;
-  --rating-poor:  #AC5B0E;
-  --rating-bad:   #D72930;
-  --rating-none:  #757064;
+  --rating-elite:      #3A6B4A;
+  --rating-good:       #387D53;
+  --rating-fair:       #8C6C00;
+  --rating-below-avg:  #9D6407;
+  --rating-weak:       #AC5B0E;
+  --rating-bad:        #D72930;
+  --rating-none:       #757064;
 }
 
 .stage {
@@ -1068,7 +1078,7 @@
 
 .barHigh { background: var(--color-accent-green); }
 .barMid  { background: var(--rating-fair); }
-.barLow  { background: var(--rating-poor); }
+.barLow  { background: var(--rating-weak); }
 .barDnp  { background: var(--color-border-subtle); }
 
 .formEmpty {
@@ -1327,4 +1337,22 @@
     transform: scale(0.92);
     transform-origin: center center;
   }
+}
+
+/* ── The performance block in the game log ─────────────────────────────────
+   A scoring row opens in place. One at a time (accordion) — the card is
+   already a long scroll and two open blocks push the second off-screen. */
+.logRowOpenable { cursor: pointer; }
+.logRowOpenable td { transition: background-color .12s var(--ease, ease); }
+@media (hover: hover) and (pointer: fine) {
+  .logRowOpenable:hover td { background: var(--color-bg-card-alt); }
+}
+.logRowOpen td { background: var(--color-bg-card-alt); }
+.logRowOpen td:first-child { box-shadow: inset 2px 0 0 var(--color-accent); }
+
+.logExpandRow td { border-bottom: 1px solid var(--color-border); }
+.logExpandCell {
+  padding: var(--s3) var(--s2) var(--s4) !important;
+  text-align: left !important;
+  background: var(--color-bg-card-alt);
 }

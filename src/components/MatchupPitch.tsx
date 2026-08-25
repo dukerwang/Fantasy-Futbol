@@ -1,12 +1,12 @@
 'use client';
 
-import { useCallback } from 'react';
-import type { MatchupLineup, Player, GranularPosition } from '@/types';
-import { BENCH_DEPTH_BONUS_LABEL } from '@/types';
+import { useCallback, useEffect } from 'react';
+import type { BenchSlot, MatchupLineup, Player, GranularPosition } from '@/types';
+import { BENCH_DEPTH_BONUS_LABEL, getExpectedBenchSlots } from '@/types';
 import type { TeamScoreDetail } from '@/lib/scoring/matchups';
 import { getPlayerDisplayName } from '@/lib/players/displayName';
 import { SPINE, POS_COLOR } from '@/lib/positions/spine';
-import { usePlayerCard } from './players/PlayerCardProvider';
+import { playerHoverProps, usePlayerCard } from './players/PlayerCardProvider';
 import PositionBadge from './players/PositionBadge';
 import Portrait from './players/Portrait';
 import CrestBadge from './crest/CrestBadge';
@@ -193,12 +193,14 @@ function PlayerChip({ slot, player, detail, status, isSubIn, onClick }: {
     onClick?: () => void;
 }) {
     const name = player ? getPlayerDisplayName(player) : '—';
+    const { prefetchPlayer } = usePlayerCard();
     const stateCls = status === 'pending' ? styles.chipPending
         : status === 'dnp' ? styles.chipDnp : '';
     return (
         <button
             type="button"
             className={`${styles.chipWrap} ${stateCls}`}
+            {...(player?.id ? playerHoverProps(prefetchPlayer, { id: player.id, photo_url: player.photo_url }) : {})}
             onClick={onClick}
             aria-label={`${name}, ${slot}, ${
                 status === 'pending' ? 'yet to play'
@@ -217,9 +219,9 @@ function PlayerChip({ slot, player, detail, status, isSubIn, onClick }: {
                     headWidthPct={player?.portrait_head_width_pct}
                     photoVersion={player?.photo_version}
                 />
+                {player && <PointsBadge detail={detail} status={status} />}
             </span>
             <div className={styles.chipBox}>
-                {player && <PointsBadge detail={detail} status={status} />}
                 <div className={styles.chipBody}>
                     {isGranular(slot) && (
                         <span className={styles.chipBadgeRow}>
@@ -227,23 +229,34 @@ function PlayerChip({ slot, player, detail, status, isSubIn, onClick }: {
                         </span>
                     )}
                     <p className={styles.chipName}>{name}</p>
-                    {detail?.stats && (
-                        <p className={styles.chipStats}>{fmtStats(detail, slot)}</p>
-                    )}
+                    {/* Always occupy the stats line so a blank chip is the same
+                        height as a scored one — `align-items: center` on the
+                        zone used to float the shorter card up into the row
+                        above. */}
+                    <p className={styles.chipStats}>{fmtStats(detail, slot) || '\u00a0'}</p>
                 </div>
             </div>
         </button>
     );
 }
 
+const BENCH_SLOT_TITLE: Record<BenchSlot, string> = {
+    DEF: 'Defender',
+    MID: 'Midfielder',
+    ATT: 'Attacker',
+    FLEX: 'Flex',
+};
+
 /**
  * A bench chip takes the player's OWN position, because he is not filling a
- * slot. Where there is no player there is no badge — 1.0 painted the bench
- * CATEGORY (def / mid / atk / flex) in position hues, which is the hub port's
- * "the hue already means centre-back everywhere else" defect: a bench category
- * is not a position, and flex had no hue at all so it borrowed text-muted.
+ * starter slot. The DEF/MID/ATT/FLEX caption under the chip is the bench
+ * *category* — where he sits, not what he covers. 1.0 painted that category
+ * in position hues, which is the hub port's "the hue already means centre-back
+ * everywhere else" defect: a bench category is not a position, and flex had no
+ * hue at all so it borrowed text-muted.
  */
-function BenchChip({ player, detail, status, isSubOut, onClick }: {
+function BenchChip({ slot, player, detail, status, isSubOut, onClick }: {
+    slot: BenchSlot;
     player?: Partial<Player>;
     detail?: Detail;
     status: PlayStatus;
@@ -252,14 +265,18 @@ function BenchChip({ player, detail, status, isSubOut, onClick }: {
 }) {
     const pos = player?.primary_position;
     const name = player ? getPlayerDisplayName(player) : '—';
-    const stateCls = status === 'pending' ? styles.chipPending
+    const { prefetchPlayer } = usePlayerCard();
+    const stateCls = !player ? ''
+        : status === 'pending' ? styles.chipPending
         : status === 'dnp' ? styles.chipDnp : '';
     return (
         <button
             type="button"
             className={`${styles.chipWrap} ${styles.benchChipWrap} ${stateCls}`}
+            {...(player?.id ? playerHoverProps(prefetchPlayer, { id: player.id, photo_url: player.photo_url }) : {})}
             onClick={onClick}
-            aria-label={name}
+            disabled={!player}
+            aria-label={`${BENCH_SLOT_TITLE[slot]} bench, ${name}`}
         >
             <span className={styles.chipPortrait}>
                 {isSubOut && <SubMark dir="out" />}
@@ -272,9 +289,9 @@ function BenchChip({ player, detail, status, isSubOut, onClick }: {
                     headWidthPct={player?.portrait_head_width_pct}
                     photoVersion={player?.photo_version}
                 />
+                {player && <PointsBadge detail={detail} status={status} />}
             </span>
             <div className={`${styles.chipBox} ${styles.benchChipBox}`}>
-                {player && <PointsBadge detail={detail} status={status} />}
                 <div className={styles.chipBody}>
                     {isGranular(pos) && (
                         <span className={styles.chipBadgeRow}>
@@ -286,13 +303,6 @@ function BenchChip({ player, detail, status, isSubOut, onClick }: {
             </div>
         </button>
     );
-}
-
-function slotOffset(slot: string): number {
-    if (['LW', 'RW'].includes(slot)) return 10;  // wingers drop down
-    if (slot === 'CM') return -25;                             // CM rises toward attackers
-    if (['DM', 'LWB', 'RWB'].includes(slot)) return -35;       // DM and WBs rise toward CM
-    return 0;
 }
 
 /* ── Group starters into zones ────────────────────────────────────── */
@@ -331,13 +341,31 @@ function resolveSubs(
         return { ...s, isSubIn: false };
     });
 
-    const bench = (lineup.bench as any[] || []).map((b) => {
+    const bench = (lineup.bench ?? []).map((b) => {
         const sub = subsByInId.get(b.player_id);
         if (sub) return { ...b, player_id: sub.outId, isSubOut: true };
         return { ...b, isSubOut: false };
     });
 
     return { starters, bench };
+}
+
+const isBenchSlot = (s: unknown): s is BenchSlot =>
+    s === 'DEF' || s === 'MID' || s === 'ATT' || s === 'FLEX';
+
+/** DEF → MID → ATT → FLEX, which is both the saved order and auto-sub search. */
+function orderedBench<T extends { slot?: string }>(bench: T[]): { slot: BenchSlot; row: T | null }[] {
+    const used = new Set<string>();
+    const rows = getExpectedBenchSlots().map((slot) => {
+        const row = bench.find((b) => b.slot === slot) ?? null;
+        if (row) used.add(slot);
+        return { slot, row };
+    });
+    for (const b of bench) {
+        if (!b.slot || used.has(b.slot)) continue;
+        rows.push({ slot: isBenchSlot(b.slot) ? b.slot : 'FLEX', row: b });
+    }
+    return rows;
 }
 
 /* ── Main component ───────────────────────────────────────────────── */
@@ -383,12 +411,19 @@ export default function MatchupPitch({
     const started = startedPlayerIds ? new Set(startedPlayerIds) : null;
     const statusOf = (playerId: string): PlayStatus =>
         playStatus(detailMap[playerId], started ? started.has(playerId) : true);
-    // Pitch tiles hold only a partial player, so the card resolves by id off
-    // the shared cache rather than painting a half-filled front.
-    const { openPlayerById } = usePlayerCard();
+    // The page already loaded FULL_PLAYER_SELECT + ranks for every player on
+    // the pitch. Opening by id would wait on `/api/players/:id/card` anyway —
+    // that's why this surface felt slower than lineup/club, which hand the
+    // card a player they already hold. Prime the cache on mount so a click
+    // from the match report (still id-only) is instant too.
+    const { openPlayer, primePlayers } = usePlayerCard();
+    useEffect(() => {
+        const rows = Object.values(playerMap).filter((p): p is Partial<Player> & { id: string } => Boolean(p.id));
+        if (rows.length) primePlayers(rows as Player[]);
+    }, [playerMap, primePlayers]);
     const setViewingPlayer = useCallback(
-        (p: Partial<Player> | null) => { if (p?.id) openPlayerById(p.id); },
-        [openPlayerById],
+        (p: Partial<Player> | null) => { if (p?.id) openPlayer(p as Player); },
+        [openPlayer],
     );
 
     const resolvedA = resolveSubs(lineupA, detailA);
@@ -433,23 +468,22 @@ export default function MatchupPitch({
 
                     <div className={styles.zones}>
                         {ZONE_ORDER.filter((zone) => (zones?.[zone] ?? []).length > 0).map((zone) => (
-                            <div key={`${sideKey}-${zone}`} className={styles.zoneRow}>
-                                <div className={`${styles.zone} ${zone === 'WBZ' ? styles.zoneWBZ : ''}`}>
-                                    {(zones?.[zone] ?? []).map((s) => {
-                                        const dy = slotOffset(s.slot);
-                                        return (
-                                            <div key={s.player_id} style={dy ? { transform: `translateY(${dy}px)` } : undefined}>
-                                                <PlayerChip
-                                                    slot={s.slot}
-                                                    player={playerMap[s.player_id]}
-                                                    detail={detailAtSlot(detailMap[s.player_id], s.slot)}
-                                                    status={statusOf(s.player_id)}
-                                                    isSubIn={s.isSubIn}
-                                                    onClick={() => setViewingPlayer(playerMap[s.player_id] ?? null)}
-                                                />
-                                            </div>
-                                        );
-                                    })}
+                            <div
+                                key={`${sideKey}-${zone}`}
+                                className={`${styles.zoneRow} ${styles[`zone${zone}`] ?? ''}`}
+                            >
+                                <div className={styles.zone}>
+                                    {(zones?.[zone] ?? []).map((s) => (
+                                        <PlayerChip
+                                            key={s.player_id}
+                                            slot={s.slot}
+                                            player={playerMap[s.player_id]}
+                                            detail={detailAtSlot(detailMap[s.player_id], s.slot)}
+                                            status={statusOf(s.player_id)}
+                                            isSubIn={s.isSubIn}
+                                            onClick={() => setViewingPlayer(playerMap[s.player_id] ?? null)}
+                                        />
+                                    ))}
                                 </div>
                             </div>
                         ))}
@@ -488,16 +522,23 @@ export default function MatchupPitch({
                             )}
                         </div>
                         <div className={styles.benchChips}>
-                            {bench.map((b: any) => (
-                                <BenchChip
-                                    key={b.player_id}
-                                    player={playerMap[b.player_id]}
-                                    detail={detailMap[b.player_id]}
-                                    status={statusOf(b.player_id)}
-                                    isSubOut={b.isSubOut}
-                                    onClick={() => setViewingPlayer(playerMap[b.player_id] ?? null)}
-                                />
-                            ))}
+                            {orderedBench(bench).map(({ slot, row }) => {
+                                const pid = row?.player_id;
+                                const player = pid ? playerMap[pid] : undefined;
+                                return (
+                                    <div key={`${slot}-${pid ?? 'empty'}`} className={styles.benchSlot}>
+                                        <BenchChip
+                                            slot={slot}
+                                            player={player}
+                                            detail={pid ? detailMap[pid] : undefined}
+                                            status={pid ? statusOf(pid) : 'pending'}
+                                            isSubOut={row?.isSubOut}
+                                            onClick={player ? () => setViewingPlayer(player) : undefined}
+                                        />
+                                        <span className={styles.benchSlotLabel} title={BENCH_SLOT_TITLE[slot]}>{slot}</span>
+                                    </div>
+                                );
+                            })}
                         </div>
                     </div>
                 ))}

@@ -382,7 +382,8 @@ export async function POST(req: NextRequest, { params }: Props) {
     }, { status: 400 });
   }
 
-  if (['ir', 'taxi', 'loan_in', 'loan_out'].includes(rosterEntry.status)) {
+  // Academy (taxi) is loanable — IR and in-progress loans are not.
+  if (['ir', 'loan_in', 'loan_out'].includes(rosterEntry.status)) {
     return NextResponse.json({ error: `Cannot loan out a player who is currently in status '${rosterEntry.status}'` }, { status: 400 });
   }
 
@@ -534,6 +535,7 @@ export async function POST(req: NextRequest, { params }: Props) {
       bonus_cap: bonusCap,
       has_recall: hasRecall,
       status: 'pending',
+      origin_status: rosterEntry.status,
       proposed_by: proposedBy,
       message: message ?? null,
       parent_loan_id: parentLoanId ?? null
@@ -555,6 +557,7 @@ export async function POST(req: NextRequest, { params }: Props) {
     const abbr = clubAbbr(myTeam);
     if (requestMode) {
       await createNotification(admin, {
+        kind: 'deals',
         leagueId,
         userId: counterpartyTeam.user_id,
         title: `${abbr} want ${player.name}`,
@@ -565,6 +568,7 @@ export async function POST(req: NextRequest, { params }: Props) {
       });
     } else {
       await createNotification(admin, {
+        kind: 'deals',
         leagueId,
         userId: counterpartyTeam.user_id,
         title: `${abbr} offer ${player.name}`,

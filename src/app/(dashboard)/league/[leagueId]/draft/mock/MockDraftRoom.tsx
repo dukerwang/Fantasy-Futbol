@@ -294,7 +294,10 @@ interface Props {
 }
 
 export default function MockDraftRoom({ leagueId, league, players, shadowMaps, myTeamName }: Props) {
-  const { openPlayer, prefetchPlayer } = usePlayerCard();
+  const { openPlayer, prefetchPlayer, primePlayers } = usePlayerCard();
+  useEffect(() => {
+    if (players.length) primePlayers(players);
+  }, [players, primePlayers]);
 
   const [hydrated, setHydrated] = useState(false);
   const [session, setSession] = useState<MockSession | null>(null);

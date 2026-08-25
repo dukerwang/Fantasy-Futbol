@@ -27,6 +27,7 @@ import {
 } from '@/lib/season/currentSeason';
 import { getClubFixtureLog, type ClubFixtureLog } from '@/lib/fixtures/lockout';
 import { loadReferenceStats } from '@/lib/scoring/matchups';
+import { buildPerformanceGroups, type PerfGroup } from '@/lib/scoring/perfBand';
 import { calculateMatchRating } from '@/lib/scoring/matchRating';
 import type {
   GranularPosition,
@@ -62,6 +63,13 @@ export interface GamelogEntry {
   result?: string;
   date?: string;
   isDNP?: boolean;
+  /**
+   * The match's performance block, already BANDED. Computed here, on the
+   * server, and deliberately without the underlying scores: see the header of
+   * src/lib/scoring/perfBand.ts. Quantising the bar in CSS is theatre if the
+   * composite travels beside it in this payload.
+   */
+  perf?: PerfGroup[];
   /**
    * Same appearance re-scored under every eligible slot (primary + secondaries).
    * Primary uses the stored values; secondaries go through calculateMatchRating
@@ -117,7 +125,8 @@ function attachPositionScores(
   positions: string[],
   refStats: RefStatsMap,
 ): GamelogEntry[] {
-  if (positions.length === 0) return gamelog;
+  // No early return on an empty `positions`: the performance block is built for
+  // every player, and most of the pool has no secondary slot at all.
   const prim = primary.toUpperCase() as GranularPosition;
 
   return gamelog.map((g) => {
@@ -147,7 +156,22 @@ function attachPositionScores(
         match_rating: forRating.rating,
       };
     }
-    return { ...g, by_position };
+
+    // The block, at the player's PRIMARY slot. Re-scored here rather than read
+    // off the row because player_stats stores the rating and the points but
+    // not the breakdown they came from — persisting that is a separate change.
+    let perf: PerfGroup[] | undefined;
+    if (g.stats) {
+      const raw = g.stats as RawStats;
+      const primaryRating = calculateMatchRating(raw, prim, refStats);
+      const goalInvRaw = Number(raw.goals ?? 0) * 6 + Number(raw.assists ?? 0) * 4;
+      const featExcess =
+        Math.max(0, goalInvRaw - 11.5) / 6 +
+        Math.max(0, Number(raw.creativity ?? 0) - 90) / 15;
+      perf = buildPerformanceGroups(primaryRating.breakdown, prim, raw, featExcess);
+    }
+
+    return positions.length > 0 ? { ...g, by_position, perf } : { ...g, perf };
   });
 }
 

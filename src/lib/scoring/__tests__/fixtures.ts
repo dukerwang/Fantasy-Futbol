@@ -171,6 +171,37 @@ export const CASES: ScoringCase[] = [
         }),
     },
     {
+        name: 'st-hattrick',
+        describes: 'Striker scores a hat-trick — exercises the goal/assist rare-feat kicker',
+        position: 'ST',
+        stats: makeStats({
+            minutes_played: 90,
+            goals: 3,
+            bps: 52,
+            influence: 92.0,
+            creativity: 30.2,
+            threat: 66,
+            expected_goals: 1.24,
+            expected_assists: 0.10,
+            fpl_def_contrib: 2,
+        }),
+    },
+    {
+        name: 'am-elite-creativity',
+        describes: 'Attacking midfielder posts an elite creativity figure — exercises the creativity rare-feat bonus (absolute bar, raw 90)',
+        position: 'AM',
+        stats: makeStats({
+            minutes_played: 90,
+            assists: 2,
+            bps: 38,
+            influence: 60.4,
+            creativity: 107,
+            threat: 26,
+            expected_assists: 0.94,
+            fpl_def_contrib: 4,
+        }),
+    },
+    {
         name: 'lwb-assist-clean-sheet',
         describes:
             'Left wing back assists and keeps a clean sheet — exercises the widest flex list (5 components)',

@@ -12,7 +12,7 @@ import type {
 import type { CrestConfig } from '@/components/crest/types';
 import CrestBadge from '@/components/crest/CrestBadge';
 import PositionBadge from '@/components/players/PositionBadge';
-import { usePlayerCard } from '@/components/players/PlayerCardProvider';
+import { playerHoverProps, usePlayerCard } from '@/components/players/PlayerCardProvider';
 import TransfersSubNav from '@/components/transfers/TransfersSubNav';
 import ListingCard from '@/components/transfers/ListingCard';
 import ProposeBuilder, { type LoanDirection, type ProposeMode } from '@/components/transfers/ProposeBuilder';
@@ -690,12 +690,13 @@ function AssetList({
   align,
   rights,
 }: {
-  players: { id: string; name: string; web_name?: string | null; primary_position: string }[];
+  players: { id: string; name: string; web_name?: string | null; primary_position: string; photo_url?: string | null }[];
   onOpen: (p: Player) => void;
   align?: 'right';
   /** These are retained rights, not roster players — tag them so they're not mistaken for one. */
   rights?: boolean;
 }) {
+  const { prefetchPlayer } = usePlayerCard();
   if (players.length === 0) return null;
   return (
     <div className={`${styles.assets} ${align === 'right' ? styles.assetsRight : ''}`}>
@@ -706,6 +707,7 @@ function AssetList({
             type="button"
             className={styles.assetName}
             onClick={() => onOpen(p as unknown as Player)}
+            {...playerHoverProps(prefetchPlayer, p)}
           >
             {getPlayerDisplayName(p, 'full')}
             {rights ? ' (rights)' : ''}

@@ -145,6 +145,7 @@ export async function releaseDeparture(
       .single();
     if (team?.user_id) {
       await createNotification(admin, {
+        kind: 'club',
         leagueId: decision.league_id,
         userId: team.user_id,
         title: 'Compensated',

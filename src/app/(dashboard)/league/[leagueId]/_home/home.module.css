@@ -605,11 +605,7 @@
 .pipL { composes: pip; background: var(--color-danger); color: var(--color-on-danger); }
 .prize { font-family: var(--font-serif); font-weight: 700; color: var(--color-text-muted); font-variant-numeric: tabular-nums; }
 
-/* ---------- your gameweek ----------
-   Replaces a league-wide top five, three of whom you did not own and
-   none of whom you could act on. The baseline rule engraves the median
-   for the player's OWN position, so you read "against his role" rather
-   than "out of some total" — the scoring model, made legible. */
+/* ---------- top performers ---------- */
 .yg { border: var(--line-strong); border-radius: var(--r-shell); background: var(--color-bg-card); overflow: hidden; }
 .ygRow {
   display: grid;
@@ -623,6 +619,7 @@
 .ygPlayer { display: flex; align-items: center; gap: var(--s2); min-width: 0; }
 .ygName { font-size: var(--t-13); font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .ygClub { font-size: var(--t-10); color: var(--color-text-muted); }
+.ygOwner { font-size: var(--t-12); color: var(--color-text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .ygVal { text-align: right; }
 .ygValV {
   font-family: var(--font-serif);
@@ -632,35 +629,6 @@
   font-variant-numeric: tabular-nums;
 }
 .ygValL { font-size: var(--t-10); color: var(--color-text-muted); margin-top: 2px; }
-
-.baseline { position: relative; height: 20px; display: flex; align-items: center; }
-.baselineTrack {
-  position: relative;
-  height: 7px;
-  width: 100%;
-  background: var(--color-bg-inset);
-  border-radius: var(--r-micro);
-}
-.baselineInk { position: absolute; inset-block: 0; left: 0; border-radius: var(--r-micro); }
-.baselineMedian {
-  position: absolute;
-  top: -5px;
-  bottom: -5px;
-  width: 2px;
-  margin-left: -1px;
-  background: var(--color-text-primary);
-}
-.ygKey {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--s2) var(--s5);
-  padding: var(--s3) var(--s5);
-  border-top: var(--line);
-  background: var(--color-bg-card-alt);
-}
-.ygKeyItem { display: inline-flex; align-items: center; gap: 6px; font-size: var(--t-11); color: var(--color-text-muted); }
-.keyTick { width: 2px; height: 13px; background: var(--color-text-primary); }
-.keyInk { width: 15px; height: 6px; border-radius: var(--r-micro); background: var(--color-text-secondary); }
 
 /* ---------- rail ---------- */
 .railCard { border: var(--line-strong); border-radius: var(--r-shell); background: var(--color-bg-card); overflow: hidden; }

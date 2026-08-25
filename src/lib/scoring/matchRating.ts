@@ -123,6 +123,12 @@ const GLOBAL_FINISHING_STDDEV = 0.28;
 /** Median xG outperformance across all outfield positions. */
 const GLOBAL_FINISHING_MEDIAN = -0.03;
 
+/** Standard score: how many stddevs `value` sits from `median`. */
+function computeZScore(value: number, median: number, stddev: number): number {
+    if (stddev <= 0) return 0;
+    return SIGMOID_K * (value - median) / stddev;
+}
+
 /**
  * Normalize a raw value to (0, 1) using the logistic sigmoid function.
  * A value at the median maps to 0.5; values beyond ±2 stddevs
@@ -130,8 +136,7 @@ const GLOBAL_FINISHING_MEDIAN = -0.03;
  */
 function sigmoidNormalize(value: number, median: number, stddev: number): number {
     if (stddev <= 0) return 0.5;
-    const z = SIGMOID_K * (value - median) / stddev;
-    return 1 / (1 + Math.exp(-z));
+    return 1 / (1 + Math.exp(-computeZScore(value, median, stddev)));
 }
 
 // ════════════════════════════════════════════════════════════════════════════
@@ -156,6 +161,9 @@ const COMPONENT_DISPLAY = {
 interface ComponentResult {
     score: number;  // 0.0 – 1.0
     detail: string; // human-readable
+    /** Standard score behind `score`. Only creativity sets this — it's what
+     * the rare-feat kicker uses to detect an elite playmaking outlier. */
+    z?: number;
 }
 
 function computeComponentScores(
@@ -194,9 +202,11 @@ function computeComponentScores(
 
     // 3. Creativity
     const crea = stats.creativity ?? 0;
+    const creaZ = computeZScore(crea, ref.creativity.median, ref.creativity.stddev);
     const creativity: ComponentResult = {
         score: sigmoidNormalize(crea, ref.creativity.median, ref.creativity.stddev),
         detail: `${crea.toFixed(1)}`,
+        z: creaZ,
     };
 
     // 4. Threat
@@ -478,22 +488,117 @@ export function curveFinalRating(composite: number, minutesPlayed: number): numb
 }
 
 /**
+ * Rare-feat bonus — flat points added AFTER the curve, for the handful of
+ * performances the sigmoid pipeline structurally cannot separate once
+ * several correlated components have already saturated near 1.0.
+ *
+ * Diagnosed 2026-08: real median-by-rating ST games rated 6.44 (0G) / 8.34
+ * (1G) / 8.99 (2G) / 9.16 (3G) — by 2 goals, match_impact/influence/threat/
+ * goal_involvement/finishing are ALL independently past 90-99% of their own
+ * ceiling (they all correlate with "scored a lot"), so a 3rd goal has almost
+ * nowhere left to register. Widening goal_involvement's own stddev doesn't
+ * fix it — tripling it only grew the 2-vs-3-goal gap from 0.17 to 0.28
+ * rating while dragging every scoring game down with it. The fix has to
+ * live outside the saturated components entirely.
+ *
+ * WHY POINTS AND NOT COMPOSITE (changed 2026-08-25, see
+ * docs/superpowers/specs/2026-08-25-rare-feat-bonus-design.md).
+ * The first version of this bumped the COMPOSITE, consuming a fraction of
+ * the remaining headroom toward 1.0. Composite 1.0 maps to 44.69 points, so
+ * that design could never separate the games it existed to separate:
+ * measured at the composite a real hat-trick reaches (~0.94), a hat-trick
+ * paid 42.47 and a five-goal-two-assist game 44.58 — 2.9 points apart with
+ * the ceiling doing all the work. It reproduced, one tier up, exactly the
+ * compression it was built to remove.
+ *
+ * Worse, spending *remaining* headroom paid a BIGGER bonus to a WORSE
+ * supporting performance: the same 2G+1A was worth +7.24 off a 0.84
+ * composite and +2.90 off a 0.94 one. A hat-trick should be worth a
+ * hat-trick regardless of how the other eighty minutes went.
+ *
+ * Adding flat points after the curve fixes both. Nothing fights composite's
+ * cap, every increment is worth the same wherever it lands, and the scale is
+ * unbounded. The feat range spreads from 2.89 points to 11.00.
+ *
+ * The display rating deliberately does NOT receive this. A hat-trick reads
+ * 9.14 rather than 9.37; that is a realistic match rating for one, and one
+ * mechanism is worth more than 0.21 of display rating.
+ *
+ * `excess` is continuous, not an event count — "1 goal + 2 assists" is past
+ * the goal-involvement line on combined raw value even though neither stat
+ * alone reaches 3, so it must count.
+ *
+ * Checked before landing on these two triggers: goalkeeping doesn't need one
+ * (a 10-save clean sheet already rates 9.17), defense doesn't either (the
+ * season's best defensive day sits at 96.6% of ceiling with real separation
+ * still visible below it), and match_impact/influence don't need their own
+ * since every extreme case in the data is already either a hat-trick
+ * (covered here) or elite goalkeeping (already fine).
+ */
+
+/** Points per unit of excess. Sized so a hat-trick pays +3.25, which is
+ * inside the "usually 3 to 5 extra points" docs/USER_GUIDE.md publishes —
+ * the common case needs no guide change. */
+const FEAT_POINTS_PER_UNIT = 3.0;
+
+/** Raw goal_involvement (goals×6 + assists×4) above which a feat has fired.
+ * 2 goals or 3 assists alone already clear it. */
+const FEAT_GI_SATURATION_RAW = 11.5;
+/** One unit of goal-involvement excess — i.e. one goal. */
+const FEAT_GI_UNIT = 6;
+
+/** Raw FPL creativity above which a creative feat has fired.
+ *
+ * Was a positional z-score of 3.9 until 2026-08-25, which was measuring the
+ * wrong thing entirely. A z-score asks "unusual FOR THIS POSITION", and for a
+ * position that never creates, unusual is one decent ball: clearing z 3.9
+ * needed raw creativity of 94.1 as an AM, 26.1 as a CB and 8.2 as a GK. Over
+ * 2025-26 it fired 96 times in 11,355 appearances (2.53/gw — more often than
+ * the goal trigger), and 54 of those 96 were goalkeepers and centre-backs
+ * against 13 for all four playmaking positions combined. Keepers were kept
+ * out only by the unrelated `posWeights.creativity > 0` gate at the call
+ * site; centre-backs weight creativity at 0.05 and were being paid.
+ *
+ * An absolute bar self-selects for playmakers with no position rule at all —
+ * no centre-back reached 90 all season. At 90 it fires 11 times a year
+ * (0.29/gw): Bruno ×3, Longstaff, Foden, Enzo, Groß, Anderson, Cherki,
+ * Pedro Porro, Szoboszlai. */
+const FEAT_CREATIVITY_RAW = 90;
+/** One unit of creative excess. Calibrated so the season's best creative
+ * game (Bruno, 106.8 → 1.12 units → +3.36) is worth about what a hat-trick
+ * is worth (+3.25). That parity is the argument for this number. */
+const FEAT_CREATIVITY_UNIT = 15;
+
+/** Flat points for a rare feat. Never negative, unbounded above. */
+function featPointsBonus(excess: number): number {
+    if (excess <= 0) return 0;
+    return FEAT_POINTS_PER_UNIT * excess;
+}
+
+/**
  * Fantasy points from the SCORING-scale rating (1 + 9×composite), never the
- * display rating. Calibration: base=0.0, scale=10.0, pivot=4.5, exponent=1.5.
+ * display rating. Calibration: base=0.0, scale=8.6, pivot=4.0, exponent=1.5.
  *
  * Because the two scales differ (display = 3.5 + 6×composite), the points a
  * user sees against a rating on the card are NOT this function's input. In
  * display terms the curve is:
  *
- *   display   5.83   6.0    6.5    7.0    7.5    8.0    9.0
- *   points    0.00   0.44   3.54   8.18   13.98  20.71  36.60
+ *   display   5.5    6.0    6.5    7.0    7.5    8.0    9.0
+ *   points    0.00   1.98   5.59   10.26  15.80  22.07  36.58
  *
- * Two consequences worth preserving. A display rating at or below **5.83**
- * pays exactly zero — composite 0.389 maps to scoring 4.5, the pivot — so a
+ * Two consequences worth preserving. A display rating at or below **5.5**
+ * pays exactly zero — composite 0.333 maps to scoring 4.0, the pivot — so a
  * below-par game is worth nothing rather than a little. And the curve is
  * convex: 7.0 → 8.0 is worth more than 6.0 → 7.0, so one decisive performance
  * outweighs several adequate ones. Composite is clamped to [0, 1], so the
- * ceiling is a display 9.5 / scoring 10.0 ≈ 45.6 pts.
+ * ceiling is a display 9.5 / scoring 10.0 ≈ 44.7 pts.
+ *
+ * Was pivot=4.5/scale=10.0 (zero-line at display 5.83) until 2026-08-24: a
+ * merely-decent game (6.0-6.5, well below the 6.5 median-starter floor but
+ * clearly not a poor one) was scoring next to nothing — a 6.23 paid ~1.6,
+ * indistinguishable from a genuinely bad game. Lowering the pivot to 4.0 and
+ * rescaling to 8.6 moves the zero-line down to 5.5 and lifts every rating
+ * above it, while holding the elite ceiling (9.0+) roughly where it was.
  *
  * Changing base/scale/pivot/exponent silently rewrites every historical
  * comparison — see scripts/backfill-scoring-v2.mjs and docs/USER_GUIDE.md §4,
@@ -527,7 +632,16 @@ export function curveFinalRating(composite: number, minutesPlayed: number): numb
  * and save_score have to sum to 0.60. weights.test.ts enforces it.
  */
 export const GK_CLEAN_SHEET = 20;
-export const GK_CLEAN_SHEET_SAVE_CAP = 10;
+/**
+ * Was 10, exactly the season's max recorded save count (José Sá, 10 saves,
+ * clean sheet) — meaning no real game could ever have earned more from this
+ * term. Raised to comfortably clear that ceiling while staying a real cap,
+ * not removed: this term is a raw linear addition with no sigmoid (unlike
+ * save_score's own volume term, whose "uncapped" is tempered by one), so an
+ * uncapped version reopens exactly the runaway-clean-sheet risk this
+ * component was rebuilt to close (see the comment above GK_CLEAN_SHEET).
+ */
+export const GK_CLEAN_SHEET_SAVE_CAP = 16;
 export const GK_GOAL_CONCEDED = 3.4;
 export const GK_XGC_DIFF = 2.5;
 
@@ -547,9 +661,9 @@ export function calculateFantasyPoints(rating: number, minutesPlayed: number): n
     if (minutesPlayed === 0 || rating === 0) return 0;
 
     const basePoints = 0.0;
-    const scale = 10.0;
+    const scale = 8.6;
 
-    const curve = Math.pow(Math.max(0, rating - 4.5) / 2.0, 1.5);
+    const curve = Math.pow(Math.max(0, rating - 4.0) / 2.0, 1.5);
     const finalPoints = basePoints + (scale * curve);
 
     return Math.max(0, Number(finalPoints.toFixed(2)));
@@ -652,7 +766,38 @@ export function calculateMatchRating(
         item.detail = components[item.key as RatingComponent].detail;
     }
 
-    // Step 3: Display rating (Fotmob-calibrated scale for UI)
+    // Rare-feat excess — continuous, in units of "one more goal" / "one more
+    // step of elite creation". Paid as flat points after the curve, never as a
+    // composite bump; see featPointsBonus for why.
+    //
+    // The goal-involvement trigger stays gated on the position actually
+    // weighting the component, so a GK's stray goal — goal_involvement is
+    // weight-0 for GK, the only position where it is — never pays on a stat
+    // that isn't part of his rating.
+    //
+    // Both triggers stay gated on the position actually weighting the relevant
+    // component. The design spec proposed dropping the creativity gate on the
+    // grounds that an absolute bar excludes keepers on the merits — measured,
+    // the highest GK creativity in all of 2025-26 was ~20 against a bar of 90.
+    // The golden suite rejected that, correctly: "a component weighted 0.00 for
+    // a position must never move that position's score" is a structural
+    // guarantee, and resting it on "the data says it cannot happen" is strictly
+    // weaker than resting it on "the code says it cannot". The gate also costs
+    // nothing — every outfield position weights creativity above zero, so GK is
+    // the only thing it excludes, and the centre-back over-firing this change
+    // exists to fix was caused by the z-score threshold, not by the gate.
+    const posWeights = POSITION_WEIGHTS[position] ?? POSITION_WEIGHTS.CM;
+    let featExcess = 0;
+    if (posWeights.goal_involvement > 0) {
+        const goalInvRaw = stats.goals * 6 + stats.assists * 4;
+        featExcess += Math.max(0, goalInvRaw - FEAT_GI_SATURATION_RAW) / FEAT_GI_UNIT;
+    }
+    if (posWeights.creativity > 0) {
+        featExcess += Math.max(0, (stats.creativity ?? 0) - FEAT_CREATIVITY_RAW) / FEAT_CREATIVITY_UNIT;
+    }
+
+    // Step 3: Display rating (Fotmob-calibrated scale for UI). Deliberately
+    // takes the RAW composite — the feat bonus is a points-scale reward.
     let rating = curveFinalRating(composite, stats.minutes_played);
 
     // Step 4: Fantasy points — uses internal scoring scale (1+9×composite),
@@ -667,8 +812,15 @@ export function calculateMatchRating(
         fantasyPoints *= GK_CURVE_SCALE;
     }
 
+    // The feat bonus lands AFTER GK_CURVE_SCALE and BEFORE the OOP penalty.
+    // After the keeper scale is moot in practice (a keeper triggers neither
+    // feat) but stated so it needn't be re-derived; before the OOP penalty is
+    // deliberate, so an out-of-position player's whole output is discounted
+    // consistently rather than the bonus escaping the discount.
+    fantasyPoints += featPointsBonus(featExcess);
+
     // There is no appearance credit, for any position. Turning out is not an
-    // achievement, so a game below the curve's ~5.84 display-rating threshold
+    // achievement, so a game below the curve's 5.5 display-rating threshold
     // is worth nothing rather than a small amount.
     //
     // Keepers used to be the exception, holding a 2.5 credit nobody else had.

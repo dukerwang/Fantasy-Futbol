@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import type { GranularPosition, Player } from '@/types';
 import type { EnrichedPlayer, TransfersAuction, TransfersModel } from '@/lib/transfers/buildTransfersModel';
-import { usePlayerCard } from '@/components/players/PlayerCardProvider';
+import { playerHoverProps, usePlayerCard } from '@/components/players/PlayerCardProvider';
 import PositionBadge from '@/components/players/PositionBadge';
 import TransfersSubNav from '@/components/transfers/TransfersSubNav';
 import BidDialog from '@/components/transfers/BidDialog';
@@ -52,7 +52,7 @@ export default function FreeAgentsClient({
 }) {
   const router = useRouter();
   const model = useLiveTransfers(leagueId, initial);
-  const { openPlayer, primePlayers } = usePlayerCard();
+  const { openPlayer, prefetchPlayer, primePlayers } = usePlayerCard();
 
   const [query, setQuery] = useState('');
   const [debounced, setDebounced] = useState('');
@@ -235,6 +235,7 @@ export default function FreeAgentsClient({
                       type="button"
                       className={styles.playerName}
                       onClick={() => openPlayer(p as unknown as Player)}
+                      {...playerHoverProps(prefetchPlayer, p)}
                       title={p.name}
                     >
                       {getPlayerDisplayName(p, 'initial_last')}
@@ -320,6 +321,7 @@ function AuctionChip({
   onBid: () => void;
   onOpen: () => void;
 }) {
+  const { prefetchPlayer } = usePlayerCard();
   const now = useTick(Boolean(auction.expires_at));
   const msLeft = auction.expires_at ? new Date(auction.expires_at).getTime() - now : 0;
   const hot = Boolean(auction.expires_at) && isClosing(msLeft);
@@ -337,7 +339,12 @@ function AuctionChip({
         {auction.player && (
           <PositionBadge position={auction.player.primary_position as GranularPosition} size="sm" />
         )}
-        <button type="button" className={styles.chipName} onClick={onOpen}>
+        <button
+          type="button"
+          className={styles.chipName}
+          onClick={onOpen}
+          {...(auction.player ? playerHoverProps(prefetchPlayer, auction.player) : {})}
+        >
           {auction.player ? getPlayerDisplayName(auction.player, 'initial_last') : ''}
         </button>
       </div>

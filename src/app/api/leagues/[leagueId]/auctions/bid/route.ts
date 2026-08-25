@@ -479,6 +479,7 @@ export async function POST(req: NextRequest, { params }: Props) {
       const closeAt = resData.expires_at ?? new Date(expiresAt).toISOString();
       const notice = outbidNotice(myTeam, playerData?.name ?? 'Unknown Player', bidAmount, closeAt);
       await createNotification(admin, {
+        kind: 'auctions',
         leagueId,
         userId: resData.outbid_team_user_id,
         ...notice,
@@ -517,6 +518,7 @@ export async function POST(req: NextRequest, { params }: Props) {
         await Promise.all(
           otherTeams.map((t) =>
             createNotification(admin, {
+              kind: 'auctions',
               leagueId,
               userId: t.user_id,
               ...notice,

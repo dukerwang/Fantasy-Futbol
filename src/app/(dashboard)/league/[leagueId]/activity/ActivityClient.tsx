@@ -7,7 +7,7 @@ import { generateTransactionHeadline } from '@/lib/narrative/generators';
 import { renderBoldedText } from '@/lib/narrative/boldText';
 import { createClient } from '@/lib/supabase/client';
 import { FULL_PLAYER_SELECT } from '@/lib/constants/queries';
-import { usePlayerCard } from '@/components/players/PlayerCardProvider';
+import { playerHoverProps, usePlayerCard } from '@/components/players/PlayerCardProvider';
 import PositionBadge from '@/components/players/PositionBadge';
 import { Icon } from '@/components/ui/Icon';
 import type { GranularPosition, Player as FullPlayer } from '@/types';
@@ -428,7 +428,15 @@ function getTransactionMetadata(tx: Transaction) {
 
 // ─── Transaction Card ─────────────────────────────────────────────────────────
 
-function TransactionCard({ tx, onPlayerClick }: { tx: Transaction; onPlayerClick?: (playerId: string) => void }) {
+function TransactionCard({
+  tx,
+  onPlayerClick,
+  onPlayerPrefetch,
+}: {
+  tx: Transaction;
+  onPlayerClick?: (playerId: string) => void;
+  onPlayerPrefetch?: (playerId: string) => void;
+}) {
   const cfg: TypeCfg = TYPE_CONFIG[tx.type] ?? {
     label: tx.type.toUpperCase().replace(/_/g, ' '),
     borderColor: 'var(--color-text-muted)',
@@ -455,7 +463,7 @@ function TransactionCard({ tx, onPlayerClick }: { tx: Transaction; onPlayerClick
         </div>
         
         {/* Dynamic Sports Headline */}
-        <h3 className={styles.narrativeHeadline}>{renderBoldedText(headline, onPlayerClick)}</h3>
+        <h3 className={styles.narrativeHeadline}>{renderBoldedText(headline, onPlayerClick, onPlayerPrefetch)}</h3>
 
         {/* Unified Metadata Sub-row */}
         <span className={styles.metadataSubRow}>{getTransactionMetadata(tx)}</span>
@@ -519,6 +527,7 @@ function groupAuctions(liveAuctions: WaiverClaim[], myTeamId: string | null): Au
 // ─── Bid Card (inline in feed) ───────────────────────────────────────────────
 
 function BidCard({ claim, myTeamId }: { claim: WaiverClaim; myTeamId: string | null }) {
+  const { openPlayerById, prefetchPlayer } = usePlayerCard();
   const player = claim.player;
   const isMe = claim.team_id === myTeamId;
   const playerName = player ? getPlayerDisplayName(player, 'full') : '—';
@@ -549,7 +558,18 @@ function BidCard({ claim, myTeamId }: { claim: WaiverClaim; myTeamId: string | n
           <span className={styles.cardVerb}> placed a </span>
           <strong className={styles.cardPlayer}>€{claim.faab_bid}m</strong>
           <span className={styles.cardVerb}> bid on </span>
-          <strong className={styles.cardPlayer}>{playerName}</strong>
+          {player ? (
+            <button
+              type="button"
+              className="playercard-clickable-btn"
+              onClick={() => openPlayerById(player.id)}
+              {...playerHoverProps(prefetchPlayer, player)}
+            >
+              {playerName}
+            </button>
+          ) : (
+            <strong className={styles.cardPlayer}>{playerName}</strong>
+          )}
         </h3>
         
         {/* Unified Metadata Sub-row */}
@@ -579,6 +599,7 @@ function RightSidebar({
   teams: Team[];
   myTeamId: string | null;
 }) {
+  const { openPlayerById, prefetchPlayer } = usePlayerCard();
   const auctions = useMemo(
     () => groupAuctions(liveAuctions, myTeamId),
     [liveAuctions, myTeamId],
@@ -629,9 +650,14 @@ function RightSidebar({
                           position={a.player.primary_position as GranularPosition}
                           size="sm"
                         />
-                        <span className={styles.auctionPlayerName}>
+                        <button
+                          type="button"
+                          className={styles.auctionPlayerName}
+                          onClick={() => openPlayerById(a.player.id)}
+                          {...playerHoverProps(prefetchPlayer, a.player)}
+                        >
                           {getPlayerDisplayName(a.player, 'initial_last')}
-                        </span>
+                        </button>
                       </div>
                       <div className={styles.auctionMeta}>
                         <span className={styles.auctionBid}>
@@ -719,7 +745,8 @@ export default function ActivityClient({
   liveAuctions,
 }: Props) {
   const [filter, setFilter] = useState<FilterKey>('all');
-  const { openPlayerById: handlePlayerClick } = usePlayerCard();
+  const { openPlayerById, prefetchPlayer } = usePlayerCard();
+  const handlePlayerPrefetch = (id: string) => prefetchPlayer({ id });
 
   type FeedItem =
     | { kind: 'tx'; ts: string; data: Transaction }
@@ -817,7 +844,12 @@ export default function ActivityClient({
                 <div className={styles.cards}>
                   {group.items.map((item) =>
                     item.kind === 'tx' ? (
-                      <TransactionCard key={item.data.id} tx={item.data} onPlayerClick={handlePlayerClick} />
+                      <TransactionCard
+                        key={item.data.id}
+                        tx={item.data}
+                        onPlayerClick={openPlayerById}
+                        onPlayerPrefetch={handlePlayerPrefetch}
+                      />
                     ) : (
                       <BidCard key={item.data.id} claim={item.data} myTeamId={myTeamId} />
                     ),

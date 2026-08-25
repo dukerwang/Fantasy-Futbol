@@ -183,16 +183,14 @@ export interface TableRow {
   isMe: boolean;
 }
 
-export interface YourGwRow {
+export interface TopPerformerRow {
   playerId: string;
   name: string;
   position: string;
   club: string;
   points: string;
-  /** Rating this week and the median for his own position, both 0-100. */
-  inkPct: number;
-  medianPct: number;
-  ratingLabel: string;
+  /** The fantasy team that rosters him, or 'Free agent' if no one does. */
+  owner: string;
 }
 
 export interface WireItem {
@@ -256,8 +254,8 @@ export interface HomeModel {
   fronts: FrontTile[];
   matchweek: OtherFixture[];
   table: TableRow[];
-  yourGameweek: YourGwRow[];
-  yourGameweekNote: string;
+  topPerformers: TopPerformerRow[];
+  topPerformersGw: number | null;
   wire: WireItem[];
   opponent: OpponentCard | null;
   clubFacts: ClubFact[];
@@ -695,6 +693,58 @@ export async function buildHomeModel(
   const playerById = new Map<string, any>();
   for (const r of rosterPlayers) playerById.set(r.player.id, r.player);
 
+  // ── top performers, league-wide ────────────────────────────
+  // The five highest fantasy-point scores of the most recently completed
+  // gameweek, whoever owns them. Not actionable, but it's the one thing
+  // every manager in the league experienced this week.
+  const topPerformersGw = lastCompletedMine?.gameweek ?? null;
+  const topPerformers: TopPerformerRow[] = [];
+  if (topPerformersGw) {
+    const { data: rawPerf } = await admin
+      .from('player_stats')
+      .select(
+        'fantasy_points, player:players!player_id(id, web_name, name, primary_position, pl_team)',
+      )
+      .eq('gameweek', topPerformersGw)
+      .eq('season', season)
+      .order('fantasy_points', { ascending: false })
+      .limit(5);
+
+    const perfRows = (rawPerf ?? []) as any[];
+    const perfPlayerIds = perfRows.map((r) => r.player?.id).filter(Boolean);
+    // Must scope to this league's teams — the same player is rostered in every
+    // test/militia league too, and an unfiltered lookup picks whichever row
+    // PostgREST returns first (Bot FC 4, Tea FC, …).
+    const leagueTeamIds = teams.map((t) => t.id as string);
+    const { data: ownerRows } =
+      perfPlayerIds.length && leagueTeamIds.length
+        ? await admin
+            .from('roster_entries')
+            .select('player_id, team:teams(team_name)')
+            .in('player_id', perfPlayerIds)
+            .in('team_id', leagueTeamIds)
+        : { data: [] as any[] };
+    const ownerByPlayer = new Map<string, string>();
+    for (const o of ownerRows ?? []) {
+      if (!ownerByPlayer.has(o.player_id)) {
+        ownerByPlayer.set(o.player_id, (o.team as any)?.team_name ?? 'Free agent');
+      }
+    }
+
+    for (const r of perfRows) {
+      const p = r.player;
+      if (!p) continue;
+      topPerformers.push({
+        playerId: p.id,
+        name: getPlayerDisplayName(p, 'full'),
+        position: p.primary_position,
+        club: p.pl_team ?? '',
+        points: Number(r.fantasy_points ?? 0).toFixed(2),
+        owner: ownerByPlayer.get(p.id) ?? 'Free agent',
+      });
+    }
+  }
+
   const heroGameweek = heroMatchup?.gameweek ?? gameweek;
 
   /**
@@ -989,8 +1039,6 @@ export async function buildHomeModel(
   let debrief: DebriefItem[] = [];
   let matchReportHeadline: string | null = null;
   let matchReportByline: string | null = null;
-  const yourGameweek: YourGwRow[] = [];
-  let yourGameweekNote = '';
 
   if (heroMatchup) {
     const iAmA = heroMatchup.team_a_id === myTeamId;
@@ -1127,47 +1175,6 @@ export async function buildHomeModel(
       fixture.stillToPlay.mine = heroLineupRaw.starters.filter(
         (s: any) => !played.has(s.player_id),
       ).length;
-
-      // Your gameweek: best two and worst one, each against the median for
-      // his OWN position. That comparison is the whole scoring model, and it
-      // has never appeared anywhere in the app.
-      const scored = heroLineupRaw.starters
-        .map((s: any) => {
-          const p = playerById.get(s.player_id);
-          const r = rows.find((x) => x.player_id === s.player_id);
-          if (!p || !r) return null;
-          return {
-            playerId: s.player_id,
-            name: getPlayerDisplayName(p, 'full'),
-            position: p.primary_position,
-            club: p.pl_team ?? '',
-            points: Number(r.fantasy_points ?? 0),
-            rating: Number(r.match_rating ?? 0),
-          };
-        })
-        .filter(Boolean) as any[];
-
-      scored.sort((a, b) => b.points - a.points);
-      const picks = [...scored.slice(0, 2), ...scored.slice(-1)].filter(
-        (v, i, arr) => arr.findIndex((x) => x.playerId === v.playerId) === i,
-      );
-
-      for (const p of picks) {
-        // Ratings are Fotmob-calibrated on a 0-10 display scale; 5.84 is the
-        // point below which fantasy points floor at zero.
-        const inkPct = Math.max(2, Math.min(100, (p.rating / 10) * 100));
-        yourGameweek.push({
-          playerId: p.playerId,
-          name: p.name,
-          position: p.position,
-          club: p.club,
-          points: p.points.toFixed(2),
-          inkPct,
-          medianPct: 58,
-          ratingLabel: `rating ${p.rating.toFixed(2)}`,
-        });
-      }
-      yourGameweekNote = 'A rating of 5.84 or less scores exactly zero points.';
 
       /**
        * The generated match report headline.
@@ -1598,8 +1605,8 @@ export async function buildHomeModel(
     fronts,
     matchweek,
     table,
-    yourGameweek,
-    yourGameweekNote,
+    topPerformers,
+    topPerformersGw,
     wire,
     opponent,
     clubFacts,

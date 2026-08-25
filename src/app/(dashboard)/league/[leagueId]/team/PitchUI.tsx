@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
     FORMATION_SLOTS,
@@ -8,7 +8,7 @@ import {
     BENCH_FLEX_MAP,
 } from '@/types';
 import type { Formation, GranularPosition, Player, BenchSlot, RosterEntry } from '@/types';
-import { usePlayerCard } from '@/components/players/PlayerCardProvider';
+import { playerHoverProps, usePlayerCard } from '@/components/players/PlayerCardProvider';
 import { getPlayerDisplayName } from '@/lib/players/displayName';
 import Portrait from '@/components/players/Portrait';
 import PositionBadge from '@/components/players/PositionBadge';
@@ -25,6 +25,12 @@ type PitchZone = 'ATT' | 'AMZ' | 'CMZ' | 'DMZ' | 'WBZ' | 'DEF' | 'GK';
 // Zone order: attackers at top, GK at bottom (same vertical flow as MatchupPitch)
 const ZONE_ORDER: PitchZone[] = ['ATT', 'AMZ', 'CMZ', 'DMZ', 'WBZ', 'DEF', 'GK'];
 const BENCH_SLOT_NAMES: BenchSlot[] = ['DEF', 'MID', 'ATT', 'FLEX'];
+const BENCH_SLOT_TITLE: Record<BenchSlot, string> = {
+    DEF: 'Defender',
+    MID: 'Midfielder',
+    ATT: 'Attacker',
+    FLEX: 'Flex',
+};
 
 const DEFAULT_TAXI_AGE_LIMIT = 21;
 
@@ -150,6 +156,7 @@ interface PitchNodeProps {
 }
 
 function PitchNode({ slotPos, player, isSelected, isValidTarget, isEmpty, isInvalid, isLocked, onClick, onViewDetails, points }: PitchNodeProps) {
+    const { prefetchPlayer } = usePlayerCard();
     const wrapCls = [
         styles.pitchNodeWrap,
         isSelected ? styles.nodeWrapSelected : '',
@@ -167,6 +174,7 @@ function PitchNode({ slotPos, player, isSelected, isValidTarget, isEmpty, isInva
         <button
             type="button"
             className={wrapCls}
+            {...(player ? playerHoverProps(prefetchPlayer, player) : {})}
             onClick={() => {
                 if (player && onViewDetails) {
                     onViewDetails();
@@ -199,12 +207,12 @@ function PitchNode({ slotPos, player, isSelected, isValidTarget, isEmpty, isInva
                     headWidthPct={player?.portrait_head_width_pct}
                     photoVersion={player?.photo_version}
                 />
-            </span>
-
-            <div className={chipCls}>
                 {points !== undefined && (
                     <span className={`${styles.nodePtsBadge} ${ptsBand(points)}`}>{points.toFixed(2)}</span>
                 )}
+            </span>
+
+            <div className={chipCls}>
                 {isLocked && player && (
                     <span className={styles.nodeLockCorner} title="Locked">
                         <Icon name="lock" size={12} />
@@ -284,7 +292,14 @@ export default function PitchUI({
     const [sidebarError, setSidebarError] = useState<string | null>(null);
 
     // ── Modal ──
-    const { openPlayer: setViewingPlayer, prefetchPlayer } = usePlayerCard();
+    const { openPlayer: setViewingPlayer, prefetchPlayer, primePlayers } = usePlayerCard();
+    useEffect(() => {
+        primePlayers([
+            ...allEntries.map((e) => e.player),
+            ...taxiEntries.map((e) => e.player),
+            ...irEntries.map((e) => e.player),
+        ]);
+    }, [allEntries, taxiEntries, irEntries, primePlayers]);
 
     const slots = FORMATION_SLOTS[formation];
     const academyAgeLimit = taxiAgeLimit;
@@ -1095,7 +1110,7 @@ export default function PitchUI({
                                     onClick={isLocked && entry ? () => setViewingPlayer(entry.player) : () => handleBenchSlotClick(slot)}
                                     title={isLocked ? 'Match started (Locked)' : undefined}
                                 >
-                                    <span className={styles.slotBadge}>{slot}</span>
+                                    <span className={styles.slotBadge} title={BENCH_SLOT_TITLE[slot]}>{slot}</span>
 
                                     {entry ? (
                                         <>
@@ -1103,6 +1118,7 @@ export default function PitchUI({
                                             <span
                                                 className={styles.rowName}
                                                 onClick={(e) => { e.stopPropagation(); setViewingPlayer(entry.player); }}
+                                                {...playerHoverProps(prefetchPlayer, entry.player)}
                                             >
                                                 {displayName(entry.player)}
                                             </span>
@@ -1177,6 +1193,7 @@ export default function PitchUI({
                                         <span
                                             className={styles.rowName}
                                             onClick={(e) => { e.stopPropagation(); setViewingPlayer(entry.player); }}
+                                            {...playerHoverProps(prefetchPlayer, entry.player)}
                                         >
                                             {displayName(entry.player)}
                                         </span>
@@ -1217,7 +1234,11 @@ export default function PitchUI({
                                         style={{ ['--pf' as string]: POS_COLOR[entry.player.primary_position] }}
                                     >
                                         <PositionBadge position={entry.player.primary_position} size="sm" />
-                                        <span className={styles.rowName} onClick={() => setViewingPlayer(entry.player)}>
+                                        <span
+                                            className={styles.rowName}
+                                            onClick={() => setViewingPlayer(entry.player)}
+                                            {...playerHoverProps(prefetchPlayer, entry.player)}
+                                        >
                                             {displayName(entry.player)}
                                         </span>
                                         <span className={styles.rowSpacer} />
@@ -1268,7 +1289,11 @@ export default function PitchUI({
                                         style={{ ['--pf' as string]: POS_COLOR[entry.player.primary_position] }}
                                     >
                                         <PositionBadge position={entry.player.primary_position} size="sm" />
-                                        <span className={styles.rowName} onClick={() => setViewingPlayer(entry.player)}>
+                                        <span
+                                            className={styles.rowName}
+                                            onClick={() => setViewingPlayer(entry.player)}
+                                            {...playerHoverProps(prefetchPlayer, entry.player)}
+                                        >
                                             {displayName(entry.player)}
                                         </span>
                                         <span className={styles.rowSpacer} />

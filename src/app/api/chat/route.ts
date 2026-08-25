@@ -299,6 +299,7 @@ export async function POST(req: NextRequest) {
       const preview = trimmed.length > 140 ? `${trimmed.slice(0, 140)}…` : trimmed;
       const { createNotification } = await import('@/lib/notifications/createNotification');
       await createNotification(admin, {
+        kind: 'chat',
         leagueId,
         userId: recipientId,
         title: `Message from ${senderName}`,

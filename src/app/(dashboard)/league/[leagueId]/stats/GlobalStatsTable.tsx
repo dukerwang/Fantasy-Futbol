@@ -1,10 +1,10 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import NavigationLink from '@/components/ui/NavigationLink';
-import type { GranularPosition, Player } from '@/types';
+import type { GranularPosition } from '@/types';
 import type { StatPlayer } from './page';
-import PlayerDetailsModal from '@/components/players/PlayerDetailsModal';
+import { playerHoverProps, usePlayerCard } from '@/components/players/PlayerCardProvider';
 import PosBadge from '@/components/players/PositionBadge';
 import FormArrow from '@/components/players/FormArrow';
 import { getPlayerDisplayName } from '@/lib/players/displayName';
@@ -106,6 +106,7 @@ function resolveActivePosition(
 }
 
 export default function GlobalStatsTable({ leagueId, leagueName, players, season, shadowMaps }: Props) {
+  const { openPlayer, prefetchPlayer, primePlayers } = usePlayerCard();
   const [search, setSearch] = useState('');
   const [posFilter, setPosFilter] = useState<PosFilter>('ALL');
   const [clubFilter, setClubFilter] = useState<string>('ALL');
@@ -118,8 +119,10 @@ export default function GlobalStatsTable({ leagueId, leagueName, players, season
   const [posType, setPosType] = useState<'primary' | 'secondary' | 'both'>('both');
   const [sortKey, setSortKey] = useState<SortKey>('total_points');
   const [sortDir, setSortDir] = useState<SortDir>('desc');
-  // Own modal so /share/stats works on public share pages without the dashboard card provider.
-  const [viewingPlayer, setViewingPlayer] = useState<StatPlayer | null>(null);
+
+  useEffect(() => {
+    if (players.length) primePlayers(players);
+  }, [players, primePlayers]);
 
   const shadowByPlayer =
     minMins === 'played' ? (shadowMaps.played ?? shadowMaps.all) : minMins === 'all' ? shadowMaps.all : shadowMaps.gt45;
@@ -394,7 +397,8 @@ export default function GlobalStatsTable({ leagueId, leagueName, players, season
                   key={player.id}
                   className={`g-row ${styles.row}`}
                   style={{ ['--pf' as string]: POS_COLOR[activePos] }}
-                  onClick={() => setViewingPlayer(player)}
+                  onClick={() => openPlayer(player)}
+                  {...playerHoverProps(prefetchPlayer, player)}
                   title="Click to scout player"
                 >
                   <td className={styles.tdPlayer}>
@@ -455,11 +459,6 @@ export default function GlobalStatsTable({ leagueId, leagueName, players, season
           </tbody>
         </table>
       </div>
-
-      <PlayerDetailsModal
-        player={viewingPlayer as unknown as Player | null}
-        onClose={() => setViewingPlayer(null)}
-      />
     </div>
   );
 }

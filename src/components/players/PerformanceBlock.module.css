@@ -1,0 +1,207 @@
+/* ==========================================================
+   THE PERFORMANCE RAMP.  Solved 2026-08-25, replacing the
+   2026-08-10 ramp from the Baseline Rule doc.
+
+   That ramp solved every stop to the SAME contrast target
+   (~4.4:1), which pins every stop to the same lightness:
+   measured L* 45.1 / 45.1 / 9.4 / 45.2 / 45.3. Only hue
+   varied, so good->best (green->green) differed by 0.1 L*
+   and poor->low (red->brown) by 0.0 — steps that do not
+   exist to the eye. Mid was the only stop that stood apart,
+   and it did so by being nearly BLACK, which reads as body
+   text rather than as a verdict.
+
+   This ramp separates by LIGHTNESS first, hue second, and
+   accepts a spread of ratios (4.80 - 8.67) rather than
+   forcing one number. Checked against all three grounds in
+   each theme: light #EFE9DF / #F7F3ED / #FDFCF9, dark
+   #2B3348 / #252B3D / #212736. Worst case 4.80:1.
+
+   MID IS A WARM GREY. An ordinary game should look ordinary.
+
+   THE FEAT TIERS LEAVE THE SCALE — blue and violet are not
+   "more green". Cost recorded rather than argued: feat blue
+   sits 2.2 L* from --color-pos-cb. Contained the same way
+   the original ramp was: figure text only, never a fill,
+   badge or status.
+
+   --pfill, NOT --pf. --pf is the position hue, set by the
+   card head and read by the .pos chip.
+   ========================================================== */
+.ramp {
+  --perf-poor: #8E2019;
+  --perf-low: #8A5619;
+  --perf-mid: #5C564C;
+  --perf-good: #276F49;
+  --perf-best: #0B5233;
+  --perf-feat: #1F4FA8;
+  --perf-feat2: #5B2E9C;
+}
+:global([data-theme="dark"]) .ramp {
+  --perf-poor: #F28C7E;
+  --perf-low: #E8B368;
+  --perf-mid: #9AA0AE;
+  --perf-good: #5FC088;
+  --perf-best: #8FE9B4;
+  --perf-feat: #86B4F5;
+  --perf-feat2: #C3A5FA;
+}
+
+.bPoor  { --pfill: var(--perf-poor);  color: var(--perf-poor); }
+.bLow   { --pfill: var(--perf-low);   color: var(--perf-low); }
+.bMid   { --pfill: var(--perf-mid);   color: var(--perf-mid); }
+.bGood  { --pfill: var(--perf-good);  color: var(--perf-good); }
+.bBest  { --pfill: var(--perf-best);  color: var(--perf-best); }
+.bFeat  { --pfill: var(--perf-feat);  color: var(--perf-feat); }
+.bFeat2 { --pfill: var(--perf-feat2); color: var(--perf-feat2); }
+
+/* ==========================================================
+   THE BLOCK
+
+   Sizes to its CONTAINER, never the viewport. The app has 373
+   media queries across 61 modules and (before this file) no
+   container queries — every one of those is a component that
+   had to be re-taught its layout for each page it landed on.
+   This one is told nothing; it reads the width it is given.
+
+   THE LADDER TRADES HEIGHT, NEVER CONTENT. A phone is where
+   the evidence matters MOST — no hover, no side panel, a
+   reader looking at one player deliberately. Height is cheap
+   when you scroll; width is the scarce thing.
+
+     < 200px   the signature — one quantised bar per group
+     < 380px   stacked: label+verdict / bar / evidence
+     < 560px   one line, evidence beneath
+     wider     + the rank anchor
+   ========================================================== */
+.block {
+  container-type: inline-size;
+}
+
+.rows {
+  display: flex;
+  flex-direction: column;
+}
+
+/* 88px, not 76 — the keeper map's "Goals prevented" needs 81 and clipped at
+   the narrower value. Size to the longest label in ANY position's map. */
+.row {
+  display: grid;
+  grid-template-columns: 88px minmax(0, 1fr) 96px;
+  column-gap: var(--s3);
+  align-items: center;
+  padding: 6px 0;
+}
+.row + .row { border-top: 1px solid var(--color-border-subtle); }
+
+.label {
+  font-size: var(--t-11);
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.track { position: relative; height: 22px; display: flex; align-items: center; }
+.bar { position: relative; width: 100%; height: 7px; }
+
+/* QUANTISED. Band widths and nothing between them — the band IS the geometry.
+   Writing the real score into --v would put it in the DOM at full precision:
+   readable in devtools, invisible to the league, and strictly worse than the
+   number we removed. Do not restore a continuous width. The same rule governs
+   the payload — see the header of src/lib/scoring/perfBand.ts. */
+.ink {
+  position: absolute;
+  inset-block: 0;
+  left: 0;
+  width: var(--v);
+  background: var(--pfill);
+  border-radius: var(--r-micro);
+}
+.under .ink { opacity: .55; }
+.tick {
+  position: absolute;
+  left: 50%;
+  inset-block: 0;
+  width: 2px;
+  margin-left: -1px;
+  background: var(--color-text-primary);
+}
+
+.verdict {
+  font-family: var(--font-condensed, var(--font-sans));
+  font-weight: 600;
+  font-size: var(--t-11);
+  letter-spacing: .045em;
+  text-transform: uppercase;
+  text-align: right;
+  white-space: nowrap;
+}
+
+/* Inline SVG filled with currentColor, so it takes the row's band and needs no
+   palette entry — and no emoji, which would hand the glyph to the OS font and
+   render as a colour bitmap outside the type system entirely. */
+.mark {
+  width: 10px;
+  height: 10px;
+  fill: currentColor;
+  margin-right: 4px;
+  vertical-align: -1px;
+}
+
+.foot {
+  grid-column: 2 / -1;
+  display: flex;
+  align-items: baseline;
+  gap: var(--s3);
+  justify-content: space-between;
+  padding: 0 0 4px;
+}
+.evidence {
+  margin: 0;
+  font-size: var(--t-11);
+  line-height: 1.45;
+  color: var(--color-text-muted);
+  max-width: 62ch;
+}
+.rank {
+  flex: 0 0 auto;
+  font-family: var(--font-condensed, var(--font-sans));
+  font-weight: 500;
+  font-size: var(--t-10);
+  letter-spacing: .045em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+.note {
+  margin: var(--s3) 0 0;
+  font-family: var(--font-condensed, var(--font-sans));
+  font-weight: 500;
+  font-size: var(--t-10);
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+/* The whole block at ~28px, for a list row or anywhere beside a name. */
+.signature { display: none; align-items: flex-end; gap: 3px; height: 16px; }
+.signature i { display: block; width: 5px; border-radius: 1px; background: var(--pfill); }
+
+@container (max-width: 560px) {
+  .rank { display: none; }
+}
+
+@container (max-width: 380px) {
+  .row { grid-template-columns: minmax(0, 1fr) auto; row-gap: 5px; padding: 10px 0; }
+  .label { grid-column: 1; grid-row: 1; }
+  .verdict { grid-column: 2; grid-row: 1; }
+  .track { grid-column: 1 / -1; grid-row: 2; height: 9px; }
+  .foot { grid-column: 1 / -1; grid-row: 3; padding: 0; }
+}
+
+@container (max-width: 200px) {
+  .rows { display: none; }
+  .signature { display: flex; }
+}

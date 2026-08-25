@@ -436,6 +436,7 @@ export async function POST(req: NextRequest, { params }: Props) {
     const { clubAbbr } = await import('@/lib/notifications/clubRef');
     const abbr = clubAbbr(myTeam);
     await createNotification(admin, {
+      kind: 'deals',
       leagueId,
       userId: targetTeam.user_id,
       title: `${dealName} from ${abbr}`,

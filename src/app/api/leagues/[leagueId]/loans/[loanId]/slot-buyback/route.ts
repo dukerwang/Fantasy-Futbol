@@ -83,6 +83,7 @@ export async function POST(req: NextRequest, { params }: Props) {
     if (player) {
       const { createNotification } = await import('@/lib/notifications/createNotification');
       await createNotification(admin, {
+        kind: 'deals',
         leagueId,
         userId: user.id,
         title: 'Slot Buyback',
@@ -104,6 +105,7 @@ export async function POST(req: NextRequest, { params }: Props) {
           solidarityRecipients.map((recipient) =>
             recipient.user_id
               ? createNotification(admin, {
+                  kind: 'deals',
                   leagueId,
                   userId: recipient.user_id,
                   title: 'Solidarity Paid',
