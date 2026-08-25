@@ -223,7 +223,7 @@ export default async function MatchupDetailPage({ params }: Props) {
     const teamAName   = matchup.team_a?.team_name ?? 'Team A';
     const teamBName   = matchup.team_b?.team_name ?? 'Team B';
 
-    const report = generateMatchReport(matchup, lineupA, lineupB, playerMap, detailMap);
+    const report = generateMatchReport(matchup, lineupA, lineupB, playerMap, detailMap, scoreA, scoreB, detailA, detailB);
 
     const myTeamSide: 'a' | 'b' | null =
         member?.id && matchup.team_a?.id === member.id ? 'a'

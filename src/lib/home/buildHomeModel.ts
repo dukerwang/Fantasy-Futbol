@@ -1224,6 +1224,11 @@ export async function buildHomeModel(
               heroMatchup.lineup_b,
               playerMap,
               detailMap,
+              // This call only ever fires at 'ft' (see comment above), so the
+              // persisted score is already the final word — no live recompute
+              // needed here the way the matchup detail page needs one.
+              Number(heroMatchup.score_a) || 0,
+              Number(heroMatchup.score_b) || 0,
             );
             // The generator marks emphasis with **...**; the hero renders the
             // headline as plain serif, so the markers come out here.

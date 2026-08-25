@@ -1,5 +1,6 @@
 import { getPlayerDisplayName } from '@/lib/players/displayName';
 import { isDrawMargin } from '@/lib/scoring/drawBand';
+import { applySubsToLineup, type TeamScoreDetail } from '@/lib/scoring/matchups';
 
 function hashId(id: string): number {
   if (!id) return 0;
@@ -23,7 +24,25 @@ export function generateMatchReport(
   lineupA: any,
   lineupB: any,
   playerMap: Record<string, any>,
-  detailMap: Record<string, { points: number; stats?: any }>
+  detailMap: Record<string, { points: number; stats?: any }>,
+  /**
+   * The scores actually shown elsewhere on the page — `calculateTeamScore`'s
+   * output while live, or the persisted `matchup.score_a/b` once completed.
+   * This function used to re-sum `lineup.starters` itself for the live case,
+   * which skipped auto-subs and the bench bonus and could disagree with the
+   * number the header and pitch were already showing for the same matchup.
+   */
+  scoreA: number,
+  scoreB: number,
+  /**
+   * What `calculateTeamScore` actually did — used so the star-of-the-match
+   * and flop search look at who actually played each slot (a sub who came on
+   * and had a huge game), not just the originally-submitted starters. Callers
+   * that don't have this yet (or that only ever call for a completed matchup,
+   * where the persisted score already reflects any subs) can omit it.
+   */
+  detailA?: TeamScoreDetail,
+  detailB?: TeamScoreDetail,
 ): MatchReport {
   const hash = hashId(matchup.id);
   const teamAName = matchup.team_a?.team_name ?? 'Team A';
@@ -76,16 +95,8 @@ export function generateMatchReport(
     };
   }
 
-  // 2. Active Matchup Scores
+  // 2. Active Matchup Scores — read from the caller, not re-derived here.
   const isLive = matchup.status === 'live';
-  let computedScoreA = 0;
-  lineupA?.starters.forEach((s: any) => { computedScoreA += detailMap[s.player_id]?.points || 0; });
-  let computedScoreB = 0;
-  lineupB?.starters.forEach((s: any) => { computedScoreB += detailMap[s.player_id]?.points || 0; });
-
-  const scoreA = matchup.status === 'completed' ? Number(matchup.score_a) : computedScoreA;
-  const scoreB = matchup.status === 'completed' ? Number(matchup.score_b) : computedScoreB;
-
   const margin = Math.abs(scoreA - scoreB);
   const isDraw = isDrawMargin(scoreA, scoreB);
   const aWins = !isDraw && scoreA > scoreB;
@@ -96,14 +107,29 @@ export function generateMatchReport(
   const winnerScore = aWins ? scoreA : (bWins ? scoreB : scoreA);
   const loserScore = aWins ? scoreB : (bWins ? scoreA : scoreB);
 
+  // The lineup as actually played: a blanked starter covered by a sub is
+  // replaced by that sub here, so a big game off the bench can be nominated
+  // below — scanning `lineup.starters` directly missed it entirely, since
+  // the sub is not in that array under the original submission.
+  const effectiveA = applySubsToLineup(lineupA, detailA).starters;
+  const effectiveB = applySubsToLineup(lineupB, detailB).starters;
+
+  // A sub is scored at the slot he filled, not his own primary position —
+  // `bySlot` carries that; a non-subbed starter's `.points` is already the
+  // right number (attachLineupSlotScores wrote it there upstream).
+  const pointsAt = (playerId: string, slot: string): number => {
+    const d = detailMap[playerId] as { points: number; bySlot?: Record<string, { points: number }> } | undefined;
+    return d?.bySlot?.[slot]?.points ?? d?.points ?? 0;
+  };
+
   // Identify Star Player (highest scoring starter across both teams)
   let starPlayerId = '';
   let starPlayerPoints = -Infinity;
   let starPlayerTeamName = '';
 
-  const scanStarters = (starters: any[], teamName: string) => {
-    starters.forEach((s: any) => {
-      const pts = detailMap[s.player_id]?.points ?? 0;
+  const scanStarters = (starters: { player_id: string; slot: string }[], teamName: string) => {
+    starters.forEach((s) => {
+      const pts = pointsAt(s.player_id, s.slot);
       if (pts > starPlayerPoints) {
         starPlayerPoints = pts;
         starPlayerId = s.player_id;
@@ -112,8 +138,8 @@ export function generateMatchReport(
     });
   };
 
-  if (lineupA?.starters) scanStarters(lineupA.starters, teamAName);
-  if (lineupB?.starters) scanStarters(lineupB.starters, teamBName);
+  if (effectiveA.length) scanStarters(effectiveA, teamAName);
+  if (effectiveB.length) scanStarters(effectiveB, teamBName);
 
   const starPlayer = starPlayerId ? playerMap[starPlayerId] : null;
   const starPlayerName = starPlayer ? `**p:${starPlayerId}:${getPlayerDisplayName(starPlayer as any, 'full')}**` : 'a standout performer';
@@ -123,7 +149,7 @@ export function generateMatchReport(
   let flopPlayerPoints = Infinity;
   let flopPlayerTeamName = '';
 
-  const flopCandidates = (loser === teamAName || isDraw) ? (lineupA?.starters ?? []) : (lineupB?.starters ?? []);
+  const flopCandidates = (loser === teamAName || isDraw) ? effectiveA : effectiveB;
   const flopTeamName = (loser === teamAName || isDraw) ? teamAName : teamBName;
 
   // Heuristic: search for negative scores first, then low scores (0 to 2), then general lowest
@@ -131,7 +157,7 @@ export function generateMatchReport(
 
   // Step 1: Negative points
   for (const s of flopCandidates) {
-    const pts = detailMap[s.player_id]?.points ?? 0;
+    const pts = pointsAt(s.player_id, s.slot);
     if (pts < 0 && pts < flopPlayerPoints) {
       flopPlayerPoints = pts;
       flopPlayerId = s.player_id;
@@ -143,7 +169,7 @@ export function generateMatchReport(
   // Step 2: Low positive points (between 0.1 and 2.0)
   if (!selectedFlop) {
     for (const s of flopCandidates) {
-      const pts = detailMap[s.player_id]?.points ?? 0;
+      const pts = pointsAt(s.player_id, s.slot);
       const stats = detailMap[s.player_id]?.stats ?? {};
       const played = stats.minutes_played ? Number(stats.minutes_played) > 0 : pts !== 0;
       if (played && pts <= 2 && pts < flopPlayerPoints) {
@@ -158,7 +184,7 @@ export function generateMatchReport(
   // Step 3: Any lowest points
   if (!selectedFlop && flopCandidates.length > 0) {
     for (const s of flopCandidates) {
-      const pts = detailMap[s.player_id]?.points ?? 0;
+      const pts = pointsAt(s.player_id, s.slot);
       if (pts < flopPlayerPoints) {
         flopPlayerPoints = pts;
         flopPlayerId = s.player_id;

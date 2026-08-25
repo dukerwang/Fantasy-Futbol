@@ -193,6 +193,53 @@ export function emptyTeamScoreDetail(): TeamScoreDetail {
   return { blanked: [], subs: [], benchBonus: [], benchBonusTotal: 0, outOfPosition: [] };
 }
 
+export interface ResolvedStarter {
+  player_id: string;
+  slot: string;
+  isSubIn: boolean;
+}
+
+export interface ResolvedBenchEntry {
+  player_id: string;
+  slot?: string;
+  isSubOut: boolean;
+}
+
+/**
+ * The lineup as it actually played, not as it was submitted: a starter who
+ * blanked and got covered is replaced by the sub who filled his slot, and the
+ * bench line shows that blanked starter in the sub's old spot.
+ *
+ * Driven entirely by `detail.subs` — the same list `calculateTeamScore`
+ * populated while computing the score being displayed — so anything that
+ * needs to know "who actually earned these points" (the pitch's sub arrows,
+ * the match report's star-of-the-match search) reads the identical answer
+ * rather than re-deriving eligibility itself.
+ */
+export function applySubsToLineup(
+  lineup: { starters?: { player_id: string; slot: string }[]; bench?: { player_id: string; slot?: string }[] } | null | undefined,
+  detail: TeamScoreDetail | undefined,
+): { starters: ResolvedStarter[]; bench: ResolvedBenchEntry[] } {
+  if (!lineup) return { starters: [], bench: [] };
+
+  const subsByOutId = new Map((detail?.subs ?? []).map((s) => [s.outId, s]));
+  const subsByInId = new Map((detail?.subs ?? []).map((s) => [s.inId, s]));
+
+  const starters: ResolvedStarter[] = (lineup.starters ?? []).map((s) => {
+    const sub = subsByOutId.get(s.player_id);
+    if (sub) return { player_id: sub.inId, slot: s.slot, isSubIn: true };
+    return { player_id: s.player_id, slot: s.slot, isSubIn: false };
+  });
+
+  const bench: ResolvedBenchEntry[] = (lineup.bench ?? []).map((b) => {
+    const sub = subsByInId.get(b.player_id);
+    if (sub) return { player_id: sub.outId, slot: b.slot, isSubOut: true };
+    return { player_id: b.player_id, slot: b.slot, isSubOut: false };
+  });
+
+  return { starters, bench };
+}
+
 const DEFENSIVE_SLOTS = ['CB', 'LB', 'RB', 'LWB', 'RWB'];
 const MID_OR_ATT = ['DM', 'CM', 'AM', 'LW', 'RW', 'ST'];
 
