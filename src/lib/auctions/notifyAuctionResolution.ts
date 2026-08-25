@@ -214,9 +214,7 @@ export async function notifyAuctionResolution(
           await createNotification(admin, {
             leagueId,
             userId: loser.user_id,
-            title: notice.title,
-            pushTitle: notice.pushTitle,
-            content: notice.content,
+            ...notice,
             url: `/league/${leagueId}/transfers/auctions`,
           });
         }

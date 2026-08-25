@@ -440,7 +440,8 @@ export async function POST(req: NextRequest, { params }: Props) {
       userId: targetTeam.user_id,
       title: `${dealName} from ${abbr}`,
       pushTitle: `${abbr} offer`,
-      content: `**${myTeam.team_name}** are offering: **${offeredNames.join(', ')}** in exchange for: **${requestedNames.join(', ')}**.${message ? ` Message: "${message}"` : ''}`,
+      content: `**${myTeam.team_name}** are offering: **${offeredNames.join(', ')}** in exchange for: **${requestedNames.join(', ')}**. Waiting on you.${message ? ` Message: "${message}"` : ''}`,
+      pushBody: `${abbr} have an offer in. Waiting on you.`,
       url: `/league/${leagueId}/transfers/deals`
     });
 

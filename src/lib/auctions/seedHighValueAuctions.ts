@@ -23,6 +23,7 @@ import { sendEmail } from '@/lib/email/client';
 import { getSystemAuctionsEmail } from '@/lib/email/templates';
 import { createNotification } from '@/lib/notifications/createNotification';
 import { buildAuctionSubject, buildFeaturedNotice } from '@/lib/notifications/valueTiers';
+import { timeLeft } from '@/lib/notifications/copy';
 import { initialAuctionExpiry } from '@/lib/auction/timer';
 import { getLeagueAuctionSettings } from '@/lib/auction/leagueAuctionSettings';
 
@@ -105,7 +106,7 @@ export async function seedHighValueAuctions(admin: SupabaseClient): Promise<Seed
         players: candidates.map((p) => p.name),
       });
 
-      await notifyLeague(admin, league.id, candidates);
+      await notifyLeague(admin, league.id, candidates, expiresAt);
     } catch (err) {
       console.error(`[seedHighValueAuctions] League ${league.id} failed:`, err);
     }
@@ -118,6 +119,7 @@ async function notifyLeague(
   admin: SupabaseClient,
   leagueId: string,
   candidates: { id: string; name: string; marketValue: number }[],
+  expiresAt: string,
 ): Promise<void> {
   try {
     const { data: allTeams } = await admin.from('teams').select('id, user_id').eq('league_id', leagueId);
@@ -138,12 +140,18 @@ async function notifyLeague(
     }
 
     const featuredNotice = buildFeaturedNotice(candidates.map((c) => ({ name: c.name, value: c.marketValue })));
+    const left = timeLeft(expiresAt);
+    const clock = left ? ` Auctions open — ${left} to bid.` : ' Auctions are open.';
     for (const t of allTeams) {
       await createNotification(admin, {
         leagueId,
         userId: t.user_id,
         title: 'New arrivals',
-        content: `**${candidates.length}** new arrival${candidates.length === 1 ? ' has' : 's have'} hit the market. 48-hour auctions are open.${featuredNotice}`,
+        pushTitle: 'Auctions open',
+        content: `**${candidates.length}** new arrival${candidates.length === 1 ? ' has' : 's have'} hit the market.${clock}${featuredNotice}`,
+        pushBody: left
+          ? `${candidates.length} new auction${candidates.length === 1 ? '' : 's'}. ${left} to bid.`
+          : `${candidates.length} new auction${candidates.length === 1 ? '' : 's'} are open.`,
         url: `/league/${leagueId}/transfers/auctions`,
       });
     }

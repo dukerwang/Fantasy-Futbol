@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { FULL_PLAYER_SELECT } from '@/lib/constants/queries';
+import { INITIAL_WINDOW_MS } from '@/lib/auction/timer';
 
 interface Props {
   params: Promise<{ leagueId: string }>;
@@ -333,15 +334,16 @@ export async function POST(req: NextRequest, { params }: Props) {
 
       const { createNotification } = await import('@/lib/notifications/createNotification');
       const { listedNotice } = await import('@/lib/notifications/copy');
-      const notice = listedNotice(myTeam, playerRow?.name ?? 'a player', priceLine);
+      const notice = listedNotice(myTeam, playerRow?.name ?? 'a player', priceLine, {
+        auctionOpen: hasMinBid,
+        expiresAt: hasMinBid ? Date.now() + INITIAL_WINDOW_MS : undefined,
+      });
       await Promise.all(
         otherTeams.map((t) =>
           createNotification(admin, {
             leagueId,
             userId: t.user_id,
-            title: notice.title,
-            pushTitle: notice.pushTitle,
-            content: notice.content,
+            ...notice,
             url: `/league/${leagueId}/transfers/listings`,
             tag: `listed-${listing.id}`,
           })

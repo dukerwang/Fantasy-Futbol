@@ -14,6 +14,11 @@ interface CreateNotificationParams {
    * banner width, which appends " from Gaffa" to every title.
    */
   pushTitle?: string;
+  /**
+   * Overrides `content` for the push body only. Use when the in-app paragraph
+   * is too long for a lock-screen banner (iOS shows roughly two lines).
+   */
+  pushBody?: string;
   /** Push grouping key — a new push with the same tag replaces the previous one on the device instead of stacking. Use for high-frequency triggers like outbid warnings. */
   tag?: string;
 }
@@ -28,7 +33,7 @@ export async function createNotification(
   admin: SupabaseClient,
   params: CreateNotificationParams
 ): Promise<void> {
-  const { leagueId, userId, title, content, url, pushTitle, tag } = params;
+  const { leagueId, userId, title, content, url, pushTitle, pushBody, tag } = params;
 
   try {
     const { error } = await admin
@@ -50,7 +55,7 @@ export async function createNotification(
   }
 
   try {
-    await sendPushToUser(admin, userId, { title: pushTitle ?? title, body: content, url, tag });
+    await sendPushToUser(admin, userId, { title: pushTitle ?? title, body: pushBody ?? content, url, tag });
   } catch (err) {
     console.error('[createNotification] Push send failed:', err);
   }

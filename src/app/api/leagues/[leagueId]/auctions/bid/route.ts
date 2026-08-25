@@ -476,13 +476,12 @@ export async function POST(req: NextRequest, { params }: Props) {
       // frequent for email now that the PWA covers always-on notifications.
       const { createNotification } = await import('@/lib/notifications/createNotification');
       const { outbidNotice } = await import('@/lib/notifications/copy');
-      const notice = outbidNotice(myTeam, playerData?.name ?? 'Unknown Player', bidAmount);
+      const closeAt = resData.expires_at ?? new Date(expiresAt).toISOString();
+      const notice = outbidNotice(myTeam, playerData?.name ?? 'Unknown Player', bidAmount, closeAt);
       await createNotification(admin, {
         leagueId,
         userId: resData.outbid_team_user_id,
-        title: notice.title,
-        pushTitle: notice.pushTitle,
-        content: notice.content,
+        ...notice,
         url: `/league/${leagueId}/transfers/auctions`,
         tag: `outbid-auction-${saleListingId ?? playerId}`
       });
@@ -513,15 +512,14 @@ export async function POST(req: NextRequest, { params }: Props) {
           ? `/league/${leagueId}/transfers/listings`
           : `/league/${leagueId}/transfers/auctions`;
         const { bidPlacedNotice } = await import('@/lib/notifications/copy');
-        const notice = bidPlacedNotice(myTeam, playerData?.name ?? 'A player', bidAmount);
+        const closeAt = resData.expires_at ?? new Date(expiresAt).toISOString();
+        const notice = bidPlacedNotice(myTeam, playerData?.name ?? 'A player', bidAmount, closeAt);
         await Promise.all(
           otherTeams.map((t) =>
             createNotification(admin, {
               leagueId,
               userId: t.user_id,
-              title: notice.title,
-              pushTitle: notice.pushTitle,
-              content: notice.content,
+              ...notice,
               url: destUrl,
               tag: `first-bid-auction-${saleListingId ?? playerId}`,
             })

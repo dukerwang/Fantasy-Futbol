@@ -156,7 +156,7 @@ export const getSystemAuctionsEmail = (
     <p>${preamble}</p>
     ${featuredHtml}
     ${standardHtml}
-    <p>You have 48 hours to place your bids on these players.</p>
+    <p>You have 72 hours to place your bids on these players.</p>
     <a href="${leagueUrl}/players" class="button">View Player Market</a>
   `;
   return baseTemplate(title, body);

@@ -179,14 +179,12 @@ export async function executeDrop(
             if (allTeams && allTeams.length > 0) {
                 const { createNotification } = await import('@/lib/notifications/createNotification');
                 const { droppedNotice } = await import('@/lib/notifications/copy');
-                const notice = droppedNotice(team, player.name);
+                const notice = droppedNotice(team, player.name, auctionExpiry);
                 for (const t of allTeams) {
                     await createNotification(admin, {
                         leagueId: team.league_id,
                         userId: t.user_id,
-                        title: notice.title,
-                        pushTitle: notice.pushTitle,
-                        content: notice.content,
+                        ...notice,
                         url: `/league/${team.league_id}/transfers/auctions`
                     });
                 }

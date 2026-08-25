@@ -161,13 +161,12 @@ export async function POST(req: NextRequest, { params }: Props) {
       // In-app + push only — see the matching note in /auctions/bid.
       const { createNotification } = await import('@/lib/notifications/createNotification');
       const { outbidNotice } = await import('@/lib/notifications/copy');
-      const notice = outbidNotice(myTeam, playerData?.name ?? 'a player', bidAmount);
+      const closeAt = res.expires_at ?? new Date(expiresAt).toISOString();
+      const notice = outbidNotice(myTeam, playerData?.name ?? 'a player', bidAmount, closeAt);
       await createNotification(admin, {
         leagueId,
         userId: res.outbid_team_user_id,
-        title: notice.title,
-        pushTitle: notice.pushTitle,
-        content: notice.content,
+        ...notice,
         url: `/league/${leagueId}/transfers/listings`,
         tag: `outbid-listing-${listingId}`,
       });
@@ -189,15 +188,14 @@ export async function POST(req: NextRequest, { params }: Props) {
       if (otherTeams && otherTeams.length > 0) {
         const { createNotification } = await import('@/lib/notifications/createNotification');
         const { bidPlacedNotice } = await import('@/lib/notifications/copy');
-        const notice = bidPlacedNotice(myTeam, playerData?.name ?? 'A player', bidAmount);
+        const closeAt = res.expires_at ?? new Date(expiresAt).toISOString();
+        const notice = bidPlacedNotice(myTeam, playerData?.name ?? 'A player', bidAmount, closeAt);
         await Promise.all(
           otherTeams.map((t) =>
             createNotification(admin, {
               leagueId,
               userId: t.user_id,
-              title: notice.title,
-              pushTitle: notice.pushTitle,
-              content: notice.content,
+              ...notice,
               url: `/league/${leagueId}/transfers/listings`,
               tag: `first-bid-auction-${listingId}`,
             })
