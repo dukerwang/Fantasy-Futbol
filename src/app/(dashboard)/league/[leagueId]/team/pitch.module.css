@@ -480,8 +480,14 @@
     background: transparent;
 }
 
-/* Serif, tabular, ink — a settled figure compared across the field, which is
-   decision 6's serif job. Not a colour ramp: see the header comment. */
+/* Serif, tabular — a settled figure compared across the field.
+ *
+ * IT DOES CARRY A COLOUR RAMP, same bands and same hex values as
+ * MatchupPitch.module.css's .chipPts (see that file's header comment for why
+ * a flat ink figure lost the pitch its only at-a-glance "who returned?"
+ * answer, and for the source of these thresholds). Duplicated rather than
+ * shared because these are two separate CSS modules; keep them in step if
+ * the ramp is retuned. The class is applied by PitchUI's own `ptsBand()`. */
 .nodePtsBadge {
     position: absolute;
     top: -8px;
@@ -499,12 +505,38 @@
     z-index: 5;
 }
 
+.nodePtsElite,
+.nodePtsGood,
+.nodePtsFair,
+.nodePtsBelowAvg,
+.nodePtsWeak {
+    color: #fff;
+    border-color: transparent;
+}
+.nodePtsElite    { background: #2D6A4F; }   /* >= 29   — display >= 8.5 */
+.nodePtsGood     { background: #387D53; }   /* >= 15.8 — display >= 7.5 */
+.nodePtsFair     { background: #8C6C00; }   /* >= 5.6  — display >= 6.5 */
+.nodePtsBelowAvg { background: #9D6407; }   /* >= 2.0  — display >= 6.0 */
+.nodePtsWeak     { background: #AC5B0E; }   /* >  0    — display >= 5.5 */
+.nodePtsBad      { color: #fff; background: #9B2335; border-color: transparent; }
+
 .nodeChipBody {
     padding: var(--s1) var(--s2);
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: var(--s1);
+}
+
+/* The pts badge and the portrait's club crest both hang out of flow past the
+   portrait/chip boundary (see .nodePtsBadge's top:-8px and .g-portrait-crest's
+   bottom:-7px in globals.css) — a corner flourish that costs nothing in
+   layout as long as nothing readable sits directly under it. It used to be
+   the player's name; MatchupPitch's chip never had this problem because its
+   badge row sits ABOVE the name in the flow, not below, so the float lands on
+   a small position pill instead of text. Same order here now. */
+.nodeMetaChipRow {
+    order: -1;
 }
 
 .nodePlayerNameCenter {

@@ -28,6 +28,20 @@ const BENCH_SLOT_NAMES: BenchSlot[] = ['DEF', 'MID', 'ATT', 'FLEX'];
 
 const DEFAULT_TAXI_AGE_LIMIT = 21;
 
+/**
+ * Points band for the pitch badge fill — same thresholds and colours as
+ * MatchupPitch's ptsBand (matchRating.ts has the exact table); see
+ * pitch.module.css's .nodePtsBadge comment for why this exists twice.
+ */
+function ptsBand(points: number): string {
+    if (points >= 29) return styles.nodePtsElite;
+    if (points >= 15.8) return styles.nodePtsGood;
+    if (points >= 5.6) return styles.nodePtsFair;
+    if (points >= 2.0) return styles.nodePtsBelowAvg;
+    if (points > 0) return styles.nodePtsWeak;
+    return styles.nodePtsBad;
+}
+
 /* SPINE (phase-of-play order) and POS_COLOR now live in
    src/lib/positions/spine.ts — the stats pool is the second panel to qualify
    for the spectrum, and two copies of the twelve hues is how the device stops
@@ -189,7 +203,7 @@ function PitchNode({ slotPos, player, isSelected, isValidTarget, isEmpty, isInva
 
             <div className={chipCls}>
                 {points !== undefined && (
-                    <span className={styles.nodePtsBadge}>{points.toFixed(2)}</span>
+                    <span className={`${styles.nodePtsBadge} ${ptsBand(points)}`}>{points.toFixed(2)}</span>
                 )}
                 {isLocked && player && (
                     <span className={styles.nodeLockCorner} title="Locked">

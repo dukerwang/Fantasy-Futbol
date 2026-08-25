@@ -266,45 +266,87 @@
 }
 
 /* ── The chip ───────────────────────────────────────────────
-   Card ground, pitch-line keyline. Elevation is the keyline; the shadow it
-   used to carry as well was decision 1's ghost-card tell. */
+   Portrait above a card, ported 2026-08-25 to match the team pitch's node
+   (PitchUI.tsx / pitch.module.css) — Duke asked for the two pitch surfaces to
+   look and align the same way rather than drifting into two different chip
+   languages. Structure mirrors .pitchNodeWrap/.nodePortrait/.pitchNode there:
+   .chipWrap is the click target, .chipPortrait holds <Portrait>, .chipBox is
+   the card underneath. Keep the two in step if either is retouched. */
 
-.chip {
+.chipWrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--s1);
+    position: relative;
+    width: auto;
+    min-width: 108px;
+    max-width: 124px;
+    padding: 0;
+    margin: 0;
+    border: none;
+    background: transparent;
+    font: inherit;
+    cursor: pointer;
+    box-shadow: none;
+    text-align: center;
+}
+
+.chipPortrait {
     position: relative;
     display: block;
-    width: 100px;
     flex-shrink: 0;
-    padding: var(--s1) 5px 5px;
-    text-align: left;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .chipWrap:hover .chipBox { border-color: var(--color-accent); }
+}
+
+/* Card ground, pitch-line keyline. Elevation is the keyline; the shadow it
+   used to carry as well was decision 1's ghost-card tell. */
+.chipBox {
+    position: relative;
+    width: 100%;
+    min-width: 100px;
     background: var(--color-bg-card);
     border: 1px solid var(--color-pitch-line);
     border-radius: var(--r-control);
     overflow: visible;
-    font: inherit;
-    cursor: pointer;
     transition: border-color var(--dur-fast) var(--ease-standard);
 }
 
-@media (hover: hover) and (pointer: fine) {
-  .chip:hover { border-color: var(--color-accent); }
+.chipBody {
+    padding: var(--s1) var(--s2);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--s1);
 }
 
 .chipBadgeRow {
     display: flex;
     align-items: center;
-    margin-bottom: 3px;
+    justify-content: center;
+    width: 100%;
 }
 
+/* Centred, two-line — the name is read against a portrait now, not a bare
+   left-aligned label, so it takes the pitch node's wrap treatment instead of
+   a single-line ellipsis. */
 .chipName {
-    display: block;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
     font-family: var(--font-serif);
     font-size: var(--t-12);
     font-weight: 700;
+    line-height: 1.2;
     letter-spacing: 0.005em;
     color: var(--color-text-primary);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    text-align: center;
+    width: 100%;
+    word-break: break-word;
     margin: 0;
 }
 
@@ -317,9 +359,11 @@
     letter-spacing: 0.03em;
     color: var(--color-text-secondary);
     font-variant-numeric: tabular-nums lining-nums;
+    text-align: center;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    width: 100%;
     margin: 1px 0 0;
 }
 
@@ -331,9 +375,12 @@
  * green in both places; they are set on .chipPts modifiers, not here, so the
  * pending and DNP states can opt out entirely.
  *
- * Values are duplicated from PremiumPlayerCard.module.css rather than hoisted
- * into globals.css: that file is being rewritten on the palette branch and a
- * token added here would collide. Fold them together when it lands. */
+ * Values are duplicated from PremiumPlayerCard.module.css (and again in
+ * pitch.module.css's .nodePtsBadge) rather than hoisted into globals.css:
+ * that file is being rewritten on the palette branch and a token added here
+ * would collide. Fold them together when it lands. Positioned against
+ * .chipBox, which carries `position: relative` now that the portrait is a
+ * separate sibling above it. */
 .chipPts {
     position: absolute;
     top: -8px;
@@ -358,18 +405,22 @@
 .ptsElite,
 .ptsGood,
 .ptsFair,
-.ptsPoor {
+.ptsBelowAvg,
+.ptsWeak {
     color: #fff;
     border-color: transparent;
 }
-.ptsElite { background: #2D6A4F; }   /* >= 18 — a return that decides a week */
-.ptsGood  { background: #387D53; }   /* >= 12 */
-.ptsFair  { background: #8C6C00; }   /* >= 7  */
-.ptsPoor  { background: #AC5B0E; }   /* >= 3  */
+.ptsElite    { background: #2D6A4F; }   /* >= 29   — display >= 8.5, a return that decides a week */
+.ptsGood     { background: #387D53; }   /* >= 15.8 — display >= 7.5 */
+.ptsFair     { background: #8C6C00; }   /* >= 5.6  — display >= 6.5 */
+.ptsBelowAvg { background: #9D6407; }   /* >= 2.0  — display >= 6.0 */
+.ptsWeak     { background: #AC5B0E; }   /* >  0    — display >= 5.5 */
 
-/* Under 3 is red, same as the pre-2.0 ramp. A blank pill was indistinguishable
-   from a chip with no data, which is the exact confusion the pending/DNP states
-   exist to remove — a bad return should read as a bad return. */
+/* Exactly 0 is red, same as the pre-2.0 ramp — the points curve pays nothing
+   at or below display 5.5, so zero and "bad" are the same case here. A blank
+   pill was indistinguishable from a chip with no data, which is the exact
+   confusion the pending/DNP states exist to remove — a bad return should read
+   as a bad return. */
 .ptsBad {
     color: #fff;
     background: #9B2335;
@@ -397,7 +448,8 @@
     border-color: var(--color-text-muted);
 }
 
-/* Chip-level state. Kept light: the name must stay legible, so these lower the
+/* Chip-level state, applied to .chipWrap so the portrait dims along with the
+   card beneath it. Kept light: the name must stay legible, so these lower the
    surface rather than fading the text. */
 .chipPending { opacity: 0.78; }
 .chipDnp { opacity: 0.62; }
@@ -478,28 +530,20 @@
     gap: var(--s2);
 }
 
-.benchChip {
-    position: relative;
-    display: block;
-    width: 88px;
-    flex-shrink: 0;
-    padding: var(--s1) 5px 5px;
-    text-align: left;
-    background: var(--color-bg-card);
-    border: 1px solid var(--color-border-subtle);
-    border-radius: var(--r-control);
-    overflow: visible;
-    font: inherit;
-    cursor: pointer;
-    transition: border-color var(--dur-fast) var(--ease-standard);
+/* Same chipWrap/chipPortrait/chipBox structure as a starter, one size down —
+   a bench player is a smaller portrait (Portrait size="sm") and a lighter
+   keyline, the same modest step the flat chip used to take at 88px vs 100px. */
+.benchChipWrap {
+    min-width: 76px;
+    max-width: 88px;
 }
 
-@media (hover: hover) and (pointer: fine) {
-  .benchChip:hover { border-color: var(--color-accent); }
+.benchChipBox {
+    border-color: var(--color-border-subtle);
 }
 
-.benchChip .chipPts { border-color: var(--color-border); }
-.benchChip .subMark { border-color: var(--color-border); }
+.benchChipBox .chipPts { border-color: var(--color-border); }
+.benchChipBox .subMark { border-color: var(--color-border); }
 
 /* ── The breakdown ──────────────────────────────────────────
    The arithmetic that produced the scoreline at the top of the page, which is
@@ -661,5 +705,27 @@
 
 @media (max-width: 600px) {
     .board { margin: 0 var(--s4); }
-    .chip { width: 88px; }
+    .chipWrap {
+        min-width: 64px;
+        max-width: 78px;
+        gap: 3px;
+    }
+    .chipBox { min-width: 60px; }
+    /* The wrapper above shrinks, but Portrait's own g-portrait-md class is a
+       fixed 66x78 regardless of viewport — step it down to row size
+       (g-portrait-sm's own numbers), same fix as PitchUI's pitch node. */
+    .chipWrap :global(.g-portrait-md) {
+        width: 44px;
+        height: 44px;
+        --g-portrait-zoom: 150%;
+        --g-portrait-zoom-alt: 136%;
+        --g-portrait-inset: 4px;
+        --g-crest: 16px;
+    }
+    .chipWrap :global(.g-portrait-md) :global(.g-portrait-fallback) {
+        font-size: 17px;
+    }
+    .chipBody { padding: 3px var(--s1) var(--s1); gap: 2px; }
+    .chipName { font-size: var(--t-10); }
+    .benchChipWrap { min-width: 60px; max-width: 70px; }
 }

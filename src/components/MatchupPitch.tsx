@@ -8,6 +8,7 @@ import { getPlayerDisplayName } from '@/lib/players/displayName';
 import { SPINE, POS_COLOR } from '@/lib/positions/spine';
 import { usePlayerCard } from './players/PlayerCardProvider';
 import PositionBadge from './players/PositionBadge';
+import Portrait from './players/Portrait';
 import CrestBadge from './crest/CrestBadge';
 import type { CrestConfig } from './crest/types';
 import { Icon } from './ui/Icon';
@@ -138,12 +139,20 @@ function playStatus(detail: Detail | undefined, hasStarted: boolean): PlayStatus
  * Points band for the badge fill. Restores the ramp that the 2.0 pitch port
  * dropped when it replaced .chipScore with a single flat colour — scanning a
  * pitch for who actually returned is the whole job of that number.
+ *
+ * Thresholds are calculateFantasyPoints() evaluated at the rating ramp's own
+ * cutoffs (PremiumPlayerCard.module.css: 8.5/7.5/6.5/6.0/5.5 display), so a
+ * given performance colours the same on the pitch badge as it does on the
+ * player card. calculateFantasyPoints() is pivot=4.0/scale=8.6/exp=1.5 — if
+ * that curve is retuned, regenerate these too or the two ramps drift apart
+ * again (matchRating.ts has the exact table).
  */
 function ptsBand(points: number): string {
-    if (points >= 18) return styles.ptsElite;
-    if (points >= 12) return styles.ptsGood;
-    if (points >= 7) return styles.ptsFair;
-    if (points >= 3) return styles.ptsPoor;
+    if (points >= 29) return styles.ptsElite;
+    if (points >= 15.8) return styles.ptsGood;
+    if (points >= 5.6) return styles.ptsFair;
+    if (points >= 2.0) return styles.ptsBelowAvg;
+    if (points > 0) return styles.ptsWeak;
     return styles.ptsBad;
 }
 
@@ -189,7 +198,7 @@ function PlayerChip({ slot, player, detail, status, isSubIn, onClick }: {
     return (
         <button
             type="button"
-            className={`${styles.chip} ${stateCls}`}
+            className={`${styles.chipWrap} ${stateCls}`}
             onClick={onClick}
             aria-label={`${name}, ${slot}, ${
                 status === 'pending' ? 'yet to play'
@@ -197,17 +206,32 @@ function PlayerChip({ slot, player, detail, status, isSubIn, onClick }: {
                     : `${(detail?.points ?? 0).toFixed(2)} points`
             }`}
         >
-            {isSubIn && <SubMark dir="in" />}
-            {player && <PointsBadge detail={detail} status={status} />}
-            {isGranular(slot) && (
-                <span className={styles.chipBadgeRow}>
-                    <PositionBadge position={slot} size="sm" />
-                </span>
-            )}
-            <p className={styles.chipName}>{name}</p>
-            {detail?.stats && (
-                <p className={styles.chipStats}>{fmtStats(detail, slot)}</p>
-            )}
+            <span className={styles.chipPortrait}>
+                {isSubIn && <SubMark dir="in" />}
+                <Portrait
+                    photoUrl={player?.photo_url}
+                    name={name}
+                    club={player?.pl_team}
+                    size="md"
+                    headTopPct={player?.portrait_head_top_pct}
+                    headWidthPct={player?.portrait_head_width_pct}
+                    photoVersion={player?.photo_version}
+                />
+            </span>
+            <div className={styles.chipBox}>
+                {player && <PointsBadge detail={detail} status={status} />}
+                <div className={styles.chipBody}>
+                    {isGranular(slot) && (
+                        <span className={styles.chipBadgeRow}>
+                            <PositionBadge position={slot} size="sm" />
+                        </span>
+                    )}
+                    <p className={styles.chipName}>{name}</p>
+                    {detail?.stats && (
+                        <p className={styles.chipStats}>{fmtStats(detail, slot)}</p>
+                    )}
+                </div>
+            </div>
         </button>
     );
 }
@@ -231,15 +255,35 @@ function BenchChip({ player, detail, status, isSubOut, onClick }: {
     const stateCls = status === 'pending' ? styles.chipPending
         : status === 'dnp' ? styles.chipDnp : '';
     return (
-        <button type="button" className={`${styles.benchChip} ${stateCls}`} onClick={onClick} aria-label={name}>
-            {isSubOut && <SubMark dir="out" />}
-            {player && <PointsBadge detail={detail} status={status} />}
-            {isGranular(pos) && (
-                <span className={styles.chipBadgeRow}>
-                    <PositionBadge position={pos} size="sm" />
-                </span>
-            )}
-            <p className={styles.chipName}>{name}</p>
+        <button
+            type="button"
+            className={`${styles.chipWrap} ${styles.benchChipWrap} ${stateCls}`}
+            onClick={onClick}
+            aria-label={name}
+        >
+            <span className={styles.chipPortrait}>
+                {isSubOut && <SubMark dir="out" />}
+                <Portrait
+                    photoUrl={player?.photo_url}
+                    name={name}
+                    club={player?.pl_team}
+                    size="sm"
+                    headTopPct={player?.portrait_head_top_pct}
+                    headWidthPct={player?.portrait_head_width_pct}
+                    photoVersion={player?.photo_version}
+                />
+            </span>
+            <div className={`${styles.chipBox} ${styles.benchChipBox}`}>
+                {player && <PointsBadge detail={detail} status={status} />}
+                <div className={styles.chipBody}>
+                    {isGranular(pos) && (
+                        <span className={styles.chipBadgeRow}>
+                            <PositionBadge position={pos} size="sm" />
+                        </span>
+                    )}
+                    <p className={styles.chipName}>{name}</p>
+                </div>
+            </div>
         </button>
     );
 }
