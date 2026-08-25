@@ -59,7 +59,7 @@ export async function POST(req: NextRequest, { params }: Props) {
         leagueId,
         userId: teamB.user_id,
         title: 'Trade Withdrawn',
-        content: `**${teamA.team_name}** has withdrawn their trade proposal to you.`,
+        content: `**${teamA.team_name}** have withdrawn their offer.`,
         url: `/league/${leagueId}/transfers/deals`
       });
     } catch (err) {
@@ -81,7 +81,7 @@ export async function POST(req: NextRequest, { params }: Props) {
         leagueId,
         userId: teamA.user_id,
         title: 'Trade Rejected',
-        content: `Your trade proposal to **${teamB.team_name}** has been declined.`,
+        content: `**${teamB.team_name}** have turned down your offer.`,
         url: `/league/${leagueId}/transfers/deals`
       });
     } catch (err) {

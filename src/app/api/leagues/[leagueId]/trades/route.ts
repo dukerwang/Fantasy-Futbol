@@ -195,7 +195,7 @@ export async function POST(req: NextRequest, { params }: Props) {
   // Verify caller's team
   const { data: myTeam } = await admin
     .from('teams')
-    .select('id, faab_budget, team_name')
+    .select('id, faab_budget, team_name, abbreviation')
     .eq('league_id', leagueId)
     .eq('user_id', user.id)
     .single();
@@ -433,11 +433,13 @@ export async function POST(req: NextRequest, { params }: Props) {
 
     // Create in-game notification for recipient manager
     const { createNotification } = await import('@/lib/notifications/createNotification');
+    const { clubAbbr } = await import('@/lib/notifications/clubRef');
+    const abbr = clubAbbr(myTeam);
     await createNotification(admin, {
       leagueId,
       userId: targetTeam.user_id,
-      title: `${dealName} from ${myTeam.team_name}`,
-      pushTitle: 'Trade Offer',
+      title: `${dealName} from ${abbr}`,
+      pushTitle: `${abbr} offer`,
       content: `**${myTeam.team_name}** are offering: **${offeredNames.join(', ')}** in exchange for: **${requestedNames.join(', ')}**.${message ? ` Message: "${message}"` : ''}`,
       url: `/league/${leagueId}/transfers/deals`
     });

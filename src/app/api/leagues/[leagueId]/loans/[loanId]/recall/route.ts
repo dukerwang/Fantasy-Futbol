@@ -155,7 +155,7 @@ export async function POST(req: NextRequest, { params }: Props) {
         leagueId,
         userId: borrowerTeam.user_id,
         title: 'Loan Recalled',
-        content: `**${myTeam.team_name}** has recalled **${player.name}** early. You received €${resData.penalty}m recall penalty.${resData.bonus_paid && resData.bonus_paid > 0 ? ` Paid €${resData.bonus_paid}m performance bonus.` : ''}`,
+        content: `**${myTeam.team_name}** have recalled **${player.name}** early. You received €${resData.penalty}m recall penalty.${resData.bonus_paid && resData.bonus_paid > 0 ? ` Paid €${resData.bonus_paid}m performance bonus.` : ''}`,
         url: `/league/${leagueId}/transfers/deals`
       });
 
@@ -163,7 +163,7 @@ export async function POST(req: NextRequest, { params }: Props) {
       await admin.from('chat_messages').insert({
         league_id: leagueId,
         is_system: true,
-        message: `[SYSTEM:ANNOUNCEMENT] Recall activated — **${myTeam.team_name}** has recalled **${player.name}** early from **${borrowerTeam.team_name}**. Lender pays €${resData.penalty}m penalty to borrower.`,
+        message: `[SYSTEM:ANNOUNCEMENT] Recall activated — **${myTeam.team_name}** have recalled **${player.name}** early from **${borrowerTeam.team_name}**. Lender pays €${resData.penalty}m penalty to borrower.`,
       });
 
       // Notify lender about pending activation if applicable

@@ -13,6 +13,7 @@ import { sendEmail } from '@/lib/email/client';
 import { getAuctionWonEmail, getPlayerSoldEmail } from '@/lib/email/templates';
 import { createNotification } from '@/lib/notifications/createNotification';
 import { buildHereWeGo, pushTitleForEyebrow } from '@/lib/notifications/hereWeGo';
+import { auctionLostNotice } from '@/lib/notifications/copy';
 
 export interface AuctionResolutionResult {
   success: boolean;
@@ -62,7 +63,7 @@ export async function notifyAuctionResolution(
   try {
     const { data: leagueTeams } = await admin
       .from('teams')
-      .select('id, team_name, user_id')
+      .select('id, team_name, abbreviation, user_id')
       .eq('league_id', leagueId);
 
     // Who last released this player into the pool, if anyone — NOT the same as
@@ -95,7 +96,7 @@ export async function notifyAuctionResolution(
     if (leagueEmails.length > 0) {
       await sendEmail({
         to: leagueEmails,
-        subject: `Auction Won: ${playerName} signed by ${winnerTeamName ?? 'Club'}`,
+        subject: `${playerName} to ${winnerTeamName ?? 'a club'} for €${winnerBid}m`,
         html: getAuctionWonEmail(
           playerName,
           winnerTeamName ?? 'Unknown Club',
@@ -119,7 +120,7 @@ export async function notifyAuctionResolution(
         userId: winnerUserId,
         title: eyebrow || 'Auction Won!',
         pushTitle: pushTitleForEyebrow(eyebrow, 'Auction Won'),
-        content: `${lead}${resData.winner_severance ? ` **${dropPlayerName}** was dropped to waivers to clear roster space.` : ''}`,
+        content: `${lead}${resData.winner_severance ? ` **${dropPlayerName}** was released to clear roster space.` : ''}`,
         url: `/league/${leagueId}/team`,
       });
     }
@@ -193,7 +194,7 @@ export async function notifyAuctionResolution(
         if (sellerUser?.email) {
           await sendEmail({
             to: [sellerUser.email],
-            subject: `Player Sold! ${playerName} transfer complete`,
+            subject: `${playerName} sold to ${winnerTeamName ?? 'another club'} for €${winnerBid}m`,
             html: getPlayerSoldEmail(playerName, winnerTeamName ?? 'Another club', winnerBid, tierValue, `${baseUrl}/league/${leagueId}`),
           });
         }
@@ -202,14 +203,20 @@ export async function notifyAuctionResolution(
 
     // 2. Notify the losing bidders
     const losingBidders = resData.losing_teams ?? [];
+    const winnerClub = {
+      team_name: winnerTeamName ?? 'another club',
+      abbreviation: leagueTeams?.find((t) => t.id === resData.winner_team_id)?.abbreviation ?? null,
+    };
     await Promise.all(
       losingBidders.map(async (loser) => {
         if (loser.user_id) {
+          const notice = auctionLostNotice(winnerClub, playerName, winnerBid, loser.faab_bid);
           await createNotification(admin, {
             leagueId,
             userId: loser.user_id,
-            title: 'Waiver Lost',
-            content: `Your waiver bid of **€${loser.faab_bid}m** for **${playerName}** was unsuccessful. **${winnerTeamName ?? 'Another team'}** won the signature for **€${winnerBid}m**.`,
+            title: notice.title,
+            pushTitle: notice.pushTitle,
+            content: notice.content,
             url: `/league/${leagueId}/transfers/auctions`,
           });
         }

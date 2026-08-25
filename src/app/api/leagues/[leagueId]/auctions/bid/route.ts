@@ -68,7 +68,7 @@ export async function POST(req: NextRequest, { params }: Props) {
   // Caller must have a team in this league
   const { data: myTeam } = await admin
     .from('teams')
-    .select('id, faab_budget')
+    .select('id, faab_budget, team_name, abbreviation')
     .eq('league_id', leagueId)
     .eq('user_id', user.id)
     .single();
@@ -475,11 +475,14 @@ export async function POST(req: NextRequest, { params }: Props) {
       // In-app + push only — outbid fires on every raise in a bidding war, too
       // frequent for email now that the PWA covers always-on notifications.
       const { createNotification } = await import('@/lib/notifications/createNotification');
+      const { outbidNotice } = await import('@/lib/notifications/copy');
+      const notice = outbidNotice(myTeam, playerData?.name ?? 'Unknown Player', bidAmount);
       await createNotification(admin, {
         leagueId,
         userId: resData.outbid_team_user_id,
-        title: 'Outbid!',
-        content: `You have been outbid for **${playerData?.name ?? 'Unknown Player'}**. The new high bid is now **€${bidAmount}m**.`,
+        title: notice.title,
+        pushTitle: notice.pushTitle,
+        content: notice.content,
         url: `/league/${leagueId}/transfers/auctions`,
         tag: `outbid-auction-${saleListingId ?? playerId}`
       });
@@ -509,13 +512,16 @@ export async function POST(req: NextRequest, { params }: Props) {
         const destUrl = resData.is_listing
           ? `/league/${leagueId}/transfers/listings`
           : `/league/${leagueId}/transfers/auctions`;
+        const { bidPlacedNotice } = await import('@/lib/notifications/copy');
+        const notice = bidPlacedNotice(myTeam, playerData?.name ?? 'A player', bidAmount);
         await Promise.all(
           otherTeams.map((t) =>
             createNotification(admin, {
               leagueId,
               userId: t.user_id,
-              title: 'Bidding Open',
-              content: `**${playerData?.name ?? 'A player'}** just received its first bid — **€${bidAmount}m**. Bidding is now open.`,
+              title: notice.title,
+              pushTitle: notice.pushTitle,
+              content: notice.content,
               url: destUrl,
               tag: `first-bid-auction-${saleListingId ?? playerId}`,
             })

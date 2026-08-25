@@ -260,7 +260,7 @@ export async function POST(req: NextRequest, { params }: Props) {
   // 2. Caller must have a team in this league
   const { data: myTeam } = await admin
     .from('teams')
-    .select('id, team_name, faab_budget')
+    .select('id, team_name, abbreviation, faab_budget')
     .eq('league_id', leagueId)
     .eq('user_id', user.id)
     .single();
@@ -551,20 +551,24 @@ export async function POST(req: NextRequest, { params }: Props) {
   // (see loans/[loanId]/route.ts).
   try {
     const { createNotification } = await import('@/lib/notifications/createNotification');
+    const { clubAbbr } = await import('@/lib/notifications/clubRef');
+    const abbr = clubAbbr(myTeam);
     if (requestMode) {
       await createNotification(admin, {
         leagueId,
         userId: counterpartyTeam.user_id,
-        title: 'Loan Requested',
-        content: `**${myTeam.team_name}** is requesting to loan **${player.name}** for GW${startGameweek}-GW${endGameweek}. Proposed fee: €${loanFee}m.${message ? ` Message: "${message}"` : ''}`,
+        title: `${abbr} want ${player.name}`,
+        pushTitle: `${abbr} loan`,
+        content: `**${myTeam.team_name}** want **${player.name}** on loan for GW${startGameweek}–GW${endGameweek}. Fee: €${loanFee}m.${message ? ` Message: "${message}"` : ''}`,
         url: `/league/${leagueId}/transfers/deals`
       });
     } else {
       await createNotification(admin, {
         leagueId,
         userId: counterpartyTeam.user_id,
-        title: 'Loan Offered',
-        content: `**${myTeam.team_name}** has proposed to loan **${player.name}** to your club for GW${startGameweek}-GW${endGameweek}. Fee: €${loanFee}m.${message ? ` Message: "${message}"` : ''}`,
+        title: `${abbr} offer ${player.name}`,
+        pushTitle: `${abbr} loan`,
+        content: `**${myTeam.team_name}** have offered **${player.name}** on loan for GW${startGameweek}–GW${endGameweek}. Fee: €${loanFee}m.${message ? ` Message: "${message}"` : ''}`,
         url: `/league/${leagueId}/transfers/deals`
       });
     }

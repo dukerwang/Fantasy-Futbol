@@ -127,7 +127,7 @@ export const getSystemAuctionsEmail = (
   const title = isSummerKickoff ? 'The Season Has Begun!' : 'Transfer Window Alert';
   const preamble = isSummerKickoff
     ? `The commissioner has officially started the new season. <strong>${players.length} new players</strong> have been added to the Transfer Auction Block.`
-    : `FPL has added <strong>${players.length} new players</strong> to the database who meet the €${thresholdM}m valuation threshold. They have been placed on waivers.`;
+    : `FPL has added <strong>${players.length} new players</strong> who meet the €${thresholdM}m valuation threshold. They've gone to auction.`;
 
   const standard = players.filter((p) => getValueTier(p.value) === 'standard');
   const featured = players
@@ -204,7 +204,7 @@ export const getAuctionWonEmail = (
     <p>The player was ${sourceInfo}.</p>
     ${droppedPlayerName ? `
       <div style="background-color: ${BG_PAGE}; padding: 20px; border-radius: 8px; margin: 20px 0; border: 1px dashed ${BORDER};">
-        <p style="margin: 0;"><strong>The Clearing:</strong> To complete the registration, ${winnerClub} has released <strong>${droppedPlayerName}</strong> into the waiver pool.</p>
+        <p style="margin: 0;">To make room, ${winnerClub} have released <strong>${droppedPlayerName}</strong> into the auction pool.</p>
       </div>
     ` : ''}
     <a href="${leagueUrl}/activity" class="button">Read the Transaction Log</a>

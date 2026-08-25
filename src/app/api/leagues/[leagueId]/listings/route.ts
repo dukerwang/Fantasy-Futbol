@@ -65,7 +65,7 @@ export async function POST(req: NextRequest, { params }: Props) {
   // 2. Caller must have a team in this league
   const { data: myTeam } = await admin
     .from('teams')
-    .select('id, team_name')
+    .select('id, team_name, abbreviation')
     .eq('league_id', leagueId)
     .eq('user_id', user.id)
     .single();
@@ -332,13 +332,16 @@ export async function POST(req: NextRequest, { params }: Props) {
       const priceLine = priceBits.length > 0 ? ` (${priceBits.join(', ')})` : '';
 
       const { createNotification } = await import('@/lib/notifications/createNotification');
+      const { listedNotice } = await import('@/lib/notifications/copy');
+      const notice = listedNotice(myTeam, playerRow?.name ?? 'a player', priceLine);
       await Promise.all(
         otherTeams.map((t) =>
           createNotification(admin, {
             leagueId,
             userId: t.user_id,
-            title: 'Player Listed',
-            content: `**${myTeam.team_name}** has listed **${playerRow?.name ?? 'a player'}** for sale${priceLine}.`,
+            title: notice.title,
+            pushTitle: notice.pushTitle,
+            content: notice.content,
             url: `/league/${leagueId}/transfers/listings`,
             tag: `listed-${listing.id}`,
           })

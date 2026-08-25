@@ -341,8 +341,8 @@ export async function runSeasonKickoff(admin: SupabaseClient, leagueId: string):
         await createNotification(admin, {
           leagueId,
           userId: t.user_id,
-          title: 'Season Started',
-          content: `The new season has officially kicked off! Rosters are unlocked, and **${playersToAuction.length}** high-value summer arrivals have been added to the transfer auction block.${featuredNotice}`,
+          title: 'Season started',
+          content: `The new season is underway. Rosters are unlocked, and **${playersToAuction.length}** summer arrivals have gone to auction.${featuredNotice}`,
           url: `/league/${leagueId}`,
         });
       }

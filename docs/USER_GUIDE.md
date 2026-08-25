@@ -283,7 +283,7 @@ The Stats page is deliberately league-wide rather than limited to free agents: s
 
 Every player you don't already own — genuine free agents and players listed by other managers alike — sits on **one board**, behind one bid button. You buy them the same way: an **open auction** paid from your **Club Balance**.
 
-Open means open. You can see the current highest bid, which club holds it, and how many clubs have bid. When someone outbids you, you're notified. There is no sealed envelope and no hidden phase.
+Open means open. You can see the current highest bid, which club holds it, and how many clubs have bid. When someone outbids you, you're told who — and at what fee. There is no sealed envelope and no hidden phase.
 
 **Why open rather than sealed?** For the same reason as everything else in Gaffa: it's closer to how football works. Real transfer business isn't conducted in sealed envelopes — it's semi-open. Clubs know who else is in for a player, agents brief journalists, and a price gets driven up in public. An open auction simulates a negotiation; a blind bid simulates a raffle.
 

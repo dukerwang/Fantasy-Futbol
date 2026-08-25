@@ -104,7 +104,7 @@ export async function POST(req: NextRequest, { params }: Props) {
         leagueId,
         userId: lenderTeam.user_id,
         title: 'Loan Rejected',
-        content: `**${borrowerTeam.team_name}** has rejected your proposal to loan **${player.name}**.`,
+        content: `**${borrowerTeam.team_name}** have turned down the loan of **${player.name}**.`,
         url: `/league/${leagueId}/transfers/deals`
       });
     } catch (err) {
@@ -331,7 +331,7 @@ export async function POST(req: NextRequest, { params }: Props) {
         leagueId,
         userId: lenderTeam.user_id,
         title: 'Loan Accepted',
-        content: `**${borrowerTeam.team_name}** has accepted your proposal to loan **${player.name}** for GW${loan.start_gameweek}-GW${loan.end_gameweek}.`,
+        content: `**${borrowerTeam.team_name}** have taken **${player.name}** on loan for GW${loan.start_gameweek}–GW${loan.end_gameweek}.`,
         url: `/league/${leagueId}/transfers/deals`
       });
 

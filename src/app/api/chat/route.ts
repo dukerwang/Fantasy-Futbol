@@ -256,7 +256,7 @@ export async function POST(req: NextRequest) {
 
   const { data: myTeam } = await admin
     .from('teams')
-    .select('id, team_name')
+    .select('id, team_name, abbreviation')
     .eq('league_id', leagueId)
     .eq('user_id', user.id)
     .single();
@@ -293,6 +293,8 @@ export async function POST(req: NextRequest) {
   if (recipientId) {
     try {
       const senderName = myTeam?.team_name ?? 'The Commissioner';
+      const { clubAbbr } = await import('@/lib/notifications/clubRef');
+      const senderShort = myTeam ? clubAbbr(myTeam) : 'Commissioner';
       const trimmed = message.trim();
       const preview = trimmed.length > 140 ? `${trimmed.slice(0, 140)}…` : trimmed;
       const { createNotification } = await import('@/lib/notifications/createNotification');
@@ -300,7 +302,7 @@ export async function POST(req: NextRequest) {
         leagueId,
         userId: recipientId,
         title: `Message from ${senderName}`,
-        pushTitle: senderName,
+        pushTitle: senderShort,
         content: preview,
         url: `/league/${leagueId}/chat`,
         tag: `dm-${leagueId}-${user.id}`,

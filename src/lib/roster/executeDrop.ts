@@ -178,12 +178,15 @@ export async function executeDrop(
             const { data: allTeams } = await admin.from('teams').select('user_id, team_name').eq('league_id', team.league_id);
             if (allTeams && allTeams.length > 0) {
                 const { createNotification } = await import('@/lib/notifications/createNotification');
+                const { droppedNotice } = await import('@/lib/notifications/copy');
+                const notice = droppedNotice(team, player.name);
                 for (const t of allTeams) {
                     await createNotification(admin, {
                         leagueId: team.league_id,
                         userId: t.user_id,
-                        title: 'Player Dropped',
-                        content: `**${team.team_name}** dropped **${player.name}** to the waiver pool. A 72-hour transfer auction has automatically begun.`,
+                        title: notice.title,
+                        pushTitle: notice.pushTitle,
+                        content: notice.content,
                         url: `/league/${team.league_id}/transfers/auctions`
                     });
                 }

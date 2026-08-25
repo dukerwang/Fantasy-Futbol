@@ -134,7 +134,8 @@ export default function InboxClient({ leagueId, leagueName }: InboxClientProps) 
     if (text.includes('trade')) return 'repeat';
     if (text.includes('draft')) return 'trophy';
     if (text.includes('outbid')) return 'alert';
-    if (text.includes('waiver') || text.includes('dropped') || text.includes('drop')) return 'arrow-down';
+    if (text.includes('bid') || text.includes('list') || text.includes('loan')) return 'trending';
+    if (text.includes('waiver') || text.includes('dropped') || text.includes('drop') || text.includes('release') || text.includes('lost to')) return 'arrow-down';
     if (text.includes('match') || text.includes('gw') || text.includes('gameweek') || text.includes('won') || text.includes('summary')) return 'trending';
     return 'bell';
   };
@@ -176,7 +177,7 @@ export default function InboxClient({ leagueId, leagueName }: InboxClientProps) 
           </div>
         </div>
         <p className={styles.subtitle}>
-          Personal ledger for <strong>{leagueName}</strong>. Real-time logging of trade transactions, waiver claims, financial activity, and head-to-head competition summary notifications.
+          Bids, deals, auction results, and match summaries for <strong>{leagueName}</strong>.
         </p>
       </header>
 

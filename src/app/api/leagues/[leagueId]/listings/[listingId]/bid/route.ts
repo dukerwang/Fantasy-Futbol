@@ -50,7 +50,7 @@ export async function POST(req: NextRequest, { params }: Props) {
 
   const { data: myTeam } = await admin
     .from('teams')
-    .select('id, faab_budget')
+    .select('id, faab_budget, team_name, abbreviation')
     .eq('league_id', leagueId)
     .eq('user_id', user.id)
     .single();
@@ -160,11 +160,14 @@ export async function POST(req: NextRequest, { params }: Props) {
     try {
       // In-app + push only — see the matching note in /auctions/bid.
       const { createNotification } = await import('@/lib/notifications/createNotification');
+      const { outbidNotice } = await import('@/lib/notifications/copy');
+      const notice = outbidNotice(myTeam, playerData?.name ?? 'a player', bidAmount);
       await createNotification(admin, {
         leagueId,
         userId: res.outbid_team_user_id,
-        title: 'Outbid!',
-        content: `You have been outbid on the market for **${playerData?.name ?? 'a player'}**. The new high bid is now **€${bidAmount}m**.`,
+        title: notice.title,
+        pushTitle: notice.pushTitle,
+        content: notice.content,
         url: `/league/${leagueId}/transfers/listings`,
         tag: `outbid-listing-${listingId}`,
       });
@@ -185,13 +188,16 @@ export async function POST(req: NextRequest, { params }: Props) {
 
       if (otherTeams && otherTeams.length > 0) {
         const { createNotification } = await import('@/lib/notifications/createNotification');
+        const { bidPlacedNotice } = await import('@/lib/notifications/copy');
+        const notice = bidPlacedNotice(myTeam, playerData?.name ?? 'A player', bidAmount);
         await Promise.all(
           otherTeams.map((t) =>
             createNotification(admin, {
               leagueId,
               userId: t.user_id,
-              title: 'Bidding Open',
-              content: `**${playerData?.name ?? 'A player'}** just received its first bid — **€${bidAmount}m**. Bidding is now open.`,
+              title: notice.title,
+              pushTitle: notice.pushTitle,
+              content: notice.content,
               url: `/league/${leagueId}/transfers/listings`,
               tag: `first-bid-auction-${listingId}`,
             })

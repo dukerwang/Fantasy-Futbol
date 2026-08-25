@@ -132,7 +132,7 @@ async function notifyLeague(
       const playerInfo = candidates.map((p) => ({ name: p.name, value: p.marketValue }));
       await sendEmail({
         to: emails,
-        subject: buildAuctionSubject(playerInfo, 'Transfer Window Alert: New Players on Waivers'),
+        subject: buildAuctionSubject(playerInfo, 'Transfer Window Alert: New Players on the Market'),
         html: getSystemAuctionsEmail(playerInfo, false, `${baseUrl}/league/${leagueId}`, AUCTION_THRESHOLD),
       });
     }
@@ -142,8 +142,8 @@ async function notifyLeague(
       await createNotification(admin, {
         leagueId,
         userId: t.user_id,
-        title: 'Auction Open',
-        content: `**${candidates.length}** new high-value or promoted-club arrival(s) have hit the transfer market and gone up for a 48-hour system auction.${featuredNotice}`,
+        title: 'New arrivals',
+        content: `**${candidates.length}** new arrival${candidates.length === 1 ? ' has' : 's have'} hit the market. 48-hour auctions are open.${featuredNotice}`,
         url: `/league/${leagueId}/transfers/auctions`,
       });
     }
