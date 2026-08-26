@@ -28,7 +28,13 @@ import {
 import { getClubFixtureLog, type ClubFixtureLog } from '@/lib/fixtures/lockout';
 import { loadReferenceStats } from '@/lib/scoring/matchups';
 import { buildPerformanceGroups, type PerfGroup } from '@/lib/scoring/perfBand';
-import { calculateMatchRating } from '@/lib/scoring/matchRating';
+import {
+  calculateMatchRating,
+  FEAT_CREATIVITY_RAW,
+  FEAT_CREATIVITY_UNIT,
+  FEAT_GI_SATURATION_RAW,
+  FEAT_GI_UNIT,
+} from '@/lib/scoring/matchRating';
 import type {
   GranularPosition,
   OwnerClub,
@@ -164,10 +170,10 @@ function attachPositionScores(
     if (g.stats) {
       const raw = g.stats as RawStats;
       const primaryRating = calculateMatchRating(raw, prim, refStats);
-      const goalInvRaw = Number(raw.goals ?? 0) * 6 + Number(raw.assists ?? 0) * 4;
+      const goalInvRaw = Number(raw.goals ?? 0) * FEAT_GI_UNIT + Number(raw.assists ?? 0) * 4;
       const featExcess =
-        Math.max(0, goalInvRaw - 11.5) / 6 +
-        Math.max(0, Number(raw.creativity ?? 0) - 90) / 15;
+        Math.max(0, goalInvRaw - FEAT_GI_SATURATION_RAW) / FEAT_GI_UNIT +
+        Math.max(0, Number(raw.creativity ?? 0) - FEAT_CREATIVITY_RAW) / FEAT_CREATIVITY_UNIT;
       perf = buildPerformanceGroups(primaryRating.breakdown, prim, raw, featExcess);
     }
 

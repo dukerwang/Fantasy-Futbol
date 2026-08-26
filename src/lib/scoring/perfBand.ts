@@ -19,10 +19,22 @@
  *  2. Never order groups by weighted contribution — that publishes the weight
  *     ordering. Order is fixed per position (GROUP_ORDER below).
  *  3. Never mark which component won the flex boost.
+ *
+ * The RANK ANCHOR (below) is the one thing that adds resolution above the
+ * band, and it is deliberately coarse: four tiers, none finer than 1%, and
+ * nothing at all below the top quarter. That takes a group from 5 ordinal
+ * levels to at most 8 — still far too blunt to fit a sigmoid against, and a
+ * percentile of a monotone transform of public FPL inputs is computable by
+ * anyone who cares to. Do not make the ladder finer, and do not emit the
+ * percentile as a number the caller can interpolate.
  */
 
 import type { GranularPosition, RatingBreakdownItem, RatingComponent, RawStats } from '@/types';
-import { POSITION_WEIGHTS } from './matchRating';
+import {
+    FEAT_GI_SATURATION_RAW,
+    FEAT_GI_UNIT,
+    POSITION_WEIGHTS,
+} from './matchRating';
 
 export type PerfBand = 'poor' | 'low' | 'mid' | 'good' | 'best' | 'feat' | 'feat2';
 
@@ -51,7 +63,8 @@ export type PerfBand = 'poor' | 'low' | 'mid' | 'good' | 'best' | 'feat' | 'feat
  *
  * REFRESH THESE when rating_reference_stats is regenerated for a new season;
  * they are distribution-dependent the same way the reference medians are.
- * The probe that produced them is in the handoff.
+ * The probe that produced them is `scratch/band-distribution-probe.ts`, and
+ * RANK_CUTS below goes stale at the same moment — refresh the pair together.
  */
 const BAND_CUTS: Record<PerfGroupKey, [number, number, number, number]> = {
     attacking:      [0.438, 0.483, 0.620, 0.750],
@@ -136,6 +149,88 @@ const BAND_INDEX: Record<PerfBand, number> = {
     poor: 0, low: 1, mid: 2, good: 3, best: 4, feat: 5, feat2: 6,
 };
 
+/* ══════════════════════════════════════════════════════════════════════════
+   RANK ANCHORS
+
+   The band alone cannot separate the top of the top: `best` is the top ~15%,
+   so every leading attacker in a gameweek reads "Decisive" and the block goes
+   quiet exactly where a manager is looking hardest. The anchor is the fix —
+   "TOP 1% FOR AN AM" beside "TOP 12% FOR AN AM" is the difference the band
+   cannot draw.
+
+   POOLED BY IDENTICAL WEIGHT VECTOR, not by position group. LB and RB carry
+   the same eight weights, as do LWB/RWB and LW/RW, so their group scores are
+   already on one scale and pooling them is free sample size — RWB alone has
+   222 appearances, which is not enough to speak about a 1% tail. Positions
+   with a distinct weight vector are never pooled, because their scores are
+   not comparable. The anchor still names the player's OWN position.
+
+   TIE-SAFE THRESHOLDS, not plain quantiles. Measured over 2025-26, CB
+   attacking has p50 = p75 = p90 = 0.513 — the blanks all score identically —
+   so `score >= p90` would have decorated 40% of centre-backs with "Top 10%".
+   Each cut is instead the smallest observed value whose tail is AT MOST the
+   claimed share, so the label never overstates. Where a tie block forces the
+   achieved share below half the label the tier is dropped to `null` and the
+   tier above speaks instead; that is why `attacking` has four holes and no
+   other group has any.
+
+   REFRESH THESE WITH BAND_CUTS — same reason, and the same moment: both
+   describe a distribution that regenerating rating_reference_stats moves.
+   The probe is `scratch/rank-anchor-probe.ts`; its header says how to run it
+   and what hand pass its output still needs. */
+
+const RANK_LABELS = [25, 10, 5, 1] as const;
+
+/** Buckets sharing one weight vector. Anything absent stands alone. */
+const RANK_BUCKET: Partial<Record<GranularPosition, string>> = {
+    LB: 'LB/RB', RB: 'LB/RB',
+    LWB: 'LWB/RWB', RWB: 'LWB/RWB',
+    LW: 'LW/RW', RW: 'LW/RW',
+};
+
+/** Score at or above which each of RANK_LABELS holds. `null` = tier dropped. */
+const RANK_CUTS: Record<string, Partial<Record<PerfGroupKey, (number | null)[]>>> = {
+    AM:        { attacking: [0.634, 0.814, 0.883, 0.975], creating: [0.608, 0.801, 0.882, 0.975], involvement: [0.602, 0.796, 0.864, 0.947] },
+    CB:        { attacking: [null, 0.657, 0.834, 0.942], creating: [0.641, 0.851, 0.907, 0.985], defending: [0.646, 0.847, 0.891, 0.932], involvement: [0.658, 0.811, 0.857, 0.918] },
+    CM:        { attacking: [0.613, 0.741, 0.865, 0.941], creating: [0.579, 0.776, 0.866, 0.965], defending: [0.594, 0.762, 0.828, 0.921], involvement: [0.593, 0.723, 0.827, 0.935] },
+    DM:        { attacking: [0.832, 0.917, null, 0.982], creating: [0.600, 0.797, 0.874, 0.975], defending: [0.621, 0.826, 0.879, 0.939], involvement: [0.589, 0.737, 0.824, 0.934] },
+    GK:        { shotStopping: [0.650, 0.787, 0.794, 0.892], goalsPrevented: [0.821, 0.874, 0.889, 0.918], involvement: [0.672, 0.777, 0.841, 0.931] },
+    'LB/RB':   { attacking: [null, null, 0.917, 0.961], creating: [0.607, 0.783, 0.866, 0.964], defending: [0.673, 0.843, 0.884, 0.932], involvement: [0.650, 0.800, 0.842, 0.908] },
+    'LW/RW':   { attacking: [0.498, 0.835, 0.887, 0.943], creating: [0.597, 0.779, 0.857, 0.955], involvement: [0.575, 0.747, 0.826, 0.939] },
+    'LWB/RWB': { attacking: [0.554, 0.703, 0.784, 0.953], creating: [0.619, 0.818, 0.910, 0.987], defending: [0.604, 0.807, 0.864, 0.915], involvement: [0.631, 0.791, 0.860, 0.934] },
+    ST:        { attacking: [0.569, 0.798, 0.861, 0.969], creating: [0.642, 0.779, 0.869, 0.966], involvement: [0.562, 0.797, 0.863, 0.966] },
+};
+
+/** "an AM" / "a CB". The string is CSS-uppercased at render. */
+const POS_ARTICLE: Record<GranularPosition, string> = {
+    GK: 'a', CB: 'a', LB: 'an', RB: 'an', LWB: 'an', RWB: 'an',
+    DM: 'a', CM: 'a', AM: 'an', LW: 'an', RW: 'an', ST: 'an',
+};
+
+/**
+ * The rank anchor for one group score, or undefined when it says nothing.
+ *
+ * Silent below the top quarter — by design. "Bottom 40%" is unpleasant
+ * without being actionable, and between the median and the top quarter the
+ * band has already said everything a percentile would.
+ */
+export function rankAnchor(
+    score: number,
+    position: GranularPosition,
+    group: PerfGroupKey,
+): string | undefined {
+    const cuts = RANK_CUTS[RANK_BUCKET[position] ?? position]?.[group];
+    if (!cuts) return undefined;
+    // Tightest tier first — "Top 1%" outranks "Top 25%" for the same score.
+    for (let i = cuts.length - 1; i >= 0; i--) {
+        const cut = cuts[i];
+        if (cut !== null && cut !== undefined && score >= cut) {
+            return `Top ${RANK_LABELS[i]}% for ${POS_ARTICLE[position]} ${position}`;
+        }
+    }
+    return undefined;
+}
+
 export interface PerfGroup {
     key: PerfGroupKey;
     label: string;
@@ -145,6 +240,9 @@ export interface PerfGroup {
     verdict: string;
     /** Public raw facts. Free to publish — they are already on the FPL site. */
     evidence: string;
+    /** e.g. "Top 5% for an AM". Absent below the top quarter, and on a feat
+     *  row — a feat is rarer than 1%, so an anchor there understates it. */
+    rank?: string;
 }
 
 const n = (v: unknown) => Number(v ?? 0);
@@ -267,11 +365,13 @@ export function buildPerformanceGroups(
         // one. Never both in the same match — no appearance in 2025-26 fired
         // both triggers.
         if (featExcess > 0 && (key === 'attacking' || key === 'creating')) {
-            const goalFeat = n(stats.goals) * 6 + n(stats.assists) * 4 > 11.5;
+            const goalFeat =
+                n(stats.goals) * FEAT_GI_UNIT + n(stats.assists) * 4 > FEAT_GI_SATURATION_RAW;
             const owns = key === 'attacking' ? goalFeat : !goalFeat;
             if (owns) band = featExcess >= 2 ? 'feat2' : 'feat';
         }
 
+        const isFeat = band === 'feat' || band === 'feat2';
         out.push({
             key,
             label: GROUP_LABEL[key],
@@ -279,6 +379,7 @@ export function buildPerformanceGroups(
             width: BAND_WIDTH[band],
             verdict: VERDICTS[key][BAND_INDEX[band]],
             evidence: evidenceFor(key, stats),
+            rank: isFeat ? undefined : rankAnchor(score, position, key),
         });
     }
     return out;

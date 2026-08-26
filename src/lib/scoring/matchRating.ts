@@ -543,9 +543,9 @@ const FEAT_POINTS_PER_UNIT = 3.0;
 
 /** Raw goal_involvement (goals×6 + assists×4) above which a feat has fired.
  * 2 goals or 3 assists alone already clear it. */
-const FEAT_GI_SATURATION_RAW = 11.5;
+export const FEAT_GI_SATURATION_RAW = 11.5;
 /** One unit of goal-involvement excess — i.e. one goal. */
-const FEAT_GI_UNIT = 6;
+export const FEAT_GI_UNIT = 6;
 
 /** Raw FPL creativity above which a creative feat has fired.
  *
@@ -563,11 +563,11 @@ const FEAT_GI_UNIT = 6;
  * no centre-back reached 90 all season. At 90 it fires 11 times a year
  * (0.29/gw): Bruno ×3, Longstaff, Foden, Enzo, Groß, Anderson, Cherki,
  * Pedro Porro, Szoboszlai. */
-const FEAT_CREATIVITY_RAW = 90;
+export const FEAT_CREATIVITY_RAW = 90;
 /** One unit of creative excess. Calibrated so the season's best creative
  * game (Bruno, 106.8 → 1.12 units → +3.36) is worth about what a hat-trick
  * is worth (+3.25). That parity is the argument for this number. */
-const FEAT_CREATIVITY_UNIT = 15;
+export const FEAT_CREATIVITY_UNIT = 15;
 
 /** Flat points for a rare feat. Never negative, unbounded above. */
 function featPointsBonus(excess: number): number {

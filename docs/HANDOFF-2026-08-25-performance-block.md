@@ -159,6 +159,51 @@ run it (copy into `__tests__`, run vitest, read `/tmp/band-probe.txt`, delete).
 
 ---
 
+## 4a. Rank anchors — SHIPPED
+
+`rankAnchor()` in `perfBand.ts`. A group scoring in the top quarter for its
+position gets a line beside the evidence: **"TOP 5% FOR AN AM"**. Four tiers —
+25 / 10 / 5 / 1 — and nothing below the top quarter, because between the median
+and p75 the band has already said everything a percentile would, and "bottom
+40%" is unpleasant without being actionable.
+
+`PerfGroup.rank` carries it; the component's `ranks` prop survives as an
+override for a surface that wants to rank against a different pool. A feat row
+gets no anchor: a feat is rarer than 1%, so an anchor there *understates* it.
+
+Three decisions worth not re-litigating:
+
+- **Pooled by identical weight vector, not by position group.** LB/RB, LWB/RWB
+  and LW/RW each share all eight weights, so their group scores sit on one
+  scale and pooling is free sample size — RWB alone has 222 appearances, which
+  cannot speak about a 1% tail. Positions with a distinct weight vector are
+  never pooled. The anchor still names the player's own position.
+- **Tie-safe thresholds, not quantiles.** CB attacking has p50 = p75 = p90 =
+  0.513 — the blanks all score identically — so `score >= p90` would have put
+  "Top 10%" on 40% of centre-backs. Each cut is instead the smallest observed
+  value whose tail is *at most* the claimed share, so a label never overstates.
+  Where a tie block drives the achieved share under half the label, that tier
+  is `null` and the tier above speaks: four holes, all in `attacking`
+  (CB top25, DM top5, LB/RB top25 and top10).
+- **The ladder stays coarse.** Four tiers take a group from 5 ordinal levels to
+  8 — too blunt to fit a sigmoid against, and a percentile of a monotone
+  transform of public FPL inputs is computable by anyone. Making it finer, or
+  emitting an interpolatable number, breaks the disclosure rule.
+
+Coverage over 2025-26: ~75% of rows get no anchor, then roughly 15 / 5 / 4 / 1%
+across the four tiers (`attacking` runs leaner — 83% none — because of the
+dropped tiers).
+
+`RANK_CUTS` is distribution-dependent exactly like `BAND_CUTS`; **refresh the
+pair together.** Probe: `scratch/rank-anchor-probe.ts`.
+
+Two smaller things went in alongside: `FEAT_GI_SATURATION_RAW`,
+`FEAT_GI_UNIT`, `FEAT_CREATIVITY_RAW` and `FEAT_CREATIVITY_UNIT` are now
+exported from `matchRating.ts` and imported by `cardData.ts` and `perfBand.ts`,
+which had each hardcoded their own copies; and `perfBand.test.ts` now guards
+the disclosure rules structurally (no score in the payload, every width
+quantised, group order fixed under any scores) plus the anchor's monotonicity.
+
 ## 5. Known-unresolved
 
 **Attacking still has an irreducible middle.** ~49% of appearances land in one
@@ -168,12 +213,10 @@ identical values. If this needs to be better, Attacking probably wants banding
 on goals/assists/xG directly rather than on the sigmoid components — that is a
 real piece of work, not a tuning pass.
 
-**Top-of-the-top still reads alike.** Duke's original complaint is improved but
-not gone: GW1's leading attackers still all show "Decisive". Partly real — they
-were all top performances — and partly that the best band is 12–15% wide. **The
-tool for separating within a band is the rank anchor** ("top 1% for an AM" vs
-"top 12%"), which is designed but NOT BUILT. That is the highest-value next
-step for this specific complaint.
+**Top-of-the-top — FIXED by the rank anchors (see §4a).** GW1's eleven leading
+attackers all read "Decisive"; they now split Top 5% / Top 10% / Top 25%, and
+GW1's three "Commanding" centre-backs split Top 1% / Top 10% / Top 25%. The
+band still cannot separate them on its own and is not meant to.
 
 **Where else it lands** was asked and not answered. Current answer, unbuilt:
 matchup detail (the per-player breakdown), the signature in list rows, the card
@@ -185,8 +228,7 @@ match context at all — `MatchupPitch.tsx:384` passes only the player id.
 
 ## 6. Next steps, in order
 
-1. **Rank anchors** — the fix for the top-of-the-top complaint. Needs a
-   per-position, per-season distribution query. Fire above the median only.
+1. ~~Rank anchors~~ — **DONE**, §4a.
 2. **Game log → responsive list**, drop the `transform: scale(0.92)` at
    `PremiumPlayerCard.module.css:1335`. Still needs Duke's yes: it reworks
    something that currently works.
@@ -206,6 +248,8 @@ match context at all — `MatchupPitch.tsx:384` passes only the player id.
   already compute from public FPL data.
 - Use an emoji for the feat mark; it is inline SVG on `currentColor` so it
   takes the row's band.
+- Make the rank ladder finer than 25/10/5/1, or emit the percentile as a number
+  a caller can interpolate. The coarseness is the disclosure argument.
 - Add a sixth colour to the ramp. Its five stops are contrast-solved and all
   184 palette pairs pass with them; the feat tiers are blue/violet precisely
   because they leave the scale rather than extending it.

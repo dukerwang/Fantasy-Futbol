@@ -39,7 +39,9 @@ export interface PerformanceBlockProps {
     groups: PerfGroup[];
     /** e.g. "Centre line is the median for a centre-back". Omit to hide. */
     note?: string;
-    /** Rank anchors, by group key. Only supply them ABOVE the median — below it
+    /** Overrides the anchor the server put on each group — for a surface that
+     *  ranks against a different pool (a league, a gameweek) rather than the
+     *  season's position pool. Only supply anchors ABOVE the median; below it
      *  they say nothing the band has not, and "bottom 40%" is unpleasant
      *  without being actionable. */
     ranks?: Partial<Record<PerfGroup['key'], string>>;
@@ -65,7 +67,7 @@ export default function PerformanceBlock({ groups, note, ranks }: PerformanceBlo
                 <div className={styles.rows}>
                     {groups.map((g) => {
                         const isFeat = g.band === 'feat' || g.band === 'feat2';
-                        const rank = ranks?.[g.key];
+                        const rank = ranks?.[g.key] ?? g.rank;
                         return (
                             <div
                                 key={g.key}
