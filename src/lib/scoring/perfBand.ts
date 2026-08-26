@@ -314,7 +314,7 @@ function hasSomethingToSay(s: RawStats): boolean {
 const VERDICTS: Record<PerfGroupKey, string[]> = {
     //                poor          low          mid       good           best          elite          supreme        | feat           feat2
     attacking:      ['Anonymous',  'Quiet',     'Involved', 'Dangerous',  'Decisive',   'Ruthless',    'Rampant',      'Devastating', 'Unplayable'],
-    creating:       ['Static',     'Sideways',  'Tidy',     'Incisive',   'Masterful',  'Sublime',     'Mesmeric',     'Virtuoso',    'Magisterial'],
+    creating:       ['Static',     'Sideways',  'Tidy',     'Incisive',   'Masterful',  'Sublime',     'Mesmeric',     'Virtuoso',    'Magician'],
     defending:      ['Overrun',    'Passive',   'Steady',   'Assured',    'Commanding', 'Imperious',   'Colossal',     'Colossal',    'Colossal'],
     involvement:    ['Peripheral', 'Quiet',     'Busy',     'Influential','Everywhere', 'Immense',     'Talismanic',   'Talismanic',  'Talismanic'],
     shotStopping:   ['Beaten',     'Shaky',     'Steady',   'Sharp',      'Inspired',   'Unbeatable',  'Untouchable',  'Untouchable', 'Untouchable'],

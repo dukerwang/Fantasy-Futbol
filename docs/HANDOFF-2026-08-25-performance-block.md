@@ -469,7 +469,7 @@ read.** poor/low/mid/good keep their 15/20/30/20 spans; the old `best` splits:
 | elite | top 5–1% | Ruthless | Sublime | Immense |
 | supreme | top 1% | Rampant | Mesmeric | Talismanic |
 | *feat* | *trigger only* | *Devastating* | *Virtuoso* | — |
-| *feat2* | *trigger only* | *Unplayable* | *Magisterial* | — |
+| *feat2* | *trigger only* | *Unplayable* | *Magician* | — |
 
 **The feat tiers keep their own words, and that was a correction.** The first
 pass at this ladder promoted `Devastating` and `Unplayable` into elite/supreme
@@ -521,6 +521,35 @@ Measured shares over 2025-26, against targets of 15/20/30/20/10/4/1:
 | creating | 18.3% | 18.1% | 29.0% | 19.9% | 9.8% | 4.0% | 0.7% |
 | attacking | 16.9% | 17.8% | 23.1% | 23.3% | 12.1% | 4.8% | 0.6% |
 
+## 4f. Season scope — SHIPPED
+
+The same groups over a whole season, as the **mean of the player's per-match
+group scores**. Per-90 in spirit: it grades the level he plays at, so a 12-game
+starter and a 34-game starter are comparable, and availability is answered by
+the appearance count printed beside it. Duke chose the rate reading.
+
+Averaging is also what rescues `attacking`. Per match it is near-binary, which
+is the whole reason the mute rule exists; the mean of that binary over twenty
+matches is continuous, so nothing needs muting at season scope.
+
+`SEASON_BAND_CUTS` is measured over **455 player-seasons with 5+ appearances**
+and is separate from the match table for a reason — a season mean is far
+tighter, with attacking's p15→p85 spanning only 0.488→0.568. Feeding those into
+the match cuts would grade nearly the whole league "poor".
+
+Pooled across positions with no per-position override: per season the split
+gives 27 AMs and 84 CBs, which is not a distribution. **Anchors come free**
+under the nested model — a season `elite` band IS the top 5% of player-seasons,
+so it simply says so. That was impossible under the old independent RANK_CUTS.
+
+Measured over 2025-26: poor 17.0 / low 19.8 / mid 29.2 / good 19.3 / best 9.6 /
+elite 4.0 / supreme 1.2 — close to the intended 15/20/30/20/10/4/1. Haaland is
+the only Attacking `supreme` in the league (27G 8A, "Rampant", top 1%).
+
+Renders above the game log, inside the scroller. **Not on the card front**: it
+is a fixed 360×520 that is already full, and a block needs ~100px it does not
+have. Empty below three appearances, where a mean is noise wearing a verdict.
+
 ## 5. Known-unresolved
 
 **Attacking's middle — DIAGNOSED AND MOSTLY FIXED (§4b).** The earlier reading
@@ -566,7 +595,8 @@ match context at all — `MatchupPitch.tsx:384` passes only the player id.
    the behaviour we want either way.
 4. ~~Matchup-detail landing~~ and ~~chip deep-link with gameweek~~ — **DONE**,
    §4c. The signature in list rows is still unbuilt.
-5. Card front, season scope — the least-defined of the four surfaces.
+5. ~~Card front, season scope~~ — **DONE as season scope**, §4f, but on the
+   card BACK. The front cannot take it without a redesign.
 6. ~~Attacking's distribution~~ — **DONE**, §4b. What is left there is the
    goalkeeper collision, which belongs to the open keeper question.
 
