@@ -5,7 +5,7 @@ import type { BenchSlot, MatchupLineup, Player, GranularPosition } from '@/types
 import { BENCH_DEPTH_BONUS_LABEL, getExpectedBenchSlots } from '@/types';
 import type { TeamScoreDetail } from '@/lib/scoring/matchups';
 import type { PerfGroup } from '@/lib/scoring/perfBand';
-import PerformanceBlock from './players/PerformanceBlock';
+import PerformanceBlock, { PerformanceSignature } from './players/PerformanceBlock';
 import { roleArticle } from '@/lib/scoring/perfBand';
 import { getPlayerDisplayName } from '@/lib/players/displayName';
 import { SPINE, POS_COLOR } from '@/lib/positions/spine';
@@ -615,8 +615,16 @@ export default function MatchupPitch({
                                                 )}
                                             </div>
                                         </div>
-                                        <span className={styles.breakdownPts}>
-                                            {detail?.points.toFixed(2) ?? '—'}
+                                        <span className={styles.breakdownTail}>
+                                            {perf && (
+                                                <PerformanceSignature
+                                                    groups={perf}
+                                                    label={`${p ? getPlayerDisplayName(p) : 'Player'}: ${perf.map((x) => `${x.label} ${x.verdict}`).join(', ')}`}
+                                                />
+                                            )}
+                                            <span className={styles.breakdownPts}>
+                                                {detail?.points.toFixed(2) ?? '—'}
+                                            </span>
                                         </span>
                                     </div>
                                     {isOpen && perf && (

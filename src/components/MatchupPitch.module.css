@@ -736,6 +736,21 @@
    score you were already looking at. */
 .breakdownEntry { min-width: 0; }
 
+/* Signature + points travel together on the right. The glyph answers "which of
+   these was the good game?" at a glance; the number answers "by how much". */
+.breakdownTail {
+    display: flex;
+    align-items: center;
+    gap: var(--s2);
+    flex-shrink: 0;
+}
+
+/* Below this the row is tight enough that the glyph competes with the name,
+   and the name wins — the row is still openable for the full block. */
+@media (max-width: 560px) {
+    .breakdownTail > span:first-child { display: none; }
+}
+
 .breakdownRowOpenable { cursor: pointer; }
 .breakdownRowOpenable:hover { background: var(--color-bg-card-hover); }
 .breakdownRowOpenable:focus-visible {

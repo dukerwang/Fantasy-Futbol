@@ -28,13 +28,7 @@ import {
 import { getClubFixtureLog, type ClubFixtureLog } from '@/lib/fixtures/lockout';
 import { loadReferenceStats } from '@/lib/scoring/matchups';
 import { buildPerformanceGroups, type PerfGroup } from '@/lib/scoring/perfBand';
-import {
-  calculateMatchRating,
-  FEAT_CREATIVITY_RAW,
-  FEAT_CREATIVITY_UNIT,
-  FEAT_GI_SATURATION_RAW,
-  FEAT_GI_UNIT,
-} from '@/lib/scoring/matchRating';
+import { calculateMatchRating, featExcessFor } from '@/lib/scoring/matchRating';
 import type {
   GranularPosition,
   OwnerClub,
@@ -70,10 +64,14 @@ export interface GamelogEntry {
   date?: string;
   isDNP?: boolean;
   /**
-   * The match's performance block, already BANDED. Computed here, on the
-   * server, and deliberately without the underlying scores: see the header of
-   * src/lib/scoring/perfBand.ts. Quantising the bar in CSS is theatre if the
-   * composite travels beside it in this payload.
+   * The match's performance block, already BANDED, and deliberately without
+   * the underlying scores: see the header of src/lib/scoring/perfBand.ts.
+   * Quantising the bar in CSS is theatre if the composite travels beside it in
+   * this payload.
+   *
+   * Read from `player_stats.perf` where the sync stored it (migration 140), so
+   * the explanation matches the engine that produced the points; rebuilt on the
+   * server for rows written before that.
    */
   perf?: PerfGroup[];
   /**
@@ -163,18 +161,22 @@ function attachPositionScores(
       };
     }
 
-    // The block, at the player's PRIMARY slot. Re-scored here rather than read
-    // off the row because player_stats stores the rating and the points but
-    // not the breakdown they came from — persisting that is a separate change.
-    let perf: PerfGroup[] | undefined;
-    if (g.stats) {
+    // The block, at the player's PRIMARY slot.
+    //
+    // PREFER THE SNAPSHOT. Since migration 140 the sync stores the bands beside
+    // the points they explain, so a completed match is described by the engine
+    // that actually scored it. Re-scoring here would describe it with today's
+    // engine instead, and those have already diverged — the rare-feat rule
+    // changed on 2026-08-25 and completed history was deliberately not
+    // backfilled, so a re-scored hat-trick would show the new feat mark next to
+    // points computed under the old one.
+    //
+    // The fallback still re-scores, for every row written before 140.
+    let perf: PerfGroup[] | undefined = g.perf;
+    if (!perf && g.stats) {
       const raw = g.stats as RawStats;
       const primaryRating = calculateMatchRating(raw, prim, refStats);
-      const goalInvRaw = Number(raw.goals ?? 0) * FEAT_GI_UNIT + Number(raw.assists ?? 0) * 4;
-      const featExcess =
-        Math.max(0, goalInvRaw - FEAT_GI_SATURATION_RAW) / FEAT_GI_UNIT +
-        Math.max(0, Number(raw.creativity ?? 0) - FEAT_CREATIVITY_RAW) / FEAT_CREATIVITY_UNIT;
-      perf = buildPerformanceGroups(primaryRating.breakdown, prim, raw, featExcess);
+      perf = buildPerformanceGroups(primaryRating.breakdown, prim, raw, featExcessFor(raw, prim));
     }
 
     return positions.length > 0 ? { ...g, by_position, perf } : { ...g, perf };
@@ -443,7 +445,7 @@ export async function fetchPlayerBack(
       .maybeSingle(),
     admin
       .from('player_stats')
-      .select('match_id, gameweek, fantasy_points, match_rating, stats')
+      .select('match_id, gameweek, fantasy_points, match_rating, stats, perf')
       .eq('player_id', playerId)
       .eq('season', season.targetSeason),
     admin
@@ -565,6 +567,7 @@ export async function fetchPlayerBack(
         fantasy_points: Number(s.fantasy_points),
         match_rating: s.match_rating != null ? Number(s.match_rating) : null,
         stats: s.stats,
+        perf: (s.perf as PerfGroup[] | null) ?? undefined,
         opponent,
         result,
         isDNP: false,
@@ -581,6 +584,7 @@ export async function fetchPlayerBack(
         fantasy_points: Number(s.fantasy_points),
         match_rating: s.match_rating != null ? Number(s.match_rating) : null,
         stats: s.stats,
+        perf: (s.perf as PerfGroup[] | null) ?? undefined,
         opponent: 'Unknown',
         result: '',
         isDNP: false,

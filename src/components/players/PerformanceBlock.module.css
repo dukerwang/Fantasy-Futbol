@@ -185,9 +185,24 @@
   color: var(--color-text-muted);
 }
 
-/* The whole block at ~28px, for a list row or anywhere beside a name. */
+/* The whole block at ~16px, for a list row or anywhere beside a name.
+   `.signature` is the block's own sub-200px fallback; `.signatureInline` is
+   the same glyph used standalone, which needs to be inline-flex and to carry
+   the .ramp custom properties itself since it has no .ramp ancestor. */
 .signature { display: none; align-items: flex-end; gap: 3px; height: 16px; }
-.signature i { display: block; width: 5px; border-radius: 1px; background: var(--pfill); }
+.signature i, .signatureInline i {
+  display: block;
+  width: 5px;
+  border-radius: 1px;
+  background: var(--pfill);
+}
+.signatureInline {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 16px;
+  vertical-align: middle;
+}
 
 /* THE ANCHOR KEEPS ITS LINE ON A NARROW CARD. It used to be dropped here,
    which meant it never rendered at all in the only place the block currently

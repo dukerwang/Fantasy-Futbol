@@ -14,6 +14,8 @@
 import { calculateMatchRating, mapFplLiveToRawStats } from '@/lib/scoring/engine';
 import { applyIctImputation, isIctBlockAbsent } from '@/lib/scoring/ictImputation';
 import { loadReferenceStats } from '@/lib/scoring/matchups';
+import { featExcessFor } from '@/lib/scoring/matchRating';
+import { buildPerformanceGroups } from '@/lib/scoring/perfBand';
 import { resolveAllStalledGameweeks, processMatchupsForGameweek } from '@/lib/scoring/matchupProcessor';
 import { getCurrentFplSeason, getLatestReferenceStatsSeason } from '@/lib/season/currentSeason';
 import { snapshotCurrentFplFixtures } from '@/lib/fixtures/upsertFixtures';
@@ -356,6 +358,14 @@ async function syncFplLiveRatings(
                 stats: rawStats,
                 fantasy_points: v2.fantasyPoints,
                 match_rating: v2.rating,
+                // The explanation, banded, snapshotted alongside the score it
+                // explains — see migration 140. Bands only, never scores.
+                perf: buildPerformanceGroups(
+                  v2.breakdown,
+                  dbPlayer.primary_position as GranularPosition,
+                  rawStats,
+                  featExcessFor(rawStats, dbPlayer.primary_position as GranularPosition),
+                ),
               },
               { onConflict: 'player_id,season,match_id' },
             );
@@ -392,6 +402,12 @@ async function syncFplLiveRatings(
               stats: rawStats,
               fantasy_points: v2.fantasyPoints,
               match_rating: v2.rating,
+              perf: buildPerformanceGroups(
+                v2.breakdown,
+                dbPlayer.primary_position as GranularPosition,
+                rawStats,
+                featExcessFor(rawStats, dbPlayer.primary_position as GranularPosition),
+              ),
             },
             { onConflict: 'player_id,season,match_id' },
           );

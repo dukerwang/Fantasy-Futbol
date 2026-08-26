@@ -125,7 +125,7 @@ export default async function MatchupDetailPage({ params }: Props) {
                 .from('player_stats')
                 // match_rating is its own column, never a key inside stats — the pitch
                 // chip needs it passed through explicitly.
-                .select('player_id, fantasy_points, match_rating, stats')
+                .select('player_id, fantasy_points, match_rating, stats, perf')
                 .eq('season', statsSeason)
                 .eq('gameweek', matchupData.gameweek)
                 .in('player_id', Array.from(playerIds)),
@@ -139,6 +139,11 @@ export default async function MatchupDetailPage({ params }: Props) {
                 points: Number(s.fantasy_points),
                 rating: s.match_rating != null ? Number(s.match_rating) : null,
                 stats: (s.stats as RawStats | undefined) ?? undefined,
+                // The snapshot the sync stored, plus the position it describes —
+                // buildLineupPerformance uses it only when the fielded slot
+                // matches, and rebuilds otherwise.
+                perf: (s.perf as PerfGroup[] | null) ?? null,
+                primaryPosition: playerMap[s.player_id]?.primary_position ?? null,
             };
         }
 

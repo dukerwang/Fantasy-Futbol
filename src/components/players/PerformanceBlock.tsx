@@ -35,6 +35,34 @@ function FeatMark() {
     );
 }
 
+/**
+ * The block at glyph size — one quantised bar per group, ~16px tall.
+ *
+ * For a list row, where the question is "which of these games was the good
+ * one?" and there is no room to answer it in words. Same bands, same colours,
+ * same quantised geometry as the full block, so scanning a column of these and
+ * then opening one tells a consistent story.
+ *
+ * Carries a text alternative rather than aria-hidden: in a list this is the
+ * ONLY summary of the performance, unlike inside the block where the rows
+ * beneath say it in words.
+ */
+export function PerformanceSignature({ groups, label }: { groups: PerfGroup[]; label?: string }) {
+    if (!groups.length) return null;
+    const text = label ?? groups.map((g) => `${g.label} ${g.verdict}`).join(', ');
+    return (
+        <span className={`${styles.ramp} ${styles.signatureInline}`} role="img" aria-label={text}>
+            {groups.map((g) => (
+                <i
+                    key={g.key}
+                    className={BAND_CLASS[g.band]}
+                    style={{ height: `${Math.round(3 + (g.width / 100) * 13)}px` }}
+                />
+            ))}
+        </span>
+    );
+}
+
 export interface PerformanceBlockProps {
     groups: PerfGroup[];
     /** e.g. "Centre line is the median for a centre-back". Omit to hide. */

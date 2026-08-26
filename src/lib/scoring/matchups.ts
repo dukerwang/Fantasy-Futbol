@@ -64,6 +64,15 @@ export type MatchupPlayerDetail = {
   rating?: number | null;
   stats?: RawStats;
   /**
+   * The banded block stored by the sync at the player's PRIMARY position
+   * (migration 140). Usable only when the slot he was fielded in IS that
+   * primary; any other slot has different weights and a different group order,
+   * so it has to be rebuilt.
+   */
+  perf?: PerfGroup[] | null;
+  /** The primary position the stored `perf` describes. */
+  primaryPosition?: string | null;
+  /**
    * Points/rating at each lineup slot this player might fill. Primary-position
    * stays on `points` / `rating` so the bench depth bonus (which is not a slot)
    * still reads the stored number.
@@ -186,10 +195,18 @@ export function buildLineupPerformance(
   const out: Record<string, PerfGroup[]> = {};
   for (const lineup of lineups) {
     for (const s of lineup?.starters ?? []) {
-      const stats = detailMap[s.player_id]?.stats;
+      const d = detailMap[s.player_id];
+      const stats = d?.stats;
       if (!stats || !(stats.minutes_played > 0)) continue;
       const slot = String(s.slot ?? '').toUpperCase() as GranularPosition;
       if (!slot) continue;
+      // Fielded at his own position: the sync already banded this exact
+      // appearance under these exact weights. Use it, so the explanation comes
+      // from the engine that scored the points rather than today's.
+      if (d.perf?.length && String(d.primaryPosition ?? '').toUpperCase() === slot) {
+        out[s.player_id] = d.perf;
+        continue;
+      }
       const { breakdown } = calculateMatchRating(
         stats,
         slot,

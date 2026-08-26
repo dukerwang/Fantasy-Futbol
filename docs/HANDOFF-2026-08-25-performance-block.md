@@ -356,6 +356,52 @@ blocks and interceptions, 2 conceded against 1.3 expected." / Creating TIDY —
 unpushed branch — so recalibrating cost nothing. Doing the same after a merge
 would change words managers had already read.
 
+## 4d. Persisted bands + the signature — SHIPPED
+
+**Migration 140** adds `player_stats.perf jsonb`, written by
+`/api/sync/stats` at scoring time. Both readers prefer it and fall back to
+re-scoring when it is null, so nothing changes for rows written before it.
+
+This fixes a real inconsistency rather than saving work: the block was rebuilt
+on every read with TODAY'S engine, while the points beside it came from
+whichever engine scored the match. Those have already diverged — the rare-feat
+rule changed on 2026-08-25 and completed history was deliberately not
+backfilled, so a re-scored 2025-26 hat-trick would show the new feat mark next
+to points computed under the old one. A stored snapshot always agrees with the
+number it explains.
+
+Additive and nullable, so it is safe against the live alpha leagues: it writes
+no score and changes no score.
+
+`buildLineupPerformance` uses the snapshot **only when the fielded slot is the
+stored primary** — any other slot has different weights and a different group
+order, so it rebuilds. Guarded by `perfPersistence.test.ts`.
+
+**The signature** (`PerformanceSignature`) is exported from `PerformanceBlock`
+and sits in the matchup breakdown row beside the points, hidden under 560px
+where the name needs the room. It is NOT in the card's game log: that table is
+seven columns at 11px inside a fixed 360px card, and an eighth column costs
+~35px, about a tenth of the card. It belongs there only if the log ever becomes
+a list, which §4e says it should not.
+
+## 4e. The game-log rework — declined, with the measurement
+
+The standing suggestion was "game log → responsive list, drop the
+`transform: scale(0.92)`". The second half does not follow from the first, and
+dropping the scale on its own is a straight regression.
+
+The scale is not on the game log. It is on `.stage`, the whole card, which is a
+fixed **360 × 520**. The modal costs 48px of horizontal chrome (overlay
+`--s4` ×2, box `--s2` ×2), so the card needs a **408px viewport** to fit
+unscaled. Measured against real devices: iPhone SE 375, iPhone 12–15 390,
+Pixel 393 — all under it. `scale(0.92)` renders 331px into the 332px available
+at 380px, which is exactly what it was tuned for.
+
+So making the log a list does not license dropping the scale. What would is
+making the card itself fluid, and that is a redesign of a fixed-aspect 3D card
+with absolutely-positioned art — a real piece of work, not a tidy-up, and it
+touches the front face as much as the back.
+
 ## 5. Known-unresolved
 
 **Attacking's middle — DIAGNOSED AND MOSTLY FIXED (§4b).** The earlier reading
@@ -393,12 +439,12 @@ match context at all — `MatchupPitch.tsx:384` passes only the player id.
 ## 6. Next steps, in order
 
 1. ~~Rank anchors~~ — **DONE**, §4a.
-2. **Game log → responsive list**, drop the `transform: scale(0.92)` at
-   `PremiumPlayerCard.module.css:1335`. Still needs Duke's yes: it reworks
-   something that currently works.
-3. **Persist the banded breakdown** at scoring time so a completed match can be
-   explained without re-scoring. Blocked for GK only, behind the open
-   goalkeeper question in `docs/HANDOFF-2026-08-23-scoring.md` §1.
+2. ~~Game log → responsive list, drop the `transform: scale(0.92)`~~ —
+   **DECLINED, and the premise was wrong.** See §4e.
+3. ~~Persist the banded breakdown~~ — **DONE**, §4d. It was never blocked for
+   GK: persisting a SNAPSHOT means a keeper-scoring change simply applies to
+   later matches while old rows keep explaining themselves correctly, which is
+   the behaviour we want either way.
 4. ~~Matchup-detail landing~~ and ~~chip deep-link with gameweek~~ — **DONE**,
    §4c. The signature in list rows is still unbuilt.
 5. Card front, season scope — the least-defined of the four surfaces.
