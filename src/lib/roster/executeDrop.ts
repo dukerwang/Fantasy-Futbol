@@ -77,6 +77,36 @@ export async function executeDrop(
 
     if (dropError) throw new Error(dropError.message);
 
+    // 1b. Void anything else predicated on this team still owning the player —
+    // a sale listing, an outbound trade offer, or an outbound loan offer.
+    // Mirrors the pending-listing cancellation matchupProcessor.ts already does
+    // when a deferred loan executes; extended here to trades and loans too,
+    // and to the drop path, since none of those previously got cleaned up.
+    await admin
+        .from('player_sale_listings')
+        .update({ status: 'cancelled', updated_at: new Date().toISOString() })
+        .eq('league_id', team.league_id)
+        .eq('player_id', playerId)
+        .eq('seller_team_id', teamId)
+        .eq('status', 'pending');
+
+    await admin
+        .from('trade_proposals')
+        .update({ status: 'rejected', updated_at: new Date().toISOString() })
+        .eq('league_id', team.league_id)
+        .eq('status', 'pending')
+        .or(
+            `and(team_a_id.eq.${teamId},offered_players.cs.{${playerId}}),and(team_b_id.eq.${teamId},requested_players.cs.{${playerId}})`,
+        );
+
+    await admin
+        .from('player_loans')
+        .update({ status: 'rejected', updated_at: new Date().toISOString() })
+        .eq('league_id', team.league_id)
+        .eq('player_id', playerId)
+        .eq('lender_team_id', teamId)
+        .eq('status', 'pending');
+
     // 2. Update FAAB (refund for transfer_out; deduct severance for plain drop)
     if (actionType === 'transfer_out') {
         await admin
