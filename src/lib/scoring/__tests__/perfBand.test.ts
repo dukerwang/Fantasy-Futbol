@@ -262,7 +262,7 @@ describe('rank anchors', () => {
             .find((g) => g.key === 'attacking')!;
         expect(saka.verdict).not.toBe(palmer.verdict);
         expect(saka.verdict).toBe('Decisive');
-        expect(palmer.verdict).toBe('Devastating');
+        expect(palmer.verdict).toBe('Ruthless');
         expect(saka.rank).toBe('Top 15% for an RW');
         expect(palmer.rank).toBe('Top 5% for an AM');
     });
@@ -298,6 +298,23 @@ describe('rank anchors', () => {
                 }
             }
         }
+    });
+
+    /* The feat tiers sit ABOVE `supreme` and are reached only by the trigger.
+       A first pass at the seven-band ladder promoted Devastating/Unplayable
+       into elite/supreme, which stole them from the feats and left a hat-trick
+       reading the same word as a top-1% percentile. */
+    it('keeps feat vocabulary distinct from every ordinary band', () => {
+        const stats = { minutes_played: 90, goals: 3, assists: 0 } as unknown as RawStats;
+        const feat = buildPerformanceGroups(flat(0.95), 'ST', stats, 1.08)
+            .find((g) => g.key === 'attacking')!;
+        expect(feat.band).toBe('feat');
+        const ordinary = new Set<string>();
+        for (const sc of [0.1, 0.45, 0.55, 0.72, 0.80, 0.90, 0.99]) {
+            ordinary.add(buildPerformanceGroups(flat(sc), 'ST', { minutes_played: 90, goals: 1 } as RawStats, 0)
+                .find((g) => g.key === 'attacking')!.verdict);
+        }
+        expect(ordinary).not.toContain(feat.verdict);
     });
 
     it('suppresses the anchor on a feat row, which is rarer than 1%', () => {

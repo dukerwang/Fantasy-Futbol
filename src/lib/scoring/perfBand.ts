@@ -282,39 +282,48 @@ function hasSomethingToSay(s: RawStats): boolean {
 }
 
 /**
- * Verdict vocabulary. Index 0-6 are the ordinary bands, 7 is a rare feat.
+ * Verdict vocabulary. Nine slots: 0-6 are the ordinary bands, 7 and 8 are the
+ * two rare-feat tiers, which sit ABOVE `supreme` and are reached only by the
+ * feat trigger — never by percentile.
  *
- * SEVEN WORDS, NOT FIVE, AND WHY THE EXTRA TWO ARE AT THE TOP. With five bands
- * the top word covered the whole top 15%, so a top-1% game and a top-15% game
- * read identically — Palmer and Saka both DECISIVE on attacking and both
- * EVERYWHERE on involvement, with only a small grey anchor line distinguishing
- * top 1% from top 5%. The word is the loudest thing on the row; if it cannot
- * separate them, nothing on the row does.
+ * SEVEN ORDINARY WORDS, NOT FIVE, AND WHY THE EXTRA TWO ARE AT THE TOP. With
+ * five bands the top word covered the whole top 15%, so a top-1% game and a
+ * top-15% game read identically — Palmer and Saka both DECISIVE on attacking
+ * and both EVERYWHERE on involvement, with only a small grey anchor line
+ * distinguishing them. The word is the loudest thing on the row; if it cannot
+ * separate them, nothing on the row does. So poor/low/mid/good keep their
+ * 15/20/30/20 spans and the old `best` splits into best (top 15-5%), elite
+ * (top 5-1%) and supreme (top 1%).
  *
- * Resolution is therefore weighted toward the end managers actually read:
- * poor/low/mid/good keep their 15/20/30/20 spans, and the old `best` splits
- * into best (top 15-5%), elite (top 5-1%) and supreme (top 1%).
+ * THE FEAT TIERS KEEP THEIR OWN WORDS. A first pass at the seven-band ladder
+ * promoted `Devastating` and `Unplayable` into elite/supreme — which stole them
+ * from the feat tiers and left a hat-trick reading the same word as a top-1%
+ * percentile, in a different colour. The feat tiers are deliberately outside
+ * the ordinary scale (blue and violet, plus the star mark) and they need
+ * language that is outside it too. Only `attacking` and `creating` can ever
+ * reach them, which is why every other group repeats its top word there.
  *
- * MID MUST STAY NEUTRAL. Every middle word here is flat — Involved, Tidy,
- * Steady, Busy, Held. Creating's used to be "Inventive", praise in the average
- * slot, and a centre-back with 2.2 raw creativity read INVENTIVE directly above
+ * MID MUST STAY NEUTRAL. Every middle word is flat — Involved, Tidy, Steady,
+ * Busy, Held. Creating's used to be "Inventive", praise in the average slot,
+ * and a centre-back with 2.2 raw creativity read INVENTIVE directly above
  * "Little creative output."
  *
  * Keep every word at or under 11 characters: `.verdict` is a fixed 96px column
  * with `white-space: nowrap`.
  */
 const VERDICTS: Record<PerfGroupKey, string[]> = {
-    attacking:      ['Anonymous', 'Quiet', 'Involved', 'Dangerous', 'Decisive', 'Devastating', 'Unplayable', 'Unplayable'],
-    creating:       ['Static', 'Sideways', 'Tidy', 'Incisive', 'Masterful', 'Virtuoso', 'Mesmeric', 'Mesmeric'],
-    defending:      ['Overrun', 'Passive', 'Steady', 'Assured', 'Commanding', 'Imperious', 'Colossal', 'Colossal'],
-    involvement:    ['Peripheral', 'Quiet', 'Busy', 'Influential', 'Everywhere', 'Immense', 'Talismanic', 'Talismanic'],
-    shotStopping:   ['Beaten', 'Shaky', 'Steady', 'Sharp', 'Inspired', 'Unbeatable', 'Untouchable', 'Untouchable'],
-    goalsPrevented: ['Breached', 'Exposed', 'Held', 'Protected', 'Impassable', 'Impregnable', 'Unbreached', 'Unbreached'],
+    //                poor          low          mid       good           best          elite          supreme        | feat           feat2
+    attacking:      ['Anonymous',  'Quiet',     'Involved', 'Dangerous',  'Decisive',   'Ruthless',    'Rampant',      'Devastating', 'Unplayable'],
+    creating:       ['Static',     'Sideways',  'Tidy',     'Incisive',   'Masterful',  'Sublime',     'Mesmeric',     'Virtuoso',    'Magisterial'],
+    defending:      ['Overrun',    'Passive',   'Steady',   'Assured',    'Commanding', 'Imperious',   'Colossal',     'Colossal',    'Colossal'],
+    involvement:    ['Peripheral', 'Quiet',     'Busy',     'Influential','Everywhere', 'Immense',     'Talismanic',   'Talismanic',  'Talismanic'],
+    shotStopping:   ['Beaten',     'Shaky',     'Steady',   'Sharp',      'Inspired',   'Unbeatable',  'Untouchable',  'Untouchable', 'Untouchable'],
+    goalsPrevented: ['Breached',   'Exposed',   'Held',     'Protected',  'Impassable', 'Impregnable', 'Unbreached',   'Unbreached',  'Unbreached'],
 };
 
 const BAND_INDEX: Record<PerfBand, number> = {
     poor: 0, low: 1, mid: 2, good: 3, best: 4, elite: 5, supreme: 6,
-    feat: 7, feat2: 7,
+    feat: 7, feat2: 8,
 };
 
 /* ══════════════════════════════════════════════════════════════════════════

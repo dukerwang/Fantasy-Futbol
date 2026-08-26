@@ -463,14 +463,33 @@ the row does.
 **The ladder is now seven bands, with the resolution weighted where managers
 read.** poor/low/mid/good keep their 15/20/30/20 spans; the old `best` splits:
 
-| band | share | attacking | involvement |
-|---|---|---|---|
-| best | top 15–5% | Decisive | Everywhere |
-| elite | top 5–1% | Devastating | Immense |
-| supreme | top 1% | Unplayable | Talismanic |
+| band | share | attacking | creating | involvement |
+|---|---|---|---|---|
+| best | top 15–5% | Decisive | Masterful | Everywhere |
+| elite | top 5–1% | Ruthless | Sublime | Immense |
+| supreme | top 1% | Rampant | Mesmeric | Talismanic |
+| *feat* | *trigger only* | *Devastating* | *Virtuoso* | — |
+| *feat2* | *trigger only* | *Unplayable* | *Magisterial* | — |
 
-Full vocabulary is in `VERDICTS`. Every word is ≤11 characters because
-`.verdict` is a fixed 96px column with `white-space: nowrap`.
+**The feat tiers keep their own words, and that was a correction.** The first
+pass at this ladder promoted `Devastating` and `Unplayable` into elite/supreme
+— stealing them from the feat tiers, so a hat-trick read the same word as a
+top-1% percentile, differing only in colour. Duke caught it immediately
+("wasn't unplayable like the blue rating"). The feats sit deliberately outside
+the ordinary scale — blue and violet, plus the star mark — and they need
+language outside it too. Only `attacking` and `creating` can reach them, which
+is why every other group repeats its top word in those slots. A test asserts
+feat vocabulary never collides with an ordinary band's.
+
+Full vocabulary is in `VERDICTS`, nine slots per group. Every word is ≤11
+characters because `.verdict` is a fixed 96px column with
+`white-space: nowrap`; a check over all 54 words enforces it.
+
+Every tier is reachable on real data. Attacking over 2025-26, with an example
+of each: Anonymous (Martinelli, blank) · Quiet · Involved · Dangerous ·
+Decisive (Abraham, 1G) · Ruthless (Mac Allister, 1G) · Rampant (Calafiori, 2A)
+· Devastating (Sangaré, 1G 2A). `feat2` needs roughly four goals and went
+unreached that season.
 
 **The anchor is now derived from the band, not measured separately.**
 `ANCHOR_TIERS` is deleted. The three top bands *are* p85/p95/p99, so
@@ -489,7 +508,7 @@ Result — the two rows that prompted it:
 
 | | Saka (RW) | Palmer (AM) |
 |---|---|---|
-| Attacking | **Decisive** · top 15% | **Devastating** · top 5% |
+| Attacking | **Decisive** · top 15% | **Ruthless** · top 5% |
 | Creating | Incisive · — | Masterful · top 15% |
 | Involvement | **Immense** · top 5% | **Talismanic** · top 1% |
 
