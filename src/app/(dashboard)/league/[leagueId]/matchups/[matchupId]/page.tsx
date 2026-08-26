@@ -10,6 +10,7 @@ import { generateMatchReport } from '@/lib/narrative/matchReport';
 import { getCurrentFplSeason, getLatestReferenceStatsSeason } from '@/lib/season/currentSeason';
 import {
     attachLineupSlotScores,
+    buildLineupPerformance,
     calculateTeamScore,
     emptyTeamScoreDetail,
     loadReferenceStats,
@@ -25,6 +26,7 @@ import MatchReportCard from './MatchReportCard';
 import MatchupLiveRefresh from './MatchupLiveRefresh';
 import MarginAxis, { marginVerdict } from '@/components/matchups/MarginAxis';
 import { isDrawMargin } from '@/lib/scoring/drawBand';
+import type { PerfGroup } from '@/lib/scoring/perfBand';
 import styles from './matchup-detail.module.css';
 
 export const dynamic = 'force-dynamic';
@@ -106,6 +108,7 @@ export default async function MatchupDetailPage({ params }: Props) {
     // imputed ICT from sync; we do not re-derive the primary, so live ICT
     // can't drift from the number already written.
     const detailMap: Record<string, MatchupPlayerDetail> = {};
+    let perfMap: Record<string, PerfGroup[]> = {};
     // Hoisted out of the block below: also needed to compute the live team
     // total (calculateTeamScore) further down, not just the per-player chips.
     let statsRows: any[] | undefined;
@@ -144,6 +147,10 @@ export default async function MatchupDetailPage({ params }: Props) {
             playerPrimary.set(id, p.primary_position);
         }
         attachLineupSlotScores(detailMap, [lineupA, lineupB], playerPrimary, refStats);
+        // The banded performance block per starter, at the slot he was fielded
+        // in. Computed here rather than in the client so no score reaches the
+        // browser — see src/lib/scoring/perfBand.ts.
+        perfMap = buildLineupPerformance(detailMap, [lineupA, lineupB], refStats);
     }
 
     // Whether we hold FPL's reviewed stats for this gameweek yet. Until the
@@ -288,6 +295,8 @@ export default async function MatchupDetailPage({ params }: Props) {
                 playerMap={playerMap}
                 startedPlayerIds={startedPlayerIds}
                 detailMap={detailMap}
+                perfMap={perfMap}
+                gameweek={matchupData.gameweek}
                 teamAName={teamAName}
                 teamBName={teamBName}
                 teamAId={matchup.team_a?.id}

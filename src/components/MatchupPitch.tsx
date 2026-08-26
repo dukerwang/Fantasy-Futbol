@@ -1,9 +1,12 @@
 'use client';
 
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import type { BenchSlot, MatchupLineup, Player, GranularPosition } from '@/types';
 import { BENCH_DEPTH_BONUS_LABEL, getExpectedBenchSlots } from '@/types';
 import type { TeamScoreDetail } from '@/lib/scoring/matchups';
+import type { PerfGroup } from '@/lib/scoring/perfBand';
+import PerformanceBlock from './players/PerformanceBlock';
+import { roleArticle } from '@/lib/scoring/perfBand';
 import { getPlayerDisplayName } from '@/lib/players/displayName';
 import { SPINE, POS_COLOR } from '@/lib/positions/spine';
 import { playerHoverProps, usePlayerCard } from './players/PlayerCardProvider';
@@ -374,6 +377,15 @@ interface Props {
     lineupB: MatchupLineup | null;
     playerMap: Record<string, Partial<Player>>;
     detailMap: Record<string, Detail>;
+    /**
+     * Banded performance groups per starter, keyed by player id, already
+     * scored at the slot he was fielded in. Server-built — see
+     * buildLineupPerformance. Absent for a player who did not appear.
+     */
+    perfMap?: Record<string, PerfGroup[]>;
+    /** The gameweek this board is showing. Carried into the player card so a
+     *  chip opens on the match you clicked, not on the card front. */
+    gameweek?: number | null;
     teamAName: string;
     teamBName: string;
     teamAId?: string;
@@ -401,9 +413,13 @@ interface Props {
 }
 
 export default function MatchupPitch({
-    lineupA, lineupB, playerMap, detailMap, teamAName, teamBName, teamAId, teamBId, crestA, crestB,
+    lineupA, lineupB, playerMap, detailMap, perfMap, gameweek, teamAName, teamBName, teamAId, teamBId, crestA, crestB,
     startedPlayerIds, scoreA = 0, scoreB = 0, detailA, detailB,
 }: Props) {
+    // One breakdown row open at a time. The two columns share this, so opening
+    // a player on one side closes the other — the block is tall enough that two
+    // open at once pushes the second team's rows off a phone screen.
+    const [openPerfId, setOpenPerfId] = useState<string | null>(null);
     // Undefined means the page could not resolve kickoffs (FPL unreachable).
     // Treat every player as started in that case: showing a real 0.0 to someone
     // who has played is a smaller error than labelling a finished match "yet to
@@ -421,9 +437,13 @@ export default function MatchupPitch({
         const rows = Object.values(playerMap).filter((p): p is Partial<Player> & { id: string } => Boolean(p.id));
         if (rows.length) primePlayers(rows as Player[]);
     }, [playerMap, primePlayers]);
+    // Carries the gameweek, so the card lands on THIS match's game-log row
+    // rather than the front with no match context at all.
     const setViewingPlayer = useCallback(
-        (p: Partial<Player> | null) => { if (p?.id) openPlayer(p as Player); },
-        [openPlayer],
+        (p: Partial<Player> | null) => {
+            if (p?.id) openPlayer(p as Player, { gameweek: gameweek ?? null });
+        },
+        [openPlayer, gameweek],
     );
 
     const resolvedA = resolveSubs(lineupA, detailA);
@@ -557,10 +577,23 @@ export default function MatchupPitch({
                             {starters.map((s, i) => {
                                 const p = playerMap[s.player_id];
                                 const detail = detailAtSlot(detailMap[s.player_id], s.slot);
+                                const perf = perfMap?.[s.player_id];
+                                const isOpen = openPerfId === s.player_id;
                                 return (
+                                    <div key={s.player_id} className={styles.breakdownEntry}>
                                     <div
-                                        key={s.player_id}
-                                        className={`${styles.breakdownRow} ${i % 2 !== 0 ? styles.breakdownRowAlt : ''}`}
+                                        className={`${styles.breakdownRow} ${i % 2 !== 0 ? styles.breakdownRowAlt : ''} ${perf ? styles.breakdownRowOpenable : ''} ${isOpen ? styles.breakdownRowOpen : ''}`}
+                                        role={perf ? 'button' : undefined}
+                                        tabIndex={perf ? 0 : undefined}
+                                        aria-expanded={perf ? isOpen : undefined}
+                                        aria-label={perf ? `${p ? getPlayerDisplayName(p) : 'Player'} — how this score was earned` : undefined}
+                                        onClick={perf ? () => setOpenPerfId(isOpen ? null : s.player_id) : undefined}
+                                        onKeyDown={perf ? (e) => {
+                                            if (e.key === 'Enter' || e.key === ' ') {
+                                                e.preventDefault();
+                                                setOpenPerfId(isOpen ? null : s.player_id);
+                                            }
+                                        } : undefined}
                                     >
                                         <div className={styles.breakdownLeft}>
                                             {isGranular(s.slot) && <PositionBadge position={s.slot} size="sm" />}
@@ -585,6 +618,15 @@ export default function MatchupPitch({
                                         <span className={styles.breakdownPts}>
                                             {detail?.points.toFixed(2) ?? '—'}
                                         </span>
+                                    </div>
+                                    {isOpen && perf && (
+                                        <div className={styles.breakdownPerf}>
+                                            <PerformanceBlock
+                                                groups={perf}
+                                                note={`Centre line is the median for ${roleArticle(s.slot)}`}
+                                            />
+                                        </div>
+                                    )}
                                     </div>
                                 );
                             })}

@@ -1,4 +1,6 @@
 import { calculateMatchRating, DEFAULT_REFERENCE_STATS } from './engine';
+import { featExcessFor } from './matchRating';
+import { buildPerformanceGroups, type PerfGroup } from './perfBand';
 import { BENCH_DEPTH_BONUS } from '@/types';
 import type { GranularPosition, RawStats, ReferenceStats, RatingComponent } from '@/types';
 import type { createAdminClient } from '@/lib/supabase/admin';
@@ -160,6 +162,49 @@ export function attachLineupSlotScores(
       d.rating = slotted.rating;
     }
   }
+}
+
+/**
+ * The performance block for every starter in a matchup, keyed by player id.
+ *
+ * SCORED AT THE SLOT HE WAS FIELDED IN, not his primary position — the same
+ * rule the chips and the breakdown already follow. Szoboszlai at RB is not
+ * his AM game, and the block has to explain the points on the row beside it.
+ *
+ * Bench players are skipped: the bench depth bonus is not a slot, so there is
+ * no position to grade a bench appearance under, and a block explaining a
+ * performance that contributed a flat percentage would mislead.
+ *
+ * Runs on the server. The output is already banded and carries no scores —
+ * see the disclosure rule in src/lib/scoring/perfBand.ts.
+ */
+export function buildLineupPerformance(
+  detailMap: Record<string, MatchupPlayerDetail>,
+  lineups: Array<{ starters?: { player_id: string; slot: string }[] } | null>,
+  refStats: Record<string, ReferenceStats>,
+): Record<string, PerfGroup[]> {
+  const out: Record<string, PerfGroup[]> = {};
+  for (const lineup of lineups) {
+    for (const s of lineup?.starters ?? []) {
+      const stats = detailMap[s.player_id]?.stats;
+      if (!stats || !(stats.minutes_played > 0)) continue;
+      const slot = String(s.slot ?? '').toUpperCase() as GranularPosition;
+      if (!slot) continue;
+      const { breakdown } = calculateMatchRating(
+        stats,
+        slot,
+        refStats as Record<GranularPosition, ReferenceStats>,
+      );
+      if (!breakdown.length) continue;
+      out[s.player_id] = buildPerformanceGroups(
+        breakdown,
+        slot,
+        stats,
+        featExcessFor(stats, slot),
+      );
+    }
+  }
+  return out;
 }
 
 /**

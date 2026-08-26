@@ -23,6 +23,7 @@ import {
   primeFront,
 } from '@/lib/players/cardCache';
 import PerformanceBlock from './PerformanceBlock';
+import { roleArticle } from '@/lib/scoring/perfBand';
 import styles from './PremiumPlayerCard.module.css';
 
 /**
@@ -83,6 +84,12 @@ interface Props {
      * and a fetch would just cause a late re-paint.
      */
     staticOnly?: boolean;
+    /**
+     * Open straight onto this gameweek's game-log row, already expanded.
+     * Set by a caller that knows which match the reader is asking about —
+     * a matchup pitch chip carries the gameweek it was clicked in.
+     */
+    focusGameweek?: number | null;
 }
 
 interface Snapshot {
@@ -207,21 +214,12 @@ function FlipIcon() {
 }
 
 /** "a centre-back" / "an attacking midfielder" — for the block's centre-line note. */
-const ROLE_NAME: Record<string, string> = {
-    GK: 'a goalkeeper', CB: 'a centre-back', LB: 'a left-back', RB: 'a right-back',
-    LWB: 'a left wing-back', RWB: 'a right wing-back', DM: 'a defensive midfielder',
-    CM: 'a central midfielder', AM: 'an attacking midfielder',
-    LW: 'a left winger', RW: 'a right winger', ST: 'a striker',
-};
-function roleArticle(pos: string | null | undefined): string {
-    return ROLE_NAME[String(pos ?? '').toUpperCase()] ?? 'this position';
-}
-
 export default function PremiumPlayerCard({
     player,
     ownership,
     onClose,
     staticOnly = false,
+    focusGameweek,
 }: Props) {
     const stageRef = useRef<HTMLDivElement>(null);
     const cardRef = useRef<HTMLDivElement>(null);
@@ -385,6 +383,33 @@ export default function PremiumPlayerCard({
     const showPlaceholder = !photoShowing && placeholderArmed;
 
     const gamelog = back?.gamelog ?? [];
+
+    /**
+     * Land on the match the caller asked about.
+     *
+     * Waits for the gamelog rather than running on mount: the back payload
+     * arrives after the first paint, so there is no row to open yet. Flips the
+     * card by the same path `handleFlip` uses — `flippedRef` and the inline
+     * transform both have to move, or the tilt handler will snap it back.
+     *
+     * Deliberately fires once per requested gameweek. Re-running on every
+     * gamelog change would fight a reader who closed the row by hand.
+     */
+    const focusedRef = useRef<number | null>(null);
+    useEffect(() => {
+        if (focusGameweek == null || gamelog.length === 0) return;
+        if (focusedRef.current === focusGameweek) return;
+        const index = gamelog.findIndex((g) => Number(g.gameweek) === Number(focusGameweek));
+        if (index < 0) return;
+        focusedRef.current = focusGameweek;
+        const g = gamelog[index];
+        setOpenLog(`${g.gameweek}-${g.opponent ?? 'x'}-${index}`);
+        flippedRef.current = true;
+        setFlipped(true);
+        if (cardRef.current) {
+            cardRef.current.style.transform = 'rotateX(0deg) rotateY(180deg)';
+        }
+    }, [focusGameweek, gamelog]);
     const history = back?.history ?? [];
     const backPending = back === null;
 

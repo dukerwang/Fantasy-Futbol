@@ -17,6 +17,8 @@ interface Props {
     onPick?: (player: Player) => void;
     /** If provided, shows a "Nominate" action button inside the modal */
     onNominate?: (player: Player) => void;
+    /** Opens the card onto this gameweek's game-log row, expanded. */
+    focusGameweek?: number | null;
 }
 
 export default function PlayerDetailsModal({
@@ -25,6 +27,7 @@ export default function PlayerDetailsModal({
     onClose,
     onPick,
     onNominate,
+    focusGameweek,
 }: Props) {
     // Close on Escape
     useEffect(() => {
@@ -55,6 +58,7 @@ export default function PlayerDetailsModal({
                         player={player}
                         ownership={ownership}
                         onClose={onClose}
+                        focusGameweek={focusGameweek}
                     />
                 </div>
 

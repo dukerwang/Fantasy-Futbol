@@ -157,6 +157,13 @@ Resulting shares:
 | shotStopping | 17.7% | 21.1% | 23.3% | 20.6% | 17.2% |
 | goalsPrevented | 15.4% | 19.7% | 29.9% | 20.2% | 14.9% |
 
+**Watch `defending` in 2026-27.** Measured on GW1's 609 rows against the
+2025-26 cuts, most groups hold their shape (creating best 18.6% vs a 14.9%
+target, inside one week's noise) but `defending` came in **poor 4.5% / good
+34.3%** against targets of 15% / 20%. One gameweek is far too little to retune
+on — an opening weekend full of clean sheets looks exactly like this — so this
+is a thing to re-measure around GW5, not to act on now.
+
 **`BAND_CUTS` must be refreshed when `rating_reference_stats` is regenerated** —
 they are distribution-dependent the same way the medians are. The probe that
 produced them is `scratch/band-distribution-probe.ts`; its header says how to
@@ -245,6 +252,38 @@ AM "poor poor low" is 0.0–0.2. Two identical bad games *should* read alike. Th
 number that matters is collision among the top 10% by points, and that is under
 2.1% everywhere but GK (§5). Probe: `scratch/signature-collision-probe.ts`.
 
+## 4c. Matchup detail + the chip deep-link — SHIPPED
+
+The block now has a second home, and it is the one that matters weekly.
+
+**The Points breakdown row opens in place.** `buildLineupPerformance` in
+`matchups.ts` builds the banded groups for every starter, server-side, **at the
+slot he was fielded in** — the same rule the chips already follow, because the
+block has to explain the number on the row beside it. Szoboszlai at CM shows
+CM's group order and picks up a Defending row he would not have as an AM.
+Bench players are skipped deliberately: the bench depth bonus is not a slot, so
+there is no position to grade the appearance under.
+
+**Two affordances, two questions.** The pitch chip still opens the player card;
+the breakdown row expands the *why* of the points. Collapsing them would have
+meant a modal every time you wanted to read a score already on screen.
+
+**The chip now carries the gameweek.** `OpenPlayerOptions.gameweek` threads
+provider → modal → card, and `PremiumPlayerCard` flips to the game log and
+opens that gameweek's row. It waits for the back payload rather than firing on
+mount (there is no row to open before it lands) and fires once per requested
+gameweek, so it will not fight a reader who closes the row by hand.
+
+Verified against Matchday Militia's real GW1 (170.95–101.65): 21 blocks for 22
+starters, the missing one a player who did not appear, out-of-position slots
+graded correctly, and no score in the payload.
+
+Alongside: `featExcessFor` is now exported from `matchRating.ts` and used by
+the engine, the card and the matchup. The card's inline copy had already
+drifted — it omitted the positional gates, so it would have credited a feat to
+a position not scored on the component that produced it. `roleArticle` moved to
+`perfBand.ts` for the same reason, so both surfaces name a position identically.
+
 ## 5. Known-unresolved
 
 **Attacking's middle — DIAGNOSED AND MOSTLY FIXED (§4b).** The earlier reading
@@ -288,8 +327,9 @@ match context at all — `MatchupPitch.tsx:384` passes only the player id.
 3. **Persist the banded breakdown** at scoring time so a completed match can be
    explained without re-scoring. Blocked for GK only, behind the open
    goalkeeper question in `docs/HANDOFF-2026-08-23-scoring.md` §1.
-4. Matchup-detail landing + the signature in list rows.
-5. Chip deep-link with gameweek.
+4. ~~Matchup-detail landing~~ and ~~chip deep-link with gameweek~~ — **DONE**,
+   §4c. The signature in list rows is still unbuilt.
+5. Card front, season scope — the least-defined of the four surfaces.
 6. ~~Attacking's distribution~~ — **DONE**, §4b. What is left there is the
    goalkeeper collision, which belongs to the open keeper question.
 

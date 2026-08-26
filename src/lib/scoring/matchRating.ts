@@ -569,6 +569,37 @@ export const FEAT_CREATIVITY_RAW = 90;
  * is worth (+3.25). That parity is the argument for this number. */
 export const FEAT_CREATIVITY_UNIT = 15;
 
+/**
+ * How far past the rare-feat bars this appearance went, in units.
+ *
+ * Exported because three surfaces need the SAME number: the engine (to pay the
+ * bonus), the player card and the matchup breakdown (to promote a performance
+ * block's row past the ordinary band scale). They each had their own inline
+ * copy of this arithmetic, and the card's copy had already drifted — it left
+ * out the positional gates below, so it would have credited a feat to a
+ * position that is not scored on the component that produced it.
+ *
+ * BOTH GATES STAY. "A component weighted 0.00 for a position must never move
+ * that position's score" is structural; resting it on "the data says it cannot
+ * happen" is weaker than resting it on "the code says it cannot". The golden
+ * suite enforces this for goalkeeper creativity.
+ */
+export function featExcessFor(
+    stats: Pick<RawStats, 'goals' | 'assists' | 'creativity'>,
+    position: GranularPosition,
+): number {
+    const posWeights = POSITION_WEIGHTS[position] ?? POSITION_WEIGHTS.CM;
+    let excess = 0;
+    if (posWeights.goal_involvement > 0) {
+        const goalInvRaw = Number(stats.goals ?? 0) * 6 + Number(stats.assists ?? 0) * 4;
+        excess += Math.max(0, goalInvRaw - FEAT_GI_SATURATION_RAW) / FEAT_GI_UNIT;
+    }
+    if (posWeights.creativity > 0) {
+        excess += Math.max(0, Number(stats.creativity ?? 0) - FEAT_CREATIVITY_RAW) / FEAT_CREATIVITY_UNIT;
+    }
+    return excess;
+}
+
 /** Flat points for a rare feat. Never negative, unbounded above. */
 function featPointsBonus(excess: number): number {
     if (excess <= 0) return 0;
@@ -786,15 +817,7 @@ export function calculateMatchRating(
     // nothing — every outfield position weights creativity above zero, so GK is
     // the only thing it excludes, and the centre-back over-firing this change
     // exists to fix was caused by the z-score threshold, not by the gate.
-    const posWeights = POSITION_WEIGHTS[position] ?? POSITION_WEIGHTS.CM;
-    let featExcess = 0;
-    if (posWeights.goal_involvement > 0) {
-        const goalInvRaw = stats.goals * 6 + stats.assists * 4;
-        featExcess += Math.max(0, goalInvRaw - FEAT_GI_SATURATION_RAW) / FEAT_GI_UNIT;
-    }
-    if (posWeights.creativity > 0) {
-        featExcess += Math.max(0, (stats.creativity ?? 0) - FEAT_CREATIVITY_RAW) / FEAT_CREATIVITY_UNIT;
-    }
+    const featExcess = featExcessFor(stats, position);
 
     // Step 3: Display rating (Fotmob-calibrated scale for UI). Deliberately
     // takes the RAW composite — the feat bonus is a points-scale reward.

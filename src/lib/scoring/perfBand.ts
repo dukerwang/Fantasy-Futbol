@@ -249,6 +249,22 @@ const RANK_CUTS: Record<string, Partial<Record<PerfGroupKey, (number | null)[]>>
     ST:        { attacking: [0.569, 0.798, 0.861, 0.969], creating: [0.642, 0.779, 0.869, 0.966], involvement: [0.562, 0.797, 0.863, 0.966] },
 };
 
+/**
+ * "an attacking midfielder" — the long form, for the block's centre-line note.
+ * Lives here beside POS_ARTICLE so the two surfaces that render the block
+ * (player card, matchup breakdown) name a position identically.
+ */
+const ROLE_NAME: Record<string, string> = {
+    GK: 'a goalkeeper', CB: 'a centre-back', LB: 'a left-back', RB: 'a right-back',
+    LWB: 'a left wing-back', RWB: 'a right wing-back', DM: 'a defensive midfielder',
+    CM: 'a central midfielder', AM: 'an attacking midfielder',
+    LW: 'a left winger', RW: 'a right winger', ST: 'a striker',
+};
+
+export function roleArticle(pos: string | null | undefined): string {
+    return ROLE_NAME[String(pos ?? '').toUpperCase()] ?? 'this position';
+}
+
 /** "an AM" / "a CB". The string is CSS-uppercased at render. */
 const POS_ARTICLE: Record<GranularPosition, string> = {
     GK: 'a', CB: 'a', LB: 'an', RB: 'an', LWB: 'an', RWB: 'an',

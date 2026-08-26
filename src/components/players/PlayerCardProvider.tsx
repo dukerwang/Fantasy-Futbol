@@ -32,6 +32,14 @@ export interface OpenPlayerOptions {
   onPick?: (player: Player) => void;
   /** Shows a "Nominate" button in the modal. */
   onNominate?: (player: Player) => void;
+  /**
+   * Opens the card straight onto this gameweek's game-log row, expanded.
+   *
+   * For a caller that already knows WHICH match the reader is asking about —
+   * a matchup pitch chip, a match report name. Without it the card opens on
+   * the front with no match context and the reader has to find the row.
+   */
+  gameweek?: number | null;
 }
 
 interface PlayerCardContextValue {
@@ -69,6 +77,8 @@ export function PlayerCardProvider({ children }: { children: React.ReactNode }) 
   const [player, setPlayer] = useState<Player | null>(null);
   const [ownership, setOwnership] = useState<PlayerOwnership | null | undefined>(undefined);
   const [actions, setActions] = useState<Pick<OpenPlayerOptions, 'onPick' | 'onNominate'>>({});
+  /** Which game-log row to open the card onto, if the caller named one. */
+  const [focusGameweek, setFocusGameweek] = useState<number | null>(null);
   const [isResolving, setIsResolving] = useState(false);
 
   // Guards against a slow resolve landing after the user opened someone else.
@@ -80,6 +90,7 @@ export function PlayerCardProvider({ children }: { children: React.ReactNode }) 
     setPlayer(null);
     setOwnership(undefined);
     setActions({});
+    setFocusGameweek(null);
     setIsResolving(false);
   }, []);
 
@@ -93,6 +104,7 @@ export function PlayerCardProvider({ children }: { children: React.ReactNode }) 
           : getOwnershipFor(next.id, leagueId),
       );
       setActions({ onPick: options?.onPick, onNominate: options?.onNominate });
+      setFocusGameweek(options?.gameweek ?? null);
       setIsResolving(false);
     },
     [leagueId],
@@ -119,6 +131,7 @@ export function PlayerCardProvider({ children }: { children: React.ReactNode }) 
             : getOwnershipFor(playerId, leagueId) ?? front.ownership,
         );
         setActions({ onPick: options?.onPick, onNominate: options?.onNominate });
+        setFocusGameweek(options?.gameweek ?? null);
       });
     },
     [leagueId, openPlayer],
@@ -167,6 +180,7 @@ export function PlayerCardProvider({ children }: { children: React.ReactNode }) 
         onClose={closePlayer}
         onPick={actions.onPick}
         onNominate={actions.onNominate}
+        focusGameweek={focusGameweek}
       />
     </PlayerCardContext.Provider>
   );
