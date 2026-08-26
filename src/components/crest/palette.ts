@@ -32,5 +32,15 @@ export const CREST_PALETTE: PaletteColor[] = [
   { hex: '#D9D4CD', label: 'Warm Grey' },
   { hex: '#60A5FA', label: 'Sky Blue' },
   { hex: '#C084FC', label: 'Lavender' },
-  { hex: '#F7F3ED', label: 'Gaffa Cream' }
+  { hex: '#F7F3ED', label: 'Gaffa Cream' },
+
+  // Row 4: Extended hues and true neutrals (Columns 1-8)
+  { hex: '#000000', label: 'True Black' },
+  { hex: '#FFFFFF', label: 'True White' },
+  { hex: '#C2410C', label: 'Match Orange' },
+  { hex: '#DB2777', label: 'Kit Pink' },
+  { hex: '#4D7C0F', label: 'Olive Drab' },
+  { hex: '#0E7490', label: 'Stadium Cyan' },
+  { hex: '#4338CA', label: 'Indigo Kit' },
+  { hex: '#78350F', label: 'Leather Tan' }
 ];

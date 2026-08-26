@@ -374,6 +374,10 @@ export default function CrestBuilder({
             </button>
           )}
         </div>
+
+        <p style={{ fontSize: '11px', color: 'var(--color-text-secondary)', opacity: 0.7, textAlign: 'center', margin: '4px 0 0' }}>
+          Motif icons by Lorc, Delapouite &amp; Carl-Olsen — <a href="https://game-icons.net" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit' }}>game-icons.net</a> (CC BY 3.0)
+        </p>
       </div>
     </div>
   );

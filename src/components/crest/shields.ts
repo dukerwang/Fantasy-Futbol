@@ -34,5 +34,20 @@ export const SHIELDS: ShieldOutline[] = [
     id: 'pennant',
     label: 'Pennant Banner',
     path: 'M 12 10 L 88 10 L 78 72 L 50 110 L 22 72 Z'
+  },
+  {
+    id: 'lozenge',
+    label: 'Lozenge',
+    path: 'M 50 8 L 94 60 L 50 114 L 6 60 Z'
+  },
+  {
+    id: 'hexagon',
+    label: 'Hexagon Shield',
+    path: 'M 25 10 L 75 10 L 92 45 L 75 110 L 25 110 L 8 45 Z'
+  },
+  {
+    id: 'escutcheon',
+    label: 'Modern Escutcheon',
+    path: 'M 30 10 L 70 10 C 82 10, 90 18, 90 30 L 90 90 C 90 102, 82 110, 70 110 L 30 110 C 18 110, 10 102, 10 90 L 10 30 C 10 18, 18 10, 30 10 Z'
   }
 ];

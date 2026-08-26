@@ -141,7 +141,8 @@ export default function CrestBadge({
           const iconSize = config.showText ? 36 : 48;
           const translateX = 50 - (iconSize / 2);
           const translateY = config.showText ? 34 : 62 - (iconSize / 2);
-          const scale = iconSize / 24;
+          const viewBoxSize = parseFloat(iconObj.viewBox.split(' ')[2]) || 24;
+          const scale = iconSize / viewBoxSize;
           return (
             <g 
               transform={`translate(${translateX}, ${translateY}) scale(${scale})`}

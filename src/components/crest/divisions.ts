@@ -46,5 +46,33 @@ export const DIVISIONS: DivisionPattern[] = [
       <rect x="0" y="40" width="110" height="40" fill="${secondary}" />
       <rect x="0" y="80" width="110" height="50" fill="${tertiary}" />
     `
+  },
+  {
+    id: 'chevron',
+    label: 'Chevron',
+    renderLayers: (secondary) => `
+      <polygon points="-10,130 120,130 50,40" fill="${secondary}" />
+    `
+  },
+  {
+    id: 'saltire',
+    label: 'Per Saltire (X Quarters)',
+    usesTertiary: true,
+    renderLayers: (secondary, _border, tertiary) => `
+      <polygon points="0,0 110,0 55,65" fill="${secondary}" />
+      <polygon points="0,130 110,130 55,65" fill="${secondary}" />
+      <polygon points="0,0 0,130 55,65" fill="${tertiary}" />
+      <polygon points="110,0 110,130 55,65" fill="${tertiary}" />
+    `
+  },
+  {
+    id: 'bordure',
+    label: 'Bordure (Ring Border)',
+    renderLayers: (secondary) => `
+      <rect x="0" y="0" width="100" height="14" fill="${secondary}" />
+      <rect x="0" y="106" width="100" height="14" fill="${secondary}" />
+      <rect x="0" y="0" width="14" height="120" fill="${secondary}" />
+      <rect x="86" y="0" width="14" height="120" fill="${secondary}" />
+    `
   }
 ];
