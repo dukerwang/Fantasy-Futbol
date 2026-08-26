@@ -112,6 +112,105 @@ describe('mute groups', () => {
     });
 });
 
+describe('evidence lines', () => {
+    /* Every one of these is a real miss found on a real row, not a hypothetical.
+       The rule: an evidence line may only cite facts that moved the band. */
+    const defOf = (pos: GranularPosition, raw: Partial<RawStats>) =>
+        buildPerformanceGroups(flat(0.5), pos, { minutes_played: 90, ...raw } as RawStats, 0)
+            .find((g) => g.key === 'defending')!.evidence;
+
+    it('never calls CBI "clearances" — blocks and interceptions are in there too', () => {
+        const line = defOf('CB', { fpl_tackles: 5, fpl_cbi: 10, goals_conceded: 0 });
+        expect(line).toContain('clearances, blocks and interceptions');
+    });
+
+    it('omits a centre-back\'s recoveries, which his score drops', () => {
+        const line = defOf('CB', { fpl_tackles: 5, fpl_cbi: 10, fpl_recoveries: 6 });
+        expect(line).not.toContain('recover');
+    });
+
+    it('keeps recoveries for a position that is graded on them', () => {
+        for (const pos of ['LB', 'RB', 'DM', 'CM'] as GranularPosition[]) {
+            expect(defOf(pos, { fpl_tackles: 2, fpl_recoveries: 6 }), pos).toContain('6 recoveries');
+        }
+    });
+
+    it('states the outcome term that usually sets the band', () => {
+        // The row that started this: actions came to 10, conceding 2 against
+        // 1.33 xGC took 3.35 back off, and the line mentioned neither.
+        const conceded = defOf('CB', {
+            fpl_tackles: 5, fpl_cbi: 10, fpl_recoveries: 6,
+            goals_conceded: 2, expected_goals_conceded: 1.33, clean_sheet: false,
+        });
+        expect(conceded).toContain('2 conceded against 1.3 expected');
+        const clean = defOf('CB', { fpl_tackles: 5, fpl_cbi: 10, clean_sheet: true });
+        expect(clean).toContain('clean sheet');
+    });
+
+    it('credits a defence that conceded fewer than the chances warranted', () => {
+        const line = defOf('CB', { fpl_tackles: 3, goals_conceded: 1, expected_goals_conceded: 2.4 });
+        expect(line).toContain('1 conceded, against 2.4 expected');
+    });
+
+    it('says something, or says nothing — never an empty sentence', () => {
+        expect(defOf('CB', {})).toBe('Little defensive work.');
+        for (const pos of ALL_POSITIONS) {
+            for (const g of buildPerformanceGroups(flat(0.5), pos, { minutes_played: 90 } as RawStats, 0)) {
+                expect(g.evidence === '' || /[.!]$/.test(g.evidence), `${pos}/${g.key}: ${g.evidence}`).toBe(true);
+            }
+        }
+    });
+});
+
+describe('band calibration', () => {
+    /* The score is positionally normalised by the sigmoid, so grading it
+       against one league-wide table kills bands for a compressed position.
+       Measured: a centre-back could not read below STEADY on Creating, and 36%
+       of them read INCISIVE or MASTERFUL on a median raw creativity of 10.7. */
+    it('spans every band for a centre-back\'s creating', () => {
+        const bands = new Set<string>();
+        for (let sc = 0; sc <= 1.0001; sc += 0.005) {
+            bands.add(buildPerformanceGroups(flat(sc), 'CB', { minutes_played: 90 } as RawStats, 0)
+                .find((g) => g.key === 'creating')!.band);
+        }
+        for (const b of ['poor', 'low', 'mid', 'good', 'best']) expect(bands).toContain(b);
+    });
+
+    it('spans every band for every position and group it can', () => {
+        // The exceptions are the near-binary attacking groups the mute rule
+        // targets: their scores take 5-7 distinct values a season, so no cut
+        // scheme can split them. Everything else must span.
+        const exempt = new Set(['CB|attacking', 'DM|attacking', 'LB|attacking', 'RB|attacking']);
+        for (const pos of ALL_POSITIONS) {
+            const keys = buildPerformanceGroups(flat(0.5), pos, { minutes_played: 90, goals: 1 } as RawStats, 0)
+                .map((g) => g.key);
+            for (const key of keys) {
+                if (exempt.has(`${pos}|${key}`)) continue;
+                const bands = new Set<string>();
+                for (let sc = 0; sc <= 1.0001; sc += 0.005) {
+                    bands.add(buildPerformanceGroups(flat(sc), pos, { minutes_played: 90, goals: 1 } as RawStats, 0)
+                        .find((g) => g.key === key)!.band);
+                }
+                for (const b of ['poor', 'low', 'mid', 'good', 'best']) {
+                    expect(bands, `${pos}/${key} cannot reach ${b}`).toContain(b);
+                }
+            }
+        }
+    });
+
+    it('keeps a neutral word in every group\'s middle band', () => {
+        // "Inventive" in creating's mid slot read as praise and fought the
+        // evidence line beneath it.
+        const NEUTRAL = ['Involved', 'Tidy', 'Steady', 'Busy', 'Held'];
+        for (const pos of ALL_POSITIONS) {
+            for (const g of buildPerformanceGroups(flat(0.5), pos, { minutes_played: 90, goals: 1 } as RawStats, 0)) {
+                if (g.band !== 'mid') continue;
+                expect(NEUTRAL, `${pos}/${g.key} mid = ${g.verdict}`).toContain(g.verdict);
+            }
+        }
+    });
+});
+
 describe('rank anchors', () => {
     it('stays silent through the whole bottom half', () => {
         for (const pos of ALL_POSITIONS) {

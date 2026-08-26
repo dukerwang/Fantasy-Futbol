@@ -75,9 +75,81 @@ const BAND_CUTS: Record<PerfGroupKey, [number, number, number, number]> = {
     goalsPrevented: [0.376, 0.453, 0.535, 0.862],
 };
 
-/** Ordinary bands only. The feat tiers are set by the feat trigger, not here. */
-export function perfBand(score: number, group: PerfGroupKey): Exclude<PerfBand, 'feat' | 'feat2'> {
-    const [a, b, c, d] = BAND_CUTS[group];
+/* ══════════════════════════════════════════════════════════════════════════
+   PER-POSITION BAND CUTS — the override, and why one table was not enough.
+
+   The league-wide table above gives each band its share ACROSS ALL POSITIONS,
+   but the score it cuts is already positionally normalised by the sigmoid. For
+   a position whose distribution is compressed, the two disagree and bands die.
+   Measured over 2025-26, `creating` for a centre-back:
+
+     poor 0%   low 0%   mid 64%   good 14%   best 22%
+
+   A centre-back could not read below STEADY on Creating, and 36% of them read
+   INCISIVE or MASTERFUL on a median raw FPL creativity of 10.7 — the same
+   words an attacking midfielder needed 33.0 for. Duke found it from one row:
+   a CB graded INCISIVE above the line "Little creative output." Nine of 43
+   position+group pairs had at least one band under 3%.
+
+   Cuts are tie-safe the same way RANK_CUTS is, and pooled the same way
+   (identical weight vectors share a bucket: LB/RB, LWB/RWB, LW/RW).
+
+   WHY THIS IS AN OVERRIDE RATHER THAN A REPLACEMENT. Three pairs come out
+   WORSE per-position, and they are the near-binary `attacking` groups the mute
+   rule already exists for — CB, DM and LB/RB. Their cuts collapse onto a
+   single value (DM and LB/RB land all four cuts on 0.8320), which would grade
+   every surviving row either poor or best: a full-back with 0.3 xG and no goal
+   would read ANONYMOUS where the league-wide table says INVOLVED, which is the
+   truer word. So a per-position entry is used only when its four cuts are
+   STRICTLY INCREASING; otherwise the league-wide table stands. 29 of 32 pairs
+   qualify, and the 3 that do not are exactly the ones already known to be
+   degenerate.
+
+   REFRESH WITH BAND_CUTS AND RANK_CUTS — all three describe the same
+   distribution. Probe: scratch/band-distribution-probe.ts. */
+
+/**
+ * Positions that share a distribution bucket, because their eight weights are
+ * IDENTICAL — so their group scores sit on one scale and pooling them is free
+ * sample size. RWB alone has 222 appearances, which cannot speak about a 1%
+ * tail or a p15 cut. A position with a distinct weight vector is never pooled,
+ * because its scores are not comparable. Both BAND_CUTS_BY_POS and RANK_CUTS
+ * key on this; a table still names the player's OWN position in prose.
+ */
+const POS_BUCKET: Partial<Record<GranularPosition, string>> = {
+    LB: 'LB/RB', RB: 'LB/RB',
+    LWB: 'LWB/RWB', RWB: 'LWB/RWB',
+    LW: 'LW/RW', RW: 'LW/RW',
+};
+
+const BAND_CUTS_BY_POS: Record<string, Partial<Record<PerfGroupKey, [number, number, number, number]>>> = {
+    AM:        { attacking: [0.4123, 0.4507, 0.5857, 0.7656], creating: [0.3110, 0.3677, 0.5152, 0.7307], involvement: [0.3064, 0.3676, 0.5168, 0.7367] },
+    CB:        { creating: [0.4647, 0.4784, 0.5353, 0.8277], defending: [0.3307, 0.4075, 0.5527, 0.8121], involvement: [0.3051, 0.3967, 0.5629, 0.7699] },
+    CM:        { attacking: [0.4466, 0.4677, 0.5429, 0.6854], creating: [0.2931, 0.3351, 0.5110, 0.6963], defending: [0.2846, 0.3577, 0.5018, 0.6972], involvement: [0.2387, 0.3122, 0.5181, 0.6734] },
+    DM:        { creating: [0.3269, 0.3574, 0.5394, 0.7176], defending: [0.3054, 0.3729, 0.5241, 0.7794], involvement: [0.2326, 0.3343, 0.5225, 0.6762] },
+    GK:        { shotStopping: [0.2287, 0.4116, 0.6246, 0.7297], goalsPrevented: [0.3761, 0.4539, 0.5356, 0.8625], involvement: [0.3214, 0.4455, 0.6067, 0.7475] },
+    'LB/RB':   { creating: [0.3328, 0.3582, 0.5410, 0.7134], defending: [0.3026, 0.3739, 0.5552, 0.8008], involvement: [0.2970, 0.3641, 0.5591, 0.7535] },
+    'LW/RW':   { attacking: [0.4282, 0.4664, 0.4803, 0.7437], creating: [0.2809, 0.3181, 0.5066, 0.7110], involvement: [0.2811, 0.3371, 0.4923, 0.6806] },
+    'LWB/RWB': { attacking: [0.4792, 0.5000, 0.5370, 0.6281], creating: [0.3328, 0.3756, 0.5724, 0.7557], defending: [0.2908, 0.3490, 0.5039, 0.7631], involvement: [0.2982, 0.3555, 0.5260, 0.7374] },
+    ST:        { attacking: [0.4294, 0.4366, 0.4834, 0.7646], creating: [0.3558, 0.3776, 0.5312, 0.7079], involvement: [0.3826, 0.4086, 0.4905, 0.7443] },
+};
+
+/**
+ * Ordinary bands only. The feat tiers are set by the feat trigger, not here.
+ *
+ * `position` is optional so an existing caller keeps working, but pass it
+ * wherever it is known — without it a centre-back is graded on the whole
+ * league's distribution, which is the bug BAND_CUTS_BY_POS exists to fix.
+ */
+export function perfBand(
+    score: number,
+    group: PerfGroupKey,
+    position?: GranularPosition,
+): Exclude<PerfBand, 'feat' | 'feat2'> {
+    const perPos = position
+        ? BAND_CUTS_BY_POS[POS_BUCKET[position] ?? position]?.[group]
+        : undefined;
+    const [a, b, c, d] = perPos ?? BAND_CUTS[group];
     if (score < a) return 'poor';
     if (score < b) return 'low';
     if (score < c) return 'mid';
@@ -186,7 +258,12 @@ function hasSomethingToSay(s: RawStats): boolean {
 /** Verdict vocabulary. Index 0-4 are the ordinary bands; 5 and 6 are the feats. */
 const VERDICTS: Record<PerfGroupKey, string[]> = {
     attacking:      ['Anonymous', 'Quiet', 'Involved', 'Dangerous', 'Decisive', 'Devastating', 'Unplayable'],
-    creating:       ['Static', 'Tidy', 'Inventive', 'Incisive', 'Masterful', 'Virtuoso', 'Virtuoso'],
+    // MID MUST BE NEUTRAL. Every other group's middle word is flat — Involved,
+    // Steady, Busy, Held — but creating's used to be "Inventive", a praise word
+    // in the average slot. A centre-back with 2.2 raw creativity read INVENTIVE
+    // directly above "Little creative output.", and the row argued with itself.
+    // "Tidy" moves down to where it belongs: did the job, nothing more.
+    creating:       ['Static', 'Sideways', 'Tidy', 'Incisive', 'Masterful', 'Virtuoso', 'Virtuoso'],
     defending:      ['Overrun', 'Passive', 'Steady', 'Assured', 'Commanding', 'Commanding', 'Commanding'],
     involvement:    ['Peripheral', 'Quiet', 'Busy', 'Influential', 'Everywhere', 'Everywhere', 'Everywhere'],
     shotStopping:   ['Beaten', 'Shaky', 'Steady', 'Sharp', 'Inspired', 'Inspired', 'Inspired'],
@@ -206,12 +283,7 @@ const BAND_INDEX: Record<PerfBand, number> = {
    "TOP 1% FOR AN AM" beside "TOP 12% FOR AN AM" is the difference the band
    cannot draw.
 
-   POOLED BY IDENTICAL WEIGHT VECTOR, not by position group. LB and RB carry
-   the same eight weights, as do LWB/RWB and LW/RW, so their group scores are
-   already on one scale and pooling them is free sample size — RWB alone has
-   222 appearances, which is not enough to speak about a 1% tail. Positions
-   with a distinct weight vector are never pooled, because their scores are
-   not comparable. The anchor still names the player's OWN position.
+   Pooled by POS_BUCKET, exactly like the band cuts above.
 
    TIE-SAFE THRESHOLDS, not plain quantiles. Measured over 2025-26, CB
    attacking has p50 = p75 = p90 = 0.513 — the blanks all score identically —
@@ -228,13 +300,6 @@ const BAND_INDEX: Record<PerfBand, number> = {
    and what hand pass its output still needs. */
 
 const RANK_LABELS = [25, 10, 5, 1] as const;
-
-/** Buckets sharing one weight vector. Anything absent stands alone. */
-const RANK_BUCKET: Partial<Record<GranularPosition, string>> = {
-    LB: 'LB/RB', RB: 'LB/RB',
-    LWB: 'LWB/RWB', RWB: 'LWB/RWB',
-    LW: 'LW/RW', RW: 'LW/RW',
-};
 
 /** Score at or above which each of RANK_LABELS holds. `null` = tier dropped. */
 const RANK_CUTS: Record<string, Partial<Record<PerfGroupKey, (number | null)[]>>> = {
@@ -283,7 +348,7 @@ export function rankAnchor(
     position: GranularPosition,
     group: PerfGroupKey,
 ): string | undefined {
-    const cuts = RANK_CUTS[RANK_BUCKET[position] ?? position]?.[group];
+    const cuts = RANK_CUTS[POS_BUCKET[position] ?? position]?.[group];
     if (!cuts) return undefined;
     // Tightest tier first — "Top 1%" outranks "Top 25%" for the same score.
     for (let i = cuts.length - 1; i >= 0; i--) {
@@ -326,7 +391,7 @@ const n = (v: unknown) => Number(v ?? 0);
  * 10,091, xGC 10,906, bps 10,403, recoveries 9,528, CBI 8,100, xA 7,855,
  * tackles 6,252, xG 5,327, saves 710.
  */
-function evidenceFor(key: PerfGroupKey, s: RawStats): string {
+function evidenceFor(key: PerfGroupKey, s: RawStats, position: GranularPosition): string {
     const goals = n(s.goals), assists = n(s.assists);
     const xg = n(s.expected_goals), xa = n(s.expected_assists);
     switch (key) {
@@ -352,15 +417,50 @@ function evidenceFor(key: PerfGroupKey, s: RawStats): string {
             return 'Little creative output.';
         }
         case 'defending': {
-            const bits: string[] = [];
-            if (s.clean_sheet) bits.push('Clean sheet');
+            /* THREE THINGS WERE WRONG HERE AND DUKE CAUGHT ALL OF THEM FROM ONE
+               ROW: a centre-back showing "5 tackles, 10 clearances, 6
+               recoveries" and a verdict of STEADY.
+
+               1. `fpl_cbi` is FPL's `clearances_blocks_interceptions`, not
+                  clearances. Calling it "clearances" hid the fact that blocks
+                  ARE counted, and interceptions with them.
+               2. It printed recoveries for a CB, which the engine drops
+                  entirely (`defActionsRaw = tackles + cbi * 0.5` for CB only).
+                  Citing a stat the score ignores is worse than citing nothing.
+               3. It never mentioned the term that usually SETS the band — the
+                  clean sheet, or goals conceded against expected. For that row,
+                  actions came to 10 and conceding 2 against 1.33 xGC took 3.35
+                  straight back off; the reader could see neither.
+
+               So: name the actions the position is actually graded on, then the
+               outcome that discounted them. */
             const tk = n(s.fpl_tackles), cbi = n(s.fpl_cbi), rec = n(s.fpl_recoveries);
             const acts: string[] = [];
             if (tk) acts.push(`${tk} ${tk === 1 ? 'tackle' : 'tackles'}`);
-            if (cbi) acts.push(`${cbi} ${cbi === 1 ? 'clearance' : 'clearances'}`);
-            if (rec) acts.push(`${rec} ${rec === 1 ? 'recovery' : 'recoveries'}`);
+            if (cbi) acts.push(`${cbi} ${cbi === 1 ? 'clearance, block or interception' : 'clearances, blocks and interceptions'}`);
+            // A centre-back's recoveries do not enter his defensive score, so
+            // they are not evidence for his band. Every other graded position
+            // counts them at half weight.
+            if (rec && position !== 'CB') acts.push(`${rec} ${rec === 1 ? 'recovery' : 'recoveries'}`);
+
+            const bits: string[] = [];
             if (acts.length) bits.push(acts.join(', '));
-            return bits.length ? `${bits.join('. ')}.` : 'Little defensive work.';
+
+            const gc = n(s.goals_conceded), xgc = n(s.expected_goals_conceded);
+            if (s.clean_sheet) {
+                bits.push('clean sheet');
+            } else if (gc > 0 && xgc >= 0.05) {
+                // Which side of expected he finished on is the whole outcome
+                // term, and it cuts both ways.
+                const verb = gc > xgc ? 'conceded against' : 'conceded, against';
+                bits.push(`${gc} ${verb} ${xgc.toFixed(1)} expected`);
+            } else if (gc > 0) {
+                bits.push(`${gc} conceded`);
+            }
+            if (!bits.length) return 'Little defensive work.';
+            // Sentence-case the first fragment, whichever one it turned out to be.
+            const line = bits.join(', ');
+            return `${line.charAt(0).toUpperCase()}${line.slice(1)}.`;
         }
         case 'shotStopping': {
             const sv = n(s.saves), psv = n(s.penalty_saves);
@@ -425,7 +525,7 @@ export function buildPerformanceGroups(
         // taking the max collapsed Attacking onto two values and 75% of all
         // appearances read the same verdict.
         const score = members.reduce((acc, c) => acc + (scoreOf.get(c) ?? 0) * (weights[c] ?? 0), 0) / weight;
-        let band: PerfBand = perfBand(score, key);
+        let band: PerfBand = perfBand(score, key, position);
 
         // The feat tiers sit above the ordinary scale and only the trigger can
         // reach them. Attacking owns the goal feat; Creating owns the creative
@@ -445,7 +545,7 @@ export function buildPerformanceGroups(
             band,
             width: BAND_WIDTH[band],
             verdict: VERDICTS[key][BAND_INDEX[band]],
-            evidence: evidenceFor(key, stats),
+            evidence: evidenceFor(key, stats, position),
             rank: isFeat ? undefined : rankAnchor(score, position, key),
         });
     }

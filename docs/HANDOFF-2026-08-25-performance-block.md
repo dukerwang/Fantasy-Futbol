@@ -130,7 +130,9 @@ field.
 
 *Still open:* `MatchupPitch.fmtStats` reads the same dead field for its CMZ/AMZ
 chips, so those chips have a KP branch that can never fire. Pre-existing, not
-fixed here.
+fixed here. Note the block's own evidence lines were separately wrong about
+`fpl_cbi` — see §4d; check what a field MEANS as well as whether it is
+populated.
 
 **Band saturation — Duke found this from the live page.** Fixed cuts at
 34/44/55/69 do not survive contact with the data, because the scores are
@@ -164,7 +166,8 @@ target, inside one week's noise) but `defending` came in **poor 4.5% / good
 on — an opening weekend full of clean sheets looks exactly like this — so this
 is a thing to re-measure around GW5, not to act on now.
 
-**`BAND_CUTS` must be refreshed when `rating_reference_stats` is regenerated** —
+**`BAND_CUTS`, `BAND_CUTS_BY_POS` and `RANK_CUTS` must all be refreshed when
+`rating_reference_stats` is regenerated** —
 they are distribution-dependent the same way the medians are. The probe that
 produced them is `scratch/band-distribution-probe.ts`; its header says how to
 run it (copy into `__tests__`, run vitest, read `/tmp/band-probe.txt`, delete).
@@ -283,6 +286,75 @@ the engine, the card and the matchup. The card's inline copy had already
 drifted — it omitted the positional gates, so it would have credited a feat to
 a position not scored on the component that produced it. `roleArticle` moved to
 `perfBand.ts` for the same reason, so both surfaces name a position identically.
+
+## 4d. Band calibration and the evidence lines — SHIPPED
+
+Duke read one row and it broke three things open. A centre-back showing
+**"5 tackles, 10 clearances, 6 recoveries"** and a verdict of **STEADY**, with
+**INCISIVE** above **"Little creative output."** underneath it.
+
+### The evidence lines were citing facts that did not produce the band
+
+Josh Acheampong, CB, GW1: tk 5, cbi 10, rec 6, no clean sheet, 2 conceded
+against 1.33 xGC. The engine computed `tackles + cbi × 0.5` = 10, dropped the
+recoveries (the CB branch does not count them), added no clean-sheet bonus, and
+took 3.35 straight back off for conceding above expected. Raw 6.65 — almost
+exactly the CB median, so STEADY was correct. The *line* was not:
+
+1. **`fpl_cbi` was labelled "clearances".** It is FPL's
+   `clearances_blocks_interceptions`, so **blocks are counted** — the label hid
+   two of the three things in the number. (Duke asked directly whether blocks
+   were included. They are, and always were.)
+2. **It printed a centre-back's recoveries**, which his defensive score drops
+   entirely. Citing a stat the score ignores is worse than citing nothing.
+3. **It never mentioned the outcome term**, which is usually what sets the
+   band — the clean sheet, or goals conceded against expected.
+
+Fixed: name the actions the position is graded on, then the outcome that
+discounted them. Six tests now guard it, each from a real miss.
+
+### One league-wide band table could not survive a compressed position
+
+The scores are positionally normalised by the sigmoid, but `BAND_CUTS` graded
+them against one all-positions distribution. Where a position's distribution is
+compressed the two disagree and bands die. Measured over 2025-26:
+
+| | poor | low | mid | good | best | median raw creativity in good+best |
+|---|---|---|---|---|---|---|
+| CB creating | **0%** | **0%** | 64% | 14% | 22% | **10.7** |
+| AM creating | 23% | 15% | 28% | 19% | 14% | 33.0 |
+
+A centre-back could not grade below STEADY on Creating, and 36% read INCISIVE
+or MASTERFUL on a tenth of the raw creativity an AM needed for the same word.
+**Nine of 43 position+group pairs had a band under 3%.**
+
+`BAND_CUTS_BY_POS` is the fix — tie-safe percentile cuts per position bucket,
+pooled by `POS_BUCKET` exactly like `RANK_CUTS`. **It is an override, not a
+replacement**, and that matters: three pairs come out *worse* per-position, and
+they are the near-binary `attacking` groups the mute rule already exists for.
+DM and LB/RB land all four cuts on 0.8320, which would grade a full-back with
+0.3 xG and no goal as ANONYMOUS where the league-wide table says INVOLVED — the
+truer word. So a per-position entry is used only when its four cuts are
+strictly increasing. 29 of 32 qualify.
+
+Dead bands: **9 of 43 → 4 of 43**, and the survivors are exactly the four
+irreducible near-binary attacking groups (CB, DM, LB, RB), whose scores take
+5–7 distinct values a season. CB creating now reads 22/14/30/19/15.
+
+### Creating's middle word was praise
+
+Every other group's mid verdict is flat — Involved, Steady, Busy, Held —
+but creating's was **"Inventive"**, which is why the row argued with itself.
+`Tidy` moved down into mid where it belongs and `Sideways` took low. A test now
+asserts every group's mid word comes from a neutral list.
+
+Acheampong's row now reads: *Defending STEADY — "5 tackles, 10 clearances,
+blocks and interceptions, 2 conceded against 1.3 expected." / Creating TIDY —
+"Little creative output."*
+
+**Nothing had shipped when this was found** — the block lives only on this
+unpushed branch — so recalibrating cost nothing. Doing the same after a merge
+would change words managers had already read.
 
 ## 5. Known-unresolved
 
