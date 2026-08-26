@@ -91,12 +91,16 @@ export async function POST(req: NextRequest, { params }: Props) {
         );
     }
 
-    // Check if there is an active/scheduled matchup for the team to defer the drop
+    // Check if there is a matchup actually in progress (status only flips to 'live'
+    // once the matchup processor has real stats for the gameweek — see matchupProcessor.ts)
+    // to defer the drop. A merely 'scheduled' future matchup must not defer it — the whole
+    // season's matchups are inserted upfront as 'scheduled', so that status alone says
+    // nothing about whether play has started.
     const { data: activeMatchup } = await admin
         .from('matchups')
         .select('id, gameweek, status')
         .or(`team_a_id.eq.${teamId},team_b_id.eq.${teamId}`)
-        .in('status', ['scheduled', 'live'])
+        .eq('status', 'live')
         .order('gameweek', { ascending: true })
         .limit(1)
         .maybeSingle();
