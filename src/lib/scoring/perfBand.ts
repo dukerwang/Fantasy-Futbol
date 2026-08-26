@@ -135,6 +135,54 @@ const GROUP_ORDER: Record<GranularPosition, PerfGroupKey[]> = {
     ST: ['attacking', 'creating', 'involvement'],
 };
 
+/* ══════════════════════════════════════════════════════════════════════════
+   MUTE GROUPS — a row that cannot vary must not spend a row.
+
+   Measured over 2025-26, the raw group score of `attacking` has this many
+   DISTINCT VALUES across a whole season, with this share sitting on one:
+
+     RB    5 values   89.7% identical      LWB  43 values  29.7%
+     LB    6 values   89.6% identical      CM  121 values  27.9%
+     DM    7 values   86.6% identical      AM  146 values  15.9%
+     CB  216 values   28.6% identical      ST  928 values  12.5%
+
+   The top three are not a banding problem and no percentile cut can fix them.
+   Look at the weights: LB, RB and DM carry threat 0.00 and finishing 0.00, so
+   their `attacking` group is `goal_involvement` ALONE — one near-binary
+   component (goals×6 + assists×4, zero about nine games in ten) wearing a
+   group's clothes. CB is the same shape with two near-binary members.
+
+   So the rule is structural, not a per-position list: a group is MUTE-CAPABLE
+   when every member the position actually weights is near-binary. It then
+   renders only when it has something to say. Note what this does NOT catch —
+   LWB, CM, ST and the rest all weight `threat`, which is continuous, so their
+   attacking row varies honestly and always shows. A blanking striker still
+   reads ANONYMOUS, which is the whole point of the row for a striker.
+
+   This recomputes from POSITION_WEIGHTS, so it tracks a weight change on its
+   own rather than going stale like a hardcoded list would. */
+
+/** Components that are effectively blank-or-returned rather than continuous. */
+const NEAR_BINARY: RatingComponent[] = ['goal_involvement', 'finishing'];
+
+/** True when every weighted member of the group is near-binary, so the group
+ *  has no continuous input and collapses onto its blank value. */
+function isMuteCapable(key: PerfGroupKey, weights: Record<RatingComponent, number>): boolean {
+    const weighted = GROUP_COMPONENTS[key].filter((c) => (weights[c] ?? 0) > 0);
+    return weighted.length > 0 && weighted.every((c) => NEAR_BINARY.includes(c));
+}
+
+/**
+ * Did this match give a mute-capable group anything to report?
+ *
+ * A goal or an assist obviously does. So does a real chance missed — xG with
+ * no goal is exactly what `finishing` is there to judge, and "he got in and
+ * did not take it" is worth a row. Nothing else can move the group.
+ */
+function hasSomethingToSay(s: RawStats): boolean {
+    return n(s.goals) > 0 || n(s.assists) > 0 || n(s.expected_goals) >= 0.05;
+}
+
 /** Verdict vocabulary. Index 0-4 are the ordinary bands; 5 and 6 are the feats. */
 const VERDICTS: Record<PerfGroupKey, string[]> = {
     attacking:      ['Anonymous', 'Quiet', 'Involved', 'Dangerous', 'Decisive', 'Devastating', 'Unplayable'],
@@ -351,6 +399,9 @@ export function buildPerformanceGroups(
         // A group the position is not graded on does not appear at all.
         const weight = members.reduce((sum, c) => sum + (weights[c] ?? 0), 0);
         if (weight <= 0) continue;
+        // Nor does one that structurally cannot vary and has nothing to report
+        // this week — see the MUTE GROUPS note above.
+        if (isMuteCapable(key, weights) && !hasSomethingToSay(stats)) continue;
 
         // WEIGHTED MEAN of the members, not the max. Max was the first design
         // and it let one saturated component speak for the whole group — for

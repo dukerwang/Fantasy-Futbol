@@ -108,9 +108,14 @@ everything.
 ```
 < 200px   the signature — one quantised bar per group
 < 380px   stacked: label+verdict / bar / evidence
-< 560px   one line, evidence beneath
-wider     + the rank anchor
+< 560px   one line, evidence and anchor stacked beneath
+wider     evidence and anchor share a line
 ```
+
+The anchor used to be dropped below 560px, which meant it never rendered at
+all — the game-log cell on the card back is ~312px, and that is the only place
+the block lives today. It now takes a line of its own instead, because the
+anchor is the whole answer to "the top performances all read alike".
 
 ---
 
@@ -204,14 +209,62 @@ which had each hardcoded their own copies; and `perfBand.test.ts` now guards
 the disclosure rules structurally (no score in the payload, every width
 quantised, group order fixed under any scores) plus the anchor's monotonicity.
 
+## 4b. Mute groups — SHIPPED
+
+**A row that structurally cannot vary no longer spends a row.** Distinct values
+of the raw `attacking` score over 2025-26, with the share sitting on one value:
+
+| pos | distinct | on one value | | pos | distinct | on one value |
+|---|---|---|---|---|---|---|
+| RB | 5 | 89.7% | | LWB | 43 | 29.7% |
+| LB | 6 | 89.6% | | CM | 121 | 27.9% |
+| DM | 7 | 86.6% | | AM | 146 | 15.9% |
+| CB | 216 | 28.6% | | ST | 928 | 12.5% |
+
+No percentile cut can touch the top three — they are one near-binary component
+(goals×6 + assists×4, zero about nine games in ten) wearing a group's clothes.
+
+The rule is structural rather than a per-position list: a group is
+*mute-capable* when every member the position actually weights is near-binary
+(`goal_involvement`, `finishing`), and it then renders only when the match gave
+it something to report — a goal, an assist, or xG ≥ 0.05, since a real chance
+missed is exactly what `finishing` judges. It recomputes from
+`POSITION_WEIGHTS`, so a weight change carries it rather than leaving a stale
+list. LWB/CM/ST and the rest all weight `threat`, which is continuous, so they
+are never muted — a blanking striker still reads ANONYMOUS, which is that row
+doing its job.
+
+Effect on signature collision — P(two random same-position appearances read
+identically), whole season: LB 1.0→0.7%, RB 1.1→0.9%, DM 1.2→0.9%, CB
+1.9→1.7%, with distinct signatures up (DM 411→544, LB 242→297).
+
+**The collisions that remain are honest, and that was checked rather than
+assumed.** Every modal signature is a nothing-game whose points agree: ST
+"poor low mid" is 248 appearances scoring 0.2–2.1, LW "low poor poor" is 0.4–1.8,
+AM "poor poor low" is 0.0–0.2. Two identical bad games *should* read alike. The
+number that matters is collision among the top 10% by points, and that is under
+2.1% everywhere but GK (§5). Probe: `scratch/signature-collision-probe.ts`.
+
 ## 5. Known-unresolved
 
-**Attacking still has an irreducible middle.** ~49% of appearances land in one
-band because an attacker either returned or didn't, and the blanks score
-identically. Its `good` band is starved at 4.7%. Percentile cuts cannot split
-identical values. If this needs to be better, Attacking probably wants banding
-on goals/assists/xG directly rather than on the sigmoid components — that is a
-real piece of work, not a tuning pass.
+**Attacking's middle — DIAGNOSED AND MOSTLY FIXED (§4b).** The earlier reading
+of this ("an irreducible middle, wants banding on goals/assists/xG directly")
+was too pessimistic and pointed at the wrong positions. It is not a banding
+problem at all for the positions where it was worst: LB, RB and DM weight
+threat 0.00 and finishing 0.00, so their attacking group is `goal_involvement`
+ALONE — 5 to 7 distinct values across an entire season. The mute rule handles
+those. ST/LW/RW/AM were never the problem; they weight `threat` and their
+attacking scores carry 582–928 distinct values.
+
+**Goalkeepers are the one place good games still read alike.** Among the top
+10% of performances by points, signature collision is under 2.1% at every
+position except GK at **7.3%**, with one signature covering 14.7% of them
+("good good/25 good" — the clean sheet with a couple of saves, 36 appearances
+at 15.6–19.0 points). `shotStopping` is `save_score` alone and saves is a small
+integer, so the group has ~53 distinct values all season. This is the same
+surface as the open goalkeeper question in
+`docs/HANDOFF-2026-08-23-scoring.md` §1 and should be settled there, not by
+tuning the block.
 
 **Top-of-the-top — FIXED by the rank anchors (see §4a).** GW1's eleven leading
 attackers all read "Decisive"; they now split Top 5% / Top 10% / Top 25%, and
@@ -237,7 +290,8 @@ match context at all — `MatchupPitch.tsx:384` passes only the player id.
    goalkeeper question in `docs/HANDOFF-2026-08-23-scoring.md` §1.
 4. Matchup-detail landing + the signature in list rows.
 5. Chip deep-link with gameweek.
-6. Attacking's distribution (§5), if it still bothers him.
+6. ~~Attacking's distribution~~ — **DONE**, §4b. What is left there is the
+   goalkeeper collision, which belongs to the open keeper question.
 
 ## 7. Do not
 

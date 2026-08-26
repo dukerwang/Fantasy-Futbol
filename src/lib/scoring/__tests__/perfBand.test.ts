@@ -68,6 +68,50 @@ describe('disclosure rules', () => {
     });
 });
 
+describe('mute groups', () => {
+    const BLANK = { minutes_played: 90 } as unknown as RawStats;
+    const SCORED = { minutes_played: 90, goals: 1 } as unknown as RawStats;
+    const MISSED = { minutes_played: 90, expected_goals: 0.6 } as unknown as RawStats;
+
+    /* LB, RB and DM weight threat 0.00 and finishing 0.00, so their attacking
+       group is goal_involvement alone — 5 to 7 distinct values across a whole
+       season, ~90% of them identical. CB is the same shape with two members. */
+    it('hides an attacking group that cannot vary, on a blank', () => {
+        for (const pos of ['LB', 'RB', 'DM', 'CB'] as GranularPosition[]) {
+            const keys = buildPerformanceGroups(flat(0.5), pos, BLANK, 0).map((g) => g.key);
+            expect(keys, pos).not.toContain('attacking');
+        }
+    });
+
+    it('shows it again the moment there is something to report', () => {
+        for (const pos of ['LB', 'RB', 'DM', 'CB'] as GranularPosition[]) {
+            for (const stats of [SCORED, MISSED]) {
+                const keys = buildPerformanceGroups(flat(0.5), pos, stats, 0).map((g) => g.key);
+                expect(keys, pos).toContain('attacking');
+            }
+        }
+    });
+
+    /* The rule must not reach positions whose attacking group has a continuous
+       member. A blanking striker reading ANONYMOUS is the row doing its job. */
+    it('never hides attacking for a position that weights threat', () => {
+        for (const pos of ['ST', 'LW', 'RW', 'AM', 'CM', 'LWB', 'RWB'] as GranularPosition[]) {
+            const keys = buildPerformanceGroups(flat(0.5), pos, BLANK, 0).map((g) => g.key);
+            expect(keys, pos).toContain('attacking');
+        }
+    });
+
+    it('leaves the groups that carry a position, whatever the stat line', () => {
+        // Nothing may mute a keeper's map, or the defining group of any position.
+        expect(buildPerformanceGroups(flat(0.5), 'GK', BLANK, 0)).toHaveLength(3);
+        for (const pos of ALL_POSITIONS) {
+            const keys = buildPerformanceGroups(flat(0.5), pos, BLANK, 0).map((g) => g.key);
+            expect(keys.length, pos).toBeGreaterThanOrEqual(3);
+            expect(keys, pos).toContain('involvement');
+        }
+    });
+});
+
 describe('rank anchors', () => {
     it('stays silent through the whole bottom half', () => {
         for (const pos of ALL_POSITIONS) {

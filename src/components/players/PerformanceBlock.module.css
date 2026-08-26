@@ -189,8 +189,18 @@
 .signature { display: none; align-items: flex-end; gap: 3px; height: 16px; }
 .signature i { display: block; width: 5px; border-radius: 1px; background: var(--pfill); }
 
+/* THE ANCHOR KEEPS ITS LINE ON A NARROW CARD. It used to be dropped here,
+   which meant it never rendered at all in the only place the block currently
+   lives — the game-log cell on the card back is ~312px. That made it a
+   wide-surface affordance for surfaces that do not exist yet, and the anchor
+   is the whole answer to "the top performances all read alike". So the
+   ladder trades height for it, the same way it does for the evidence. */
 @container (max-width: 560px) {
-  .rank { display: none; }
+  .foot {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1px;
+  }
 }
 
 @container (max-width: 380px) {

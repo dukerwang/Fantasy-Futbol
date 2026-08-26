@@ -89,7 +89,10 @@ export default function PerformanceBlock({ groups, note, ranks }: PerformanceBlo
                                 </span>
                                 {(g.evidence || rank) && (
                                     <div className={styles.foot}>
-                                        <p className={styles.evidence}>{g.evidence}</p>
+                                        {/* Guarded: `involvement` returns an empty string for an
+                                            ordinary 90-minute starter, and an empty <p> would
+                                            still claim a line box next to the anchor. */}
+                                        {g.evidence && <p className={styles.evidence}>{g.evidence}</p>}
                                         {rank && <span className={styles.rank}>{rank}</span>}
                                     </div>
                                 )}
