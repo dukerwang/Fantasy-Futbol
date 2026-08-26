@@ -7,7 +7,7 @@
  */
 import { describe, expect, it } from 'vitest';
 import type { GranularPosition, RatingBreakdownItem, RatingComponent, RawStats } from '@/types';
-import { BAND_WIDTH, buildPerformanceGroups, rankAnchor, type PerfGroupKey } from '../perfBand';
+import { BAND_WIDTH, buildPerformanceGroups, perfBand, rankAnchor, type PerfGroupKey } from '../perfBand';
 
 const ALL_POSITIONS: GranularPosition[] = [
     'GK', 'CB', 'LB', 'RB', 'LWB', 'RWB', 'DM', 'CM', 'AM', 'LW', 'RW', 'ST',
@@ -221,18 +221,18 @@ describe('rank anchors', () => {
     });
 
     it('reports the tightest tier a score clears, never a looser one', () => {
-        // AM attacking cuts: 25% .634, 10% .814, 5% .883, 1% .975
-        expect(rankAnchor(0.60, 'AM', 'attacking')).toBeUndefined();
-        expect(rankAnchor(0.70, 'AM', 'attacking')).toBe('Top 25% for an AM');
+        // AM attacking: band best floor .7656, then 10% .8137, 5% .8832, 1% .975
+        expect(rankAnchor(0.70, 'AM', 'attacking')).toBeUndefined();
+        expect(rankAnchor(0.78, 'AM', 'attacking')).toBe('Top 15% for an AM');
         expect(rankAnchor(0.85, 'AM', 'attacking')).toBe('Top 10% for an AM');
         expect(rankAnchor(0.90, 'AM', 'attacking')).toBe('Top 5% for an AM');
         expect(rankAnchor(0.99, 'AM', 'attacking')).toBe('Top 1% for an AM');
     });
 
     it('skips a dropped tier instead of falling back to a looser claim', () => {
-        // CB attacking has no honest 25% cut — the blanks tie at one value.
-        // A score between the 10% and 5% cuts must read 10%, never 25%.
-        expect(rankAnchor(0.70, 'CB', 'attacking')).toBe('Top 10% for a CB');
+        // CB attacking has no honest 10% cut — the blanks tie at one value.
+        // A score clearing the 5% cut must read 5%, not 10%.
+        expect(rankAnchor(0.84, 'CB', 'attacking')).toBe('Top 5% for a CB');
         expect(rankAnchor(0.60, 'CB', 'attacking')).toBeUndefined();
     });
 
@@ -240,6 +240,33 @@ describe('rank anchors', () => {
         expect(rankAnchor(0.99, 'LW', 'creating')).toBe('Top 1% for an LW');
         expect(rankAnchor(0.99, 'RW', 'creating')).toBe('Top 1% for an RW');
         expect(rankAnchor(0.99, 'LWB', 'defending')).toBe('Top 1% for an LWB');
+    });
+
+    /* THE BUG THAT MADE SAKA AND PALMER LOOK IDENTICAL. Two independently
+       measured ladders had no common boundary: bands at p85, anchors at p75.
+       Saka's 0.8198 as an RW was inside the best band (floor .7437) but below
+       the old top-10 cut (.835), so it printed "TOP 25%" next to a DECISIVE
+       verdict that meant top 15%. */
+    it('never claims a share looser than the band it sits in', () => {
+        for (const pos of ALL_POSITIONS) {
+            const keys = buildPerformanceGroups(flat(0.5), pos, { minutes_played: 90, goals: 1 } as RawStats, 0)
+                .map((g) => g.key);
+            for (const key of keys) {
+                for (let sc = 0; sc <= 1.0001; sc += 0.002) {
+                    const band = perfBand(sc, key, pos);
+                    const anchor = rankAnchor(sc, pos, key);
+                    // An anchor exists if and only if the band is `best`.
+                    expect(Boolean(anchor), `${pos}/${key} @ ${sc.toFixed(3)} band=${band}`)
+                        .toBe(band === 'best');
+                }
+            }
+        }
+    });
+
+    it('separates Saka from Palmer, which is the whole point', () => {
+        // Real GW1 scores, both in their best band, both reading DECISIVE.
+        expect(rankAnchor(0.8198, 'RW', 'attacking')).toBe('Top 15% for an RW');
+        expect(rankAnchor(0.9622, 'AM', 'attacking')).toBe('Top 5% for an AM');
     });
 
     it('is monotone in score for every position and group', () => {

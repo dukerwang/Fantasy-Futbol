@@ -166,7 +166,7 @@ target, inside one week's noise) but `defending` came in **poor 4.5% / good
 on — an opening weekend full of clean sheets looks exactly like this — so this
 is a thing to re-measure around GW5, not to act on now.
 
-**`BAND_CUTS`, `BAND_CUTS_BY_POS` and `RANK_CUTS` must all be refreshed when
+**`BAND_CUTS`, `BAND_CUTS_BY_POS` and `ANCHOR_TIERS` must all be refreshed when
 `rating_reference_stats` is regenerated** —
 they are distribution-dependent the same way the medians are. The probe that
 produced them is `scratch/band-distribution-probe.ts`; its header says how to
@@ -209,7 +209,9 @@ Coverage over 2025-26: ~75% of rows get no anchor, then roughly 15 / 5 / 4 / 1%
 across the four tiers (`attacking` runs leaner — 83% none — because of the
 dropped tiers).
 
-`RANK_CUTS` is distribution-dependent exactly like `BAND_CUTS`; **refresh the
+`ANCHOR_TIERS` (called `RANK_CUTS` when first written — see §4e, which
+re-derived it against the band floor) is distribution-dependent exactly like
+`BAND_CUTS`; **refresh the
 pair together.** Probe: `scratch/rank-anchor-probe.ts`.
 
 Two smaller things went in alongside: `FEAT_GI_SATURATION_RAW`,
@@ -329,7 +331,7 @@ or MASTERFUL on a tenth of the raw creativity an AM needed for the same word.
 **Nine of 43 position+group pairs had a band under 3%.**
 
 `BAND_CUTS_BY_POS` is the fix — tie-safe percentile cuts per position bucket,
-pooled by `POS_BUCKET` exactly like `RANK_CUTS`. **It is an override, not a
+pooled by `POS_BUCKET` exactly like `ANCHOR_TIERS`. **It is an override, not a
 replacement**, and that matters: three pairs come out *worse* per-position, and
 they are the near-binary `attacking` groups the mute rule already exists for.
 DM and LB/RB land all four cuts on 0.8320, which would grade a full-back with
@@ -401,6 +403,53 @@ So making the log a list does not license dropping the scale. What would is
 making the card itself fluid, and that is a redesign of a fixed-aspect 3D card
 with absolutely-positioned art — a real piece of work, not a tidy-up, and it
 touches the front face as much as the back.
+
+## 4e. The anchor and the band were measured separately — FIXED
+
+Duke put Saka and Palmer side by side. Both **DECISIVE** on Attacking, but
+Palmer anchored **TOP 5% FOR AN AM** and Saka **TOP 25% FOR AN RW**. His
+question was how the same verdict covers those two, and the answer was that it
+did not — the anchor was wrong.
+
+**The two ladders had no common boundary.** Bands cut at p15/p35/p65/p85;
+anchors were measured independently at p75/p90/p95/p99. So the `best` band (top
+15%) straddled the "top 25%" tier (p75–p90), and any score in between came out
+`best` AND "top 25%". Saka's attacking scored **0.8198** as an RW: the band's
+best floor is 0.7437, so he was genuinely inside the top 15%, but the old
+top-10 cut was 0.835, so the ladder fell back a tier and printed "top 25%".
+Technically true, and useless — it understated a top-15% game and made the pair
+look indistinguishable.
+
+**The anchor is now defined as a subdivision of the best band**, not an
+independent measurement:
+
+- it fires only at or above the band's own `best` cut, read from the new
+  `cutsFor` helper — **the same array `perfBand` reads**, so the two floors
+  cannot drift apart again;
+- its coarsest claim is therefore "top 15%", which is exactly what the best
+  band means;
+- `ANCHOR_TIERS` holds only the three tiers above that: top 10 / 5 / 1.
+
+Below the best band there is now no anchor at all. That is deliberate: the band
+already is the rank statement there, and bolting "top 25%" onto a `good` row
+spanning top 15–35% could overstate as easily as understate. `RANK_CUTS` is
+gone.
+
+A test asserts the invariant directly — **an anchor exists if and only if the
+band is `best`** — swept across every position, group, and score. That is
+stronger than checking the numbers, because it fails if either table is
+refreshed without the other.
+
+Result:
+
+| | Saka (RW) | Palmer (AM) |
+|---|---|---|
+| Attacking | Decisive · **Top 15%** | Decisive · **Top 5%** |
+| Creating | Incisive · *(no anchor — good band)* | Masterful · Top 15% |
+| Involvement | Everywhere · Top 5% | Everywhere · **Top 1%** |
+
+Coverage over 2025-26: ~85% of rows carry no anchor, then roughly 5 / 5 / 4 / 1%
+across the four tiers, which sums to the 15% the best band is by definition.
 
 ## 5. Known-unresolved
 

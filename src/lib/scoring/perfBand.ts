@@ -64,7 +64,8 @@ export type PerfBand = 'poor' | 'low' | 'mid' | 'good' | 'best' | 'feat' | 'feat
  * REFRESH THESE when rating_reference_stats is regenerated for a new season;
  * they are distribution-dependent the same way the reference medians are.
  * The probe that produced them is `scratch/band-distribution-probe.ts`, and
- * RANK_CUTS below goes stale at the same moment — refresh the pair together.
+ * BAND_CUTS_BY_POS and ANCHOR_TIERS below go stale at the same moment —
+ * refresh all three together.
  */
 const BAND_CUTS: Record<PerfGroupKey, [number, number, number, number]> = {
     attacking:      [0.438, 0.483, 0.620, 0.750],
@@ -91,7 +92,7 @@ const BAND_CUTS: Record<PerfGroupKey, [number, number, number, number]> = {
    a CB graded INCISIVE above the line "Little creative output." Nine of 43
    position+group pairs had at least one band under 3%.
 
-   Cuts are tie-safe the same way RANK_CUTS is, and pooled the same way
+   Cuts are tie-safe the same way ANCHOR_TIERS is, and pooled the same way
    (identical weight vectors share a bucket: LB/RB, LWB/RWB, LW/RW).
 
    WHY THIS IS AN OVERRIDE RATHER THAN A REPLACEMENT. Three pairs come out
@@ -105,7 +106,7 @@ const BAND_CUTS: Record<PerfGroupKey, [number, number, number, number]> = {
    qualify, and the 3 that do not are exactly the ones already known to be
    degenerate.
 
-   REFRESH WITH BAND_CUTS AND RANK_CUTS — all three describe the same
+   REFRESH WITH BAND_CUTS AND ANCHOR_TIERS — all three describe the same
    distribution. Probe: scratch/band-distribution-probe.ts. */
 
 /**
@@ -113,7 +114,7 @@ const BAND_CUTS: Record<PerfGroupKey, [number, number, number, number]> = {
  * IDENTICAL — so their group scores sit on one scale and pooling them is free
  * sample size. RWB alone has 222 appearances, which cannot speak about a 1%
  * tail or a p15 cut. A position with a distinct weight vector is never pooled,
- * because its scores are not comparable. Both BAND_CUTS_BY_POS and RANK_CUTS
+ * because its scores are not comparable. Both BAND_CUTS_BY_POS and ANCHOR_TIERS
  * key on this; a table still names the player's OWN position in prose.
  */
 const POS_BUCKET: Partial<Record<GranularPosition, string>> = {
@@ -135,6 +136,25 @@ const BAND_CUTS_BY_POS: Record<string, Partial<Record<PerfGroupKey, [number, num
 };
 
 /**
+ * The four cuts in force for one group at one position — the per-position
+ * table where it is well-formed, the league-wide table otherwise.
+ *
+ * SINGLE SOURCE. `perfBand` and `rankAnchor` both read this, and that is what
+ * stops the two from contradicting each other: the anchor's floor is literally
+ * the band's `best` cut, not a separately-measured number that happens to be
+ * near it. See the note on ANCHOR_TIERS.
+ */
+function cutsFor(
+    group: PerfGroupKey,
+    position?: GranularPosition,
+): readonly [number, number, number, number] {
+    const perPos = position
+        ? BAND_CUTS_BY_POS[POS_BUCKET[position] ?? position]?.[group]
+        : undefined;
+    return perPos ?? BAND_CUTS[group];
+}
+
+/**
  * Ordinary bands only. The feat tiers are set by the feat trigger, not here.
  *
  * `position` is optional so an existing caller keeps working, but pass it
@@ -146,10 +166,7 @@ export function perfBand(
     group: PerfGroupKey,
     position?: GranularPosition,
 ): Exclude<PerfBand, 'feat' | 'feat2'> {
-    const perPos = position
-        ? BAND_CUTS_BY_POS[POS_BUCKET[position] ?? position]?.[group]
-        : undefined;
-    const [a, b, c, d] = perPos ?? BAND_CUTS[group];
+    const [a, b, c, d] = cutsFor(group, position);
     if (score < a) return 'poor';
     if (score < b) return 'low';
     if (score < c) return 'mid';
@@ -299,19 +316,51 @@ const BAND_INDEX: Record<PerfBand, number> = {
    The probe is `scratch/rank-anchor-probe.ts`; its header says how to run it
    and what hand pass its output still needs. */
 
-const RANK_LABELS = [25, 10, 5, 1] as const;
+/** Coarsest first. The 15% floor is the band's own `best` cut, not a value
+ *  stored here — see ANCHOR_TIERS. */
+const RANK_LABELS = [15, 10, 5, 1] as const;
 
-/** Score at or above which each of RANK_LABELS holds. `null` = tier dropped. */
-const RANK_CUTS: Record<string, Partial<Record<PerfGroupKey, (number | null)[]>>> = {
-    AM:        { attacking: [0.634, 0.814, 0.883, 0.975], creating: [0.608, 0.801, 0.882, 0.975], involvement: [0.602, 0.796, 0.864, 0.947] },
-    CB:        { attacking: [null, 0.657, 0.834, 0.942], creating: [0.641, 0.851, 0.907, 0.985], defending: [0.646, 0.847, 0.891, 0.932], involvement: [0.658, 0.811, 0.857, 0.918] },
-    CM:        { attacking: [0.613, 0.741, 0.865, 0.941], creating: [0.579, 0.776, 0.866, 0.965], defending: [0.594, 0.762, 0.828, 0.921], involvement: [0.593, 0.723, 0.827, 0.935] },
-    DM:        { attacking: [0.832, 0.917, null, 0.982], creating: [0.600, 0.797, 0.874, 0.975], defending: [0.621, 0.826, 0.879, 0.939], involvement: [0.589, 0.737, 0.824, 0.934] },
-    GK:        { shotStopping: [0.650, 0.787, 0.794, 0.892], goalsPrevented: [0.821, 0.874, 0.889, 0.918], involvement: [0.672, 0.777, 0.841, 0.931] },
-    'LB/RB':   { attacking: [null, null, 0.917, 0.961], creating: [0.607, 0.783, 0.866, 0.964], defending: [0.673, 0.843, 0.884, 0.932], involvement: [0.650, 0.800, 0.842, 0.908] },
-    'LW/RW':   { attacking: [0.498, 0.835, 0.887, 0.943], creating: [0.597, 0.779, 0.857, 0.955], involvement: [0.575, 0.747, 0.826, 0.939] },
-    'LWB/RWB': { attacking: [0.554, 0.703, 0.784, 0.953], creating: [0.619, 0.818, 0.910, 0.987], defending: [0.604, 0.807, 0.864, 0.915], involvement: [0.631, 0.791, 0.860, 0.934] },
-    ST:        { attacking: [0.569, 0.798, 0.861, 0.969], creating: [0.642, 0.779, 0.869, 0.966], involvement: [0.562, 0.797, 0.863, 0.966] },
+/**
+ * Thresholds for the three tiers ABOVE the 15% floor: top 10 / 5 / 1.
+ * `null` where a tie block leaves no honest cut.
+ *
+ * WHY THE LADDER STARTS AT 15% AND NOT 25% — the bug Duke found from two rows.
+ * The anchor used to be measured independently of the bands: bands cut at
+ * p15/p35/p65/p85, anchors at p75/p90/p95/p99. The two ladders shared no
+ * boundary, so the `best` band (top 15%) straddled the "top 25%" tier
+ * (p75-p90) and any score between p85 and p90 came out `best` AND "top 25%".
+ *
+ * Measured: Saka's GW1 attacking scored 0.8198 as an RW. The band's best floor
+ * is 0.7437, so he was inside the top 15% — but the old top-10 floor was
+ * 0.835, so the anchor fell back and printed "TOP 25% FOR AN RW". Beside
+ * Palmer's genuine "TOP 5%", both rows reading DECISIVE, it looked like the
+ * block could not tell them apart. In truth the anchor was understating Saka
+ * by a whole tier: technically true, and useless.
+ *
+ * The anchor is now DEFINED as a subdivision of the best band:
+ *
+ *   - it fires only at or above the band's `best` cut, read from `cutsFor` —
+ *     the same array `perfBand` reads, so the floors cannot drift apart;
+ *   - its coarsest claim is therefore "top 15%", which is exactly what being
+ *     in the best band means;
+ *   - the tiers below subdivide upward from there.
+ *
+ * Below the best band there is no anchor, deliberately: the band IS the rank
+ * statement there, and bolting "top 25%" onto a `good` row that spans top
+ * 15-35% could overstate as easily as understate.
+ *
+ * REFRESH WITH BAND_CUTS_BY_POS — same probe, same distribution.
+ */
+const ANCHOR_TIERS: Record<string, Partial<Record<PerfGroupKey, (number | null)[]>>> = {
+    AM:        { attacking: [0.8137, 0.8832, 0.9750], creating: [0.8012, 0.8815, 0.9751], involvement: [0.7963, 0.8641, 0.9474] },
+    CB:        { attacking: [null, 0.8338, 0.9416], creating: [0.8510, 0.9068, 0.9849], defending: [0.8473, 0.8913, 0.9321], involvement: [0.8105, 0.8565, 0.9185] },
+    CM:        { attacking: [0.7413, 0.8653, 0.9406], creating: [0.7764, 0.8661, 0.9649], defending: [0.7619, 0.8282, 0.9211], involvement: [0.7234, 0.8273, 0.9347] },
+    DM:        { attacking: [0.9168, 0.9608, 0.9820], creating: [0.7972, 0.8736, 0.9750], defending: [0.8262, 0.8788, 0.9388], involvement: [0.7375, 0.8241, 0.9343] },
+    GK:        { shotStopping: [0.7872, 0.7939, 0.8918], goalsPrevented: [0.8744, 0.8886, 0.9175], involvement: [0.7769, 0.8411, 0.9309] },
+    'LB/RB':   { attacking: [0.9168, null, 0.9608], creating: [0.7835, 0.8655, 0.9638], defending: [0.8429, 0.8845, 0.9320], involvement: [0.7998, 0.8415, 0.9084] },
+    'LW/RW':   { attacking: [0.8348, 0.8869, 0.9428], creating: [0.7794, 0.8574, 0.9550], involvement: [0.7469, 0.8260, 0.9394] },
+    'LWB/RWB': { attacking: [0.7026, 0.7840, 0.9531], creating: [0.8180, 0.9103, 0.9869], defending: [0.8073, 0.8635, 0.9145], involvement: [0.7910, 0.8600, 0.9343] },
+    ST:        { attacking: [0.7982, 0.8606, 0.9689], creating: [0.7790, 0.8694, 0.9662], involvement: [0.7970, 0.8629, 0.9664] },
 };
 
 /**
@@ -339,25 +388,25 @@ const POS_ARTICLE: Record<GranularPosition, string> = {
 /**
  * The rank anchor for one group score, or undefined when it says nothing.
  *
- * Silent below the top quarter — by design. "Bottom 40%" is unpleasant
- * without being actionable, and between the median and the top quarter the
- * band has already said everything a percentile would.
+ * Silent below the best band BY CONSTRUCTION — the floor is read from
+ * `cutsFor`, the same array the band was cut with, so an anchor can never
+ * contradict the verdict sitting beside it. See ANCHOR_TIERS.
  */
 export function rankAnchor(
     score: number,
     position: GranularPosition,
     group: PerfGroupKey,
 ): string | undefined {
-    const cuts = RANK_CUTS[POS_BUCKET[position] ?? position]?.[group];
-    if (!cuts) return undefined;
-    // Tightest tier first — "Top 1%" outranks "Top 25%" for the same score.
-    for (let i = cuts.length - 1; i >= 0; i--) {
-        const cut = cuts[i];
-        if (cut !== null && cut !== undefined && score >= cut) {
-            return `Top ${RANK_LABELS[i]}% for ${POS_ARTICLE[position]} ${position}`;
-        }
+    // The band's own `best` cut — not a copy, the same number perfBand read.
+    if (score < cutsFor(group, position)[3]) return undefined;
+    const tiers = ANCHOR_TIERS[POS_BUCKET[position] ?? position]?.[group] ?? [];
+    const label = (i: number) => `Top ${RANK_LABELS[i]}% for ${POS_ARTICLE[position]} ${position}`;
+    // Tightest tier first; falling all the way through means "top 15%".
+    for (let i = tiers.length - 1; i >= 0; i--) {
+        const cut = tiers[i];
+        if (cut != null && score >= cut) return label(i + 1);
     }
-    return undefined;
+    return label(0);
 }
 
 export interface PerfGroup {
