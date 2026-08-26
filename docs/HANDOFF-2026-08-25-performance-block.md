@@ -128,9 +128,12 @@ first Creating evidence line read it, so every player at every band rendered
 `evidenceFor` lists what IS populated; check against the table before adding a
 field.
 
-*Still open:* `MatchupPitch.fmtStats` reads the same dead field for its CMZ/AMZ
-chips, so those chips have a KP branch that can never fire. Pre-existing, not
-fixed here. Note the block's own evidence lines were separately wrong about
+*Fixed 2026-08-26, and it was two branches not one.* `MatchupPitch.fmtStats`
+read `key_passes` for its CMZ/AMZ chips and `shots_on_target` for the attacking
+ones. Both are zero on every appearance — all 11,355 of 2025-26 and all 310 so
+far in 2026-27 — so neither branch could ever fire. They now read xA and xG,
+which FPL does fill. Chip content rose from 16.7% to 43.2% of midfield
+appearances and 22.7% to 57.0% of attacking ones. Note the block's own evidence lines were separately wrong about
 `fpl_cbi` — see §4d; check what a field MEANS as well as whether it is
 populated.
 

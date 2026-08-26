@@ -42,7 +42,7 @@ const SLOT_TO_ZONE = {
 const isGranular = (p: unknown): p is GranularPosition =>
     typeof p === 'string' && (SPINE as string[]).includes(p);
 
-/* ── Stats formatter — "2G · 4 SOT · 8.9 rating" ─────────────────── */
+/* ── Stats formatter — "2G · 0.68 xG · 8.9 rating" ───────────────── */
 /**
  * Keys here must match what /api/sync/stats actually writes into
  * player_stats.stats — see mapFplLiveToRawStats. Four of them didn't: this read
@@ -51,8 +51,17 @@ const isGranular = (p: unknown): p is GranularPosition =>
  * particular has never lived in the stats JSON at all; it is its own column, so
  * it arrives on Detail rather than here.
  *
- * `key_passes` and `shots_on_target` are real keys but FPL's live feed leaves
- * them at 0, so they simply never render.
+ * PRESENT IS NOT POPULATED. `key_passes` and `shots_on_target` are real keys
+ * that FPL's element-summary never fills — measured, they are zero on all
+ * 11,355 appearances of 2025-26 and all 310 so far in 2026-27. The midfield
+ * chip's "KP" branch and the attacking chip's "SOT" branch could therefore
+ * never fire, and a midfielder who created all afternoon showed nothing but
+ * his rating. Both now read the expected-goals pair, which FPL does fill:
+ * xA on 7,855 appearances and xG on 5,327.
+ *
+ * Anything added here needs checking against the table the same way. The same
+ * dead field cost `perfBand.evidenceFor` a release, where every player at every
+ * band read "No chances created."
  */
 interface MatchStatsSnapshot {
     goals?: number;
@@ -61,8 +70,8 @@ interface MatchStatsSnapshot {
     minutes_played?: number;
     saves?: number;
     fpl_tackles?: number;
-    key_passes?: number;
-    shots_on_target?: number;
+    expected_goals?: number;
+    expected_assists?: number;
 }
 
 function fmtStats(detail: Detail | undefined, slot: string): string {
@@ -89,13 +98,16 @@ function fmtStats(detail: Detail | undefined, slot: string): string {
     } else if (zone === 'CMZ' || zone === 'AMZ') {
         if (g) parts.push(`${g}G`);
         if (a) parts.push(`${a}A`);
-        const kp = Number(stats.key_passes ?? 0);
-        if (kp) parts.push(`${kp} KP`);
+        // Only when it adds something the goals and assists have not: a
+        // midfielder who created the chances without the finish is exactly the
+        // game the raw line hides.
+        const xa = Number(stats.expected_assists ?? 0);
+        if (xa >= 0.05) parts.push(`${xa.toFixed(2)} xA`);
     } else {
         if (g) parts.push(`${g}G`);
         if (a) parts.push(`${a}A`);
-        const sot = Number(stats.shots_on_target ?? 0);
-        if (sot) parts.push(`${sot} SOT`);
+        const xg = Number(stats.expected_goals ?? 0);
+        if (xg >= 0.05) parts.push(`${xg.toFixed(2)} xG`);
     }
     if (rtg) parts.push(`${rtg} rating`);
     return parts.join(' · ');
