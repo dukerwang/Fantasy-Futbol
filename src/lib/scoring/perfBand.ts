@@ -36,7 +36,12 @@ import {
     POSITION_WEIGHTS,
 } from './matchRating';
 
-export type PerfBand = 'poor' | 'low' | 'mid' | 'good' | 'best' | 'feat' | 'feat2';
+export type PerfBand =
+    | 'poor' | 'low' | 'mid' | 'good'
+    /** top 15% for the position */ | 'best'
+    /** top 5% */ | 'elite'
+    /** top 1% */ | 'supreme'
+    | 'feat' | 'feat2';
 
 /**
  * Band cuts, PER GROUP, derived from the real 2025-26 distribution
@@ -67,13 +72,13 @@ export type PerfBand = 'poor' | 'low' | 'mid' | 'good' | 'best' | 'feat' | 'feat
  * BAND_CUTS_BY_POS and ANCHOR_TIERS below go stale at the same moment —
  * refresh all three together.
  */
-const BAND_CUTS: Record<PerfGroupKey, [number, number, number, number]> = {
-    attacking:      [0.438, 0.483, 0.620, 0.750],
-    creating:       [0.323, 0.381, 0.527, 0.731],
-    involvement:    [0.293, 0.375, 0.530, 0.725],
-    defending:      [0.303, 0.379, 0.537, 0.783],
-    shotStopping:   [0.225, 0.408, 0.594, 0.709],
-    goalsPrevented: [0.376, 0.453, 0.535, 0.862],
+const BAND_CUTS: Record<PerfGroupKey, readonly number[]> = {
+    attacking:      [0.4376, 0.4834, 0.5000, 0.6584, 0.8627, 0.9429],
+    creating:       [0.3230, 0.3819, 0.5279, 0.7312, 0.8796, 0.9698],
+    involvement:    [0.2926, 0.3753, 0.5299, 0.7251, 0.8427, 0.9315],
+    defending:      [0.3028, 0.3791, 0.5373, 0.7839, 0.8788, 0.9285],
+    shotStopping:   [0.2287, 0.4116, 0.6246, 0.7297, 0.7939, 0.8918],
+    goalsPrevented: [0.3761, 0.4539, 0.5356, 0.8625, 0.8886, 0.9175],
 };
 
 /* ══════════════════════════════════════════════════════════════════════════
@@ -123,16 +128,16 @@ const POS_BUCKET: Partial<Record<GranularPosition, string>> = {
     LW: 'LW/RW', RW: 'LW/RW',
 };
 
-const BAND_CUTS_BY_POS: Record<string, Partial<Record<PerfGroupKey, [number, number, number, number]>>> = {
-    AM:        { attacking: [0.4123, 0.4507, 0.5857, 0.7656], creating: [0.3110, 0.3677, 0.5152, 0.7307], involvement: [0.3064, 0.3676, 0.5168, 0.7367] },
-    CB:        { creating: [0.4647, 0.4784, 0.5353, 0.8277], defending: [0.3307, 0.4075, 0.5527, 0.8121], involvement: [0.3051, 0.3967, 0.5629, 0.7699] },
-    CM:        { attacking: [0.4466, 0.4677, 0.5429, 0.6854], creating: [0.2931, 0.3351, 0.5110, 0.6963], defending: [0.2846, 0.3577, 0.5018, 0.6972], involvement: [0.2387, 0.3122, 0.5181, 0.6734] },
-    DM:        { creating: [0.3269, 0.3574, 0.5394, 0.7176], defending: [0.3054, 0.3729, 0.5241, 0.7794], involvement: [0.2326, 0.3343, 0.5225, 0.6762] },
-    GK:        { shotStopping: [0.2287, 0.4116, 0.6246, 0.7297], goalsPrevented: [0.3761, 0.4539, 0.5356, 0.8625], involvement: [0.3214, 0.4455, 0.6067, 0.7475] },
-    'LB/RB':   { creating: [0.3328, 0.3582, 0.5410, 0.7134], defending: [0.3026, 0.3739, 0.5552, 0.8008], involvement: [0.2970, 0.3641, 0.5591, 0.7535] },
-    'LW/RW':   { attacking: [0.4282, 0.4664, 0.4803, 0.7437], creating: [0.2809, 0.3181, 0.5066, 0.7110], involvement: [0.2811, 0.3371, 0.4923, 0.6806] },
-    'LWB/RWB': { attacking: [0.4792, 0.5000, 0.5370, 0.6281], creating: [0.3328, 0.3756, 0.5724, 0.7557], defending: [0.2908, 0.3490, 0.5039, 0.7631], involvement: [0.2982, 0.3555, 0.5260, 0.7374] },
-    ST:        { attacking: [0.4294, 0.4366, 0.4834, 0.7646], creating: [0.3558, 0.3776, 0.5312, 0.7079], involvement: [0.3826, 0.4086, 0.4905, 0.7443] },
+const BAND_CUTS_BY_POS: Record<string, Partial<Record<PerfGroupKey, readonly number[]>>> = {
+    AM:        { attacking: [0.4123, 0.4507, 0.5857, 0.7656, 0.8832, 0.9750], creating: [0.3110, 0.3677, 0.5152, 0.7307, 0.8815, 0.9751], involvement: [0.3064, 0.3676, 0.5168, 0.7367, 0.8641, 0.9474] },
+    CB:        { creating: [0.4647, 0.4784, 0.5353, 0.8277, 0.9068, 0.9849], defending: [0.3307, 0.4075, 0.5527, 0.8121, 0.8913, 0.9321], involvement: [0.3051, 0.3967, 0.5629, 0.7699, 0.8565, 0.9185] },
+    CM:        { attacking: [0.4466, 0.4677, 0.5429, 0.6854, 0.8653, 0.9406], creating: [0.2931, 0.3351, 0.5110, 0.6963, 0.8661, 0.9649], defending: [0.2846, 0.3577, 0.5018, 0.6972, 0.8282, 0.9211], involvement: [0.2387, 0.3122, 0.5181, 0.6734, 0.8273, 0.9347] },
+    DM:        { creating: [0.3269, 0.3574, 0.5394, 0.7176, 0.8736, 0.9750], defending: [0.3054, 0.3729, 0.5241, 0.7794, 0.8788, 0.9388], involvement: [0.2326, 0.3343, 0.5225, 0.6762, 0.8241, 0.9343] },
+    GK:        { shotStopping: [0.2287, 0.4116, 0.6246, 0.7297, 0.7939, 0.8918], goalsPrevented: [0.3761, 0.4539, 0.5356, 0.8625, 0.8886, 0.9175], involvement: [0.3214, 0.4455, 0.6067, 0.7475, 0.8411, 0.9309] },
+    'LB/RB':   { creating: [0.3328, 0.3582, 0.5410, 0.7134, 0.8655, 0.9638], defending: [0.3026, 0.3739, 0.5552, 0.8008, 0.8845, 0.9320], involvement: [0.2970, 0.3641, 0.5591, 0.7535, 0.8415, 0.9084] },
+    'LW/RW':   { attacking: [0.4282, 0.4664, 0.4803, 0.7437, 0.8869, 0.9428], creating: [0.2809, 0.3181, 0.5066, 0.7110, 0.8574, 0.9550], involvement: [0.2811, 0.3371, 0.4923, 0.6806, 0.8260, 0.9394] },
+    'LWB/RWB': { attacking: [0.4792, 0.5000, 0.5370, 0.6281, 0.7840, 0.9531], creating: [0.3328, 0.3756, 0.5724, 0.7557, 0.9103, 0.9869], defending: [0.2908, 0.3490, 0.5039, 0.7631, 0.8635, 0.9145], involvement: [0.2982, 0.3555, 0.5260, 0.7374, 0.8600, 0.9343] },
+    ST:        { attacking: [0.4294, 0.4366, 0.4834, 0.7646, 0.8606, 0.9689], creating: [0.3558, 0.3776, 0.5312, 0.7079, 0.8694, 0.9662], involvement: [0.3826, 0.4086, 0.4905, 0.7443, 0.8629, 0.9664] },
 };
 
 /**
@@ -147,7 +152,7 @@ const BAND_CUTS_BY_POS: Record<string, Partial<Record<PerfGroupKey, [number, num
 function cutsFor(
     group: PerfGroupKey,
     position?: GranularPosition,
-): readonly [number, number, number, number] {
+): readonly number[] {
     const perPos = position
         ? BAND_CUTS_BY_POS[POS_BUCKET[position] ?? position]?.[group]
         : undefined;
@@ -166,17 +171,21 @@ export function perfBand(
     group: PerfGroupKey,
     position?: GranularPosition,
 ): Exclude<PerfBand, 'feat' | 'feat2'> {
-    const [a, b, c, d] = cutsFor(group, position);
+    const [a, b, c, d, e, f] = cutsFor(group, position);
     if (score < a) return 'poor';
     if (score < b) return 'low';
     if (score < c) return 'mid';
     if (score < d) return 'good';
-    return 'best';
+    if (score < e) return 'best';
+    if (score < f) return 'elite';
+    return 'supreme';
 }
 
 /** Quantised bar geometry — the band IS the width. Mid sits on the median tick. */
 export const BAND_WIDTH: Record<PerfBand, number> = {
-    poor: 16, low: 34, mid: 50, good: 68, best: 88, feat: 100, feat2: 100,
+    poor: 16, low: 34, mid: 50, good: 68,
+    best: 82, elite: 90, supreme: 96,
+    feat: 100, feat2: 100,
 };
 
 export type PerfGroupKey =
@@ -272,23 +281,40 @@ function hasSomethingToSay(s: RawStats): boolean {
     return n(s.goals) > 0 || n(s.assists) > 0 || n(s.expected_goals) >= 0.05;
 }
 
-/** Verdict vocabulary. Index 0-4 are the ordinary bands; 5 and 6 are the feats. */
+/**
+ * Verdict vocabulary. Index 0-6 are the ordinary bands, 7 is a rare feat.
+ *
+ * SEVEN WORDS, NOT FIVE, AND WHY THE EXTRA TWO ARE AT THE TOP. With five bands
+ * the top word covered the whole top 15%, so a top-1% game and a top-15% game
+ * read identically — Palmer and Saka both DECISIVE on attacking and both
+ * EVERYWHERE on involvement, with only a small grey anchor line distinguishing
+ * top 1% from top 5%. The word is the loudest thing on the row; if it cannot
+ * separate them, nothing on the row does.
+ *
+ * Resolution is therefore weighted toward the end managers actually read:
+ * poor/low/mid/good keep their 15/20/30/20 spans, and the old `best` splits
+ * into best (top 15-5%), elite (top 5-1%) and supreme (top 1%).
+ *
+ * MID MUST STAY NEUTRAL. Every middle word here is flat — Involved, Tidy,
+ * Steady, Busy, Held. Creating's used to be "Inventive", praise in the average
+ * slot, and a centre-back with 2.2 raw creativity read INVENTIVE directly above
+ * "Little creative output."
+ *
+ * Keep every word at or under 11 characters: `.verdict` is a fixed 96px column
+ * with `white-space: nowrap`.
+ */
 const VERDICTS: Record<PerfGroupKey, string[]> = {
-    attacking:      ['Anonymous', 'Quiet', 'Involved', 'Dangerous', 'Decisive', 'Devastating', 'Unplayable'],
-    // MID MUST BE NEUTRAL. Every other group's middle word is flat — Involved,
-    // Steady, Busy, Held — but creating's used to be "Inventive", a praise word
-    // in the average slot. A centre-back with 2.2 raw creativity read INVENTIVE
-    // directly above "Little creative output.", and the row argued with itself.
-    // "Tidy" moves down to where it belongs: did the job, nothing more.
-    creating:       ['Static', 'Sideways', 'Tidy', 'Incisive', 'Masterful', 'Virtuoso', 'Virtuoso'],
-    defending:      ['Overrun', 'Passive', 'Steady', 'Assured', 'Commanding', 'Commanding', 'Commanding'],
-    involvement:    ['Peripheral', 'Quiet', 'Busy', 'Influential', 'Everywhere', 'Everywhere', 'Everywhere'],
-    shotStopping:   ['Beaten', 'Shaky', 'Steady', 'Sharp', 'Inspired', 'Inspired', 'Inspired'],
-    goalsPrevented: ['Breached', 'Exposed', 'Held', 'Protected', 'Impassable', 'Impassable', 'Impassable'],
+    attacking:      ['Anonymous', 'Quiet', 'Involved', 'Dangerous', 'Decisive', 'Devastating', 'Unplayable', 'Unplayable'],
+    creating:       ['Static', 'Sideways', 'Tidy', 'Incisive', 'Masterful', 'Virtuoso', 'Mesmeric', 'Mesmeric'],
+    defending:      ['Overrun', 'Passive', 'Steady', 'Assured', 'Commanding', 'Imperious', 'Colossal', 'Colossal'],
+    involvement:    ['Peripheral', 'Quiet', 'Busy', 'Influential', 'Everywhere', 'Immense', 'Talismanic', 'Talismanic'],
+    shotStopping:   ['Beaten', 'Shaky', 'Steady', 'Sharp', 'Inspired', 'Unbeatable', 'Untouchable', 'Untouchable'],
+    goalsPrevented: ['Breached', 'Exposed', 'Held', 'Protected', 'Impassable', 'Impregnable', 'Unbreached', 'Unbreached'],
 };
 
 const BAND_INDEX: Record<PerfBand, number> = {
-    poor: 0, low: 1, mid: 2, good: 3, best: 4, feat: 5, feat2: 6,
+    poor: 0, low: 1, mid: 2, good: 3, best: 4, elite: 5, supreme: 6,
+    feat: 7, feat2: 7,
 };
 
 /* ══════════════════════════════════════════════════════════════════════════
@@ -316,56 +342,47 @@ const BAND_INDEX: Record<PerfBand, number> = {
    The probe is `scratch/rank-anchor-probe.ts`; its header says how to run it
    and what hand pass its output still needs. */
 
-/** Coarsest first. The 15% floor is the band's own `best` cut, not a value
- *  stored here — see ANCHOR_TIERS. */
-const RANK_LABELS = [15, 10, 5, 1] as const;
-
 /**
- * Thresholds for the three tiers ABOVE the 15% floor: top 10 / 5 / 1.
- * `null` where a tie block leaves no honest cut.
+ * The share each top band represents. These ARE the band boundaries — p85, p95
+ * and p99 — so the anchor cannot disagree with the verdict beside it.
  *
- * WHY THE LADDER STARTS AT 15% AND NOT 25% — the bug Duke found from two rows.
- * The anchor used to be measured independently of the bands: bands cut at
- * p15/p35/p65/p85, anchors at p75/p90/p95/p99. The two ladders shared no
- * boundary, so the `best` band (top 15%) straddled the "top 25%" tier
- * (p75-p90) and any score between p85 and p90 came out `best` AND "top 25%".
- *
- * Measured: Saka's GW1 attacking scored 0.8198 as an RW. The band's best floor
- * is 0.7437, so he was inside the top 15% — but the old top-10 floor was
- * 0.835, so the anchor fell back and printed "TOP 25% FOR AN RW". Beside
- * Palmer's genuine "TOP 5%", both rows reading DECISIVE, it looked like the
- * block could not tell them apart. In truth the anchor was understating Saka
- * by a whole tier: technically true, and useless.
- *
- * The anchor is now DEFINED as a subdivision of the best band:
- *
- *   - it fires only at or above the band's `best` cut, read from `cutsFor` —
- *     the same array `perfBand` reads, so the floors cannot drift apart;
- *   - its coarsest claim is therefore "top 15%", which is exactly what being
- *     in the best band means;
- *   - the tiers below subdivide upward from there.
- *
- * Below the best band there is no anchor, deliberately: the band IS the rank
- * statement there, and bolting "top 25%" onto a `good` row that spans top
- * 15-35% could overstate as easily as understate.
- *
- * REFRESH WITH BAND_CUTS_BY_POS — same probe, same distribution.
+ * This used to be its own measured table (`ANCHOR_TIERS`, and `RANK_CUTS`
+ * before that) cut at p75/p90/p95/p99, which had no boundary in common with
+ * the bands at p85. The `best` band therefore straddled the "top 25%" tier and
+ * Saka's 0.8198 as an RW — genuinely inside the top 15% — printed "TOP 25%".
+ * Deriving the anchor from the band makes that class of bug unrepresentable:
+ * there is one table now, not two.
  */
-const ANCHOR_TIERS: Record<string, Partial<Record<PerfGroupKey, (number | null)[]>>> = {
-    AM:        { attacking: [0.8137, 0.8832, 0.9750], creating: [0.8012, 0.8815, 0.9751], involvement: [0.7963, 0.8641, 0.9474] },
-    CB:        { attacking: [null, 0.8338, 0.9416], creating: [0.8510, 0.9068, 0.9849], defending: [0.8473, 0.8913, 0.9321], involvement: [0.8105, 0.8565, 0.9185] },
-    CM:        { attacking: [0.7413, 0.8653, 0.9406], creating: [0.7764, 0.8661, 0.9649], defending: [0.7619, 0.8282, 0.9211], involvement: [0.7234, 0.8273, 0.9347] },
-    DM:        { attacking: [0.9168, 0.9608, 0.9820], creating: [0.7972, 0.8736, 0.9750], defending: [0.8262, 0.8788, 0.9388], involvement: [0.7375, 0.8241, 0.9343] },
-    GK:        { shotStopping: [0.7872, 0.7939, 0.8918], goalsPrevented: [0.8744, 0.8886, 0.9175], involvement: [0.7769, 0.8411, 0.9309] },
-    'LB/RB':   { attacking: [0.9168, null, 0.9608], creating: [0.7835, 0.8655, 0.9638], defending: [0.8429, 0.8845, 0.9320], involvement: [0.7998, 0.8415, 0.9084] },
-    'LW/RW':   { attacking: [0.8348, 0.8869, 0.9428], creating: [0.7794, 0.8574, 0.9550], involvement: [0.7469, 0.8260, 0.9394] },
-    'LWB/RWB': { attacking: [0.7026, 0.7840, 0.9531], creating: [0.8180, 0.9103, 0.9869], defending: [0.8073, 0.8635, 0.9145], involvement: [0.7910, 0.8600, 0.9343] },
-    ST:        { attacking: [0.7982, 0.8606, 0.9689], creating: [0.7790, 0.8694, 0.9662], involvement: [0.7970, 0.8629, 0.9664] },
+const BAND_SHARE: Partial<Record<PerfBand, number>> = {
+    best: 15,
+    elite: 5,
+    supreme: 1,
+};
+
+/** "an AM" / "a CB". The string is CSS-uppercased at render. */
+const POS_ARTICLE: Record<GranularPosition, string> = {
+    GK: 'a', CB: 'a', LB: 'an', RB: 'an', LWB: 'an', RWB: 'an',
+    DM: 'a', CM: 'a', AM: 'an', LW: 'an', RW: 'an', ST: 'an',
 };
 
 /**
+ * The rank anchor for one band, or undefined when it says nothing.
+ *
+ * Fires only for the three top bands. Below them the band IS the rank
+ * statement, and "bottom 40%" is unpleasant without being actionable.
+ */
+export function rankAnchor(
+    band: PerfBand,
+    position: GranularPosition,
+): string | undefined {
+    const share = BAND_SHARE[band];
+    if (share === undefined) return undefined;
+    return `Top ${share}% for ${POS_ARTICLE[position]} ${position}`;
+}
+
+/**
  * "an attacking midfielder" — the long form, for the block's centre-line note.
- * Lives here beside POS_ARTICLE so the two surfaces that render the block
+ * Lives beside POS_ARTICLE so the two surfaces that render the block
  * (player card, matchup breakdown) name a position identically.
  */
 const ROLE_NAME: Record<string, string> = {
@@ -377,36 +394,6 @@ const ROLE_NAME: Record<string, string> = {
 
 export function roleArticle(pos: string | null | undefined): string {
     return ROLE_NAME[String(pos ?? '').toUpperCase()] ?? 'this position';
-}
-
-/** "an AM" / "a CB". The string is CSS-uppercased at render. */
-const POS_ARTICLE: Record<GranularPosition, string> = {
-    GK: 'a', CB: 'a', LB: 'an', RB: 'an', LWB: 'an', RWB: 'an',
-    DM: 'a', CM: 'a', AM: 'an', LW: 'an', RW: 'an', ST: 'an',
-};
-
-/**
- * The rank anchor for one group score, or undefined when it says nothing.
- *
- * Silent below the best band BY CONSTRUCTION — the floor is read from
- * `cutsFor`, the same array the band was cut with, so an anchor can never
- * contradict the verdict sitting beside it. See ANCHOR_TIERS.
- */
-export function rankAnchor(
-    score: number,
-    position: GranularPosition,
-    group: PerfGroupKey,
-): string | undefined {
-    // The band's own `best` cut — not a copy, the same number perfBand read.
-    if (score < cutsFor(group, position)[3]) return undefined;
-    const tiers = ANCHOR_TIERS[POS_BUCKET[position] ?? position]?.[group] ?? [];
-    const label = (i: number) => `Top ${RANK_LABELS[i]}% for ${POS_ARTICLE[position]} ${position}`;
-    // Tightest tier first; falling all the way through means "top 15%".
-    for (let i = tiers.length - 1; i >= 0; i--) {
-        const cut = tiers[i];
-        if (cut != null && score >= cut) return label(i + 1);
-    }
-    return label(0);
 }
 
 export interface PerfGroup {
@@ -539,6 +526,147 @@ function evidenceFor(key: PerfGroupKey, s: RawStats, position: GranularPosition)
     }
 }
 
+/* ══════════════════════════════════════════════════════════════════════════
+   SEASON SCOPE
+
+   The same four groups over a whole season, as the MEAN of the player's
+   per-match group scores. Per-90 in spirit: it grades the level he plays at,
+   so a 12-game starter and a 34-game starter are comparable, and availability
+   is already answered by the appearance count printed beside it.
+
+   Averaging is also what rescues `attacking`. Per match it is near-binary —
+   blanked or returned — which is the whole reason for the mute rule. The MEAN
+   of that binary over twenty-odd matches is continuous, so at season scope
+   attacking separates players properly and nothing needs muting.
+
+   SEPARATE CUTS, and they are not optional. A season mean is far tighter than
+   a single match: measured over 455 player-seasons with 5+ appearances,
+   attacking's p15→p85 spans just 0.488→0.568. Feeding those into the per-match
+   BAND_CUTS would grade almost every player in the league "poor".
+
+   ANCHORS COME FREE. They did not under the old independent RANK_CUTS — one
+   season yields 27 AM player-seasons, which cannot honestly claim a 1% tail.
+   Now that `rankAnchor` is a function of the BAND, a season `elite` band is by
+   construction the top 5% of player-seasons and simply says so.
+
+   POOLED ACROSS POSITIONS, with no per-position override. BAND_CUTS_BY_POS
+   works per match because every bucket has hundreds of appearances; per
+   season the same split gives 27 AMs and 84 CBs, which is not a distribution.
+
+   REFRESH WITH THE OTHER CUT TABLES. Keeper groups rest on 30 player-seasons
+   and are the weakest rows here. */
+
+const SEASON_BAND_CUTS: Record<PerfGroupKey, readonly number[]> = {
+    attacking:      [0.4884, 0.5105, 0.5382, 0.5684, 0.6030, 0.6581],
+    creating:       [0.3877, 0.4464, 0.5304, 0.5901, 0.6382, 0.6958],
+    defending:      [0.4040, 0.4605, 0.5200, 0.5596, 0.5848, 0.6131],
+    involvement:    [0.3704, 0.4380, 0.5099, 0.5600, 0.5925, 0.6461],
+    shotStopping:   [0.3720, 0.4515, 0.4982, 0.5149, 0.5334, 0.5416],
+    goalsPrevented: [0.4834, 0.5214, 0.5591, 0.5778, 0.6396, 0.6534],
+};
+
+/** Same seven bands as a match, cut against the season distribution. */
+function seasonBand(score: number, group: PerfGroupKey): Exclude<PerfBand, 'feat' | 'feat2'> {
+    const [a, b, c, d, e, f] = SEASON_BAND_CUTS[group];
+    if (score < a) return 'poor';
+    if (score < b) return 'low';
+    if (score < c) return 'mid';
+    if (score < d) return 'good';
+    if (score < e) return 'best';
+    if (score < f) return 'elite';
+    return 'supreme';
+}
+
+/** Season totals, for the evidence line. Counting stats, not rates. */
+export interface SeasonEvidence {
+    appearances: number;
+    goals: number;
+    assists: number;
+    cleanSheets: number;
+    saves: number;
+}
+
+function seasonEvidenceFor(key: PerfGroupKey, s: SeasonEvidence): string {
+    const apps = s.appearances === 1 ? '1 appearance' : `${s.appearances} appearances`;
+    switch (key) {
+        case 'attacking': {
+            if (!s.goals && !s.assists) return `No goals or assists in ${apps}.`;
+            const parts: string[] = [];
+            if (s.goals) parts.push(s.goals === 1 ? '1 goal' : `${s.goals} goals`);
+            if (s.assists) parts.push(s.assists === 1 ? '1 assist' : `${s.assists} assists`);
+            return `${parts.join(' and ')} in ${apps}.`;
+        }
+        case 'creating':
+            return s.assists
+                ? `${s.assists === 1 ? '1 assist' : `${s.assists} assists`} in ${apps}.`
+                : `No assists in ${apps}.`;
+        case 'defending':
+        case 'goalsPrevented':
+            return s.cleanSheets
+                ? `${s.cleanSheets} clean ${s.cleanSheets === 1 ? 'sheet' : 'sheets'} in ${apps}.`
+                : `No clean sheets in ${apps}.`;
+        case 'shotStopping':
+            return s.saves
+                ? `${s.saves} ${s.saves === 1 ? 'save' : 'saves'} in ${apps}.`
+                : `No saves in ${apps}.`;
+        default:
+            return apps.charAt(0).toUpperCase() + apps.slice(1) + '.';
+    }
+}
+
+/**
+ * The block for a whole season.
+ *
+ * `perMatch` is one breakdown per APPEARANCE — DNPs must be filtered out by the
+ * caller, or the mean is dragged toward whatever a zero stat line scores.
+ * Returns [] below `minAppearances`, because a two-game mean is noise wearing a
+ * verdict.
+ */
+export function buildSeasonPerformanceGroups(
+    perMatch: RatingBreakdownItem[][],
+    position: GranularPosition,
+    evidence: SeasonEvidence,
+    minAppearances = 3,
+): PerfGroup[] {
+    if (perMatch.length < minAppearances) return [];
+
+    const weights = POSITION_WEIGHTS[position] ?? POSITION_WEIGHTS.CM;
+    const order = GROUP_ORDER[position] ?? GROUP_ORDER.CM;
+
+    const out: PerfGroup[] = [];
+    for (const key of order) {
+        const members = GROUP_COMPONENTS[key];
+        const weight = members.reduce((sum, c) => sum + (weights[c] ?? 0), 0);
+        if (weight <= 0) continue;
+        // No mute rule at season scope: the mean of a near-binary component
+        // varies properly across a season, which is exactly what it cannot do
+        // in a single match.
+
+        let total = 0;
+        for (const breakdown of perMatch) {
+            const scoreOf = new Map<RatingComponent, number>();
+            for (const item of breakdown) scoreOf.set(item.key, item.score);
+            total += members.reduce((acc, c) => acc + (scoreOf.get(c) ?? 0) * (weights[c] ?? 0), 0) / weight;
+        }
+        const score = total / perMatch.length;
+        const band = seasonBand(score, key);
+
+        out.push({
+            key,
+            label: GROUP_LABEL[key],
+            band,
+            width: BAND_WIDTH[band],
+            verdict: VERDICTS[key][BAND_INDEX[band]],
+            evidence: seasonEvidenceFor(key, evidence),
+            // Free, now that the anchor is defined as the band rather than
+            // measured separately: a season `elite` band IS the top 5% of
+            // player-seasons, so it can say so.
+            rank: rankAnchor(band, position),
+        });
+    }
+    return out;
+}
+
 /**
  * Build the display groups for one match.
  *
@@ -595,7 +723,7 @@ export function buildPerformanceGroups(
             width: BAND_WIDTH[band],
             verdict: VERDICTS[key][BAND_INDEX[band]],
             evidence: evidenceFor(key, stats, position),
-            rank: isFeat ? undefined : rankAnchor(score, position, key),
+            rank: isFeat ? undefined : rankAnchor(band, position),
         });
     }
     return out;

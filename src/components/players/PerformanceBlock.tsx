@@ -16,12 +16,18 @@ import styles from './PerformanceBlock.module.css';
  * render one.
  */
 
+/* best / elite / supreme deliberately share one colour. The ramp's five stops
+   are contrast-solved across every palette pair, and a sixth would either
+   break that or crowd the feat blues; the escalation is carried by the WORD
+   and the bar length instead. */
 const BAND_CLASS: Record<PerfBand, string> = {
     poor: styles.bPoor,
     low: styles.bLow,
     mid: styles.bMid,
     good: styles.bGood,
     best: styles.bBest,
+    elite: styles.bBest,
+    supreme: styles.bBest,
     feat: styles.bFeat,
     feat2: styles.bFeat2,
 };

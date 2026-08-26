@@ -43,6 +43,8 @@ export interface CardFront {
 
 export interface CardBack {
   gamelog: CardGamelogEntry[];
+  /** The season block — same groups, banded against season-scope cuts. */
+  seasonPerf?: PerfGroup[];
   history: PlayerSeasonArchive[];
   /**
    * Which season the game log describes. Resolved server-side by

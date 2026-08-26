@@ -451,6 +451,57 @@ Result:
 Coverage over 2025-26: ~85% of rows carry no anchor, then roughly 5 / 5 / 4 / 1%
 across the four tiers, which sums to the 15% the best band is by definition.
 
+## 4f. Seven bands — the verdict itself now separates the top
+
+§4e fixed the anchor, and Duke's answer was that I had missed his point. The
+anchor is a small grey line; **the verdict is the loudest thing on the row**,
+and one word covered the entire top 15%. Palmer and Saka both read DECISIVE on
+attacking and both EVERYWHERE on involvement, with only the footnote saying one
+was top 1% and the other top 5%. If the word cannot separate them, nothing on
+the row does.
+
+**The ladder is now seven bands, with the resolution weighted where managers
+read.** poor/low/mid/good keep their 15/20/30/20 spans; the old `best` splits:
+
+| band | share | attacking | involvement |
+|---|---|---|---|
+| best | top 15–5% | Decisive | Everywhere |
+| elite | top 5–1% | Devastating | Immense |
+| supreme | top 1% | Unplayable | Talismanic |
+
+Full vocabulary is in `VERDICTS`. Every word is ≤11 characters because
+`.verdict` is a fixed 96px column with `white-space: nowrap`.
+
+**The anchor is now derived from the band, not measured separately.**
+`ANCHOR_TIERS` is deleted. The three top bands *are* p85/p95/p99, so
+`BAND_SHARE` is a three-entry map from band to the share it represents, and
+§4e's whole class of bug is unrepresentable — there is one table, not two. The
+test asserts the invariant (an anchor exists for exactly the three top bands)
+rather than any specific number.
+
+**No sixth ramp colour.** `best`, `elite` and `supreme` share the existing
+`best` stop; escalation is carried by the word and the bar length. The five
+stops are contrast-solved across all 184 palette pairs and the feat tiers are
+blue/violet precisely because they leave the scale — adding a stop would break
+one or crowd the other. This is the constraint in §7, respected deliberately.
+
+Result — the two rows that prompted it:
+
+| | Saka (RW) | Palmer (AM) |
+|---|---|---|
+| Attacking | **Decisive** · top 15% | **Devastating** · top 5% |
+| Creating | Incisive · — | Masterful · top 15% |
+| Involvement | **Immense** · top 5% | **Talismanic** · top 1% |
+
+Measured shares over 2025-26, against targets of 15/20/30/20/10/4/1:
+
+| group | poor | low | mid | good | best | elite | supreme |
+|---|---|---|---|---|---|---|---|
+| involvement | 15.3% | 20.0% | 29.9% | 20.0% | 10.0% | 4.0% | 0.8% |
+| defending | 15.4% | 19.9% | 30.2% | 19.8% | 10.0% | 3.9% | 0.9% |
+| creating | 18.3% | 18.1% | 29.0% | 19.9% | 9.8% | 4.0% | 0.7% |
+| attacking | 16.9% | 17.8% | 23.1% | 23.3% | 12.1% | 4.8% | 0.6% |
+
 ## 5. Known-unresolved
 
 **Attacking's middle — DIAGNOSED AND MOSTLY FIXED (§4b).** The earlier reading
@@ -511,6 +562,7 @@ match context at all — `MatchupPitch.tsx:384` passes only the player id.
   takes the row's band.
 - Make the rank ladder finer than 25/10/5/1, or emit the percentile as a number
   a caller can interpolate. The coarseness is the disclosure argument.
-- Add a sixth colour to the ramp. Its five stops are contrast-solved and all
+- Add a sixth colour to the ramp. Seven bands share five stops on purpose —
+  see §4f; best/elite/supreme differ by word and bar length, not hue. Its five stops are contrast-solved and all
   184 palette pairs pass with them; the feat tiers are blue/violet precisely
   because they leave the scale rather than extending it.

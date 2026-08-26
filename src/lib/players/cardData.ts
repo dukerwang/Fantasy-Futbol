@@ -27,7 +27,11 @@ import {
 } from '@/lib/season/currentSeason';
 import { getClubFixtureLog, type ClubFixtureLog } from '@/lib/fixtures/lockout';
 import { loadReferenceStats } from '@/lib/scoring/matchups';
-import { buildPerformanceGroups, type PerfGroup } from '@/lib/scoring/perfBand';
+import {
+  buildPerformanceGroups,
+  buildSeasonPerformanceGroups,
+  type PerfGroup,
+} from '@/lib/scoring/perfBand';
 import { calculateMatchRating, featExcessFor } from '@/lib/scoring/matchRating';
 import type {
   GranularPosition,
@@ -35,6 +39,7 @@ import type {
   Player,
   PlayerOwnership,
   PlayerSeasonArchive,
+  RatingBreakdownItem,
   RawStats,
 } from '@/types';
 
@@ -93,6 +98,12 @@ export interface PlayerCardBack {
   gamelog: GamelogEntry[];
   history: PlayerSeasonArchive[];
   season: string;
+  /**
+   * The same four groups over the whole season — the mean of the player's
+   * per-match group scores, banded against season-scope cuts. Empty below
+   * three appearances, where a mean is noise wearing a verdict.
+   */
+  seasonPerf?: PerfGroup[];
 }
 
 type RefStatsMap = Parameters<typeof calculateMatchRating>[2];
@@ -469,6 +480,33 @@ export async function fetchPlayerBack(
   const withPositionScores = (log: GamelogEntry[]): GamelogEntry[] =>
     attachPositionScores(log, primaryPos, positions, refStats);
 
+  /**
+   * The season block, from the appearances in this log.
+   *
+   * Re-scores each appearance for its breakdown — `player_stats.perf` stores
+   * the BANDS, which cannot be averaged back into a season score. That is the
+   * right trade: the bands are what the client must not be able to invert, and
+   * this stays on the server.
+   */
+  const seasonPerformance = (log: GamelogEntry[]): PerfGroup[] => {
+    const prim = primaryPos.toUpperCase() as GranularPosition;
+    const perMatch: RatingBreakdownItem[][] = [];
+    const totals = { appearances: 0, goals: 0, assists: 0, cleanSheets: 0, saves: 0 };
+    for (const g of log) {
+      if (g.isDNP || !g.stats || Number(g.stats.minutes_played ?? 0) <= 0) continue;
+      const raw = g.stats as RawStats;
+      const { breakdown } = calculateMatchRating(raw, prim, refStats);
+      if (!breakdown.length) continue;
+      perMatch.push(breakdown);
+      totals.appearances += 1;
+      totals.goals += Number(raw.goals ?? 0);
+      totals.assists += Number(raw.assists ?? 0);
+      totals.cleanSheets += raw.clean_sheet ? 1 : 0;
+      totals.saves += Number(raw.saves ?? 0);
+    }
+    return buildSeasonPerformanceGroups(perMatch, prim, totals);
+  };
+
   const buildDbFallbackLog = (): GamelogEntry[] =>
     withPositionScores(
       stats
@@ -490,7 +528,8 @@ export async function fetchPlayerBack(
   // WRONG opponent for an archived match rather than no opponent at all.
   if (!season.isCurrentFplSeason || !playerRow) {
     if (!playerRow) {
-      return { gamelog: buildDbFallbackLog(), history, season: season.targetSeason };
+      const fb = buildDbFallbackLog();
+      return { gamelog: fb, history, season: season.targetSeason, seasonPerf: seasonPerformance(fb) };
     }
     // players.pl_team is the player's CURRENT club, not their club in the
     // archived season — the table gets re-synced each rollover, so anyone who
@@ -592,7 +631,8 @@ export async function fetchPlayerBack(
     }
 
     gamelog.sort((a, b) => b.gameweek - a.gameweek);
-    return { gamelog: withPositionScores(gamelog), history, season: season.targetSeason };
+    const scored = withPositionScores(gamelog);
+    return { gamelog: scored, history, season: season.targetSeason, seasonPerf: seasonPerformance(scored) };
   }
 
   const dbPlayer = playerRow as { fpl_id: number | null; pl_team_id: number | null; name: string };
@@ -709,9 +749,11 @@ export async function fetchPlayerBack(
     }
 
     gamelog.sort((a, b) => b.gameweek - a.gameweek);
-    return { gamelog: withPositionScores(gamelog), history, season: season.targetSeason };
+    const scored = withPositionScores(gamelog);
+    return { gamelog: scored, history, season: season.targetSeason, seasonPerf: seasonPerformance(scored) };
   } catch (err) {
     console.error('Player game log enrichment failed, falling back to DB rows', err);
-    return { gamelog: buildDbFallbackLog(), history, season: season.targetSeason };
+    const fb = buildDbFallbackLog();
+    return { gamelog: fb, history, season: season.targetSeason, seasonPerf: seasonPerformance(fb) };
   }
 }

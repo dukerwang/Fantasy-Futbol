@@ -383,6 +383,10 @@ export default function PremiumPlayerCard({
     const showPlaceholder = !photoShowing && placeholderArmed;
 
     const gamelog = back?.gamelog ?? [];
+    // Season scope is built at the PRIMARY position only — the season cuts were
+    // measured that way, and re-deriving them per secondary slot would need a
+    // per-slot season distribution that does not exist.
+    const seasonPerf = back?.seasonPerf ?? [];
 
     /**
      * Land on the match the caller asked about.
@@ -866,6 +870,17 @@ export default function PremiumPlayerCard({
                         <div className={styles.backTabContent}>
                             {tab === 'log' && (
                                 <div className={styles.glWrap} onWheel={(e) => e.stopPropagation()}>
+                                    {/* The season, above the matches that made it. Scrolls
+                                        with the log rather than pinning: on a 520px card a
+                                        fixed header would leave the log about four rows. */}
+                                    {seasonPerf.length > 0 && (
+                                        <div className={styles.seasonPerf}>
+                                            <span className={`g-label ${styles.seasonPerfHead}`}>
+                                                Season · {viewPos}
+                                            </span>
+                                            <PerformanceBlock groups={seasonPerf} />
+                                        </div>
+                                    )}
                                     {gamelog.length > 0 ? (
                                         <table className={styles.glTable}>
                                             <thead>

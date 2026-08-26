@@ -173,7 +173,7 @@ describe('band calibration', () => {
             bands.add(buildPerformanceGroups(flat(sc), 'CB', { minutes_played: 90 } as RawStats, 0)
                 .find((g) => g.key === 'creating')!.band);
         }
-        for (const b of ['poor', 'low', 'mid', 'good', 'best']) expect(bands).toContain(b);
+        for (const b of ['poor', 'low', 'mid', 'good', 'best', 'elite', 'supreme']) expect(bands).toContain(b);
     });
 
     it('spans every band for every position and group it can', () => {
@@ -191,7 +191,7 @@ describe('band calibration', () => {
                     bands.add(buildPerformanceGroups(flat(sc), pos, { minutes_played: 90, goals: 1 } as RawStats, 0)
                         .find((g) => g.key === key)!.band);
                 }
-                for (const b of ['poor', 'low', 'mid', 'good', 'best']) {
+                for (const b of ['poor', 'low', 'mid', 'good', 'best', 'elite', 'supreme']) {
                     expect(bands, `${pos}/${key} cannot reach ${b}`).toContain(b);
                 }
             }
@@ -220,65 +220,79 @@ describe('rank anchors', () => {
         }
     });
 
-    it('reports the tightest tier a score clears, never a looser one', () => {
-        // AM attacking: band best floor .7656, then 10% .8137, 5% .8832, 1% .975
-        expect(rankAnchor(0.70, 'AM', 'attacking')).toBeUndefined();
-        expect(rankAnchor(0.78, 'AM', 'attacking')).toBe('Top 15% for an AM');
-        expect(rankAnchor(0.85, 'AM', 'attacking')).toBe('Top 10% for an AM');
-        expect(rankAnchor(0.90, 'AM', 'attacking')).toBe('Top 5% for an AM');
-        expect(rankAnchor(0.99, 'AM', 'attacking')).toBe('Top 1% for an AM');
-    });
-
-    it('skips a dropped tier instead of falling back to a looser claim', () => {
-        // CB attacking has no honest 10% cut — the blanks tie at one value.
-        // A score clearing the 5% cut must read 5%, not 10%.
-        expect(rankAnchor(0.84, 'CB', 'attacking')).toBe('Top 5% for a CB');
-        expect(rankAnchor(0.60, 'CB', 'attacking')).toBeUndefined();
+    it('states the share its band represents, and nothing else', () => {
+        expect(rankAnchor('good', 'AM')).toBeUndefined();
+        expect(rankAnchor('best', 'AM')).toBe('Top 15% for an AM');
+        expect(rankAnchor('elite', 'AM')).toBe('Top 5% for an AM');
+        expect(rankAnchor('supreme', 'AM')).toBe('Top 1% for an AM');
     });
 
     it('names the player position, not the pooled bucket', () => {
-        expect(rankAnchor(0.99, 'LW', 'creating')).toBe('Top 1% for an LW');
-        expect(rankAnchor(0.99, 'RW', 'creating')).toBe('Top 1% for an RW');
-        expect(rankAnchor(0.99, 'LWB', 'defending')).toBe('Top 1% for an LWB');
+        expect(rankAnchor('supreme', 'LW')).toBe('Top 1% for an LW');
+        expect(rankAnchor('supreme', 'RW')).toBe('Top 1% for an RW');
+        expect(rankAnchor('supreme', 'LWB')).toBe('Top 1% for an LWB');
     });
 
     /* THE BUG THAT MADE SAKA AND PALMER LOOK IDENTICAL. Two independently
        measured ladders had no common boundary: bands at p85, anchors at p75.
        Saka's 0.8198 as an RW was inside the best band (floor .7437) but below
-       the old top-10 cut (.835), so it printed "TOP 25%" next to a DECISIVE
-       verdict that meant top 15%. */
-    it('never claims a share looser than the band it sits in', () => {
+       the old top-10 cut (.835), so it printed "TOP 25%" beside a DECISIVE
+       verdict that meant top 15%. The anchor is now derived FROM the band, so
+       the two cannot disagree — this asserts that, not a set of numbers. */
+    it('carries an anchor for exactly the three top bands', () => {
         for (const pos of ALL_POSITIONS) {
             const keys = buildPerformanceGroups(flat(0.5), pos, { minutes_played: 90, goals: 1 } as RawStats, 0)
                 .map((g) => g.key);
             for (const key of keys) {
                 for (let sc = 0; sc <= 1.0001; sc += 0.002) {
                     const band = perfBand(sc, key, pos);
-                    const anchor = rankAnchor(sc, pos, key);
-                    // An anchor exists if and only if the band is `best`.
-                    expect(Boolean(anchor), `${pos}/${key} @ ${sc.toFixed(3)} band=${band}`)
-                        .toBe(band === 'best');
+                    const top = band === 'best' || band === 'elite' || band === 'supreme';
+                    expect(Boolean(rankAnchor(band, pos)), `${pos}/${key} @ ${sc.toFixed(3)} band=${band}`)
+                        .toBe(top);
                 }
             }
         }
     });
 
-    it('separates Saka from Palmer, which is the whole point', () => {
-        // Real GW1 scores, both in their best band, both reading DECISIVE.
-        expect(rankAnchor(0.8198, 'RW', 'attacking')).toBe('Top 15% for an RW');
-        expect(rankAnchor(0.9622, 'AM', 'attacking')).toBe('Top 5% for an AM');
+    it('gives Saka and Palmer different words, not just different footnotes', () => {
+        // Real GW1 attacking scores. Both used to read DECISIVE.
+        const saka = buildPerformanceGroups(flat(0.8198), 'RW', { minutes_played: 90, goals: 1 } as RawStats, 0)
+            .find((g) => g.key === 'attacking')!;
+        const palmer = buildPerformanceGroups(flat(0.9622), 'AM', { minutes_played: 90, goals: 1, assists: 1 } as RawStats, 0)
+            .find((g) => g.key === 'attacking')!;
+        expect(saka.verdict).not.toBe(palmer.verdict);
+        expect(saka.verdict).toBe('Decisive');
+        expect(palmer.verdict).toBe('Devastating');
+        expect(saka.rank).toBe('Top 15% for an RW');
+        expect(palmer.rank).toBe('Top 5% for an AM');
+    });
+
+    it('gives every top band its own word, per group', () => {
+        for (const pos of ALL_POSITIONS) {
+            const seen = new Map<string, Set<string>>();
+            for (const sc of [0.5, 0.80, 0.87, 0.93, 0.995]) {
+                for (const g of buildPerformanceGroups(flat(sc), pos, { minutes_played: 90, goals: 1 } as RawStats, 0)) {
+                    const s = seen.get(g.key) ?? seen.set(g.key, new Set()).get(g.key)!;
+                    if (g.band === 'best' || g.band === 'elite' || g.band === 'supreme') s.add(g.verdict);
+                }
+            }
+            for (const [key, words] of seen) {
+                // Three top bands must not collapse onto one word.
+                expect(words.size, `${pos}/${key} top words: ${[...words]}`).toBeGreaterThan(1);
+            }
+        }
     });
 
     it('is monotone in score for every position and group', () => {
-        /** 0 for no anchor, then 1..4 as the claim TIGHTENS. */
+        /** 0 for no anchor, then 1..3 as the claim TIGHTENS. */
         const RANK_OF = (s: string | undefined) =>
-            s === undefined ? 0 : [25, 10, 5, 1].indexOf(Number(s.match(/(\d+)%/)![1])) + 1;
+            s === undefined ? 0 : [15, 5, 1].indexOf(Number(s.match(/(\d+)%/)![1])) + 1;
         for (const pos of ALL_POSITIONS) {
             const keys = buildPerformanceGroups(flat(0.5), pos, NO_STATS, 0).map((g) => g.key);
             for (const key of keys as PerfGroupKey[]) {
                 let prev = 0;
                 for (let s = 0; s <= 1.0001; s += 0.005) {
-                    const cur = RANK_OF(rankAnchor(s, pos, key));
+                    const cur = RANK_OF(rankAnchor(perfBand(s, key, pos), pos));
                     expect(cur, `${pos}/${key} at ${s.toFixed(3)}`).toBeGreaterThanOrEqual(prev);
                     prev = cur;
                 }

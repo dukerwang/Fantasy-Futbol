@@ -1184,6 +1184,19 @@
 .glWrap::-webkit-scrollbar { width: 4px; }
 .glWrap::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: var(--r-micro); }
 
+/* The season block, above the game log. Sits inside the scroller deliberately:
+   the card back is 520px tall and pinning this would leave the log four rows. */
+.seasonPerf {
+  padding: var(--s2) var(--s1) var(--s3);
+  border-bottom: 1px solid var(--color-border);
+  margin-bottom: var(--s2);
+}
+.seasonPerfHead {
+  display: block;
+  margin-bottom: var(--s2);
+  color: var(--color-text-muted);
+}
+
 .glTable {
   width: 100%;
   font-family: var(--font-sans);
