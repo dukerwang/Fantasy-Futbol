@@ -109,6 +109,7 @@ export interface League {
   max_teams: number;
   roster_size: number;
   bench_size: number;
+  ir_size: number;
   faab_budget: number;
   draft_type: 'snake' | 'auction';
   scoring_rules: ScoringRules;

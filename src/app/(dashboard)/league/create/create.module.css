@@ -80,6 +80,11 @@
   font-weight: var(--font-semibold);
 }
 
+.recommendedHint {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
 .input,
 .select {
   width: 100%;

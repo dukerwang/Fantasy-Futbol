@@ -10,9 +10,16 @@ export async function POST(req: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const { name, teamName, maxTeams, rosterSize, faabBudget, draftType, isDynasty, auctionTimezone } = await req.json();
+  const { name, teamName, maxTeams, rosterSize, benchSize, irSize, faabBudget, isDynasty, auctionTimezone } = await req.json();
 
   if (!name?.trim()) return NextResponse.json({ error: 'League name is required' }, { status: 400 });
+
+  const clamp = (n: number, min: number, max: number) => Math.min(max, Math.max(min, n));
+  const clampedMaxTeams = clamp(Math.round(maxTeams ?? 10), 4, 12);
+  const clampedRosterSize = clamp(Math.round(rosterSize ?? 20), 16, 30);
+  const clampedBenchSize = clamp(Math.round(benchSize ?? 4), 2, 6);
+  const clampedIrSize = clamp(Math.round(irSize ?? 2), 1, 3);
+  const clampedFaabBudget = clamp(Math.round(faabBudget ?? 250), 50, 500);
 
   // Use service role to bypass RLS for all inserts
   const admin = createAdminClient(
@@ -29,11 +36,12 @@ export async function POST(req: NextRequest) {
   const { data: league, error: leagueErr } = await admin.from('leagues').insert({
     name: name.trim(),
     commissioner_id: user.id,
-    max_teams: maxTeams ?? 10,
-    roster_size: rosterSize ?? 20,
-    bench_size: 4,
-    faab_budget: faabBudget ?? 250,
-    draft_type: draftType ?? 'snake',
+    max_teams: clampedMaxTeams,
+    roster_size: clampedRosterSize,
+    bench_size: clampedBenchSize,
+    ir_size: clampedIrSize,
+    faab_budget: clampedFaabBudget,
+    draft_type: 'snake',
     is_dynasty: isDynasty ?? true,
     // Quiet hours are meaningless without a zone, and the column has no default
     // because the right value depends on where the managers live. The client
@@ -70,7 +78,7 @@ export async function POST(req: NextRequest) {
     user_id: user.id,
     team_name: resolvedTeamName,
     abbreviation: null,
-    faab_budget: faabBudget ?? 250,
+    faab_budget: clampedFaabBudget,
   });
   if (teamErr) return NextResponse.json({ error: teamErr.message }, { status: 500 });
 
