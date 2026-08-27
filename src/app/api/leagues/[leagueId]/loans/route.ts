@@ -561,7 +561,7 @@ export async function POST(req: NextRequest, { params }: Props) {
         leagueId,
         userId: counterpartyTeam.user_id,
         title: `${abbr} want ${player.name}`,
-        pushTitle: `${abbr} loan`,
+        pushTitle: `${abbr} want ${player.name}`,
         content: `**${myTeam.team_name}** want **${player.name}** on loan for GW${startGameweek}–GW${endGameweek}. Fee: €${loanFee}m. Waiting on you.${message ? ` Message: "${message}"` : ''}`,
         pushBody: `${player.name} loan. Waiting on you.`,
         url: `/league/${leagueId}/transfers/deals`
@@ -572,7 +572,7 @@ export async function POST(req: NextRequest, { params }: Props) {
         leagueId,
         userId: counterpartyTeam.user_id,
         title: `${abbr} offer ${player.name}`,
-        pushTitle: `${abbr} loan`,
+        pushTitle: `${abbr} offer ${player.name}`,
         content: `**${myTeam.team_name}** have offered **${player.name}** on loan for GW${startGameweek}–GW${endGameweek}. Fee: €${loanFee}m. Waiting on you.${message ? ` Message: "${message}"` : ''}`,
         pushBody: `${player.name} loan. Waiting on you.`,
         url: `/league/${leagueId}/transfers/deals`

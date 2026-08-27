@@ -50,11 +50,11 @@ describe('bid and market notices', () => {
   it('names the bidder and that the auction just opened, with time left', () => {
     const n = bidPlacedNotice(vdp, 'Bukayo Saka', 45, in24h);
     expect(n.title).toBe('VDP bid for Bukayo Saka');
-    expect(n.pushTitle).toBe('VDP €45m');
+    expect(n.pushTitle).toBe('VDP bid for Bukayo Saka');
     expect(n.content).toBe(
       '**Vardy Party** have bid **€45m** for **Bukayo Saka**. Auction open — 24h left.',
     );
-    expect(n.pushBody).toBe('Bukayo Saka. Auction open, 24h left.');
+    expect(n.pushBody).toBe('€45m · auction open, 24h left');
   });
 
   it('names who outbid you and how long you have to answer', () => {
@@ -70,7 +70,7 @@ describe('bid and market notices', () => {
   it('falls back to the full club name in the title when there is no abbr', () => {
     const n = bidPlacedNotice(unnamed, 'Cole Palmer', 30);
     expect(n.title).toBe('Holloway Utd bid for Cole Palmer');
-    expect(n.pushTitle).toBe('Holloway Utd €30m');
+    expect(n.pushTitle).toBe('Holloway Utd bid for Cole Palmer');
     expect(n.content).toContain('Auction now open.');
   });
 
@@ -80,6 +80,7 @@ describe('bid and market notices', () => {
       expiresAt: in72h,
     });
     expect(listed.title).toBe('VDP list Erling Haaland');
+    expect(listed.pushTitle).toBe('VDP list Erling Haaland');
     expect(listed.content).toContain('Auction open — 3d left.');
     expect(listed.pushBody).toBe('Erling Haaland listed. 3d left to bid.');
 
@@ -93,6 +94,7 @@ describe('bid and market notices', () => {
   it('names the club that released a player into auction, with time left', () => {
     const n = droppedNotice(vdp, 'Ollie Watkins', in72h);
     expect(n.title).toBe('VDP release Ollie Watkins');
+    expect(n.pushTitle).toBe('VDP release Ollie Watkins');
     expect(n.content).toContain('**Vardy Party** have released **Ollie Watkins**');
     expect(n.content).toContain('Auction open — 3d left.');
     expect(n.content).not.toMatch(/waiver/i);

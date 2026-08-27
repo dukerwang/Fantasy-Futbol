@@ -303,7 +303,7 @@ export async function POST(req: NextRequest) {
         leagueId,
         userId: recipientId,
         title: `Message from ${senderName}`,
-        pushTitle: senderShort,
+        pushTitle: `Message from ${senderShort}`,
         content: preview,
         url: `/league/${leagueId}/chat`,
         tag: `dm-${leagueId}-${user.id}`,

@@ -54,11 +54,15 @@ export function bidPlacedNotice(
   const abbr = clubAbbr(bidder);
   const left = timeLeft(expiresAt);
   const clock = left ? ` Auction open — ${left}.` : ' Auction now open.';
+  const headline = `${abbr} bid for ${playerName}`;
   return {
-    title: `${abbr} bid for ${playerName}`,
-    pushTitle: `${abbr} ${euro(amount)}`,
+    title: headline,
+    // Same as inbox title — "CFC €50m" alone reads like a stock ticker on the lock screen.
+    pushTitle: headline,
     content: `**${name}** have bid **${euro(amount)}** for **${playerName}**.${clock}`,
-    pushBody: left ? `${playerName}. Auction open, ${left}.` : `${playerName}. Auction now open.`,
+    pushBody: left
+      ? `${euro(amount)} · auction open, ${left}`
+      : `${euro(amount)} · auction now open`,
   };
 }
 
@@ -96,9 +100,10 @@ export function listedNotice(
       ? ` Auction open — ${left}.`
       : ' Auction now open.'
     : '';
+  const headline = `${abbr} list ${playerName}`;
   return {
-    title: `${abbr} list ${playerName}`,
-    pushTitle: `${abbr} listed`,
+    title: headline,
+    pushTitle: headline,
     content: `**${name}** have listed **${playerName}** for sale${priceLine}.${clock}`,
     pushBody: left
       ? `${playerName} listed. ${left} to bid.`
@@ -111,9 +116,10 @@ export function droppedNotice(club: ClubRef, playerName: string, expiresAt?: Exp
   const abbr = clubAbbr(club);
   const left = timeLeft(expiresAt);
   const clock = left ? `Auction open — ${left}.` : 'A 72-hour auction is now open.';
+  const headline = `${abbr} release ${playerName}`;
   return {
-    title: `${abbr} release ${playerName}`,
-    pushTitle: `${abbr} released`,
+    title: headline,
+    pushTitle: headline,
     content: `**${name}** have released **${playerName}** into the auction pool. ${clock}`,
     pushBody: left
       ? `${playerName} in auction. ${left} to bid.`
