@@ -305,7 +305,7 @@ export async function createAllTournaments(
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 
-async function getPreviousSeason(
+export async function getPreviousSeason(
   admin: SupabaseClient,
   leagueId: string,
 ): Promise<string | null> {
