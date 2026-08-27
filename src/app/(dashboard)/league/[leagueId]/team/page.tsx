@@ -123,6 +123,9 @@ export default async function MyTeamPage({ params }: Props) {
   // Fetch current GW player points for score overlay
   let currentFplGw = 0;
   const scoreMap: Record<string, number> = {};
+  // Minutes played this GW — undefined until the GW is known, so the pitch can
+  // tell "no scoring context yet" apart from "played 0 minutes" (DNP).
+  let minutesMap: Record<string, number> | undefined;
   try {
     const fplRes = await fetch('https://fantasy.premierleague.com/api/bootstrap-static/', {
       headers: { 'User-Agent': 'FantasyFutbol/1.0' },
@@ -141,12 +144,15 @@ export default async function MyTeamPage({ params }: Props) {
         const statsSeason = await getCurrentFplSeason(undefined, true);
         const { data: statsRows } = await admin
           .from('player_stats')
-          .select('player_id, fantasy_points')
+          .select('player_id, fantasy_points, stats')
           .eq('season', statsSeason)
           .eq('gameweek', currentFplGw)
           .in('player_id', playerIds);
+        minutesMap = {};
         for (const s of statsRows ?? []) {
           scoreMap[s.player_id] = (scoreMap[s.player_id] ?? 0) + Number(s.fantasy_points);
+          const minutes = Number((s.stats as { minutes_played?: number } | null)?.minutes_played ?? 0);
+          minutesMap[s.player_id] = (minutesMap[s.player_id] ?? 0) + minutes;
         }
       }
     }
@@ -363,6 +369,7 @@ export default async function MyTeamPage({ params }: Props) {
         initialAssignments={initialAssignments}
         initialBench={initialBench as Record<BenchSlot, string | null>}
         scoreMap={scoreMap}
+        minutesMap={minutesMap}
         lockedTeamIds={lockedTeamIds}
         scoringLockedTeamIds={scoringLockedTeamIds}
         lineupWeekLabel={editingAhead && matchup ? `GW${matchup.gameweek} lineup` : undefined}

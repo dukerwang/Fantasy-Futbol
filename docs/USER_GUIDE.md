@@ -29,15 +29,16 @@ A slot accepts **only its own position**. A CB fills CB slots — not LB, not RW
 
 This matters most on your bench, and it's the single most common squad-building mistake: **a bench CB cannot auto-sub for an injured LB.** Cover means cover at the exact position.
 
-### The ten formations
+### The twelve formations
 
-Your starting XI must fit one of **ten** supported shapes:
+Your starting XI must fit one of **twelve** supported shapes:
 
 | | |
 |---|---|
 | `4-3-3` | GK, LB, CB, CB, RB, CM, DM, CM, LW, ST, RW |
 | `4-2-1-3` | double pivot, central AM, two wingers, ST |
 | `4-2-2-2` | modern box midfield — two DM, two AM, two ST |
+| `4-2-4` | double pivot, two wingers, two ST — thinnest midfield, most attack-loaded shape available |
 | `4-3-1-2` | midfield diamond — DM, two CM, AM, two ST |
 | `4-3-2-1` | "Christmas tree" — 4-3-3 with the wingers swapped for two AMs |
 | `3-4-1-2` | three CBs, two wing-backs, two CM, AM, two ST |
@@ -45,6 +46,7 @@ Your starting XI must fit one of **ten** supported shapes:
 | `3-4-2-1` | 3-4-3 with the wingers swapped for two AMs |
 | `3-5-2` | three CBs, two wing-backs, DM, two CM, two ST |
 | `5-3-2` | three CBs, two full-backs, three central mids, two ST |
+| `5-2-3` | three CBs, two full-backs, two CM, two wingers, ST |
 
 You pick a shape each gameweek based on who you actually have.
 

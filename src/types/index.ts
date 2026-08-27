@@ -45,7 +45,7 @@ export const BENCH_DEPTH_BONUS_LABEL = `${Math.round(BENCH_DEPTH_BONUS * 100)}%`
 
 // Supported formations (slot lists)
 // Slots are ordered left-to-right within each zone row for direct visual rendering.
-export type Formation = '4-3-3' | '4-2-1-3' | '4-2-2-2' | '3-4-1-2' | '3-5-2' | '3-4-3' | '5-3-2' | '3-4-2-1' | '4-3-1-2' | '4-3-2-1';
+export type Formation = '4-3-3' | '4-2-1-3' | '4-2-2-2' | '3-4-1-2' | '3-5-2' | '3-4-3' | '5-3-2' | '3-4-2-1' | '4-3-1-2' | '4-3-2-1' | '4-2-4' | '5-2-3';
 
 export const FORMATION_SLOTS = {
   // Slots ordered left-to-right within each zone so PitchUI renders them correctly without re-sorting.
@@ -68,6 +68,10 @@ export const FORMATION_SLOTS = {
   '4-3-1-2': ['GK', 'LB', 'CB', 'CB', 'RB', 'DM', 'CM', 'CM', 'AM', 'ST', 'ST'],
   // 4-3-2-1: Christmas tree — 4-3-3 with the wingers swapped for two AMs
   '4-3-2-1': ['GK', 'LB', 'CB', 'CB', 'RB', 'CM', 'DM', 'CM', 'AM', 'AM', 'ST'],
+  // 4-2-4: double pivot (DM/DM) + wingers + two STs — thinnest midfield, most attack-loaded
+  '4-2-4': ['GK', 'LB', 'CB', 'CB', 'RB', 'DM', 'DM', 'LW', 'ST', 'ST', 'RW'],
+  // 5-2-3: flat back five (3 CBs + 2 FBs, like 5-3-2) + 2 CMs + wingers + ST
+  '5-2-3': ['GK', 'LB', 'CB', 'CB', 'CB', 'RB', 'CM', 'CM', 'LW', 'ST', 'RW'],
 } satisfies Record<Formation, GranularPosition[]>;
 
 export const ALL_FORMATIONS: Formation[] = Object.keys(FORMATION_SLOTS) as Formation[];
@@ -292,9 +296,6 @@ export interface RawStats {
   // Defensive
   tackles_total: number;
   tackles_won: number;
-  interceptions: number;
-  clearances: number;
-  blocks: number;
   // Goalkeeping
   saves: number;
   goals_conceded: number;

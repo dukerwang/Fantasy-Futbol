@@ -241,11 +241,22 @@
  * fragile by construction. Sizing to content instead — same fix as
  * MatchupPitch.module.css's .halfField, ported here 2026-08-25 — means every
  * width is correct, not just the ones that happened to land past the cap.
- * `min-height` is just a floor so the grass doesn't collapse before data
- * loads. */
+ *
+ * Sizing purely to content then broke a different way: the 12 formations
+ * populate as few as 4 zones (4-2-4, 5-2-3) or as many as 6 (3-4-1-2,
+ * 3-4-2-1, 4-3-1-2, 4-3-2-1), so a box that hugged its own zone count grew
+ * and shrank every time the formation pill changed — a pitch should never
+ * resize. `height` below is fixed to the 6-zone case (6 row floors, plus
+ * .pitchZones' own padding and the CM/GK row's extra margin-top) so a
+ * sparser formation's zones flex-grow to fill the same box instead of the
+ * box shrinking to them. This isn't the old aspect-ratio bug reappearing —
+ * that failed because height tracked *width*; this height doesn't depend on
+ * width at all, only on the (now constant) row budget. `min-height` stays
+ * as the pre-data-load floor. */
 .pitchField {
     position: relative;
     width: 100%;
+    height: calc(6 * 118px + var(--s10) + var(--s3) + var(--s3) + var(--s3));
     min-height: 480px;
     display: flex;
     flex-direction: column;
@@ -536,6 +547,27 @@
 .nodePtsWeak     { background: #AC5B0E; }   /* >  0    — display >= 5.5 */
 .nodePtsBad      { color: #fff; background: #9B2335; border-color: transparent; }
 
+/* Yet to play vs. played-but-DNP — same treatment as MatchupPitch.module.css's
+ * .ptsPending / .ptsDnp, kept in step for the same reason as the colour ramp
+ * above: a player should read the same way on this pitch as on the matchup
+ * detail pitch. */
+.nodePtsPending {
+    font-family: var(--font-serif);
+    color: var(--color-text-muted);
+    background: transparent;
+    border-style: dashed;
+    border-color: var(--color-text-muted);
+}
+.nodePtsDnp {
+    font-family: var(--font-sans);
+    font-size: var(--t-10);
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--color-text-muted);
+    background: var(--color-bg-card);
+    border-color: var(--color-text-muted);
+}
+
 .nodeChipBody {
     padding: var(--s1) var(--s2);
     display: flex;
@@ -798,6 +830,18 @@
     white-space: nowrap;
 }
 
+.rowPtsPending {
+    font-weight: 600;
+    color: var(--color-text-muted);
+}
+.rowPtsDnp {
+    font-family: var(--font-sans);
+    font-size: var(--t-10);
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--color-text-muted);
+}
+
 .rowEmptyMark {
     font-size: var(--t-12);
     color: var(--row-ink, var(--color-text-muted));
@@ -1000,7 +1044,9 @@
     .nodePlayerNameCenter { font-size: var(--t-10); }
     .nodePtsBadge { font-size: var(--t-10); top: -6px; right: -14px; }
     .pitchZones { padding: var(--s8) 0 var(--s3); }
-    /* No aspect-ratio override needed here any more — .pitchField sizes to
-       its content now, so the shorter mobile node (portrait stepped down to
-       44x44 above) just produces a shorter box on its own. */
+    /* .pitchField's height is fixed to the 6-zone worst case (see the rule
+       above) using the desktop row floor and padding — recompute it here
+       with this breakpoint's smaller row floor (80px) and padding, or the
+       box would stay sized for the taller desktop rows. */
+    .pitchField { height: calc(6 * 80px + var(--s8) + var(--s3) + var(--s3) + var(--s3)); }
 }

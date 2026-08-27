@@ -19,7 +19,7 @@ import { Icon } from '@/components/ui/Icon';
 
 // ─── Constants ──────────────────────────────────────────────────────────────
 
-const FORMATIONS: Formation[] = ['4-3-3', '4-2-1-3', '4-2-2-2', '3-4-3', '3-4-1-2', '3-5-2', '5-3-2', '3-4-2-1', '4-3-1-2', '4-3-2-1'];
+const FORMATIONS: Formation[] = ['4-3-3', '4-2-1-3', '4-2-2-2', '3-4-3', '3-4-1-2', '3-5-2', '5-3-2', '3-4-2-1', '4-3-1-2', '4-3-2-1', '4-2-4', '5-2-3'];
 
 type PitchZone = 'ATT' | 'AMZ' | 'CMZ' | 'DMZ' | 'WBZ' | 'DEF' | 'GK';
 // Zone order: attackers at top, GK at bottom (same vertical flow as MatchupPitch)
@@ -33,6 +33,18 @@ const BENCH_SLOT_TITLE: Record<BenchSlot, string> = {
 };
 
 const DEFAULT_TAXI_AGE_LIMIT = 21;
+
+/**
+ * Pending (club hasn't kicked off yet) vs. DNP (kicked off, 0 minutes) vs.
+ * played — mirrors MatchupPitch's playStatus so the same player reads the
+ * same way on the lineup pitch as on the matchup detail pitch.
+ */
+type PlayStatus = 'pending' | 'played' | 'dnp';
+
+function playStatus(minutes: number | undefined, hasStarted: boolean): PlayStatus {
+    if (!hasStarted) return 'pending';
+    return Number(minutes ?? 0) > 0 ? 'played' : 'dnp';
+}
 
 /**
  * Points band for the pitch badge fill — same thresholds and colours as
@@ -118,6 +130,8 @@ interface Props {
     initialAssignments: Record<number, string>;
     initialBench: Record<BenchSlot, string | null>;
     scoreMap?: Record<string, number>;
+    /** Minutes played this GW. Undefined = no scoring context yet (offseason/no GW); present = drives pending/DNP badges. */
+    minutesMap?: Record<string, number>;
     lockedTeamIds?: Set<number>;
     /** Scoring-week locks (this GW until it completes). IR uses this; lineup/academy use lockedTeamIds. */
     scoringLockedTeamIds?: Set<number>;
@@ -153,9 +167,10 @@ interface PitchNodeProps {
     onClick: () => void;
     onViewDetails?: () => void;
     points?: number;
+    status?: PlayStatus;
 }
 
-function PitchNode({ slotPos, player, isSelected, isValidTarget, isEmpty, isInvalid, isLocked, onClick, onViewDetails, points }: PitchNodeProps) {
+function PitchNode({ slotPos, player, isSelected, isValidTarget, isEmpty, isInvalid, isLocked, onClick, onViewDetails, points, status }: PitchNodeProps) {
     const { prefetchPlayer } = usePlayerCard();
     const wrapCls = [
         styles.pitchNodeWrap,
@@ -207,8 +222,14 @@ function PitchNode({ slotPos, player, isSelected, isValidTarget, isEmpty, isInva
                     headWidthPct={player?.portrait_head_width_pct}
                     photoVersion={player?.photo_version}
                 />
-                {points !== undefined && (
-                    <span className={`${styles.nodePtsBadge} ${ptsBand(points)}`}>{points.toFixed(2)}</span>
+                {status === 'pending' && (
+                    <span className={`${styles.nodePtsBadge} ${styles.nodePtsPending}`} title="Yet to play">–</span>
+                )}
+                {status === 'dnp' && (
+                    <span className={`${styles.nodePtsBadge} ${styles.nodePtsDnp}`} title="Did not play">DNP</span>
+                )}
+                {(status === 'played' || (status === undefined && points !== undefined)) && (
+                    <span className={`${styles.nodePtsBadge} ${ptsBand(points ?? 0)}`}>{(points ?? 0).toFixed(2)}</span>
                 )}
             </span>
 
@@ -258,6 +279,7 @@ export default function PitchUI({
     initialAssignments,
     initialBench,
     scoreMap,
+    minutesMap,
     lockedTeamIds,
     scoringLockedTeamIds,
     lineupWeekLabel,
@@ -1040,6 +1062,8 @@ export default function PitchUI({
                                                 const isValidTarget = validLineupTargets.has(`starter-${slotIndex}`);
                                                 const isInvalid = !!playerId && !!entry && !canPlaySlot(entry.player, pos);
                                                 const isLocked = !!playerId && !!entry && entry.player.pl_team_id !== null && lockedTeamIds?.has(entry.player.pl_team_id);
+                                                const hasStarted = !!entry && isPlMatchLocked(entry.player, irLockedTeamIds);
+                                                const status = playerId && minutesMap ? playStatus(minutesMap[playerId], hasStarted) : undefined;
                                                 return (
                                                     <PitchNode
                                                         key={slotIndex}
@@ -1054,6 +1078,7 @@ export default function PitchUI({
                                                         onClick={() => handleStarterClick(slotIndex)}
                                                         onViewDetails={entry ? () => setViewingPlayer(entry.player) : undefined}
                                                         points={playerId && scoreMap ? scoreMap[playerId] : undefined}
+                                                        status={status}
                                                     />
                                                 );
                                             })}
@@ -1096,6 +1121,8 @@ export default function PitchUI({
                             const isValidTarget = validLineupTargets.has(`bench-${slot}`);
                             const isLocked = !!pid && !!entry && entry.player.pl_team_id !== null && lockedTeamIds?.has(entry.player.pl_team_id);
                             const pts = scoreMap && pid ? scoreMap[pid] : undefined;
+                            const benchHasStarted = !!entry && isPlMatchLocked(entry.player, irLockedTeamIds);
+                            const benchStatus = pid && minutesMap ? playStatus(minutesMap[pid], benchHasStarted) : undefined;
                             return (
                                 <button
                                     key={slot}
@@ -1125,7 +1152,15 @@ export default function PitchUI({
                                             <span className={styles.rowSpacer} />
                                             {entry.status === 'loan_in' && <span className={styles.loanTag}>Loan</span>}
                                             <span className={styles.rowClub}>{entry.player.pl_team}</span>
-                                            {pts !== undefined && <span className={styles.rowPts}>{pts.toFixed(2)}</span>}
+                                            {benchStatus === 'pending' && (
+                                                <span className={`${styles.rowPts} ${styles.rowPtsPending}`} title="Yet to play">–</span>
+                                            )}
+                                            {benchStatus === 'dnp' && (
+                                                <span className={`${styles.rowPts} ${styles.rowPtsDnp}`} title="Did not play">DNP</span>
+                                            )}
+                                            {(benchStatus === 'played' || (benchStatus === undefined && pts !== undefined)) && (
+                                                <span className={styles.rowPts}>{(pts ?? 0).toFixed(2)}</span>
+                                            )}
                                             {isLocked && <span className={styles.lockIcon}><Icon name="lock" size={14} /></span>}
                                         </>
                                     ) : (

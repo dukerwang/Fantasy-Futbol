@@ -102,12 +102,22 @@
  * content's height is ~fixed in px (a portrait doesn't shrink) and each half's
  * width varies a lot across the desktop range these two columns run at. A
  * fixed ratio can't track that; growing with `.zones`' own content can.
- * `min-height` is only the empty-lineup floor. */
+ *
+ * Growing with content then broke a different way: the 12 formations
+ * populate as few as 4 zones (4-2-4, 5-2-3) or as many as 6 (3-4-1-2,
+ * 3-4-2-1, 4-3-1-2, 4-3-2-1), so each half hugged its own team's zone count
+ * and the whole board grew or shrank with whichever formations the two
+ * sides happened to be running — a pitch should never resize. `height`
+ * below is fixed to the 6-zone case (6 row floors, plus .zones' own padding)
+ * so a sparser formation's zones flex-grow to fill the same box instead of
+ * the box shrinking to them — same fix, same reasoning, as pitch.module.css's
+ * .pitchField. `min-height` is only the empty-lineup floor. */
 .halfField {
     position: relative;
     flex: 1;
     display: flex;
     flex-direction: column;
+    height: calc(6 * 148px + var(--s12) + var(--s4));
     min-height: 480px;
     border: 2px solid var(--color-pitch-line);
     border-top: none;
@@ -860,6 +870,11 @@
     }
     .zoneRow,
     .zone { min-height: 132px; }
+    /* .halfField's height is fixed to the 6-zone worst case (see the rule
+       above) using the desktop row floor and padding — recompute it here
+       with this breakpoint's smaller row floor (132px), or the box would
+       stay sized for the taller desktop rows. */
+    .halfField { height: calc(6 * 132px + var(--s12) + var(--s4)); }
 }
 
 /* Only shrink the portrait when the FIELD is actually too narrow for

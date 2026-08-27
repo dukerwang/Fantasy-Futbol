@@ -27,7 +27,7 @@ Nothing here is decorative. Every one of these systems solves a specific failure
 ## Core Systems
 
 ### Position & formation taxonomy
-Gaffa enforces **12 tactical positions** — no generic DEF/MID/FWD buckets, no LM/RM (auto-mapped to LW/RW). Eligibility is exact: a bench centre-back never covers a left-back slot, because "defender" isn't a real football job. Starting XIs must fit one of **10 supported formations** (`4-3-3`, `4-2-1-3`, `4-2-2-2`, `4-3-1-2`, `4-3-2-1`, `3-4-1-2`, `3-4-3`, `3-4-2-1`, `3-5-2`, `5-3-2`), sourced from `src/types/index.ts`. Benches split into DEF/MID/ATT/FLEX groups, where FLEX accepts any starter-eligible player, including an emergency goalkeeper.
+Gaffa enforces **12 tactical positions** — no generic DEF/MID/FWD buckets, no LM/RM (auto-mapped to LW/RW). Eligibility is exact: a bench centre-back never covers a left-back slot, because "defender" isn't a real football job. Starting XIs must fit one of **12 supported formations** (`4-3-3`, `4-2-1-3`, `4-2-2-2`, `4-2-4`, `4-3-1-2`, `4-3-2-1`, `3-4-1-2`, `3-4-3`, `3-4-2-1`, `3-5-2`, `5-3-2`, `5-2-3`), sourced from `src/types/index.ts`. Benches split into DEF/MID/ATT/FLEX groups, where FLEX accepts any starter-eligible player, including an emergency goalkeeper.
 
 Two independent lock timings, not one: a manager's **formation** locks at the first kickoff involving any of their squad, but an **individual player** only locks when his own club kicks off — so a Saturday-morning lineup can still react to lunchtime results before the late kickoffs.
 
