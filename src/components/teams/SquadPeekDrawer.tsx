@@ -246,7 +246,7 @@ function Chip({ slot, player }: { slot: string; player: PeekPlayer | null }) {
   return (
     <div className={styles.chip} style={{ borderColor: `color-mix(in srgb, ${color} 45%, transparent)` }}>
       <span className={styles.chipSlot} style={{ color }}>{slot}</span>
-      <span className={styles.chipName}>{player ? displayName(player) : '—'}</span>
+      <span className={styles.chipName}>{player ? lastNameOnly(player) : '—'}</span>
     </div>
   );
 }
@@ -255,8 +255,10 @@ function Fig({ k, v, sub }: { k: string; v: string; sub?: string }) {
   return (
     <div className={styles.fig}>
       <span className={styles.figK}>{k}</span>
-      <span className={styles.figV}>{v}</span>
-      {sub && <span className={styles.figSub}>{sub}</span>}
+      <span className={styles.figVRow}>
+        <span className={styles.figV}>{v}</span>
+        {sub && <span className={styles.figSub}>{sub}</span>}
+      </span>
     </div>
   );
 }
@@ -273,6 +275,10 @@ function PeekSkeleton() {
 
 function displayName(p: PeekPlayer): string {
   return getPlayerDisplayName({ name: p.name, web_name: p.webName }, 'initial_last');
+}
+
+function lastNameOnly(p: PeekPlayer): string {
+  return getPlayerDisplayName({ name: p.name, web_name: p.webName }, 'split').last;
 }
 
 function ordinal(n: number): string {

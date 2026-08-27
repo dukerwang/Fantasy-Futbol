@@ -148,6 +148,12 @@
   letter-spacing: 0.08em;
   color: var(--color-text-muted);
 }
+.figVRow {
+  display: flex;
+  align-items: baseline;
+  gap: 0.3rem;
+  min-width: 0;
+}
 .figV {
   font-family: var(--font-serif);
   font-size: 1.05rem;
@@ -155,7 +161,13 @@
   color: var(--color-text-primary);
   font-variant-numeric: tabular-nums;
 }
-.figSub { font-size: 10px; color: var(--color-text-muted); }
+.figSub {
+  font-size: 10px;
+  color: var(--color-text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 
 /* ── Sections ── */
 .section { display: flex; flex-direction: column; gap: 0.6rem; }
