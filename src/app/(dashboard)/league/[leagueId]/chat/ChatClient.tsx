@@ -390,18 +390,28 @@ export default function ChatClient({
                 const isActive = activeTab.type === 'dm' && activeTab.userId === team.user_id;
                 const hasUnread = unreadDMs.has(team.user_id);
 
+                const selectDm = () => {
+                  setActiveTab({
+                    type: 'dm',
+                    userId: team.user_id,
+                    username: team.user.username,
+                    teamName: team.team_name
+                  });
+                  setMobileView('chat');
+                };
+
                 return (
-                  <button
+                  <div
                     key={team.user_id}
+                    role="button"
+                    tabIndex={0}
                     className={`${styles.sidebarBtn} ${isActive ? styles.sidebarBtnActive : ''} ${hasUnread && !isActive ? styles.sidebarBtnUnread : ''}`}
-                    onClick={() => {
-                      setActiveTab({
-                        type: 'dm',
-                        userId: team.user_id,
-                        username: team.user.username,
-                        teamName: team.team_name
-                      });
-                      setMobileView('chat');
+                    onClick={selectDm}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        selectDm();
+                      }
                     }}
                   >
                     <span className={styles.managerAvatar}>
@@ -412,7 +422,7 @@ export default function ChatClient({
                       <span className={styles.managerTeam}>{team.team_name}</span>
                     </div>
                     {hasUnread && <span className={styles.managerDot} />}
-                  </button>
+                  </div>
                 );
               })
             ) : (
