@@ -1,6 +1,8 @@
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { redirect, notFound } from 'next/navigation';
+import { getClubHonours, groupHonours } from '@/lib/honours/getClubHonours';
+import type { CrestConfig } from '@/components/crest/types';
 import HistoryClient from './HistoryClient';
 
 export const dynamic = 'force-dynamic';
@@ -62,6 +64,30 @@ export default async function HistoryPage({ params }: Props) {
       .eq('league_id', leagueId),
   ]);
 
+  // Every club's cabinet, listed on this page whether or not a season has been
+  // archived yet. Before this the ONLY way into a cabinet was the trophy strip
+  // on a club's masthead, which is hidden until that club has won something —
+  // so in a league's first season no cabinet was reachable at all.
+  const { data: allTeams } = await admin
+    .from('teams')
+    .select('id, team_name, crest_config')
+    .eq('league_id', leagueId)
+    .order('team_name');
+  const teamRows = (allTeams ?? []) as { id: string; team_name: string; crest_config: CrestConfig | null }[];
+  const honoursByTeam = await getClubHonours(admin, leagueId, teamRows.map((t) => t.id));
+  const cabinets = teamRows
+    .map((t) => ({
+      teamId: t.id,
+      teamName: t.team_name,
+      crestConfig: t.crest_config ?? null,
+      honours: groupHonours(honoursByTeam.get(t.id) ?? []),
+    }))
+    // Most decorated first; the rest keep their alphabetical order.
+    .sort((a, b) => {
+      const n = (x: typeof a) => x.honours.reduce((sum, g) => sum + g.count, 0);
+      return n(b) - n(a);
+    });
+
   const archive = archiveResult.data ?? [];
   const allMatchups = allMatchupsResult.data ?? [];
   const cupWinners = cupWinnersResult.data ?? [];
@@ -112,6 +138,8 @@ export default async function HistoryPage({ params }: Props) {
       currentSeason={league.current_season ?? league.season}
       seasons={seasonsList}
       highestGwScore={highestGwScore}
+      leagueId={leagueId}
+      cabinets={cabinets}
     />
   );
 }

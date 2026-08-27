@@ -2,6 +2,9 @@
 
 import { Icon } from '@/components/ui/Icon';
 import CrestBadge from '@/components/crest/CrestBadge';
+import NavigationLink from '@/components/ui/NavigationLink';
+import Trophy from '@/components/trophies/Trophy';
+import type { HonourGroup } from '@/lib/honours/getClubHonours';
 import type { CrestConfig } from '@/components/crest/types';
 import styles from './history.module.css';
 
@@ -32,11 +35,21 @@ interface HighestGwScore {
   gameweek: number;
 }
 
+interface Cabinet {
+  teamId: string;
+  teamName: string;
+  crestConfig: CrestConfig | null;
+  honours: HonourGroup[];
+}
+
 interface Props {
   leagueName: string;
   currentSeason: string;
   seasons: SeasonEntry[];
   highestGwScore: HighestGwScore | null;
+  leagueId: string;
+  /** Every club in the league, most decorated first. */
+  cabinets: Cabinet[];
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -165,7 +178,7 @@ function SeasonPanel({ entry }: { entry: SeasonEntry }) {
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 
-export default function HistoryClient({ leagueName, currentSeason, seasons, highestGwScore }: Props) {
+export default function HistoryClient({ leagueName, currentSeason, seasons, highestGwScore, leagueId, cabinets }: Props) {
   const hasHistory = seasons.length > 0;
 
   return (
@@ -198,6 +211,45 @@ export default function HistoryClient({ leagueName, currentSeason, seasons, high
                 <span className={styles.recordMeta}>Since season {seasons[seasons.length - 1]?.season ?? '—'}</span>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Trophy cabinets ──
+          Listed for every club whether or not the league has archived a season,
+          because this is the one page that is always here. A club's own masthead
+          also links to its cabinet, but only that club's. */}
+      {cabinets.length > 0 && (
+        <div className={`g-panel ${styles.cabinets}`}>
+          <span className="g-label">Trophy cabinets</span>
+          <div className={styles.cabinetGrid}>
+            {cabinets.map((c) => {
+              const n = c.honours.reduce((sum, g) => sum + g.count, 0);
+              return (
+                <NavigationLink
+                  key={c.teamId}
+                  href={`/league/${leagueId}/clubs/${c.teamId}/honours`}
+                  className={styles.cabinetRow}
+                >
+                  <CrestBadge
+                    config={c.crestConfig}
+                    size={26}
+                    teamName={c.teamName}
+                    teamId={c.teamId}
+                    interactive={false}
+                  />
+                  <span className={styles.cabinetName}>{c.teamName}</span>
+                  <span className={styles.cabinetPips}>
+                    {c.honours.flatMap((g) =>
+                      g.seasons.map((season) => (
+                        <Trophy key={`${g.kind}-${season}`} kind={g.kind} size="pip" height={18} />
+                      )),
+                    )}
+                  </span>
+                  <span className={styles.cabinetCount}>{n === 0 ? '—' : n}</span>
+                </NavigationLink>
+              );
+            })}
           </div>
         </div>
       )}

@@ -29,6 +29,34 @@ async function getRefStats(
   return { refStats, season };
 }
 
+/**
+ * Records a completed cup's winner in `season_cup_winners_archive`.
+ *
+ * Keyed (league_id, season, tournament_name) to match the reset's writer in
+ * src/lib/offseason/seasonReset.ts, so whichever runs second changes nothing.
+ * Failures are logged, never thrown: a cup that cannot be archived must not
+ * stop the bracket from completing.
+ */
+async function archiveCupWinner(
+  admin: AdminClient,
+  tournament: { league_id: string; season: string; name: string; type: string },
+  winnerId: string,
+) {
+  const { error } = await admin.from('season_cup_winners_archive').upsert(
+    {
+      league_id: tournament.league_id,
+      season: tournament.season,
+      tournament_name: tournament.name,
+      tournament_type: tournament.type,
+      winner_id: winnerId,
+    },
+    { onConflict: 'league_id,season,tournament_name' },
+  );
+  if (error) {
+    console.error('[advanceTournament] Failed to archive cup winner:', error.message);
+  }
+}
+
 /** Place a winner into the next round matchup slot. */
 async function advanceWinner(
   admin: AdminClient,
@@ -419,7 +447,14 @@ export async function executeAdvanceTournament(
           if (finalMatchup && finalMatchup.winner_id) {
             const winnerId = finalMatchup.winner_id;
             const runnerUpId = winnerId === finalMatchup.team_a_id ? finalMatchup.team_b_id : finalMatchup.team_a_id;
-            
+
+            // Archive the winner NOW, not at the season reset. The reset's own
+            // archiveCupWinners() used to be the only writer, which meant a cup
+            // won in March did not exist as an honour until June — and the club
+            // trophy cabinet reads this table. Same upsert key as the reset's,
+            // so the reset later passing over this row is a no-op.
+            await archiveCupWinner(admin, tournament, winnerId);
+
             const winnerName = (winnerId === finalMatchup.team_a_id
               ? (finalMatchup.team_a as any)?.team_name
               : (finalMatchup.team_b as any)?.team_name) ?? 'Unknown';

@@ -3,6 +3,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import CrestBadge from '@/components/crest/CrestBadge';
+import Trophy from '@/components/trophies/Trophy';
 import NavigationLink from '@/components/ui/NavigationLink';
 import type { ClubProps, SquadEntry } from '@/lib/teams/loadClubView';
 import ClubSwitcher from './ClubSwitcher';
@@ -163,7 +164,7 @@ function ToDo({ items, onAct }: { items: TodoItem[]; onAct: (t: TodoItem) => voi
 // ── Page ──────────────────────────────────────────────────────────────────────
 
 export default function ClubClient({
-  leagueId, teamId, serverNow, clubs, viewerIsOwner, club, standing, entries, departures,
+  leagueId, teamId, serverNow, clubs, viewerIsOwner, club, standing, entries, departures, honours,
 }: ClubProps) {
   const router = useRouter();
   const [view, setView] = useState('depth');
@@ -182,6 +183,8 @@ export default function ClubClient({
     setView(v);
     try { localStorage.setItem('club-view', v); } catch { /* ignore */ }
   }
+
+  const trophyCount = honours.reduce((n, g) => n + g.count, 0);
 
   const overall = useMemo(() => overallScores(entries), [entries]);
   const totals = useMemo(() => squadTotals(entries), [entries]);
@@ -257,6 +260,33 @@ export default function ClubClient({
               <span className={styles.mhDot}>·</span>
               <span className={styles.mhRecord}>{standing.w}W · {standing.d}D · {standing.l}L</span>
             </div>
+
+            {/* One pip per TROPHY, not per competition — if each win is its own
+                object then four of them should look like four.
+
+                The link is ALWAYS here, even with nothing to show. It used to be
+                hidden when the cabinet was empty, on the reasoning that a row
+                reading "no trophies" is worse than the space it takes. True, but
+                it made the cabinet unreachable for every club that had not won
+                anything — which, until a season completes, is every club in the
+                league. The pips carry the flex; the link carries the way in. */}
+            <NavigationLink
+              href={`/league/${leagueId}/clubs/${teamId}/honours`}
+              className={styles.mhHonours}
+            >
+              {honours.flatMap((g) =>
+                g.seasons.map((season) => (
+                  <Trophy key={`${g.kind}-${season}`} kind={g.kind} size="pip" />
+                )),
+              )}
+              <span className={styles.mhHonoursCount}>
+                {trophyCount === 0
+                  ? 'Honours'
+                  : trophyCount === 1
+                    ? '1 trophy'
+                    : `${trophyCount} trophies`}
+              </span>
+            </NavigationLink>
           </div>
 
           {/* On a rival's club the masthead is also the exit: the reason you

@@ -201,6 +201,7 @@ async function archiveCupWinners(
       league_id: leagueId,
       season: seasonFrom,
       tournament_name: t.name,
+      tournament_type: t.type,
       winner_id: finalMatchup.winner_id,
     });
   }

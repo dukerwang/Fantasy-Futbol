@@ -509,3 +509,22 @@
   .strip { grid-template-columns: 1fr; }
   .acts { grid-template-columns: 1fr; }
 }
+
+/* ── Masthead honours ─────────────────────────────────────────────────────
+   A row of trophy silhouettes under the record, on every club's masthead and
+   not just your own — the whole point of a trophy is that other people see it.
+   One pip per trophy won, so a treble looks like three things. Hidden entirely
+   when the club has none; see the note at the render site. */
+.mhHonours {
+  display: flex; align-items: flex-end; gap: var(--s2);
+  margin-top: var(--s2); text-decoration: none;
+  color: var(--color-text-secondary);
+  transition: color var(--dur-fast) var(--ease-standard);
+}
+.mhHonours:hover { color: var(--color-text-primary); }
+.mhHonoursCount {
+  font-family: var(--font-condensed); font-size: var(--t-11); font-weight: 600;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--color-text-muted); padding-bottom: 2px;
+}
+.mhHonours:hover .mhHonoursCount { color: var(--color-text-secondary); }

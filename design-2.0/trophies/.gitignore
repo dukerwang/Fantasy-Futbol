@@ -1,0 +1,7 @@
+# Build output of build.mjs — regenerate with `node build.mjs`.
+*.dc.html
+canvas.json
+preview-*.html
+
+# The seeded canvas payload: ~3.5MB, most of it the editor runtime.
+gaffa-trophy-cabinet.html
