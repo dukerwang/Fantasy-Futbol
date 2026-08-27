@@ -100,6 +100,15 @@
   line-height: 1.65;
 }
 
+.prose :global(img) {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  border-radius: var(--r-control);
+  border: 1px solid var(--color-border-subtle);
+  margin: var(--space-4) 0 var(--space-5);
+}
+
 .prose :global(h1),
 .prose :global(h2) {
   font-family: var(--font-serif);
