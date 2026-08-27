@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { FULL_PLAYER_SELECT } from '@/lib/constants/queries';
-import { INITIAL_WINDOW_MS } from '@/lib/auction/timer';
+import { LISTING_INITIAL_WINDOW_MS } from '@/lib/auction/timer';
 
 interface Props {
   params: Promise<{ leagueId: string }>;
@@ -336,7 +336,7 @@ export async function POST(req: NextRequest, { params }: Props) {
       const { listedNotice } = await import('@/lib/notifications/copy');
       const notice = listedNotice(myTeam, playerRow?.name ?? 'a player', priceLine, {
         auctionOpen: hasMinBid,
-        expiresAt: hasMinBid ? Date.now() + INITIAL_WINDOW_MS : undefined,
+        expiresAt: hasMinBid ? Date.now() + LISTING_INITIAL_WINDOW_MS : undefined,
       });
       await Promise.all(
         otherTeams.map((t) =>

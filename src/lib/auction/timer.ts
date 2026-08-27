@@ -48,6 +48,15 @@ export const MIN_DURATION_MS = 24 * 60 * 60 * 1000; // 24h floor after the first
 export const INITIAL_WINDOW_MS = 72 * 60 * 60 * 1000;
 
 /**
+ * Shelf life of a manager listing before any bid — seeded by the DB trigger in
+ * migration 080 (`seed_listing_auction_anchor`), not this file, since the anchor
+ * insert happens in SQL on the `player_sale_listings` INSERT. Kept here only so
+ * app code (the "new listing" notification) can quote the real figure instead of
+ * guessing. Keep this in sync with the `INTERVAL '14 days'` in that migration.
+ */
+export const LISTING_INITIAL_WINDOW_MS = 14 * 24 * 60 * 60 * 1000;
+
+/**
  * Inactivity timeout by auction age. Shrinking rather than capped: this is what
  * replaces the hard ceiling.
  */
