@@ -1,4 +1,4 @@
-export const NOTIFICATION_KINDS = ['auctions', 'deals', 'matchdays', 'chat', 'club'] as const;
+export const NOTIFICATION_KINDS = ['auctions', 'deals', 'matchdays', 'chat', 'club', 'product'] as const;
 export type NotificationKind = (typeof NOTIFICATION_KINDS)[number];
 
 export const NOTIFICATION_CHANNELS = ['push', 'email'] as const;
@@ -14,6 +14,7 @@ export const DEFAULT_NOTIFICATION_PREFS: NotificationPrefs = {
   matchdays: { push: true, email: true },
   chat: { push: true, email: false },
   club: { push: true, email: true },
+  product: { push: false, email: false },
 };
 
 export const KIND_LABELS: Record<NotificationKind, { label: string; hint: string }> = {
@@ -36,6 +37,10 @@ export const KIND_LABELS: Record<NotificationKind, { label: string; hint: string
   club: {
     label: 'Club',
     hint: 'Draft, season start, drops, and departures',
+  },
+  product: {
+    label: 'Gaffa updates',
+    hint: 'New features and big changes to the app',
   },
 };
 

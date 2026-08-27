@@ -2,6 +2,7 @@ import TopBar from '@/components/layout/TopBar';
 import { PlayerCardProvider } from '@/components/players/PlayerCardProvider';
 import { SquadPeekProvider } from '@/components/teams/SquadPeekProvider';
 import TeamLogoPreloader from '@/components/players/TeamLogoPreloader';
+import UpdateAnnouncementModal from '@/components/layout/UpdateAnnouncementModal';
 import styles from './layout.module.css';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -12,6 +13,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <SquadPeekProvider>
         <TeamLogoPreloader />
         <TopBar />
+        <UpdateAnnouncementModal />
         <div className={styles.ground}>
           <main className={styles.main}>{children}</main>
         </div>

@@ -13,7 +13,9 @@ export async function GET(req: NextRequest) {
   }
 
   const { searchParams } = new URL(req.url);
-  const leagueId = searchParams.get('league_id');
+  const rawLeagueId = searchParams.get('league_id');
+  const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  const leagueId = rawLeagueId && UUID_RE.test(rawLeagueId) ? rawLeagueId : null;
 
   const admin = createAdminClient();
   let query = admin
@@ -22,7 +24,10 @@ export async function GET(req: NextRequest) {
     .eq('user_id', user.id);
 
   if (leagueId) {
-    query = query.eq('league_id', leagueId);
+    // Account-wide rows (league_id NULL — product updates) belong in every
+    // league's bell, not just whichever one happens to be current. leagueId is
+    // regex-validated above before going into this filter string.
+    query = query.or(`league_id.eq.${leagueId},league_id.is.null`);
   }
 
   const { data: notifications, error } = await query.order('created_at', { ascending: false });

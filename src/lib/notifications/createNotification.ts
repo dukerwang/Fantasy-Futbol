@@ -3,7 +3,8 @@ import { sendPushToUser } from '@/lib/push/sendPush';
 import { wantsChannel, type NotificationKind } from '@/lib/notifications/prefs';
 
 interface CreateNotificationParams {
-  leagueId: string;
+  /** null for an account-wide notice not scoped to any one league (e.g. a product update). */
+  leagueId: string | null;
   userId: string;
   kind: NotificationKind;
   title: string;
@@ -50,6 +51,7 @@ export async function createNotification(
         content,
         url: url || null,
         read: false,
+        kind,
       });
 
     if (error) {

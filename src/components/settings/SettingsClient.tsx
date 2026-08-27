@@ -179,8 +179,8 @@ export default function SettingsClient({
                   </button>
                 </div>
                 <div className={styles.cellCenter}>
-                  {kind === 'chat' ? (
-                    <span className={styles.dash} title="No email for chat">—</span>
+                  {kind === 'chat' || kind === 'product' ? (
+                    <span className={styles.dash} title={`No email for ${meta.label.toLowerCase()}`}>—</span>
                   ) : (
                     <button
                       type="button"
@@ -206,6 +206,11 @@ export default function SettingsClient({
         <div className={styles.panel}>
           <Link href={guideHref} className={styles.linkRow} onClick={() => window.dispatchEvent(new Event('navigation-start'))}>
             <span>User guide</span>
+            <Icon name="chevron-right" size={16} className={styles.linkChevron} />
+          </Link>
+
+          <Link href="/updates" className={styles.linkRow} onClick={() => window.dispatchEvent(new Event('navigation-start'))}>
+            <span>What&rsquo;s new</span>
             <Icon name="chevron-right" size={16} className={styles.linkChevron} />
           </Link>
 
