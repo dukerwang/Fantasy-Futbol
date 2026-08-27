@@ -471,32 +471,128 @@
   background: rgba(255, 255, 255, 0.15);
 }
 
-/* --- Club Balance Pill --- */
+/* --- Club Balance Pill + Dropdown --- */
+.balanceContainer {
+  position: relative;
+}
+
 .balancePill {
   display: flex;
   align-items: center;
-  justify-content: center;
+  gap: var(--space-2);
   height: 36px;
   padding: 0 var(--space-4);
+  margin: 0;
   border-radius: var(--radius-full);
-  background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  text-decoration: none;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  cursor: pointer;
   transition: all var(--transition-fast);
 }
 
 @media (hover: hover) and (pointer: fine) {
   .balancePill:hover {
     border-color: rgba(255, 255, 255, 0.5);
-    background: rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.14);
   }
 }
 
-.balancePillAmount {
+.balancePillLabel {
   font-family: var(--font-sans);
-  font-size: 13px;
+  font-size: 10px;
   font-weight: var(--font-semibold);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.balancePillAmount {
+  font-family: var(--font-serif);
+  font-size: 15px;
+  font-weight: var(--font-bold);
   color: #fff;
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+.balancePill .chevron {
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.balanceDropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: 240px;
+  max-width: calc(100vw - var(--space-6));
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  padding: var(--space-2) 0;
+  z-index: 200;
+  animation: balanceDropdownFadeIn 0.15s ease-out;
+}
+
+/* Own keyframes rather than reusing dropdownFadeIn: that one only animates
+   translateY, so borrowing it here would overwrite the static
+   translateX(-50%) centering for the animation's duration and the panel
+   would visibly snap from off-center to centered as soon as it finished. */
+@keyframes balanceDropdownFadeIn {
+  from { opacity: 0; transform: translateX(-50%) translateY(8px); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+.balanceDropdownEmpty {
+  padding: var(--space-2) var(--space-4) var(--space-3);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.balanceList {
+  display: flex;
+  flex-direction: column;
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+.balanceRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-4);
+  text-decoration: none;
+  transition: background var(--transition-fast);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .balanceRow:hover {
+    background: var(--color-bg-card-hover);
+  }
+}
+
+.balanceRowActive {
+  background: rgba(20, 107, 64, 0.05);
+}
+
+.balanceRowName {
+  font-family: var(--font-serif);
+  font-size: 13px;
+  font-weight: var(--font-medium);
+  color: var(--color-text-primary);
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.balanceRowAmount {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: var(--font-semibold);
+  color: var(--color-text-primary);
+  font-variant-numeric: tabular-nums lining-nums;
 }
 
 /* --- Mobile Hamburger Menu & Drawer --- */

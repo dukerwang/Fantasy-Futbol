@@ -9,6 +9,7 @@ import NotificationBell from './NotificationBell';
 import ChatNavIcon from './ChatNavIcon';
 import { Icon } from '@/components/ui/Icon';
 import CrestBadge from '@/components/crest/CrestBadge';
+import { clubHref } from '@/lib/teams/clubHref';
 import styles from './TopBar.module.css';
 
 interface LeagueInfo {
@@ -16,6 +17,13 @@ interface LeagueInfo {
   name: string;
   status: string;
   season: string;
+}
+
+interface LeagueTeamBalance {
+  id: string;
+  team_name: string;
+  faab_budget: number | null;
+  crest_config?: any;
 }
 
 interface UserTeam {
@@ -75,10 +83,15 @@ export default function TopBar() {
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [isNavigating, setIsNavigating] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [balanceDropdownOpen, setBalanceDropdownOpen] = useState(false);
+  const [leagueBalances, setLeagueBalances] = useState<LeagueTeamBalance[]>([]);
+  const [leagueBalancesLoading, setLeagueBalancesLoading] = useState(false);
 
   const userDropdownRef = useRef<HTMLDivElement>(null);
   const pageNavRef = useRef<HTMLDivElement>(null);
+  const balanceDropdownRef = useRef<HTMLDivElement>(null);
   const dropdownTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const balanceDropdownTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const navTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Extract current leagueId from URL — exclude static segments like 'create', 'join'
@@ -99,6 +112,7 @@ export default function TopBar() {
     setOpenDropdown(null);
     setMobileMenuOpen(false);
     setUserDropdownOpen(false);
+    setBalanceDropdownOpen(false);
     if (navTimeoutRef.current) {
       clearTimeout(navTimeoutRef.current);
       navTimeoutRef.current = null;
@@ -166,12 +180,16 @@ export default function TopBar() {
       if (pageNavRef.current && !pageNavRef.current.contains(e.target as Node)) {
         setOpenDropdown(null);
       }
+      if (balanceDropdownRef.current && !balanceDropdownRef.current.contains(e.target as Node)) {
+        setBalanceDropdownOpen(false);
+      }
     }
 
     function handleKeyDown(e: KeyboardEvent) {
       if (e.key === 'Escape') {
         setOpenDropdown(null);
         setUserDropdownOpen(false);
+        setBalanceDropdownOpen(false);
       }
     }
 
@@ -285,6 +303,34 @@ export default function TopBar() {
       setOpenDropdown(null);
     }, 150);
   }, []);
+
+  // Club Balance dropdown: every club's balance, fetched fresh each time it
+  // opens rather than cached — this figure changes the moment a bid resolves
+  // or a trade completes, and nothing else in the topbar polls for it.
+  const handleBalanceEnter = useCallback(() => {
+    if (balanceDropdownTimeoutRef.current) {
+      clearTimeout(balanceDropdownTimeoutRef.current);
+      balanceDropdownTimeoutRef.current = null;
+    }
+    setBalanceDropdownOpen(true);
+  }, []);
+
+  const handleBalanceLeave = useCallback(() => {
+    balanceDropdownTimeoutRef.current = setTimeout(() => {
+      setBalanceDropdownOpen(false);
+    }, 150);
+  }, []);
+
+  useEffect(() => {
+    if (!balanceDropdownOpen || !currentLeagueId) return;
+    setLeagueBalancesLoading(true);
+    fetch(`/api/leagues/${currentLeagueId}/teams`)
+      .then(r => r.json())
+      .then(({ teams: data }) => {
+        if (data) setLeagueBalances(data);
+      })
+      .finally(() => setLeagueBalancesLoading(false));
+  }, [balanceDropdownOpen, currentLeagueId]);
 
   const navGroups = getNavGroups();
 
@@ -406,14 +452,71 @@ export default function TopBar() {
         <div className={styles.rightSection}>
           {/* Club Balance */}
           {currentLeagueId && currentTeam && (
-            <Link
-              href={`/league/${currentLeagueId}/finance`}
-              className={styles.balancePill}
-              title="Club Balance"
-              onClick={() => setIsNavigating(true)}
+            <div
+              className={styles.balanceContainer}
+              ref={balanceDropdownRef}
+              onMouseEnter={handleBalanceEnter}
+              onMouseLeave={handleBalanceLeave}
             >
-              <span className={styles.balancePillAmount}>€{currentTeam.faab_budget ?? 0}m</span>
-            </Link>
+              <button
+                type="button"
+                className={styles.balancePill}
+                title="Club Balance"
+                onClick={() => setBalanceDropdownOpen((open) => !open)}
+                aria-haspopup="true"
+                aria-expanded={balanceDropdownOpen}
+              >
+                <span className={styles.balancePillLabel}>Club Balance</span>
+                <span className={styles.balancePillAmount}>€{currentTeam.faab_budget ?? 0}m</span>
+                <span className={`${styles.chevron} ${balanceDropdownOpen ? styles.chevronOpen : ''}`}>▾</span>
+              </button>
+
+              {balanceDropdownOpen && (
+                <div className={styles.balanceDropdown}>
+                  <div className={styles.dropdownSectionLabel}>Club Balances</div>
+                  {leagueBalancesLoading && leagueBalances.length === 0 ? (
+                    <div className={styles.balanceDropdownEmpty}>Loading…</div>
+                  ) : (
+                    <div className={styles.balanceList}>
+                      {leagueBalances.map((team) => {
+                        const isCurrent = team.id === currentTeam.id;
+                        return (
+                          <Link
+                            key={team.id}
+                            href={clubHref(currentLeagueId, team.id, isCurrent)}
+                            className={`${styles.balanceRow} ${isCurrent ? styles.balanceRowActive : ''}`}
+                            onClick={() => {
+                              setBalanceDropdownOpen(false);
+                              setIsNavigating(true);
+                            }}
+                          >
+                            <CrestBadge
+                              config={team.crest_config}
+                              teamName={team.team_name}
+                              size={20}
+                              interactive={false}
+                            />
+                            <span className={styles.balanceRowName}>{team.team_name}</span>
+                            <span className={styles.balanceRowAmount}>€{team.faab_budget ?? 0}m</span>
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  )}
+                  <div className={styles.dropdownDivider} />
+                  <Link
+                    href={`/league/${currentLeagueId}/finance`}
+                    className={styles.dropdownActionLink}
+                    onClick={() => {
+                      setBalanceDropdownOpen(false);
+                      setIsNavigating(true);
+                    }}
+                  >
+                    View Finance →
+                  </Link>
+                </div>
+              )}
+            </div>
           )}
 
           {/* Persistent League Chat */}
