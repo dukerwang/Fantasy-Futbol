@@ -203,6 +203,26 @@
   overflow: hidden;
   background: var(--color-bg-card);
 }
+.heroTabs {
+  display: flex;
+  gap: var(--s5);
+  padding: var(--s3) var(--s5) 0;
+}
+.heroTab,
+.heroTabActive {
+  appearance: none;
+  background: none;
+  border: none;
+  padding: 0 0 var(--s2);
+  font-size: var(--t-12);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+}
+.heroTab { color: var(--color-text-muted); }
+.heroTab:hover { color: var(--color-text-secondary); }
+.heroTabActive { color: var(--color-accent-ink); border-bottom-color: var(--color-accent-ink); }
 .heroTop {
   display: flex;
   align-items: center;

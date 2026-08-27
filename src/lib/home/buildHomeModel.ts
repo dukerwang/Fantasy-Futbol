@@ -248,6 +248,28 @@ export interface HomeModel {
   debrief: DebriefItem[];
   matchReportHeadline: string | null;
   matchReportByline: string | null;
+  /**
+   * The one the phase machine did not pick.
+   *
+   * `ft`/`market` show the settled result as primary, so `secondaryKind` is
+   * `'preview'` and this carries the next fixture you can still influence.
+   * `buildup` shows that upcoming fixture as primary, so `secondaryKind` is
+   * `'result'` and this carries last week's report instead. `live` and
+   * `closed` never have one — there is nothing else worth surfacing mid-match
+   * or once the season is shut.
+   */
+  secondaryKind: 'result' | 'preview' | null;
+  secondaryFixture: HomeFixtureModel | null;
+  secondaryPlayed: boolean;
+  secondaryXi: XiSlot[];
+  secondaryXiFlags: string[];
+  secondaryXiSummary: string;
+  secondaryCoverGaps: CoverGap[];
+  secondaryBenchSummary: BenchPlayer[];
+  secondaryDebrief: DebriefItem[];
+  secondaryOpponent: OpponentCard | null;
+  /** True when the secondary view should open by default — next week is close. */
+  preferSecondary: boolean;
   market: MarketLot[];
   marketSummary: string;
   marketBudget: string;
@@ -1281,6 +1303,293 @@ export async function buildHomeModel(
     }
   }
 
+  // ── the secondary fixture ───────────────────────────────────
+  // Whichever the phase machine did not pick is still one tap away: full
+  // time and the market window no longer hide next week, and build-up no
+  // longer hides last week's result.
+  let secondaryKind: 'result' | 'preview' | null = null;
+  let secondaryFixture: HomeFixtureModel | null = null;
+  let secondaryPlayed = false;
+  const secondaryXi: XiSlot[] = [];
+  const secondaryXiFlags: string[] = [];
+  let secondaryXiSummary = '';
+  const secondaryCoverGaps: CoverGap[] = [];
+  const secondaryBenchSummary: BenchPlayer[] = [];
+  let secondaryDebrief: DebriefItem[] = [];
+
+  const upcomingMine =
+    myMatchups.find((m) => m.gameweek === gameweek && m.status !== 'completed') ??
+    myMatchups.find((m) => m.gameweek === gameweek + 1) ??
+    myMatchups.find((m) => m.status === 'scheduled') ??
+    null;
+
+  const secondaryMatchup =
+    (phase === 'ft' || phase === 'market') && upcomingMine && upcomingMine.id !== heroMatchup?.id
+      ? upcomingMine
+      : phase === 'buildup' && lastCompletedMine && lastCompletedMine.id !== heroMatchup?.id
+        ? lastCompletedMine
+        : null;
+
+  if (secondaryMatchup) {
+    secondaryKind = secondaryMatchup.status === 'completed' ? 'result' : 'preview';
+
+    const iAmA = secondaryMatchup.team_a_id === myTeamId;
+    const oppId = iAmA ? secondaryMatchup.team_b_id : secondaryMatchup.team_a_id;
+    const mineScore = Number(iAmA ? secondaryMatchup.score_a : secondaryMatchup.score_b) || 0;
+    const theirScore = Number(iAmA ? secondaryMatchup.score_b : secondaryMatchup.score_a) || 0;
+    const hasScores = secondaryMatchup.status !== 'scheduled' || mineScore > 0 || theirScore > 0;
+    const played = secondaryMatchup.status === 'live' || secondaryMatchup.status === 'completed';
+    const settledSecondary = secondaryMatchup.status === 'completed';
+    const margin = mineScore - theirScore;
+    const mag = Math.abs(margin);
+    const inBand = mag <= DRAW_BAND;
+
+    let verdict: string;
+    let outcome: HomeFixtureModel['outcome'];
+    if (!hasScores) {
+      verdict = '';
+      outcome = 'drawn';
+    } else if (inBand) {
+      outcome = 'drawn';
+      verdict = settledSecondary
+        ? `Drawn · ${mag.toFixed(2)} apart, inside the ten-point band`
+        : margin >= 0
+          ? `Drawn · ${(DRAW_BAND - mag).toFixed(2)} more and you win`
+          : `Drawn · ${(DRAW_BAND - mag).toFixed(2)} from a defeat`;
+    } else if (margin > 0) {
+      outcome = 'ahead';
+      verdict = `${settledSecondary ? 'Won by' : 'You lead by'} ${mag.toFixed(2)} · ${(mag - DRAW_BAND).toFixed(2)} clear of the band`;
+    } else {
+      outcome = 'behind';
+      verdict = `${settledSecondary ? 'Lost by' : 'Behind by'} ${mag.toFixed(2)} · ${(mag - DRAW_BAND).toFixed(2)} outside the band`;
+    }
+
+    const oppStanding = standings.find((s) => s.team_id === oppId);
+    const markerPct = Math.min(98, Math.max(2, 50 - (margin / 40) * 50));
+
+    secondaryPlayed = played;
+    secondaryFixture = {
+      matchupId: secondaryMatchup.id,
+      gameweek: secondaryMatchup.gameweek,
+      when: !played
+        ? `Matchweek ${secondaryMatchup.gameweek} · locks ${countdown(serverNow, fpl.nextDeadline)}`
+        : secondaryMatchup.status === 'completed'
+          ? `Matchweek ${secondaryMatchup.gameweek} · full time`
+          : `Matchweek ${secondaryMatchup.gameweek}`,
+      home: myClub,
+      away: clubOf(oppId),
+      homeMeta: `${ordinal(myRank)} · ${myStanding?.wins ?? 0}-${myStanding?.draws ?? 0}-${myStanding?.losses ?? 0}`,
+      awayMeta: oppStanding
+        ? `${ordinal(oppStanding.rank)} · ${oppStanding.wins}-${oppStanding.draws}-${oppStanding.losses}`
+        : '',
+      hasScores,
+      homeScore: hasScores ? mineScore : null,
+      awayScore: hasScores ? theirScore : null,
+      margin,
+      verdict,
+      outcome,
+      markerPct,
+      stillToPlay: { mine: 0, theirs: 0 },
+      topMine: null,
+      topTheirs: null,
+      cupLine: null,
+    };
+
+    const secondaryLineupRaw = (iAmA ? secondaryMatchup.lineup_a : secondaryMatchup.lineup_b) as any;
+
+    if (!played && secondaryLineupRaw?.starters?.length) {
+      // Reuse the primary's lock state only when it shares this gameweek —
+      // otherwise those locks belong to a different set of PL fixtures.
+      let locked = lockedSlugs;
+      let withFixture = clubsWithFixture;
+      if (secondaryMatchup.gameweek !== heroGameweek) {
+        const { data: plFixtures } = await admin
+          .from('pl_fixtures')
+          .select('home_club, away_club, kickoff_time')
+          .eq('season', season)
+          .eq('gameweek', secondaryMatchup.gameweek);
+        locked = new Set();
+        withFixture = new Set();
+        const nowMs = new Date(serverNow).getTime();
+        for (const pf of plFixtures ?? []) {
+          withFixture.add(pf.home_club);
+          withFixture.add(pf.away_club);
+          if (pf.kickoff_time && new Date(pf.kickoff_time).getTime() <= nowMs) {
+            locked.add(pf.home_club);
+            locked.add(pf.away_club);
+          }
+        }
+      }
+
+      for (const s of secondaryLineupRaw.starters) {
+        const p = playerById.get(s.player_id);
+        const name = p ? getPlayerDisplayName(p, 'initial_last') : 'Unknown';
+        const slug = slugFor(p?.pl_team);
+        const isLocked = slug ? locked.has(slug) : false;
+        const hasFixture = withFixture.size === 0 || (slug ? withFixture.has(slug) : true);
+        const doubtful = p?.fpl_status && ['i', 'd', 's', 'u'].includes(p.fpl_status);
+
+        let state: XiSlot['state'] = 'ok';
+        let note: string | null = null;
+        if (doubtful) {
+          state = 'flag';
+          note = p.fpl_status === 'i' ? 'injured' : p.fpl_status === 's' ? 'suspended' : 'doubtful';
+        } else if (!hasFixture) {
+          state = 'flag';
+          note = 'no fixture';
+        } else if (isLocked) {
+          state = 'locked';
+          note = 'locked';
+        }
+        secondaryXi.push({ slot: s.slot, playerId: s.player_id, name, state, note });
+      }
+
+      for (const slot of secondaryXi) {
+        if (slot.state === 'flag' && slot.note) secondaryXiFlags.push(`${slot.name} ${slot.note}`);
+      }
+
+      const benchIds: string[] = (secondaryLineupRaw.bench ?? []).map((b: any) => b.player_id);
+      for (const id of benchIds) {
+        const p = playerById.get(id);
+        if (!p) continue;
+        secondaryBenchSummary.push({
+          name: getPlayerDisplayName(p, 'initial_last'),
+          positions: [p.primary_position, ...(p.secondary_positions ?? [])].filter(Boolean) as string[],
+        });
+      }
+
+      for (const s of secondaryXi) {
+        if (s.state !== 'flag') continue;
+        const eligible = POSITION_FLEX_MAP[s.slot as GranularPosition] ?? [s.slot];
+        const covered = secondaryBenchSummary.some((b) =>
+          b.positions.some((pos) => eligible.includes(pos)),
+        );
+        if (!covered) secondaryCoverGaps.push({ slot: s.slot, starter: s.name });
+      }
+
+      const lockedCount = secondaryXi.filter((s) => s.state === 'locked').length;
+      secondaryXiSummary = secondaryXi.length
+        ? `${lockedCount} locked, ${secondaryXi.length - lockedCount} still yours to change`
+        : 'No lineup saved yet';
+    }
+
+    if (settledSecondary && hasScores && secondaryLineupRaw?.starters?.length) {
+      const lineupIds: string[] = [
+        ...secondaryLineupRaw.starters.map((s: any) => s.player_id),
+        ...((secondaryLineupRaw.bench ?? []).map((b: any) => b.player_id) as string[]),
+      ].filter(Boolean);
+
+      const { data: statRows } = await admin
+        .from('player_stats')
+        .select('player_id, fantasy_points, match_rating, stats, gameweek, season')
+        .eq('season', season)
+        .eq('gameweek', secondaryMatchup.gameweek)
+        .in('player_id', lineupIds);
+
+      const rows = (statRows ?? []) as any[];
+      const record = new Map<string, PlayerScoreRecord>();
+      for (const r of rows) {
+        const entry = record.get(r.player_id) ?? { fixtures: [] };
+        entry.fixtures.push({
+          minutes: Number(r.stats?.minutes_played ?? 0),
+          fantasyPoints: Number(r.fantasy_points ?? 0),
+          stats: r.stats ?? null,
+        });
+        record.set(r.player_id, entry);
+      }
+
+      const positions = new Map<string, string[]>();
+      for (const id of lineupIds) {
+        const p = playerById.get(id);
+        positions.set(
+          id,
+          [p?.primary_position, ...(p?.secondary_positions ?? [])].filter(Boolean) as string[],
+        );
+      }
+
+      const detail = emptyTeamScoreDetail();
+      try {
+        const refStats = await loadReferenceStats(admin, season);
+        calculateTeamScore(
+          secondaryLineupRaw,
+          record,
+          positions,
+          new Map(),
+          refStats,
+          settledSecondary,
+          new Set(),
+          detail,
+        );
+        const blanked = detail.blanked.length;
+        secondaryDebrief = [
+          {
+            value: String(detail.subs.length),
+            label: detail.subs.length === 1 ? 'auto-sub fired' : 'auto-subs fired',
+          },
+          { value: String(blanked), label: blanked === 1 ? 'starter blanked' : 'starters blanked' },
+          { value: `+${detail.benchBonusTotal.toFixed(2)}`, label: 'bench depth bonus' },
+          {
+            value: String(detail.outOfPosition.length),
+            label:
+              detail.outOfPosition.length === 1 ? 'out-of-position penalty' : 'out-of-position penalties',
+          },
+        ];
+      } catch {
+        // Same presentation-only failure path as the primary debrief.
+      }
+    }
+  }
+
+  // The opponent as a person, for whichever fixture the secondary view shows.
+  let secondaryOpponent: OpponentCard | null = null;
+  if (secondaryFixture) {
+    const oppId = secondaryFixture.away.id;
+    const meetings = [
+      ...archiveMatchups.map((m) => ({ ...m, live: false })),
+      ...completed.map((m) => ({ ...m, live: true })),
+    ].filter(
+      (m) =>
+        (m.team_a_id === myTeamId && m.team_b_id === oppId) ||
+        (m.team_b_id === myTeamId && m.team_a_id === oppId),
+    );
+    let w = 0;
+    let d = 0;
+    let l = 0;
+    for (const m of meetings) {
+      const r = resultFor(myTeamId, m as MatchupLite);
+      if (r === 'W') w++;
+      else if (r === 'D') d++;
+      else if (r === 'L') l++;
+    }
+    const previous = meetings
+      .filter((m) => m.id !== secondaryMatchup?.id)
+      .sort((a, b) => (b.gameweek ?? 0) - (a.gameweek ?? 0))[0];
+    let lastMeeting = 'First meeting';
+    if (previous) {
+      const isA = previous.team_a_id === myTeamId;
+      const mine = Number(isA ? previous.score_a : previous.score_b) || 0;
+      const theirs = Number(isA ? previous.score_b : previous.score_a) || 0;
+      const r = resultFor(myTeamId, previous as MatchupLite);
+      lastMeeting = `${r === 'W' ? 'Won' : r === 'L' ? 'Lost' : 'Drew'} ${Math.round(mine)}–${Math.round(theirs)}`;
+    }
+    const title: string = !secondaryFixture.hasScores
+      ? 'You play'
+      : secondaryFixture.outcome === 'ahead'
+        ? 'You beat'
+        : secondaryFixture.outcome === 'behind'
+          ? 'You lost to'
+          : 'You drew with';
+
+    secondaryOpponent = {
+      club: secondaryFixture.away,
+      record: `${w}-${d}-${l}`,
+      lastMeeting,
+      title,
+    };
+  }
+
+  const preferSecondary = secondaryKind === 'preview' && fpl.nextGwIsClose;
+
   // ── fronts ──────────────────────────────────────────────────
   const fronts: FrontTile[] = [];
   fronts.push({
@@ -1599,6 +1908,17 @@ export async function buildHomeModel(
     debrief,
     matchReportHeadline,
     matchReportByline,
+    secondaryKind,
+    secondaryFixture,
+    secondaryPlayed,
+    secondaryXi,
+    secondaryXiFlags,
+    secondaryXiSummary,
+    secondaryCoverGaps,
+    secondaryBenchSummary,
+    secondaryDebrief,
+    secondaryOpponent,
+    preferSecondary,
     market,
     marketSummary,
     marketBudget,

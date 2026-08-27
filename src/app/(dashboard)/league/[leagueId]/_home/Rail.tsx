@@ -1,8 +1,7 @@
 import NavigationLink from '@/components/ui/NavigationLink';
-import CrestBadge from '@/components/crest/CrestBadge';
-import type { CrestConfig } from '@/components/crest/types';
 import type { HomeModel } from '@/lib/home/buildHomeModel';
 import { renderBoldedText } from '@/lib/narrative/boldText';
+import OpponentCard from './OpponentCard';
 import styles from './home.module.css';
 
 /**
@@ -18,44 +17,7 @@ import styles from './home.module.css';
 export default function Rail({ model }: { model: HomeModel }) {
   return (
     <aside className={styles.rail} aria-label="League feed">
-      {model.opponent && (
-        <div className={styles.railCard}>
-          <div className={styles.railHd}>
-            <h2 className={styles.railT}>{model.opponent.title}</h2>
-          </div>
-          <div className={styles.opp}>
-            <div className={styles.oppId}>
-              <CrestBadge
-                config={model.opponent.club.crest as CrestConfig | null}
-                size={32}
-                teamName={model.opponent.club.name}
-                teamId={model.opponent.club.id}
-              />
-              <div>
-                <div className={styles.oppName}>{model.opponent.club.name}</div>
-                <div className={styles.oppManager}>
-                  {model.opponent.club.manager ? `@${model.opponent.club.manager}` : 'Unclaimed'}
-                </div>
-              </div>
-            </div>
-            <div className={styles.oppH2h}>
-              <div>
-                <div className={styles.oppH2hV}>{model.opponent.record}</div>
-                <div className={styles.oppH2hL}>All-time, W-D-L</div>
-              </div>
-              <div>
-                <div className={styles.oppH2hV}>{model.opponent.lastMeeting}</div>
-                <div className={styles.oppH2hL}>Last meeting</div>
-              </div>
-            </div>
-            <NavigationLink href={`/league/${model.leagueId}/chat`} className={styles.btn}>
-              {model.opponent.club.manager
-                ? `Message @${model.opponent.club.manager}`
-                : 'Open chat'}
-            </NavigationLink>
-          </div>
-        </div>
-      )}
+      <OpponentCard model={model} />
 
       <div className={styles.railCard}>
         <div className={styles.railHd}>

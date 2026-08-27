@@ -1,9 +1,12 @@
+'use client';
+
 import NavigationLink from '@/components/ui/NavigationLink';
 import CrestBadge from '@/components/crest/CrestBadge';
 import PositionBadge from '@/components/players/PositionBadge';
 import type { CrestConfig } from '@/components/crest/types';
 import type { GranularPosition } from '@/types';
 import type { HomeModel } from '@/lib/home/buildHomeModel';
+import { useHeroTab } from './HeroTabContext';
 import styles from './home.module.css';
 
 /**
@@ -17,25 +20,69 @@ import styles from './home.module.css';
  *   full time— the result, the report, and the debrief
  *   midweek  — the settled result, stated plainly, with the market leading
  *              the page below it
+ *
+ * Whichever the phase machine did not pick as primary — last week's result
+ * during build-up, or next week's fixture during full time/market — is one
+ * tap away via the tabs below, rather than hidden until the phase turns
+ * over. `preferSecondary` opens on whichever side is more relevant: once
+ * the next deadline is close, that is the one worth seeing first.
  */
 export default function Fixture({ model }: { model: HomeModel }) {
   const f = model.fixture;
   if (!f) return null;
 
-  const isLive = model.phase === 'live';
-  const isFt = model.phase === 'ft';
-  const settled = isFt || model.phase === 'market';
+  const hasSecondary = !!model.secondaryFixture && !!model.secondaryKind;
+  const { tab, setTab } = useHeroTab();
+  const showingSecondary = hasSecondary && tab === 'secondary';
+  const view = showingSecondary ? model.secondaryFixture! : f;
+
+  const isLive = !showingSecondary && model.phase === 'live';
+  const isFt = !showingSecondary && model.phase === 'ft';
+  const settled = !showingSecondary && (isFt || model.phase === 'market');
   /**
-   * Preview vs report is decided by the FIXTURE, not by the phase. Before GW1
-   * the page is in the market phase while the fixture on show has not kicked
-   * off, and calling that "settled" would state something untrue.
+   * Preview vs report is decided by the FIXTURE on show, not by the phase.
+   * Before GW1 the page is in the market phase while the fixture on show has
+   * not kicked off, and calling that "settled" would state something untrue.
    */
-  const preview = !model.heroPlayed;
+  const preview = showingSecondary ? !model.secondaryPlayed : !model.heroPlayed;
+
+  const xi = showingSecondary ? model.secondaryXi : model.xi;
+  const xiFlags = showingSecondary ? model.secondaryXiFlags : model.xiFlags;
+  const xiSummary = showingSecondary ? model.secondaryXiSummary : model.xiSummary;
+  const coverGaps = showingSecondary ? model.secondaryCoverGaps : model.coverGaps;
+  const benchSummary = showingSecondary ? model.secondaryBenchSummary : model.benchSummary;
+  const debrief = showingSecondary ? model.secondaryDebrief : model.debrief;
+
+  const primaryLabel = model.secondaryKind === 'preview' ? 'Last week' : 'Up next';
+  const secondaryLabel = model.secondaryKind === 'preview' ? 'Up next' : 'Last week';
 
   return (
     <section className={styles.hero} aria-label="Your fixture">
+      {hasSecondary && (
+        <div className={styles.heroTabs} role="tablist" aria-label="Switch fixture">
+          <button
+            type="button"
+            role="tab"
+            aria-selected={!showingSecondary}
+            className={!showingSecondary ? styles.heroTabActive : styles.heroTab}
+            onClick={() => setTab('primary')}
+          >
+            {primaryLabel}
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={showingSecondary}
+            className={showingSecondary ? styles.heroTabActive : styles.heroTab}
+            onClick={() => setTab('secondary')}
+          >
+            {secondaryLabel}
+          </button>
+        </div>
+      )}
+
       <div className={styles.heroTop}>
-        <span className={styles.heroWhen}>{f.when}</span>
+        <span className={styles.heroWhen}>{view.when}</span>
         {isLive ? (
           <span className={styles.live}>In play</span>
         ) : (
@@ -43,16 +90,16 @@ export default function Fixture({ model }: { model: HomeModel }) {
             className={`${styles.tag} ${
               preview
                 ? styles.tagWarn
-                : f.outcome === 'ahead'
+                : view.outcome === 'ahead'
                   ? styles.tagOwn
                   : styles.tagPlain
             }`}
           >
             {preview
               ? 'Not yet locked'
-              : f.outcome === 'ahead'
+              : view.outcome === 'ahead'
                 ? 'Won'
-                : f.outcome === 'behind'
+                : view.outcome === 'behind'
                   ? 'Lost'
                   : 'Drawn'}
           </span>
@@ -61,22 +108,22 @@ export default function Fixture({ model }: { model: HomeModel }) {
 
       <div className={styles.heroTeams}>
         <div className={styles.ht}>
-          <CrestBadge config={f.home.crest as CrestConfig | null} size={32} teamName={f.home.name} teamId={f.home.id} />
+          <CrestBadge config={view.home.crest as CrestConfig | null} size={32} teamName={view.home.name} teamId={view.home.id} />
           <div className={styles.htTx}>
-            <div className={styles.htName}>{f.home.name}</div>
-            <div className={styles.htMeta}>{f.homeMeta}</div>
+            <div className={styles.htName}>{view.home.name}</div>
+            <div className={styles.htMeta}>{view.homeMeta}</div>
           </div>
         </div>
 
         <div className={styles.scores}>
-          {f.hasScores ? (
+          {view.hasScores ? (
             <>
-              <div className={f.outcome === 'behind' ? styles.scoreDim : styles.score}>
-                {f.homeScore?.toFixed(2)}
+              <div className={view.outcome === 'behind' ? styles.scoreDim : styles.score}>
+                {view.homeScore?.toFixed(2)}
               </div>
               <div className={styles.scoreSep} />
-              <div className={f.outcome === 'ahead' ? styles.scoreDim : styles.score}>
-                {f.awayScore?.toFixed(2)}
+              <div className={view.outcome === 'ahead' ? styles.scoreDim : styles.score}>
+                {view.awayScore?.toFixed(2)}
               </div>
             </>
           ) : (
@@ -86,10 +133,10 @@ export default function Fixture({ model }: { model: HomeModel }) {
 
         <div className={`${styles.ht} ${styles.htAway}`}>
           <div className={styles.htTx}>
-            <div className={styles.htName}>{f.away.name}</div>
-            <div className={styles.htMeta}>{f.awayMeta}</div>
+            <div className={styles.htName}>{view.away.name}</div>
+            <div className={styles.htMeta}>{view.awayMeta}</div>
           </div>
-          <CrestBadge config={f.away.crest as CrestConfig | null} size={32} teamName={f.away.name} teamId={f.away.id} />
+          <CrestBadge config={view.away.crest as CrestConfig | null} size={32} teamName={view.away.name} teamId={view.away.id} />
         </div>
       </div>
 
@@ -124,20 +171,20 @@ export default function Fixture({ model }: { model: HomeModel }) {
         </div>
       )}
 
-      {model.phase === 'market' && !preview && f.hasScores && (
+      {!showingSecondary && model.phase === 'market' && !preview && f.hasScores && (
         <div className={styles.meter}>
           <div className={styles.verdictCalm}>{f.verdict}</div>
         </div>
       )}
 
-      {preview && model.xi.length > 0 && (
+      {preview && xi.length > 0 && (
         <div className={styles.xi}>
           <div className={styles.xiHd}>
             <span className={styles.xiT}>Your XI</span>
-            <span className={styles.xiS}>{model.xiSummary}</span>
+            <span className={styles.xiS}>{xiSummary}</span>
           </div>
           <div className={styles.xiGrid}>
-            {model.xi.map((slot, i) => (
+            {xi.map((slot, i) => (
               <div key={`${slot.playerId}-${i}`} className={styles.xiCell}>
                 <PositionBadge position={slot.slot as GranularPosition} size="sm" />
                 <span
@@ -155,9 +202,9 @@ export default function Fixture({ model }: { model: HomeModel }) {
               </div>
             ))}
           </div>
-          {model.xiFlags.length > 0 && (
+          {xiFlags.length > 0 && (
             <div className={styles.xiFlags}>
-              {model.xiFlags.slice(0, 3).map((flag, i) => (
+              {xiFlags.slice(0, 3).map((flag, i) => (
                 <span key={i} className={styles.xiFlag}>
                   <b>{flag}</b>
                 </span>
@@ -171,35 +218,30 @@ export default function Fixture({ model }: { model: HomeModel }) {
               rule the reader learns and an error message they distrust —
               the bench categories (DEF/MID/ATT/FLEX) decide where a player
               sits, never what he can cover. */}
-          {model.coverGaps.length > 0 && (
+          {coverGaps.length > 0 && (
             <div className={styles.cover}>
               <div className={styles.coverLead}>
-                {model.coverGaps.length === 1 ? (
+                {coverGaps.length === 1 ? (
                   <>
                     <b>
-                      {model.coverGaps[0].starter} is doubtful and nobody on your bench can fill{' '}
-                      {model.coverGaps[0].slot}
+                      {coverGaps[0].starter} is doubtful and nobody on your bench can fill{' '}
+                      {coverGaps[0].slot}
                     </b>{' '}
                     — if he records no minutes, that slot scores nothing.
                   </>
                 ) : (
                   <>
-                    <b>
-                      {model.coverGaps.map((g) => `${g.starter} (${g.slot})`).join(', ')}
-                    </b>{' '}
-                    are doubtful with no eligible cover on your bench — any of those slots scores
+                    <b>{coverGaps.map((g) => `${g.starter} (${g.slot})`).join(', ')}</b> are
+                    doubtful with no eligible cover on your bench — any of those slots scores
                     nothing if the starter does not play.
                   </>
                 )}
               </div>
-              {model.benchSummary.length > 0 && (
+              {benchSummary.length > 0 && (
                 <div className={styles.coverBench}>
                   Your bench:{' '}
-                  {model.benchSummary
-                    .map((b) => `${b.name} (${b.positions.join('/')})`)
-                    .join(', ')}
-                  . A substitute has to match the slot exactly, by his primary or
-                  secondary position.
+                  {benchSummary.map((b) => `${b.name} (${b.positions.join('/')})`).join(', ')}. A
+                  substitute has to match the slot exactly, by his primary or secondary position.
                 </div>
               )}
             </div>
@@ -260,7 +302,29 @@ export default function Fixture({ model }: { model: HomeModel }) {
         </div>
       )}
 
-      {f.cupLine && (
+      {showingSecondary && model.secondaryKind === 'result' && view.hasScores && (
+        <>
+          <div className={styles.report}>
+            <div className={styles.verdict}>{view.verdict}</div>
+            <div className={styles.reportB}>
+              <NavigationLink href={`/league/${model.leagueId}/matchups/${view.matchupId}`}>
+                Open matchup
+              </NavigationLink>
+            </div>
+          </div>
+          {debrief.length > 0 && (
+            <div className={styles.debrief}>
+              {debrief.map((d, i) => (
+                <span key={i} className={styles.debriefItem}>
+                  <b>{d.value}</b> {d.label}
+                </span>
+              ))}
+            </div>
+          )}
+        </>
+      )}
+
+      {!showingSecondary && f.cupLine && (
         <div className={styles.cup}>
           <span className={`${styles.tag} ${styles.tagPlain}`}>Also</span>
           <span>{f.cupLine}</span>

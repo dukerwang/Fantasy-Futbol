@@ -12,6 +12,7 @@ import Attention from './_home/Attention';
 import Fixture, { SeasonClosed } from './_home/Fixture';
 import { Market, Fronts, Matchweek, StandingsTable, TopPerformers } from './_home/Sections';
 import Rail from './_home/Rail';
+import { HeroTabProvider } from './_home/HeroTabContext';
 import styles from './_home/home.module.css';
 
 export const dynamic = 'force-dynamic';
@@ -158,18 +159,20 @@ export default async function LeaguePage({ params }: Props) {
       <Masthead model={model} />
       <Attention items={model.attention} leagueId={leagueId} />
 
-      <div className={styles.body}>
-        <main className={styles.main}>
-          {model.phase === 'closed' ? <SeasonClosed model={model} /> : <Fixture model={model} />}
-          <Market model={model} />
-          <Fronts model={model} />
-          <Matchweek model={model} />
-          <StandingsTable model={model} />
-          <TopPerformers model={model} />
-        </main>
+      <HeroTabProvider initialTab={model.preferSecondary ? 'secondary' : 'primary'}>
+        <div className={styles.body}>
+          <main className={styles.main}>
+            {model.phase === 'closed' ? <SeasonClosed model={model} /> : <Fixture model={model} />}
+            <Market model={model} />
+            <Fronts model={model} />
+            <Matchweek model={model} />
+            <StandingsTable model={model} />
+            <TopPerformers model={model} />
+          </main>
 
-        <Rail model={model} />
-      </div>
+          <Rail model={model} />
+        </div>
+      </HeroTabProvider>
     </div>
   );
 }
