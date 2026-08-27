@@ -8,6 +8,7 @@ import { getGameweekFixtures, type GwFixture } from '@/lib/fpl/fixtures';
 import { getCrestColor, getInitials } from './crest';
 import LeagueGrid, { type LeagueCardData } from './LeagueGrid';
 import Countdown from './Countdown';
+import GwFixtureStrip from './GwFixtureStrip';
 import styles from './dashboard.module.css';
 
 function snakeDraftOrder(pickNumber: number, numTeams: number): number {
@@ -21,24 +22,6 @@ function formatDeadline(iso: string): string {
   const datePart = d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'Europe/London' });
   const timePart = d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/London' });
   return `${datePart} · ${timePart}`;
-}
-
-function formatFixtureLine(f: GwFixture): string {
-  if (!f.started) return `${f.homeShort} – ${f.awayShort}`;
-  return `${f.homeShort} ${f.homeScore ?? 0}–${f.awayScore ?? 0} ${f.awayShort}`;
-}
-
-function formatFixtureMeta(f: GwFixture) {
-  if (f.started && !f.finished) return { text: `${f.minutes}′`, live: true };
-  if (f.finished) return { text: 'Full-time', live: false };
-  if (f.kickoff) {
-    const d = new Date(f.kickoff);
-    return {
-      text: d.toLocaleString('en-GB', { weekday: 'short', hour: '2-digit', minute: '2-digit', timeZone: 'Europe/London' }),
-      live: false,
-    };
-  }
-  return { text: '', live: false };
 }
 
 export default async function DashboardPage() {
@@ -84,7 +67,7 @@ export default async function DashboardPage() {
     draftingLeagueIds.length > 0
       ? admin.from('draft_picks').select('league_id').in('league_id', draftingLeagueIds)
       : Promise.resolve({ data: [] as any[] }),
-    fplStatus.nextDeadline ? getGameweekFixtures(fplStatus.currentGw) : Promise.resolve([] as GwFixture[]),
+    fplStatus.nextGw ? getGameweekFixtures(fplStatus.nextGw) : Promise.resolve([] as GwFixture[]),
   ]);
 
   const rankMap = new Map((standings ?? []).map((s: any) => [s.team_id, s.rank]));
@@ -181,7 +164,7 @@ export default async function DashboardPage() {
       {fplStatus.nextDeadline && (
         <section className={styles.gwBanner} aria-label="Premier League gameweek status">
           <div className={styles.gwMain}>
-            <span className={styles.gwLabel}>Gameweek {fplStatus.currentGw} · First Kickoff</span>
+            <span className={styles.gwLabel}>Gameweek {fplStatus.nextGw ?? fplStatus.currentGw} · First Kickoff</span>
             <div className={styles.gwCount}>
               <Countdown deadline={fplStatus.nextDeadline} className={styles.gwCountStat} />
             </div>
@@ -190,17 +173,7 @@ export default async function DashboardPage() {
           {fixtures.length > 0 && (
             <>
               <div className={styles.gwFixturesDivider} />
-              <div className={styles.gwFixtures}>
-                {fixtures.map((f) => {
-                  const meta = formatFixtureMeta(f);
-                  return (
-                    <div key={f.id} className={styles.fixture}>
-                      <span className={styles.fixtureTeams}>{formatFixtureLine(f)}</span>
-                      <span className={meta.live ? styles.fixtureLive : styles.fixtureMeta}>{meta.text}</span>
-                    </div>
-                  );
-                })}
-              </div>
+              <GwFixtureStrip fixtures={fixtures} />
             </>
           )}
         </section>
