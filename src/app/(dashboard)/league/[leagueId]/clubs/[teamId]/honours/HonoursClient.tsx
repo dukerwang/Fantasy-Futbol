@@ -73,8 +73,7 @@ export default function HonoursClient({
           <div className={styles.empty}>
             <h2 className={styles.emptyTitle}>No trophies yet</h2>
             <p className={styles.emptyBody}>
-              {clubName} hasn&rsquo;t won anything. The first honours are awarded at the
-              end of the season.
+              {`${clubName} hasn’t won anything. The first honours are awarded at the end of the season.`}
             </p>
           </div>
         ) : (
