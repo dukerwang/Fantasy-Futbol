@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Modal from '@/components/transfers/Modal';
+import { Icon } from '@/components/ui/Icon';
 import styles from './UpdateAnnouncementModal.module.css';
 
 interface Notification {
@@ -52,9 +53,17 @@ export default function UpdateAnnouncementModal() {
   };
 
   return (
-    <Modal open title="Gaffa Updated" onClose={dismiss}>
+    <Modal
+      open
+      title={notice.title}
+      lead={
+        <span className={styles.badge}>
+          <Icon name="bell" size={16} strokeWidth={2} />
+        </span>
+      }
+      onClose={dismiss}
+    >
       <div className={styles.body}>
-        <h3 className={styles.title}>{notice.title}</h3>
         <p className={styles.summary}>{notice.content}</p>
         <button
           type="button"
