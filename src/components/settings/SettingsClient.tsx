@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, type FormEvent } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useTheme } from '@/context/ThemeContext';
 import { Icon } from '@/components/ui/Icon';
@@ -15,8 +15,6 @@ import {
   type NotificationPrefs,
 } from '@/lib/notifications/prefs';
 import styles from './settings.module.css';
-
-const REPORT_TYPES = ['Bug', 'Feedback', 'Feature', 'Other'] as const;
 
 interface Props {
   leagueId?: string | null;
@@ -35,12 +33,6 @@ export default function SettingsClient({
   const [prefs, setPrefs] = useState<NotificationPrefs>(initialPrefs);
   const [pending, setPending] = useState<string | null>(null);
 
-  const [reportType, setReportType] = useState<(typeof REPORT_TYPES)[number]>('Bug');
-  const [reportMessage, setReportMessage] = useState('');
-  const [reportStatus, setReportStatus] = useState<'idle' | 'sending' | 'ok' | 'error'>('idle');
-  const [reportError, setReportError] = useState<string | null>(null);
-
-  const guideHref = leagueId ? `/league/${leagueId}/guide` : '/guide';
   const crestHref = leagueId ? `/league/${leagueId}/crest` : null;
 
   useEffect(() => {
@@ -73,41 +65,6 @@ export default function SettingsClient({
       setPrefs(previous);
     } finally {
       setPending(null);
-    }
-  }
-
-  async function submitReport(e: FormEvent) {
-    e.preventDefault();
-    if (!reportMessage.trim()) {
-      setReportStatus('error');
-      setReportError('Write a short message before sending.');
-      return;
-    }
-
-    setReportStatus('sending');
-    setReportError(null);
-
-    try {
-      const res = await fetch('/api/support', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          type: reportType,
-          message: reportMessage.trim(),
-          leagueId: leagueId || undefined,
-        }),
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        setReportStatus('error');
-        setReportError(typeof data.error === 'string' ? data.error : 'Could not send the report.');
-        return;
-      }
-      setReportMessage('');
-      setReportStatus('ok');
-    } catch {
-      setReportStatus('error');
-      setReportError('Could not send the report.');
     }
   }
 
@@ -198,62 +155,6 @@ export default function SettingsClient({
               </div>
             );
           })}
-        </div>
-      </section>
-
-      <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>Help</h2>
-        <div className={styles.panel}>
-          <Link href={guideHref} className={styles.linkRow} onClick={() => window.dispatchEvent(new Event('navigation-start'))}>
-            <span>User guide</span>
-            <Icon name="chevron-right" size={16} className={styles.linkChevron} />
-          </Link>
-
-          <Link href="/updates" className={styles.linkRow} onClick={() => window.dispatchEvent(new Event('navigation-start'))}>
-            <span>What&rsquo;s new</span>
-            <Icon name="chevron-right" size={16} className={styles.linkChevron} />
-          </Link>
-
-          <form className={styles.form} onSubmit={submitReport}>
-            <div>
-              <div className={styles.fieldLabel}>Report a problem</div>
-              <select
-                className={styles.select}
-                value={reportType}
-                onChange={(e) => setReportType(e.target.value as (typeof REPORT_TYPES)[number])}
-                aria-label="Report type"
-              >
-                {REPORT_TYPES.map((t) => (
-                  <option key={t} value={t}>{t}</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className={styles.fieldLabel} htmlFor="settings-report-message">Message</label>
-              <textarea
-                id="settings-report-message"
-                className={styles.textarea}
-                value={reportMessage}
-                onChange={(e) => {
-                  setReportMessage(e.target.value);
-                  if (reportStatus !== 'idle') setReportStatus('idle');
-                }}
-                placeholder="What happened, and what did you expect?"
-                required
-              />
-            </div>
-            <div className={styles.formActions}>
-              <button type="submit" className={styles.submit} disabled={reportStatus === 'sending'}>
-                {reportStatus === 'sending' ? 'Sending…' : 'Send report'}
-              </button>
-              {reportStatus === 'ok' && (
-                <span className={`${styles.formStatus} ${styles.formOk}`}>Sent. Thanks.</span>
-              )}
-              {reportStatus === 'error' && (
-                <span className={`${styles.formStatus} ${styles.formError}`}>{reportError}</span>
-              )}
-            </div>
-          </form>
         </div>
       </section>
 

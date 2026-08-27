@@ -570,6 +570,17 @@ export default function TopBar() {
                   </span>
                 </Link>
 
+                <Link
+                  href={currentLeagueId ? `/league/${currentLeagueId}/help` : '/help'}
+                  className={styles.dropdownActionLink}
+                  onClick={() => { setUserDropdownOpen(false); setIsNavigating(true); }}
+                >
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+                    <Icon name="help-circle" size={14} strokeWidth={1.75} />
+                    Help
+                  </span>
+                </Link>
+
                 <div className={styles.dropdownDivider} />
 
                 {/* Mobile settings / Sign out */}
@@ -743,6 +754,16 @@ export default function TopBar() {
                 }}
               >
                 Settings
+              </Link>
+              <Link
+                href={currentLeagueId ? `/league/${currentLeagueId}/help` : '/help'}
+                className={styles.mobileDrawerLink}
+                onClick={() => {
+                  setIsNavigating(true);
+                  setMobileMenuOpen(false);
+                }}
+              >
+                Help
               </Link>
               <div className={styles.mobileDrawerUserDivider} />
               <button onClick={handleSignOut} className={styles.mobileDrawerSignOut} type="button">

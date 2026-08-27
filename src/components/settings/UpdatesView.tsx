@@ -31,9 +31,9 @@ export default function UpdatesView({ updates }: Props) {
 
   return (
     <div className={styles.page}>
-      <Link href="/settings" className={styles.back}>
+      <Link href="/help" className={styles.back}>
         <Icon name="chevron-left" size={16} />
-        Back to Settings
+        Back to Help
       </Link>
 
       <h1 className={styles.pageTitle}>What&rsquo;s New</h1>
