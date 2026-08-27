@@ -244,6 +244,7 @@ export async function syncPlayersFromFpl(admin: SupabaseClient): Promise<SyncPla
   }
 
   const existingByFplCode = new Map<string, DbPlayer>();
+  const existingByTeam = new Map<string, DbPlayer[]>();
 
   existingPlayers.forEach((p) => {
     const code = fplCodeOf(p.photo_url);
@@ -252,6 +253,11 @@ export async function syncPlayersFromFpl(admin: SupabaseClient): Promise<SyncPla
     if (p.name) existingByNormName.set(normalizeName(p.name), p);
     if (p.web_name && p.pl_team) {
       existingByWebAndTeam.set(`${normalizeName(p.web_name)}_${normalizeName(p.pl_team)}`, p);
+    }
+    if (p.pl_team) {
+      const teamKey = normalizeName(p.pl_team);
+      if (!existingByTeam.has(teamKey)) existingByTeam.set(teamKey, []);
+      existingByTeam.get(teamKey)!.push(p);
     }
   });
 
@@ -336,6 +342,24 @@ export async function syncPlayersFromFpl(admin: SupabaseClient): Promise<SyncPla
       if (candidate && !matchedDbIds.has(candidate.id) && isSameIdentity(candidate, row.name)) {
         existing = candidate;
       }
+    }
+
+    if (!existing) {
+      // Pass 4: same-team identity scan. Passes 2/3 require an EXACT
+      // normalized name or web_name string match — a single Map.get(). That
+      // breaks the moment FPL's reported name/web_name drifts from what's
+      // already stored (e.g. FPL starts reporting "Thiago" for a player
+      // whose row has name/web_name "Igor Thiago"): neither exact key
+      // exists, fpl_id was never backfilled on the old row either, and sync
+      // falls through to inserting a brand-new empty duplicate row instead
+      // of updating the real one. Before giving up, scan every
+      // still-unmatched existing row on the same team for a shared
+      // significant name token — the same conservative guard already used
+      // above, just applied as a scan instead of a single lookup.
+      const teamKey = normalizeName(row.pl_team);
+      const candidates = existingByTeam.get(teamKey) ?? [];
+      const candidate = candidates.find((c) => !matchedDbIds.has(c.id) && isSameIdentity(c, row.name));
+      if (candidate) existing = candidate;
     }
 
     if (existing) {
