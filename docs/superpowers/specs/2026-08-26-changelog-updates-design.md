@@ -53,6 +53,8 @@ Existing rows stay `NULL`; nothing currently reads this column, so no backfill.
 
 No entry goes out without Duke's explicit approval of the drafted copy.
 
+**Ordering within an entry.** `body` is not a flat chronological list of every commit. Claude drafts it as a lead feature or two — the thing testers will actually notice and care about — up top, then smaller fixes and polish below in a shorter, quieter list. A gameweek's work might be one visible feature plus a dozen invisible fixes; the entry should read that way, not bury the feature alphabetically between them. `summary` (the one-liner shown in the bell/modal) always names the single biggest thing in the entry, never a generic "various updates."
+
 ## Changelog page
 
 `src/app/(dashboard)/updates/page.tsx` — server component, same shape as the existing `/guide` page (non-league-scoped, reachable regardless of which league you're in). Fetches all `product_updates` rows newest-first, groups by month, renders `title` + `published_at` + `body` (markdown). No league chrome, matching `/guide`.
