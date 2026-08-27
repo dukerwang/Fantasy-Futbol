@@ -10,7 +10,7 @@
 
 import { describe, it, expect } from 'vitest';
 import { calculateMatchRating, DEFAULT_REFERENCE_STATS } from '../matchRating';
-import { attachLineupSlotScores, scoreAppearanceAtSlot } from '../matchups';
+import { attachLineupSlotScores, scoreAppearanceAtSlot, type MatchupPlayerDetail } from '../matchups';
 import { CASES } from './fixtures';
 
 const oop = CASES.find((c) => c.name === 'oop-striker-at-cb')!;
@@ -69,7 +69,7 @@ describe('scoreAppearanceAtSlot', () => {
 
 describe('attachLineupSlotScores', () => {
     it('writes the slot score onto the starter and leaves bench at primary', () => {
-        const detailMap = {
+        const detailMap: Record<string, MatchupPlayerDetail> = {
             striker: {
                 points: storedPrimary.fantasyPoints,
                 rating: storedPrimary.rating,
