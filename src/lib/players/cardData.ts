@@ -80,6 +80,25 @@ export interface GamelogEntry {
    */
   perf?: PerfGroup[];
   /**
+   * The same block under every eligible slot, keyed by position.
+   *
+   * WHY THIS EXISTS. `perf` alone is built at the PRIMARY slot, so a card whose
+   * position chips re-scored the points and rating left the breakdown frozen:
+   * Luke Shaw (LB, secondary LWB/CB) read the identical bands at all three, and
+   * the block's own centre-line note named the SELECTED slot while the bands
+   * and the rank anchor beneath it still said LB. It contradicted itself.
+   *
+   * The bands genuinely differ. LB/RB and LWB/RWB are separate band-cut buckets
+   * with different weight vectors, and CB is the one position whose defensive
+   * score drops recoveries entirely — so the evidence prose moves too, not just
+   * the verdict.
+   *
+   * The primary entry is the STORED snapshot (see the note in
+   * attachPositionScores); secondaries are scored live off the breakdown
+   * `by_position` already computes and used to discard.
+   */
+  perf_by_position?: Record<string, PerfGroup[]>;
+  /**
    * Same appearance re-scored under every eligible slot (primary + secondaries).
    * Primary uses the stored values; secondaries go through calculateMatchRating
    * with that position's weights — same path as positional ranks / role-aware
@@ -148,6 +167,7 @@ function attachPositionScores(
     if (g.isDNP || Number(g.stats?.minutes_played ?? 0) <= 0) return g;
 
     const by_position: Record<string, PositionGameScore> = {};
+    const perf_by_position: Record<string, PerfGroup[]> = {};
     for (const pos of positions) {
       if (pos === prim) {
         by_position[pos] = {
@@ -170,6 +190,17 @@ function attachPositionScores(
         fantasy_points: forPoints.fantasyPoints,
         match_rating: forRating.rating,
       };
+      // The block at this slot, off the breakdown just computed — no extra
+      // scoring pass. Built from `forRating`, not `forPoints`, for the same
+      // reason the display rating is: the OOP squash lands after the nonlinear
+      // curves, and banding a squashed composite would grade a centre-back's
+      // afternoon as worse than it was rather than as worth fewer points.
+      perf_by_position[pos] = buildPerformanceGroups(
+        forRating.breakdown,
+        slot,
+        raw,
+        featExcessFor(raw, slot),
+      );
     }
 
     // The block, at the player's PRIMARY slot.
@@ -189,8 +220,17 @@ function attachPositionScores(
       const primaryRating = calculateMatchRating(raw, prim, refStats);
       perf = buildPerformanceGroups(primaryRating.breakdown, prim, raw, featExcessFor(raw, prim));
     }
+    // The primary slot's entry is that same snapshot, so the default view of
+    // the block is byte-identical whether it is reached through the map or
+    // through `perf`. Only the secondaries above are live-scored — which does
+    // mean one card can hold a snapshot block beside a today's-engine block,
+    // and that is the honest way round: the slot he actually played is
+    // described by the engine that paid him.
+    if (perf) perf_by_position[prim] = perf;
 
-    return positions.length > 0 ? { ...g, by_position, perf } : { ...g, perf };
+    return positions.length > 0
+      ? { ...g, by_position, perf, perf_by_position }
+      : { ...g, perf };
   });
 }
 

@@ -31,8 +31,12 @@ export interface CardGamelogEntry {
   isDNP?: boolean;
   by_position?: Record<string, { fantasy_points: number; match_rating: number | null }>;
   /** The match's performance block, banded server-side. Bands only — see the
-   *  header of src/lib/scoring/perfBand.ts for why no score travels here. */
+   *  header of src/lib/scoring/perfBand.ts for why no score travels here.
+   *  This is the PRIMARY slot's block; `perf_by_position` carries the rest. */
   perf?: PerfGroup[];
+  /** The same block under each eligible slot, so the position chips move the
+   *  breakdown and not just the points. See GamelogEntry in cardData.ts. */
+  perf_by_position?: Record<string, PerfGroup[]>;
 }
 
 export interface CardFront {

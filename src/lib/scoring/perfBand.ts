@@ -482,7 +482,14 @@ function evidenceFor(key: PerfGroupKey, s: RawStats, position: GranularPosition)
             const tk = n(s.fpl_tackles), cbi = n(s.fpl_cbi), rec = n(s.fpl_recoveries);
             const acts: string[] = [];
             if (tk) acts.push(`${tk} ${tk === 1 ? 'tackle' : 'tackles'}`);
-            if (cbi) acts.push(`${cbi} ${cbi === 1 ? 'clearance, block or interception' : 'clearances, blocks and interceptions'}`);
+            // Slashes, not a comma list: "1 tackle, 8 clearances, blocks and
+            // interceptions, clean sheet" reads as four stats, because the
+            // compound item's own commas are indistinguishable from the ones
+            // separating the items. FPL never splits CBI into its three parts —
+            // `clearances_blocks_interceptions` is the only field it publishes,
+            // and RawStats has no separate counts to fall back on — so binding
+            // it into one token is the honest way to keep the line scannable.
+            if (cbi) acts.push(`${cbi} ${cbi === 1 ? 'clearance/block/interception' : 'clearances/blocks/interceptions'}`);
             // A centre-back's recoveries do not enter his defensive score, so
             // they are not evidence for his band. Every other graded position
             // counts them at half weight.

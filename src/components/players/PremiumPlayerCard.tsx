@@ -875,8 +875,15 @@ export default function PremiumPlayerCard({
                                         fixed header would leave the log about four rows. */}
                                     {seasonPerf.length > 0 && (
                                         <div className={styles.seasonPerf}>
+                                            {/* Labelled with the PRIMARY slot, because that is the
+                                                only slot it is built at: the season-scope band cuts
+                                                were measured at primary and no per-secondary season
+                                                distribution exists to cut against. It used to print
+                                                `viewPos`, which claimed a CB season block that was
+                                                always an LB one. Now that the per-match blocks below
+                                                do follow the chips, this staying put is legible. */}
                                             <span className={`g-label ${styles.seasonPerfHead}`}>
-                                                Season · {viewPos}
+                                                Season · {primaryPos}
                                             </span>
                                             <PerformanceBlock groups={seasonPerf} />
                                         </div>
@@ -912,7 +919,17 @@ export default function PremiumPlayerCard({
 
                                                     const rowKey = `${g.gameweek}-${g.opponent ?? "x"}-${index}`;
                                                     const isOpen = openLog === rowKey;
-                                                    const hasPerf = (g.perf?.length ?? 0) > 0;
+                                                    // The block for the slot being viewed. Falls back to the
+                                                    // primary block for rows written before per-slot blocks
+                                                    // existed, and for a `viewPos` the player isn't eligible at.
+                                                    const rowPerf = g.perf_by_position?.[viewPos] ?? g.perf;
+                                                    // Which slot that block actually describes — it is the
+                                                    // primary whenever the fallback fired, and the note must
+                                                    // say so. Naming `viewPos` unconditionally is the bug this
+                                                    // replaced: it printed "the median for a centre-back" over
+                                                    // bands cut at LB, beside a rank anchor reading LB.
+                                                    const perfPos = g.perf_by_position?.[viewPos] ? viewPos : primaryPos;
+                                                    const hasPerf = (rowPerf?.length ?? 0) > 0;
 
                                                     return (
                                                         <Fragment key={rowKey}>
@@ -953,8 +970,8 @@ export default function PremiumPlayerCard({
                                                             <tr className={styles.logExpandRow}>
                                                                 <td colSpan={7} className={styles.logExpandCell}>
                                                                     <PerformanceBlock
-                                                                        groups={g.perf!}
-                                                                        note={`Centre line is the median for ${roleArticle(viewPos)}`}
+                                                                        groups={rowPerf!}
+                                                                        note={`Centre line is the median for ${roleArticle(perfPos)}`}
                                                                     />
                                                                 </td>
                                                             </tr>

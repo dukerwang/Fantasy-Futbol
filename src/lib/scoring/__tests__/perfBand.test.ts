@@ -8,6 +8,7 @@
 import { describe, expect, it } from 'vitest';
 import type { GranularPosition, RatingBreakdownItem, RatingComponent, RawStats } from '@/types';
 import { BAND_WIDTH, buildPerformanceGroups, perfBand, rankAnchor, type PerfGroupKey } from '../perfBand';
+import { calculateMatchRating, featExcessFor } from '../matchRating';
 
 const ALL_POSITIONS: GranularPosition[] = [
     'GK', 'CB', 'LB', 'RB', 'LWB', 'RWB', 'DM', 'CM', 'AM', 'LW', 'RW', 'ST',
@@ -112,6 +113,53 @@ describe('mute groups', () => {
     });
 });
 
+/* The card's position chips re-score a game under each eligible slot and show
+   the block for the one selected. That is only worth the payload if the block
+   ACTUALLY MOVES with the slot — so this pins the three ways it can, using one
+   real Luke Shaw shape (LB primary, LWB/CB secondary).
+
+   It also guards a refresh: BAND_CUTS_BY_POS and ANCHOR_TIERS are regenerated
+   whenever rating_reference_stats is, and a regeneration that collapsed these
+   positions onto each other would silently turn the whole feature back into
+   the bug it fixed. */
+describe('a block differs by the slot it is built at', () => {
+    const shawish = {
+        minutes_played: 90, goals: 0, assists: 0, goals_conceded: 2,
+        bps: 18, influence: 14.2, creativity: 26.5, threat: 6, ict_index: 4.7,
+        expected_goals: 0.03, expected_assists: 0.26, expected_goals_conceded: 1.0,
+        fpl_tackles: 1, fpl_cbi: 3, fpl_recoveries: 3, fpl_def_contrib: 7,
+    } as unknown as RawStats;
+
+    const blockAt = (pos: GranularPosition) => {
+        const { breakdown } = calculateMatchRating(shawish, pos);
+        return buildPerformanceGroups(breakdown, pos, shawish, featExcessFor(shawish, pos));
+    };
+
+    /* Both positions are graded on attacking — LB weights goal_involvement 0.10.
+       The row differs because of the MUTE RULE, not the group map: LB's
+       attacking has no continuously-varying member (threat 0.00), so on a game
+       with no goal, no assist and xG 0.03 it has nothing to say and stands
+       down. LWB weights threat 0.05, which is continuous, so its row is never
+       mute-capable and always renders. */
+    it('shows a different set of groups, because the mute rule fires per position', () => {
+        expect(blockAt('LB').map((g) => g.key)).not.toContain('attacking');
+        expect(blockAt('LWB').map((g) => g.key)).toContain('attacking');
+    });
+
+    it('reaches a different verdict and rank tier for the same afternoon', () => {
+        const lb = blockAt('LB').find((g) => g.key === 'creating')!;
+        const cb = blockAt('CB').find((g) => g.key === 'creating')!;
+        expect(cb.verdict).not.toBe(lb.verdict);
+        expect(cb.rank).not.toBe(lb.rank);
+    });
+
+    it('changes the evidence prose, not just the word above it', () => {
+        // A centre-back's recoveries never enter his defensive score.
+        expect(blockAt('LB').find((g) => g.key === 'defending')!.evidence).toContain('3 recoveries');
+        expect(blockAt('CB').find((g) => g.key === 'defending')!.evidence).not.toContain('recover');
+    });
+});
+
 describe('evidence lines', () => {
     /* Every one of these is a real miss found on a real row, not a hypothetical.
        The rule: an evidence line may only cite facts that moved the band. */
@@ -121,7 +169,16 @@ describe('evidence lines', () => {
 
     it('never calls CBI "clearances" — blocks and interceptions are in there too', () => {
         const line = defOf('CB', { fpl_tackles: 5, fpl_cbi: 10, goals_conceded: 0 });
-        expect(line).toContain('clearances, blocks and interceptions');
+        expect(line).toContain('clearances/blocks/interceptions');
+    });
+
+    /* The compound stat is slash-bound so it survives being one item in a
+       comma list. A comma inside it made "1 tackle, 3 clearances, blocks and
+       interceptions, 3 recoveries" read as five separate numbers. */
+    it('binds CBI into one token, never splitting it on commas', () => {
+        const line = defOf('LB', { fpl_tackles: 1, fpl_cbi: 3, fpl_recoveries: 3, goals_conceded: 2, expected_goals_conceded: 1.0 });
+        expect(line).toContain('1 tackle, 3 clearances/blocks/interceptions, 3 recoveries');
+        expect(line).not.toContain('clearances, blocks');
     });
 
     it('omits a centre-back\'s recoveries, which his score drops', () => {
