@@ -1,3 +1,4 @@
+import { Fragment } from 'react';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { redirect, notFound } from 'next/navigation';
@@ -165,53 +166,55 @@ export default async function StandingsPage({ params }: Props) {
         ) : (
           <>
             <div className={styles.podium}>
-              {podiumOrder.map((row) => {
+              {podiumOrder.map((row, i) => {
                 const isLeader = row.rank === 1;
                 const medalClass =
                   row.rank === 1 ? styles.medalGold : row.rank === 2 ? styles.medalSilver : styles.medalBronze;
                 return (
-                  <div
-                    key={row.teamId}
-                    className={`${styles.podiumTier} ${isLeader ? styles.podiumTierLeader : ''}`}
-                  >
-                    <div className={styles.podiumTop}>
-                      <CrestBadge config={row.crestConfig} size={64} teamName={row.teamName} teamId={row.teamId} />
-                      <Icon name="trophy" size={isLeader ? 22 : 18} className={medalClass} />
-                    </div>
-
-                    {isLeader && (
-                      <div className={styles.podiumLeaderBadge}>League leader</div>
-                    )}
-
-                    <h2 className={styles.podiumTeamName}>
-                      <NavigationLink
-                        href={clubHref(leagueId, row.teamId, row.teamId === myTeamId)}
-                        className={styles.teamLink}
-                      >
-                        {row.teamName}
-                      </NavigationLink>
-                    </h2>
-                    <p className={`g-label-quiet ${styles.podiumManager}`}>{row.username}</p>
-
-                    <div className={styles.podiumBottom}>
-                      <div className={styles.podiumStatGroup}>
-                        <span className={`g-label-quiet ${styles.podiumStatLabel}`}>Record</span>
-                        <span className={styles.podiumRecord}>
-                          {row.wins}-{row.draws}-{row.losses}
-                        </span>
+                  <Fragment key={row.teamId}>
+                    {i > 0 && <div className={styles.podiumDivider} aria-hidden="true" />}
+                    <div
+                      className={`${styles.podiumTier} ${isLeader ? styles.podiumTierLeader : ''}`}
+                    >
+                      <div className={styles.podiumTop}>
+                        <CrestBadge config={row.crestConfig} size={64} teamName={row.teamName} teamId={row.teamId} />
+                        <Icon name="trophy" size={isLeader ? 22 : 18} className={medalClass} />
                       </div>
-                      <div className={`${styles.podiumStatGroup} ${styles.podiumStatGroupEnd}`}>
-                        <span className={`g-label-quiet ${styles.podiumStatLabel}`}>Total pts</span>
-                        <span
-                          className={`${styles.podiumStatValue} ${
-                            row.teamId === myTeamId ? styles.podiumStatValueMine : ''
-                          }`}
+
+                      {isLeader && (
+                        <div className={styles.podiumLeaderBadge}>League leader</div>
+                      )}
+
+                      <h2 className={styles.podiumTeamName}>
+                        <NavigationLink
+                          href={clubHref(leagueId, row.teamId, row.teamId === myTeamId)}
+                          className={styles.teamLink}
                         >
-                          {row.pts}
-                        </span>
+                          {row.teamName}
+                        </NavigationLink>
+                      </h2>
+                      <p className={`g-label-quiet ${styles.podiumManager}`}>{row.username}</p>
+
+                      <div className={styles.podiumBottom}>
+                        <div className={styles.podiumStatGroup}>
+                          <span className={`g-label-quiet ${styles.podiumStatLabel}`}>Record</span>
+                          <span className={styles.podiumRecord}>
+                            {row.wins}-{row.draws}-{row.losses}
+                          </span>
+                        </div>
+                        <div className={`${styles.podiumStatGroup} ${styles.podiumStatGroupEnd}`}>
+                          <span className={`g-label-quiet ${styles.podiumStatLabel}`}>Total pts</span>
+                          <span
+                            className={`${styles.podiumStatValue} ${
+                              row.teamId === myTeamId ? styles.podiumStatValueMine : ''
+                            }`}
+                          >
+                            {row.pts}
+                          </span>
+                        </div>
                       </div>
                     </div>
-                  </div>
+                  </Fragment>
                 );
               })}
             </div>
