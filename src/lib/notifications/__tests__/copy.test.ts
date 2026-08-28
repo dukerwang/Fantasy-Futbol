@@ -65,6 +65,12 @@ describe('bid and market notices', () => {
       '**Vardy Party** have gone to **€50m** for **Bukayo Saka**. 24h left to bid.',
     );
     expect(n.pushBody).toBe('Bukayo Saka now €50m. 24h left to bid.');
+
+    const closingNotice = outbidNotice(vdp, 'Bukayo Saka', 50, Date.now() + 30_000);
+    expect(closingNotice.content).toBe(
+      '**Vardy Party** have gone to **€50m** for **Bukayo Saka**. Closing now. Bid to take the lead.',
+    );
+    expect(closingNotice.pushBody).toBe('Bukayo Saka now €50m. Closing now.');
   });
 
   it('falls back to the full club name in the title when there is no abbr', () => {

@@ -137,7 +137,11 @@ async function notifyLeague(
 
     const featuredNotice = buildFeaturedNotice(candidates.map((c) => ({ name: c.name, value: c.marketValue })));
     const left = timeLeft(expiresAt);
-    const clock = left ? ` Auctions open — ${left} to bid.` : ' Auctions are open.';
+    const clock = left
+      ? left === 'closing now'
+        ? ' Auctions closing now.'
+        : ` Auctions open — ${left} to bid.`
+      : ' Auctions are open.';
     for (const t of allTeams) {
       await createNotification(admin, {
         kind: 'auctions',
@@ -147,7 +151,9 @@ async function notifyLeague(
         pushTitle: 'Auctions open',
         content: `**${candidates.length}** new arrival${candidates.length === 1 ? ' has' : 's have'} hit the market.${clock}${featuredNotice}`,
         pushBody: left
-          ? `${candidates.length} new auction${candidates.length === 1 ? '' : 's'}. ${left} to bid.`
+          ? left === 'closing now'
+            ? `${candidates.length} new auction${candidates.length === 1 ? '' : 's'} closing now.`
+            : `${candidates.length} new auction${candidates.length === 1 ? '' : 's'}. ${left} to bid.`
           : `${candidates.length} new auction${candidates.length === 1 ? '' : 's'} are open.`,
         url: `/league/${leagueId}/transfers/auctions`,
       });

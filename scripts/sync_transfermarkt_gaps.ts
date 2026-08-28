@@ -332,6 +332,19 @@ async function main() {
     else written++;
   }
   console.log(`\nWrote ${written} value(s).`);
+
+  if (written > 0) {
+    try {
+      const { seedHighValueAuctions } = await import('../src/lib/auctions/seedHighValueAuctions');
+      const seedResults = await seedHighValueAuctions(db);
+      const totalSeeded = seedResults.reduce((acc, res) => acc + res.auctionsCreated, 0);
+      if (totalSeeded > 0) {
+        console.log(`[auctions] Seeded ${totalSeeded} new auction(s) across active leagues.`);
+      }
+    } catch (auctionErr) {
+      console.error('[auctions] Failed to seed auctions:', auctionErr);
+    }
+  }
 }
 
 main().catch((e) => {

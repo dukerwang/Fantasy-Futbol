@@ -75,13 +75,19 @@ export function outbidNotice(
   const name = clubName(bidder);
   const abbr = clubAbbr(bidder);
   const left = timeLeft(expiresAt);
-  const action = left ? `${left} to bid.` : 'Bid again to take the lead.';
+  const action = left
+    ? left === 'closing now'
+      ? 'Closing now. Bid to take the lead.'
+      : `${left} to bid.`
+    : 'Bid again to take the lead.';
   return {
     title: `Outbid by ${abbr}`,
     pushTitle: `Outbid · ${abbr}`,
     content: `**${name}** have gone to **${euro(amount)}** for **${playerName}**. ${action}`,
     pushBody: left
-      ? `${playerName} now ${euro(amount)}. ${left} to bid.`
+      ? left === 'closing now'
+        ? `${playerName} now ${euro(amount)}. Closing now.`
+        : `${playerName} now ${euro(amount)}. ${left} to bid.`
       : `${playerName} now ${euro(amount)}. Bid to take the lead.`,
   };
 }

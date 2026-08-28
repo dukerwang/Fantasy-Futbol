@@ -341,7 +341,7 @@ export async function runSeasonKickoff(admin: SupabaseClient, leagueId: string):
           title: 'Season started',
           pushTitle: 'Season started',
           content: `The new season is underway. Rosters are unlocked, and **${playersToAuction.length}** summer arrivals have gone to auction.${featuredNotice}`,
-          pushBody: `${playersToAuction.length} summer auction${playersToAuction.length === 1 ? '' : 's'} open. 72h to bid.`,
+          pushBody: `${playersToAuction.length} summer auction${playersToAuction.length === 1 ? '' : 's'} now open on the board.`,
           url: `/league/${leagueId}`,
         });
       }
