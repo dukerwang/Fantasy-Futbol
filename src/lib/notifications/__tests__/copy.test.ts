@@ -3,6 +3,7 @@ import { clubAbbr, clubName } from '../clubRef';
 import {
   auctionLostNotice,
   bidPlacedNotice,
+  bidRaisedNotice,
   buyNowTriggeredNotice,
   closingInNotice,
   droppedNotice,
@@ -76,6 +77,16 @@ describe('bid and market notices', () => {
       '**Vardy Party** have gone to **€50m** for **Bukayo Saka**. Closing now. Bid to take the lead.',
     );
     expect(closingNotice.pushBody).toBe('Bukayo Saka now €50m. Closing now.');
+  });
+
+  it('notifies trailing prior bidders that the top price was raised', () => {
+    const n = bidRaisedNotice(vdp, 'Ayyoub Bouaddi', 51, 40, in24h);
+    expect(n.title).toBe('VDP raise to €51m for Ayyoub Bouaddi');
+    expect(n.pushTitle).toBe('VDP · €51m');
+    expect(n.content).toBe(
+      '**Vardy Party** have raised the top bid for **Ayyoub Bouaddi** to **€51m** (your bid: **€40m**). 24h left to bid.',
+    );
+    expect(n.pushBody).toBe('Ayyoub Bouaddi top bid €51m (VDP). 24h left to bid.');
   });
 
   it('falls back to the full club name in the title when there is no abbr', () => {

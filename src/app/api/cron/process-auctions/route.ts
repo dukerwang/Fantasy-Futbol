@@ -79,7 +79,7 @@ export async function POST(req: NextRequest) {
     const { data: closingClaims } = await admin
       .from('waiver_claims')
       .select(`
-        id, league_id, player_id, team_id, faab_bid, expires_at,
+        id, league_id, player_id, team_id, faab_bid, expires_at, sale_listing_id,
         player:players!player_id(id, name, market_value),
         team:teams!team_id(id, team_name, abbreviation, user_id)
       `)
@@ -132,7 +132,7 @@ export async function POST(req: NextRequest) {
                 userId: t.user_id,
                 ...notice,
                 url: `/league/${topClaim.league_id}/transfers/auctions`,
-                tag: `closing-in-auction-${topClaim.player_id}`,
+                tag: `auction-live-${topClaim.sale_listing_id ?? topClaim.player_id}`,
               })
             )
           );

@@ -93,6 +93,34 @@ export function outbidNotice(
   };
 }
 
+export function bidRaisedNotice(
+  bidder: ClubRef,
+  playerName: string,
+  amount: number,
+  yourBid?: number | null,
+  expiresAt?: ExpiresAt,
+): Notice {
+  const name = clubName(bidder);
+  const abbr = clubAbbr(bidder);
+  const left = timeLeft(expiresAt);
+  const action = left
+    ? left === 'closing now'
+      ? 'Closing now. Bid to take the lead.'
+      : `${left} to bid.`
+    : 'Bid to take the lead.';
+  const yourBidClause = yourBid ? ` (your bid: **${euro(yourBid)}**)` : '';
+  return {
+    title: `${abbr} raise to ${euro(amount)} for ${playerName}`,
+    pushTitle: `${abbr} · ${euro(amount)}`,
+    content: `**${name}** have raised the top bid for **${playerName}** to **${euro(amount)}**${yourBidClause}. ${action}`,
+    pushBody: left
+      ? left === 'closing now'
+        ? `${playerName} top bid ${euro(amount)} (${abbr}). Closing now.`
+        : `${playerName} top bid ${euro(amount)} (${abbr}). ${left} to bid.`
+      : `${playerName} top bid ${euro(amount)} (${abbr}). Bid to lead.`,
+  };
+}
+
 export function listedNotice(
   seller: ClubRef,
   playerName: string,

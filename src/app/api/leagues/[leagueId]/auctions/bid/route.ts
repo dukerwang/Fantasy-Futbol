@@ -473,14 +473,15 @@ export async function POST(req: NextRequest, { params }: Props) {
   if (!resData.is_buy_now) {
     try {
       const { createNotification } = await import('@/lib/notifications/createNotification');
-      const { outbidNotice } = await import('@/lib/notifications/copy');
+      const { outbidNotice, bidRaisedNotice } = await import('@/lib/notifications/copy');
       const closeAt = resData.expires_at ?? new Date(expiresAt).toISOString();
-      const notice = outbidNotice(myTeam, playerData?.name ?? 'Unknown Player', bidAmount, closeAt);
+      const playerName = playerData?.name ?? 'Unknown Player';
+      const outbidNotif = outbidNotice(myTeam, playerName, bidAmount, closeAt);
 
       // Collect all standing bidders on this auction (excluding the new bidder)
       const { data: priorClaims } = await admin
         .from('waiver_claims')
-        .select('team:teams!team_id(id, user_id)')
+        .select('faab_bid, team:teams!team_id(id, user_id)')
         .eq('league_id', leagueId)
         .eq('player_id', playerId)
         .eq('is_auction', true)
@@ -488,29 +489,45 @@ export async function POST(req: NextRequest, { params }: Props) {
         .not('team_id', 'is', null)
         .neq('team_id', myTeam.id);
 
-      const targetUserIds = new Set<string>();
-      if (resData.outbid_team_user_id) {
-        targetUserIds.add(resData.outbid_team_user_id);
+      const leaderUserId = resData.outbid_team_user_id ?? null;
+      const auctionTag = `auction-live-${saleListingId ?? playerId}`;
+      const destUrl = resData.is_listing
+        ? `/league/${leagueId}/transfers/listings`
+        : `/league/${leagueId}/transfers/auctions`;
+
+      // 1. Directly outbid previous leader
+      if (leaderUserId) {
+        await createNotification(admin, {
+          kind: 'auctions',
+          leagueId,
+          userId: leaderUserId,
+          ...outbidNotif,
+          url: destUrl,
+          tag: auctionTag,
+        });
       }
+
+      // 2. Trailing prior bidders (notified of top price increase, acknowledging their prior bid)
+      const notifiedUserIds = new Set<string>();
+      if (leaderUserId) notifiedUserIds.add(leaderUserId);
+
       if (priorClaims) {
         for (const claim of priorClaims) {
           const uId = (claim.team as unknown as { user_id: string } | null)?.user_id;
-          if (uId) targetUserIds.add(uId);
+          if (uId && !notifiedUserIds.has(uId)) {
+            notifiedUserIds.add(uId);
+            const raisedNotif = bidRaisedNotice(myTeam, playerName, bidAmount, claim.faab_bid, closeAt);
+            await createNotification(admin, {
+              kind: 'auctions',
+              leagueId,
+              userId: uId,
+              ...raisedNotif,
+              url: destUrl,
+              tag: auctionTag,
+            });
+          }
         }
       }
-
-      await Promise.all(
-        Array.from(targetUserIds).map((userId) =>
-          createNotification(admin, {
-            kind: 'auctions',
-            leagueId,
-            userId,
-            ...notice,
-            url: `/league/${leagueId}/transfers/auctions`,
-            tag: `outbid-auction-${saleListingId ?? playerId}`,
-          })
-        )
-      );
     } catch (err) {
       console.error('[bid] Failed to send outbid notifications:', err);
     }
@@ -548,7 +565,7 @@ export async function POST(req: NextRequest, { params }: Props) {
               userId: t.user_id,
               ...notice,
               url: destUrl,
-              tag: `first-bid-auction-${saleListingId ?? playerId}`,
+              tag: `auction-live-${saleListingId ?? playerId}`,
             })
           )
         );

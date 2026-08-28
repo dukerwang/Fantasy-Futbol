@@ -119,7 +119,7 @@ export async function notifyAuctionResolution(
         pushTitle: pushTitleForEyebrow(eyebrow, 'Auction Won'),
         content: `${lead}${resData.winner_severance ? ` **${dropPlayerName}** was released to clear roster space.` : ''}`,
         url: `/league/${leagueId}/team`,
-        tag: `auction-result-${resData.sale_listing_id ?? playerId}`,
+        tag: `auction-live-${resData.sale_listing_id ?? playerId}`,
       });
     }
 
@@ -214,7 +214,7 @@ export async function notifyAuctionResolution(
             userId: loser.user_id,
             ...notice,
             url: `/league/${leagueId}/transfers/auctions`,
-            tag: `outbid-auction-${resData.sale_listing_id ?? playerId}`,
+            tag: `auction-live-${resData.sale_listing_id ?? playerId}`,
           });
         }
       }),
