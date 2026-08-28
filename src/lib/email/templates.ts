@@ -124,10 +124,27 @@ export const getSystemAuctionsEmail = (
   leagueUrl: string,
   thresholdM: number,
 ) => {
-  const title = isSummerKickoff ? 'The Season Has Begun!' : 'Transfer Window Alert';
-  const preamble = isSummerKickoff
-    ? `The commissioner has officially started the new season. <strong>${players.length} new players</strong> have been added to the Transfer Auction Block.`
-    : `FPL has added <strong>${players.length} new players</strong> who meet the €${thresholdM}m valuation threshold. They've gone to auction.`;
+  const count = players.length;
+  const top = [...players].sort((a, b) => b.value - a.value)[0];
+  const topTier = top ? getValueTier(top.value) : 'standard';
+
+  let title = 'Transfer Window Alert';
+  if (isSummerKickoff) {
+    title = 'The Season Has Begun!';
+  } else if (topTier === 'galactico') {
+    title = 'Galáctico on the Market';
+  } else if (topTier === 'blockbuster') {
+    title = 'Blockbuster Signing Available';
+  }
+
+  let preamble = '';
+  if (isSummerKickoff) {
+    preamble = `The commissioner has officially started the season. <strong>${count} summer arrival${count === 1 ? '' : 's'}</strong> have been placed on the auction block.`;
+  } else if (count === 1 && top) {
+    preamble = `A new high-profile signing has entered the Premier League. <strong>${top.name}</strong> (€${top.value}m) is now available on the open market.`;
+  } else {
+    preamble = `The transfer market is heating up. <strong>${count} marquee signings</strong> (€${thresholdM}m+ valuation) have just been posted to the auction board.`;
+  }
 
   const standard = players.filter((p) => getValueTier(p.value) === 'standard');
   const featured = players
@@ -156,8 +173,8 @@ export const getSystemAuctionsEmail = (
     <p>${preamble}</p>
     ${featuredHtml}
     ${standardHtml}
-    <p>You have 72 hours to place your bids on these players.</p>
-    <a href="${leagueUrl}/players" class="button">View Player Market</a>
+    <p>Auctions are live on the transfer board. Bids are paid from your Club Balance and dynamic clocks are active.</p>
+    <a href="${leagueUrl}/transfers/auctions" class="button">Enter the Bidding</a>
   `;
   return baseTemplate(title, body);
 };
