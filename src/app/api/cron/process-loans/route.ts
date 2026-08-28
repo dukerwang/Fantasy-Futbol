@@ -58,6 +58,57 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: fetchError.message }, { status: 500 });
   }
 
+  // Check loans entering their final gameweek (end_gameweek === currentCompletedGw + 1)
+  try {
+    const nextGw = currentCompletedGw + 1;
+    const { data: finalWeekLoans } = await admin
+      .from('player_loans')
+      .select(`
+        *,
+        player:players(id, name),
+        lender_team:teams!lender_team_id(id, team_name, abbreviation, user_id),
+        borrower_team:teams!borrower_team_id(id, team_name, abbreviation, user_id)
+      `)
+      .eq('status', 'active')
+      .eq('end_gameweek', nextGw);
+
+    if (finalWeekLoans && finalWeekLoans.length > 0) {
+      const { createNotification } = await import('@/lib/notifications/createNotification');
+      const { loanFinalWeekNotice } = await import('@/lib/notifications/copy');
+
+      for (const loan of finalWeekLoans) {
+        const playerName = (loan.player as any)?.name ?? 'Player';
+        const lender = loan.lender_team as any;
+        const borrower = loan.borrower_team as any;
+        if (lender && borrower) {
+          const notice = loanFinalWeekNotice(playerName, lender, borrower, nextGw);
+          if (lender.user_id) {
+            await createNotification(admin, {
+              kind: 'deals',
+              leagueId: loan.league_id,
+              userId: lender.user_id,
+              ...notice,
+              url: `/league/${loan.league_id}/team`,
+              tag: `loan-final-week-${loan.id}`,
+            });
+          }
+          if (borrower.user_id) {
+            await createNotification(admin, {
+              kind: 'deals',
+              leagueId: loan.league_id,
+              userId: borrower.user_id,
+              ...notice,
+              url: `/league/${loan.league_id}/team`,
+              tag: `loan-final-week-${loan.id}`,
+            });
+          }
+        }
+      }
+    }
+  } catch (err) {
+    console.error('[process-loans] Failed to notify final week loans:', err);
+  }
+
   if (!expiredLoans || expiredLoans.length === 0) {
     return NextResponse.json({ ok: true, processed: 0 });
   }

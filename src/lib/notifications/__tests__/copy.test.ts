@@ -3,10 +3,15 @@ import { clubAbbr, clubName } from '../clubRef';
 import {
   auctionLostNotice,
   bidPlacedNotice,
+  buyNowTriggeredNotice,
+  closingInNotice,
   droppedNotice,
   listedNotice,
+  listingUnsoldNotice,
+  loanFinalWeekNotice,
   outbidNotice,
   timeLeft,
+  tradeCancelledByAuctionNotice,
 } from '../copy';
 
 const vdp = { team_name: 'Vardy Party', abbreviation: 'VDP' };
@@ -114,5 +119,77 @@ describe('bid and market notices', () => {
       "**Vardy Party** signed **Bukayo Saka** for **€55m**. Your bid of **€50m** wasn't enough.",
     );
     expect(n.pushBody).toBe('Bukayo Saka to VDP for €55m.');
+  });
+
+  describe('closingInNotice (Romano-style)', () => {
+    const in1h = Date.now() + 60 * 60_000;
+
+    it('generates galactico alert for 100m+ deals', () => {
+      const n = closingInNotice(vdp, 'Kylian Mbappé', 110, 120, in1h);
+      expect(n.title).toBe('ADVANCING: VDP closing in on Kylian Mbappé');
+      expect(n.pushTitle).toBe('ADVANCING · VDP');
+      expect(n.content).toContain('**BREAKING:** **Vardy Party** are in advanced stages');
+      expect(n.content).toContain('(**€110m**)');
+      expect(n.pushBody).toBe('ADVANCING: Kylian Mbappé to VDP (€110m). Final call to bid.');
+    });
+
+    it('generates blockbuster alert for 80m+ deals', () => {
+      const n = closingInNotice(vdp, 'Cole Palmer', 85, 80, in1h);
+      expect(n.title).toBe('Closing in: VDP on verge of Cole Palmer');
+      expect(n.pushTitle).toBe('Closing in · VDP');
+      expect(n.content).toContain('blockbuster agreement');
+      expect(n.pushBody).toBe('VDP closing in on Cole Palmer (€85m). Final call to bid.');
+    });
+
+    it('generates standard countdown for regular deals', () => {
+      const n = closingInNotice(vdp, 'Alex Iwobi', 25, 20, in1h);
+      expect(n.title).toBe('VDP closing in on Alex Iwobi');
+      expect(n.content).toContain('lead the race for **Alex Iwobi** at **€25m**');
+      expect(n.pushBody).toBe('Alex Iwobi to VDP (€25m). Gavel falling soon.');
+    });
+  });
+
+  describe('buyNowTriggeredNotice (Romano-style)', () => {
+    it('generates galactico alert for 100m+ release clause triggers', () => {
+      const n = buyNowTriggeredNotice(vdp, 'Declan Rice', 105, 110);
+      expect(n.title).toBe('Galactico! VDP trigger release clause for Declan Rice');
+      expect(n.content).toContain('**BREAKING:** **Vardy Party** have triggered the **€105m** release clause for **Declan Rice**! Direct agreement completed... HERE WE GO!');
+      expect(n.pushBody).toBe('BREAKING: Declan Rice to VDP (€105m). Release clause triggered.');
+    });
+
+    it('generates blockbuster alert for 80m+ release clause triggers', () => {
+      const n = buyNowTriggeredNotice(vdp, 'Cole Palmer', 85, 80);
+      expect(n.title).toBe('Blockbuster! VDP trigger release clause for Cole Palmer');
+      expect(n.content).toContain('**Vardy Party** have triggered the **€85m** release clause for **Cole Palmer**! Agreement sealed, HERE WE GO!');
+      expect(n.pushBody).toBe('Blockbuster: Cole Palmer to VDP (€85m). Release clause triggered.');
+    });
+
+    it('generates standard buyout alert for regular players', () => {
+      const n = buyNowTriggeredNotice(vdp, 'Alex Iwobi', 20, 20);
+      expect(n.title).toBe('VDP buy out Alex Iwobi');
+      expect(n.content).toContain('**Vardy Party** have triggered the **€20m** buyout for **Alex Iwobi**. Agreement completed, here we go!');
+      expect(n.pushBody).toBe('Alex Iwobi to VDP for €20m.');
+    });
+  });
+
+  describe('gap notices', () => {
+    it('generates trade cancelled notice', () => {
+      const n = tradeCancelledByAuctionNotice('Bukayo Saka');
+      expect(n.title).toBe('Proposal Cancelled: Bukayo Saka');
+      expect(n.content).toContain('automatically cancelled after the player entered an active open auction');
+    });
+
+    it('generates listing unsold notice', () => {
+      const n = listingUnsoldNotice('Bukayo Saka');
+      expect(n.title).toBe('Listing Expired: Bukayo Saka');
+      expect(n.content).toContain('concluded with no bids placed');
+    });
+
+    it('generates loan final week notice', () => {
+      const n = loanFinalWeekNotice('Sam Rook', vdp, unnamed, 15);
+      expect(n.title).toBe('Loan Final Week: Sam Rook');
+      expect(n.content).toContain('final matchweek (GW15)');
+      expect(n.pushBody).toBe('Sam Rook loan at Holloway Utd ends after GW15.');
+    });
   });
 });

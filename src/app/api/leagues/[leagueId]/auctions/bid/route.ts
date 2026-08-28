@@ -465,27 +465,52 @@ export async function POST(req: NextRequest, { params }: Props) {
     }
   }
 
-  // ── SEND OUTBID NOTIFICATION ──
+  // ── SEND OUTBID NOTIFICATION TO ALL PRIOR BIDDERS ──
   //
   // Skipped on Buy Now. The previous leader did lose, but "Outbid Warning! bid
   // again" is the wrong message for an auction that no longer exists — the
   // resolver sends them a proper "auction lost" notice instead.
-  if (!resData.is_buy_now && resData.outbid_team_id && resData.outbid_team_user_id) {
+  if (!resData.is_buy_now) {
     try {
-      // In-app + push only — outbid fires on every raise in a bidding war, too
-      // frequent for email now that the PWA covers always-on notifications.
       const { createNotification } = await import('@/lib/notifications/createNotification');
       const { outbidNotice } = await import('@/lib/notifications/copy');
       const closeAt = resData.expires_at ?? new Date(expiresAt).toISOString();
       const notice = outbidNotice(myTeam, playerData?.name ?? 'Unknown Player', bidAmount, closeAt);
-      await createNotification(admin, {
-        kind: 'auctions',
-        leagueId,
-        userId: resData.outbid_team_user_id,
-        ...notice,
-        url: `/league/${leagueId}/transfers/auctions`,
-        tag: `outbid-auction-${saleListingId ?? playerId}`
-      });
+
+      // Collect all standing bidders on this auction (excluding the new bidder)
+      const { data: priorClaims } = await admin
+        .from('waiver_claims')
+        .select('team:teams!team_id(id, user_id)')
+        .eq('league_id', leagueId)
+        .eq('player_id', playerId)
+        .eq('is_auction', true)
+        .eq('status', 'pending')
+        .not('team_id', 'is', null)
+        .neq('team_id', myTeam.id);
+
+      const targetUserIds = new Set<string>();
+      if (resData.outbid_team_user_id) {
+        targetUserIds.add(resData.outbid_team_user_id);
+      }
+      if (priorClaims) {
+        for (const claim of priorClaims) {
+          const uId = (claim.team as unknown as { user_id: string } | null)?.user_id;
+          if (uId) targetUserIds.add(uId);
+        }
+      }
+
+      await Promise.all(
+        Array.from(targetUserIds).map((userId) =>
+          createNotification(admin, {
+            kind: 'auctions',
+            leagueId,
+            userId,
+            ...notice,
+            url: `/league/${leagueId}/transfers/auctions`,
+            tag: `outbid-auction-${saleListingId ?? playerId}`,
+          })
+        )
+      );
     } catch (err) {
       console.error('[bid] Failed to send outbid notifications:', err);
     }
@@ -530,6 +555,51 @@ export async function POST(req: NextRequest, { params }: Props) {
       }
     } catch (err) {
       console.error('[bid] Failed to send new-bid notifications:', err);
+    }
+  }
+
+  // ── CANCELLED TRADE PROPOSALS NOTIFICATION ──
+  if (resData.cancelled_trade_count && resData.cancelled_trade_count > 0) {
+    try {
+      const { data: cancelledTrades } = await admin
+        .from('trade_proposals')
+        .select('id, team_a:teams!team_a_id(user_id), team_b:teams!team_b_id(user_id)')
+        .eq('league_id', leagueId)
+        .eq('status', 'cancelled')
+        .or(`offered_players.cs.{${playerId}},requested_players.cs.{${playerId}}`);
+
+      if (cancelledTrades && cancelledTrades.length > 0) {
+        const { createNotification } = await import('@/lib/notifications/createNotification');
+        const { tradeCancelledByAuctionNotice } = await import('@/lib/notifications/copy');
+        const notice = tradeCancelledByAuctionNotice(playerData?.name ?? 'A player');
+
+        for (const tr of cancelledTrades) {
+          const userA = (tr.team_a as unknown as { user_id: string } | null)?.user_id;
+          const userB = (tr.team_b as unknown as { user_id: string } | null)?.user_id;
+          if (userA) {
+            await createNotification(admin, {
+              kind: 'deals',
+              leagueId,
+              userId: userA,
+              ...notice,
+              url: `/league/${leagueId}/transfers/deals`,
+              tag: `trade-cancelled-${tr.id}`,
+            });
+          }
+          if (userB && userB !== userA) {
+            await createNotification(admin, {
+              kind: 'deals',
+              leagueId,
+              userId: userB,
+              ...notice,
+              url: `/league/${leagueId}/transfers/deals`,
+              tag: `trade-cancelled-${tr.id}`,
+            });
+          }
+        }
+      }
+    } catch (err) {
+      console.error('[bid] Failed to notify cancelled trade proposals:', err);
     }
   }
 

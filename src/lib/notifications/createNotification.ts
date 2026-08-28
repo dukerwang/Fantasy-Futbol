@@ -42,23 +42,75 @@ export async function createNotification(
   const { leagueId, userId, kind, title, content, url, pushTitle, pushBody, tag } = params;
 
   try {
-    const { error } = await admin
-      .from('notifications')
-      .insert({
-        league_id: leagueId,
-        user_id: userId,
-        title,
-        content,
-        url: url || null,
-        read: false,
-        kind,
-      });
+    if (tag) {
+      // Find existing notification with this tag for in-place folding
+      let query = admin
+        .from('notifications')
+        .select('id')
+        .eq('user_id', userId)
+        .eq('tag', tag);
+      
+      if (leagueId) {
+        query = query.eq('league_id', leagueId);
+      } else {
+        query = query.is('league_id', null);
+      }
 
-    if (error) {
-      console.error('[createNotification] Database insert error:', error.message);
+      const { data: existing } = await query.maybeSingle();
+
+      if (existing) {
+        const { error: updateErr } = await admin
+          .from('notifications')
+          .update({
+            title,
+            content,
+            url: url || null,
+            read: false,
+            kind,
+            created_at: new Date().toISOString(),
+          })
+          .eq('id', existing.id);
+
+        if (updateErr) {
+          console.error('[createNotification] Database update error:', updateErr.message);
+        }
+      } else {
+        const { error: insertErr } = await admin
+          .from('notifications')
+          .insert({
+            league_id: leagueId,
+            user_id: userId,
+            title,
+            content,
+            url: url || null,
+            read: false,
+            kind,
+            tag,
+          });
+
+        if (insertErr) {
+          console.error('[createNotification] Database insert error:', insertErr.message);
+        }
+      }
+    } else {
+      const { error: insertErr } = await admin
+        .from('notifications')
+        .insert({
+          league_id: leagueId,
+          user_id: userId,
+          title,
+          content,
+          url: url || null,
+          read: false,
+          kind,
+        });
+
+      if (insertErr) {
+        console.error('[createNotification] Database insert error:', insertErr.message);
+      }
     }
   } catch (err) {
-    console.error('[createNotification] Failed to create notification:', err);
+    console.error('[createNotification] Failed to create or update notification:', err);
   }
 
   try {

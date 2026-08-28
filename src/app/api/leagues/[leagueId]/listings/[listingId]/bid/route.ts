@@ -156,21 +156,47 @@ export async function POST(req: NextRequest, { params }: Props) {
     }
   }
 
-  if (!res.is_buy_now && res.outbid_team_id && res.outbid_team_user_id) {
+  if (!res.is_buy_now) {
     try {
-      // In-app + push only — see the matching note in /auctions/bid.
       const { createNotification } = await import('@/lib/notifications/createNotification');
       const { outbidNotice } = await import('@/lib/notifications/copy');
       const closeAt = res.expires_at ?? new Date(expiresAt).toISOString();
       const notice = outbidNotice(myTeam, playerData?.name ?? 'a player', bidAmount, closeAt);
-      await createNotification(admin, {
-        kind: 'auctions',
-        leagueId,
-        userId: res.outbid_team_user_id,
-        ...notice,
-        url: `/league/${leagueId}/transfers/listings`,
-        tag: `outbid-listing-${listingId}`,
-      });
+
+      // Collect all standing bidders on this listing (excluding the new bidder)
+      const { data: priorClaims } = await admin
+        .from('waiver_claims')
+        .select('team:teams!team_id(id, user_id)')
+        .eq('league_id', leagueId)
+        .eq('player_id', listing.player_id)
+        .eq('is_auction', true)
+        .eq('status', 'pending')
+        .not('team_id', 'is', null)
+        .neq('team_id', myTeam.id);
+
+      const targetUserIds = new Set<string>();
+      if (res.outbid_team_user_id) {
+        targetUserIds.add(res.outbid_team_user_id);
+      }
+      if (priorClaims) {
+        for (const claim of priorClaims) {
+          const uId = (claim.team as unknown as { user_id: string } | null)?.user_id;
+          if (uId) targetUserIds.add(uId);
+        }
+      }
+
+      await Promise.all(
+        Array.from(targetUserIds).map((userId) =>
+          createNotification(admin, {
+            kind: 'auctions',
+            leagueId,
+            userId,
+            ...notice,
+            url: `/league/${leagueId}/transfers/listings`,
+            tag: `outbid-listing-${listingId}`,
+          })
+        )
+      );
     } catch (err) {
       console.error('[listing-bid] Failed to send outbid notification:', err);
     }

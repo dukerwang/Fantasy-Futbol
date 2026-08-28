@@ -33,16 +33,114 @@ export async function POST(req: NextRequest) {
 
   const admin = createAdminClient();
 
-  // Expire 14-day pre-bid listings
+  // Expire 14-day pre-bid listings and notify seller
   try {
     const staleCutoff = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString();
-    await admin
+    const { data: staleListings } = await admin
       .from('player_sale_listings')
-      .update({ status: 'expired', updated_at: new Date().toISOString() })
+      .select('id, league_id, seller_team_id, player:players!player_id(name), team:teams!seller_team_id(user_id)')
       .eq('status', 'pending')
       .lt('created_at', staleCutoff);
+
+    if (staleListings && staleListings.length > 0) {
+      const staleIds = staleListings.map((l) => l.id);
+      await admin
+        .from('player_sale_listings')
+        .update({ status: 'expired', updated_at: new Date().toISOString() })
+        .in('id', staleIds);
+
+      const { createNotification } = await import('@/lib/notifications/createNotification');
+      const { listingUnsoldNotice } = await import('@/lib/notifications/copy');
+
+      for (const l of staleListings) {
+        const sellerUserId = (l.team as unknown as { user_id: string } | null)?.user_id;
+        const playerName = (l.player as unknown as { name: string } | null)?.name ?? 'Your player';
+        if (sellerUserId) {
+          const notice = listingUnsoldNotice(playerName);
+          await createNotification(admin, {
+            kind: 'auctions',
+            leagueId: l.league_id,
+            userId: sellerUserId,
+            ...notice,
+            url: `/league/${l.league_id}/team`,
+            tag: `listing-expired-${l.id}`,
+          });
+        }
+      }
+    }
   } catch (err) {
     console.error('[process-auctions] Failed to expire stale listings:', err);
+  }
+
+  // Sweep for active auctions entering final 2 hours to send "Closing In" alert
+  try {
+    const nowMs = Date.now();
+    const twoHoursFromNow = new Date(nowMs + 2 * 60 * 60 * 1000).toISOString();
+    const { data: closingClaims } = await admin
+      .from('waiver_claims')
+      .select(`
+        id, league_id, player_id, team_id, faab_bid, expires_at,
+        player:players!player_id(id, name, market_value),
+        team:teams!team_id(id, team_name, abbreviation, user_id)
+      `)
+      .eq('status', 'pending')
+      .eq('is_auction', true)
+      .not('team_id', 'is', null)
+      .gt('faab_bid', 0)
+      .gt('expires_at', new Date().toISOString())
+      .lte('expires_at', twoHoursFromNow)
+      .order('faab_bid', { ascending: false });
+
+    if (closingClaims && closingClaims.length > 0) {
+      const closingGroups = new Map<string, typeof closingClaims>();
+      for (const c of closingClaims) {
+        const key = `${c.league_id}::${c.player_id}`;
+        if (!closingGroups.has(key)) closingGroups.set(key, []);
+        closingGroups.get(key)!.push(c);
+      }
+
+      const { createNotification } = await import('@/lib/notifications/createNotification');
+      const { closingInNotice } = await import('@/lib/notifications/copy');
+
+      for (const [, claims] of closingGroups) {
+        const topClaim = claims[0];
+        const leaderTeam = topClaim.team as unknown as { id: string; team_name: string; abbreviation: string | null; user_id: string } | null;
+        const player = topClaim.player as unknown as { id: string; name: string; market_value: number | null } | null;
+
+        if (!leaderTeam || !player) continue;
+
+        const notice = closingInNotice(
+          leaderTeam,
+          player.name,
+          topClaim.faab_bid,
+          player.market_value,
+          topClaim.expires_at,
+        );
+
+        const { data: leagueTeams } = await admin
+          .from('teams')
+          .select('user_id')
+          .eq('league_id', topClaim.league_id)
+          .neq('id', leaderTeam.id);
+
+        if (leagueTeams) {
+          await Promise.all(
+            leagueTeams.map((t) =>
+              createNotification(admin, {
+                kind: 'auctions',
+                leagueId: topClaim.league_id,
+                userId: t.user_id,
+                ...notice,
+                url: `/league/${topClaim.league_id}/transfers/auctions`,
+                tag: `closing-in-auction-${topClaim.player_id}`,
+              })
+            )
+          );
+        }
+      }
+    }
+  } catch (err) {
+    console.error('[process-auctions] Failed to check closing-in auctions:', err);
   }
 
   // Find all expired pending auction claims
