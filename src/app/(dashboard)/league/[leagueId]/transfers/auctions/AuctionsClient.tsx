@@ -627,7 +627,7 @@ function Lot({
                     )}
                   </div>
                   <p className={styles.exNote}>
-                    Every bid resets the clock to 24 hours if less than that remains.
+                    Bids extend the dynamic clock with anti-snipe protection and quiet hours.
                     {clause != null && ' Paying the clause ends the auction outright.'}
                   </p>
                 </>
