@@ -78,7 +78,6 @@ export default function TopBar() {
   const router = useRouter();
   const [teams, setTeams] = useState<UserTeam[]>([]);
   const [username, setUsername] = useState<string | null>(null);
-  const [isSiteAdmin, setIsSiteAdmin] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [isNavigating, setIsNavigating] = useState(false);
@@ -150,15 +149,8 @@ export default function TopBar() {
       });
   }, [pathname]);
 
-  // Platform admin status and username don't change mid-session, so these stay
-  // mount-only.
+  // Username doesn't change mid-session, so this stays mount-only.
   useEffect(() => {
-    // Platform admin status — distinct from any league's commissioner
-    fetch('/api/user/admin-status')
-      .then(r => r.json())
-      .then(({ isSiteAdmin: admin }) => setIsSiteAdmin(!!admin));
-
-    // Also fetch username
     const supabase = createClient();
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (!user) return;
@@ -525,19 +517,6 @@ export default function TopBar() {
               leagueId={currentLeagueId}
               onNavigate={() => setIsNavigating(true)}
             />
-          )}
-
-          {/* Platform Admin — site admin only, not scoped to any one league */}
-          {isSiteAdmin && (
-            <Link
-              href="/admin/offseason"
-              className={`${styles.iconBtn} ${pathname?.startsWith('/admin/offseason') ? styles.iconBtnActive : ''}`}
-              title="Platform Admin"
-              aria-label="Platform Admin"
-              onClick={() => setIsNavigating(true)}
-            >
-              <Icon name="settings" size={18} strokeWidth={1.5} />
-            </Link>
           )}
 
           {/* Notification Bell */}

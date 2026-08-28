@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import styles from './offseason.module.css';
+import styles from './platformAdmin.module.css';
 import { Icon } from '@/components/ui/Icon';
 
 interface ResetReadyLeague {
@@ -80,7 +80,16 @@ interface KickoffResultRow {
 
 type SectionPhase = 'loading' | 'ready' | 'confirming' | 'running' | 'done' | 'error';
 
-export default function OffseasonAdminClient() {
+/**
+ * Platform Admin — Season Reset / Kickoff.
+ *
+ * Site-admin only (see src/lib/auth/siteAdmin.ts) — distinct from any
+ * league's commissioner. One switch each for "Reset every eligible league"
+ * and "Kickoff every league waiting in offseason", across the whole
+ * platform at once, rather than a per-league management list. Rendered as a
+ * section inside SettingsClient — gate visibility at the call site.
+ */
+export default function PlatformAdminSection() {
   const [resetPhase, setResetPhase] = useState<SectionPhase>('loading');
   const [resetPreview, setResetPreview] = useState<ResetPreviewData | null>(null);
   const [resetResults, setResetResults] = useState<ResetResultRow[] | null>(null);
@@ -177,24 +186,13 @@ export default function OffseasonAdminClient() {
   const kickoffCount = kickoffPreview?.leagues.length ?? 0;
 
   return (
-    <div className={styles.page}>
-      <header className={styles.header}>
-        <p className={styles.eyebrow}>Gaffa Platform Admin</p>
-        <h1 className={styles.title}>Season Transition Control</h1>
-        <p className={styles.subtitle}>
-          Two switches that act across every league at once. <strong>Reset</strong> closes a finished season
-          (prizes, standings archive) for every league that&apos;s ready. <strong>Kickoff</strong> processes
-          relegation/transfer compensation and seeds summer auctions for every league still waiting in offseason.
-          Neither is something league commissioners can trigger.
-        </p>
-      </header>
-
+    <>
       {/* ── SEASON RESET ───────────────────────────────────────── */}
-      <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>
+      <div className={styles.section}>
+        <h3 className={styles.sectionTitle}>
           Season Reset
           {resetPhase === 'ready' && <span className={styles.sectionBadge}>{readyCount} league(s) ready</span>}
-        </h2>
+        </h3>
 
         {resetPhase === 'loading' && (
           <div className={styles.loadingBox}>
@@ -254,7 +252,7 @@ export default function OffseasonAdminClient() {
 
             {readyCount > 0 && resetPhase !== 'confirming' && (
               <div className={styles.actionCard} data-type="danger" style={{ marginTop: '16px' }}>
-                <h2 className={styles.cardTitle}>Run Reset for {readyCount} League(s)</h2>
+                <h4 className={styles.cardTitle}>Run Reset for {readyCount} League(s)</h4>
                 <p className={styles.cardDesc}>
                   Irreversible. Archives standings, pays out prizes, clears matchups/brackets, and transitions
                   every ready league to offseason.
@@ -309,14 +307,14 @@ export default function OffseasonAdminClient() {
             </table>
           </div>
         )}
-      </section>
+      </div>
 
       {/* ── SEASON KICKOFF ─────────────────────────────────────── */}
-      <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>
+      <div className={styles.section}>
+        <h3 className={styles.sectionTitle}>
           Season Kickoff
           {kickoffPhase === 'ready' && <span className={styles.sectionBadge}>{kickoffCount} league(s) waiting</span>}
-        </h2>
+        </h3>
 
         {kickoffPhase === 'loading' && (
           <div className={styles.loadingBox}>
@@ -368,7 +366,7 @@ export default function OffseasonAdminClient() {
                 <PreflightPanel data={preflight} loading={preflightLoading} onRetry={loadPreflight} />
 
                 <div className={styles.actionCard} data-type="danger" style={{ marginTop: '16px' }}>
-                  <h2 className={styles.cardTitle}>Run Kickoff for {kickoffCount} League(s)</h2>
+                  <h4 className={styles.cardTitle}>Run Kickoff for {kickoffCount} League(s)</h4>
                   <p className={styles.cardDesc}>
                     Irreversible. Drops departed/relegated players and pays full market value into each owner&apos;s
                     Club Balance, seeds 96-hour summer auctions for high-value and promoted-club arrivals, unlocks
@@ -435,8 +433,8 @@ export default function OffseasonAdminClient() {
             </table>
           </div>
         )}
-      </section>
-    </div>
+      </div>
+    </>
   );
 }
 
@@ -476,9 +474,9 @@ function PreflightPanel({
 
   return (
     <div className={styles.actionCard} data-type={data.ready ? undefined : 'danger'} style={{ marginTop: '16px' }}>
-      <h2 className={styles.cardTitle}>
+      <h4 className={styles.cardTitle}>
         Preflight {data.ready ? '— all checks passed' : `— ${blockers.length} blocker(s)`}
-      </h2>
+      </h4>
 
       <div className={styles.tableWrapper}>
         <table className={styles.table}>

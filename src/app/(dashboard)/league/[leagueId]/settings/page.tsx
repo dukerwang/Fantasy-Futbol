@@ -2,6 +2,7 @@ import { redirect, notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { resolvePrefs } from '@/lib/notifications/prefs';
+import { isSiteAdminEmail } from '@/lib/auth/siteAdmin';
 import SettingsClient from '@/components/settings/SettingsClient';
 
 export const dynamic = 'force-dynamic';
@@ -50,6 +51,7 @@ export default async function LeagueSettingsPage({ params }: Props) {
       leagueId={leagueId}
       leagueName={league.name}
       isCommissioner={league.commissioner_id === user.id}
+      isSiteAdmin={isSiteAdminEmail(user.email)}
       initialPrefs={resolvePrefs(profile?.notification_prefs)}
     />
   );

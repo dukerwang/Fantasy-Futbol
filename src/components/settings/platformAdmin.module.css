@@ -1,57 +1,27 @@
-.page {
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 40px 24px 80px;
-  font-family: var(--font-sans);
-}
-
-/* ── Header ──────────────────────────────────────────────── */
-.header {
-  margin-bottom: 32px;
-}
-
-.eyebrow {
-  composes: ds-eyebrow-serif from global;
-}
-
-.title {
-  font-family: var(--font-serif);
-  font-size: 2rem;
-  font-weight: 700;
-  color: var(--color-text-primary, #1a1a1a);
-  margin: 0 0 8px;
-}
-
-.subtitle {
-  font-size: 0.875rem;
-  color: var(--color-text-secondary, #555);
-  max-width: 600px;
-  line-height: 1.6;
-  margin: 0;
-}
-
 /* ── Section ─────────────────────────────────────────────── */
 .section {
-  margin-bottom: 36px;
+  margin-bottom: 24px;
+}
+
+.section:last-child {
+  margin-bottom: 0;
 }
 
 .sectionTitle {
   font-family: var(--font-serif);
-  font-size: 1.1rem;
+  font-size: 1rem;
   font-weight: 700;
   color: var(--color-text-primary, #1a1a1a);
-  margin: 0 0 16px;
+  margin: 0 0 12px;
   display: flex;
   align-items: center;
   gap: 10px;
-  border-bottom: 1px solid var(--color-border-subtle, #e0dbd0);
-  padding-bottom: 10px;
 }
 
 .sectionBadge {
   font-family: var(--font-serif);
   font-style: italic;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   font-weight: 600;
   color: var(--color-accent-green, #2d6a4f);
 }
@@ -64,7 +34,7 @@
   padding: 14px 18px;
   border-radius: 8px;
   margin-bottom: 16px;
-  font-size: 0.875rem;
+  font-size: 0.85rem;
   line-height: 1.5;
 }
 
@@ -72,12 +42,6 @@
   background: var(--color-bg-elevated, #EDE8DE);
   border: 1px solid var(--color-border, #C8C3BC);
   color: var(--color-text-primary, #1a1a1a);
-}
-
-.alertBox[data-type="success"] {
-  background: #d1fae5;
-  border: 1px solid #6ee7b7;
-  color: #065f46;
 }
 
 .alertBox[data-type="error"] {
@@ -104,14 +68,17 @@
 /* ── Table ───────────────────────────────────────────────── */
 .tableWrapper {
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  max-width: 100%;
   border-radius: 8px;
   border: 1px solid var(--color-border-subtle, #e0dbd0);
 }
 
 .table {
   width: 100%;
+  min-width: 420px;
   border-collapse: collapse;
-  font-size: 0.85rem;
+  font-size: 0.82rem;
 }
 
 .table thead {
@@ -121,42 +88,34 @@
 .table th {
   padding: 10px 14px;
   text-align: left;
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   font-weight: 600;
   letter-spacing: 0.05em;
   text-transform: uppercase;
   color: var(--color-text-muted, #888);
   border-bottom: 1px solid var(--color-border-subtle, #e0dbd0);
+  white-space: nowrap;
 }
 
 .table td {
   padding: 10px 14px;
   border-bottom: 1px solid var(--color-border-subtle, #e0dbd0);
   color: var(--color-text-primary, #1a1a1a);
+  white-space: nowrap;
 }
 
 .table tbody tr:last-child td {
   border-bottom: none;
 }
 
-.table tfoot td {
-  background: var(--color-bg-card, #f5f3ee);
-  border-top: 2px solid var(--color-border-subtle, #e0dbd0);
-  border-bottom: none;
-}
-
 @media (hover: hover) and (pointer: fine) {
   .table tbody tr:hover {
-    background: var(--color-bg-hover, rgba(0,0,0,0.02));
+    background: var(--color-bg-hover, rgba(0, 0, 0, 0.02));
   }
 }
 
-.playerName, .teamName, .leagueName {
+.leagueName {
   font-weight: 600;
-}
-
-.clubName {
-  color: var(--color-text-secondary, #555);
 }
 
 .faabAmount {
@@ -176,7 +135,7 @@
 
 /* ── Action cards ────────────────────────────────────────── */
 .actionCard {
-  padding: 28px 32px;
+  padding: 20px;
   border-radius: 10px;
   background: var(--color-bg-card, #fdfaf5);
   border: 1px solid var(--color-border-subtle, #e0dbd0);
@@ -190,48 +149,25 @@
 
 .cardTitle {
   font-family: var(--font-serif);
-  font-size: 1rem;
+  font-size: 0.95rem;
   font-weight: 700;
   margin: 0 0 8px;
   color: var(--color-text-primary, #1a1a1a);
 }
 
 .cardDesc {
-  font-size: 0.875rem;
+  font-size: 0.85rem;
   color: var(--color-text-secondary, #555);
   line-height: 1.6;
-  margin: 0 0 20px;
+  margin: 0 0 16px;
 }
 
 /* ── Buttons ─────────────────────────────────────────────── */
-.btnPrimary {
-  padding: 10px 24px;
-  border-radius: 6px;
-  font-weight: 600;
-  font-size: 0.875rem;
-  cursor: pointer;
-  border: none;
-  background: var(--color-text-primary);
-  color: var(--color-bg-card);
-  transition: background var(--transition-fast);
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .btnPrimary:hover {
-    background: var(--color-accent);
-  }
-}
-
-.btnPrimary:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
 .btnDanger {
-  padding: 10px 24px;
+  padding: 10px 20px;
   border-radius: 6px;
   font-weight: 600;
-  font-size: 0.875rem;
+  font-size: 0.85rem;
   cursor: pointer;
   border: none;
   background: #dc2626;
@@ -245,11 +181,16 @@
   }
 }
 
+.btnDanger:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .btnSecondary {
-  padding: 10px 24px;
+  padding: 10px 20px;
   border-radius: 6px;
   font-weight: 600;
-  font-size: 0.875rem;
+  font-size: 0.85rem;
   cursor: pointer;
   background: transparent;
   border: 1px solid var(--color-border-subtle, #e0dbd0);
@@ -266,7 +207,7 @@
 .btnSmall {
   padding: 4px 12px;
   border-radius: 4px;
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   font-weight: 600;
   cursor: pointer;
   background: #dc2626;
@@ -277,7 +218,7 @@
 
 /* ── Confirm box ─────────────────────────────────────────── */
 .confirmBox {
-  padding: 28px 32px;
+  padding: 20px;
   border-radius: 10px;
   background: #fff5f5;
   border: 2px solid #dc2626;
@@ -285,14 +226,15 @@
 }
 
 .confirmText {
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   line-height: 1.7;
   color: #1a1a1a;
-  margin: 0 0 20px;
+  margin: 0 0 16px;
 }
 
 .confirmButtons {
   display: flex;
+  flex-wrap: wrap;
   gap: 12px;
 }
 
@@ -302,14 +244,14 @@
   flex-direction: column;
   align-items: center;
   gap: 16px;
-  padding: 48px;
+  padding: 36px;
   color: var(--color-text-muted, #888);
-  font-size: 0.9rem;
+  font-size: 0.85rem;
 }
 
 .spinner {
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   border: 3px solid var(--color-border-subtle, #e0dbd0);
   border-top-color: var(--color-accent-green, #2d6a4f);
   border-radius: 50%;
@@ -320,61 +262,8 @@
   to { transform: rotate(360deg); }
 }
 
-/* ── Result section ──────────────────────────────────────── */
-.resultSection {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-}
-
-.resultGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-  gap: 16px;
-}
-
-.resultCard {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 20px 16px;
-  border-radius: 10px;
-  background: var(--color-bg-card, #f5f3ee);
-  border: 1px solid var(--color-border-subtle, #e0dbd0);
-  text-align: center;
-}
-
-.resultNumber {
-  font-size: 1.75rem;
-  font-weight: 800;
-  color: var(--color-accent-green, #2d6a4f);
-  line-height: 1;
-  margin-bottom: 6px;
-}
-
-.resultLabel {
-  font-size: 0.75rem;
-  color: var(--color-text-muted, #888);
-  font-weight: 500;
-}
-
-.nextStepsCard {
-  padding: 28px 32px;
-  border-radius: 10px;
-  background: var(--color-bg-card, #fdfaf5);
-  border: 1px solid var(--color-border-subtle, #e0dbd0);
-}
-
-.nextStepsList {
-  margin: 12px 0 0;
-  padding-left: 20px;
-  font-size: 0.875rem;
-  color: var(--color-text-secondary, #555);
-  line-height: 2;
-}
-
 .emptyState {
-  font-size: 0.875rem;
+  font-size: 0.85rem;
   color: var(--color-text-muted, #888);
   font-style: italic;
   padding: 12px 0;

@@ -439,9 +439,22 @@
   .desktopThemeToggle {
     display: none;
   }
+
+  /* The label ("CLUB BALANCE") is what pushed the pill wide enough to cause
+     a page-level horizontal scroll on narrow phones — the mobile drawer
+     already spells out "Club Balance: €Xm" on its own line, so nothing is
+     lost by collapsing the topbar pill down to just the figure here. */
+  .balancePill {
+    padding: 0 var(--space-3);
+    gap: 4px;
+  }
+
+  .balancePillLabel {
+    display: none;
+  }
 }
 
-/* Persistent Header Icon Buttons */
+/* Persistent Header Icon Buttons — also imported by ChatNavIcon.tsx */
 .iconBtn {
   display: flex;
   align-items: center;

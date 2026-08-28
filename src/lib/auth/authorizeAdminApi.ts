@@ -3,8 +3,9 @@
  *
  * Accepts EITHER:
  *  - a valid CRON_SECRET header (server-to-server / cron callers), or
- *  - a logged-in session belonging to a site admin (browser callers from
- *    /admin/offseason) — so we never need to ship CRON_SECRET to the client.
+ *  - a logged-in session belonging to a site admin (browser callers from the
+ *    Platform Admin section of Settings) — so we never need to ship
+ *    CRON_SECRET to the client.
  */
 
 import type { NextRequest } from 'next/server';

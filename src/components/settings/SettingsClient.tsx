@@ -6,6 +6,7 @@ import { useTheme } from '@/context/ThemeContext';
 import { Icon } from '@/components/ui/Icon';
 import NotificationsToggle from '@/components/layout/NotificationsToggle';
 import LeaveLeagueButton from '@/components/settings/LeaveLeagueButton';
+import PlatformAdminSection from '@/components/settings/PlatformAdminSection';
 import {
   KIND_LABELS,
   NOTIFICATION_KINDS,
@@ -20,6 +21,7 @@ interface Props {
   leagueId?: string | null;
   leagueName?: string | null;
   isCommissioner?: boolean;
+  isSiteAdmin?: boolean;
   initialPrefs: NotificationPrefs;
 }
 
@@ -27,6 +29,7 @@ export default function SettingsClient({
   leagueId = null,
   leagueName = null,
   isCommissioner = false,
+  isSiteAdmin = false,
   initialPrefs,
 }: Props) {
   const { theme, setTheme } = useTheme();
@@ -175,6 +178,17 @@ export default function SettingsClient({
               <LeaveLeagueButton leagueId={leagueId} isCommissioner={isCommissioner} />
             </div>
           </div>
+        </section>
+      )}
+
+      {isSiteAdmin && (
+        <section className={styles.section}>
+          <h2 className={styles.sectionTitle}>Platform Admin</h2>
+          <p className={styles.sectionHint}>
+            Site-admin only. Reset and Kickoff act across every league on the platform at once —
+            not something a league commissioner can trigger.
+          </p>
+          <PlatformAdminSection />
         </section>
       )}
     </div>

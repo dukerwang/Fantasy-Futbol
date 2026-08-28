@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { resolvePrefs } from '@/lib/notifications/prefs';
+import { isSiteAdminEmail } from '@/lib/auth/siteAdmin';
 import SettingsClient from '@/components/settings/SettingsClient';
 
 export const dynamic = 'force-dynamic';
@@ -18,5 +19,10 @@ export default async function SettingsPage() {
     .eq('id', user.id)
     .single();
 
-  return <SettingsClient initialPrefs={resolvePrefs(profile?.notification_prefs)} />;
+  return (
+    <SettingsClient
+      isSiteAdmin={isSiteAdminEmail(user.email)}
+      initialPrefs={resolvePrefs(profile?.notification_prefs)}
+    />
+  );
 }
