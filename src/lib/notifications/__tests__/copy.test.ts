@@ -66,7 +66,7 @@ describe('bid and market notices', () => {
   it('names who outbid you and how long you have to answer', () => {
     const n = outbidNotice(vdp, 'Bukayo Saka', 50, in24h);
     expect(n.title).toBe('Outbid by VDP');
-    expect(n.pushTitle).toBe('Outbid · VDP');
+    expect(n.pushTitle).toBe('Outbid on Bukayo Saka by VDP');
     expect(n.content).toBe(
       '**Vardy Party** have gone to **€50m** for **Bukayo Saka**. 24h left to bid.',
     );
@@ -82,7 +82,7 @@ describe('bid and market notices', () => {
   it('notifies trailing prior bidders that the top price was raised', () => {
     const n = bidRaisedNotice(vdp, 'Ayyoub Bouaddi', 51, 40, in24h);
     expect(n.title).toBe('VDP raise to €51m for Ayyoub Bouaddi');
-    expect(n.pushTitle).toBe('VDP · €51m');
+    expect(n.pushTitle).toBe('VDP raise on Ayyoub Bouaddi');
     expect(n.content).toBe(
       '**Vardy Party** have raised the top bid for **Ayyoub Bouaddi** to **€51m** (your bid: **€40m**). 24h left to bid.',
     );
@@ -138,7 +138,7 @@ describe('bid and market notices', () => {
     it('generates galactico alert for 100m+ deals', () => {
       const n = closingInNotice(vdp, 'Kylian Mbappé', 110, 120, in1h);
       expect(n.title).toBe('ADVANCING: VDP closing in on Kylian Mbappé');
-      expect(n.pushTitle).toBe('ADVANCING · VDP');
+      expect(n.pushTitle).toBe('ADVANCING: Kylian Mbappé · VDP');
       expect(n.content).toContain('**BREAKING:** **Vardy Party** are in advanced stages');
       expect(n.content).toContain('(**€110m**)');
       expect(n.pushBody).toBe('ADVANCING: Kylian Mbappé to VDP (€110m). Final call to bid.');
@@ -147,7 +147,7 @@ describe('bid and market notices', () => {
     it('generates blockbuster alert for 80m+ deals', () => {
       const n = closingInNotice(vdp, 'Cole Palmer', 85, 80, in1h);
       expect(n.title).toBe('Closing in: VDP on verge of Cole Palmer');
-      expect(n.pushTitle).toBe('Closing in · VDP');
+      expect(n.pushTitle).toBe('Closing in: Cole Palmer · VDP');
       expect(n.content).toContain('blockbuster agreement');
       expect(n.pushBody).toBe('VDP closing in on Cole Palmer (€85m). Final call to bid.');
     });

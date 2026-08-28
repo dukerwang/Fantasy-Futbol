@@ -13,6 +13,7 @@ import { getPlayerDisplayName } from '@/lib/players/displayName';
 import Portrait from '@/components/players/Portrait';
 import PositionBadge from '@/components/players/PositionBadge';
 import { SPINE, POS_COLOR } from '@/lib/positions/spine';
+import { getFormationLockStatus, assignStartersForFormation } from '@/lib/lineups/smartLock';
 import styles from './pitch.module.css';
 import { Icon } from '@/components/ui/Icon';
 
@@ -373,6 +374,7 @@ export default function PitchUI({
                 if (i === lineupSelection.slotIndex) continue;
                 const otherId = assignments[i];
                 const otherEntry = otherId ? playerMap.get(otherId) : null;
+                if (otherEntry && isPlMatchLocked(otherEntry.player, lockedTeamIds)) continue;
                 const curCanGoThere = !currentEntry || canPlaySlot(currentEntry.player, slots[i]);
                 const otherCanComeHere = !otherEntry || canPlaySlot(otherEntry.player, slots[lineupSelection.slotIndex]);
                 if (curCanGoThere && otherCanComeHere) targets.add(`starter-${i}`);
@@ -383,6 +385,9 @@ export default function PitchUI({
             }
             if (currentEntry) {
                 for (const slot of BENCH_SLOT_NAMES) {
+                    const benchPid = benchAssignments[slot];
+                    const benchEntry = benchPid ? playerMap.get(benchPid) : null;
+                    if (benchEntry && isPlMatchLocked(benchEntry.player, lockedTeamIds)) continue;
                     if (canPlayBenchSlot(currentEntry.player, slot)) targets.add(`bench-${slot}`);
                 }
             }
@@ -393,10 +398,16 @@ export default function PitchUI({
             const benchEntry = benchPlayerId ? playerMap.get(benchPlayerId) : null;
             if (benchEntry) {
                 for (let i = 0; i < slots.length; i++) {
+                    const starterPid = assignments[i];
+                    const starterEntry = starterPid ? playerMap.get(starterPid) : null;
+                    if (starterEntry && isPlMatchLocked(starterEntry.player, lockedTeamIds)) continue;
                     if (canPlaySlot(benchEntry.player, slots[i])) targets.add(`starter-${i}`);
                 }
                 for (const slot of BENCH_SLOT_NAMES) {
                     if (slot === lineupSelection.slot) continue;
+                    const otherBenchPid = benchAssignments[slot];
+                    const otherBenchEntry = otherBenchPid ? playerMap.get(otherBenchPid) : null;
+                    if (otherBenchEntry && isPlMatchLocked(otherBenchEntry.player, lockedTeamIds)) continue;
                     if (canPlayBenchSlot(benchEntry.player, slot)) targets.add(`bench-${slot}`);
                 }
             }
@@ -410,9 +421,15 @@ export default function PitchUI({
             const entry = playerMap.get(lineupSelection.playerId);
             if (entry && !isPlMatchLocked(entry.player, lockedTeamIds)) {
                 for (let i = 0; i < slots.length; i++) {
+                    const starterPid = assignments[i];
+                    const starterEntry = starterPid ? playerMap.get(starterPid) : null;
+                    if (starterEntry && isPlMatchLocked(starterEntry.player, lockedTeamIds)) continue;
                     if (canPlaySlot(entry.player, slots[i])) targets.add(`starter-${i}`);
                 }
                 for (const slot of BENCH_SLOT_NAMES) {
+                    const benchPid = benchAssignments[slot];
+                    const benchEntry = benchPid ? playerMap.get(benchPid) : null;
+                    if (benchEntry && isPlMatchLocked(benchEntry.player, lockedTeamIds)) continue;
                     if (canPlayBenchSlot(entry.player, slot)) targets.add(`bench-${slot}`);
                 }
             }
@@ -494,40 +511,18 @@ export default function PitchUI({
 
     // ── Formation change ──
     function handleFormationChange(f: Formation) {
-        const newSlots = FORMATION_SLOTS[f];
-        const newAssignments: Record<number, string | null> = {};
-        for (let i = 0; i < newSlots.length; i++) newAssignments[i] = null;
-        const usedPlayers = new Set<string>();
-        const oldSlots = FORMATION_SLOTS[formation];
-        const oldByPosition = new Map<GranularPosition, string[]>();
-        for (let i = 0; i < oldSlots.length; i++) {
-            const pid = assignments[i];
-            if (!pid) continue;
-            const pos = oldSlots[i];
-            if (!oldByPosition.has(pos)) oldByPosition.set(pos, []);
-            oldByPosition.get(pos)!.push(pid);
+        const status = formationLockStatus[f];
+        if (status?.disabled) {
+            setSaveError(status.reason ?? `Cannot switch to ${f}`);
+            return;
         }
-        for (let i = 0; i < newSlots.length; i++) {
-            const slotPos = newSlots[i];
-            const candidates = oldByPosition.get(slotPos) ?? [];
-            const available = candidates.find((id) => {
-                if (usedPlayers.has(id)) return false;
-                const entry = playerMap.get(id);
-                return entry ? canPlaySlot(entry.player, slotPos) : false;
-            });
-            if (available) { newAssignments[i] = available; usedPlayers.add(available); }
-        }
-        const remaining = Object.values(assignments).filter((id): id is string => id != null && !usedPlayers.has(id));
-        for (let i = 0; i < newSlots.length; i++) {
-            if (newAssignments[i] != null) continue;
-            const slotPos = newSlots[i];
-            const cand = remaining.find((id) => {
-                if (usedPlayers.has(id)) return false;
-                const entry = playerMap.get(id);
-                return entry ? canPlaySlot(entry.player, slotPos) : false;
-            });
-            if (cand) { newAssignments[i] = cand; usedPlayers.add(cand); }
-        }
+        const newAssignments = assignStartersForFormation(
+            assignments,
+            slots,
+            f,
+            lockedPlayerIds,
+            playerMap,
+        );
         setFormation(f);
         setAssignments(newAssignments);
         clearAll();
@@ -909,19 +904,37 @@ export default function PitchUI({
     }
 
     const canSave = !saving && slots.every((_, i) => assignments[i] != null) && BENCH_SLOT_NAMES.every((s) => benchAssignments[s] != null);
-    const isFormationLocked = useMemo(() => {
-        const initialPids = new Set([
-            ...Object.values(initialAssignments).filter((v): v is string => !!v),
-            ...Object.values(initialBench).filter((v): v is string => !!v),
-        ]);
-        for (const pid of initialPids) {
-            const entry = playerMap.get(pid);
-            if (entry && isPlMatchLocked(entry.player, lockedTeamIds)) {
-                return true;
+
+    const lockedPlayerIds = useMemo(() => {
+        const set = new Set<string>();
+        if (!lockedTeamIds || lockedTeamIds.size === 0) return set;
+        for (const e of allEntries) {
+            if (isPlMatchLocked(e.player, lockedTeamIds)) {
+                set.add(e.player.id);
             }
         }
-        return false;
-    }, [initialAssignments, initialBench, playerMap, lockedTeamIds]);
+        return set;
+    }, [allEntries, lockedTeamIds]);
+
+    const lockedStarters = useMemo(() => {
+        const list: Array<{ playerId: string; slot: GranularPosition }> = [];
+        const initialSlots = FORMATION_SLOTS[initialFormation];
+        for (let i = 0; i < initialSlots.length; i++) {
+            const pid = initialAssignments[i];
+            if (pid && lockedPlayerIds.has(pid)) {
+                list.push({ playerId: pid, slot: initialSlots[i] });
+            }
+        }
+        return list;
+    }, [initialAssignments, initialFormation, lockedPlayerIds]);
+
+    const formationLockStatus = useMemo(() => {
+        const names = new Map<string, string>();
+        for (const [id, e] of playerMap.entries()) {
+            names.set(id, displayName(e.player));
+        }
+        return getFormationLockStatus(lockedStarters, names);
+    }, [lockedStarters, playerMap]);
 
     // Hint text for current selection state (shown as a tooltip on the compact indicator)
     const selectionHint = lineupSelection
@@ -957,27 +970,31 @@ export default function PitchUI({
             <div className={styles.formationBar}>
                 <span className="g-label">{lineupWeekLabel ?? 'Formation'}</span>
                 <div className={styles.formationPills}>
-                    {FORMATIONS.map((f) => (
-                        <button
-                            key={f}
-                            type="button"
-                            className={[
-                                styles.formationPill,
-                                formation === f ? styles.formationPillActive : '',
-                                isFormationLocked ? styles.formationPillDisabled : '',
-                            ].filter(Boolean).join(' ')}
-                            onClick={() => handleFormationChange(f)}
-                            disabled={isFormationLocked}
-                            title={isFormationLocked ? 'Formation locked — squad player match in progress' : undefined}
-                        >
-                            {f}
-                        </button>
-                    ))}
+                    {FORMATIONS.map((f) => {
+                        const status = formationLockStatus[f];
+                        const isDisabled = status?.disabled ?? false;
+                        return (
+                            <button
+                                key={f}
+                                type="button"
+                                className={[
+                                    styles.formationPill,
+                                    formation === f ? styles.formationPillActive : '',
+                                    isDisabled ? styles.formationPillDisabled : '',
+                                ].filter(Boolean).join(' ')}
+                                onClick={() => handleFormationChange(f)}
+                                disabled={isDisabled}
+                                title={isDisabled ? status?.reason : undefined}
+                            >
+                                {f}
+                            </button>
+                        );
+                    })}
                 </div>
                 <div className={styles.formationBarTrailer}>
-                    {isFormationLocked && (
-                        <span className={styles.formationLockedNote}>
-                            <Icon name="lock" size={14} style={{ marginRight: '4px' }} /> Locked — squad match in progress
+                    {lockedPlayerIds.size > 0 && (
+                        <span className={styles.formationLockedNote} title="Players whose match has kicked off are locked to their slots">
+                            <Icon name="lock" size={14} style={{ marginRight: '4px' }} /> Smart-Lock active
                         </span>
                     )}
                     {selectionLabel && (

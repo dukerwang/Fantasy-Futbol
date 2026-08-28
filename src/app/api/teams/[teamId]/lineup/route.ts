@@ -4,36 +4,8 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { FORMATION_SLOTS, POSITION_FLEX_MAP, BENCH_FLEX_MAP, getExpectedBenchSlots } from '@/types';
 import { getPlayerDisplayName } from '@/lib/players/displayName';
 import { resolveLineupEditMatchup } from '@/lib/lineups/editTarget';
+import { validateLineupSmartLock } from '@/lib/lineups/smartLock';
 import type { Formation, GranularPosition, MatchupLineup, BenchSlot } from '@/types';
-
-type LineupPlacement = { kind: 'starter'; slot: GranularPosition } | { kind: 'bench'; slot: BenchSlot };
-
-function placementMapFromLineup(lineup: MatchupLineup | null | undefined): Map<string, LineupPlacement> {
-  const m = new Map<string, LineupPlacement>();
-  if (!lineup) return m;
-  for (const s of lineup.starters ?? []) {
-    m.set(s.player_id, { kind: 'starter', slot: s.slot });
-  }
-  for (const b of lineup.bench ?? []) {
-    if (b.player_id && b.slot) m.set(b.player_id, { kind: 'bench', slot: b.slot as BenchSlot });
-  }
-  return m;
-}
-
-function placementMapFromPayload(
-  starters: { player_id: string; slot: GranularPosition }[],
-  bench: { player_id: string; slot: BenchSlot }[],
-): Map<string, LineupPlacement> {
-  const m = new Map<string, LineupPlacement>();
-  for (const s of starters) m.set(s.player_id, { kind: 'starter', slot: s.slot });
-  for (const b of bench) m.set(b.player_id, { kind: 'bench', slot: b.slot });
-  return m;
-}
-
-function placementKey(p: LineupPlacement | undefined): string {
-  if (!p) return 'out';
-  return p.kind === 'starter' ? `starter:${p.slot}` : `bench:${p.slot}`;
-}
 
 interface Props {
   params: Promise<{ teamId: string }>;
@@ -293,38 +265,22 @@ export async function POST(req: NextRequest, { params }: Props) {
         };
       }
 
-      if (prevLineup.formation !== formation) {
-        for (const pid of placementMapFromLineup(prevLineup).keys()) {
-          if (plStarted(pid)) {
-            return NextResponse.json(
-              {
-                error:
-                  'Cannot change formation after a match involving one of your squad players has kicked off.',
-              },
-              { status: 400 },
-            );
-          }
-        }
+      const lockedPlayerIds = new Set<string>();
+      for (const pid of rosterPlayerIds) {
+        if (plStarted(pid)) lockedPlayerIds.add(pid);
       }
 
-      const prevMap = placementMapFromLineup(prevLineup);
-      const newMap = placementMapFromPayload(starters, bench);
-      const touched = new Set<string>([...prevMap.keys(), ...newMap.keys()]);
-      const lockedNames: string[] = [];
-      for (const pid of touched) {
-        if (!plStarted(pid)) continue;
-        const prevKey = placementKey(prevMap.get(pid));
-        const nextKey = placementKey(newMap.get(pid));
-        if (prevKey !== nextKey) {
-          const pl = playerMap.get(pid) as any;
-          lockedNames.push(pl ? getPlayerDisplayName(pl, 'initial_last') : pid);
-        }
-      }
-      if (lockedNames.length > 0) {
+      const validation = validateLineupSmartLock(
+        prevLineup,
+        starters,
+        bench,
+        lockedPlayerIds,
+        playerMap,
+      );
+
+      if (!validation.valid) {
         return NextResponse.json(
-          {
-            error: `Cannot change lineup for players whose club has already kicked off: ${[...new Set(lockedNames)].join(', ')}`,
-          },
+          { error: validation.error },
           { status: 400 },
         );
       }

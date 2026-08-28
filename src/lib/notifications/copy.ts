@@ -83,7 +83,7 @@ export function outbidNotice(
     : 'Bid again to take the lead.';
   return {
     title: `Outbid by ${abbr}`,
-    pushTitle: `Outbid · ${abbr}`,
+    pushTitle: `Outbid on ${playerName} by ${abbr}`,
     content: `**${name}** have gone to **${euro(amount)}** for **${playerName}**. ${action}`,
     pushBody: left
       ? left === 'closing now'
@@ -111,7 +111,7 @@ export function bidRaisedNotice(
   const yourBidClause = yourBid ? ` (your bid: **${euro(yourBid)}**)` : '';
   return {
     title: `${abbr} raise to ${euro(amount)} for ${playerName}`,
-    pushTitle: `${abbr} · ${euro(amount)}`,
+    pushTitle: `${abbr} raise on ${playerName}`,
     content: `**${name}** have raised the top bid for **${playerName}** to **${euro(amount)}**${yourBidClause}. ${action}`,
     pushBody: left
       ? left === 'closing now'
@@ -193,7 +193,7 @@ export function closingInNotice(
   if (tier === 'galactico') {
     return {
       title: `ADVANCING: ${abbr} closing in on ${playerName}`,
-      pushTitle: `ADVANCING · ${abbr}`,
+      pushTitle: `ADVANCING: ${playerName} · ${abbr}`,
       content: `**BREAKING:** **${name}** are in advanced stages to complete a marquee deal for **${playerName}** (**${euro(amount)}**). ${left ? `${left} on the open market` : 'Final hours'} before the agreement is sealed.`,
       pushBody: `ADVANCING: ${playerName} to ${abbr} (${euro(amount)}). Final call to bid.`,
     };
@@ -202,7 +202,7 @@ export function closingInNotice(
   if (tier === 'blockbuster') {
     return {
       title: `Closing in: ${abbr} on verge of ${playerName}`,
-      pushTitle: `Closing in · ${abbr}`,
+      pushTitle: `Closing in: ${playerName} · ${abbr}`,
       content: `**${name}** are closing in on a blockbuster agreement for **${playerName}** at **${euro(amount)}**. ${left ? `${left} to submit` : 'Final hours to submit'} a competing offer.`,
       pushBody: `${abbr} closing in on ${playerName} (${euro(amount)}). Final call to bid.`,
     };
