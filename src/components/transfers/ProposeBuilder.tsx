@@ -160,8 +160,8 @@ export default function ProposeBuilder({
   // cash line exist at zero while it is being typed into.
   const [picking, setPicking] = useState<'mine' | 'theirs' | null>(null);
   const [pickQuery, setPickQuery] = useState('');
-  const [myCashOpen, setMyCashOpen] = useState(false);
-  const [theirCashOpen, setTheirCashOpen] = useState(false);
+  const [myCashOpen, setMyCashOpen] = useState(Boolean(initialMyCash && initialMyCash > 0));
+  const [theirCashOpen, setTheirCashOpen] = useState(Boolean(initialTheirCash && initialTheirCash > 0));
 
   // Loan terms.
   const gwNow = model.currentGameweek;
@@ -176,7 +176,7 @@ export default function ProposeBuilder({
   const [error, setError] = useState<string | null>(null);
 
   // Re-seed when reopened for a different starting point.
-  const seedKey = `${initialMode}:${initialTeamId ?? ''}:${initialPlayerId ?? ''}:${initialGiveRightId ?? ''}:${initialLoanDirection ?? ''}:${parentTradeId ?? ''}:${parentLoanId ?? ''}:${open}`;
+  const seedKey = `${initialMode}:${initialTeamId ?? ''}:${initialPlayerId ?? ''}:${initialGiveRightId ?? ''}:${initialLoanDirection ?? ''}:${parentTradeId ?? ''}:${parentLoanId ?? ''}:${initialMyCash ?? 0}:${initialTheirCash ?? 0}:${open}`;
   const [seed, setSeed] = useState(seedKey);
   if (seed !== seedKey) {
     setSeed(seedKey);
@@ -191,8 +191,8 @@ export default function ProposeBuilder({
     setMessage('');
     setPicking(null);
     setPickQuery('');
-    setMyCashOpen(false);
-    setTheirCashOpen(false);
+    setMyCashOpen(Boolean(initialMyCash && initialMyCash > 0));
+    setTheirCashOpen(Boolean(initialTheirCash && initialTheirCash > 0));
     setLoanDirection(initialLoanDirection ?? 'borrow');
     setStartGw(initialStartGw ?? gwNow + 1);
     setEndGw(initialEndGw ?? gwNow + 7);
@@ -780,6 +780,8 @@ export default function ProposeBuilder({
               // The wanted players/rights belong to the old counterparty's squad.
               setWant([]);
               setWantRights([]);
+              setTheirCash(0);
+              setTheirCashOpen(false);
             }}
           >
             <CrestBadge
