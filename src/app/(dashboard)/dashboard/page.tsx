@@ -67,8 +67,13 @@ export default async function DashboardPage() {
     draftingLeagueIds.length > 0
       ? admin.from('draft_picks').select('league_id').in('league_id', draftingLeagueIds)
       : Promise.resolve({ data: [] as any[] }),
-    fplStatus.nextGw ? getGameweekFixtures(fplStatus.nextGw) : Promise.resolve([] as GwFixture[]),
+    fplStatus.displayGw ? getGameweekFixtures(fplStatus.displayGw) : Promise.resolve([] as GwFixture[]),
   ]);
+
+  const liveMatches = fixtures.filter((f) => f.started && !f.finished);
+  const finishedMatches = fixtures.filter((f) => f.finished);
+  const upcomingFixtures = fixtures.filter((f) => !f.started && f.kickoff);
+  const nextKickoffFixture = upcomingFixtures[0];
 
   const rankMap = new Map((standings ?? []).map((s: any) => [s.team_id, s.rank]));
 
@@ -161,14 +166,44 @@ export default async function DashboardPage() {
         </div>
       </header>
 
-      {fplStatus.nextDeadline && (
+      {(fplStatus.isLive || fplStatus.nextDeadline) && (
         <section className={styles.gwBanner} aria-label="Premier League gameweek status">
           <div className={styles.gwMain}>
-            <span className={styles.gwLabel}>Gameweek {fplStatus.nextGw ?? fplStatus.currentGw} · First Kickoff</span>
+            <span className={styles.gwLabel}>
+              Gameweek {fplStatus.displayGw} · {fplStatus.isLive ? <span className={styles.gwLive}>In Progress</span> : 'First Kickoff'}
+            </span>
             <div className={styles.gwCount}>
-              <Countdown deadline={fplStatus.nextDeadline} className={styles.gwCountStat} />
+              {fplStatus.isLive ? (
+                liveMatches.length > 0 ? (
+                  <span className={styles.gwCountStat}>
+                    {liveMatches.length} {liveMatches.length === 1 ? 'match' : 'matches'} in play
+                  </span>
+                ) : nextKickoffFixture?.kickoff ? (
+                  <Countdown deadline={nextKickoffFixture.kickoff} className={styles.gwCountStat} />
+                ) : (
+                  <span className={styles.gwCountStat}>
+                    {finishedMatches.length > 0 && finishedMatches.length === fixtures.length
+                      ? 'Matches completed'
+                      : 'Gameweek in play'}
+                  </span>
+                )
+              ) : (
+                fplStatus.nextDeadline && (
+                  <Countdown deadline={fplStatus.nextDeadline} className={styles.gwCountStat} />
+                )
+              )}
             </div>
-            <p className={styles.gwDeadline}>{formatDeadline(fplStatus.nextDeadline)} UK time — each player locks individually when their club kicks off</p>
+            <p className={styles.gwDeadline}>
+              {fplStatus.isLive
+                ? liveMatches.length > 0
+                  ? `${finishedMatches.length} of ${fixtures.length} matches finished — each player locks individually when their club kicks off`
+                  : nextKickoffFixture?.kickoff
+                    ? `Next kickoff ${formatDeadline(nextKickoffFixture.kickoff)} UK time — each player locks individually when their club kicks off`
+                    : 'Each player locks individually when their club kicks off'
+                : fplStatus.nextDeadline
+                  ? `${formatDeadline(fplStatus.nextDeadline)} UK time — each player locks individually when their club kicks off`
+                  : 'Each player locks individually when their club kicks off'}
+            </p>
           </div>
           {fixtures.length > 0 && (
             <>

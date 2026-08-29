@@ -108,6 +108,14 @@
   composes: ds-label from global;
 }
 
+.gwLive {
+  composes: ds-live from global;
+  font-size: inherit;
+  font-family: inherit;
+  font-style: normal;
+  text-transform: uppercase;
+}
+
 .gwCount {
   margin-top: 2px;
 }
