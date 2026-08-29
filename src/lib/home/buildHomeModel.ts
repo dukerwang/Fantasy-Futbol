@@ -462,7 +462,7 @@ export async function buildHomeModel(
     admin
       .from('auction_state')
       .select(
-        'player_id, kind, status, seller_team_id, sale_listing_id, highest_bid, highest_bidder_team_id, bid_count, bids, expires_at, minimum_bid',
+        'player_id, kind, status, seller_team_id, sale_listing_id, highest_bid, highest_bidder_team_id, bid_count, bids, expires_at',
       )
       .eq('league_id', leagueId)
       .eq('status', 'live'),
