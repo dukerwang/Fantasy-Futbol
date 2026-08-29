@@ -475,25 +475,41 @@
 .mktSummary { font-size: var(--t-12); color: var(--color-text-secondary); }
 .mktBudget { composes: mktSummary; margin-left: auto; }
 
+.r { text-align: right; }
+
 .mktHead {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 96px 120px 78px 84px 124px;
   gap: var(--s2) var(--s3);
-  padding: var(--s2) var(--s5);
+  padding: var(--s2) var(--s4);
   border-bottom: 1px solid var(--color-border);
   align-items: center;
+}
+.mktHead > span {
+  font-family: var(--font-condensed);
+  font-size: var(--t-10);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
 }
 
 .mktRow {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 96px 120px 78px 84px 124px;
   gap: var(--s2) var(--s3);
-  padding: var(--s3) var(--s5);
+  padding: var(--s2) var(--s4);
   border-bottom: 1px solid var(--color-border-subtle);
   align-items: center;
 }
 .mktRow:last-child {
   border-bottom: none;
+}
+
+.mktCol,
+.mktWho,
+.mktYou {
+  align-self: baseline;
 }
 
 .mktRowMine {
@@ -506,12 +522,13 @@
 
 .mktId { display: flex; align-items: center; gap: var(--s2); min-width: 0; }
 .mktName { min-width: 0; }
-.mktNameN { font-family: var(--font-serif); font-size: var(--t-15); font-weight: 700; color: var(--color-text-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mktNameN { font-family: var(--font-serif); font-size: var(--t-17); font-weight: 700; letter-spacing: -0.01em; color: var(--color-text-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .mktNameM { font-size: var(--t-11); color: var(--color-text-muted); margin-top: 1px; }
 
 .mktCol {
   display: flex;
   flex-direction: column;
+  min-width: 0;
 }
 
 .mktBidCol {
@@ -521,10 +538,11 @@
 .mktBidV {
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: var(--t-15);
+  font-size: var(--t-17);
   line-height: 1;
   font-variant-numeric: tabular-nums lining-nums;
   color: var(--color-text-primary);
+  text-align: right;
 }
 .mktBidNone {
   font-family: var(--font-condensed);
@@ -537,9 +555,10 @@
   font-family: var(--font-mono);
   font-size: var(--t-10);
   color: var(--color-text-muted);
-  margin-top: 2px;
+  margin-top: var(--s1);
   font-variant-numeric: tabular-nums lining-nums;
   white-space: nowrap;
+  text-align: right;
 }
 
 .mktWho {
@@ -568,25 +587,37 @@
 }
 .mktYouUp  { color: var(--color-accent-ink); }
 .mktYouOut { color: var(--color-danger); }
-.mktYouOff { color: var(--color-text-muted); }
+.mktYouOff {
+  font-family: var(--font-sans);
+  color: var(--color-text-muted);
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+  font-size: var(--t-11);
+}
 
 .mktClockCol {
   text-align: right;
   align-items: flex-end;
+  min-width: 0;
 }
 .mktClockTime {
   font-family: var(--font-mono);
-  font-size: var(--t-13);
-  font-weight: 600;
-  color: var(--color-text-primary);
+  font-size: var(--t-15);
+  font-weight: 700;
+  color: var(--color-text-secondary);
   font-variant-numeric: tabular-nums lining-nums;
   white-space: nowrap;
+  text-align: right;
 }
 .mktBids {
+  font-family: var(--font-condensed);
   font-size: var(--t-10);
+  letter-spacing: 0.04em;
   color: var(--color-text-muted);
-  margin-top: 2px;
+  margin-top: var(--s1);
   white-space: nowrap;
+  text-align: right;
 }
 
 .mktAction {
@@ -598,7 +629,7 @@
 .mktAction .btnMuted {
   width: 100%;
   max-width: 124px;
-  height: 32px;
+  height: 34px;
   padding: 0 var(--s2);
   display: inline-flex;
   align-items: center;
