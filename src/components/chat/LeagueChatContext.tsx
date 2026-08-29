@@ -29,14 +29,27 @@ interface LeagueChatContextType {
 
 const LeagueChatContext = createContext<LeagueChatContextType | null>(null);
 
+const RESERVED_SEGMENTS = new Set(['create', 'join']);
+
 export function LeagueChatProvider({
-  leagueId,
+  leagueId: propLeagueId,
   children,
 }: {
-  leagueId: string;
+  leagueId?: string;
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+
+  // Dynamically extract leagueId from route if not explicitly passed as prop
+  const derivedLeagueId = useMemo(() => {
+    if (propLeagueId) return propLeagueId;
+    const match = pathname?.match(/\/league\/([^/]+)/);
+    const raw = match ? match[1] : null;
+    return raw && !RESERVED_SEGMENTS.has(raw) ? raw : '';
+  }, [pathname, propLeagueId]);
+
+  const leagueId = propLeagueId || derivedLeagueId;
+
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const [activeTab, setActiveTab] = useState<ChatTabState>({ type: 'lobby' });
@@ -48,7 +61,7 @@ export function LeagueChatProvider({
   // If the user navigates directly to the dedicated full chat page,
   // close the onscreen widget so there aren't two chats open on screen.
   useEffect(() => {
-    if (pathname?.startsWith(`/league/${leagueId}/chat`)) {
+    if (leagueId && pathname?.startsWith(`/league/${leagueId}/chat`)) {
       setIsOpen(false);
     }
   }, [pathname, leagueId]);

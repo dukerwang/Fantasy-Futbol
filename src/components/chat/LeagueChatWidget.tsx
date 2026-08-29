@@ -41,9 +41,9 @@ interface ChatMessage {
 export default function LeagueChatWidget() {
   const chatContext = useLeagueChat();
 
-  if (!chatContext) return null;
+  if (!chatContext || !chatContext.leagueId) return null;
 
-  return <LeagueChatWidgetContent {...chatContext} />;
+  return <LeagueChatWidgetContent {...chatContext} leagueId={chatContext.leagueId} />;
 }
 
 function LeagueChatWidgetContent({
