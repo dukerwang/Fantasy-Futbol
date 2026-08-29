@@ -403,7 +403,7 @@ export async function buildHomeModel(
     .select(
       `id, name, status, season, current_season, previous_season, total_gameweeks,
        roster_size, taxi_size, taxi_age_limit, retained_slots, prize_config,
-       merit_win, merit_draw, merit_loss, merit_bye`,
+       merit_win, merit_draw, merit_loss, merit_bye, free_agent_bid_floor`,
     )
     .eq('id', leagueId)
     .single();
@@ -457,7 +457,7 @@ export async function buildHomeModel(
     admin
       .from('auction_state')
       .select(
-        'player_id, kind, status, seller_team_id, highest_bid, highest_bidder_team_id, bid_count, bids, expires_at, minimum_bid',
+        'player_id, kind, status, seller_team_id, sale_listing_id, highest_bid, highest_bidder_team_id, bid_count, bids, expires_at',
       )
       .eq('league_id', leagueId)
       .eq('status', 'live'),
@@ -1672,10 +1672,22 @@ export async function buildHomeModel(
   if (lotPlayerIds.length) {
     const { data: lp } = await admin
       .from('players')
-      .select('id, web_name, name, primary_position, pl_team')
+      .select('id, web_name, name, primary_position, pl_team, market_value')
       .in('id', lotPlayerIds);
     for (const p of lp ?? []) lotPlayers.set(p.id, p);
   }
+
+  const lotListingIds = liveAuctions.map((a) => a.sale_listing_id).filter(Boolean);
+  const minBidByListing = new Map<string, number | null>();
+  if (lotListingIds.length) {
+    const { data: sl } = await admin
+      .from('player_sale_listings')
+      .select('id, min_bid')
+      .in('id', lotListingIds);
+    for (const l of sl ?? []) minBidByListing.set(l.id, l.min_bid);
+  }
+
+  const freeAgentBidFloor = Number(league.free_agent_bid_floor) || 0.5;
 
   const market: MarketLot[] = [...liveAuctions]
     .sort((a, b) => {
@@ -1693,7 +1705,9 @@ export async function buildHomeModel(
       const holderClub = a.highest_bidder_team_id ? clubOf(a.highest_bidder_team_id) : null;
       const sellerClub = a.seller_team_id ? clubOf(a.seller_team_id) : null;
       const highest = Number(a.highest_bid ?? 0);
-      const floorVal = Number(a.minimum_bid ?? 0);
+      const listingMinBid = a.sale_listing_id ? minBidByListing.get(a.sale_listing_id) : undefined;
+      const marketVal = Number(p?.market_value ?? 0);
+      const floorVal = listingMinBid != null ? listingMinBid : Math.floor(marketVal * freeAgentBidFloor);
       const next = highest > 0 ? highest + 1 : floorVal;
 
       return {
