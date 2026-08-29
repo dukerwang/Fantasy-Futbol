@@ -472,34 +472,28 @@ function Lot({
           </div>
         </div>
 
-        <div className={`${styles.lotCol} ${styles.lotWhoCol}`}>
-          <div className={styles.lotWho}>
-            {a.highest_bidder_team_id ? (
-              <>
-                <CrestBadge
-                  config={(leader?.crest_config as CrestConfig | null) ?? null}
-                  teamName={leader?.team_name ?? a.highest_bidder_team_name}
-                  teamId={a.highest_bidder_team_id}
-                  size={17}
-                />
-                <span className={styles.lotWn}>
-                  {leading ? 'You' : a.highest_bidder_team_name}
-                </span>
-              </>
-            ) : (
-              <span className={styles.lotWn}>—</span>
-            )}
-          </div>
-          <div className={styles.lotSublineSpacer} aria-hidden="true" />
+        <div className={styles.lotWho}>
+          {a.highest_bidder_team_id ? (
+            <>
+              <CrestBadge
+                config={(leader?.crest_config as CrestConfig | null) ?? null}
+                teamName={leader?.team_name ?? a.highest_bidder_team_name}
+                teamId={a.highest_bidder_team_id}
+                size={17}
+              />
+              <span className={styles.lotWn}>
+                {leading ? 'You' : a.highest_bidder_team_name}
+              </span>
+            </>
+          ) : (
+            <span className={styles.lotWn}>—</span>
+          )}
         </div>
 
-        <div className={`${styles.lotCol} ${styles.lotYouCol}`}>
-          <div
-            className={`${styles.lotYou} ${leading ? styles.youUp : outbid ? styles.youOut : styles.youOff}`}
-          >
-            {mine ? 'Your lot' : leading ? 'Leading' : outbid ? 'Outbid' : 'Not in'}
-          </div>
-          <div className={styles.lotSublineSpacer} aria-hidden="true" />
+        <div
+          className={`${styles.lotYou} ${leading ? styles.youUp : outbid ? styles.youOut : styles.youOff}`}
+        >
+          {mine ? 'Your lot' : leading ? 'Leading' : outbid ? 'Outbid' : 'Not in'}
         </div>
 
         <div className={`${styles.lotCol} ${styles.lotClockCol}`}>

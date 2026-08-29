@@ -86,44 +86,38 @@ export function Market({ model }: { model: HomeModel }) {
                   <div className={styles.mktBidL}>{lot.floor}</div>
                 </div>
 
-                <div className={`${styles.mktCol} ${styles.mktWhoCol}`}>
-                  <div className={styles.mktWho}>
-                    {lot.leaderTeamId ? (
-                      <>
-                        <CrestBadge
-                          config={lot.leaderCrest as CrestConfig | null}
-                          teamName={lot.leaderName ?? ''}
-                          teamId={lot.leaderTeamId}
-                          size={17}
-                        />
-                        <span className={styles.mktWhoName}>{lot.leaderName}</span>
-                      </>
-                    ) : (
-                      <span className={styles.mktWhoName}>—</span>
-                    )}
-                  </div>
-                  <div className={styles.mktSublineSpacer} aria-hidden="true" />
+                <div className={styles.mktWho}>
+                  {lot.leaderTeamId ? (
+                    <>
+                      <CrestBadge
+                        config={lot.leaderCrest as CrestConfig | null}
+                        teamName={lot.leaderName ?? ''}
+                        teamId={lot.leaderTeamId}
+                        size={17}
+                      />
+                      <span className={styles.mktWhoName}>{lot.leaderName}</span>
+                    </>
+                  ) : (
+                    <span className={styles.mktWhoName}>—</span>
+                  )}
                 </div>
 
-                <div className={`${styles.mktCol} ${styles.mktYouCol}`}>
-                  <div
-                    className={`${styles.mktYou} ${
-                      lot.leading
-                        ? styles.mktYouUp
-                        : lot.outbid
-                          ? styles.mktYouOut
-                          : styles.mktYouOff
-                    }`}
-                  >
-                    {lot.isMine
-                      ? 'Your lot'
-                      : lot.leading
-                        ? 'Leading'
-                        : lot.outbid
-                          ? 'Outbid'
-                          : '—'}
-                  </div>
-                  <div className={styles.mktSublineSpacer} aria-hidden="true" />
+                <div
+                  className={`${styles.mktYou} ${
+                    lot.leading
+                      ? styles.mktYouUp
+                      : lot.outbid
+                        ? styles.mktYouOut
+                        : styles.mktYouOff
+                  }`}
+                >
+                  {lot.isMine
+                    ? 'Your lot'
+                    : lot.leading
+                      ? 'Leading'
+                      : lot.outbid
+                        ? 'Outbid'
+                        : '—'}
                 </div>
 
                 <div className={`${styles.mktCol} ${styles.mktClockCol}`}>

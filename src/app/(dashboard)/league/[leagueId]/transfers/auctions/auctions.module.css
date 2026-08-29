@@ -336,12 +336,12 @@
 }
 
 .lotWho {
-  height: 22px;
   display: flex;
   align-items: center;
   gap: var(--s1);
   justify-content: flex-end;
   min-width: 0;
+  align-self: center;
 }
 
 .lotWn {
@@ -353,7 +353,6 @@
 }
 
 .lotYou {
-  height: 22px;
   display: flex;
   align-items: center;
   justify-content: flex-end;
@@ -363,12 +362,7 @@
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-}
-
-.lotSublineSpacer {
-  height: 16px;
-  margin-top: 3px;
-  visibility: hidden;
+  align-self: center;
 }
 
 .youUp  { color: var(--color-accent-ink); }
@@ -825,10 +819,6 @@
     grid-area: you;
     align-self: center;
     text-align: left;
-  }
-
-  .lotSublineSpacer {
-    display: none;
   }
 
   .lotActions {

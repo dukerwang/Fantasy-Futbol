@@ -590,13 +590,13 @@
 }
 
 .mktWho {
-  height: 22px;
   display: flex;
   align-items: center;
   justify-content: flex-end;
   gap: var(--s1);
   min-width: 0;
   text-align: right;
+  align-self: center;
 }
 .mktWhoName {
   font-size: var(--t-12);
@@ -607,7 +607,6 @@
 }
 
 .mktYou {
-  height: 22px;
   display: flex;
   align-items: center;
   justify-content: flex-end;
@@ -617,12 +616,7 @@
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-}
-
-.mktSublineSpacer {
-  height: 16px;
-  margin-top: 3px;
-  visibility: hidden;
+  align-self: center;
 }
 .mktYouUp  { color: var(--color-accent-ink); }
 .mktYouOut { color: var(--color-danger); }
@@ -1004,7 +998,6 @@
   .mktBid, .mktBidL { text-align: left; }
   .mktWho { grid-area: who; align-self: center; justify-content: flex-end; }
   .mktYou { grid-area: you; align-self: center; text-align: left; }
-  .mktSublineSpacer { display: none; }
   .mktAction { grid-area: action; align-self: center; justify-content: flex-end; width: 100%; }
   .mktAction .btn,
   .mktAction .btnPrimary,
