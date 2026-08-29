@@ -47,52 +47,111 @@ export function Market({ model }: { model: HomeModel }) {
             else wins it.
           </div>
         ) : (
-          model.market.map((lot) => (
-            <div
-              key={lot.playerId}
-              className={lot.leading ? styles.mktRowMine : styles.mktRow}
-            >
-              <div className={styles.mktId}>
-                {lot.position ? (
-                  <PositionBadge position={lot.position as GranularPosition} size="sm" />
-                ) : (
-                  <span />
-                )}
-                <div className={styles.mktName}>
-                  <div className={styles.mktNameN}>{lot.name}</div>
-                  <div className={styles.mktNameM}>{lot.meta}</div>
+          <>
+            <div className={styles.mktHead}>
+              <span className="g-label">LOT</span>
+              <span className={`g-label ${styles.r}`}>STANDING BID</span>
+              <span className={`g-label ${styles.r}`}>LEADER</span>
+              <span className={`g-label ${styles.r}`}>YOU</span>
+              <span className={`g-label ${styles.r}`}>CLOSES</span>
+              <span />
+            </div>
+            {model.market.map((lot) => (
+              <div
+                key={lot.playerId}
+                className={`${styles.mktRow} ${
+                  lot.leading
+                    ? styles.mktRowMine
+                    : lot.outbid
+                      ? styles.mktRowOutbid
+                      : ''
+                }`}
+              >
+                <div className={styles.mktId}>
+                  {lot.position ? (
+                    <PositionBadge position={lot.position as GranularPosition} size="sm" />
+                  ) : (
+                    <span />
+                  )}
+                  <div className={styles.mktName}>
+                    <div className={styles.mktNameN}>{lot.name}</div>
+                    <div className={styles.mktNameM}>{lot.meta}</div>
+                  </div>
                 </div>
-              </div>
-              <div className={styles.mktBid}>
-                <div className={`${styles.mktBidV} ${lot.hasBids ? '' : styles.mktBidNone}`}>
-                  {lot.bid}
+
+                <div className={`${styles.mktCol} ${styles.mktBidCol}`}>
+                  <div className={`${styles.mktBidV} ${lot.hasBids ? '' : styles.mktBidNone}`}>
+                    {lot.bid}
+                  </div>
+                  <div className={styles.mktBidL}>{lot.floor}</div>
                 </div>
-                <div className={styles.mktBidL}>{lot.floor}</div>
-              </div>
-              <div className={styles.mktStatusCol}>
-                <div className={styles.mktHolder}>{lot.holder}</div>
-                {lot.outbid && <span className={styles.mktTagOutbid}>OUTBID</span>}
-                {lot.leading && <span className={styles.mktTagLeading}>LEADING</span>}
-              </div>
-              <div className={styles.mktClock}>
-                <Countdown to={lot.expiresAt} serverNow={model.serverNow} />
-              </div>
-              <div className={styles.mktAction}>
-                <NavigationLink
-                  href={lot.href}
-                  className={lot.outbid ? styles.btnPrimary : styles.btn}
+
+                <div className={styles.mktWho}>
+                  {lot.leaderTeamId ? (
+                    <>
+                      <CrestBadge
+                        config={lot.leaderCrest as CrestConfig | null}
+                        teamName={lot.leaderName ?? ''}
+                        teamId={lot.leaderTeamId}
+                        size={17}
+                      />
+                      <span className={styles.mktWhoName}>{lot.leaderName}</span>
+                    </>
+                  ) : (
+                    <span className={styles.mktWhoName}>—</span>
+                  )}
+                </div>
+
+                <div
+                  className={`${styles.mktYou} ${
+                    lot.leading
+                      ? styles.mktYouUp
+                      : lot.outbid
+                        ? styles.mktYouOut
+                        : styles.mktYouOff
+                  }`}
                 >
-                  {lot.outbid
-                    ? `Raise ${lot.nextBid}`
+                  {lot.isMine
+                    ? 'Your lot'
                     : lot.leading
                       ? 'Leading'
-                      : lot.hasBids
-                        ? `Bid ${lot.nextBid}`
-                        : `Open at ${lot.nextBid}`}
-                </NavigationLink>
+                      : lot.outbid
+                        ? 'Outbid'
+                        : '—'}
+                </div>
+
+                <div className={`${styles.mktCol} ${styles.mktClockCol}`}>
+                  <div className={styles.mktClockTime}>
+                    <Countdown to={lot.expiresAt} serverNow={model.serverNow} />
+                  </div>
+                  <div className={styles.mktBids}>
+                    {lot.bidCount === 0
+                      ? 'no bids yet'
+                      : `${lot.bidCount} bid${lot.bidCount === 1 ? '' : 's'}`}
+                  </div>
+                </div>
+
+                <div className={styles.mktAction}>
+                  <NavigationLink
+                    href={lot.href}
+                    className={
+                      lot.outbid
+                        ? styles.btnPrimary
+                        : lot.leading
+                          ? styles.btnMuted
+                          : styles.btn
+                    }
+                  >
+                    {lot.outbid
+                      ? `Raise ${lot.nextBid}`
+                      : lot.leading
+                        ? 'Leading'
+                        : `Bid ${lot.nextBid}`}
+                  </NavigationLink>
+                </div>
               </div>
-            </div>
-          ))
+            ))}
+          </>
         )}
       </div>
     </section>

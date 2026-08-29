@@ -142,6 +142,10 @@ export interface MarketLot {
   bid: string;
   floor: string;
   hasBids: boolean;
+  bidCount: number;
+  leaderTeamId: string | null;
+  leaderName: string | null;
+  leaderCrest: any | null;
   holder: string;
   expiresAt: string | null;
   /** true when you hold the top bid on this lot. */
@@ -1718,6 +1722,10 @@ export async function buildHomeModel(
         bid: highest > 0 ? money(highest) : 'No bids',
         floor: highest > 0 ? `from ${money(floorVal)}` : `floor ${money(floorVal)}`,
         hasBids: highest > 0,
+        bidCount: a.bid_count ?? 0,
+        leaderTeamId: a.highest_bidder_team_id ?? null,
+        leaderName: leading ? 'You' : holderClub ? holderClub.name : null,
+        leaderCrest: (holderClub?.crest as any) ?? null,
         holder: isMine
           ? 'Your lot'
           : leading
