@@ -339,9 +339,10 @@
   display: flex;
   align-items: center;
   gap: var(--s1);
-  justify-content: flex-end;
+  justify-content: flex-start;
   min-width: 0;
   align-self: center;
+  text-align: left;
 }
 
 .lotWn {
@@ -355,8 +356,8 @@
 .lotYou {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
-  text-align: right;
+  justify-content: flex-start;
+  text-align: left;
   font-family: var(--font-condensed);
   font-size: var(--t-11);
   font-weight: 700;

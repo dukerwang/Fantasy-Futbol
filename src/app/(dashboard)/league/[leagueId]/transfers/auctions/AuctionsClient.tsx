@@ -225,8 +225,8 @@ export default function AuctionsClient({
             <div className={styles.lotHead}>
               <span className="g-label">Lot</span>
               <span className={`g-label ${styles.r}`}>Standing bid</span>
-              <span className={`g-label ${styles.r}`}>Leader</span>
-              <span className={`g-label ${styles.r}`}>You</span>
+              <span className="g-label">Leader</span>
+              <span className="g-label">You</span>
               <span className={`g-label ${styles.r}`}>Closes</span>
               <span className="g-label" />
             </div>

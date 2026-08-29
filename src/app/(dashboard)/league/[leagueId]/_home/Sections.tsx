@@ -51,8 +51,8 @@ export function Market({ model }: { model: HomeModel }) {
             <div className={styles.mktHead}>
               <span className="g-label">LOT</span>
               <span className={`g-label ${styles.r}`}>STANDING BID</span>
-              <span className={`g-label ${styles.r}`}>LEADER</span>
-              <span className={`g-label ${styles.r}`}>YOU</span>
+              <span className="g-label">LEADER</span>
+              <span className="g-label">YOU</span>
               <span className={`g-label ${styles.r}`}>CLOSES</span>
               <span />
             </div>
