@@ -162,7 +162,7 @@
    action button keep the row's centre — they are objects, not type. */
 .lotCol,
 .lotWho,
-.lotYou { align-self: baseline; }
+.lotYou { align-self: center; }
 
 .lotHead {
   padding: var(--s2) var(--s4);
@@ -232,6 +232,8 @@
 .lotNameRow { display: flex; align-items: center; gap: var(--s2); min-width: 0; }
 
 .lotName {
+  height: 22px;
+  line-height: 22px;
   font-family: var(--font-serif);
   font-weight: 700;
   font-size: var(--t-17);
@@ -246,6 +248,8 @@
   text-overflow: ellipsis;
   min-width: 0;
   text-align: left;
+  display: flex;
+  align-items: center;
 }
 
 @media (hover: hover) and (pointer: fine) {
@@ -255,9 +259,11 @@
 /* The club is gone from this line — the portrait's crest carries it now, which
    is what lets the row hold at two short lines instead of three. */
 .lotSub {
+  height: 16px;
+  line-height: 16px;
   font-size: var(--t-11);
   color: var(--row-ink);
-  margin-top: var(--s1);
+  margin-top: 3px;
   display: flex;
   align-items: center;
   gap: var(--s1);
@@ -295,12 +301,16 @@
 
 /* Live money: mono, because it ticks. */
 .lotBid {
+  height: 22px;
+  line-height: 22px;
   font-family: var(--font-mono);
   font-weight: 700;
   font-size: var(--t-17);
   font-variant-numeric: tabular-nums lining-nums;
-  text-align: right;
   color: var(--color-text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
 }
 
 .lotBidNone {
@@ -312,20 +322,27 @@
 }
 
 .lotFrom {
+  height: 16px;
+  line-height: 16px;
   font-family: var(--font-mono);
   font-size: var(--t-10);
   font-variant-numeric: tabular-nums lining-nums;
   color: var(--row-ink);
-  text-align: right;
-  margin-top: var(--s1);
+  margin-top: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  white-space: nowrap;
 }
 
 .lotWho {
+  height: 22px;
   display: flex;
   align-items: center;
   gap: var(--s1);
   justify-content: flex-end;
   min-width: 0;
+  margin-bottom: 19px;
 }
 
 .lotWn {
@@ -337,12 +354,17 @@
 }
 
 .lotYou {
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
   text-align: right;
   font-family: var(--font-condensed);
   font-size: var(--t-11);
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
+  margin-bottom: 19px;
 }
 
 .youUp  { color: var(--color-accent-ink); }
@@ -359,12 +381,17 @@
 
 /* The countdown is the canonical mono case. */
 .lotClock {
+  height: 22px;
+  line-height: 22px;
   font-family: var(--font-mono);
   font-weight: 700;
   font-size: var(--t-15);
   font-variant-numeric: tabular-nums lining-nums;
-  text-align: right;
   color: var(--color-text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  white-space: nowrap;
 }
 
 /* Closing soon is a warning, not a liveness marker — the room's own live
@@ -373,12 +400,17 @@
 .lotClockHot { color: var(--color-warning-text); }
 
 .lotBids {
+  height: 16px;
+  line-height: 16px;
   font-family: var(--font-condensed);
   font-size: var(--t-10);
   letter-spacing: 0.04em;
   color: var(--row-ink);
-  text-align: right;
-  margin-top: var(--s1);
+  margin-top: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  white-space: nowrap;
 }
 
 .lotActions { display: flex; align-items: center; gap: var(--s1); justify-content: flex-end; }
@@ -783,12 +815,14 @@
     grid-area: who;
     align-self: center;
     justify-content: flex-end;
+    margin-bottom: 0;
   }
 
   .lotYou {
     grid-area: you;
     align-self: center;
     text-align: left;
+    margin-bottom: 0;
   }
 
   .lotActions {

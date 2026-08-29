@@ -509,7 +509,7 @@
 .mktCol,
 .mktWho,
 .mktYou {
-  align-self: baseline;
+  align-self: center;
 }
 
 .mktRowMine {
@@ -522,8 +522,29 @@
 
 .mktId { display: flex; align-items: center; gap: var(--s2); min-width: 0; }
 .mktName { min-width: 0; }
-.mktNameN { font-family: var(--font-serif); font-size: var(--t-17); font-weight: 700; letter-spacing: -0.01em; color: var(--color-text-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.mktNameM { font-size: var(--t-11); color: var(--color-text-muted); margin-top: 1px; }
+.mktNameN {
+  height: 22px;
+  line-height: 22px;
+  font-family: var(--font-serif);
+  font-size: var(--t-17);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--color-text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+}
+.mktNameM {
+  height: 16px;
+  line-height: 16px;
+  font-size: var(--t-11);
+  color: var(--color-text-muted);
+  margin-top: 3px;
+  display: flex;
+  align-items: center;
+}
 
 .mktCol {
   display: flex;
@@ -536,13 +557,16 @@
   align-items: flex-end;
 }
 .mktBidV {
+  height: 22px;
+  line-height: 22px;
   font-family: var(--font-mono);
   font-weight: 700;
   font-size: var(--t-17);
-  line-height: 1;
   font-variant-numeric: tabular-nums lining-nums;
   color: var(--color-text-primary);
-  text-align: right;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
 }
 .mktBidNone {
   font-family: var(--font-condensed);
@@ -552,22 +576,28 @@
   letter-spacing: 0.04em;
 }
 .mktBidL {
+  height: 16px;
+  line-height: 16px;
   font-family: var(--font-mono);
   font-size: var(--t-10);
   color: var(--color-text-muted);
-  margin-top: var(--s1);
+  margin-top: 3px;
   font-variant-numeric: tabular-nums lining-nums;
   white-space: nowrap;
-  text-align: right;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
 }
 
 .mktWho {
+  height: 22px;
   display: flex;
   align-items: center;
   justify-content: flex-end;
   gap: var(--s1);
   min-width: 0;
   text-align: right;
+  margin-bottom: 19px;
 }
 .mktWhoName {
   font-size: var(--t-12);
@@ -578,12 +608,17 @@
 }
 
 .mktYou {
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
   text-align: right;
   font-family: var(--font-condensed);
   font-size: var(--t-11);
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
+  margin-bottom: 19px;
 }
 .mktYouUp  { color: var(--color-accent-ink); }
 .mktYouOut { color: var(--color-danger); }
@@ -602,22 +637,33 @@
   min-width: 0;
 }
 .mktClockTime {
+  height: 22px;
+  line-height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+.mktClockTime .clock,
+.mktClockTime span {
   font-family: var(--font-mono);
   font-size: var(--t-15);
   font-weight: 700;
   color: var(--color-text-secondary);
   font-variant-numeric: tabular-nums lining-nums;
   white-space: nowrap;
-  text-align: right;
 }
 .mktBids {
+  height: 16px;
+  line-height: 16px;
   font-family: var(--font-condensed);
   font-size: var(--t-10);
   letter-spacing: 0.04em;
   color: var(--color-text-muted);
-  margin-top: var(--s1);
+  margin-top: 3px;
   white-space: nowrap;
-  text-align: right;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
 }
 
 .mktAction {
@@ -952,8 +998,8 @@
   .mktClockCol { grid-area: clock; align-self: center; text-align: right; align-items: flex-end; }
   .mktBidCol { grid-area: bid; align-self: center; text-align: left; align-items: flex-start; }
   .mktBid, .mktBidL { text-align: left; }
-  .mktWho { grid-area: who; align-self: center; justify-content: flex-end; }
-  .mktYou { grid-area: you; align-self: center; text-align: left; }
+  .mktWho { grid-area: who; align-self: center; justify-content: flex-end; margin-bottom: 0; }
+  .mktYou { grid-area: you; align-self: center; text-align: left; margin-bottom: 0; }
   .mktAction { grid-area: action; align-self: center; justify-content: flex-end; width: 100%; }
   .mktAction .btn,
   .mktAction .btnPrimary,
