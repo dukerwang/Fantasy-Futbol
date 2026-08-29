@@ -252,17 +252,17 @@ export default function Fixture({ model }: { model: HomeModel }) {
       {isLive && (
         <div className={styles.heroFoot}>
           <div className={styles.heroFootA}>
-            <b>
-              {f.stillToPlay.mine} still to play
-            </b>
+            <b>{view.stillToPlay.mine}</b> still to play
           </div>
           <NavigationLink
-            href={`/league/${model.leagueId}/matchups/${f.matchupId}`}
+            href={`/league/${model.leagueId}/matchups/${view.matchupId}`}
             className={styles.btnPrimary}
           >
             Open matchup
           </NavigationLink>
-          <div className={styles.heroFootB} />
+          <div className={styles.heroFootB}>
+            <b>{view.stillToPlay.theirs}</b> still to play
+          </div>
         </div>
       )}
 

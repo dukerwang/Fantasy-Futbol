@@ -726,6 +726,35 @@ export async function buildHomeModel(
   const playerById = new Map<string, any>();
   for (const r of rosterPlayers) playerById.set(r.player.id, r.player);
 
+  const neededPlayerIds = new Set<string>();
+  for (const a of liveAuctions) if (a.player_id) neededPlayerIds.add(a.player_id);
+  for (const d of departures) if (d.player_id) neededPlayerIds.add(d.player_id);
+  for (const l of myListings) if (l.player_id) neededPlayerIds.add(l.player_id);
+
+  const addLineupPlayerIds = (lineup: any) => {
+    if (!lineup) return;
+    for (const s of lineup.starters ?? []) if (s.player_id) neededPlayerIds.add(s.player_id);
+    for (const b of lineup.bench ?? []) if (b.player_id) neededPlayerIds.add(b.player_id);
+  };
+
+  addLineupPlayerIds(heroMatchup?.lineup_a);
+  addLineupPlayerIds(heroMatchup?.lineup_b);
+  for (const m of myMatchups) {
+    addLineupPlayerIds(m.lineup_a);
+    addLineupPlayerIds(m.lineup_b);
+  }
+
+  const missingPlayerIds = [...neededPlayerIds].filter((id) => !playerById.has(id));
+  if (missingPlayerIds.length > 0) {
+    const { data: extraPlayers } = await admin
+      .from('players')
+      .select('id, web_name, name, primary_position, secondary_positions, pl_team, fpl_status, date_of_birth, market_value')
+      .in('id', missingPlayerIds);
+    for (const p of (extraPlayers ?? []) as any[]) {
+      playerById.set(p.id, p);
+    }
+  }
+
   // ── top performers, league-wide ────────────────────────────
   // The five highest fantasy-point scores of the most recently completed
   // gameweek, whoever owns them. Not actionable, but it's the one thing
@@ -807,14 +836,16 @@ export async function buildHomeModel(
    */
   const lockedSlugs = new Set<string>();
   const clubsWithFixture = new Set<string>();
+  let heroPlFixtures: any[] = [];
   {
     const { data: plFixtures } = await admin
       .from('pl_fixtures')
-      .select('home_club, away_club, kickoff_time')
+      .select('home_club, away_club, kickoff_time, finished')
       .eq('season', season)
       .eq('gameweek', heroGameweek);
+    heroPlFixtures = (plFixtures ?? []) as any[];
     const nowMs = new Date(serverNow).getTime();
-    for (const f of plFixtures ?? []) {
+    for (const f of heroPlFixtures) {
       clubsWithFixture.add(f.home_club);
       clubsWithFixture.add(f.away_club);
       if (f.kickoff_time && new Date(f.kickoff_time).getTime() <= nowMs) {
@@ -831,6 +862,33 @@ export async function buildHomeModel(
     } catch {
       return null;
     }
+  };
+
+  const countStillToPlay = (
+    lineup: any,
+    fixturesForGw: { home_club: string; away_club: string; kickoff_time: string | null; finished?: boolean }[],
+  ): number => {
+    if (!lineup?.starters?.length) return 0;
+    const nowMs = new Date(serverNow).getTime();
+    let count = 0;
+    for (const slot of lineup.starters) {
+      const p = playerById.get(slot.player_id);
+      if (!p?.pl_team) continue;
+      const slug = slugFor(p.pl_team);
+      if (!slug) continue;
+      const playerFixtures = fixturesForGw.filter(
+        (f) => f.home_club === slug || f.away_club === slug,
+      );
+      if (playerFixtures.length === 0) continue;
+      const hasUnfinished = playerFixtures.some((f) => {
+        if (f.finished) return false;
+        if (!f.kickoff_time) return true;
+        const kickoffMs = new Date(f.kickoff_time).getTime();
+        return nowMs < kickoffMs + 125 * 60 * 1000;
+      });
+      if (hasUnfinished) count++;
+    }
+    return count;
   };
 
   const heroLineupRaw =
@@ -1107,6 +1165,14 @@ export async function buildHomeModel(
     const oppStanding = standings.find((s) => s.team_id === oppId);
     const markerPct = Math.min(98, Math.max(2, 50 - (margin / 40) * 50));
 
+    const heroLineupA = heroMatchup.lineup_a as any;
+    const heroLineupB = heroMatchup.lineup_b as any;
+    const myHeroLineup = iAmA ? heroLineupA : heroLineupB;
+    const theirHeroLineup = iAmA ? heroLineupB : heroLineupA;
+
+    const heroStillToPlayMine = countStillToPlay(myHeroLineup, heroPlFixtures);
+    const heroStillToPlayTheirs = countStillToPlay(theirHeroLineup, heroPlFixtures);
+
     fixture = {
       matchupId: heroMatchup.id,
       gameweek: heroMatchup.gameweek,
@@ -1128,7 +1194,7 @@ export async function buildHomeModel(
       verdict,
       outcome,
       markerPct,
-      stillToPlay: { mine: 0, theirs: 0 },
+      stillToPlay: { mine: heroStillToPlayMine, theirs: heroStillToPlayTheirs },
       topMine: null,
       topTheirs: null,
       cupLine: null,
@@ -1201,13 +1267,6 @@ export async function buildHomeModel(
           },
         ];
       }
-
-      // Still to play: a starter with no stat row for this gameweek has not
-      // been scored yet.
-      const played = new Set(rows.map((r) => r.player_id));
-      fixture.stillToPlay.mine = heroLineupRaw.starters.filter(
-        (s: any) => !played.has(s.player_id),
-      ).length;
 
       /**
        * The generated match report headline.
@@ -1378,6 +1437,37 @@ export async function buildHomeModel(
     const oppStanding = standings.find((s) => s.team_id === oppId);
     const markerPct = Math.min(98, Math.max(2, 50 - (margin / 40) * 50));
 
+    const secLineupA = secondaryMatchup.lineup_a as any;
+    const secLineupB = secondaryMatchup.lineup_b as any;
+    const secMyLineup = iAmA ? secLineupA : secLineupB;
+    const secTheirLineup = iAmA ? secLineupB : secLineupA;
+
+    let secPlFixtures = heroPlFixtures;
+    let secLockedSlugs = lockedSlugs;
+    let secClubsWithFixture = clubsWithFixture;
+    if (secondaryMatchup.gameweek !== heroGameweek) {
+      const { data: pfData } = await admin
+        .from('pl_fixtures')
+        .select('home_club, away_club, kickoff_time, finished')
+        .eq('season', season)
+        .eq('gameweek', secondaryMatchup.gameweek);
+      secPlFixtures = (pfData ?? []) as any[];
+      secLockedSlugs = new Set();
+      secClubsWithFixture = new Set();
+      const nowMs = new Date(serverNow).getTime();
+      for (const pf of secPlFixtures) {
+        secClubsWithFixture.add(pf.home_club);
+        secClubsWithFixture.add(pf.away_club);
+        if (pf.kickoff_time && new Date(pf.kickoff_time).getTime() <= nowMs) {
+          secLockedSlugs.add(pf.home_club);
+          secLockedSlugs.add(pf.away_club);
+        }
+      }
+    }
+
+    const secStillToPlayMine = countStillToPlay(secMyLineup, secPlFixtures);
+    const secStillToPlayTheirs = countStillToPlay(secTheirLineup, secPlFixtures);
+
     secondaryPlayed = played;
     secondaryFixture = {
       matchupId: secondaryMatchup.id,
@@ -1400,44 +1490,21 @@ export async function buildHomeModel(
       verdict,
       outcome,
       markerPct,
-      stillToPlay: { mine: 0, theirs: 0 },
+      stillToPlay: { mine: secStillToPlayMine, theirs: secStillToPlayTheirs },
       topMine: null,
       topTheirs: null,
       cupLine: null,
     };
 
-    const secondaryLineupRaw = (iAmA ? secondaryMatchup.lineup_a : secondaryMatchup.lineup_b) as any;
+    const secondaryLineupRaw = secMyLineup;
 
     if (!played && secondaryLineupRaw?.starters?.length) {
-      // Reuse the primary's lock state only when it shares this gameweek —
-      // otherwise those locks belong to a different set of PL fixtures.
-      let locked = lockedSlugs;
-      let withFixture = clubsWithFixture;
-      if (secondaryMatchup.gameweek !== heroGameweek) {
-        const { data: plFixtures } = await admin
-          .from('pl_fixtures')
-          .select('home_club, away_club, kickoff_time')
-          .eq('season', season)
-          .eq('gameweek', secondaryMatchup.gameweek);
-        locked = new Set();
-        withFixture = new Set();
-        const nowMs = new Date(serverNow).getTime();
-        for (const pf of plFixtures ?? []) {
-          withFixture.add(pf.home_club);
-          withFixture.add(pf.away_club);
-          if (pf.kickoff_time && new Date(pf.kickoff_time).getTime() <= nowMs) {
-            locked.add(pf.home_club);
-            locked.add(pf.away_club);
-          }
-        }
-      }
-
       for (const s of secondaryLineupRaw.starters) {
         const p = playerById.get(s.player_id);
         const name = p ? getPlayerDisplayName(p, 'initial_last') : 'Unknown';
         const slug = slugFor(p?.pl_team);
-        const isLocked = slug ? locked.has(slug) : false;
-        const hasFixture = withFixture.size === 0 || (slug ? withFixture.has(slug) : true);
+        const isLocked = slug ? secLockedSlugs.has(slug) : false;
+        const hasFixture = secClubsWithFixture.size === 0 || (slug ? secClubsWithFixture.has(slug) : true);
         const doubtful = p?.fpl_status && ['i', 'd', 's', 'u'].includes(p.fpl_status);
 
         let state: XiSlot['state'] = 'ok';
