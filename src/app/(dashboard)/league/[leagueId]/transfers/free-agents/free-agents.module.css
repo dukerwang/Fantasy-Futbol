@@ -457,13 +457,26 @@
   }
 
   .title { font-size: var(--t-25); }
-  .stats { gap: var(--s5); width: 100%; }
+  .stats { gap: var(--s4); width: 100%; flex-wrap: wrap; }
   .stat { text-align: left; }
 
   .auctions,
   .tools { padding-left: var(--s4); padding-right: var(--s4); }
-  .positions { padding-left: var(--s4); padding-right: var(--s4); }
-  .tableWrap { padding: 0 var(--s4); }
+  .positions {
+    padding-left: var(--s4);
+    padding-right: var(--s4);
+    overflow-x: auto;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    flex-wrap: nowrap;
+  }
+  .positions::-webkit-scrollbar { display: none; }
+  .tableWrap {
+    padding: 0 var(--s4);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-x pan-y;
+  }
 
   /* Form and PPG are the first things to go on a phone — value and total points
      are what a manager scans for, and the card behind the name carries the rest. */

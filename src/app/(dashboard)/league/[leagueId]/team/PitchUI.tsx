@@ -228,6 +228,11 @@ function PitchNode({ slotPos, player, isSelected, isValidTarget, isEmpty, isInva
                     headWidthPct={player?.portrait_head_width_pct}
                     photoVersion={player?.photo_version}
                 />
+                {isLocked && player && (
+                    <span className={styles.nodeLockBadge} title="Locked">
+                        <Icon name="lock" size={11} strokeWidth={2.2} />
+                    </span>
+                )}
                 {status === 'pending' && (
                     <span className={`${styles.nodePtsBadge} ${styles.nodePtsPending}`} title="Yet to play">–</span>
                 )}
@@ -248,11 +253,6 @@ function PitchNode({ slotPos, player, isSelected, isValidTarget, isEmpty, isInva
                             </span>
                             <div className={styles.nodeMetaChipRow}>
                                 <PositionBadge position={slotPos} size="sm" />
-                                {isLocked && (
-                                    <span className={styles.nodeLockIcon} title="Locked">
-                                        <Icon name="lock" size={11} />
-                                    </span>
-                                )}
                                 {player.fpl_status && player.fpl_status !== 'a' && (
                                     <span className={styles.nodeStatusDot} data-status={player.fpl_status} />
                                 )}

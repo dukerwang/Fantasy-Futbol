@@ -497,10 +497,16 @@
   }
 
   .title { font-size: var(--t-25); }
-  .stats { gap: var(--s5); width: 100%; flex-wrap: wrap; }
+  .stats { gap: var(--s4); width: 100%; flex-wrap: wrap; }
   .stat { text-align: left; }
 
   .main { padding: var(--s4) var(--s4) var(--s5); }
+
+  .proposeBtn {
+    flex: 1;
+    min-width: 120px;
+    text-align: center;
+  }
 
   /* Two sides plus an arrow will not fit; they stack, and the right side stops
      being right-aligned since there is nothing to align against. */

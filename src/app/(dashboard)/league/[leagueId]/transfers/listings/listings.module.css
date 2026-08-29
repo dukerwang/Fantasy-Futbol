@@ -204,6 +204,15 @@
 
   .tools { padding: var(--s3) var(--s4); }
 
+  .facets {
+    overflow-x: auto;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    flex-wrap: nowrap;
+    padding-bottom: var(--s1);
+  }
+  .facets::-webkit-scrollbar { display: none; }
+
   .grid {
     grid-template-columns: 1fr;
     padding: var(--s3) var(--s4) var(--s6);

@@ -206,3 +206,13 @@
 
 .ghost { composes: g-dialog-ghost from global; }
 .go { composes: g-dialog-go from global; }
+
+@media (max-width: 480px) {
+  .identity { padding: var(--s3) var(--s4) var(--s2); }
+  .ladder { grid-template-columns: repeat(2, 1fr); }
+  .rung:nth-child(2) { border-right: none; }
+  .rung:nth-child(3) { border-top: 1px solid var(--color-border-subtle); }
+  .rung:nth-child(4) { border-top: 1px solid var(--color-border-subtle); border-right: none; }
+  .field { padding: var(--s3) var(--s4) 0; }
+  .error { margin: var(--s3) var(--s4) 0; }
+}

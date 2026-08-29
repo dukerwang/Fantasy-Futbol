@@ -535,17 +535,24 @@
     gap: var(--s4);
   }
 
-  .title { font-size: var(--t-32); }
-  .stats { gap: var(--s5); width: 100%; flex-wrap: wrap; }
+  .title { font-size: var(--t-25); }
+  .stats { gap: var(--s4); width: 100%; flex-wrap: wrap; }
   .stat { text-align: left; }
 
   .main { padding: var(--s4) var(--s4) var(--s5); }
+  .closingGrid { grid-template-columns: 1fr; }
   .doors { grid-template-columns: 1fr; }
+
+  .sched {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-x pan-y;
+  }
 
   /* Seven columns cannot survive a phone. The schedule scrolls sideways with
      each day given a usable minimum, rather than collapsing to slivers. */
   .axis {
-    grid-template-columns: repeat(7, minmax(96px, 1fr));
-    overflow-x: auto;
+    grid-template-columns: repeat(7, minmax(100px, 1fr));
+    min-width: 700px;
   }
 }

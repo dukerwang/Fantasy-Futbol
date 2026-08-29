@@ -464,6 +464,7 @@ function Lot({
         </div>
 
         <div className={`${styles.lotCol} ${styles.lotBidCol}`}>
+          <span className={styles.lotMobileLabel}>{a.highest_bid > 0 ? 'Standing Bid' : 'Floor'}</span>
           <div className={`${styles.lotBid} ${a.highest_bid > 0 ? '' : styles.lotBidNone}`}>
             {a.highest_bid > 0 ? money(a.highest_bid) : 'No bids'}
           </div>
@@ -473,21 +474,24 @@ function Lot({
         </div>
 
         <div className={styles.lotWho}>
-          {a.highest_bidder_team_id ? (
-            <>
-              <CrestBadge
-                config={(leader?.crest_config as CrestConfig | null) ?? null}
-                teamName={leader?.team_name ?? a.highest_bidder_team_name}
-                teamId={a.highest_bidder_team_id}
-                size={17}
-              />
-              <span className={styles.lotWn}>
-                {leading ? 'You' : a.highest_bidder_team_name}
-              </span>
-            </>
-          ) : (
-            <span className={styles.lotWn}>—</span>
-          )}
+          <span className={styles.lotMobileLabel}>Leader</span>
+          <div className={styles.lotWhoVal}>
+            {a.highest_bidder_team_id ? (
+              <>
+                <CrestBadge
+                  config={(leader?.crest_config as CrestConfig | null) ?? null}
+                  teamName={leader?.team_name ?? a.highest_bidder_team_name}
+                  teamId={a.highest_bidder_team_id}
+                  size={17}
+                />
+                <span className={styles.lotWn}>
+                  {leading ? 'You' : a.highest_bidder_team_name}
+                </span>
+              </>
+            ) : (
+              <span className={styles.lotWn}>None yet</span>
+            )}
+          </div>
         </div>
 
         <div

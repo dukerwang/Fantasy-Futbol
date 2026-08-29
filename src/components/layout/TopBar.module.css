@@ -654,10 +654,10 @@
 }
 
 .mobileDrawerContent {
-  padding: var(--space-6) var(--space-4) var(--space-12);
+  padding: var(--space-6) var(--space-6) var(--space-12);
   display: flex;
   flex-direction: column;
-  gap: var(--space-5);
+  gap: var(--space-6);
   max-width: 480px;
   margin: 0 auto;
 }
@@ -665,11 +665,7 @@
 .mobileDrawerGroup {
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
-  background: var(--color-bg-card);
-  border: 1px solid var(--color-border-subtle);
-  border-radius: var(--radius-md);
-  padding: var(--space-3) var(--space-2);
+  gap: var(--space-1);
 }
 
 .mobileDrawerGroupLabel {
@@ -679,39 +675,37 @@
   color: var(--color-text-muted);
   text-transform: uppercase;
   letter-spacing: 0.14em;
-  padding: var(--space-1) var(--space-2) var(--space-1);
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--color-border-subtle);
+  margin-bottom: var(--space-1);
 }
 
 .mobileDrawerGroupItems {
   display: flex;
   flex-direction: column;
-  gap: 2px;
 }
 
 .mobileDrawerSubLink {
   font-family: var(--font-sans);
-  font-size: 15px;
+  font-size: 17px;
   font-weight: 600;
   color: var(--color-text-primary);
   text-decoration: none;
-  padding: 10px var(--space-3);
+  padding: 10px 0;
   min-height: 44px;
   display: flex;
   align-items: center;
-  border-radius: var(--radius-sm);
-  transition: all var(--transition-fast);
+  transition: color var(--transition-fast);
 }
 
 @media (hover: hover) and (pointer: fine) {
   .mobileDrawerSubLink:hover {
-    background: var(--color-bg-card-hover);
-    color: var(--color-text-primary);
+    color: var(--color-accent-ink);
   }
 }
 
 .mobileDrawerSubLinkActive {
   color: var(--color-accent-ink);
-  background: var(--color-tint-accent);
   font-weight: 700;
 }
 
