@@ -15,6 +15,7 @@ interface FplFixtureRaw {
   kickoff_time: string | null;
   started: boolean;
   finished: boolean;
+  finished_provisional?: boolean;
   minutes: number;
 }
 
@@ -69,7 +70,7 @@ export async function getGameweekFixtures(gameweek: number, limit?: number): Pro
       awayScore: f.team_a_score,
       kickoff: f.kickoff_time,
       started: !!f.started,
-      finished: !!f.finished,
+      finished: !!(f.finished || f.finished_provisional),
       minutes: f.minutes ?? 0,
     }));
 
