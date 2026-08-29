@@ -597,7 +597,6 @@
   gap: var(--s1);
   min-width: 0;
   text-align: right;
-  margin-bottom: 19px;
 }
 .mktWhoName {
   font-size: var(--t-12);
@@ -618,7 +617,12 @@
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  margin-bottom: 19px;
+}
+
+.mktSublineSpacer {
+  height: 16px;
+  margin-top: 3px;
+  visibility: hidden;
 }
 .mktYouUp  { color: var(--color-accent-ink); }
 .mktYouOut { color: var(--color-danger); }
@@ -998,8 +1002,9 @@
   .mktClockCol { grid-area: clock; align-self: center; text-align: right; align-items: flex-end; }
   .mktBidCol { grid-area: bid; align-self: center; text-align: left; align-items: flex-start; }
   .mktBid, .mktBidL { text-align: left; }
-  .mktWho { grid-area: who; align-self: center; justify-content: flex-end; margin-bottom: 0; }
-  .mktYou { grid-area: you; align-self: center; text-align: left; margin-bottom: 0; }
+  .mktWho { grid-area: who; align-self: center; justify-content: flex-end; }
+  .mktYou { grid-area: you; align-self: center; text-align: left; }
+  .mktSublineSpacer { display: none; }
   .mktAction { grid-area: action; align-self: center; justify-content: flex-end; width: 100%; }
   .mktAction .btn,
   .mktAction .btnPrimary,

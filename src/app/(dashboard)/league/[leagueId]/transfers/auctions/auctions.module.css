@@ -342,7 +342,6 @@
   gap: var(--s1);
   justify-content: flex-end;
   min-width: 0;
-  margin-bottom: 19px;
 }
 
 .lotWn {
@@ -364,7 +363,12 @@
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  margin-bottom: 19px;
+}
+
+.lotSublineSpacer {
+  height: 16px;
+  margin-top: 3px;
+  visibility: hidden;
 }
 
 .youUp  { color: var(--color-accent-ink); }
@@ -815,14 +819,16 @@
     grid-area: who;
     align-self: center;
     justify-content: flex-end;
-    margin-bottom: 0;
   }
 
   .lotYou {
     grid-area: you;
     align-self: center;
     text-align: left;
-    margin-bottom: 0;
+  }
+
+  .lotSublineSpacer {
+    display: none;
   }
 
   .lotActions {
