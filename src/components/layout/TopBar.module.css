@@ -654,144 +654,70 @@
 }
 
 .mobileDrawerContent {
-  padding: var(--space-6) var(--space-6) var(--space-12);
+  padding: var(--space-6) var(--space-4) var(--space-12);
   display: flex;
   flex-direction: column;
-  gap: var(--space-6);
-}
-
-.mobileDrawerItem {
-  border-bottom: 1px solid var(--color-border-subtle);
-  padding-bottom: var(--space-3);
-}
-
-.mobileDrawerLink {
-  font-family: var(--font-sans);
-  font-size: 14px;
-  font-weight: var(--font-bold);
-  color: var(--color-text-primary);
-  text-decoration: none;
-  display: block;
-}
-
-.mobileDrawerLinkActive {
-  color: var(--color-accent-green);
+  gap: var(--space-5);
+  max-width: 480px;
+  margin: 0 auto;
 }
 
 .mobileDrawerGroup {
   display: flex;
   flex-direction: column;
-  gap: var(--space-3);
+  gap: var(--space-2);
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-2);
 }
 
 .mobileDrawerGroupLabel {
   font-family: var(--font-sans);
   font-size: 10px;
-  font-weight: var(--font-bold);
+  font-weight: 700;
   color: var(--color-text-muted);
   text-transform: uppercase;
-  letter-spacing: 0.12em;
-  border-bottom: 1px solid var(--color-border-subtle);
-  padding-bottom: 4px;
+  letter-spacing: 0.14em;
+  padding: var(--space-1) var(--space-2) var(--space-1);
 }
 
 .mobileDrawerGroupItems {
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
-  padding-left: var(--space-1);
+  gap: 2px;
 }
 
 .mobileDrawerSubLink {
   font-family: var(--font-sans);
-  font-size: 14px;
-  font-weight: var(--font-semibold);
-  color: var(--color-text-secondary);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-text-primary);
   text-decoration: none;
-  padding: 6px 0;
-  display: block;
-  transition: color var(--transition-fast);
+  padding: 10px var(--space-3);
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-fast);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .mobileDrawerSubLink:hover {
+    background: var(--color-bg-card-hover);
+    color: var(--color-text-primary);
+  }
 }
 
 .mobileDrawerSubLinkActive {
-  color: var(--color-accent-green);
+  color: var(--color-accent-ink);
+  background: var(--color-tint-accent);
+  font-weight: 700;
 }
 
 .mobileDrawerSubLinkDisabled {
   opacity: 0.4;
   pointer-events: none;
-}
-
-/* --- Mobile Drawer User Section --- */
-.mobileDrawerUserSection {
-  margin-top: var(--space-6);
-  background: var(--color-bg-card);
-  border: 1px solid var(--color-border-subtle);
-  border-radius: var(--radius-md);
-  padding: var(--space-4);
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-}
-
-.mobileDrawerUserDetail {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  width: 100%;
-}
-
-.mobileDrawerAvatar {
-  width: 32px;
-  height: 32px;
-  border-radius: var(--radius-full);
-  background: var(--color-accent-green);
-  color: var(--color-text-inverse);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: var(--font-bold);
-  font-size: var(--text-sm);
-  flex-shrink: 0;
-}
-
-.mobileDrawerUsername {
-  font-family: var(--font-sans);
-  font-size: 14px;
-  font-weight: var(--font-semibold);
-  color: var(--color-text-primary);
-}
-
-.mobileDrawerThemeToggle {
-  margin-left: auto;
-}
-
-.mobileDrawerUserDivider {
-  height: 1px;
-  background: var(--color-border-subtle);
-}
-
-.mobileDrawerSignOut {
-  width: 100%;
-  padding: var(--space-2) var(--space-4);
-  border-radius: var(--radius-sm);
-  font-family: var(--font-sans);
-  font-size: 13px;
-  font-weight: var(--font-medium);
-  color: var(--color-text-secondary);
-  background: transparent;
-  border: 1px solid var(--color-border);
-  text-align: center;
-  cursor: pointer;
-  transition: all var(--transition-fast);
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .mobileDrawerSignOut:hover {
-    color: var(--color-text-primary);
-    border-color: var(--color-text-muted);
-    background: var(--color-bg-card-hover);
-  }
 }
 
 @media (max-width: 768px) {

@@ -914,7 +914,7 @@
     .chipBody { padding: 2px var(--s1) var(--s1); gap: 2px; }
     .chipName { font-size: var(--t-10); }
     .chipStats { font-size: 9px; }
-    .chipPts { font-size: var(--t-10); top: -6px; right: -12px; }
+    .chipPts { font-size: var(--t-10); top: -10px; right: -20px; }
 }
 
 @container field (max-width: 380px) {
@@ -943,7 +943,7 @@
     .chipBody { padding: 2px 2px 2px; gap: 1px; }
     .chipName { font-size: 10px; line-height: 1.15; }
     .chipStats { font-size: 9px; line-height: 1; margin: 0; }
-    .chipPts { font-size: 10px; top: -6px; right: -10px; padding: 1px 3px; }
+    .chipPts { font-size: 10px; top: -10px; right: -20px; padding: 1px 3px; }
 }
 
 @container bench (max-width: 400px) {

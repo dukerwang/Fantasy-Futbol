@@ -609,14 +609,12 @@
     width: 100%;
 }
 
-.nodeLockCorner {
-    position: absolute;
-    bottom: 2px;
-    right: 3px;
-    line-height: 1;
+.nodeLockIcon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     color: var(--color-text-muted);
-    pointer-events: none;
-    z-index: 4;
+    line-height: 1;
 }
 
 .nodeEmptyLabel {
@@ -1042,7 +1040,7 @@
     }
     .nodeChipBody { padding: 3px var(--s1) var(--s1); gap: 2px; }
     .nodePlayerNameCenter { font-size: var(--t-10); }
-    .nodePtsBadge { font-size: var(--t-10); top: -6px; right: -14px; }
+    .nodePtsBadge { font-size: var(--t-10); top: -10px; right: -20px; }
     .pitchZones { padding: var(--s8) 0 var(--s3); }
     /* .pitchField's height is fixed to the 6-zone worst case (see the rule
        above) using the desktop row floor and padding — recompute it here

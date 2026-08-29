@@ -107,12 +107,19 @@ export default function Fixture({ model }: { model: HomeModel }) {
       </div>
 
       <div className={styles.heroTeams}>
-        <div className={styles.ht}>
-          <CrestBadge config={view.home.crest as CrestConfig | null} size={32} teamName={view.home.name} teamId={view.home.id} />
-          <div className={styles.htTx}>
-            <div className={styles.htName}>{view.home.name}</div>
-            <div className={styles.htMeta}>{view.homeMeta}</div>
+        <div className={styles.htWrapper}>
+          <div className={styles.ht}>
+            <CrestBadge config={view.home.crest as CrestConfig | null} size={32} teamName={view.home.name} teamId={view.home.id} />
+            <div className={styles.htTx}>
+              <div className={styles.htName}>{view.home.name}</div>
+              <div className={styles.htMeta}>{view.homeMeta}</div>
+            </div>
           </div>
+          {view.hasScores && (
+            <div className={`${styles.htScoreMobile} ${view.outcome === 'behind' ? styles.scoreDim : styles.score}`}>
+              {view.homeScore?.toFixed(2)}
+            </div>
+          )}
         </div>
 
         <div className={styles.scores}>
@@ -131,12 +138,19 @@ export default function Fixture({ model }: { model: HomeModel }) {
           )}
         </div>
 
-        <div className={`${styles.ht} ${styles.htAway}`}>
-          <div className={styles.htTx}>
-            <div className={styles.htName}>{view.away.name}</div>
-            <div className={styles.htMeta}>{view.awayMeta}</div>
+        <div className={`${styles.htWrapper} ${styles.htWrapperAway}`}>
+          <div className={`${styles.ht} ${styles.htAway}`}>
+            <div className={styles.htTx}>
+              <div className={styles.htName}>{view.away.name}</div>
+              <div className={styles.htMeta}>{view.awayMeta}</div>
+            </div>
+            <CrestBadge config={view.away.crest as CrestConfig | null} size={32} teamName={view.away.name} teamId={view.away.id} />
           </div>
-          <CrestBadge config={view.away.crest as CrestConfig | null} size={32} teamName={view.away.name} teamId={view.away.id} />
+          {view.hasScores && (
+            <div className={`${styles.htScoreMobile} ${view.outcome === 'ahead' ? styles.scoreDim : styles.score}`}>
+              {view.awayScore?.toFixed(2)}
+            </div>
+          )}
         </div>
       </div>
 

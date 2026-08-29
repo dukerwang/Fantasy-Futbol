@@ -80,6 +80,7 @@ export function Market({ model }: { model: HomeModel }) {
                 </div>
 
                 <div className={`${styles.mktCol} ${styles.mktBidCol}`}>
+                  <span className={styles.mktMobileLabel}>{lot.hasBids ? 'Standing Bid' : 'Floor'}</span>
                   <div className={`${styles.mktBidV} ${lot.hasBids ? '' : styles.mktBidNone}`}>
                     {lot.bid}
                   </div>
@@ -87,19 +88,22 @@ export function Market({ model }: { model: HomeModel }) {
                 </div>
 
                 <div className={styles.mktWho}>
-                  {lot.leaderTeamId ? (
-                    <>
-                      <CrestBadge
-                        config={lot.leaderCrest as CrestConfig | null}
-                        teamName={lot.leaderName ?? ''}
-                        teamId={lot.leaderTeamId}
-                        size={17}
-                      />
-                      <span className={styles.mktWhoName}>{lot.leaderName}</span>
-                    </>
-                  ) : (
-                    <span className={styles.mktWhoName}>—</span>
-                  )}
+                  <span className={styles.mktMobileLabel}>Leader</span>
+                  <div className={styles.mktWhoVal}>
+                    {lot.leaderTeamId ? (
+                      <>
+                        <CrestBadge
+                          config={lot.leaderCrest as CrestConfig | null}
+                          teamName={lot.leaderName ?? ''}
+                          teamId={lot.leaderTeamId}
+                          size={17}
+                        />
+                        <span className={styles.mktWhoName}>{lot.leaderName}</span>
+                      </>
+                    ) : (
+                      <span className={styles.mktWhoName}>None yet</span>
+                    )}
+                  </div>
                 </div>
 
                 <div

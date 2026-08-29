@@ -274,6 +274,12 @@
   gap: var(--s5);
   padding: var(--s5);
 }
+.htWrapper {
+  display: contents;
+}
+.htScoreMobile {
+  display: none;
+}
 .ht { display: flex; align-items: center; gap: var(--s3); min-width: 0; }
 .htAway { justify-content: flex-end; }
 .htTx { min-width: 0; }
@@ -589,6 +595,10 @@
   justify-content: flex-end;
 }
 
+.mktMobileLabel {
+  display: none;
+}
+
 .mktWho {
   display: flex;
   align-items: center;
@@ -597,6 +607,12 @@
   min-width: 0;
   text-align: left;
   align-self: center;
+}
+.mktWhoVal {
+  display: flex;
+  align-items: center;
+  gap: var(--s1);
+  min-width: 0;
 }
 .mktWhoName {
   font-size: var(--t-12);
@@ -757,31 +773,55 @@
   font-family: var(--font-serif);
   font-weight: 700;
   font-size: var(--t-17);
-  font-variant-numeric: tabular-nums;
+  font-variant-numeric: tabular-nums lining-nums;
+  text-align: right;
 }
 .mwScoreDim { composes: mwScore; color: var(--color-text-muted); }
 .mwTag {
-  font-size: var(--t-10);
+  font-family: var(--font-sans);
+  font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--color-text-muted);
+  padding: 2px 6px;
+  border-radius: var(--r-control);
+  border: 1px solid var(--color-border-subtle);
+  line-height: 1.2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
 }
-.mwTagBand { composes: mwTag; color: var(--color-text-primary); }
-.mwTagLive { composes: mwTag; color: var(--color-live); }
+.mwTagBand {
+  composes: mwTag;
+  color: var(--color-text-primary);
+  background: var(--color-bg-card-alt);
+  border-color: var(--color-border);
+}
+.mwTagLive {
+  composes: mwTag;
+  color: var(--color-live);
+  background: color-mix(in srgb, var(--color-live) 10%, transparent);
+  border-color: color-mix(in srgb, var(--color-live) 35%, transparent);
+}
 
 /* ---------- the table ----------
-   A real <table>. The first prototype used a div grid with no header
-   association, and at 375px it clipped Pts and Form under
-   overflow:hidden with no way to scroll to them. */
+   A real <table>. Smooth horizontal scrolling on mobile with sticky rank/club. */
 .tableWrap {
   min-width: 0;
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-x pan-y;
   background: var(--color-bg-card);
   border: var(--line-strong);
   border-radius: var(--r-shell);
 }
-.table { width: 100%; border-collapse: collapse; font-size: var(--t-13); }
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--t-13);
+}
 .table caption {
   caption-side: bottom;
   text-align: left;
@@ -982,26 +1022,74 @@
   .ygRow { grid-template-columns: 150px minmax(0, 1fr) 58px; }
 
   .mktHead { display: none; }
+  .mktHd {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    padding: var(--s3) var(--s4);
+  }
+  .mktBudget {
+    margin-left: 0;
+  }
+  .mktMobileLabel {
+    display: block;
+    font-family: var(--font-condensed);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+    margin-bottom: 2px;
+  }
   .mktRow {
-    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-columns: 1fr 1fr;
     grid-template-areas:
       'id     clock'
       'bid    who'
-      'you    action';
-    gap: var(--s2) var(--s3);
-    padding: var(--s3) var(--s4);
-    align-items: center;
+      'action action';
+    gap: var(--s3);
+    padding: var(--s4);
+    align-items: stretch;
   }
   .mktId { grid-area: id; align-self: center; }
   .mktClockCol { grid-area: clock; align-self: center; text-align: right; align-items: flex-end; }
-  .mktBidCol { grid-area: bid; align-self: center; text-align: left; align-items: flex-start; }
-  .mktBid, .mktBidL { text-align: left; }
-  .mktWho { grid-area: who; align-self: center; justify-content: flex-end; }
-  .mktYou { grid-area: you; align-self: center; text-align: left; }
+  .mktBidCol {
+    grid-area: bid;
+    align-self: stretch;
+    background: var(--color-bg-card-alt);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--r-control);
+    padding: var(--s2) var(--s3);
+    text-align: left;
+    align-items: flex-start;
+    justify-content: center;
+  }
+  .mktBidCol .mktBidV { justify-content: flex-start; }
+  .mktBidCol .mktBidL { justify-content: flex-start; }
+  .mktWho {
+    grid-area: who;
+    align-self: stretch;
+    background: var(--color-bg-card-alt);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--r-control);
+    padding: var(--s2) var(--s3);
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 2px;
+  }
+  .mktYou { display: none; }
   .mktAction { grid-area: action; align-self: center; justify-content: flex-end; width: 100%; }
   .mktAction .btn,
   .mktAction .btnPrimary,
-  .mktAction .btnMuted { max-width: none; width: 100%; }
+  .mktAction .btnMuted {
+    max-width: none;
+    width: 100%;
+    height: 38px;
+    font-size: var(--t-13);
+    border-radius: var(--r-control);
+  }
 }
 @media (max-width: 640px) {
   .page { padding: var(--s5) var(--s4) var(--s10); }
@@ -1018,19 +1106,84 @@
   .attnItem .btn, .attnItem .btnPrimary { grid-row: 1 / span 2; grid-column: 3; align-self: center; }
   .attnDismiss { grid-row: 1 / span 2; grid-column: 4; align-self: center; }
   .attnText { grid-row: 2; grid-column: 1 / span 2; }
-  .heroTeams { grid-template-columns: 1fr; gap: var(--s3); padding: var(--s4); }
-  .htAway { justify-content: flex-start; }
-  .htAway .htTx { text-align: left; }
-  .scores { justify-content: space-between; padding: var(--s2) 0; border-top: var(--line); border-bottom: var(--line); }
-  .score, .scoreDim { font-size: 34px; }
-  .scoreSep { display: none; }
+  .heroTeams {
+    display: flex;
+    flex-direction: column;
+    gap: var(--s3);
+    padding: var(--s4);
+  }
+  .scores {
+    display: none;
+  }
+  .htWrapper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    gap: var(--s3);
+  }
+  .htWrapperAway {
+    border-top: 1px solid var(--color-border-subtle);
+    padding-top: var(--s3);
+  }
+  .htAway {
+    justify-content: flex-start;
+    flex-direction: row-reverse;
+  }
+  .htAway .htTx {
+    text-align: left;
+  }
+  .htScoreMobile {
+    display: block;
+    font-family: var(--font-serif);
+    font-weight: 700;
+    font-size: 28px;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums lining-nums;
+    flex-shrink: 0;
+  }
   .mktRow {
     padding: var(--s3);
     gap: var(--s2) var(--s2);
   }
 
-  .colDesktop { display: none !important; }
+  .table {
+    min-width: 540px;
+  }
   .table tbody td, .table thead th { padding: 7px var(--s2); }
+  .table thead th:nth-child(1),
+  .table tbody td:nth-child(1) {
+    position: sticky;
+    left: 0;
+    z-index: 3;
+    width: 38px;
+    min-width: 38px;
+  }
+  .table thead th:nth-child(2),
+  .table tbody td:nth-child(2) {
+    position: sticky;
+    left: 38px;
+    z-index: 3;
+    min-width: 130px;
+    box-shadow: 2px 0 4px -2px rgba(0, 0, 0, 0.12);
+  }
+  .table thead th:nth-child(1),
+  .table thead th:nth-child(2) {
+    background: var(--color-bg-card);
+  }
+  .table tbody tr:nth-child(even) td:nth-child(1),
+  .table tbody tr:nth-child(even) td:nth-child(2) {
+    background: var(--color-bg-card-alt);
+  }
+  .table tbody tr:nth-child(odd) td:nth-child(1),
+  .table tbody tr:nth-child(odd) td:nth-child(2) {
+    background: var(--color-bg-card);
+  }
+  .rowMe td:nth-child(1),
+  .rowMe td:nth-child(2) {
+    background: var(--color-tint-accent) !important;
+  }
 
   /* Home team on row 1, away team on row 2 (badge, name, score each),
      with the tag centered in its own column spanning both rows. The

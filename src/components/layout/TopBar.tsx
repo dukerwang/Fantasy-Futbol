@@ -700,18 +700,53 @@ export default function TopBar() {
       {currentLeagueId && mobileMenuOpen && (
         <div className={styles.mobileDrawer}>
           <div className={styles.mobileDrawerContent}>
-            {/* Home (standalone) */}
-            <div className={styles.mobileDrawerItem}>
-              <Link
-                href={`/league/${currentLeagueId}`}
-                className={`${styles.mobileDrawerLink} ${isHomeActive() ? styles.mobileDrawerLinkActive : ''}`}
-                onClick={() => {
-                  setIsNavigating(true);
-                  setMobileMenuOpen(false);
-                }}
-              >
-                Home
-              </Link>
+            {/* Primary Hub Links */}
+            <div className={styles.mobileDrawerGroup}>
+              <div className={styles.mobileDrawerGroupLabel}>Overview</div>
+              <div className={styles.mobileDrawerGroupItems}>
+                <Link
+                  href={`/league/${currentLeagueId}`}
+                  className={`${styles.mobileDrawerSubLink} ${isHomeActive() ? styles.mobileDrawerSubLinkActive : ''}`}
+                  onClick={() => {
+                    setIsNavigating(true);
+                    setMobileMenuOpen(false);
+                  }}
+                >
+                  Home
+                </Link>
+                <Link
+                  href={`/league/${currentLeagueId}/transfers`}
+                  className={`${styles.mobileDrawerSubLink} ${isTransfersActive() ? styles.mobileDrawerSubLinkActive : ''}`}
+                  onClick={() => {
+                    setIsNavigating(true);
+                    setMobileMenuOpen(false);
+                  }}
+                >
+                  Transfers
+                </Link>
+                <Link
+                  href={`/league/${currentLeagueId}/activity`}
+                  className={`${styles.mobileDrawerSubLink} ${isActivityActive() ? styles.mobileDrawerSubLinkActive : ''}`}
+                  onClick={() => {
+                    setIsNavigating(true);
+                    setMobileMenuOpen(false);
+                  }}
+                >
+                  Activity
+                </Link>
+                {isDraftVisible && (
+                  <Link
+                    href={`/league/${currentLeagueId}`}
+                    className={`${styles.mobileDrawerSubLink} ${isDraftActive() ? styles.mobileDrawerSubLinkActive : ''}`}
+                    onClick={() => {
+                      setIsNavigating(true);
+                      setMobileMenuOpen(false);
+                    }}
+                  >
+                    Draft
+                  </Link>
+                )}
+              </div>
             </div>
 
             {/* Nav Groups */}
@@ -745,113 +780,6 @@ export default function TopBar() {
                 </div>
               </div>
             ))}
-
-            {/* Transfers (standalone — Market is the hub for the other four pages) */}
-            <div className={styles.mobileDrawerItem}>
-              <Link
-                href={`/league/${currentLeagueId}/transfers`}
-                className={`${styles.mobileDrawerLink} ${isTransfersActive() ? styles.mobileDrawerLinkActive : ''}`}
-                onClick={() => {
-                  setIsNavigating(true);
-                  setMobileMenuOpen(false);
-                }}
-              >
-                Transfers
-              </Link>
-            </div>
-
-            {/* Activity (standalone) */}
-            <div className={styles.mobileDrawerItem}>
-              <Link
-                href={`/league/${currentLeagueId}/activity`}
-                className={`${styles.mobileDrawerLink} ${isActivityActive() ? styles.mobileDrawerLinkActive : ''}`}
-                onClick={() => {
-                  setIsNavigating(true);
-                  setMobileMenuOpen(false);
-                }}
-              >
-                Activity
-              </Link>
-            </div>
-
-            {/* Draft (standalone — setup/drafting only; opens the lobby) */}
-            {isDraftVisible && (
-              <div className={styles.mobileDrawerItem}>
-                <Link
-                  href={`/league/${currentLeagueId}`}
-                  className={`${styles.mobileDrawerLink} ${isDraftActive() ? styles.mobileDrawerLinkActive : ''}`}
-                  onClick={() => {
-                    setIsNavigating(true);
-                    setMobileMenuOpen(false);
-                  }}
-                >
-                  Draft
-                </Link>
-              </div>
-            )}
-
-            {/* Mobile User Section */}
-            <div className={styles.mobileDrawerUserSection}>
-              <div className={styles.mobileDrawerUserDetail}>
-                <div className={styles.mobileDrawerCrest}>
-                  <CrestBadge
-                    config={currentCrestConfig}
-                    size={36}
-                    teamName={currentTeam?.team_name || username}
-                    teamId={currentTeam?.id}
-                  />
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                  <span className={styles.mobileDrawerUsername}>{currentTeam?.team_name || 'My Club'}</span>
-                  {currentTeam && (
-                    <Link
-                      href={`/league/${currentLeagueId}/finance`}
-                      className={styles.mobileBalanceLink}
-                      onClick={() => setMobileMenuOpen(false)}
-                    >
-                      Club Balance: €{currentTeam.faab_budget ?? 0}m
-                    </Link>
-                  )}
-                  {currentLeagueId && (
-                    <Link
-                      href={`/league/${currentLeagueId}/crest`}
-                      className={styles.mobileEditCrestLink}
-                      onClick={() => setMobileMenuOpen(false)}
-                    >
-                      Edit Crest →
-                    </Link>
-                  )}
-                </div>
-                <div className={styles.mobileDrawerThemeToggle}>
-                  <ThemeToggle />
-                </div>
-              </div>
-              <div className={styles.mobileDrawerUserDivider} />
-              <Link
-                href={currentLeagueId ? `/league/${currentLeagueId}/settings` : '/settings'}
-                className={styles.mobileDrawerLink}
-                onClick={() => {
-                  setIsNavigating(true);
-                  setMobileMenuOpen(false);
-                }}
-              >
-                Settings
-              </Link>
-              <Link
-                href={currentLeagueId ? `/league/${currentLeagueId}/help` : '/help'}
-                className={styles.mobileDrawerLink}
-                onClick={() => {
-                  setIsNavigating(true);
-                  setMobileMenuOpen(false);
-                }}
-              >
-                Help
-              </Link>
-              <div className={styles.mobileDrawerUserDivider} />
-              <button onClick={handleSignOut} className={styles.mobileDrawerSignOut} type="button">
-                Sign out
-              </button>
-            </div>
           </div>
         </div>
       )}

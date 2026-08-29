@@ -240,11 +240,6 @@ function PitchNode({ slotPos, player, isSelected, isValidTarget, isEmpty, isInva
             </span>
 
             <div className={chipCls}>
-                {isLocked && player && (
-                    <span className={styles.nodeLockCorner} title="Locked">
-                        <Icon name="lock" size={12} />
-                    </span>
-                )}
                 <div className={styles.nodeChipBody}>
                     {player ? (
                         <>
@@ -253,6 +248,11 @@ function PitchNode({ slotPos, player, isSelected, isValidTarget, isEmpty, isInva
                             </span>
                             <div className={styles.nodeMetaChipRow}>
                                 <PositionBadge position={slotPos} size="sm" />
+                                {isLocked && (
+                                    <span className={styles.nodeLockIcon} title="Locked">
+                                        <Icon name="lock" size={11} />
+                                    </span>
+                                )}
                                 {player.fpl_status && player.fpl_status !== 'a' && (
                                     <span className={styles.nodeStatusDot} data-status={player.fpl_status} />
                                 )}
