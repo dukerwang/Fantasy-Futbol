@@ -7,9 +7,11 @@ import type { Formation, GranularPosition, MatchupLineup, BenchSlot } from '@/ty
 import { FORMATION_SLOTS, POSITION_FLEX_MAP, BENCH_FLEX_MAP } from '@/types';
 import PitchUI from './PitchUI';
 import { FULL_PLAYER_SELECT } from '@/lib/constants/queries';
-import { getCurrentFplSeason, isFplSeasonKickedOff, resolveDraftStatsSeason } from '@/lib/season/currentSeason';
+import { getCurrentFplSeason, getLatestReferenceStatsSeason, isFplSeasonKickedOff, resolveDraftStatsSeason } from '@/lib/season/currentSeason';
 import { resolveLineupEditMatchup } from '@/lib/lineups/editTarget';
 import { getLockedPlTeamIds } from '@/lib/fixtures/lockout';
+import { loadReferenceStats, type RefStatsMap } from '@/lib/scoring/matchups';
+import type { RawStats } from '@/types';
 import styles from './my-team.module.css';
 
 export const dynamic = 'force-dynamic';
@@ -123,6 +125,8 @@ export default async function MyTeamPage({ params }: Props) {
   // Fetch current GW player points for score overlay
   let currentFplGw = 0;
   const scoreMap: Record<string, number> = {};
+  const rawStatsMap: Record<string, RawStats> = {};
+  let refStats: RefStatsMap | undefined;
   // Minutes played this GW — undefined until the GW is known, so the pitch can
   // tell "no scoring context yet" apart from "played 0 minutes" (DNP).
   let minutesMap: Record<string, number> | undefined;
@@ -142,15 +146,21 @@ export default async function MyTeamPage({ params }: Props) {
       if (currentFplGw) {
         const playerIds = rosterEntries.map((e) => e.player.id);
         const statsSeason = await getCurrentFplSeason(undefined, true);
-        const { data: statsRows } = await admin
-          .from('player_stats')
-          .select('player_id, fantasy_points, stats')
-          .eq('season', statsSeason)
-          .eq('gameweek', currentFplGw)
-          .in('player_id', playerIds);
+        const refSeason = await getLatestReferenceStatsSeason(admin);
+        const [{ data: statsRows }, fetchedRefStats] = await Promise.all([
+          admin
+            .from('player_stats')
+            .select('player_id, fantasy_points, stats')
+            .eq('season', statsSeason)
+            .eq('gameweek', currentFplGw)
+            .in('player_id', playerIds),
+          loadReferenceStats(admin, refSeason),
+        ]);
+        refStats = fetchedRefStats;
         minutesMap = {};
         for (const s of statsRows ?? []) {
           scoreMap[s.player_id] = (scoreMap[s.player_id] ?? 0) + Number(s.fantasy_points);
+          if (s.stats) rawStatsMap[s.player_id] = s.stats as RawStats;
           const minutes = Number((s.stats as { minutes_played?: number } | null)?.minutes_played ?? 0);
           minutesMap[s.player_id] = (minutesMap[s.player_id] ?? 0) + minutes;
         }
@@ -370,6 +380,9 @@ export default async function MyTeamPage({ params }: Props) {
         initialBench={initialBench as Record<BenchSlot, string | null>}
         scoreMap={scoreMap}
         minutesMap={minutesMap}
+        rawStatsMap={rawStatsMap}
+        refStats={refStats}
+        gameweek={currentFplGw || undefined}
         lockedTeamIds={lockedTeamIds}
         scoringLockedTeamIds={scoringLockedTeamIds}
         lineupWeekLabel={editingAhead && matchup ? `GW${matchup.gameweek} lineup` : undefined}

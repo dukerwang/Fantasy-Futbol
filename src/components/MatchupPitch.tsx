@@ -449,11 +449,16 @@ export default function MatchupPitch({
         const rows = Object.values(playerMap).filter((p): p is Partial<Player> & { id: string } => Boolean(p.id));
         if (rows.length) primePlayers(rows as Player[]);
     }, [playerMap, primePlayers]);
-    // Carries the gameweek, so the card lands on THIS match's game-log row
-    // rather than the front with no match context at all.
+    // Carries the gameweek and fielded slot, so the card lands on THIS match's
+    // game-log row evaluated at the position the manager actually fielded.
     const setViewingPlayer = useCallback(
-        (p: Partial<Player> | null) => {
-            if (p?.id) openPlayer(p as Player, { gameweek: gameweek ?? null });
+        (p: Partial<Player> | null, slot?: string) => {
+            if (p?.id) {
+                openPlayer(p as Player, {
+                    gameweek: gameweek ?? null,
+                    position: slot ?? p.primary_position ?? null,
+                });
+            }
         },
         [openPlayer, gameweek],
     );
@@ -513,7 +518,7 @@ export default function MatchupPitch({
                                             detail={detailAtSlot(detailMap[s.player_id], s.slot)}
                                             status={statusOf(s.player_id)}
                                             isSubIn={s.isSubIn}
-                                            onClick={() => setViewingPlayer(playerMap[s.player_id] ?? null)}
+                                            onClick={() => setViewingPlayer(playerMap[s.player_id] ?? null, s.slot)}
                                         />
                                     ))}
                                 </div>
@@ -565,7 +570,7 @@ export default function MatchupPitch({
                                             detail={pid ? detailMap[pid] : undefined}
                                             status={pid ? statusOf(pid) : 'pending'}
                                             isSubOut={row?.isSubOut}
-                                            onClick={player ? () => setViewingPlayer(player) : undefined}
+                                            onClick={player ? () => setViewingPlayer(player, player.primary_position) : undefined}
                                         />
                                         <span className={styles.benchSlotLabel} title={BENCH_SLOT_TITLE[slot]}>{slot}</span>
                                     </div>

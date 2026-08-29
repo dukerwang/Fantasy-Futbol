@@ -90,6 +90,10 @@ interface Props {
      * a matchup pitch chip carries the gameweek it was clicked in.
      */
     focusGameweek?: number | null;
+    /**
+     * Evaluates the card under this position slot (e.g. 'RB', 'CM').
+     */
+    focusPosition?: string | null;
 }
 
 interface Snapshot {
@@ -220,6 +224,7 @@ export default function PremiumPlayerCard({
     onClose,
     staticOnly = false,
     focusGameweek,
+    focusPosition,
 }: Props) {
     const stageRef = useRef<HTMLDivElement>(null);
     const cardRef = useRef<HTMLDivElement>(null);
@@ -234,7 +239,13 @@ export default function PremiumPlayerCard({
     const [openLog, setOpenLog] = useState<string | null>(null);
     const [hovering, setHovering] = useState(false);
     // Position the card is evaluating — chips flip both faces to that slot's scoring.
-    const [selectedPos, setSelectedPos] = useState<string>(player.primary_position);
+    const [selectedPos, setSelectedPos] = useState<string>(() => focusPosition?.toUpperCase() || player.primary_position);
+
+    useEffect(() => {
+        if (focusPosition) {
+            setSelectedPos(focusPosition.toUpperCase());
+        }
+    }, [focusPosition]);
 
     const params = useParams();
     const leagueId = params?.leagueId as string | undefined;

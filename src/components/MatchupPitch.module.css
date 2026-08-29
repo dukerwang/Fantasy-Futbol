@@ -117,7 +117,7 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    height: calc(6 * 148px + var(--s12) + var(--s4));
+    height: calc(6 * 118px + var(--s10) + var(--s3) + var(--s3));
     min-height: 480px;
     border: 2px solid var(--color-pitch-line);
     border-top: none;
@@ -241,7 +241,7 @@
     /* Clears the byline (2px) and the centre semicircle (~40px). Side and
        bottom padding keep hanging crests and point badges inside the
        overflow:hidden field instead of clipping them on the touchline. */
-    padding: var(--s12) var(--s2) var(--s4);
+    padding: var(--s10) var(--s2) var(--s3);
     position: relative;
     z-index: 2;
 }
@@ -254,7 +254,7 @@
     display: flex;
     flex-direction: column;
     flex: 1 0 auto;
-    min-height: 148px;
+    min-height: 118px;
     position: relative;
 }
 
@@ -283,10 +283,10 @@
     flex-wrap: nowrap;
     justify-content: space-evenly;
     align-items: flex-start;
-    gap: var(--s4);
-    padding: var(--s3) var(--s2);
+    gap: var(--s3);
+    padding: var(--s2) var(--s2);
     flex: 1;
-    min-height: 148px;
+    min-height: 118px;
 }
 
 .zoneWBZ .zone {
@@ -863,48 +863,108 @@
 }
 
 @media (max-width: 600px) {
-    .board { margin: 0 var(--s4); }
-    .zone {
-        gap: var(--s3);
-        padding: var(--s2);
+    .board { margin: 0; }
+    .half { padding: var(--s2) var(--s1); }
+    .zoneRow {
+        min-height: 80px;
     }
-    .zoneRow,
-    .zone { min-height: 132px; }
-    /* .halfField's height is fixed to the 6-zone worst case (see the rule
-       above) using the desktop row floor and padding — recompute it here
-       with this breakpoint's smaller row floor (132px), or the box would
-       stay sized for the taller desktop rows. */
-    .halfField { height: calc(6 * 132px + var(--s12) + var(--s4)); }
+    .zone {
+        gap: 4px;
+        padding: 2px var(--s1);
+        min-height: 80px;
+    }
+    .zones {
+        padding: var(--s8) 0 var(--s3);
+    }
+    /* .halfField's height is fixed to the 6-zone worst case using the mobile
+       row floor (80px) and padding — recompute it here to avoid awkward vertical stretch. */
+    .halfField { height: calc(6 * 80px + var(--s8) + var(--s3) + var(--s3) + var(--s3)); }
+    .benches { padding: var(--s3) var(--s2); }
+    .bench { padding: var(--s2) var(--s2); }
+    .breakdownCol { padding: var(--s2) var(--s2); }
+    .breakdownHead { padding: 0 var(--s2) var(--s2); }
 }
 
-/* Only shrink the portrait when the FIELD is actually too narrow for
-   three md chips — not because the viewport crossed 600px. After the
-   900px stack, a 600px-wide phone already has a full-width half. */
-@container field (max-width: 360px) {
-    .chipWrap {
-        min-width: 84px;
-        max-width: 96px;
-        gap: 3px;
-        padding: 0 0 var(--s1);
+/* Multi-tier field container queries: dynamically scales chips and portraits
+   based on the actual width of the field half so 4-across defenders (LB-CB-CB-RB)
+   fit perfectly on phones and narrow columns without horizontal clipping. */
+
+@container field (max-width: 520px) and (min-width: 381px) {
+    .zone {
+        gap: 6px;
+        padding: 2px 4px;
     }
-    .chipBox { min-height: 54px; }
+    .chipWrap {
+        min-width: 74px;
+        max-width: 90px;
+        gap: 3px;
+    }
+    .chipBox { min-height: 48px; }
     .chipWrap :global(.g-portrait-md) {
-        width: 52px;
-        height: 60px;
+        width: 50px;
+        height: 56px;
         --g-portrait-zoom: 150%;
         --g-portrait-zoom-alt: 136%;
-        --g-portrait-inset: -2px;
+        --g-portrait-inset: 0px;
         --g-crest: 16px;
     }
     .chipWrap :global(.g-portrait-md) :global(.g-portrait-fallback) {
-        font-size: 20px;
+        font-size: 18px;
     }
-    .chipBody { padding: 3px var(--s1) var(--s1); gap: 2px; }
+    .chipBody { padding: 2px var(--s1) var(--s1); gap: 2px; }
     .chipName { font-size: var(--t-10); }
+    .chipStats { font-size: 9px; }
+    .chipPts { font-size: var(--t-10); top: -6px; right: -12px; }
 }
 
-@container bench (max-width: 340px) {
-    .benchChipWrap { min-width: 72px; max-width: 92px; }
+@container field (max-width: 380px) {
+    .zone {
+        gap: 4px;
+        padding: 2px 2px;
+    }
+    .chipWrap {
+        min-width: 62px;
+        max-width: 76px;
+        gap: 2px;
+        padding: 0 0 var(--s1);
+    }
+    .chipBox { min-height: 42px; }
+    .chipWrap :global(.g-portrait-md) {
+        width: 44px;
+        height: 44px;
+        --g-portrait-zoom: 150%;
+        --g-portrait-zoom-alt: 136%;
+        --g-portrait-inset: 4px;
+        --g-crest: 16px;
+    }
+    .chipWrap :global(.g-portrait-md) :global(.g-portrait-fallback) {
+        font-size: 17px;
+    }
+    .chipBody { padding: 2px 2px 2px; gap: 1px; }
+    .chipName { font-size: 10px; line-height: 1.15; }
+    .chipStats { font-size: 9px; line-height: 1; margin: 0; }
+    .chipPts { font-size: 10px; top: -6px; right: -10px; padding: 1px 3px; }
+}
+
+@container bench (max-width: 400px) {
+    .benchChips {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 4px;
+    }
+    .benchSlot {
+        min-width: 0;
+    }
+    .benchChipWrap {
+        min-width: 0;
+        max-width: 100%;
+        width: 100%;
+    }
+    .benchChipBox {
+        padding: var(--s1) 2px;
+    }
+    .benchChipName {
+        font-size: 10px;
+    }
 }
 
 @media (prefers-reduced-motion: reduce) {

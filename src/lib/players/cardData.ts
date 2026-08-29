@@ -33,6 +33,7 @@ import {
   type PerfGroup,
 } from '@/lib/scoring/perfBand';
 import { calculateMatchRating, featExcessFor } from '@/lib/scoring/matchRating';
+import { SPINE } from '@/lib/positions/spine';
 import type {
   GranularPosition,
   OwnerClub,
@@ -510,10 +511,13 @@ export async function fetchPlayerBack(
   const history = (historyData ?? []) as PlayerSeasonArchive[];
   const stats = (dbStats ?? []) as any[];
   const primaryPos = String((playerRow as any)?.primary_position ?? '').toUpperCase();
-  const positions = eligiblePositions(
-    (playerRow as any)?.primary_position,
-    (playerRow as any)?.secondary_positions,
-  );
+  const positions = Array.from(new Set([
+    ...eligiblePositions(
+      (playerRow as any)?.primary_position,
+      (playerRow as any)?.secondary_positions,
+    ),
+    ...SPINE,
+  ]));
   // Ref stats for re-scoring secondaries — same source positional ranks use.
   const refStats = (await loadReferenceStats(admin, refSeason)) as RefStatsMap;
 

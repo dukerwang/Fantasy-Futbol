@@ -40,6 +40,11 @@ export interface OpenPlayerOptions {
    * the front with no match context and the reader has to find the row.
    */
   gameweek?: number | null;
+  /**
+   * Opens the card evaluated at this position slot (e.g. 'RB', 'CM', 'ST').
+   * If omitted, defaults to the player's primary position.
+   */
+  position?: string | null;
 }
 
 interface PlayerCardContextValue {
@@ -79,6 +84,8 @@ export function PlayerCardProvider({ children }: { children: React.ReactNode }) 
   const [actions, setActions] = useState<Pick<OpenPlayerOptions, 'onPick' | 'onNominate'>>({});
   /** Which game-log row to open the card onto, if the caller named one. */
   const [focusGameweek, setFocusGameweek] = useState<number | null>(null);
+  /** Which position slot to evaluate the card under, if the caller named one. */
+  const [focusPosition, setFocusPosition] = useState<string | null>(null);
   const [isResolving, setIsResolving] = useState(false);
 
   // Guards against a slow resolve landing after the user opened someone else.
@@ -91,6 +98,7 @@ export function PlayerCardProvider({ children }: { children: React.ReactNode }) 
     setOwnership(undefined);
     setActions({});
     setFocusGameweek(null);
+    setFocusPosition(null);
     setIsResolving(false);
   }, []);
 
@@ -105,6 +113,7 @@ export function PlayerCardProvider({ children }: { children: React.ReactNode }) 
       );
       setActions({ onPick: options?.onPick, onNominate: options?.onNominate });
       setFocusGameweek(options?.gameweek ?? null);
+      setFocusPosition(options?.position ?? null);
       setIsResolving(false);
     },
     [leagueId],
@@ -132,6 +141,7 @@ export function PlayerCardProvider({ children }: { children: React.ReactNode }) 
         );
         setActions({ onPick: options?.onPick, onNominate: options?.onNominate });
         setFocusGameweek(options?.gameweek ?? null);
+        setFocusPosition(options?.position ?? null);
       });
     },
     [leagueId, openPlayer],
@@ -181,6 +191,7 @@ export function PlayerCardProvider({ children }: { children: React.ReactNode }) 
         onPick={actions.onPick}
         onNominate={actions.onNominate}
         focusGameweek={focusGameweek}
+        focusPosition={focusPosition}
       />
     </PlayerCardContext.Provider>
   );

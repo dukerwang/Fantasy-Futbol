@@ -14,6 +14,8 @@ import Portrait from '@/components/players/Portrait';
 import PositionBadge from '@/components/players/PositionBadge';
 import { SPINE, POS_COLOR } from '@/lib/positions/spine';
 import { getFormationLockStatus, assignStartersForFormation } from '@/lib/lineups/smartLock';
+import { scoreAppearanceAtSlot, type RefStatsMap } from '@/lib/scoring/matchups';
+import type { RawStats } from '@/types';
 import styles from './pitch.module.css';
 import { Icon } from '@/components/ui/Icon';
 
@@ -133,6 +135,9 @@ interface Props {
     scoreMap?: Record<string, number>;
     /** Minutes played this GW. Undefined = no scoring context yet (offseason/no GW); present = drives pending/DNP badges. */
     minutesMap?: Record<string, number>;
+    rawStatsMap?: Record<string, RawStats>;
+    refStats?: RefStatsMap;
+    gameweek?: number;
     lockedTeamIds?: Set<number>;
     /** Scoring-week locks (this GW until it completes). IR uses this; lineup/academy use lockedTeamIds. */
     scoringLockedTeamIds?: Set<number>;
@@ -281,6 +286,9 @@ export default function PitchUI({
     initialBench,
     scoreMap,
     minutesMap,
+    rawStatsMap,
+    refStats,
+    gameweek,
     lockedTeamIds,
     scoringLockedTeamIds,
     lineupWeekLabel,
@@ -315,7 +323,17 @@ export default function PitchUI({
     const [sidebarError, setSidebarError] = useState<string | null>(null);
 
     // ── Modal ──
-    const { openPlayer: setViewingPlayer, prefetchPlayer, primePlayers } = usePlayerCard();
+    const { openPlayer, prefetchPlayer, primePlayers } = usePlayerCard();
+    const setViewingPlayer = useCallback(
+        (p: Player, slot?: string) => {
+            openPlayer(p, {
+                gameweek: gameweek ?? null,
+                position: slot ?? p.primary_position ?? null,
+            });
+        },
+        [openPlayer, gameweek],
+    );
+
     useEffect(() => {
         primePlayers([
             ...allEntries.map((e) => e.player),
@@ -1081,6 +1099,16 @@ export default function PitchUI({
                                                 const isLocked = !!playerId && !!entry && entry.player.pl_team_id !== null && lockedTeamIds?.has(entry.player.pl_team_id);
                                                 const hasStarted = !!entry && isPlMatchLocked(entry.player, irLockedTeamIds);
                                                 const status = playerId && minutesMap ? playStatus(minutesMap[playerId], hasStarted) : undefined;
+                                                const starterPoints = (() => {
+                                                    if (!playerId) return undefined;
+                                                    const basePts = scoreMap?.[playerId];
+                                                    if (basePts === undefined) return undefined;
+                                                    const stats = rawStatsMap?.[playerId];
+                                                    if (stats && refStats && entry) {
+                                                        return scoreAppearanceAtSlot(stats, pos, entry.player.primary_position, refStats, { points: basePts, rating: null }).points;
+                                                    }
+                                                    return basePts;
+                                                })();
                                                 return (
                                                     <PitchNode
                                                         key={slotIndex}
@@ -1093,8 +1121,8 @@ export default function PitchUI({
                                                         isLocked={isLocked}
                                                         isLoan={entry?.status === 'loan_in'}
                                                         onClick={() => handleStarterClick(slotIndex)}
-                                                        onViewDetails={entry ? () => setViewingPlayer(entry.player) : undefined}
-                                                        points={playerId && scoreMap ? scoreMap[playerId] : undefined}
+                                                        onViewDetails={entry ? () => setViewingPlayer(entry.player, pos) : undefined}
+                                                        points={starterPoints}
                                                         status={status}
                                                     />
                                                 );

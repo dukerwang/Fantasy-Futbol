@@ -145,4 +145,19 @@ describe('Szoboszlai GW1 — AM stored vs RB slot', () => {
             calculateMatchRating(stats, 'RB', DEFAULT_REFERENCE_STATS).rating,
         );
     });
+
+    it('grades auto-subbed players at the slot they subbed into', () => {
+        const detailMap: Record<string, MatchupPlayerDetail> = {
+            blankedStarter: { points: 0, rating: null, stats: { ...oop.stats, minutes_played: 0 } },
+            subbedIn: { points: 29.06, rating: 8.5, stats },
+        };
+        const effectiveLineup = {
+            starters: [{ player_id: 'subbedIn', slot: 'RB' }],
+            bench: [{ player_id: 'blankedStarter', slot: 'DEF' }],
+        };
+        attachLineupSlotScores(detailMap, [effectiveLineup], { subbedIn: 'AM', blankedStarter: 'CB' }, DEFAULT_REFERENCE_STATS);
+        const expectedRb = calculateMatchRating(stats, 'RB', DEFAULT_REFERENCE_STATS, 'AM');
+        expect(detailMap.subbedIn.points).toBe(expectedRb.fantasyPoints);
+        expect(detailMap.subbedIn.rating).toBe(calculateMatchRating(stats, 'RB', DEFAULT_REFERENCE_STATS).rating);
+    });
 });

@@ -19,6 +19,8 @@ interface Props {
     onNominate?: (player: Player) => void;
     /** Opens the card onto this gameweek's game-log row, expanded. */
     focusGameweek?: number | null;
+    /** Opens the card evaluated under this position slot. */
+    focusPosition?: string | null;
 }
 
 export default function PlayerDetailsModal({
@@ -28,6 +30,7 @@ export default function PlayerDetailsModal({
     onPick,
     onNominate,
     focusGameweek,
+    focusPosition,
 }: Props) {
     // Close on Escape
     useEffect(() => {
@@ -59,6 +62,7 @@ export default function PlayerDetailsModal({
                         ownership={ownership}
                         onClose={onClose}
                         focusGameweek={focusGameweek}
+                        focusPosition={focusPosition}
                     />
                 </div>
 

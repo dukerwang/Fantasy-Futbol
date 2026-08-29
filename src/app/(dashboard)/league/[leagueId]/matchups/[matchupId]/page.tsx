@@ -9,6 +9,7 @@ import { normalizeMatchupLineup } from '@/lib/lineups/normalizeMatchupLineup';
 import { generateMatchReport } from '@/lib/narrative/matchReport';
 import { getCurrentFplSeason, getLatestReferenceStatsSeason } from '@/lib/season/currentSeason';
 import {
+    applySubsToLineup,
     attachLineupSlotScores,
     buildLineupPerformance,
     calculateTeamScore,
@@ -146,16 +147,6 @@ export default async function MatchupDetailPage({ params }: Props) {
                 primaryPosition: playerMap[s.player_id]?.primary_position ?? null,
             };
         }
-
-        const playerPrimary = new Map<string, string | undefined>();
-        for (const [id, p] of Object.entries(playerMap)) {
-            playerPrimary.set(id, p.primary_position);
-        }
-        attachLineupSlotScores(detailMap, [lineupA, lineupB], playerPrimary, refStats);
-        // The banded performance block per starter, at the slot he was fielded
-        // in. Computed here rather than in the client so no score reaches the
-        // browser — see src/lib/scoring/perfBand.ts.
-        perfMap = buildLineupPerformance(detailMap, [lineupA, lineupB], refStats);
     }
 
     // Whether we hold FPL's reviewed stats for this gameweek yet. Until the
@@ -176,9 +167,6 @@ export default async function MatchupDetailPage({ params }: Props) {
     // Always run this (not just while live): the pitch's sub arrows and points
     // breakdown need `detailA`/`detailB` — which starters were auto-subbed and
     // by whom, and the bench bonus per player — for a completed matchup too.
-    // MatchupPitch used to derive that itself by re-walking the lineup, gated
-    // on `matchupStatus === 'completed'`, which both duplicated this logic (and
-    // could disagree with it) and meant no sub arrow ever showed while live.
     let computedScoreA = 0;
     let computedScoreB = 0;
     const detailA: TeamScoreDetail = emptyTeamScoreDetail();
@@ -204,6 +192,22 @@ export default async function MatchupDetailPage({ params }: Props) {
 
         computedScoreA = calculateTeamScore(lineupA, playerRecord, playerPositions, playerPlTeamId, refStats ?? {}, finalised, finishedPlTeamIds, detailA);
         computedScoreB = calculateTeamScore(lineupB, playerRecord, playerPositions, playerPlTeamId, refStats ?? {}, finalised, finishedPlTeamIds, detailB);
+
+        // Effective lineups after auto-subs: starters who blanked are replaced by the
+        // sub who filled their slot, so performance blocks & chip ratings grade the
+        // sub at the slot he actually filled.
+        const effectiveLineupA = applySubsToLineup(lineupA, detailA);
+        const effectiveLineupB = applySubsToLineup(lineupB, detailB);
+
+        const playerPrimary = new Map<string, string | undefined>();
+        for (const [id, p] of Object.entries(playerMap)) {
+            playerPrimary.set(id, p.primary_position);
+        }
+        attachLineupSlotScores(detailMap, [effectiveLineupA, effectiveLineupB], playerPrimary, refStats ?? {});
+        // The banded performance block per starter, at the slot he was fielded
+        // in. Computed here rather than in the client so no score reaches the
+        // browser — see src/lib/scoring/perfBand.ts.
+        perfMap = buildLineupPerformance(detailMap, [effectiveLineupA, effectiveLineupB], refStats ?? {});
     }
 
     // Which of these players' own clubs have kicked off. A chip showing 0.0 is
