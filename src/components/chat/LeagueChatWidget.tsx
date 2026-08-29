@@ -295,6 +295,13 @@ function LeagueChatWidgetContent({
     }
   }, [messages, activeTab, isOpen, isMinimized, viewMode]);
 
+  // Switch to chat thread view whenever activeTab changes (e.g. from OpponentCard "Message @manager" or DM selection)
+  useEffect(() => {
+    if (activeTab) {
+      setViewMode('chat');
+    }
+  }, [activeTab]);
+
   // Mark active tab as read when open
   useEffect(() => {
     if (!isOpen || isMinimized) return;

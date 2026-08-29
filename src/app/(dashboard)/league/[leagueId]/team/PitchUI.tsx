@@ -788,27 +788,26 @@ export default function PitchUI({
         [lineupSelection, sidebarSelection, slots, playerMap, poolEntries, academyAgeLimit, lockedTeamIds, irLockedTeamIds],
     );
 
-    // ── Taxi swap — sequential: move reserve to taxi first (frees roster slot), then activate taxi player ──
+    // ── Taxi swap: swap an active U21 reserve with an academy player ──
     async function handleTaxiSwap(outgoingTaxiId: string, incomingReserveId: string) {
         setSidebarLoading(true);
         setSidebarError(null);
         setSidebarSelection(null);
         try {
-            // Step 1: move the reserve to taxi (removes them from active roster count)
-            const r1 = await fetch(`/api/teams/${teamId}/taxi`, {
+            const res = await fetch(`/api/teams/${teamId}/taxi`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ playerId: incomingReserveId, action: 'move_to_taxi' }),
+                body: JSON.stringify({
+                    action: 'swap',
+                    playerId: incomingReserveId,
+                    swapWithPlayerId: outgoingTaxiId,
+                }),
             });
-            if (!r1.ok) { const d = await r1.json(); setSidebarError(d.error ?? 'Move to academy failed'); return; }
-
-            // Step 2: activate the taxi player (now there is roster space)
-            const r2 = await fetch(`/api/teams/${teamId}/taxi`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ playerId: outgoingTaxiId, action: 'activate' }),
-            });
-            if (!r2.ok) { const d = await r2.json(); setSidebarError(d.error ?? 'Activate failed'); return; }
+            if (!res.ok) {
+                const d = await res.json();
+                setSidebarError(d.error ?? 'Academy swap failed');
+                return;
+            }
 
             router.refresh();
         } catch {
@@ -838,27 +837,26 @@ export default function PitchUI({
         }
     }
 
-    // ── IR swap — sequential: move reserve to IR first (frees roster slot), then activate IR player ──
+    // ── IR swap: swap an active injured reserve with an IR player ──
     async function handleIrSwap(outgoingIrId: string, incomingReserveId: string) {
         setSidebarLoading(true);
         setSidebarError(null);
         setSidebarSelection(null);
         try {
-            // Step 1: move the reserve to IR (removes them from active roster count)
-            const r1 = await fetch(`/api/teams/${teamId}/ir`, {
+            const res = await fetch(`/api/teams/${teamId}/ir`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ playerId: incomingReserveId, action: 'move_to_ir' }),
+                body: JSON.stringify({
+                    action: 'swap',
+                    playerId: incomingReserveId,
+                    swapWithPlayerId: outgoingIrId,
+                }),
             });
-            if (!r1.ok) { const d = await r1.json(); setSidebarError(d.error ?? 'Move to IR failed'); return; }
-
-            // Step 2: activate the IR player (now there is roster space)
-            const r2 = await fetch(`/api/teams/${teamId}/ir`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ playerId: outgoingIrId, action: 'activate' }),
-            });
-            if (!r2.ok) { const d = await r2.json(); setSidebarError(d.error ?? 'Activate failed'); return; }
+            if (!res.ok) {
+                const d = await res.json();
+                setSidebarError(d.error ?? 'IR swap failed');
+                return;
+            }
 
             router.refresh();
         } catch {

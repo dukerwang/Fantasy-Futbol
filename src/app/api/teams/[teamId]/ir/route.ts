@@ -15,10 +15,14 @@ export async function POST(req: NextRequest, { params }: Props) {
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
     const body = await req.json();
-    const { playerId, action } = body;
+    const { playerId, action, swapWithPlayerId } = body;
 
-    if (!playerId || !action || (action !== 'move_to_ir' && action !== 'activate')) {
+    if (!playerId || !action || (action !== 'move_to_ir' && action !== 'activate' && action !== 'swap')) {
         return NextResponse.json({ error: 'Missing or invalid parameters' }, { status: 400 });
+    }
+
+    if (action === 'swap' && (!swapWithPlayerId || swapWithPlayerId === playerId)) {
+        return NextResponse.json({ error: 'Missing or invalid swap player' }, { status: 400 });
     }
 
     const admin = createAdminClient();
@@ -32,6 +36,93 @@ export async function POST(req: NextRequest, { params }: Props) {
         .single();
 
     if (!team) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+
+    // ── SWAP ACTION ─────────────────────────────────────────────────────────────
+    if (action === 'swap') {
+        const { data: entries, error: entriesErr } = await admin
+            .from('roster_entries')
+            .select(`id, player_id, status, player:players(id, name, fpl_status, pl_team_id, web_name)`)
+            .eq('team_id', teamId)
+            .in('player_id', [playerId, swapWithPlayerId]);
+
+        if (entriesErr) return NextResponse.json({ error: entriesErr.message }, { status: 500 });
+        if (!entries || entries.length !== 2) {
+            return NextResponse.json({ error: 'Both players must be on your roster' }, { status: 400 });
+        }
+
+        const entry1 = entries.find((e) => e.player_id === playerId)!;
+        const entry2 = entries.find((e) => e.player_id === swapWithPlayerId)!;
+
+        let incomingEntry = entry1;
+        let outgoingEntry = entry2;
+        if (incomingEntry.status === 'ir' && outgoingEntry.status !== 'ir') {
+            incomingEntry = entry2;
+            outgoingEntry = entry1;
+        }
+
+        if (incomingEntry.status === 'ir') {
+            return NextResponse.json({ error: 'Both players are already on IR' }, { status: 400 });
+        }
+        if (outgoingEntry.status !== 'ir') {
+            return NextResponse.json({ error: 'Target player is not currently on IR' }, { status: 400 });
+        }
+        if (incomingEntry.status === 'loan_in' || incomingEntry.status === 'loan_out') {
+            return NextResponse.json({ error: 'Cannot move loaned players to IR' }, { status: 400 });
+        }
+
+        const incomingPlayer = incomingEntry.player as unknown as { id: string; name: string; fpl_status: string | null; pl_team_id: number | null; web_name: string | null };
+        const outgoingPlayer = outgoingEntry.player as unknown as { id: string; name: string; fpl_status: string | null; pl_team_id: number | null; web_name: string | null };
+
+        // Kickoff lock check for both players
+        const { data: matchup } = await admin
+            .from('matchups')
+            .select('gameweek')
+            .or(`team_a_id.eq.${teamId},team_b_id.eq.${teamId}`)
+            .in('status', ['scheduled', 'live'])
+            .order('gameweek', { ascending: true })
+            .limit(1)
+            .maybeSingle();
+
+        if (matchup) {
+            const { getLockedPlTeamIds } = await import('@/lib/fixtures/lockout');
+            const lockedTeamIds = await getLockedPlTeamIds(admin, matchup.gameweek);
+            if (incomingPlayer?.pl_team_id && lockedTeamIds.has(incomingPlayer.pl_team_id)) {
+                return NextResponse.json(
+                    { error: `Cannot change IR status for ${getPlayerDisplayName(incomingPlayer, 'full')} — their match has already kicked off.` },
+                    { status: 400 },
+                );
+            }
+            if (outgoingPlayer?.pl_team_id && lockedTeamIds.has(outgoingPlayer.pl_team_id)) {
+                return NextResponse.json(
+                    { error: `Cannot change IR status for ${getPlayerDisplayName(outgoingPlayer, 'full')} — their match has already kicked off.` },
+                    { status: 400 },
+                );
+            }
+        }
+
+        // IR eligibility check for incoming player
+        const fplStatus = incomingPlayer?.fpl_status;
+        if (fplStatus !== 'i' && fplStatus !== 'u' && fplStatus !== 'd') {
+            return NextResponse.json({ error: 'Player is not eligible for IR. They must be officially Injured (i) or Unavailable (u).' }, { status: 400 });
+        }
+
+        // Atomic swap updates
+        const { error: errIncoming } = await admin
+            .from('roster_entries')
+            .update({ status: 'ir' })
+            .eq('id', incomingEntry.id);
+
+        if (errIncoming) return NextResponse.json({ error: errIncoming.message }, { status: 500 });
+
+        const { error: errOutgoing } = await admin
+            .from('roster_entries')
+            .update({ status: 'bench' })
+            .eq('id', outgoingEntry.id);
+
+        if (errOutgoing) return NextResponse.json({ error: errOutgoing.message }, { status: 500 });
+
+        return NextResponse.json({ ok: true });
+    }
 
     // Get current roster entry
     const { data: entry } = await admin

@@ -83,6 +83,7 @@ export interface HomeClub {
   abbreviation: string | null;
   crest: unknown;
   manager: string | null;
+  userId?: string | null;
 }
 
 export interface XiSlot {
@@ -445,7 +446,7 @@ export async function buildHomeModel(
   ] = await Promise.all([
     admin
       .from('teams')
-      .select('id, team_name, abbreviation, crest_config, faab_budget, user:users(id, username)')
+      .select('id, team_name, abbreviation, crest_config, faab_budget, user_id, user:users(id, username)')
       .eq('league_id', leagueId),
     admin
       .from('league_standings')
@@ -461,7 +462,7 @@ export async function buildHomeModel(
     admin
       .from('auction_state')
       .select(
-        'player_id, kind, status, seller_team_id, sale_listing_id, highest_bid, highest_bidder_team_id, bid_count, bids, expires_at',
+        'player_id, kind, status, seller_team_id, sale_listing_id, highest_bid, highest_bidder_team_id, bid_count, bids, expires_at, minimum_bid',
       )
       .eq('league_id', leagueId)
       .eq('status', 'live'),
@@ -528,12 +529,14 @@ export async function buildHomeModel(
 
   const clubOf = (id: string | null | undefined): HomeClub => {
     const t = teams.find((x) => x.id === id);
+    const userObj = Array.isArray(t?.user) ? t.user[0] : t?.user;
     return {
       id: id ?? '',
       name: t?.team_name ?? 'Unknown',
       abbreviation: t?.abbreviation ?? null,
       crest: t?.crest_config ?? null,
-      manager: t?.user?.username ?? null,
+      manager: userObj?.username ?? null,
+      userId: userObj?.id ?? t?.user_id ?? null,
     };
   };
 

@@ -25,7 +25,16 @@ export default function OpponentCard({ model }: { model: HomeModel }) {
     if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
     if (chatContext) {
       e.preventDefault();
-      chatContext.openChat();
+      if (opponent.club.userId && opponent.club.manager) {
+        chatContext.openChat({
+          type: 'dm',
+          userId: opponent.club.userId,
+          username: opponent.club.manager,
+          teamName: opponent.club.name,
+        });
+      } else {
+        chatContext.openChat({ type: 'lobby' });
+      }
     }
   };
 
