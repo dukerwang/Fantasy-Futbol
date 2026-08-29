@@ -497,6 +497,9 @@
   .segmented { flex: 1 1 100%; }
   .segment { flex: 1; justify-content: center; }
 
+  .table { min-width: 480px; }
+  .table thead th, .table tbody td { padding: var(--s2) var(--s1); }
+
   /* GP, Goals, Assists and Avg Rating go first on a phone — points, PPG and
      value are what a manager scans for, and the card behind the name carries
      the rest. */

@@ -4,6 +4,7 @@ import NavigationLink from '@/components/ui/NavigationLink';
 import CrestBadge from '@/components/crest/CrestBadge';
 import type { CrestConfig } from '@/components/crest/types';
 import type { HomeModel } from '@/lib/home/buildHomeModel';
+import { useLeagueChat } from '@/components/chat/LeagueChatContext';
 import { useHeroTab } from './HeroTabContext';
 import styles from './home.module.css';
 
@@ -16,7 +17,17 @@ export default function OpponentCard({ model }: { model: HomeModel }) {
   const hasSecondary = !!model.secondaryOpponent && !!model.secondaryFixture;
   const { tab } = useHeroTab();
   const opponent = hasSecondary && tab === 'secondary' ? model.secondaryOpponent : model.opponent;
+  const chatContext = useLeagueChat();
+
   if (!opponent) return null;
+
+  const handleChatClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    if (chatContext) {
+      e.preventDefault();
+      chatContext.openChat();
+    }
+  };
 
   return (
     <div className={styles.railCard}>
@@ -48,7 +59,11 @@ export default function OpponentCard({ model }: { model: HomeModel }) {
             <div className={styles.oppH2hL}>Last meeting</div>
           </div>
         </div>
-        <NavigationLink href={`/league/${model.leagueId}/chat`} className={styles.btn}>
+        <NavigationLink
+          href={`/league/${model.leagueId}/chat`}
+          className={styles.btn}
+          onClick={handleChatClick}
+        >
           {opponent.club.manager ? `Message @${opponent.club.manager}` : 'Open chat'}
         </NavigationLink>
       </div>

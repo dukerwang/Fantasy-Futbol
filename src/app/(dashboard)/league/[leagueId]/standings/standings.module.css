@@ -450,5 +450,8 @@
   .panel { margin: 0 var(--s4) var(--s6); }
   .sectionHead { margin-left: var(--s4); margin-right: var(--s4); }
   .table thead th,
-  .tableRow td { padding: var(--s3); }
+  .tableRow td { padding: var(--s2) var(--s1); font-size: var(--t-12); }
+  .tableRow td.rankCell { width: 36px; font-size: var(--t-15); }
+  .tableRow td.teamCell { min-width: 110px; }
+  .table thead th:first-child { width: 36px; }
 }

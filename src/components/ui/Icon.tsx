@@ -25,7 +25,9 @@ type IconName =
   | 'star'
   | 'soccer'
   | 'gaffa'
-  | 'plus';
+  | 'plus'
+  | 'minus'
+  | 'external-link';
 
 interface IconProps extends React.SVGProps<SVGSVGElement> {
   name: IconName;
@@ -188,6 +190,14 @@ export const Icon: React.FC<IconProps> = ({
       </g>
     ),
     plus: <path d="M12 5v14M5 12h14" />,
+    minus: <line x1="5" y1="12" x2="19" y2="12" />,
+    'external-link': (
+      <>
+        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+        <polyline points="15 3 21 3 21 9" />
+        <line x1="10" y1="14" x2="21" y2="3" />
+      </>
+    ),
   } satisfies Record<IconName, React.ReactNode>;
 
   return (

@@ -52,26 +52,45 @@ export function Market({ model }: { model: HomeModel }) {
               key={lot.playerId}
               className={lot.leading ? styles.mktRowMine : styles.mktRow}
             >
-              {lot.position ? (
-                <PositionBadge position={lot.position as GranularPosition} size="sm" />
-              ) : (
-                <span />
-              )}
-              <div className={styles.mktName}>
-                <div className={styles.mktNameN}>{lot.name}</div>
-                <div className={styles.mktNameM}>{lot.meta}</div>
+              <div className={styles.mktId}>
+                {lot.position ? (
+                  <PositionBadge position={lot.position as GranularPosition} size="sm" />
+                ) : (
+                  <span />
+                )}
+                <div className={styles.mktName}>
+                  <div className={styles.mktNameN}>{lot.name}</div>
+                  <div className={styles.mktNameM}>{lot.meta}</div>
+                </div>
               </div>
               <div className={styles.mktBid}>
-                <div className={styles.mktBidV}>{lot.bid}</div>
-                <div className={styles.mktBidL}>{lot.holder}</div>
+                <div className={`${styles.mktBidV} ${lot.hasBids ? '' : styles.mktBidNone}`}>
+                  {lot.bid}
+                </div>
+                <div className={styles.mktBidL}>{lot.floor}</div>
               </div>
-              <Countdown to={lot.expiresAt} serverNow={model.serverNow} />
-              <NavigationLink
-                href={lot.href}
-                className={lot.outbid ? styles.btnPrimary : styles.btn}
-              >
-                {lot.outbid ? 'Raise' : lot.leading ? 'Leading' : 'Bid'}
-              </NavigationLink>
+              <div className={styles.mktStatusCol}>
+                <div className={styles.mktHolder}>{lot.holder}</div>
+                {lot.outbid && <span className={styles.mktTagOutbid}>OUTBID</span>}
+                {lot.leading && <span className={styles.mktTagLeading}>LEADING</span>}
+              </div>
+              <div className={styles.mktClock}>
+                <Countdown to={lot.expiresAt} serverNow={model.serverNow} />
+              </div>
+              <div className={styles.mktAction}>
+                <NavigationLink
+                  href={lot.href}
+                  className={lot.outbid ? styles.btnPrimary : styles.btn}
+                >
+                  {lot.outbid
+                    ? `Raise ${lot.nextBid}`
+                    : lot.leading
+                      ? 'Leading'
+                      : lot.hasBids
+                        ? `Bid ${lot.nextBid}`
+                        : `Open at ${lot.nextBid}`}
+                </NavigationLink>
+              </div>
             </div>
           ))
         )}
@@ -221,12 +240,12 @@ export function StandingsTable({ model }: { model: HomeModel }) {
             <tr>
               <th scope="col" className={styles.alignLeft}>Rk</th>
               <th scope="col" className={styles.alignLeft}>Club</th>
-              <th scope="col">W</th>
-              <th scope="col">D</th>
-              <th scope="col">L</th>
-              <th scope="col">For</th>
+              <th scope="col" className={styles.colDesktop}>W</th>
+              <th scope="col" className={styles.colDesktop}>D</th>
+              <th scope="col" className={styles.colDesktop}>L</th>
+              <th scope="col" className={styles.colDesktop}>For</th>
               <th scope="col">Pts</th>
-              <th scope="col">Form</th>
+              <th scope="col" className={styles.colDesktop}>Form</th>
               <th scope="col">Pays</th>
             </tr>
           </thead>
@@ -270,14 +289,14 @@ export function StandingsTable({ model }: { model: HomeModel }) {
                     {r.isMe && <span className={styles.you}>You</span>}
                   </span>
                 </td>
-                <td>{r.wins}</td>
-                <td>{r.draws}</td>
-                <td>{r.losses}</td>
-                <td>{r.pointsFor}</td>
+                <td className={styles.colDesktop}>{r.wins}</td>
+                <td className={styles.colDesktop}>{r.draws}</td>
+                <td className={styles.colDesktop}>{r.losses}</td>
+                <td className={styles.colDesktop}>{r.pointsFor}</td>
                 <td>
                   <span className={styles.num}>{r.leaguePoints}</span>
                 </td>
-                <td>
+                <td className={styles.colDesktop}>
                   <span className={styles.form}>
                     {r.form.map((p, i) => (
                       <span
@@ -325,7 +344,7 @@ export function TopPerformers({ model }: { model: HomeModel }) {
           <div key={p.playerId} className={styles.ygRow}>
             <div className={styles.ygPlayer}>
               <PositionBadge position={p.position as GranularPosition} size="sm" />
-              <div style={{ minWidth: 0 }}>
+              <div className={styles.ygPlayerBody}>
                 <div className={styles.ygName}>{p.name}</div>
                 <div className={styles.ygClub}>{p.club}</div>
               </div>

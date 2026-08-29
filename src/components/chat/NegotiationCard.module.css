@@ -171,3 +171,17 @@
   color: var(--color-danger);
   background: var(--color-danger-dim);
 }
+
+@media (max-width: 480px) {
+  .card {
+    width: 100%;
+    max-width: 100%;
+  }
+  .side {
+    padding: 0.5rem;
+  }
+  .assetName {
+    font-size: 0.8125rem;
+  }
+}
+

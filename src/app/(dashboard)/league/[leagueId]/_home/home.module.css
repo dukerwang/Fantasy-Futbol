@@ -476,32 +476,86 @@
 .mktBudget { composes: mktSummary; margin-left: auto; }
 .mktRow {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto auto auto;
+  grid-template-columns: minmax(0, 1.2fr) minmax(80px, 0.8fr) minmax(110px, 1fr) auto auto;
   align-items: center;
-  gap: var(--s4);
+  gap: var(--s3) var(--s4);
   padding: var(--s3) var(--s5);
   border-top: var(--line);
 }
 .mktRowMine { composes: mktRow; background: var(--color-tint-accent); }
+.mktId { display: flex; align-items: center; gap: var(--s2); min-width: 0; }
 .mktName { min-width: 0; }
-.mktNameN { font-size: var(--t-13); font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.mktNameM { font-size: var(--t-11); color: var(--color-text-muted); }
-.mktBid { text-align: right; }
+.mktNameN { font-family: var(--font-serif); font-size: var(--t-15); font-weight: 700; color: var(--color-text-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mktNameM { font-size: var(--t-11); color: var(--color-text-muted); margin-top: 1px; }
+.mktBid { text-align: left; }
 .mktBidV {
-  font-family: var(--font-serif);
+  font-family: var(--font-mono);
   font-weight: 700;
-  font-size: var(--t-17);
+  font-size: var(--t-15);
   line-height: 1;
-  font-variant-numeric: tabular-nums;
+  font-variant-numeric: tabular-nums lining-nums;
+  color: var(--color-text-primary);
 }
-.mktBidL { font-size: var(--t-10); color: var(--color-text-muted); margin-top: 3px; }
+.mktBidNone {
+  font-family: var(--font-condensed);
+  color: var(--color-text-muted);
+  font-weight: 500;
+  font-size: var(--t-13);
+  letter-spacing: 0.04em;
+}
+.mktBidL {
+  font-family: var(--font-mono);
+  font-size: var(--t-10);
+  color: var(--color-text-muted);
+  margin-top: 2px;
+  font-variant-numeric: tabular-nums lining-nums;
+}
+.mktStatusCol {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  min-width: 0;
+}
+.mktHolder {
+  font-size: var(--t-12);
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.mktTagOutbid {
+  font-family: var(--font-condensed);
+  font-size: var(--t-10);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-danger);
+  flex-shrink: 0;
+}
+.mktTagLeading {
+  font-family: var(--font-condensed);
+  font-size: var(--t-10);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-accent-ink);
+  flex-shrink: 0;
+}
+.mktClock {
+  text-align: right;
+  white-space: nowrap;
+}
+.mktAction {
+  display: flex;
+  justify-content: flex-end;
+}
 .mktEmpty { padding: var(--s6) var(--s5); text-align: center; font-size: var(--t-13); color: var(--color-text-secondary); }
 .clock {
   font-family: var(--font-mono);
   font-size: var(--t-13);
   font-weight: 600;
   color: var(--color-text-primary);
-  font-variant-numeric: tabular-nums;
+  font-variant-numeric: tabular-nums lining-nums;
   white-space: nowrap;
 }
 .clockHot { composes: clock; color: var(--color-danger); }
@@ -808,9 +862,26 @@
   .scores { justify-content: space-between; padding: var(--s2) 0; border-top: var(--line); border-bottom: var(--line); }
   .score, .scoreDim { font-size: 34px; }
   .scoreSep { display: none; }
-  .heroFoot { grid-template-columns: 1fr; gap: var(--s2); }
-  .heroFootB { text-align: left; }
-  .mktRow, .mktRowMine { grid-template-columns: auto minmax(0, 1fr) auto; gap: var(--s3); padding: var(--s3); }
+  .mktRow, .mktRowMine {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      'id     clock'
+      'bid    who'
+      'action action';
+    gap: var(--s2) var(--s3);
+    padding: var(--s3);
+  }
+  .mktId { grid-area: id; }
+  .mktClock { grid-area: clock; text-align: right; }
+  .mktBid { grid-area: bid; }
+  .mktStatusCol { grid-area: who; justify-content: flex-end; text-align: right; }
+  .mktAction { grid-area: action; width: 100%; margin-top: var(--s1); }
+  .mktAction .btn,
+  .mktAction .btnPrimary { width: 100%; height: 32px; justify-content: center; }
+
+  .colDesktop { display: none !important; }
+  .table tbody td, .table thead th { padding: 7px var(--s2); }
+
   /* Home team on row 1, away team on row 2 (badge, name, score each),
      with the tag centered in its own column spanning both rows. The
      7-column single-line layout above this breakpoint has no room left
@@ -828,7 +899,20 @@
   .mwRow > :nth-child(5) { grid-row: 2; grid-column: 3; }
   .mwNameB { grid-row: 2; grid-column: 2; text-align: left; }
   .mwRow > :nth-child(7) { grid-row: 2; grid-column: 1; }
-  .ygRow { grid-template-columns: 1fr auto; row-gap: var(--s2); padding: var(--s3); }
-  .ygRow .baseline { grid-column: 1 / span 2; }
+  .ygRow {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      'player val'
+      'owner  val';
+    row-gap: 2px;
+    padding: var(--s3);
+  }
+  .ygPlayer { grid-area: player; }
+  .ygOwner {
+    grid-area: owner;
+    padding-left: calc(26px + var(--s2));
+    font-size: var(--t-11);
+  }
+  .ygVal { grid-area: val; align-self: center; }
   .fronts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }

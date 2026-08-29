@@ -467,6 +467,13 @@
 
   /* Form and PPG are the first things to go on a phone — value and total points
      are what a manager scans for, and the card behind the name carries the rest. */
+  .table { min-width: 100%; }
+  .thPlayer { min-width: 130px; }
+  .thClub { width: 22%; }
+  .thNum { width: 14%; }
+  .thAction { width: 56px; }
+  .table tbody td, .table thead th { padding: var(--s2) var(--s1); }
+
   .table th:nth-child(5),
   .table td:nth-child(5),
   .table th:nth-child(6),

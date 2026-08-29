@@ -463,7 +463,7 @@ function Lot({
           </div>
         </div>
 
-        <div className={styles.lotCol}>
+        <div className={`${styles.lotCol} ${styles.lotBidCol}`}>
           <div className={`${styles.lotBid} ${a.highest_bid > 0 ? '' : styles.lotBidNone}`}>
             {a.highest_bid > 0 ? money(a.highest_bid) : 'No bids'}
           </div>
@@ -496,7 +496,7 @@ function Lot({
           {mine ? 'Your lot' : leading ? 'Leading' : outbid ? 'Outbid' : 'Not in'}
         </div>
 
-        <div className={styles.lotCol}>
+        <div className={`${styles.lotCol} ${styles.lotClockCol}`}>
           <div className={`${styles.lotClock} ${hot ? styles.lotClockHot : ''}`}>
             {a.expires_at ? formatAuctionClock(msLeft, true) : '—'}
           </div>

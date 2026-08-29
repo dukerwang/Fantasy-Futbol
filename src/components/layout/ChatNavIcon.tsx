@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { Icon } from '@/components/ui/Icon';
+import { useLeagueChat } from '@/components/chat/LeagueChatContext';
 import topBarStyles from './TopBar.module.css';
 import styles from './ChatNavIcon.module.css';
 
@@ -20,6 +21,7 @@ interface UnreadSummary {
 
 export default function ChatNavIcon({ leagueId, onNavigate }: ChatNavIconProps) {
   const pathname = usePathname();
+  const chatContext = useLeagueChat();
   const [summary, setSummary] = useState<UnreadSummary>({ lobbyUnread: false, dmUnreadPeerIds: [] });
   const supabase = createClient();
 
@@ -28,19 +30,21 @@ export default function ChatNavIcon({ leagueId, onNavigate }: ChatNavIconProps) 
       const res = await fetch(`/api/chat/unread?league_id=${leagueId}`);
       if (res.ok) {
         const data = await res.json();
-        setSummary({
+        const unreadData = {
           lobbyUnread: !!data.lobbyUnread,
           dmUnreadPeerIds: data.dmUnreadPeerIds || [],
-        });
+        };
+        setSummary(unreadData);
+        if (chatContext?.setUnreadSummary) {
+          chatContext.setUnreadSummary(unreadData);
+        }
       }
     } catch (err) {
       console.error('Failed to fetch chat unread summary:', err);
     }
-  }, [leagueId]);
+  }, [leagueId, chatContext]);
 
-  // Re-check on mount/league change and on every route change (the cheapest
-  // shared signal that the chat page might have just marked something read),
-  // plus a 60s poll as a fallback for changes from elsewhere.
+  // Re-check on mount/league change and on every route change
   useEffect(() => {
     fetchUnread();
   }, [pathname, fetchUnread]);
@@ -67,14 +71,20 @@ export default function ChatNavIcon({ leagueId, onNavigate }: ChatNavIconProps) 
           const msg = payload.new as { sender_id: string | null; recipient_id: string | null };
           if (msg.sender_id === currentUserId) return; // your own message is never unread for you
           if (msg.recipient_id === null) {
-            setSummary((prev) => ({ ...prev, lobbyUnread: true }));
+            setSummary((prev) => {
+              const updated = { ...prev, lobbyUnread: true };
+              chatContext?.setUnreadSummary?.(updated);
+              return updated;
+            });
           } else if (currentUserId && msg.recipient_id === currentUserId && msg.sender_id) {
             const senderId = msg.sender_id;
-            setSummary((prev) =>
-              prev.dmUnreadPeerIds.includes(senderId)
+            setSummary((prev) => {
+              const updated = prev.dmUnreadPeerIds.includes(senderId)
                 ? prev
-                : { ...prev, dmUnreadPeerIds: [...prev.dmUnreadPeerIds, senderId] }
-            );
+                : { ...prev, dmUnreadPeerIds: [...prev.dmUnreadPeerIds, senderId] };
+              chatContext?.setUnreadSummary?.(updated);
+              return updated;
+            });
           }
         }
       )
@@ -84,19 +94,43 @@ export default function ChatNavIcon({ leagueId, onNavigate }: ChatNavIconProps) 
       supabase.removeChannel(channel);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [leagueId]);
+  }, [leagueId, chatContext]);
 
-  const hasUnread = summary.lobbyUnread || summary.dmUnreadPeerIds.length > 0;
-  const isActive = pathname?.startsWith(`/league/${leagueId}/chat`);
+  // Sync with chatContext if it updates unreadSummary
+  const effectiveSummary = chatContext ? chatContext.unreadSummary : summary;
+  const hasUnread = effectiveSummary.lobbyUnread || effectiveSummary.dmUnreadPeerIds.length > 0;
+  const isChatPage = pathname?.startsWith(`/league/${leagueId}/chat`);
+  const isWidgetOpen = chatContext?.isOpen && !chatContext?.isMinimized;
+
+  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    // If user holds cmd/ctrl/shift, allow default link behavior to open in new tab
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) {
+      return;
+    }
+
+    // If already on the dedicated chat page, navigate normally
+    if (isChatPage) {
+      onNavigate?.();
+      return;
+    }
+
+    // If chat context is available on-screen, toggle the widget without page transition!
+    if (chatContext) {
+      e.preventDefault();
+      chatContext.toggleChat();
+    } else {
+      onNavigate?.();
+    }
+  };
 
   return (
     <div className={styles.container}>
       <Link
         href={`/league/${leagueId}/chat`}
-        className={`${topBarStyles.iconBtn} ${isActive ? topBarStyles.iconBtnActive : ''}`}
-        title="League lobby"
-        aria-label="League lobby"
-        onClick={() => onNavigate?.()}
+        className={`${topBarStyles.iconBtn} ${isChatPage || isWidgetOpen ? topBarStyles.iconBtnActive : ''}`}
+        title={isChatPage ? 'League chat' : isWidgetOpen ? 'Close chat' : 'Open chat'}
+        aria-label="League chat"
+        onClick={handleClick}
       >
         <Icon name="message-square" size={18} strokeWidth={1.5} />
         {hasUnread && <span className={styles.dot} />}

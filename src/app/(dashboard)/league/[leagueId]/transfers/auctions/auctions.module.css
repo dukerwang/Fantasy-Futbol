@@ -142,16 +142,8 @@
 .lotHead,
 .lot {
   display: grid;
-  /* Tight fixed columns on purpose. At 1280 — the common laptop width — the
-     rail takes 300 and these took 620, leaving the lot's own name 173px for a
-     string that wanted 183. The figures need far less room than they look like
-     they do; the name needs all it can get.
-
-     The 2.0 portrait is 44px against the old 38px photo, so the leader column
-     gives back the 6px rather than the name paying for it — the name column
-     was already the short one and is what the note above is about. */
-  grid-template-columns: minmax(0, 1fr) 92px 102px 74px 78px 116px;
-  gap: var(--s2);
+  grid-template-columns: minmax(0, 1fr) 96px 120px 78px 84px 124px;
+  gap: var(--s2) var(--s3);
   align-items: center;
 }
 
@@ -745,9 +737,7 @@
 }
 
 @media (max-width: 820px) {
-  /* Six columns will not fit. The row becomes three lines: identity and clock
-     on top, money and leader beneath, state and action last — the same
-     information, restacked, rather than columns squeezed to illegibility. */
+  /* Restack the 6 desktop columns into a clean, structured 3-row mobile card. */
   .lotHead { display: none; }
 
   .lot {
@@ -756,22 +746,62 @@
       'id     clock'
       'bid    who'
       'you    actions';
-    row-gap: var(--s2);
+    gap: var(--s2) var(--s3);
+    padding: var(--s3) var(--s4);
+    align-items: center;
   }
 
-  .lotId      { grid-area: id; }
-  .lotCol:nth-of-type(1) { grid-area: bid; }
-  .lotWho     { grid-area: who; }
-  .lotYou     { grid-area: you; text-align: left; }
-  .lotActions { grid-area: actions; }
+  .lotId {
+    grid-area: id;
+    align-self: center;
+  }
 
-  .lotBid, .lotFrom { text-align: left; }
+  .lotClockCol {
+    grid-area: clock;
+    align-self: center;
+    text-align: right;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+  }
 
-  /* Stacked, the columns are on separate lines, so there is no shared baseline
-     to sit on — each cell centres in its own area again. */
+  .lotBidCol {
+    grid-area: bid;
+    align-self: center;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .lotBid,
+  .lotFrom {
+    text-align: left;
+  }
+
+  .lotWho {
+    grid-area: who;
+    align-self: center;
+    justify-content: flex-end;
+  }
+
+  .lotYou {
+    grid-area: you;
+    align-self: center;
+    text-align: left;
+  }
+
+  .lotActions {
+    grid-area: actions;
+    align-self: center;
+    justify-content: flex-end;
+  }
+
   .lotCol,
   .lotWho,
-  .lotYou { align-self: center; }
+  .lotYou {
+    align-self: center;
+  }
 }
 
 @media (max-width: 640px) {
@@ -789,4 +819,14 @@
   .tools { padding: var(--s2) var(--s4) var(--s3); }
   .body { padding: 0 var(--s4) var(--s4); }
   .exWho { gap: var(--s2); }
+
+  .lot {
+    padding: var(--s3);
+    gap: var(--s2) var(--s2);
+  }
+
+  .go {
+    padding: var(--s2) var(--s2);
+    font-size: var(--t-11);
+  }
 }

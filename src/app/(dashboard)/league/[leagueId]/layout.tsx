@@ -2,6 +2,8 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { notFound } from 'next/navigation';
 import LeagueOwnershipSeed from '@/components/players/LeagueOwnershipSeed';
 import { buildLeagueOwnershipMap } from '@/lib/players/cardData';
+import { LeagueChatProvider } from '@/components/chat/LeagueChatContext';
+import LeagueChatWidget from '@/components/chat/LeagueChatWidget';
 
 interface Props {
     children: React.ReactNode;
@@ -22,9 +24,10 @@ export default async function LeagueLayout({ children, params }: Props) {
     if (!league) notFound();
 
     return (
-        <>
+        <LeagueChatProvider leagueId={leagueId}>
             <LeagueOwnershipSeed leagueId={leagueId} ownership={ownership} />
             {children}
-        </>
+            <LeagueChatWidget />
+        </LeagueChatProvider>
     );
 }

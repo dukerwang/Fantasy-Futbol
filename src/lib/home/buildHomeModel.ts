@@ -140,12 +140,16 @@ export interface MarketLot {
   position: string;
   meta: string;
   bid: string;
+  floor: string;
+  hasBids: boolean;
   holder: string;
   expiresAt: string | null;
   /** true when you hold the top bid on this lot. */
   leading: boolean;
   /** true when you have a bid on it but are not top. */
   outbid: boolean;
+  isMine: boolean;
+  nextBid: string;
   href: string;
 }
 
@@ -453,7 +457,7 @@ export async function buildHomeModel(
     admin
       .from('auction_state')
       .select(
-        'player_id, kind, status, seller_team_id, highest_bid, highest_bidder_team_id, bid_count, bids, expires_at',
+        'player_id, kind, status, seller_team_id, highest_bid, highest_bidder_team_id, bid_count, bids, expires_at, minimum_bid',
       )
       .eq('league_id', leagueId)
       .eq('status', 'live'),
@@ -1683,24 +1687,35 @@ export async function buildHomeModel(
     .map((a) => {
       const p = lotPlayers.get(a.player_id);
       const bids = Array.isArray(a.bids) ? a.bids : [];
+      const isMine = a.seller_team_id === myTeamId;
       const leading = a.highest_bidder_team_id === myTeamId;
       const outbid = !leading && bids.some((b: any) => b.team_id === myTeamId);
       const holderClub = a.highest_bidder_team_id ? clubOf(a.highest_bidder_team_id) : null;
       const sellerClub = a.seller_team_id ? clubOf(a.seller_team_id) : null;
+      const highest = Number(a.highest_bid ?? 0);
+      const floorVal = Number(a.minimum_bid ?? 0);
+      const next = highest > 0 ? highest + 1 : floorVal;
+
       return {
         playerId: a.player_id,
-        name: p ? getPlayerDisplayName(p, 'full') : 'Unknown player',
+        name: p ? getPlayerDisplayName(p, 'initial_last') : 'Unknown player',
         position: p?.primary_position ?? '',
         meta: `${p?.pl_team ?? ''}${sellerClub ? ` · ${sellerClub.name}` : ' · free agent'}`,
-        bid: Number(a.highest_bid) > 0 ? money(Number(a.highest_bid)) : '—',
-        holder: leading
-          ? `You lead · ${a.bid_count} ${a.bid_count === 1 ? 'bid' : 'bids'}`
-          : holderClub
-            ? `${holderClub.name.split(' ')[0]} lead · ${a.bid_count} ${a.bid_count === 1 ? 'bid' : 'bids'}`
-            : 'No bids yet',
+        bid: highest > 0 ? money(highest) : 'No bids',
+        floor: highest > 0 ? `from ${money(floorVal)}` : `floor ${money(floorVal)}`,
+        hasBids: highest > 0,
+        holder: isMine
+          ? 'Your lot'
+          : leading
+            ? `You lead · ${a.bid_count} ${a.bid_count === 1 ? 'bid' : 'bids'}`
+            : holderClub
+              ? `${holderClub.name.split(' ')[0]} lead · ${a.bid_count} ${a.bid_count === 1 ? 'bid' : 'bids'}`
+              : 'No bids yet',
         expiresAt: a.expires_at,
         leading,
         outbid,
+        isMine,
+        nextBid: money(next),
         href: `${base}/transfers/auctions`,
       };
     });
