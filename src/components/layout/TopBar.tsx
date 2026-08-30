@@ -78,6 +78,7 @@ export default function TopBar() {
   const router = useRouter();
   const [teams, setTeams] = useState<UserTeam[]>([]);
   const [username, setUsername] = useState<string | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [isNavigating, setIsNavigating] = useState(false);
@@ -153,7 +154,11 @@ export default function TopBar() {
   useEffect(() => {
     const supabase = createClient();
     supabase.auth.getUser().then(({ data: { user } }) => {
-      if (!user) return;
+      if (!user) {
+        setIsAuthenticated(false);
+        return;
+      }
+      setIsAuthenticated(true);
       supabase
         .from('users')
         .select('username')
@@ -331,7 +336,7 @@ export default function TopBar() {
       {isNavigating && <div className={styles.loadingBar} />}
       <div className={styles.inner}>
         {/* --- Wordmark --- */}
-        <Link href="/dashboard" className={styles.brand} onClick={() => setIsNavigating(true)}>
+        <Link href={isAuthenticated ? '/dashboard' : '/login'} className={styles.brand} onClick={() => setIsNavigating(true)}>
           <span className={styles.brandIcon}><Icon name="gaffa" size={20} strokeWidth={2} /></span>
           <span className={styles.brandName}>Gaffa</span>
         </Link>
@@ -519,161 +524,173 @@ export default function TopBar() {
             />
           )}
 
-          {/* Notification Bell */}
-          <NotificationBell
-            leagueId={currentLeagueId}
-            onNavigate={() => setIsNavigating(true)}
-          />
-
           {/* Theme Toggle (Desktop Desktop) */}
           <div className={styles.desktopThemeToggle}>
             <ThemeToggle />
           </div>
 
-          {/* Consolidated User Profile Dropdown */}
-          <div className={styles.userDropdownContainer} ref={userDropdownRef}>
-            <button
-              className={styles.avatarBtn}
-              onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-              type="button"
-              aria-label="User menu"
-              aria-expanded={userDropdownOpen}
-              aria-haspopup="true"
+          {isAuthenticated === false ? (
+            <Link
+              href="/login"
+              className={styles.signInBtn}
+              onClick={() => setIsNavigating(true)}
             >
-              {currentLeagueId && currentCrestConfig ? (
-                <CrestBadge
-                  config={currentCrestConfig}
-                  size={32}
-                  teamName={currentTeam?.team_name || username}
-                />
-              ) : (
-                <div className={styles.userInitialsAvatar} style={{ width: '32px', height: '32px', fontSize: '11px' }}>
-                  {initials}
-                </div>
-              )}
-            </button>
+              Sign In
+            </Link>
+          ) : (
+            <>
+              {/* Notification Bell */}
+              <NotificationBell
+                leagueId={currentLeagueId}
+                onNavigate={() => setIsNavigating(true)}
+              />
 
-            {userDropdownOpen && (
-              <div className={styles.userDropdown}>
-                {/* Header Profile Identity */}
-                <div className={styles.dropdownHeader}>
-                  <div style={{ marginRight: '12px', flexShrink: 0 }}>
-                    {currentLeagueId && currentCrestConfig ? (
-                      <CrestBadge
-                        config={currentCrestConfig}
-                        size={40}
-                        teamName={currentTeam?.team_name || username}
-                        teamId={currentTeam?.id}
-                      />
-                    ) : (
-                      <div className={styles.userInitialsAvatar} style={{ width: '40px', height: '40px', fontSize: '13px' }}>
-                        {initials}
-                      </div>
-                    )}
-                  </div>
-                  <div className={styles.dropdownHeaderDetails}>
-                    <div className={styles.dropdownClubName}>
-                      {currentTeam?.team_name || 'My Club'}
-                    </div>
-                    <div className={styles.dropdownUsername}>
-                      @{username || 'manager'}
-                    </div>
-                    {currentLeagueId && (
-                      <Link
-                        href={`/league/${currentLeagueId}/crest`}
-                        className={styles.editCrestLink}
-                        onClick={() => setUserDropdownOpen(false)}
-                      >
-                        Edit Crest →
-                      </Link>
-                    )}
-                  </div>
-                </div>
-
-                <div className={styles.dropdownDivider} />
-
-                {/* League Switcher Section */}
-                <div className={styles.dropdownSection}>
-                  <div className={styles.dropdownSectionLabel}>Switch League</div>
-                  {teams.length > 0 ? (
-                    <div className={styles.leagueList}>
-                      {teams.map((team) => (
-                        <Link
-                          key={team.league.id}
-                          href={`/league/${team.league.id}`}
-                          className={`${styles.dropdownItem} ${team.league.id === currentLeagueId ? styles.dropdownItemActive : ''}`}
-                          onClick={() => {
-                            setUserDropdownOpen(false);
-                            setIsNavigating(true);
-                          }}
-                        >
-                          <span
-                            className={`${styles.leagueDot} ${team.league.id === currentLeagueId ? styles.leagueDotActive : styles.leagueDotInactive}`}
-                          />
-                          <span className={styles.dropdownItemName}>{team.league.name}</span>
-                          <span className={styles.dropdownItemSeason}>{team.league.season}</span>
-                        </Link>
-                      ))}
-                    </div>
+              {/* Consolidated User Profile Dropdown */}
+              <div className={styles.userDropdownContainer} ref={userDropdownRef}>
+                <button
+                  className={styles.avatarBtn}
+                  onClick={() => setUserDropdownOpen(!userDropdownOpen)}
+                  type="button"
+                  aria-label="User menu"
+                  aria-expanded={userDropdownOpen}
+                  aria-haspopup="true"
+                >
+                  {currentLeagueId && currentCrestConfig ? (
+                    <CrestBadge
+                      config={currentCrestConfig}
+                      size={32}
+                      teamName={currentTeam?.team_name || username}
+                    />
                   ) : (
-                    <div style={{ padding: '8px 16px', fontSize: '13px', color: 'var(--color-text-muted)' }}>
-                      No leagues yet
+                    <div className={styles.userInitialsAvatar} style={{ width: '32px', height: '32px', fontSize: '11px' }}>
+                      {initials}
                     </div>
                   )}
+                </button>
 
-                  <div className={styles.dropdownDivider} style={{ margin: '8px 0' }} />
+                {userDropdownOpen && (
+                  <div className={styles.userDropdown}>
+                    {/* Header Profile Identity */}
+                    <div className={styles.dropdownHeader}>
+                      <div style={{ marginRight: '12px', flexShrink: 0 }}>
+                        {currentLeagueId && currentCrestConfig ? (
+                          <CrestBadge
+                            config={currentCrestConfig}
+                            size={40}
+                            teamName={currentTeam?.team_name || username}
+                            teamId={currentTeam?.id}
+                          />
+                        ) : (
+                          <div className={styles.userInitialsAvatar} style={{ width: '40px', height: '40px', fontSize: '13px' }}>
+                            {initials}
+                          </div>
+                        )}
+                      </div>
+                      <div className={styles.dropdownHeaderDetails}>
+                        <div className={styles.dropdownClubName}>
+                          {currentTeam?.team_name || 'My Club'}
+                        </div>
+                        <div className={styles.dropdownUsername}>
+                          @{username || 'manager'}
+                        </div>
+                        {currentLeagueId && (
+                          <Link
+                            href={`/league/${currentLeagueId}/crest`}
+                            className={styles.editCrestLink}
+                            onClick={() => setUserDropdownOpen(false)}
+                          >
+                            Edit Crest →
+                          </Link>
+                        )}
+                      </div>
+                    </div>
 
-                  <Link
-                    href="/league/create"
-                    className={styles.dropdownActionLink}
-                    onClick={() => { setUserDropdownOpen(false); setIsNavigating(true); }}
-                  >
-                    + Create League
-                  </Link>
-                  <Link
-                    href="/league/join"
-                    className={styles.dropdownActionLink}
-                    onClick={() => { setUserDropdownOpen(false); setIsNavigating(true); }}
-                  >
-                    ↳ Join League
-                  </Link>
-                </div>
+                    <div className={styles.dropdownDivider} />
 
-                <div className={styles.dropdownDivider} />
+                    {/* League Switcher Section */}
+                    <div className={styles.dropdownSection}>
+                      <div className={styles.dropdownSectionLabel}>Switch League</div>
+                      {teams.length > 0 ? (
+                        <div className={styles.leagueList}>
+                          {teams.map((team) => (
+                            <Link
+                              key={team.league.id}
+                              href={`/league/${team.league.id}`}
+                              className={`${styles.dropdownItem} ${team.league.id === currentLeagueId ? styles.dropdownItemActive : ''}`}
+                              onClick={() => {
+                                setUserDropdownOpen(false);
+                                setIsNavigating(true);
+                              }}
+                            >
+                              <span
+                                className={`${styles.leagueDot} ${team.league.id === currentLeagueId ? styles.leagueDotActive : styles.leagueDotInactive}`}
+                              />
+                              <span className={styles.dropdownItemName}>{team.league.name}</span>
+                              <span className={styles.dropdownItemSeason}>{team.league.season}</span>
+                            </Link>
+                          ))}
+                        </div>
+                      ) : (
+                        <div style={{ padding: '8px 16px', fontSize: '13px', color: 'var(--color-text-muted)' }}>
+                          No leagues yet
+                        </div>
+                      )}
 
-                <Link
-                  href={currentLeagueId ? `/league/${currentLeagueId}/settings` : '/settings'}
-                  className={styles.dropdownActionLink}
-                  onClick={() => { setUserDropdownOpen(false); setIsNavigating(true); }}
-                >
-                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
-                    <Icon name="settings" size={14} strokeWidth={1.75} />
-                    Settings
-                  </span>
-                </Link>
+                      <div className={styles.dropdownDivider} style={{ margin: '8px 0' }} />
 
-                <Link
-                  href={currentLeagueId ? `/league/${currentLeagueId}/help` : '/help'}
-                  className={styles.dropdownActionLink}
-                  onClick={() => { setUserDropdownOpen(false); setIsNavigating(true); }}
-                >
-                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
-                    <Icon name="help-circle" size={14} strokeWidth={1.75} />
-                    Help
-                  </span>
-                </Link>
+                      <Link
+                        href="/league/create"
+                        className={styles.dropdownActionLink}
+                        onClick={() => { setUserDropdownOpen(false); setIsNavigating(true); }}
+                      >
+                        + Create League
+                      </Link>
+                      <Link
+                        href="/league/join"
+                        className={styles.dropdownActionLink}
+                        onClick={() => { setUserDropdownOpen(false); setIsNavigating(true); }}
+                      >
+                        ↳ Join League
+                      </Link>
+                    </div>
 
-                <div className={styles.dropdownDivider} />
+                    <div className={styles.dropdownDivider} />
 
-                {/* Mobile settings / Sign out */}
-                <div style={{ padding: '4px 0' }}>
-                  <button onClick={handleSignOut} className={styles.dropdownSignOutBtn} type="button">
-                    Sign out
-                  </button>
-                </div>
+                    <Link
+                      href={currentLeagueId ? `/league/${currentLeagueId}/settings` : '/settings'}
+                      className={styles.dropdownActionLink}
+                      onClick={() => { setUserDropdownOpen(false); setIsNavigating(true); }}
+                    >
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+                        <Icon name="settings" size={14} strokeWidth={1.75} />
+                        Settings
+                      </span>
+                    </Link>
+
+                    <Link
+                      href={currentLeagueId ? `/league/${currentLeagueId}/help` : '/help'}
+                      className={styles.dropdownActionLink}
+                      onClick={() => { setUserDropdownOpen(false); setIsNavigating(true); }}
+                    >
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+                        <Icon name="help-circle" size={14} strokeWidth={1.75} />
+                        Help
+                      </span>
+                    </Link>
+
+                    <div className={styles.dropdownDivider} />
+
+                    {/* Mobile settings / Sign out */}
+                    <div style={{ padding: '4px 0' }}>
+                      <button onClick={handleSignOut} className={styles.dropdownSignOutBtn} type="button">
+                        Sign out
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
-            )}
-          </div>
+            </>
+          )}
 
           {/* Hamburger Menu Toggle (Mobile Only) */}
           {currentLeagueId && (

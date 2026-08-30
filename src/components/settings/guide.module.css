@@ -4,6 +4,14 @@
   padding: 0 var(--space-6) var(--space-16);
 }
 
+.headerRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-6);
+  gap: var(--space-3);
+}
+
 .back {
   display: inline-flex;
   align-items: center;
@@ -13,7 +21,6 @@
   font-family: var(--font-sans);
   font-size: var(--text-sm);
   font-weight: 500;
-  margin-bottom: var(--space-6);
   transition: color var(--transition-fast);
 }
 
@@ -21,6 +28,37 @@
   .back:hover {
     color: var(--color-accent);
   }
+}
+
+.shareBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  font-weight: var(--font-medium);
+  color: var(--color-text-secondary);
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border);
+  padding: 6px 12px;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  user-select: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .shareBtn:hover {
+    color: var(--color-text-primary);
+    background: var(--color-bg-card-hover);
+    border-color: var(--color-border-subtle);
+  }
+}
+
+.shareBtnCopied {
+  color: var(--color-accent-green);
+  border-color: var(--color-accent-green);
+  background: rgba(20, 107, 64, 0.08);
 }
 
 .prose {

@@ -17,7 +17,7 @@ export default async function LeagueGuidePage({ params }: Props) {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) redirect('/login');
+  if (!user) redirect('/guide');
 
   const admin = createAdminClient();
   const { data: league } = await admin
@@ -36,7 +36,7 @@ export default async function LeagueGuidePage({ params }: Props) {
     .maybeSingle();
 
   if (!myTeam && league.commissioner_id !== user.id) {
-    redirect('/dashboard');
+    redirect('/guide');
   }
 
   const guide = await loadUserGuide();

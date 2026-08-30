@@ -527,7 +527,8 @@
 }
 
 .mktId { display: flex; align-items: center; gap: var(--s2); min-width: 0; }
-.mktName { min-width: 0; }
+.mktMidRow { display: contents; }
+.mktName { min-width: 0; flex: 1; }
 .mktNameN {
   height: 22px;
   line-height: 22px;
@@ -1043,19 +1044,26 @@
     margin-bottom: 2px;
   }
   .mktRow {
-    grid-template-columns: 1fr 1fr;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
     grid-template-areas:
       'id     clock'
-      'bid    who'
+      'mid    mid'
       'action action';
     gap: var(--s3);
     padding: var(--s4);
     align-items: stretch;
   }
-  .mktId { grid-area: id; align-self: center; }
-  .mktClockCol { grid-area: clock; align-self: center; text-align: right; align-items: flex-end; }
+  .mktId { grid-area: id; align-self: center; min-width: 0; }
+  .mktClockCol { grid-area: clock; align-self: center; text-align: right; align-items: flex-end; flex-shrink: 0; }
+  .mktMidRow {
+    grid-area: mid;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--s2);
+    width: 100%;
+  }
   .mktBidCol {
-    grid-area: bid;
     align-self: stretch;
     background: var(--color-bg-card-alt);
     border: 1px solid var(--color-border-subtle);
@@ -1064,11 +1072,11 @@
     text-align: left;
     align-items: flex-start;
     justify-content: center;
+    min-width: 0;
   }
   .mktBidCol .mktBidV { justify-content: flex-start; }
   .mktBidCol .mktBidL { justify-content: flex-start; }
   .mktWho {
-    grid-area: who;
     align-self: stretch;
     background: var(--color-bg-card-alt);
     border: 1px solid var(--color-border-subtle);
@@ -1078,6 +1086,7 @@
     align-items: flex-start;
     justify-content: center;
     gap: 2px;
+    min-width: 0;
   }
   .mktYou { display: none; }
   .mktAction { grid-area: action; align-self: center; justify-content: flex-end; width: 100%; }
