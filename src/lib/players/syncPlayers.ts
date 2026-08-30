@@ -83,6 +83,7 @@ export async function syncPlayersFromFpl(admin: SupabaseClient): Promise<SyncPla
         fplCode: photoCode,
         name: `${el.first_name} ${el.second_name}`,
         web_name: el.web_name,
+        element_type: el.element_type,
         pl_team: teamMap.get(el.team) ?? 'Unknown',
         pl_team_id: el.team,
         primary_position: position,
@@ -143,36 +144,6 @@ export async function syncPlayersFromFpl(admin: SupabaseClient): Promise<SyncPla
   // table holds 3000+. An unpaginated fetch silently returned only the first
   // 1000, so most new arrivals fell back to resolvePosition()'s coarse
   // GK/CB/CM/ST default instead of a real cached position.
-  const sofifaReferenceRows: { name_aliases: string[]; primary_position: string; secondary_positions: string[] }[] = [];
-  {
-    const PAGE_SIZE = 1000;
-    for (let from = 0; ; from += PAGE_SIZE) {
-      const { data: page, error: pageErr } = await admin
-        .from('sofifa_position_reference')
-        .select('name_aliases, primary_position, secondary_positions')
-        .range(from, from + PAGE_SIZE - 1);
-      if (pageErr) break;
-      sofifaReferenceRows.push(...(page ?? []));
-      if (!page || page.length < PAGE_SIZE) break;
-    }
-  }
-
-  interface SofifaReferenceMatch {
-    primary_position: string;
-    secondary_positions: string[];
-  }
-
-  const sofifaReferenceByAlias = new Map<string, SofifaReferenceMatch>();
-  for (const ref of sofifaReferenceRows ?? []) {
-    const match: SofifaReferenceMatch = {
-      primary_position: ref.primary_position,
-      secondary_positions: ref.secondary_positions ?? [],
-    };
-    for (const alias of ref.name_aliases ?? []) {
-      if (!sofifaReferenceByAlias.has(alias)) sofifaReferenceByAlias.set(alias, match);
-    }
-  }
-
   function firstLastWord(name: string): string {
     const parts = name.split(' ').filter(Boolean);
     if (parts.length <= 2) return name;
@@ -186,10 +157,108 @@ export async function syncPlayersFromFpl(admin: SupabaseClient): Promise<SyncPla
       .replace(/[\u0300-\u036f]/g, '')
       .toLowerCase()
       .replace(/ß/g, 'ss')
-      .replace(/-/g, ' ')
+      .replace(/[\.\-_]/g, ' ')
       .replace(/[^a-z0-9 ]/g, '')
       .replace(/\s+/g, ' ')
       .trim();
+  }
+
+  function normalizeTeam(t: string | null | undefined): string {
+    const n = normalizeName(t);
+    if (!n) return '';
+    if (n.includes('manchester city') || n === 'man city') return 'man city';
+    if (n.includes('manchester united') || n === 'man utd') return 'man utd';
+    if (n.includes('tottenham') || n === 'spurs') return 'spurs';
+    if (n.includes('newcastle')) return 'newcastle';
+    if (n.includes('wolverhampton') || n === 'wolves') return 'wolves';
+    if (n.includes('nottingham') || n === 'nottm forest') return 'nottm forest';
+    if (n.includes('brighton')) return 'brighton';
+    if (n.includes('west ham')) return 'west ham';
+    if (n.includes('bournemouth')) return 'bournemouth';
+    if (n.includes('aston villa')) return 'aston villa';
+    if (n.includes('leicester')) return 'leicester';
+    if (n.includes('ipswich')) return 'ipswich';
+    if (n.includes('chelsea')) return 'chelsea';
+    if (n.includes('arsenal')) return 'arsenal';
+    if (n.includes('liverpool')) return 'liverpool';
+    if (n.includes('everton')) return 'everton';
+    if (n.includes('fulham')) return 'fulham';
+    if (n.includes('brentford')) return 'brentford';
+    if (n.includes('crystal palace')) return 'crystal palace';
+    if (n.includes('southampton')) return 'southampton';
+    return n;
+  }
+
+  // Particles carry no identifying signal — "de"/"van"/"dos" matching across two
+  // unrelated names is not evidence they're the same person.
+  const NAME_PARTICLES = new Set([
+    'de', 'da', 'do', 'dos', 'das', 'van', 'von', 'del', 'della', 'di', 'la', 'le',
+    'el', 'al', 'bin', 'ibn', 'den', 'der', 'ter', 'dos', 'santos', 'silva', 'junior',
+  ]);
+
+  function significantTokens(str: string): Set<string> {
+    return new Set(
+      normalizeName(str)
+        .split(' ')
+        .filter((t) => t.length >= 3 && !NAME_PARTICLES.has(t)),
+    );
+  }
+
+  const POS_CATEGORY: Record<string, number> = {
+    GK: 1,
+    CB: 2, LB: 2, RB: 2, LWB: 2, RWB: 2,
+    DM: 3, CM: 3, AM: 3, LM: 3, RM: 3, LW: 3, RW: 3,
+    ST: 4, CF: 4,
+  };
+
+  // Position cache from the periodic top-5-league SoFIFA crawl (migration 099)
+  // -- covers players who aren't in `players` yet (most new PL arrivals transfer
+  // from one of these leagues). Looked up below for brand-new inserts only;
+  // existing rows keep whatever position they already have.
+  //
+  // Paginated: PostgREST caps a single select at 1000 rows by default, and this
+  // table holds 3000+. An unpaginated fetch silently returned only the first
+  // 1000, so most new arrivals fell back to resolvePosition()'s coarse
+  // GK/CB/CM/ST default instead of a real cached position.
+  interface SofifaReferenceRow {
+    sofifa_id: number;
+    full_name: string;
+    common_name: string | null;
+    name_aliases: string[];
+    club_name: string | null;
+    sofifa_league_id: number;
+    primary_position: string;
+    secondary_positions: string[];
+  }
+
+  const sofifaReferenceRows: SofifaReferenceRow[] = [];
+  {
+    const PAGE_SIZE = 1000;
+    for (let from = 0; ; from += PAGE_SIZE) {
+      const { data: page, error: pageErr } = await admin
+        .from('sofifa_position_reference')
+        .select('sofifa_id, full_name, common_name, name_aliases, club_name, sofifa_league_id, primary_position, secondary_positions')
+        .range(from, from + PAGE_SIZE - 1);
+      if (pageErr) break;
+      sofifaReferenceRows.push(...(page ?? []));
+      if (!page || page.length < PAGE_SIZE) break;
+    }
+  }
+
+  const aliasIndex = new Map<string, SofifaReferenceRow[]>();
+  for (const ref of sofifaReferenceRows ?? []) {
+    const aliases = new Set<string>([
+      ...(ref.name_aliases ?? []),
+      normalizeName(ref.full_name),
+      normalizeName(ref.common_name),
+      firstLastWord(normalizeName(ref.full_name)),
+      firstLastWord(normalizeName(ref.common_name)),
+    ]);
+    for (const a of aliases) {
+      if (!a) continue;
+      if (!aliasIndex.has(a)) aliasIndex.set(a, []);
+      aliasIndex.get(a)!.push(ref);
+    }
   }
 
   const ALIAS_TO_CLEAN_NAME: Record<string, string> = {
@@ -225,8 +294,121 @@ export async function syncPlayersFromFpl(admin: SupabaseClient): Promise<SyncPla
     'robert lynch sanchez': 'robert sanchez',
     'rodrigo muniz carvalho': 'rodrigo muniz',
     'ruben dos santos gato alves dias': 'ruben dias',
-    'daniel munoz mejia': 'daniel munoz'
+    'daniel munoz mejia': 'daniel munoz',
   };
+
+  function scoreSofifaMatch(
+    player: { name: string; raw_name?: string; web_name?: string; pl_team?: string; element_type?: number },
+    ref: SofifaReferenceRow,
+  ): number {
+    const pNorm = normalizeName(player.name);
+    const pRaw = normalizeName(player.raw_name || player.name);
+    const pTokens = significantTokens(`${player.name} ${player.raw_name || ''}`);
+    const refFullNorm = normalizeName(ref.full_name);
+    const refCommonNorm = normalizeName(ref.common_name);
+    const refTokens = significantTokens(`${ref.full_name} ${ref.common_name || ''}`);
+
+    let sharedTokens = 0;
+    for (const t of pTokens) {
+      if (refTokens.has(t)) sharedTokens++;
+    }
+
+    const isExactName =
+      refFullNorm === pRaw ||
+      refFullNorm === pNorm ||
+      (refCommonNorm && (refCommonNorm === pNorm || refCommonNorm === pRaw));
+    if (sharedTokens === 0 && !isExactName) {
+      return 0;
+    }
+
+    let posScore = 0;
+    if (player.element_type) {
+      const refPosCat = POS_CATEGORY[ref.primary_position] || 3;
+      if (player.element_type === 1) {
+        if (ref.primary_position === 'GK') posScore += 50;
+        else return 0;
+      } else if (ref.primary_position === 'GK') {
+        return 0;
+      } else if (player.element_type === 2 && (refPosCat === 4 || refPosCat === 3)) {
+        posScore -= 120;
+      } else if (player.element_type === 4 && (refPosCat === 2 || refPosCat === 1)) {
+        posScore -= 120;
+      } else if (player.element_type === refPosCat) {
+        posScore += 30;
+      } else if (
+        (player.element_type === 3 && (ref.primary_position === 'LW' || ref.primary_position === 'RW')) ||
+        (player.element_type === 4 && (ref.primary_position === 'LW' || ref.primary_position === 'RW'))
+      ) {
+        posScore += 20;
+      }
+    }
+
+    let score = posScore;
+
+    const pTeam = normalizeTeam(player.pl_team);
+    const refTeam = normalizeTeam(ref.club_name);
+    if (pTeam && refTeam && pTeam === refTeam) {
+      score += 100;
+    } else if (ref.sofifa_league_id === 13) {
+      score += 25;
+    }
+
+    score += sharedTokens * 30;
+
+    if (refFullNorm === pRaw || refFullNorm === pNorm) {
+      score += 80;
+    }
+    if (refCommonNorm && (refCommonNorm === pNorm || refCommonNorm === normalizeName(player.web_name))) {
+      score += 40;
+    }
+
+    return score;
+  }
+
+  function findBestSofifaMatch(player: {
+    name: string;
+    raw_name?: string;
+    web_name?: string;
+    pl_team?: string;
+    element_type?: number;
+  }): SofifaReferenceRow | null {
+    const pNorm = normalizeName(player.name);
+    const pRaw = normalizeName(player.raw_name || player.name);
+    const pWeb = normalizeName(player.web_name);
+    const aliasClean = ALIAS_TO_CLEAN_NAME[pRaw] || ALIAS_TO_CLEAN_NAME[pNorm];
+    const pTokensList = Array.from(significantTokens(pRaw));
+
+    const candidateKeys = [
+      pRaw,
+      pNorm,
+      aliasClean,
+      firstLastWord(pRaw),
+      firstLastWord(pNorm),
+      pWeb,
+      pTokensList.length >= 2 ? `${pTokensList[0]} ${pTokensList[1]}` : null,
+      pTokensList.length >= 2 ? `${pTokensList[0]} ${pTokensList[pTokensList.length - 1]}` : null,
+    ].filter(Boolean) as string[];
+
+    const seenIds = new Set<number>();
+    const candidatePool: SofifaReferenceRow[] = [];
+    for (const k of candidateKeys) {
+      for (const ref of aliasIndex.get(k) || []) {
+        if (!seenIds.has(ref.sofifa_id)) {
+          seenIds.add(ref.sofifa_id);
+          candidatePool.push(ref);
+        }
+      }
+    }
+
+    if (candidatePool.length === 0) return null;
+
+    const scored = candidatePool
+      .map((ref) => ({ ref, score: scoreSofifaMatch(player, ref) }))
+      .filter((s) => s.score >= 50)
+      .sort((a, b) => b.score - a.score);
+
+    return scored[0]?.ref ?? null;
+  }
 
   /**
    * FPL's stable per-player code, which we store inside photo_url
@@ -262,21 +444,6 @@ export async function syncPlayersFromFpl(admin: SupabaseClient): Promise<SyncPla
   });
 
   const matchedDbIds = new Set<string>();
-
-  // Particles carry no identifying signal — "de"/"van"/"dos" matching across two
-  // unrelated names is not evidence they're the same person.
-  const NAME_PARTICLES = new Set([
-    'de', 'da', 'do', 'dos', 'das', 'van', 'von', 'del', 'della', 'di', 'la', 'le',
-    'el', 'al', 'bin', 'ibn', 'den', 'der', 'ter', 'dos', 'santos', 'silva', 'junior',
-  ]);
-
-  function significantTokens(str: string): Set<string> {
-    return new Set(
-      normalizeName(str)
-        .split(' ')
-        .filter((t) => t.length >= 3 && !NAME_PARTICLES.has(t)),
-    );
-  }
 
   /**
    * Does a stored row plausibly describe the same human as this FPL element?
@@ -362,6 +529,14 @@ export async function syncPlayersFromFpl(admin: SupabaseClient): Promise<SyncPla
       if (candidate) existing = candidate;
     }
 
+    const sofifaMatch = findBestSofifaMatch({
+      name: row.name,
+      raw_name: row.name,
+      web_name: row.web_name,
+      pl_team: row.pl_team,
+      element_type: row.element_type,
+    });
+
     if (existing) {
       matchedDbIds.add(existing.id);
     } else {
@@ -370,11 +545,6 @@ export async function syncPlayersFromFpl(admin: SupabaseClient): Promise<SyncPla
       // existing row's position is never touched here — only ever a fresh
       // insert's initial value, which the override/merge logic below still
       // gets the final say over (e.g. FPL_POSITION_OVERRIDES).
-      const sofifaMatch =
-        sofifaReferenceByAlias.get(aliasNorm) ??
-        sofifaReferenceByAlias.get(rawFplNorm) ??
-        sofifaReferenceByAlias.get(firstLastWord(aliasNorm)) ??
-        sofifaReferenceByAlias.get(firstLastWord(rawFplNorm));
       if (sofifaMatch) {
         row.primary_position = sofifaMatch.primary_position as GranularPosition;
         row.secondary_positions = sofifaMatch.secondary_positions as GranularPosition[];
@@ -410,7 +580,7 @@ export async function syncPlayersFromFpl(admin: SupabaseClient): Promise<SyncPla
       !!existing?.full_name && !isSameIdentity({ name: existing.full_name } as DbPlayer, finalName);
 
     // fplCode is a matching key derived from el.photo, not a column.
-    const { fplCode: _fplCode, ...dbRow } = row;
+    const { fplCode: _fplCode, element_type: _element_type, ...dbRow } = row;
 
     const finalRow: typeof dbRow & { id?: string; full_name?: string | null; pl_team_changed_at: string | null } = {
       ...dbRow,

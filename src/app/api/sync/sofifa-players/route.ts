@@ -108,6 +108,45 @@ function normalizeName(name: string): string {
     .trim();
 }
 
+const NAME_PARTICLES = new Set([
+  'de', 'da', 'do', 'dos', 'das', 'van', 'von', 'del', 'della', 'di', 'la', 'le',
+  'el', 'al', 'bin', 'ibn', 'den', 'der', 'ter', 'dos', 'santos', 'silva', 'junior',
+]);
+
+function significantTokens(str: string): Set<string> {
+  return new Set(
+    normalizeName(str)
+      .split(' ')
+      .filter((t) => t.length >= 3 && !NAME_PARTICLES.has(t)),
+  );
+}
+
+function normalizeTeam(t: string | null | undefined): string {
+  const n = normalizeName(t ?? '');
+  if (!n) return '';
+  if (n.includes('manchester city') || n === 'man city') return 'man city';
+  if (n.includes('manchester united') || n === 'man utd') return 'man utd';
+  if (n.includes('tottenham') || n === 'spurs') return 'spurs';
+  if (n.includes('newcastle')) return 'newcastle';
+  if (n.includes('wolverhampton') || n === 'wolves') return 'wolves';
+  if (n.includes('nottingham') || n === 'nottm forest') return 'nottm forest';
+  if (n.includes('brighton')) return 'brighton';
+  if (n.includes('west ham')) return 'west ham';
+  if (n.includes('bournemouth')) return 'bournemouth';
+  if (n.includes('aston villa')) return 'aston villa';
+  if (n.includes('leicester')) return 'leicester';
+  if (n.includes('ipswich')) return 'ipswich';
+  if (n.includes('chelsea')) return 'chelsea';
+  if (n.includes('arsenal')) return 'arsenal';
+  if (n.includes('liverpool')) return 'liverpool';
+  if (n.includes('everton')) return 'everton';
+  if (n.includes('fulham')) return 'fulham';
+  if (n.includes('brentford')) return 'brentford';
+  if (n.includes('crystal palace')) return 'crystal palace';
+  if (n.includes('southampton')) return 'southampton';
+  return n;
+}
+
 // Returns "first last" by taking only the first and last word of a multi-word name.
 function firstLast(name: string) {
   const parts = name.split(' ').filter(Boolean);
@@ -472,10 +511,10 @@ async function runSync(preloadedTeams: SoFifaTeamDetail[] | null) {
 
         // Find a candidate that matches the club name or shares significant name tokens
         for (const candidate of matches) {
-          const dbTeamNorm = normalizeName(candidate.pl_team ?? '');
-          const sfTeamNorm = normalizeName(team.name ?? '');
+          const dbTeamNorm = normalizeTeam(candidate.pl_team ?? '');
+          const sfTeamNorm = normalizeTeam(team.name ?? '');
 
-          // Team match (or loose team match e.g. "Man City" vs "Manchester City")
+          // Team match (e.g. "Man City" vs "Manchester City")
           const teamMatches =
             !dbTeamNorm ||
             !sfTeamNorm ||
@@ -483,12 +522,23 @@ async function runSync(preloadedTeams: SoFifaTeamDetail[] | null) {
             dbTeamNorm.includes(sfTeamNorm) ||
             sfTeamNorm.includes(dbTeamNorm);
 
+          const pTokens = significantTokens(`${candidate.name}`);
+          const sfTokens = significantTokens(`${fullName} ${common}`);
+          let sharedTokens = 0;
+          for (const t of pTokens) {
+            if (sfTokens.has(t)) sharedTokens++;
+          }
+
+          const exactNameMatches =
+            normFull === normalizeName(candidate.name) ||
+            (normCommon && normCommon === normalizeName(candidate.name));
+
           // Guard against assigning field positions to a known Goalkeeper or vice versa unless full names strongly match
           const positionMismatch =
             (candidate.primary_position === 'GK' && primary !== 'GK') ||
             (candidate.primary_position !== 'GK' && primary === 'GK');
 
-          if (teamMatches && !positionMismatch) {
+          if ((teamMatches || exactNameMatches) && (sharedTokens > 0 || exactNameMatches) && !positionMismatch) {
             dbMatch = candidate;
             break;
           }
