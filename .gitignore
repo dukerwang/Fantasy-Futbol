@@ -66,3 +66,4 @@ tmp-chrome-profile/
 
 # Brainstorming skill's visual-companion mockups/state — scratch, not a deliverable.
 .superpowers/
+packages/*/node_modules

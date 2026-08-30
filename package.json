@@ -9,9 +9,12 @@
     "lint": "eslint",
     "oxlint": "oxlint",
     "download-team-logos": "node scripts/download-pl-team-logos.mjs",
+    "generate-outlooks": "tsx scripts/generate-outlooks.ts",
+    "sync-futbolpedia-engine": "node scripts/sync-futbolpedia-engine.mjs",
     "test": "vitest run"
   },
   "dependencies": {
+    "@futbolpedia/engine": "file:./packages/futbolpedia-engine",
     "@supabase/ssr": "^0.8.0",
     "@supabase/supabase-js": "^2.97.0",
     "@types/string-similarity": "^4.0.2",
@@ -39,6 +42,7 @@
     "playwright": "^1.58.2",
     "prettier": "^3.8.1",
     "sharp": "^0.34.5",
+    "tsx": "^4.21.0",
     "typescript": "^5.9.3",
     "vitest": "^4.1.10"
   }
