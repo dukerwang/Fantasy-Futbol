@@ -8,7 +8,7 @@ import {
   recordSpend,
 } from '@/lib/outlook/budget';
 import { loadFacetInputs } from '@/lib/outlook/facetInputs';
-import { loadRegularPlayerIds } from '@/lib/outlook/population';
+import { loadPriorityPlayerIds, loadRegularPlayerIds } from '@/lib/outlook/population';
 
 export interface BatchOutlookReport {
   attempted: number;
@@ -28,6 +28,8 @@ export interface BatchOutlookReport {
 export interface RunOutlookBatchOptions {
   playerIds?: string[];
   regulars?: boolean;
+  /** Rostered and high-value players first — the affordable slice. */
+  priority?: boolean;
   limit?: number;
   force?: boolean;
   /** Cap for this run alone, on top of the persistent monthly ceiling. */
@@ -39,7 +41,9 @@ export async function runOutlookBatch(
   options: RunOutlookBatchOptions = {},
 ): Promise<BatchOutlookReport> {
   let playerIds = options.playerIds ?? [];
-  if (options.regulars) {
+  if (options.priority) {
+    playerIds = await loadPriorityPlayerIds(admin, options.limit);
+  } else if (options.regulars) {
     playerIds = await loadRegularPlayerIds(admin, options.limit);
   } else if (options.limit && !options.playerIds?.length) {
     playerIds = (await loadRegularPlayerIds(admin)).slice(0, options.limit);

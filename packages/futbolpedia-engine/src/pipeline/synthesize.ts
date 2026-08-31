@@ -1,4 +1,5 @@
 import { buildComputedFactsBlock, computeSetPieces } from '../facets/compute';
+import { openingAngleFor } from '../gates/openingPatterns';
 import type { OutlookCareerPhase } from '../types/outlook';
 import type {
   DynastyValue,
@@ -88,6 +89,7 @@ export async function synthesizeOutlook(
     computedFacts: facts ? buildComputedFactsBlock(facts) : '',
     factualFoundation: factualFoundation.substring(0, 8000),
     extractionJson: JSON.stringify(extraction, null, 2),
+    openingAngle: openingAngleFor(bag.player_id),
   });
 
   let payload: SynthesisPayload;

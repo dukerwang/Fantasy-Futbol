@@ -36,6 +36,7 @@ function parseArgs(argv: string[]) {
     limit?: number;
     playerId?: string;
     regulars: boolean;
+    priority?: boolean;
     force: boolean;
     dryRun: boolean;
     groundedRequestBudget?: number;
@@ -48,6 +49,7 @@ function parseArgs(argv: string[]) {
       args.playerId = argv[++i];
       args.regulars = false;
     } else if (a === '--regulars') args.regulars = true;
+    else if (a === '--priority') { args.priority = true; args.regulars = false; }
     else if (a === '--force') args.force = true;
     else if (a === '--dry-run') args.dryRun = true;
     else if (a === '--grounded-budget') args.groundedRequestBudget = Number(argv[++i]);
@@ -85,6 +87,7 @@ async function main() {
   const report = await runOutlookBatch(admin, {
     playerIds: args.playerId ? [args.playerId] : undefined,
     regulars: args.regulars,
+    priority: args.priority,
     limit: args.limit,
     force: args.force,
     groundedRequestBudget: args.groundedRequestBudget,

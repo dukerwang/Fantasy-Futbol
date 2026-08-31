@@ -19,7 +19,7 @@ export const REGULARS_THRESHOLDS = {
   minAppearances: 5,
 } as const;
 
-async function loadRosteredPlayerIds(admin: SupabaseClient): Promise<Set<string>> {
+export async function loadRosteredPlayerIds(admin: SupabaseClient): Promise<Set<string>> {
   const data = await fetchAllPages<{ player_id: string }>((from, to) =>
     admin.from('roster_entries').select('player_id').not('player_id', 'is', null).range(from, to),
   );
@@ -90,5 +90,57 @@ export async function loadRegularPlayerIds(
   }
 
   ids.sort();
+  return limit ? ids.slice(0, limit) : ids;
+}
+
+/**
+ * A priority slice of the regulars pool, for when the whole pool cannot be
+ * afforded in one month.
+ *
+ * Ordered so that the players managers actually look at come first: rostered
+ * before unrostered, then by market value. Grouping clubs together matters too
+ * — the club-context search is cached per club within a run, so a run that
+ * hops between twenty clubs pays for twenty club queries while a run that
+ * finishes one club at a time pays the same but earlier, and a truncated run
+ * wastes fewer of them.
+ */
+export async function loadPriorityPlayerIds(
+  admin: SupabaseClient,
+  limit?: number,
+): Promise<string[]> {
+  const rostered = await loadRosteredPlayerIds(admin);
+
+  const players = await fetchAllPages<{
+    id: string;
+    market_value: number | null;
+    pl_team: string | null;
+    fpl_starts: number | null;
+    fpl_minutes: number | null;
+  }>((from, to) =>
+    admin
+      .from('players')
+      .select('id, market_value, pl_team, fpl_starts, fpl_minutes')
+      .eq('is_active', true)
+      .range(from, to),
+  );
+
+  const candidates = players.filter(
+    (p) =>
+      rostered.has(p.id) ||
+      Number(p.market_value ?? 0) >= 25 ||
+      Number(p.fpl_minutes ?? 0) >= 90,
+  );
+
+  candidates.sort((a, b) => {
+    const ar = rostered.has(a.id) ? 0 : 1;
+    const br = rostered.has(b.id) ? 0 : 1;
+    if (ar !== br) return ar - br;
+    const ac = a.pl_team ?? '';
+    const bc = b.pl_team ?? '';
+    if (ac !== bc) return ac.localeCompare(bc);
+    return Number(b.market_value ?? 0) - Number(a.market_value ?? 0);
+  });
+
+  const ids = candidates.map((p) => p.id);
   return limit ? ids.slice(0, limit) : ids;
 }

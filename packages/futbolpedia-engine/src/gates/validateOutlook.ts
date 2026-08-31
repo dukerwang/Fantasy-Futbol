@@ -2,6 +2,7 @@ import { OUTLOOK_MAX_WORDS, OUTLOOK_MIN_WORDS } from '../constants';
 import type { OutlookContextBag, OutlookExtraction, PlayerOutlook } from '../types/outlook';
 import { OUTLOOK_STYLES } from '../facets/types';
 import { BANNED_OUTLOOK_PATTERNS } from './bannedPhrases';
+import { findOpeningIssues } from './openingPatterns';
 import { findUnverifiedManagerMentions } from './managerMentions';
 
 export class OutlookValidationError extends Error {
@@ -42,6 +43,10 @@ export function validateOutlook(
     if (pattern.test(outlook.outlook)) {
       reasons.push(`banned phrase matched: ${pattern.source}`);
     }
+  }
+
+  for (const issue of findOpeningIssues(outlook.outlook)) {
+    reasons.push(`formulaic opening matched: ${issue}`);
   }
 
   if (

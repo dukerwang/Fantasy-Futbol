@@ -11,7 +11,21 @@ import {
 } from './pipeline/queryGen';
 import type { GenerateOutlookOptions, GenerateOutlookResult } from './types/outlook';
 
-export { PIPELINE_VERSION, FLASH_MODEL, OUTLOOK_MIN_WORDS, OUTLOOK_MAX_WORDS } from './constants';
+export {
+  PIPELINE_VERSION,
+  FLASH_MODEL,
+  OUTLOOK_MIN_WORDS,
+  OUTLOOK_MAX_WORDS,
+  DEFAULT_SYNTHESIS_JITTER,
+} from './constants';
+
+export {
+  BANNED_OPENING_PATTERNS,
+  OPENING_ANGLES,
+  findOpeningIssues,
+  firstSentence,
+  openingAngleFor,
+} from './gates/openingPatterns';
 
 export {
   FACET_THRESHOLDS,

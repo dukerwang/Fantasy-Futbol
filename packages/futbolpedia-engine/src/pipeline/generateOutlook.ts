@@ -1,4 +1,4 @@
-import { PIPELINE_VERSION } from '../constants';
+import { DEFAULT_SYNTHESIS_JITTER, PIPELINE_VERSION } from '../constants';
 import { createGeminiClient } from '../gemini/client';
 import { extractTokenUsage } from '../gemini/usage';
 import { assertValidOutlook } from '../gates/validateOutlook';
@@ -48,7 +48,10 @@ export async function generateOutlook(
     tempConfig?.mode === 'fixed' && tempConfig.fixed !== undefined
       ? tempConfig.fixed
       : resolveSynthesisTemperature(extraction, {
-          jitter: tempConfig?.jitter,
+          // Wired since v0.2 but never given a value, so every well-evidenced
+          // player landed on the same temperature. A small per-player band,
+          // seeded by id, is stable across regenerations.
+          jitter: tempConfig?.jitter ?? DEFAULT_SYNTHESIS_JITTER,
           jitterSeed: contextBag.player_id,
         });
 

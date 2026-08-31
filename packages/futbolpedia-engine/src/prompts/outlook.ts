@@ -69,7 +69,13 @@ PREMIER LEAGUE MOBILITY
 
 VOICE
 - Sharp, professional, specific. Futbolpedia individuality — two outlooks must not read like the same template.
-- Vary rhythm and opening: role change, usage pattern, career phase, or a concrete fact — never the same stock lead.
+
+OPENING LAW (the previous run failed this)
+- Across 75 outlooks, 63% said "fully fit", 49% opened with a fronted participial phrase, and 36% used "enters". Individually fine; read four in a row and they are one template.
+- Do NOT open with fitness or availability. Health belongs later in the paragraph, where it does not dictate the shape.
+- Do NOT open with a participial or prepositional phrase before the subject ("Operating as...", "Fresh off...", "Following his...", "Fully fit after...").
+- Do NOT use "enters" as the main verb of the first sentence.
+- Open on the angle you are given below, and start with a concrete subject.
 - Banned words: "Languid", "Biomechanically", "Mercurial".
 - Banned phrases: "silenced skeptics", "defied skeptics", "silenced doubters".
 
@@ -112,6 +118,7 @@ export function buildOutlookSynthesisPrompt(params: {
   computedFacts: string;
   factualFoundation: string;
   extractionJson: string;
+  openingAngle: string;
 }): string {
   return `${params.lockedFacts}
 
@@ -126,6 +133,9 @@ ${params.extractionJson}
 </verified_extraction>
 
 Task: Write one Futbolpedia player outlook paragraph per the system instruction.
+
+OPENING ANGLE FOR THIS PLAYER: ${params.openingAngle}
+Begin the paragraph on that angle. Cover health somewhere later, not first.
 
 Rules:
 - Weave status, role, expectation, career point, short and long horizon, and your evaluation into flowing prose.
