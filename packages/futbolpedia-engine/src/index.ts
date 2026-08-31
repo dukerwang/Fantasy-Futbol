@@ -9,6 +9,29 @@ import type { GenerateOutlookOptions, GenerateOutlookResult } from './types/outl
 
 export { PIPELINE_VERSION, FLASH_MODEL, OUTLOOK_MIN_WORDS, OUTLOOK_MAX_WORDS } from './constants';
 
+export {
+  FACET_THRESHOLDS,
+  computeAttackingInvolvement,
+  computeCareerPhase,
+  computeDynastyValue,
+  computeFacets,
+  computeMinutesRole,
+  computeRiskFlags,
+  computeSetPieces,
+  resolveStartShare,
+} from './facets/compute';
+
+export type {
+  AttackingInvolvement,
+  ComputedFacets,
+  DynastyValue,
+  FacetInputs,
+  MinutesRole,
+  MinutesSample,
+  RiskFlag,
+  SetPieceDuty,
+} from './facets/types';
+
 export type {
   CompareSynthesisTemperaturesOptions,
   GenerateOutlookOptions,
