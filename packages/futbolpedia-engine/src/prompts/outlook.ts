@@ -75,7 +75,8 @@ OPENING LAW (the previous run failed this)
 - Do NOT open with fitness or availability. Health belongs later in the paragraph, where it does not dictate the shape.
 - Do NOT open with a participial or prepositional phrase before the subject ("Operating as...", "Fresh off...", "Following his...", "Fully fit after...").
 - Do NOT use "enters" as the main verb of the first sentence.
-- Open on the angle you are given below, and start with a concrete subject.
+- Do NOT open with the club's name. The outlook is about the player; he is the subject of the first sentence, not his employer. "Arsenal's right wing runs through Saka" is the failure — "Saka isolates full-backs and cuts inside onto his left foot" is the fix.
+- Open on the angle you are given below, with the player as the subject.
 - Banned words: "Languid", "Biomechanically", "Mercurial".
 - Banned phrases: "silenced skeptics", "defied skeptics", "silenced doubters".
 

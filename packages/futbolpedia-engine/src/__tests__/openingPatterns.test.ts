@@ -65,3 +65,43 @@ describe('opening angles', () => {
     for (const n of counts.values()) expect(n / 600).toBeLessThan(0.3);
   });
 });
+
+describe('the club-opener gate', () => {
+  /** Real v0.3 openings — the pattern that replaced the one we just removed. */
+  const CLUB_OPENERS: Array<[string, string]> = [
+    ["Arsenal's right wing runs through Bukayo Saka, who isolates full-backs.", 'Arsenal'],
+    ['Arsenal deploy Zubimendi as the deep-lying orchestrator at the base of midfield.', 'Arsenal'],
+    ["Arsenal's midfield construction revolves around Bruno Guimarães.", 'Arsenal'],
+    ["Arsenal's central defensive hierarchy features fresh cover in Ezri Konsa.", 'Arsenal'],
+  ];
+
+  it('rejects an outlook that opens on the club', () => {
+    for (const [text, club] of CLUB_OPENERS) {
+      expect(findOpeningIssues(text, club), text).not.toHaveLength(0);
+    }
+  });
+
+  it('accepts the same content with the player as subject', () => {
+    const fixed = [
+      ['Saka isolates opposing full-backs and cuts inside onto his left foot.', 'Arsenal'],
+      ['Zubimendi orchestrates from the base of midfield, press-resistant under pressure.', 'Arsenal'],
+    ] as const;
+    for (const [text, club] of fixed) {
+      expect(findOpeningIssues(text, club), text).toHaveLength(0);
+    }
+  });
+
+  it('does not fire on a club mentioned later in the opening sentence', () => {
+    const text = 'Gabriel anchors the Arsenal defence and wins nearly everything in the air.';
+    expect(findOpeningIssues(text, 'Arsenal')).toHaveLength(0);
+  });
+
+  it('handles a club name carrying regex characters', () => {
+    expect(findOpeningIssues("Nott'm Forest press high from the front.", "Nott'm Forest")).not.toHaveLength(0);
+    expect(findOpeningIssues('Wood leads the line for Forest.', "Nott'm Forest")).toHaveLength(0);
+  });
+
+  it('rejects the generic team-as-subject dodge', () => {
+    expect(findOpeningIssues('His side build from the back through him.', 'Arsenal')).not.toHaveLength(0);
+  });
+});

@@ -27,7 +27,7 @@ export interface OutlookValidationResult {
 export function validateOutlook(
   outlook: PlayerOutlook,
   extraction: OutlookExtraction,
-  _bag: OutlookContextBag,
+  bag: OutlookContextBag,
 ): OutlookValidationResult {
   const reasons: string[] = [];
   const words = wordCount(outlook.outlook);
@@ -45,7 +45,7 @@ export function validateOutlook(
     }
   }
 
-  for (const issue of findOpeningIssues(outlook.outlook)) {
+  for (const issue of findOpeningIssues(outlook.outlook, bag?.club)) {
     reasons.push(`formulaic opening matched: ${issue}`);
   }
 
