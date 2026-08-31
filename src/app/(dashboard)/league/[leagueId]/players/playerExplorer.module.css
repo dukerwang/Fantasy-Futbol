@@ -1,0 +1,261 @@
+/** Explorer — ported from scratch/hub-design/Explorer.dc.html. */
+
+.root { display: flex; flex-direction: column; }
+
+/* --- axis pickers --- */
+.axisBar {
+  padding: var(--s3) var(--s6) var(--s4);
+  border-top: 1px solid var(--color-border);
+  background: var(--color-bg-card-alt);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s2);
+}
+
+.axisRow { display: flex; align-items: center; gap: var(--s2); min-width: 0; }
+.axisKey { width: 22px; flex-shrink: 0; }
+
+.rail {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 2px;
+  min-width: 0;
+}
+
+.rail::-webkit-scrollbar { display: none; }
+
+.pill {
+  flex: 0 0 auto;
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--color-border-subtle);
+  background: var(--color-bg-card);
+  border-radius: var(--radius-full);
+  padding: 0 14px;
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.pill:hover { background: var(--color-bg-inset); }
+
+.pillOn {
+  border-color: var(--color-border-accent);
+  background: var(--color-tint-accent);
+  color: var(--color-text-primary);
+}
+
+/* --- plot --- */
+.plotBox {
+  position: relative;
+  padding: var(--s5) var(--s6) var(--s8) calc(var(--s6) + 34px);
+}
+
+.plot {
+  position: relative;
+  height: 460px;
+  border-left: 1px solid var(--color-border-strong);
+  border-bottom: 1px solid var(--color-border-strong);
+}
+
+.axisY {
+  position: absolute;
+  left: var(--s4);
+  top: 50%;
+  transform: translateY(-50%) rotate(180deg);
+  writing-mode: vertical-rl;
+  font-family: var(--font-condensed);
+  font-weight: 700;
+  font-size: var(--t-10);
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.axisX {
+  display: block;
+  text-align: center;
+  margin-top: var(--s4);
+  font-family: var(--font-condensed);
+  font-weight: 700;
+  font-size: var(--t-10);
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.tickY, .tickX {
+  position: absolute;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--color-text-muted);
+}
+
+.tickY { left: -34px; }
+.tickTop { bottom: 100%; }
+.tickBottom { bottom: 0; }
+.tickX { bottom: -18px; transform: translateX(-50%); }
+.tickLeft { left: 0; }
+.tickRight { left: 100%; }
+
+.medianV, .medianH { position: absolute; background: var(--color-border-subtle); }
+.medianV { top: 0; bottom: 0; width: 1px; }
+.medianH { left: 0; right: 0; height: 1px; }
+
+.medianLabelX, .medianLabelY {
+  position: absolute;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  color: var(--color-text-muted);
+  opacity: 0.8;
+}
+
+.medianLabelX { bottom: -17px; transform: translateX(4px); }
+.medianLabelY { left: 4px; transform: translateY(50%); }
+
+.quad {
+  position: absolute;
+  font-family: var(--font-condensed);
+  font-weight: 700;
+  font-size: var(--t-10);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  opacity: 0.55;
+  pointer-events: none;
+  max-width: 44%;
+  line-height: 1.25;
+}
+
+.quadTL { left: 8px; top: 8px; }
+.quadTR { right: 8px; top: 8px; text-align: right; }
+
+/* The painted circle is the ::after; the button is the touch target. A dense
+   scatter is otherwise unhittable with a thumb. */
+.dot {
+  position: absolute;
+  width: 34px;
+  height: 34px;
+  transform: translate(-50%, 50%);
+  border: 0;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+}
+
+.dot::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: var(--d, 9px);
+  height: var(--d, 9px);
+  border-radius: 50%;
+  background: var(--c);
+  opacity: 0.5;
+  transition: opacity 100ms ease-out, box-shadow 100ms ease-out;
+}
+
+.dot:hover::after { opacity: 1; box-shadow: 0 0 0 3px var(--color-accent-dim); }
+.dotSel::after { opacity: 1; box-shadow: 0 0 0 3px var(--color-accent); }
+
+/* --- legend + selection --- */
+.below {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s4);
+  padding: 0 var(--s6) var(--s5);
+  flex-wrap: wrap;
+}
+
+.legend { display: flex; gap: 6px; flex-wrap: wrap; }
+
+.lg {
+  min-height: 38px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  border: 1px solid var(--color-border-subtle);
+  background: var(--color-bg-card);
+  border-radius: var(--radius-full);
+  padding: 0 12px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.lgOn {
+  border-color: var(--color-border-accent);
+  background: var(--color-tint-accent);
+  color: var(--color-text-primary);
+}
+
+.lg i { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+
+.selected {
+  display: flex;
+  align-items: center;
+  gap: var(--s4);
+  background: var(--color-bg-card-alt);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
+  padding: var(--s2) var(--s4);
+  flex-wrap: wrap;
+}
+
+.selName {
+  font-family: var(--font-serif);
+  font-weight: 600;
+  font-size: var(--text-lg);
+  letter-spacing: -0.02em;
+  color: var(--color-text-primary);
+}
+
+.selStats { display: flex; gap: var(--s4); flex-wrap: wrap; }
+.selStat { display: flex; flex-direction: column; gap: 1px; }
+
+.selStat b {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--color-text-primary);
+  line-height: 1;
+}
+
+.selLink {
+  font-family: var(--font-condensed);
+  font-weight: 700;
+  font-size: var(--t-11);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-accent-ink);
+  white-space: nowrap;
+}
+
+.hint { font-size: var(--text-sm); color: var(--color-text-muted); font-style: italic; }
+
+.empty {
+  padding: var(--s10) var(--s6);
+  text-align: center;
+  color: var(--color-text-muted);
+  font-style: italic;
+}
+
+@media (max-width: 700px) {
+  .axisBar { padding-left: var(--s4); padding-right: var(--s4); }
+  .plotBox { padding: var(--s4) var(--s4) var(--s8) calc(var(--s4) + 30px); }
+  .plot { height: 340px; }
+  .below { padding: 0 var(--s4) var(--s4); }
+  .quad { font-size: 9px; max-width: 46%; }
+}

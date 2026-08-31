@@ -5,10 +5,11 @@ import NavigationLink from '@/components/ui/NavigationLink';
 import Portrait from '@/components/players/Portrait';
 import PositionBadge from '@/components/players/PositionBadge';
 import GlobalStatsTable from '../stats/GlobalStatsTable';
+import PlayerExplorer from './PlayerExplorer';
 import { getPlayerDisplayName } from '@/lib/players/displayName';
 import { SPINE, POS_COLOR } from '@/lib/positions/spine';
 import type { GranularPosition } from '@/types';
-import type { IndexScout } from '@/lib/players/indexData';
+import type { ExplorerRow, IndexScout } from '@/lib/players/indexData';
 import type { IndexRowPlayer } from './page';
 import styles from './playersIndex.module.css';
 
@@ -28,7 +29,8 @@ interface Props {
   scout: Record<string, IndexScout>;
   season: string;
   seasons: string[];
-  view: 'cards' | 'table';
+  view: 'cards' | 'table' | 'explorer';
+  explorerRows: ExplorerRow[];
   shadowMaps: React.ComponentProps<typeof GlobalStatsTable>['shadowMaps'];
 }
 
@@ -80,7 +82,7 @@ function Pill({
 }
 
 export default function PlayersIndex({
-  leagueId, leagueName, players, scout, season, seasons, view, shadowMaps,
+  leagueId, leagueName, players, scout, season, seasons, view, explorerRows, shadowMaps,
 }: Props) {
   const [search, setSearch] = useState('');
   const [quality, setQuality] = useState<string | null>(null);
@@ -125,9 +127,15 @@ export default function PlayersIndex({
 
         <div className={styles.headRight}>
           <div>
-            <div className={styles.statValue}>{filtered.length}</div>
+            <div className={styles.statValue}>
+              {view === 'explorer' ? explorerRows.length : filtered.length}
+            </div>
             <div className={`g-label-quiet ${styles.statLabel}`}>
-              {filtered.length === players.length ? 'players' : `shown of ${players.length}`}
+              {view === 'explorer'
+                ? 'plotted'
+                : filtered.length === players.length
+                  ? 'players'
+                  : `shown of ${players.length}`}
             </div>
           </div>
 
@@ -147,14 +155,14 @@ export default function PlayersIndex({
           )}
 
           <nav className={styles.seg} aria-label="View">
-            {(['cards', 'table'] as const).map((v) => (
+            {(['cards', 'table', 'explorer'] as const).map((v) => (
               <NavigationLink
                 key={v}
                 href={`/league/${leagueId}/players?view=${v}&season=${season}`}
                 className={`${styles.segBtn} ${v === view ? styles.segOn : ''}`}
                 aria-current={v === view ? 'page' : undefined}
               >
-                {v === 'cards' ? 'Cards' : 'Table'}
+                {v === 'cards' ? 'Cards' : v === 'table' ? 'Table' : 'Explorer'}
               </NavigationLink>
             ))}
           </nav>
@@ -162,6 +170,15 @@ export default function PlayersIndex({
       </header>
     </>
   );
+
+  if (view === 'explorer') {
+    return (
+      <div className="g-panel">
+        {header}
+        <PlayerExplorer leagueId={leagueId} rows={explorerRows} season={season} />
+      </div>
+    );
+  }
 
   if (view === 'table') {
     return (

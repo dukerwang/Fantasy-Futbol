@@ -4,7 +4,7 @@ import { redirect, notFound } from 'next/navigation';
 import type { Player } from '@/types';
 import { getCurrentFplSeason, isFplSeasonKickedOff } from '@/lib/season/currentSeason';
 import { loadSeasonLeaderboard } from '@/lib/stats/seasonStats';
-import { loadScoutIndex } from '@/lib/players/indexData';
+import { loadExplorerRows, loadScoutIndex } from '@/lib/players/indexData';
 import PlayersIndex from './PlayersIndex';
 
 export const dynamic = 'force-dynamic';
@@ -55,9 +55,16 @@ export default async function PlayersPage({ params, searchParams }: Props) {
   const { data: allTeams } = await admin.from('teams').select('id').eq('league_id', leagueId);
   const teamIds = (allTeams ?? []).map((t: { id: string }) => t.id);
 
-  const [{ players, shadowMaps }, scoutIndex] = await Promise.all([
+  const activeView = view === 'table' ? 'table' : view === 'explorer' ? 'explorer' : 'cards';
+
+  // The explorer needs per-season aggregates the leaderboard does not carry,
+  // and the scout layer is dead weight to it — load each only where used.
+  const [{ players, shadowMaps }, scoutIndex, explorerRows] = await Promise.all([
     loadSeasonLeaderboard(admin, season),
-    loadScoutIndex(admin),
+    activeView === 'explorer'
+      ? Promise.resolve(new Map())
+      : loadScoutIndex(admin),
+    activeView === 'explorer' ? loadExplorerRows(admin, season) : Promise.resolve([]),
   ]);
 
   const ownerMap = new Map<string, { teamId: string; teamName: string }>();
@@ -90,7 +97,8 @@ export default async function PlayersPage({ params, searchParams }: Props) {
       scout={Object.fromEntries(scoutIndex)}
       season={season}
       seasons={seasons}
-      view={view === 'table' ? 'table' : 'cards'}
+      view={activeView}
+      explorerRows={explorerRows}
       shadowMaps={shadowMaps}
     />
   );
