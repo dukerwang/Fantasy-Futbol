@@ -8,10 +8,12 @@ export const dynamic = 'force-dynamic';
 
 interface Props {
   params: Promise<{ leagueId: string; playerId: string }>;
+  searchParams: Promise<{ season?: string }>;
 }
 
-export default async function PlayerHubPage({ params }: Props) {
+export default async function PlayerHubPage({ params, searchParams }: Props) {
   const { leagueId, playerId } = await params;
+  const { season } = await searchParams;
 
   const supabase = await createClient();
   const {
@@ -28,7 +30,7 @@ export default async function PlayerHubPage({ params }: Props) {
     .single();
   if (!league) notFound();
 
-  const hub = await loadPlayerHub(admin, playerId, leagueId);
+  const hub = await loadPlayerHub(admin, playerId, leagueId, season ?? null);
   if (!hub) notFound();
 
   return <PlayerHub leagueId={leagueId} leagueName={league.name} data={hub} />;

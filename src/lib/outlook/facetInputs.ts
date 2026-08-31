@@ -2,6 +2,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import type { FacetInputs, MinutesSample } from '@futbolpedia/engine';
 import type { GranularPosition } from '@/types';
 import { getCurrentFplSeason } from '@/lib/season/currentSeason';
+import { resolveClub } from '@/lib/clubs/registry';
 import { fetchAllPages } from '@/lib/supabase/pagination';
 
 /**
@@ -98,6 +99,18 @@ async function loadClubMatchCounts(
   return out;
 }
 
+/**
+ * Club per player for a season.
+ *
+ * `player_season_clubs` is the archive and the only correct source for a PAST
+ * season — `players.pl_team` is overwritten by every sync and would attribute
+ * every summer transfer to the wrong club. For the CURRENT season, though, that
+ * is exactly what pl_team describes, and the archive is not written until the
+ * season is over: it holds 2025-26 and nothing else. So the current season
+ * falls back to pl_team, which is the documented rule rather than an exception
+ * to it. Without this the current-season sample is always null and the
+ * early-season blending never runs.
+ */
 async function loadSeasonClubs(
   admin: SupabaseClient,
   season: string,
@@ -110,6 +123,15 @@ async function loadSeasonClubs(
       .range(from, to),
   );
   return new Map(rows.map((r) => [r.player_id, r.club_slug]));
+}
+
+function currentSeasonClubs(players: PlayerRow[]): Map<string, string> {
+  const out = new Map<string, string>();
+  for (const p of players) {
+    const slug = resolveClub(p.pl_team)?.slug;
+    if (slug) out.set(p.id, slug);
+  }
+  return out;
 }
 
 /**
@@ -158,6 +180,7 @@ interface PlayerRow {
   id: string;
   date_of_birth: string | null;
   primary_position: GranularPosition;
+  pl_team: string | null;
   fpl_penalties_order: number | null;
   fpl_direct_fk_order: number | null;
   fpl_corners_order: number | null;
@@ -171,25 +194,37 @@ export async function loadFacetInputs(
   const priorSeason = priorSeasonOf(season);
   const asOf = options.asOf ?? new Date();
 
-  const players = await fetchAllPages<PlayerRow>((from, to) => {
-    let q = admin
+  // The whole active pool, ALWAYS — never narrowed to options.playerIds.
+  // The xGI percentile is a rank against a player's position group, so scoping
+  // the pool to the requested players computes the rank against them: asking
+  // for one player returned "50th percentile" for everybody, the single-member
+  // fallback wearing a real number's clothes. `playerIds` filters what is
+  // RETURNED, at the end, not what the ranking is measured against.
+  const players = await fetchAllPages<PlayerRow>((from, to) =>
+    admin
       .from('players')
       .select(
-        'id, date_of_birth, primary_position, fpl_penalties_order, fpl_direct_fk_order, fpl_corners_order',
+        'id, date_of_birth, primary_position, pl_team, fpl_penalties_order, fpl_direct_fk_order, fpl_corners_order',
       )
-      .eq('is_active', true);
-    if (options.playerIds?.length) q = q.in('id', options.playerIds);
-    return q.range(from, to);
-  });
+      .eq('is_active', true)
+      .range(from, to),
+  );
 
-  const [curAgg, priorAgg, curClubs, priorClubs, curMatches, priorMatches] = await Promise.all([
-    loadSeasonAggregates(admin, season),
-    loadSeasonAggregates(admin, priorSeason),
-    loadSeasonClubs(admin, season),
-    loadSeasonClubs(admin, priorSeason),
-    loadClubMatchCounts(admin, season),
-    loadClubMatchCounts(admin, priorSeason),
-  ]);
+  const wanted = options.playerIds?.length ? new Set(options.playerIds) : null;
+
+  const [curAgg, priorAgg, archivedCurClubs, priorClubs, curMatches, priorMatches] =
+    await Promise.all([
+      loadSeasonAggregates(admin, season),
+      loadSeasonAggregates(admin, priorSeason),
+      loadSeasonClubs(admin, season),
+      loadSeasonClubs(admin, priorSeason),
+      loadClubMatchCounts(admin, season),
+      loadClubMatchCounts(admin, priorSeason),
+    ]);
+
+  // Prefer the archive when it exists; fall back to today's club for the
+  // current season, which is what pl_team actually means.
+  const curClubs = archivedCurClubs.size > 0 ? archivedCurClubs : currentSeasonClubs(players);
 
   // Two percentile tables, one per season. A player is ranked inside the season
   // his xGI/90 actually came from, so the comparison stays like-for-like.
@@ -222,6 +257,7 @@ export async function loadFacetInputs(
 
   const inputs = new Map<string, FacetInputs>();
   for (const p of players) {
+    if (wanted && !wanted.has(p.id)) continue;
     const cur = curAgg.get(p.id);
     const preferCurrent = (cur?.minutes ?? 0) >= XGI_CURRENT_PREFERRED_MINUTES;
     const xgi_percentile =

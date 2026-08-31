@@ -78,17 +78,35 @@ export default function PlayerHub({
   leagueName: string;
   data: PlayerHubData;
 }) {
-  const { player, football, league } = data;
+  const { player, football, league, availableSeasons, season, seasonClub } = data;
+  const isCurrentSeason = season === availableSeasons[0];
   const { report, form } = football;
   const displayName = getPlayerDisplayName(player, 'full');
   const secondary = (player.secondary_positions ?? []) as GranularPosition[];
 
   return (
     <div className={styles.root}>
-      <div className={`g-label ${styles.kicker}`}>
+      <div className={styles.topRow}>
+        <div className={`g-label ${styles.kicker}`}>
         {/* The players index is the next slice; until it exists this returns
             to the stats table, which is the surface players are found on. */}
-        <NavigationLink href={`/league/${leagueId}/stats`}>{leagueName} players</NavigationLink>
+          <NavigationLink href={`/league/${leagueId}/stats`}>{leagueName} players</NavigationLink>
+        </div>
+
+        {availableSeasons.length > 1 && (
+          <nav className={styles.seasons} aria-label="Season">
+            {availableSeasons.map((s) => (
+              <NavigationLink
+                key={s}
+                href={`/league/${leagueId}/players/${player.id}?season=${s}`}
+                className={`${styles.seasonTab} ${s === season ? styles.seasonTabOn : ''}`}
+                aria-current={s === season ? 'page' : undefined}
+              >
+                {s.replace('-', '/')}
+              </NavigationLink>
+            ))}
+          </nav>
+        )}
       </div>
 
       {/* --- identity --- */}
@@ -159,6 +177,16 @@ export default function PlayerHub({
             </div>
 
             <div className={styles.panelBody}>
+              {report && !isCurrentSeason && (
+                /* An outlook is a judgment about the player NOW. It has no
+                   historical version, so viewing an older season must not make
+                   it look like it describes that season. */
+                <p className={styles.pinNote}>
+                  This report describes the player today, not{' '}
+                  {season.replace('-', '/')}. The figures below are{' '}
+                  {season.replace('-', '/')}.
+                </p>
+              )}
               {report ? (
                 <>
                   <div className={styles.facets}>
@@ -202,7 +230,9 @@ export default function PlayerHub({
                 <span className="g-label">Real-world form</span>
                 <span className={styles.rubric}>Premier League output, not league scoring</span>
                 <span className={styles.headMeta}>
-                  {form.season.replace('-', '/')} · {form.appearances} apps
+                  {form.season.replace('-', '/')}
+                  {seasonClub && seasonClub !== player.pl_team ? ` · ${seasonClub}` : ''} ·{' '}
+                  {form.appearances} apps
                 </span>
               </div>
 

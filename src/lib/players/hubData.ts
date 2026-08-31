@@ -72,6 +72,15 @@ export interface PlayerHubData {
   player: Player;
   football: { report: HubScoutingReport | null; form: HubRealWorldForm | null };
   league: HubLeagueRecord;
+  /** Seasons this player actually has data for, newest first. */
+  availableSeasons: string[];
+  /** The season the two stat layers are showing. */
+  season: string;
+  /**
+   * The club he played for in that season, from player_season_clubs — NOT
+   * players.pl_team, which is overwritten by every sync and describes today.
+   */
+  seasonClub: string | null;
 }
 
 /** Positions whose job is attacking, and can fairly be ranked on attacking output. */
@@ -107,39 +116,44 @@ export async function loadPlayerHub(
   admin: SupabaseClient,
   playerId: string,
   leagueId: string,
+  requestedSeason?: string | null,
 ): Promise<PlayerHubData | null> {
-  const front = await fetchPlayerFront(admin, playerId, leagueId);
+  const front = await fetchPlayerFront(admin, playerId, leagueId, requestedSeason ?? null);
   if (!front) return null;
   const { player, ownership, season } = front;
 
-  const [outlookRes, statRows, factBundle, priorRows] = await Promise.all([
+  const [outlookRes, allStatRows, factBundle, seasonClubRows] = await Promise.all([
     admin
       .from('player_outlooks')
       .select('outlook, sidecar, generated_at')
       .eq('player_id', playerId)
       .maybeSingle(),
-    fetchAllPages<{ fantasy_points: number | null; match_rating: number | null; stats: Record<string, unknown> | null }>(
-      (from, to) =>
-        admin
-          .from('player_stats')
-          .select('fantasy_points, match_rating, stats')
-          .eq('player_id', playerId)
-          .eq('season', season)
-          .range(from, to),
-    ),
-    loadFacetInputs(admin, { playerIds: [playerId] }),
-    // The real-world panel reads the last completed season, because two
-    // gameweeks of the current one describe nobody.
-    fetchAllPages<{ season: string; stats: Record<string, unknown> | null }>((from, to) =>
+    fetchAllPages<{
+      season: string;
+      fantasy_points: number | null;
+      match_rating: number | null;
+      stats: Record<string, unknown> | null;
+    }>((from, to) =>
       admin
         .from('player_stats')
-        .select('season, stats')
+        .select('season, fantasy_points, match_rating, stats')
+        .eq('player_id', playerId)
+        .range(from, to),
+    ),
+    loadFacetInputs(admin, { playerIds: [playerId] }),
+    fetchAllPages<{ season: string; club_slug: string }>((from, to) =>
+      admin
+        .from('player_season_clubs')
+        .select('season, club_slug')
         .eq('player_id', playerId)
         .range(from, to),
     ),
   ]);
 
-  // --- league layer: Gaffa scoring, this season ---
+  const availableSeasons = [...new Set(allStatRows.map((r) => r.season))].sort().reverse();
+  const statRows = allStatRows.filter((r) => r.season === season);
+
+  // --- league layer: Gaffa scoring, for the selected season ---
   let points = 0;
   let games = 0;
   let ratingSum = 0;
@@ -156,30 +170,35 @@ export async function loadPlayerHub(
 
   // --- football layer: the measured record, from real match data ---
   const inputs = factBundle.inputs.get(playerId);
-  const sample = inputs?.prior ?? inputs?.current ?? null;
   const rankable = RANKABLE_ON_ATTACK.has(player.primary_position);
 
   const report = toReport((outlookRes.data as StoredOutlookRow | null) ?? null);
 
+  // The real-world panel follows the same season the ledger is showing, so the
+  // two layers never describe different years on one screen.
   let minutes = 0;
   let goalContributions = 0;
   let xgi = 0;
-  for (const row of priorRows) {
-    if (row.season !== factBundle.priorSeason) continue;
+  for (const row of allStatRows) {
+    if (row.season !== season) continue;
     const st = (row.stats ?? {}) as Record<string, unknown>;
     minutes += Number(st.minutes_played ?? 0);
     goalContributions += Number(st.goals ?? 0) + Number(st.assists ?? 0);
     xgi += Number(st.expected_goals ?? 0) + Number(st.expected_assists ?? 0);
   }
 
+  const seasonSample = season === factBundle.season ? inputs?.current : inputs?.prior;
   const form: HubRealWorldForm | null =
-    sample && minutes > 0
+    minutes > 0
       ? {
-          season: factBundle.priorSeason,
+          season,
           minutes,
-          starts: sample.starts,
-          appearances: sample.appearances,
-          startRate: sample.appearances > 0 ? sample.starts / sample.appearances : null,
+          starts: seasonSample?.starts ?? 0,
+          appearances: seasonSample?.appearances ?? 0,
+          startRate:
+            seasonSample && seasonSample.appearances > 0
+              ? seasonSample.starts / seasonSample.appearances
+              : null,
           goalContributions,
           xgiPer90: (xgi * 90) / minutes,
           xgiPercentile: rankable ? (inputs?.xgi_percentile ?? null) : null,
@@ -189,6 +208,9 @@ export async function loadPlayerHub(
 
   return {
     player,
+    availableSeasons,
+    season,
+    seasonClub: seasonClubRows.find((r) => r.season === season)?.club_slug ?? null,
     football: { report, form },
     league: {
       season,

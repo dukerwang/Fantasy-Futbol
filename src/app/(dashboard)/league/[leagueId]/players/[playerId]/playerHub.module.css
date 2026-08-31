@@ -371,3 +371,49 @@
 
   .outlook { font-size: 16.5px; }
 }
+
+/* --- season switcher --- */
+.topRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s3);
+  flex-wrap: wrap;
+}
+
+.seasons {
+  display: flex;
+  gap: 2px;
+  background: var(--color-bg-inset);
+  border-radius: var(--radius-md);
+  padding: 3px;
+}
+
+.seasonTab {
+  font-family: var(--font-condensed);
+  font-weight: 700;
+  font-size: var(--t-11);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+}
+
+.seasonTabOn {
+  background: var(--color-bg-card);
+  color: var(--color-text-primary);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Reads as an advisory beside the prose, not as part of it. */
+.pinNote {
+  margin: 0 0 var(--s3);
+  padding: var(--s2) var(--s3);
+  border-radius: var(--radius-sm);
+  background: var(--color-tint-warning);
+  color: var(--color-text-primary);
+  font-size: var(--t-12);
+  line-height: 1.5;
+}
