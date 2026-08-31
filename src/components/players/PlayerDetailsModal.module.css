@@ -12,7 +12,11 @@
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   display: flex;
-  align-items: center;
+  /* flex-start, not center: a centred flex child taller than the viewport
+     overflows past BOTH edges and the top becomes unscrollable, which put the
+     "Full profile" link under the card out of reach. `margin: auto` on the box
+     keeps it centred whenever it does fit. */
+  align-items: flex-start;
   justify-content: center;
   padding: var(--s4);
   animation: fadeIn 0.15s ease;
@@ -28,6 +32,7 @@
 /* Transparent wrapper — card provides its own background + shadow */
 .box {
   position: relative;
+  margin: auto;
   display: flex;
   flex-direction: column;
   align-items: center;
