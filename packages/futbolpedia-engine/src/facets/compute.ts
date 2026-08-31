@@ -95,10 +95,15 @@ export function computeCareerPhase(inputs: FacetInputs): OutlookCareerPhase {
   if (age == null) return 'unknown';
 
   const share = resolveStartShare(inputs);
+  // Two different bars, because the two questions are different. Arriving only
+  // asks whether a young player is a regular at all — Palmer at 24 missed time
+  // last season and still is not "emerging" in any useful sense. Lasting asks
+  // whether a veteran is genuinely still ever-present, which is a higher bar.
+  const arrived = share != null && share >= FACET_THRESHOLDS.likelyStarter;
   const entrenched = share != null && share >= FACET_THRESHOLDS.nailed;
 
   if (age <= 21) return 'emerging';
-  if (age <= 24) return entrenched ? 'peak' : 'emerging';
+  if (age <= 24) return arrived ? 'peak' : 'emerging';
   if (age <= 29) return 'peak';
   if (age <= 32) return 'plateau';
   return entrenched ? 'plateau' : 'decline_risk';
@@ -111,9 +116,13 @@ export function computeDynastyValue(
   phase: OutlookCareerPhase,
 ): DynastyValue {
   const age = inputs.age;
+  // Age is deliberately NOT re-tested here. computeCareerPhase already decided
+  // whether a thirty-something is declining or merely plateauing, and testing
+  // age again overrode it — Tarkowski came out nailed and plateau but
+  // declining_asset, two facets contradicting each other on the same player.
+  // An entrenched veteran is a win-now asset, not a declining one.
   if (phase === 'decline_risk') return 'declining_asset';
   if (age == null) return 'win_now';
-  if (age >= 32) return 'declining_asset';
 
   const contributes = involvement === 'primary_outlet' || involvement === 'secondary_threat';
   if (age <= 26 && minutesRole === 'nailed' && contributes) return 'cornerstone';

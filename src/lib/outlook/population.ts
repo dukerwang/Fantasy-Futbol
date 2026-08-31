@@ -11,6 +11,7 @@
  */
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { getCurrentFplSeason } from '@/lib/season/currentSeason';
+import { fetchAllPages } from '@/lib/supabase/pagination';
 
 export const REGULARS_THRESHOLDS = {
   minMarketValueEurM: 8,
@@ -19,25 +20,24 @@ export const REGULARS_THRESHOLDS = {
 } as const;
 
 async function loadRosteredPlayerIds(admin: SupabaseClient): Promise<Set<string>> {
-  const { data, error } = await admin
-    .from('roster_entries')
-    .select('player_id')
-    .not('player_id', 'is', null);
-
-  if (error) throw new Error(error.message);
-  return new Set((data ?? []).map((r) => r.player_id as string));
+  const data = await fetchAllPages<{ player_id: string }>((from, to) =>
+    admin.from('roster_entries').select('player_id').not('player_id', 'is', null).range(from, to),
+  );
+  return new Set(data.map((r) => r.player_id));
 }
 
 async function loadAppearanceCounts(
   admin: SupabaseClient,
   season: string,
 ): Promise<Map<string, number>> {
-  const { data, error } = await admin
-    .from('player_stats')
-    .select('player_id, stats')
-    .eq('season', season);
-
-  if (error) throw new Error(error.message);
+  // Paginated: PostgREST truncates at 1,000 rows without saying so, and
+  // player_stats passes that a few gameweeks into every season (2026-27 was
+  // already at 1,235 by GW2). Unpaginated, this silently dropped the
+  // appearance signal for most of the pool.
+  const data = await fetchAllPages<{ player_id: string; stats: { minutes_played?: number } | null }>(
+    (from, to) =>
+      admin.from('player_stats').select('player_id, stats').eq('season', season).range(from, to),
+  );
 
   const counts = new Map<string, number>();
   for (const row of data ?? []) {
@@ -60,12 +60,18 @@ export async function loadRegularPlayerIds(
     loadAppearanceCounts(admin, season),
   ]);
 
-  const { data: players, error } = await admin
-    .from('players')
-    .select('id, market_value, total_points, is_active')
-    .eq('is_active', true);
-
-  if (error) throw new Error(error.message);
+  const players = await fetchAllPages<{
+    id: string;
+    market_value: number | null;
+    total_points: number | null;
+    is_active: boolean;
+  }>((from, to) =>
+    admin
+      .from('players')
+      .select('id, market_value, total_points, is_active')
+      .eq('is_active', true)
+      .range(from, to),
+  );
 
   const ids: string[] = [];
   for (const p of players ?? []) {

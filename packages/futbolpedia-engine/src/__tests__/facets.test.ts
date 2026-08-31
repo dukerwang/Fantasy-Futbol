@@ -95,6 +95,22 @@ describe('career_phase', () => {
     expect(phase).toBe('decline_risk');
   });
 
+  it('calls a young regular starter peak, not emerging', () => {
+    // Palmer at 24: 21 starts of 38, a first-choice player who missed time.
+    // Requiring an ever-present record here read him as still arriving.
+    const phase = computeCareerPhase(
+      inputs({ age: 24, prior: { starts: 21, appearances: 34, team_matches: 38 } }),
+    );
+    expect(phase).toBe('peak');
+  });
+
+  it('still calls a young squad player emerging', () => {
+    const phase = computeCareerPhase(
+      inputs({ age: 23, prior: { starts: 5, appearances: 18, team_matches: 38 } }),
+    );
+    expect(phase).toBe('emerging');
+  });
+
   it('calls a teenager emerging regardless of minutes', () => {
     expect(computeCareerPhase(inputs({ age: 19 }))).toBe('emerging');
   });
@@ -154,6 +170,23 @@ describe('computeFacets', () => {
       set_pieces: [],
       risk_flags: [],
     });
+  });
+
+  it('does not call an entrenched veteran a declining asset', () => {
+    // Tarkowski: career_phase already ruled this plateau rather than
+    // decline_risk, and dynasty_value must not overrule it on age alone.
+    const f = computeFacets(
+      inputs({ age: 33, xgi_percentile: 0.6, prior: { starts: 37, appearances: 37, team_matches: 38 } }),
+    );
+    expect(f.career_phase).toBe('plateau');
+    expect(f.dynasty_value).toBe('win_now');
+  });
+
+  it('does call a veteran who lost his place a declining asset', () => {
+    const f = computeFacets(
+      inputs({ age: 34, prior: { starts: 5, appearances: 12, team_matches: 38 } }),
+    );
+    expect(f.dynasty_value).toBe('declining_asset');
   });
 
   it('flags a contested starter', () => {

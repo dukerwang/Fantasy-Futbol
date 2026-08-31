@@ -25,6 +25,7 @@
  * zeroes, which is what they have.
  */
 
+import { fetchAllPages } from '@/lib/supabase/pagination';
 import type { createAdminClient } from '@/lib/supabase/admin';
 import { FULL_PLAYER_SELECT } from '@/lib/constants/queries';
 import { loadReferenceStats } from '@/lib/scoring/matchups';
@@ -41,7 +42,6 @@ import { calculateMatchRating } from '@/lib/scoring/matchRating';
 type Admin = ReturnType<typeof createAdminClient>;
 type RefStatsMap = Parameters<typeof calculateMatchRating>[2];
 
-const PAGE_SIZE = 1000;
 
 /** Display name + FPL seasonal team id for 2025-26 club slugs. */
 const SEASON_CLUBS_2025_26: Record<string, { name: string; fplTeamId: number }> = {
@@ -104,19 +104,6 @@ export interface SeasonShadowMaps {
   played: PositionAggregateMap;
   all: PositionAggregateMap;
   gt45: PositionAggregateMap;
-}
-
-async function fetchAllPages<T>(
-  run: (from: number, to: number) => PromiseLike<{ data: T[] | null }>,
-): Promise<T[]> {
-  const out: T[] = [];
-  for (let page = 0; ; page++) {
-    const { data } = await run(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1);
-    if (!data || data.length === 0) break;
-    out.push(...data);
-    if (data.length < PAGE_SIZE) break;
-  }
-  return out;
 }
 
 /**
