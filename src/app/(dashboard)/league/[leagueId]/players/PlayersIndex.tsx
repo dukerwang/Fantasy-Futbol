@@ -268,7 +268,7 @@ export default function PlayersIndex({
                   photoUrl={p.photo_url}
                   name={getPlayerDisplayName(p, 'full')}
                   club={p.pl_team}
-                  size="sm"
+                  size="md"
                   headTopPct={p.portrait_head_top_pct}
                   headWidthPct={p.portrait_head_width_pct}
                   photoVersion={p.photo_version}
@@ -290,7 +290,15 @@ export default function PlayersIndex({
               {/* The lede is the whole reason cards are the default. Without an
                   outlook the card degrades to identity plus figures rather than
                   rendering an empty well — the state most of the pool is in. */}
-              {s?.lede && <p className={styles.lede}>{s.lede}</p>}
+              {s?.lede && (
+                /* The clamp lives on the <p>, the padding on the wrapper.
+                   With both on one element, overflow:hidden clips at the
+                   padding edge and a fourth line paints into the padding —
+                   which is what was colliding with the tags below. */
+                <div className={styles.ledeWrap}>
+                  <p className={styles.lede}>{s.lede}</p>
+                </div>
+              )}
 
               {flag && (
                 <div className={styles.flag}>

@@ -218,11 +218,23 @@
 
 .cardTop {
   display: flex;
+  /* Align to the top of the portrait rather than centring: the identity block
+     is three rows and the portrait is 66x78, so they should share a top edge. */
+  align-items: flex-start;
   gap: var(--s3);
-  padding: var(--s3) var(--s4) var(--s2);
+  padding: var(--s3) var(--s4) var(--s3);
 }
 
-.cardId { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.cardId {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  /* Matches the 78px portrait so the club line lands level with its base. */
+  min-height: 78px;
+  justify-content: center;
+}
 .cardChips { flex-wrap: wrap; }
 
 .cardName {
@@ -239,18 +251,24 @@
 
 .cardClub { }
 
+.ledeWrap { padding: 0 var(--s4) var(--s3); }
+
+/* No padding here on purpose — see PlayersIndex.tsx. A -webkit-box that clamps
+   AND pads leaks the clipped line into its own padding. */
 .lede {
   font-family: var(--font-serif);
   font-size: 14.5px;
   line-height: 1.46;
   color: var(--color-text-secondary);
   margin: 0;
-  padding: 0 var(--s4) var(--s3);
   text-wrap: pretty;
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  /* Belt and braces: line-clamp is the mechanism, this is the hard ceiling if
+     a browser ignores it. 3 lines at 1.46 leading. */
+  max-height: calc(14.5px * 1.46 * 3);
 }
 
 .qual {
