@@ -38,7 +38,7 @@ function parseArgs(argv: string[]) {
     regulars: boolean;
     force: boolean;
     dryRun: boolean;
-    tokenBudget?: number;
+    groundedRequestBudget?: number;
   } = { regulars: true, force: false, dryRun: false };
 
   for (let i = 2; i < argv.length; i++) {
@@ -50,7 +50,7 @@ function parseArgs(argv: string[]) {
     } else if (a === '--regulars') args.regulars = true;
     else if (a === '--force') args.force = true;
     else if (a === '--dry-run') args.dryRun = true;
-    else if (a === '--token-budget') args.tokenBudget = Number(argv[++i]);
+    else if (a === '--grounded-budget') args.groundedRequestBudget = Number(argv[++i]);
   }
   return args;
 }
@@ -87,7 +87,7 @@ async function main() {
     regulars: args.regulars,
     limit: args.limit,
     force: args.force,
-    tokenBudget: args.tokenBudget,
+    groundedRequestBudget: args.groundedRequestBudget,
   });
 
   console.log(JSON.stringify(report, null, 2));

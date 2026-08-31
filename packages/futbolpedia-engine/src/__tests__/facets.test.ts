@@ -221,7 +221,7 @@ describe('the enum gate', () => {
       style: [],
       set_pieces: [],
       confidence: 'high' as const,
-      horizons_touched: ['near', 'long'] as const,
+      horizons_touched: ['near', 'long'] as ('near' | 'long')[],
       evidence_gaps: [],
       generated_at: '2026-08-31T00:00:00.000Z',
       model_id: 'gemini-3.7-flash',

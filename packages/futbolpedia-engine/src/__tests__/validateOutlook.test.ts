@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { assertValidOutlook, validateOutlook } from '../gates/validateOutlook';
-import { buildOutlookSearchQueries } from '../pipeline/queryGen';
+import { buildClubContextQuery, buildOutlookPlayerQueries, buildOutlookSearchQueries } from '../pipeline/queryGen';
 import type { OutlookContextBag, OutlookExtraction, PlayerOutlook } from '../types/outlook';
 
 const SAMPLE_BAG: OutlookContextBag = {
@@ -57,13 +57,30 @@ function makeOutlook(text: string, confidence: 'high' | 'medium' | 'low' = 'high
   };
 }
 
-describe('buildOutlookSearchQueries', () => {
-  it('returns four deterministic queries including coach and PL mobility', () => {
-    const queries = buildOutlookSearchQueries(SAMPLE_BAG);
-    expect(queries).toHaveLength(4);
-    expect(queries.every((q) => q.includes('James Tarkowski') || q.includes('Everton'))).toBe(true);
-    expect(queries.some((q) => q.includes('head coach'))).toBe(true);
+describe('search queries', () => {
+  it('issues two player queries, not four', () => {
+    // Grounded requests are billed per request and dominate the cost of a run.
+    // Availability and transfer news were two queries asking the same corner of
+    // the web about the same player; they are one now.
+    const queries = buildOutlookPlayerQueries(SAMPLE_BAG);
+    expect(queries).toHaveLength(2);
+    expect(queries.every((q) => q.includes('James Tarkowski'))).toBe(true);
     expect(queries.some((q) => q.includes('transfer exit'))).toBe(true);
+    expect(queries.some((q) => q.includes('set pieces'))).toBe(true);
+  });
+
+  it('keeps the head-coach query club-scoped so a batch can share it', () => {
+    // It was identical for every player at a club and ran once per player —
+    // roughly 412 redundant grounded requests on a 432-player run.
+    const clubQuery = buildClubContextQuery(SAMPLE_BAG);
+    expect(clubQuery).toContain('head coach');
+    expect(clubQuery).toContain('Everton');
+    expect(clubQuery).not.toContain('James Tarkowski');
+    expect(buildOutlookPlayerQueries(SAMPLE_BAG).some((q) => q.includes('head coach'))).toBe(false);
+  });
+
+  it('still exposes the combined list for outside callers', () => {
+    expect(buildOutlookSearchQueries(SAMPLE_BAG)).toHaveLength(3);
   });
 });
 

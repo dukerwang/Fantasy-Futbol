@@ -20,6 +20,8 @@ export interface GeneratePlayerOutlookResult {
   skipped: boolean;
   outlook?: string;
   sidecar?: unknown;
+  /** Billable grounded requests issued; absent when served from cache. */
+  groundedRequests?: number;
 }
 
 function requireApiKey(): string {
@@ -54,6 +56,8 @@ export async function generateAndStorePlayerOutlook(
      * per player would re-read the whole season's stats once per outlook.
      */
     facts?: FacetInputs;
+    /** Shared per-run club-context cache; see batch.ts. */
+    clubCache?: Map<string, string>;
   } = {},
 ): Promise<GeneratePlayerOutlookResult> {
   const player = await loadPlayerForOutlook(admin, playerId);
@@ -80,6 +84,7 @@ export async function generateAndStorePlayerOutlook(
     apiKey: requireApiKey(),
     contextBag: bag,
     facts,
+    clubCache: options.clubCache,
   });
   await upsertStoredOutlook(admin, playerId, result, contextHash);
 
@@ -88,5 +93,6 @@ export async function generateAndStorePlayerOutlook(
     skipped: false,
     outlook: result.outlook,
     sidecar: result.sidecar,
+    groundedRequests: result.groundedRequests,
   };
 }

@@ -141,7 +141,9 @@
         </div>
         <div class="pcRead">
           <p class="{{c.readCls}}">{{c.read}}</p>
-          <button class="more" onClick="{{c.toggle}}">{{c.moreLabel}}</button>
+          <sc-if value="{{c.needsToggle}}" hint-placeholder-val="{{true}}">
+            <button class="more" onClick="{{c.toggle}}">{{c.moreLabel}}</button>
+          </sc-if>
         </div>
         <sc-if value="{{c.hasFlag}}" hint-placeholder-val="{{true}}">
           <div class="{{c.flagCls}}"><i></i>{{c.flag}}</div>
@@ -227,7 +229,8 @@ class Component extends DCLogic {
     const cards=this.data()
       .filter(c=>(!s.involvement||c.involvement===s.involvement)&&(!s.minutes||c.minutes===s.minutes)&&(!s.risk||c.risk===s.risk))
       .map(c=>({...c,
-        readCls: s.open[c.name] ? '' : 'clamp',
+        needsToggle: c.read.length > 115,
+        readCls: s.open[c.name] || c.read.length <= 115 ? '' : 'clamp',
         moreLabel: s.open[c.name] ? 'Less' : 'More',
         toggle: () => this.setState({ open: { ...s.open, [c.name]: !s.open[c.name] } }),
         hasFlag:!!c.flag,

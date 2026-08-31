@@ -1,6 +1,12 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { OutlookValidationError } from '@futbolpedia/engine';
 import { generateAndStorePlayerOutlook } from '@/lib/outlook/generate';
+import {
+  checkBudget,
+  getMonthlySpend,
+  monthlyCap,
+  recordSpend,
+} from '@/lib/outlook/budget';
 import { loadFacetInputs } from '@/lib/outlook/facetInputs';
 import { loadRegularPlayerIds } from '@/lib/outlook/population';
 
@@ -12,6 +18,11 @@ export interface BatchOutlookReport {
   failures: Array<{ playerId: string; error: string }>;
   generatedIds: string[];
   skippedIds: string[];
+  /** Billable grounded requests this run issued, and the month's position. */
+  groundedRequests: number;
+  monthlySpend: number;
+  monthlyCap: number;
+  stoppedOnBudget: boolean;
 }
 
 export interface RunOutlookBatchOptions {
@@ -19,7 +30,8 @@ export interface RunOutlookBatchOptions {
   regulars?: boolean;
   limit?: number;
   force?: boolean;
-  tokenBudget?: number;
+  /** Cap for this run alone, on top of the persistent monthly ceiling. */
+  groundedRequestBudget?: number;
 }
 
 export async function runOutlookBatch(
@@ -41,21 +53,40 @@ export async function runOutlookBatch(
     failures: [],
     generatedIds: [],
     skippedIds: [],
+    groundedRequests: 0,
+    monthlySpend: await getMonthlySpend(admin),
+    monthlyCap: monthlyCap(),
+    stoppedOnBudget: false,
   };
 
   // One pass over the season's stats for the whole batch. Per player this was
   // re-reading every player_stats row in the season, once each.
   const { inputs: factsById } = await loadFacetInputs(admin, { playerIds });
 
-  let tokensUsed = 0;
+  // Shared across the run so the club-context query costs one grounded request
+  // per club instead of one per player.
+  const clubCache = new Map<string, string>();
 
   for (const playerId of playerIds) {
-    if (options.tokenBudget && tokensUsed >= options.tokenBudget) {
+    // Three when this player's club has not been searched yet, two after.
+    const estimate = 3;
+
+    if (
+      options.groundedRequestBudget != null &&
+      report.groundedRequests + estimate > options.groundedRequestBudget
+    ) {
+      report.stoppedOnBudget = true;
+      break;
+    }
+
+    const budget = await checkBudget(admin, estimate);
+    if (!budget.allowed) {
+      report.stoppedOnBudget = true;
+      report.monthlySpend = budget.spent;
       report.failures.push({
         playerId,
-        error: 'token budget cap reached — batch paused',
+        error: `monthly grounded-request cap reached (${budget.spent}/${budget.cap}) — batch stopped`,
       });
-      report.failed += 1;
       break;
     }
 
@@ -63,6 +94,7 @@ export async function runOutlookBatch(
       const result = await generateAndStorePlayerOutlook(admin, playerId, {
         force: options.force,
         facts: factsById.get(playerId),
+        clubCache,
       });
       if (result.skipped) {
         report.skipped += 1;
@@ -70,7 +102,11 @@ export async function runOutlookBatch(
       } else {
         report.generated += 1;
         report.generatedIds.push(playerId);
-        tokensUsed += 4; // rough estimate: ~4 Flash calls per outlook
+        // Charge what was actually issued, reported by the engine, rather than
+        // a guess — the club query is free after the first player at that club.
+        const issued = result.groundedRequests ?? estimate;
+        report.groundedRequests += issued;
+        report.monthlySpend = await recordSpend(admin, issued);
       }
     } catch (error: unknown) {
       report.failed += 1;

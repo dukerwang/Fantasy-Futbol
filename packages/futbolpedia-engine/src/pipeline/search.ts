@@ -76,7 +76,7 @@ export async function runParallelSearch(
   ai: GoogleGenAI,
   queries: string[],
   simulationDate: string,
-): Promise<{ foundation: string; sourceCount: number }> {
+): Promise<{ foundation: string; sourceCount: number; groundedRequests: number }> {
   const dateLabel = simulationDate;
   const results = await Promise.all(
     queries.map((q) => runSingleSearch(ai, q, dateLabel)),
@@ -85,5 +85,8 @@ export async function runParallelSearch(
   return {
     foundation: results.map((r) => r.text).join('\n\n---\n\n'),
     sourceCount: results.reduce((sum, r) => sum + r.sourceCount, 0),
+    // One grounded request per query, issued whether or not it found anything.
+    // This is the billable unit, so it is what the budget governor counts.
+    groundedRequests: queries.length,
   };
 }

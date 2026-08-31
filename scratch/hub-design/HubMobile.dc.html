@@ -40,7 +40,8 @@
     .pill{display:inline-flex;align-items:center;gap:6px;background:var(--tintAccent);color:var(--ink);border-radius:999px;padding:5px 11px;font-family:'Archivo Narrow',sans-serif;font-weight:700;font-size:11px;letter-spacing:.07em;text-transform:uppercase}
     .pill i{width:6px;height:6px;border-radius:50%;background:var(--accent)}
 
-    .card{background:var(--card);border-top:1px solid var(--borderSubtle);border-bottom:1px solid var(--borderSubtle);margin-bottom:14px}
+    /* See BrowseMobile: scrolling flex children must not shrink. */
+    .card{flex-shrink:0;background:var(--card);border-top:1px solid var(--borderSubtle);border-bottom:1px solid var(--borderSubtle);margin-bottom:14px}
     .cardAlt{background:var(--cardAlt)}
     .hd{display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:13px 16px 0}
     .hdT{font-family:'Archivo Narrow',sans-serif;font-weight:700;font-size:12px;letter-spacing:.10em;text-transform:uppercase;color:var(--muted)}

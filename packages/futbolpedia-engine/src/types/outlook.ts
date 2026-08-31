@@ -160,6 +160,12 @@ export interface GenerateOutlookOptions {
   /** Optional hook for batch cost tracking. */
   onUsage?: (usage: TokenUsage) => void;
   synthesisTemperature?: SynthesisTemperatureConfig;
+  /**
+   * Club name → cached club-context foundation, shared across a batch so the
+   * head-coach query costs one grounded request per club rather than one per
+   * player. Pass the same Map for every player in a run.
+   */
+  clubCache?: Map<string, string>;
 }
 
 export interface CompareSynthesisTemperaturesOptions {
@@ -184,4 +190,6 @@ export interface TemperatureComparisonRow {
 export interface GenerateOutlookResult extends PlayerOutlook {
   extraction: OutlookExtraction;
   groundingSourceCount: number;
+  /** Billable Google-Search-grounded requests this outlook actually issued. */
+  groundedRequests: number;
 }

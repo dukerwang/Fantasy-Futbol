@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
     regulars?: boolean;
     limit?: number;
     force?: boolean;
-    tokenBudget?: number;
+    groundedRequestBudget?: number;
   } = {};
 
   try {
@@ -43,7 +43,7 @@ export async function POST(req: NextRequest) {
       regulars: body.regulars ?? !body.playerIds?.length,
       limit: body.limit,
       force: body.force,
-      tokenBudget: body.tokenBudget,
+      groundedRequestBudget: body.groundedRequestBudget,
     });
     return NextResponse.json({ ok: true, report });
   } catch (error: unknown) {

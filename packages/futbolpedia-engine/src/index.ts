@@ -4,7 +4,11 @@ import { findUnverifiedManagerMentions } from './gates/managerMentions';
 import { compareSynthesisTemperatures } from './pipeline/compareTemperatures';
 import { generateOutlook } from './pipeline/generateOutlook';
 import { resolveSynthesisTemperature } from './pipeline/synthesisTemperature';
-import { buildOutlookSearchQueries } from './pipeline/queryGen';
+import {
+  buildClubContextQuery,
+  buildOutlookPlayerQueries,
+  buildOutlookSearchQueries,
+} from './pipeline/queryGen';
 import type { GenerateOutlookOptions, GenerateOutlookResult } from './types/outlook';
 
 export { PIPELINE_VERSION, FLASH_MODEL, OUTLOOK_MIN_WORDS, OUTLOOK_MAX_WORDS } from './constants';
@@ -68,6 +72,8 @@ export {
   compareSynthesisTemperatures,
   generateOutlook,
   buildOutlookSearchQueries,
+  buildOutlookPlayerQueries,
+  buildClubContextQuery,
   resolveSynthesisTemperature,
   validateOutlook,
   assertValidOutlook,
