@@ -88,9 +88,7 @@ export default function PlayerHub({
     <div className={styles.root}>
       <div className={styles.topRow}>
         <div className={`g-label ${styles.kicker}`}>
-        {/* The players index is the next slice; until it exists this returns
-            to the stats table, which is the surface players are found on. */}
-          <NavigationLink href={`/league/${leagueId}/stats`}>{leagueName} players</NavigationLink>
+          <NavigationLink href={`/league/${leagueId}/players`}>{leagueName} players</NavigationLink>
         </div>
 
         {availableSeasons.length > 1 && (
