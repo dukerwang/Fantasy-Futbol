@@ -1,19 +1,133 @@
 {
   "pages": [
-    { "id": "page-1", "name": "Players index" },
-    { "id": "page-2", "name": "Player hub" }
+    {
+      "id": "page-1",
+      "name": "Players index"
+    },
+    {
+      "id": "page-2",
+      "name": "Player hub"
+    },
+    {
+      "id": "page-3",
+      "name": "Mobile"
+    }
   ],
   "artboards": [
-    { "file": "Browse.dc.html",   "page": "page-1", "x": 0,    "y": 0,    "w": 1440, "h": 1400, "title": "Cards — default", "is_interactive": true },
-    { "file": "Index.dc.html",    "page": "page-1", "x": 0,    "y": 1540, "w": 1440, "h": 880,  "title": "Table", "is_interactive": true },
-    { "file": "Explorer.dc.html", "page": "page-1", "x": 1580, "y": 0,    "w": 1440, "h": 1000, "title": "Explorer", "is_interactive": true },
-    { "file": "Main.dc.html",     "page": "page-2", "x": 0,    "y": 0,    "w": 1240, "h": 1040, "title": "Player hub — light" },
-    { "file": "HubDark.dc.html",  "page": "page-2", "x": 1360, "y": 0,    "w": 1240, "h": 1040, "title": "Player hub — dark" }
+    {
+      "file": "Browse.dc.html",
+      "page": "page-1",
+      "x": 0,
+      "y": 0,
+      "w": 1440,
+      "h": 1400,
+      "title": "Cards \u2014 default",
+      "is_interactive": true
+    },
+    {
+      "file": "Index.dc.html",
+      "page": "page-1",
+      "x": 0,
+      "y": 1540,
+      "w": 1440,
+      "h": 880,
+      "title": "Table",
+      "is_interactive": true
+    },
+    {
+      "file": "Explorer.dc.html",
+      "page": "page-1",
+      "x": 1580,
+      "y": 0,
+      "w": 1440,
+      "h": 1000,
+      "title": "Explorer",
+      "is_interactive": true
+    },
+    {
+      "file": "Main.dc.html",
+      "page": "page-2",
+      "x": 0,
+      "y": 0,
+      "w": 1240,
+      "h": 1040,
+      "title": "Player hub \u2014 light"
+    },
+    {
+      "file": "HubDark.dc.html",
+      "page": "page-2",
+      "x": 1360,
+      "y": 0,
+      "w": 1240,
+      "h": 1040,
+      "title": "Player hub \u2014 dark"
+    },
+    {
+      "file": "BrowseMobile.dc.html",
+      "page": "page-3",
+      "x": 0,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "Cards \u2014 iPhone",
+      "is_interactive": true
+    },
+    {
+      "file": "HubMobile.dc.html",
+      "page": "page-3",
+      "x": 510,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "Player hub \u2014 iPhone"
+    },
+    {
+      "file": "ExplorerMobile.dc.html",
+      "page": "page-3",
+      "x": 1020,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "Explorer \u2014 iPhone",
+      "is_interactive": true
+    }
   ],
   "annotations": [
-    { "id": "default-note", "page": "page-1", "x": 0, "y": -170, "w": 520, "text": "Three views of one pool, one toggle apart. Cards is the default.\n\nWhat a card carries that a row cannot: the situation. Four of these ten are near-worthless on points alone, but the copy says why — Martinelli is in Al-Hilal talks, Tosin is out of Chelsea's plans, Estêvão is 19 behind a crowded front line." },
-    { "id": "explorer-note", "page": "page-1", "x": 1580, "y": -170, "w": 520, "text": "Explorer: 218 real players, 2025/26, every axis pickable. Defaults to value against PPG, so the top-left quadrant is literally the bargain bin.\n\nClick a point to inspect. Dot size is minutes. Value uses a log scale — the pool runs €0.20m to €220m." },
-    { "id": "two-layer", "page": "page-2", "x": 0, "y": -150, "w": 460, "text": "Two layers, never blended.\n\nFootball layer (serif, prose): who this footballer is. Real-world only — portable back to Futbolpedia.\n\nLeague layer (mono, ledger): what he is worth in your league. Gaffa scoring, never fed to the outlook." }
+    {
+      "id": "default-note",
+      "page": "page-1",
+      "x": 0,
+      "y": -170,
+      "w": 520,
+      "text": "Three views of one pool, one toggle apart. Cards is the default.\n\nWhat a card carries that a row cannot: the situation. Four of these ten are near-worthless on points alone, but the copy says why \u2014 Martinelli is in Al-Hilal talks, Tosin is out of Chelsea's plans, Est\u00eav\u00e3o is 19 behind a crowded front line."
+    },
+    {
+      "id": "explorer-note",
+      "page": "page-1",
+      "x": 1580,
+      "y": -170,
+      "w": 520,
+      "text": "Explorer: 218 real players, 2025/26, every axis pickable. Defaults to value against PPG, so the top-left quadrant is literally the bargain bin.\n\nClick a point to inspect. Dot size is minutes. Value uses a log scale \u2014 the pool runs \u20ac0.20m to \u20ac220m."
+    },
+    {
+      "id": "two-layer",
+      "page": "page-2",
+      "x": 0,
+      "y": -150,
+      "w": 460,
+      "text": "Two layers, never blended.\n\nFootball layer (serif, prose): who this footballer is. Real-world only \u2014 portable back to Futbolpedia.\n\nLeague layer (mono, ledger): what he is worth in your league. Gaffa scoring, never fed to the outlook."
+    },
+    {
+      "id": "mobile-note",
+      "page": "page-3",
+      "x": 0,
+      "y": -260,
+      "w": 540,
+      "text": "Designed for the phone, not reflowed onto it.\n\nChrome is translucent and content scrolls under it; the three stacked filter rows collapse to one scrolling rail plus a Filters button; every control clears a 44px target.\n\nThe Explorer has no hover to fall back on, so a tap selects and a bottom sheet carries the detail \u2014 each dot's touch target is 34px around a 7-13px painted dot, because a dense scatter is otherwise unhittable with a thumb."
+    }
   ],
-  "launch": { "view": "canvas", "page": "page-1" }
+  "launch": {
+    "view": "canvas",
+    "page": "page-3"
+  }
 }

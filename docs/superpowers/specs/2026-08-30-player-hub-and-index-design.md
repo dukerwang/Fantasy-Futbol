@@ -229,7 +229,8 @@ outlook must degrade to identity plus league strip, not render an empty well.
 - **Provisional gameweeks.** The most recent point in any chart may be
   pre-lockdown; it needs marking, or a chart silently re-renders after
   publication.
-- **Both themes.** Cards and Explorer are prototyped light-only. The card
+- **Both themes.** Cards, Explorer and all three mobile screens are prototyped
+  light-only. The card
   situation flags — the red exit band especially — are unverified on navy and
   must be checked before merge.
 - **Tinted grounds take primary ink.** Three highlight states got this wrong in
@@ -239,7 +240,58 @@ outlook must degrade to identity plus league strip, not render an empty well.
 
 ---
 
-## 8. Out of scope
+## 8. Mobile
+
+**Decided 2026-08-30 (Duke):** *"i need everything to also be compatible and
+operational on mobile also, almost like it was designed with mobile too. think
+apple-design."*
+
+Mobile is not a reflow of the desktop layout. Three surfaces need different
+structure, not narrower columns. Prototyped as `*Mobile.dc.html` at 390×844.
+
+**Chrome is a translucent material, not a strip.** `backdrop-filter` blur with
+content scrolling under it, and a scroll-edge gradient where content meets the
+chrome — never a 1px divider. Falls back to a solid surface under
+`prefers-reduced-transparency`.
+
+**The filter bar is rebuilt, not shrunk.** Three stacked pill rows consume ~150px
+of an 844px screen. On mobile they collapse to one horizontally-scrolling rail: a
+Filters button carrying an active count, then the applied filters as dismissible
+chips. The full facet set opens in a sheet.
+
+**Table is the weakest view on a phone** — `min-width: 760px` means horizontal
+scroll no matter what. That is acceptable precisely because it is the alternate;
+it also independently justifies cards as the default.
+
+**Explorer has no hover to fall back on.** Tap selects; a bottom sheet carries
+the detail and the link to the hub. Dot touch targets are 34px around a 7–13px
+painted circle — the paint is decoration, the target is the button. A dense
+scatter is otherwise unhittable with a thumb.
+
+**The hub stacks in reading order**: identity → scouting report → real-world form
+→ league ledger. This settles open question 1 by force — on a phone the league
+rail must become a section, so the desktop version should match rather than
+diverge.
+
+**Non-negotiables**
+
+- 44px minimum on every interactive target.
+- No drawn status bar, keyboard, or home indicator. That space belongs to the OS;
+  painting it reads as doubled up.
+- Type tracking is size-specific: large titles at `-0.035em` and ~1.02 leading,
+  body near `0` at 1.5–1.62. Never one tracking value across the ramp.
+- Spacing in `rem`/`em` so a larger system text size scales the layout with it.
+- `prefers-reduced-motion` replaces springs and slides with short cross-fades.
+
+**Motion is specified but not prototyped.** The artboards are static, so the part
+that decides whether this feels right is implementation work: 1:1 sheet dragging
+that tracks the finger, velocity handoff into a spring on release, momentum
+projection for the snap target, rubber-banding at rail boundaries, and
+interruptible animations that start from the live on-screen value. Default spring
+is critically damped (bounce 0, ~0.3–0.4s); bounce only where a flick preceded
+the motion.
+
+## 9. Out of scope
 
 - Scouting Trends (rolling form charts, fixture difficulty) — its own spec,
   after this ships.
@@ -249,7 +301,7 @@ outlook must degrade to identity plus league strip, not render an empty well.
 
 ---
 
-## 9. Phasing
+## 10. Phasing
 
 The three views are separable and should not land as one change.
 
@@ -262,7 +314,7 @@ The three views are separable and should not land as one change.
    no dependency on the outlook pipeline at all. It could ship before either of
    the others if the regen slips.
 
-## 10. Open questions
+## 11. Open questions
 
 1. **Does the league rail earn a full column on the hub**, or should it compress
    to a strip under the identity band and give the football layer full width?
@@ -276,7 +328,7 @@ The three views are separable and should not land as one change.
 
 ---
 
-## 11. Success criteria
+## 12. Success criteria
 
 - A manager can answer "who should I bid on" without sorting a column.
 - Every surface makes it unambiguous whether a claim is football or league.

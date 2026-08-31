@@ -1,0 +1,165 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><script src="./support.js"></script></head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600;6..72,800&family=Hanken+Grotesk:wght@400;500;600;700&family=Archivo+Narrow:wght@500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap">
+  <style>
+    :root{
+      --bg:#F8F4EC;--card:#FCFAF7;--cardAlt:#F9F6F1;--inset:#E2DFDA;
+      --border:#C2BDB5;--borderSubtle:#D9D5CF;--borderStrong:#8C857A;
+      --ink:#1B1915;--ink2:#49443B;--muted:#635D51;
+      --accent:#0C6D3E;--accentInk:#1F7144;--tintAccent:#E2EDE5;
+    }
+    *,*::before,*::after{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0;background:var(--bg);color:var(--ink);font-family:'Hanken Grotesk',-apple-system,sans-serif;-webkit-font-smoothing:antialiased;overflow:hidden}
+    a{color:var(--accentInk)}a:hover{color:var(--accent)}
+    .screen{height:100%;display:flex;flex-direction:column}
+
+    .nav{position:relative;z-index:3;background:rgba(248,244,236,.82);backdrop-filter:blur(20px) saturate(180%);-webkit-backdrop-filter:blur(20px) saturate(180%);display:flex;align-items:center;gap:6px;padding:12px 12px 10px}
+    .back{min-width:44px;min-height:44px;display:flex;align-items:center;gap:5px;border:0;background:transparent;color:var(--accentInk);font-size:15px;font-weight:600;padding:0 6px}
+    .navName{flex:1;text-align:center;font-family:'Newsreader',Georgia,serif;font-weight:600;font-size:16px;opacity:.0}
+    .navSpacer{min-width:44px}
+
+    .scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:0 0 32px}
+    .quiet{font-family:'Archivo Narrow',sans-serif;font-weight:500;font-size:10px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+
+    /* Identity */
+    .id{padding:2px 16px 16px;display:flex;gap:14px;align-items:flex-start}
+    .portrait{width:82px;height:96px;border-radius:10px;background:linear-gradient(180deg,#EDE9E1,#DED9CF);position:relative;flex-shrink:0;box-shadow:inset 0 0 0 1px rgba(0,0,0,.06)}
+    .portrait b{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Newsreader',Georgia,serif;font-size:28px;font-weight:600;color:#B3ACA0}
+    .crest{position:absolute;right:-5px;bottom:-5px;width:26px;height:26px;border-radius:50%;background:#034694;box-shadow:0 0 0 2px var(--bg);display:flex;align-items:center;justify-content:center;color:#fff;font-size:8px;font-weight:700;font-family:'Archivo Narrow',sans-serif}
+    .idMain{flex:1;min-width:0;display:flex;flex-direction:column;gap:7px}
+    .chips{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+    .posChip{color:#fff;border-radius:4px;padding:3px 7px;font-family:'Archivo Narrow',sans-serif;font-weight:700;font-size:10.5px;letter-spacing:.06em}
+    /* Large name: tight leading, negative tracking */
+    .name{font-family:'Newsreader',Georgia,serif;font-weight:800;font-size:31px;line-height:1.02;letter-spacing:-.035em;margin:0}
+    .meta{font-size:13.5px;color:var(--ink2)}
+    .pill{display:inline-flex;align-items:center;gap:6px;background:var(--tintAccent);color:var(--ink);border-radius:999px;padding:5px 11px;font-family:'Archivo Narrow',sans-serif;font-weight:700;font-size:11px;letter-spacing:.07em;text-transform:uppercase}
+    .pill i{width:6px;height:6px;border-radius:50%;background:var(--accent)}
+
+    .card{background:var(--card);border-top:1px solid var(--borderSubtle);border-bottom:1px solid var(--borderSubtle);margin-bottom:14px}
+    .cardAlt{background:var(--cardAlt)}
+    .hd{display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:13px 16px 0}
+    .hdT{font-family:'Archivo Narrow',sans-serif;font-weight:700;font-size:12px;letter-spacing:.10em;text-transform:uppercase;color:var(--muted)}
+    .hdM{font-family:'Archivo Narrow',sans-serif;font-weight:600;font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+    .rubric{padding:4px 16px 0;font-size:12px;color:var(--muted);font-style:italic}
+    .body{padding:12px 16px 16px}
+
+    .facets{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:13px}
+    .facet{display:inline-flex;align-items:baseline;gap:6px;background:var(--cardAlt);border:1px solid var(--borderSubtle);border-radius:5px;padding:5px 9px}
+    .facet.hi{background:var(--tintAccent);border-color:rgba(12,109,62,.28)}
+    .fk{font-family:'Archivo Narrow',sans-serif;font-weight:600;font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+    .fv{font-weight:600;font-size:12.5px;color:var(--ink)}
+    /* Body copy: comfortable leading, tracking near zero */
+    .outlook{font-family:'Newsreader',Georgia,serif;font-size:16.5px;line-height:1.62;color:var(--ink2);margin:0;text-wrap:pretty}
+    .src{margin-top:13px;padding-top:11px;border-top:1px solid var(--borderSubtle)}
+
+    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--borderSubtle);border:1px solid var(--borderSubtle);border-radius:8px;overflow:hidden}
+    .cell{background:var(--card);padding:11px 12px;display:flex;flex-direction:column;gap:2px}
+    .cv{font-family:'JetBrains Mono',monospace;font-variant-numeric:tabular-nums;font-size:20px;font-weight:500;letter-spacing:-.02em}
+    .cs{font-size:11px;color:var(--muted)}
+    .track{height:9px;border-radius:999px;background:var(--inset);position:relative;margin-top:8px;overflow:hidden}
+    .fill{position:absolute;left:0;top:0;bottom:0;width:99%;background:var(--accent);border-radius:999px}
+    .sp{display:flex;gap:7px;margin-top:14px}
+    .spI{flex:1;background:var(--cardAlt);border:1px solid var(--borderSubtle);border-radius:6px;padding:9px;display:flex;flex-direction:column;gap:3px;align-items:flex-start}
+    .spV{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;color:var(--accentInk)}
+    .spI.off .spV{color:var(--muted);font-weight:400}
+
+    .lrow{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--borderSubtle)}
+    .lrow:last-child{border-bottom:0}
+    .lk{font-family:'Archivo Narrow',sans-serif;font-weight:600;font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+    .lv{font-family:'JetBrains Mono',monospace;font-variant-numeric:tabular-nums;font-size:15px;font-weight:500}
+    .lv.txt{font-family:'Hanken Grotesk',sans-serif;font-size:14px;font-weight:600}
+    .big{display:flex;align-items:baseline;gap:9px;margin-bottom:4px}
+    .bigV{font-family:'JetBrains Mono',monospace;font-size:30px;font-weight:500;letter-spacing:-.02em}
+    .lsep{margin:15px 0 5px;display:flex;align-items:center;gap:9px}
+    .lsep span{font-family:'Archivo Narrow',sans-serif;font-weight:700;font-size:10px;letter-spacing:.10em;text-transform:uppercase;color:var(--muted);white-space:nowrap}
+    .lsep i{flex:1;height:1px;background:var(--border)}
+    .note{font-size:11.5px;line-height:1.5;color:var(--muted);margin:14px 0 0;font-style:italic}
+  </style>
+</helmet>
+
+<div class="screen">
+  <div class="nav">
+    <button class="back">‹ Players</button>
+    <div class="navName">Cole Palmer</div>
+    <span class="navSpacer"></span>
+  </div>
+
+  <div class="scroll">
+    <div class="id">
+      <div class="portrait"><b>CP</b><div class="crest">CHE</div></div>
+      <div class="idMain">
+        <div class="chips">
+          <span class="posChip" style="background:#A34E71">AM</span>
+          <span class="posChip" style="background:#00866F">RW</span>
+          <span class="posChip" style="background:#915397">CM</span>
+        </div>
+        <h1 class="name">Cole Palmer</h1>
+        <div class="meta">Chelsea · 24 · England</div>
+        <span class="pill"><i></i>Available</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="hd"><span class="hdT">Scouting report</span><span class="hdM">Futbolpedia · 27 Aug</span></div>
+      <div class="rubric">what kind of footballer he is</div>
+      <div class="body">
+        <div class="facets">
+          <span class="facet hi"><span class="fk">Involvement</span><span class="fv">Primary outlet</span></span>
+          <span class="facet hi"><span class="fk">Minutes</span><span class="fv">Nailed</span></span>
+          <span class="facet"><span class="fk">Phase</span><span class="fv">Peak</span></span>
+          <span class="facet"><span class="fk">Mobility</span><span class="fv">Stable</span></span>
+        </div>
+        <p class="outlook">Operating at the center of Chelsea’s tactical setup under Xabi Alonso, Palmer remains the side's primary attacking hub and undisputed dead-ball specialist, retaining first-choice penalty and direct free-kick duties. Deployed as an advanced playmaker who drifts between the half-spaces and the right flank, his creative output and scoring involvement provide an exceptionally high weekly floor. While routine workload management in domestic cups may occur to protect his durability following minor knocks last season, the 24-year-old enters his peak years as a premier multi-year cornerstone, locked into Stamford Bridge on a long-term deal that secures elite long-term stability.</p>
+        <div class="src"><span class="quiet">Confidence: high · no unresolved evidence gaps</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="hd"><span class="hdT">Real-world form</span><span class="hdM">2025/26 · 34 apps</span></div>
+      <div class="rubric">Premier League output, not league scoring</div>
+      <div class="body">
+        <div class="grid2">
+          <div class="cell"><div class="cv">1,954</div><div class="quiet">Minutes</div><div class="cs">21 starts of 34</div></div>
+          <div class="cell"><div class="cv">0.60</div><div class="quiet">xGI per 90</div><div class="cs">goals + assists expected</div></div>
+          <div class="cell"><div class="cv">10</div><div class="quiet">Goals</div><div class="cs">10.55 xG</div></div>
+          <div class="cell"><div class="cv">2</div><div class="quiet">Assists</div><div class="cs">2.49 xA</div></div>
+        </div>
+        <div style="margin-top:16px">
+          <div style="display:flex;align-items:baseline;justify-content:space-between">
+            <span class="quiet">xGI / 90 among midfielders</span>
+            <span style="font-size:12.5px;color:var(--accentInk);font-weight:600">99th pct</span>
+          </div>
+          <div class="track"><div class="fill"></div></div>
+        </div>
+        <div class="sp">
+          <div class="spI"><span class="quiet">Penalties</span><span class="spV">1st</span></div>
+          <div class="spI"><span class="quiet">Free kicks</span><span class="spV">3rd</span></div>
+          <div class="spI off"><span class="quiet">Corners</span><span class="spV">—</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card cardAlt">
+      <div class="hd"><span class="hdT">In your league</span><span class="hdM">Gaffa scoring</span></div>
+      <div class="rubric">what he is worth in Matchday Militia</div>
+      <div class="body">
+        <div class="big"><span class="bigV">62.27</span><span class="quiet">points · 2026/27</span></div>
+        <div class="lrow"><span class="lk">Per game</span><span class="lv">31.14</span></div>
+        <div class="lrow"><span class="lk">Avg rating</span><span class="lv">7.84</span></div>
+        <div class="lrow"><span class="lk">Output profile</span><span class="lv txt">High floor</span></div>
+        <div class="lsep"><span>Ownership</span><i></i></div>
+        <div class="lrow"><span class="lk">Manager</span><span class="lv txt">Hackney Marshals</span></div>
+        <div class="lrow"><span class="lk">Acquired</span><span class="lv txt">Draft · R1 P3</span></div>
+        <p class="note">League figures never feed the scouting report above.</p>
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+</body>
+</html>

@@ -144,6 +144,10 @@ sections.
 > default, maybe like ppg x market value or something. it would be like an
 > actual graph stats feature that feels interactive and real data-ey."
 
+**Mobile is a first-class target, not a reflow.**
+> "i need everything to also be compatible and operational on mobile also,
+> almost like it was designed with mobile too. think apple-design."
+
 Full design: `docs/superpowers/specs/2026-08-30-player-hub-and-index-design.md`.
 
 ---
