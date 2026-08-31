@@ -18,7 +18,7 @@ export {
   computeMinutesRole,
   computeRiskFlags,
   computeSetPieces,
-  resolveStartShare,
+  resolveRoleShare,
 } from './facets/compute';
 
 export type {

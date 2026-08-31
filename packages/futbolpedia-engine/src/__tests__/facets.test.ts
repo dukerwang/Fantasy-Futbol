@@ -5,7 +5,7 @@ import {
   computeFacets,
   computeMinutesRole,
   computeSetPieces,
-  resolveStartShare,
+  resolveRoleShare,
 } from '../facets/compute';
 import type { FacetInputs } from '../facets/types';
 
@@ -32,11 +32,18 @@ describe('minutes_role', () => {
     expect(role).toBe('nailed');
   });
 
-  it('does not call a half-season starter nailed', () => {
-    // Palmer 2025-26: 21 starts of 38 — a first-choice player who missed time,
-    // which is materially different from one who plays every week.
-    const role = computeMinutesRole(inputs({ prior: { starts: 21, appearances: 34, team_matches: 38 } }));
-    expect(role).toBe('likely_starter');
+  it('reads a first-choice player who missed time as nailed', () => {
+    // Palmer 2025-26: 26 appearances, 21 of them starts — 81% when available,
+    // but only 12 of the club's 38 matches missed entirely. Dividing by all 38
+    // called him a likely starter, which confused fitness with role.
+    const role = computeMinutesRole(inputs({ prior: { starts: 21, appearances: 26, team_matches: 38 } }));
+    expect(role).toBe('nailed');
+  });
+
+  it('will not promote a high start rate off a handful of appearances', () => {
+    // Started every one of five appearances, but five of 38 is not a role.
+    const role = computeMinutesRole(inputs({ prior: { starts: 5, appearances: 5, team_matches: 38 } }));
+    expect(role).toBe('rotation_risk');
   });
 
   it('treats an absent sample as fringe, not nailed', () => {
@@ -48,7 +55,7 @@ describe('minutes_role', () => {
 
 describe('early-season blending', () => {
   it('barely moves off the prior season after one match', () => {
-    const share = resolveStartShare(
+    const share = resolveRoleShare(
       inputs({
         current: { starts: 0, appearances: 1, team_matches: 1 },
         prior: { starts: 36, appearances: 37, team_matches: 38 },
@@ -59,7 +66,7 @@ describe('early-season blending', () => {
   });
 
   it('ignores the prior season once the current one can speak for itself', () => {
-    const share = resolveStartShare(
+    const share = resolveRoleShare(
       inputs({
         current: { starts: 0, appearances: 6, team_matches: 6 },
         prior: { starts: 38, appearances: 38, team_matches: 38 },
@@ -69,7 +76,7 @@ describe('early-season blending', () => {
   });
 
   it('weights proportionally in between', () => {
-    const share = resolveStartShare(
+    const share = resolveRoleShare(
       inputs({
         current: { starts: 0, appearances: 3, team_matches: 3 },
         prior: { starts: 38, appearances: 38, team_matches: 38 },
@@ -90,25 +97,21 @@ describe('career_phase', () => {
 
   it('does flag a veteran who has lost his place', () => {
     const phase = computeCareerPhase(
-      inputs({ age: 34, prior: { starts: 6, appearances: 14, team_matches: 38 } }),
+      inputs({ age: 35, prior: { starts: 6, appearances: 14, team_matches: 38 } }),
     );
     expect(phase).toBe('decline_risk');
   });
 
-  it('calls a young regular starter peak, not emerging', () => {
-    // Palmer at 24: 21 starts of 38, a first-choice player who missed time.
-    // Requiring an ever-present record here read him as still arriving.
-    const phase = computeCareerPhase(
-      inputs({ age: 24, prior: { starts: 21, appearances: 34, team_matches: 38 } }),
-    );
-    expect(phase).toBe('peak');
+  it('bands by position — a 25-year-old centre-back is still emerging', () => {
+    // Saliba. A CB at 25 has his best years ahead; flat bands called this peak.
+    expect(computeCareerPhase(inputs({ age: 25, primary_position: 'CB' }))).toBe('emerging');
+    // A winger at 25 is in his peak on the same bands.
+    expect(computeCareerPhase(inputs({ age: 25, primary_position: 'RW' }))).toBe('peak');
   });
 
-  it('still calls a young squad player emerging', () => {
-    const phase = computeCareerPhase(
-      inputs({ age: 23, prior: { starts: 5, appearances: 18, team_matches: 38 } }),
-    );
-    expect(phase).toBe('emerging');
+  it('lets goalkeepers run latest of all', () => {
+    expect(computeCareerPhase(inputs({ age: 32, primary_position: 'GK' }))).toBe('peak');
+    expect(computeCareerPhase(inputs({ age: 32, primary_position: 'RW' }))).toBe('plateau');
   });
 
   it('calls a teenager emerging regardless of minutes', () => {
@@ -154,7 +157,7 @@ describe('computeFacets', () => {
     );
     expect(f.minutes_role).toBe('nailed');
     expect(f.attacking_involvement).toBe('primary_outlet');
-    expect(f.career_phase).toBe('peak');
+    expect(f.career_phase).toBe('emerging');
     expect(f.dynasty_value).toBe('cornerstone');
     expect(f.set_pieces).toEqual(['penalties']);
     expect(f.risk_flags).toEqual([]);
@@ -176,7 +179,8 @@ describe('computeFacets', () => {
     // Tarkowski: career_phase already ruled this plateau rather than
     // decline_risk, and dynasty_value must not overrule it on age alone.
     const f = computeFacets(
-      inputs({ age: 33, xgi_percentile: 0.6, prior: { starts: 37, appearances: 37, team_matches: 38 } }),
+      inputs({ age: 33, primary_position: 'CB', xgi_percentile: 0.6,
+               prior: { starts: 37, appearances: 37, team_matches: 38 } }),
     );
     expect(f.career_phase).toBe('plateau');
     expect(f.dynasty_value).toBe('win_now');
@@ -184,14 +188,36 @@ describe('computeFacets', () => {
 
   it('does call a veteran who lost his place a declining asset', () => {
     const f = computeFacets(
-      inputs({ age: 34, prior: { starts: 5, appearances: 12, team_matches: 38 } }),
+      inputs({ age: 36, prior: { starts: 5, appearances: 12, team_matches: 38 } }),
     );
     expect(f.dynasty_value).toBe('declining_asset');
   });
 
+  it('never ranks a defender or keeper on attacking output', () => {
+    // Saliba read "limited" on xGI. Defensive volume does not rescue it either
+    // — he is 34th percentile among defenders there, below Dunk. No free
+    // metric ranks defender quality, so this facet refuses to pretend.
+    for (const pos of ['CB', 'LB', 'RWB', 'GK'] as const) {
+      const f = computeFacets(inputs({ primary_position: pos, xgi_percentile: 0.05 }));
+      expect(f.attacking_involvement).toBe('not_applicable');
+    }
+    expect(computeFacets(inputs({ primary_position: 'ST', xgi_percentile: 0.05 })).attacking_involvement)
+      .toBe('peripheral');
+  });
+
+  it('still calls an ever-present defender a cornerstone', () => {
+    // He has no attacking ranking by design; that must not cost him the facet.
+    const f = computeFacets(
+      inputs({ age: 25, primary_position: 'CB',
+               prior: { starts: 28, appearances: 31, team_matches: 38 } }),
+    );
+    expect(f.attacking_involvement).toBe('not_applicable');
+    expect(f.dynasty_value).toBe('cornerstone');
+  });
+
   it('flags a contested starter', () => {
     const f = computeFacets(
-      inputs({ age: 27, prior: { starts: 20, appearances: 30, team_matches: 38 } }),
+      inputs({ age: 27, prior: { starts: 18, appearances: 30, team_matches: 38 } }),
     );
     expect(f.risk_flags).toContain('minutes_competition');
   });
