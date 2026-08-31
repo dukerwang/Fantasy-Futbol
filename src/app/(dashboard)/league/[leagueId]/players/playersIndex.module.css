@@ -235,7 +235,13 @@
   min-height: 78px;
   justify-content: center;
 }
-.cardChips { flex-wrap: wrap; }
+.cardChips {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  min-width: 0;
+  flex-wrap: wrap;
+}
 
 .cardName {
   font-family: var(--font-serif);

@@ -274,7 +274,10 @@ export default function PlayersIndex({
                   photoVersion={p.photo_version}
                 />
                 <div className={styles.cardId}>
-                  <div className={`g-namerow ${styles.cardChips}`}>
+                  {/* NOT g-namerow: that lifts .g-poschip 2.25px for optical
+                      alignment beside a NAME. There is no name in this row, so
+                      the lift only desynced the badge from the quality chip. */}
+                  <div className={styles.cardChips}>
                     <PositionBadge position={pos} size="sm" />
                     {s && !s.fromFallback && (
                       <span className={`${styles.qual} ${styles[`q_${s.quality}`]}`}>

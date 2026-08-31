@@ -12,6 +12,7 @@ import type { OutlookCareerPhase } from '@futbolpedia/engine';
 import { computeFallbackFacets } from '@futbolpedia/engine';
 import { loadSeasonLeaderboard } from '@/lib/stats/seasonStats';
 import { loadFacetInputs } from '@/lib/outlook/facetInputs';
+import { getPlayerDisplayName } from '@/lib/players/displayName';
 import { fetchAllPages } from '@/lib/supabase/pagination';
 
 /**
@@ -171,13 +172,19 @@ export async function loadExplorerRows(
       id: string;
       web_name: string | null;
       name: string;
+      full_name: string | null;
+      sofifa_common_name: string | null;
       primary_position: string;
       market_value: number | null;
       date_of_birth: string | null;
     }>((from, to) =>
       admin
         .from('players')
-        .select('id, web_name, name, primary_position, market_value, date_of_birth')
+        // getPlayerDisplayName needs all four name columns — handing it only
+        // web_name and name produced bare surnames and raw feed spellings.
+        .select(
+          'id, web_name, name, full_name, sofifa_common_name, primary_position, market_value, date_of_birth',
+        )
         .eq('is_active', true)
         .range(from, to),
     ),
@@ -232,7 +239,7 @@ export async function loadExplorerRows(
 
     rows.push({
       id: p.id,
-      name: p.web_name ?? p.name,
+      name: getPlayerDisplayName(p, 'full'),
       pos: p.primary_position,
       points: Math.round(a.points * 10) / 10,
       ppg: a.games > 0 ? Math.round((a.points / a.games) * 10) / 10 : 0,

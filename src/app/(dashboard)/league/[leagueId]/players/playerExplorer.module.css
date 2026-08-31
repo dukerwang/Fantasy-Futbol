@@ -137,17 +137,35 @@
 .quadTL { left: 8px; top: 8px; }
 .quadTR { right: 8px; top: 8px; text-align: right; }
 
-/* The painted circle is the ::after; the button is the touch target. A dense
-   scatter is otherwise unhittable with a thumb. */
+/* The painted circle is the ::after; the button is the hit target.
+   ROUND, not square: hit-testing respects border-radius, and square targets on
+   a ~300-point scatter overlap so heavily that a neighbour's invisible corner
+   swallows the click meant for the dot underneath it.
+   Sized to the dot plus a small halo for a mouse, and grown for a thumb only
+   where there is a thumb. */
 .dot {
   position: absolute;
-  width: 34px;
-  height: 34px;
+  width: calc(var(--d, 9px) + 12px);
+  height: calc(var(--d, 9px) + 12px);
+  border-radius: 50%;
   transform: translate(-50%, 50%);
   border: 0;
   background: transparent;
   padding: 0;
   cursor: pointer;
+}
+
+/* Whichever dot the pointer is on comes forward, so an overlapped point is
+   still selectable rather than permanently behind its neighbour. */
+.dot:hover,
+.dot:focus-visible,
+.dotSel { z-index: 2; }
+
+@media (pointer: coarse) {
+  .dot {
+    width: 34px;
+    height: 34px;
+  }
 }
 
 .dot::after {

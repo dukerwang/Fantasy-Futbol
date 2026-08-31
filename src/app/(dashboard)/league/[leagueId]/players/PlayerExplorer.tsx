@@ -110,13 +110,17 @@ export default function PlayerExplorer({
 
     return {
       visible,
-      points: visible.map((r) => ({
-        row: r,
-        left: px(project(mx, Number(r[mx.key]))),
-        bottom: py(project(my, Number(r[my.key]))),
-        size: 7 + ((r.minutes - minMins) / (maxMins - minMins || 1)) * 6,
-        colour: POS_COLOR[r.pos as GranularPosition] ?? 'var(--color-text-muted)',
-      })),
+      // Descending by size, so the smallest paint LAST and sit on top. A small
+      // dot rendered under a large one is otherwise unclickable.
+      points: visible
+        .map((r) => ({
+          row: r,
+          left: px(project(mx, Number(r[mx.key]))),
+          bottom: py(project(my, Number(r[my.key]))),
+          size: 7 + ((r.minutes - minMins) / (maxMins - minMins || 1)) * 6,
+          colour: POS_COLOR[r.pos as GranularPosition] ?? 'var(--color-text-muted)',
+        }))
+        .sort((a, b) => b.size - a.size),
       medianX: px(project(mx, median(visible.map((r) => Number(r[mx.key]))))),
       medianY: py(project(my, median(visible.map((r) => Number(r[my.key]))))),
       medianXValue: median(visible.map((r) => Number(r[mx.key]))),

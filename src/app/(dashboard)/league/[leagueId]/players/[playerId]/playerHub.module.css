@@ -33,7 +33,13 @@
   gap: var(--s2);
 }
 
-.badgeRow { flex-wrap: wrap; }
+.badgeRow {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  min-width: 0;
+  flex-wrap: wrap;
+}
 
 .name {
   font-family: var(--font-serif);

@@ -120,7 +120,9 @@ export default function PlayerHub({
         />
 
         <div className={styles.identityMain}>
-          <div className={`g-namerow ${styles.badgeRow}`}>
+          {/* See PlayersIndex: g-namerow's chip lift is for a chip beside a
+              name, and this row is badges only. */}
+          <div className={styles.badgeRow}>
             <PositionBadge position={player.primary_position as GranularPosition} />
             {secondary.map((pos) => (
               <PositionBadge key={pos} position={pos} size="sm" />
