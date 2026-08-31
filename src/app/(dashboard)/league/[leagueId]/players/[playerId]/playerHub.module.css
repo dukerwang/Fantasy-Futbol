@@ -1,0 +1,373 @@
+/**
+ * Player hub — ported from the approved prototype (scratch/hub-design/Main.dc.html).
+ *
+ * The two layers are separated by typographic register, not decoration: the
+ * football layer is serif prose on the card surface, the league layer is
+ * condensed labels over mono figures on a recessed ground. Both themes come
+ * from the tokens; nothing here hardcodes a colour.
+ */
+
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s4);
+  padding: var(--s6) var(--s6) var(--s10);
+}
+
+.kicker { margin-bottom: calc(var(--s1) * -1); }
+
+/* --- identity --- */
+.identity {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s5);
+  padding-bottom: var(--s4);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.identityMain {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s2);
+}
+
+.badgeRow { flex-wrap: wrap; }
+
+.name {
+  font-family: var(--font-serif);
+  font-weight: 800;
+  font-size: var(--t-40, 2.5rem);
+  line-height: 1;
+  /* Negative tracking as display type grows; body copy stays near zero. */
+  letter-spacing: -0.035em;
+  margin: var(--s1) 0 0;
+  color: var(--color-text-primary);
+}
+
+.metaRow {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+.dot {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--color-border-strong);
+  flex-shrink: 0;
+}
+
+.identitySide {
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-top: var(--s1);
+  flex-shrink: 0;
+}
+
+.sideValue {
+  font-family: var(--font-serif);
+  font-size: var(--text-lg);
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.sideGap { margin-top: var(--s2); }
+
+.mono {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Quality is the headline judgment and the only tier colour on the page. */
+.quality {
+  font-family: var(--font-condensed);
+  font-weight: 700;
+  font-size: var(--t-10);
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  padding: 4px 9px;
+  border-radius: var(--radius-full);
+  white-space: nowrap;
+}
+
+/* A tinted ground takes PRIMARY ink, never the tint's own hue. */
+.q_elite {
+  background: var(--color-tint-accent);
+  color: var(--color-text-primary);
+  box-shadow: inset 0 0 0 1px var(--color-border-accent);
+}
+.q_high {
+  background: var(--color-bg-inset);
+  color: var(--color-text-primary);
+}
+.q_solid {
+  background: var(--color-bg-card-alt);
+  color: var(--color-text-muted);
+  box-shadow: inset 0 0 0 1px var(--color-border-subtle);
+}
+.q_squad {
+  background: transparent;
+  color: var(--color-text-muted);
+  box-shadow: inset 0 0 0 1px var(--color-border-subtle);
+}
+
+/* --- layout --- */
+.columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 366px;
+  gap: var(--s4);
+  align-items: start;
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s4);
+  min-width: 0;
+}
+
+.rubric {
+  font-size: var(--t-12);
+  color: var(--color-text-muted);
+  font-style: italic;
+}
+
+.headMeta {
+  margin-left: auto;
+  font-family: var(--font-condensed);
+  font-weight: 600;
+  font-size: var(--t-11);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+.panelBody { padding: var(--s4) var(--s5) var(--s5); }
+
+/* --- scouting report --- */
+.facets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s1);
+  margin-bottom: var(--s4);
+}
+
+.facet {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  background: var(--color-bg-card-alt);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 5px 9px;
+}
+
+.facetLead {
+  background: var(--color-tint-accent);
+  border-color: var(--color-border-accent);
+}
+
+.facetKey { font-size: 9.5px; }
+
+.facetValue {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 12.5px;
+  color: var(--color-text-primary);
+}
+
+.outlook {
+  font-family: var(--font-serif);
+  font-size: 17.5px;
+  /* Looser leading for reading copy; the display type above is tight. */
+  line-height: 1.62;
+  color: var(--color-text-secondary);
+  margin: 0;
+  text-wrap: pretty;
+}
+
+.source {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s3);
+  flex-wrap: wrap;
+  margin-top: var(--s4);
+  padding-top: var(--s3);
+  border-top: 1px solid var(--color-border-subtle);
+}
+
+.empty {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  font-style: italic;
+}
+
+/* --- real-world form --- */
+.statGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1px;
+  background: var(--color-border-subtle);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.statCell {
+  background: var(--color-bg-card);
+  padding: var(--s3);
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.statValue {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--text-xl);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  color: var(--color-text-primary);
+}
+
+.statSub {
+  font-size: var(--t-11);
+  color: var(--color-text-muted);
+}
+
+.percentile { margin-top: var(--s4); }
+
+.percentileHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s2);
+  margin-bottom: var(--s2);
+}
+
+.percentileValue {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--color-accent-ink);
+}
+
+.percentile :global(.g-track) { height: 8px; }
+
+.percentile :global(.g-track) i {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  background: var(--color-accent);
+  border-radius: var(--r-micro);
+}
+
+.note {
+  font-size: var(--t-12);
+  line-height: 1.5;
+  color: var(--color-text-muted);
+  font-style: italic;
+  margin: var(--s4) 0 0;
+}
+
+/* --- league ledger --- */
+.ledger { background: var(--color-bg-card-alt); }
+
+.rubricBlock {
+  font-size: var(--t-12);
+  color: var(--color-text-muted);
+  font-style: italic;
+  margin: 0 0 var(--s4);
+}
+
+.bigStat {
+  display: flex;
+  align-items: baseline;
+  gap: var(--s2);
+  margin-bottom: var(--s1);
+}
+
+.bigStatValue {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--text-3xl);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  color: var(--color-text-primary);
+}
+
+.ledgerRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s3);
+  padding: 9px 0;
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.ledgerRow:last-of-type { border-bottom: 0; }
+
+.ledgerRow .mono,
+.ledgerRow > span:last-child {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--color-text-primary);
+}
+
+.ledgerText {
+  font-family: var(--font-sans) !important;
+  font-size: 13.5px !important;
+  font-weight: 600;
+}
+
+.separator {
+  margin: var(--s4) 0 var(--s1);
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+}
+
+.separator i {
+  flex: 1;
+  height: 1px;
+  background: var(--color-border);
+}
+
+/* --- mobile: one column, reading order --- */
+@media (max-width: 900px) {
+  .root { padding: var(--s4) var(--s4) var(--s8); }
+
+  .columns { grid-template-columns: minmax(0, 1fr); }
+
+  /* On a phone the league rail has to become a section, so the desktop
+     version follows rather than diverging. */
+  .identity {
+    flex-wrap: wrap;
+    gap: var(--s4);
+  }
+
+  .identitySide {
+    text-align: left;
+    flex-basis: 100%;
+    padding-top: 0;
+  }
+
+  .name { font-size: var(--text-3xl); }
+
+  .statGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+  .outlook { font-size: 16.5px; }
+}

@@ -73,6 +73,13 @@
     .flagExit{background:var(--tintDanger);color:var(--ink)}.flagExit i{background:var(--live)}
     .flagDoubt{background:var(--tintWarn);color:var(--ink)}.flagDoubt i{background:var(--warnText)}
     .pcTags{display:flex;flex-wrap:wrap;gap:5px;padding:0 14px 11px}
+    /* Quality is the headline judgment, so it gets the only tier colour on the
+       card. Judged by Futbolpedia, never derived from league scoring. */
+    .qual{font-family:'Archivo Narrow',sans-serif;font-weight:700;font-size:10px;letter-spacing:.09em;text-transform:uppercase;padding:3px 8px;border-radius:999px;white-space:nowrap}
+    .qElite{background:var(--tintAccent);color:var(--ink);box-shadow:inset 0 0 0 1px rgba(12,109,62,.34)}
+    .qHigh{background:var(--inset);color:var(--ink)}
+    .qSolid{background:var(--cardAlt);color:var(--muted);box-shadow:inset 0 0 0 1px var(--borderSubtle)}
+    .qSquad{background:transparent;color:var(--muted);box-shadow:inset 0 0 0 1px var(--borderSubtle)}
     .tag{font-family:'Archivo Narrow',sans-serif;font-weight:600;font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;padding:4px 8px;border-radius:4px;background:var(--inset);color:var(--muted)}
     .pcFoot{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-top:1px solid var(--borderSubtle);background:var(--cardAlt)}
     .fstat{display:flex;flex-direction:column;gap:2px}
@@ -116,6 +123,7 @@
             <div class="pcChips">
               <span class="posChip" style="background: {{c.posColor}}">{{c.pos}}</span>
               <span class="quiet">{{c.age}}</span>
+              <span class="{{c.qualCls}}">{{c.quality}}</span>
             </div>
             <div class="pcName">{{c.name}}</div>
             <div class="pcMeta">{{c.club}}</div>
@@ -147,28 +155,51 @@
 class Component extends DCLogic {
   constructor(p){ super(p); this.state={minutes:null,risk:null,open:{}}; }
   data(){
-    const CHE={c:'CHE',col:'#034694'},ARS={c:'ARS',col:'#DB0007'};
+    const ARS={c:'ARS',col:'#DB0007'}, AVL={c:'AVL',col:'#670E36'}, CHE={c:'CHE',col:'#034694'};
+    // Every value below is a real stored row: sidecar judgments from
+    // Futbolpedia, points and rating from Gaffa's engine, value from
+    // Transfermarkt. Nothing here is invented.
     return [
-      {name:'Martinelli',initials:'GM',pos:'LW',posColor:'#00866F',club:'Arsenal',crest:ARS.c,crestColor:ARS.col,age:'25',
-       read:'Fully fit, but omitted from Arteta’s matchday squads amid advanced negotiations over a move to Al-Hilal.',
-       tag1:'Direct winger',tag2:'Peak age',pts:'—',rating:'—',value:'€45.0m',owner:'Vale Road FC',
-       minutes:'fringe',risk:'exit',flag:'Exit risk — Al-Hilal talks advanced',flagKind:'exit'},
-      {name:'Palmer',initials:'CP',pos:'AM',posColor:'#A34E71',club:'Chelsea',crest:CHE.c,crestColor:CHE.col,age:'24',
-       read:'An advanced playmaker drifting between the half-spaces — an exceptionally high weekly floor.',
-       tag1:'Talisman',tag2:'Set-piece specialist',pts:'62.3',rating:'8.63',value:'€100.0m',owner:'Hackney Marshals',
+      {name:'Saliba',initials:'WS',pos:'CB',posColor:'#0076B2',club:'Arsenal',crest:ARS.c,crestColor:ARS.col,age:'25',
+       quality:'elite',read:'Committed his long-term future to Arsenal through 2030, extinguishing outside transfer interest. Back surgery keeps him sidelined indefinitely for the opening stretch.',
+       tag1:'Nailed',tag2:'Ball-playing CB',pts:'0.0',rating:'—',value:'€100.0m',owner:'Hackney Marshals',
+       minutes:'nailed',risk:'doubt',flag:'Out — back surgery, no return date',flagKind:'doubt'},
+      {name:'Saka',initials:'BS',pos:'RW',posColor:'#00866F',club:'Arsenal',crest:ARS.c,crestColor:ARS.col,age:'24',
+       quality:'elite',read:'Holds an unshakeable grip on the right flank. Undisputed penalty taker, pairing high-volume chance creation with dangerous set-piece delivery.',
+       tag1:'Nailed',tag2:'Penalties · FK · Corners',pts:'29.8',rating:'4.30',value:'€110.0m',owner:'Free agent',
        minutes:'nailed',risk:null},
-      {name:'Palestra',initials:'MP',pos:'RB',posColor:'#5667B9',club:'Chelsea',crest:CHE.c,crestColor:CHE.col,age:'21',
-       read:'A minor training muscle setback has delayed his start and leaves immediate availability doubtful.',
-       tag1:'Emerging talent',tag2:'Athletic profile',pts:'—',rating:'—',value:'€35.0m',owner:'Free agent',
-       minutes:'rotation_risk',risk:'doubt',flag:'Doubtful — muscle setback',flagKind:'doubt'},
-      {name:'João Pedro',initials:'JP',pos:'ST',posColor:'#AD4C42',club:'Chelsea',crest:CHE.c,crestColor:CHE.col,age:'24',
-       read:'Chelsea’s undisputed focal point, established at the very top of the frontline hierarchy.',
-       tag1:'Undisputed starter',tag2:'Penalty specialist',pts:'69.2',rating:'8.88',value:'€80.0m',owner:'Free agent',
+      {name:'Rice',initials:'DR',pos:'DM',posColor:'#7B56B9',club:'Arsenal',crest:ARS.c,crestColor:ARS.col,age:'27',
+       quality:'elite',read:'Commands an unshakeable starting role, preventing any rotational challenger from eating into his volume of minutes. Primary corner and wide set-piece deliverer.',
+       tag1:'Nailed',tag2:'FK · Corners',pts:'3.3',rating:'3.23',value:'€120.0m',owner:'Vale Road FC',
        minutes:'nailed',risk:null},
-      {name:'Estêvão',initials:'EW',pos:'RW',posColor:'#00866F',club:'Chelsea',crest:CHE.c,crestColor:CHE.col,age:'19',
-       read:'At 19, usage leans toward explosive substitute appearances amid a crowded attacking stable.',
-       tag1:'Emerging talent',tag2:'High upside',pts:'0.9',rating:'3.06',value:'€80.0m',owner:'Vale Road FC',
-       minutes:'rotation_risk',risk:null}
+      {name:'Raya',initials:'DR',pos:'GK',posColor:'#926500',club:'Arsenal',crest:ARS.c,crestColor:ARS.col,age:'30',
+       quality:'elite',read:'Dominant box control and press-resistant distribution rather than high-volume shot-stopping. Enables a suffocating high defensive line.',
+       tag1:'Nailed',tag2:'Sweeper keeper',pts:'16.1',rating:'3.95',value:'€30.0m',owner:'Free agent',
+       minutes:'nailed',risk:null},
+      {name:'Calafiori',initials:'RC',pos:'LB',posColor:'#5667B9',club:'Arsenal',crest:ARS.c,crestColor:ARS.col,age:'24',
+       quality:'high',read:'First-choice inverted full-back, stepping into central midfield during build-up. Expect regular 65-to-80-minute substitutions to manage his workload.',
+       tag1:'Likely starter',tag2:'Inverted fullback',pts:'21.2',rating:'4.02',value:'€55.0m',owner:'Hackney Marshals',
+       minutes:'likely_starter',risk:null},
+      {name:'Lewis-Skelly',initials:'ML',pos:'LB',posColor:'#5667B9',club:'Arsenal',crest:ARS.c,crestColor:ARS.col,age:'19',
+       quality:'high',read:'Navigates stiff competition, yet Arteta turns to the nineteen-year-old for tactical starts. Rotational today, foundational later.',
+       tag1:'Rotation risk',tag2:'Press resistant',pts:'12.7',rating:'3.70',value:'€45.0m',owner:'Free agent',
+       minutes:'rotation_risk',risk:null},
+      {name:'Enzo',initials:'EF',pos:'CM',posColor:'#915397',club:'Chelsea',crest:CHE.c,crestColor:CHE.col,age:'25',
+       quality:'elite',read:'Subject to intense transfer interest from Manchester City as the deadline approaches, though his tactical importance stays absolute if he stays.',
+       tag1:'Nailed',tag2:'Tempo controller',pts:'0.0',rating:'2.93',value:'€100.0m',owner:'Vale Road FC',
+       minutes:'nailed',risk:'transfer',flag:'In-league move — Man City interest',flagKind:'exit'},
+      {name:'Onana',initials:'AO',pos:'DM',posColor:'#7B56B9',club:'Aston Villa',crest:AVL.c,crestColor:AVL.col,age:'25',
+       quality:'high',read:'Anchors Emery’s engine room with immense ground coverage. An ACL reconstruction in July sidelines him roughly nine months, writing off the campaign.',
+       tag1:'Likely starter',tag2:'Injury prone',pts:'0.0',rating:'—',value:'€45.0m',owner:'Free agent',
+       minutes:'likely_starter',risk:'doubt',flag:'Out ~9 months — ACL reconstruction',flagKind:'doubt'},
+      {name:'Wan-Bissaka',initials:'AW',pos:'RB',posColor:'#5667B9',club:'Aston Villa',crest:AVL.c,crestColor:AVL.col,age:'28',
+       quality:'solid',read:'Shares right-back duties with Matty Cash. An elite one-on-one stopper for targeted matchups, with no set-piece duty and little overlapping freedom.',
+       tag1:'Rotation risk',tag2:'Stopper',pts:'0.0',rating:'—',value:'€15.0m',owner:'Free agent',
+       minutes:'rotation_risk',risk:null},
+      {name:'Meslier',initials:'IM',pos:'GK',posColor:'#926500',club:'Arsenal',crest:ARS.c,crestColor:ARS.col,age:'26',
+       quality:'squad',read:'Arrived on a free into a third-choice role behind Raya and Kepa. Late interest from Marseille would strip his Premier League eligibility outright.',
+       tag1:'Fringe',tag2:'Declining asset',pts:'0.0',rating:'—',value:'€8.0m',owner:'Free agent',
+       minutes:'fringe',risk:'exit',flag:'Exit risk — Marseille, PL eligibility',flagKind:'exit'}
     ];
   }
   renderVals(){
@@ -184,6 +215,7 @@ class Component extends DCLogic {
       .map(c=>({...c,
         // ~40 characters a line at this width, so three lines is about 120.
         // Below that the copy fits and a toggle would be a no-op control.
+        qualCls: 'qual q' + c.quality.charAt(0).toUpperCase() + c.quality.slice(1),
         needsToggle: c.read.length > 115,
         readCls: s.open[c.name] || c.read.length <= 115 ? '' : 'clamp',
         moreLabel: s.open[c.name] ? 'Less' : 'More',

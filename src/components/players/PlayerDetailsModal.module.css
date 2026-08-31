@@ -104,3 +104,30 @@
     padding: var(--s3);
   }
 }
+
+/* Route through to the player hub. Sits under the card, above any draft or
+   auction action, so the primary action of the surface stays primary. */
+.profileLink {
+  display: flex;
+  justify-content: center;
+  padding-top: var(--s3);
+}
+
+.profileLink a {
+  font-family: var(--font-condensed);
+  font-weight: 700;
+  font-size: var(--t-12);
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--color-text-inverse);
+  opacity: 0.86;
+  padding: var(--s2) var(--s4);
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.10);
+  transition: opacity 120ms ease-out, background 120ms ease-out;
+}
+
+.profileLink a:hover {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.16);
+}
