@@ -1,0 +1,232 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,600;6..72,800&family=Hanken+Grotesk:wght@400;500;600;700&family=Archivo+Narrow:wght@500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap">
+  <style>
+    :root{
+      --bg:#F8F4EC; --card:#FCFAF7; --cardAlt:#F9F6F1; --inset:#E2DFDA;
+      --border:#C2BDB5; --borderSubtle:#D9D5CF; --borderStrong:#8C857A;
+      --ink:#1B1915; --ink2:#49443B; --muted:#635D51;
+      --accent:#0C6D3E; --accentInk:#1F7144; --tintAccent:#E2EDE5;
+    }
+    *,*::before,*::after{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--ink);font-family:'Hanken Grotesk',-apple-system,sans-serif;-webkit-font-smoothing:antialiased}
+    a{color:var(--accentInk)} a:hover{color:var(--accent)}
+    .panel{background:var(--card);border-radius:12px;overflow:hidden;box-shadow:0 1px 1px rgba(58,44,26,.05),0 2px 5px rgba(58,44,26,.05),0 18px 34px -14px rgba(58,44,26,.20),inset 0 1px 0 rgba(255,255,255,.9);margin:26px 32px}
+    .spectrum{display:flex;height:3px}
+    .spectrum i{flex:1}
+    .quiet{font-family:'Archivo Narrow','Arial Narrow',sans-serif;font-weight:500;font-size:10px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+    .kicker{font-family:'Archivo Narrow',sans-serif;font-weight:700;font-size:12px;letter-spacing:.10em;text-transform:uppercase;color:var(--muted)}
+    .header{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding:18px 24px 14px}
+    .title{font-family:'Newsreader',Georgia,serif;font-weight:800;font-size:32px;letter-spacing:-.035em;line-height:1;margin:4px 0 0;color:var(--ink)}
+    .statV{font-family:'JetBrains Mono',monospace;font-variant-numeric:tabular-nums;font-size:26px;font-weight:500;color:var(--accentInk);text-align:right;line-height:1}
+    .hRight{display:flex;align-items:center;gap:18px}
+    .seg{display:flex;background:var(--inset);border-radius:7px;padding:3px;gap:2px}
+    .segBtn{font-family:'Archivo Narrow',sans-serif;font-weight:700;font-size:11px;letter-spacing:.08em;text-transform:uppercase;padding:6px 14px;border-radius:5px;color:var(--muted);cursor:pointer;border:0;background:transparent}
+    .segOn{background:var(--card);color:var(--ink);box-shadow:0 1px 2px rgba(58,44,26,.14)}
+    .tools{display:flex;align-items:center;gap:8px;padding:12px 24px;border-top:1px solid var(--border);flex-wrap:wrap}
+    .input{flex:1 1 200px;min-width:160px;max-width:260px;padding:8px 12px;border:1px solid var(--borderStrong);border-radius:6px;background:var(--card);font-family:'Hanken Grotesk',sans-serif;font-size:14px;color:var(--muted)}
+    .select{padding:8px 12px;border:1px solid var(--borderStrong);border-radius:6px;background:var(--card);font-family:'Hanken Grotesk',sans-serif;font-size:14px;color:var(--ink)}
+    .facetBar{padding:12px 24px 14px;border-top:1px solid var(--borderSubtle);background:var(--cardAlt);display:flex;flex-direction:column;gap:9px}
+    .fgroup{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+    .fgLabel{font-family:'Archivo Narrow',sans-serif;font-weight:700;font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);width:92px;flex-shrink:0}
+    .pill{border:1px solid var(--borderSubtle);background:var(--card);border-radius:999px;padding:5px 12px;font-family:'Hanken Grotesk',sans-serif;font-weight:600;font-size:12.5px;color:var(--ink2);cursor:pointer;transition:background .12s,border-color .12s,color .12s}
+    .pill:hover{background:var(--inset)}
+    .pillOn{border-color:rgba(12,109,62,.42);background:var(--tintAccent);color:var(--ink)}
+    .tableWrap{padding:0 24px 24px}
+    table{width:100%;border-collapse:collapse;font-size:13px;table-layout:fixed}
+    thead th{text-align:left;font-family:'Archivo Narrow',sans-serif;font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);padding:8px;border-bottom:1px solid var(--border);white-space:nowrap}
+    tbody td{padding:9px 8px;border-bottom:1px solid var(--borderSubtle);color:var(--ink2);vertical-align:middle}
+    .cPlayer{width:230px} .cOwner{width:130px} .cScout{width:250px} .cNum{width:66px;text-align:right} .cVal{width:82px;text-align:right}
+    th.cNum,th.cVal{text-align:right}
+    .pcell{display:flex;align-items:center;gap:9px;min-width:0}
+    .posChip{display:inline-block;color:#fff;border-radius:4px;padding:3px 6px;font-family:'Archivo Narrow',sans-serif;font-weight:700;font-size:10px;letter-spacing:.06em;flex-shrink:0}
+    .pname{font-weight:600;font-size:14px;color:var(--ink);display:block;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .num{font-family:'JetBrains Mono',monospace;font-variant-numeric:tabular-nums;color:var(--ink)}
+    .scoutTags{display:flex;gap:5px;flex-wrap:wrap}
+    .tag{font-family:'Archivo Narrow',sans-serif;font-weight:600;font-size:10px;letter-spacing:.05em;text-transform:uppercase;padding:3px 7px;border-radius:4px;background:var(--inset);color:var(--muted);white-space:nowrap}
+    .tagHi{background:var(--tintAccent);color:var(--ink)}
+    .free{color:var(--muted);font-style:italic}
+    .empty{padding:28px;text-align:center;color:var(--muted);font-style:italic}
+    .foot{padding:0 24px 20px;font-size:11.5px;color:var(--muted);font-style:italic}
+  </style>
+</helmet>
+
+<div class="panel">
+  <div class="spectrum" aria-hidden="true">
+    <i style="background:#926500"></i><i style="background:#0076B2"></i><i style="background:#5667B9"></i><i style="background:#5667B9"></i><i style="background:#008295"></i><i style="background:#008295"></i><i style="background:#7B56B9"></i><i style="background:#915397"></i><i style="background:#A34E71"></i><i style="background:#00866F"></i><i style="background:#00866F"></i><i style="background:#AD4C42"></i>
+  </div>
+
+  <div class="header">
+    <div>
+      <div class="kicker">Matchday Militia</div>
+      <h1 class="title">Players</h1>
+    </div>
+    <div class="hRight">
+      <div>
+        <div class="statV">{{count}}</div>
+        <div class="quiet" style="text-align:right;margin-top:4px">{{countLabel}}</div>
+      </div>
+      <div class="seg">
+        <button class="segBtn">Cards</button>
+        <button class="segBtn segOn">Table</button>
+        <button class="segBtn">Explorer</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="tools">
+    <div class="input">Search player…</div>
+    <div class="select">All positions</div>
+    <div class="select">All clubs</div>
+    <div class="select">Any minutes played</div>
+  </div>
+
+  <div class="facetBar">
+    <div class="fgroup">
+      <span class="fgLabel">Involvement</span>
+      <sc-for list="{{involvement}}" as="o" hint-placeholder-count="4">
+        <button class="{{o.cls}}" onClick="{{o.pick}}">{{o.label}}</button>
+      </sc-for>
+    </div>
+    <div class="fgroup">
+      <span class="fgLabel">Minutes role</span>
+      <sc-for list="{{minutes}}" as="o" hint-placeholder-count="4">
+        <button class="{{o.cls}}" onClick="{{o.pick}}">{{o.label}}</button>
+      </sc-for>
+    </div>
+    <div class="fgroup">
+      <span class="fgLabel">Career phase</span>
+      <sc-for list="{{phase}}" as="o" hint-placeholder-count="4">
+        <button class="{{o.cls}}" onClick="{{o.pick}}">{{o.label}}</button>
+      </sc-for>
+    </div>
+  </div>
+
+  <div class="tableWrap">
+    <table>
+      <thead>
+        <tr>
+          <th class="cPlayer">Player</th>
+          <th class="cOwner">Owner</th>
+          <th class="cScout">Scout</th>
+          <th class="cNum">GP</th><th class="cNum">G</th><th class="cNum">A</th>
+          <th class="cNum">Pts</th><th class="cNum">PPG</th><th class="cNum">Rating</th>
+          <th class="cVal">Value</th>
+        </tr>
+      </thead>
+      <tbody>
+        <sc-for list="{{rows}}" as="r" hint-placeholder-count="6">
+          <tr>
+            <td class="cPlayer">
+              <div class="pcell">
+                <span class="posChip" style="background: {{r.posColor}}">{{r.pos}}</span>
+                <span style="min-width:0">
+                  <span class="pname">{{r.name}}</span>
+                  <span class="quiet">{{r.club}}</span>
+                </span>
+              </div>
+            </td>
+            <td class="cOwner"><span class="{{r.ownerCls}}">{{r.owner}}</span></td>
+            <td class="cScout">
+              <span class="scoutTags">
+                <span class="{{r.tag1cls}}">{{r.tag1}}</span>
+                <span class="{{r.tag2cls}}">{{r.tag2}}</span>
+              </span>
+            </td>
+            <td class="cNum num">{{r.gp}}</td>
+            <td class="cNum num">{{r.g}}</td>
+            <td class="cNum num">{{r.a}}</td>
+            <td class="cNum num">{{r.pts}}</td>
+            <td class="cNum num">{{r.ppg}}</td>
+            <td class="cNum num">{{r.rating}}</td>
+            <td class="cVal num">{{r.value}}</td>
+          </tr>
+        </sc-for>
+      </tbody>
+    </table>
+    <sc-if value="{{isEmpty}}" hint-placeholder-val="{{false}}">
+      <div class="empty">No players match these filters.</div>
+    </sc-if>
+  </div>
+
+  <div class="foot">Numbers are Gaffa scoring. Scout tags describe the footballer and come from the scouting report.</div>
+</div>
+
+</x-dc>
+<script data-dc-script>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { involvement: null, minutes: null, phase: null };
+  }
+
+  data() {
+    return [
+      { name:'Cherki',      club:'Man City',  pos:'RW', posColor:'#00866F', owner:'Hackney Marshals', gp:2, g:2, a:2, pts:'69.28', ppg:'34.64', rating:'8.88', value:'€90.0m',  involvement:'primary_outlet',   minutes:'nailed',         phase:'emerging' },
+      { name:'João Pedro', club:'Chelsea', pos:'ST', posColor:'#AD4C42', owner:null,               gp:2, g:2, a:2, pts:'69.16', ppg:'34.58', rating:'8.88', value:'€80.0m',  involvement:'primary_outlet',   minutes:'nailed',         phase:'peak' },
+      { name:'B. Fernandes', club:'Man Utd',  pos:'AM', posColor:'#A34E71', owner:'Vale Road FC',     gp:2, g:3, a:1, pts:'64.01', ppg:'32.01', rating:'8.54', value:'€35.0m',  involvement:'primary_outlet',   minutes:'nailed',         phase:'peak' },
+      { name:'Palmer',      club:'Chelsea',   pos:'AM', posColor:'#A34E71', owner:'Hackney Marshals', gp:2, g:2, a:1, pts:'62.27', ppg:'31.14', rating:'8.63', value:'€100.0m', involvement:'primary_outlet',   minutes:'nailed',         phase:'peak' },
+      { name:'Elanga',      club:'Newcastle', pos:'RW', posColor:'#00866F', owner:null,               gp:2, g:2, a:0, pts:'61.70', ppg:'30.85', rating:'8.64', value:'€32.0m',  involvement:'secondary_threat', minutes:'nailed',         phase:'peak' },
+      { name:'Rogers',      club:'Chelsea',   pos:'AM', posColor:'#A34E71', owner:'Vale Road FC',     gp:2, g:1, a:1, pts:'61.60', ppg:'30.80', rating:'8.64', value:'€110.0m', involvement:'primary_outlet',   minutes:'nailed',         phase:'peak' },
+      { name:'Egan',        club:'Hull City', pos:'CB', posColor:'#0076B2', owner:null,               gp:2, g:0, a:0, pts:'55.99', ppg:'28.00', rating:'8.45', value:'€1.0m',   involvement:'peripheral',       minutes:'nailed',         phase:'plateau' },
+      { name:'Ajayi',       club:'Hull City', pos:'CB', posColor:'#0076B2', owner:null,               gp:2, g:1, a:0, pts:'53.78', ppg:'26.89', rating:'8.37', value:'€0.7m',   involvement:'peripheral',       minutes:'likely_starter', phase:'plateau' },
+      { name:'Gakpo',       club:'Liverpool', pos:'LW', posColor:'#00866F', owner:'Hackney Marshals', gp:2, g:1, a:1, pts:'53.69', ppg:'26.85', rating:'8.34', value:'€60.0m',  involvement:'secondary_threat', minutes:'rotation_risk',  phase:'peak' }
+    ];
+  }
+
+  labels() {
+    return {
+      primary_outlet:'Primary outlet', secondary_threat:'Secondary threat', limited:'Limited', peripheral:'Peripheral',
+      nailed:'Nailed', likely_starter:'Likely starter', rotation_risk:'Rotation risk', fringe:'Fringe',
+      emerging:'Emerging', peak:'Peak', plateau:'Plateau', decline_risk:'Decline risk'
+    };
+  }
+
+  group(key, values) {
+    const L = this.labels();
+    const active = this.state[key];
+    return values.map((v) => ({
+      label: L[v],
+      cls: active === v ? 'pill pillOn' : 'pill',
+      pick: () => this.setState({ [key]: active === v ? null : v })
+    }));
+  }
+
+  renderVals() {
+    const L = this.labels();
+    const s = this.state;
+    const rows = this.data()
+      .filter((r) => (!s.involvement || r.involvement === s.involvement)
+                  && (!s.minutes     || r.minutes     === s.minutes)
+                  && (!s.phase       || r.phase       === s.phase))
+      .map((r) => ({
+        ...r,
+        owner: r.owner || 'Free agent',
+        ownerCls: r.owner ? '' : 'free',
+        tag1: L[r.involvement],
+        tag1cls: s.involvement === r.involvement ? 'tag tagHi' : 'tag',
+        tag2: L[r.minutes],
+        tag2cls: s.minutes === r.minutes ? 'tag tagHi' : 'tag'
+      }));
+    const filtered = !!(s.involvement || s.minutes || s.phase);
+    return {
+      rows,
+      isEmpty: rows.length === 0,
+      count: rows.length,
+      countLabel: filtered ? 'shown of 432' : 'players',
+      involvement: this.group('involvement', ['primary_outlet','secondary_threat','limited','peripheral']),
+      minutes: this.group('minutes', ['nailed','likely_starter','rotation_risk','fringe']),
+      phase: this.group('phase', ['emerging','peak','plateau','decline_risk'])
+    };
+  }
+}
+</script>
+</body>
+</html>

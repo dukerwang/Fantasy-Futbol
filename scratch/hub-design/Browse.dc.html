@@ -1,0 +1,239 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600;6..72,800&family=Hanken+Grotesk:wght@400;500;600;700&family=Archivo+Narrow:wght@500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap">
+  <style>
+    :root{
+      --bg:#F8F4EC; --card:#FCFAF7; --cardAlt:#F9F6F1; --inset:#E2DFDA;
+      --border:#C2BDB5; --borderSubtle:#D9D5CF; --borderStrong:#8C857A;
+      --ink:#1B1915; --ink2:#49443B; --muted:#635D51;
+      --accent:#0C6D3E; --accentInk:#1F7144; --tintAccent:#E2EDE5;
+      --live:#B23731; --warnText:#875A04; --tintWarn:#F0E9DE; --tintDanger:#F4E6E4;
+    }
+    *,*::before,*::after{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--ink);font-family:'Hanken Grotesk',-apple-system,sans-serif;-webkit-font-smoothing:antialiased}
+    a{color:var(--accentInk)} a:hover{color:var(--accent)}
+    .panel{background:var(--card);border-radius:12px;overflow:hidden;box-shadow:0 1px 1px rgba(58,44,26,.05),0 2px 5px rgba(58,44,26,.05),0 18px 34px -14px rgba(58,44,26,.20),inset 0 1px 0 rgba(255,255,255,.9);margin:26px 32px}
+    .spectrum{display:flex;height:3px}.spectrum i{flex:1}
+    .quiet{font-family:'Archivo Narrow','Arial Narrow',sans-serif;font-weight:500;font-size:10px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+    .kicker{font-family:'Archivo Narrow',sans-serif;font-weight:700;font-size:12px;letter-spacing:.10em;text-transform:uppercase;color:var(--muted)}
+    .header{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding:18px 24px 14px}
+    .title{font-family:'Newsreader',Georgia,serif;font-weight:800;font-size:32px;letter-spacing:-.035em;line-height:1;margin:4px 0 0}
+    .hRight{display:flex;align-items:center;gap:18px}
+    .statV{font-family:'JetBrains Mono',monospace;font-variant-numeric:tabular-nums;font-size:26px;font-weight:500;color:var(--accentInk);text-align:right;line-height:1}
+    .seg{display:flex;background:var(--inset);border-radius:7px;padding:3px;gap:2px}
+    .segBtn{font-family:'Archivo Narrow',sans-serif;font-weight:700;font-size:11px;letter-spacing:.08em;text-transform:uppercase;padding:6px 14px;border-radius:5px;color:var(--muted);cursor:pointer;border:0;background:transparent}
+    .segOn{background:var(--card);color:var(--ink);box-shadow:0 1px 2px rgba(58,44,26,.14)}
+    .tools{display:flex;align-items:center;gap:8px;padding:12px 24px;border-top:1px solid var(--border);flex-wrap:wrap}
+    .input{flex:1 1 200px;min-width:160px;max-width:260px;padding:8px 12px;border:1px solid var(--borderStrong);border-radius:6px;background:var(--card);font-size:14px;color:var(--muted)}
+    .select{padding:8px 12px;border:1px solid var(--borderStrong);border-radius:6px;background:var(--card);font-size:14px;color:var(--ink)}
+    .facetBar{padding:12px 24px 14px;border-top:1px solid var(--borderSubtle);background:var(--cardAlt);display:flex;flex-direction:column;gap:9px}
+    .fgroup{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+    .fgLabel{font-family:'Archivo Narrow',sans-serif;font-weight:700;font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);width:92px;flex-shrink:0}
+    .pill{border:1px solid var(--borderSubtle);background:var(--card);border-radius:999px;padding:5px 12px;font-weight:600;font-size:12.5px;color:var(--ink2);cursor:pointer}
+    .pill:hover{background:var(--inset)}
+    .pillOn{border-color:rgba(12,109,62,.42);background:var(--tintAccent);color:var(--ink)}
+
+    .grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px;padding:20px 24px 26px}
+    .pc{background:var(--card);border:1px solid var(--borderSubtle);border-radius:10px;overflow:hidden;display:flex;flex-direction:column;cursor:pointer;transition:box-shadow .14s,transform .14s}
+    .pc:hover{box-shadow:0 2px 6px rgba(58,44,26,.10),0 14px 26px -12px rgba(58,44,26,.26);transform:translateY(-1px)}
+    .pcRule{height:3px}
+    .pcTop{display:flex;gap:12px;padding:13px 14px 10px}
+    .portrait{width:60px;height:70px;border-radius:8px;background:linear-gradient(180deg,#EDE9E1,#DED9CF);position:relative;flex-shrink:0;box-shadow:inset 0 0 0 1px rgba(0,0,0,.06)}
+    .portrait b{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Newsreader',Georgia,serif;font-size:21px;font-weight:600;color:#B3ACA0}
+    .crest{position:absolute;right:-4px;bottom:-4px;width:20px;height:20px;border-radius:50%;box-shadow:0 0 0 2px var(--card);display:flex;align-items:center;justify-content:center;color:#fff;font-size:7px;font-weight:700;font-family:'Archivo Narrow',sans-serif}
+    .pcId{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
+    .pcChips{display:flex;align-items:center;gap:5px}
+    .posChip{color:#fff;border-radius:4px;padding:2px 6px;font-family:'Archivo Narrow',sans-serif;font-weight:700;font-size:10px;letter-spacing:.06em}
+    .pcName{font-family:'Newsreader',Georgia,serif;font-weight:600;font-size:20px;line-height:1.08;letter-spacing:-.02em;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .pcMeta{font-size:11.5px;color:var(--muted)}
+    .pcRead{padding:0 14px 12px;flex:1}
+    .pcRead p{font-family:'Newsreader',Georgia,serif;font-size:14.5px;line-height:1.46;color:var(--ink2);margin:0;text-wrap:pretty}
+    .pcTags{display:flex;flex-wrap:wrap;gap:5px;padding:0 14px 12px}
+    .tag{font-family:'Archivo Narrow',sans-serif;font-weight:600;font-size:10px;letter-spacing:.05em;text-transform:uppercase;padding:3px 7px;border-radius:4px;background:var(--inset);color:var(--muted);white-space:nowrap}
+    .flag{display:flex;align-items:center;gap:6px;margin:0 14px 11px;padding:6px 9px;border-radius:5px;font-family:'Archivo Narrow',sans-serif;font-weight:700;font-size:10.5px;letter-spacing:.07em;text-transform:uppercase}
+    .flag i{width:5px;height:5px;border-radius:50%;flex-shrink:0}
+    .flagExit{background:var(--tintDanger);color:var(--ink)} .flagExit i{background:var(--live)}
+    .flagDoubt{background:var(--tintWarn);color:var(--ink)} .flagDoubt i{background:var(--warnText)}
+    .pcFoot{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 14px;border-top:1px solid var(--borderSubtle);background:var(--cardAlt);margin-top:auto}
+    .fstat{display:flex;flex-direction:column;gap:1px}
+    .fv{font-family:'JetBrains Mono',monospace;font-variant-numeric:tabular-nums;font-size:14px;font-weight:500;color:var(--ink);line-height:1}
+    .fv.na{color:var(--muted);font-weight:400}
+    .owned{font-family:'Archivo Narrow',sans-serif;font-weight:700;font-size:9.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--accentInk);text-align:right}
+    .ownedFree{color:var(--muted);font-style:italic;text-transform:none;letter-spacing:0;font-family:'Hanken Grotesk',sans-serif;font-size:11px;font-weight:400}
+    .foot{padding:0 24px 20px;font-size:11.5px;color:var(--muted);font-style:italic}
+  </style>
+</helmet>
+
+<div class="panel">
+  <div class="spectrum" aria-hidden="true">
+    <i style="background:#926500"></i><i style="background:#0076B2"></i><i style="background:#5667B9"></i><i style="background:#5667B9"></i><i style="background:#008295"></i><i style="background:#008295"></i><i style="background:#7B56B9"></i><i style="background:#915397"></i><i style="background:#A34E71"></i><i style="background:#00866F"></i><i style="background:#00866F"></i><i style="background:#AD4C42"></i>
+  </div>
+
+  <div class="header">
+    <div>
+      <div class="kicker">Matchday Militia</div>
+      <h1 class="title">Players</h1>
+    </div>
+    <div class="hRight">
+      <div>
+        <div class="statV">{{count}}</div>
+        <div class="quiet" style="text-align:right;margin-top:4px">{{countLabel}}</div>
+      </div>
+      <div class="seg">
+        <button class="segBtn segOn">Cards</button>
+        <button class="segBtn">Table</button>
+        <button class="segBtn">Explorer</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="tools">
+    <div class="input">Search player…</div>
+    <div class="select">All positions</div>
+    <div class="select">All clubs</div>
+    <div class="select">Sort: Points</div>
+  </div>
+
+  <div class="facetBar">
+    <div class="fgroup">
+      <span class="fgLabel">Involvement</span>
+      <sc-for list="{{involvement}}" as="o" hint-placeholder-count="4">
+        <button class="{{o.cls}}" onClick="{{o.pick}}">{{o.label}}</button>
+      </sc-for>
+    </div>
+    <div class="fgroup">
+      <span class="fgLabel">Minutes role</span>
+      <sc-for list="{{minutes}}" as="o" hint-placeholder-count="4">
+        <button class="{{o.cls}}" onClick="{{o.pick}}">{{o.label}}</button>
+      </sc-for>
+    </div>
+    <div class="fgroup">
+      <span class="fgLabel">Watch for</span>
+      <sc-for list="{{risk}}" as="o" hint-placeholder-count="3">
+        <button class="{{o.cls}}" onClick="{{o.pick}}">{{o.label}}</button>
+      </sc-for>
+    </div>
+  </div>
+
+  <div class="grid">
+    <sc-for list="{{cards}}" as="c" hint-placeholder-count="8">
+      <div class="pc">
+        <div class="pcRule" style="background: {{c.posColor}}"></div>
+        <div class="pcTop">
+          <div class="portrait"><b>{{c.initials}}</b><div class="crest" style="background: {{c.crestColor}}">{{c.crest}}</div></div>
+          <div class="pcId">
+            <div class="pcChips">
+              <span class="posChip" style="background: {{c.posColor}}">{{c.pos}}</span>
+              <span class="quiet">{{c.age}}</span>
+            </div>
+            <div class="pcName">{{c.name}}</div>
+            <div class="pcMeta">{{c.club}}</div>
+          </div>
+        </div>
+        <div class="pcRead"><p>{{c.read}}</p></div>
+        <sc-if value="{{c.hasFlag}}" hint-placeholder-val="{{true}}">
+          <div class="{{c.flagCls}}"><i></i>{{c.flag}}</div>
+        </sc-if>
+        <div class="pcTags">
+          <span class="tag">{{c.tag1}}</span>
+          <span class="tag">{{c.tag2}}</span>
+        </div>
+        <div class="pcFoot">
+          <div class="fstat"><span class="{{c.ptsCls}}">{{c.pts}}</span><span class="quiet">Pts</span></div>
+          <div class="fstat"><span class="{{c.ratingCls}}">{{c.rating}}</span><span class="quiet">Rating</span></div>
+          <div class="fstat"><span class="fv">{{c.value}}</span><span class="quiet">Value</span></div>
+          <div class="{{c.ownerCls}}">{{c.owner}}</div>
+        </div>
+      </div>
+    </sc-for>
+  </div>
+
+  <div class="foot">Card copy is drawn from the scouting report. Points, rating and value are Gaffa league scoring.</div>
+</div>
+
+</x-dc>
+<script data-dc-script>
+class Component extends DCLogic {
+  constructor(props){ super(props); this.state={involvement:null,minutes:null,risk:null}; }
+
+  data(){
+    const CHE={c:'CHE',col:'#034694'}, ARS={c:'ARS',col:'#DB0007'};
+    return [
+      {name:'João Pedro',initials:'JP',pos:'ST',posColor:'#AD4C42',club:'Chelsea',crest:CHE.c,crestColor:CHE.col,age:'24',
+       read:'Chelsea’s undisputed focal point, established at the very top of the frontline hierarchy.',
+       tag1:'Undisputed starter',tag2:'Penalty specialist',pts:'69.2',rating:'8.88',value:'€80.0m',owner:'Free agent',
+       involvement:'primary_outlet',minutes:'nailed',risk:null},
+      {name:'Palmer',initials:'CP',pos:'AM',posColor:'#A34E71',club:'Chelsea',crest:CHE.c,crestColor:CHE.col,age:'24',
+       read:'An advanced playmaker drifting between the half-spaces — an exceptionally high weekly floor.',
+       tag1:'Talisman',tag2:'Set-piece specialist',pts:'62.3',rating:'8.63',value:'€100.0m',owner:'Hackney Marshals',
+       involvement:'primary_outlet',minutes:'nailed',risk:null},
+      {name:'Rogers',initials:'MR',pos:'AM',posColor:'#A34E71',club:'Chelsea',crest:CHE.c,crestColor:CHE.col,age:'24',
+       read:'Locked down the left inside-forward berth alongside Palmer, driving central transitions.',
+       tag1:'High floor',tag2:'Open-play creator',pts:'61.6',rating:'8.64',value:'€110.0m',owner:'Vale Road FC',
+       involvement:'primary_outlet',minutes:'nailed',risk:null},
+      {name:'Saka',initials:'BS',pos:'RW',posColor:'#00866F',club:'Arsenal',crest:ARS.c,crestColor:ARS.col,age:'24',
+       read:'A monopolised set-piece profile: first-choice penalties and primary corner deliverer.',
+       tag1:'Elite creator',tag2:'Penalty taker',pts:'29.8',rating:'4.30',value:'€110.0m',owner:'Hackney Marshals',
+       involvement:'primary_outlet',minutes:'nailed',risk:null},
+      {name:'Neto',initials:'PN',pos:'RW',posColor:'#00866F',club:'Chelsea',crest:CHE.c,crestColor:CHE.col,age:'26',
+       read:'Consistent crossing volume, but competition from Palmer and Estêvão creates weekly rotational volatility.',
+       tag1:'Versatile flank',tag2:'Set-piece delivery',pts:'32.4',rating:'7.44',value:'€60.0m',owner:'Free agent',
+       involvement:'secondary_threat',minutes:'rotation_risk',risk:'transfer'},
+      {name:'Estêvão',initials:'EW',pos:'RW',posColor:'#00866F',club:'Chelsea',crest:CHE.c,crestColor:CHE.col,age:'19',
+       read:'At 19, usage leans toward explosive substitute appearances amid a crowded attacking stable.',
+       tag1:'Emerging talent',tag2:'High upside',pts:'0.9',rating:'3.06',value:'€80.0m',owner:'Vale Road FC',
+       involvement:'secondary_threat',minutes:'rotation_risk',risk:null},
+      {name:'Quenda',initials:'GQ',pos:'RW',posColor:'#00866F',club:'Chelsea',crest:CHE.c,crestColor:CHE.col,age:'19',
+       read:'An impact substitute in league play, with starts concentrated in the cup competitions.',
+       tag1:'Developmental upside',tag2:'High ceiling',pts:'0.9',rating:'3.05',value:'€42.0m',owner:'Free agent',
+       involvement:'limited',minutes:'fringe',risk:null},
+      {name:'Palestra',initials:'MP',pos:'RB',posColor:'#5667B9',club:'Chelsea',crest:CHE.c,crestColor:CHE.col,age:'21',
+       read:'A minor training muscle setback has delayed his start and leaves immediate availability doubtful.',
+       tag1:'Emerging talent',tag2:'Athletic profile',pts:'—',rating:'—',value:'€35.0m',owner:'Free agent',
+       involvement:'peripheral',minutes:'rotation_risk',risk:'doubt',flag:'Doubtful — muscle setback',flagKind:'doubt'},
+      {name:'Tosin',initials:'TA',pos:'CB',posColor:'#0076B2',club:'Chelsea',crest:CHE.c,crestColor:CHE.col,age:'28',
+       read:'An established aerial presence in both boxes — but his immediate weekly floor is non-existent.',
+       tag1:'Aerial threat',tag2:'Depth option',pts:'—',rating:'—',value:'€16.0m',owner:'Free agent',
+       involvement:'peripheral',minutes:'fringe',risk:'exit',flag:'Exit risk — out of first-team plans',flagKind:'exit'},
+      {name:'Martinelli',initials:'GM',pos:'LW',posColor:'#00866F',club:'Arsenal',crest:ARS.c,crestColor:ARS.col,age:'25',
+       read:'Fully fit, but omitted from Arteta’s matchday squads amid advanced negotiations over a move to Al-Hilal.',
+       tag1:'Direct winger',tag2:'Peak age',pts:'—',rating:'—',value:'€45.0m',owner:'Vale Road FC',
+       involvement:'secondary_threat',minutes:'fringe',risk:'exit',flag:'Exit risk — Al-Hilal talks advanced',flagKind:'exit'}
+    ];
+  }
+
+  labels(){return{
+    primary_outlet:'Primary outlet',secondary_threat:'Secondary threat',limited:'Limited',peripheral:'Peripheral',
+    nailed:'Nailed',likely_starter:'Likely starter',rotation_risk:'Rotation risk',fringe:'Fringe',
+    exit:'Exit risk',doubt:'Injury doubt',transfer:'Transfer talk'};}
+
+  group(key,vals){const L=this.labels();const a=this.state[key];
+    return vals.map(v=>({label:L[v],cls:a===v?'pill pillOn':'pill',pick:()=>this.setState({[key]:a===v?null:v})}));}
+
+  renderVals(){
+    const s=this.state;
+    const cards=this.data()
+      .filter(c=>(!s.involvement||c.involvement===s.involvement)&&(!s.minutes||c.minutes===s.minutes)&&(!s.risk||c.risk===s.risk))
+      .map(c=>({...c,
+        hasFlag:!!c.flag,
+        flagCls:c.flagKind==='exit'?'flag flagExit':'flag flagDoubt',
+        ptsCls:c.pts==='—'?'fv na':'fv',
+        ratingCls:c.rating==='—'?'fv na':'fv',
+        ownerCls:c.owner==='Free agent'?'owned ownedFree':'owned'}));
+    const on=!!(s.involvement||s.minutes||s.risk);
+    return{cards,count:cards.length,countLabel:on?'shown of 432':'players',
+      involvement:this.group('involvement',['primary_outlet','secondary_threat','limited','peripheral']),
+      minutes:this.group('minutes',['nailed','likely_starter','rotation_risk','fringe']),
+      risk:this.group('risk',['exit','doubt','transfer'])};
+  }
+}
+</script>
+</body>
+</html>

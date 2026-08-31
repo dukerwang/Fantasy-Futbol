@@ -1,0 +1,19 @@
+{
+  "pages": [
+    { "id": "page-1", "name": "Players index" },
+    { "id": "page-2", "name": "Player hub" }
+  ],
+  "artboards": [
+    { "file": "Browse.dc.html",   "page": "page-1", "x": 0,    "y": 0,    "w": 1440, "h": 1400, "title": "Cards — default", "is_interactive": true },
+    { "file": "Index.dc.html",    "page": "page-1", "x": 0,    "y": 1540, "w": 1440, "h": 880,  "title": "Table", "is_interactive": true },
+    { "file": "Explorer.dc.html", "page": "page-1", "x": 1580, "y": 0,    "w": 1440, "h": 1000, "title": "Explorer", "is_interactive": true },
+    { "file": "Main.dc.html",     "page": "page-2", "x": 0,    "y": 0,    "w": 1240, "h": 1040, "title": "Player hub — light" },
+    { "file": "HubDark.dc.html",  "page": "page-2", "x": 1360, "y": 0,    "w": 1240, "h": 1040, "title": "Player hub — dark" }
+  ],
+  "annotations": [
+    { "id": "default-note", "page": "page-1", "x": 0, "y": -170, "w": 520, "text": "Three views of one pool, one toggle apart. Cards is the default.\n\nWhat a card carries that a row cannot: the situation. Four of these ten are near-worthless on points alone, but the copy says why — Martinelli is in Al-Hilal talks, Tosin is out of Chelsea's plans, Estêvão is 19 behind a crowded front line." },
+    { "id": "explorer-note", "page": "page-1", "x": 1580, "y": -170, "w": 520, "text": "Explorer: 218 real players, 2025/26, every axis pickable. Defaults to value against PPG, so the top-left quadrant is literally the bargain bin.\n\nClick a point to inspect. Dot size is minutes. Value uses a log scale — the pool runs €0.20m to €220m." },
+    { "id": "two-layer", "page": "page-2", "x": 0, "y": -150, "w": 460, "text": "Two layers, never blended.\n\nFootball layer (serif, prose): who this footballer is. Real-world only — portable back to Futbolpedia.\n\nLeague layer (mono, ledger): what he is worth in your league. Gaffa scoring, never fed to the outlook." }
+  ],
+  "launch": { "view": "canvas", "page": "page-1" }
+}
