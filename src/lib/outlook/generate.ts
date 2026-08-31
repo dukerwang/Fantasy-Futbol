@@ -1,5 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { generateOutlook } from '@futbolpedia/engine';
+import type { FacetInputs } from '@futbolpedia/engine';
 import type { Player } from '@/types';
 import { FULL_PLAYER_SELECT } from '@/lib/constants/queries';
 import {
@@ -12,6 +13,7 @@ import {
   isOutlookFresh,
   upsertStoredOutlook,
 } from '@/lib/outlook/cache';
+import { loadFacetInputs } from '@/lib/outlook/facetInputs';
 
 export interface GeneratePlayerOutlookResult {
   playerId: string;
@@ -44,7 +46,15 @@ export async function loadPlayerForOutlook(
 export async function generateAndStorePlayerOutlook(
   admin: SupabaseClient,
   playerId: string,
-  options: { force?: boolean; bagOptions?: BuildContextBagOptions } = {},
+  options: {
+    force?: boolean;
+    bagOptions?: BuildContextBagOptions;
+    /**
+     * Pre-loaded measured record. A batch run should pass this — building it
+     * per player would re-read the whole season's stats once per outlook.
+     */
+    facts?: FacetInputs;
+  } = {},
 ): Promise<GeneratePlayerOutlookResult> {
   const player = await loadPlayerForOutlook(admin, playerId);
   const bag = await buildOutlookContextBagForPlayer(player, options.bagOptions);
@@ -60,7 +70,17 @@ export async function generateAndStorePlayerOutlook(
     };
   }
 
-  const result = await generateOutlook({ apiKey: requireApiKey(), contextBag: bag });
+  // The measured record goes in as locked evidence so Futbolpedia judges WITH
+  // the facts rather than instead of them — and does not spend a grounded
+  // search call rediscovering set-piece duty FPL already publishes.
+  const facts =
+    options.facts ?? (await loadFacetInputs(admin, { playerIds: [playerId] })).inputs.get(playerId);
+
+  const result = await generateOutlook({
+    apiKey: requireApiKey(),
+    contextBag: bag,
+    facts,
+  });
   await upsertStoredOutlook(admin, playerId, result, contextHash);
 
   return {

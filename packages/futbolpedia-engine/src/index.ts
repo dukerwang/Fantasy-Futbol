@@ -11,23 +11,29 @@ export { PIPELINE_VERSION, FLASH_MODEL, OUTLOOK_MIN_WORDS, OUTLOOK_MAX_WORDS } f
 
 export {
   FACET_THRESHOLDS,
-  computeAttackingInvolvement,
+  buildComputedFactsBlock,
   computeCareerPhase,
   computeDynastyValue,
-  computeFacets,
+  computeFallbackFacets,
   computeMinutesRole,
   computeRiskFlags,
   computeSetPieces,
+  resolveAvailabilityShare,
   resolveRoleShare,
 } from './facets/compute';
 
+export { OUTLOOK_STYLES } from './facets/types';
+
 export type {
-  AttackingInvolvement,
-  ComputedFacets,
   DynastyValue,
   FacetInputs,
+  FallbackFacets,
+  JudgedFacets,
   MinutesRole,
   MinutesSample,
+  OutlookStyle,
+  PlMobility,
+  QualityTier,
   RiskFlag,
   SetPieceDuty,
 } from './facets/types';

@@ -32,6 +32,17 @@ export type OutlookConfidence = 'high' | 'medium' | 'low';
 
 export type OutlookHorizon = 'near' | 'long';
 
+import type {
+  DynastyValue,
+  FacetInputs,
+  MinutesRole,
+  OutlookStyle,
+  PlMobility,
+  QualityTier,
+  RiskFlag,
+  SetPieceDuty,
+} from '../facets/types';
+
 /**
  * Locked facts Gaffa supplies before any LLM call.
  * The model may not contradict these fields.
@@ -83,15 +94,36 @@ export interface OutlookExtraction {
   mobility_summary: string;
 }
 
-/** Machine sidecar — not rendered as structure in the UI. */
+/**
+ * Machine sidecar — the structured half of an outlook.
+ *
+ * v0.3 replaces the free-text `evaluation_tags` (158 distinct values across 75
+ * players, 110 of them appearing once) with closed enums that Futbolpedia
+ * JUDGES. Closing the vocabulary is what makes filters possible; keeping the
+ * values judged rather than calculated is what makes them right — see
+ * `facets/types.ts` for why the arithmetic version failed.
+ */
 export interface PlayerOutlookSidecar {
-  evaluation_tags: string[];
+  /** Judged. */
+  quality: QualityTier;
+  minutes_role: MinutesRole;
+  career_phase: OutlookCareerPhase;
+  dynasty_value: DynastyValue;
+  pl_mobility: PlMobility;
+  risk_flags: RiskFlag[];
+  style: OutlookStyle[];
+
+  /** Computed fact, carried through rather than judged — FPL publishes it. */
+  set_pieces: SetPieceDuty[];
+
   confidence: OutlookConfidence;
   horizons_touched: OutlookHorizon[];
   evidence_gaps: string[];
   generated_at: string;
   model_id: string;
   pipeline_version: string;
+  /** True when no outlook existed and the fact layer supplied the facets. */
+  from_fallback?: boolean;
 }
 
 /** Final stored outlook. */
@@ -118,6 +150,13 @@ export interface SynthesisTemperatureConfig {
 export interface GenerateOutlookOptions {
   apiKey: string;
   contextBag: OutlookContextBag;
+  /**
+   * Measured playing record, handed to synthesis as locked evidence so the
+   * judgment is made WITH the facts rather than instead of them — and so the
+   * model does not spend a grounded search call rediscovering what FPL
+   * already publishes.
+   */
+  facts?: FacetInputs;
   /** Optional hook for batch cost tracking. */
   onUsage?: (usage: TokenUsage) => void;
   synthesisTemperature?: SynthesisTemperatureConfig;

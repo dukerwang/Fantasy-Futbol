@@ -1,9 +1,8 @@
 import type { OutlookCareerPhase } from '../types/outlook';
 import type {
-  AttackingInvolvement,
-  ComputedFacets,
   DynastyValue,
   FacetInputs,
+  FallbackFacets,
   MinutesRole,
   MinutesSample,
   RiskFlag,
@@ -13,8 +12,9 @@ import type {
 /**
  * Thresholds live here, named, so they can be argued with.
  *
- * The minutes and involvement cuts were set against the 2025-26 pool (313
- * players above ten starts); the career cuts are age bands with one override.
+ * These drive the FALLBACK read — the answer for a player with no outlook yet.
+ * When an outlook exists, Futbolpedia's judgment wins and these values are only
+ * evidence handed to it.
  */
 export const FACET_THRESHOLDS = {
   /** Start share (starts ÷ team matches) boundaries for minutes_role. */
@@ -22,10 +22,6 @@ export const FACET_THRESHOLDS = {
   likelyStarter: 0.5,
   rotationRisk: 0.2,
 
-  /** Position-relative xGI/90 percentile boundaries for attacking_involvement. */
-  primaryOutlet: 0.8,
-  secondaryThreat: 0.5,
-  limited: 0.2,
 
   /**
    * Team matches before the current season can speak for itself. Under this,
@@ -110,20 +106,6 @@ export function computeMinutesRole(inputs: FacetInputs): MinutesRole {
   return level;
 }
 
-/** Positions whose job is creating and scoring, and can fairly be ranked on it. */
-const ATTACKING_POSITIONS: ReadonlySet<string> = new Set(['DM', 'CM', 'AM', 'LW', 'RW', 'ST']);
-
-export function computeAttackingInvolvement(inputs: FacetInputs): AttackingInvolvement {
-  // Goalkeepers and defenders are not ranked here at all — see the type's note.
-  if (!ATTACKING_POSITIONS.has(inputs.primary_position)) return 'not_applicable';
-  const p = inputs.xgi_percentile;
-  if (p == null) return 'peripheral';
-  if (p >= FACET_THRESHOLDS.primaryOutlet) return 'primary_outlet';
-  if (p >= FACET_THRESHOLDS.secondaryThreat) return 'secondary_threat';
-  if (p >= FACET_THRESHOLDS.limited) return 'limited';
-  return 'peripheral';
-}
-
 /**
  * Age bands, with one override that matters: a thirty-something still starting
  * every week is on a plateau, not declining. Tarkowski at 33 played 3,330
@@ -172,7 +154,6 @@ export function computeCareerPhase(inputs: FacetInputs): OutlookCareerPhase {
 export function computeDynastyValue(
   inputs: FacetInputs,
   minutesRole: MinutesRole,
-  involvement: AttackingInvolvement,
   phase: OutlookCareerPhase,
 ): DynastyValue {
   const age = inputs.age;
@@ -184,13 +165,9 @@ export function computeDynastyValue(
   if (phase === 'decline_risk') return 'declining_asset';
   if (age == null) return 'win_now';
 
-  // A defender has no attacking-output ranking by design, so he qualifies on
-  // his minutes alone rather than being excluded for a facet he cannot have.
-  const contributes =
-    involvement === 'primary_outlet' ||
-    involvement === 'secondary_threat' ||
-    involvement === 'not_applicable';
-  if (age <= 26 && minutesRole === 'nailed' && contributes) return 'cornerstone';
+  // Minutes alone, at this layer. Quality is Futbolpedia's call, and guessing
+  // it from output would repeat the mistake that labelled Saliba "limited".
+  if (age <= 26 && minutesRole === 'nailed') return 'cornerstone';
   if (age <= 26) return 'long_term_hold';
   return 'win_now';
 }
@@ -232,18 +209,64 @@ export function computeRiskFlags(inputs: FacetInputs, minutesRole: MinutesRole):
   return flags;
 }
 
-/** Every football-layer facet that can be computed instead of generated. */
-export function computeFacets(inputs: FacetInputs): ComputedFacets {
+/**
+ * The fact-only read of a player, for the two jobs facts are good at:
+ * standing in for a player who has no outlook yet, and being handed to
+ * synthesis as evidence. It carries no quality judgment — that is the whole
+ * point of the split.
+ */
+export function computeFallbackFacets(inputs: FacetInputs): FallbackFacets {
   const minutes_role = computeMinutesRole(inputs);
-  const attacking_involvement = computeAttackingInvolvement(inputs);
   const career_phase = computeCareerPhase(inputs);
 
   return {
     minutes_role,
-    attacking_involvement,
     career_phase,
-    dynasty_value: computeDynastyValue(inputs, minutes_role, attacking_involvement, career_phase),
+    dynasty_value: computeDynastyValue(inputs, minutes_role, career_phase),
     set_pieces: computeSetPieces(inputs),
     risk_flags: computeRiskFlags(inputs, minutes_role),
   };
+}
+
+const DUTY_LABEL: Record<SetPieceDuty, string> = {
+  penalties: 'first-choice penalties',
+  direct_free_kicks: 'direct free kicks',
+  corners_wide: 'corners and wide set pieces',
+};
+
+/**
+ * Render the computed facts for the synthesis prompt.
+ *
+ * These go in as LOCKED FACTS, not as conclusions: the model is told what he
+ * plays, how often, and what he takes, then makes the football judgment itself.
+ * Passing them also stops it spending a grounded search call rediscovering what
+ * FPL already publishes.
+ */
+export function buildComputedFactsBlock(inputs: FacetInputs): string {
+  const role = resolveRoleShare(inputs);
+  const availability = resolveAvailabilityShare(inputs);
+  const duties = computeSetPieces(inputs);
+  const sample = inputs.current ?? inputs.prior;
+
+  const lines = [
+    '=== MEASURED PLAYING RECORD (fact — do not contradict) ===',
+    sample
+      ? `Sample: ${sample.starts} starts from ${sample.appearances} appearances, of ${sample.team_matches} club matches`
+      : 'Sample: no recorded appearances',
+    role != null
+      ? `Started ${Math.round(role * 100)}% of the matches he appeared in`
+      : 'Start rate: unknown',
+    availability != null
+      ? `Appeared in ${Math.round(availability * 100)}% of his club's matches`
+      : 'Availability: unknown',
+    `Set-piece duty per the official list: ${duties.length ? duties.map((d) => DUTY_LABEL[d]).join(', ') : 'none listed'}`,
+    inputs.xgi_percentile != null
+      ? `Expected goal involvement per 90 ranks in the ${Math.round(inputs.xgi_percentile * 100)}th percentile among players in his position group`
+      : 'Expected goal involvement per 90: not enough minutes to rank',
+    '',
+    'Read these as evidence, not as a verdict. A low expected-goal-involvement',
+    'rank is normal and uninformative for a defender or goalkeeper — judge his',
+    'quality on what the position is actually for.',
+  ];
+  return lines.join('\n');
 }

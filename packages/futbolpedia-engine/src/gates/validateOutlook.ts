@@ -1,5 +1,6 @@
 import { OUTLOOK_MAX_WORDS, OUTLOOK_MIN_WORDS } from '../constants';
 import type { OutlookContextBag, OutlookExtraction, PlayerOutlook } from '../types/outlook';
+import { OUTLOOK_STYLES } from '../facets/types';
 import { BANNED_OUTLOOK_PATTERNS } from './bannedPhrases';
 import { findUnverifiedManagerMentions } from './managerMentions';
 
@@ -52,6 +53,43 @@ export function validateOutlook(
 
   if (!outlook.outlook.trim()) {
     reasons.push('outlook is empty');
+  }
+
+  // The schema constrains these, but a retry path or a hand-built sidecar can
+  // still carry a value the filters and card chips cannot render. Closed means
+  // closed — the whole point of replacing the free-text tags.
+  const ENUMS: Record<string, readonly string[]> = {
+    quality: ['elite', 'high', 'solid', 'squad'],
+    minutes_role: ['nailed', 'likely_starter', 'rotation_risk', 'fringe'],
+    career_phase: ['emerging', 'peak', 'plateau', 'decline_risk', 'unknown'],
+    dynasty_value: ['cornerstone', 'long_term_hold', 'win_now', 'declining_asset'],
+    pl_mobility: [
+      'stable',
+      'recent_pl_arrival',
+      'linked_exit',
+      'confirmed_exit',
+      'linked_pl_move',
+      'unknown',
+    ],
+  };
+  for (const [field, allowed] of Object.entries(ENUMS)) {
+    const value = (outlook.sidecar as unknown as Record<string, unknown>)[field];
+    if (typeof value !== 'string' || !allowed.includes(value)) {
+      reasons.push(`sidecar.${field} outside its enum: ${String(value)}`);
+    }
+  }
+  for (const flag of outlook.sidecar.risk_flags ?? []) {
+    if (!['injury_prone', 'minutes_competition', 'contract_year', 'tactical_misfit'].includes(flag)) {
+      reasons.push(`sidecar.risk_flags contains an unknown value: ${flag}`);
+    }
+  }
+  for (const style of outlook.sidecar.style ?? []) {
+    if (!(OUTLOOK_STYLES as readonly string[]).includes(style)) {
+      reasons.push(`sidecar.style contains an unknown value: ${style}`);
+    }
+  }
+  if ((outlook.sidecar.style ?? []).length > 3) {
+    reasons.push('sidecar.style carries more than three archetypes');
   }
 
   const SCORING_INFLATION = [

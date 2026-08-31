@@ -1,6 +1,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { OutlookValidationError } from '@futbolpedia/engine';
 import { generateAndStorePlayerOutlook } from '@/lib/outlook/generate';
+import { loadFacetInputs } from '@/lib/outlook/facetInputs';
 import { loadRegularPlayerIds } from '@/lib/outlook/population';
 
 export interface BatchOutlookReport {
@@ -42,6 +43,10 @@ export async function runOutlookBatch(
     skippedIds: [],
   };
 
+  // One pass over the season's stats for the whole batch. Per player this was
+  // re-reading every player_stats row in the season, once each.
+  const { inputs: factsById } = await loadFacetInputs(admin, { playerIds });
+
   let tokensUsed = 0;
 
   for (const playerId of playerIds) {
@@ -57,6 +62,7 @@ export async function runOutlookBatch(
     try {
       const result = await generateAndStorePlayerOutlook(admin, playerId, {
         force: options.force,
+        facts: factsById.get(playerId),
       });
       if (result.skipped) {
         report.skipped += 1;

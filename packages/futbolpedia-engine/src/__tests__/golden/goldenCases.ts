@@ -48,17 +48,28 @@ function ext(overrides: Partial<OutlookExtraction>): OutlookExtraction {
   };
 }
 
-function outlookText(text: string, tags: string[], confidence: 'high' | 'medium' | 'low' = 'high'): PlayerOutlook {
+function outlookText(
+  text: string,
+  _tags: string[],
+  confidence: 'high' | 'medium' | 'low' = 'high',
+): PlayerOutlook {
   return {
     outlook: text,
     sidecar: {
-      evaluation_tags: tags,
+      quality: 'high',
+      minutes_role: 'nailed',
+      career_phase: 'peak',
+      dynasty_value: 'win_now',
+      pl_mobility: 'stable',
+      risk_flags: [],
+      style: [],
+      set_pieces: [],
       confidence,
       horizons_touched: ['near', 'long'],
       evidence_gaps: [],
       generated_at: `${BASE_DATE}T00:00:00.000Z`,
       model_id: 'gemini-3.7-flash',
-      pipeline_version: '0.2.0',
+      pipeline_version: '0.3.0',
     },
   };
 }

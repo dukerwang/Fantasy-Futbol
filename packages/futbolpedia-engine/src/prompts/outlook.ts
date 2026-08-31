@@ -109,10 +109,13 @@ OUTPUT SHAPE
 /** User prompt for synthesis stage — extraction + foundation inlined. */
 export function buildOutlookSynthesisPrompt(params: {
   lockedFacts: string;
+  computedFacts: string;
   factualFoundation: string;
   extractionJson: string;
 }): string {
   return `${params.lockedFacts}
+
+${params.computedFacts}
 
 <factual_foundation>
 ${params.factualFoundation}
@@ -131,8 +134,16 @@ Rules:
 - If verified_extraction.pl_mobility indicates exit from the Premier League, address roster eligibility risk plainly.
 - If extraction.data_gaps is non-empty, hedge or omit uncertain claims; set sidecar.confidence to "medium" or "low".
 - sidecar.horizons_touched must include both "near" and "long" when you successfully cover both; otherwise list only what you covered.
-- sidecar.evaluation_tags: 2–5 short snake_case tags describing the asset (e.g. reliable_starter, minutes_risk, set_piece_routes).
-- sidecar.evidence_gaps: copy unresolved data_gaps from extraction that affected the outlook.`;
+- sidecar.evidence_gaps: copy unresolved data_gaps from extraction that affected the outlook.
+
+SIDECAR JUDGMENTS — you decide each of these, they are not calculated for you:
+- sidecar.quality: how good he is AT HIS POSITION. elite = among the best in the league in his role; high = clearly above average; solid = a competent starter; squad = depth. Judge a defender on defending and a goalkeeper on goalkeeping. A low expected-goal-involvement rank is normal for them and is NOT evidence of low quality.
+- sidecar.minutes_role: how securely he holds a starting place when fit. Use the measured playing record, but override it when the evidence says his standing has changed — a new signing, a manager change, a return from injury into a settled side.
+- sidecar.career_phase: emerging, peak, plateau or decline_risk. Positions age differently; centre-backs and goalkeepers mature late, wide attackers earlier.
+- sidecar.dynasty_value: multi-year worth in a league you can never re-draft. cornerstone, long_term_hold, win_now, declining_asset.
+- sidecar.pl_mobility: copy the verified extraction value unless the foundation contradicts it.
+- sidecar.risk_flags: only what the evidence supports.
+- sidecar.style: up to three archetypes from the supplied list, describing how he plays.`;
 }
 
 /** User prompt for query generation stage. */

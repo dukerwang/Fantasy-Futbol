@@ -1,3 +1,14 @@
+import { buildComputedFactsBlock, computeSetPieces } from '../facets/compute';
+import type { OutlookCareerPhase } from '../types/outlook';
+import type {
+  DynastyValue,
+  FacetInputs,
+  MinutesRole,
+  OutlookStyle,
+  PlMobility,
+  QualityTier,
+  RiskFlag,
+} from '../facets/types';
 import type { GoogleGenAI } from '@google/genai';
 import { FLASH_MODEL } from '../constants';
 import { logUsage } from '../gemini/usage';
@@ -23,7 +34,13 @@ function parseJsonText(text: string): unknown {
 interface SynthesisPayload {
   outlook: string;
   sidecar: {
-    evaluation_tags: string[];
+    quality?: QualityTier;
+    minutes_role?: MinutesRole;
+    career_phase?: OutlookCareerPhase;
+    dynasty_value?: DynastyValue;
+    pl_mobility?: PlMobility;
+    risk_flags?: RiskFlag[];
+    style?: OutlookStyle[];
     confidence: OutlookConfidence;
     horizons_touched: OutlookHorizon[];
     evidence_gaps: string[];
@@ -62,11 +79,13 @@ export async function synthesizeOutlook(
   factualFoundation: string,
   extraction: OutlookExtraction,
   temperature = 0.7,
+  facts?: FacetInputs,
 ): Promise<PlayerOutlook> {
   const lockedFacts = buildLockedFactsBlock(bag);
   const systemInstruction = buildOutlookSystemInstruction();
   const prompt = buildOutlookSynthesisPrompt({
     lockedFacts,
+    computedFacts: facts ? buildComputedFactsBlock(facts) : '',
     factualFoundation: factualFoundation.substring(0, 8000),
     extractionJson: JSON.stringify(extraction, null, 2),
   });
@@ -82,7 +101,15 @@ export async function synthesizeOutlook(
   return {
     outlook: payload.outlook.trim(),
     sidecar: {
-      evaluation_tags: payload.sidecar.evaluation_tags ?? [],
+      quality: payload.sidecar.quality ?? 'solid',
+      minutes_role: payload.sidecar.minutes_role ?? 'rotation_risk',
+      career_phase: payload.sidecar.career_phase ?? 'unknown',
+      dynasty_value: payload.sidecar.dynasty_value ?? 'win_now',
+      pl_mobility: payload.sidecar.pl_mobility ?? extraction.pl_mobility ?? 'unknown',
+      risk_flags: payload.sidecar.risk_flags ?? [],
+      style: payload.sidecar.style ?? [],
+      // Fact, not judgment: FPL publishes the set-piece hierarchy.
+      set_pieces: facts ? computeSetPieces(facts) : [],
       confidence: payload.sidecar.confidence ?? 'medium',
       horizons_touched: (payload.sidecar.horizons_touched ?? []) as OutlookHorizon[],
       evidence_gaps: payload.sidecar.evidence_gaps ?? [],

@@ -33,7 +33,14 @@ export async function generateOutlook(
           jitterSeed: contextBag.player_id,
         });
 
-  const draft = await synthesizeOutlook(ai, contextBag, foundation, extraction, temperature);
+  const draft = await synthesizeOutlook(
+    ai,
+    contextBag,
+    foundation,
+    extraction,
+    temperature,
+    options.facts,
+  );
 
   draft.sidecar.generated_at = new Date().toISOString();
   draft.sidecar.pipeline_version = PIPELINE_VERSION;

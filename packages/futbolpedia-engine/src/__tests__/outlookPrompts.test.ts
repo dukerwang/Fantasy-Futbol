@@ -71,6 +71,7 @@ describe('buildOutlookSynthesisPrompt', () => {
   it('inlines locked facts, foundation, and extraction', () => {
     const locked = buildLockedFactsBlock(SAMPLE_BAG);
     const prompt = buildOutlookSynthesisPrompt({
+      computedFacts: '',
       lockedFacts: locked,
       factualFoundation: 'Everton kept a clean sheet at home.',
       extractionJson: JSON.stringify({ data_gaps: ['set-piece role unclear'] }),

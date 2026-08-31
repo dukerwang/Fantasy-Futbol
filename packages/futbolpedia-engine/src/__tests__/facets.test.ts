@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   FACET_THRESHOLDS,
   computeCareerPhase,
-  computeFacets,
+  computeFallbackFacets,
   computeMinutesRole,
   computeSetPieces,
   resolveRoleShare,
@@ -145,9 +145,9 @@ describe('set_pieces', () => {
   });
 });
 
-describe('computeFacets', () => {
+describe('computeFallbackFacets', () => {
   it('never returns a value outside its enum', () => {
-    const f = computeFacets(
+    const f = computeFallbackFacets(
       inputs({
         age: 24,
         xgi_percentile: 0.99,
@@ -156,7 +156,6 @@ describe('computeFacets', () => {
       }),
     );
     expect(f.minutes_role).toBe('nailed');
-    expect(f.attacking_involvement).toBe('primary_outlet');
     expect(f.career_phase).toBe('emerging');
     expect(f.dynasty_value).toBe('cornerstone');
     expect(f.set_pieces).toEqual(['penalties']);
@@ -164,10 +163,9 @@ describe('computeFacets', () => {
   });
 
   it('degrades to valid values on an empty input', () => {
-    const f = computeFacets(inputs({ age: null }));
+    const f = computeFallbackFacets(inputs({ age: null }));
     expect(f).toEqual({
       minutes_role: 'fringe',
-      attacking_involvement: 'peripheral',
       career_phase: 'unknown',
       dynasty_value: 'win_now',
       set_pieces: [],
@@ -178,7 +176,7 @@ describe('computeFacets', () => {
   it('does not call an entrenched veteran a declining asset', () => {
     // Tarkowski: career_phase already ruled this plateau rather than
     // decline_risk, and dynasty_value must not overrule it on age alone.
-    const f = computeFacets(
+    const f = computeFallbackFacets(
       inputs({ age: 33, primary_position: 'CB', xgi_percentile: 0.6,
                prior: { starts: 37, appearances: 37, team_matches: 38 } }),
     );
@@ -187,38 +185,72 @@ describe('computeFacets', () => {
   });
 
   it('does call a veteran who lost his place a declining asset', () => {
-    const f = computeFacets(
+    const f = computeFallbackFacets(
       inputs({ age: 36, prior: { starts: 5, appearances: 12, team_matches: 38 } }),
     );
     expect(f.dynasty_value).toBe('declining_asset');
   });
 
-  it('never ranks a defender or keeper on attacking output', () => {
-    // Saliba read "limited" on xGI. Defensive volume does not rescue it either
-    // — he is 34th percentile among defenders there, below Dunk. No free
-    // metric ranks defender quality, so this facet refuses to pretend.
-    for (const pos of ['CB', 'LB', 'RWB', 'GK'] as const) {
-      const f = computeFacets(inputs({ primary_position: pos, xgi_percentile: 0.05 }));
-      expect(f.attacking_involvement).toBe('not_applicable');
-    }
-    expect(computeFacets(inputs({ primary_position: 'ST', xgi_percentile: 0.05 })).attacking_involvement)
-      .toBe('peripheral');
-  });
-
   it('still calls an ever-present defender a cornerstone', () => {
-    // He has no attacking ranking by design; that must not cost him the facet.
-    const f = computeFacets(
+    // Judged on minutes at this layer — quality is Futbolpedia's call.
+    const f = computeFallbackFacets(
       inputs({ age: 25, primary_position: 'CB',
                prior: { starts: 28, appearances: 31, team_matches: 38 } }),
     );
-    expect(f.attacking_involvement).toBe('not_applicable');
     expect(f.dynasty_value).toBe('cornerstone');
   });
 
   it('flags a contested starter', () => {
-    const f = computeFacets(
+    const f = computeFallbackFacets(
       inputs({ age: 27, prior: { starts: 18, appearances: 30, team_matches: 38 } }),
     );
     expect(f.risk_flags).toContain('minutes_competition');
+  });
+});
+
+describe('the enum gate', () => {
+  it('rejects a sidecar value outside its enum', async () => {
+    const { validateOutlook } = await import('../gates/validateOutlook');
+    const base = {
+      quality: 'elite' as const,
+      minutes_role: 'nailed' as const,
+      career_phase: 'peak' as const,
+      dynasty_value: 'cornerstone' as const,
+      pl_mobility: 'stable' as const,
+      risk_flags: [],
+      style: [],
+      set_pieces: [],
+      confidence: 'high' as const,
+      horizons_touched: ['near', 'long'] as const,
+      evidence_gaps: [],
+      generated_at: '2026-08-31T00:00:00.000Z',
+      model_id: 'gemini-3.7-flash',
+      pipeline_version: '0.3.0',
+    };
+    const extraction = {
+      verified_facts: [],
+      status_summary: '',
+      role_summary: '',
+      career_phase: 'peak' as const,
+      data_gaps: [],
+      conflicting_reports: [],
+      current_head_coach: null,
+      pl_mobility: 'stable' as const,
+      mobility_summary: '',
+    };
+    const text = 'A '.repeat(60) + 'defender who plays every week and heads corners away.';
+    const bag = { player_id: 'x' } as never;
+
+    const ok = validateOutlook({ outlook: text, sidecar: { ...base } }, extraction, bag);
+    expect(ok.reasons.filter((r) => r.includes('enum'))).toHaveLength(0);
+
+    // The free-text era would have accepted anything here.
+    const bad = validateOutlook(
+      { outlook: text, sidecar: { ...base, quality: 'world_class' as never } },
+      extraction,
+      bag,
+    );
+    expect(bad.ok).toBe(false);
+    expect(bad.reasons.some((r) => r.includes('sidecar.quality'))).toBe(true);
   });
 });

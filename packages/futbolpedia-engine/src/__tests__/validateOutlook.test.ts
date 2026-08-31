@@ -39,13 +39,20 @@ function makeOutlook(text: string, confidence: 'high' | 'medium' | 'low' = 'high
   return {
     outlook: text,
     sidecar: {
-      evaluation_tags: ['reliable_starter'],
+      quality: 'high',
+      minutes_role: 'nailed',
+      career_phase: 'peak',
+      dynasty_value: 'win_now',
+      pl_mobility: 'stable',
+      risk_flags: [],
+      style: [],
+      set_pieces: [],
       confidence,
       horizons_touched: ['near', 'long'],
       evidence_gaps: [],
       generated_at: '2026-08-26T00:00:00.000Z',
       model_id: 'gemini-3.7-flash',
-      pipeline_version: '0.2.0',
+      pipeline_version: '0.3.0',
     },
   };
 }

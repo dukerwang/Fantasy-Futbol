@@ -55,6 +55,8 @@
     .pcMeta{font-size:11.5px;color:var(--muted)}
     .pcRead{padding:0 14px 12px;flex:1}
     .pcRead p{font-family:'Newsreader',Georgia,serif;font-size:14.5px;line-height:1.46;color:var(--ink2);margin:0;text-wrap:pretty}
+    .clamp{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+    .more{margin-top:6px;border:0;background:transparent;padding:0;color:var(--accentInk);font-family:'Archivo Narrow',sans-serif;font-weight:700;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;cursor:pointer}
     .pcTags{display:flex;flex-wrap:wrap;gap:5px;padding:0 14px 12px}
     .tag{font-family:'Archivo Narrow',sans-serif;font-weight:600;font-size:10px;letter-spacing:.05em;text-transform:uppercase;padding:3px 7px;border-radius:4px;background:var(--inset);color:var(--muted);white-space:nowrap}
     .flag{display:flex;align-items:center;gap:6px;margin:0 14px 11px;padding:6px 9px;border-radius:5px;font-family:'Archivo Narrow',sans-serif;font-weight:700;font-size:10.5px;letter-spacing:.07em;text-transform:uppercase}
@@ -137,7 +139,10 @@
             <div class="pcMeta">{{c.club}}</div>
           </div>
         </div>
-        <div class="pcRead"><p>{{c.read}}</p></div>
+        <div class="pcRead">
+          <p class="{{c.readCls}}">{{c.read}}</p>
+          <button class="more" onClick="{{c.toggle}}">{{c.moreLabel}}</button>
+        </div>
         <sc-if value="{{c.hasFlag}}" hint-placeholder-val="{{true}}">
           <div class="{{c.flagCls}}"><i></i>{{c.flag}}</div>
         </sc-if>
@@ -161,7 +166,7 @@
 </x-dc>
 <script data-dc-script>
 class Component extends DCLogic {
-  constructor(props){ super(props); this.state={involvement:null,minutes:null,risk:null}; }
+  constructor(props){ super(props); this.state={involvement:null,minutes:null,risk:null,open:{}}; }
 
   data(){
     const CHE={c:'CHE',col:'#034694'}, ARS={c:'ARS',col:'#DB0007'};
@@ -222,6 +227,9 @@ class Component extends DCLogic {
     const cards=this.data()
       .filter(c=>(!s.involvement||c.involvement===s.involvement)&&(!s.minutes||c.minutes===s.minutes)&&(!s.risk||c.risk===s.risk))
       .map(c=>({...c,
+        readCls: s.open[c.name] ? '' : 'clamp',
+        moreLabel: s.open[c.name] ? 'Less' : 'More',
+        toggle: () => this.setState({ open: { ...s.open, [c.name]: !s.open[c.name] } }),
         hasFlag:!!c.flag,
         flagCls:c.flagKind==='exit'?'flag flagExit':'flag flagDoubt',
         ptsCls:c.pts==='—'?'fv na':'fv',
