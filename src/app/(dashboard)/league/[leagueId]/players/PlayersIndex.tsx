@@ -9,6 +9,8 @@ import PlayerExplorer from './PlayerExplorer';
 import { getPlayerDisplayName } from '@/lib/players/displayName';
 import { SPINE, POS_COLOR } from '@/lib/positions/spine';
 import type { GranularPosition } from '@/types';
+import { STYLE_LABEL } from '@futbolpedia/engine';
+import type { OutlookStyle } from '@futbolpedia/engine';
 import type { ExplorerRow, IndexScout } from '@/lib/players/indexData';
 import type { IndexRowPlayer } from './page';
 import styles from './playersIndex.module.css';
@@ -31,6 +33,8 @@ interface Props {
   seasons: string[];
   view: 'cards' | 'table' | 'explorer';
   explorerRows: ExplorerRow[];
+  gameweeks: number[];
+  gameweek: number | null;
   shadowMaps: React.ComponentProps<typeof GlobalStatsTable>['shadowMaps'];
 }
 
@@ -82,7 +86,7 @@ function Pill({
 }
 
 export default function PlayersIndex({
-  leagueId, leagueName, players, scout, season, seasons, view, explorerRows, shadowMaps,
+  leagueId, leagueName, players, scout, season, seasons, view, explorerRows, gameweeks, gameweek, shadowMaps,
 }: Props) {
   const [search, setSearch] = useState('');
   const [quality, setQuality] = useState<string | null>(null);
@@ -158,7 +162,9 @@ export default function PlayersIndex({
             {(['cards', 'table', 'explorer'] as const).map((v) => (
               <NavigationLink
                 key={v}
-                href={`/league/${leagueId}/players?view=${v}&season=${season}`}
+                href={`/league/${leagueId}/players?view=${v}&season=${season}${
+                  v === 'table' && gameweek ? `&gw=${gameweek}` : ''
+                }`}
                 className={`${styles.segBtn} ${v === view ? styles.segOn : ''}`}
                 aria-current={v === view ? 'page' : undefined}
               >
@@ -184,6 +190,30 @@ export default function PlayersIndex({
     return (
       <div className="g-panel">
         {header}
+        {gameweeks.length > 0 && (
+          <div className={styles.gwBar}>
+            <span className={`g-label-quiet ${styles.facetLabel}`}>Gameweek</span>
+            <div className={styles.rail}>
+              <NavigationLink
+                href={`/league/${leagueId}/players?view=table&season=${season}`}
+                className={`${styles.pill} ${gameweek == null ? styles.pillOn : ''}`}
+                aria-current={gameweek == null ? 'page' : undefined}
+              >
+                Season
+              </NavigationLink>
+              {gameweeks.map((n) => (
+                <NavigationLink
+                  key={n}
+                  href={`/league/${leagueId}/players?view=table&season=${season}&gw=${n}`}
+                  className={`${styles.pill} ${gameweek === n ? styles.pillOn : ''}`}
+                  aria-current={gameweek === n ? 'page' : undefined}
+                >
+                  GW{n}
+                </NavigationLink>
+              ))}
+            </div>
+          </div>
+        )}
         <GlobalStatsTable
           leagueId={leagueId}
           leagueName={leagueName}
@@ -314,7 +344,9 @@ export default function PlayersIndex({
                 <div className={styles.tags}>
                   <span className={styles.tag}>{MINUTES_LABEL[s.minutes_role]}</span>
                   {s.style.slice(0, 1).map((st) => (
-                    <span key={st} className={styles.tag}>{st.replace(/_/g, ' ')}</span>
+                    <span key={st} className={styles.tag}>
+                      {STYLE_LABEL[st as OutlookStyle] ?? st.replace(/_/g, ' ')}
+                    </span>
                   ))}
                   {s.fromFallback && <span className={styles.tagQuiet}>Not yet scouted</span>}
                 </div>

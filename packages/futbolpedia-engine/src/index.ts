@@ -40,7 +40,7 @@ export {
   resolveRoleShare,
 } from './facets/compute';
 
-export { OUTLOOK_STYLES } from './facets/types';
+export { OUTLOOK_STYLES, STYLES_BY_POSITION, STYLE_LABEL, stylesFor } from './facets/types';
 
 export type {
   DynastyValue,

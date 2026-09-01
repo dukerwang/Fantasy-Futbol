@@ -3,6 +3,8 @@ import PositionBadge from '@/components/players/PositionBadge';
 import NavigationLink from '@/components/ui/NavigationLink';
 import { getPlayerDisplayName } from '@/lib/players/displayName';
 import type { GranularPosition } from '@/types';
+import { STYLE_LABEL } from '@futbolpedia/engine';
+import type { OutlookStyle } from '@futbolpedia/engine';
 import type { PlayerHubData } from '@/lib/players/hubData';
 import styles from './playerHub.module.css';
 
@@ -165,7 +167,6 @@ export default function PlayerHub({
           <section className="g-panel">
             <div className="g-panel-hd">
               <span className="g-label">Scouting report</span>
-              <span className={styles.rubric}>what kind of footballer he is</span>
               <span className={styles.headMeta}>
                 {report
                   ? `Futbolpedia · ${new Date(report.generatedAt).toLocaleDateString('en-GB', {
@@ -182,9 +183,7 @@ export default function PlayerHub({
                    historical version, so viewing an older season must not make
                    it look like it describes that season. */
                 <p className={styles.pinNote}>
-                  This report describes the player today, not{' '}
-                  {season.replace('-', '/')}. The figures below are{' '}
-                  {season.replace('-', '/')}.
+                  Written for today. Figures below are {season.replace('-', '/')}.
                 </p>
               )}
               {report ? (
@@ -195,7 +194,7 @@ export default function PlayerHub({
                     <Facet k="Phase" v={humanise(report.career_phase)} />
                     <Facet k="Mobility" v={humanise(report.pl_mobility)} />
                     {report.style.slice(0, 3).map((s) => (
-                      <Facet key={s} k="Style" v={humanise(s)} />
+                      <Facet key={s} k="Style" v={STYLE_LABEL[s as OutlookStyle] ?? humanise(s)} />
                     ))}
                     {report.risk_flags.map((r) => (
                       <Facet key={r} k="Watch" v={humanise(r)} />
@@ -209,17 +208,15 @@ export default function PlayerHub({
                       Confidence: {report.confidence}
                       {report.evidence_gaps.length > 0
                         ? ` · ${report.evidence_gaps.length} unresolved gap${report.evidence_gaps.length === 1 ? '' : 's'}`
-                        : ' · no unresolved evidence gaps'}
+                        : ''}
                     </span>
                     {report.fromFallback && (
-                      <span className="g-label-quiet">Computed from record — not yet scouted</span>
+                      <span className="g-label-quiet">From record · not yet scouted</span>
                     )}
                   </div>
                 </>
               ) : (
-                <p className={styles.empty}>
-                  No scouting report for this player yet. His record and league figures are below.
-                </p>
+                <p className={styles.empty}>Not yet scouted.</p>
               )}
             </div>
           </section>
@@ -227,8 +224,7 @@ export default function PlayerHub({
           {form && (
             <section className="g-panel">
               <div className="g-panel-hd">
-                <span className="g-label">Real-world form</span>
-                <span className={styles.rubric}>Premier League output, not league scoring</span>
+                <span className="g-label">Premier League form</span>
                 <span className={styles.headMeta}>
                   {form.season.replace('-', '/')}
                   {seasonClub && seasonClub !== player.pl_team ? ` · ${seasonClub}` : ''} ·{' '}
@@ -287,9 +283,7 @@ export default function PlayerHub({
                 ) : (
                   /* Elite centre-backs rank near the bottom of attacking output;
                      ranking them on it would invert what the position is for. */
-                  <p className={styles.note}>
-                    Attacking output is not how this position is judged, so it is not ranked here.
-                  </p>
+                  <p className={styles.note}>Attacking output isn&apos;t ranked for defenders.</p>
                 )}
               </div>
             </section>
@@ -305,10 +299,6 @@ export default function PlayerHub({
             </div>
 
             <div className={styles.panelBody}>
-              <p className={styles.rubricBlock}>
-                What he is worth in {leagueName} — league scoring, not a football judgment.
-              </p>
-
               <div className={styles.bigStat}>
                 <span className={styles.bigStatValue}>{num(league.points)}</span>
                 <span className="g-label-quiet">points · {league.season.replace('-', '/')}</span>
@@ -344,10 +334,7 @@ export default function PlayerHub({
                 </div>
               )}
 
-              <p className={styles.note}>
-                League figures come from Gaffa&apos;s scoring engine and never feed the scouting
-                report.
-              </p>
+
             </div>
           </section>
         </aside>

@@ -82,6 +82,65 @@ export const OUTLOOK_STYLES = [
 
 export type OutlookStyle = (typeof OUTLOOK_STYLES)[number];
 
+/**
+ * Which archetypes a position may be given.
+ *
+ * Without this every player was offered all twenty, and a right-back came back
+ * tagged `ball_playing_cb` — a position he does not hold in Gaffa. The prompt
+ * also claimed to supply "the list" and never did, so the model was choosing
+ * from the response schema's enum with no guidance at all.
+ */
+export const STYLES_BY_POSITION: Record<string, readonly OutlookStyle[]> = {
+  GK: ['shot_stopper', 'sweeper_keeper'],
+  CB: ['ball_playing_cb', 'stopper', 'aerial_threat', 'press_resistant'],
+  LB: ['overlapping_fullback', 'inverted_fullback', 'transition_threat', 'press_resistant'],
+  RB: ['overlapping_fullback', 'inverted_fullback', 'transition_threat', 'press_resistant'],
+  LWB: ['overlapping_fullback', 'inverted_fullback', 'transition_threat', 'press_resistant'],
+  RWB: ['overlapping_fullback', 'inverted_fullback', 'transition_threat', 'press_resistant'],
+  DM: ['ball_winner', 'deep_playmaker', 'tempo_controller', 'press_resistant', 'box_to_box', 'aerial_threat'],
+  CM: ['box_to_box', 'deep_playmaker', 'tempo_controller', 'press_resistant', 'ball_winner', 'creative_hub'],
+  AM: ['creative_hub', 'deep_playmaker', 'second_striker', 'transition_threat', 'tempo_controller', 'press_resistant'],
+  LW: ['inverted_winger', 'direct_winger', 'transition_threat', 'pressing_forward', 'creative_hub'],
+  RW: ['inverted_winger', 'direct_winger', 'transition_threat', 'pressing_forward', 'creative_hub'],
+  ST: ['target_man', 'poacher', 'second_striker', 'pressing_forward', 'aerial_threat', 'transition_threat'],
+};
+
+/** Archetypes valid for a player, primary plus any secondary positions. */
+export function stylesFor(
+  primary: string,
+  secondary: readonly string[] = [],
+): readonly OutlookStyle[] {
+  const set = new Set<OutlookStyle>();
+  for (const pos of [primary, ...secondary]) {
+    for (const style of STYLES_BY_POSITION[pos] ?? []) set.add(style);
+  }
+  return set.size > 0 ? [...set] : OUTLOOK_STYLES;
+}
+
+/** Display labels. Football terms carry their own capitalisation. */
+export const STYLE_LABEL: Record<OutlookStyle, string> = {
+  ball_playing_cb: 'Ball-Playing CB',
+  stopper: 'Stopper',
+  aerial_threat: 'Aerial Threat',
+  sweeper_keeper: 'Sweeper Keeper',
+  shot_stopper: 'Shot Stopper',
+  overlapping_fullback: 'Overlapping Fullback',
+  inverted_fullback: 'Inverted Fullback',
+  deep_playmaker: 'Deep Playmaker',
+  ball_winner: 'Ball Winner',
+  box_to_box: 'Box-to-Box',
+  press_resistant: 'Press-Resistant',
+  tempo_controller: 'Tempo Controller',
+  creative_hub: 'Creative Hub',
+  second_striker: 'Second Striker',
+  target_man: 'Target Man',
+  poacher: 'Poacher',
+  inverted_winger: 'Inverted Winger',
+  direct_winger: 'Direct Winger',
+  transition_threat: 'Transition Threat',
+  pressing_forward: 'Pressing Forward',
+};
+
 /** The judged facets, as they land in the sidecar. */
 export interface JudgedFacets {
   quality: QualityTier;

@@ -126,6 +126,16 @@
 .clear:hover { background: var(--color-bg-inset); color: var(--color-text-primary); }
 
 /* --- facets --- */
+.gwBar {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  padding: var(--s3) var(--s6);
+  border-top: 1px solid var(--color-border);
+  background: var(--color-bg-card-alt);
+  min-width: 0;
+}
+
 .facetBar {
   padding: var(--s3) var(--s6) var(--s4);
   border-top: 1px solid var(--color-border-subtle);
@@ -425,9 +435,20 @@
 
 @media (max-width: 700px) {
   .header { padding: var(--s4) var(--s4) var(--s3); }
-  .tools, .facetBar { padding-left: var(--s4); padding-right: var(--s4); }
+  .tools, .gwBar {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  padding: var(--s3) var(--s6);
+  border-top: 1px solid var(--color-border);
+  background: var(--color-bg-card-alt);
+  min-width: 0;
+}
+
+.facetBar { padding-left: var(--s4); padding-right: var(--s4); }
   .grid { padding: var(--s4); grid-template-columns: minmax(0, 1fr); }
   .more { padding-left: var(--s4); padding-right: var(--s4); }
   .facetLabel { width: 68px; }
+  .gwBar { padding-left: var(--s4); padding-right: var(--s4); }
   .headRight { gap: var(--s3); }
 }

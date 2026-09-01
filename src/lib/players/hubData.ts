@@ -9,6 +9,7 @@ import type {
   SetPieceDuty,
 } from '@futbolpedia/engine';
 import type { OutlookCareerPhase } from '@futbolpedia/engine';
+import { stylesFor } from '@futbolpedia/engine';
 import type { Player, PlayerOwnership } from '@/types';
 import { fetchPlayerFront } from '@/lib/players/cardData';
 import { loadFacetInputs } from '@/lib/outlook/facetInputs';
@@ -92,9 +93,17 @@ interface StoredOutlookRow {
   generated_at: string;
 }
 
-function toReport(row: StoredOutlookRow | null): HubScoutingReport | null {
+function toReport(
+  row: StoredOutlookRow | null,
+  primary: string,
+  secondary: readonly string[],
+): HubScoutingReport | null {
   if (!row?.outlook) return null;
   const s = (row.sidecar ?? {}) as Record<string, unknown>;
+  // Stored rows predate the position-scoped vocabulary, and one of them tagged
+  // a right-back `ball_playing_cb`. Drop anything his positions cannot carry
+  // rather than wait for a regen to stop showing it.
+  const permitted = new Set(stylesFor(primary, secondary));
   return {
     outlook: row.outlook,
     quality: (s.quality as QualityTier) ?? 'solid',
@@ -103,7 +112,7 @@ function toReport(row: StoredOutlookRow | null): HubScoutingReport | null {
     dynasty_value: (s.dynasty_value as DynastyValue) ?? 'win_now',
     pl_mobility: (s.pl_mobility as PlMobility) ?? 'unknown',
     risk_flags: (s.risk_flags as RiskFlag[]) ?? [],
-    style: (s.style as OutlookStyle[]) ?? [],
+    style: ((s.style as OutlookStyle[]) ?? []).filter((v) => permitted.has(v)),
     set_pieces: (s.set_pieces as SetPieceDuty[]) ?? [],
     confidence: (s.confidence as 'high' | 'medium' | 'low') ?? 'medium',
     evidence_gaps: (s.evidence_gaps as string[]) ?? [],
@@ -172,7 +181,11 @@ export async function loadPlayerHub(
   const inputs = factBundle.inputs.get(playerId);
   const rankable = RANKABLE_ON_ATTACK.has(player.primary_position);
 
-  const report = toReport((outlookRes.data as StoredOutlookRow | null) ?? null);
+  const report = toReport(
+    (outlookRes.data as StoredOutlookRow | null) ?? null,
+    player.primary_position,
+    (player.secondary_positions ?? []) as string[],
+  );
 
   // The real-world panel follows the same season the ledger is showing, so the
   // two layers never describe different years on one screen.

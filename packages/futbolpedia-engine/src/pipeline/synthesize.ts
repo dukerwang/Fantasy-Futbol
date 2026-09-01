@@ -1,5 +1,6 @@
 import { buildComputedFactsBlock, computeSetPieces } from '../facets/compute';
 import { openingAngleFor } from '../gates/openingPatterns';
+import { stylesFor } from '../facets/types';
 import type { OutlookCareerPhase } from '../types/outlook';
 import type {
   DynastyValue,
@@ -82,6 +83,7 @@ export async function synthesizeOutlook(
   temperature = 0.7,
   facts?: FacetInputs,
 ): Promise<PlayerOutlook> {
+  const permitted = stylesFor(bag.primary_position, bag.secondary_positions);
   const lockedFacts = buildLockedFactsBlock(bag);
   const systemInstruction = buildOutlookSystemInstruction();
   const prompt = buildOutlookSynthesisPrompt({
@@ -90,6 +92,7 @@ export async function synthesizeOutlook(
     factualFoundation: factualFoundation.substring(0, 8000),
     extractionJson: JSON.stringify(extraction, null, 2),
     openingAngle: openingAngleFor(bag.player_id),
+    permittedStyles: permitted.join(', '),
   });
 
   let payload: SynthesisPayload;
@@ -109,7 +112,9 @@ export async function synthesizeOutlook(
       dynasty_value: payload.sidecar.dynasty_value ?? 'win_now',
       pl_mobility: payload.sidecar.pl_mobility ?? extraction.pl_mobility ?? 'unknown',
       risk_flags: payload.sidecar.risk_flags ?? [],
-      style: payload.sidecar.style ?? [],
+      // Enforced, not merely requested: the schema's enum is the whole
+      // vocabulary, and only this filter knows his positions.
+      style: (payload.sidecar.style ?? []).filter((v) => permitted.includes(v)),
       // Fact, not judgment: FPL publishes the set-piece hierarchy.
       set_pieces: facts ? computeSetPieces(facts) : [],
       confidence: payload.sidecar.confidence ?? 'medium',

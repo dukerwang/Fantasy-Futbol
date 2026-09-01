@@ -120,6 +120,7 @@ export function buildOutlookSynthesisPrompt(params: {
   factualFoundation: string;
   extractionJson: string;
   openingAngle: string;
+  permittedStyles: string;
 }): string {
   return `${params.lockedFacts}
 
@@ -154,7 +155,7 @@ SIDECAR JUDGMENTS — you decide each of these, they are not calculated for you:
 - sidecar.dynasty_value: multi-year worth in a league you can never re-draft. cornerstone, long_term_hold, win_now, declining_asset.
 - sidecar.pl_mobility: copy the verified extraction value unless the foundation contradicts it.
 - sidecar.risk_flags: only what the evidence supports.
-- sidecar.style: up to three archetypes from the supplied list, describing how he plays.`;
+- sidecar.style: up to three archetypes describing how he plays, chosen ONLY from this list, which is scoped to the positions he actually holds: ${params.permittedStyles}. Do not choose an archetype naming a position he does not play.`;
 }
 
 /** User prompt for query generation stage. */

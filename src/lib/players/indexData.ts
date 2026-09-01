@@ -9,7 +9,7 @@ import type {
   SetPieceDuty,
 } from '@futbolpedia/engine';
 import type { OutlookCareerPhase } from '@futbolpedia/engine';
-import { computeFallbackFacets } from '@futbolpedia/engine';
+import { computeFallbackFacets, stylesFor } from '@futbolpedia/engine';
 import { loadSeasonLeaderboard } from '@/lib/stats/seasonStats';
 import { loadFacetInputs } from '@/lib/outlook/facetInputs';
 import { getPlayerDisplayName } from '@/lib/players/displayName';
@@ -60,13 +60,23 @@ function lede(outlook: string): string {
  * called an elite centre-back "limited".
  */
 export async function loadScoutIndex(admin: SupabaseClient): Promise<Map<string, IndexScout>> {
-  const [rows, factBundle] = await Promise.all([
+  const [rows, factBundle, positions] = await Promise.all([
     fetchAllPages<{ player_id: string; outlook: string; sidecar: Record<string, unknown> | null }>(
       (from, to) =>
         admin.from('player_outlooks').select('player_id, outlook, sidecar').range(from, to),
     ),
     loadFacetInputs(admin),
+    fetchAllPages<{ id: string; primary_position: string; secondary_positions: string[] | null }>(
+      (from, to) =>
+        admin
+          .from('players')
+          .select('id, primary_position, secondary_positions')
+          .eq('is_active', true)
+          .range(from, to),
+    ),
   ]);
+
+  const positionsById = new Map(positions.map((p) => [p.id, p]));
 
   const out = new Map<string, IndexScout>();
 
@@ -82,7 +92,12 @@ export async function loadScoutIndex(admin: SupabaseClient): Promise<Map<string,
       dynasty_value: (s.dynasty_value as DynastyValue) ?? 'win_now',
       pl_mobility: (s.pl_mobility as PlMobility) ?? 'unknown',
       risk_flags: (s.risk_flags as RiskFlag[]) ?? [],
-      style: (s.style as OutlookStyle[]) ?? [],
+      // See hubData: stored rows predate the position-scoped vocabulary.
+      style: ((s.style as OutlookStyle[]) ?? []).filter((v) => {
+        const pos = positionsById.get(row.player_id);
+        if (!pos) return true;
+        return stylesFor(pos.primary_position, pos.secondary_positions ?? []).includes(v);
+      }),
       set_pieces: (s.set_pieces as SetPieceDuty[]) ?? [],
       lede: lede(row.outlook),
       fromFallback: false,

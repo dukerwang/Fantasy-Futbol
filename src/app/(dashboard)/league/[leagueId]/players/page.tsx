@@ -11,7 +11,7 @@ export const dynamic = 'force-dynamic';
 
 interface Props {
   params: Promise<{ leagueId: string }>;
-  searchParams: Promise<{ view?: string; season?: string }>;
+  searchParams: Promise<{ view?: string; season?: string; gw?: string }>;
 }
 
 export interface IndexRowPlayer extends Player {
@@ -21,7 +21,7 @@ export interface IndexRowPlayer extends Player {
 
 export default async function PlayersPage({ params, searchParams }: Props) {
   const { leagueId } = await params;
-  const { view, season: requestedSeason } = await searchParams;
+  const { view, season: requestedSeason, gw } = await searchParams;
 
   const supabase = await createClient();
   const {
@@ -59,8 +59,22 @@ export default async function PlayersPage({ params, searchParams }: Props) {
 
   // The explorer needs per-season aggregates the leaderboard does not carry,
   // and the scout layer is dead weight to it — load each only where used.
+  // Which gameweeks the season actually has rows for — never a fixed 1..38,
+  // which would offer weeks that have not been played.
+  const { data: gwRows } = await admin
+    .from('player_stats')
+    .select('gameweek')
+    .eq('season', season)
+    .order('gameweek', { ascending: true });
+  const gameweeks = [...new Set((gwRows ?? []).map((r) => r.gameweek as number))].filter(
+    (n): n is number => n != null,
+  );
+
+  const requestedGw = gw ? Number(gw) : null;
+  const gameweek = requestedGw != null && gameweeks.includes(requestedGw) ? requestedGw : null;
+
   const [{ players, shadowMaps }, scoutIndex, explorerRows] = await Promise.all([
-    loadSeasonLeaderboard(admin, season),
+    loadSeasonLeaderboard(admin, season, { gameweek }),
     activeView === 'explorer'
       ? Promise.resolve(new Map())
       : loadScoutIndex(admin),
@@ -99,6 +113,8 @@ export default async function PlayersPage({ params, searchParams }: Props) {
       seasons={seasons}
       view={activeView}
       explorerRows={explorerRows}
+      gameweeks={gameweeks}
+      gameweek={gameweek}
       shadowMaps={shadowMaps}
     />
   );

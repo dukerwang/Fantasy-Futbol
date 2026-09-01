@@ -254,3 +254,38 @@ describe('the enum gate', () => {
     expect(bad.reasons.some((r) => r.includes('sidecar.quality'))).toBe(true);
   });
 });
+
+describe('style vocabulary by position', () => {
+  it('never offers a centre-back archetype to a full-back', async () => {
+    const { stylesFor } = await import('../facets/types');
+    // Ben White, RB with CM cover, came back tagged ball_playing_cb — a
+    // position he does not hold in Gaffa.
+    expect(stylesFor('RB', ['CM'])).not.toContain('ball_playing_cb');
+    expect(stylesFor('RB', ['CM'])).toContain('overlapping_fullback');
+    expect(stylesFor('CB')).toContain('ball_playing_cb');
+  });
+
+  it('widens to cover a secondary position', async () => {
+    const { stylesFor } = await import('../facets/types');
+    const both = stylesFor('CB', ['RB']);
+    expect(both).toContain('ball_playing_cb');
+    expect(both).toContain('overlapping_fullback');
+  });
+
+  it('keeps goalkeeper archetypes to goalkeepers', async () => {
+    const { stylesFor } = await import('../facets/types');
+    expect(stylesFor('GK')).toEqual(['shot_stopper', 'sweeper_keeper']);
+    expect(stylesFor('ST')).not.toContain('sweeper_keeper');
+  });
+
+  it('labels every archetype with football capitalisation', async () => {
+    const { OUTLOOK_STYLES, STYLE_LABEL } = await import('../facets/types');
+    for (const style of OUTLOOK_STYLES) {
+      expect(STYLE_LABEL[style], style).toBeTruthy();
+      // No raw snake_case leaking to the screen.
+      expect(STYLE_LABEL[style]).not.toContain('_');
+    }
+    expect(STYLE_LABEL.overlapping_fullback).toBe('Overlapping Fullback');
+    expect(STYLE_LABEL.ball_playing_cb).toBe('Ball-Playing CB');
+  });
+});
