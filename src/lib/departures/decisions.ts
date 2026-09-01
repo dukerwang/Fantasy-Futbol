@@ -119,7 +119,7 @@ async function loadDecision(admin: SupabaseClient, decisionId: string): Promise<
 }
 
 async function playerName(admin: SupabaseClient, playerId: string): Promise<string> {
-  const { data } = await admin.from('players').select('name, web_name').eq('id', playerId).single();
+  const { data } = await admin.from('players').select('name, full_name, sofifa_common_name, web_name').eq('id', playerId).single();
   return getPlayerDisplayName(data, 'full');
 }
 

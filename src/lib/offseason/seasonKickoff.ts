@@ -160,7 +160,7 @@ export async function findPromotedClubsAndArrivals(
 
   const { data: allCandidatePlayers } = await admin
     .from('players')
-    .select('id, name, web_name, market_value, pl_team, pl_team_changed_at')
+    .select('id, name, full_name, sofifa_common_name, web_name, market_value, pl_team, pl_team_changed_at')
     .eq('is_active', true);
 
   const requireTransferEvidence = options?.requireTransferEvidence ?? false;

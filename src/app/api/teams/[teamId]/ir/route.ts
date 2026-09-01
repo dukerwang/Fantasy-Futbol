@@ -41,7 +41,7 @@ export async function POST(req: NextRequest, { params }: Props) {
     if (action === 'swap') {
         const { data: entries, error: entriesErr } = await admin
             .from('roster_entries')
-            .select(`id, player_id, status, player:players(id, name, fpl_status, pl_team_id, web_name)`)
+            .select(`id, player_id, status, player:players(id, name, full_name, sofifa_common_name, fpl_status, pl_team_id, web_name)`)
             .eq('team_id', teamId)
             .in('player_id', [playerId, swapWithPlayerId]);
 
@@ -127,7 +127,7 @@ export async function POST(req: NextRequest, { params }: Props) {
     // Get current roster entry
     const { data: entry } = await admin
         .from('roster_entries')
-        .select(`id, status, player:players(id, name, fpl_status, pl_team_id, web_name)`)
+        .select(`id, status, player:players(id, name, full_name, sofifa_common_name, fpl_status, pl_team_id, web_name)`)
         .eq('team_id', teamId)
         .eq('player_id', playerId)
         .single();

@@ -485,11 +485,11 @@ export async function buildHomeModel(
       .in('status', ['pending', 'active']),
     admin
       .from('roster_entries')
-      .select('player_id, status, player:players(id, web_name, name, primary_position, secondary_positions, pl_team, fpl_status, date_of_birth, market_value)')
+      .select('player_id, status, player:players(id, web_name, name, full_name, sofifa_common_name, primary_position, secondary_positions, pl_team, fpl_status, date_of_birth, market_value)')
       .eq('team_id', myTeamId),
     admin
       .from('transactions')
-      .select('id, type, faab_bid, compensation_amount, notes, processed_at, team:teams(id, team_name), player:players(id, web_name, name, primary_position)')
+      .select('id, type, faab_bid, compensation_amount, notes, processed_at, team:teams(id, team_name), player:players(id, web_name, name, full_name, sofifa_common_name, primary_position)')
       .eq('league_id', leagueId)
       .order('processed_at', { ascending: false })
       .limit(20),
@@ -748,7 +748,7 @@ export async function buildHomeModel(
   if (missingPlayerIds.length > 0) {
     const { data: extraPlayers } = await admin
       .from('players')
-      .select('id, web_name, name, primary_position, secondary_positions, pl_team, fpl_status, date_of_birth, market_value')
+      .select('id, web_name, name, full_name, sofifa_common_name, primary_position, secondary_positions, pl_team, fpl_status, date_of_birth, market_value')
       .in('id', missingPlayerIds);
     for (const p of (extraPlayers ?? []) as any[]) {
       playerById.set(p.id, p);
@@ -765,7 +765,7 @@ export async function buildHomeModel(
     const { data: rawPerf } = await admin
       .from('player_stats')
       .select(
-        'fantasy_points, player:players!player_id(id, web_name, name, primary_position, pl_team)',
+        'fantasy_points, player:players!player_id(id, web_name, name, full_name, sofifa_common_name, primary_position, pl_team)',
       )
       .eq('gameweek', topPerformersGw)
       .eq('season', season)
@@ -1288,7 +1288,7 @@ export async function buildHomeModel(
           const [{ data: theirPlayers }, { data: theirStats }] = await Promise.all([
             admin
               .from('players')
-              .select('id, web_name, name, primary_position, pl_team')
+              .select('id, web_name, name, full_name, sofifa_common_name, primary_position, pl_team')
               .in('id', theirIds),
             admin
               .from('player_stats')
@@ -1746,7 +1746,7 @@ export async function buildHomeModel(
   if (lotPlayerIds.length) {
     const { data: lp } = await admin
       .from('players')
-      .select('id, web_name, name, primary_position, pl_team, market_value')
+      .select('id, web_name, name, full_name, sofifa_common_name, primary_position, pl_team, market_value')
       .in('id', lotPlayerIds);
     for (const p of lp ?? []) lotPlayers.set(p.id, p);
   }
