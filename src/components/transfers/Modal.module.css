@@ -31,6 +31,7 @@
   max-width: 520px;
   /* Twice the scrim's own gutter, so the panel never touches the viewport. */
   max-height: calc(100vh - var(--s12));
+  max-height: calc(100dvh - var(--s12));
   display: flex;
   flex-direction: column;
   outline: none;
@@ -111,7 +112,8 @@
 
   .panel {
     max-width: none;
-    max-height: 92vh;
+    max-height: 92dvh;
     border-radius: var(--r-shell) var(--r-shell) 0 0;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
   }
 }

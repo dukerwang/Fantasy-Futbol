@@ -11,6 +11,7 @@
    doing only the one job it has left: capping and centring the content. */
 .ground {
   min-height: calc(100vh - var(--nav-height));
+  min-height: calc(100dvh - var(--nav-height));
   width: 100%;
   background-color: var(--color-bg-primary);
   background-image: radial-gradient(120% 90% at 50% -18%,

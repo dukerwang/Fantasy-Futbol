@@ -237,7 +237,7 @@
 
 /* ---- Layout + panels -------------------------------------- */
 .layout { margin-top: var(--s5); display: grid; grid-template-columns: minmax(0, 1fr) 372px; gap: var(--s5); align-items: start; }
-.rail { position: sticky; top: var(--s5); max-height: calc(100vh - var(--s10)); overflow-y: auto; }
+.rail { position: sticky; top: var(--s5); max-height: calc(100vh - var(--s10)); max-height: calc(100dvh - var(--s10)); overflow-y: auto; }
 .rail::-webkit-scrollbar { width: 6px; }
 .rail::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: var(--r-pill); }
 
@@ -374,7 +374,6 @@
 @media (hover: hover) and (pointer: fine) {
   .act:hover { background: var(--color-bg-card-hover); color: var(--color-text-primary); border-color: var(--color-border); }
 }
-.act:active { transform: translateY(1px); }
 .act:disabled { opacity: 0.5; cursor: not-allowed; }
 .actPrimary { background: var(--color-accent); border-color: var(--color-accent); color: var(--color-on-accent); }
 @media (hover: hover) and (pointer: fine) {
@@ -477,7 +476,6 @@
 @media (hover: hover) and (pointer: fine) {
   .retBtn:hover { background: var(--color-bg-card-hover); color: var(--color-text-primary); border-color: var(--color-border); }
 }
-.retBtn:active { transform: translateY(1px); }
 .retBtnPrimary { background: var(--color-accent); border-color: var(--color-accent); color: var(--color-on-accent); }
 @media (hover: hover) and (pointer: fine) {
   .retBtnPrimary:hover { background: var(--color-accent-hover); border-color: var(--color-accent-hover); color: var(--color-on-accent); }

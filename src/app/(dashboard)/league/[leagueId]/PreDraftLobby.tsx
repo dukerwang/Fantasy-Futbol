@@ -251,7 +251,6 @@ export default function PreDraftLobby({
         <div className={styles.statusCard}>
           <div className={styles.statusHeader}>
             <div>
-              <span className={styles.leagueEyebrow}>League lobby</span>
               <h1 className={styles.leagueName}>{league.name}</h1>
             </div>
             <span className={isActive ? styles.statusLive : styles.statusOpen}>

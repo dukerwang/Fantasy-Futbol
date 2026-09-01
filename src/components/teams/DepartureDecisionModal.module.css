@@ -12,6 +12,7 @@
   width: 500px;
   max-width: 100%;
   max-height: calc(100vh - 48px);
+  max-height: calc(100dvh - 48px);
   overflow-y: auto;
   background: var(--color-bg-card);
   border: 1px solid var(--color-border-subtle);
@@ -40,13 +41,6 @@
   line-height: 1;
 }
 .headBody { flex: 1 1 auto; min-width: 0; }
-.eyebrow {
-  font-size: 10px;
-  font-weight: var(--font-bold);
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--color-text-muted);
-}
 .name {
   font-family: var(--font-serif);
   font-size: var(--text-2xl);
@@ -138,7 +132,6 @@
 @media (hover: hover) and (pointer: fine) {
   .opt:hover { border-color: var(--color-accent); background: var(--color-accent-dim); }
 }
-.opt:active { transform: translateY(1px); }
 .opt:disabled { opacity: 0.55; cursor: not-allowed; }
 .optTitle { font-size: var(--text-sm); font-weight: var(--font-bold); color: var(--color-text-primary); }
 .optFig {
@@ -191,7 +184,6 @@
 @media (hover: hover) and (pointer: fine) {
   .btn:hover { background: var(--color-bg-card-hover); color: var(--color-text-primary); border-color: var(--color-border); }
 }
-.btn:active { transform: translateY(1px); }
 .btn:disabled { opacity: 0.55; cursor: not-allowed; }
 .btnPrimary { background: var(--color-accent); border-color: var(--color-accent); color: var(--color-text-inverse); }
 @media (hover: hover) and (pointer: fine) {

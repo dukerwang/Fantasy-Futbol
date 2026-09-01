@@ -148,7 +148,6 @@ export default async function DashboardPage() {
     <div className={styles.page}>
       <header className={styles.hero}>
         <div>
-          <span className={styles.heroEyebrow}>Manager Hub</span>
           <h1 className={styles.greeting}>
             Welcome back, <span className={styles.username}>{profile?.username ?? 'Manager'}</span>.
           </h1>

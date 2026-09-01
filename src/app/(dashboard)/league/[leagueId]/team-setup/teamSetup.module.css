@@ -2,7 +2,8 @@
 
 .setupLayout {
   display: flex;
-  min-height: calc(100vh - 56px); /* minus top bar */
+  min-height: calc(100vh - var(--nav-height));
+  min-height: calc(100dvh - var(--nav-height));
   background: var(--color-bg-primary);
   color: var(--color-text-primary);
   font-family: var(--font-sans);

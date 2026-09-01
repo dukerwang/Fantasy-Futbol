@@ -871,13 +871,12 @@
 }
 
 .leagueFeedStatus {
-  font-family: var(--font-sans);
-  font-size: var(--t-10);
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  color: var(--color-accent-green);
-  border-left: 2px solid var(--color-accent-green);
-  padding-left: 6px;
+  font-family: var(--font-condensed);
+  font-size: var(--t-11);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-accent-ink);
 }
 
 .leagueFeedDate {
@@ -1130,6 +1129,7 @@
   width: 100%;
   max-width: 560px;
   max-height: 80vh;
+  max-height: 80dvh;
   overflow-y: auto;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
 }
@@ -1255,14 +1255,12 @@
 }
 
 .blockOnIndicator {
-  font-family: var(--font-sans);
-  font-size: var(--t-10);
-  font-weight: 700;
-  letter-spacing: 0.1em;
+  font-family: var(--font-condensed);
+  font-size: var(--t-11);
+  font-weight: 600;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: var(--color-accent-green);
-  border-left: 2px solid var(--color-accent-green);
-  padding-left: 6px;
+  color: var(--color-accent-ink);
   flex-shrink: 0;
 }
 

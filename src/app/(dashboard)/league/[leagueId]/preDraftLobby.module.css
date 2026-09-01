@@ -2,7 +2,8 @@
 
 .lobbyLayout {
   display: flex;
-  height: calc(100vh - 56px); /* minus top bar */
+  height: calc(100vh - var(--nav-height));
+  height: calc(100dvh - var(--nav-height));
   background: var(--color-bg-primary);
   color: var(--color-text-primary);
   overflow: hidden;
@@ -43,12 +44,6 @@
   justify-content: space-between;
   gap: var(--space-4);
   flex-wrap: wrap;
-}
-
-.leagueEyebrow {
-  composes: ds-eyebrow from global;
-  display: block;
-  margin-bottom: var(--space-1);
 }
 
 .leagueName {

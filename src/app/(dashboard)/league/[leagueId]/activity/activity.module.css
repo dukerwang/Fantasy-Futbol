@@ -27,10 +27,6 @@
   gap: var(--space-1);
 }
 
-.eyebrow {
-  composes: ds-eyebrow-serif from global;
-}
-
 .title {
   font-family: var(--font-serif);
   font-size: 2.75rem;
@@ -384,6 +380,7 @@
   position: sticky;
   top: calc(var(--nav-height) + 1.5rem);
   max-height: calc(100vh - var(--nav-height) - 3rem);
+  max-height: calc(100dvh - var(--nav-height) - 3rem);
   overflow-y: auto;
   display: flex;
   flex-direction: column;

@@ -160,15 +160,24 @@
   border-bottom: none;
 }
 
+/* Unread is carried by weight first and tint second, so it survives hover
+   and does not depend on colour alone. The :hover selectors are repeated
+   here because a bare .rowUnread would lose to .row:hover. */
 .rowUnread {
-  background: rgba(58, 107, 74, 0.02);
-  border-left: 3px solid var(--color-accent-green);
-  padding-left: calc(var(--space-6) - 3px);
+  background: var(--color-accent-dim);
+}
+
+.rowUnread .rowTitle {
+  font-weight: var(--font-bold);
 }
 
 @media (hover: hover) and (pointer: fine) {
   .row:hover {
     background: var(--color-bg-card-hover);
+  }
+
+  .rowUnread:hover {
+    background: var(--color-accent-green-dim-hover);
   }
 }
 
@@ -191,12 +200,20 @@
   background: rgba(58, 107, 74, 0.05);
 }
 
-/* Blockbuster/Galactico signings — a thin gold accent, matching the
-   app-wide --color-gold convention (leader/#1 figures; never a filled
-   badge). Rules sit after .rowUnread so gold wins when both apply. */
-.rowHype {
-  border-left: 3px solid var(--color-gold);
-  padding-left: calc(var(--space-6) - 3px);
+/* Blockbuster/Galactico signings — gold title and icon wrapper, matching
+   the app-wide --color-gold convention. Gold outranks unread green when
+   both apply, so its wash has to read at least as strongly as the green
+   one, not fainter. Rules sit after .rowUnread so gold wins. */
+.rowHype,
+.rowUnread.rowHype {
+  background: var(--color-gold-dim);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .rowHype:hover,
+  .rowUnread.rowHype:hover {
+    background: var(--color-gold-dim-hover);
+  }
 }
 
 .rowHype .rowTitle {

@@ -98,6 +98,7 @@
   flex-direction: column;
   gap: var(--space-6);
   max-height: calc(100vh - var(--nav-height) - 100px);
+  max-height: calc(100dvh - var(--nav-height) - 100px);
   overflow-y: auto;
   padding-right: var(--space-2);
 }
