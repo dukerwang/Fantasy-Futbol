@@ -13,6 +13,7 @@ import PositionBadge from '@/components/players/PositionBadge';
 import SidebarChat from '../SidebarChat';
 import type { DraftShadowMaps } from '@/lib/draft/loadDraftPool';
 import styles from './draft.module.css';
+import { fold } from '@/lib/text/fold';
 
 
 const TIMER_SECONDS = 120;
@@ -710,7 +711,7 @@ export default function DraftRoom({
       return null;
     }
 
-    const q = search.trim().toLowerCase();
+    const q = fold(search);
     const filtered = unpickedPlayers
       .map((p) => {
         const activePos = resolveActivePosition(p, posFilter, posType);
@@ -721,9 +722,9 @@ export default function DraftRoom({
         if (!activePos) return false;
 
         if (q) {
-          const full = p.name.toLowerCase();
-          const web = (p.web_name || '').toLowerCase();
-          const club = (p.pl_team || '').toLowerCase();
+          const full = fold(p.name);
+          const web = fold(p.web_name);
+          const club = fold(p.pl_team);
           // Word-start prefix, not substring — .includes() matched "es"
           // against the middle of "Magalhães"/"Guimarães" (both genuinely
           // contain the letters "es"), which isn't what typing the start of

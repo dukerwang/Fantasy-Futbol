@@ -15,6 +15,7 @@ import type { DraftShadowMaps } from '@/lib/draft/loadDraftPool';
 import type { League, Player, GranularPosition, PlayerOwnership } from '@/types';
 import draftStyles from '../draft.module.css';
 import styles from './mockDraft.module.css';
+import { fold } from '@/lib/text/fold';
 
 const TIMER_SECONDS = 120;
 const BOT_PICK_DELAY_MS = 650;
@@ -661,7 +662,7 @@ export default function MockDraftRoom({ leagueId, league, players, shadowMaps, m
       return null;
     }
 
-    const q = search.trim().toLowerCase();
+    const q = fold(search);
     const filtered = unpickedPlayers
       .map((p) => {
         const activePos = resolveActivePosition(p, posFilter, posType);
@@ -671,9 +672,9 @@ export default function MockDraftRoom({ leagueId, league, players, shadowMaps, m
         const { player: p, activePos } = item;
         if (!activePos) return false;
         if (q) {
-          const full = p.name.toLowerCase();
-          const web = (p.web_name || '').toLowerCase();
-          const club = (p.pl_team || '').toLowerCase();
+          const full = fold(p.name);
+          const web = fold(p.web_name);
+          const club = fold(p.pl_team);
           // Word-start prefix, not substring — see DraftRoom.tsx's identical fix.
           const startsWithQuery = (text: string) => text.split(/\s+/).some((word) => word.startsWith(q));
           if (!startsWithQuery(full) && !startsWithQuery(web) && !startsWithQuery(club)) return false;

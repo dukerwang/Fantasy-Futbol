@@ -13,6 +13,7 @@ import ListingEditor from '@/components/transfers/ListingEditor';
 import { setServerClock } from '@/components/transfers/useTick';
 import { useLiveTransfers } from '@/components/transfers/useLiveTransfers';
 import styles from './listings.module.css';
+import { fold } from '@/lib/text/fold';
 
 /**
  * The Listings board — supply from clubs, on its own page.
@@ -139,7 +140,7 @@ export default function ListingsClient({
   }, [model.listings]);
 
   const visible = useMemo(() => {
-    const q = query.trim().toLowerCase();
+    const q = fold(query);
 
     const rows = model.listings.filter((l) => {
       const p = l.player;
@@ -148,7 +149,7 @@ export default function ListingsClient({
       if (club && p.pl_team !== club) return false;
       if (!matches(l, facet)) return false;
       if (q) {
-        const hay = `${p.name} ${p.web_name ?? ''} ${p.pl_team ?? ''} ${l.seller_team_name ?? ''}`.toLowerCase();
+        const hay = fold(`${p.name} ${p.web_name ?? ''} ${p.pl_team ?? ''} ${l.seller_team_name ?? ''}`);
         if (!hay.includes(q)) return false;
       }
       return true;

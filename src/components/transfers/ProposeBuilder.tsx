@@ -20,6 +20,7 @@ import styles from './ProposeBuilder.module.css';
 import { getPlayerDisplayName } from '@/lib/players/displayName';
 import { describeDeal } from '@/lib/transfers/describeDeal';
 import { listingStance } from '@/lib/transfers/listingStance';
+import { fold } from '@/lib/text/fold';
 
 /**
  * One builder for both deal types.
@@ -615,8 +616,8 @@ export default function ProposeBuilder({
     const chosenRights = mine ? giveRights : wantRights;
     const cashOpen = mine ? myCashOpen : theirCashOpen;
 
-    const q = pickQuery.trim().toLowerCase();
-    const hit = (name: string) => q === '' || name.toLowerCase().includes(q);
+    const q = fold(pickQuery);
+    const hit = (name: string) => q === '' || fold(name).includes(q);
 
     // Dearest first. A squad list in roster order is a list in no order at all;
     // when you are looking for something to balance a deal, value is the axis

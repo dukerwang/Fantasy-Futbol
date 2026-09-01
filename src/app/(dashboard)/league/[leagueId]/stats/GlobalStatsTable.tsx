@@ -11,6 +11,7 @@ import { getPlayerDisplayName } from '@/lib/players/displayName';
 import { SPINE, POS_COLOR } from '@/lib/positions/spine';
 import { Icon } from '@/components/ui/Icon';
 import styles from './stats.module.css';
+import { fold } from '@/lib/text/fold';
 
 interface PositionStats {
   gp: number;
@@ -145,7 +146,7 @@ export default function GlobalStatsTable({ leagueId, leagueName, players, season
   }
 
   const filtered = useMemo(() => {
-    const q = search.trim().toLowerCase();
+    const q = fold(search);
     return players
       .map((p) => {
         const activePos = resolveActivePosition(p, posFilter, posType);
@@ -158,8 +159,8 @@ export default function GlobalStatsTable({ leagueId, leagueName, players, season
         if (clubFilter !== 'ALL' && p.pl_team !== clubFilter) return false;
 
         if (q) {
-          const full = getPlayerDisplayName(p, 'full').toLowerCase();
-          if (!full.includes(q) && !p.name.toLowerCase().includes(q)) return false;
+          const full = fold(getPlayerDisplayName(p, 'full'));
+          if (!full.includes(q) && !fold(p.name).includes(q)) return false;
         }
 
         const s = shadowByPlayer[p.id]?.[activePos];

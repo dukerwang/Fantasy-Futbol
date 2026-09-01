@@ -14,6 +14,7 @@ import type { OutlookStyle } from '@futbolpedia/engine';
 import type { ExplorerRow, IndexScout } from '@/lib/players/indexData';
 import type { IndexRowPlayer } from './page';
 import styles from './playersIndex.module.css';
+import { fold } from '@/lib/text/fold';
 
 /**
  * The players index. Cards is the default view.
@@ -95,10 +96,10 @@ export default function PlayersIndex({
   const [shown, setShown] = useState(CARD_PAGE);
 
   const filtered = useMemo(() => {
-    const q = search.trim().toLowerCase();
+    const q = fold(search);
     return players.filter((p) => {
-      if (q && !getPlayerDisplayName(p, 'full').toLowerCase().includes(q)
-            && !(p.pl_team ?? '').toLowerCase().includes(q)) return false;
+      if (q && !fold(getPlayerDisplayName(p, 'full')).includes(q)
+            && !fold(p.pl_team).includes(q)) return false;
       const s = scout[p.id];
       if (quality && (!s || s.fromFallback || s.quality !== quality)) return false;
       if (minutes && (!s || s.minutes_role !== minutes)) return false;
