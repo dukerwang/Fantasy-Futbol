@@ -463,13 +463,14 @@ That guard had never been exercised against a real outage until now.
    2026-08-01. **No SoFIFA scrape was needed.** The cache could not reach him
    until the sync fix in this release: it was consulted only for brand-new rows,
    and his existing row held NULL, which the merge preferred every night.
-7. ⏳ **Barcola's market value.** Needs Transfermarkt — the only piece with no
-   local cache. `scripts/sync_transfermarkt_gaps.ts --all --apply`. Note the
-   target filter includes every inactive player, so `--all` walks a few hundred
-   rows at ~3s each and writes only at the end.
-8. ⏳ **`seedHighValueAuctions`** once the value lands. It reads `market_value`
-   against the €50m threshold, so it must run after step 7. Opens at the next
-   midday in league time.
+7. ✅ **Barcola priced at €90m**, not the €65m the plan estimated. 325 values
+   written in that run. Note the target filter includes every inactive player,
+   so `--all` walks a few hundred rows at ~3s each and writes only at the end.
+8. ✅ **Auction live in both leagues.** €90m clears €80m, so it is a **Tier 4,
+   72-hour** lot, not the 48 the plan assumed: **opens 12:00 ET 2 Sep, closes
+   12:00 ET 5 Sep.** Six test/demo leagues were also seeded, which is correct
+   behaviour for `status = 'active'` and harmless; their times read 07:00 ET
+   because they have no `auction_timezone` and fall back to London.
 9. ⏳ **Publish the update** — insert the `product_updates` row (slug, title,
    summary, body, highlights, `is_major: true`), then fan out one notification
    per user with `kind: 'product'`. Per the changelog spec nothing publishes
