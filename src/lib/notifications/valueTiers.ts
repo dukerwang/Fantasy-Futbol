@@ -72,3 +72,92 @@ export function tierNoticePrefix(value: number): string {
   const copy = TIER_COPY[getValueTier(value)];
   return copy ? `**${copy.eyebrow}.** ` : '';
 }
+
+/** €90m, €4.5m — trailing zeros dropped, same shape as the inbox uses elsewhere. */
+function euro(n: number): string {
+  const rounded = Math.round(n * 10) / 10;
+  return `€${Number.isInteger(rounded) ? rounded : rounded.toFixed(1)}m`;
+}
+
+export interface ArrivalPlayer {
+  name: string;
+  value: number;
+  club?: string | null;
+}
+
+export interface ArrivalCopy {
+  title: string;
+  pushTitle: string;
+  content: string;
+  pushBody: string;
+}
+
+/**
+ * Copy for "a player is now on the market", across the inbox and the push.
+ *
+ * The old wording opened on a count — "1 new arrival has hit the market" — and
+ * appended the name in a trailing sentence, which meant the push, whose title
+ * was the constant "Auctions open" and whose body was "1 new auction. 3d to
+ * bid.", never named anybody at all. A €90m arrival read exactly like a €4m one.
+ *
+ * The player leads here, in all four strings. A count is a worse headline than a
+ * name in every case, so even the standard tier names the biggest arrival and
+ * counts the rest afterwards.
+ *
+ * `content` keeps the tier eyebrow verbatim because InboxClient detects that
+ * phrase to apply the gold hype styling — see isHypeAlert there.
+ */
+export function buildArrivalNotification(
+  players: ArrivalPlayer[],
+  timeLeftLabel: string | null,
+): ArrivalCopy {
+  const sorted = [...players].sort((a, b) => b.value - a.value);
+  const top = sorted[0];
+  if (!top) {
+    return {
+      title: 'New arrivals',
+      pushTitle: 'Auctions open',
+      content: 'New players are on the market.',
+      pushBody: 'New auctions are open.',
+    };
+  }
+
+  const others = sorted.length - 1;
+  const bid =
+    timeLeftLabel === 'closing now'
+      ? 'Closing now.'
+      : timeLeftLabel
+        ? `${timeLeftLabel} to bid.`
+        : 'Open now.';
+  const at = top.club ? ` to ${top.club}` : '';
+  const price = euro(top.value);
+  const alsoLong = others > 0 ? ` Plus ${others} other arrival${others === 1 ? '' : 's'}.` : '';
+  const tier = getValueTier(top.value);
+  const copy = TIER_COPY[tier];
+
+  if (copy) {
+    const short = tier === 'galactico' ? 'Galactico' : 'Blockbuster';
+    return {
+      title: `${copy.eyebrow}: ${top.name}`,
+      pushTitle: `${short}: ${top.name}`,
+      content: `**${copy.eyebrow}.** **${top.name}** — ${price}${at}, and he is on the market.${alsoLong} ${bid}`,
+      pushBody: `${price}${at}. ${bid}`,
+    };
+  }
+
+  if (others === 0) {
+    return {
+      title: `${top.name} is on the market`,
+      pushTitle: `${top.name} is on the market`,
+      content: `**${top.name}** — ${price}${at}. ${bid}`,
+      pushBody: `${price}${at}. ${bid}`,
+    };
+  }
+
+  return {
+    title: `${top.name} and ${others} more on the market`,
+    pushTitle: `${top.name} and ${others} more`,
+    content: `**${top.name}** — ${price}${at} — leads ${sorted.length} new arrivals. ${bid}`,
+    pushBody: `Led by ${top.name}, ${price}. ${bid}`,
+  };
+}

@@ -22,7 +22,7 @@ import { findPromotedClubsAndArrivals, AUCTION_THRESHOLD } from '@/lib/offseason
 import { sendEmailToUsers } from '@/lib/email/sendEmailToUsers';
 import { getSystemAuctionsEmail } from '@/lib/email/templates';
 import { createNotification } from '@/lib/notifications/createNotification';
-import { buildAuctionSubject, buildFeaturedNotice } from '@/lib/notifications/valueTiers';
+import { buildAuctionSubject, buildArrivalNotification } from '@/lib/notifications/valueTiers';
 import { timeLeft } from '@/lib/notifications/copy';
 import { initialAuctionExpiry, nextCivilRelease } from '@/lib/auction/timer';
 import { getLeagueAuctionSettings } from '@/lib/auction/leagueAuctionSettings';
@@ -135,7 +135,7 @@ export async function seedHighValueAuctions(admin: SupabaseClient): Promise<Seed
 async function notifyLeague(
   admin: SupabaseClient,
   leagueId: string,
-  candidates: { id: string; name: string; marketValue: number }[],
+  candidates: { id: string; name: string; marketValue: number; pl_team?: string | null }[],
   expiresAt: string,
 ): Promise<void> {
   try {
@@ -152,26 +152,20 @@ async function notifyLeague(
       html: getSystemAuctionsEmail(playerInfo, false, `${baseUrl}/league/${leagueId}`, AUCTION_THRESHOLD),
     });
 
-    const featuredNotice = buildFeaturedNotice(candidates.map((c) => ({ name: c.name, value: c.marketValue })));
-    const left = timeLeft(expiresAt);
-    const clock = left
-      ? left === 'closing now'
-        ? ' Auctions closing now.'
-        : ` Auctions open — ${left} to bid.`
-      : ' Auctions are open.';
+    // The player leads, in the inbox row and in the push. A count never does.
+    const copy = buildArrivalNotification(
+      candidates.map((c) => ({ name: c.name, value: c.marketValue, club: c.pl_team })),
+      timeLeft(expiresAt),
+    );
     for (const t of allTeams) {
       await createNotification(admin, {
         kind: 'auctions',
         leagueId,
         userId: t.user_id,
-        title: 'New arrivals',
-        pushTitle: 'Auctions open',
-        content: `**${candidates.length}** new arrival${candidates.length === 1 ? ' has' : 's have'} hit the market.${clock}${featuredNotice}`,
-        pushBody: left
-          ? left === 'closing now'
-            ? `${candidates.length} new auction${candidates.length === 1 ? '' : 's'} closing now.`
-            : `${candidates.length} new auction${candidates.length === 1 ? '' : 's'}. ${left} to bid.`
-          : `${candidates.length} new auction${candidates.length === 1 ? '' : 's'} are open.`,
+        title: copy.title,
+        pushTitle: copy.pushTitle,
+        content: copy.content,
+        pushBody: copy.pushBody,
         url: `/league/${leagueId}/transfers/auctions`,
       });
     }
