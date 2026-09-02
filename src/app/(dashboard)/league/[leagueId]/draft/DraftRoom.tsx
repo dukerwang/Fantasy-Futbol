@@ -694,6 +694,11 @@ export default function DraftRoom({
       const primary = player.primary_position;
       const secondaries = player.secondary_positions ?? [];
 
+      if (!primary) {
+        if (posFilter === 'ALL') return 'N/A';
+        return null;
+      }
+
       if (posType === 'primary') {
         if (groupContains(posFilter, primary)) {
           return primary;

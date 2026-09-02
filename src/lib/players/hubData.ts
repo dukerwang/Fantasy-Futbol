@@ -179,11 +179,11 @@ export async function loadPlayerHub(
 
   // --- football layer: the measured record, from real match data ---
   const inputs = factBundle.inputs.get(playerId);
-  const rankable = RANKABLE_ON_ATTACK.has(player.primary_position);
+  const rankable = player.primary_position ? RANKABLE_ON_ATTACK.has(player.primary_position) : false;
 
   const report = toReport(
     (outlookRes.data as StoredOutlookRow | null) ?? null,
-    player.primary_position,
+    player.primary_position ?? '',
     (player.secondary_positions ?? []) as string[],
   );
 

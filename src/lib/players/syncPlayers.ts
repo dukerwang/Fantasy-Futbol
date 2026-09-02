@@ -139,7 +139,7 @@ export async function syncPlayersFromFpl(admin: SupabaseClient): Promise<SyncPla
     id: string;
     fpl_id: number | null;
     is_active: boolean;
-    primary_position: GranularPosition;
+    primary_position: GranularPosition | null;
     secondary_positions: GranularPosition[];
     market_value: number | null;
     name: string;

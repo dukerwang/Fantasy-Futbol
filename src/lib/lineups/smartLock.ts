@@ -133,10 +133,9 @@ export function getFormationLockStatus(
 }
 
 function canPlayerPlaySlot(player: Player, slotPos: GranularPosition): boolean {
-  const positions: GranularPosition[] = [
-    player.primary_position,
-    ...(player.secondary_positions ?? []),
-  ];
+  const positions: GranularPosition[] = (
+    player.primary_position ? [player.primary_position] : []
+  ).concat(player.secondary_positions ?? []);
   const allowed = POSITION_FLEX_MAP[slotPos];
   return positions.some((p) => allowed.includes(p));
 }

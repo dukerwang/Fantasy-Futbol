@@ -53,6 +53,7 @@
 .pos_LW  { --pos-field: var(--color-pos-lw);  --pos-ink: var(--color-pos-lw-on);  --pos-line: var(--color-pos-lw-line); }
 .pos_RW  { --pos-field: var(--color-pos-rw);  --pos-ink: var(--color-pos-rw-on);  --pos-line: var(--color-pos-rw-line); }
 .pos_ST  { --pos-field: var(--color-pos-st);  --pos-ink: var(--color-pos-st-on);  --pos-line: var(--color-pos-st-line); }
+.pos_NA  { --pos-field: var(--color-surface-sunken, #eceef1); --pos-ink: var(--color-text-muted, #64748b); --pos-line: var(--color-border-subtle, rgba(0,0,0,0.12)); }
 
 /* Left/right variants share a hue, so the side is carried by a clipped
    corner as well as by the letters — colour is never the sole cue. */

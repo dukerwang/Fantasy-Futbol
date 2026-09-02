@@ -82,7 +82,7 @@ function getZone(pos: GranularPosition): PitchZone {
 }
 
 function getPlayerPositions(player: Player): GranularPosition[] {
-    return [player.primary_position, ...(player.secondary_positions ?? [])];
+    return (player.primary_position ? [player.primary_position] : []).concat(player.secondary_positions ?? []);
 }
 function canPlaySlot(player: Player, slotPos: GranularPosition): boolean {
     return getPlayerPositions(player).some((p) => POSITION_FLEX_MAP[slotPos].includes(p));
@@ -1103,7 +1103,7 @@ export default function PitchUI({
                                                     if (basePts === undefined) return undefined;
                                                     const stats = rawStatsMap?.[playerId];
                                                     if (stats && refStats && entry) {
-                                                        return scoreAppearanceAtSlot(stats, pos, entry.player.primary_position, refStats, { points: basePts, rating: null }).points;
+                                                        return scoreAppearanceAtSlot(stats, pos, entry.player.primary_position ?? undefined, refStats, { points: basePts, rating: null }).points;
                                                     }
                                                     return basePts;
                                                 })();
@@ -1176,7 +1176,7 @@ export default function PitchUI({
                                         isValidTarget ? styles.rowTarget : '',
                                         !pid ? styles.rowEmpty : '',
                                     ].filter(Boolean).join(' ')}
-                                    style={entry ? { ['--pf' as string]: POS_COLOR[entry.player.primary_position] } : undefined}
+                                    style={entry ? { ['--pf' as string]: entry.player.primary_position ? POS_COLOR[entry.player.primary_position] : 'var(--color-border-subtle)' } : undefined}
                                     onClick={isLocked && entry ? () => setViewingPlayer(entry.player) : () => handleBenchSlotClick(slot)}
                                     title={isLocked ? 'Match started (Locked)' : undefined}
                                 >
@@ -1263,7 +1263,7 @@ export default function PitchUI({
                                             isSelected ? styles.rowSelected : '',
                                             isDimmed ? styles.rowDimmed : '',
                                         ].filter(Boolean).join(' ')}
-                                        style={{ ['--pf' as string]: POS_COLOR[entry.player.primary_position] }}
+                                        style={{ ['--pf' as string]: entry.player.primary_position ? POS_COLOR[entry.player.primary_position] : 'var(--color-border-subtle)' }}
                                         onClick={isLocked ? () => setViewingPlayer(entry.player) : () => handlePoolClick(entry.player.id)}
                                         title={isLocked ? 'Match started (Locked)' : undefined}
                                     >
@@ -1309,7 +1309,7 @@ export default function PitchUI({
                                     <div
                                         key={entry.id}
                                         className={`g-row g-namerow ${styles.row} ${isSelected ? styles.rowSelected : ''}`}
-                                        style={{ ['--pf' as string]: POS_COLOR[entry.player.primary_position] }}
+                                        style={{ ['--pf' as string]: entry.player.primary_position ? POS_COLOR[entry.player.primary_position] : 'var(--color-border-subtle)' }}
                                     >
                                         <PositionBadge position={entry.player.primary_position} size="sm" />
                                         <span
@@ -1364,7 +1364,7 @@ export default function PitchUI({
                                     <div
                                         key={entry.id}
                                         className={`g-row g-namerow ${styles.row} ${isSelected ? styles.rowSelected : ''}`}
-                                        style={{ ['--pf' as string]: POS_COLOR[entry.player.primary_position] }}
+                                        style={{ ['--pf' as string]: entry.player.primary_position ? POS_COLOR[entry.player.primary_position] : 'var(--color-border-subtle)' }}
                                     >
                                         <PositionBadge position={entry.player.primary_position} size="sm" />
                                         <span

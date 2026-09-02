@@ -422,7 +422,7 @@ export default function MockDraftRoom({ leagueId, league, players, shadowMaps, m
   );
 
   const positionById = useMemo(() => {
-    const map = new Map<string, GranularPosition>();
+    const map = new Map<string, GranularPosition | null>();
     for (const p of players) map.set(p.id, p.primary_position);
     return map;
   }, [players]);
@@ -649,6 +649,10 @@ export default function MockDraftRoom({ leagueId, league, players, shadowMaps, m
     ): string | null {
       const primary = player.primary_position;
       const secondaries = player.secondary_positions ?? [];
+      if (!primary) {
+        if (filter === 'ALL') return 'N/A';
+        return null;
+      }
       if (type === 'primary') {
         if (groupContains(filter, primary)) return primary;
       } else if (type === 'secondary') {

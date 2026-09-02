@@ -690,7 +690,7 @@ function AssetList({
   align,
   rights,
 }: {
-  players: { id: string; name: string; web_name?: string | null; primary_position: string; photo_url?: string | null }[];
+  players: { id: string; name: string; web_name?: string | null; primary_position?: string | null; photo_url?: string | null }[];
   onOpen: (p: Player) => void;
   align?: 'right';
   /** These are retained rights, not roster players — tag them so they're not mistaken for one. */

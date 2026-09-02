@@ -239,7 +239,7 @@ export default function PremiumPlayerCard({
     const [openLog, setOpenLog] = useState<string | null>(null);
     const [hovering, setHovering] = useState(false);
     // Position the card is evaluating — chips flip both faces to that slot's scoring.
-    const [selectedPos, setSelectedPos] = useState<string>(() => focusPosition?.toUpperCase() || player.primary_position);
+    const [selectedPos, setSelectedPos] = useState<string>(() => focusPosition?.toUpperCase() || player.primary_position || 'N/A');
 
     useEffect(() => {
         if (focusPosition) {
@@ -266,7 +266,7 @@ export default function PremiumPlayerCard({
         setFlipped(false);
         flippedRef.current = false;
         setTab('log');
-        setSelectedPos(player.primary_position);
+        setSelectedPos(player.primary_position || 'N/A');
     }
 
     const resolvedPlayer = snapshot.player;
@@ -380,14 +380,14 @@ export default function PremiumPlayerCard({
     }, [player.id, leagueId, staticOnly]);
 
     const teamColor = clubColor(resolvedPlayer.pl_team);
-    const primaryPos = resolvedPlayer.primary_position;
+    const primaryPos = resolvedPlayer.primary_position || 'N/A';
     const viewPos = selectedPos || primaryPos;
     const isPrimaryView = viewPos === primaryPos;
-    const posLong = POS_LONG[viewPos] ?? viewPos;
+    const posLong = isPrimaryView && primaryPos === 'N/A' ? 'Unassigned Position' : (POS_LONG[viewPos] ?? viewPos);
     // Spine / card accent follows the selected slot; identity tags keep each
     // position's own color so selecting RB doesn't recolor the DM pill.
     const posVar = POS_CSS_VAR[viewPos] ?? 'var(--color-accent-green)';
-    const primaryPosVar = POS_CSS_VAR[primaryPos] ?? 'var(--color-accent-green)';
+    const primaryPosVar = (resolvedPlayer.primary_position && POS_CSS_VAR[resolvedPlayer.primary_position]) ?? 'var(--color-bg-elevated)';
 
     /** True once a real photo is on screen and the fallback initial can recede. */
     const photoShowing = !!photoUrl && photoState.loaded;
@@ -721,7 +721,7 @@ export default function PremiumPlayerCard({
                         {firstName && <span className={styles.firstName}>{firstName}</span>}
                         <span className={styles.lastName}>{webName}</span>
                         <div className={styles.idMeta}>
-                            <span className={styles.posTag} style={{ background: primaryPosVar }}>{resolvedPlayer.primary_position}</span>
+                            <span className={styles.posTag} style={{ background: primaryPosVar }}>{resolvedPlayer.primary_position || 'N/A'}</span>
                             {resolvedPlayer.secondary_positions?.map(pos => (
                                 <span key={pos} className={styles.posTag} style={{ background: POS_CSS_VAR[pos] || 'var(--color-bg-elevated)' }}>
                                     {pos}
