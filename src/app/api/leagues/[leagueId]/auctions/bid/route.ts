@@ -380,14 +380,23 @@ export async function POST(req: NextRequest, { params }: Props) {
     );
   }
 
-  // ── Activity-based expiry calculation ────────────────────────────────────────
+  // ── Activity-based expiry calculation with Market Value Tiers & Smart Protection ──
   const now = Date.now();
-  // Market value no longer affects duration: deleting the hard ceiling removed
-  // the only two places the big-transfer distinction fed (72h vs 96h ceiling,
-  // 48h vs 96h initial window). Every auction now runs on the same decaying
-  // timeout and a single 72h pre-first-bid window.
   const firstBidTime = systemSeedClaim?.first_bid_at ? new Date(systemSeedClaim.first_bid_at).getTime() : now;
-  const expiresAt = calculateExpiresAt(firstBidTime, now, auctionSettings.quietHours);
+
+  // Query existing bid count for streamer vs contested determination
+  const { count: existingBidCount } = await admin
+    .from('auction_bid_events')
+    .select('*', { count: 'exact', head: true })
+    .eq('league_id', leagueId)
+    .eq('player_id', playerId);
+
+  const marketValue = Number(playerData?.market_value || 0);
+  const bidCount = (existingBidCount ?? 0) + 1;
+  const expiresAt = calculateExpiresAt(firstBidTime, now, auctionSettings.quietHours, {
+    marketValue,
+    bidCount,
+  });
 
   // Call the database RPC to place/upsert the bid atomically
   const { data: rpcRes, error: rpcError } = await admin.rpc('place_auction_bid_rpc', {

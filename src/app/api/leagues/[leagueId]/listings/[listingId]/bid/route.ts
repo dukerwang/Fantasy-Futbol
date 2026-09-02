@@ -104,11 +104,24 @@ export async function POST(req: NextRequest, { params }: Props) {
     .maybeSingle();
 
   const now = Date.now();
-  // Sale listings share the timer with free agents, so the decaying timeout and
-  // the quiet-hours guard apply to them too. That is intended.
+  // Sale listings share the timer with free agents, so the decaying timeout,
+  // market value tiers, and the quiet-hours guard apply to them too.
   const { quietHours } = await getLeagueAuctionSettings(admin, leagueId);
   const firstBidTime = anchor?.first_bid_at ? new Date(anchor.first_bid_at).getTime() : now;
-  const expiresAt = calculateExpiresAt(firstBidTime, now, quietHours);
+
+  // Query existing bid count for streamer vs contested determination
+  const { count: existingBidCount } = await admin
+    .from('auction_bid_events')
+    .select('*', { count: 'exact', head: true })
+    .eq('league_id', leagueId)
+    .eq('player_id', listing.player_id);
+
+  const marketValue = Number(playerData?.market_value || 0);
+  const bidCount = (existingBidCount ?? 0) + 1;
+  const expiresAt = calculateExpiresAt(firstBidTime, now, quietHours, {
+    marketValue,
+    bidCount,
+  });
 
   const { data: rpcRes, error: rpcError } = await admin.rpc('place_auction_bid_rpc', {
     p_league_id: leagueId,
