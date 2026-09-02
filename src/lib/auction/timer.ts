@@ -212,6 +212,34 @@ export function calculateExpiresAt(
     return new Date(applyQuietHours(naturalExpiry, quiet, options)).toISOString();
 }
 
+/** Noon, the hour every deferred auction event lands on. */
+export const CIVIL_RELEASE_MINUTES = 12 * 60;
+
+/**
+ * The next noon in league-local time, for a lot that should not go live at an
+ * arbitrary hour.
+ *
+ * A marquee arrival is swept in by the nightly player sync, which can fire at
+ * any hour — so without this the biggest lot of the window opens while most of
+ * the league is asleep, and its "a new auction is live" notification lands with
+ * it. The clock is blind either way, but the announcement is not: whoever
+ * happens to be awake gets a head start on reading the room.
+ *
+ * Returns `now` unchanged when it is already exactly noon, so a sweep that runs
+ * at noon opens immediately rather than waiting a full day.
+ */
+export function nextCivilRelease(now: number, quiet: QuietHours | null): number | null {
+    if (!quiet) return null;
+    const { minutes } = localTimeDetails(now, quiet.timeZone);
+    if (minutes === CIVIL_RELEASE_MINUTES) return null;
+
+    const deltaMin =
+        minutes < CIVIL_RELEASE_MINUTES
+            ? CIVIL_RELEASE_MINUTES - minutes
+            : 24 * 60 - minutes + CIVIL_RELEASE_MINUTES;
+    return now + deltaMin * 60 * 1000;
+}
+
 /**
  * The initial expires_at for a newly seeded auction with no bids yet.
  *

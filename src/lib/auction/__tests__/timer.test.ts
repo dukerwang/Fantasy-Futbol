@@ -16,6 +16,7 @@ import {
     applyQuietHours,
     calculateExpiresAt,
     initialAuctionExpiry,
+    nextCivilRelease,
 } from '../timer';
 import type { QuietHours } from '../timer';
 
@@ -224,3 +225,47 @@ describe('initialAuctionExpiry', () => {
     });
 });
 
+
+/**
+ * A marquee mid-season arrival is swept in by the nightly player sync, which
+ * can fire at any hour. The lot itself is blind, but its "auction is live"
+ * notification is not — released at 4am it reaches whoever happens to be awake.
+ */
+describe('nextCivilRelease', () => {
+    const ny: QuietHours = { start: '00:00', end: '08:00', timeZone: 'America/New_York' };
+
+    function nyTime(iso: string): number {
+        return new Date(iso).getTime();
+    }
+
+    it('defers a small-hours sweep to the same day at noon', () => {
+        // 04:00 America/New_York on a Wednesday (08:00 UTC, EDT = UTC-4).
+        const at4am = nyTime('2026-09-02T08:00:00Z');
+        const out = nextCivilRelease(at4am, ny);
+        expect(out).not.toBeNull();
+        expect((out! - at4am) / (60 * 60 * 1000)).toBe(8);
+    });
+
+    it('defers an afternoon sweep to the following noon', () => {
+        // 16:00 America/New_York (20:00 UTC).
+        const at4pm = nyTime('2026-09-02T20:00:00Z');
+        const out = nextCivilRelease(at4pm, ny);
+        expect((out! - at4pm) / (60 * 60 * 1000)).toBe(20);
+    });
+
+    it('opens immediately when the sweep already runs at noon', () => {
+        expect(nextCivilRelease(nyTime('2026-09-02T16:00:00Z'), ny)).toBeNull();
+    });
+
+    it('opens immediately when a league has quiet hours disabled', () => {
+        expect(nextCivilRelease(nyTime('2026-09-02T08:00:00Z'), null)).toBeNull();
+    });
+
+    it('gives a deferred lot its full tier window from the open, not the sweep', () => {
+        const at4am = nyTime('2026-09-02T08:00:00Z');
+        const opensAt = nextCivilRelease(at4am, ny)!;
+        // Barcola: €65m is tier 3, so 48h from the noon he actually goes live.
+        const expiry = new Date(initialAuctionExpiry(opensAt, ny, 65)).getTime();
+        expect((expiry - opensAt) / (60 * 60 * 1000)).toBe(48);
+    });
+});

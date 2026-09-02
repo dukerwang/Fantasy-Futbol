@@ -24,7 +24,7 @@ import { getSystemAuctionsEmail } from '@/lib/email/templates';
 import { createNotification } from '@/lib/notifications/createNotification';
 import { buildAuctionSubject, buildFeaturedNotice } from '@/lib/notifications/valueTiers';
 import { timeLeft } from '@/lib/notifications/copy';
-import { initialAuctionExpiry } from '@/lib/auction/timer';
+import { initialAuctionExpiry, nextCivilRelease } from '@/lib/auction/timer';
 import { getLeagueAuctionSettings } from '@/lib/auction/leagueAuctionSettings';
 
 interface LeagueRow {
@@ -78,20 +78,35 @@ export async function seedHighValueAuctions(admin: SupabaseClient): Promise<Seed
       // for the five places that previously disagreed.
       const { quietHours } = await getLeagueAuctionSettings(admin, league.id);
       const now = Date.now();
-      const auctionRows = candidates.map((p) => ({
-        league_id: league.id,
-        team_id: null,
-        player_id: p.id,
-        faab_bid: 0,
-        priority: 999,
-        status: 'pending',
-        gameweek: 0,
-        is_auction: true,
-        expires_at: initialAuctionExpiry(now, quietHours, p.marketValue),
-        opens_at: null,
-        // Reference price for the auction premium — see migration 070.
-        market_value_at_auction: p.marketValue,
-      }));
+      const auctionRows = candidates.map((p) => {
+        // A marquee arrival opens at the next noon rather than the moment the
+        // nightly sync happens to run. Blind bidding makes the clock fair on
+        // its own, but the "auction is live" notice is not: released at 4am it
+        // reaches whoever is awake first, and the biggest lot of the window is
+        // exactly where that head start is worth something. Cheaper lots still
+        // open immediately — delaying those would block the routine streaming
+        // this sweep exists to enable.
+        const opensAtMs =
+          Number(p.marketValue || 0) >= AUCTION_THRESHOLD
+            ? nextCivilRelease(now, quietHours)
+            : null;
+        return {
+          league_id: league.id,
+          team_id: null,
+          player_id: p.id,
+          faab_bid: 0,
+          priority: 999,
+          status: 'pending',
+          gameweek: 0,
+          is_auction: true,
+          // Measured from when the lot actually opens, so a deferred release
+          // still gets its full tier window rather than losing the wait.
+          expires_at: initialAuctionExpiry(opensAtMs ?? now, quietHours, p.marketValue),
+          opens_at: opensAtMs === null ? null : new Date(opensAtMs).toISOString(),
+          // Reference price for the auction premium — see migration 070.
+          market_value_at_auction: p.marketValue,
+        };
+      });
 
       const { error: insertErr } = await admin.from('waiver_claims').insert(auctionRows);
       if (insertErr) {
