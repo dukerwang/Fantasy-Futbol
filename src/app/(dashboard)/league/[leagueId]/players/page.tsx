@@ -5,6 +5,8 @@ import type { Player } from '@/types';
 import { getCurrentFplSeason, isFplSeasonKickedOff } from '@/lib/season/currentSeason';
 import { loadSeasonLeaderboard } from '@/lib/stats/seasonStats';
 import { loadExplorerRows, loadScoutIndex } from '@/lib/players/indexData';
+import { isSiteAdminEmail } from '@/lib/auth/siteAdmin';
+import { isPlayerMapped } from '@/lib/players/playerMapping';
 import PlayersIndex from './PlayersIndex';
 
 export const dynamic = 'force-dynamic';
@@ -29,6 +31,7 @@ export default async function PlayersPage({ params, searchParams }: Props) {
   } = await supabase.auth.getUser();
   if (!user) redirect('/login');
 
+  const isSiteAdmin = isSiteAdminEmail(user.email);
   const admin = createAdminClient();
 
   const { data: league } = await admin
@@ -55,7 +58,7 @@ export default async function PlayersPage({ params, searchParams }: Props) {
   const { data: allTeams } = await admin.from('teams').select('id').eq('league_id', leagueId);
   const teamIds = (allTeams ?? []).map((t: { id: string }) => t.id);
 
-  const activeView = view === 'table' ? 'table' : view === 'explorer' ? 'explorer' : 'cards';
+  const activeView = view === 'table' ? 'table' : view === 'explorer' ? 'explorer' : view === 'cards' ? 'cards' : undefined;
 
   // The explorer needs per-season aggregates the leaderboard does not carry,
   // and the scout layer is dead weight to it — load each only where used.
@@ -103,11 +106,13 @@ export default async function PlayersPage({ params, searchParams }: Props) {
     };
   });
 
+  const visibleRows = isSiteAdmin ? rows : rows.filter(isPlayerMapped);
+
   return (
     <PlayersIndex
       leagueId={leagueId}
       leagueName={league.name}
-      players={rows}
+      players={visibleRows}
       scout={Object.fromEntries(scoutIndex)}
       season={season}
       seasons={seasons}
@@ -116,6 +121,7 @@ export default async function PlayersPage({ params, searchParams }: Props) {
       gameweeks={gameweeks}
       gameweek={gameweek}
       shadowMaps={shadowMaps}
+      isSiteAdmin={isSiteAdmin}
     />
   );
 }

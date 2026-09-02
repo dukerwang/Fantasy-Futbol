@@ -176,12 +176,48 @@ export default function ClubClient({
   const [decision, setDecision] = useState<DecisionRequest | null>(null);
 
   useEffect(() => {
-    const v = typeof window !== 'undefined' ? localStorage.getItem('club-view') : null;
-    if (v && VIEWS.some((x) => x.k === v)) setView(v);
+    try {
+      const v = localStorage.getItem('gaffa:club-view') ?? localStorage.getItem('club-view');
+      if (v && VIEWS.some((x) => x.k === v)) setView(v);
+
+      const s = localStorage.getItem('gaffa:club-sort') ?? localStorage.getItem('club-sort');
+      if (s && SORTS.some((x) => x.k === s)) setSort(s);
+
+      const f = localStorage.getItem('gaffa:club-filter') ?? localStorage.getItem('club-filter');
+      if (f && FILTERS.some((x) => x.k === f)) setFilter(f);
+    } catch {
+      /* ignore */
+    }
   }, []);
+
   function chooseView(v: string) {
     setView(v);
-    try { localStorage.setItem('club-view', v); } catch { /* ignore */ }
+    try {
+      localStorage.setItem('gaffa:club-view', v);
+      localStorage.setItem('club-view', v);
+    } catch {
+      /* ignore */
+    }
+  }
+
+  function chooseSort(s: string) {
+    setSort(s);
+    try {
+      localStorage.setItem('gaffa:club-sort', s);
+      localStorage.setItem('club-sort', s);
+    } catch {
+      /* ignore */
+    }
+  }
+
+  function chooseFilter(f: string) {
+    setFilter(f);
+    try {
+      localStorage.setItem('gaffa:club-filter', f);
+      localStorage.setItem('club-filter', f);
+    } catch {
+      /* ignore */
+    }
   }
 
   const trophyCount = honours.reduce((n, g) => n + g.count, 0);
@@ -343,13 +379,13 @@ export default function ClubClient({
 
         <div className={styles.tbGroup}>
           <span className={styles.tbLabel}>Show</span>
-          <select className={styles.tbSelect} value={filter} onChange={(e) => setFilter(e.target.value)}>
+          <select className={styles.tbSelect} value={filter} onChange={(e) => chooseFilter(e.target.value)}>
             {FILTERS.map((f) => <option key={f.k} value={f.k}>{f.label}</option>)}
           </select>
         </div>
         <div className={styles.tbGroup}>
           <span className={styles.tbLabel}>Sort</span>
-          <select className={styles.tbSelect} value={sort} onChange={(e) => setSort(e.target.value)}>
+          <select className={styles.tbSelect} value={sort} onChange={(e) => chooseSort(e.target.value)}>
             {SORTS.map((s) => <option key={s.k} value={s.k}>{s.label}</option>)}
           </select>
         </div>

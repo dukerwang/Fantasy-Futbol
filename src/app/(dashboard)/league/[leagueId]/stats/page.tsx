@@ -5,6 +5,8 @@ import GlobalStatsTable from './GlobalStatsTable';
 import type { Player } from '@/types';
 import { getCurrentFplSeason, isFplSeasonKickedOff } from '@/lib/season/currentSeason';
 import { loadSeasonLeaderboard } from '@/lib/stats/seasonStats';
+import { isSiteAdminEmail } from '@/lib/auth/siteAdmin';
+import { isPlayerMapped } from '@/lib/players/playerMapping';
 
 export const dynamic = 'force-dynamic';
 
@@ -26,6 +28,7 @@ export default async function StatsPage({ params }: Props) {
   } = await supabase.auth.getUser();
   if (!user) redirect('/login');
 
+  const isSiteAdmin = isSiteAdminEmail(user.email);
   const admin = createAdminClient();
 
   // Validate league
@@ -79,13 +82,16 @@ export default async function StatsPage({ params }: Props) {
     };
   });
 
+  const visiblePlayers = isSiteAdmin ? statPlayers : statPlayers.filter(isPlayerMapped);
+
   return (
     <GlobalStatsTable
       leagueId={leagueId}
       leagueName={league.name}
-      players={statPlayers}
+      players={visiblePlayers}
       season={season}
       shadowMaps={shadowMaps}
+      isSiteAdmin={isSiteAdmin}
     />
   );
 }

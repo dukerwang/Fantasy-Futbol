@@ -10,6 +10,7 @@ import FormArrow from '@/components/players/FormArrow';
 import { getPlayerDisplayName } from '@/lib/players/displayName';
 import { SPINE, POS_COLOR } from '@/lib/positions/spine';
 import { Icon } from '@/components/ui/Icon';
+import { isPlayerMapped } from '@/lib/players/playerMapping';
 import styles from './stats.module.css';
 import { fold } from '@/lib/text/fold';
 
@@ -34,6 +35,7 @@ interface Props {
     all: Record<string, Record<string, PositionStats>>;
     gt45: Record<string, Record<string, PositionStats>>;
   };
+  isSiteAdmin?: boolean;
 }
 
 type SortKey =
@@ -85,9 +87,14 @@ function resolveActivePosition(
   player: StatPlayer,
   posFilter: PosFilter,
   posType: 'primary' | 'secondary' | 'both'
-): GranularPosition | null {
+): GranularPosition | 'N/A' | null {
   const primary = player.primary_position;
   const secondaries = player.secondary_positions ?? [];
+
+  if (!primary) {
+    if (posFilter === 'ALL') return 'N/A';
+    return null;
+  }
 
   if (posType === 'primary') {
     if (groupContains(posFilter, primary)) {
@@ -106,11 +113,12 @@ function resolveActivePosition(
   return null;
 }
 
-export default function GlobalStatsTable({ leagueId, leagueName, players, season, shadowMaps }: Props) {
+export default function GlobalStatsTable({ leagueId, leagueName, players, season, shadowMaps, isSiteAdmin }: Props) {
   const { openPlayer, prefetchPlayer, primePlayers } = usePlayerCard();
   const [search, setSearch] = useState('');
   const [posFilter, setPosFilter] = useState<PosFilter>('ALL');
   const [clubFilter, setClubFilter] = useState<string>('ALL');
+  const [syncFilter, setSyncFilter] = useState<'all' | 'synced' | 'unsynced'>('all');
   const [minMins, setMinMins] = useState<'played' | 'all' | 'gt45'>('all');
   const [minGames, setMinGames] = useState<number>(0);
   // 'both' by default so a position's table lists everyone who plays there,
@@ -120,6 +128,35 @@ export default function GlobalStatsTable({ leagueId, leagueName, players, season
   const [posType, setPosType] = useState<'primary' | 'secondary' | 'both'>('both');
   const [sortKey, setSortKey] = useState<SortKey>('total_points');
   const [sortDir, setSortDir] = useState<SortDir>('desc');
+
+  // Restore user preferences from localStorage on mount
+  useEffect(() => {
+    try {
+      const savedMinMins = localStorage.getItem('gaffa:stats-min-mins') as 'played' | 'all' | 'gt45' | null;
+      if (savedMinMins && ['played', 'all', 'gt45'].includes(savedMinMins)) setMinMins(savedMinMins);
+
+      const savedPosType = localStorage.getItem('gaffa:stats-pos-type') as 'primary' | 'secondary' | 'both' | null;
+      if (savedPosType && ['primary', 'secondary', 'both'].includes(savedPosType)) setPosType(savedPosType);
+
+      const savedSortKey = localStorage.getItem('gaffa:stats-sort-key') as SortKey | null;
+      if (savedSortKey) setSortKey(savedSortKey);
+
+      const savedSortDir = localStorage.getItem('gaffa:stats-sort-dir') as SortDir | null;
+      if (savedSortDir && ['asc', 'desc'].includes(savedSortDir)) setSortDir(savedSortDir);
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  function handleSetMinMins(val: 'played' | 'all' | 'gt45') {
+    setMinMins(val);
+    try { localStorage.setItem('gaffa:stats-min-mins', val); } catch { /* ignore */ }
+  }
+
+  function handleSetPosType(val: 'primary' | 'secondary' | 'both') {
+    setPosType(val);
+    try { localStorage.setItem('gaffa:stats-pos-type', val); } catch { /* ignore */ }
+  }
 
   useEffect(() => {
     if (players.length) primePlayers(players);
@@ -137,11 +174,19 @@ export default function GlobalStatsTable({ leagueId, leagueName, players, season
   }, [players]);
 
   function handleSort(key: SortKey) {
+    let nextDir: SortDir = 'desc';
     if (sortKey === key) {
-      setSortDir((d) => (d === 'desc' ? 'asc' : 'desc'));
+      nextDir = sortDir === 'desc' ? 'asc' : 'desc';
+      setSortDir(nextDir);
     } else {
       setSortKey(key);
       setSortDir('desc');
+    }
+    try {
+      localStorage.setItem('gaffa:stats-sort-key', key);
+      localStorage.setItem('gaffa:stats-sort-dir', nextDir);
+    } catch {
+      /* ignore */
     }
   }
 
@@ -152,9 +197,15 @@ export default function GlobalStatsTable({ leagueId, leagueName, players, season
         const activePos = resolveActivePosition(p, posFilter, posType);
         return { player: p, activePos };
       })
-      .filter((item): item is { player: StatPlayer; activePos: GranularPosition } => {
+      .filter((item): item is { player: StatPlayer; activePos: GranularPosition | 'N/A' } => {
         const { player: p, activePos } = item;
         if (!activePos) return false;
+
+        if (isSiteAdmin) {
+          const mapped = isPlayerMapped(p);
+          if (syncFilter === 'synced' && !mapped) return false;
+          if (syncFilter === 'unsynced' && mapped) return false;
+        }
 
         if (clubFilter !== 'ALL' && p.pl_team !== clubFilter) return false;
 
@@ -163,13 +214,17 @@ export default function GlobalStatsTable({ leagueId, leagueName, players, season
           if (!full.includes(q) && !fold(p.name).includes(q)) return false;
         }
 
-        const s = shadowByPlayer[p.id]?.[activePos];
-        const gp = s?.gp ?? 0;
-        if (gp < minGames) return false;
+        if (activePos !== 'N/A') {
+          const s = shadowByPlayer[p.id]?.[activePos];
+          const gp = s?.gp ?? 0;
+          if (gp < minGames) return false;
+        } else if (minGames > 0) {
+          return false;
+        }
 
         return true;
       });
-  }, [players, search, posFilter, posType, clubFilter, shadowByPlayer, minGames]);
+  }, [players, search, posFilter, posType, clubFilter, syncFilter, isSiteAdmin, shadowByPlayer, minGames]);
 
   const sorted = useMemo(() => {
     return [...filtered].sort((aObj, bObj) => {
@@ -314,13 +369,26 @@ export default function GlobalStatsTable({ leagueId, leagueName, players, season
         <select
           className={styles.select}
           value={minMins}
-          onChange={(e) => setMinMins(e.target.value as 'played' | 'all' | 'gt45')}
+          onChange={(e) => handleSetMinMins(e.target.value as 'played' | 'all' | 'gt45')}
           aria-label="Minutes filter"
         >
           <option value="played">Played (&gt;0 mins)</option>
           <option value="all">Meaningful (&ge;15 mins)</option>
           <option value="gt45">Starters (&gt;45 mins)</option>
         </select>
+
+        {isSiteAdmin && (
+          <select
+            className={styles.select}
+            value={syncFilter}
+            onChange={(e) => setSyncFilter(e.target.value as 'all' | 'synced' | 'unsynced')}
+            aria-label="Sync status"
+          >
+            <option value="all">Sync: All players</option>
+            <option value="synced">Sync: Synced only</option>
+            <option value="unsynced">Sync: Unsynced only</option>
+          </select>
+        )}
 
         <div className={styles.slider}>
           <label className={styles.sliderLabel} htmlFor="minGames">Min games</label>
@@ -343,7 +411,7 @@ export default function GlobalStatsTable({ leagueId, leagueName, players, season
               type="button"
               className={`${styles.segment} ${posType === t ? styles.segmentOn : ''}`}
               aria-pressed={posType === t}
-              onClick={() => setPosType(t)}
+              onClick={() => handleSetPosType(t)}
             >
               {t}
             </button>
@@ -385,7 +453,7 @@ export default function GlobalStatsTable({ leagueId, leagueName, players, season
           </thead>
           <tbody>
             {sorted.map(({ player, activePos }) => {
-              const s = shadowByPlayer[player.id]?.[activePos];
+              const s = activePos !== 'N/A' ? shadowByPlayer[player.id]?.[activePos] : undefined;
               const gp = s ? s.gp : 0;
               const totalPoints = s ? s.total_points : 0;
               // PPG must equal Pts/GP under the active minutes filter.
@@ -397,7 +465,7 @@ export default function GlobalStatsTable({ leagueId, leagueName, players, season
                 <tr
                   key={player.id}
                   className={`g-row ${styles.row}`}
-                  style={{ ['--pf' as string]: POS_COLOR[activePos] }}
+                  style={{ ['--pf' as string]: activePos === 'N/A' ? 'var(--color-border-subtle)' : POS_COLOR[activePos as GranularPosition] }}
                   onClick={() => openPlayer(player)}
                   {...playerHoverProps(prefetchPlayer, player)}
                   title="Click to scout player"
@@ -405,8 +473,8 @@ export default function GlobalStatsTable({ leagueId, leagueName, players, season
                   <td className={styles.tdPlayer}>
                     <div className={styles.playerRow}>
                       <span className={`g-namerow ${styles.playerBadges}`}>
-                        <PosBadge position={player.primary_position as GranularPosition} />
-                        {player.primary_position !== activePos && (
+                        <PosBadge position={player.primary_position ?? 'N/A'} />
+                        {player.primary_position && player.primary_position !== activePos && (
                           <>
                             <span
                               className={styles.asArrow}

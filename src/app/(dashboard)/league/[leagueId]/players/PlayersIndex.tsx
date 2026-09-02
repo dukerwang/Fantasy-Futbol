@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import NavigationLink from '@/components/ui/NavigationLink';
 import Portrait from '@/components/players/Portrait';
 import PositionBadge from '@/components/players/PositionBadge';
@@ -13,6 +13,7 @@ import { STYLE_LABEL } from '@futbolpedia/engine';
 import type { OutlookStyle } from '@futbolpedia/engine';
 import type { ExplorerRow, IndexScout } from '@/lib/players/indexData';
 import type { IndexRowPlayer } from './page';
+import { isPlayerMapped } from '@/lib/players/playerMapping';
 import styles from './playersIndex.module.css';
 import { fold } from '@/lib/text/fold';
 
@@ -32,11 +33,12 @@ interface Props {
   scout: Record<string, IndexScout>;
   season: string;
   seasons: string[];
-  view: 'cards' | 'table' | 'explorer';
+  view?: 'cards' | 'table' | 'explorer';
   explorerRows: ExplorerRow[];
   gameweeks: number[];
   gameweek: number | null;
   shadowMaps: React.ComponentProps<typeof GlobalStatsTable>['shadowMaps'];
+  isSiteAdmin?: boolean;
 }
 
 const QUALITY_LABEL: Record<string, string> = {
@@ -87,17 +89,51 @@ function Pill({
 }
 
 export default function PlayersIndex({
-  leagueId, leagueName, players, scout, season, seasons, view, explorerRows, gameweeks, gameweek, shadowMaps,
+  leagueId, leagueName, players, scout, season, seasons, view: initialView, explorerRows, gameweeks, gameweek, shadowMaps, isSiteAdmin,
 }: Props) {
+  const [currentView, setCurrentView] = useState<'cards' | 'table' | 'explorer'>(initialView ?? 'cards');
   const [search, setSearch] = useState('');
   const [quality, setQuality] = useState<string | null>(null);
   const [minutes, setMinutes] = useState<string | null>(null);
   const [watch, setWatch] = useState<string | null>(null);
+  const [syncFilter, setSyncFilter] = useState<'all' | 'synced' | 'unsynced'>('all');
   const [shown, setShown] = useState(CARD_PAGE);
+
+  // Restore preferred view from localStorage if not explicitly requested in URL
+  useEffect(() => {
+    if (!initialView) {
+      try {
+        const saved = localStorage.getItem('gaffa:players-view') as 'cards' | 'table' | 'explorer' | null;
+        if (saved && ['cards', 'table', 'explorer'].includes(saved)) {
+          setCurrentView(saved);
+        }
+      } catch {
+        /* ignore */
+      }
+    } else {
+      setCurrentView(initialView);
+    }
+  }, [initialView]);
+
+  const view = currentView;
+
+  function handleViewSelect(nextView: 'cards' | 'table' | 'explorer') {
+    setCurrentView(nextView);
+    try {
+      localStorage.setItem('gaffa:players-view', nextView);
+    } catch {
+      /* ignore */
+    }
+  }
 
   const filtered = useMemo(() => {
     const q = fold(search);
     return players.filter((p) => {
+      if (isSiteAdmin) {
+        const mapped = isPlayerMapped(p);
+        if (syncFilter === 'synced' && !mapped) return false;
+        if (syncFilter === 'unsynced' && mapped) return false;
+      }
       if (q && !fold(getPlayerDisplayName(p, 'full')).includes(q)
             && !fold(p.pl_team).includes(q)) return false;
       const s = scout[p.id];
@@ -112,9 +148,9 @@ export default function PlayersIndex({
       }
       return true;
     });
-  }, [players, scout, search, quality, minutes, watch]);
+  }, [players, scout, search, quality, minutes, watch, syncFilter, isSiteAdmin]);
 
-  const activeFilters = [quality, minutes, watch].filter(Boolean).length;
+  const activeFilters = [quality, minutes, watch, isSiteAdmin && syncFilter !== 'all' ? syncFilter : null].filter(Boolean).length;
 
   const header = (
     <>
@@ -168,6 +204,7 @@ export default function PlayersIndex({
                 }`}
                 className={`${styles.segBtn} ${v === view ? styles.segOn : ''}`}
                 aria-current={v === view ? 'page' : undefined}
+                onClick={() => handleViewSelect(v)}
               >
                 {v === 'cards' ? 'Cards' : v === 'table' ? 'Table' : 'Explorer'}
               </NavigationLink>
@@ -221,6 +258,7 @@ export default function PlayersIndex({
           players={players}
           season={season}
           shadowMaps={shadowMaps}
+          isSiteAdmin={isSiteAdmin}
         />
       </div>
     );
@@ -241,7 +279,7 @@ export default function PlayersIndex({
         {activeFilters > 0 && (
           <button
             className={styles.clear}
-            onClick={() => { setQuality(null); setMinutes(null); setWatch(null); }}
+            onClick={() => { setQuality(null); setMinutes(null); setWatch(null); setSyncFilter('all'); }}
           >
             Clear {activeFilters} filter{activeFilters === 1 ? '' : 's'}
           </button>
@@ -249,6 +287,16 @@ export default function PlayersIndex({
       </div>
 
       <div className={styles.facetBar}>
+        {isSiteAdmin && (
+          <div className={styles.facetRow}>
+            <span className={`g-label-quiet ${styles.facetLabel}`}>Sync status</span>
+            <div className={styles.rail}>
+              <Pill label="All" on={syncFilter === 'all'} onClick={() => { setSyncFilter('all'); setShown(CARD_PAGE); }} />
+              <Pill label="Synced only" on={syncFilter === 'synced'} onClick={() => { setSyncFilter('synced'); setShown(CARD_PAGE); }} />
+              <Pill label="Unsynced only" on={syncFilter === 'unsynced'} onClick={() => { setSyncFilter('unsynced'); setShown(CARD_PAGE); }} />
+            </div>
+          </div>
+        )}
         <div className={styles.facetRow}>
           <span className={`g-label-quiet ${styles.facetLabel}`}>Quality</span>
           <div className={styles.rail}>
@@ -283,8 +331,8 @@ export default function PlayersIndex({
       <div className={styles.grid}>
         {filtered.slice(0, shown).map((p) => {
           const s = scout[p.id];
-          const pos = p.primary_position as GranularPosition;
-          const colour = POS_COLOR[pos];
+          const pos = p.primary_position;
+          const colour = pos ? POS_COLOR[pos as GranularPosition] : 'var(--color-border-subtle)';
           const flag = s ? MOBILITY_FLAG[s.pl_mobility] : undefined;
           return (
             <NavigationLink
@@ -305,11 +353,8 @@ export default function PlayersIndex({
                   photoVersion={p.photo_version}
                 />
                 <div className={styles.cardId}>
-                  {/* NOT g-namerow: that lifts .g-poschip 2.25px for optical
-                      alignment beside a NAME. There is no name in this row, so
-                      the lift only desynced the badge from the quality chip. */}
                   <div className={styles.cardChips}>
-                    <PositionBadge position={pos} size="sm" />
+                    <PositionBadge position={pos ?? 'N/A'} size="sm" />
                     {s && !s.fromFallback && (
                       <span className={`${styles.qual} ${styles[`q_${s.quality}`]}`}>
                         {QUALITY_LABEL[s.quality]}
