@@ -14,6 +14,7 @@ import TransfersSubNav from '@/components/transfers/TransfersSubNav';
 import BidDialog, { type BidMode } from '@/components/transfers/BidDialog';
 import { setServerClock, useTick, formatAuctionClock, isClosing } from '@/components/transfers/useTick';
 import { useLiveTransfers } from '@/components/transfers/useLiveTransfers';
+import AuctionTimingHelp from '@/components/transfers/AuctionTimingHelp';
 import styles from './auctions.module.css';
 
 /**
@@ -175,7 +176,9 @@ export default function AuctionsClient({
       <header className={styles.header}>
         <div>
           <div className={`g-label ${styles.kicker}`}>Transfer Market → Auctions</div>
-          <h1 className={styles.title}>The Auction Room</h1>
+          <h1 className={styles.title}>
+            The Auction Room <AuctionTimingHelp />
+          </h1>
         </div>
         <div className={styles.stats}>
           <div className={styles.stat}>
@@ -224,10 +227,10 @@ export default function AuctionsClient({
           {visible.length > 0 && (
             <div className={styles.lotHead}>
               <span className="g-label">Lot</span>
-              <span className={`g-label ${styles.r}`}>Standing bid</span>
+              <span className="g-label">Standing bid</span>
               <span className="g-label">Leader</span>
               <span className="g-label">You</span>
-              <span className={`g-label ${styles.r}`}>Closes</span>
+              <span className="g-label">Closes</span>
               <span className="g-label" />
             </div>
           )}
@@ -640,28 +643,25 @@ function Lot({
               </div>
 
               {!mine && (
-                <>
-                  <div className={styles.quick}>
-                    <button type="button" className={`${styles.q} ${styles.qOn}`} onClick={onBid}>
-                      {money(next)}
+                <div className={styles.quick}>
+                  <button type="button" className={`${styles.q} ${styles.qOn}`} onClick={onBid}>
+                    {money(next)}
+                  </button>
+                  <button type="button" className={styles.q} onClick={onBid}>
+                    {money(Math.round(next * 1.05))}
+                  </button>
+                  <button type="button" className={styles.q} onClick={onBid}>
+                    {money(Math.round(next * 1.15))}
+                  </button>
+                  {clause != null && (
+                    <button type="button" className={`${styles.q} ${styles.qGold}`} onClick={onClause}>
+                      Clause
                     </button>
-                    <button type="button" className={styles.q} onClick={onBid}>
-                      {money(Math.round(next * 1.05))}
-                    </button>
-                    <button type="button" className={styles.q} onClick={onBid}>
-                      {money(Math.round(next * 1.15))}
-                    </button>
-                    {clause != null && (
-                      <button type="button" className={`${styles.q} ${styles.qGold}`} onClick={onClause}>
-                        Clause
-                      </button>
-                    )}
-                  </div>
-                  <p className={styles.exNote}>
-                    Bids extend the dynamic clock with anti-snipe protection and quiet hours.
-                    {clause != null && ' Paying the clause ends the auction outright.'}
-                  </p>
-                </>
+                  )}
+                </div>
+              )}
+              {clause != null && !mine && (
+                <p className={styles.exNote}>Paying the clause ends the auction outright.</p>
               )}
             </div>
           </div>

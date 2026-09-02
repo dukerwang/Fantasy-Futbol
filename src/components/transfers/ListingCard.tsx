@@ -80,6 +80,16 @@ export default function ListingCard({
   const hot = Boolean(expiresAt) && isClosing(msLeft);
   const settling = Boolean(expiresAt) && msLeft <= 0;
 
+  // A lot with a future opens_at is listed on purpose but refuses a bid until
+  // then (waiver_claims.opens_at, mirrored onto auction_state by migration
+  // 151). Without this the card showed an ordinary ticking countdown and an
+  // enabled Bid button for a lot that would reject every bid sent to it.
+  const opensAtMs = auction?.opens_at ? new Date(auction.opens_at).getTime() : null;
+  const notOpenYet = opensAtMs != null && now < opensAtMs;
+  const opensLabel = opensAtMs
+    ? new Date(opensAtMs).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })
+    : '';
+
   if (!player) return null;
 
   // The next legal bid. place_auction_bid_rpc rejects `p_bid_amount <=
@@ -175,8 +185,8 @@ export default function ListingCard({
           {live ? 'Locked — bidding' : stance.headline}
         </span>
         {expiresAt && (
-          <span className={`${styles.clock} ${hot ? styles.clockHot : ''}`}>
-            {formatAuctionClock(msLeft, live)}
+          <span className={`${styles.clock} ${hot && !notOpenYet ? styles.clockHot : ''}`}>
+            {notOpenYet ? `Opens ${opensLabel}` : formatAuctionClock(msLeft, live)}
           </span>
         )}
       </div>
@@ -218,10 +228,10 @@ export default function ListingCard({
                 type="button"
                 className={`${styles.action} ${styles.actionBid}`}
                 onClick={() => onBid?.(listing)}
-                disabled={settling}
-                title={settling ? 'Auction is settling' : undefined}
+                disabled={settling || notOpenYet}
+                title={notOpenYet ? `Bidding opens at ${opensLabel}` : settling ? 'Auction is settling' : undefined}
               >
-                {live ? `Bid ${money(bidFrom)}` : 'Bid'}
+                {notOpenYet ? `Opens ${opensLabel}` : live ? `Bid ${money(bidFrom)}` : 'Bid'}
               </button>
             )}
             {listing.buy_now_price != null && (

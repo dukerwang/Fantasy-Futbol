@@ -7,6 +7,7 @@ import type { Player } from '@/types';
 import { usePlayerCard } from '@/components/players/PlayerCardProvider';
 import TransfersSubNav from '@/components/transfers/TransfersSubNav';
 import ListingCard from '@/components/transfers/ListingCard';
+import AuctionTimingHelp from '@/components/transfers/AuctionTimingHelp';
 import BidDialog, { type BidMode } from '@/components/transfers/BidDialog';
 import ProposeBuilder, { type ProposeMode } from '@/components/transfers/ProposeBuilder';
 import ListingEditor from '@/components/transfers/ListingEditor';
@@ -210,7 +211,9 @@ export default function ListingsClient({
       <header className={styles.header}>
         <div>
           <div className={`g-label ${styles.kicker}`}>Transfer Market → Listings</div>
-          <h1 className={styles.title}>The Listings Board</h1>
+          <h1 className={styles.title}>
+            The Listings Board <AuctionTimingHelp />
+          </h1>
         </div>
         <div className={styles.stats}>
           <div className={styles.stat}>

@@ -112,6 +112,16 @@ export default function BidDialog({
   const msLeft = expiresAt ? new Date(expiresAt).getTime() - now : 0;
   const settling = Boolean(expiresAt) && msLeft <= 0;
 
+  // Mirrors the same gate on the listing card (migration 151): a lot with a
+  // future opens_at refuses every bid until then, so the dialog has to say so
+  // rather than let the RPC reject it after the fact.
+  const opensAtMs = auction?.opens_at ? new Date(auction.opens_at).getTime() : null;
+  const notOpenYet = opensAtMs != null && now < opensAtMs;
+  const opensLabel = opensAtMs
+    ? new Date(opensAtMs).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })
+    : '';
+
+
   // A drop is only demanded when the roster is full AND the academy cannot
   // absorb the arrival — the route decides that itself, so this is an offer of
   // a drop rather than a hard gate, and the server still has the final word.
@@ -179,7 +189,7 @@ export default function BidDialog({
             type="button"
             className={styles.go}
             onClick={submit}
-            disabled={busy || belowFloor || tooExpensive || settling}
+            disabled={busy || belowFloor || tooExpensive || settling || notOpenYet}
           >
             {busy ? 'Sending…' : wouldTakeClause ? `Pay ${money(amount)}` : `Bid ${money(amount)}`}
           </button>
@@ -214,13 +224,17 @@ export default function BidDialog({
           </div>
         </div>
         <div className={styles.rung}>
-          <div className={styles.rungLabel}>Closes</div>
+          <div className={styles.rungLabel}>{notOpenYet ? 'Opens' : 'Closes'}</div>
           {/* The countdown is the canonical mono case. */}
           <div className={`${styles.rungValue} ${expiresAt ? styles.rungLive : ''}`}>
-            {expiresAt ? formatAuctionClock(msLeft, true) : '—'}
+            {notOpenYet ? opensLabel : expiresAt ? formatAuctionClock(msLeft, true) : '—'}
           </div>
         </div>
       </div>
+
+      {notOpenYet && (
+        <p className={styles.error}>Bidding opens at {opensLabel} — this lot won&rsquo;t take a bid yet.</p>
+      )}
 
       <label className={styles.field}>
         <span className={styles.fieldLabel}>Your bid</span>

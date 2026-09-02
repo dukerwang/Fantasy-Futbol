@@ -16,6 +16,7 @@ import CrestBadge from '@/components/crest/CrestBadge';
 import type { CrestConfig } from '@/components/crest/types';
 import TransfersSubNav from '@/components/transfers/TransfersSubNav';
 import ListingCard from '@/components/transfers/ListingCard';
+import AuctionTimingHelp from '@/components/transfers/AuctionTimingHelp';
 import BidDialog, { type BidMode } from '@/components/transfers/BidDialog';
 import ProposeBuilder, { type ProposeMode } from '@/components/transfers/ProposeBuilder';
 import ListingEditor from '@/components/transfers/ListingEditor';
@@ -180,7 +181,9 @@ export default function MarketClient({
         <main className={styles.main}>
           {/* ── Closing now ─────────────────────────────── */}
           <div className={styles.sect}>
-            <h2 className={styles.sectTitle}>Closing now</h2>
+            <h2 className={styles.sectTitle}>
+              Closing now <AuctionTimingHelp />
+            </h2>
             <span className={styles.sectHint}>
               free agents and listed players together
               {closing.filter((a) => isClosing(new Date(a.expires_at!).getTime() - now)).length > 0 &&
@@ -197,7 +200,12 @@ export default function MarketClient({
             <div className={styles.closingGrid}>
               {closing.map((a) => {
                 const msLeft = new Date(a.expires_at!).getTime() - now;
-                const hot = isClosing(msLeft);
+                const opensAtMs = a.opens_at ? new Date(a.opens_at).getTime() : null;
+                const notOpenYet = opensAtMs != null && now < opensAtMs;
+                const opensLabel = opensAtMs
+                  ? new Date(opensAtMs).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })
+                  : '';
+                const hot = isClosing(msLeft) && !notOpenYet;
                 const settling = msLeft <= 0;
                 const leading = a.highest_bidder_team_id === model.myTeam.id;
                 const mine = a.seller_team_id === model.myTeam.id;
@@ -244,7 +252,7 @@ export default function MarketClient({
                         {money(a.highest_bid > 0 ? a.highest_bid : floor)}
                       </span>
                       <span className={`${styles.closingClock} ${hot ? styles.closingClockHot : ''}`}>
-                        {formatAuctionClock(msLeft, true)}
+                        {notOpenYet ? `Opens ${opensLabel}` : formatAuctionClock(msLeft, true)}
                       </span>
                     </div>
                     {mine ? (
@@ -254,10 +262,10 @@ export default function MarketClient({
                         type="button"
                         className={`${styles.closingGo} ${leading ? styles.closingGoGhost : ''}`}
                         onClick={() => setBid({ auction: a, mode: 'bid' })}
-                        disabled={settling}
-                        title={settling ? 'Auction is settling' : undefined}
+                        disabled={settling || notOpenYet}
+                        title={notOpenYet ? `Bidding opens at ${opensLabel}` : settling ? 'Auction is settling' : undefined}
                       >
-                        {leading ? `Raise ${money(next)}` : `Bid ${money(next)}`}
+                        {notOpenYet ? `Opens ${opensLabel}` : leading ? `Raise ${money(next)}` : `Bid ${money(next)}`}
                       </button>
                     )}
                   </article>

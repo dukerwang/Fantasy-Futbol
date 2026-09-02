@@ -50,10 +50,10 @@ export function Market({ model }: { model: HomeModel }) {
           <>
             <div className={styles.mktHead}>
               <span className="g-label">LOT</span>
-              <span className={`g-label ${styles.r}`}>STANDING BID</span>
+              <span className="g-label">STANDING BID</span>
               <span className="g-label">LEADER</span>
               <span className="g-label">YOU</span>
-              <span className={`g-label ${styles.r}`}>CLOSES</span>
+              <span className="g-label">CLOSES</span>
               <span />
             </div>
             {model.market.map((lot) => (

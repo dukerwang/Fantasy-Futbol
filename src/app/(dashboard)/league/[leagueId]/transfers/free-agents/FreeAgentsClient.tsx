@@ -8,6 +8,7 @@ import { playerHoverProps, usePlayerCard } from '@/components/players/PlayerCard
 import PositionBadge from '@/components/players/PositionBadge';
 import TransfersSubNav from '@/components/transfers/TransfersSubNav';
 import BidDialog from '@/components/transfers/BidDialog';
+import AuctionTimingHelp from '@/components/transfers/AuctionTimingHelp';
 import { setServerClock, useTick, formatAuctionClock, isClosing } from '@/components/transfers/useTick';
 import { useLiveTransfers } from '@/components/transfers/useLiveTransfers';
 import styles from './free-agents.module.css';
@@ -169,7 +170,9 @@ export default function FreeAgentsClient({
 
       {liveAuctions.length > 0 && (
         <section className={styles.auctions}>
-          <h2 className={styles.auctionsTitle}>Bidding open</h2>
+          <h2 className={styles.auctionsTitle}>
+            Bidding open <AuctionTimingHelp />
+          </h2>
           <div className={styles.auctionsGrid}>
             {liveAuctions.map((a) => (
               <AuctionChip
@@ -384,8 +387,18 @@ function AuctionChip({
   const floor = auction.minimum_bid ?? 0;
   const next = auction.highest_bid > 0 ? auction.highest_bid + 1 : floor;
 
+  // A staggered kickoff wave or a marquee midday release defers when bidding
+  // opens; without this the chip showed an ordinary countdown and an enabled
+  // Bid button for a lot that would reject the bid until then (same fix as
+  // the listing card and the auction room).
+  const opensAtMs = auction.opens_at ? new Date(auction.opens_at).getTime() : null;
+  const notOpenYet = opensAtMs != null && now < opensAtMs;
+  const opensLabel = opensAtMs
+    ? new Date(opensAtMs).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })
+    : '';
+
   return (
-    <article className={`${styles.chip} ${hot ? styles.chipHot : ''}`}>
+    <article className={`${styles.chip} ${hot && !notOpenYet ? styles.chipHot : ''}`}>
       <div className={`g-namerow ${styles.chipTop}`}>
         {auction.player && (
           <PositionBadge position={auction.player.primary_position as GranularPosition} size="sm" />
@@ -407,18 +420,18 @@ function AuctionChip({
         <span className={styles.chipPrice}>
           {money(auction.highest_bid > 0 ? auction.highest_bid : floor)}
         </span>
-        <span className={`${styles.chipClock} ${hot ? styles.chipClockHot : ''}`}>
-          {auction.expires_at ? formatAuctionClock(msLeft, true) : '—'}
+        <span className={`${styles.chipClock} ${hot && !notOpenYet ? styles.chipClockHot : ''}`}>
+          {notOpenYet ? `Opens ${opensLabel}` : auction.expires_at ? formatAuctionClock(msLeft, true) : '—'}
         </span>
       </div>
       <button
         type="button"
         className={`${styles.chipGo} ${leading ? styles.chipGoGhost : ''}`}
         onClick={onBid}
-        disabled={settling}
-        title={settling ? 'Auction is settling' : undefined}
+        disabled={settling || notOpenYet}
+        title={notOpenYet ? `Bidding opens at ${opensLabel}` : settling ? 'Auction is settling' : undefined}
       >
-        {leading ? `Raise ${money(next)}` : `Bid ${money(next)}`}
+        {notOpenYet ? `Opens ${opensLabel}` : leading ? `Raise ${money(next)}` : `Bid ${money(next)}`}
       </button>
     </article>
   );

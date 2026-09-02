@@ -485,7 +485,7 @@
 
 .mktHead {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 96px 120px 78px 84px 124px;
+  grid-template-columns: minmax(180px, 2.2fr) minmax(96px, 1fr) minmax(110px, 1.2fr) minmax(78px, 0.8fr) minmax(84px, 1fr) 124px;
   gap: var(--s2) var(--s3);
   padding: var(--s2) var(--s4);
   border-bottom: 1px solid var(--color-border);
@@ -502,7 +502,7 @@
 
 .mktRow {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 96px 120px 78px 84px 124px;
+  grid-template-columns: minmax(180px, 2.2fr) minmax(96px, 1fr) minmax(110px, 1.2fr) minmax(78px, 0.8fr) minmax(84px, 1fr) 124px;
   gap: var(--s2) var(--s3);
   padding: var(--s2) var(--s4);
   border-bottom: 1px solid var(--color-border-subtle);
@@ -560,8 +560,8 @@
 }
 
 .mktBidCol {
-  text-align: right;
-  align-items: flex-end;
+  text-align: left;
+  align-items: flex-start;
 }
 .mktBidV {
   height: 22px;
@@ -573,7 +573,7 @@
   color: var(--color-text-primary);
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: flex-start;
 }
 .mktBidNone {
   font-family: var(--font-condensed);
@@ -593,7 +593,7 @@
   white-space: nowrap;
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: flex-start;
 }
 
 .mktMobileLabel {
@@ -647,8 +647,8 @@
 }
 
 .mktClockCol {
-  text-align: right;
-  align-items: flex-end;
+  text-align: left;
+  align-items: flex-start;
   min-width: 0;
 }
 .mktClockTime {
@@ -656,7 +656,7 @@
   line-height: 22px;
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: flex-start;
 }
 .mktClockTime .clock,
 .mktClockTime span {
@@ -678,7 +678,7 @@
   white-space: nowrap;
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: flex-start;
 }
 
 .mktAction {
@@ -1056,6 +1056,8 @@
   }
   .mktId { grid-area: id; align-self: center; min-width: 0; }
   .mktClockCol { grid-area: clock; align-self: center; text-align: right; align-items: flex-end; flex-shrink: 0; }
+  .mktClockCol .mktClockTime,
+  .mktClockCol .mktBids { justify-content: flex-end; }
   .mktMidRow {
     grid-area: mid;
     display: grid;

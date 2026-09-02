@@ -142,7 +142,7 @@
 .lotHead,
 .lot {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 96px 120px 78px 84px 124px;
+  grid-template-columns: minmax(180px, 2.2fr) minmax(96px, 1fr) minmax(110px, 1.2fr) minmax(78px, 0.8fr) minmax(84px, 1fr) 124px;
   gap: var(--s2) var(--s3);
   align-items: center;
 }
@@ -303,6 +303,11 @@
 
 .lotCol { min-width: 0; }
 
+.lotBidCol {
+  text-align: left;
+  align-items: flex-start;
+}
+
 /* Live money: mono, because it ticks. */
 .lotBid {
   height: 22px;
@@ -314,7 +319,7 @@
   color: var(--color-text-primary);
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: flex-start;
 }
 
 .lotBidNone {
@@ -335,7 +340,7 @@
   margin-top: 3px;
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: flex-start;
   white-space: nowrap;
 }
 
@@ -393,6 +398,11 @@
   font-size: var(--t-11);
 }
 
+.lotClockCol {
+  text-align: left;
+  align-items: flex-start;
+}
+
 /* The countdown is the canonical mono case. */
 .lotClock {
   height: 22px;
@@ -404,7 +414,7 @@
   color: var(--color-text-secondary);
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: flex-start;
   white-space: nowrap;
 }
 
@@ -423,7 +433,7 @@
   margin-top: 3px;
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: flex-start;
   white-space: nowrap;
 }
 
@@ -822,6 +832,11 @@
     flex-direction: column;
     align-items: flex-end;
     flex-shrink: 0;
+  }
+
+  .lotClockCol .lotClock,
+  .lotClockCol .lotBids {
+    justify-content: flex-end;
   }
 
   .lotMidRow {
