@@ -123,6 +123,7 @@ export function useLiveTransfers(leagueId: string, model: TransfersModel): Trans
         minimum_bid: listing ? listing.min_bid : Math.floor(marketValue * bidFloor),
         first_bid_at: row.first_bid_at,
         expires_at: row.expires_at,
+        opens_at: row.opens_at ?? null,
         market_value_at_auction: row.market_value_at_auction,
         my_bid: bids.find((b) => b.team_id === ctxRef.current.myTeamId)?.amount ?? null,
         my_drop_player_id: null,
@@ -270,6 +271,7 @@ interface AuctionStateRow {
   bids: AuctionBidEntry[] | null;
   first_bid_at: string | null;
   expires_at: string | null;
+  opens_at: string | null;
   market_value_at_auction: number | null;
   updated_at: string;
 }

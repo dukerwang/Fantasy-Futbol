@@ -412,6 +412,15 @@ function Lot({
   const msLeft = a.expires_at ? new Date(a.expires_at).getTime() - now : 0;
   const hot = Boolean(a.expires_at) && isClosing(msLeft);
   const settling = Boolean(a.expires_at) && msLeft <= 0;
+  // A lot with a future opens_at is listed on purpose — you are meant to see it
+  // coming and plan a budget — but bidding is refused until it opens. The board
+  // never said so, so the first thing a manager learned about the wait was a
+  // rejected bid. Staggered kickoff waves use the same field.
+  const opensAtMs = a.opens_at ? new Date(a.opens_at).getTime() : null;
+  const notOpenYet = opensAtMs != null && now < opensAtMs;
+  const opensLabel = opensAtMs
+    ? new Date(opensAtMs).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })
+    : '';
   const leading = a.highest_bidder_team_id === me;
   const mine = a.seller_team_id === me;
   const outbid = a.my_bid != null && !leading;
@@ -503,11 +512,15 @@ function Lot({
         </div>
 
         <div className={`${styles.lotCol} ${styles.lotClockCol}`}>
-          <div className={`${styles.lotClock} ${hot ? styles.lotClockHot : ''}`}>
-            {a.expires_at ? formatAuctionClock(msLeft, true) : '—'}
+          <div className={`${styles.lotClock} ${hot && !notOpenYet ? styles.lotClockHot : ''}`}>
+            {notOpenYet ? `Opens ${opensLabel}` : a.expires_at ? formatAuctionClock(msLeft, true) : '—'}
           </div>
           <div className={styles.lotBids}>
-            {a.bid_count === 0 ? 'no bids yet' : `${a.bid_count} bid${a.bid_count === 1 ? '' : 's'}`}
+            {notOpenYet
+              ? 'not open yet'
+              : a.bid_count === 0
+                ? 'no bids yet'
+                : `${a.bid_count} bid${a.bid_count === 1 ? '' : 's'}`}
           </div>
         </div>
 
@@ -519,10 +532,22 @@ function Lot({
               type="button"
               className={`${styles.go} ${leading ? styles.goGhost : ''}`}
               onClick={onBid}
-              disabled={settling}
-              title={settling ? 'Auction is settling' : undefined}
+              disabled={settling || notOpenYet}
+              title={
+                notOpenYet
+                  ? `Bidding opens at ${opensLabel}`
+                  : settling
+                    ? 'Auction is settling'
+                    : undefined
+              }
             >
-              {a.highest_bid > 0 ? (leading ? `Raise ${money(next)}` : `Bid ${money(next)}`) : `Open at ${money(next)}`}
+              {notOpenYet
+                ? `Opens ${opensLabel}`
+                : a.highest_bid > 0
+                  ? leading
+                    ? `Raise ${money(next)}`
+                    : `Bid ${money(next)}`
+                  : `Open at ${money(next)}`}
             </button>
           )}
           <button

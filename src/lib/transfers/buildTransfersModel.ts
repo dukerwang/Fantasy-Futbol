@@ -232,6 +232,12 @@ export interface TransfersAuction {
   minimum_bid: number | null;
   first_bid_at: string | null;
   expires_at: string | null;
+  /**
+   * When bidding opens, or null for immediately. A lot with a future value is
+   * listed deliberately — you plan a budget against it — but a bid is refused
+   * until then, and the card has to say so rather than let the error do it.
+   */
+  opens_at: string | null;
   market_value_at_auction: number | null;
   /** Private to the caller — never sourced from the public projection. */
   my_bid: number | null;
@@ -474,6 +480,7 @@ export async function buildTransfersModel(
       minimum_bid: listing ? listing.min_bid : Math.floor(marketValue * freeAgentBidFloor),
       first_bid_at: a.first_bid_at,
       expires_at: a.expires_at,
+      opens_at: a.opens_at ?? null,
       market_value_at_auction: a.market_value_at_auction,
       my_bid: mine?.faab_bid ?? null,
       my_drop_player_id: mine?.drop_player_id ?? null,
