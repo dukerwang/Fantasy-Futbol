@@ -570,18 +570,22 @@ export async function syncPlayersFromFpl(admin: SupabaseClient): Promise<SyncPla
       element_type: row.element_type,
     });
 
-    if (existing) {
-      matchedDbIds.add(existing.id);
-    } else {
-      // Brand-new player: try the SoFIFA top-5-league reference cache before
-      // falling back to resolvePosition()'s crude element_type default. An
-      // existing row's position is never touched here — only ever a fresh
-      // insert's initial value, which the override/merge logic below still
-      // gets the final say over (e.g. FPL_POSITION_OVERRIDES).
-      if (sofifaMatch) {
-        row.primary_position = sofifaMatch.primary_position as GranularPosition;
-        row.secondary_positions = sofifaMatch.secondary_positions as GranularPosition[];
-      }
+    if (existing) matchedDbIds.add(existing.id);
+
+    // Try the SoFIFA top-5-league reference cache for a player who has no
+    // position yet. That is every brand-new arrival, and also an existing row
+    // still holding NULL — a player inserted before his reference entry was
+    // scraped, or before positions could be null at all. Without the second
+    // case such a row is stranded: the merge below prefers the stored value,
+    // and a stored NULL beat the reference every night forever (Bradley
+    // Barcola sat NULL in `players` while the cache had him as LW from a
+    // Ligue 1 scrape).
+    //
+    // A position a human or SoFIFA already set is still never touched — this
+    // fills an absence, it does not overwrite an answer.
+    if (sofifaMatch && !existing?.primary_position) {
+      row.primary_position = sofifaMatch.primary_position as GranularPosition;
+      row.secondary_positions = sofifaMatch.secondary_positions as GranularPosition[];
     }
 
     // Curated FPL_POSITION_OVERRIDES always win (e.g. Zubimendi → DM). Otherwise
@@ -594,6 +598,12 @@ export async function syncPlayersFromFpl(admin: SupabaseClient): Promise<SyncPla
     const primaryPosition = hasOverride
       ? row.primary_position
       : (existing?.primary_position ?? row.primary_position);
+    // Same absence-vs-answer rule for the secondary list: an existing row that
+    // has none takes the reference's, rather than staying empty forever.
+    const secondaryPositions =
+      existing?.secondary_positions?.length
+        ? existing.secondary_positions
+        : (row.secondary_positions ?? []);
 
     // Keep a manually-simplified name only when it still describes this player.
     // A row matched by fpl_id whose name no longer resembles the FPL name means
@@ -619,10 +629,7 @@ export async function syncPlayersFromFpl(admin: SupabaseClient): Promise<SyncPla
       ...dbRow,
       name: finalName,
       primary_position: primaryPosition,
-      // row.secondary_positions is only ever non-empty here for a brand-new
-      // player matched against the SoFIFA reference cache above -- existing
-      // rows always take their own stored value, same as primary_position.
-      secondary_positions: (existing?.secondary_positions ?? row.secondary_positions ?? [])
+      secondary_positions: (secondaryPositions ?? [])
         .filter((p: string) => p !== primaryPosition),
       market_value:
         existing?.market_value != null && existing.market_value !== 0
