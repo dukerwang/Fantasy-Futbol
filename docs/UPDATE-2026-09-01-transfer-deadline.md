@@ -76,7 +76,7 @@ The **Players** tab replaces Stats and opens three views of the same pool.
 
 Roster size increased from 20 to 22. Every club gets €30m.
 
-There's a blockbuster on the auction board to spend it on.
+There's a blockbuster hitting the auction board at midday to spend it on.
 
 ## Auction timing
 
