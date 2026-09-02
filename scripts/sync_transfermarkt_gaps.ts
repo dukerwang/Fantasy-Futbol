@@ -342,7 +342,12 @@ async function main() {
         console.log(`[auctions] Seeded ${totalSeeded} new auction(s) across active leagues.`);
       }
     } catch (auctionErr) {
-      console.error('[auctions] Failed to seed auctions:', auctionErr);
+      // Loud on purpose. This used to log quietly and the run still exited 0,
+      // so a resolver misconfiguration meant no auction was ever seeded after a
+      // gap-fill and nothing said so. Run through scripts/run_transfermarkt_gaps.sh,
+      // which registers the TS resolver this import needs.
+      console.error('[auctions] FAILED to seed auctions — newly priced players have NO auction:', auctionErr);
+      process.exitCode = 1;
     }
   }
 }
