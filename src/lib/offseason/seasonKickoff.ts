@@ -332,6 +332,7 @@ export async function runSeasonKickoff(admin: SupabaseClient, leagueId: string):
         kind: 'club',
         subject: buildAuctionSubject(playerInfo, 'The Season Has Begun!'),
         html: getSystemAuctionsEmail(playerInfo, true, `${baseUrl}/league/${leagueId}`, AUCTION_THRESHOLD),
+        leagueId,
       });
 
       const featuredNotice = buildFeaturedNotice(playersToAuction.map((p) => ({ name: p.name, value: p.marketValue })));
@@ -358,7 +359,7 @@ export async function runSeasonKickoff(admin: SupabaseClient, leagueId: string):
               leagueId,
               userId,
               title: 'Relegation Paid',
-              content: `**${r.playerName}** (${r.club}) has been dropped due to relegation. You have been compensated with **+€${r.compensationFaab}m**.`,
+              content: `**${r.playerName}** (${r.club}) has been dropped due to relegation. You've been credited **+€${r.compensationFaab}m**.`,
               url: `/league/${leagueId}/finance`,
             });
           }

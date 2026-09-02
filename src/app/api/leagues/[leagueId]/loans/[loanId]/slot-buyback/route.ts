@@ -87,7 +87,7 @@ export async function POST(req: NextRequest, { params }: Props) {
         leagueId,
         userId: user.id,
         title: 'Slot Buyback',
-        content: `You have successfully bought back a roster slot for €${resData.fee_paid}m. You can now sign an additional player while the loan of ${player.name} is active.`,
+        content: `You bought back a roster slot for €${resData.fee_paid}m. You can sign another player while ${player.name}'s loan is active.`,
         url: `/league/${leagueId}/team`
       });
 

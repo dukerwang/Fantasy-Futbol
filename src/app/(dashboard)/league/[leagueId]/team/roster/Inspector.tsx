@@ -91,7 +91,7 @@ export default function Inspector({ entry, teamId, leagueId, viewerIsOwner, acad
       if (!res.ok) { const d = await res.json().catch(() => ({})); setErr(d.error ?? 'Action failed'); return; }
       onAfter();
     } catch {
-      setErr('Network error — please try again.');
+      setErr('Could not reach the server. Try again.');
     } finally {
       setBusy(false);
     }

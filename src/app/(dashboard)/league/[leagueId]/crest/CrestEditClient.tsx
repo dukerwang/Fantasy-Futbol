@@ -72,7 +72,7 @@ export default function CrestEditClient({ leagueId, team }: Props) {
           
           {success && (
             <p style={{ color: 'var(--color-success)', fontWeight: 'bold', fontSize: '14px', marginTop: '16px' }}>
-              ✓ Crest updated successfully! Returning to clubhouse...
+              ✓ Crest updated. Returning to clubhouse…
             </p>
           )}
         </div>

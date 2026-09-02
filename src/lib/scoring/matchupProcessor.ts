@@ -425,7 +425,7 @@ export async function processMatchupsForGameweek(
                     await sendEmailToUsers(admin, {
                         userIds,
                         kind: 'matchdays',
-                        subject: `Monday Review: GW${gameweek} Summary - ${summary.name}`,
+                        subject: `Monday Review: GW${gameweek} Summary`,
                         html: getMatchweekSummaryEmail(
                             summary.name,
                             gameweek,
@@ -433,6 +433,7 @@ export async function processMatchupsForGameweek(
                             summary.highScorer,
                             `${baseUrl}/league/${leagueId}/standings`
                         ),
+                        leagueId,
                     });
 
                     // Create in-game notifications

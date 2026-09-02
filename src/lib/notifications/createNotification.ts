@@ -1,6 +1,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { sendPushToUser } from '@/lib/push/sendPush';
 import { wantsChannel, type NotificationKind } from '@/lib/notifications/prefs';
+import { getLeagueName, withLeaguePrefix } from '@/lib/leagues/leagueName';
 
 interface CreateNotificationParams {
   /** null for an account-wide notice not scoped to any one league (e.g. a product update). */
@@ -122,7 +123,13 @@ export async function createNotification(
 
     if (!wantsChannel(row?.notification_prefs, kind, 'push')) return;
 
-    await sendPushToUser(admin, userId, { title: pushTitle ?? title, body: pushBody ?? content, url, tag });
+    // A push banner has no surrounding page to say which league it's about —
+    // unlike the in-app inbox, which is always opened from a specific league's
+    // pages. A manager in more than one league can't otherwise tell them apart.
+    const leagueName = await getLeagueName(admin, leagueId);
+    const finalPushTitle = withLeaguePrefix(leagueName, pushTitle ?? title);
+
+    await sendPushToUser(admin, userId, { title: finalPushTitle, body: pushBody ?? content, url, tag });
   } catch (err) {
     console.error('[createNotification] Push send failed:', err);
   }

@@ -149,7 +149,7 @@ export async function releaseDeparture(
         leagueId: decision.league_id,
         userId: team.user_id,
         title: 'Compensated',
-        content: `**${await playerName(admin, decision.player_id)}** has been released. Your club balance has been credited **€${row.compensation}m**.`,
+        content: `**${await playerName(admin, decision.player_id)}** has been released. You've been credited **€${row.compensation}m** to your Club Balance.`,
         url: `/league/${decision.league_id}/finance`,
       });
     }

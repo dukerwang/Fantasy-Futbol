@@ -184,6 +184,11 @@
   }
 }
 
+.itemLeague {
+  display: block;
+  margin-bottom: 2px;
+}
+
 .itemHeader {
   display: flex;
   align-items: flex-start;

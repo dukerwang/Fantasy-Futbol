@@ -20,7 +20,11 @@ export async function GET(req: NextRequest) {
   const admin = createAdminClient();
   let query = admin
     .from('notifications')
-    .select('*')
+    // The bell can be opened outside any league (e.g. /dashboard, before a
+    // league is picked), where it aggregates every league's notifications —
+    // the league name is the only way to tell them apart there, so it's
+    // always embedded rather than only when unscoped.
+    .select('*, leagues(name)')
     .eq('user_id', user.id);
 
   if (leagueId) {

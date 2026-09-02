@@ -245,6 +245,7 @@ export async function POST(req: NextRequest, { params }: Props) {
             pending: true,
             leagueUrl: `${baseUrl}/league/${leagueId}`,
           }),
+          leagueId,
         });
       }
 
@@ -314,6 +315,7 @@ export async function POST(req: NextRequest, { params }: Props) {
           pending: false,
           leagueUrl: `${baseUrl}/league/${leagueId}`,
         }),
+        leagueId,
       });
 
       const detailMd = isListingSale

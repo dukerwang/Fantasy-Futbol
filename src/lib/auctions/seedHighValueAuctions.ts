@@ -161,6 +161,7 @@ async function notifyLeague(
       kind: 'auctions',
       subject: buildAuctionSubject(playerInfo, 'Transfer Window Alert: New Players on the Market'),
       html: getSystemAuctionsEmail(playerInfo, false, `${baseUrl}/league/${leagueId}`, AUCTION_THRESHOLD),
+      leagueId,
     });
 
     // The player leads, in the inbox row and in the push. A count never does.

@@ -1,6 +1,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { sendEmail } from '@/lib/email/client';
 import { wantsChannel, type NotificationKind } from '@/lib/notifications/prefs';
+import { getLeagueName, withLeagueSubjectPrefix } from '@/lib/leagues/leagueName';
 
 /**
  * Send an email only to recipients who have that kind's email channel on.
@@ -13,6 +14,10 @@ export async function sendEmailToUsers(
     kind: NotificationKind;
     subject: string;
     html: string;
+    /** Prefixes the subject with "[League Name]" — a manager in more than one league
+     *  can't tell them apart from the subject line alone otherwise. Omit for mail
+     *  that isn't scoped to one league (e.g. account-wide product updates). */
+    leagueId?: string | null;
   },
 ): Promise<boolean> {
   const uniqueIds = [...new Set(params.userIds.filter(Boolean))];
@@ -34,5 +39,8 @@ export async function sendEmailToUsers(
 
   if (emails.length === 0) return false;
 
-  return sendEmail({ to: emails, subject: params.subject, html: params.html });
+  const leagueName = await getLeagueName(admin, params.leagueId);
+  const subject = withLeagueSubjectPrefix(leagueName, params.subject);
+
+  return sendEmail({ to: emails, subject, html: params.html });
 }

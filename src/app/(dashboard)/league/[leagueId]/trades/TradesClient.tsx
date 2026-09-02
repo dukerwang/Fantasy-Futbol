@@ -269,7 +269,7 @@ export default function TradesClient({
     }
 
     resetProposeForm();
-    setProposeSuccess('Trade proposal sent!');
+    setProposeSuccess('Trade proposal sent.');
 
     const refreshRes = await fetch(`/api/leagues/${leagueId}/trades`);
     if (refreshRes.ok) {
@@ -358,7 +358,7 @@ export default function TradesClient({
         if (data.deferred) {
           setProposeSuccess('Loan accepted but deferred until gameweek ends — player is locked.');
         } else {
-          setProposeSuccess(`Loan ${action}ed successfully!`);
+          setProposeSuccess(`Loan ${action}ed.`);
         }
         await refreshLoans();
       }
@@ -1202,7 +1202,7 @@ export default function TradesClient({
           totalGameweeks={leagueSettings.total_gameweeks}
           onClose={() => setShowLoanModal(false)}
           onProposed={async () => {
-            setProposeSuccess('Loan proposal submitted successfully!');
+            setProposeSuccess('Loan proposal submitted.');
             await refreshLoans();
           }}
         />

@@ -254,19 +254,19 @@ export function buyNowTriggeredNotice(
 
 export function tradeCancelledByAuctionNotice(playerName: string): Notice {
   return {
-    title: `Proposal Cancelled: ${playerName}`,
-    pushTitle: `Proposal Cancelled`,
-    content: `Negotiations involving **${playerName}** were automatically cancelled after the player entered an active open auction on the market.`,
-    pushBody: `Proposal for ${playerName} cancelled (entered active auction).`,
+    title: `Trade for ${playerName} called off`,
+    pushTitle: `Trade called off`,
+    content: `**${playerName}** has gone into an open auction on the market, so this trade is off.`,
+    pushBody: `${playerName} went to auction — the trade is off.`,
   };
 }
 
 export function listingUnsoldNotice(playerName: string): Notice {
   return {
-    title: `Listing Expired: ${playerName}`,
-    pushTitle: `Listing Expired`,
-    content: `The transfer listing for **${playerName}** has concluded with no bids placed. The player remains on your squad.`,
-    pushBody: `Listing for ${playerName} expired with no bids.`,
+    title: `Listing for ${playerName} expired`,
+    pushTitle: `Listing expired`,
+    content: `No one bid on **${playerName}** before the listing closed. He stays on your squad.`,
+    pushBody: `No bids for ${playerName} — listing closed.`,
   };
 }
 
@@ -277,8 +277,8 @@ export function loanFinalWeekNotice(
   endGw: number,
 ): Notice {
   return {
-    title: `Loan Final Week: ${playerName}`,
-    pushTitle: `Loan Expiring`,
+    title: `${playerName}'s loan enters its final week`,
+    pushTitle: `Loan entering final week`,
     content: `**${playerName}** is entering the final matchweek (GW${endGw}) of their loan spell at **${clubName(borrower)}** before returning to **${clubName(lender)}**.`,
     pushBody: `${playerName} loan at ${clubAbbr(borrower)} ends after GW${endGw}.`,
   };

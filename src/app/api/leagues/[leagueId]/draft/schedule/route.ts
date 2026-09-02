@@ -79,8 +79,9 @@ export async function POST(req: NextRequest, { params }: Props) {
         await sendEmailToUsers(admin, {
           userIds,
           kind: 'club',
-          subject: `Draft Scheduled: ${league.name}`,
+          subject: 'Draft Scheduled',
           html: getDraftScheduledEmail(league.name, formattedTime, lobbyUrl),
+          leagueId,
         });
 
         for (const t of allTeams) {
@@ -89,7 +90,7 @@ export async function POST(req: NextRequest, { params }: Props) {
             leagueId,
             userId: t.user_id,
             title: 'Draft Set',
-            content: `The commissioner has scheduled the draft for **${league.name}** for **${formattedTime}**!`,
+            content: `The commissioner scheduled the draft for **${league.name}** for **${formattedTime}**.`,
             url: `/league/${leagueId}`
           });
         }
@@ -97,8 +98,9 @@ export async function POST(req: NextRequest, { params }: Props) {
         await sendEmailToUsers(admin, {
           userIds,
           kind: 'club',
-          subject: `Draft Postponed: ${league.name}`,
+          subject: 'Draft Postponed',
           html: getDraftCancelledEmail(league.name, lobbyUrl),
+          leagueId,
         });
 
         for (const t of allTeams) {
@@ -107,7 +109,7 @@ export async function POST(req: NextRequest, { params }: Props) {
             leagueId,
             userId: t.user_id,
             title: 'Draft Delayed',
-            content: `The scheduled draft for **${league.name}** has been cancelled or postponed.`,
+            content: `The commissioner cancelled or postponed the scheduled draft for **${league.name}**.`,
             url: `/league/${leagueId}`
           });
         }

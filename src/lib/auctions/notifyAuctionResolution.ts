@@ -104,6 +104,7 @@ export async function notifyAuctionResolution(
         droppedByClub,
         `${baseUrl}/league/${leagueId}`,
       ),
+      leagueId,
     });
 
     const winDetailMd = `**${playerName}** to **${winnerTeamName ?? 'Unknown Club'}** for €${winnerBid}m`;
@@ -115,7 +116,7 @@ export async function notifyAuctionResolution(
         kind: 'auctions',
         leagueId,
         userId: winnerUserId,
-        title: eyebrow || 'Auction Won!',
+        title: eyebrow || 'Auction Won',
         pushTitle: pushTitleForEyebrow(eyebrow, 'Auction Won'),
         content: `${lead}${resData.winner_severance ? ` **${dropPlayerName}** was released to clear roster space.` : ''}`,
         url: `/league/${leagueId}/team`,
@@ -180,7 +181,7 @@ export async function notifyAuctionResolution(
           kind: 'auctions',
           leagueId,
           userId: sellerTeam.user_id,
-          title: sellLine.eyebrow || 'Player Sold!',
+          title: sellLine.eyebrow || 'Player Sold',
           pushTitle: pushTitleForEyebrow(sellLine.eyebrow, 'Player Sold'),
           content: sellLine.lead,
           url: `/league/${leagueId}/team`,
@@ -193,6 +194,7 @@ export async function notifyAuctionResolution(
             kind: 'auctions',
             subject: `${playerName} sold to ${winnerTeamName ?? 'another club'} for €${winnerBid}m`,
             html: getPlayerSoldEmail(playerName, winnerTeamName ?? 'Another club', winnerBid, tierValue, `${baseUrl}/league/${leagueId}`),
+            leagueId,
           });
         }
       }

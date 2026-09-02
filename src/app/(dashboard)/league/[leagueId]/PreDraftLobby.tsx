@@ -115,7 +115,7 @@ export default function PreDraftLobby({
   async function handleSaveSchedule(e: React.FormEvent) {
     e.preventDefault();
     if (!schedTimeInput) {
-      setSchedError('Please select a valid date and time.');
+      setSchedError('Select a valid date and time.');
       return;
     }
 
@@ -147,17 +147,17 @@ export default function PreDraftLobby({
         return;
       }
 
-      setSchedSuccess('Draft schedule updated successfully!');
+      setSchedSuccess('Draft schedule updated.');
       router.refresh();
     } catch (err: any) {
-      setSchedError(err.message ?? 'An error occurred while saving the schedule.');
+      setSchedError(err.message ?? "Couldn't save the schedule.");
     } finally {
       setSchedSaving(false);
     }
   }
 
   async function handleCancelSchedule() {
-    if (!confirm('Are you sure you want to cancel the scheduled draft? This will clear the countdown.')) {
+    if (!confirm('Cancel the scheduled draft? This clears the countdown.')) {
       return;
     }
 
@@ -178,11 +178,11 @@ export default function PreDraftLobby({
         return;
       }
 
-      setSchedSuccess('Draft schedule cleared successfully.');
+      setSchedSuccess('Draft schedule cleared.');
       setSchedTimeInput('');
       router.refresh();
     } catch (err: any) {
-      setSchedError(err.message ?? 'An error occurred while clearing the schedule.');
+      setSchedError(err.message ?? "Couldn't clear the schedule.");
     } finally {
       setSchedSaving(false);
     }

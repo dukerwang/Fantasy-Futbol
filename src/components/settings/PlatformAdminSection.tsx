@@ -268,8 +268,8 @@ export default function PlatformAdminSection() {
                 <p className={styles.confirmText} style={{ display: 'flex', gap: '8px' }}>
                   <Icon name="alert" size={20} style={{ color: '#ef4444', flexShrink: 0, marginTop: '2px' }} />
                   <span>
-                    <strong>Are you absolutely sure?</strong> This will run end-of-season reset for all {readyCount}{' '}
-                    ready league(s) right now. Cannot be undone.
+                    Run the end-of-season reset for all {readyCount}{' '}
+                    ready league(s) now? This can't be undone.
                   </span>
                 </p>
                 <div className={styles.confirmButtons}>
@@ -392,8 +392,8 @@ export default function PlatformAdminSection() {
                 <p className={styles.confirmText} style={{ display: 'flex', gap: '8px' }}>
                   <Icon name="alert" size={20} style={{ color: '#ef4444', flexShrink: 0, marginTop: '2px' }} />
                   <span>
-                    <strong>Are you absolutely sure?</strong> This will kick off the new season for all{' '}
-                    {kickoffCount} league(s) right now. Cannot be undone.
+                    Kick off the new season for all{' '}
+                    {kickoffCount} league(s) now? This can't be undone.
                   </span>
                 </p>
                 <div className={styles.confirmButtons}>

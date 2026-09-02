@@ -186,19 +186,19 @@ describe('bid and market notices', () => {
   describe('gap notices', () => {
     it('generates trade cancelled notice', () => {
       const n = tradeCancelledByAuctionNotice('Bukayo Saka');
-      expect(n.title).toBe('Proposal Cancelled: Bukayo Saka');
-      expect(n.content).toContain('automatically cancelled after the player entered an active open auction');
+      expect(n.title).toBe('Trade for Bukayo Saka called off');
+      expect(n.content).toContain('gone into an open auction on the market');
     });
 
     it('generates listing unsold notice', () => {
       const n = listingUnsoldNotice('Bukayo Saka');
-      expect(n.title).toBe('Listing Expired: Bukayo Saka');
-      expect(n.content).toContain('concluded with no bids placed');
+      expect(n.title).toBe('Listing for Bukayo Saka expired');
+      expect(n.content).toContain('No one bid on');
     });
 
     it('generates loan final week notice', () => {
       const n = loanFinalWeekNotice('Sam Rook', vdp, unnamed, 15);
-      expect(n.title).toBe('Loan Final Week: Sam Rook');
+      expect(n.title).toBe("Sam Rook's loan enters its final week");
       expect(n.content).toContain('final matchweek (GW15)');
       expect(n.pushBody).toBe('Sam Rook loan at Holloway Utd ends after GW15.');
     });

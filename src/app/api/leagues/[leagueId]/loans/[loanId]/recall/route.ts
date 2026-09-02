@@ -175,7 +175,7 @@ export async function POST(req: NextRequest, { params }: Props) {
           leagueId,
           userId: user.id,
           title: 'Roster Full',
-          content: `**${player.name}** has returned from loan but your roster is full. Please drop a player to activate them.`,
+          content: `**${player.name}** has returned from loan but your roster is full. Drop a player to activate them.`,
           url: `/league/${leagueId}/team`
         });
       } else if (resData.returned_to === 'taxi') {

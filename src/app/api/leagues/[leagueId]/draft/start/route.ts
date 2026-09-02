@@ -91,6 +91,7 @@ export async function POST(req: NextRequest, { params }: Props) {
           kind: 'club',
           subject: 'Gaffa Draft: THE DRAFT HAS BEGUN!',
           html: getDraftStartedEmail(league.name ?? 'Your League', `${baseUrl}/league/${leagueId}/draft`),
+          leagueId,
         });
 
         // Create in-game notifications
@@ -101,7 +102,7 @@ export async function POST(req: NextRequest, { params }: Props) {
             leagueId,
             userId: t.user_id,
             title: 'Draft Started',
-            content: `The commissioner has officially started the draft for **${league.name}**! The Draft Room is now open.`,
+            content: `The commissioner started the draft for **${league.name}**. The Draft Room is open.`,
             url: `/league/${leagueId}/draft`
           });
         }

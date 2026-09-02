@@ -63,7 +63,7 @@ export default function InboxClient({ leagueId, leagueName }: InboxClientProps) 
   };
 
   const handleClearInbox = async () => {
-    if (!confirm('Are you sure you want to clear your entire inbox for this league? This cannot be undone.')) {
+    if (!confirm("Clear your entire inbox for this league? This can't be undone.")) {
       return;
     }
     try {

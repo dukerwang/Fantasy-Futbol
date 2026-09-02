@@ -811,7 +811,7 @@ export default function PitchUI({
 
             router.refresh();
         } catch {
-            setSidebarError('Network error — please try again.');
+            setSidebarError('Could not reach the server. Try again.');
         } finally {
             setSidebarLoading(false);
         }
@@ -831,7 +831,7 @@ export default function PitchUI({
             if (!res.ok) { const d = await res.json(); setSidebarError(d.error ?? 'Failed to activate'); }
             else { router.refresh(); }
         } catch {
-            setSidebarError('Network error — please try again.');
+            setSidebarError('Could not reach the server. Try again.');
         } finally {
             setSidebarLoading(false);
         }
@@ -860,7 +860,7 @@ export default function PitchUI({
 
             router.refresh();
         } catch {
-            setSidebarError('Network error — please try again.');
+            setSidebarError('Could not reach the server. Try again.');
         } finally {
             setSidebarLoading(false);
         }
@@ -880,7 +880,7 @@ export default function PitchUI({
             if (!res.ok) { const d = await res.json(); setSidebarError(d.error ?? 'Failed to activate from IR'); }
             else { router.refresh(); }
         } catch {
-            setSidebarError('Network error — please try again.');
+            setSidebarError('Could not reach the server. Try again.');
         } finally {
             setSidebarLoading(false);
         }
@@ -913,7 +913,7 @@ export default function PitchUI({
             setSaveSuccess(true);
             router.refresh();
         } catch {
-            setSaveError('Network error — please try again.');
+            setSaveError('Could not reach the server. Try again.');
         } finally {
             setSaving(false);
         }
@@ -1031,7 +1031,7 @@ export default function PitchUI({
                         </span>
                     )}
                     {saveError && <span className={styles.errorText}>{saveError}</span>}
-                    {saveSuccess && !saveError && <span className={styles.successText}>Lineup saved!</span>}
+                    {saveSuccess && !saveError && <span className={styles.successText}>Lineup saved.</span>}
                     <button className={styles.saveBtn} onClick={handleSave} disabled={!canSave}>
                         {saving ? 'Saving…' : 'Save Lineup'}
                     </button>

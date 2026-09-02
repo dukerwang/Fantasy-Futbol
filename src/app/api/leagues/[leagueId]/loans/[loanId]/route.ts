@@ -320,6 +320,7 @@ export async function POST(req: NextRequest, { params }: Props) {
           kind: 'deals',
           subject: `Player Loan Agreement Finalized`,
           html: getLoanAcceptedEmail(lenderTeam.team_name, borrowerTeam.team_name, player.name, loan.start_gameweek, loan.end_gameweek, leagueUrl),
+          leagueId,
         });
       }
 

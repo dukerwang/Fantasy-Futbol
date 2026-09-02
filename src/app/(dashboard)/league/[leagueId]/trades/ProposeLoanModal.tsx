@@ -175,7 +175,7 @@ export default function ProposeLoanModal({
   async function handleProposeLoan(e: React.FormEvent) {
     e.preventDefault();
     if (!selectedPlayer || !borrowerTeamId) {
-      setError('Please select a borrower club.');
+      setError('Select a borrower club.');
       return;
     }
     setError(null);

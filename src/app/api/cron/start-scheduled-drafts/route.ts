@@ -63,15 +63,13 @@ export async function POST(req: NextRequest) {
         await sendEmailToUsers(admin, {
           userIds: [league.commissioner_id],
           kind: 'club',
-          subject: `Draft Postponed: ${league.name}`,
+          subject: 'Draft Postponed',
           html: `
-              <p>Dear Commissioner,</p>
-              <p>The scheduled draft kickoff for your Gaffa league <strong>${league.name}</strong> was aborted because the league does not meet the minimum requirements to start.</p>
-              <p><strong>Gaffa leagues require at least 4 registered managers to start drafting.</strong> Currently, only ${teams.length} manager(s) have joined your league.</p>
-              <p>The draft schedule has been cleared. Once you have at least 4 managers, you can schedule a new draft kickoff time in the League lobby.</p>
-              <p>Best of luck,</p>
-              <p>Gaffa Administration</p>
+              <p>The scheduled draft kickoff for <strong>${league.name}</strong> was aborted because the league doesn't meet the minimum requirements to start.</p>
+              <p><strong>Gaffa leagues require at least 4 registered managers to start drafting.</strong> Only ${teams.length} manager(s) have joined so far.</p>
+              <p>The draft schedule has been cleared. Once you have at least 4 managers, schedule a new draft kickoff time in the League lobby.</p>
             `,
+          leagueId: league.id,
         });
 
         // Add in-game notification for commissioner
@@ -80,7 +78,7 @@ export async function POST(req: NextRequest) {
           leagueId: league.id,
           userId: league.commissioner_id,
           title: 'Draft Delayed',
-          content: `Draft kickoff cancelled: only ${teams.length} of the required minimum 4 managers joined. Invite more managers to reschedule!`,
+          content: `Draft kickoff cancelled: only ${teams.length} of the minimum 4 managers joined. Invite more managers, then reschedule.`,
           url: `/league/${league.id}`
         });
 
@@ -143,6 +141,7 @@ export async function POST(req: NextRequest) {
         kind: 'club',
         subject: 'Gaffa Draft: THE DRAFT HAS BEGUN!',
         html: getDraftStartedEmail(league.name ?? 'Your League', `${baseUrl}/league/${league.id}/draft`),
+        leagueId: league.id,
       });
 
       // Create in-game notifications for all members
@@ -152,7 +151,7 @@ export async function POST(req: NextRequest) {
           leagueId: league.id,
           userId: t.user_id,
           title: 'Draft Started',
-          content: `The scheduled kickoff has arrived! The draft for **${league.name}** has officially started! The Draft Room is now open.`,
+          content: `The draft for **${league.name}** has started. The Draft Room is open.`,
           url: `/league/${league.id}/draft`
         });
       }

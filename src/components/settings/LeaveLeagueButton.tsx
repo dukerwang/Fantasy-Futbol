@@ -13,8 +13,9 @@ export default function LeaveLeagueButton({ leagueId, isCommissioner }: Props) {
   const [loading, setLoading] = useState(false);
 
   const handleAction = async () => {
-    const actionName = isCommissioner ? 'delete this league' : 'leave this league';
-    const confirmMessage = `Are you absolutely sure you want to ${actionName}? This action cannot be undone and all associated data will be permanently lost.`;
+    const confirmMessage = isCommissioner
+      ? "Delete this league? This permanently deletes the league and every team in it."
+      : "Leave this league? You can't undo this.";
 
     if (!window.confirm(confirmMessage)) return;
 
@@ -26,14 +27,14 @@ export default function LeaveLeagueButton({ leagueId, isCommissioner }: Props) {
 
       if (!res.ok) {
         const data = await res.json();
-        throw new Error(data.error || 'Failed to process request');
+        throw new Error(data.error || (isCommissioner ? 'Failed to delete the league.' : 'Failed to leave the league.'));
       }
 
       window.dispatchEvent(new Event('navigation-start'));
       router.push('/dashboard');
       router.refresh();
     } catch (err: unknown) {
-      alert(err instanceof Error ? err.message : 'Failed to process request');
+      alert(err instanceof Error ? err.message : (isCommissioner ? 'Failed to delete the league.' : 'Failed to leave the league.'));
       setLoading(false);
     }
   };
@@ -54,7 +55,7 @@ export default function LeaveLeagueButton({ leagueId, isCommissioner }: Props) {
         opacity: loading ? 0.7 : 1,
       }}
     >
-      {loading ? 'Processing...' : isCommissioner ? 'Delete League' : 'Leave League'}
+      {loading ? (isCommissioner ? 'Deleting…' : 'Leaving…') : isCommissioner ? 'Delete League' : 'Leave League'}
     </button>
   );
 }

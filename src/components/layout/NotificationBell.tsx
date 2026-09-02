@@ -17,6 +17,7 @@ interface Notification {
   url?: string;
   read: boolean;
   created_at: string;
+  leagues?: { name: string } | null;
 }
 
 interface NotificationBellProps {
@@ -193,6 +194,12 @@ export default function NotificationBell({ leagueId, onNavigate }: NotificationB
                   className={`${styles.item} ${!n.read ? styles.itemUnread : ''}`}
                   onClick={() => handleItemClick(n)}
                 >
+                  {/* Only when the bell isn't already scoped to one league (e.g. the
+                      /dashboard bell) — inside a league, the page itself already
+                      says which one, the same way the inbox does. */}
+                  {!leagueId && n.leagues?.name && (
+                    <span className={`${styles.itemLeague} g-label-quiet`}>{n.leagues.name}</span>
+                  )}
                   <div className={styles.itemHeader}>
                     <span className={styles.itemTitle}>{n.title}</span>
                     <span className={styles.itemTime}>{formatTime(n.created_at)}</span>

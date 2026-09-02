@@ -74,7 +74,7 @@ export default function DraftOrderManager({ leagueId, initialTeams }: Props) {
           .eq('id', teams[i].id);
         if (teamErr) throw teamErr;
       }
-      setSuccess('Draft order saved successfully!');
+      setSuccess('Draft order saved.');
       router.refresh();
     } catch (err: any) {
       setError(err.message ?? 'Failed to save draft order');

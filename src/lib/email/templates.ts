@@ -139,7 +139,7 @@ export const getSystemAuctionsEmail = (
 
   let preamble = '';
   if (isSummerKickoff) {
-    preamble = `The commissioner has officially started the season. <strong>${count} summer arrival${count === 1 ? '' : 's'}</strong> have been placed on the auction block.`;
+    preamble = `The commissioner started the season. <strong>${count} summer arrival${count === 1 ? '' : 's'}</strong> have gone to auction.`;
   } else if (count === 1 && top) {
     preamble = `A new high-profile signing has entered the Premier League. <strong>${top.name}</strong> (€${top.value}m) is now available on the open market.`;
   } else {
@@ -250,8 +250,8 @@ export const getPlayerSoldEmail = (
 
 export const getDraftStartedEmail = (leagueName: string, draftUrl: string) => {
   const body = `
-    <p>The commissioner has officially started the draft for <strong>${leagueName}</strong>!</p>
-    <p>The Draft Room is now open. Head over immediately to start making your picks.</p>
+    <p>The commissioner started the draft for <strong>${leagueName}</strong>.</p>
+    <p>The Draft Room is open. Head over to make your picks.</p>
     <div style="background-color: ${BG_PAGE}; padding: 20px; border-radius: 8px; border: 2px solid ${INK}; text-align: center; margin: 24px 0;">
       <p style="font-family: ${FONT_SERIF}; font-size: 1.2em; font-weight: bold; margin-top: 0; color: ${INK};">DRAFT IS LIVE</p>
       <a href="${draftUrl}" class="button" style="margin-top: 0;">Enter Draft Room</a>
@@ -300,21 +300,21 @@ export const getMatchweekSummaryEmail = (
 
 export const getDraftScheduledEmail = (leagueName: string, scheduledTime: string, lobbyUrl: string) => {
   const body = `
-    <p>The commissioner has scheduled the draft for <strong>${leagueName}</strong>!</p>
+    <p>The commissioner scheduled the draft for <strong>${leagueName}</strong>.</p>
     <div style="background-color: ${BG_PAGE}; padding: 20px; border-radius: 8px; border: 2px solid ${INK}; text-align: center; margin: 24px 0;">
       <p style="font-size: 0.9em; text-transform: uppercase; color: ${TEXT_MUTED}; margin-top: 0;">Scheduled Kickoff Time</p>
       <p style="font-family: ${FONT_SERIF}; font-size: 1.4em; font-weight: bold; margin: 8px 0; color: ${INK};">${scheduledTime}</p>
       <a href="${lobbyUrl}" class="button" style="margin-top: 12px;">Go to League lobby</a>
     </div>
-    <p>Please review your queue, research players, and ensure you are in the Draft Room before the timer hits zero!</p>
+    <p>Review your queue, research players, and be in the Draft Room before the timer hits zero.</p>
   `;
   return baseTemplate(`Draft Scheduled for ${leagueName}`, body);
 };
 
 export const getDraftCancelledEmail = (leagueName: string, lobbyUrl: string) => {
   const body = `
-    <p>The draft schedule for <strong>${leagueName}</strong> has been cancelled or postponed by the commissioner.</p>
-    <p>The league status remains in the Pre-Draft setup phase. A new scheduled time will be determined by your commissioner.</p>
+    <p>The commissioner cancelled or postponed the draft schedule for <strong>${leagueName}</strong>.</p>
+    <p>The league stays in Pre-Draft setup until your commissioner sets a new time.</p>
     <div style="text-align: center; margin: 24px 0;">
       <a href="${lobbyUrl}" class="button">Go to League lobby</a>
     </div>
