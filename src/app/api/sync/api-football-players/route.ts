@@ -137,7 +137,7 @@ export async function POST(req: NextRequest) {
 
         for (const apiData of allApiPlayers) {
             const apiPlayer = apiData.player;
-            const normApiLast = normalizeName(apiPlayer.lastname);
+            const normApiLast = normalizeName(apiPlayer.lastname ?? '');
             const normApiFull = normalizeName(apiPlayer.name);
 
             let bestMatchObj = null;

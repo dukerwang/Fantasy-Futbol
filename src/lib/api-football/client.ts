@@ -3,73 +3,43 @@
  * Docs: https://www.api-football.com/documentation-v3
  *
  * All requests go through this single client so rate limits are easy to track.
+ * Backed by Effect for resilience, exponential backoff retries, and Schema validation.
  */
 
-const BASE_URL = 'https://v3.football.api-sports.io';
-const PL_LEAGUE_ID = 39; // Premier League
-const CURRENT_SEASON = 2024;
+import { Effect } from 'effect';
+import {
+  ApiFootballService,
+  ApiFootballServiceLive,
+  type ApiPlayer,
+  type ApiTeam,
+} from '@/lib/effect';
 
-async function apiFetch<T>(
-  path: string,
-  params: Record<string, string | number> = {}
-): Promise<T> {
-  const apiKey = process.env.API_FOOTBALL_KEY;
-  if (!apiKey) throw new Error('API_FOOTBALL_KEY is not configured');
-
-  const url = new URL(`${BASE_URL}${path}`);
-  Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, String(v)));
-
-  const res = await fetch(url.toString(), {
-    headers: {
-      'x-apisports-key': apiKey,
-    },
-    next: { revalidate: 3600 }, // Cache for 1 hour in Next.js
-  });
-
-  if (!res.ok) {
-    throw new Error(`API-Football error: ${res.status} ${res.statusText}`);
-  }
-
-  const json = await res.json();
-  return json.response as T;
-}
-
-// --- Player Types ---
-export interface ApiPlayer {
-  player: {
-    id: number;
-    name: string;
-    firstname: string;
-    lastname: string;
-    birth: { date: string | null };
-    nationality: string | null;
-    height: string | null;
-    weight: string | null;
-    photo: string;
-  };
-  statistics: {
-    team: { id: number; name: string };
-    games: { position: string };
-  }[];
-}
+export type { ApiPlayer, ApiTeam };
 
 /**
  * Fetch all Premier League teams for the current season.
+ * Compatible with existing Promise-based callers.
  */
 export async function fetchPLTeams(): Promise<{ team: { id: number; name: string } }[]> {
-  return apiFetch<{ team: { id: number; name: string } }[]>('/teams', {
-    league: PL_LEAGUE_ID,
-    season: CURRENT_SEASON,
-  });
+  const program = Effect.gen(function* () {
+    const service = yield* ApiFootballService;
+    return yield* service.fetchPLTeams();
+  }).pipe(Effect.provide(ApiFootballServiceLive));
+
+  const teams = await Effect.runPromise(program);
+  return teams as { team: { id: number; name: string } }[];
 }
 
 /**
  * Fetch all players for a specific team.
+ * Compatible with existing Promise-based callers.
  */
 export async function fetchPlayersByTeam(teamId: number, page = 1): Promise<ApiPlayer[]> {
-  return apiFetch<ApiPlayer[]>('/players', {
-    team: teamId,
-    season: CURRENT_SEASON,
-    page,
-  });
+  const program = Effect.gen(function* () {
+    const service = yield* ApiFootballService;
+    return yield* service.fetchPlayersByTeam(teamId, page);
+  }).pipe(Effect.provide(ApiFootballServiceLive));
+
+  const players = await Effect.runPromise(program);
+  return players as ApiPlayer[];
 }
