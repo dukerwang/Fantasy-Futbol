@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { createClient } from '@/lib/supabase/client';
 import { Icon } from '@/components/ui/Icon';
 import FormattedText from '@/components/ui/FormattedText';
 import styles from './NotificationBell.module.css';
@@ -44,13 +45,43 @@ export default function NotificationBell({ leagueId, onNavigate }: NotificationB
     }
   };
 
-  // Fetch on mount and when leagueId changes
+  // Fetch on mount, when leagueId changes, or via Realtime update / tab visibility
   useEffect(() => {
     fetchNotifications();
 
-    // Poll for notifications every 60 seconds
-    const interval = setInterval(fetchNotifications, 60000);
-    return () => clearInterval(interval);
+    const supabase = createClient();
+    let channel: ReturnType<typeof supabase.channel> | null = null;
+
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (!user) return;
+      channel = supabase
+        .channel(`user-notifications:${user.id}`)
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'notifications',
+            filter: `user_id=eq.${user.id}`,
+          },
+          () => {
+            fetchNotifications();
+          }
+        )
+        .subscribe();
+    });
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        fetchNotifications();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      if (channel) supabase.removeChannel(channel);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, [leagueId]);
 
   // Handle outside click to close dropdown

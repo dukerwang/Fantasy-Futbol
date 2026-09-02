@@ -554,7 +554,13 @@ export default function DraftRoom({
 
   useEffect(() => {
     if (isDraftComplete) return;
-    const interval = setInterval(() => { router.refresh(); }, 15000);
+    // Fallback safety net: Supabase broadcast + postgres_changes handle real-time picks.
+    // Only refresh in the background if the user actually has the tab open and visible.
+    const interval = setInterval(() => {
+      if (typeof document !== 'undefined' && document.visibilityState === 'visible') {
+        router.refresh();
+      }
+    }, 30000);
     return () => clearInterval(interval);
   }, [isDraftComplete, router]);
 

@@ -44,14 +44,19 @@ export default function ChatNavIcon({ leagueId, onNavigate }: ChatNavIconProps) 
     }
   }, [leagueId, chatContext]);
 
-  // Re-check on mount/league change and on every route change
+  // Fetch on mount / league change, or when tab regains visibility
   useEffect(() => {
     fetchUnread();
-  }, [pathname, fetchUnread]);
 
-  useEffect(() => {
-    const interval = setInterval(fetchUnread, 60000);
-    return () => clearInterval(interval);
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        fetchUnread();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, [fetchUnread]);
 
   // Instant badge on new messages, rather than waiting up to 60s for the next poll

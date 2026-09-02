@@ -135,20 +135,67 @@ export default function TopBar() {
     };
   }, []);
 
-  // Fetch user's teams + leagues (includes each team's Club Balance) on every
-  // navigation, not just once. This layout persists across client-side route
-  // changes — Next.js never remounts it — so a mount-only fetch left the pill
-  // showing whatever the balance was when the tab was first opened, stale
-  // against every page that fetches its own fresh data (auctions, listings,
-  // finance) after a bid resolves, a trade completes, or a solidarity payment
-  // lands.
-  useEffect(() => {
+  // Fetch user's teams + leagues on mount, tab visibility, or via Supabase Realtime.
+  // Realtime updates the Club Balance and crest directly over WebSockets (0 Vercel
+  // function invocations) whenever a trade, bid, or budget update commits to Postgres.
+  const fetchTeams = useCallback(() => {
     fetch('/api/user/leagues')
-      .then(r => r.json())
+      .then((r) => r.json())
       .then(({ teams: data }) => {
         if (data) setTeams(data);
-      });
-  }, [pathname]);
+      })
+      .catch(console.error);
+  }, []);
+
+  useEffect(() => {
+    fetchTeams();
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        fetchTeams();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    const supabase = createClient();
+    let channel: ReturnType<typeof supabase.channel> | null = null;
+
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (!user) return;
+      channel = supabase
+        .channel(`user-teams-topbar:${user.id}`)
+        .on(
+          'postgres_changes',
+          {
+            event: 'UPDATE',
+            schema: 'public',
+            table: 'teams',
+            filter: `user_id=eq.${user.id}`,
+          },
+          (payload) => {
+            const updated = payload.new as { id: string; faab_budget?: number; team_name?: string; crest_config?: any };
+            setTeams((prev) =>
+              prev.map((t) =>
+                t.id === updated.id
+                  ? {
+                      ...t,
+                      team_name: updated.team_name ?? t.team_name,
+                      faab_budget: updated.faab_budget !== undefined ? updated.faab_budget : t.faab_budget,
+                      crest_config: updated.crest_config ?? t.crest_config,
+                    }
+                  : t
+              )
+            );
+          }
+        )
+        .subscribe();
+    });
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      if (channel) supabase.removeChannel(channel);
+    };
+  }, [fetchTeams]);
 
   // Username doesn't change mid-session, so this stays mount-only.
   useEffect(() => {
