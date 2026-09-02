@@ -74,3 +74,35 @@ All frontend UI copy, microcopy, error messages, docs, commit messages, and assi
 - **`minimalist-ui`**: Bans colored header sections (breaks green topbar) and forces monochrome `#111111` buttons with pastels, conflicting with the green ramp and 12 tactical position colors.
 - **`stitch-design-taste`**: Designed to generate new `DESIGN.md` files from scratch; risks overwriting Gaffa's custom palette and locked decisions.
 - **`image-to-code`**: Scaffolds disposable marketing pages from synthetic mockups rather than working inside Gaffa's design system.
+
+---
+
+## 4. Resource limits, server efficiency, and cost awareness
+
+All AI agents must actively design and execute for cost and resource efficiency. Never blindly invoke remote endpoints, introduce unthrottled polling, or run heavy data workloads through production serverless functions.
+
+### Tool & service limits
+
+1. **Vercel (Hobby compute)**:
+   - **Limits**: 1,000,000 Function Invocations per rolling 30-day window; 4 Fluid Active CPU hours per month.
+   - **Prefer local compute for batch work**: When generating scouting outlooks, backfilling data, or running multi-minute syncs, run them locally via CLI scripts (`scripts/...` or `tsx ...`) directly against Postgres. Do not route heavy batch jobs through Vercel serverless functions when a local script can do it.
+   - **Avoid unthrottled remote loops**: Do not repeatedly hammer remote Vercel API routes in loops if a direct database query or local script achieves the same result. Only invoke remote routes when testing them or when no local equivalent exists.
+   - **No client-side polling**: Do not use `setInterval` to poll Next.js API routes from client components. Use Supabase Realtime WebSockets directly (which bypass Vercel serverless compute entirely).
+
+2. **Supabase (Postgres & Realtime)**:
+   - **Limits**: Free tier storage, 200 concurrent Realtime connections, 500 MB DB size.
+   - **Batching & pagination**: Avoid N+1 queries. PostgREST truncates queries at 1,000 rows, so paginate (`.range()`) whenever querying large tables (`player_stats`, `sofifa_position_reference`).
+   - **Use database RPCs**: Prefer Postgres RPCs and stored procedures for complex transactions (bids, trades, payouts) instead of multiple round trips from application code.
+   - **Channel cleanup**: Always clean up Realtime subscriptions on component unmount (`supabase.removeChannel(channel)`).
+
+3. **Google Gemini / AI Studio (Scouting reports & outlooks)**:
+   - **Limits**: Monthly spend cap on Google AI Studio project.
+   - **Cache search queries**: Share head-coach and club queries across players. Do not regenerate outlooks that already match the current `PIPELINE_VERSION`. Respect `OUTLOOK_MONTHLY_GROUNDED_CAP`.
+
+4. **External data sources (FPL, SoFIFA, Transfermarkt, API-Football)**:
+   - **API-Football**: 100 requests per day limit.
+   - **SoFIFA & Transfermarkt**: Scraping is blocked on cloud/CI IPs. Run only from local machines using existing tools (`playwright-sofifa.js`, `scripts/sync_transfermarkt_gaps.ts`).
+
+### The efficiency principle
+
+Before proposing or running any operational task, think: *How can we achieve the desired outcome with minimum remote invocations, lowest CPU time, and zero unnecessary API spend while maintaining speed and correctness?*

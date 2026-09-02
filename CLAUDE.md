@@ -166,6 +166,22 @@ Non-negotiable mechanics from `docs/USER_GUIDE.md` that are easy to get wrong wh
 - **The draft happens exactly once per league**, ever — there's no per-season re-draft; everything after is auctions/trades/loans. Don't build features assuming a recurring draft.
 - **Points floor at zero, never negative** — a red card or a terrible match can only reduce a player's contribution to nothing.
 
+### Resource limits, server efficiency, and cost awareness
+All AI agents and assistants working in this repo must actively design and execute for cost and resource efficiency. Never blindly invoke remote endpoints, introduce unthrottled polling, or run heavy data workloads through production serverless functions.
+
+- **Vercel (Hobby compute)**: 1,000,000 Function Invocations per rolling 30-day window; 4 Fluid Active CPU hours per month.
+  - **Prefer local compute for batch work**: When generating scouting outlooks, backfilling data, or running multi-minute syncs, run them locally via CLI scripts (`scripts/...` or `tsx ...`) directly against Postgres. Do not route heavy batch jobs through Vercel serverless functions when a local script can do it.
+  - **Avoid unthrottled remote loops**: Do not repeatedly hammer remote Vercel API routes in loops if a direct database query or local script achieves the same result. Only invoke remote routes when testing them or when no local equivalent exists.
+  - **No client-side polling**: Do not use `setInterval` to poll Next.js API routes from client components. Use Supabase Realtime WebSockets directly (0 Vercel invocations).
+- **Supabase (Postgres & Realtime)**: Free tier storage, 200 concurrent Realtime connections, 500 MB DB size.
+  - **Batching & pagination**: Avoid N+1 queries. PostgREST truncates queries at 1,000 rows, so paginate (`.range()`) whenever querying large tables (`player_stats`, `sofifa_position_reference`).
+  - **Use database RPCs**: Prefer Postgres RPCs and stored procedures for complex transactions (bids, trades, payouts) instead of multiple round trips from application code.
+  - **Channel cleanup**: Always clean up Realtime subscriptions on component unmount (`supabase.removeChannel(channel)`).
+- **Google Gemini / AI Studio (Scouting reports & outlooks)**: Monthly spend cap on Google AI Studio project.
+  - **Cache search queries**: Share head-coach and club queries across players. Do not regenerate outlooks that already match the current `PIPELINE_VERSION`. Respect `OUTLOOK_MONTHLY_GROUNDED_CAP`.
+- **External data sources**: API-Football (100 req/day limit); SoFIFA & Transfermarkt (scrape locally only via `playwright-sofifa.js` and `scripts/sync_transfermarkt_gaps.ts`, never from cloud IPs).
+- **The efficiency principle**: Before proposing or running any operational task, think: *How can we achieve the desired outcome with minimum remote invocations, lowest CPU time, and zero unnecessary API spend while maintaining speed and correctness?*
+
 ## Environment
 
 Required vars (see `.env.example`): `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `API_FOOTBALL_KEY` (free tier, 100 req/day — doesn't cover `big_chances_created`, see `specs/research_data_sources.md`), `CRON_SECRET` (protects cron/admin API routes — pass as `x-cron-secret` header).

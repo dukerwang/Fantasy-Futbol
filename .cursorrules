@@ -1,20 +1,36 @@
 # Cursor Rules for Gaffa
 
-Read `CLAUDE.md` and `AGENTS.md` at the start of every session.
+## Project Overview
+Gaffa is a dynasty fantasy football platform for the Premier League, live at gaffa.live.
+- Core spec: Read `CLAUDE.md`, `README.md`, `AGENTS.md`.
+- Game mechanics & intent: `docs/USER_GUIDE.md`.
+- Decisions: Check `docs/DECISIONS.md` before making design decisions.
 
-## Frontend & UI Work
-- Before modifying or designing any UI components, CSS modules, layout, or typography, always read `DESIGN.md` (and check `docs/DECISIONS.md`).
-- Follow the **Google Developer Documentation Style Guide** (`developers.google.com/style`) across all UI copy, error messages, and responses:
-  - Active voice.
-  - "You", not "we".
-  - Sentence case for titles, headers, and buttons ("Submit proposal", not "Submit Proposal").
-  - Cut filler: "just", "simply", "easily", "obviously". "Allows you to" -> "lets you".
-  - No cheerleading / throat-clearing ("Certainly!", "Great question!").
-  - No hedge-stacking ("it is worth noting that").
-  - Prose by default; don't list-ify everything into bullet points.
-  - No em-dash overuse.
+## Verification
+- Always run `npm run build` and `npm test` before declaring work complete.
 
-## Agent Skills Policy
-- **Recommended**: `emil-design-eng` (micro-interactions & press feedback), `apple-design` (mobile & sheets), `google-dev-style` (writing & copy), `modern-web-guidance` (modern CSS), `impeccable` in `Operate` mode, `full-output-enforcement`, `animate`.
-- **Banned**: `industrial-brutalist-ui` (violates identity), `high-end-visual-design` (violates eyebrows/topbar bans), `design-taste-frontend` / `gpt-taste` (for landing pages, not dashboards), `minimalist-ui` (breaks green topbar/position colors), `stitch-design-taste` (for generating from scratch), `image-to-code` (synthetic mockups).
+## Resource Limits, Server Efficiency, and Cost Awareness
+All AI agents must actively balance server optimization (efficiency, speed, quality) with limits and cost:
 
+1. **Vercel (Compute & Invocations)**:
+   - Limits: 1M Function Invocations per 30-day rolling window, 4 Fluid Active CPU hours/month.
+   - **Prefer local compute for batch work**: When generating outlooks, backfilling data, or running heavy syncs, run them as local Node/TS CLI scripts (`scripts/...` or `tsx ...`) directly against Postgres instead of routing heavy batch jobs through Vercel serverless functions.
+   - **Avoid unthrottled remote loops**: Do not repeatedly hammer remote Vercel API routes in loops if a direct database query or local script achieves the same result. Only invoke remote routes when testing them or when no local equivalent exists.
+   - **No client-side polling**: Use Supabase Realtime WebSockets directly instead of `setInterval` polling Next.js API routes.
+
+2. **Supabase (Postgres & Realtime)**:
+   - Batch queries and avoid N+1 queries (`.in('id', ids)`).
+   - PostgREST truncates queries at 1,000 rows — paginate (`.range()`) on large tables.
+   - Use Postgres stored procedures (RPCs) for complex transactions.
+   - Always clean up Realtime channels on component unmount.
+
+3. **Google Gemini / AI Studio**:
+   - Respect project monthly spend cap. Cache search queries (head-coach/club) across players.
+
+4. **External Data Sources**:
+   - API-Football has a 100 req/day limit.
+   - SoFIFA and Transfermarkt block cloud/CI IPs — run only via local scrapers (`playwright-sofifa.js`, `scripts/sync_transfermarkt_gaps.ts`).
+
+## Style & Design Requirements
+- Follow `DESIGN.md` (tokens, serif display font, Archivo Narrow labels, mobile dvh, safe-area insets, no eyebrows/kickers).
+- Follow Google Developer Documentation Style Guide (active voice, direct tone, no throat-clearing, sentence case, Oxford comma).
