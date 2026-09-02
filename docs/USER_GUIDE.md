@@ -83,7 +83,7 @@ Every club's roster is split by status:
 - **Academy** — a prospect stash for U21 players (§12).
 - **Loaned out / Loaned in** — players temporarily at another club, or borrowed from one (§10).
 
-Roster size is a league setting, commonly **20**. IR and Academy players don't count toward it.
+Roster size is a league setting, commonly **22** (11 starters plus 11 bench). IR and Academy players don't count toward it, so a full squad is 22 + 3 Academy + 2 IR = **27**.
 
 **IR isn't a free extra slot.** IR is capped at **2 players** (a league setting), and on top of that the game polices it at the point it matters: **you cannot place an auction bid while a healthy player is sitting on IR.** You have to activate him first. Rather than auditing injuries continuously, Gaffa blocks the benefit you'd be stashing him for, in addition to bounding how many you can stash at once.
 
@@ -102,7 +102,7 @@ A league drafts **once**, before its first season. After that your squad carries
 - It's a **snake draft**: order reverses every round, running for as many rounds as your roster size, so everyone finishes with a full squad.
 - Any active, undrafted Premier League player is available. There's no separate rookie pool.
 - Each pick has a **90-second clock**. Miss it and the system picks for you — from players you've pre-starred if you set a queue, otherwise by whichever position you need most.
-- When the last pick lands, the season schedule and all three cup brackets are generated and normal play switches on.
+- When the last pick lands, the season schedule is generated and normal play switches on. Cup brackets wait until gameweek 7 in a league's first season, so the seeds reflect real form (§6).
 
 **Why only one draft ever?** Because a dynasty league where talent arrives by lottery every year isn't a dynasty. After the initial draft, every player who enters the league has to be *bought* — which is what makes the Club Balance meaningful and a good squad an achievement rather than a draft slot.
 
@@ -262,6 +262,7 @@ It solves a real problem with league-only fantasy football, too: by March, half 
 **You don't set a separate cup lineup.** Your gameweek score is calculated once from your one XI, and that same score counts for your league match *and* any cup tie you have that week. One team, one performance, multiple competitions — exactly as a real squad plays a midweek cup game with the players it has.
 
 - **Brackets are seeded on league position** in the standard pattern (1 v 16, 8 v 9, 5 v 12 …), and **byes go to the top seeds**. Finishing high in the table is worth something beyond the table.
+- **In a league's first season, brackets are seeded at gameweek 7**, not at the draft. Seeding before anyone has played makes the seeds and byes arbitrary. A league with a previous season seeds immediately from its archived standings.
 - Some rounds are **two-legged**, decided on **aggregate** across both gameweeks.
 - **There are no draws in a cup.** The league's 10-point draw band doesn't apply — somebody has to advance.
 - **Level ties are settled by your best individual performer.** If the scores are equal, the club whose highest-scoring single player outscored the other's goes through.
@@ -280,9 +281,32 @@ Cup results feed end-of-season prize money (§14) — so a cup run pays as well 
 ## 7. Standings & Stats
 
 - **Standings** — the league table: win/draw/loss, league points, points for and against, difference, rank, and a five-match form guide.
-- **Stats** — a leaderboard covering **every** Premier League player, owned or not, sortable by total points, points per game, average rating, market value, form and minutes, filterable by position.
+- **Players** — every Premier League player, owned or not, in three views.
 
-The Stats page is deliberately league-wide rather than limited to free agents: scouting in a dynasty league means knowing who's good, including players you'd have to prise off somebody.
+Players is deliberately league-wide rather than limited to free agents: scouting in a dynasty league means knowing who's good, including players you'd have to prise off somebody.
+
+### The three views
+
+- **Cards** (the default) lead with the first line of that player's scouting report. Filter by quality, minutes role, and **Watch for**, which surfaces players linked with a Premier League exit.
+- **Table** is the sortable leaderboard: total points, points per game, average rating, market value, form and minutes, filterable by position and gameweek.
+- **Explorer** plots the pool on any two of eight stats, opening on market value against points per game.
+
+### Scouting reports
+
+Every regular carries a written outlook from **Futbolpedia**: how he's used, how secure his place is, what to expect week to week, and where he is in his career.
+
+It's a football judgment, drawn from match data, minutes, set-piece duty and transfer news. **It never reads your league's scoring**, and it never tells you whether to bid. A report is dated, because it describes the player now — view an older season and the figures change but the report doesn't.
+
+Alongside the writing, each player carries tags you can filter on: quality at his position, how nailed-on he is, career phase, dynasty value, playing style, and any risks.
+
+### Player pages
+
+Tap any player for his own page, split in two.
+
+- **The football side** — his scouting report, minutes and starts, goals against xG, assists against xA, set-piece order from FPL, and his xGI/90 percentile among players in the same position. That percentile is only shown for attacking positions: an elite centre-back ranks near the bottom of it, so the bar would read as a verdict it isn't.
+- **Your league's side** — points, points per game, average rating, who owns him, and this week's fixture.
+
+The two never mix. League scoring doesn't feed the scouting report, and the report doesn't affect your points.
 
 ---
 
@@ -309,17 +333,24 @@ It also keeps the skill in the right place. In a sealed format the winner is usu
 
 ### How long an auction runs
 
-There is no fixed duration and no hard ceiling. The clock is driven by bidding activity with a decaying inactivity timeout, protected by your league's **quiet hours** (default 00:00–08:00 local time):
+There's no fixed duration and no hard ceiling. How long a lot stays open depends on what the player is worth, and after that it runs on bidding activity.
 
-| | |
+**Minimum length by market value:**
+
+| Market value | Minimum length |
 |---|---|
-| Initial window (before first bid) | **72 hours** (for all players) |
-| Stays open at least | **24 hours** after the first real bid |
-| Inactivity timeout | **12h** (age <48h) → **4h** (48–72h) → **2h** (72–96h) → **1h** (96h+) |
-| Quiet hours guard | Expiries landing inside quiet hours automatically move to the window's end (e.g. 08:00) |
-| Hard ceiling | **None** — an auction terminates when someone stops paying, preventing snipes |
+| Under €25m | **12 hours** |
+| €25m–€50m | **24 hours** |
+| €50m–€80m | **48 hours** |
+| €80m and above | **72 hours** |
 
-Every bid extends the clock by the active inactivity timeout. Because there is no hard ceiling, contested auctions can never freeze on a snipeable public deadline, and quiet hours guarantee no auction resolves while managers are asleep.
+A marquee signing sits there long enough for everyone to plan a bid. A cheap rotation player can be streamed the same afternoon instead of tying up the board for three days.
+
+**After the last bid, a lot ends on inactivity**, and that window shortens as the auction ages: **6h** under 48h old, **4h** at 48–72h, **2h** at 72–96h, **1h** beyond that. Every bid resets it, so a contested auction never freezes on a public deadline anyone can snipe.
+
+**Nothing settles overnight.** A lot due to expire between 23:00 and the end of your league's quiet hours (default 08:00 local) moves to **midday** instead. One exception: an uncontested weekend lot — a single bid, under €20m, on a Saturday or Sunday — settles at **06:45**, ahead of the early kickoff, so a last-minute streamer is available to play.
+
+**Auctions over €50m open at midday**, rather than the moment the overnight sync sweeps the player in. Bidding is blind either way, but the "new auction" notice isn't: released at 4am it only reaches whoever happens to be awake.
 
 When the clock hits zero, **a free-agent auction settles immediately** — the winning bid lands even if that player's Premier League club has already kicked off. There is no seller XI to protect. The card reads **settling** until the win posts, not "ended."
 

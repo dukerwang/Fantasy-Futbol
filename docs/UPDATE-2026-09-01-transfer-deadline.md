@@ -20,13 +20,13 @@ drawn from. Part 3 is the launch order.
 ```
 slug:       scouting-reports-player-profiles-deadline-day
 title:      Scouting Reports, Player Profiles, and Deadline Day
-summary:    Every player now has a written scouting report and a profile page of his own — plus two more squad places, a board grant, and auctions that run on a player's value.
+summary:    Scouting reports and a page for every player, rosters up to 22, €30m for every club, and auction length now set by market value.
 is_major:   true
 highlights: [
-  "A scouting report on every player, written from real evidence",
-  "A full profile page, and three ways through the player pool",
-  "Auctions run on a player's value, and never settle overnight",
-  "Squads go to 22, and every club gets €30m to spend"
+  "A written scouting report on every player",
+  "A page per player, and three ways to browse the pool",
+  "Auction length now set by market value, and none settle overnight",
+  "Roster size 20 to 22, and €30m for every club"
 ]
 ```
 
@@ -42,143 +42,101 @@ does today.
 
 ---
 
-## Every player now has a scouting report
+## Scouting reports
 
-Gaffa has always been able to tell you what a player scored. It has never been
-able to tell you what he *is*.
+Every player now carries a written outlook from Futbolpedia: how he's used, how
+secure his place is, what to expect week to week, and where he is in his career.
+It's written from match data, minutes, set-piece duty, and transfer news. It
+doesn't read your league's points and it doesn't give bid advice.
 
-Every player now carries a written outlook from Futbolpedia — a paragraph on how
-he's used, how secure his place is, what you can expect from him week to week,
-and where he sits in his career. It's a football judgment written from real
-evidence: match data, minutes, set-piece duty, transfer news. It never looks at
-your league's points, and it will never tell you to buy or sell. That part is
-still yours.
+Each player also carries tags you can filter on — quality, how nailed-on he is,
+dynasty value, and risks to watch.
 
-Each player also carries a set of tags you can filter on — how good he is at his
-position, how nailed-on he is, whether he's a cornerstone or a win-now asset,
-and anything to watch out for.
+## Player pages
 
-## A profile page for every player
+Every player has his own page. The left side is football: the scouting report,
+minutes and starts, goals against xG, assists against xA, set-piece order, and
+his xGI/90 percentile among players in his position. The right side is your
+league: points, PPG, rating, owner, and this week's fixture.
 
-Tap through to any player and you get his own page, built in two halves that
-never mix.
+Switch seasons and both sides move together.
 
-On one side, the football: his scouting report, minutes and starts, goals
-against expected goals, who takes the set pieces, and where his attacking output
-ranks among players in his position. On the other, your league: points, points
-per game, rating, who owns him, and this week's fixture.
+## Players, three views
 
-You can view any season he has data for, and both halves move together — so
-you're never reading one year's figures next to another's.
+The **Players** tab replaces Stats and opens three views of the same pool.
 
-## Three ways through the player pool
+- **Cards**, the default. Each card leads with the first line of that player's
+  scouting report. Filter by quality, minutes role, and **Watch for** — the
+  first way to ask who's leaving the Premier League.
+- **Table**, the old stats table, now with a gameweek filter.
+- **Explorer**, a scatter plot on any two of eight stats. Opens on market value
+  against PPG. Tap a dot for the player.
 
-There's a new **Players** tab, and it opens the same pool three ways.
+## Roster and budget
 
-**Cards** is the default. Each card leads with the opening line of that player's
-scouting report, which is the one thing a table can't hold. The filters across
-the top let you narrow by quality, by how nailed-on a player is, and by **Watch
-for** — the first way in Gaffa to ask who's about to leave the Premier League.
+Roster size increased from 20 to 22. Every club gets €30m.
 
-**Table** is the stats table you already know, one click away and unchanged,
-now with a gameweek filter so a week's figures are actually that week's.
+There's a blockbuster on the auction board to spend it on.
 
-**Explorer** plots the whole pool on two axes you pick from eight stats. It
-opens on market value against points per game, so the bargains gather in one
-corner without anyone having to explain it. Every dot is coloured by tactical
-position, and tapping one takes you to that player.
+## Auction timing
 
-## Deadline day
+Auction length now depends on the player's market value:
 
-**Squads go from 20 to 22.** Two more places on the bench, and if you were at
-capacity you can now bid and trade without dropping someone first.
-
-**Every club receives a €30m board grant.** It's the same amount for everyone,
-so the gap you've earned by being frugal survives intact — there's simply more
-room to work with.
-
-And there's a blockbuster on the market to spend it on. The auction board has
-the details.
-
-## Auctions now run on the player's value, and won't end while you're asleep
-
-Every auction used to run to the same clock regardless of who was in it. A €4m
-squad filler and a €90m striker had the same window, which made cheap lots drag
-and expensive ones close faster than anyone could react to.
-
-**How long a lot stays open now depends on what the player is worth.**
-
-| Player's value | Minimum time open |
+| Market value | Minimum length |
 |---|---|
 | Under €25m | 12 hours |
-| €25m – €50m | 1 day |
-| €50m – €80m | 2 days |
-| €80m and above | 3 days |
+| €25m–€50m | 24 hours |
+| €50m–€80m | 48 hours |
+| €80m+ | 72 hours |
 
-So a marquee signing is guaranteed to sit there long enough for everyone to see
-it and plan a bid, while a rotation squad player can be streamed in the same
-afternoon instead of tying up your attention for three days.
+After the last bid, a lot ends on inactivity, and that window shortens as the
+auction ages: 6 hours on day one, 4 after two days, 2 after three, 1 after four.
+Any bid resets it, so you can't be sniped.
 
-**After the last bid, a lot closes on inactivity — and that window tightens as
-the auction ages.** Six hours of quiet ends it on day one, four hours after two
-days, two hours after three, and an hour after four. Nobody can snipe you at the
-buzzer, because any bid resets the clock; but a lot that everyone has lost
-interest in stops hanging around.
+Nothing settles between 11pm and 8am — those lots move to midday. Exception:
+an uncontested weekend lot under €20m settles at 6:45am, before the early
+kickoff. Auctions over €50m now open at midday instead of whenever the overnight
+sync runs.
 
-**And nothing settles overnight.** If a lot would expire between 11pm and 8am,
-it's pushed to midday so you're not losing a player because you were asleep. The
-one exception is a cheap, uncontested lot on a weekend — a single bid, under
-€20m — which settles at 6:45am instead, ahead of the early kickoff, so a
-last-minute streamer is actually in your side in time to play.
+## Also new
 
-## Around the league
-
-- Your Club Balance now opens a dropdown showing every club's balance at a
-  glance.
-- **Cup brackets in a league's first season are now seeded at gameweek 7** rather
-  than straight after the draft. Seeding and byes used to be decided before a
-  single match had been played, which made them close to random. Leagues with a
-  previous season still seed immediately from real standings.
-- League Home's In The Market board is a proper table now, and tells you how many
-  of your opponent's players are still to play.
-- Your fixture strip is now day tabs with real club badges, and shows the
-  gameweek that's genuinely next.
-- You can open a direct message straight from an opponent's card.
+- The Club Balance pill opens a dropdown with every club's balance.
+- First-season cup brackets seed at gameweek 7 instead of straight after the
+  draft. Leagues with a previous season still seed from real standings.
+- League Home's market board is a table, and shows how many of your opponent's
+  players are still to play.
+- The fixture strip is day tabs with club badges, on the correct gameweek.
+- Message an opponent from their card on League Home.
 - The chat widget opens from the top bar on every page.
-- Search finds players typed without their accents — "munoz" finds Muñoz,
-  "odegaard" finds Ødegaard.
-- Players are shown by the name you'd actually call them, everywhere.
-- Switching gameweeks on the matchups page is now instant.
-- The stats table, the players index, and your club page all remember how you
-  left them.
-- Brand-new arrivals now show as unassigned until their position and value come
-  through, rather than being given a placeholder that looked like a real one.
+- Search ignores accents: "munoz" finds Muñoz, "odegaard" finds Ødegaard.
+- Players show the name you'd actually call them.
+- Gameweek switching on Matchups is instant.
+- Stats, Players, and My Club remember your view, sort, and filters.
+- New signings show N/A until their position and value sync, instead of a
+  placeholder.
 
 ## Notifications
 
-- Transfer notices now tell you whether you were outbid directly or simply
-  passed in the running order — and everyone who bid before you hears about it.
+- Outbid notices say whether you were outbid directly or passed in the order,
+  and everyone who bid before you is told.
 - Auctions closing soon count down.
-- Your inbox folds repeated tags instead of stacking them.
-- Push notifications name the player or the deal.
-- Auction alert emails were rewritten.
+- The inbox folds repeated tags.
+- Push notifications name the player or deal.
+- Auction emails rewritten.
 
 ## Fixed
 
-- New listings said you had 3 days to bid when you really had 14.
-- The auction modal quoted a 24-hour reset that hadn't been true for a while.
-- Your dashboard jumped ahead to next week's deadline while a gameweek was still
-  being played.
-- Matches still under post-match review are now treated as finished on the
-  fixture strip.
-- Countering a trade offer no longer hides the cash row.
-- Unread notifications no longer look read the moment you hover them.
-- Podium dividers, trophy cabinet margins, squad panel spacing, and a stack of
-  column alignment across the market and auction boards.
-- A run of mobile fixes: the pitch no longer clips, long names no longer
-  truncate on auction cards, and several full-height screens no longer run off
-  the bottom of a notched iPhone.
-- Closed a hole in how league data was scoped between leagues.
+- New listings said 3 days to bid instead of 14.
+- The auction modal quoted a 24-hour reset that no longer applied.
+- The dashboard skipped to next week's deadline mid-gameweek.
+- Matches under post-match review now count as finished on the fixture strip.
+- Countering a trade offer hid the cash row.
+- Unread notifications looked read on hover.
+- Podium dividers, trophy cabinet margins, squad panel spacing, and column
+  alignment on the market and auction boards.
+- Mobile: pitch clipping, name truncation on auction cards, and full-height
+  screens running off the bottom on notched iPhones.
+- Closed a league data scoping hole.
 
 ---
 

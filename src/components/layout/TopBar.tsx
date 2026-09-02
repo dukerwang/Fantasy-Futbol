@@ -276,9 +276,14 @@ export default function TopBar() {
           { label: 'Standings', href: `${base}/standings` },
           // Named for its contents rather than a vague umbrella. It stays lit
           // on a player's own page, which is reached from here and from the
-          // card modal on a dozen other surfaces.
-          { label: 'Players', href: `${base}/players`, alsoMatches: [`${base}/players/`] },
-          { label: 'Stats', href: `${base}/stats` },
+          // card modal on a dozen other surfaces, and on /stats, whose table
+          // now lives here as the table view. The route still resolves for old
+          // links and for the share pages that render it.
+          {
+            label: 'Players',
+            href: `${base}/players`,
+            alsoMatches: [`${base}/players/`, `${base}/stats`],
+          },
           { label: 'Finance', href: `${base}/finance` },
           { label: 'History', href: `${base}/history` },
         ],
