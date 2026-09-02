@@ -123,14 +123,16 @@ export default function InboxClient({ leagueId, leagueName }: InboxClientProps) 
 
   // Matches the eyebrow copy TIER_COPY emits in src/lib/notifications/valueTiers.ts
   // for Blockbuster/Galactico signings — the in-app half of the same convention.
-  const isHypeAlert = (content: string) => {
-    const text = content.toLowerCase();
+  const isHypeAlert = (content: string, title = '') => {
+    // The tier used to be repeated in the body purely so this could find it.
+    // It belongs in the header, so look there too and let the body read as copy.
+    const text = `${title} ${content}`.toLowerCase();
     return text.includes('blockbuster signing') || text.includes('galactico arrival');
   };
 
   const getAlertIcon = (title: string, content: string) => {
     const text = (title + ' ' + content).toLowerCase();
-    if (isHypeAlert(content)) return 'star';
+    if (isHypeAlert(content, title)) return 'star';
     if (text.includes('trade')) return 'repeat';
     if (text.includes('draft')) return 'trophy';
     if (text.includes('outbid')) return 'alert';
@@ -214,7 +216,7 @@ export default function InboxClient({ leagueId, leagueName }: InboxClientProps) 
             return (
               <div
                 key={n.id}
-                className={`${styles.row} ${!n.read ? styles.rowUnread : ''} ${isHypeAlert(n.content) ? styles.rowHype : ''}`}
+                className={`${styles.row} ${!n.read ? styles.rowUnread : ''} ${isHypeAlert(n.content, n.title) ? styles.rowHype : ''}`}
                 onClick={() => handleRowClick(n)}
                 role="button"
                 tabIndex={0}

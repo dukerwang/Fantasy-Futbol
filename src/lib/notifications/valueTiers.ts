@@ -118,26 +118,27 @@ export function buildArrivalNotification(
   if (!top) {
     return {
       title: 'New arrivals',
-      pushTitle: 'Auctions open',
+      pushTitle: 'New arrivals',
       content: 'New players are on the market.',
       pushBody: 'New auctions are open.',
     };
   }
 
   const others = sorted.length - 1;
-  // A lot seeded with a future opens_at is announced the moment it is created,
-  // which is not the moment it can be bid on. Saying "3d to bid" then is simply
-  // untrue: it went out at 05:22 for an auction that opened at noon, so every
-  // manager was told bidding was open six hours before it was.
-  const bid = opensLabel
+  // "3d left" is right for a clock column and wrong in a sentence. A notice a
+  // manager reads once should say "3 days to bid".
+  const window = spellWindow(timeLeftLabel);
+  // A lot seeded with a future opens_at is announced when it is created, not
+  // when it can be bid on. Saying "3 days to bid" then is simply untrue: the
+  // notice went out at 05:22 for an auction that opened at noon.
+  const status = opensLabel
     ? `Bidding opens ${opensLabel}.`
     : timeLeftLabel === 'closing now'
-      ? 'Closing now.'
-      : timeLeftLabel
-        ? `${timeLeftLabel} to bid.`
-        : 'Open now.';
-  const at = top.club ? ` to ${top.club}` : '';
-  const price = euro(top.value);
+      ? 'Closing now!'
+      : window
+        ? `On the market now! ${window} to bid.`
+        : 'On the market now!';
+  const move = top.club ? `${top.name} to ${top.club}` : top.name;
   const alsoLong = others > 0 ? ` Plus ${others} other arrival${others === 1 ? '' : 's'}.` : '';
   const tier = getValueTier(top.value);
   const copy = TIER_COPY[tier];
@@ -147,8 +148,9 @@ export function buildArrivalNotification(
     return {
       title: `${copy.eyebrow}: ${top.name}`,
       pushTitle: `${short}: ${top.name}`,
-      content: `**${copy.eyebrow}.** **${top.name}** — ${price}${at}.${alsoLong} ${bid}`,
-      pushBody: `${price}${at}. ${bid}`,
+      // The tier is the header's job. Repeating it here just ate the line.
+      content: `**${move}** — ${status}${alsoLong}`,
+      pushBody: `${move}. ${status}`,
     };
   }
 
@@ -156,15 +158,25 @@ export function buildArrivalNotification(
     return {
       title: `${top.name} is on the market`,
       pushTitle: `${top.name} is on the market`,
-      content: `**${top.name}** — ${price}${at}. ${bid}`,
-      pushBody: `${price}${at}. ${bid}`,
+      content: `**${move}** — ${status}`,
+      pushBody: `${move}. ${status}`,
     };
   }
 
   return {
     title: `${top.name} and ${others} more on the market`,
     pushTitle: `${top.name} and ${others} more`,
-    content: `**${top.name}** — ${price}${at} — leads ${sorted.length} new arrivals. ${bid}`,
-    pushBody: `Led by ${top.name}, ${price}. ${bid}`,
+    content: `**${move}**, leading ${sorted.length} new arrivals — ${status}`,
+    pushBody: `${move}, plus ${others} more. ${status}`,
   };
+}
+
+/** "3d left" reads fine in a clock column and badly in a sentence. */
+function spellWindow(label: string | null): string | null {
+  if (!label || label === 'closing now') return null;
+  const m = /^(\d+)([dhm])\s*left$/.exec(label.trim());
+  if (!m) return label.replace(/\s*left$/, '');
+  const n = Number(m[1]);
+  const unit = m[2] === 'd' ? 'day' : m[2] === 'h' ? 'hour' : 'minute';
+  return `${n} ${unit}${n === 1 ? '' : 's'}`;
 }
