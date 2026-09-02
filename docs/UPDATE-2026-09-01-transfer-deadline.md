@@ -18,11 +18,23 @@ drawn from. Part 3 is the launch order.
 # Part 1 — The post
 
 ```
-slug:     scouting-reports-player-profiles-deadline-day
-title:    Scouting Reports, Player Profiles, and Deadline Day
-summary:  Every player now has a written scouting report and a profile page of his own — plus two more squad places, a board grant, and auctions that run on a player's value.
-is_major: true
+slug:       scouting-reports-player-profiles-deadline-day
+title:      Scouting Reports, Player Profiles, and Deadline Day
+summary:    Every player now has a written scouting report and a profile page of his own — plus two more squad places, a board grant, and auctions that run on a player's value.
+is_major:   true
+highlights: [
+  "A scouting report on every player, written from real evidence",
+  "A full profile page, and three ways through the player pool",
+  "Auctions run on a player's value, and never settle overnight",
+  "Squads go to 22, and every club gets €30m to spend"
+]
 ```
+
+`highlights` is new — migration 150, nullable, applied. The announcement modal
+rendered only title and summary, so a release with four distinct things in it
+arrived as one sentence and whichever part did not fit went unmentioned until
+someone opened `/updates`. An entry with no highlights renders exactly as it
+does today.
 
 > Coverage is complete — 426 of 426 regulars carry a 0.3.4 outlook, so "every
 > player" is literally true. The partial-coverage alternate in §3.4 is no longer

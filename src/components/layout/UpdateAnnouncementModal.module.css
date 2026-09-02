@@ -57,3 +57,43 @@
     padding: 14px 22px;
   }
 }
+
+/* Highlights.
+   The modal is the surface most managers actually read — many never open
+   /updates — so a release with four distinct things in it needs more than one
+   sentence, or whichever part does not fit that sentence goes unmentioned.
+   Rendered only when the entry carries them. */
+.highlights {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--color-border);
+}
+
+.highlight {
+  display: flex;
+  gap: var(--space-4);
+  align-items: baseline;
+  padding: var(--space-4) 0;
+  border-bottom: 1px solid var(--color-border-subtle);
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  line-height: 1.5;
+  color: var(--color-text-secondary);
+}
+
+.highlight:last-child {
+  border-bottom: none;
+}
+
+/* Numbered because the list is ordered by how much of the release each item
+   is, not because the reader does them in sequence. */
+.index {
+  flex: 0 0 auto;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-accent);
+}
