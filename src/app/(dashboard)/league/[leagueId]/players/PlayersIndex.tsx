@@ -14,6 +14,7 @@ import type { OutlookStyle } from '@futbolpedia/engine';
 import type { ExplorerRow, IndexScout } from '@/lib/players/indexData';
 import type { IndexRowPlayer } from './page';
 import { isPlayerMapped } from '@/lib/players/playerMapping';
+import { POS_FILTER_OPTIONS, groupContains, type PosFilter } from '@/lib/players/positionFilter';
 import styles from './playersIndex.module.css';
 import { fold } from '@/lib/text/fold';
 
@@ -93,11 +94,21 @@ export default function PlayersIndex({
 }: Props) {
   const [currentView, setCurrentView] = useState<'cards' | 'table' | 'explorer'>(initialView ?? 'cards');
   const [search, setSearch] = useState('');
+  const [posFilter, setPosFilter] = useState<PosFilter>('ALL');
+  const [clubFilter, setClubFilter] = useState<string>('ALL');
   const [quality, setQuality] = useState<string | null>(null);
   const [minutes, setMinutes] = useState<string | null>(null);
   const [watch, setWatch] = useState<string | null>(null);
   const [syncFilter, setSyncFilter] = useState<'all' | 'synced' | 'unsynced'>('all');
   const [shown, setShown] = useState(CARD_PAGE);
+
+  const clubOptions = useMemo(() => {
+    const set = new Set<string>();
+    for (const p of players) {
+      if (p.pl_team) set.add(p.pl_team);
+    }
+    return Array.from(set).sort((a, b) => a.localeCompare(b));
+  }, [players]);
 
   // Restore preferred view from localStorage if not explicitly requested in URL
   useEffect(() => {
@@ -136,6 +147,10 @@ export default function PlayersIndex({
       }
       if (q && !fold(getPlayerDisplayName(p, 'full')).includes(q)
             && !fold(p.pl_team).includes(q)) return false;
+      if (clubFilter !== 'ALL' && p.pl_team !== clubFilter) return false;
+      if (posFilter !== 'ALL') {
+        if (!p.primary_position || !groupContains(posFilter, p.primary_position as GranularPosition)) return false;
+      }
       const s = scout[p.id];
       if (quality && (!s || s.fromFallback || s.quality !== quality)) return false;
       if (minutes && (!s || s.minutes_role !== minutes)) return false;
@@ -148,9 +163,16 @@ export default function PlayersIndex({
       }
       return true;
     });
-  }, [players, scout, search, quality, minutes, watch, syncFilter, isSiteAdmin]);
+  }, [players, scout, search, posFilter, clubFilter, quality, minutes, watch, syncFilter, isSiteAdmin]);
 
-  const activeFilters = [quality, minutes, watch, isSiteAdmin && syncFilter !== 'all' ? syncFilter : null].filter(Boolean).length;
+  const activeFilters = [
+    posFilter !== 'ALL' ? posFilter : null,
+    clubFilter !== 'ALL' ? clubFilter : null,
+    quality,
+    minutes,
+    watch,
+    isSiteAdmin && syncFilter !== 'all' ? syncFilter : null,
+  ].filter(Boolean).length;
 
   const header = (
     <>
@@ -276,10 +298,34 @@ export default function PlayersIndex({
           onChange={(e) => { setSearch(e.target.value); setShown(CARD_PAGE); }}
           aria-label="Search player"
         />
+        <select
+          className={styles.select}
+          value={posFilter}
+          onChange={(e) => { setPosFilter(e.target.value as PosFilter); setShown(CARD_PAGE); }}
+          aria-label="Position"
+        >
+          {POS_FILTER_OPTIONS.map((opt) => (
+            <option key={opt.value} value={opt.value}>{opt.label}</option>
+          ))}
+        </select>
+        <select
+          className={styles.select}
+          value={clubFilter}
+          onChange={(e) => { setClubFilter(e.target.value); setShown(CARD_PAGE); }}
+          aria-label="Club"
+        >
+          <option value="ALL">All clubs</option>
+          {clubOptions.map((club) => (
+            <option key={club} value={club}>{club}</option>
+          ))}
+        </select>
         {activeFilters > 0 && (
           <button
             className={styles.clear}
-            onClick={() => { setQuality(null); setMinutes(null); setWatch(null); setSyncFilter('all'); }}
+            onClick={() => {
+              setPosFilter('ALL'); setClubFilter('ALL');
+              setQuality(null); setMinutes(null); setWatch(null); setSyncFilter('all');
+            }}
           >
             Clear {activeFilters} filter{activeFilters === 1 ? '' : 's'}
           </button>

@@ -5,6 +5,7 @@ import NavigationLink from '@/components/ui/NavigationLink';
 import { POS_COLOR } from '@/lib/positions/spine';
 import type { GranularPosition } from '@/types';
 import type { ExplorerRow } from '@/lib/players/indexData';
+import { fold } from '@/lib/text/fold';
 import styles from './playerExplorer.module.css';
 
 /**
@@ -79,15 +80,28 @@ export default function PlayerExplorer({
   const [xKey, setXKey] = useState<string>('value');
   const [yKey, setYKey] = useState<string>('ppg');
   const [group, setGroup] = useState<string | null>(null);
+  const [search, setSearch] = useState('');
+  const [club, setClub] = useState<string>('ALL');
   const [selected, setSelected] = useState<string | null>(null);
 
   const mx = metricOf(xKey);
   const my = metricOf(yKey);
 
+  const clubOptions = useMemo(() => {
+    const set = new Set<string>();
+    for (const r of rows) {
+      if (r.club) set.add(r.club);
+    }
+    return Array.from(set).sort((a, b) => a.localeCompare(b));
+  }, [rows]);
+
   const view = useMemo(() => {
     const active = LEGEND.find((g) => g.label === group);
+    const q = fold(search);
     const visible = rows.filter((r) => {
       if (active && !active.positions.includes(r.pos as GranularPosition)) return false;
+      if (club !== 'ALL' && r.club !== club) return false;
+      if (q && !fold(r.name).includes(q)) return false;
       return r[mx.key] != null && r[my.key] != null;
     });
     if (visible.length === 0) return null;
@@ -132,12 +146,33 @@ export default function PlayerExplorer({
         yMax: my.log ? Math.pow(10, y1) : y1,
       },
     };
-  }, [rows, mx, my, group]);
+  }, [rows, mx, my, group, club, search]);
 
   const chosen = selected ? rows.find((r) => r.id === selected) ?? null : null;
 
   return (
     <div className={styles.root}>
+      <div className={styles.tools}>
+        <input
+          className={styles.input}
+          placeholder="Search player…"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          aria-label="Search player"
+        />
+        <select
+          className={styles.select}
+          value={club}
+          onChange={(e) => setClub(e.target.value)}
+          aria-label="Club"
+        >
+          <option value="ALL">All clubs</option>
+          {clubOptions.map((c) => (
+            <option key={c} value={c}>{c}</option>
+          ))}
+        </select>
+      </div>
+
       <div className={styles.axisBar}>
         {(['x', 'y'] as const).map((axis) => (
           <div key={axis} className={styles.axisRow}>

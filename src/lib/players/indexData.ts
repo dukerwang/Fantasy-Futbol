@@ -141,6 +141,7 @@ export interface ExplorerRow {
   name: string;
   /** Granular tactical position — the plot colours by all twelve, not four buckets. */
   pos: string;
+  club: string | null;
   /** League layer. */
   points: number;
   ppg: number;
@@ -192,13 +193,14 @@ export async function loadExplorerRows(
       primary_position: string;
       market_value: number | null;
       date_of_birth: string | null;
+      pl_team: string | null;
     }>((from, to) =>
       admin
         .from('players')
         // getPlayerDisplayName needs all four name columns — handing it only
         // web_name and name produced bare surnames and raw feed spellings.
         .select(
-          'id, web_name, name, full_name, sofifa_common_name, primary_position, market_value, date_of_birth',
+          'id, web_name, name, full_name, sofifa_common_name, primary_position, market_value, date_of_birth, pl_team',
         )
         .eq('is_active', true)
         .range(from, to),
@@ -256,6 +258,7 @@ export async function loadExplorerRows(
       id: p.id,
       name: getPlayerDisplayName(p, 'full'),
       pos: p.primary_position,
+      club: p.pl_team,
       points: Math.round(a.points * 10) / 10,
       ppg: a.games > 0 ? Math.round((a.points / a.games) * 10) / 10 : 0,
       rating: a.ratingCount > 0 ? Math.round((a.ratingSum / a.ratingCount) * 100) / 100 : null,
