@@ -453,15 +453,27 @@ That guard had never been exercised against a real outage until now.
 
 ## 3.3 Deploy and open the window
 
-4. Deploy.
-5. `roster_size = 22` and `faab_budget = faab_budget + 30` across all 12 teams in
-   both leagues.
-6. Sync Barcola — Transfermarkt (€65m) and SoFIFA (LW). Both must run from your
-   Mac; neither works from Vercel.
-7. `seedHighValueAuctions` to open the 48h blind auction in both leagues.
-8. Insert the `product_updates` row with `is_major = true`, then fan out one
-   notification per user. Per the spec, nothing publishes without your approval of
-   the copy first.
+4. ✅ **Deployed.** `main` pushed through `20ca3a63`.
+5. ✅ **League updates applied.** `roster_size = 22` on both leagues; +€30m on all
+   12 clubs. Spreads preserved — Pizzaking's €277m → €307m against ChelsZ's
+   €141m → €171m, the €136m gap intact. The three clubs that were at 25/25 can
+   now transact without dropping first.
+6. ✅ **Barcola's position.** LW, secondary RW — taken from
+   `sofifa_position_reference`, which had him from a Ligue 1 scrape on
+   2026-08-01. **No SoFIFA scrape was needed.** The cache could not reach him
+   until the sync fix in this release: it was consulted only for brand-new rows,
+   and his existing row held NULL, which the merge preferred every night.
+7. ⏳ **Barcola's market value.** Needs Transfermarkt — the only piece with no
+   local cache. `scripts/sync_transfermarkt_gaps.ts --all --apply`. Note the
+   target filter includes every inactive player, so `--all` walks a few hundred
+   rows at ~3s each and writes only at the end.
+8. ⏳ **`seedHighValueAuctions`** once the value lands. It reads `market_value`
+   against the €50m threshold, so it must run after step 7. Opens at the next
+   midday in league time.
+9. ⏳ **Publish the update** — insert the `product_updates` row (slug, title,
+   summary, body, highlights, `is_major: true`), then fan out one notification
+   per user with `kind: 'product'`. Per the changelog spec nothing publishes
+   without your sign-off on the copy.
 
 ## 3.4 If you publish before the regen finishes
 
