@@ -1,0 +1,20 @@
+# Cursor Rules for Gaffa
+
+Read `CLAUDE.md` and `AGENTS.md` at the start of every session.
+
+## Frontend & UI Work
+- Before modifying or designing any UI components, CSS modules, layout, or typography, always read `DESIGN.md` (and check `docs/DECISIONS.md`).
+- Follow the **Google Developer Documentation Style Guide** (`developers.google.com/style`) across all UI copy, error messages, and responses:
+  - Active voice.
+  - "You", not "we".
+  - Sentence case for titles, headers, and buttons ("Submit proposal", not "Submit Proposal").
+  - Cut filler: "just", "simply", "easily", "obviously". "Allows you to" -> "lets you".
+  - No cheerleading / throat-clearing ("Certainly!", "Great question!").
+  - No hedge-stacking ("it is worth noting that").
+  - Prose by default; don't list-ify everything into bullet points.
+  - No em-dash overuse.
+
+## Agent Skills Policy
+- **Recommended**: `emil-design-eng` (micro-interactions & press feedback), `apple-design` (mobile & sheets), `google-dev-style` (writing & copy), `modern-web-guidance` (modern CSS), `impeccable` in `Operate` mode, `full-output-enforcement`, `animate`.
+- **Banned**: `industrial-brutalist-ui` (violates identity), `high-end-visual-design` (violates eyebrows/topbar bans), `design-taste-frontend` / `gpt-taste` (for landing pages, not dashboards), `minimalist-ui` (breaks green topbar/position colors), `stitch-design-taste` (for generating from scratch), `image-to-code` (synthetic mockups).
+

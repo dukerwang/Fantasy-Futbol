@@ -114,17 +114,45 @@ Two query conventions that are easy to break:
 ### Auth
 Supabase SSR via `@supabase/ssr`. Browser client in `src/lib/supabase/client.ts`, server client in `src/lib/supabase/server.ts`. Route groups `(auth)` and `(dashboard)` split public/protected pages; `src/proxy.ts` is where session refresh / route protection happens (the Next.js 16 equivalent of middleware).
 
-### Styling
+### Styling & UI Design
 Strict CSS Modules, no utility CSS frameworks. Design tokens (colors, including a distinct color per tactical position) are defined as CSS custom properties in `src/app/globals.css`; reuse existing `--color-*` tokens instead of hardcoding hex values. Two themes: Cream Editorial (light, serif headings via Newsreader + Hanken Grotesk body) and Premium Dark — every color change must be checked in both.
 
-**Before making a design argument, read `docs/DECISIONS.md`.** It records what Duke has actually decided, quoted and dated. `DESIGN.md` describes what the code currently does and tags every claim `[code]` / `[decided]` / `[inferred]`.
+**Before modifying or designing any UI components, layout, typography, or CSS, read `DESIGN.md`.** It describes tokens as shipped, mobile standards (dynamic viewport `dvh`, bottom sheets, touch targets), and explicit anti-patterns (no eyebrows/kickers, no colored left container stripes, no heavy wireframe borders, no uppercase buttons).
+
+**Before making a design argument or asserting policy, read `docs/DECISIONS.md`.** It records what Duke has actually decided, quoted and dated. `DESIGN.md` describes what the code currently does and tags every claim `[code]` / `[decided]` / `[inferred]`.
 
 This distinction is load-bearing, not bookkeeping. Gaffa is a solo repo, so git attributes every commit to Duke no matter who wrote the content — which means **prose in `design-2.0/`, in `globals.css` comments, and in component comments is frequently agent-written and was never ratified by anyone.** A previous session invented a colour law, later sessions read it as settled, cited it back to Duke as his own rule, spread it to ~20 files, and designed workarounds for problems the invented rule had itself created. Duke's instruction on finding it: *"i don't want polluted context that affects your (and future agent) decisionmaking."*
 
 So: don't treat a confident sentence in a repo doc as a decision. If you can't cite a file or a message from Duke, mark it as inference and say so. Never coin a named rule and never cite one back to him as his.
 
-### User-facing copy
-"FAAB" is internal vocabulary only: the DB column is `faab_budget`, but all UI text, error messages, and emails say **"Club Balance"** (or "budget"), formatted as `€{n}m`. The budget is uncapped and a permanent dynasty asset — never render it as a spent/remaining usage meter. Leagues are dynasty and never reach a "completed" state; they cycle season → offseason → season indefinitely.
+### User-facing copy & prose style (Google Developer Style)
+All frontend UI copy, microcopy, error messages, documentation, and agent responses must strictly follow the **Google Developer Documentation Style Guide** (`developers.google.com/style`) to eliminate "Claude-lish" AI assistant mannerisms:
+- **Voice & Person**: Active voice ("Click Submit", "The server returns an acknowledgment"). Address the user as "you", never "we".
+- **No Throat-Clearing**: Cut opening cheerleading ("Certainly!", "Great question!", "I'd be happy to help!"). Answer directly.
+- **No Polite Filler**: Never say "please" on routine instructions ("Click Save", not "Please click Save").
+- **Word Choice**: Delete "just", "simply", "easily", and "obviously". Replace "allows you to" with "lets you". Use specific verbs instead of "access".
+- **No Hedge-Stacking**: Cut "it is worth noting that", "this might potentially", etc. State facts directly.
+- **Em-Dash Restraint**: Avoid using em dashes as a sentence-joining tic; split sentences instead.
+- **Prose Over Lists**: Do not list-ify everything into bullets. Use natural prose paragraphs; save lists for sequential steps or parallel items.
+- **Sentence Case**: Use sentence case for headings, section titles, and buttons ("Submit proposal", not "Submit Proposal").
+- **Vocabulary**: "FAAB" is internal vocabulary only (`faab_budget`), but all UI text, error messages, and emails say **"Club Balance"** (or "budget"), formatted as `€{n}m`. Never render it as a spent/remaining usage meter. Leagues cycle indefinitely; they are never "completed".
+
+### Agent skills policy
+- **Recommended skills**:
+  - `emil-design-eng`: Implements §4.A of `DESIGN.md` (button press physics, modal/drawer transitions, origin-aware popovers, snappy <250ms threshold).
+  - `apple-design`: Implements §4.B of `DESIGN.md` (mobile touch ergonomics, dynamic viewport `dvh`, safe-area insets, bottom sheets).
+  - `google-dev-style`: Guides all UI copy, error messages, docs, and communication.
+  - `modern-web-guidance`: Provides modern CSS APIs (`:has()`, container queries, modern dialog/popover) instead of JS workarounds.
+  - `impeccable` (in `Operate` mode): High-density dashboard, data table, and app shell refinement.
+  - `full-output-enforcement`: Prevents code truncation and placeholder comments.
+  - `animate`: Targeted CSS and Framer Motion transitions calibrated to Gaffa's tokens.
+- **Banned skills (do not use in this repo)**:
+  - `industrial-brutalist-ui`: Conflicts with Gaffa's calm European broadsheet journal identity; enforces military/CRT terminal aesthetics and all-caps headings.
+  - `high-end-visual-design` (`soft-skill`): Mandates title eyebrows (banned by Duke), bans sticky topbars (violates the green topbar), and forces pill buttons.
+  - `design-taste-frontend` (`taste-skill` v1/v2) & `gpt-taste`: Designed for marketing landing pages/portfolios, not dashboards or data tables; attempts to introduce Tailwind and GSAP marketing heroes.
+  - `minimalist-ui`: Bans colored header sections (breaks green topbar) and forces monochrome `#111111` buttons with pastels, conflicting with the green ramp and 12 tactical position colors.
+  - `stitch-design-taste`: Designed to generate new `DESIGN.md` files from scratch; risks overwriting Gaffa's custom palette and locked decisions.
+  - `image-to-code`: Scaffolds disposable marketing pages from synthetic mockups rather than working inside Gaffa's design system.
 
 ### Domain rules that aren't obvious from the code alone
 Non-negotiable mechanics from `docs/USER_GUIDE.md` that are easy to get wrong when touching adjacent code, because nothing about the schema or types forces them:
