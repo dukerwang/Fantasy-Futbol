@@ -122,7 +122,14 @@ export async function seedHighValueAuctions(admin: SupabaseClient): Promise<Seed
       });
 
       if (auctionRows[0]?.expires_at) {
-        await notifyLeague(admin, league.id, candidates, auctionRows[0].expires_at);
+        await notifyLeague(
+          admin,
+          league.id,
+          candidates,
+          auctionRows[0].expires_at,
+          auctionRows[0].opens_at,
+          quietHours,
+        );
       }
     } catch (err) {
       console.error(`[seedHighValueAuctions] League ${league.id} failed:`, err);
@@ -137,6 +144,8 @@ async function notifyLeague(
   leagueId: string,
   candidates: { id: string; name: string; marketValue: number; pl_team?: string | null }[],
   expiresAt: string,
+  opensAt: string | null,
+  quietHours: { timeZone: string } | null,
 ): Promise<void> {
   try {
     const { data: allTeams } = await admin.from('teams').select('id, user_id').eq('league_id', leagueId);
@@ -153,9 +162,21 @@ async function notifyLeague(
     });
 
     // The player leads, in the inbox row and in the push. A count never does.
+    // If the lot is deferred to midday, say so instead of quoting a bidding
+    // window that is not open yet.
+    const opensLabel =
+      opensAt && new Date(opensAt).getTime() > Date.now()
+        ? new Date(opensAt).toLocaleString('en-GB', {
+            weekday: 'short',
+            hour: 'numeric',
+            minute: '2-digit',
+            timeZone: quietHours?.timeZone ?? 'UTC',
+          })
+        : null;
     const copy = buildArrivalNotification(
       candidates.map((c) => ({ name: c.name, value: c.marketValue, club: c.pl_team })),
       timeLeft(expiresAt),
+      opensLabel,
     );
     for (const t of allTeams) {
       await createNotification(admin, {

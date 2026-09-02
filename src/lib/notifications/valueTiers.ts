@@ -110,6 +110,8 @@ export interface ArrivalCopy {
 export function buildArrivalNotification(
   players: ArrivalPlayer[],
   timeLeftLabel: string | null,
+  /** When bidding actually opens, if that is still in the future. */
+  opensLabel?: string | null,
 ): ArrivalCopy {
   const sorted = [...players].sort((a, b) => b.value - a.value);
   const top = sorted[0];
@@ -123,8 +125,13 @@ export function buildArrivalNotification(
   }
 
   const others = sorted.length - 1;
-  const bid =
-    timeLeftLabel === 'closing now'
+  // A lot seeded with a future opens_at is announced the moment it is created,
+  // which is not the moment it can be bid on. Saying "3d to bid" then is simply
+  // untrue: it went out at 05:22 for an auction that opened at noon, so every
+  // manager was told bidding was open six hours before it was.
+  const bid = opensLabel
+    ? `Bidding opens ${opensLabel}.`
+    : timeLeftLabel === 'closing now'
       ? 'Closing now.'
       : timeLeftLabel
         ? `${timeLeftLabel} to bid.`
@@ -140,7 +147,7 @@ export function buildArrivalNotification(
     return {
       title: `${copy.eyebrow}: ${top.name}`,
       pushTitle: `${short}: ${top.name}`,
-      content: `**${copy.eyebrow}.** **${top.name}** — ${price}${at}, and he is on the market.${alsoLong} ${bid}`,
+      content: `**${copy.eyebrow}.** **${top.name}** — ${price}${at}.${alsoLong} ${bid}`,
       pushBody: `${price}${at}. ${bid}`,
     };
   }

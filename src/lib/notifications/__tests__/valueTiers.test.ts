@@ -64,6 +64,23 @@ describe('buildArrivalNotification', () => {
     expect(buildArrivalNotification([{ name: 'P', value: 40 }], '1d').pushBody).toContain('€40m');
   });
 
+  /**
+   * The lot is announced when it is created, which for a deferred lot is hours
+   * before it can be bid on. Barcola's notice went out at 05:22 saying "3d to
+   * bid" for an auction that opened at noon.
+   */
+  it('announces the opening time rather than a window that is not open', () => {
+    const c = buildArrivalNotification([BARCOLA], '3d', 'Wed, 12:00');
+    expect(c.content).toContain('Bidding opens Wed, 12:00.');
+    expect(c.content).not.toContain('3d to bid');
+    expect(c.pushBody).toBe('€90m to Liverpool. Bidding opens Wed, 12:00.');
+  });
+
+  it('quotes the bidding window once the lot is already open', () => {
+    const c = buildArrivalNotification([BARCOLA], '3d', null);
+    expect(c.pushBody).toBe('€90m to Liverpool. 3d to bid.');
+  });
+
   it('does not throw on an empty batch', () => {
     expect(buildArrivalNotification([], '1d').title).toBe('New arrivals');
   });
