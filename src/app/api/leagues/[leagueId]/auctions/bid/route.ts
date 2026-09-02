@@ -373,9 +373,17 @@ export async function POST(req: NextRequest, { params }: Props) {
   // This is the ONLY enforcement point. The auction list deliberately still
   // shows unopened auctions so managers can plan budgets across the window.
   if (systemSeedClaim?.opens_at && new Date().getTime() < new Date(systemSeedClaim.opens_at).getTime()) {
+    // Was toUTCString(), which told a manager in New York his auction opens at
+    // "Wed, 02 Sep 2026 16:00:00 GMT" — the right instant in the wrong language.
     const opensAt = new Date(systemSeedClaim.opens_at);
+    const when = opensAt.toLocaleString('en-GB', {
+      weekday: 'short',
+      hour: 'numeric',
+      minute: '2-digit',
+      timeZone: auctionSettings.quietHours?.timeZone ?? 'UTC',
+    });
     return NextResponse.json(
-      { error: `This auction opens on ${opensAt.toUTCString()}. Bidding is not open yet.` },
+      { error: `Bidding on this lot opens ${when}.` },
       { status: 400 },
     );
   }
