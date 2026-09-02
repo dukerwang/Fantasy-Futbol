@@ -25,6 +25,15 @@ export const BANNED_OPENING_PATTERNS: RegExp[] = [
   /^[^.!?]{0,140}\benter(s|ing)\b\s+(his|the|a)\b/i,
   // Generic team-as-subject openers, the club-name pattern without the name.
   /^\s*(the|his)\s+(club|side|team|manager)\b/i,
+  // The security-verb family. Measured across the 0.3.2 sample: 10 of 12
+  // role-security openings used "commands", and 0.3.1 used "holds an iron/
+  // unshakeable grip" for the same job. Banning one synonym moves the model to
+  // the next, so this bans the whole move — asserting security as a state —
+  // and the angle asks for evidence instead (see OPENING_ANGLES).
+  /^[^.!?]{0,60}\b(holds?|retains?|enjoys?|possesses?)\b[^.!?]{0,40}\b(grip|ownership|authority|security|standing|berth|hold|status|control|monopoly)\b/i,
+  // "commands" as the opening verb, except the literal goalkeeping sense — a
+  // keeper genuinely commands his area, and that is football, not filler.
+  /^[^.!?]{0,60}\bcommands?\b(?!\s+(his|the)\s+(area|box|six|penalty|line|air|space))/i,
 ];
 
 /**
@@ -75,10 +84,28 @@ export function findOpeningIssues(outlook: string, club?: string): string[] {
  * version described the situation instead — "his role in the side", "his club
  * situation" — and four of six invited the club to open the sentence, which is
  * exactly what happened.
+ *
+ * The role-security angle then produced two failures in succession, and they
+ * are the same failure at different depths.
+ *
+ * First, phrased as "who he is holding off", it PRESUPPOSED a rival. When
+ * nobody is actually competing the model cannot decline the premise, so it
+ * negated it — "without any genuine squad competition pushing him", "leaving
+ * zero room for positional competition", "fending off squad competition".
+ *
+ * Removing the rival exposed the deeper problem: the angle asked for a
+ * JUDGMENT of security, which has one obvious verb. 10 of the 12 role-angle
+ * players in the 0.3.2 sample opened "[Name] commands…", and 0.3.1 had reached
+ * for "holds an iron grip" / "holds an unshakeable grip" to do the same job.
+ * Banning the synonym only moves the model to the next one.
+ *
+ * So the angle now asks for the EVIDENCE rather than the verdict — what he has
+ * started, what he displaced, what changed — which has many shapes where
+ * "commands undisputed ownership" has one. The gate below closes the retreat.
  */
 export const OPENING_ANGLES = [
   'what he actually does on the pitch, in concrete terms',
-  'how secure his place is and who he is holding off',
+  'what his place in the side rests on — say what he has actually started or displaced, not how firmly he holds it',
   'the stage his career has reached and what follows from it',
   'a specific, verified recent fact about him',
   'what his underlying numbers say about him',

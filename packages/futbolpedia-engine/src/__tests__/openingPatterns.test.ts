@@ -105,3 +105,51 @@ describe('the club-opener gate', () => {
     expect(findOpeningIssues('His side build from the back through him.', 'Arsenal')).not.toHaveLength(0);
   });
 });
+
+/**
+ * Measured across the 20-player 0.3.2 sample: 10 of the 12 players drawing the
+ * role-security angle opened "[Name] commands…", and 0.3.1 had used "holds an
+ * iron / unshakeable grip" to do the same job. Every string below is a real
+ * opening one of those runs shipped.
+ */
+describe('the security-verb gate', () => {
+  it('rejects security asserted as a state', () => {
+    for (const text of [
+      "Cash commands the starting right-back role in Unai Emery's lineup.",
+      'Donnarumma commands the undisputed starting goalkeeper role for Manchester City.',
+      "Estêvão commands an untouchable standing within Chelsea's hierarchy.",
+      "Ryan Gravenberch commands Liverpool's midfield as an undisputed first-choice pivot.",
+      "Isak commands the central striker role as Liverpool's focal point.",
+      "Kelleher commands absolute security as Brentford's undisputed number one.",
+      'Sangaré commands an unquestioned starting berth in central midfield.',
+      'Ian Maatsen commands the starting left-back spot at Aston Villa.',
+      'Saka commands an unquestioned grip on the right-wing berth.',
+      'Truffert commands undisputed ownership of the left-back slot.',
+      "Cash holds an iron grip on Aston Villa's right flank.",
+      'Saka holds an unshakeable grip on the right flank.',
+    ]) {
+      expect(findOpeningIssues(text), text).not.toHaveLength(0);
+    }
+  });
+
+  it('allows the evidence the angle now asks for instead', () => {
+    for (const text of [
+      'Maatsen has started every league match at left-back since Lucas Digne left.',
+      'Truffert displaced Milos Kerkez at left-back and has not been dropped since.',
+      "Bergvall started Tottenham's opener before shifting into a rotation role.",
+      'Wan-Bissaka shares right-back duties in direct competition with Matty Cash.',
+      "Kostoulas rotates across Brighton's front, competing alongside senior options.",
+    ]) {
+      expect(findOpeningIssues(text), text).toHaveLength(0);
+    }
+  });
+
+  it('spares the literal goalkeeping sense, which is football rather than filler', () => {
+    for (const text of [
+      "Donnarumma commands his area with the authority that made him Italy's number one.",
+      'Kelleher commands the box on set pieces and sweeps behind a high line.',
+    ]) {
+      expect(findOpeningIssues(text), text).toHaveLength(0);
+    }
+  });
+});

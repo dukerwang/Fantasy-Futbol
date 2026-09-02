@@ -75,6 +75,42 @@ async function runSynthesisAttempt(
   return parseJsonText(text) as SynthesisPayload;
 }
 
+/**
+ * Grounded search returns page text, and some of it carries HTML entities the
+ * model then copies verbatim — one stored outlook reads "Hugo Ekitik&eacute;".
+ * Decoded here rather than at render time: the string is read by the gate, the
+ * card lede, the hub and anything Futbolpedia does with it later, and only one
+ * of those is HTML.
+ */
+const HTML_ENTITIES: Record<string, string> = {
+  amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ',
+  eacute: 'é', egrave: 'è', ecirc: 'ê', euml: 'ë',
+  aacute: 'á', agrave: 'à', acirc: 'â', auml: 'ä', aring: 'å', atilde: 'ã',
+  iacute: 'í', igrave: 'ì', icirc: 'î', iuml: 'ï',
+  oacute: 'ó', ograve: 'ò', ocirc: 'ô', ouml: 'ö', otilde: 'õ', oslash: 'ø',
+  uacute: 'ú', ugrave: 'ù', ucirc: 'û', uuml: 'ü',
+  ccedil: 'ç', ntilde: 'ñ', szlig: 'ß', yacute: 'ý',
+  rsquo: '\u2019', lsquo: '\u2018', ldquo: '\u201c', rdquo: '\u201d',
+  ndash: '\u2013', mdash: '\u2014', hellip: '\u2026',
+};
+
+export function decodeHtmlEntities(text: string): string {
+  return text
+    .replace(/&#(\d+);/g, (_, code) => String.fromCodePoint(Number(code)))
+    .replace(/&#x([0-9a-f]+);/gi, (_, code) => String.fromCodePoint(parseInt(code, 16)))
+    // Entity names are case-SENSITIVE: &Oslash; is Ø and &oslash; is ø. The
+    // table holds the lowercase forms, so an initial-capital name resolves
+    // through it and then has its character upper-cased.
+    .replace(/&([a-zA-Z]+);/g, (whole, name: string) => {
+      const exact = HTML_ENTITIES[name];
+      if (exact) return exact;
+      const isCapitalised = name[0] === name[0].toUpperCase();
+      const lower = HTML_ENTITIES[name.toLowerCase()];
+      if (!lower) return whole;
+      return isCapitalised ? lower.toUpperCase() : lower;
+    });
+}
+
 export async function synthesizeOutlook(
   ai: GoogleGenAI,
   bag: OutlookContextBag,
@@ -104,7 +140,7 @@ export async function synthesizeOutlook(
   }
 
   return {
-    outlook: payload.outlook.trim(),
+    outlook: decodeHtmlEntities(payload.outlook.trim()),
     sidecar: {
       quality: payload.sidecar.quality ?? 'solid',
       minutes_role: payload.sidecar.minutes_role ?? 'rotation_risk',

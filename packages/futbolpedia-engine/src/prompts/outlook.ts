@@ -77,12 +77,26 @@ OPENING LAW (the previous run failed this)
 - Do NOT use "enters" as the main verb of the first sentence.
 - Do NOT open with the club's name. The outlook is about the player; he is the subject of the first sentence, not his employer. "Arsenal's right wing runs through Saka" is the failure — "Saka isolates full-backs and cuts inside onto his left foot" is the fix.
 - Open on the angle you are given below, with the player as the subject.
+- Do NOT assert a player's place as a STATE in the opening sentence. "commands
+  the starting role", "commands undisputed ownership", "holds an iron grip",
+  "holds an unshakeable grip" and their synonyms are one move wearing different
+  verbs, and it was 10 of 12 openings last run. Say what he has STARTED, WON or
+  DISPLACED instead — evidence has many shapes, a verdict has one. ("Maatsen has
+  started every league match since Digne left" over "Maatsen commands the
+  left-back spot.") A goalkeeper commanding his AREA is the literal football
+  sense and is fine.
 - Banned words: "Languid", "Biomechanically", "Mercurial".
 - Banned phrases: "silenced skeptics", "defied skeptics", "silenced doubters".
+- Do not write a clause about competition for minutes when there is none to
+  report. An undisputed starter is described as what he is, not as the absence
+  of a rival: "without any genuine squad competition pushing him", "leaving zero
+  room for positional competition" and "fending off squad competition" are all
+  the same failure — a required slot being filled with its own negation. Name a
+  competitor only when the evidence names one.
 
 COVERAGE BRIEF (invisible — satisfy in flowing prose, any order)
 1. Status — health and availability in plain language
-2. Role — squad usage, set pieces, competition for minutes, tactical position
+2. Role — squad usage, set pieces, tactical position, and competition for minutes ONLY where a real rival exists
 3. Expectation — what managers can realistically expect week to week (floor, volatility, how value shows up)
 4. Career point — age and phase (emerging, peak, plateau, decline risk)
 5. Horizon — short-run and longer-run view in the same breath, without labeling them
