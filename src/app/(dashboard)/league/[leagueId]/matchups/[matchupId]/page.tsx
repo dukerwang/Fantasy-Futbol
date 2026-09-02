@@ -201,7 +201,7 @@ export default async function MatchupDetailPage({ params }: Props) {
 
         const playerPrimary = new Map<string, string | undefined>();
         for (const [id, p] of Object.entries(playerMap)) {
-            playerPrimary.set(id, p.primary_position);
+            playerPrimary.set(id, p.primary_position ?? undefined);
         }
         attachLineupSlotScores(detailMap, [effectiveLineupA, effectiveLineupB], playerPrimary, refStats ?? {});
         // The banded performance block per starter, at the slot he was fielded

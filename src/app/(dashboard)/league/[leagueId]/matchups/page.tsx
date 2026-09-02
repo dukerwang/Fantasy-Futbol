@@ -2,15 +2,11 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { createClient } from '@/lib/supabase/server';
 import { notFound, redirect } from 'next/navigation';
 import type { Matchup } from '@/types';
-import LiveMatchupCard from './LiveMatchupCard';
-import GameweekSelector from './GameweekSelector';
 import { getFplStatus } from '@/lib/fpl/api';
 import { processMatchupsForGameweek } from '@/lib/scoring/matchupProcessor';
-import { isGameweekFinalised } from '@/lib/scoring/gameweekState';
+import { getFinalisedGameweeks } from '@/lib/scoring/gameweekState';
 import { getCurrentFplSeason } from '@/lib/season/currentSeason';
-import RoundLead from './RoundLead';
-import { isDrawMargin, DRAW_THRESHOLD } from '@/lib/scoring/drawBand';
-import styles from './matchups.module.css';
+import MatchupsClient from './MatchupsClient';
 
 export const dynamic = 'force-dynamic';
 
@@ -19,73 +15,14 @@ interface Props {
     searchParams: Promise<{ gw?: string }>;
 }
 
-interface TeamRecord { W: number; L: number; D: number; }
-
 /**
  * The matchup select, written ONCE.
- *
- * It was written twice — the initial fetch and the post-sync re-fetch — and the
- * second copy was missing `crest_config`. Since the re-fetch OVERWRITES the
- * first result, every club on the page silently fell back to the generic green
- * shield, and it did so under exactly one condition: `needsSync`, which is true
- * when the current gameweek is still 0-0. That is every live gameweek up to the
- * first points of the weekend — the window in which managers are most likely to
- * be looking at this page.
- *
- * Nothing errors, nothing logs, and the fallback crest is a real designed state,
- * so the page looks intentional while showing the wrong club identity for all
- * twelve teams. A duplicated query is a duplicated rule: it does not drift, it
- * silently disagrees.
  */
 const MATCHUP_SELECT = `
     *,
     team_a:teams!matchups_team_a_id_fkey(id, team_name, user_id, crest_config),
     team_b:teams!matchups_team_b_id_fkey(id, team_name, user_id, crest_config)
 `;
-
-function computeRecord(
-    teamId: string,
-    rows: Array<{ team_a_id: string; team_b_id: string; score_a: number; score_b: number }>,
-): TeamRecord {
-    let W = 0, L = 0, D = 0;
-    for (const m of rows) {
-        const isA = m.team_a_id === teamId;
-        const isB = m.team_b_id === teamId;
-        if (!isA && !isB) continue;
-        const myScore = isA ? m.score_a : m.score_b;
-        const oppScore = isA ? m.score_b : m.score_a;
-        if (isDrawMargin(myScore, oppScore)) D++;
-        else if (myScore > oppScore) W++;
-        else L++;
-    }
-    return { W, L, D };
-}
-
-function generateGameweekSummaryText(
-    highestThisGw: { score: number; team: string },
-    closestMatch: any,
-    gw: number
-): string {
-    if (highestThisGw.score === 0) {
-        return `Gameweek ${gw} is scheduled. Managers are finalizing lineups, and scouts are preparing player ratings.`;
-    }
-
-    const highestScoreStr = `**${highestThisGw.team}** set the pace in Gameweek ${gw} with a massive ${highestThisGw.score.toFixed(2)} points.`;
-    
-    let closestStr = '';
-    if (closestMatch) {
-        const teamA = closestMatch.team_a?.team_name ? `**${closestMatch.team_a.team_name}**` : 'Team A';
-        const teamB = closestMatch.team_b?.team_name ? `**${closestMatch.team_b.team_name}**` : 'Team B';
-        const diff = Math.abs(closestMatch.score_a - closestMatch.score_b);
-        if (diff <= DRAW_THRESHOLD) {
-            closestStr = ` Meanwhile, ${teamA} and ${teamB} played out a nail-biting ${diff.toFixed(2)}-point stalemate.`;
-        } else {
-            closestStr = ` Meanwhile, the closest duel of the week saw ${teamA} edge out ${teamB} by just ${diff.toFixed(2)} points.`;
-        }
-    }
-
-    return `${highestScoreStr}${closestStr}`;
-}
 
 export default async function MatchupsPage({ params, searchParams }: Props) {
     const { leagueId } = await params;
@@ -97,309 +34,115 @@ export default async function MatchupsPage({ params, searchParams }: Props) {
 
     const admin = createAdminClient();
 
-    const { data: league } = await admin
-        .from('leagues')
-        .select('id, name, commissioner_id, status, current_season')
-        .eq('id', leagueId)
-        .single();
-
-    if (!league) notFound();
-
-    const { data: member } = await admin
-        .from('teams')
-        .select('id')
-        .eq('league_id', leagueId)
-        .eq('user_id', user.id)
-        .single();
-
-    if (!member && league.commissioner_id !== user.id) redirect('/dashboard');
-
-    // Current FPL gameweek
-    let currentFplGw = 1;
-    let isCurrentFplGwFinished = false;
-    try {
-        const fplStatus = await getFplStatus();
-        currentFplGw = fplStatus.currentGw;
-        isCurrentFplGwFinished = fplStatus.isFinished;
-    } catch { /* ignore */ }
-
-    // Gameweeks this league actually has fixtures for (must run before matchup query)
-    const { data: allGws } = await admin
-        .from('matchups')
-        .select('gameweek')
-        .eq('league_id', leagueId)
-        .order('gameweek', { ascending: true });
-
-    let gameweeks = Array.from(new Set((allGws ?? []).map((row) => row.gameweek))).sort((a, b) => a - b);
-
-    // Self-healing safety net for leagues whose draft completed before the
-    // ensureSeasonScaffold fix, or via the SQL cron (which cannot call it).
-    // The cup check is deliberately independent of the matchup check — gating
-    // cup creation behind "zero matchups exist" is what left two production
-    // leagues with a full schedule and no cups, permanently.
-    if (league.status === 'active') {
-        const { data: existingTourneys } = await admin
-            .from('tournaments')
+    // Parallel initial fetch: League, Team membership, All League Matchups, Stats Season, and FPL Status
+    const [
+        { data: league },
+        { data: member },
+        { data: allMatchupsData },
+        statsSeason,
+        fplStatus,
+    ] = await Promise.all([
+        admin
+            .from('leagues')
+            .select('id, name, commissioner_id, status, current_season')
+            .eq('id', leagueId)
+            .single(),
+        admin
+            .from('teams')
             .select('id')
             .eq('league_id', leagueId)
-            .limit(1);
+            .eq('user_id', user.id)
+            .single(),
+        admin
+            .from('matchups')
+            .select(MATCHUP_SELECT)
+            .eq('league_id', leagueId)
+            .order('gameweek', { ascending: true }),
+        getCurrentFplSeason(undefined, true),
+        getFplStatus().catch(() => ({ currentGw: 1, isFinished: false, isLive: false, nextGwIsClose: false, nextDeadline: null, nextGw: null, displayGw: 1 })),
+    ]);
 
-        if (gameweeks.length === 0 || !existingTourneys || existingTourneys.length === 0) {
-            const { ensureSeasonScaffold } = await import('@/lib/schedule/ensureSeasonScaffold');
-            const scaffold = await ensureSeasonScaffold(admin, leagueId, league.current_season);
+    if (!league) notFound();
+    if (!member && league.commissioner_id !== user.id) redirect('/dashboard');
 
-            if (scaffold.matchupsCreated) {
-                const { data: refreshedGws } = await admin
-                    .from('matchups')
-                    .select('gameweek')
-                    .eq('league_id', leagueId)
-                    .order('gameweek', { ascending: true });
-                gameweeks = Array.from(new Set((refreshedGws ?? []).map((row) => row.gameweek))).sort((a, b) => a - b);
-            }
+    const currentFplGw = fplStatus.currentGw ?? 1;
+    const isCurrentFplGwFinished = fplStatus.isFinished ?? false;
+
+    let matchupsList = (allMatchupsData ?? []) as Matchup[];
+    let gameweeks = Array.from(new Set(matchupsList.map((row) => row.gameweek))).sort((a, b) => a - b);
+
+    // Self-healing safety net if schedule missing
+    if (league.status === 'active' && gameweeks.length === 0) {
+        const { ensureSeasonScaffold } = await import('@/lib/schedule/ensureSeasonScaffold');
+        const scaffold = await ensureSeasonScaffold(admin, leagueId, league.current_season);
+        if (scaffold.matchupsCreated) {
+            const { data: refreshedMatchups } = await admin
+                .from('matchups')
+                .select(MATCHUP_SELECT)
+                .eq('league_id', leagueId)
+                .order('gameweek', { ascending: true });
+            matchupsList = (refreshedMatchups ?? []) as Matchup[];
+            gameweeks = Array.from(new Set(matchupsList.map((row) => row.gameweek))).sort((a, b) => a - b);
         }
     }
 
     let targetGw = parseInt(gw ?? '0', 10);
-    
-    // Robust fallback if no gw in URL or FPL API fails
     if (!targetGw) {
         if (currentFplGw > 1) {
             targetGw = currentFplGw;
         } else if (gameweeks.length > 0) {
-            // Find the first active gameweek
-            const { data: activeMatchups } = await admin
-                .from('matchups')
-                .select('gameweek')
-                .eq('league_id', leagueId)
-                .in('status', ['live', 'scheduled'])
-                .order('gameweek', { ascending: true })
-                .limit(1);
-            
-            if (activeMatchups && activeMatchups.length > 0) {
-                targetGw = activeMatchups[0].gameweek;
+            const activeMatchup = matchupsList.find((m) => m.status === 'live' || m.status === 'scheduled');
+            if (activeMatchup) {
+                targetGw = activeMatchup.gameweek;
             } else {
-                targetGw = gameweeks[gameweeks.length - 1]; // Fallback to last week of season
+                targetGw = gameweeks[gameweeks.length - 1];
             }
         } else {
             targetGw = 1;
         }
     }
 
-    // If URL/default GW has no league matchups, snap to a real GW (fixes empty page +
-    // invalid <select value> showing the wrong GW in the selector).
     if (gameweeks.length > 0 && !gameweeks.includes(targetGw)) {
         const snapped = gameweeks.find((g) => g >= targetGw) ?? gameweeks[gameweeks.length - 1]!;
         redirect(`/league/${leagueId}/matchups?gw=${snapped}`);
     }
 
-    // Fetch matchups for target GW (include user_id for featured matchup detection)
-    let { data: matchupsData } = await admin
-        .from('matchups')
-        .select(MATCHUP_SELECT)
-        .eq('league_id', leagueId)
-        .eq('gameweek', targetGw);
-
-    // Whether we hold FPL's reviewed stats for this gameweek yet. FPL now
-    // withholds the ICT block and final bonus until its 09:00-UK lockdown, so
-    // until the post-lockdown sync runs these scores are estimates and the card
-    // must not call them "Final".
-    const statsSeason = await getCurrentFplSeason(undefined, true);
-    const isTargetGwFinalised = await isGameweekFinalised(admin, statsSeason, targetGw);
-
     // SERVER-SIDE SYNC: If we are in the current gameweek and scores are 0.0,
     // force a sync before rendering to prevent the "0.0 flash" in the UI.
     const isCurrentGw = targetGw === currentFplGw;
-    const needsSync = isCurrentGw && (matchupsData ?? []).some(m => 
+    const needsSync = isCurrentGw && matchupsList.some(m => 
+        m.gameweek === targetGw &&
         m.status !== 'completed' && 
-        (parseFloat(m.score_a) === 0 && parseFloat(m.score_b) === 0)
+        (parseFloat(String(m.score_a)) === 0 && parseFloat(String(m.score_b)) === 0)
     );
 
     if (needsSync) {
-        // Run the processor (this updates the DB and returns the count)
         await processMatchupsForGameweek(targetGw, isCurrentFplGwFinished);
-        
-        // Re-fetch fresh data for the render
         const { data: freshData } = await admin
             .from('matchups')
             .select(MATCHUP_SELECT)
             .eq('league_id', leagueId)
-            .eq('gameweek', targetGw);
-        matchupsData = freshData;
+            .order('gameweek', { ascending: true });
+        if (freshData) matchupsList = freshData as Matchup[];
     }
 
-    const matchups = (matchupsData ?? []) as Matchup[];
+    // Fetch finalised gameweeks for the whole season in one quick query
+    const finalisedGwsSet = await getFinalisedGameweeks(admin, statsSeason, gameweeks);
 
-    // Cup teams this gameweek
-    const { data: leagueTourneys } = await admin.from('tournaments').select('id').eq('league_id', leagueId);
-    const tourneyIds = new Set((leagueTourneys || []).map((t) => t.id));
-    const { data: validRounds } = await admin
-        .from('tournament_rounds')
-        .select('id, tournament_id')
-        .lte('start_gameweek', targetGw)
-        .gte('end_gameweek', targetGw);
-    const roundIds = (validRounds || []).filter((r) => tourneyIds.has(r.tournament_id)).map((r) => r.id);
-    const cupTeamIds = new Set<string>();
-    if (roundIds.length > 0) {
-        const { data: cupMatchups } = await admin
-            .from('tournament_matchups')
-            .select('team_a_id, team_b_id')
-            .in('round_id', roundIds);
-        cupMatchups?.forEach((cm) => {
-            if (cm.team_a_id) cupTeamIds.add(cm.team_a_id);
-            if (cm.team_b_id) cupTeamIds.add(cm.team_b_id);
-        });
-    }
-
-    // User's team
-    const { data: myTeam } = await admin
-        .from('teams')
-        .select('id')
-        .eq('league_id', leagueId)
-        .eq('user_id', user.id)
-        .single();
-
-    // Featured matchup separation
-    const myMatchup = matchups.find(
-        (m) => (m as any).team_a?.id === myTeam?.id || (m as any).team_b?.id === myTeam?.id,
-    ) ?? null;
-    const otherMatchups = matchups.filter((m) => m.id !== myMatchup?.id);
-
-    // All completed matchups for season records + season high
-    const { data: allCompleted } = await admin
-        .from('matchups')
-        .select(`
-            team_a_id, team_b_id, score_a, score_b,
-            team_a:teams!matchups_team_a_id_fkey(team_name),
-            team_b:teams!matchups_team_b_id_fkey(team_name)
-        `)
-        .eq('league_id', leagueId)
-        .eq('status', 'completed');
-
-    const completedRows = (allCompleted ?? []) as unknown as Array<{
-        team_a_id: string; team_b_id: string;
-        score_a: number; score_b: number;
-        team_a: { team_name: string } | null;
-        team_b: { team_name: string } | null;
-    }>;
-
-    // Season records for featured matchup teams
-    const myTeamAId = (myMatchup as any)?.team_a?.id as string | undefined;
-    const myTeamBId = (myMatchup as any)?.team_b?.id as string | undefined;
-    const recordA = myTeamAId ? computeRecord(myTeamAId, completedRows) : null;
-    const recordB = myTeamBId ? computeRecord(myTeamBId, completedRows) : null;
-
-    // Season high
-    let seasonHigh = { score: 0, team: '—' };
-    for (const m of completedRows) {
-        if (m.score_a > seasonHigh.score) seasonHigh = { score: m.score_a, team: m.team_a?.team_name ?? '—' };
-        if (m.score_b > seasonHigh.score) seasonHigh = { score: m.score_b, team: m.team_b?.team_name ?? '—' };
-    }
-
-    // GW at a Glance — computed from current GW matchups
-    const gwScores = matchups.flatMap((m) => [
-        { score: m.score_a, team: (m as any).team_a?.team_name ?? '—' },
-        { score: m.score_b, team: (m as any).team_b?.team_name ?? '—' },
-    ]);
-    const highestThisGw = gwScores.reduce(
-        (best, s) => (s.score > best.score ? s : best),
-        { score: 0, team: '—' },
-    );
-    const closestMatch = matchups.length > 0
-        ? [...matchups].sort((a, b) => Math.abs(a.score_a - a.score_b) - Math.abs(b.score_a - b.score_b))[0]
-        : null;
-    const summaryText = generateGameweekSummaryText(highestThisGw, closestMatch, targetGw);
     const displaySeason = league.current_season ?? '2025-26';
     const formattedSeason = displaySeason.replace(/^\d{2}(\d{2})-(\d{2})$/, '$1/$2');
 
     return (
-        <div className={`${styles.page} g-page`}>
-            {/* The masthead names the round; the panel below IS the round. */}
-            <header className={styles.masthead}>
-                <div className={styles.mastheadTitles}>
-                    <span className={`g-label ${styles.kicker}`}>Premier League Season {formattedSeason}</span>
-                    <h1 className={styles.title}>Gameweek {targetGw}</h1>
-                </div>
-                {gameweeks.length > 0 && (
-                    <GameweekSelector targetGw={targetGw} gameweeks={gameweeks} leagueId={leagueId} />
-                )}
-            </header>
-
-            {matchups.length === 0 ? (
-                <div className={styles.emptyPanel}>
-                    No matchups scheduled for Gameweek {targetGw}.
-                </div>
-            ) : (
-                <>
-                    {/* The round's standfirst. Was a bordered "Roundup Gazette" banner;
-                        the writing is unchanged, the newsprint around it is gone. */}
-                    <RoundLead summaryText={summaryText} />
-
-                    <section className={styles.round}>
-                        {myMatchup && (
-                            <LiveMatchupCard
-                                matchup={myMatchup}
-                                myTeamId={myTeam?.id}
-                                currentFplGw={currentFplGw}
-                                isCurrentFplGwFinished={isCurrentFplGwFinished}
-                                finalised={isTargetGwFinalised}
-                                featured={true}
-                                recordA={recordA}
-                                recordB={recordB}
-                            />
-                        )}
-
-                        {otherMatchups.length > 0 && (
-                            <div className={styles.fixtures}>
-                                <h2 className={styles.fixturesHead}>
-                                    {myMatchup ? 'Other Fixtures' : `Gameweek ${targetGw} Fixtures`}
-                                </h2>
-                                {otherMatchups.map((m) => (
-                                    <LiveMatchupCard
-                                        key={m.id}
-                                        matchup={m}
-                                        myTeamId={myTeam?.id}
-                                        currentFplGw={currentFplGw}
-                                        isCurrentFplGwFinished={isCurrentFplGwFinished}
-                                        finalised={isTargetGwFinalised}
-                                    />
-                                ))}
-                            </div>
-                        )}
-
-                        {/* Arithmetic on the fixtures above it, which is why it is a
-                            section of this panel rather than a card beside it. */}
-                        {highestThisGw.score > 0 && (
-                            <div className={styles.glance}>
-                                <div className={styles.glanceStat}>
-                                    <span className="g-label-quiet">Highest score</span>
-                                    <span className={styles.glanceValue}>{highestThisGw.score.toFixed(2)}</span>
-                                    <span className={styles.glanceSub}>{highestThisGw.team}</span>
-                                </div>
-                                <div className={styles.glanceStat}>
-                                    <span className="g-label-quiet">Closest match</span>
-                                    <span className={styles.glanceValue}>
-                                        {closestMatch
-                                            ? Math.abs(closestMatch.score_a - closestMatch.score_b).toFixed(2)
-                                            : '—'}
-                                    </span>
-                                    <span className={styles.glanceSub}>
-                                        {closestMatch
-                                            ? `${(closestMatch as any).team_a?.team_name} v ${(closestMatch as any).team_b?.team_name}`
-                                            : '—'}
-                                    </span>
-                                </div>
-                                <div className={styles.glanceStat}>
-                                    <span className="g-label-quiet">Season high</span>
-                                    <span className={styles.glanceValue}>
-                                        {seasonHigh.score > 0 ? seasonHigh.score.toFixed(2) : '—'}
-                                    </span>
-                                    <span className={styles.glanceSub}>{seasonHigh.team}</span>
-                                </div>
-                            </div>
-                        )}
-                    </section>
-                </>
-            )}
-        </div>
+        <MatchupsClient
+            allMatchups={matchupsList}
+            initialGw={targetGw}
+            gameweeks={gameweeks}
+            leagueId={leagueId}
+            formattedSeason={formattedSeason}
+            myTeamId={member?.id}
+            currentFplGw={currentFplGw}
+            isCurrentFplGwFinished={isCurrentFplGwFinished}
+            finalisedGws={Array.from(finalisedGwsSet)}
+        />
     );
 }
