@@ -333,6 +333,8 @@ export async function openSystemAuction(
     status: 'pending',
     gameweek: 0,
     is_auction: true,
+    // Not manager-opened — ineligible for Scout's Fee (migration 152).
+    system_seeded: true,
     expires_at: new Date(Date.now() + hours * 60 * 60 * 1000).toISOString(),
     market_value_at_auction: marketValue,
   });

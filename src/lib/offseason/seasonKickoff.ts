@@ -303,6 +303,8 @@ export async function runSeasonKickoff(admin: SupabaseClient, leagueId: string):
       status: 'pending',
       gameweek: 0,
       is_auction: true,
+      // Not manager-opened — ineligible for Scout's Fee (migration 152).
+      system_seeded: true,
       // The tier initial window runs from when the auction OPENS, not from kickoff —
       // otherwise a wave four releases already expired.
       expires_at: initialAuctionExpiry(opensAtMs ?? now, quietHours, player.marketValue),

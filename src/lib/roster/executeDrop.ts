@@ -196,6 +196,8 @@ export async function executeDrop(
             status: 'pending',
             gameweek: 0,
             is_auction: true,
+            // Not manager-opened — ineligible for Scout's Fee (migration 152).
+            system_seeded: true,
             expires_at: auctionExpiry,
             opens_at: null,
             // Reference price for the auction premium — see migration 070.

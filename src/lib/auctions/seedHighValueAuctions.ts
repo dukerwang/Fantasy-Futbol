@@ -99,6 +99,8 @@ export async function seedHighValueAuctions(admin: SupabaseClient): Promise<Seed
           status: 'pending',
           gameweek: 0,
           is_auction: true,
+          // Not manager-opened — ineligible for Scout's Fee (migration 152).
+          system_seeded: true,
           // Measured from when the lot actually opens, so a deferred release
           // still gets its full tier window rather than losing the wait.
           expires_at: initialAuctionExpiry(opensAtMs ?? now, quietHours, p.marketValue),
