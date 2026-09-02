@@ -105,9 +105,8 @@
 }
 
 .sidebarBtnUnread {
-  background: var(--color-accent-green-dim);
-  border-left: 3px solid var(--color-accent-green);
-  padding-left: calc(var(--space-5) - 3px);
+  background: var(--color-accent-dim);
+  padding-left: var(--space-5);
 }
 
 @media (hover: hover) and (pointer: fine) {

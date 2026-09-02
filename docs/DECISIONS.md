@@ -107,6 +107,51 @@ Approved options 1 and 3: free-agent auctions resolve when the bidding clock end
 
 ---
 
+## 2026-08-30 — Player hub, and how Futbolpedia data is grounded
+
+**Availability leaves the outlook sidecar; dynasty value is explicit.**
+> "availability - agreed" / "dynasty - sure"
+
+**Facets must not be built on Gaffa scoring.** Duke caught `output_profile`
+being computed from `fantasy_points`, which breaks the outlook spec's own
+firewall.
+> "i'm a bit confused, because i really don't know if these should be based on
+> gaffa stats... in futbolpedia, wouldn't it be based more off of real life and
+> overall rather than last season's gaffa stats?"
+
+This produced the football/league layer split that the hub design is built on.
+Note the distinction that survived the exchange is derived-vs-raw, not
+Gaffa-vs-real-world: `player_stats` holds real Premier League match data that is
+fine to use, plus two Gaffa-derived columns (`fantasy_points`, `match_rating`)
+that are not.
+
+**The stats page is a hub rework, not a redesign with an outlook section.**
+> "my vision for the new stats page isn't just a simple redesign with an outlook
+> section, i'm thinking more of a complete hub rework, like a really indepth
+> player page with writing, stats, etc."
+
+**Player-centric, with club and position as filters** rather than their own
+sections.
+> "i think player centric but it would also be helpful to filter by players from
+> a specific club or position, etc."
+
+**Cards are the default index view; the table stays as an alternate.**
+> "the default card design looks great"
+
+**The scatter is its own feature, and floor/ceiling is the wrong default.**
+> "i also think direction b- landscape is interesting, but i think this is
+> honestly a whole other component, definitely not floor/ceiling graph by
+> default, maybe like ppg x market value or something. it would be like an
+> actual graph stats feature that feels interactive and real data-ey."
+
+**Mobile is a first-class target, not a reflow.**
+> "i need everything to also be compatible and operational on mobile also,
+> almost like it was designed with mobile too. think apple-design."
+
+Full design: `docs/superpowers/specs/2026-08-30-player-hub-and-index-design.md`.
+
+---
+
 ## Earlier — recorded from CLAUDE.md and docs/USER_GUIDE.md
 
 These predate this file and are load-bearing product decisions, kept here as

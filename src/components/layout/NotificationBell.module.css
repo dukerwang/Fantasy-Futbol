@@ -164,15 +164,23 @@
   border-bottom: none;
 }
 
+/* Matches the inbox: weight carries unread, tint supports it, and both
+   survive hover. */
 .itemUnread {
-  background: rgba(58, 107, 74, 0.03);
-  border-left: 3px solid var(--color-accent-green);
-  padding-left: calc(var(--space-4) - 3px);
+  background: var(--color-accent-dim);
+}
+
+.itemUnread .itemTitle {
+  font-weight: var(--font-bold);
 }
 
 @media (hover: hover) and (pointer: fine) {
   .item:hover {
     background: var(--color-bg-card-hover);
+  }
+
+  .itemUnread:hover {
+    background: var(--color-accent-green-dim-hover);
   }
 }
 

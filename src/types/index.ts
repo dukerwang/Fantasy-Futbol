@@ -197,9 +197,9 @@ export interface Player {
   nationality: string | null;
   pl_team: string; // e.g. "Arsenal", "Liverpool"
   pl_team_id: number | null;
-  primary_position: GranularPosition;
+  primary_position: GranularPosition | null;
   secondary_positions: GranularPosition[];
-  market_value: number; // in millions EUR (from Transfermarkt)
+  market_value: number | null; // in millions EUR (from Transfermarkt)
   market_value_updated_at: string | null;
   adp: number | null;
   projected_points: number | null;
@@ -241,6 +241,7 @@ export interface Team {
   draft_order: number | null;
   abbreviation: string | null;
   logo_url: string | null;
+  crest_config?: any;
   created_at: string;
   updated_at: string;
   // Joined fields

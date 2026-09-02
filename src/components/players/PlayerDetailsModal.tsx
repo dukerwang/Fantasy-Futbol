@@ -1,6 +1,8 @@
 'use client';
 
 import { useEffect } from 'react';
+import { useParams } from 'next/navigation';
+import NavigationLink from '@/components/ui/NavigationLink';
 import type { Player, PlayerOwnership } from '@/types';
 import PremiumPlayerCard from './PremiumPlayerCard';
 import styles from './PlayerDetailsModal.module.css';
@@ -32,6 +34,9 @@ export default function PlayerDetailsModal({
     focusGameweek,
     focusPosition,
 }: Props) {
+    const params = useParams();
+    const leagueId = params?.leagueId as string | undefined;
+
     // Close on Escape
     useEffect(() => {
         if (!player) return;
@@ -65,6 +70,20 @@ export default function PlayerDetailsModal({
                         focusPosition={focusPosition}
                     />
                 </div>
+
+                {/* The modal stays the quick look — reached from fifteen
+                    surfaces, and mid-draft you want a peek, not a navigation.
+                    This is the way through to the deep view. */}
+                {leagueId && (
+                    <div className={styles.profileLink}>
+                        <NavigationLink
+                            href={`/league/${leagueId}/players/${player.id}`}
+                            onClick={onClose}
+                        >
+                            Full profile →
+                        </NavigationLink>
+                    </div>
+                )}
 
                 {(onPick || onNominate) && (
                     <div className={styles.actions}>

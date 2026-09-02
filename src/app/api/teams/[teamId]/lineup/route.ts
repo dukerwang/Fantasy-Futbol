@@ -93,7 +93,7 @@ export async function POST(req: NextRequest, { params }: Props) {
   // Fetch all active/bench roster entries (exclude IR and taxi — neither can be in a lineup)
   const { data: entries } = await admin
     .from('roster_entries')
-    .select('id, player_id, status, player:players(id, primary_position, secondary_positions, pl_team_id, web_name, full_name)')
+    .select('id, player_id, status, player:players(id, name, primary_position, secondary_positions, pl_team_id, web_name, full_name, sofifa_common_name)')
     .eq('team_id', teamId)
     .not('status', 'in', '("ir","taxi","loan_out")');
 

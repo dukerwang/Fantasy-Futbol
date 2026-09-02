@@ -570,7 +570,7 @@ export default function MatchupPitch({
                                             detail={pid ? detailMap[pid] : undefined}
                                             status={pid ? statusOf(pid) : 'pending'}
                                             isSubOut={row?.isSubOut}
-                                            onClick={player ? () => setViewingPlayer(player, player.primary_position) : undefined}
+                                            onClick={player ? () => setViewingPlayer(player, player.primary_position ?? undefined) : undefined}
                                         />
                                         <span className={styles.benchSlotLabel} title={BENCH_SLOT_TITLE[slot]}>{slot}</span>
                                     </div>

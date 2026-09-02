@@ -77,7 +77,7 @@ export async function previewRelegationCompensation(
   const teamIds = [...new Set(pending.map((d) => d.team_id))];
 
   const [{ data: players }, { data: teams }] = await Promise.all([
-    admin.from('players').select('id, name, web_name, pl_team').in('id', playerIds),
+    admin.from('players').select('id, name, full_name, sofifa_common_name, web_name, pl_team').in('id', playerIds),
     admin.from('teams').select('id, team_name').in('id', teamIds),
   ]);
 
@@ -125,7 +125,7 @@ export async function processRelegationCompensation(
   const teamIds = [...new Set(pending.map((d) => d.team_id))];
 
   const [{ data: players }, { data: teams }] = await Promise.all([
-    admin.from('players').select('id, name, web_name, pl_team').in('id', playerIds),
+    admin.from('players').select('id, name, full_name, sofifa_common_name, web_name, pl_team').in('id', playerIds),
     admin.from('teams').select('id, team_name').in('id', teamIds),
   ]);
 

@@ -63,7 +63,7 @@ async function openReturnWindows(admin: SupabaseClient, summary: ResolveSummary)
   const playerIds = [...new Set(retained.map((r) => r.player_id as string))];
   const { data: backInPl } = await admin
     .from('players')
-    .select('id, name, web_name, pl_team')
+    .select('id, name, full_name, sofifa_common_name, web_name, pl_team')
     .eq('is_active', true)
     .in('id', playerIds);
 
@@ -144,7 +144,7 @@ async function expireReturnWindows(admin: SupabaseClient, summary: ResolveSummar
       await lapseReturn(admin, decision.id as string, 'expired');
       const { data: player } = await admin
         .from('players')
-        .select('name, web_name')
+        .select('name, full_name, sofifa_common_name, web_name')
         .eq('id', decision.player_id)
         .single();
       summary.returnsExpired.push({
@@ -183,7 +183,7 @@ async function autoReleaseOverdue(admin: SupabaseClient, summary: ResolveSummary
       if (!result) continue;
       const { data: player } = await admin
         .from('players')
-        .select('name, web_name')
+        .select('name, full_name, sofifa_common_name, web_name')
         .eq('id', decision.player_id)
         .single();
       summary.autoReleased.push({

@@ -12,7 +12,11 @@
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   display: flex;
-  align-items: center;
+  /* flex-start, not center: a centred flex child taller than the viewport
+     overflows past BOTH edges and the top becomes unscrollable, which put the
+     "Full profile" link under the card out of reach. `margin: auto` on the box
+     keeps it centred whenever it does fit. */
+  align-items: flex-start;
   justify-content: center;
   padding: var(--s4);
   animation: fadeIn 0.15s ease;
@@ -28,6 +32,7 @@
 /* Transparent wrapper — card provides its own background + shadow */
 .box {
   position: relative;
+  margin: auto;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -102,5 +107,48 @@
 @media (max-width: 768px) {
   .overlay {
     padding: var(--s3);
+    /* The card scrolls, so its buttons can land under the home indicator. */
+    padding-bottom: calc(var(--s3) + env(safe-area-inset-bottom, 0px));
   }
+}
+
+/* Touch targets. Keyed on pointer, not width: an iPad is a wide screen with a
+   coarse pointer, and it is the pointer that decides how big a target needs to
+   be. This modal stays a centred card rather than becoming a bottom sheet —
+   it renders a fixed-aspect trading card that flips in 3D, and a sheet would
+   crop it. */
+@media (pointer: coarse) {
+  .actionBtn,
+  .profileLink a {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+/* Route through to the player hub. Sits under the card, above any draft or
+   auction action, so the primary action of the surface stays primary. */
+.profileLink {
+  display: flex;
+  justify-content: center;
+  padding-top: var(--s3);
+}
+
+.profileLink a {
+  font-family: var(--font-condensed);
+  font-weight: 600;
+  font-size: var(--t-13);
+  letter-spacing: 0.02em;
+  color: var(--color-text-inverse);
+  opacity: 0.86;
+  padding: var(--s2) var(--s4);
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.10);
+  transition: opacity 120ms ease-out, background 120ms ease-out;
+}
+
+.profileLink a:hover {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.16);
 }

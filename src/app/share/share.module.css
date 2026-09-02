@@ -89,6 +89,7 @@
 /* ── Main Layout Wrapper ── */
 .main {
   min-height: calc(100vh - var(--nav-height, 52px));
+  min-height: calc(100dvh - var(--nav-height, 52px));
   padding: var(--space-8) var(--space-6);
   max-width: var(--content-max-width, 1280px);
   margin: 0 auto;

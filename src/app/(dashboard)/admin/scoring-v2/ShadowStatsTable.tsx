@@ -5,6 +5,7 @@ import type { GranularPosition } from '@/types';
 import PosBadge from '@/components/players/PositionBadge';
 import { getPlayerDisplayName } from '@/lib/players/displayName';
 import styles from './scoring-v2.module.css';
+import { fold } from '@/lib/text/fold';
 
 export interface ShadowStatsPayload {
   gp: number;
@@ -139,7 +140,7 @@ export default function ShadowStatsTable({ statsSeason, players, shadowMaps }: P
   }
 
   const filtered = useMemo(() => {
-    const q = search.trim().toLowerCase();
+    const q = fold(search);
     return players
       .map((p) => {
         const activePos = resolveActivePosition(p, posFilter, posType);
@@ -150,8 +151,8 @@ export default function ShadowStatsTable({ statsSeason, players, shadowMaps }: P
         if (!activePos) return false;
 
         if (q) {
-          const full = getPlayerDisplayName(p, 'full').toLowerCase();
-          if (!full.includes(q) && !p.name.toLowerCase().includes(q)) return false;
+          const full = fold(getPlayerDisplayName(p, 'full'));
+          if (!full.includes(q) && !fold(p.name).includes(q)) return false;
         }
 
         const s = shadowByPlayer[p.id]?.[activePos];

@@ -2,7 +2,7 @@ import type { GranularPosition } from '@/types';
 import styles from './PositionBadge.module.css';
 
 interface Props {
-  position: GranularPosition;
+  position?: GranularPosition | 'N/A' | string | null;
   size?: 'sm' | 'md';
 }
 
@@ -16,7 +16,9 @@ const SIDE: Partial<Record<GranularPosition, 'l' | 'r'>> = {
 };
 
 export default function PositionBadge({ position, size = 'md' }: Props) {
-  const side = SIDE[position];
+  const isNA = !position || position === 'N/A';
+  const posKey = isNA ? 'NA' : position;
+  const side = !isNA ? SIDE[position as GranularPosition] : undefined;
   return (
     <span
       className={[
@@ -28,13 +30,13 @@ export default function PositionBadge({ position, size = 'md' }: Props) {
         'g-poschip',
         styles.badge,
         styles[`size_${size}`],
-        styles[`pos_${position}`],
+        styles[`pos_${posKey}`] || styles.pos_NA,
         side ? styles[`side_${side}`] : '',
       ]
         .filter(Boolean)
         .join(' ')}
     >
-      {position}
+      {isNA ? 'N/A' : position}
     </span>
   );
 }

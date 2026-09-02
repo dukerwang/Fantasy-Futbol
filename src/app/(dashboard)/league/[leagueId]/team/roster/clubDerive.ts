@@ -103,7 +103,7 @@ export function countdown(from: string, iso: string | null): string | null {
 }
 
 // ── Player helpers ────────────────────────────────────────────────────────────
-const positionsOf = (p: Player): string[] => [p.primary_position, ...((p.secondary_positions as string[]) ?? [])];
+const positionsOf = (p: Player): string[] => (p.primary_position ? [p.primary_position as string] : []).concat((p.secondary_positions as string[]) ?? []);
 export const avgForm = (form: number[]): number => (form.length ? form.reduce((a, b) => a + b, 0) / form.length : 0);
 export const seasonPts = (e: SquadEntry): number => Number(e.player.total_points ?? 0);
 export const ppgOf = (e: SquadEntry): number => Number(e.player.ppg ?? 0);

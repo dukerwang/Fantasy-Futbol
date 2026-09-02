@@ -160,7 +160,7 @@ export async function findPromotedClubsAndArrivals(
 
   const { data: allCandidatePlayers } = await admin
     .from('players')
-    .select('id, name, web_name, market_value, pl_team, pl_team_changed_at')
+    .select('id, name, full_name, sofifa_common_name, web_name, market_value, pl_team, pl_team_changed_at')
     .eq('is_active', true);
 
   const requireTransferEvidence = options?.requireTransferEvidence ?? false;
@@ -303,9 +303,9 @@ export async function runSeasonKickoff(admin: SupabaseClient, leagueId: string):
       status: 'pending',
       gameweek: 0,
       is_auction: true,
-      // The 72h window runs from when the auction OPENS, not from kickoff —
+      // The tier initial window runs from when the auction OPENS, not from kickoff —
       // otherwise a wave four releases already expired.
-      expires_at: initialAuctionExpiry(opensAtMs ?? now, quietHours),
+      expires_at: initialAuctionExpiry(opensAtMs ?? now, quietHours, player.marketValue),
       opens_at: opensAtMs === null ? null : new Date(opensAtMs).toISOString(),
       // Reference price for the auction premium — see migration 070.
       market_value_at_auction: player.marketValue,

@@ -185,7 +185,7 @@ export async function executeDrop(
         // to pick between 96h and 48h while the timer and the resolver used 40
         // for the same decision — market value no longer affects duration at all.
         const { quietHours } = await getLeagueAuctionSettings(admin, team.league_id);
-        const auctionExpiry = initialAuctionExpiry(Date.now(), quietHours);
+        const auctionExpiry = initialAuctionExpiry(Date.now(), quietHours, marketValue);
 
         await admin.from('waiver_claims').insert({
             league_id: team.league_id,

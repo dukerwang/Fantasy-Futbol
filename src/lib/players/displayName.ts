@@ -22,6 +22,8 @@
  * rewriting `name` to the full FPL string, so the trim belongs at render time.
  */
 
+import { fold } from '@/lib/text/fold';
+
 interface NameLike {
   name?: string | null;
   web_name?: string | null;
@@ -30,13 +32,7 @@ interface NameLike {
 }
 
 /** Case- and diacritic-insensitive: "Sávio" and "Savio" hit the same entry. */
-function normalize(str: string): string {
-  return str
-    .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '')
-    .toLowerCase()
-    .trim();
-}
+const normalize = fold;
 
 /**
  * Full DB names or web names known to be better known by a mononym.

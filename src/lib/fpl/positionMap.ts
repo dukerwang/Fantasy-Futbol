@@ -79,33 +79,23 @@ export const FPL_POSITION_OVERRIDES: Record<string, GranularPosition> = {
 
 
 /**
- * Default positions when FPL element_type has no override.
- */
-const FPL_DEFAULT_POSITION: Record<number, GranularPosition> = {
-  1: 'GK',
-  2: 'CB',
-  3: 'CM',
-  4: 'ST',
-};
-
-/**
  * Resolve granular position for an FPL player element.
  * Tries full name first, then web_name as fallback.
+ * Returns null if no curated override exists (holds position as N/A until SoFIFA syncs).
  */
 export function resolvePosition(
   firstName: string,
   secondName: string,
   webName: string,
-  elementType: number
-): GranularPosition {
+  _elementType?: number
+): GranularPosition | null {
   const fullKey = `${firstName} ${secondName}`.toLowerCase();
   const webKey = webName.toLowerCase();
 
   return (
     FPL_POSITION_OVERRIDES[fullKey] ??
     FPL_POSITION_OVERRIDES[webKey] ??
-    FPL_DEFAULT_POSITION[elementType] ??
-    'CM'
+    null
   );
 }
 

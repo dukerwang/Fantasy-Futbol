@@ -3,11 +3,6 @@
    Design: Cream Editorial
    ───────────────────────────────────────────── */
 
-/* ── Shared typography helpers ── */
-.eyebrow {
-  composes: ds-eyebrow-serif from global;
-}
-
 .pageHeader {
   margin-bottom: var(--space-6);
   border-bottom: 1px solid var(--color-border-subtle);
@@ -1506,8 +1501,7 @@
 /* ── Season Complete Banner ── */
 .seasonCompleteBanner {
   background: var(--color-bg-card);
-  border: 1px solid #d97706; /* amber border for gold theme */
-  border-left: 5px solid #d97706;
+  border: 1px solid var(--color-gold);
   border-radius: var(--radius-sm);
   display: flex;
   align-items: center;

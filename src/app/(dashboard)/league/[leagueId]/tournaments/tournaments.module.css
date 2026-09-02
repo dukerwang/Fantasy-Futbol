@@ -6,6 +6,7 @@
     gap: 3rem;
     background-color: #F7F3ED; /* Main parchment background */
     min-height: 100vh;
+    min-height: 100dvh;
 }
 
 .header {
@@ -244,7 +245,7 @@
 
 /* Active Highlight */
 .myMatchupActive {
-    border-left: 2px solid #3A6B4A;
+    border: 1px solid var(--color-accent-green);
 }
 
 .teamRow {

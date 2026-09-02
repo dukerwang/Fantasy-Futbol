@@ -8,6 +8,7 @@ interface Props {
     targetGw: number;
     gameweeks: number[];
     leagueId: string;
+    onSelectGw?: (gw: number) => void;
 }
 
 /** When ?gw= / default GW is not in this league's schedule, align with matchups/page snap logic */
@@ -17,22 +18,30 @@ function snapToScheduledGw(sorted: number[], gw: number): number {
     return sorted.find((g) => g >= gw) ?? sorted[sorted.length - 1]!;
 }
 
-export default function GameweekSelector({ targetGw, gameweeks, leagueId }: Props) {
+export default function GameweekSelector({ targetGw, gameweeks, leagueId, onSelectGw }: Props) {
     const router = useRouter();
     const sorted = useMemo(() => [...gameweeks].sort((a, b) => a - b), [gameweeks]);
     const effectiveGw = snapToScheduledGw(sorted, targetGw);
 
     useEffect(() => {
         if (effectiveGw === targetGw) return;
-        router.replace(`/league/${leagueId}/matchups?gw=${effectiveGw}`);
-    }, [effectiveGw, targetGw, leagueId, router]);
+        if (onSelectGw) {
+            onSelectGw(effectiveGw);
+        } else {
+            router.replace(`/league/${leagueId}/matchups?gw=${effectiveGw}`);
+        }
+    }, [effectiveGw, targetGw, leagueId, router, onSelectGw]);
 
     const idx = sorted.indexOf(effectiveGw);
     const prevGw = idx > 0 ? sorted[idx - 1] : null;
     const nextGw = idx < sorted.length - 1 ? sorted[idx + 1] : null;
 
     const navigate = (gw: number) => {
-        router.push(`/league/${leagueId}/matchups?gw=${gw}`);
+        if (onSelectGw) {
+            onSelectGw(gw);
+        } else {
+            router.push(`/league/${leagueId}/matchups?gw=${gw}`);
+        }
     };
 
     return (

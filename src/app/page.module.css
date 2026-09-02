@@ -11,6 +11,7 @@
 
   display: flex;
   min-height: 100vh;
+  min-height: 100dvh;
   align-items: center;
   justify-content: center;
   font-family: var(--font-geist-sans);
@@ -20,6 +21,7 @@
 .main {
   display: flex;
   min-height: 100vh;
+  min-height: 100dvh;
   width: 100%;
   max-width: 800px;
   flex-direction: column;

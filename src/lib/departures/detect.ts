@@ -84,7 +84,7 @@ export async function recordDepartures(
 
   const { data: departed, error: playersErr } = await admin
     .from('players')
-    .select('id, name, web_name, pl_team, market_value')
+    .select('id, name, full_name, sofifa_common_name, web_name, pl_team, market_value')
     .eq('is_active', false)
     .in('id', rosteredIds);
   if (playersErr) throw new Error(`Failed to load departed players: ${playersErr.message}`);

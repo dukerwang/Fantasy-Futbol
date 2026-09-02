@@ -1,0 +1,232 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><script src="./support.js"></script></head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,600;6..72,800&family=Hanken+Grotesk:wght@400;500;600;700&family=Archivo+Narrow:wght@500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap">
+  <style>
+    :root{
+      --bg:#F8F4EC;--card:#FCFAF7;--cardAlt:#F9F6F1;--inset:#E2DFDA;
+      --border:#C2BDB5;--borderSubtle:#D9D5CF;--borderStrong:#8C857A;
+      --ink:#1B1915;--ink2:#49443B;--muted:#635D51;
+      --accent:#0C6D3E;--accentInk:#1F7144;--tintAccent:#E2EDE5;
+      --live:#B23731;--warnText:#875A04;--tintWarn:#F0E9DE;--tintDanger:#F4E6E4;
+    }
+    *,*::before,*::after{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0;background:var(--bg);color:var(--ink);font-family:'Hanken Grotesk',-apple-system,sans-serif;-webkit-font-smoothing:antialiased;overflow:hidden}
+    a{color:var(--accentInk)}a:hover{color:var(--accent)}
+    .screen{height:100%;display:flex;flex-direction:column}
+
+    /* Translucent chrome — content scrolls under it, no hard divider */
+    .chrome{position:relative;z-index:3;background:rgba(248,244,236,.82);backdrop-filter:blur(20px) saturate(180%);-webkit-backdrop-filter:blur(20px) saturate(180%);padding:14px 16px 0}
+    .chromeTop{display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
+    .kicker{font-family:'Archivo Narrow',sans-serif;font-weight:700;font-size:11px;letter-spacing:.10em;text-transform:uppercase;color:var(--muted)}
+    /* Large title: tight leading + negative tracking as it grows */
+    .title{font-family:'Newsreader',Georgia,serif;font-weight:800;font-size:34px;line-height:1.02;letter-spacing:-.035em;margin:3px 0 0}
+    .count{font-family:'JetBrains Mono',monospace;font-variant-numeric:tabular-nums;font-size:15px;color:var(--accentInk);font-weight:500}
+
+    .seg{display:flex;background:var(--inset);border-radius:9px;padding:3px;gap:2px;margin:12px 0 0}
+    .segBtn{flex:1;min-height:36px;font-family:'Archivo Narrow',sans-serif;font-weight:700;font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;border-radius:7px;color:var(--muted);border:0;background:transparent}
+    .segOn{background:var(--card);color:var(--ink);box-shadow:0 1px 2px rgba(58,44,26,.14)}
+
+    /* One scrolling rail of filters — three stacked pill rows do not fit a phone */
+    .rail{display:flex;gap:7px;overflow-x:auto;padding:11px 16px 12px;margin:0 -16px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+    .rail::-webkit-scrollbar{display:none}
+    .fbtn{flex:0 0 auto;min-height:44px;display:inline-flex;align-items:center;gap:7px;border:1px solid var(--borderSubtle);background:var(--card);border-radius:999px;padding:0 15px;font-weight:600;font-size:14px;color:var(--ink2)}
+    .fbtnOn{border-color:rgba(12,109,62,.42);background:var(--tintAccent);color:var(--ink)}
+    .fbtnLead{border-color:var(--borderStrong)}
+    .badge{min-width:19px;height:19px;border-radius:999px;background:var(--accent);color:#fff;font-family:'JetBrains Mono',monospace;font-size:11px;display:inline-flex;align-items:center;justify-content:center;padding:0 5px}
+    .x{color:var(--muted);font-size:15px;line-height:1}
+
+    /* Scroll edge effect instead of a 1px rule */
+    .fade{height:14px;background:linear-gradient(180deg,rgba(248,244,236,.9),rgba(248,244,236,0));position:relative;z-index:2;margin-bottom:-14px}
+
+    .list{flex:1;overflow-y:auto;padding:14px 16px 28px;display:flex;flex-direction:column;gap:12px;-webkit-overflow-scrolling:touch}
+
+    /* flex-shrink:0 is load-bearing. .list is a flex column, so cards inherit
+       shrink:1 and compress once the list overflows — and overflow:hidden then
+       slices the copy, the flag band and the footer clean off. The list scrolls;
+       the cards must not squash. */
+    .pc{flex-shrink:0;background:var(--card);border:1px solid var(--borderSubtle);border-radius:12px;overflow:hidden;transition:transform .1s ease-out}
+    .pc:active{transform:scale(.985)}
+    .pcRule{height:3px}
+    .pcTop{display:flex;gap:12px;padding:12px 14px 9px}
+    .portrait{width:54px;height:64px;border-radius:8px;background:linear-gradient(180deg,#EDE9E1,#DED9CF);position:relative;flex-shrink:0;box-shadow:inset 0 0 0 1px rgba(0,0,0,.06)}
+    .portrait b{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Newsreader',Georgia,serif;font-size:19px;font-weight:600;color:#B3ACA0}
+    .crest{position:absolute;right:-4px;bottom:-4px;width:19px;height:19px;border-radius:50%;box-shadow:0 0 0 2px var(--card);display:flex;align-items:center;justify-content:center;color:#fff;font-size:6.5px;font-weight:700;font-family:'Archivo Narrow',sans-serif}
+    .pcId{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+    .pcChips{display:flex;align-items:center;gap:6px}
+    .posChip{color:#fff;border-radius:4px;padding:2px 6px;font-family:'Archivo Narrow',sans-serif;font-weight:700;font-size:10px;letter-spacing:.06em}
+    .quiet{font-family:'Archivo Narrow',sans-serif;font-weight:500;font-size:10px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+    .pcName{font-family:'Newsreader',Georgia,serif;font-weight:600;font-size:21px;line-height:1.06;letter-spacing:-.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .pcMeta{font-size:12px;color:var(--muted)}
+    .pcRead{padding:0 14px 11px}
+    .pcRead p{font-family:'Newsreader',Georgia,serif;font-size:15px;line-height:1.5;color:var(--ink2);margin:0;text-wrap:pretty}
+    /* Clamped by default so cards stay uniform and nothing is silently cut;
+       the toggle below is the way to the rest, not a scrollbar. */
+    .clamp{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+    .more{margin-top:6px;min-height:32px;display:inline-flex;align-items:center;border:0;background:transparent;padding:0;color:var(--accentInk);font-family:'Archivo Narrow',sans-serif;font-weight:700;font-size:11px;letter-spacing:.08em;text-transform:uppercase}
+    .flag{display:flex;align-items:center;gap:7px;margin:0 14px 11px;padding:8px 10px;border-radius:6px;font-family:'Archivo Narrow',sans-serif;font-weight:700;font-size:11px;letter-spacing:.06em;text-transform:uppercase}
+    .flag i{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+    .flagExit{background:var(--tintDanger);color:var(--ink)}.flagExit i{background:var(--live)}
+    .flagDoubt{background:var(--tintWarn);color:var(--ink)}.flagDoubt i{background:var(--warnText)}
+    .pcTags{display:flex;flex-wrap:wrap;gap:5px;padding:0 14px 11px}
+    /* Quality is the headline judgment, so it gets the only tier colour on the
+       card. Judged by Futbolpedia, never derived from league scoring. */
+    .qual{font-family:'Archivo Narrow',sans-serif;font-weight:700;font-size:10px;letter-spacing:.09em;text-transform:uppercase;padding:3px 8px;border-radius:999px;white-space:nowrap}
+    .qElite{background:var(--tintAccent);color:var(--ink);box-shadow:inset 0 0 0 1px rgba(12,109,62,.34)}
+    .qHigh{background:var(--inset);color:var(--ink)}
+    .qSolid{background:var(--cardAlt);color:var(--muted);box-shadow:inset 0 0 0 1px var(--borderSubtle)}
+    .qSquad{background:transparent;color:var(--muted);box-shadow:inset 0 0 0 1px var(--borderSubtle)}
+    .tag{font-family:'Archivo Narrow',sans-serif;font-weight:600;font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;padding:4px 8px;border-radius:4px;background:var(--inset);color:var(--muted)}
+    .pcFoot{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-top:1px solid var(--borderSubtle);background:var(--cardAlt)}
+    .fstat{display:flex;flex-direction:column;gap:2px}
+    .fv{font-family:'JetBrains Mono',monospace;font-variant-numeric:tabular-nums;font-size:14px;font-weight:500;line-height:1}
+    .fv.na{color:var(--muted);font-weight:400}
+    .owned{font-family:'Archivo Narrow',sans-serif;font-weight:700;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--accentInk);text-align:right;max-width:96px;line-height:1.2}
+    .ownedFree{color:var(--muted);font-style:italic;text-transform:none;letter-spacing:0;font-family:'Hanken Grotesk',sans-serif;font-size:11.5px;font-weight:400}
+  </style>
+</helmet>
+
+<div class="screen">
+  <div class="chrome">
+    <div class="chromeTop">
+      <div>
+        <div class="kicker">Matchday Militia</div>
+        <h1 class="title">Players</h1>
+      </div>
+      <div class="count">{{count}}</div>
+    </div>
+    <div class="seg">
+      <button class="segBtn segOn">Cards</button>
+      <button class="segBtn">Table</button>
+      <button class="segBtn">Explorer</button>
+    </div>
+    <div class="rail">
+      <button class="fbtn fbtnLead">Filters <span class="badge">{{active}}</span></button>
+      <sc-for list="{{chips}}" as="c" hint-placeholder-count="5">
+        <button class="{{c.cls}}" onClick="{{c.pick}}">{{c.label}}<sc-if value="{{c.on}}" hint-placeholder-val="{{true}}"><span class="x">✕</span></sc-if></button>
+      </sc-for>
+    </div>
+  </div>
+  <div class="fade"></div>
+
+  <div class="list">
+    <sc-for list="{{cards}}" as="c" hint-placeholder-count="4">
+      <div class="pc">
+        <div class="pcRule" style="background: {{c.posColor}}"></div>
+        <div class="pcTop">
+          <div class="portrait"><b>{{c.initials}}</b><div class="crest" style="background: {{c.crestColor}}">{{c.crest}}</div></div>
+          <div class="pcId">
+            <div class="pcChips">
+              <span class="posChip" style="background: {{c.posColor}}">{{c.pos}}</span>
+              <span class="quiet">{{c.age}}</span>
+              <span class="{{c.qualCls}}">{{c.quality}}</span>
+            </div>
+            <div class="pcName">{{c.name}}</div>
+            <div class="pcMeta">{{c.club}}</div>
+          </div>
+        </div>
+        <div class="pcRead">
+          <p class="{{c.readCls}}">{{c.read}}</p>
+          <sc-if value="{{c.needsToggle}}" hint-placeholder-val="{{true}}">
+            <button class="more" onClick="{{c.toggle}}">{{c.moreLabel}}</button>
+          </sc-if>
+        </div>
+        <sc-if value="{{c.hasFlag}}" hint-placeholder-val="{{true}}">
+          <div class="{{c.flagCls}}"><i></i>{{c.flag}}</div>
+        </sc-if>
+        <div class="pcTags"><span class="tag">{{c.tag1}}</span><span class="tag">{{c.tag2}}</span></div>
+        <div class="pcFoot">
+          <div class="fstat"><span class="{{c.ptsCls}}">{{c.pts}}</span><span class="quiet">Pts</span></div>
+          <div class="fstat"><span class="{{c.ratingCls}}">{{c.rating}}</span><span class="quiet">Rating</span></div>
+          <div class="fstat"><span class="fv">{{c.value}}</span><span class="quiet">Value</span></div>
+          <div class="{{c.ownerCls}}">{{c.owner}}</div>
+        </div>
+      </div>
+    </sc-for>
+  </div>
+</div>
+
+</x-dc>
+<script data-dc-script>
+class Component extends DCLogic {
+  constructor(p){ super(p); this.state={minutes:null,risk:null,open:{}}; }
+  data(){
+    const ARS={c:'ARS',col:'#DB0007'}, AVL={c:'AVL',col:'#670E36'}, CHE={c:'CHE',col:'#034694'};
+    // Every value below is a real stored row: sidecar judgments from
+    // Futbolpedia, points and rating from Gaffa's engine, value from
+    // Transfermarkt. Nothing here is invented.
+    return [
+      {name:'Saliba',initials:'WS',pos:'CB',posColor:'#0076B2',club:'Arsenal',crest:ARS.c,crestColor:ARS.col,age:'25',
+       quality:'elite',read:'Committed his long-term future to Arsenal through 2030, extinguishing outside transfer interest. Back surgery keeps him sidelined indefinitely for the opening stretch.',
+       tag1:'Nailed',tag2:'Ball-playing CB',pts:'0.0',rating:'—',value:'€100.0m',owner:'Hackney Marshals',
+       minutes:'nailed',risk:'doubt',flag:'Out — back surgery, no return date',flagKind:'doubt'},
+      {name:'Saka',initials:'BS',pos:'RW',posColor:'#00866F',club:'Arsenal',crest:ARS.c,crestColor:ARS.col,age:'24',
+       quality:'elite',read:'Holds an unshakeable grip on the right flank. Undisputed penalty taker, pairing high-volume chance creation with dangerous set-piece delivery.',
+       tag1:'Nailed',tag2:'Penalties · FK · Corners',pts:'29.8',rating:'4.30',value:'€110.0m',owner:'Free agent',
+       minutes:'nailed',risk:null},
+      {name:'Rice',initials:'DR',pos:'DM',posColor:'#7B56B9',club:'Arsenal',crest:ARS.c,crestColor:ARS.col,age:'27',
+       quality:'elite',read:'Commands an unshakeable starting role, preventing any rotational challenger from eating into his volume of minutes. Primary corner and wide set-piece deliverer.',
+       tag1:'Nailed',tag2:'FK · Corners',pts:'3.3',rating:'3.23',value:'€120.0m',owner:'Vale Road FC',
+       minutes:'nailed',risk:null},
+      {name:'Raya',initials:'DR',pos:'GK',posColor:'#926500',club:'Arsenal',crest:ARS.c,crestColor:ARS.col,age:'30',
+       quality:'elite',read:'Dominant box control and press-resistant distribution rather than high-volume shot-stopping. Enables a suffocating high defensive line.',
+       tag1:'Nailed',tag2:'Sweeper keeper',pts:'16.1',rating:'3.95',value:'€30.0m',owner:'Free agent',
+       minutes:'nailed',risk:null},
+      {name:'Calafiori',initials:'RC',pos:'LB',posColor:'#5667B9',club:'Arsenal',crest:ARS.c,crestColor:ARS.col,age:'24',
+       quality:'high',read:'First-choice inverted full-back, stepping into central midfield during build-up. Expect regular 65-to-80-minute substitutions to manage his workload.',
+       tag1:'Likely starter',tag2:'Inverted fullback',pts:'21.2',rating:'4.02',value:'€55.0m',owner:'Hackney Marshals',
+       minutes:'likely_starter',risk:null},
+      {name:'Lewis-Skelly',initials:'ML',pos:'LB',posColor:'#5667B9',club:'Arsenal',crest:ARS.c,crestColor:ARS.col,age:'19',
+       quality:'high',read:'Navigates stiff competition, yet Arteta turns to the nineteen-year-old for tactical starts. Rotational today, foundational later.',
+       tag1:'Rotation risk',tag2:'Press resistant',pts:'12.7',rating:'3.70',value:'€45.0m',owner:'Free agent',
+       minutes:'rotation_risk',risk:null},
+      {name:'Enzo',initials:'EF',pos:'CM',posColor:'#915397',club:'Chelsea',crest:CHE.c,crestColor:CHE.col,age:'25',
+       quality:'elite',read:'Subject to intense transfer interest from Manchester City as the deadline approaches, though his tactical importance stays absolute if he stays.',
+       tag1:'Nailed',tag2:'Tempo controller',pts:'0.0',rating:'2.93',value:'€100.0m',owner:'Vale Road FC',
+       minutes:'nailed',risk:'transfer',flag:'In-league move — Man City interest',flagKind:'exit'},
+      {name:'Onana',initials:'AO',pos:'DM',posColor:'#7B56B9',club:'Aston Villa',crest:AVL.c,crestColor:AVL.col,age:'25',
+       quality:'high',read:'Anchors Emery’s engine room with immense ground coverage. An ACL reconstruction in July sidelines him roughly nine months, writing off the campaign.',
+       tag1:'Likely starter',tag2:'Injury prone',pts:'0.0',rating:'—',value:'€45.0m',owner:'Free agent',
+       minutes:'likely_starter',risk:'doubt',flag:'Out ~9 months — ACL reconstruction',flagKind:'doubt'},
+      {name:'Wan-Bissaka',initials:'AW',pos:'RB',posColor:'#5667B9',club:'Aston Villa',crest:AVL.c,crestColor:AVL.col,age:'28',
+       quality:'solid',read:'Shares right-back duties with Matty Cash. An elite one-on-one stopper for targeted matchups, with no set-piece duty and little overlapping freedom.',
+       tag1:'Rotation risk',tag2:'Stopper',pts:'0.0',rating:'—',value:'€15.0m',owner:'Free agent',
+       minutes:'rotation_risk',risk:null},
+      {name:'Meslier',initials:'IM',pos:'GK',posColor:'#926500',club:'Arsenal',crest:ARS.c,crestColor:ARS.col,age:'26',
+       quality:'squad',read:'Arrived on a free into a third-choice role behind Raya and Kepa. Late interest from Marseille would strip his Premier League eligibility outright.',
+       tag1:'Fringe',tag2:'Declining asset',pts:'0.0',rating:'—',value:'€8.0m',owner:'Free agent',
+       minutes:'fringe',risk:'exit',flag:'Exit risk — Marseille, PL eligibility',flagKind:'exit'}
+    ];
+  }
+  renderVals(){
+    const s=this.state;
+    const defs=[{k:'minutes',v:'nailed',label:'Nailed'},{k:'minutes',v:'rotation_risk',label:'Rotation risk'},
+                {k:'risk',v:'exit',label:'Exit risk'},{k:'risk',v:'doubt',label:'Injury doubt'}];
+    const chips=defs.map(d=>{
+      const on=s[d.k]===d.v;
+      return {label:d.label,on,cls:on?'fbtn fbtnOn':'fbtn',pick:()=>this.setState({[d.k]:on?null:d.v})};
+    });
+    const cards=this.data()
+      .filter(c=>(!s.minutes||c.minutes===s.minutes)&&(!s.risk||c.risk===s.risk))
+      .map(c=>({...c,
+        // ~40 characters a line at this width, so three lines is about 120.
+        // Below that the copy fits and a toggle would be a no-op control.
+        qualCls: 'qual q' + c.quality.charAt(0).toUpperCase() + c.quality.slice(1),
+        needsToggle: c.read.length > 115,
+        readCls: s.open[c.name] || c.read.length <= 115 ? '' : 'clamp',
+        moreLabel: s.open[c.name] ? 'Less' : 'More',
+        toggle: () => this.setState({ open: { ...s.open, [c.name]: !s.open[c.name] } }),
+        hasFlag:!!c.flag,flagCls:c.flagKind==='exit'?'flag flagExit':'flag flagDoubt',
+        ptsCls:c.pts==='—'?'fv na':'fv',ratingCls:c.rating==='—'?'fv na':'fv',
+        ownerCls:c.owner==='Free agent'?'owned ownedFree':'owned'}));
+    const active=(s.minutes?1:0)+(s.risk?1:0);
+    return {cards,chips,active,count:active?cards.length+' / 432':'432'};
+  }
+}
+</script>
+</body>
+</html>

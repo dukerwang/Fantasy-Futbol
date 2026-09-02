@@ -39,6 +39,25 @@ interface FplElement {
   total_points: number;
   photo: string;
   birth_date?: string;
+  /** Set-piece hierarchy — 1 is first choice. Null when the player has no listed duty. */
+  penalties_order?: number | null;
+  direct_freekicks_order?: number | null;
+  corners_and_indirect_freekicks_order?: number | null;
+  /** Percentage chance of featuring next round. Null when FPL reports no doubt. */
+  chance_of_playing_next_round?: number | null;
+  starts?: number;
+  minutes?: number;
+  /** FPL sends the expected-goals block and ownership as strings, not numbers. */
+  expected_goals?: string;
+  expected_assists?: string;
+  selected_by_percent?: string;
+}
+
+/** FPL sends its expected-goals block and ownership as strings; empty means absent. */
+function numOrNull(value: string | undefined): number | null {
+  if (value == null || value === '') return null;
+  const n = Number(value);
+  return Number.isFinite(n) ? n : null;
 }
 
 /**
@@ -98,6 +117,20 @@ export async function syncPlayersFromFpl(admin: SupabaseClient): Promise<SyncPla
         fpl_news: el.news || null,
         is_active: el.status !== 'u',
         date_of_birth: el.birth_date ?? null,
+        // Set-piece duty, availability probability and season volume, straight
+        // from the bootstrap. These used to be dropped on the floor and then
+        // re-derived by Google Search inside the outlook engine, which is both
+        // slower and less reliable than FPL's own answer. Nulls are meaningful:
+        // no listed set-piece duty, or no reported doubt.
+        fpl_penalties_order: el.penalties_order ?? null,
+        fpl_direct_fk_order: el.direct_freekicks_order ?? null,
+        fpl_corners_order: el.corners_and_indirect_freekicks_order ?? null,
+        fpl_chance_next_round: el.chance_of_playing_next_round ?? null,
+        fpl_starts: el.starts ?? null,
+        fpl_minutes: el.minutes ?? null,
+        fpl_xg: numOrNull(el.expected_goals),
+        fpl_xa: numOrNull(el.expected_assists),
+        fpl_selected_by_pct: numOrNull(el.selected_by_percent),
         updated_at: new Date().toISOString(),
       };
     });
@@ -106,7 +139,7 @@ export async function syncPlayersFromFpl(admin: SupabaseClient): Promise<SyncPla
     id: string;
     fpl_id: number | null;
     is_active: boolean;
-    primary_position: GranularPosition;
+    primary_position: GranularPosition | null;
     secondary_positions: GranularPosition[];
     market_value: number | null;
     name: string;

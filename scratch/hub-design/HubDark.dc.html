@@ -1,0 +1,223 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,600;6..72,800&family=Hanken+Grotesk:wght@400;500;600;700&family=Archivo+Narrow:wght@500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap">
+  <style>
+    :root {
+      --bg:#1B1F29; --card:#272D39; --cardAlt:#202530; --inset:#131720;
+      --border:#3F4552; --borderSubtle:#2D333E; --borderStrong:#707787;
+      --ink:#EBE7E1; --ink2:#B5B0A7; --muted:#989389;
+      --accent:#28A564; --accentInk:#26A865; --tintAccent:#26382C;
+      --topbar:#185B37; --live:#E67066; --warnText:#BC8A3F; --gold:#B38E3B;
+      --am:#A34E71; --rw:#00866F; --cm:#915397;
+      --panelShadow: 0 2px 8px rgba(0,0,0,.42), 0 24px 48px -20px rgba(0,0,0,.66), inset 0 1px 0 rgba(180,198,235,.16);
+      --hdWash: none;
+    }
+    *,*::before,*::after{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--ink);font-family:'Hanken Grotesk',-apple-system,sans-serif;-webkit-font-smoothing:antialiased}
+    a{color:var(--accentInk)} a:hover{color:var(--accent)}
+    .wrap{padding:26px 32px 40px;display:flex;flex-direction:column;gap:18px}
+    .kicker{font-family:'Archivo Narrow','Arial Narrow',sans-serif;font-weight:700;font-size:12px;letter-spacing:.10em;text-transform:uppercase;color:var(--muted)}
+    .quiet{font-family:'Archivo Narrow','Arial Narrow',sans-serif;font-weight:500;font-size:10px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+    .panel{background:linear-gradient(180deg,#272D39 0%,#212736 100%);border-radius:12px;overflow:hidden;box-shadow:var(--panelShadow)}
+    .panelHd{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 16px;border-bottom:1px solid rgba(150,170,210,.14);background:var(--hdWash)}
+    .hdTitle{font-family:'Archivo Narrow','Arial Narrow',sans-serif;font-weight:700;font-size:12px;letter-spacing:.10em;text-transform:uppercase;color:var(--muted)}
+    .hdRubric{font-size:12px;color:var(--muted);font-style:italic}
+    .hdMeta{font-family:'Archivo Narrow','Arial Narrow',sans-serif;font-weight:600;font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:7px}
+    .body{padding:18px 20px 20px}
+    .posChip{display:inline-block;color:#fff;border-radius:4px;padding:3px 7px;font-family:'Archivo Narrow','Arial Narrow',sans-serif;font-weight:700;font-size:11px;letter-spacing:.06em}
+    .num{font-family:'JetBrains Mono',ui-monospace,monospace;font-variant-numeric:tabular-nums}
+
+    /* identity */
+    .idBand{display:flex;align-items:flex-start;gap:20px;padding:2px 2px 16px;border-bottom:1px solid var(--border)}
+    .portrait{width:104px;height:120px;border-radius:10px;background:linear-gradient(180deg,#313743,#242934);position:relative;flex-shrink:0;overflow:hidden;box-shadow:inset 0 0 0 1px rgba(180,198,235,.10)}
+    .portrait span{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Newsreader',Georgia,serif;font-size:34px;font-weight:600;color:#6B7280}
+    .crest{position:absolute;right:-4px;bottom:-4px;width:28px;height:28px;border-radius:50%;background:#034694;box-shadow:0 0 0 2px var(--bg);display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px;font-weight:700;font-family:'Archivo Narrow',sans-serif}
+    .idMain{flex:1;min-width:0;display:flex;flex-direction:column;gap:8px}
+    .name{font-family:'Newsreader',Georgia,serif;font-weight:800;font-size:42px;line-height:1;letter-spacing:-.035em;margin:2px 0 0;color:var(--ink)}
+    .idRow{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+    .idMetaTxt{font-size:14px;color:var(--ink2)}
+    .dot{width:3px;height:3px;border-radius:50%;background:var(--borderStrong);display:inline-block}
+    .statusPill{display:inline-flex;align-items:center;gap:6px;background:var(--tintAccent);color:var(--ink);border-radius:999px;padding:4px 11px;font-family:'Archivo Narrow',sans-serif;font-weight:700;font-size:11px;letter-spacing:.07em;text-transform:uppercase}
+    .statusPill i{width:6px;height:6px;border-radius:50%;background:var(--accent)}
+    .statusOut{background:#3A3226;color:var(--ink)}
+    .statusOut i{background:var(--warnText)}
+    /* Quality is the headline judgment; the only tier colour on the page. */
+    .qual{font-family:'Archivo Narrow',sans-serif;font-weight:700;font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;padding:4px 9px;border-radius:999px}
+    .qElite{background:var(--tintAccent);color:var(--ink);box-shadow:inset 0 0 0 1px rgba(40,165,100,.40)}
+    .idSide{text-align:right;display:flex;flex-direction:column;gap:3px;padding-top:4px}
+    .idSideVal{font-family:'Newsreader',Georgia,serif;font-size:19px;font-weight:600;color:var(--ink)}
+
+    .cols{display:grid;grid-template-columns:1fr 366px;gap:18px;align-items:start}
+    .stack{display:flex;flex-direction:column;gap:18px}
+
+    /* facets */
+    .facets{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:16px}
+    .facet{display:inline-flex;align-items:baseline;gap:6px;background:var(--cardAlt);border:1px solid var(--borderSubtle);border-radius:5px;padding:5px 9px 5px 8px}
+    .facetK{font-family:'Archivo Narrow',sans-serif;font-weight:600;font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+    .facetV{font-family:'Hanken Grotesk',sans-serif;font-weight:600;font-size:12.5px;color:var(--ink)}
+    .facet.hi{background:var(--tintAccent);border-color:rgba(40,165,100,.34)}
+    .facet.hi .facetV{color:var(--ink)}
+
+    .outlook{font-family:'Newsreader',Georgia,serif;font-size:17.5px;line-height:1.62;color:var(--ink2);margin:0;text-wrap:pretty}
+    .outlook strong{color:var(--ink);font-weight:600}
+    .srcRow{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:16px;padding-top:12px;border-top:1px solid var(--borderSubtle)}
+
+    /* form grid */
+    .fgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--borderSubtle);border:1px solid var(--borderSubtle);border-radius:8px;overflow:hidden}
+    .fcell{background:#272D39;padding:12px 13px;display:flex;flex-direction:column;gap:3px}
+    .fval{font-family:'JetBrains Mono',monospace;font-variant-numeric:tabular-nums;font-size:22px;font-weight:500;color:var(--ink);letter-spacing:-.02em}
+    .fsub{font-size:11px;color:var(--muted)}
+    .pctWrap{margin-top:16px}
+    .track{height:8px;border-radius:999px;background:var(--inset);position:relative;margin-top:8px;overflow:hidden}
+    .trackFill{position:absolute;left:0;top:0;bottom:0;width:99%;background:var(--accent);border-radius:999px}
+    .trackTicks{display:flex;justify-content:space-between;margin-top:5px}
+    .spRow{display:flex;gap:8px;margin-top:16px}
+    .spItem{flex:1;background:var(--cardAlt);border:1px solid var(--borderSubtle);border-radius:6px;padding:9px 11px;display:flex;align-items:baseline;justify-content:space-between}
+    .spItem.off{opacity:.55}
+    .spVal{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;color:var(--accentInk)}
+    .spItem.off .spVal{color:var(--muted);font-weight:400}
+
+    /* ledger */
+    .ledger{background:var(--cardAlt)}
+    .lrow{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid var(--borderSubtle)}
+    .lrow:last-child{border-bottom:0}
+    .lk{font-family:'Archivo Narrow',sans-serif;font-weight:600;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+    .lv{font-family:'JetBrains Mono',monospace;font-variant-numeric:tabular-nums;font-size:14px;font-weight:500;color:var(--ink)}
+    .lv.txt{font-family:'Hanken Grotesk',sans-serif;font-size:13.5px;font-weight:600}
+    .lsep{margin:14px 0 6px;display:flex;align-items:center;gap:9px}
+    .lsep span{font-family:'Archivo Narrow',sans-serif;font-weight:700;font-size:10px;letter-spacing:.10em;text-transform:uppercase;color:var(--muted);white-space:nowrap}
+    .lsep i{flex:1;height:1px;background:var(--border)}
+    .bigStat{display:flex;align-items:baseline;gap:9px;margin-bottom:2px}
+    .bigStatV{font-family:'JetBrains Mono',monospace;font-size:30px;font-weight:500;letter-spacing:-.02em;color:var(--ink)}
+    .note{font-size:11.5px;line-height:1.5;color:var(--muted);margin:14px 0 0;font-style:italic}
+  </style>
+</helmet>
+
+<div class="wrap">
+
+  <div class="kicker">Matchday Militia &nbsp;›&nbsp; Players</div>
+
+  <!-- IDENTITY -->
+  <div class="idBand">
+    <div class="portrait"><span>WS</span><div class="crest">ARS</div></div>
+    <div class="idMain">
+      <div class="idRow">
+        <span class="posChip" style="background:#0076B2">CB</span>
+        <span class="qual qElite">Elite</span>
+        <span class="quiet" style="margin-left:2px">Futbolpedia's read</span>
+      </div>
+      <h1 class="name">William Saliba</h1>
+      <div class="idRow">
+        <span class="idMetaTxt">Arsenal</span><i class="dot"></i>
+        <span class="idMetaTxt">25 years</span><i class="dot"></i>
+        <span class="idMetaTxt">France</span>
+        <span class="statusPill statusOut" style="margin-left:4px"><i></i>Out — back surgery</span>
+      </div>
+    </div>
+    <div class="idSide">
+      <div class="quiet">Rostered</div>
+      <div class="idSideVal">Hackney Marshals</div>
+      <div class="quiet" style="margin-top:6px">Market value</div>
+      <div class="idSideVal num">€100.0m</div>
+    </div>
+  </div>
+
+  <div class="cols">
+    <!-- ================= FOOTBALL LAYER ================= -->
+    <div class="stack">
+
+      <div class="panel">
+        <div class="panelHd">
+          <div class="panelHdL">
+            <span class="hdTitle">Scouting report</span>
+            <span class="hdRubric">what kind of footballer he is</span>
+          </div>
+          <div class="hdMeta">Futbolpedia · 27 Aug</div>
+        </div>
+        <div class="body">
+          <div class="facets">
+            <span class="facet hi"><span class="facetK">Minutes</span><span class="facetV">Nailed</span></span>
+            <span class="facet hi"><span class="facetK">Dynasty</span><span class="facetV">Cornerstone</span></span>
+            <span class="facet"><span class="facetK">Phase</span><span class="facetV">Peak</span></span>
+            <span class="facet"><span class="facetK">Mobility</span><span class="facetV">Stable</span></span>
+            <span class="facet"><span class="facetK">Style</span><span class="facetV">Ball-playing CB</span></span>
+            <span class="facet"><span class="facetK">Style</span><span class="facetV">Stopper</span></span>
+          </div>
+          <p class="outlook">Saliba committed his long-term future to Arsenal by signing a contract extension through 2030, extinguishing outside transfer interest and solidifying his standing at the core of Mikel Arteta's backline. At 25, the French international operates as an elite ball-playing centre-back and high-line sweeper, dictating build-up play from deep alongside Gabriel Magalhães. Recent back surgery following an international injury keeps him sidelined indefinitely for the opening stretch of the campaign, though his undisputed pedigree guarantees immediate restoration to heavy minutes once fully cleared. While near-term patience is mandatory during his phased recovery, his peak years make him an enduring multi-year cornerstone.</p>
+          <div class="srcRow">
+            <span class="quiet">Confidence: medium &nbsp;·&nbsp; return date unconfirmed</span>
+            <span class="quiet">Sources verified against squad &amp; head coach</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panelHd">
+          <div class="panelHdL">
+            <span class="hdTitle">Real-world form</span>
+            <span class="hdRubric">Premier League output, not league scoring</span>
+          </div>
+          <div class="hdMeta">2025/26 · 31 apps</div>
+        </div>
+        <div class="body">
+          <div class="fgrid">
+            <div class="fcell"><div class="fval">2,614</div><div class="quiet">Minutes</div><div class="fsub">28 starts of 31</div></div>
+            <div class="fcell"><div class="fval">90%</div><div class="quiet">Start rate</div><div class="fsub">when available</div></div>
+            <div class="fcell"><div class="fval">1</div><div class="quiet">Goals + assists</div><div class="fsub">0.07 xGI per 90</div></div>
+            <div class="fcell"><div class="fval">—</div><div class="quiet">Set-piece duty</div><div class="fsub">none listed</div></div>
+          </div>
+
+          <div class="pctWrap">
+            <p class="note" style="margin:0">Attacking output is not how this position is judged. Saliba ranks near the bottom of defenders on expected goal involvement, and so do most elite centre-backs — the number is shown as a stat, never as a verdict on quality.</p>
+          </div>
+
+          <div class="spRow">
+            <div class="spItem off"><span class="quiet">Penalties</span><span class="spVal">—</span></div>
+            <div class="spItem off"><span class="quiet">Direct free kicks</span><span class="spVal">—</span></div>
+            <div class="spItem off"><span class="quiet">Corners</span><span class="spVal">—</span></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ================= LEAGUE LAYER ================= -->
+    <div class="stack">
+      <div class="panel ledger">
+        <div class="panelHd">
+          <div class="panelHdL"><span class="hdTitle">In your league</span></div>
+          <div class="hdMeta">Gaffa scoring</div>
+        </div>
+        <div class="body" style="padding-top:14px">
+          <div class="hdRubric" style="margin-bottom:14px">What he is worth in Matchday Militia — league scoring, not a football judgment.</div>
+
+          <div class="bigStat"><span class="bigStatV">0.00</span><span class="quiet">points · 2026/27</span></div>
+          <div class="lrow"><span class="lk">Per game</span><span class="lv">—</span></div>
+          <div class="lrow"><span class="lk">Avg rating</span><span class="lv">—</span></div>
+          <div class="lrow"><span class="lk">Games played</span><span class="lv">0</span></div>
+
+          <div class="lsep"><span>Ownership</span><i></i></div>
+          <div class="lrow"><span class="lk">Manager</span><span class="lv txt">Hackney Marshals</span></div>
+          <div class="lrow"><span class="lk">Acquired</span><span class="lv txt">Draft · R1 P2</span></div>
+          <div class="lrow"><span class="lk">Owned in league</span><span class="lv">1 of 2</span></div>
+
+          <div class="lsep"><span>Next</span><i></i></div>
+          <div class="lrow"><span class="lk">GW3 fixture</span><span class="lv txt">v Liverpool (A)</span></div>
+          <div class="lrow"><span class="lk">Lineup slot</span><span class="lv txt">Unavailable</span></div>
+
+          <p class="note">He is worth nothing in this league today and is still an elite cornerstone. League figures never feed the scouting report above.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+</body>
+</html>

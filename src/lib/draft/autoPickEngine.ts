@@ -71,7 +71,7 @@ export type PositionCounts = Partial<Record<GranularPosition, number>>;
 
 export interface DraftCandidate {
   id: string;
-  primaryPosition: GranularPosition;
+  primaryPosition: GranularPosition | null;
   marketValue: number | null;
   totalPoints: number | null;
   ppg: number | null;
@@ -93,40 +93,37 @@ export function picksMade(counts: PositionCounts): number {
 // Percentile rank (0-1) of each value within the full array, ties sharing the
 // lower rank — matches SQL PERCENT_RANK() semantics closely enough for a
 // practice-mode heuristic.
-function percentileRanks(values: number[]): number[] {
-  const n = values.length;
-  if (n <= 1) return values.map(() => 0);
-  const sorted = [...values].sort((a, b) => a - b);
+function percentRanks(values: (number | null)[]): number[] {
+  const valid = values.filter((v): v is number => v !== null);
+  if (valid.length <= 1) return values.map((v) => (v !== null ? 0.5 : 0));
+  const sorted = [...valid].sort((a, b) => a - b);
   return values.map((v) => {
-    let lo = 0;
-    let hi = sorted.length;
-    while (lo < hi) {
-      const mid = (lo + hi) >> 1;
-      if (sorted[mid] < v) lo = mid + 1;
-      else hi = mid;
-    }
-    return lo / (n - 1);
+    if (v === null) return 0;
+    const countBelow = sorted.findIndex((x) => x >= v);
+    return countBelow / (sorted.length - 1);
   });
 }
 
+// Confidence curve (0-1) based on games played: 0 GP → 0; 8 GP → 0.5; 16+ GP → 1.
+function sampleConfidence(gp: number): number {
+  return Math.min(1, Math.max(0, gp / GAMES_FLOOR));
+}
+
 /**
- * Precompute a static quality score for the whole draftable pool. Value/stats
- * percentiles don't shift as picks happen, so this only needs to run once per
- * mock draft session rather than on every pick.
+ * Computes 0-100 composite quality score for each candidate.
+ *
+ * Sourced entirely from prior-season sample (`all` minutes threshold) and
+ * Transfermarkt value, adjusted for availability status. Pure and deterministic
+ * — no draft-state dependencies.
  */
 export function scoreDraftPool(candidates: DraftCandidate[]): ScoredDraftCandidate[] {
-  const values = candidates.map((c) => c.marketValue ?? 0);
-  const points = candidates.map((c) => c.totalPoints ?? 0);
-  const ppgs = candidates.map((c) => c.ppg ?? 0);
-
-  const valuePct = percentileRanks(values);
-  const pointsPct = percentileRanks(points);
-  const ppgPct = percentileRanks(ppgs);
+  const valuePct = percentRanks(candidates.map((c) => c.marketValue));
+  const pointsPct = percentRanks(candidates.map((c) => c.totalPoints));
+  const ppgPct = percentRanks(candidates.map((c) => c.ppg));
 
   return candidates.map((c, i) => {
-    const statsPct = (pointsPct[i] + ppgPct[i]) / 2;
-
-    const confidence = Math.min(1, c.gp / GAMES_FLOOR);
+    const confidence = sampleConfidence(c.gp);
+    const statsPct = 0.5 * pointsPct[i] + 0.5 * ppgPct[i];
     const performanceWeight = MAX_PERFORMANCE_WEIGHT * confidence;
     const valueWeight = 1 - performanceWeight;
     const base = valueWeight * (valuePct[i] * 100) + performanceWeight * (statsPct * 100);
@@ -161,10 +158,11 @@ export function rankDraftPool(candidates: ScoredDraftCandidate[]): Map<string, n
  * just because the sheet is empty.
  */
 export function needScore(
-  primaryPosition: GranularPosition,
+  primaryPosition: GranularPosition | null,
   counts: PositionCounts,
   rosterSize: number,
 ): number {
+  if (!primaryPosition) return 10;
   const category = categoryOf(primaryPosition);
   const made = picksMade(counts);
   const gkCount = counts.GK ?? 0;

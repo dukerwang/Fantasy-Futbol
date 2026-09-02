@@ -77,7 +77,7 @@ export async function seedHighValueAuctions(admin: SupabaseClient): Promise<Seed
       // One window for every seeding path — see initialAuctionExpiry's docblock
       // for the five places that previously disagreed.
       const { quietHours } = await getLeagueAuctionSettings(admin, league.id);
-      const expiresAt = initialAuctionExpiry(Date.now(), quietHours);
+      const now = Date.now();
       const auctionRows = candidates.map((p) => ({
         league_id: league.id,
         team_id: null,
@@ -87,7 +87,7 @@ export async function seedHighValueAuctions(admin: SupabaseClient): Promise<Seed
         status: 'pending',
         gameweek: 0,
         is_auction: true,
-        expires_at: expiresAt,
+        expires_at: initialAuctionExpiry(now, quietHours, p.marketValue),
         opens_at: null,
         // Reference price for the auction premium — see migration 070.
         market_value_at_auction: p.marketValue,
@@ -106,7 +106,9 @@ export async function seedHighValueAuctions(admin: SupabaseClient): Promise<Seed
         players: candidates.map((p) => p.name),
       });
 
-      await notifyLeague(admin, league.id, candidates, expiresAt);
+      if (auctionRows[0]?.expires_at) {
+        await notifyLeague(admin, league.id, candidates, auctionRows[0].expires_at);
+      }
     } catch (err) {
       console.error(`[seedHighValueAuctions] League ${league.id} failed:`, err);
     }

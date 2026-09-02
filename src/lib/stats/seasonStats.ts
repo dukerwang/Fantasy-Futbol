@@ -25,6 +25,7 @@
  * zeroes, which is what they have.
  */
 
+import { fetchAllPages } from '@/lib/supabase/pagination';
 import type { createAdminClient } from '@/lib/supabase/admin';
 import { FULL_PLAYER_SELECT } from '@/lib/constants/queries';
 import { loadReferenceStats } from '@/lib/scoring/matchups';
@@ -41,7 +42,6 @@ import { calculateMatchRating } from '@/lib/scoring/matchRating';
 type Admin = ReturnType<typeof createAdminClient>;
 type RefStatsMap = Parameters<typeof calculateMatchRating>[2];
 
-const PAGE_SIZE = 1000;
 
 /** Display name + FPL seasonal team id for 2025-26 club slugs. */
 const SEASON_CLUBS_2025_26: Record<string, { name: string; fplTeamId: number }> = {
@@ -90,6 +90,13 @@ export interface SeasonStatsContext {
 
 export interface SeasonStatsOptions {
   /**
+   * Restrict the stat rows to one gameweek, so every downstream figure — the
+   * shadow maps, points, rating, goals — describes that week rather than the
+   * season. Filtering at the query is what makes the table genuinely
+   * per-gameweek instead of a season table with a label on it.
+   */
+  gameweek?: number | null;
+  /**
    * Add currently-active players with no archive row to an archived season's
    * pool. They carry no season points, ranks or aggregates — they exist so the
    * table can still be searched for players who joined after it ended.
@@ -104,19 +111,6 @@ export interface SeasonShadowMaps {
   played: PositionAggregateMap;
   all: PositionAggregateMap;
   gt45: PositionAggregateMap;
-}
-
-async function fetchAllPages<T>(
-  run: (from: number, to: number) => PromiseLike<{ data: T[] | null }>,
-): Promise<T[]> {
-  const out: T[] = [];
-  for (let page = 0; ; page++) {
-    const { data } = await run(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1);
-    if (!data || data.length === 0) break;
-    out.push(...data);
-    if (data.length < PAGE_SIZE) break;
-  }
-  return out;
 }
 
 /**
@@ -147,13 +141,14 @@ export async function loadSeasonStatsContext(
         .order('total_points', { ascending: false, nullsFirst: false })
         .range(from, to) as any,
     ),
-    fetchAllPages<AggregatableStatRow>((from, to) =>
-      admin
+    fetchAllPages<AggregatableStatRow>((from, to) => {
+      let q = admin
         .from('player_stats')
         .select('player_id, match_rating, fantasy_points, stats')
-        .eq('season', season)
-        .range(from, to) as any,
-    ),
+        .eq('season', season);
+      if (options.gameweek != null) q = q.eq('gameweek', options.gameweek);
+      return q.range(from, to) as any;
+    }),
     loadReferenceStats(admin, refSeason),
     fetchAllPages<{ player_id: string; club_slug: string }>((from, to) =>
       admin
@@ -243,8 +238,15 @@ export interface SeasonLeaderboard {
 }
 
 /** Everything GlobalStatsTable needs for a season, minus league ownership. */
-export async function loadSeasonLeaderboard(admin: Admin, season: string): Promise<SeasonLeaderboard> {
-  const ctx = await loadSeasonStatsContext(admin, season, { includeActiveWithoutArchive: true });
+export async function loadSeasonLeaderboard(
+  admin: Admin,
+  season: string,
+  options: { gameweek?: number | null } = {},
+): Promise<SeasonLeaderboard> {
+  const ctx = await loadSeasonStatsContext(admin, season, {
+    includeActiveWithoutArchive: true,
+    gameweek: options.gameweek ?? null,
+  });
 
   // Players with an archive row already carry that season's frozen ranks, applied
   // in loadSeasonStatsContext. Everyone else — all of a live season, and the

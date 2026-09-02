@@ -24,8 +24,8 @@ import styles from './club.module.css';
  * Same lesson as ListingCard's duplicated crest treatment: a copied rule
  * decays, and here it had decayed into being wrong.
  */
-export function PosBadge({ pos, ghost }: { pos: string; ghost?: boolean }) {
-  const badge = <PositionBadge position={pos as GranularPosition} size="sm" />;
+export function PosBadge({ pos, ghost }: { pos?: string | null; ghost?: boolean }) {
+  const badge = <PositionBadge position={(pos ?? 'N/A') as GranularPosition} size="sm" />;
   return ghost ? <span className={styles.ghostBadge}>{badge}</span> : badge;
 }
 
@@ -159,7 +159,7 @@ export function DepthChart({
       </div>
 
       {ZONES.map((z) => {
-        const inZone = entries.filter((e) => z.positions.includes(e.player.primary_position));
+        const inZone = entries.filter((e) => e.player.primary_position && z.positions.includes(e.player.primary_position));
         const absent = short.filter((s) => z.positions.includes(s.pos) && s.have === 0);
         const thin = short.filter((s) => z.positions.includes(s.pos) && s.have > 0);
         return (
@@ -246,7 +246,7 @@ export function SquadTable({ entries, selId, onSelect }: { entries: SquadEntry[]
                      squad list is allowed to teach the taxonomy. A whole-squad
                      table is exactly the surface `.g-row` was written for. */
                   className={`g-row ${e.id === selId ? styles.trSel : ''}`}
-                  style={{ ['--pf' as string]: posColor(p.primary_position) }}
+                  style={{ ['--pf' as string]: p.primary_position ? posColor(p.primary_position) : 'var(--color-border-subtle)' }}
                   onClick={() => onSelect(e.id)}
                 >
                   <td><PosBadge pos={p.primary_position} /></td>

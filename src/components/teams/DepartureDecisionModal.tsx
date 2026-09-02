@@ -79,7 +79,6 @@ export default function DepartureDecisionModal({ req, leagueId, slots, rosterCou
     }
   }
 
-  const eyebrow = mode === 'decide' ? 'Player Departure' : mode === 'reinstate' ? 'Player Returns' : 'Relinquish Rights';
   const sub = mode === 'reinstate'
     ? `Back in the Premier League with ${dep.backClub ?? 'a PL club'}`
     : `Left the Premier League · ex-${dep.lastClub}`;
@@ -92,7 +91,6 @@ export default function DepartureDecisionModal({ req, leagueId, slots, rosterCou
             {playerInitial({ name: dep.name, web_name: dep.webName })}
           </div>
           <div className={styles.headBody}>
-            <div className={styles.eyebrow}>{eyebrow}</div>
             <div className={styles.name}>{getPlayerDisplayName({ name: dep.name, web_name: dep.webName }, 'full')}</div>
             <div className={styles.subline}>
               <span className={styles.posbadge} style={{ background: posColor(dep.pos) }}>{dep.pos}</span>

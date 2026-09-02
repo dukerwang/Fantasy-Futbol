@@ -227,6 +227,10 @@ export default function TopBar() {
         label: 'League',
         items: [
           { label: 'Standings', href: `${base}/standings` },
+          // Named for its contents rather than a vague umbrella. It stays lit
+          // on a player's own page, which is reached from here and from the
+          // card modal on a dozen other surfaces.
+          { label: 'Players', href: `${base}/players`, alsoMatches: [`${base}/players/`] },
           { label: 'Stats', href: `${base}/stats` },
           { label: 'Finance', href: `${base}/finance` },
           { label: 'History', href: `${base}/history` },

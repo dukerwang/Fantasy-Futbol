@@ -1,67 +1,63 @@
 /**
- * Gaffa — Activity-Based Auction Timer
+ * Gaffa — Activity-Based Auction Timer with Market Value Tiers & Smart Overnight Protection
  *
- * expires_at = quietHoursGuard( max(first + 24h, last + timeout(age)) )
+ * expires_at = quietHoursGuard( max(first + tierFloor(marketValue), last + timeout(age)) )
  *
- * There is no hard ceiling. The previous formula was
+ * Design features:
+ * 1. Market Value Tiers:
+ *    - Tier 1 (< €25m): 12h initial floor (allows fast streaming / matchday moves).
+ *    - Tier 2 (€25m – €50m): 24h initial floor (guaranteed 1 full day of notice).
+ *    - Tier 3 (€50m – €80m): 48h initial floor (marquee signings get 2 full days).
+ *    - Tier 4 (≥ €80m): 72h initial floor (superstar assets get 3 full days).
  *
- *   min(first + MAX, max(first + 24h, last + 12h))
+ * 2. Activity-Based Inactivity Timeout:
+ *    - Base timeout: 6 hours (decaying to 4h at 48h age, 2h at 72h age, 1h at 96h+).
+ *    - Guarantees anti-snipe protection while allowing auctions to converge.
  *
- * and the min() against a fixed wall made the anti-snipe property conditional:
- * while last + 12h sat below the ceiling every bid pushed the close out, but
- * once it crossed, expires_at FROZE and no further bid moved it — so the final
- * 12 hours became a hard, publicly visible deadline. The auctions that reach a
- * ceiling are the contested ones, so the protection failed exactly where it was
- * needed, and the "Closing inside the hour" facet handed snipers the list.
- *
- * Instead the inactivity timeout decays. Duration is bounded in practice rather
- * than by a wall: sustaining an auction past 96 hours needs a bid every hour,
- * and 079_unified_bid_rpc.sql rejects any bid that does not STRICTLY exceed the
- * current high — so the price climbs monotonically and the auction ends when
- * someone stops paying, which is the correct termination condition for an
- * auction rather than an arbitrary clock.
- *
- * The quiet-hours guard is separate and non-negotiable. Nothing in the old
- * formula protected the time of day: its docblock claimed "a 3am bid cannot
- * close at 4am — it must stay open until at least 3pm", but MIN_DURATION is 24h,
- * so a 3am first bid floored at 3am the NEXT day. The ceiling landed at
- * first + 72h (same clock time) and the inactivity close at last + 12h, so a 3pm
- * last bid closed at 3am. Roughly half of all closes landed overnight.
- *
- * What this guarantees:
- * - Every auction stays open at least MIN_DURATION after the first real bid.
- * - Every bid moves the close later. There is no timeable instant.
- * - No auction resolves inside the league's quiet window.
- *
- * Design doc: docs/superpowers/specs/2026-07-30-transfer-market-pricing-design.md
+ * 3. Smart Overnight & Weekend Matchday Protection:
+ *    - Overnight Deadzone: 11:00 PM – 8:00 AM local league time.
+ *    - Contested / High-Value (≥ €20m or 2+ bids) or Weekdays: Pushed to 12:00 PM (Noon) local time.
+ *    - Uncontested Weekend Streamers (< €20m and 1 bid on Saturday/Sunday): Pushed to 6:45 AM local time
+ *      (45 minutes before the early 7:30 AM EST kickoff).
  */
 
-export const MIN_DURATION_MS = 24 * 60 * 60 * 1000; // 24h floor after the first bid
+export const TIER_1_MAX_MV = 25;
+export const TIER_2_MAX_MV = 50;
+export const TIER_3_MAX_MV = 80;
+
+export const TIER_1_FLOOR_MS = 12 * 60 * 60 * 1000; // 12h
+export const TIER_2_FLOOR_MS = 24 * 60 * 60 * 1000; // 24h
+export const TIER_3_FLOOR_MS = 48 * 60 * 60 * 1000; // 48h
+export const TIER_4_FLOOR_MS = 72 * 60 * 60 * 1000; // 72h
+
+export const MIN_DURATION_MS = TIER_2_FLOOR_MS; // 24h default floor
 
 /**
- * How long a seeded auction sits before anyone bids. One value for every
- * seeding path — previously five places stamped this field with three different
- * durations (48h in seedHighValueAuctions, 96h in seasonKickoff, 72/96h here,
- * 48/96h in executeDrop and again in the 062 resolver), so whichever path
- * created the auction silently decided how long it lasted.
+ * Default initial window for seeded auctions before any bid.
  */
 export const INITIAL_WINDOW_MS = 72 * 60 * 60 * 1000;
 
 /**
- * Shelf life of a manager listing before any bid — seeded by the DB trigger in
- * migration 080 (`seed_listing_auction_anchor`), not this file, since the anchor
- * insert happens in SQL on the `player_sale_listings` INSERT. Kept here only so
- * app code (the "new listing" notification) can quote the real figure instead of
- * guessing. Keep this in sync with the `INTERVAL '14 days'` in that migration.
+ * Shelf life of a manager listing before any bid.
  */
 export const LISTING_INITIAL_WINDOW_MS = 14 * 24 * 60 * 60 * 1000;
 
 /**
- * Inactivity timeout by auction age. Shrinking rather than capped: this is what
- * replaces the hard ceiling.
+ * Returns the initial auction floor duration in ms based on player market value.
+ */
+export function tierInitialFloorMs(marketValue: number = 0): number {
+    const mv = Number.isFinite(marketValue) && marketValue > 0 ? marketValue : 0;
+    if (mv < TIER_1_MAX_MV) return TIER_1_FLOOR_MS;
+    if (mv < TIER_2_MAX_MV) return TIER_2_FLOOR_MS;
+    if (mv < TIER_3_MAX_MV) return TIER_3_FLOOR_MS;
+    return TIER_4_FLOOR_MS;
+}
+
+/**
+ * Inactivity timeout by auction age.
  */
 const DECAY_BANDS: readonly { readonly untilAgeMs: number; readonly timeoutMs: number }[] = [
-    { untilAgeMs: 48 * 60 * 60 * 1000, timeoutMs: 12 * 60 * 60 * 1000 },
+    { untilAgeMs: 48 * 60 * 60 * 1000, timeoutMs: 6 * 60 * 60 * 1000 },
     { untilAgeMs: 72 * 60 * 60 * 1000, timeoutMs: 4 * 60 * 60 * 1000 },
     { untilAgeMs: 96 * 60 * 60 * 1000, timeoutMs: 2 * 60 * 60 * 1000 },
     { untilAgeMs: Infinity, timeoutMs: 1 * 60 * 60 * 1000 },
@@ -82,6 +78,13 @@ export const DEFAULT_QUIET_HOURS: QuietHours = {
     timeZone: 'Europe/London',
 };
 
+export interface AuctionTimerOptions {
+    /** Real-world market value of player in €m. */
+    marketValue?: number;
+    /** Total number of bids placed in the auction so far (including current). */
+    bidCount?: number;
+}
+
 /**
  * The inactivity timeout for an auction of the given age.
  * Never zero — a zero timeout would reintroduce a timeable instant.
@@ -91,22 +94,28 @@ export function inactivityTimeoutMs(ageMs: number): number {
     for (const band of DECAY_BANDS) {
         if (age < band.untilAgeMs) return band.timeoutMs;
     }
-    // Unreachable: the last band is Infinity. Kept so the function is total.
     return DECAY_BANDS[DECAY_BANDS.length - 1].timeoutMs;
 }
 
-/** Minutes since local midnight, in the given zone, for an absolute instant. */
-function localMinutesOfDay(timestampMs: number, timeZone: string): number {
+/** Local wall-clock day and minutes since midnight in the given timezone. */
+function localTimeDetails(timestampMs: number, timeZone: string): {
+    weekday: string;
+    minutes: number;
+} {
     const parts = new Intl.DateTimeFormat('en-GB', {
         timeZone,
+        weekday: 'short',
         hour: '2-digit',
         minute: '2-digit',
         hour12: false,
     }).formatToParts(new Date(timestampMs));
+    const weekday = parts.find((p) => p.type === 'weekday')?.value ?? 'Wed';
     const hour = Number(parts.find((p) => p.type === 'hour')?.value ?? '0');
     const minute = Number(parts.find((p) => p.type === 'minute')?.value ?? '0');
-    // Intl can render midnight as 24 in some locales/zones; normalise.
-    return (hour % 24) * 60 + minute;
+    return {
+        weekday,
+        minutes: (hour % 24) * 60 + minute,
+    };
 }
 
 function parseHHMM(value: string): number {
@@ -115,14 +124,16 @@ function parseHHMM(value: string): number {
 }
 
 /**
- * Move a timestamp out of the quiet window, forward to the window's end.
- * Handles a window that wraps midnight (e.g. 22:00–06:00).
- *
- * DST safety: advancing by a wall-clock delta can land back inside the window
- * if a transition occurs in between, so the result is re-checked. Bounded at
- * three passes, which is more than any real transition needs.
+ * Smart Quiet Hours & Overnight Protection:
+ * - Deadzone: 11:00 PM (23:00) to 8:00 AM (08:00) local time.
+ * - Uncontested weekend streamers (< €20m, 1 bid on Sat/Sun): pushed to 6:45 AM local time.
+ * - All other overnight resolutions: pushed to 12:00 PM (Noon) local time.
  */
-export function applyQuietHours(timestampMs: number, quiet: QuietHours | null): number {
+export function applyQuietHours(
+    timestampMs: number,
+    quiet: QuietHours | null,
+    options?: AuctionTimerOptions,
+): number {
     if (!quiet) return timestampMs;
 
     const startMin = parseHHMM(quiet.start);
@@ -130,48 +141,89 @@ export function applyQuietHours(timestampMs: number, quiet: QuietHours | null): 
     if (startMin === endMin) return timestampMs; // zero-length window
 
     const wraps = startMin > endMin;
-    const inWindow = (minutes: number) =>
+    const inQuietWindow = (minutes: number) =>
         wraps ? minutes >= startMin || minutes < endMin : minutes >= startMin && minutes < endMin;
 
+    // Overnight includes 11:00 PM onwards or anytime in the quiet window (e.g. up to 8:00 AM)
+    const isOvernight = (minutes: number) => minutes >= 23 * 60 || inQuietWindow(minutes);
+
+    const { weekday, minutes } = localTimeDetails(timestampMs, quiet.timeZone);
+    if (!isOvernight(minutes)) return timestampMs;
+
+    // If an overnight bid happens late at night (>= 23:00), the target morning is the NEXT day.
+    const targetWeekday =
+        minutes >= 23 * 60
+            ? weekday === 'Mon'
+                ? 'Tue'
+                : weekday === 'Tue'
+                  ? 'Wed'
+                  : weekday === 'Wed'
+                    ? 'Thu'
+                    : weekday === 'Thu'
+                      ? 'Fri'
+                      : weekday === 'Fri'
+                        ? 'Sat'
+                        : weekday === 'Sat'
+                          ? 'Sun'
+                          : 'Mon'
+            : weekday;
+
+    const isWeekend = targetWeekday === 'Sat' || targetWeekday === 'Sun';
+    const isStreamer = (options?.marketValue ?? 0) < 20 && (options?.bidCount ?? 1) <= 1;
+
+    // Target settlement time: 6:45 AM (405m) for weekend streamers, 12:00 PM Noon (720m) for all others
+    const targetMins = isWeekend && isStreamer ? 6 * 60 + 45 : 12 * 60;
+
     let result = timestampMs;
-    for (let pass = 0; pass < 3; pass++) {
-        const minutes = localMinutesOfDay(result, quiet.timeZone);
-        if (!inWindow(minutes)) return result;
-        // Minutes forward to the window's end, wrapping across midnight.
-        const delta = (endMin - minutes + 1440) % 1440;
-        result += (delta === 0 ? 1440 : delta) * 60_000;
+    // Minutes forward to the target time
+    const delta = (targetMins - minutes + 1440) % 1440;
+    result += (delta === 0 ? 1440 : delta) * 60_000;
+
+    // Re-check for DST boundary crossing (up to 2 passes)
+    for (let pass = 0; pass < 2; pass++) {
+        const check = localTimeDetails(result, quiet.timeZone);
+        if (check.minutes === targetMins) break;
+        const adj = (targetMins - check.minutes + 1440) % 1440;
+        if (adj === 0) break;
+        result += adj * 60_000;
     }
+
     return result;
 }
 
 /**
- * When an auction should close, given its bidding activity.
+ * When an auction should close, given its bidding activity and player tier.
  *
  * @param firstBidTime Unix ms of the first real (non-system-seed) bid.
  * @param lastBidTime  Unix ms of the most recent bid — pass the current bid's time.
  * @param quiet        League quiet hours, or null to disable the guard.
+ * @param options      Player market value and bid count for tiering and streamer protection.
  */
 export function calculateExpiresAt(
     firstBidTime: number,
     lastBidTime: number,
     quiet: QuietHours | null = DEFAULT_QUIET_HOURS,
+    options?: AuctionTimerOptions,
 ): string {
     const age = lastBidTime - firstBidTime;
     const inactivityEnd = lastBidTime + inactivityTimeoutMs(age);
-    const minClose = firstBidTime + MIN_DURATION_MS;
-    return new Date(applyQuietHours(Math.max(minClose, inactivityEnd), quiet)).toISOString();
+    const minClose = firstBidTime + tierInitialFloorMs(options?.marketValue ?? 0);
+    const naturalExpiry = Math.max(minClose, inactivityEnd);
+    return new Date(applyQuietHours(naturalExpiry, quiet, options)).toISOString();
 }
 
 /**
- * The initial expires_at for a newly seeded auction with no bids yet. The bid
- * route overwrites it via calculateExpiresAt when the first real bid arrives.
+ * The initial expires_at for a newly seeded auction with no bids yet.
  *
- * @param now   Unix ms. Passed in rather than read from Date.now() so this is testable.
- * @param quiet League quiet hours, or null to disable the guard.
+ * @param now         Unix ms.
+ * @param quiet       League quiet hours, or null to disable the guard.
+ * @param marketValue Optional player market value for tier-based duration.
  */
 export function initialAuctionExpiry(
     now: number,
     quiet: QuietHours | null = DEFAULT_QUIET_HOURS,
+    marketValue?: number,
 ): string {
-    return new Date(applyQuietHours(now + INITIAL_WINDOW_MS, quiet)).toISOString();
+    const initialWindow = marketValue != null && marketValue > 0 ? tierInitialFloorMs(marketValue) : INITIAL_WINDOW_MS;
+    return new Date(applyQuietHours(now + initialWindow, quiet, { marketValue, bidCount: 0 })).toISOString();
 }

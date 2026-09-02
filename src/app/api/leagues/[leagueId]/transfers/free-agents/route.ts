@@ -32,6 +32,7 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { FULL_PLAYER_SELECT } from '@/lib/constants/queries';
 import { fetchEnrichmentMaps, enrichPlayer } from '@/lib/transfers/playerEnrichment';
 import { getRightsHeldPlayerIds } from '@/lib/departures/decisions';
+import { fold } from '@/lib/text/fold';
 
 export const dynamic = 'force-dynamic';
 
@@ -111,18 +112,26 @@ export async function GET(req: NextRequest, { params }: Props) {
   let query = admin.from('players').select(FULL_PLAYER_SELECT).eq('is_active', true);
   if (position) query = query.eq('primary_position', position);
   if (club) query = query.eq('pl_team', club);
-  if (q) {
-    const safe = q.replace(/[%,()]/g, ' ');
-    query = query.or(`name.ilike.%${safe}%,web_name.ilike.%${safe}%,full_name.ilike.%${safe}%`);
-  }
 
   const { data: candidates, error } = await query;
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
   const maps = await fetchEnrichmentMaps(admin, league);
 
+  // Name matching runs here rather than as an `ilike` in the query above,
+  // because Postgres cannot fold diacritics without the unaccent extension and
+  // a manager typing "munoz" expects to find "Muñoz". The route already reads
+  // the whole active-player set when no search is given (575 rows, under
+  // PostgREST's default page size), so this costs nothing extra.
+  const qFold = fold(q);
   const enriched = (candidates ?? [])
     .filter((p) => !excluded.has(p.id))
+    .filter((p) => {
+      if (!qFold) return true;
+      return fold(p.name).includes(qFold)
+        || fold(p.web_name).includes(qFold)
+        || fold(p.full_name).includes(qFold);
+    })
     .map((p) => enrichPlayer(p, maps));
 
   enriched.sort((a, b) => {

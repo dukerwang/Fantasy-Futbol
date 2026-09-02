@@ -214,7 +214,7 @@ const loadDraftStatsForSeason = unstable_cache(
     // Always sourced from the `all` (15-min) bucket, matching the app-wide
     // MEANINGFUL_MINUTES threshold used everywhere else.
     const candidates: DraftCandidate[] = players.map((p) => {
-      const s = shadowMaps.all[p.id]?.[String(p.primary_position).toUpperCase()];
+      const s = p.primary_position ? shadowMaps.all[p.id]?.[String(p.primary_position).toUpperCase()] : undefined;
       const gp = s?.gp ?? 0;
       return {
         id: p.id,
