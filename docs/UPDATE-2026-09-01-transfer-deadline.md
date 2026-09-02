@@ -20,7 +20,7 @@ drawn from. Part 3 is the launch order.
 ```
 slug:     scouting-reports-player-profiles-deadline-day
 title:    Scouting Reports, Player Profiles, and Deadline Day
-summary:  Every player now has a written scouting report and a profile page of his own — plus two more squad places, a board grant, and a blockbuster on the market.
+summary:  Every player now has a written scouting report and a profile page of his own — plus two more squad places, a board grant, and auctions that run on a player's value.
 is_major: true
 ```
 
@@ -88,6 +88,37 @@ room to work with.
 And there's a blockbuster on the market to spend it on. The auction board has
 the details.
 
+## Auctions now run on the player's value, and won't end while you're asleep
+
+Every auction used to run to the same clock regardless of who was in it. A €4m
+squad filler and a €90m striker had the same window, which made cheap lots drag
+and expensive ones close faster than anyone could react to.
+
+**How long a lot stays open now depends on what the player is worth.**
+
+| Player's value | Minimum time open |
+|---|---|
+| Under €25m | 12 hours |
+| €25m – €50m | 1 day |
+| €50m – €80m | 2 days |
+| €80m and above | 3 days |
+
+So a marquee signing is guaranteed to sit there long enough for everyone to see
+it and plan a bid, while a rotation squad player can be streamed in the same
+afternoon instead of tying up your attention for three days.
+
+**After the last bid, a lot closes on inactivity — and that window tightens as
+the auction ages.** Six hours of quiet ends it on day one, four hours after two
+days, two hours after three, and an hour after four. Nobody can snipe you at the
+buzzer, because any bid resets the clock; but a lot that everyone has lost
+interest in stops hanging around.
+
+**And nothing settles overnight.** If a lot would expire between 11pm and 8am,
+it's pushed to midday so you're not losing a player because you were asleep. The
+one exception is a cheap, uncontested lot on a weekend — a single bid, under
+€20m — which settles at 6:45am instead, ahead of the early kickoff, so a
+last-minute streamer is actually in your side in time to play.
+
 ## Around the league
 
 - Your Club Balance now opens a dropdown showing every club's balance at a
@@ -141,8 +172,8 @@ the details.
 
 # Part 2 — Inventory
 
-Everything here is unannounced. **[uncommitted]** marks what's in the working
-tree only.
+Everything here is unannounced. All of it is now committed and merged to `main`
+(merge `908528d6`); the working tree is clean and the build is green.
 
 ## 2.1 Flagship — Futbolpedia scouting, the hub, the index
 
@@ -273,7 +304,36 @@ Cabinet margins (`9c8b9258`). Squad peek chips (`c3eec26a`). Home hover colours
 > `bdb602e5` (Help in its own dropdown) was already covered by the 2026-08-27
 > post. **Don't announce it twice.**
 
-## 2.3 Uncommitted [uncommitted]
+## 2.3 Auction timer rework — `e3e3bc95`
+
+Duke's commit, `src/lib/auction/timer.ts`. `expires_at = quietHoursGuard(max(first
++ tierFloor(marketValue), last + timeout(age)))`.
+
+- **Market-value tiers** replace the flat initial floor: `<€25m` 12h, `€25–50m`
+  24h, `€50–80m` 48h, `≥€80m` 72h.
+- **Inactivity timeout decays with auction age**: 6h base, 4h past 48h, 2h past
+  72h, 1h past 96h. Never zero — a zero timeout reintroduces a timeable instant.
+- **Overnight protection**: a lot expiring in the deadzone is pushed to noon
+  local; an uncontested weekend streamer (`<€20m`, one bid, Sat/Sun) goes to
+  06:45 instead, ahead of the 07:30 ET kickoff.
+- Both bid routes, `seedHighValueAuctions`, `seasonKickoff` and `executeDrop`
+  updated; `timer.test.ts` substantially rewritten.
+
+Two notes on it, neither a change I made:
+
+1. The deadzone's start is **hardcoded at 23:00** (`minutes >= 23 * 60`) and
+   OR-ed with the league's configured quiet window. Both alpha leagues run
+   00:00–08:00 America/New_York, so their effective deadzone is 23:00–08:00 and
+   the copy above says 11pm. But a league that configured, say, 02:00–06:00 would
+   still get the 23:00 floor, which may or may not be what you intend.
+2. The file's header comment says the deadzone is "11:00 PM – 8:00 AM" while
+   `DEFAULT_QUIET_HOURS` reads `00:00`–`08:00` Europe/London. They only agree
+   because of the hardcoded 23:00; worth a comment fix so the next reader isn't
+   misled.
+
+⚠️ **`docs/USER_GUIDE.md` documents the old 72h/24h timing** and needs this.
+
+## 2.4 Formerly uncommitted — now on main
 
 **Unsynced player handling.** `primary_position` nullable — migration
 `148_nullable_player_primary_position.sql`, untracked on disk but already applied
@@ -302,7 +362,7 @@ commit boundary is complete.
 type spine, and `autoPickEngine`'s percentile helper swapped a binary search for
 `findIndex`, making it O(n²) on a draft-time path.
 
-## 2.4 League operations
+## 2.5 League operations
 
 | Change | Value |
 |---|---|
@@ -316,7 +376,7 @@ Flat grant preserves every spread — Pizzaking €277m → €307m against Chel
 
 ⚠️ The plan doc writes balances in `£`. Gaffa is `€` everywhere user-facing.
 
-## 2.5 Changed in this session
+## 2.6 Changed in this session
 
 - **Two voice defects and an encoding bug, closed over two sampling rounds.**
   See §2.6.
@@ -333,7 +393,7 @@ Flat grant preserves every spread — Pizzaking €277m → €307m against Chel
   the 72 current rows stale so they regenerate against the fixed prompt.
 - Verified after: engine 87 tests, app 388, build green.
 
-## 2.6 Sample findings — 0.3.2 → 0.3.4
+## 2.7 Sample findings — 0.3.2 → 0.3.4
 
 A 20-player sample, weighted toward the role-security opening angle (12 of 20,
 including the six players whose 0.3.1 text carried the negated-competition
@@ -376,16 +436,14 @@ Pipeline **0.3.4**. Engine 94 tests, app 388, typecheck clean.
 
 # Part 3 — Launch order
 
-## 3.1 Before deploy
+## 3.1 Before deploy — DONE
 
-1. **Commit the working tree.** 34 modified files plus the untracked migration
-   are not on any branch.
-2. **Resolve the duplicate migration 148** — `148_outlook_spend.sql` and
-   `148_nullable_player_primary_position.sql` both exist and both are applied
-   live. Renumber the untracked one to 149.
-3. **Push and merge.** The branch has no upstream and has never left this machine,
-   while migrations 141/147/148 are already live in Supabase. That gap is what put
-   this work in a stash last time.
+1. ✅ Working tree committed in six logical commits.
+2. ✅ Duplicate migration 148 resolved — the nullable-position migration is now
+   `149_nullable_player_primary_position.sql`.
+3. ✅ Merged to `main` (`908528d6`). 386 tests pass, `next build` green.
+
+Still outstanding: `main` has no remote push yet.
 
 ## 3.2 The regen — DONE
 
@@ -446,7 +504,8 @@ Replace the opening line of the first section with:
 
 ## 3.5 Also worth doing
 
-- `docs/USER_GUIDE.md`: GW7 cup seeding, and the 22-man roster.
+- `docs/USER_GUIDE.md`: GW7 cup seeding, the 22-man roster, and the new auction
+  timing (it still documents the flat 72h initial / 24h minimum).
 - `docs/DECISIONS.md`: no entry for the +€30m grant or the roster expansion.
 
 ## 3.6 Open, not blocking
