@@ -266,6 +266,41 @@ export default function MarketClient({
             </div>
           )}
 
+          {/* ── New transfers ───────────────────────────── */}
+          {model.newTransfers.length > 0 && (
+            <>
+              <div className={`${styles.sect} ${styles.sectSpaced}`}>
+                <h2 className={styles.sectTitle}>New transfers</h2>
+                <span className={styles.sectHint}>arrived in the last week, not yet on the market</span>
+                <NavigationLink href={`/league/${leagueId}/transfers/free-agents`} className={styles.sectMore}>
+                  All {model.counts.newTransfers} in Free Agency →
+                </NavigationLink>
+              </div>
+
+              <div className={styles.newGrid}>
+                {model.newTransfers.map((p) => (
+                  <button
+                    key={p.id}
+                    type="button"
+                    className={styles.newCard}
+                    onClick={() => openPlayer(p as unknown as Player)}
+                    {...playerHoverProps(prefetchPlayer, p)}
+                  >
+                    <span className={`g-namerow ${styles.newTop}`}>
+                      <PositionBadge position={p.primary_position as GranularPosition} size="sm" />
+                      <span className={styles.newName}>{getPlayerDisplayName(p, 'initial_last')}</span>
+                      <span className={styles.closingCrest}><span className={styles.faDisc}>FA</span></span>
+                    </span>
+                    <span className={styles.newMeta}>
+                      {p.pl_team} · {p.market_value != null ? money(Number(p.market_value)) : '—'}
+                    </span>
+                    <span className={styles.newBadge}>{arrivedLabel(p.pl_team_changed_at, now)}</span>
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
+
           {/* ── Listings slice ──────────────────────────── */}
           <div className={`${styles.sect} ${styles.sectSpaced}`}>
             <h2 className={styles.sectTitle}>On the Listings Board</h2>
@@ -473,6 +508,14 @@ export default function MarketClient({
       )}
     </div>
   );
+}
+
+/** "New today", "New · 3d ago" — how long ago a transfer arrived. */
+function arrivedLabel(iso: string | null, now: number): string {
+  if (!iso) return 'New';
+  const days = Math.floor((now - new Date(iso).getTime()) / 86400_000);
+  if (days <= 0) return 'New today';
+  return `New · ${days}d ago`;
 }
 
 /** "4 min", "3 hr", "yesterday" — the wire's own sense of time. */

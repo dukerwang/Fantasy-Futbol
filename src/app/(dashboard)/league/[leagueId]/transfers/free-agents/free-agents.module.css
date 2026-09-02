@@ -133,6 +133,76 @@
   margin-top: var(--s1);
 }
 
+/* ── New transfers ──────────────────────────────────────── */
+
+.newTransfers {
+  padding: var(--s3) var(--s6);
+  border-top: 1px solid var(--color-border);
+  background: var(--color-bg-card);
+}
+
+.newTransfersTitle {
+  font-family: var(--font-serif);
+  font-weight: 700;
+  font-size: var(--t-17);
+  color: var(--color-text-primary);
+  margin: 0 0 var(--s2);
+}
+
+.newTransfersGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: var(--s2);
+}
+
+.newTransferCard {
+  display: block;
+  width: 100%;
+  text-align: left;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--r-shell);
+  background: var(--color-bg-primary);
+  padding: var(--s2) var(--s3);
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .newTransferCard:hover { background: var(--color-bg-card-hover); }
+}
+
+.newTransferTop { --g-chip-lift: 1.88px; }
+
+.newTransferName {
+  font-family: var(--font-serif);
+  font-weight: 700;
+  font-size: var(--t-15);
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+.newTransferMeta {
+  display: block;
+  font-size: var(--t-11);
+  color: var(--color-text-muted);
+  margin-top: var(--s1);
+}
+
+.newTransferBadge {
+  display: inline-block;
+  margin-top: var(--s1);
+  font-family: var(--font-condensed);
+  font-size: var(--t-10);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-accent-ink);
+}
+
 /* Live money: mono, because it ticks. */
 .chipPrice {
   font-family: var(--font-mono);

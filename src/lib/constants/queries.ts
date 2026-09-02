@@ -17,6 +17,7 @@ export const FULL_PLAYER_SELECT = `
   nationality,
   pl_team,
   pl_team_id,
+  pl_team_changed_at,
   primary_position,
   secondary_positions,
   market_value,

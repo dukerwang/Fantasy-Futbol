@@ -180,6 +180,8 @@ export interface TransfersCounts {
   listings: number;
   freeAgents: number;
   deals: number;
+  /** Free agents whose pl_team_changed_at falls within the last 7 days. */
+  newTransfers: number;
 }
 
 /**
@@ -273,6 +275,15 @@ export interface TransfersModel {
   rosterFull: boolean;
   academy: { current: number; max: number; age_limit: number };
   counts: TransfersCounts;
+  /**
+   * A preview of "New transfers" for the hub tile — free agents that arrived
+   * (or newly synced) in the last 7 days and have no auction against them.
+   * Capped; `counts.newTransfers` carries the real total. The Free Agents
+   * page's own pinned section fetches its own list via
+   * `GET /transfers/free-agents?newOnly=true` rather than reading this, the
+   * same way it never reads `playerMap` for its main table.
+   */
+  newTransfers: EnrichedPlayer[];
 }
 
 // ── Builder ───────────────────────────────────────────────────
@@ -319,6 +330,8 @@ export async function buildTransfersModel(
     { count: activePlayerCount },
     { data: resolvedRows },
     { data: rightRows },
+    { data: newArrivalRows },
+    { data: prevSeasonClubRows },
   ] = await Promise.all([
     admin
       .from('auction_state')
@@ -374,6 +387,23 @@ export async function buildTransfersModel(
       .select('id, team_id, player_id, status, market_value_at_departure')
       .eq('league_id', leagueId)
       .in('status', RIGHTS_HELD_STATUSES),
+    // "New transfers" candidates — players whose club changed (or who are
+    // brand new) in the last 7 days. Filtered down to the unowned, unauctioned
+    // subset below, once auctions/roster/rights sets exist to check against.
+    admin
+      .from('players')
+      .select(FULL_PLAYER_SELECT)
+      .eq('is_active', true)
+      .gte('pl_team_changed_at', new Date(Date.now() - 7 * 86400_000).toISOString())
+      .order('pl_team_changed_at', { ascending: false }),
+    // Who was already a Premier League player last season — the signal that
+    // separates a genuine arrival from an intra-league move. pl_team_changed_at
+    // alone fires for both (syncPlayers sets it on any pl_team change), and a
+    // player swapping one PL club for another isn't "new" the way loadDraftPool's
+    // isNewToPrem already defines it; this reuses that same definition.
+    league.previous_season
+      ? admin.from('player_season_clubs').select('player_id').eq('season', league.previous_season)
+      : Promise.resolve({ data: [] as { player_id: string }[] }),
   ]);
 
   const myClaimBy = new Map((myClaims ?? []).map((c) => [c.player_id, c]));
@@ -514,20 +544,42 @@ export async function buildTransfersModel(
   //   4. Retained rights: a player back in the Premier League under a live
   //      `return_pending` claim is `is_active` but has no roster row, so he
   //      must be subtracted here too or he double-counts as a free agent.
-  const rosteredActive = new Set(
+  const rosteredActiveIds = new Set(
     (rosterRows ?? [])
       .map((e) => (e as unknown as RosterEntryRow).player)
       .filter((p): p is EnrichedPlayer => Boolean(p?.is_active))
       .map((p) => p.id),
-  ).size;
-  const freeAgentAuctions = auctions.filter((a) => a.kind === 'free_agent').length;
-  const rightsHeldActive = new Set(
+  );
+  const freeAgentAuctionIds = new Set(
+    auctions.filter((a) => a.kind === 'free_agent').map((a) => a.player_id),
+  );
+  const rightsHeldActiveIds = new Set(
     (rightRows ?? []).filter((r) => playerMap[r.player_id]?.is_active).map((r) => r.player_id),
-  ).size;
+  );
   const freeAgents = Math.max(
     0,
-    (activePlayerCount ?? 0) - rosteredActive - freeAgentAuctions - rightsHeldActive,
+    (activePlayerCount ?? 0) - rosteredActiveIds.size - freeAgentAuctionIds.size - rightsHeldActiveIds.size,
   );
+
+  // "New transfers": of the recent pl_team_changed_at candidates, the ones
+  // that are (a) actually unowned and not already under an auction — a ≥£50m
+  // or promoted-club arrival already got swept into a system auction (see
+  // seedHighValueAuctions) and is visible that way instead — and (b) new to
+  // the Premier League rather than just moved between two PL clubs. Without
+  // (b), a same-league transfer (e.g. a player moving Palace → Forest) reads
+  // as "new" purely because his pl_team column changed, same as a first-time
+  // arrival — see loadDraftPool's isNewToPrem, the same distinction reused here.
+  const prevSeasonClubIds = new Set((prevSeasonClubRows ?? []).map((r) => r.player_id));
+  const hasSeasonBaseline = prevSeasonClubIds.size > 0;
+  const newTransfersAll = (newArrivalRows ?? [])
+    .filter(
+      (p) =>
+        !rosteredActiveIds.has(p.id) &&
+        !freeAgentAuctionIds.has(p.id) &&
+        !rightsHeldActiveIds.has(p.id) &&
+        (!hasSeasonBaseline || !prevSeasonClubIds.has(p.id)),
+    )
+    .map((p) => enrichPlayer(p, maps));
 
   // "Deals" is your desk, not the league's — everything awaiting your attention
   // or someone else's answer to you.
@@ -586,7 +638,9 @@ export async function buildTransfersModel(
       listings: (listings ?? []).length,
       freeAgents,
       deals,
+      newTransfers: newTransfersAll.length,
     },
+    newTransfers: newTransfersAll.slice(0, 8),
   };
 }
 

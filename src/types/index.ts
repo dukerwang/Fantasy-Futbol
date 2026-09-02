@@ -197,6 +197,7 @@ export interface Player {
   nationality: string | null;
   pl_team: string; // e.g. "Arsenal", "Liverpool"
   pl_team_id: number | null;
+  pl_team_changed_at: string | null; // set by syncPlayers when this row is new or its club just changed; null once stale
   primary_position: GranularPosition | null;
   secondary_positions: GranularPosition[];
   market_value: number | null; // in millions EUR (from Transfermarkt)

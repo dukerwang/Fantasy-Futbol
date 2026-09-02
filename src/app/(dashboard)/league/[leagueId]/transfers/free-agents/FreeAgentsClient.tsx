@@ -65,6 +65,7 @@ export default function FreeAgentsClient({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [bidFor, setBidFor] = useState<EnrichedPlayer | null>(null);
+  const [newTransfers, setNewTransfers] = useState<EnrichedPlayer[]>([]);
 
   useEffect(() => { setServerClock(model.serverNow); }, [model.serverNow]);
 
@@ -114,6 +115,25 @@ export default function FreeAgentsClient({
 
   useEffect(() => { load(); }, [load]);
 
+  // "New transfers" — a pinned highlight, fetched once and independent of the
+  // main table's own filters/sort/page, so it always shows who actually just
+  // arrived rather than whatever the current sort happens to surface.
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch(`/api/leagues/${leagueId}/transfers/free-agents?newOnly=true&pageSize=12`);
+        const data = await res.json();
+        if (cancelled || !res.ok) return;
+        setNewTransfers(data.players ?? []);
+        primePlayers((data.players ?? []) as unknown as Player[]);
+      } catch {
+        // Supplementary highlight — a failed fetch here shouldn't block the page.
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [leagueId, primePlayers]);
+
   // Free-agent auctions already running, shown above the table.
   const liveAuctions = useMemo(
     () => model.auctions.filter((a) => a.kind === 'free_agent'),
@@ -159,6 +179,30 @@ export default function FreeAgentsClient({
                 onBid={() => a.player && setBidFor(a.player)}
                 onOpen={() => a.player && openPlayer(a.player as unknown as Player)}
               />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {newTransfers.length > 0 && (
+        <section className={styles.newTransfers}>
+          <h2 className={styles.newTransfersTitle}>New transfers</h2>
+          <div className={styles.newTransfersGrid}>
+            {newTransfers.map((p) => (
+              <button
+                key={p.id}
+                type="button"
+                className={styles.newTransferCard}
+                onClick={() => openPlayer(p as unknown as Player)}
+                {...playerHoverProps(prefetchPlayer, p)}
+              >
+                <span className={`g-namerow ${styles.newTransferTop}`}>
+                  <PositionBadge position={p.primary_position as GranularPosition} size="sm" />
+                  <span className={styles.newTransferName}>{getPlayerDisplayName(p, 'initial_last')}</span>
+                </span>
+                <span className={styles.newTransferMeta}>{p.pl_team}</span>
+                <span className={styles.newTransferBadge}>{daysAgoLabel(p.pl_team_changed_at)}</span>
+              </button>
             ))}
           </div>
         </section>
@@ -307,6 +351,13 @@ export default function FreeAgentsClient({
       )}
     </div>
   );
+}
+
+/** "New today", "3d ago" — day granularity, no live tick needed. */
+function daysAgoLabel(iso: string | null): string {
+  if (!iso) return 'New';
+  const days = Math.floor((Date.now() - new Date(iso).getTime()) / 86400_000);
+  return days <= 0 ? 'New today' : `${days}d ago`;
 }
 
 /** A free-agent auction, compressed to a chip. */

@@ -14,6 +14,7 @@ function player(overrides: Partial<Player>): Player {
     nationality: 'England',
     pl_team: 'Everton',
     pl_team_id: 1,
+    pl_team_changed_at: null,
     primary_position: 'CB',
     secondary_positions: [],
     market_value: 12,

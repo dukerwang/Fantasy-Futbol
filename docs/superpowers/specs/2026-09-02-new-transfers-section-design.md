@@ -13,9 +13,12 @@ Surface recently-arrived free agents — informational only, no claim/bid action
 A player is a "new transfer" if:
 1. `players.pl_team_changed_at` is within the last 7 days, **and**
 2. The player is currently a free agent (unrostered), **and**
-3. The player has no live or system auction open against them.
+3. The player has no live or system auction open against them, **and**
+4. The player has no `player_season_clubs` row for the league's previous season.
 
 Condition 3 is what scopes this to the actual gap: a ≥£50m arrival or promoted-club player already has an auction and is already visible via its auction card, so it's excluded here rather than shown twice.
+
+Condition 4 is what keeps this to transfers *into* the Premier League. `pl_team_changed_at` fires for any change to a player's `pl_team` column (`syncPlayers.ts`), including a player moving between two existing PL clubs — e.g. a Crystal Palace player transferring to Nottingham Forest reads as "changed" exactly like a first-time arrival from La Liga does. `player_season_clubs` (not overwritten by the daily sync, unlike `players.pl_team`) is the record of who was already tracked as a PL player last season; no row there means the player wasn't part of last season's PL pool, which is the same definition `loadDraftPool.ts` already uses for `isNewToPrem`. Verified against live data: of 23 players with a `pl_team_changed_at` in the last 7 days, 11 had a previous-season PL club on record (intra-league moves — Muñoz, Martínez, Jackson, Marmoush, González, Delap, Pinnock, Disasi, Diouf, Baleba, Bentley) and were correctly excluded once this condition was added.
 
 The 7-day window rolls off naturally — no separate expiry job or "dismiss" action needed.
 

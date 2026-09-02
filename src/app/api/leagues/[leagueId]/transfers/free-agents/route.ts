@@ -17,6 +17,13 @@
  *   dir       asc | desc                                 (default desc)
  *   page      1-based                                    (default 1)
  *   pageSize  1..100                                     (default 40)
+ *   newOnly   true to return only players whose pl_team_changed_at falls
+ *             within the last 7 days AND who have no player_season_clubs row
+ *             for last season ("New transfers") — the second condition is
+ *             what excludes an intra-Prem move (pl_team_changed_at fires for
+ *             that too) from reading as a fresh arrival. Sorted newest first
+ *             regardless of `sort`/`dir` — this powers a pinned section, not
+ *             the main browse list, so it ignores the caller's sort choice
  *
  * Ordering and exclusion happen AFTER stat enrichment, deliberately. `ppg`,
  * `form_rating` and `total_points` are overwritten from
@@ -80,6 +87,7 @@ export async function GET(req: NextRequest, { params }: Props) {
   const desc = (sp.get('dir') ?? 'desc') !== 'asc';
   const page = Math.max(1, parseInt(sp.get('page') ?? '1', 10) || 1);
   const pageSize = Math.min(100, Math.max(1, parseInt(sp.get('pageSize') ?? '40', 10) || 40));
+  const newOnly = sp.get('newOnly') === 'true';
 
   // Who is unavailable: on any roster in this league, already in a live
   // auction (the board shows those, the free-agent list must not double them),
@@ -108,10 +116,28 @@ export async function GET(req: NextRequest, { params }: Props) {
     ...rightsHeld,
   ]);
 
+  // For newOnly: who was already a Premier League player last season, so a
+  // same-league transfer (pl_team_changed_at fires for that too) doesn't read
+  // as a "new transfer" the way a first-time PL arrival does. Same definition
+  // as loadDraftPool's isNewToPrem. Only fetched for this path — the regular
+  // browse list has no reason to care whether a player is PL-established.
+  let prevSeasonClubIds = new Set<string>();
+  if (newOnly && league.previous_season) {
+    const { data: prevSeasonClubRows } = await admin
+      .from('player_season_clubs')
+      .select('player_id')
+      .eq('season', league.previous_season);
+    prevSeasonClubIds = new Set((prevSeasonClubRows ?? []).map((r) => r.player_id));
+  }
+
   // SQL narrows; the rest is done post-enrichment.
   let query = admin.from('players').select(FULL_PLAYER_SELECT).eq('is_active', true);
   if (position) query = query.eq('primary_position', position);
   if (club) query = query.eq('pl_team', club);
+  if (newOnly) {
+    const cutoff = new Date(Date.now() - 7 * 86400_000).toISOString();
+    query = query.gte('pl_team_changed_at', cutoff);
+  }
 
   const { data: candidates, error } = await query;
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
@@ -126,6 +152,7 @@ export async function GET(req: NextRequest, { params }: Props) {
   const qFold = fold(q);
   const enriched = (candidates ?? [])
     .filter((p) => !excluded.has(p.id))
+    .filter((p) => !newOnly || prevSeasonClubIds.size === 0 || !prevSeasonClubIds.has(p.id))
     .filter((p) => {
       if (!qFold) return true;
       return fold(p.name).includes(qFold)
@@ -134,22 +161,26 @@ export async function GET(req: NextRequest, { params }: Props) {
     })
     .map((p) => enrichPlayer(p, maps));
 
+  const effectiveSortKey = newOnly ? 'pl_team_changed_at' : sortKey;
+  const effectiveDesc = newOnly ? true : desc;
   enriched.sort((a, b) => {
-    const av = (a as unknown as Record<string, unknown>)[sortKey];
-    const bv = (b as unknown as Record<string, unknown>)[sortKey];
-    if (sortKey === 'web_name') {
-      return desc
+    const av = (a as unknown as Record<string, unknown>)[effectiveSortKey];
+    const bv = (b as unknown as Record<string, unknown>)[effectiveSortKey];
+    if (effectiveSortKey === 'web_name') {
+      return effectiveDesc
         ? String(bv ?? '').localeCompare(String(av ?? ''))
         : String(av ?? '').localeCompare(String(bv ?? ''));
     }
     // Nulls always sort last regardless of direction — an unknown value is not
     // "the smallest", and floating them to the top of a desc sort is noise.
-    const an = av == null ? null : Number(av);
-    const bn = bv == null ? null : Number(bv);
+    // pl_team_changed_at is a timestamp string, so it's parsed as a date
+    // rather than Number()'d — the latter is NaN for an ISO string.
+    const an = av == null ? null : effectiveSortKey === 'pl_team_changed_at' ? new Date(String(av)).getTime() : Number(av);
+    const bn = bv == null ? null : effectiveSortKey === 'pl_team_changed_at' ? new Date(String(bv)).getTime() : Number(bv);
     if (an == null && bn == null) return 0;
     if (an == null) return 1;
     if (bn == null) return -1;
-    return desc ? bn - an : an - bn;
+    return effectiveDesc ? bn - an : an - bn;
   });
 
   const total = enriched.length;

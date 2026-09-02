@@ -269,6 +269,66 @@
   gap: var(--s3);
 }
 
+/* ── New transfers ──────────────────────────────────────── */
+
+.newGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: var(--s3);
+}
+
+.newCard {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--r-shell);
+  padding: var(--s3);
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .newCard:hover { background: var(--color-bg-card-hover); }
+}
+
+.newTop { --g-chip-lift: 2.25px; }
+
+.newName {
+  font-family: var(--font-serif);
+  font-weight: 700;
+  font-size: var(--t-15);
+  line-height: 1.05;
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+.newMeta {
+  display: block;
+  font-size: var(--t-11);
+  color: var(--color-text-muted);
+  margin-top: var(--s1);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.newBadge {
+  display: inline-block;
+  margin-top: var(--s2);
+  font-family: var(--font-condensed);
+  font-size: var(--t-10);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-accent-ink);
+}
+
 /* ── Doors ──────────────────────────────────────────────── */
 
 .doors {
