@@ -46,27 +46,34 @@ the algorithm never relaxes tactical eligibility to fill the display.
 Pitch is the first club view and is a read-only overview, not another lineup
 editor. It has two modes:
 
-- Projected XI is the default. It selects the strongest legal XI from players
-  eligible for a lineup, using the existing overall squad score. It considers
-  every supported formation and displays the highest-scoring legal result.
-- Saved lineup displays the club's upcoming saved lineup and its DEF, MID, ATT,
-  and FLEX bench. When no future saved lineup exists, its tab states that there
-  is no saved lineup and leaves Projected XI available.
+- Projected XI is the default. It selects the strongest legal matchday XI from
+  players eligible for a lineup. Its projection score combines Futbolpedia
+  outlook and structured outlook data when available, reference-season
+  performance and position rank, cautiously weighted early-season form,
+  availability, and expected minutes. Market value only resolves close calls.
+- Saved Lineup displays the editor's current lineup target. If that target has
+  no complete saved XI, the view falls back to the most recent valid saved
+  lineup rather than presenting an empty state when a saved side exists.
 
-The pitch header contains the Projected XI and Saved lineup mode control. It
-also displays the projected or saved formation. Selecting a player chip uses
-the existing selection path and updates the inspector rail or mobile detail
-surface.
+Both modes use one shared, read-only formation board that follows the lineup
+editor's established row geometry and player-node grammar. A row preserves
+left-to-right tactical order, such as LB, CB, CB, RB, and compact fixed-width
+nodes prevent narrow wide players or full-backs from collapsing the row.
 
-Position-grouped reserve strips follow the pitch. They show eligible lineup
-players who are not in the displayed XI, preserving the existing depth-chart
-role of making cover visible. Players who cannot be fielded, such as Academy
-and injured-reserve players, remain in the other club views and do not populate
-the projected XI.
+The club board has no named DEF/MID/ATT/FLEX bench. Each starter instead owns a
+small position-depth stack: the first eligible replacement sits beneath the
+starter and more compatible reserves appear as a count. It makes the pitch show
+who starts in a position and who covers that position. Academy, injured reserve,
+and loaned-out players do not populate projected depth.
+
+The pitch header contains the Projected XI and Saved Lineup mode control and
+the displayed formation. Selecting a player chip uses the existing selection
+path and updates the inspector rail or mobile detail surface.
 
 Saved lineup data is public enough for a club scouting view because opponents
 already need to see the same submitted team in their matchup context. The loader
-must request only the next relevant matchup and must not add client-side polling.
+must reuse the same edit-target and historical fallback rules as the editor and
+Squad Peek. It must not add client-side polling.
 
 ## Club controls
 
@@ -90,14 +97,16 @@ at least 44px high where the user performs an action.
 
 - The page-level view selector scrolls horizontally if required and does not
   shrink labels below readable size.
-- The pitch uses the available width and a controlled height. Player chips
-  retain a name, tactical position, and points without horizontal page scroll.
-- The Projected XI and Saved lineup control remains inside the pitch header.
+- The pitch uses the available width and a controlled height. Compact player
+  nodes retain a surname, tactical position, and projection indicator without
+  horizontal page scroll. Depth stacks remain tied to their starters.
+- The Projected XI and Saved Lineup control remains inside the pitch header.
 - To-do remains visible as a direct action. Filter and sort open bottom sheets
   with clear selected states and large tap targets instead of cramped native
   selects.
-- Bench and reserve strips stack below the pitch. The inspector uses the
-  existing mobile treatment rather than a sticky desktop rail.
+- Depth stacks remain attached to their starters, and subsequent club content
+  stacks below the pitch. The inspector uses the existing mobile treatment
+  rather than a sticky desktop rail.
 
 ## Architecture and data flow
 
@@ -107,15 +116,15 @@ then passes a fully resolved display model to the League Home section. The
 selection algorithm belongs in a pure helper so it can be unit-tested against
 formation and bench edge cases without querying Supabase.
 
-`loadClubView` gains the minimal upcoming-lineup data needed by the club pitch.
-The club-pitch projection and slot assignment are pure client derivations from
-the already loaded squad entries. The club client persists the selected page
-view using the existing local-storage convention. It does not persist the
-temporary pitch mode unless a later product decision requires that behavior.
+`loadClubView` gains the minimal saved-lineup target needed by the club pitch.
+The club-pitch projection and slot assignment are pure derivations from the
+loaded squad, outlook, and reference data. The club client persists the selected
+page view using the existing local-storage convention. It does not persist the
+temporary pitch mode.
 
-The pitch rendering primitives should be shared where practical, but the club
-view stays read-only and must not import editing, lock, or submission behavior
-from the team lineup editor.
+The shared read-only formation board serves Club Pitch and Team of the Week.
+It extracts the established geometric and node conventions from the editable
+lineup surface without importing editing, lock, or submission behavior.
 
 ## Accessibility and error handling
 
@@ -134,7 +143,8 @@ continues to use safe empty data.
 
 Add unit tests for Team of the Week formation selection, exact-slot secondary
 eligibility, deterministic tie-breaking, each bench slot, and empty bench
-slots. Add unit tests for projected club-XI selection and saved-lineup fallback.
+slots. Add unit tests for the matchday projection score, projected club-XI
+selection, same-position depth assignment, and saved-lineup fallback.
 Verify League Home and club views at desktop and narrow mobile widths in both
 themes, including keyboard navigation and touch-friendly controls. Run `npm
 test` and `npm run build` before declaring the work complete.
