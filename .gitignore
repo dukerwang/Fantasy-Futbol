@@ -66,5 +66,6 @@ tmp-chrome-profile/
 
 # Brainstorming skill's visual-companion mockups/state — scratch, not a deliverable.
 .superpowers/
+.codex/
 packages/*/node_modules
 scratch/hub-design/gaffa-player-hub.html
