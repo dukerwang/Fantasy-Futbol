@@ -1,6 +1,6 @@
 # AGENTS.md
 
-This file provides guidance to Antigravity and AI agents working in this repository.
+This file provides guidance to OpenAI Codex, Antigravity, and AI agents working in this repository.
 
 ## Project overview
 

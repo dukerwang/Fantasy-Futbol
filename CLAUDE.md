@@ -22,7 +22,7 @@ npm run download-team-logos                           # scripts/download-pl-team
 
 Tests run under **vitest** (`npm test` → `vitest run`). `vitest.config.ts` includes only `src/**/__tests__/**/*.test.ts`; widen that glob when tests land elsewhere. Current coverage: the scoring engine (`src/lib/scoring/__tests__/`), the economy modules (`src/lib/economy/__tests__/`) and the prize curve (`src/lib/offseason/__tests__/`).
 
-**Before declaring work done or pushing commits, run `npm run build` and make sure it passes.** This project has no CI; the build is the only correctness gate besides manual verification. (`.cursor/rules/project-context.mdc` encodes the same rule; it also references `CURSOR.md` and `GEMINI.md`, which no longer exist.)
+**Before declaring work done or pushing commits, run `npm run build` and make sure it passes.** This project has no CI; the build is the only correctness gate besides manual verification. (`.cursor/rules/project-context.mdc`, `.cursorrules`, and `AGENTS.md` encode the same rule.)
 
 `.claude/launch.json` defines dev servers on ports 3000 / 3010 (`next dev`) and 3005 (`next start`). Another session may already own one — check before starting or killing a server.
 
