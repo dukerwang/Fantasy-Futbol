@@ -40,7 +40,14 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  return NextResponse.json({ notifications: notifications ?? [] });
+  return NextResponse.json(
+    { notifications: notifications ?? [] },
+    {
+      headers: {
+        'Cache-Control': 'private, max-age=5, stale-while-revalidate=15',
+      },
+    }
+  );
 }
 
 // POST: mark notification(s) as read

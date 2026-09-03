@@ -95,11 +95,18 @@ export async function GET(req: NextRequest) {
 
   const totalUnread = lobbyUnreadCount + Object.values(dmUnreadCounts).reduce((a, b) => a + b, 0);
 
-  return NextResponse.json({
-    lobbyUnread: lobbyUnreadCount > 0,
-    lobbyUnreadCount,
-    dmUnreadCounts,
-    dmUnreadPeerIds: Object.keys(dmUnreadCounts),
-    totalUnread,
-  });
+  return NextResponse.json(
+    {
+      lobbyUnread: lobbyUnreadCount > 0,
+      lobbyUnreadCount,
+      dmUnreadCounts,
+      dmUnreadPeerIds: Object.keys(dmUnreadCounts),
+      totalUnread,
+    },
+    {
+      headers: {
+        'Cache-Control': 'private, max-age=5, stale-while-revalidate=10',
+      },
+    }
+  );
 }

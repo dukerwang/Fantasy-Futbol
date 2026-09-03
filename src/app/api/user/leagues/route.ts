@@ -36,5 +36,12 @@ export async function GET() {
     league: leagueMap.get(t.league_id) ?? { id: t.league_id, name: 'Unknown', status: 'active', season: '' },
   }));
 
-  return NextResponse.json({ teams: result });
+  return NextResponse.json(
+    { teams: result },
+    {
+      headers: {
+        'Cache-Control': 'private, max-age=10, stale-while-revalidate=30',
+      },
+    }
+  );
 }

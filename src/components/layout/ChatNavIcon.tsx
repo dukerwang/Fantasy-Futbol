@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
@@ -22,10 +22,25 @@ interface UnreadSummary {
 export default function ChatNavIcon({ leagueId, onNavigate }: ChatNavIconProps) {
   const pathname = usePathname();
   const chatContext = useLeagueChat();
+  const setUnreadSummary = chatContext?.setUnreadSummary;
+  const setUnreadSummaryRef = useRef(setUnreadSummary);
+  useEffect(() => {
+    setUnreadSummaryRef.current = setUnreadSummary;
+  }, [setUnreadSummary]);
+
   const [summary, setSummary] = useState<UnreadSummary>({ lobbyUnread: false, dmUnreadPeerIds: [] });
   const supabase = createClient();
+  const isFetchingRef = useRef(false);
+  const lastFetchedRef = useRef(0);
 
   const fetchUnread = useCallback(async () => {
+    if (!leagueId) return;
+    const now = Date.now();
+    // Throttle: never fetch more than once every 5 seconds and prevent overlapping requests
+    if (isFetchingRef.current || now - lastFetchedRef.current < 5000) return;
+    isFetchingRef.current = true;
+    lastFetchedRef.current = now;
+
     try {
       const res = await fetch(`/api/chat/unread?league_id=${leagueId}`);
       if (res.ok) {
@@ -35,14 +50,14 @@ export default function ChatNavIcon({ leagueId, onNavigate }: ChatNavIconProps) 
           dmUnreadPeerIds: data.dmUnreadPeerIds || [],
         };
         setSummary(unreadData);
-        if (chatContext?.setUnreadSummary) {
-          chatContext.setUnreadSummary(unreadData);
-        }
+        setUnreadSummaryRef.current?.(unreadData);
       }
     } catch (err) {
       console.error('Failed to fetch chat unread summary:', err);
+    } finally {
+      isFetchingRef.current = false;
     }
-  }, [leagueId, chatContext]);
+  }, [leagueId]);
 
   // Fetch on mount / league change, or when tab regains visibility
   useEffect(() => {
@@ -59,7 +74,7 @@ export default function ChatNavIcon({ leagueId, onNavigate }: ChatNavIconProps) 
     };
   }, [fetchUnread]);
 
-  // Instant badge on new messages, rather than waiting up to 60s for the next poll
+  // Instant badge on new messages, rather than waiting for next poll
   useEffect(() => {
     let currentUserId: string | null = null;
 
@@ -78,7 +93,7 @@ export default function ChatNavIcon({ leagueId, onNavigate }: ChatNavIconProps) 
           if (msg.recipient_id === null) {
             setSummary((prev) => {
               const updated = { ...prev, lobbyUnread: true };
-              chatContext?.setUnreadSummary?.(updated);
+              setUnreadSummaryRef.current?.(updated);
               return updated;
             });
           } else if (currentUserId && msg.recipient_id === currentUserId && msg.sender_id) {
@@ -87,7 +102,7 @@ export default function ChatNavIcon({ leagueId, onNavigate }: ChatNavIconProps) 
               const updated = prev.dmUnreadPeerIds.includes(senderId)
                 ? prev
                 : { ...prev, dmUnreadPeerIds: [...prev.dmUnreadPeerIds, senderId] };
-              chatContext?.setUnreadSummary?.(updated);
+              setUnreadSummaryRef.current?.(updated);
               return updated;
             });
           }
@@ -98,8 +113,7 @@ export default function ChatNavIcon({ leagueId, onNavigate }: ChatNavIconProps) 
     return () => {
       supabase.removeChannel(channel);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [leagueId, chatContext]);
+  }, [leagueId, supabase]);
 
   // Sync with chatContext if it updates unreadSummary
   const effectiveSummary = chatContext ? chatContext.unreadSummary : summary;

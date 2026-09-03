@@ -133,24 +133,7 @@ function LeagueChatWidgetContent({
     };
   }, [leagueId, isOpen, isMinimized, currentUserId]);
 
-  // Sync initial unread state
-  useEffect(() => {
-    const fetchUnread = async () => {
-      try {
-        const res = await fetch(`/api/chat/unread?league_id=${leagueId}`);
-        if (res.ok) {
-          const data = await res.json();
-          setUnreadSummary({
-            lobbyUnread: !!data.lobbyUnread,
-            dmUnreadPeerIds: data.dmUnreadPeerIds || [],
-          });
-        }
-      } catch (err) {
-        console.error('Failed to fetch unread summary in widget:', err);
-      }
-    };
-    fetchUnread();
-  }, [leagueId, setUnreadSummary]);
+
 
   // Mark conversation read helper
   const markRead = useCallback(
