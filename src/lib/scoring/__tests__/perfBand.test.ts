@@ -383,4 +383,54 @@ describe('rank anchors', () => {
         // A non-feat group on the same match still anchors.
         expect(groups.find((g) => g.key === 'involvement')!.rank).toBeDefined();
     });
+
+    it('keeps a brace on the ordinary percentile ladder rather than triggering Devastating', () => {
+        // 2 goals = 12 raw GI -> featExcess = (12 - 11.5) / 6 = 0.083
+        const stats = {
+            minutes_played: 90,
+            goals: 2,
+            assists: 0,
+            threat: 75,
+            expected_goals: 1.2,
+        } as unknown as RawStats;
+        const excess = featExcessFor(stats, 'ST');
+        expect(excess).toBeCloseTo(0.083, 2);
+
+        const groups = buildPerformanceGroups(flat(0.90), 'ST', stats, excess);
+        const attacking = groups.find((g) => g.key === 'attacking')!;
+        // Attacking stays on ordinary ladder (Ruthless or Rampant), with rank anchor shown
+        expect(attacking.band).not.toBe('feat');
+        expect(attacking.band).not.toBe('feat2');
+        expect(['Decisive', 'Ruthless', 'Rampant']).toContain(attacking.verdict);
+        expect(attacking.rank).toBeDefined();
+    });
+
+    it('triggers Devastating on a hat-trick and Unplayable on 4 goals', () => {
+        const htStats = { minutes_played: 90, goals: 3, assists: 0 } as unknown as RawStats;
+        const htExcess = featExcessFor(htStats, 'ST');
+        expect(htExcess).toBeGreaterThanOrEqual(1.0);
+        const htGroups = buildPerformanceGroups(flat(0.95), 'ST', htStats, htExcess);
+        const htAttacking = htGroups.find((g) => g.key === 'attacking')!;
+        expect(htAttacking.band).toBe('feat');
+        expect(htAttacking.verdict).toBe('Devastating');
+
+        const pokerStats = { minutes_played: 90, goals: 4, assists: 0 } as unknown as RawStats;
+        const pokerExcess = featExcessFor(pokerStats, 'ST');
+        expect(pokerExcess).toBeGreaterThanOrEqual(2.0);
+        const pokerGroups = buildPerformanceGroups(flat(0.95), 'ST', pokerStats, pokerExcess);
+        const pokerAttacking = pokerGroups.find((g) => g.key === 'attacking')!;
+        expect(pokerAttacking.band).toBe('feat2');
+        expect(pokerAttacking.verdict).toBe('Unplayable');
+    });
+
+    it('triggers Virtuoso for elite creativity even with sub-unit excess', () => {
+        const creativeStats = { minutes_played: 90, goals: 0, assists: 0, creativity: 95 } as unknown as RawStats;
+        const excess = featExcessFor(creativeStats, 'AM');
+        expect(excess).toBeGreaterThan(0);
+        expect(excess).toBeLessThan(1.0);
+        const groups = buildPerformanceGroups(flat(0.95), 'AM', creativeStats, excess);
+        const creating = groups.find((g) => g.key === 'creating')!;
+        expect(creating.band).toBe('feat');
+        expect(creating.verdict).toBe('Virtuoso');
+    });
 });

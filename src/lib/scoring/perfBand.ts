@@ -724,11 +724,18 @@ export function buildPerformanceGroups(
         // reach them. Attacking owns the goal feat; Creating owns the creative
         // one. Never both in the same match — no appearance in 2025-26 fired
         // both triggers.
+        //
+        // Attacking requires at least 1.0 unit of excess (featExcess >= 1.0, e.g. a hat-trick
+        // or 1G+3A) to trigger `feat` ("Devastating"). Sub-unit excess (such as a brace at 0.08
+        // units) stays on the ordinary percentile ladder (Ruthless/Rampant), preventing
+        // "Devastating" from becoming the default for every 2-goal game.
+        // Creating triggers when the creative feat fires (creativity >= 90, featExcess > 0).
         if (featExcess > 0 && (key === 'attacking' || key === 'creating')) {
             const goalFeat =
                 n(stats.goals) * FEAT_GI_UNIT + n(stats.assists) * 4 > FEAT_GI_SATURATION_RAW;
             const owns = key === 'attacking' ? goalFeat : !goalFeat;
-            if (owns) band = featExcess >= 2 ? 'feat2' : 'feat';
+            const qualifies = key === 'attacking' ? featExcess >= 1.0 : featExcess > 0;
+            if (owns && qualifies) band = featExcess >= 2 ? 'feat2' : 'feat';
         }
 
         const isFeat = band === 'feat' || band === 'feat2';
