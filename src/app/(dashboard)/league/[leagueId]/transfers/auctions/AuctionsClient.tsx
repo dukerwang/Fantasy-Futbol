@@ -655,7 +655,7 @@ function Lot({
                   </button>
                   {clause != null && (
                     <button type="button" className={`${styles.q} ${styles.qGold}`} onClick={onClause}>
-                      Clause
+                      Buyout
                     </button>
                   )}
                 </div>

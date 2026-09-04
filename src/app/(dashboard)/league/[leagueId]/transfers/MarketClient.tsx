@@ -278,7 +278,7 @@ export default function MarketClient({
           {model.newTransfers.length > 0 && (
             <>
               <div className={`${styles.sect} ${styles.sectSpaced}`}>
-                <h2 className={styles.sectTitle}>New transfers</h2>
+                <h2 className={styles.sectTitle}>New Transfers</h2>
                 <span className={styles.sectHint}>arrived in the last week, not yet on the market</span>
                 <NavigationLink href={`/league/${leagueId}/transfers/free-agents`} className={styles.sectMore}>
                   All {model.counts.newTransfers} in Free Agency →

@@ -236,7 +236,7 @@ export default function ListingCard({
             )}
             {listing.buy_now_price != null && (
               <button type="button" className={styles.action} onClick={() => onClause?.(listing)}>
-                Clause
+                Buyout
               </button>
             )}
             {!live && (

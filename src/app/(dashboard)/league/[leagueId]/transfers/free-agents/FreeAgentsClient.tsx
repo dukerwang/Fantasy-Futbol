@@ -189,7 +189,7 @@ export default function FreeAgentsClient({
 
       {newTransfers.length > 0 && (
         <section className={styles.newTransfers}>
-          <h2 className={styles.newTransfersTitle}>New transfers</h2>
+          <h2 className={styles.newTransfersTitle}>New Transfers</h2>
           <div className={styles.newTransfersGrid}>
             {newTransfers.map((p) => (
               <button
