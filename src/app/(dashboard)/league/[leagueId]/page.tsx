@@ -10,7 +10,7 @@ import PreDraftLobby from './PreDraftLobby';
 import { Masthead } from './_home/Masthead';
 import Attention from './_home/Attention';
 import Fixture, { SeasonClosed } from './_home/Fixture';
-import { Market, Fronts, Matchweek, StandingsTable, TeamOfWeek } from './_home/Sections';
+import { Market, Fronts, Matchweek, StandingsTable, TopPerformers } from './_home/Sections';
 import Rail from './_home/Rail';
 import { HeroTabProvider } from './_home/HeroTabContext';
 import styles from './_home/home.module.css';
@@ -167,7 +167,7 @@ export default async function LeaguePage({ params }: Props) {
             <Fronts model={model} />
             <Matchweek model={model} />
             <StandingsTable model={model} />
-            <TeamOfWeek model={model} />
+            <TopPerformers model={model} />
           </main>
 
           <Rail model={model} />

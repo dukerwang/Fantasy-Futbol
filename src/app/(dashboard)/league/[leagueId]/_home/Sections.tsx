@@ -1,9 +1,6 @@
-'use client';
-
 import NavigationLink from '@/components/ui/NavigationLink';
 import CrestBadge from '@/components/crest/CrestBadge';
 import PositionBadge from '@/components/players/PositionBadge';
-import ReadOnlyFormationBoard, { type FormationBoardSlot } from '@/components/formation/ReadOnlyFormationBoard';
 import type { CrestConfig } from '@/components/crest/types';
 import type { GranularPosition } from '@/types';
 import type { HomeModel } from '@/lib/home/buildHomeModel';
@@ -389,62 +386,41 @@ export function StandingsTable({ model }: { model: HomeModel }) {
 }
 
 /**
- * Team of the Week.
+ * Top performers.
  *
- * The highest-scoring legal XI from the latest completed gameweek, plus the
- * same four semantic bench slots the lineup editor uses.
+ * League-wide top five by fantasy points for the most recently completed
+ * gameweek. Not actionable — most of these players aren't on your roster —
+ * but it's the scoreboard headline every manager in the league lived through.
  */
-export function TeamOfWeek({ model }: { model: HomeModel }) {
-  const team = model.teamOfWeek;
-  if (!team) return null;
-  const slots: FormationBoardSlot[] = team.starters.map((player) => ({
-    slot: player.slot as GranularPosition,
-    player: {
-      id: player.playerId,
-      name: player.name,
-      club: player.club,
-      photoUrl: player.photoUrl,
-      photoVersion: player.photoVersion,
-      headTopPct: player.portraitHeadTopPct,
-      headWidthPct: player.portraitHeadWidthPct,
-      detail: player.owner,
-      marker: player.points,
-    },
-  }));
+export function TopPerformers({ model }: { model: HomeModel }) {
+  if (model.topPerformers.length === 0) return null;
 
   return (
-    <section aria-label="Team of the Week">
+    <section aria-label="Top performers">
       <div className={styles.sect}>
-        <h2 className={styles.sectT}>Team of the Week</h2>
-        <span className={styles.sectHint}>gameweek {model.teamOfWeekGw} · {team.formation} · {team.total} pts</span>
+        <h2 className={styles.sectT}>Top Performers</h2>
+        <span className={styles.sectHint}>gameweek {model.topPerformersGw}</span>
         <NavigationLink href={`/league/${model.leagueId}/stats`} className={styles.sectMore}>
           Full stats &rarr;
         </NavigationLink>
       </div>
-      <div className={styles.tow}>
-        <ReadOnlyFormationBoard formation={team.formation} slots={slots} ariaLabel="Team of the Week formation" emptyLabel="No eligible Team of the Week is available." />
-        <div className={styles.towBench}>
-          <div className={styles.towBenchHead}>
-            <h3>Bench</h3>
-            <span className="g-label">Best remaining scores</span>
-          </div>
-          <div className={styles.towBenchGrid}>
-            {Object.entries(team.bench).map(([slot, player]) => (
-              <div className={styles.towBenchSlot} key={slot}>
-                <span className={styles.towBenchSlotLabel}>{slot}</span>
-                {player ? (
-                  <>
-                    <div className={styles.towBenchName}>{player.name}</div>
-                    <div className={styles.towBenchMeta}>{player.club} · {player.owner}</div>
-                    <div className={styles.towBenchPoints}>{player.points} pts</div>
-                  </>
-                ) : (
-                  <span className={styles.towBenchEmpty}>No eligible player</span>
-                )}
+      <div className={styles.yg}>
+        {model.topPerformers.map((p) => (
+          <div key={p.playerId} className={styles.ygRow}>
+            <div className={styles.ygPlayer}>
+              <PositionBadge position={p.position as GranularPosition} size="sm" />
+              <div className={styles.ygPlayerBody}>
+                <div className={styles.ygName}>{p.name}</div>
+                <div className={styles.ygClub}>{p.club}</div>
               </div>
-            ))}
+            </div>
+            <div className={styles.ygOwner}>{p.owner}</div>
+            <div className={styles.ygVal}>
+              <div className={styles.ygValV}>{p.points}</div>
+              <div className={styles.ygValL}>pts</div>
+            </div>
           </div>
-        </div>
+        ))}
       </div>
     </section>
   );
