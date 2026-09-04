@@ -560,7 +560,7 @@ export default function MatchupPitch({
             </div>
 
             {/* ── Halves ────────────────────────────────────────────── */}
-            <div className={styles.halves}>
+            <div className={styles.pitchGrid}>
                 {renderHalf(zonesA, resolvedA.starters.length > 0, teamAName, teamAId, crestA, 'a', lineupA?.formation)}
                 {renderHalf(zonesB, resolvedB.starters.length > 0, teamBName, teamBId, crestB, 'b', lineupB?.formation)}
             </div>
