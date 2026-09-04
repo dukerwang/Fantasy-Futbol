@@ -294,6 +294,35 @@
     padding: var(--s3) var(--s4);
 }
 
+.rowMidfieldFour {
+    justify-content: space-between !important;
+    padding: 0 var(--s4) !important;
+}
+
+.rowATTCompact {
+    justify-content: center !important;
+    gap: clamp(20px, 6vw, 44px) !important;
+}
+
+.rowAMZWide {
+    justify-content: center !important;
+    gap: clamp(115px, 32vw, 240px) !important;
+}
+
+.rowDMZPivot {
+    justify-content: center !important;
+    gap: clamp(20px, 6vw, 44px) !important;
+}
+
+.rowAMZCompact {
+    justify-content: center !important;
+    gap: clamp(56px, 14vw, 96px) !important;
+}
+
+.rowCMZWide {
+    justify-content: space-around !important;
+}
+
 /* An unset lineup. It rendered as a bare green rectangle several hundred pixels
    tall with nothing in it at all — absence shown is fine, absence shown as a
    void is not. Sits over the zones so it reads as "this pitch is empty" rather

@@ -6,6 +6,7 @@ import type { Matchup, MatchupLineup, Player, RawStats } from '@/types';
 import MatchupPitch from '@/components/MatchupPitch';
 import { FULL_PLAYER_SELECT } from '@/lib/constants/queries';
 import { normalizeMatchupLineup } from '@/lib/lineups/normalizeMatchupLineup';
+import { getEffectiveLineupForTeam } from '@/lib/lineups/carryForward';
 import { generateMatchReport } from '@/lib/narrative/matchReport';
 import { getCurrentFplSeason, getLatestReferenceStatsSeason } from '@/lib/season/currentSeason';
 import {
@@ -80,8 +81,18 @@ export default async function MatchupDetailPage({ params }: Props) {
         team_b: { id: string; team_name: string; crest_config: any } | null;
     };
 
-    const lineupA = normalizeMatchupLineup(matchup.lineup_a as MatchupLineup | null);
-    const lineupB = normalizeMatchupLineup(matchup.lineup_b as MatchupLineup | null);
+    const lineupA = await getEffectiveLineupForTeam(admin, {
+        teamId: matchup.team_a_id,
+        gameweek: matchup.gameweek,
+        currentLineup: matchup.lineup_a as MatchupLineup | null,
+    });
+    const lineupB = matchup.team_b_id
+        ? await getEffectiveLineupForTeam(admin, {
+            teamId: matchup.team_b_id,
+            gameweek: matchup.gameweek,
+            currentLineup: matchup.lineup_b as MatchupLineup | null,
+        })
+        : null;
 
     const playerIds = new Set<string>();
     lineupA?.starters.forEach((s) => playerIds.add(s.player_id));

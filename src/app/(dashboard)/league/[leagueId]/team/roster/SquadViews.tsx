@@ -1,14 +1,15 @@
 'use client';
 
-import { useMemo } from 'react';
-import type { GranularPosition, Player } from '@/types';
+import { useMemo, useState } from 'react';
+import { ALL_FORMATIONS, type Formation, type GranularPosition, type MatchupLineup, type Player } from '@/types';
 import { getPlayerDisplayName } from '@/lib/players/displayName';
 import Portrait from '@/components/players/Portrait';
 import PositionBadge from '@/components/players/PositionBadge';
-import type { SquadEntry } from './ClubClient';
+import ReadOnlyFormationBoard, { type FormationBoardPlayer, type FormationBoardSlot } from '@/components/formation/ReadOnlyFormationBoard';
+import type { ClubProps, SquadEntry } from './ClubClient';
 import {
   ZONES, statusMeta, INJURY, posColor,
-  money, ppgOf, seasonPts, valueOf, ageOf, formationReport, shortages,
+  money, ppgOf, seasonPts, valueOf, ageOf, formationReport, shortages, projectedLineup, projectedScores,
 } from './clubDerive';
 import styles from './club.module.css';
 
@@ -196,6 +197,209 @@ export function DepthChart({
           {okCount} of {forms.length} available.{needLine ? ` To unlock the rest, sign: ${needLine}.` : ''}{' '}
           Injured and Academy players are excluded — neither can be slotted into a lineup.
         </p>
+      </div>
+    </section>
+  );
+}
+
+// ── Read-only club pitch ───────────────────────────────────────────────────
+
+function boardPlayer(entry: SquadEntry): FormationBoardPlayer {
+  const player = entry.player;
+  return {
+    id: player.id,
+    name: getPlayerDisplayName(player, 'initial_last'),
+    club: player.pl_team,
+    photoUrl: player.photo_url,
+    photoVersion: player.photo_version,
+    headTopPct: player.portrait_head_top_pct,
+    headWidthPct: player.portrait_head_width_pct,
+    detail: player.market_value ? `£${player.market_value}M` : null,
+  };
+}
+
+function matchesSlot(entry: SquadEntry, slot: GranularPosition): boolean {
+  return entry.player.primary_position === slot || (entry.player.secondary_positions ?? []).includes(slot);
+}
+
+function pitchDepth(
+  starters: { playerId: string; slot: GranularPosition }[],
+  entries: SquadEntry[],
+  byPlayerId: Map<string, SquadEntry>,
+  scores: Record<string, number>,
+): FormationBoardSlot[] {
+  const starterIds = new Set(starters.map((starter) => starter.playerId));
+  const available = entries
+    .filter((entry) => ['active', 'bench', 'loan_in'].includes(entry.status) && !starterIds.has(entry.player.id))
+    .sort((a, b) => (scores[b.id] ?? 0) - (scores[a.id] ?? 0));
+
+  // 1. Calculate candidate scarcity per unique position in formation
+  const starterPositions = starters.map((s) => s.slot);
+  const uniquePositions = Array.from(new Set(starterPositions));
+  const poolCount: Record<string, number> = {};
+  for (const pos of uniquePositions) {
+    poolCount[pos] = available.filter((e) => matchesSlot(e, pos)).length;
+  }
+
+  // 2. Sort available bench players by their most constrained position (lowest poolCount), then by score
+  const benchSorted = [...available].sort((a, b) => {
+    const aMinPool = Math.min(...uniquePositions.filter((p) => matchesSlot(a, p)).map((p) => poolCount[p] ?? 99), 99);
+    const bMinPool = Math.min(...uniquePositions.filter((p) => matchesSlot(b, p)).map((p) => poolCount[p] ?? 99), 99);
+    if (aMinPool !== bMinPool) return aMinPool - bMinPool;
+    return (scores[b.id] ?? 0) - (scores[a.id] ?? 0);
+  });
+
+  // 3. Assign each bench player to AT MOST ONE starter slot that needs them most
+  const assignedBySlot = new Map<number, SquadEntry[]>();
+  starters.forEach((_, idx) => assignedBySlot.set(idx, []));
+
+  for (const benchPlayer of benchSorted) {
+    const eligibleSlotIndices = starters
+      .map((s, idx) => ({ s, idx }))
+      .filter(({ s }) => matchesSlot(benchPlayer, s.slot));
+
+    if (eligibleSlotIndices.length === 0) continue;
+
+    // Prioritize slots with the fewest currently assigned depth players,
+    // breaking ties by position scarcity (poolCount)
+    eligibleSlotIndices.sort((a, b) => {
+      const aCount = assignedBySlot.get(a.idx)!.length;
+      const bCount = assignedBySlot.get(b.idx)!.length;
+      if (aCount !== bCount) return aCount - bCount;
+      return (poolCount[a.s.slot] ?? 99) - (poolCount[b.s.slot] ?? 99);
+    });
+
+    const targetSlotIndex = eligibleSlotIndices[0].idx;
+    assignedBySlot.get(targetSlotIndex)!.push(benchPlayer);
+  }
+
+  return starters.map((starter, idx) => {
+    const entry = byPlayerId.get(starter.playerId);
+    const assigned = assignedBySlot.get(idx) ?? [];
+
+    return {
+      slot: starter.slot,
+      player: entry ? boardPlayer(entry) : null,
+      depth: assigned.map(boardPlayer),
+    };
+  });
+}
+
+export function ClubPitch({
+  entries, savedLineup, selId, onSelect,
+}: {
+  entries: SquadEntry[];
+  savedLineup: ClubProps['savedLineup'];
+  selId: string | null;
+  onSelect: (id: string) => void;
+}) {
+  const [mode, setMode] = useState<'projected' | 'saved'>('projected');
+  const [selectedFormation, setSelectedFormation] = useState<Formation | null>(null);
+
+  const availableFormations = useMemo(() => {
+    const list = formationReport(entries);
+    return new Map<Formation, boolean>(list.map((f: { name: Formation; ok: boolean }) => [f.name, f.ok]));
+  }, [entries]);
+
+  const projected = useMemo(
+    () => projectedLineup(entries, selectedFormation),
+    [entries, selectedFormation],
+  );
+  const scores = useMemo(() => projectedScores(entries), [entries]);
+  const byPlayerId = useMemo(() => new Map(entries.map((entry) => [entry.player.id, entry])), [entries]);
+  const saved: MatchupLineup | null = savedLineup?.lineup ?? null;
+
+  const starters = useMemo<{ playerId: string; slot: GranularPosition }[]>(
+    () => mode === 'saved' && saved
+      ? saved.starters.map((starter) => ({
+          playerId: starter.player_id ?? (starter as unknown as { playerId: string }).playerId,
+          slot: starter.slot,
+        }))
+      : projected?.starters ?? [],
+    [mode, projected, saved],
+  );
+
+  const boardSlots = useMemo(
+    () => pitchDepth(starters, entries, byPlayerId, scores),
+    [starters, entries, byPlayerId, scores],
+  );
+
+  const activeFormation = mode === 'saved' ? saved?.formation : (selectedFormation ?? projected?.formation);
+  const modeLabel = mode === 'saved'
+    ? saved ? `Saved Lineup · GW${savedLineup?.gameweek}` : 'No Saved Lineup'
+    : projected ? 'Projected XI · matchday outlook' : 'No legal XI';
+
+  return (
+    <section className={`${styles.panel} ${styles.clubPitch} g-panel`} aria-label="Squad Pitch">
+      <div className={styles.pitchHead}>
+        <div>
+          <h2 className={styles.panelTitle}>Squad Pitch</h2>
+          <p className={styles.pitchCaption}>{modeLabel}{activeFormation ? ` · ${activeFormation}` : ''}</p>
+        </div>
+        <div className={styles.pitchMode} role="group" aria-label="Pitch mode">
+          <button
+            type="button"
+            className={mode === 'projected' ? styles.pitchModeOn : undefined}
+            aria-pressed={mode === 'projected'}
+            onClick={() => setMode('projected')}
+          >
+            Projected XI
+          </button>
+          <button
+            type="button"
+            className={mode === 'saved' ? styles.pitchModeOn : undefined}
+            aria-pressed={mode === 'saved'}
+            onClick={() => setMode('saved')}
+          >
+            Saved Lineup
+          </button>
+        </div>
+      </div>
+
+      {mode === 'projected' && (
+        <div className={styles.formationBar}>
+          <span className={styles.formationBarLabel}>Formation:</span>
+          <div className={styles.formationPills} role="group" aria-label="Select formation">
+            <button
+              type="button"
+              className={`${styles.formationPill} ${selectedFormation === null ? styles.formationPillActive : ''}`}
+              onClick={() => setSelectedFormation(null)}
+            >
+              Auto ({projected?.formation ?? 'Best'})
+            </button>
+            {ALL_FORMATIONS.map((f) => {
+              const isFeasible = availableFormations.get(f) ?? true;
+              const isActive = (selectedFormation ?? projected?.formation) === f;
+              return (
+                <button
+                  key={f}
+                  type="button"
+                  className={`${styles.formationPill} ${isActive ? styles.formationPillActive : ''}`}
+                  onClick={() => setSelectedFormation(f)}
+                  disabled={!isFeasible}
+                  title={!isFeasible ? 'Squad lacks eligible players for this formation' : undefined}
+                >
+                  {f}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      <div className={styles.clubPitchField}>
+        <ReadOnlyFormationBoard
+          formation={activeFormation}
+          slots={boardSlots}
+          ariaLabel={`${modeLabel}${activeFormation ? ` in a ${activeFormation}` : ''}`}
+          emptyLabel={mode === 'saved' ? 'No saved lineup has been submitted yet. Switch to Projected XI to view the recommended matchday side.' : 'This squad cannot make a legal XI yet.'}
+          selectedPlayerId={entries.find((entry) => entry.id === selId)?.player.id}
+          onSelectPlayer={(playerId) => {
+            const entry = byPlayerId.get(playerId);
+            if (entry) onSelect(entry.id);
+          }}
+          variant="deck"
+        />
       </div>
     </section>
   );

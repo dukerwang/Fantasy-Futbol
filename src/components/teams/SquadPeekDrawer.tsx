@@ -160,8 +160,24 @@ export default function SquadPeekDrawer({
                         (s) => (SLOT_TO_ZONE[s.slot] ?? 'CMZ') === zone,
                       );
                       if (row.length === 0) return null;
+                      const f = data.lineup!.formation;
+                      const is4222 = f === '4-2-2-2';
+                      const is4321 = f === '4-3-2-1';
+                      let rowMod = '';
+                      if (zone === 'ATT') {
+                        if (is4222) rowMod = styles.pitchRowATTCompact;
+                      } else if (zone === 'WBZ') {
+                        rowMod = styles.pitchRowWBZ;
+                      } else if (zone === 'AMZ') {
+                        if (is4222) rowMod = styles.pitchRowAMZWide;
+                        else if (is4321) rowMod = styles.pitchRowAMZCompact;
+                      } else if (zone === 'CMZ') {
+                        if (is4321) rowMod = styles.pitchRowCMZWide;
+                      } else if (zone === 'DMZ') {
+                        if (is4222) rowMod = styles.pitchRowDMZPivot;
+                      }
                       return (
-                        <div key={zone} className={`${styles.pitchRow} ${zone === 'WBZ' ? styles.pitchRowWBZ : ''}`}>
+                        <div key={zone} className={`${styles.pitchRow} ${rowMod}`}>
                           {row.map((s, i) => (
                             <Chip key={`${zone}-${i}`} slot={s.slot} player={s.player} />
                           ))}

@@ -885,30 +885,19 @@
 .pipL { composes: pip; background: var(--color-danger); color: var(--color-on-danger); }
 .prize { font-family: var(--font-serif); font-weight: 700; color: var(--color-text-muted); font-variant-numeric: tabular-nums; }
 
-/* ---------- top performers ---------- */
-.yg { border: var(--line-strong); border-radius: var(--r-shell); background: var(--color-bg-card); overflow: hidden; }
-.ygRow {
-  display: grid;
-  grid-template-columns: 178px minmax(0, 1fr) 66px;
-  align-items: center;
-  gap: var(--s4);
-  padding: var(--s3) var(--s5);
-  border-bottom: var(--line);
-}
-.ygRow:last-of-type { border-bottom: 0; }
-.ygPlayer { display: flex; align-items: center; gap: var(--s2); min-width: 0; }
-.ygName { font-size: var(--t-13); font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.ygClub { font-size: var(--t-10); color: var(--color-text-muted); }
-.ygOwner { font-size: var(--t-12); color: var(--color-text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.ygVal { text-align: right; }
-.ygValV {
-  font-family: var(--font-serif);
-  font-weight: 700;
-  font-size: var(--t-17);
-  line-height: 1;
-  font-variant-numeric: tabular-nums;
-}
-.ygValL { font-size: var(--t-10); color: var(--color-text-muted); margin-top: 2px; }
+/* ---------- Team of the Week ---------- */
+.tow { border: var(--line-strong); border-radius: var(--r-shell); background: var(--color-bg-card); overflow: hidden; }
+.towBench { border-top: var(--line); }
+.towBenchHead { display: flex; align-items: baseline; justify-content: space-between; gap: var(--s3); padding: var(--s3) var(--s4); }
+.towBenchHead h3 { margin: 0; font-family: var(--font-serif); font-size: var(--t-17); }
+.towBenchGrid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: 1px solid var(--color-border-subtle); }
+.towBenchSlot { min-width: 0; min-height: 86px; padding: var(--s3) var(--s4); }
+.towBenchSlot + .towBenchSlot { border-left: 1px solid var(--color-border-subtle); }
+.towBenchSlotLabel { display: block; font-family: var(--font-condensed); font-size: var(--t-10); font-weight: 700; letter-spacing: .08em; color: var(--color-text-muted); }
+.towBenchName { margin-top: var(--s1); font-size: var(--t-12); font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.towBenchMeta { margin-top: 2px; font-size: var(--t-10); color: var(--color-text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.towBenchPoints { margin-top: var(--s1); font-family: var(--font-serif); font-size: var(--t-13); font-weight: 700; font-variant-numeric: tabular-nums; }
+.towBenchEmpty { display: block; margin-top: var(--s2); font-size: var(--t-11); color: var(--color-text-muted); }
 
 /* ---------- rail ---------- */
 .railCard { border: var(--line-strong); border-radius: var(--r-shell); background: var(--color-bg-card); overflow: hidden; }
@@ -1020,7 +1009,6 @@
 @media (max-width: 820px) {
   .fronts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .closedMoney, .stages { grid-template-columns: 1fr; }
-  .ygRow { grid-template-columns: 150px minmax(0, 1fr) 58px; }
 
   .mktHead { display: none; }
   .mktHd {
@@ -1213,20 +1201,8 @@
   .mwRow > :nth-child(5) { grid-row: 2; grid-column: 3; }
   .mwNameB { grid-row: 2; grid-column: 2; text-align: left; }
   .mwRow > :nth-child(7) { grid-row: 2; grid-column: 1; }
-  .ygRow {
-    grid-template-columns: minmax(0, 1fr) auto;
-    grid-template-areas:
-      'player val'
-      'owner  val';
-    row-gap: 2px;
-    padding: var(--s3);
-  }
-  .ygPlayer { grid-area: player; }
-  .ygOwner {
-    grid-area: owner;
-    padding-left: calc(26px + var(--s2));
-    font-size: var(--t-11);
-  }
-  .ygVal { grid-area: val; align-self: center; }
+  .towBenchGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .towBenchSlot:nth-child(3) { border-left: 0; border-top: 1px solid var(--color-border-subtle); }
+  .towBenchSlot:nth-child(4) { border-top: 1px solid var(--color-border-subtle); }
   .fronts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }

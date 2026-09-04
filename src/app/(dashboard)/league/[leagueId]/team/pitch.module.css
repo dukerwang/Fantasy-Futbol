@@ -256,8 +256,9 @@
 .pitchField {
     position: relative;
     width: 100%;
-    height: calc(6 * 118px + var(--s10) + var(--s3) + var(--s3) + var(--s3));
-    min-height: 480px;
+    height: 760px;
+    min-height: 760px;
+    max-height: 760px;
     display: flex;
     flex-direction: column;
     /* The field boundary carries information — where the pitch ends — so it
@@ -377,7 +378,8 @@
     display: flex;
     flex-direction: column;
     flex: 1;
-    padding: var(--s10) 0 var(--s3);
+    height: 100%;
+    padding: var(--s6) 0 var(--s2);
     position: relative;
     z-index: 2;
 }
@@ -385,23 +387,64 @@
 .pitchZone {
     display: flex;
     flex-direction: column;
-    flex: 1;
+    flex: 1 1 0;
+    min-height: 0;
+    justify-content: center;
     overflow: visible;
 }
 
-/* Zone heights: a slight CM/GK nudge, because those rows carry the portrait
-   strip above their chips. */
-.zoneATT { flex: 1.22; }
-.zoneAMZ { flex: 1.52; }
-.zoneCMZ { flex: 1.05; margin-top: var(--s3); }
-.zoneDMZ { flex: 1.05; }
-.zoneWBZ { flex: 1.05; }
-.zoneDEF { flex: 1.22; }
-.zoneGK  { flex: 0.85; margin-top: var(--s3); }
+/* Zone heights: balanced flex ratios allowing all rows to breathe without overflowing */
+.zoneATT { flex: 1.08 1 0; min-height: 0; }
+.zoneAMZ { flex: 1 1 0; min-height: 0; }
+.zoneCMZ { flex: 1 1 0; min-height: 0; }
+.zoneDMZ { flex: 1 1 0; min-height: 0; }
+.zoneWBZ { flex: 1 1 0; min-height: 0; }
+.zoneDEF { flex: 1.08 1 0; min-height: 0; }
+.zoneGK  { flex: 1 1 0; min-height: 0; }
+
+.emptyZoneSpacer {
+    flex: 0.5 1 0;
+    min-height: 0;
+    pointer-events: none;
+}
 
 .zoneWBZ .pitchRow {
     justify-content: space-between;
-    padding: var(--s2) var(--s4);
+    padding: 0 var(--s4);
+}
+
+.rowMidfieldFour {
+    justify-content: space-between !important;
+    padding: 0 var(--s4) !important;
+}
+
+/* 4-2-2-2: Strikers closer in than AMs */
+.rowATTCompact {
+    justify-content: center !important;
+    gap: clamp(20px, 6vw, 44px) !important;
+}
+
+/* 4-2-2-2: AMs widened slightly */
+.rowAMZWide {
+    justify-content: center !important;
+    gap: clamp(115px, 32vw, 240px) !important;
+}
+
+/* 4-2-2-2: Double pivot */
+.rowDMZPivot {
+    justify-content: center !important;
+    gap: clamp(20px, 6vw, 44px) !important;
+}
+
+/* 4-3-2-1: Dual #10s sit directly at the midpoint between ST (50%) and CMs (25%/75%) */
+.rowAMZCompact {
+    justify-content: center !important;
+    gap: clamp(56px, 14vw, 96px) !important;
+}
+
+/* 4-3-2-1: CMs match 4-3-1-2 width */
+.rowCMZWide {
+    justify-content: space-around !important;
 }
 
 .pitchRow {
@@ -412,8 +455,8 @@
     align-items: center;
     flex: 1;
     width: 100%;
-    min-height: 118px;
-    padding: var(--s2) var(--s3);
+    min-height: 0;
+    padding: 0 var(--s3);
     gap: var(--s2);
     overflow: visible;
 }

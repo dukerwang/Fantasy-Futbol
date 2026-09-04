@@ -1,6 +1,7 @@
 import { createAdminClient } from '@/lib/supabase/admin';
 import { calculateTeamScore, loadReferenceStats, type PlayerScoreRecord } from '@/lib/scoring/matchups';
 import { normalizeMatchupLineup } from '@/lib/lineups/normalizeMatchupLineup';
+import { getEffectiveLineupForTeam, carryForwardLineupsForGameweek } from '@/lib/lineups/carryForward';
 import { getCurrentFplSeason, getLatestReferenceStatsSeason } from '@/lib/season/currentSeason';
 import { sendEmailToUsers } from '@/lib/email/sendEmailToUsers';
 import { getMatchweekSummaryEmail } from '@/lib/email/templates';
@@ -104,28 +105,20 @@ export async function processMatchupsForGameweek(
 
         // Fallback for Team A
         if (!lA) {
-            const { data: pastA } = await admin
-                .from('matchups')
-                .select('lineup_a, lineup_b, team_a_id')
-                .or(`team_a_id.eq.${m.team_a_id},team_b_id.eq.${m.team_a_id}`)
-                .lt('gameweek', gameweek)
-                .order('gameweek', { ascending: false })
-                .limit(5);
-            const matchA = pastA?.find(pm => pm.team_a_id === m.team_a_id ? pm.lineup_a : pm.lineup_b);
-            if (matchA) lA = (matchA.team_a_id === m.team_a_id ? matchA.lineup_a : matchA.lineup_b);
+            lA = await getEffectiveLineupForTeam(admin, {
+                teamId: m.team_a_id,
+                gameweek,
+                currentLineup: null,
+            });
         }
 
         // Fallback for Team B
         if (!lB) {
-            const { data: pastB } = await admin
-                .from('matchups')
-                .select('lineup_a, lineup_b, team_a_id')
-                .or(`team_a_id.eq.${m.team_b_id},team_b_id.eq.${m.team_b_id}`)
-                .lt('gameweek', gameweek)
-                .order('gameweek', { ascending: false })
-                .limit(5);
-            const matchB = pastB?.find(pm => pm.team_a_id === m.team_b_id ? pm.lineup_a : pm.lineup_b);
-            if (matchB) lB = (matchB.team_a_id === m.team_b_id ? matchB.lineup_a : matchB.lineup_b);
+            lB = await getEffectiveLineupForTeam(admin, {
+                teamId: m.team_b_id,
+                gameweek,
+                currentLineup: null,
+            });
         }
 
         resolvedLineups.set(m.id, { lineup_a: lA, lineup_b: lB });
@@ -411,6 +404,13 @@ export async function processMatchupsForGameweek(
                 }
             } catch (loanErr) {
                 console.error('[matchupProcessor] Error handling deferred loans:', loanErr);
+            }
+
+            // Carry forward lineups from this finished gameweek into the next gameweek
+            try {
+                await carryForwardLineupsForGameweek(admin, { gameweek: gameweek + 1, leagueId });
+            } catch (carryErr) {
+                console.error(`[matchupProcessor] Error carrying forward lineups for GW ${gameweek + 1}:`, carryErr);
             }
 
             try {

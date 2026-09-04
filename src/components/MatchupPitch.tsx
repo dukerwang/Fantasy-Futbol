@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import type { BenchSlot, MatchupLineup, Player, GranularPosition } from '@/types';
+import type { BenchSlot, Formation, MatchupLineup, Player, GranularPosition } from '@/types';
 import { BENCH_DEPTH_BONUS_LABEL, getExpectedBenchSlots } from '@/types';
 import type { TeamScoreDetail } from '@/lib/scoring/matchups';
 import type { PerfGroup } from '@/lib/scoring/perfBand';
@@ -482,6 +482,7 @@ export default function MatchupPitch({
         teamId?: string,
         crestConfig?: CrestConfig | null,
         sideKey: string = 'a',
+        formation?: Formation,
     ) {
         return (
             <div className={styles.half}>
@@ -504,26 +505,41 @@ export default function MatchupPitch({
                     )}
 
                     <div className={styles.zones}>
-                        {ZONE_ORDER.filter((zone) => (zones?.[zone] ?? []).length > 0).map((zone) => (
-                            <div
-                                key={`${sideKey}-${zone}`}
-                                className={`${styles.zoneRow} ${styles[`zone${zone}`] ?? ''}`}
-                            >
-                                <div className={styles.zone}>
-                                    {(zones?.[zone] ?? []).map((s) => (
-                                        <PlayerChip
-                                            key={s.player_id}
-                                            slot={s.slot}
-                                            player={playerMap[s.player_id]}
-                                            detail={detailAtSlot(detailMap[s.player_id], s.slot)}
-                                            status={statusOf(s.player_id)}
-                                            isSubIn={s.isSubIn}
-                                            onClick={() => setViewingPlayer(playerMap[s.player_id] ?? null, s.slot)}
-                                        />
-                                    ))}
+                        {ZONE_ORDER.filter((zone) => (zones?.[zone] ?? []).length > 0).map((zone) => {
+                            const is4222 = formation === '4-2-2-2';
+                            const is4321 = formation === '4-3-2-1';
+                            let rowMod = '';
+                            if (zone === 'ATT') {
+                                if (is4222) rowMod = styles.rowATTCompact;
+                            } else if (zone === 'AMZ') {
+                                if (is4222) rowMod = styles.rowAMZWide;
+                                else if (is4321) rowMod = styles.rowAMZCompact;
+                            } else if (zone === 'CMZ') {
+                                if (is4321) rowMod = styles.rowCMZWide;
+                            } else if (zone === 'DMZ') {
+                                if (is4222) rowMod = styles.rowDMZPivot;
+                            }
+                            return (
+                                <div
+                                    key={`${sideKey}-${zone}`}
+                                    className={`${styles.zoneRow} ${styles[`zone${zone}`] ?? ''}`}
+                                >
+                                    <div className={`${styles.zone} ${rowMod}`}>
+                                        {(zones?.[zone] ?? []).map((s) => (
+                                            <PlayerChip
+                                                key={s.player_id}
+                                                slot={s.slot}
+                                                player={playerMap[s.player_id]}
+                                                detail={detailAtSlot(detailMap[s.player_id], s.slot)}
+                                                status={statusOf(s.player_id)}
+                                                isSubIn={s.isSubIn}
+                                                onClick={() => setViewingPlayer(playerMap[s.player_id] ?? null, s.slot)}
+                                            />
+                                        ))}
+                                    </div>
                                 </div>
-                            </div>
-                        ))}
+                            );
+                        })}
                     </div>
                 </div>
             </div>
@@ -543,9 +559,10 @@ export default function MatchupPitch({
                 {SPINE.map((p) => <i key={p} style={{ background: POS_COLOR[p] }} />)}
             </div>
 
-            <div className={styles.pitchGrid}>
-                {renderHalf(zonesA, resolvedA.starters.length > 0, teamAName, teamAId, crestA, 'a')}
-                {renderHalf(zonesB, resolvedB.starters.length > 0, teamBName, teamBId, crestB, 'b')}
+            {/* ── Halves ────────────────────────────────────────────── */}
+            <div className={styles.halves}>
+                {renderHalf(zonesA, resolvedA.starters.length > 0, teamAName, teamAId, crestA, 'a', lineupA?.formation)}
+                {renderHalf(zonesB, resolvedB.starters.length > 0, teamBName, teamBId, crestB, 'b', lineupB?.formation)}
             </div>
 
             {/* ── Benches ───────────────────────────────────────────── */}

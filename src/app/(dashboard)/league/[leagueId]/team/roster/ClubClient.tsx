@@ -7,7 +7,7 @@ import Trophy from '@/components/trophies/Trophy';
 import NavigationLink from '@/components/ui/NavigationLink';
 import type { ClubProps, SquadEntry } from '@/lib/teams/loadClubView';
 import ClubSwitcher from './ClubSwitcher';
-import { DepthChart, Gallery, SquadTable } from './SquadViews';
+import { ClubPitch, DepthChart, SquadTable } from './SquadViews';
 import Inspector from './Inspector';
 import Intel from './Intel';
 import RetainedList from './RetainedList';
@@ -34,8 +34,8 @@ export type {
 // ── Toolbar option sets ──────────────────────────────────────────────────────
 
 const VIEWS = [
+  { k: 'pitch', label: 'Pitch' },
   { k: 'depth', label: 'Depth chart' },
-  { k: 'gallery', label: 'Gallery' },
   { k: 'table', label: 'Table' },
 ];
 const FILTERS: { k: string; label: string }[] = [
@@ -161,15 +161,68 @@ function ToDo({ items, onAct }: { items: TodoItem[]; onAct: (t: TodoItem) => voi
   );
 }
 
+function CommandPicker({
+  label, value, options, open, onToggle, onSelect,
+}: {
+  label: string;
+  value: string;
+  options: { k: string; label: string }[];
+  open: boolean;
+  onToggle: () => void;
+  onSelect: (key: string) => void;
+}) {
+  const selected = options.find((option) => option.k === value)?.label ?? value;
+  return (
+    <div className={styles.commandPicker}>
+      <button
+        type="button"
+        className={`${styles.commandTrigger} ${open ? styles.commandTriggerOpen : ''}`}
+        aria-expanded={open}
+        aria-haspopup="dialog"
+        onClick={onToggle}
+      >
+        <span className={styles.commandLabel}>{label}</span>
+        <span className={styles.commandValue}>{selected}</span>
+        <span className={styles.commandChevron} aria-hidden>⌄</span>
+      </button>
+      {open && (
+        <>
+          <button type="button" className={styles.commandScrim} aria-label={`Close ${label} options`} onClick={onToggle} />
+          <div className={styles.commandMenu} role="dialog" aria-label={`${label} options`}>
+            <div className={styles.commandMenuHead}>
+              <span>{label}</span>
+              <button type="button" onClick={onToggle} aria-label={`Close ${label} options`}>Close</button>
+            </div>
+            <div className={styles.commandOptions}>
+              {options.map((option) => (
+                <button
+                  key={option.k}
+                  type="button"
+                  className={option.k === value ? styles.commandOptionOn : undefined}
+                  aria-pressed={option.k === value}
+                  onClick={() => onSelect(option.k)}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
 // ── Page ──────────────────────────────────────────────────────────────────────
 
 export default function ClubClient({
-  leagueId, teamId, serverNow, clubs, viewerIsOwner, club, standing, entries, departures, honours,
+  leagueId, teamId, serverNow, clubs, viewerIsOwner, club, standing, entries, savedLineup, departures, honours,
 }: ClubProps) {
   const router = useRouter();
-  const [view, setView] = useState('depth');
+  const [view, setView] = useState('pitch');
   const [sort, setSort] = useState('overall');
   const [filter, setFilter] = useState('all');
+  const [openCommand, setOpenCommand] = useState<'filter' | 'sort' | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(
     () => (entries.find((e) => e.status === 'active') ?? entries[0])?.id ?? null,
   );
@@ -372,30 +425,38 @@ export default function ClubClient({
             </button>
           ))}
         </div>
-        <span className={styles.tbLabel}>{shown.length} of {entries.length} shown</span>
         <div className={styles.tbSpacer} />
 
         <ToDo items={todos} onAct={handleTodo} />
 
-        <div className={styles.tbGroup}>
-          <span className={styles.tbLabel}>Show</span>
-          <select className={styles.tbSelect} value={filter} onChange={(e) => chooseFilter(e.target.value)}>
-            {FILTERS.map((f) => <option key={f.k} value={f.k}>{f.label}</option>)}
-          </select>
-        </div>
-        <div className={styles.tbGroup}>
-          <span className={styles.tbLabel}>Sort</span>
-          <select className={styles.tbSelect} value={sort} onChange={(e) => chooseSort(e.target.value)}>
-            {SORTS.map((s) => <option key={s.k} value={s.k}>{s.label}</option>)}
-          </select>
-        </div>
+        {view !== 'pitch' && (
+          <div className={styles.toolbarData}>
+            <span className={styles.tbLabel}>{shown.length} of {entries.length} shown</span>
+            <CommandPicker
+              label="Show"
+              value={filter}
+              options={FILTERS}
+              open={openCommand === 'filter'}
+              onToggle={() => setOpenCommand(openCommand === 'filter' ? null : 'filter')}
+              onSelect={(key) => { chooseFilter(key); setOpenCommand(null); }}
+            />
+            <CommandPicker
+              label="Sort"
+              value={sort}
+              options={SORTS}
+              open={openCommand === 'sort'}
+              onToggle={() => setOpenCommand(openCommand === 'sort' ? null : 'sort')}
+              onSelect={(key) => { chooseSort(key); setOpenCommand(null); }}
+            />
+          </div>
+        )}
       </div>
 
       {/* ── Layout ── */}
       <div className={styles.layout}>
         <main>
+          {view === 'pitch' && <ClubPitch entries={entries} savedLineup={savedLineup} selId={selectedId} onSelect={setSelectedId} />}
           {view === 'depth' && <DepthChart entries={shown} allEntries={entries} selId={selectedId} onSelect={setSelectedId} />}
-          {view === 'gallery' && <Gallery entries={shown} selId={selectedId} onSelect={setSelectedId} />}
           {view === 'table' && <SquadTable entries={shown} selId={selectedId} onSelect={setSelectedId} />}
           <RetainedList
             leagueId={leagueId}

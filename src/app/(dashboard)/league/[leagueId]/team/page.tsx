@@ -9,6 +9,7 @@ import PitchUI from './PitchUI';
 import { FULL_PLAYER_SELECT } from '@/lib/constants/queries';
 import { getCurrentFplSeason, getLatestReferenceStatsSeason, isFplSeasonKickedOff, resolveDraftStatsSeason } from '@/lib/season/currentSeason';
 import { resolveLineupEditMatchup } from '@/lib/lineups/editTarget';
+import { getEffectiveLineupForTeam } from '@/lib/lineups/carryForward';
 import { getLockedPlTeamIds } from '@/lib/fixtures/lockout';
 import { loadReferenceStats, type RefStatsMap } from '@/lib/scoring/matchups';
 import type { RawStats } from '@/types';
@@ -190,24 +191,17 @@ export default async function MyTeamPage({ params }: Props) {
     const isTeamA = (matchup as any).team_a_id === team.id;
     let existingLineup = (isTeamA ? matchup.lineup_a : matchup.lineup_b) as MatchupLineup | null;
 
-    // Fallback: If no lineup for this matchup, look for the most recent non-null lineup for this team
     if (!existingLineup) {
-      const { data: pastMatchups } = await admin
-        .from('matchups')
-        .select('team_a_id, team_b_id, lineup_a, lineup_b')
-        .or(`team_a_id.eq.${team.id},team_b_id.eq.${team.id}`)
-        .lt('gameweek', (matchup as any).gameweek)
-        .order('gameweek', { ascending: false })
-        .limit(5);
-
-      const lastSavedMatchup = pastMatchups?.find((m: any) => {
-        const isA = m.team_a_id === team.id;
-        return isA ? m.lineup_a : m.lineup_b;
+      existingLineup = await getEffectiveLineupForTeam(admin, {
+        teamId: team.id,
+        gameweek: (matchup as any).gameweek,
+        currentLineup: null,
       });
 
-      if (lastSavedMatchup) {
-        const isA = (lastSavedMatchup as any).team_a_id === team.id;
-        existingLineup = (isA ? lastSavedMatchup.lineup_a : lastSavedMatchup.lineup_b) as MatchupLineup;
+      // If a past lineup was found, persist it to the matchup row so the DB stays populated
+      if (existingLineup) {
+        const col = isTeamA ? 'lineup_a' : 'lineup_b';
+        await admin.from('matchups').update({ [col]: existingLineup }).eq('id', (matchup as any).id);
       }
     }
 

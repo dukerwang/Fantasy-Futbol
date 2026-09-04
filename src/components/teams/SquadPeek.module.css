@@ -223,6 +223,30 @@
   padding: 0 4px;
 }
 
+.pitchRowATTCompact {
+  justify-content: center !important;
+  gap: 8px !important;
+}
+
+.pitchRowAMZWide {
+  justify-content: center !important;
+  gap: 32px !important;
+}
+
+.pitchRowAMZCompact {
+  justify-content: center !important;
+  gap: 20px !important;
+}
+
+.pitchRowCMZWide {
+  justify-content: space-around !important;
+}
+
+.pitchRowDMZPivot {
+  justify-content: center !important;
+  gap: 8px !important;
+}
+
 .chip {
   flex: 0 1 auto;
   min-width: 0;

@@ -1,31 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { carryForwardLineupsForGameweek } from '@/lib/lineups/carryForward';
 import { processMatchupsForGameweek } from '@/lib/scoring/matchupProcessor';
-import { generateValidLineup } from '@/lib/lineups/generateValidLineup';
-import type { MatchupLineup } from '@/types';
-
-type MatchupLineupUpdate = { lineup_a?: MatchupLineup; lineup_b?: MatchupLineup };
 
 export const maxDuration = 60;
 
-function isStoredLineupComplete(lineup: unknown): boolean {
-  const L = lineup as { starters?: unknown[]; bench?: unknown[] } | null;
-  if (!L?.starters || L.starters.length < 11) return false;
-  if (L.starters.some((s: any) => !s?.player_id)) return false;
-  if (!L.bench || L.bench.length < 4) return false;
-  if (L.bench.some((b: any) => !b?.player_id)) return false;
-  return true;
-}
-
 /**
- * Backfills `lineup_a` / `lineup_b` on matchups for human and bot teams when empty or incomplete.
- * Strategy: carry forward from previous GW when possible; otherwise generate from roster.
- *
- * Auth: same as other crons (`Authorization: Bearer $CRON_SECRET` or `x-cron-secret`).
- *
- * Query:
- *   - `gameweek` (optional) — defaults to FPL current-or-next (same rule as set-bot-lineups)
- *   - `league_id` (optional) — limit to one league
+ * Backfills lineup_a / lineup_b on matchups for any teams when empty or incomplete,
+ * carrying forward previous lineups or generating valid defaults.
  */
 export async function GET(req: NextRequest) {
   const secret =
@@ -49,106 +31,30 @@ export async function GET(req: NextRequest) {
       const fplRes = await fetch('https://fantasy.premierleague.com/api/bootstrap-static/', {
         next: { revalidate: 0 },
       });
-      if (!fplRes.ok) throw new Error('FPL fetch failed');
-      const fplData = await fplRes.json();
-      const now = new Date();
-      // Use the highest GW whose deadline has passed — consistent with all other routes.
-      // is_current / is_next can both be null between GWs.
-      for (const ev of fplData.events as any[]) {
-        if (ev.deadline_time && new Date(ev.deadline_time) <= now) {
-          if (ev.id > targetGw) targetGw = ev.id;
+      if (fplRes.ok) {
+        const fplData = await fplRes.json();
+        const now = new Date();
+        for (const ev of fplData.events as any[]) {
+          if (ev.deadline_time && new Date(ev.deadline_time) <= now) {
+            if (ev.id > targetGw) targetGw = ev.id;
+          }
         }
       }
-    } catch (err: any) {
-      return NextResponse.json({ error: 'FPL fetch failed', details: err.message }, { status: 500 });
+    } catch {
+      targetGw = 1;
     }
   }
 
-  let q = admin
-    .from('matchups')
-    .select('id, league_id, team_a_id, team_b_id, lineup_a, lineup_b')
-    .eq('gameweek', targetGw);
-  if (leagueIdFilter) q = q.eq('league_id', leagueIdFilter);
+  const result = await carryForwardLineupsForGameweek(admin, {
+    gameweek: targetGw,
+    leagueId: leagueIdFilter,
+  });
 
-  const { data: matchups, error: matchupsErr } = await q;
-
-  if (matchupsErr || !matchups) {
-    return NextResponse.json({ error: 'Failed to fetch matchups' }, { status: 500 });
-  }
-
-  if (matchups.length === 0) {
-    return NextResponse.json({
-      ok: true,
-      message: `No matchups for GW ${targetGw}`,
-      gameweek: targetGw,
-      league_id: leagueIdFilter ?? null,
-    });
-  }
-
-  const prevGw = targetGw - 1;
-  const prevLineupByTeam = new Map<string, MatchupLineup>();
-  if (prevGw >= 1) {
-    let pq = admin
-      .from('matchups')
-      .select('team_a_id, team_b_id, lineup_a, lineup_b')
-      .eq('gameweek', prevGw);
-    if (leagueIdFilter) pq = pq.eq('league_id', leagueIdFilter);
-    const { data: prevMatchups } = await pq;
-    if (prevMatchups) {
-      for (const m of prevMatchups) {
-        if (isStoredLineupComplete(m.lineup_a)) prevLineupByTeam.set(m.team_a_id, m.lineup_a);
-        if (isStoredLineupComplete(m.lineup_b)) prevLineupByTeam.set(m.team_b_id, m.lineup_b);
-      }
-    }
-  }
-
-  let updatedSides = 0;
-  const debugLog: string[] = [];
-
-  for (const matchup of matchups) {
-    const updates: MatchupLineupUpdate = {};
-
-    if (!isStoredLineupComplete(matchup.lineup_a)) {
-      let lineup = prevLineupByTeam.get(matchup.team_a_id) ?? null;
-      if (!lineup) {
-        const result = await generateValidLineup(admin, matchup.team_a_id);
-        lineup = result.lineup;
-        debugLog.push(`A ${matchup.team_a_id}: ${result.debug}`);
-      } else {
-        debugLog.push(`A ${matchup.team_a_id}: carried GW${prevGw}`);
-      }
-      if (lineup) {
-        updates.lineup_a = lineup;
-        updatedSides++;
-      }
-    }
-
-    if (!isStoredLineupComplete(matchup.lineup_b)) {
-      let lineup = prevLineupByTeam.get(matchup.team_b_id) ?? null;
-      if (!lineup) {
-        const result = await generateValidLineup(admin, matchup.team_b_id);
-        lineup = result.lineup;
-        debugLog.push(`B ${matchup.team_b_id}: ${result.debug}`);
-      } else {
-        debugLog.push(`B ${matchup.team_b_id}: carried GW${prevGw}`);
-      }
-      if (lineup) {
-        updates.lineup_b = lineup;
-        updatedSides++;
-      }
-    }
-
-    if (Object.keys(updates).length > 0) {
-      await admin.from('matchups').update(updates).eq('id', matchup.id);
-    }
-  }
-
-  if (updatedSides > 0) {
+  if (result.updatedCount > 0) {
     try {
       await processMatchupsForGameweek(targetGw, false);
-      debugLog.push(`Triggered matchup re-score sync for GW ${targetGw}`);
     } catch (err: any) {
-      debugLog.push(`Failed to trigger re-score sync: ${err.message}`);
+      result.details.push(`Re-score sync warning: ${err.message}`);
     }
   }
 
@@ -156,9 +62,7 @@ export async function GET(req: NextRequest) {
     ok: true,
     gameweek: targetGw,
     league_id: leagueIdFilter ?? null,
-    matchupCount: matchups.length,
-    prevGwLineupCount: prevLineupByTeam.size,
-    updatedSides,
-    debug: debugLog.slice(0, 40),
+    updatedSides: result.updatedCount,
+    details: result.details,
   });
 }

@@ -70,14 +70,16 @@ function ptsBand(points: number): string {
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-// Matches MatchupPitch's 6-zone approach so DM/CM/AM/WB render as distinct rows
-function getZone(pos: GranularPosition): PitchZone {
+function getZone(pos: GranularPosition, formation?: Formation): PitchZone {
     if (pos === 'GK') return 'GK';
-    if (pos === 'LWB' || pos === 'RWB') return 'WBZ';
     if (pos === 'CB' || pos === 'LB' || pos === 'RB') return 'DEF';
     if (pos === 'DM') return 'DMZ';
-    if (pos === 'CM') return 'CMZ';
     if (pos === 'AM') return 'AMZ';
+    if (pos === 'LWB' || pos === 'RWB') {
+        if (formation?.startsWith('3-')) return 'CMZ';
+        return 'WBZ';
+    }
+    if (pos === 'CM') return 'CMZ';
     return 'ATT'; // LW, ST, RW
 }
 
@@ -368,7 +370,7 @@ export default function PitchUI({
 
     // Zone layout for pitch rendering — 6 zones matching MatchupPitch structure
     const zonedSlots = useMemo(() => {
-        const list = slots.map((pos, i) => ({ slotIndex: i, pos, zone: getZone(pos) }));
+        const list = slots.map((pos, i) => ({ slotIndex: i, pos, zone: getZone(pos, formation) }));
         return {
             ATT: list.filter((s) => s.zone === 'ATT'),
             AMZ: list.filter((s) => s.zone === 'AMZ'),
@@ -378,7 +380,7 @@ export default function PitchUI({
             DEF: list.filter((s) => s.zone === 'DEF'),
             GK:  list.filter((s) => s.zone === 'GK'),
         };
-    }, [slots]);
+    }, [slots, formation]);
 
     // Valid swap/assign targets for lineup selection highlighting
     const validLineupTargets = useMemo(() => {
@@ -1083,11 +1085,31 @@ export default function PitchUI({
                         )}
 
                         <div className={styles.pitchZones}>
-                            {ZONE_ORDER.filter((zone) => zonedSlots[zone].length > 0).map((zone) => {
+                            {ZONE_ORDER.map((zone) => {
                                 const zoneSlots = zonedSlots[zone];
+                                if (zoneSlots.length === 0) {
+                                    if (zone === 'AMZ' && zonedSlots.ATT.length > 0 && zonedSlots.CMZ.length > 0) {
+                                        return <div key="AMZ-spacer" className={styles.emptyZoneSpacer} aria-hidden />;
+                                    }
+                                    return null;
+                                }
+                                const is4222 = formation === '4-2-2-2';
+                                const is4321 = formation === '4-3-2-1';
+                                let rowMod = '';
+                                if (zone === 'ATT') {
+                                    if (is4222) rowMod = styles.rowATTCompact;
+                                } else if (zone === 'AMZ') {
+                                    if (is4222) rowMod = styles.rowAMZWide;
+                                    else if (is4321) rowMod = styles.rowAMZCompact;
+                                } else if (zone === 'CMZ') {
+                                    if (is4321) rowMod = styles.rowCMZWide;
+                                    else if (zoneSlots.length >= 4) rowMod = styles.rowMidfieldFour;
+                                } else if (zone === 'DMZ') {
+                                    if (is4222) rowMod = styles.rowDMZPivot;
+                                }
                                 return (
                                     <div key={zone} className={`${styles.pitchZone} ${styles[`zone${zone}`]}`}>
-                                        <div className={styles.pitchRow}>
+                                        <div className={`${styles.pitchRow} ${rowMod}`}>
                                             {zoneSlots.map(({ slotIndex, pos }) => {
                                                 const playerId = assignments[slotIndex];
                                                 const entry = playerId ? playerMap.get(playerId) : undefined;

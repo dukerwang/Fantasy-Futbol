@@ -10,6 +10,7 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { calculateMatchRating } from '@/lib/scoring/engine';
 import { resolveTiebreaker } from '@/lib/tournaments/engine';
 import { loadReferenceStats } from '@/lib/scoring/matchups';
+import { getEffectiveLineupForTeam } from '@/lib/lineups/carryForward';
 import type { GranularPosition, ReferenceStats } from '@/types';
 
 type AdminClient = ReturnType<typeof createAdminClient>;
@@ -130,12 +131,23 @@ async function scoreLeg(
     scoreB = matchupB.team_a_id === teamBId ? Number(matchupB.score_a) : Number(matchupB.score_b);
   }
 
-  const lineupA = matchupA
+  const rawLineupA = matchupA
     ? (matchupA.team_a_id === teamAId ? matchupA.lineup_a : matchupA.lineup_b)
     : null;
-  const lineupB = matchupB
+  const rawLineupB = matchupB
     ? (matchupB.team_a_id === teamBId ? matchupB.lineup_a : matchupB.lineup_b)
     : null;
+
+  const lineupA = await getEffectiveLineupForTeam(admin, {
+    teamId: teamAId,
+    gameweek: gw,
+    currentLineup: rawLineupA,
+  });
+  const lineupB = await getEffectiveLineupForTeam(admin, {
+    teamId: teamBId,
+    gameweek: gw,
+    currentLineup: rawLineupB,
+  });
 
   const teamAPlayers = await getPlayerScores(admin, lineupA, gw, refStats, season);
   const teamBPlayers = await getPlayerScores(admin, lineupB, gw, refStats, season);

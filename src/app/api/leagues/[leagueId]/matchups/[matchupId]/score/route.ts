@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { calculateTeamScore, loadReferenceStats, type PlayerScoreRecord } from '@/lib/scoring/matchups';
 import { normalizeMatchupLineup } from '@/lib/lineups/normalizeMatchupLineup';
+import { getEffectiveLineupForTeam } from '@/lib/lineups/carryForward';
 import { getLatestReferenceStatsSeason, getCurrentFplSeason } from '@/lib/season/currentSeason';
 
 interface Props {
@@ -37,7 +38,7 @@ export async function GET(_req: NextRequest, { params }: Props) {
   // Fetch the matchup
   const { data: matchup } = await admin
     .from('matchups')
-    .select('id, league_id, gameweek, score_a, score_b, lineup_a, lineup_b, status')
+    .select('id, league_id, gameweek, team_a_id, team_b_id, score_a, score_b, lineup_a, lineup_b, status')
     .eq('id', matchupId)
     .eq('league_id', leagueId)
     .single();
@@ -54,8 +55,18 @@ export async function GET(_req: NextRequest, { params }: Props) {
   }
 
   // Extract all player IDs from both lineups
-  const lineupA = normalizeMatchupLineup(matchup.lineup_a as any | null);
-  const lineupB = normalizeMatchupLineup(matchup.lineup_b as any | null);
+  const lineupA = await getEffectiveLineupForTeam(admin, {
+    teamId: matchup.team_a_id,
+    gameweek: matchup.gameweek,
+    currentLineup: matchup.lineup_a as any | null,
+  });
+  const lineupB = matchup.team_b_id
+    ? await getEffectiveLineupForTeam(admin, {
+        teamId: matchup.team_b_id,
+        gameweek: matchup.gameweek,
+        currentLineup: matchup.lineup_b as any | null,
+      })
+    : null;
   const playerIds = new Set<string>();
   lineupA?.starters?.forEach((s: any) => playerIds.add(s.player_id));
   lineupA?.bench?.forEach((b: any) => playerIds.add(b.player_id));

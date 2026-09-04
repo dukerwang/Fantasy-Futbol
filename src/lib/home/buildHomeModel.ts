@@ -17,7 +17,7 @@
  */
 
 import type { createAdminClient } from '@/lib/supabase/admin';
-import type { GranularPosition } from '@/types';
+import type { BenchSlot, GranularPosition } from '@/types';
 import { getFplStatus } from '@/lib/fpl/api';
 import { getPlayerDisplayName } from '@/lib/players/displayName';
 import {
@@ -44,6 +44,8 @@ import {
 
 import { resolveClub } from '@/lib/clubs/registry';
 import { DRAW_THRESHOLD } from '@/lib/scoring/drawBand';
+import { selectBestLineup } from '@/lib/lineups/selectBestLineup';
+import { resolveEffectiveLineupFromMatchups } from '@/lib/lineups/carryForward';
 
 type AdminClient = ReturnType<typeof createAdminClient>;
 
@@ -192,7 +194,7 @@ export interface TableRow {
   isMe: boolean;
 }
 
-export interface TopPerformerRow {
+export interface TeamOfWeekPlayer {
   playerId: string;
   name: string;
   position: string;
@@ -200,6 +202,17 @@ export interface TopPerformerRow {
   points: string;
   /** The fantasy team that rosters him, or 'Free agent' if no one does. */
   owner: string;
+  photoUrl: string | null;
+  photoVersion: string | null;
+  portraitHeadTopPct: number | null;
+  portraitHeadWidthPct: number | null;
+}
+
+export interface TeamOfWeek {
+  formation: string;
+  total: string;
+  starters: Array<TeamOfWeekPlayer & { slot: string }>;
+  bench: Record<BenchSlot, TeamOfWeekPlayer | null>;
 }
 
 export interface WireItem {
@@ -285,8 +298,8 @@ export interface HomeModel {
   fronts: FrontTile[];
   matchweek: OtherFixture[];
   table: TableRow[];
-  topPerformers: TopPerformerRow[];
-  topPerformersGw: number | null;
+  teamOfWeek: TeamOfWeek | null;
+  teamOfWeekGw: number | null;
   wire: WireItem[];
   opponent: OpponentCard | null;
   clubFacts: ClubFact[];
@@ -510,6 +523,14 @@ export async function buildHomeModel(
   const teams = (teamsRes.data ?? []) as any[];
   const standings = (standingsRes.data ?? []) as any[];
   const allMatchups = (matchupsRes.data ?? []) as MatchupLite[];
+  const effectiveLineupFor = (matchup: MatchupLite | null | undefined, teamId: string | null | undefined) => {
+    if (!matchup || !teamId) return null;
+    return resolveEffectiveLineupFromMatchups({
+      teamId,
+      gameweek: matchup.gameweek,
+      allMatchups,
+    });
+  };
   const tournaments = (tournamentsRes.data ?? []) as any[];
   // A listing is a listing, not an auction, until someone actually bids on it —
   // the anchor seeded at creation (migration 080) holds the 14-day expiry clock,
@@ -737,11 +758,13 @@ export async function buildHomeModel(
     for (const b of lineup.bench ?? []) if (b.player_id) neededPlayerIds.add(b.player_id);
   };
 
-  addLineupPlayerIds(heroMatchup?.lineup_a);
-  addLineupPlayerIds(heroMatchup?.lineup_b);
+  const heroEffectiveA = effectiveLineupFor(heroMatchup, heroMatchup?.team_a_id);
+  const heroEffectiveB = effectiveLineupFor(heroMatchup, heroMatchup?.team_b_id);
+  addLineupPlayerIds(heroEffectiveA);
+  addLineupPlayerIds(heroEffectiveB);
   for (const m of myMatchups) {
-    addLineupPlayerIds(m.lineup_a);
-    addLineupPlayerIds(m.lineup_b);
+    addLineupPlayerIds(effectiveLineupFor(m, m.team_a_id));
+    addLineupPlayerIds(effectiveLineupFor(m, m.team_b_id));
   }
 
   const missingPlayerIds = [...neededPlayerIds].filter((id) => !playerById.has(id));
@@ -755,22 +778,20 @@ export async function buildHomeModel(
     }
   }
 
-  // ── top performers, league-wide ────────────────────────────
-  // The five highest fantasy-point scores of the most recently completed
-  // gameweek, whoever owns them. Not actionable, but it's the one thing
-  // every manager in the league experienced this week.
-  const topPerformersGw = lastCompletedMine?.gameweek ?? null;
-  const topPerformers: TopPerformerRow[] = [];
-  if (topPerformersGw) {
+  // ── Team of the Week, league-wide ───────────────────────────
+  // The latest settled gameweek's best legal XI, whoever owns the players.
+  // The pure selector uses the same exact-position rules as the lineup editor.
+  const teamOfWeekGw = lastCompletedMine?.gameweek ?? null;
+  let teamOfWeek: TeamOfWeek | null = null;
+  if (teamOfWeekGw) {
     const { data: rawPerf } = await admin
       .from('player_stats')
       .select(
-        'fantasy_points, player:players!player_id(id, web_name, name, full_name, sofifa_common_name, primary_position, pl_team)',
+        'fantasy_points, player:players!player_id(id, web_name, name, full_name, sofifa_common_name, primary_position, secondary_positions, pl_team, photo_url, photo_version, portrait_head_top_pct, portrait_head_width_pct)',
       )
-      .eq('gameweek', topPerformersGw)
+      .eq('gameweek', teamOfWeekGw)
       .eq('season', season)
-      .order('fantasy_points', { ascending: false })
-      .limit(5);
+      .order('fantasy_points', { ascending: false });
 
     const perfRows = (rawPerf ?? []) as any[];
     const perfPlayerIds = perfRows.map((r) => r.player?.id).filter(Boolean);
@@ -779,31 +800,60 @@ export async function buildHomeModel(
     // PostgREST returns first (Bot FC 4, Tea FC, …).
     const leagueTeamIds = teams.map((t) => t.id as string);
     const { data: ownerRows } =
-      perfPlayerIds.length && leagueTeamIds.length
+      leagueTeamIds.length
         ? await admin
             .from('roster_entries')
             .select('player_id, team:teams(team_name)')
-            .in('player_id', perfPlayerIds)
             .in('team_id', leagueTeamIds)
         : { data: [] as any[] };
     const ownerByPlayer = new Map<string, string>();
     for (const o of ownerRows ?? []) {
-      if (!ownerByPlayer.has(o.player_id)) {
-        ownerByPlayer.set(o.player_id, (o.team as any)?.team_name ?? 'Free agent');
+      const team = o.team as any;
+      if (team?.team_name && !ownerByPlayer.has(o.player_id)) {
+        ownerByPlayer.set(o.player_id, team.team_name);
       }
     }
 
-    for (const r of perfRows) {
-      const p = r.player;
-      if (!p) continue;
-      topPerformers.push({
-        playerId: p.id,
-        name: getPlayerDisplayName(p, 'full'),
-        position: p.primary_position,
-        club: p.pl_team ?? '',
-        points: Number(r.fantasy_points ?? 0).toFixed(2),
-        owner: ownerByPlayer.get(p.id) ?? 'Free agent',
-      });
+    const playerById = new Map<string, any>();
+    const scoreById = new Map<string, number>();
+    for (const row of perfRows) {
+      const player = row.player;
+      if (!player?.id || !player.primary_position) continue;
+      playerById.set(player.id, player);
+      scoreById.set(player.id, Number(row.fantasy_points ?? 0));
+    }
+
+    const best = selectBestLineup(
+      [...playerById.values()].map((player) => ({
+        id: player.id,
+        score: scoreById.get(player.id) ?? 0,
+        positions: [player.primary_position, ...(player.secondary_positions ?? [])] as GranularPosition[],
+      })),
+    );
+    if (best) {
+      const toDisplay = (playerId: string): TeamOfWeekPlayer => {
+        const player = playerById.get(playerId)!;
+        return {
+          playerId,
+          name: getPlayerDisplayName(player, 'full'),
+          position: player.primary_position,
+          club: player.pl_team ?? '',
+          points: (scoreById.get(playerId) ?? 0).toFixed(2),
+          owner: ownerByPlayer.get(playerId) ?? 'Free agent',
+          photoUrl: player.photo_url ?? null,
+          photoVersion: player.photo_version ?? null,
+          portraitHeadTopPct: player.portrait_head_top_pct ?? null,
+          portraitHeadWidthPct: player.portrait_head_width_pct ?? null,
+        };
+      };
+      teamOfWeek = {
+        formation: best.formation,
+        total: best.totalScore.toFixed(2),
+        starters: best.starters.map((starter) => ({ ...toDisplay(starter.playerId), slot: starter.slot })),
+        bench: Object.fromEntries(
+          Object.entries(best.bench).map(([slot, playerId]) => [slot, playerId ? toDisplay(playerId) : null]),
+        ) as Record<BenchSlot, TeamOfWeekPlayer | null>,
+      };
     }
   }
 
@@ -893,8 +943,8 @@ export async function buildHomeModel(
 
   const heroLineupRaw =
     heroMatchup && heroMatchup.team_a_id === myTeamId
-      ? (heroMatchup.lineup_a as any)
-      : (heroMatchup?.lineup_b as any);
+      ? heroEffectiveA
+      : heroEffectiveB;
 
   const xi: XiSlot[] = [];
   const xiFlags: string[] = [];
@@ -1165,8 +1215,8 @@ export async function buildHomeModel(
     const oppStanding = standings.find((s) => s.team_id === oppId);
     const markerPct = Math.min(98, Math.max(2, 50 - (margin / 40) * 50));
 
-    const heroLineupA = heroMatchup.lineup_a as any;
-    const heroLineupB = heroMatchup.lineup_b as any;
+    const heroLineupA = heroEffectiveA;
+    const heroLineupB = heroEffectiveB;
     const myHeroLineup = iAmA ? heroLineupA : heroLineupB;
     const theirHeroLineup = iAmA ? heroLineupB : heroLineupA;
 
@@ -1278,7 +1328,7 @@ export async function buildHomeModel(
        * not on every render of every phase.
        */
       if (phase === 'ft') {
-        const theirLineup = (iAmA ? heroMatchup.lineup_b : heroMatchup.lineup_a) as any;
+        const theirLineup = (iAmA ? heroEffectiveB : heroEffectiveA) as any;
         const theirIds: string[] = [
           ...((theirLineup?.starters ?? []).map((s: any) => s.player_id) as string[]),
           ...((theirLineup?.bench ?? []).map((b: any) => b.player_id) as string[]),
@@ -1319,8 +1369,8 @@ export async function buildHomeModel(
                 team_a: { team_name: clubOf(heroMatchup.team_a_id).name },
                 team_b: { team_name: clubOf(heroMatchup.team_b_id).name },
               },
-              heroMatchup.lineup_a,
-              heroMatchup.lineup_b,
+              heroEffectiveA,
+              heroEffectiveB,
               playerMap,
               detailMap,
               // This call only ever fires at 'ft' (see comment above), so the
@@ -1437,8 +1487,8 @@ export async function buildHomeModel(
     const oppStanding = standings.find((s) => s.team_id === oppId);
     const markerPct = Math.min(98, Math.max(2, 50 - (margin / 40) * 50));
 
-    const secLineupA = secondaryMatchup.lineup_a as any;
-    const secLineupB = secondaryMatchup.lineup_b as any;
+    const secLineupA = effectiveLineupFor(secondaryMatchup, secondaryMatchup.team_a_id);
+    const secLineupB = effectiveLineupFor(secondaryMatchup, secondaryMatchup.team_b_id);
     const secMyLineup = iAmA ? secLineupA : secLineupB;
     const secTheirLineup = iAmA ? secLineupB : secLineupA;
 
@@ -2032,8 +2082,8 @@ export async function buildHomeModel(
     fronts,
     matchweek,
     table,
-    topPerformers,
-    topPerformersGw,
+    teamOfWeek,
+    teamOfWeekGw,
     wire,
     opponent,
     clubFacts,

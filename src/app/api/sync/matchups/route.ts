@@ -6,7 +6,9 @@
  * not their static DB primary_position.
  */
 import { NextRequest, NextResponse } from 'next/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 import { processMatchupsForGameweek } from '@/lib/scoring/matchupProcessor';
+import { carryForwardLineupsForGameweek } from '@/lib/lineups/carryForward';
 
 export const maxDuration = 60; // 1 minute max for Vercel Hobby tier
 
@@ -47,6 +49,16 @@ export async function POST(req: NextRequest) {
 
     if (!gameweek || gameweek < 1) {
         return NextResponse.json({ error: 'gameweek required (positive integer)' }, { status: 400 });
+    }
+
+    const admin = createAdminClient();
+    try {
+        await carryForwardLineupsForGameweek(admin, { gameweek });
+        if (gameweek < 38) {
+            await carryForwardLineupsForGameweek(admin, { gameweek: gameweek + 1 });
+        }
+    } catch (cfErr) {
+        console.error('[sync/matchups] carry-forward error:', cfErr);
     }
 
     try {
