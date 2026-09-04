@@ -243,16 +243,16 @@ export function Matchweek({ model }: { model: HomeModel }) {
               className={
                 m.homeScore == null
                   ? styles.mwScoreDim
-                  : m.drawn || m.homeScore >= (m.awayScore ?? 0)
-                    ? styles.mwScore
-                    : styles.mwScoreDim
+                  : !m.live && !m.drawn && m.homeScore < (m.awayScore ?? 0)
+                    ? styles.mwScoreDim
+                    : styles.mwScore
               }
             >
               {m.homeScore == null ? '—' : m.homeScore.toFixed(2)}
             </span>
             <span
               className={
-                m.drawn ? styles.mwTagBand : m.live ? styles.mwTagLive : styles.mwTag
+                m.live ? styles.mwTagLive : m.drawn ? styles.mwTagBand : styles.mwTag
               }
             >
               {m.tag}
@@ -261,9 +261,9 @@ export function Matchweek({ model }: { model: HomeModel }) {
               className={
                 m.awayScore == null
                   ? styles.mwScoreDim
-                  : m.drawn || m.awayScore >= (m.homeScore ?? 0)
-                    ? styles.mwScore
-                    : styles.mwScoreDim
+                  : !m.live && !m.drawn && (m.awayScore ?? 0) < (m.homeScore ?? 0)
+                    ? styles.mwScoreDim
+                    : styles.mwScore
               }
             >
               {m.awayScore == null ? '—' : m.awayScore.toFixed(2)}

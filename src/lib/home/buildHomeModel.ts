@@ -43,7 +43,7 @@ import {
 } from '@/lib/scoring/matchups';
 
 import { resolveClub } from '@/lib/clubs/registry';
-import { DRAW_THRESHOLD } from '@/lib/scoring/drawBand';
+import { DRAW_THRESHOLD, isDrawMargin } from '@/lib/scoring/drawBand';
 import { resolveEffectiveLineupFromMatchups } from '@/lib/lineups/carryForward';
 
 type AdminClient = ReturnType<typeof createAdminClient>;
@@ -1736,17 +1736,19 @@ export async function buildHomeModel(
           .map((m) => {
             const a = Number(m.score_a) || 0;
             const b = Number(m.score_b) || 0;
+            const isLive = m.status === 'live';
+            const isCompleted = m.status === 'completed';
             const shown = m.status !== 'scheduled';
-            const drawn = shown && Math.abs(a - b) <= DRAW_BAND;
+            const drawn = isCompleted && isDrawMargin(a, b);
             return {
               id: m.id,
               home: clubOf(m.team_a_id),
               away: clubOf(m.team_b_id),
               homeScore: shown ? a : null,
               awayScore: shown ? b : null,
-              tag: drawn ? 'Draw' : m.status === 'live' ? 'Live' : shown ? 'FT' : '',
+              tag: isLive ? 'Live' : isCompleted ? (drawn ? 'Draw' : 'FT') : '',
               drawn,
-              live: m.status === 'live',
+              live: isLive,
             };
           })
       : [];

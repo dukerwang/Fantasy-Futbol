@@ -56,3 +56,90 @@ describe('Opponent card title derivation', () => {
     expect(getOpponentTitle(true, 'live', 'ahead')).toBe('You lead');
   });
 });
+
+describe('Matchweek fixture status derivation', () => {
+  function deriveMatchweekFixture(m: {
+    status: 'scheduled' | 'live' | 'completed';
+    score_a: number | string | null;
+    score_b: number | string | null;
+  }) {
+    const a = Number(m.score_a) || 0;
+    const b = Number(m.score_b) || 0;
+    const isLive = m.status === 'live';
+    const isCompleted = m.status === 'completed';
+    const shown = m.status !== 'scheduled';
+    const drawn = isCompleted && Math.abs(a - b) <= 10;
+    return {
+      homeScore: shown ? a : null,
+      awayScore: shown ? b : null,
+      tag: isLive ? 'Live' : isCompleted ? (drawn ? 'Draw' : 'FT') : '',
+      drawn,
+      live: isLive,
+    };
+  }
+
+  it('tags active fixtures at kickoff (0.00 vs 0.00) as Live, not Draw', () => {
+    const result = deriveMatchweekFixture({
+      status: 'live',
+      score_a: 0,
+      score_b: 0,
+    });
+
+    expect(result.live).toBe(true);
+    expect(result.drawn).toBe(false);
+    expect(result.tag).toBe('Live');
+    expect(result.homeScore).toBe(0);
+    expect(result.awayScore).toBe(0);
+  });
+
+  it('tags active fixtures with unequal scores as Live', () => {
+    const result = deriveMatchweekFixture({
+      status: 'live',
+      score_a: 24.96,
+      score_b: 51.97,
+    });
+
+    expect(result.live).toBe(true);
+    expect(result.drawn).toBe(false);
+    expect(result.tag).toBe('Live');
+  });
+
+  it('tags completed fixtures within the draw threshold (<= 10 pts) as Draw', () => {
+    const result = deriveMatchweekFixture({
+      status: 'completed',
+      score_a: 42.5,
+      score_b: 48.0, // Difference = 5.5 <= 10
+    });
+
+    expect(result.live).toBe(false);
+    expect(result.drawn).toBe(true);
+    expect(result.tag).toBe('Draw');
+  });
+
+  it('tags completed fixtures outside the draw threshold as FT', () => {
+    const result = deriveMatchweekFixture({
+      status: 'completed',
+      score_a: 24.96,
+      score_b: 51.97, // Difference = 27.01 > 10
+    });
+
+    expect(result.live).toBe(false);
+    expect(result.drawn).toBe(false);
+    expect(result.tag).toBe('FT');
+  });
+
+  it('leaves scheduled fixtures with empty tag and null scores', () => {
+    const result = deriveMatchweekFixture({
+      status: 'scheduled',
+      score_a: null,
+      score_b: null,
+    });
+
+    expect(result.live).toBe(false);
+    expect(result.drawn).toBe(false);
+    expect(result.tag).toBe('');
+    expect(result.homeScore).toBeNull();
+    expect(result.awayScore).toBeNull();
+  });
+});
+

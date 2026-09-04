@@ -779,8 +779,8 @@
 }
 .mwScoreDim { composes: mwScore; color: var(--color-text-muted); }
 .mwTag {
-  font-family: var(--font-sans);
-  font-size: 10px;
+  font-family: var(--font-condensed);
+  font-size: var(--t-11);
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -788,10 +788,11 @@
   padding: 2px 6px;
   border-radius: var(--r-control);
   border: 1px solid var(--color-border-subtle);
-  line-height: 1.2;
+  line-height: 1;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  justify-self: center;
   white-space: nowrap;
 }
 .mwTagBand {
@@ -801,10 +802,30 @@
   border-color: var(--color-border);
 }
 .mwTagLive {
-  composes: mwTag;
+  display: inline-flex;
+  align-items: center;
+  justify-self: center;
+  gap: 6px;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 600;
+  font-size: var(--t-13);
+  line-height: 1;
   color: var(--color-live);
-  background: color-mix(in srgb, var(--color-live) 10%, transparent);
-  border-color: color-mix(in srgb, var(--color-live) 35%, transparent);
+  white-space: nowrap;
+}
+.mwTagLive::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: var(--r-round);
+  background: currentColor;
+  flex-shrink: 0;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .mwTagLive::before {
+    animation: pulse 1.8s ease-in-out infinite;
+  }
 }
 
 /* ---------- the table ----------
