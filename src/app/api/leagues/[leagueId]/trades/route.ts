@@ -428,13 +428,26 @@ export async function POST(req: NextRequest, { params }: Props) {
       requestedFaab,
     });
 
+    const { createNotification } = await import('@/lib/notifications/createNotification');
+    const { clubAbbr } = await import('@/lib/notifications/clubRef');
+    const { summarizeTradeForPush } = await import('@/lib/transfers/tradePush');
+    const abbr = clubAbbr(myTeam);
+
+    const pushBody = summarizeTradeForPush({
+      proposerAbbr: abbr,
+      offeredPlayerNames: [...offeredNames],
+      requestedPlayerNames: [...requestedNames],
+      offeredFaab,
+      requestedFaab,
+      offeredRightsCount: offeredRightIds.length,
+      requestedRightsCount: requestedRightIds.length,
+      isCounter: !!parentTradeId,
+    });
+
     if (offeredFaab > 0) offeredNames.push(`€${offeredFaab}m`);
     if (requestedFaab > 0) requestedNames.push(`€${requestedFaab}m`);
 
     // Create in-game notification for recipient manager
-    const { createNotification } = await import('@/lib/notifications/createNotification');
-    const { clubAbbr } = await import('@/lib/notifications/clubRef');
-    const abbr = clubAbbr(myTeam);
     await createNotification(admin, {
       kind: 'deals',
       leagueId,
@@ -442,7 +455,7 @@ export async function POST(req: NextRequest, { params }: Props) {
       title: `${dealName} from ${abbr}`,
       pushTitle: `${dealName} from ${abbr}`,
       content: `**${myTeam.team_name}** are offering: **${offeredNames.join(', ')}** in exchange for: **${requestedNames.join(', ')}**. Waiting on you.${message ? ` Message: "${message}"` : ''}`,
-      pushBody: `${abbr} have an offer in. Waiting on you.`,
+      pushBody,
       url: `/league/${leagueId}/transfers/deals`
     });
 

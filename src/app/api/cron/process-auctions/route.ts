@@ -109,6 +109,43 @@ export async function POST(req: NextRequest) {
 
         if (!leaderTeam || !player) continue;
 
+        const closingTag = `auction-closing-${topClaim.sale_listing_id ?? topClaim.player_id}`;
+
+        // Deduplicate: only send the 2-hour closing alert once per auction
+        const { data: alreadySent } = await admin
+          .from('notifications')
+          .select('id')
+          .eq('league_id', topClaim.league_id)
+          .eq('tag', closingTag)
+          .limit(1);
+
+        if (alreadySent && alreadySent.length > 0) continue;
+
+        const effectiveValue = Math.max(topClaim.faab_bid, Number(player.market_value || 0));
+        const isMarquee = effectiveValue >= 50;
+
+        let targetUserIds: string[] = [];
+        if (isMarquee) {
+          // Marquee (€50m+): Broadcast 2-hour final call to entire league
+          const { data: leagueTeams } = await admin
+            .from('teams')
+            .select('user_id')
+            .eq('league_id', topClaim.league_id)
+            .neq('id', leaderTeam.id);
+
+          targetUserIds = (leagueTeams ?? []).map((t) => t.user_id).filter(Boolean);
+        } else {
+          // Routine (< €50m): Notify prior active bidders on this lot only
+          const priorUserIds = claims
+            .slice(1)
+            .map((c) => (c.team as unknown as { user_id: string } | null)?.user_id)
+            .filter((uId): uId is string => !!uId && uId !== leaderTeam.user_id);
+
+          targetUserIds = Array.from(new Set(priorUserIds));
+        }
+
+        if (targetUserIds.length === 0) continue;
+
         const notice = closingInNotice(
           leaderTeam,
           player.name,
@@ -117,26 +154,22 @@ export async function POST(req: NextRequest) {
           topClaim.expires_at,
         );
 
-        const { data: leagueTeams } = await admin
-          .from('teams')
-          .select('user_id')
-          .eq('league_id', topClaim.league_id)
-          .neq('id', leaderTeam.id);
+        const destUrl = topClaim.sale_listing_id
+          ? `/league/${topClaim.league_id}/transfers/listings`
+          : `/league/${topClaim.league_id}/transfers/auctions`;
 
-        if (leagueTeams) {
-          await Promise.all(
-            leagueTeams.map((t) =>
-              createNotification(admin, {
-                kind: 'auctions',
-                leagueId: topClaim.league_id,
-                userId: t.user_id,
-                ...notice,
-                url: `/league/${topClaim.league_id}/transfers/auctions`,
-                tag: `auction-live-${topClaim.sale_listing_id ?? topClaim.player_id}`,
-              })
-            )
-          );
-        }
+        await Promise.all(
+          targetUserIds.map((userId) =>
+            createNotification(admin, {
+              kind: 'auctions',
+              leagueId: topClaim.league_id,
+              userId,
+              ...notice,
+              url: destUrl,
+              tag: closingTag,
+            })
+          )
+        );
       }
     }
   } catch (err) {

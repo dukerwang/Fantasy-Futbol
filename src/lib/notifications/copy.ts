@@ -11,6 +11,7 @@
  * roughly two lines and appends " from Gaffa" to the title.
  */
 import { clubAbbr, clubName, type ClubRef } from '@/lib/notifications/clubRef';
+import { roleArticle } from '@/lib/scoring/perfBand';
 import { getValueTier } from '@/lib/notifications/valueTiers';
 
 export type Notice = {
@@ -58,12 +59,11 @@ export function bidPlacedNotice(
   const headline = `${abbr} bid for ${playerName}`;
   return {
     title: headline,
-    // Same as inbox title — "CFC €50m" alone reads like a stock ticker on the lock screen.
     pushTitle: headline,
     content: `**${name}** have bid **${euro(amount)}** for **${playerName}**.${clock}`,
     pushBody: left
-      ? `${euro(amount)} · auction open, ${left}`
-      : `${euro(amount)} · auction now open`,
+      ? `${abbr} bid ${euro(amount)} for ${playerName}. Auction open, ${left}.`
+      : `${abbr} bid ${euro(amount)} for ${playerName}. Auction open.`,
   };
 }
 
@@ -87,9 +87,9 @@ export function outbidNotice(
     content: `**${name}** have gone to **${euro(amount)}** for **${playerName}**. ${action}`,
     pushBody: left
       ? left === 'closing now'
-        ? `${playerName} now ${euro(amount)}. Closing now.`
-        : `${playerName} now ${euro(amount)}. ${left} to bid.`
-      : `${playerName} now ${euro(amount)}. Bid to take the lead.`,
+        ? `${abbr} outbid you on ${playerName} at ${euro(amount)}. Closing now. Bid to lead.`
+        : `${abbr} outbid you on ${playerName} at ${euro(amount)}. ${left} to bid.`
+      : `${abbr} outbid you on ${playerName} at ${euro(amount)}. Bid to lead.`,
   };
 }
 
@@ -115,9 +115,9 @@ export function bidRaisedNotice(
     content: `**${name}** have raised the top bid for **${playerName}** to **${euro(amount)}**${yourBidClause}. ${action}`,
     pushBody: left
       ? left === 'closing now'
-        ? `${playerName} top bid ${euro(amount)} (${abbr}). Closing now.`
-        : `${playerName} top bid ${euro(amount)} (${abbr}). ${left} to bid.`
-      : `${playerName} top bid ${euro(amount)} (${abbr}). Bid to lead.`,
+        ? `${abbr} raised the top bid on ${playerName} to ${euro(amount)}. Closing now.`
+        : `${abbr} raised the top bid on ${playerName} to ${euro(amount)}. ${left} to bid.`
+      : `${abbr} raised the top bid on ${playerName} to ${euro(amount)}. Bid to lead.`,
   };
 }
 
@@ -141,8 +141,8 @@ export function listedNotice(
     pushTitle: headline,
     content: `**${name}** have listed **${playerName}** for sale${priceLine}.${clock}`,
     pushBody: left
-      ? `${playerName} listed. ${left} to bid.`
-      : `${playerName} is listed.`,
+      ? `${playerName} is listed by ${abbr}. ${left} to bid.`
+      : `${playerName} is listed by ${abbr}.`,
   };
 }
 
@@ -157,8 +157,8 @@ export function droppedNotice(club: ClubRef, playerName: string, expiresAt?: Exp
     pushTitle: headline,
     content: `**${name}** have released **${playerName}** into the auction pool. ${clock}`,
     pushBody: left
-      ? `${playerName} in auction. ${left} to bid.`
-      : `${playerName} in auction. Bid now.`,
+      ? `${abbr} released ${playerName}. Auction open — ${left}.`
+      : `${abbr} released ${playerName}. 72h open auction started.`,
   };
 }
 
@@ -174,7 +174,7 @@ export function auctionLostNotice(
     title: `Lost to ${abbr}`,
     pushTitle: `Lost to ${abbr}`,
     content: `**${name}** signed **${playerName}** for **${euro(winnerBid)}**. Your bid of **${euro(yourBid)}** wasn't enough.`,
-    pushBody: `${playerName} to ${abbr} for ${euro(winnerBid)}.`,
+    pushBody: `${playerName} to ${abbr} for ${euro(winnerBid)}. Your bid wasn't enough.`,
   };
 }
 
@@ -189,13 +189,14 @@ export function closingInNotice(
   const abbr = clubAbbr(leader);
   const left = timeLeft(expiresAt);
   const tier = getValueTier(Math.max(amount, Number(marketValue || 0)));
+  const timeClause = left ? (left === 'closing now' ? 'Closing now' : `${left} to bid`) : 'Final call to bid';
 
   if (tier === 'galactico') {
     return {
       title: `ADVANCING: ${abbr} closing in on ${playerName}`,
       pushTitle: `ADVANCING: ${playerName} · ${abbr}`,
       content: `**BREAKING:** **${name}** are in advanced stages to complete a marquee deal for **${playerName}** (**${euro(amount)}**). ${left ? `${left} on the open market` : 'Final hours'} before the agreement is sealed.`,
-      pushBody: `ADVANCING: ${playerName} to ${abbr} (${euro(amount)}). Final call to bid.`,
+      pushBody: `ADVANCING: ${playerName} to ${abbr} (${euro(amount)}). ${timeClause}!`,
     };
   }
 
@@ -204,7 +205,7 @@ export function closingInNotice(
       title: `Closing in: ${abbr} on verge of ${playerName}`,
       pushTitle: `Closing in: ${playerName} · ${abbr}`,
       content: `**${name}** are closing in on a blockbuster agreement for **${playerName}** at **${euro(amount)}**. ${left ? `${left} to submit` : 'Final hours to submit'} a competing offer.`,
-      pushBody: `${abbr} closing in on ${playerName} (${euro(amount)}). Final call to bid.`,
+      pushBody: `Closing in: ${abbr} lead for ${playerName} at ${euro(amount)}. ${timeClause}!`,
     };
   }
 
@@ -212,7 +213,7 @@ export function closingInNotice(
     title: `${abbr} closing in on ${playerName}`,
     pushTitle: `${abbr} closing in on ${playerName}`,
     content: `**${name}** lead the race for **${playerName}** at **${euro(amount)}**. ${left ? `${left} before` : 'Final countdown before'} the gavel falls.`,
-    pushBody: `${playerName} to ${abbr} (${euro(amount)}). Gavel falling soon.`,
+    pushBody: `Closing in: ${abbr} lead for ${playerName} at ${euro(amount)}. ${timeClause}.`,
   };
 }
 
@@ -231,7 +232,7 @@ export function buyNowTriggeredNotice(
       title: `Galactico! ${abbr} trigger release clause for ${playerName}`,
       pushTitle: `Galactico!`,
       content: `**BREAKING:** **${name}** have triggered the **${euro(amount)}** release clause for **${playerName}**! Direct agreement completed... HERE WE GO!`,
-      pushBody: `BREAKING: ${playerName} to ${abbr} (${euro(amount)}). Release clause triggered.`,
+      pushBody: `BREAKING: ${playerName} to ${abbr} (${euro(amount)}). Release clause triggered... HERE WE GO!`,
     };
   }
 
@@ -240,7 +241,7 @@ export function buyNowTriggeredNotice(
       title: `Blockbuster! ${abbr} trigger release clause for ${playerName}`,
       pushTitle: `Blockbuster!`,
       content: `**${name}** have triggered the **${euro(amount)}** release clause for **${playerName}**! Agreement sealed, HERE WE GO!`,
-      pushBody: `Blockbuster: ${playerName} to ${abbr} (${euro(amount)}). Release clause triggered.`,
+      pushBody: `Blockbuster: ${playerName} to ${abbr} (${euro(amount)}). Release clause triggered, HERE WE GO!`,
     };
   }
 
@@ -248,7 +249,7 @@ export function buyNowTriggeredNotice(
     title: `${abbr} buy out ${playerName}`,
     pushTitle: `${abbr} buy out ${playerName}`,
     content: `**${name}** have triggered the **${euro(amount)}** buyout for **${playerName}**. Agreement completed, here we go!`,
-    pushBody: `${playerName} to ${abbr} for ${euro(amount)}.`,
+    pushBody: `${playerName} to ${abbr} for ${euro(amount)} buyout, here we go!`,
   };
 }
 
@@ -280,7 +281,6 @@ export function loanFinalWeekNotice(
     title: `${playerName}'s loan enters its final week`,
     pushTitle: `Loan entering final week`,
     content: `**${playerName}** is entering the final matchweek (GW${endGw}) of their loan spell at **${clubName(borrower)}** before returning to **${clubName(lender)}**.`,
-    pushBody: `${playerName} loan at ${clubAbbr(borrower)} ends after GW${endGw}.`,
+    pushBody: `${playerName}'s loan at ${clubAbbr(borrower)} ends after GW${endGw}.`,
   };
 }
-

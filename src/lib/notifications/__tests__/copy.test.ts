@@ -60,7 +60,7 @@ describe('bid and market notices', () => {
     expect(n.content).toBe(
       '**Vardy Party** have bid **€45m** for **Bukayo Saka**. Auction open — 24h left.',
     );
-    expect(n.pushBody).toBe('€45m · auction open, 24h left');
+    expect(n.pushBody).toBe('VDP bid €45m for Bukayo Saka. Auction open, 24h left.');
   });
 
   it('names who outbid you and how long you have to answer', () => {
@@ -70,13 +70,13 @@ describe('bid and market notices', () => {
     expect(n.content).toBe(
       '**Vardy Party** have gone to **€50m** for **Bukayo Saka**. 24h left to bid.',
     );
-    expect(n.pushBody).toBe('Bukayo Saka now €50m. 24h left to bid.');
+    expect(n.pushBody).toBe('VDP outbid you on Bukayo Saka at €50m. 24h left to bid.');
 
     const closingNotice = outbidNotice(vdp, 'Bukayo Saka', 50, Date.now() + 30_000);
     expect(closingNotice.content).toBe(
       '**Vardy Party** have gone to **€50m** for **Bukayo Saka**. Closing now. Bid to take the lead.',
     );
-    expect(closingNotice.pushBody).toBe('Bukayo Saka now €50m. Closing now.');
+    expect(closingNotice.pushBody).toBe('VDP outbid you on Bukayo Saka at €50m. Closing now. Bid to lead.');
   });
 
   it('notifies trailing prior bidders that the top price was raised', () => {
@@ -86,7 +86,7 @@ describe('bid and market notices', () => {
     expect(n.content).toBe(
       '**Vardy Party** have raised the top bid for **Ayyoub Bouaddi** to **€51m** (your bid: **€40m**). 24h left to bid.',
     );
-    expect(n.pushBody).toBe('Ayyoub Bouaddi top bid €51m (VDP). 24h left to bid.');
+    expect(n.pushBody).toBe('VDP raised the top bid on Ayyoub Bouaddi to €51m. 24h left to bid.');
   });
 
   it('falls back to the full club name in the title when there is no abbr', () => {
@@ -104,7 +104,7 @@ describe('bid and market notices', () => {
     expect(listed.title).toBe('VDP list Erling Haaland');
     expect(listed.pushTitle).toBe('VDP list Erling Haaland');
     expect(listed.content).toContain('Auction open — 3d left.');
-    expect(listed.pushBody).toBe('Erling Haaland listed. 3d left to bid.');
+    expect(listed.pushBody).toBe('Erling Haaland is listed by VDP. 3d left to bid.');
 
     const askOnly = listedNotice(vdp, 'Erling Haaland', ' (asking €90m)');
     expect(askOnly.content).toBe(
@@ -120,7 +120,7 @@ describe('bid and market notices', () => {
     expect(n.content).toContain('**Vardy Party** have released **Ollie Watkins**');
     expect(n.content).toContain('Auction open — 3d left.');
     expect(n.content).not.toMatch(/waiver/i);
-    expect(n.pushBody).toBe('Ollie Watkins in auction. 3d left to bid.');
+    expect(n.pushBody).toBe('VDP released Ollie Watkins. Auction open — 3d left.');
   });
 
   it('tells a losing bidder who signed the player, and at what fee', () => {
@@ -129,34 +129,34 @@ describe('bid and market notices', () => {
     expect(n.content).toBe(
       "**Vardy Party** signed **Bukayo Saka** for **€55m**. Your bid of **€50m** wasn't enough.",
     );
-    expect(n.pushBody).toBe('Bukayo Saka to VDP for €55m.');
+    expect(n.pushBody).toBe("Bukayo Saka to VDP for €55m. Your bid wasn't enough.");
   });
 
   describe('closingInNotice (Romano-style)', () => {
-    const in1h = Date.now() + 60 * 60_000;
+    const in2h = Date.now() + 2 * 3600_000;
 
     it('generates galactico alert for 100m+ deals', () => {
-      const n = closingInNotice(vdp, 'Kylian Mbappé', 110, 120, in1h);
+      const n = closingInNotice(vdp, 'Kylian Mbappé', 110, 120, in2h);
       expect(n.title).toBe('ADVANCING: VDP closing in on Kylian Mbappé');
       expect(n.pushTitle).toBe('ADVANCING: Kylian Mbappé · VDP');
       expect(n.content).toContain('**BREAKING:** **Vardy Party** are in advanced stages');
       expect(n.content).toContain('(**€110m**)');
-      expect(n.pushBody).toBe('ADVANCING: Kylian Mbappé to VDP (€110m). Final call to bid.');
+      expect(n.pushBody).toBe('ADVANCING: Kylian Mbappé to VDP (€110m). 2h left to bid!');
     });
 
     it('generates blockbuster alert for 80m+ deals', () => {
-      const n = closingInNotice(vdp, 'Cole Palmer', 85, 80, in1h);
+      const n = closingInNotice(vdp, 'Cole Palmer', 85, 80, in2h);
       expect(n.title).toBe('Closing in: VDP on verge of Cole Palmer');
       expect(n.pushTitle).toBe('Closing in: Cole Palmer · VDP');
       expect(n.content).toContain('blockbuster agreement');
-      expect(n.pushBody).toBe('VDP closing in on Cole Palmer (€85m). Final call to bid.');
+      expect(n.pushBody).toBe('Closing in: VDP lead for Cole Palmer at €85m. 2h left to bid!');
     });
 
     it('generates standard countdown for regular deals', () => {
-      const n = closingInNotice(vdp, 'Alex Iwobi', 25, 20, in1h);
+      const n = closingInNotice(vdp, 'Alex Iwobi', 25, 20, in2h);
       expect(n.title).toBe('VDP closing in on Alex Iwobi');
       expect(n.content).toContain('lead the race for **Alex Iwobi** at **€25m**');
-      expect(n.pushBody).toBe('Alex Iwobi to VDP (€25m). Gavel falling soon.');
+      expect(n.pushBody).toBe('Closing in: VDP lead for Alex Iwobi at €25m. 2h left to bid.');
     });
   });
 
@@ -165,21 +165,21 @@ describe('bid and market notices', () => {
       const n = buyNowTriggeredNotice(vdp, 'Declan Rice', 105, 110);
       expect(n.title).toBe('Galactico! VDP trigger release clause for Declan Rice');
       expect(n.content).toContain('**BREAKING:** **Vardy Party** have triggered the **€105m** release clause for **Declan Rice**! Direct agreement completed... HERE WE GO!');
-      expect(n.pushBody).toBe('BREAKING: Declan Rice to VDP (€105m). Release clause triggered.');
+      expect(n.pushBody).toBe('BREAKING: Declan Rice to VDP (€105m). Release clause triggered... HERE WE GO!');
     });
 
     it('generates blockbuster alert for 80m+ release clause triggers', () => {
       const n = buyNowTriggeredNotice(vdp, 'Cole Palmer', 85, 80);
       expect(n.title).toBe('Blockbuster! VDP trigger release clause for Cole Palmer');
       expect(n.content).toContain('**Vardy Party** have triggered the **€85m** release clause for **Cole Palmer**! Agreement sealed, HERE WE GO!');
-      expect(n.pushBody).toBe('Blockbuster: Cole Palmer to VDP (€85m). Release clause triggered.');
+      expect(n.pushBody).toBe('Blockbuster: Cole Palmer to VDP (€85m). Release clause triggered, HERE WE GO!');
     });
 
     it('generates standard buyout alert for regular players', () => {
       const n = buyNowTriggeredNotice(vdp, 'Alex Iwobi', 20, 20);
       expect(n.title).toBe('VDP buy out Alex Iwobi');
       expect(n.content).toContain('**Vardy Party** have triggered the **€20m** buyout for **Alex Iwobi**. Agreement completed, here we go!');
-      expect(n.pushBody).toBe('Alex Iwobi to VDP for €20m.');
+      expect(n.pushBody).toBe('Alex Iwobi to VDP for €20m buyout, here we go!');
     });
   });
 
@@ -200,7 +200,7 @@ describe('bid and market notices', () => {
       const n = loanFinalWeekNotice('Sam Rook', vdp, unnamed, 15);
       expect(n.title).toBe("Sam Rook's loan enters its final week");
       expect(n.content).toContain('final matchweek (GW15)');
-      expect(n.pushBody).toBe('Sam Rook loan at Holloway Utd ends after GW15.');
+      expect(n.pushBody).toBe("Sam Rook's loan at Holloway Utd ends after GW15.");
     });
   });
 });

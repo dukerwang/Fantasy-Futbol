@@ -305,6 +305,7 @@ export async function POST(req: NextRequest) {
         title: `Message from ${senderName}`,
         pushTitle: `Message from ${senderShort}`,
         content: preview,
+        pushBody: `${senderShort}: ${preview}`,
         url: `/league/${leagueId}/chat`,
         tag: `dm-${leagueId}-${user.id}`,
       });
