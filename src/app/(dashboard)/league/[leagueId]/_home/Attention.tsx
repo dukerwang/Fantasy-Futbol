@@ -94,7 +94,7 @@ export default function Attention({
   return (
     <section className={styles.attn} aria-label="Needs you">
       <div className={styles.attnHd}>
-        <h2 className={styles.attnT}>Needs you</h2>
+        <h2 className={styles.attnT}>Alerts</h2>
         <span className={styles.attnHint}>
           {visible.length === 1 ? 'one thing' : `${visible.length} things, soonest first`}
         </span>

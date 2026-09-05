@@ -481,7 +481,7 @@ export default function DealsClient({
           {error && <p className={styles.error}>{error}</p>}
 
           <div className={styles.sect}>
-            <h2 className={styles.sectTitle}>Waiting on you</h2>
+            <h2 className={styles.sectTitle}>Incoming</h2>
             <span className={styles.sectHint}>
               {answerCount === 0 ? 'nothing needs an answer' : `${answerCount} to answer`}
             </span>
@@ -499,7 +499,7 @@ export default function DealsClient({
           {(sent.length > 0 || loansSent.length > 0) && (
             <>
               <div className={`${styles.sect} ${styles.sectSpaced}`}>
-                <h2 className={styles.sectTitle}>Waiting on them</h2>
+                <h2 className={styles.sectTitle}>Sent</h2>
                 <span className={styles.sectHint}>{sent.length + loansSent.length} sent</span>
               </div>
               {sent.map((p) => <TradeCard key={p.id} p={p} incoming={false} />)}
