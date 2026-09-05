@@ -123,13 +123,36 @@ describe('bid and market notices', () => {
     expect(n.pushBody).toBe('VDP released Ollie Watkins. Auction open — 3d left.');
   });
 
-  it('tells a losing bidder who signed the player, and at what fee', () => {
-    const n = auctionLostNotice(vdp, 'Bukayo Saka', 55, 50);
-    expect(n.title).toBe('Lost to VDP');
-    expect(n.content).toBe(
-      "**Vardy Party** signed **Bukayo Saka** for **€55m**. Your bid of **€50m** wasn't enough.",
-    );
-    expect(n.pushBody).toBe("Bukayo Saka to VDP for €55m. Your bid wasn't enough.");
+  describe('auctionLostNotice (Romano-style)', () => {
+    it('formats standard tier auction lost notice', () => {
+      const n = auctionLostNotice(vdp, 'Bukayo Saka', 55, 50);
+      expect(n.title).toBe('Lost to VDP');
+      expect(n.pushTitle).toBe('Lost to VDP');
+      expect(n.content).toBe(
+        '**Bukayo Saka** to **Vardy Party** for **€55m**, here we go! Your bid was **€50m**.',
+      );
+      expect(n.pushBody).toBe('Bukayo Saka to VDP for €55m, here we go!');
+    });
+
+    it('formats blockbuster tier auction lost notice', () => {
+      const n = auctionLostNotice(vdp, 'Cole Palmer', 85, 75);
+      expect(n.title).toBe('Lost to VDP');
+      expect(n.pushTitle).toBe('Blockbuster!');
+      expect(n.content).toBe(
+        '**Cole Palmer** to **Vardy Party** for **€85m**, HERE WE GO! Your bid was **€75m**.',
+      );
+      expect(n.pushBody).toBe('Cole Palmer to VDP for €85m, HERE WE GO!');
+    });
+
+    it('formats galactico tier auction lost notice', () => {
+      const n = auctionLostNotice(vdp, 'Bradley Barcola', 135, 120);
+      expect(n.title).toBe('Lost to VDP');
+      expect(n.pushTitle).toBe('Galactico!');
+      expect(n.content).toBe(
+        'BREAKING: **Bradley Barcola** to **Vardy Party** for **€135m**... HERE WE GO! Your bid was **€120m**.',
+      );
+      expect(n.pushBody).toBe('BREAKING: Bradley Barcola to VDP for €135m... HERE WE GO!');
+    });
   });
 
   describe('closingInNotice (Romano-style)', () => {

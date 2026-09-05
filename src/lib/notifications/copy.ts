@@ -13,6 +13,7 @@
 import { clubAbbr, clubName, type ClubRef } from '@/lib/notifications/clubRef';
 import { roleArticle } from '@/lib/scoring/perfBand';
 import { getValueTier } from '@/lib/notifications/valueTiers';
+import { buildHereWeGo, pushTitleForEyebrow } from '@/lib/notifications/hereWeGo';
 
 export type Notice = {
   title: string;
@@ -167,14 +168,23 @@ export function auctionLostNotice(
   playerName: string,
   winnerBid: number,
   yourBid: number,
+  marketValue?: number | null,
 ): Notice {
   const name = clubName(winner);
   const abbr = clubAbbr(winner);
+  const tierValue = Math.max(winnerBid, Number(marketValue || 0));
+
+  const detailPlain = `${playerName} to ${abbr} for ${euro(winnerBid)}`;
+  const detailMd = `**${playerName}** to **${name}** for **${euro(winnerBid)}**`;
+
+  const { lead: pushBody } = buildHereWeGo('signing', detailPlain, tierValue);
+  const { eyebrow, lead: contentLead } = buildHereWeGo('signing', detailMd, tierValue);
+
   return {
     title: `Lost to ${abbr}`,
-    pushTitle: `Lost to ${abbr}`,
-    content: `**${name}** signed **${playerName}** for **${euro(winnerBid)}**. Your bid of **${euro(yourBid)}** wasn't enough.`,
-    pushBody: `${playerName} to ${abbr} for ${euro(winnerBid)}. Your bid wasn't enough.`,
+    pushTitle: pushTitleForEyebrow(eyebrow, `Lost to ${abbr}`),
+    content: `${contentLead} Your bid was **${euro(yourBid)}**.`,
+    pushBody,
   };
 }
 

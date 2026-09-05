@@ -107,8 +107,15 @@ export async function notifyAuctionResolution(
       leagueId,
     });
 
+    const winnerAbbr =
+      leagueTeams?.find((t) => t.id === resData.winner_team_id)?.abbreviation ??
+      winnerTeamName ??
+      'Unknown Club';
+
     const winDetailMd = `**${playerName}** to **${winnerTeamName ?? 'Unknown Club'}** for €${winnerBid}m`;
+    const winDetailPlain = `${playerName} to ${winnerAbbr} for €${winnerBid}m`;
     const { eyebrow, lead } = buildHereWeGo('signing', winDetailMd, tierValue);
+    const { lead: pushBodyLead } = buildHereWeGo('signing', winDetailPlain, tierValue);
 
     // 1. Notify the winner
     if (winnerUserId) {
@@ -119,6 +126,7 @@ export async function notifyAuctionResolution(
         title: eyebrow || 'Auction Won',
         pushTitle: pushTitleForEyebrow(eyebrow, 'Auction Won'),
         content: `${lead}${resData.winner_severance ? ` **${dropPlayerName}** was released to clear roster space.` : ''}`,
+        pushBody: pushBodyLead,
         url: `/league/${leagueId}/team`,
         tag: `auction-live-${resData.sale_listing_id ?? playerId}`,
       });
@@ -166,7 +174,8 @@ export async function notifyAuctionResolution(
       );
     }
 
-    // 1b. Notify the seller (if player sale)
+    // 1c. Notify the seller (if player sale)
+    let sellerUserId: string | null = null;
     if (resData.sale_listing_id && resData.seller_team_id) {
       const { data: sellerTeam } = await admin
         .from('teams')
@@ -174,29 +183,31 @@ export async function notifyAuctionResolution(
         .eq('id', resData.seller_team_id)
         .single();
 
-      if (sellerTeam?.user_id) {
+      sellerUserId = sellerTeam?.user_id ?? null;
+      if (sellerUserId) {
         const sellDetailMd = `**${playerName}** to **${winnerTeamName}** for €${winnerBid}m`;
+        const sellDetailPlain = `${playerName} to ${winnerAbbr} for €${winnerBid}m`;
         const sellLine = buildHereWeGo('signing', sellDetailMd, tierValue);
+        const { lead: sellPushLead } = buildHereWeGo('signing', sellDetailPlain, tierValue);
         await createNotification(admin, {
           kind: 'auctions',
           leagueId,
-          userId: sellerTeam.user_id,
+          userId: sellerUserId,
           title: sellLine.eyebrow || 'Player Sold',
           pushTitle: pushTitleForEyebrow(sellLine.eyebrow, 'Player Sold'),
           content: sellLine.lead,
+          pushBody: sellPushLead,
           url: `/league/${leagueId}/team`,
           tag: `listing-sold-${resData.sale_listing_id}`,
         });
 
-        if (sellerTeam.user_id) {
-          await sendEmailToUsers(admin, {
-            userIds: [sellerTeam.user_id],
-            kind: 'auctions',
-            subject: `${playerName} sold to ${winnerTeamName ?? 'another club'} for €${winnerBid}m`,
-            html: getPlayerSoldEmail(playerName, winnerTeamName ?? 'Another club', winnerBid, tierValue, `${baseUrl}/league/${leagueId}`),
-            leagueId,
-          });
-        }
+        await sendEmailToUsers(admin, {
+          userIds: [sellerUserId],
+          kind: 'auctions',
+          subject: `${playerName} sold to ${winnerTeamName ?? 'another club'} for €${winnerBid}m`,
+          html: getPlayerSoldEmail(playerName, winnerTeamName ?? 'Another club', winnerBid, tierValue, `${baseUrl}/league/${leagueId}`),
+          leagueId,
+        });
       }
     }
 
@@ -209,7 +220,7 @@ export async function notifyAuctionResolution(
     await Promise.all(
       losingBidders.map(async (loser) => {
         if (loser.user_id) {
-          const notice = auctionLostNotice(winnerClub, playerName, winnerBid, loser.faab_bid);
+          const notice = auctionLostNotice(winnerClub, playerName, winnerBid, loser.faab_bid, playerMarketValue);
           await createNotification(admin, {
             kind: 'auctions',
             leagueId,
@@ -221,6 +232,35 @@ export async function notifyAuctionResolution(
         }
       }),
     );
+
+    // 3. For marquee signings (>= €50m), broadcast confirmed signing to non-bidders in the league
+    if (tierValue >= 50) {
+      const alreadyNotifiedUserIds = new Set<string>([
+        ...(winnerUserId ? [winnerUserId] : []),
+        ...(sellerUserId ? [sellerUserId] : []),
+        ...losingBidders.map((l) => l.user_id).filter(Boolean),
+      ]);
+
+      const otherLeagueUsers = (leagueTeams ?? [])
+        .map((t) => t.user_id)
+        .filter((uId): uId is string => !!uId && !alreadyNotifiedUserIds.has(uId));
+
+      await Promise.all(
+        otherLeagueUsers.map((userId) =>
+          createNotification(admin, {
+            kind: 'auctions',
+            leagueId,
+            userId,
+            title: eyebrow || 'Signing Confirmed',
+            pushTitle: pushTitleForEyebrow(eyebrow, 'Signed'),
+            content: lead,
+            pushBody: pushBodyLead,
+            url: `/league/${leagueId}/transfers/auctions`,
+            tag: `auction-live-${resData.sale_listing_id ?? playerId}`,
+          })
+        )
+      );
+    }
   } catch (err) {
     console.error('[notifyAuctionResolution] Failed to send auction result notifications:', err);
   }
