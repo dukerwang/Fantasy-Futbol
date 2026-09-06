@@ -86,7 +86,11 @@ Modified:
 - `POST /listings` — accepts gates + `askPrice`; 80% pre-check; no manual anchor
   seed (080's trigger owns it).
 - `PATCH /listings/[id]` — NEW. Edit while `pending`; returns `outstandingOffers`.
-- `POST /listings/[id]/bid` — DEPRECATED, now delegates to the RPC. **080 had
+- `POST /listings/[id]/bid` — REMOVED (2026-09-06). It delegated to the RPC and
+  kept none of the caller-side gates, so it reached the same auction without the
+  IR gate, the buy-back exclusion, the academy compliance check or the unpriced
+  -player quarantine — and the RPC enforces none of those either. Its last
+  caller, the legacy /trades page, now posts to `/auctions/bid`. **080 had also
   silently broken it**: it branched on "no anchor exists" to detect a first bid,
   which stopped ever being true.
 - `POST /trades` — `saleListingId`, gate enforcement, cash-only floor.
@@ -124,8 +128,9 @@ chose to delete rather than fix. `computeEligibility` and its 3 queries are gone
    `/dev/` bypass in `src/proxy.ts` are both gone.
 4. **Old routes still live** because the OLD pages still exist — delete with
    them: `GET /auctions`, `GET /listings`, `GET /trades`,
-   `POST /listings/[id]/bid`, `POST /teams/[id]/trade-block`. The new hub uses
-   none of them. The old pages (`players/`, `trades/`) are still routable and
+   `POST /teams/[id]/trade-block`. The new hub uses none of them.
+   `POST /listings/[id]/bid` was on this list and is now gone; the legacy page
+   bids through `/auctions/bid` instead. The old pages (`players/`, `trades/`) are still routable and
    still read `on_trade_block`, which is what blocks migration 084.
 5. **Separate bug, already spawned as its own task**: the draft assigned the same
    player to two teams in the same league (Gabriel Martinelli, 4 leagues).
