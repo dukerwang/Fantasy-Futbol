@@ -16,7 +16,7 @@
 
 import type { createAdminClient } from '@/lib/supabase/admin';
 import { FULL_PLAYER_SELECT } from '@/lib/constants/queries';
-import type { Player, RosterStatus } from '@/types';
+import type { MatchupLineup, Player, RosterStatus } from '@/types';
 import type { CrestConfig } from '@/components/crest/types';
 import { getClubHonours, groupHonours, type HonourGroup } from '@/lib/honours/getClubHonours';
 import {
@@ -28,6 +28,8 @@ import { listDecisions, getSlotUsage } from '@/lib/departures/decisions';
 import { OPEN_STATUSES, RIGHTS_HELD_STATUSES } from '@/lib/departures/types';
 import { CLUB_BY_SLUG } from '@/lib/clubs/registry';
 import { resolveCurrentGw } from '@/lib/season/currentGameweek';
+import { resolveLineupEditMatchup } from '@/lib/lineups/editTarget';
+import { normalizeMatchupLineup } from '@/lib/lineups/normalizeMatchupLineup';
 
 type AdminClient = ReturnType<typeof createAdminClient>;
 
@@ -59,6 +61,13 @@ export interface SquadEntry {
   isPendingDrop: boolean;
   listing: SquadListing | null;
   form: number[];
+  /** Small, current-window inputs for the read-only projected XI. */
+  projection: {
+    quality: 'elite' | 'high' | 'solid' | 'squad' | null;
+    minutesRole: 'nailed' | 'likely_starter' | 'rotation_risk' | 'fringe' | null;
+    riskFlags: string[];
+    recentAppearances: number;
+  };
   player: Player;
 }
 
@@ -127,6 +136,8 @@ export interface ClubProps {
     ofTeams: number;
   };
   entries: SquadEntry[];
+  /** The editor-target lineup, with the most recent valid saved lineup as a fallback. */
+  savedLineup: { gameweek: number; lineup: MatchupLineup | null } | null;
   departures: {
     pending: DepartureView[];
     held: DepartureView[];
@@ -229,6 +240,7 @@ export async function loadClubView(
     { data: listings },
     { data: pendingDrops },
     { data: formRows },
+    { data: outlookRows },
   ] = await Promise.all([
     rosterIds.length
       ? admin.from('player_rankings').select('player_id, overall_rank, position_ranks').in('player_id', rosterIds)
@@ -258,11 +270,14 @@ export async function loadClubView(
     rosterIds.length && currentGw > 0
       ? admin
           .from('player_stats')
-          .select('player_id, gameweek, fantasy_points')
+          .select('player_id, gameweek, fantasy_points, stats')
           .eq('season', statsSeason)
           .in('player_id', rosterIds)
           .gte('gameweek', formFrom)
           .lte('gameweek', currentGw)
+      : Promise.resolve({ data: [] as never[] }),
+    rosterIds.length
+      ? admin.from('player_outlooks').select('player_id, sidecar').in('player_id', rosterIds)
       : Promise.resolve({ data: [] as never[] }),
   ]);
 
@@ -270,14 +285,18 @@ export async function loadClubView(
   const archiveMap = new Map((archives ?? []).map((a: any) => [a.player_id, a]));
   const listingsMap = new Map((listings ?? []).map((l: any) => [l.player_id, l]));
   const pendingDropIds = new Set((pendingDrops ?? []).map((d: any) => d.player_id));
+  const outlookByPlayer = new Map((outlookRows ?? []).map((row: any) => [row.player_id, row.sidecar as Record<string, unknown> | null]));
 
   // Last-5 form array per player (fantasy points, oldest → newest).
   const formByPlayer = new Map<string, number[]>();
+  const appearancesByPlayer = new Map<string, number>();
   if (currentGw > 0) {
     const byPlayer = new Map<string, Map<number, number>>();
     for (const s of (formRows ?? []) as any[]) {
       if (!byPlayer.has(s.player_id)) byPlayer.set(s.player_id, new Map());
       byPlayer.get(s.player_id)!.set(s.gameweek, (byPlayer.get(s.player_id)!.get(s.gameweek) ?? 0) + Number(s.fantasy_points));
+      const minutes = Number((s.stats as { minutes_played?: number } | null)?.minutes_played ?? 0);
+      if (minutes > 0) appearancesByPlayer.set(s.player_id, (appearancesByPlayer.get(s.player_id) ?? 0) + 1);
     }
     for (const pid of rosterIds) {
       const gwMap = byPlayer.get(pid);
@@ -307,9 +326,51 @@ export async function loadClubView(
       isPendingDrop: pendingDropIds.has(e.player_id),
       listing: listingsMap.get(e.player_id) ?? null,
       form: formByPlayer.get(e.player_id) ?? [],
+      projection: {
+        quality: (outlookByPlayer.get(e.player_id)?.quality as SquadEntry['projection']['quality']) ?? null,
+        minutesRole: (outlookByPlayer.get(e.player_id)?.minutes_role as SquadEntry['projection']['minutesRole']) ?? null,
+        riskFlags: Array.isArray(outlookByPlayer.get(e.player_id)?.risk_flags)
+          ? outlookByPlayer.get(e.player_id)!.risk_flags as string[]
+          : [],
+        recentAppearances: appearancesByPlayer.get(e.player_id) ?? 0,
+      },
       player,
     };
   });
+
+  // Match the editor's target first. If that matchup has not yet been saved,
+  // keep the most recently saved valid lineup visible instead of showing an
+  // apparently broken empty state between gameweeks.
+  const editMatchup = await resolveLineupEditMatchup(admin, team.id, currentGw);
+  const lineupFrom = (row: { team_a_id: string; lineup_a: MatchupLineup | null; lineup_b: MatchupLineup | null }) =>
+    normalizeMatchupLineup(row.team_a_id === team.id ? row.lineup_a : row.lineup_b);
+  let savedLineup = editMatchup
+    ? { gameweek: editMatchup.gameweek, lineup: lineupFrom(editMatchup) }
+    : null;
+  if (!savedLineup?.lineup?.starters?.length) {
+    const { data: savedMatchups } = await admin
+      .from('matchups')
+      .select('team_a_id, team_b_id, lineup_a, lineup_b, gameweek, status')
+      .eq('league_id', leagueId)
+      .or(`team_a_id.eq.${team.id},team_b_id.eq.${team.id}`)
+      .order('gameweek', { ascending: true });
+
+    const saved = (savedMatchups ?? []).filter((m: any) => {
+      const l = lineupFrom(m);
+      return (l?.starters?.length ?? 0) > 0;
+    });
+
+    if (saved.length > 0) {
+      const upTo = saved.filter((m: any) => m.gameweek <= Math.max(currentGw, 1));
+      const chosen = upTo.length > 0 ? upTo[upTo.length - 1] : saved[saved.length - 1];
+      if (chosen) {
+        const l = lineupFrom(chosen);
+        if (l) {
+          savedLineup = { gameweek: chosen.gameweek, lineup: l };
+        }
+      }
+    }
+  }
 
   // ── Standings (rank, record, points-for) + the league's other clubs ─────────
   const [{ data: standingsRows }, { data: leagueTeams }] = await Promise.all([
@@ -456,6 +517,7 @@ export async function loadClubView(
     },
     standing,
     entries,
+    savedLineup,
     departures,
     honours: groupHonours(honoursByTeam.get(team.id) ?? []),
   };
