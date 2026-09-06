@@ -72,6 +72,9 @@ Full quotes and dates in **`docs/DECISIONS.md`**. Summary: [decided]
 * **Gaffa is not a themed costume.** Sophisticated, accessible product UI for real football fans. [decided]
 * **"One job per colour" is not binding.** Green carries topbar chrome, primary buttons, and positive status safely via the green ramp. [decided]
 * **Mobile is a first-class target, not a reflow.** Must look and feel native, tactile, and ergonomic. [decided]
+* **No white panels floating on the cream ground.** A section is a serif title over a 2px ink rule with flat content beneath it; only a genuinely bounded object (hero, board, table) gets a 1px border box — border, not shadow. `.g-panel` is not the default for a new page. See `_home/home.module.css`. [decided]
+* **Headings and section titles are title case**; buttons stay sentence case. [decided]
+* **A heading names the thing beneath it**, it does not caption it. "Title-Winning XI", not "The XI That Won It". [decided]
 
 ---
 

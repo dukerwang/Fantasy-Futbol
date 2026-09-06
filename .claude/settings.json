@@ -1,0 +1,31 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "NODE=$(command -v node || echo /opt/homebrew/bin/node); \"$NODE\" \"${CLAUDE_PROJECT_DIR:-.}/scripts/check-ui-rules.mjs\" --hook",
+            "timeout": 20,
+            "statusMessage": "Checking UI rules"
+          }
+        ]
+      },
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "prompt",
+            "if": "Edit(src/**/*.tsx)",
+            "model": "claude-haiku-4-5-20251001",
+            "continueOnBlock": true,
+            "timeout": 25,
+            "statusMessage": "Checking UI copy",
+            "prompt": "You are checking one edit to a Gaffa React file for the FORM of user-facing naming.\n\nLook at tool_input.new_string / .content / .edits[].new_string in: $ARGUMENTS\nConsider only strings a manager reads: headings, section titles, tab labels,\nstat captions, button text. Ignore code, class names, imports, comments,\naria-labels, placeholders, tooltips and empty-state sentences.\n\nGaffa rule: a heading is the NAME of the thing beneath it, not a sentence\nabout it. \"Title-Winning XI\" not \"The XI That Won It\". \"League & Cups\" not\n\"How It Splits\". \"Previous Meetings\" not \"Every Meeting\". Tells of a bad\nheading: starts with How/What/Where/Why, contains it/that/we, is a question,\nor is a full clause with a verb. Names are title case; buttons are sentence\ncase and never uppercase.\n\nSCOPE. Judge the wording only. It is NOT your job to decide whether a rename\nis justified, whether a word is the right concept for the feature, whether\nmatching routes or pages exist, or whether the rest of the change is complete.\nA well-formed name is ok even if you cannot see what it labels.\n\nIf every new user-facing string is well formed, or the edit adds none, answer ok.\nOnly fail when a string clearly breaks the rule above. Be conservative: a name\nthat simply reads plainly is correct, not a violation. When failing, name the\nstring and propose the replacement in one line."
+          }
+        ]
+      }
+    ]
+  }
+}

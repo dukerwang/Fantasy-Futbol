@@ -152,6 +152,44 @@ Full design: `docs/superpowers/specs/2026-08-30-player-hub-and-index-design.md`.
 
 ---
 
+## 2026-09-04 — Heritage hub: surfaces, heading case, and naming
+
+**No white panels floating on the cream ground.**
+> "why are we going back to the gpanel look?? i don't know if it's recorded in
+> decisions or design md but i don't like the look of that, it's like you're
+> taking the cream/white background and adding white cards on top of it. it
+> doesn't look like an actual sophisticated page."
+
+Restates the second half of the 2026-08-22 eyebrow quote ("a white gpanel laid
+on top of a cream background"), which had only ever been filed under eyebrows.
+The positive rule, as League Home already builds it (`_home/home.module.css`):
+a section is a serif title over a 2px `--color-text-primary` rule with **flat
+content beneath it**, and only a genuinely bounded object — a hero, a board, a
+table — gets `border: var(--line-strong)` + `--r-shell` + `--color-bg-card`.
+Border, not shadow. `.g-panel` (shadow, no border) is the older device; it is
+not the default for a new page.
+
+**Headings are title case.**
+> "also, what is going on with these headers not being capitalized??? i'm tired
+> of it."
+
+Already true in code since `f2552ff2` (2026-08-19, "section headings switched
+from sentence case to title case"), but `CLAUDE.md` still instructed agents to
+use sentence case, and agents kept following it. That line is now corrected.
+Buttons stay sentence case.
+
+**Name things; don't narrate them.**
+> "instead of saying soemthing human like "Title-Winning XI" or "The
+> Champions", i don't know, you want to do this weird wording like "the xi that
+> won it" "how it splits" ... why don't you actually try to just word things
+> properly"
+
+A heading is the name of the thing beneath it, not a caption about it. This is
+not a `google-dev-style` requirement — that guide asks for plain, concrete
+labels, which is the opposite of what was written.
+
+---
+
 ## Earlier — recorded from CLAUDE.md and docs/USER_GUIDE.md
 
 These predate this file and are load-bearing product decisions, kept here as
