@@ -14,6 +14,8 @@ import { useTick, formatAuctionClock } from './useTick';
 import styles from './BidDialog.module.css';
 import { getPlayerDisplayName } from '@/lib/players/displayName';
 import { isAcademyEligible, type AcademyCapacity } from '@/lib/transfers/academyEligibility';
+import { getPushAvailability, subscribeToPush, type PushAvailability } from '@/lib/push/subscribe';
+
 
 /**
  * Bidding, and the release clause, in one dialog.
@@ -96,6 +98,13 @@ export default function BidDialog({
   const [sendToAcademy, setSendToAcademy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [postBidPrompt, setPostBidPrompt] = useState<PushAvailability | null>(null);
+  const [pushBusy, setPushBusy] = useState(false);
+
+  const handleClose = () => {
+    setPostBidPrompt(null);
+    onClose();
+  };
 
   // Re-seed when the dialog is reopened for a different player or mode.
   const [seed, setSeed] = useState(`${player.id}:${mode}`);
@@ -105,6 +114,7 @@ export default function BidDialog({
     setDropId('');
     setSendToAcademy(false);
     setMessage(null);
+    setPostBidPrompt(null);
   }
 
   const expiresAt = auction?.expires_at ?? listing?.auction_expires_at ?? null;
@@ -160,7 +170,23 @@ export default function BidDialog({
         return;
       }
       onDone();
-      onClose();
+
+      if (wouldTakeClause) {
+        handleClose();
+        return;
+      }
+
+      try {
+        const availability = await getPushAvailability();
+        if (availability === 'unsubscribed' || availability === 'needs-install') {
+          setPostBidPrompt(availability);
+          return;
+        }
+      } catch {
+        // ignore
+      }
+
+      handleClose();
     } catch {
       setMessage('Could not reach the server. Try again.');
     } finally {
@@ -168,10 +194,67 @@ export default function BidDialog({
     }
   };
 
+  if (postBidPrompt) {
+    const isNeedsInstall = postBidPrompt === 'needs-install';
+    return (
+      <Modal
+        open={open}
+        onClose={handleClose}
+        title="Bid placed"
+        footer={
+          <>
+            <span className={styles.summary} />
+            <button type="button" className={styles.ghost} onClick={handleClose} disabled={pushBusy}>
+              Done
+            </button>
+            {!isNeedsInstall && (
+              <button
+                type="button"
+                className={styles.go}
+                onClick={async () => {
+                  setPushBusy(true);
+                  try {
+                    await subscribeToPush();
+                  } catch {
+                    // ignore
+                  } finally {
+                    setPushBusy(false);
+                    handleClose();
+                  }
+                }}
+                disabled={pushBusy}
+              >
+                {pushBusy ? 'Enabling…' : 'Turn on alerts'}
+              </button>
+            )}
+          </>
+        }
+      >
+        <div className={styles.identity}>
+          <PositionBadge position={player.primary_position as GranularPosition} size="sm" />
+          <span className={styles.name}>{getPlayerDisplayName(player, 'full')}</span>
+          <span className={styles.meta}>
+            {player.pl_team} · {money(Number(player.market_value) || 0)}
+          </span>
+        </div>
+        <div className={styles.postBidCard}>
+          <p className={styles.postBidLead}>
+            Your bid of <b>{money(amount)}</b> is live.
+          </p>
+          <p className={styles.postBidSub}>
+            {isNeedsInstall
+              ? 'Add Gaffa to your Home Screen to get lock-screen alerts if another club outbids you.'
+              : 'Turn on lock-screen notifications to know immediately if another club outbids you.'}
+          </p>
+        </div>
+      </Modal>
+    );
+  }
+
   return (
     <Modal
       open={open}
-      onClose={onClose}
+      onClose={handleClose}
       title={mode === 'clause' ? 'Trigger the release clause' : live ? 'Raise your bid' : 'Open the bidding'}
       footer={
         <>
@@ -182,7 +265,7 @@ export default function BidDialog({
               <>Leaves you <b>{money(Math.max(0, budget - (Number.isNaN(amount) ? 0 : amount)))}</b> for the rest of the window.</>
             )}
           </span>
-          <button type="button" className={styles.ghost} onClick={onClose} disabled={busy}>
+          <button type="button" className={styles.ghost} onClick={handleClose} disabled={busy}>
             Cancel
           </button>
           <button

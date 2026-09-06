@@ -1,0 +1,108 @@
+.banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  background: var(--color-bg-card, #FCFAF7);
+  border: 1px solid var(--color-border, #C2BDB5);
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin: 12px auto;
+  max-width: 960px;
+  width: calc(100% - 24px);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.title {
+  font-family: var(--font-condensed, sans-serif);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-text-primary, #1A1A1A);
+}
+
+.description {
+  font-family: var(--font-sans, sans-serif);
+  font-size: 13px;
+  color: var(--color-text-secondary, #5C5850);
+  line-height: 1.4;
+  margin: 0;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.turnOnBtn {
+  font-family: var(--font-condensed, sans-serif);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  background: var(--color-pitch-grass, #2C4C3B);
+  color: #FFFFFF;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 14px;
+  cursor: pointer;
+  transition: opacity 150ms ease, background 150ms ease;
+  min-height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.turnOnBtn:hover {
+  background: var(--color-pitch-deep, #1A3026);
+}
+
+.turnOnBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.dismissBtn {
+  font-family: var(--font-condensed, sans-serif);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  background: transparent;
+  color: var(--color-text-muted, #767169);
+  border: none;
+  padding: 8px 10px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: color 150ms ease;
+  min-height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dismissBtn:hover {
+  color: var(--color-text-primary, #1A1A1A);
+}
+
+@media (max-width: 640px) {
+  .banner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+}
