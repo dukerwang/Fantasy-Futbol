@@ -8,8 +8,8 @@ export default defineConfig({
         },
     },
     test: {
-        // Only the scoring engine is under test today. Widen this glob when
-        // club-identity / lineup tests land — see CLAUDE.md.
+        // Covers src/lib/**, and the API route handlers, whose __tests__
+        // directories sit beside the route they exercise under src/app/api.
         include: ['src/**/__tests__/**/*.test.ts'],
         environment: 'node',
     },
