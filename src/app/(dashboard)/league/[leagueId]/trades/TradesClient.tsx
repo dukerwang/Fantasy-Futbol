@@ -1694,10 +1694,22 @@ function ListingCard({
     if (showDropSelect && !dropId) { setError('Roster full — select a player to drop.'); setLoading(false); return; }
 
     try {
-      const res = await fetch(`/api/leagues/${leagueId}/listings/${listing.id}/bid`, {
+      // The single bid path for free agents and listings alike. The old
+      // /listings/[id]/bid endpoint this used to call has been removed: it
+      // reached the same RPC without the IR gate, the buy-back exclusion, the
+      // academy compliance check or the unpriced-player quarantine, none of
+      // which the RPC enforces either. `saleListingId` is a consistency check,
+      // not the source of truth — the route resolves the listing itself and
+      // fails loudly if the two disagree.
+      const res = await fetch(`/api/leagues/${leagueId}/auctions/bid`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ bidAmount: bidNum, dropPlayerId: dropId || undefined }),
+        body: JSON.stringify({
+          playerId: p.id,
+          bidAmount: bidNum,
+          dropPlayerId: dropId || undefined,
+          saleListingId: listing.id,
+        }),
       });
       const data = await res.json();
       if (res.ok) { setIsBidding(false); onBidSuccess(); }

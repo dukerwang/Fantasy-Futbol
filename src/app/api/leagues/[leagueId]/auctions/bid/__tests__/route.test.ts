@@ -542,3 +542,89 @@ describe('reaching the RPC', () => {
     expect(res.body.resolved).toBe(true);
   });
 });
+
+describe('bidding on a listing goes through the same gates', () => {
+  // The legacy /trades page used to bid via /listings/[listingId]/bid, which
+  // reached the same RPC without any of these checks — and the RPC does not
+  // enforce them either; its source mentions neither `ir` nor `fpl_status`.
+  // That route is gone and its caller now posts here, so these assertions are
+  // what closed the gap.
+  const LISTING_ID = 'listing-1';
+
+  function withListing(mutate: (tables: Tables) => void = () => {}) {
+    const tables = leagueFixture({ marketValue: 40 });
+    tables.player_sale_listings.push({
+      id: LISTING_ID,
+      league_id: LEAGUE_ID,
+      player_id: PLAYER_ID,
+      seller_team_id: RIVAL_TEAM_ID,
+      status: 'active',
+      min_bid: 25,
+      buy_now_price: null,
+    });
+    mutate(tables);
+    setup(tables);
+    return tables;
+  }
+
+  function listingBid(extra: Record<string, unknown> = {}) {
+    return bid({ playerId: PLAYER_ID, bidAmount: 30, saleListingId: LISTING_ID, ...extra });
+  }
+
+  it('refuses a bid while a healthy player sits on IR', async () => {
+    withListing((t) => {
+      t.roster_entries.push({ id: 'ir-1', team_id: MY_TEAM_ID, player_id: 'squad-20', status: 'ir' });
+    });
+    const res = await listingBid();
+    expect(res.status).toBe(400);
+    expect(res.body.error).toMatch(/healthy player occupying an IR slot/);
+  });
+
+  it('refuses a manager who took compensation for this player', async () => {
+    withListing((t) => {
+      t.departure_decisions.push({
+        id: 'dd-1', league_id: LEAGUE_ID, player_id: PLAYER_ID,
+        original_team_id: MY_TEAM_ID, status: 'released', season_from: '2026-27',
+      });
+    });
+    const res = await listingBid();
+    expect(res.status).toBe(403);
+    expect(res.body.error).toMatch(/took compensation/);
+  });
+
+  it('refuses while an aged-out player is still in the academy', async () => {
+    withListing((t) => {
+      t.players.find((p) => p.id === 'squad-21')!.date_of_birth = dobForAge(24);
+      t.roster_entries.push({ id: 'ac-1', team_id: MY_TEAM_ID, player_id: 'squad-21', status: 'taxi' });
+    });
+    const res = await listingBid();
+    expect(res.status).toBe(400);
+    expect(res.body.error).toMatch(/aged out/);
+  });
+
+  it('refuses a bid on a player Transfermarkt has never priced', async () => {
+    withListing((t) => {
+      t.players.find((p) => p.id === PLAYER_ID)!.market_value = null;
+    });
+    const res = await listingBid();
+    expect(res.status).toBe(400);
+    expect(res.body.error).toMatch(/hasn't been priced/);
+  });
+
+  it("refuses below the seller's published minimum", async () => {
+    withListing();
+    const res = await listingBid({ bidAmount: 24 });
+    expect(res.status).toBe(400);
+    expect(res.body.error).toBe("Bid must be at least the seller's minimum of €25m.");
+  });
+
+  it('passes the listing id to the RPC as a consistency check', async () => {
+    withListing();
+    const res = await listingBid();
+    expect(res.status).toBe(200);
+    expect(res.body.sale_listing_id).toBeNull();
+
+    const call = admin.__rpcCalls.find((c) => c.name === 'place_auction_bid_rpc')!;
+    expect(call.args.p_expect_sale_listing_id).toBe(LISTING_ID);
+  });
+});
