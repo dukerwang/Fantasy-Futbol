@@ -128,7 +128,7 @@ export async function notifyAuctionResolution(
         content: `${lead}${resData.winner_severance ? ` **${dropPlayerName}** was released to clear roster space.` : ''}`,
         pushBody: pushBodyLead,
         url: `/league/${leagueId}/team`,
-        tag: `auction-live-${resData.sale_listing_id ?? playerId}`,
+        tag: `auction-result-${resData.sale_listing_id ?? playerId}`,
       });
     }
 
@@ -227,7 +227,7 @@ export async function notifyAuctionResolution(
             userId: loser.user_id,
             ...notice,
             url: `/league/${leagueId}/transfers/auctions`,
-            tag: `auction-live-${resData.sale_listing_id ?? playerId}`,
+            tag: `auction-result-${resData.sale_listing_id ?? playerId}`,
           });
         }
       }),
@@ -256,7 +256,7 @@ export async function notifyAuctionResolution(
             content: lead,
             pushBody: pushBodyLead,
             url: `/league/${leagueId}/transfers/auctions`,
-            tag: `auction-live-${resData.sale_listing_id ?? playerId}`,
+            tag: `auction-result-${resData.sale_listing_id ?? playerId}`,
           })
         )
       );
