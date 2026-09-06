@@ -285,7 +285,7 @@ export default function TopBar() {
             alsoMatches: [`${base}/players/`, `${base}/stats`],
           },
           { label: 'Finance', href: `${base}/finance` },
-          { label: 'History', href: `${base}/history` },
+          { label: 'Heritage', href: `${base}/heritage`, alsoMatches: [`${base}/heritage/`] },
         ],
       },
       {

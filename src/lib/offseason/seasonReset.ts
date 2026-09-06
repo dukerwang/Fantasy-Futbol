@@ -217,6 +217,98 @@ async function archiveCupWinners(
 }
 
 /**
+ * Archives every cup TIE of the completed season, not just the winners.
+ *
+ * resetTournaments() below deletes tournaments and cascades away their rounds
+ * and matchups, so without this pass a season reset destroys every knockout
+ * result the league ever played and leaves only three winners' names behind.
+ * Head-to-head records could then never count cup meetings (migration 156).
+ *
+ * The rows are DENORMALISED: competition name and type, and the round's own
+ * shape, are copied in as values rather than referenced, because this archive
+ * outlives the tournaments it was read from — the same lesson migration 143
+ * recorded for the winners' archive.
+ *
+ * Unlike archiveCupWinners() this does not filter on `status = 'completed'`:
+ * a cup that was abandoned mid-bracket still had ties played in it, and those
+ * results are history too.
+ */
+async function archiveCupMatchups(
+  admin: SupabaseClient,
+  leagueId: string,
+  seasonFrom: string,
+): Promise<number> {
+  const { data: tournaments, error: tErr } = await admin
+    .from('tournaments')
+    .select('id, name, type')
+    .eq('league_id', leagueId)
+    .eq('season', seasonFrom);
+
+  if (tErr) throw new Error(`Failed to fetch tournaments for tie archive: ${tErr.message}`);
+  if (!tournaments || tournaments.length === 0) return 0;
+
+  const byTournament = new Map(tournaments.map((t) => [t.id, t]));
+
+  const { data: rounds, error: rErr } = await admin
+    .from('tournament_rounds')
+    .select('id, tournament_id, name, round_number, is_two_leg, start_gameweek, end_gameweek')
+    .in('tournament_id', [...byTournament.keys()]);
+
+  if (rErr) throw new Error(`Failed to fetch rounds for tie archive: ${rErr.message}`);
+  if (!rounds || rounds.length === 0) return 0;
+
+  const byRound = new Map(rounds.map((r) => [r.id, r]));
+
+  const { data: ties, error: mErr } = await admin
+    .from('tournament_matchups')
+    .select(
+      `round_id, team_a_id, team_b_id, bracket_position, winner_id,
+       team_a_score_leg1, team_b_score_leg1, team_a_score_leg2, team_b_score_leg2`,
+    )
+    .in('round_id', [...byRound.keys()]);
+
+  if (mErr) throw new Error(`Failed to fetch cup ties for archive: ${mErr.message}`);
+  if (!ties || ties.length === 0) return 0;
+
+  const rows = ties
+    // A slot with neither club is an unfilled bracket position, not a tie.
+    // A slot with one club is a bye, which is a real result and is kept.
+    .filter((m) => m.team_a_id || m.team_b_id)
+    .map((m) => {
+      const round = byRound.get(m.round_id)!;
+      const tournament = byTournament.get(round.tournament_id)!;
+      return {
+        league_id: leagueId,
+        season: seasonFrom,
+        tournament_name: tournament.name,
+        tournament_type: tournament.type,
+        round_name: round.name,
+        round_number: round.round_number,
+        is_two_leg: round.is_two_leg,
+        start_gameweek: round.start_gameweek,
+        end_gameweek: round.end_gameweek,
+        bracket_position: m.bracket_position,
+        team_a_id: m.team_a_id,
+        team_b_id: m.team_b_id,
+        team_a_score_leg1: m.team_a_score_leg1,
+        team_b_score_leg1: m.team_b_score_leg1,
+        team_a_score_leg2: m.team_a_score_leg2,
+        team_b_score_leg2: m.team_b_score_leg2,
+        winner_id: m.winner_id,
+      };
+    });
+
+  if (rows.length === 0) return 0;
+
+  const { error: insertErr } = await admin
+    .from('season_cup_matchups_archive')
+    .upsert(rows, { onConflict: 'league_id,season,tournament_name,round_number,bracket_position' });
+
+  if (insertErr) throw new Error(`Failed to archive cup ties: ${insertErr.message}`);
+  return rows.length;
+}
+
+/**
  * Deletes all matchups for the league (to regenerate for new season).
  * Preserves tournament matchups — those are handled separately.
  */
@@ -338,7 +430,7 @@ async function sendChampionsNotifications(
             userId: t.user_id,
             title: 'Champions!',
             content: `**${leagueChamp}** are your ${shortSeason} League Champions!`,
-            url: `/league/${leagueId}/history`
+            url: `/league/${leagueId}/heritage`
           });
         }
 
@@ -388,7 +480,7 @@ async function sendChampionsNotifications(
         sender_id: null,           // System-generated — no user attribution
         is_system: true,
         recipient_id: null,
-        message: `**ALL HAIL THE CHAMPIONS**\n\n- **${leagueChamp}** are Gaffa's official **${shortSeason} League Champions**!\n${championsCupWinner ? `- **${championsCupWinner}** have won the **Champions Cup**!\n` : ''}${leagueCupWinner ? `- **${leagueCupWinner}** have won the **League Cup**!\n` : ''}${consolationCupWinner ? `- **${consolationCupWinner}** have won the **Consolation Cup**!\n` : ''}\nAll dynasty standings and prize allocations are fully updated. Review historical archives at /league/${leagueId}/history!`,
+        message: `**ALL HAIL THE CHAMPIONS**\n\n- **${leagueChamp}** are Gaffa's official **${shortSeason} League Champions**!\n${championsCupWinner ? `- **${championsCupWinner}** have won the **Champions Cup**!\n` : ''}${leagueCupWinner ? `- **${leagueCupWinner}** have won the **League Cup**!\n` : ''}${consolationCupWinner ? `- **${consolationCupWinner}** have won the **Consolation Cup**!\n` : ''}\nAll dynasty standings and prize allocations are fully updated. Every record is on Heritage: /league/${leagueId}/heritage!`,
       });
     }
   } catch (err) {
@@ -495,6 +587,10 @@ export async function runSeasonReset(
 
   // Step 2.4: Archive cup winners
   await archiveCupWinners(admin, leagueId, seasonFrom);
+
+  // Step 2.5: Archive the ties themselves. Must run before resetTournaments()
+  // in step 6, which cascades every tournament_matchup away.
+  await archiveCupMatchups(admin, leagueId, seasonFrom);
 
   // Step 2.6: Archive player season stats and ranks
   const { error: playerStatsArchErr } = await admin.rpc('archive_player_season_stats', { p_season: seasonFrom });
