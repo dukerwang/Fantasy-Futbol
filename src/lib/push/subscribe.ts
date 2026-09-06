@@ -74,3 +74,48 @@ export async function unsubscribeFromPush(): Promise<void> {
     body: JSON.stringify({ endpoint }),
   });
 }
+
+/**
+ * Silently syncs push subscription if OS permission was already granted.
+ * Safe to call on startup without triggering user prompts.
+ */
+export async function syncPushSubscription(): Promise<boolean> {
+  if (
+    typeof window === 'undefined' ||
+    !('serviceWorker' in navigator) ||
+    !('PushManager' in window) ||
+    typeof Notification === 'undefined'
+  ) {
+    return false;
+  }
+  if (isIos() && !isStandalone()) return false;
+  if (Notification.permission !== 'granted') return false;
+  if (!VAPID_PUBLIC_KEY) return false;
+
+  try {
+    const registration = await navigator.serviceWorker.register('/sw-push.js');
+    await navigator.serviceWorker.ready;
+
+    let subscription = await registration.pushManager.getSubscription();
+    if (!subscription) {
+      subscription = await registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY) as BufferSource,
+      });
+    }
+
+    const json = subscription.toJSON();
+    if (!json.endpoint || !json.keys) return false;
+
+    const res = await fetch('/api/push/subscribe', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ endpoint: json.endpoint, keys: json.keys }),
+    });
+    return res.ok;
+  } catch (err) {
+    console.error('[push] Failed to sync push subscription:', err);
+    return false;
+  }
+}
+

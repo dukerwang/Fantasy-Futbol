@@ -207,6 +207,29 @@
 .ghost { composes: g-dialog-ghost from global; }
 .go { composes: g-dialog-go from global; }
 
+.postBidCard {
+  padding: var(--s4) var(--s5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s2);
+}
+
+.postBidLead {
+  font-family: var(--font-sans);
+  font-size: var(--t-14);
+  color: var(--color-text-primary);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.postBidSub {
+  font-family: var(--font-sans);
+  font-size: var(--t-13);
+  color: var(--color-text-secondary);
+  margin: 0;
+  line-height: 1.4;
+}
+
 @media (max-width: 480px) {
   .identity { padding: var(--s3) var(--s4) var(--s2); }
   .ladder { grid-template-columns: repeat(2, 1fr); }
@@ -215,4 +238,6 @@
   .rung:nth-child(4) { border-top: 1px solid var(--color-border-subtle); border-right: none; }
   .field { padding: var(--s3) var(--s4) 0; }
   .error { margin: var(--s3) var(--s4) 0; }
+  .postBidCard { padding: var(--s4) var(--s4); }
 }
+
