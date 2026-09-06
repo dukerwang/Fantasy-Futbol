@@ -13,6 +13,10 @@ import {
   outbidNotice,
   timeLeft,
   tradeCancelledByAuctionNotice,
+  targetAvailableNotice,
+  targetProfileMatchNotice,
+  targetDeclaredNotice,
+  targetTwoSidedNotice,
 } from '../copy';
 
 const vdp = { team_name: 'Vardy Party', abbreviation: 'VDP' };
@@ -226,4 +230,71 @@ describe('bid and market notices', () => {
       expect(n.pushBody).toBe("Sam Rook's loan at Holloway Utd ends after GW15.");
     });
   });
+});
+
+// ── Targets (153) ─────────────────────────────────────────────
+
+describe('target notices', () => {
+    const chelsea = { team_name: 'Chelsea', abbreviation: 'CHE' };
+
+    it('names the player in the headline when a named target becomes available', () => {
+        const n = targetAvailableNotice(chelsea, 'Saliba', {
+            auctionOpen: true,
+            expiresAt: Date.now() + 3 * 24 * 60 * 60 * 1000,
+        });
+        expect(n.title).toBe('Saliba is available');
+        expect(n.content).toContain('one of your targets');
+        expect(n.content).toContain('Bidding is open');
+    });
+
+    it('drops the clock when no auction is open on the listing', () => {
+        const n = targetAvailableNotice(chelsea, 'Saliba');
+        expect(n.content).not.toContain('Bidding is open');
+        expect(n.pushBody).toBe('Saliba, one of your targets, is listed.');
+    });
+
+    it('leads with the position, not the player, on a profile match', () => {
+        // The weaker claim needs the weaker headline: this is "somebody who
+        // plays there", not "the man you asked for".
+        const n = targetProfileMatchNotice(chelsea, 'Kerkez', 'LB');
+        expect(n.title).toBe('A left-back has hit the market');
+        expect(n.content).toContain("You're looking for a left-back");
+    });
+
+    it('spells positions out, so no notice ever reads "a LB"', () => {
+        // Every one of the 12 codes goes through roleArticle, which carries
+        // the right article — "an attacking midfielder", not "a AM".
+        expect(targetProfileMatchNotice(chelsea, 'x', 'AM').title)
+            .toBe('An attacking midfielder has hit the market');
+        expect(targetProfileMatchNotice(chelsea, 'x', 'GK').title)
+            .toBe('A goalkeeper has hit the market');
+        expect(targetProfileMatchNotice(chelsea, 'x', 'ST').title)
+            .toBe('A striker has hit the market');
+    });
+
+    it('tells an owner who wants his player, and what they would pay with', () => {
+        const n = targetDeclaredNotice(chelsea, 'Saliba', 'Will pay cash · up to €40m');
+        expect(n.title).toBe('CHE want Saliba');
+        expect(n.content).toContain('made **Saliba** a target');
+        expect(n.content).toContain('Will pay cash · up to €40m');
+    });
+
+    it('reads from the seller side on a two-sided match', () => {
+        const n = targetTwoSidedNotice(chelsea, 'Saliba', 'Will pay cash · up to €40m', 'seller');
+        expect(n.title).toBe("CHE want a player you've listed");
+        expect(n.content).toContain("You've listed");
+    });
+
+    it('reads from the suitor side on a two-sided match', () => {
+        const n = targetTwoSidedNotice(chelsea, 'Saliba', '', 'suitor');
+        expect(n.title).toBe('Saliba is listed — and you want him');
+        expect(n.content).toContain('one of your targets');
+        // No stance line supplied: no dangling separator.
+        expect(n.content).not.toContain('..');
+    });
+
+    it('falls back to the full club name when a club has no abbreviation', () => {
+        const n = targetDeclaredNotice({ team_name: 'Holloway Utd', abbreviation: null }, 'Saliba', '');
+        expect(n.title).toBe('Holloway Utd want Saliba');
+    });
 });

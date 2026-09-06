@@ -576,3 +576,52 @@ export interface PlayerOwnership {
   loanedTo: OwnerClub | null;
 }
 
+
+/**
+ * A target — the demand side of the transfer market (migration 153).
+ *
+ * Deliberately inert: no floor, no clock, nothing to bid on. It advertises
+ * what a club is looking for and pre-fills the existing offer composer; the
+ * listing stays the only object that settles. See
+ * `docs/superpowers/specs/2026-09-04-targets-design.md`.
+ */
+export type TargetKind = 'player' | 'profile';
+
+/** `private` is invisible league-wide, RLS included — not just filtered in UI. */
+export type TargetVisibility = 'public' | 'private';
+
+export type TargetStatus = 'active' | 'filled' | 'withdrawn' | 'expired';
+
+/**
+ * What level of player a role profile wants. Required on a profile, absent on
+ * a named target — if you've named the man, the level isn't the question.
+ * Descriptive only; matching never filters on it.
+ */
+export type TargetRole = 'star' | 'starter' | 'bench' | 'prospect';
+
+export interface PlayerTarget {
+  id: string;
+  league_id: string;
+  team_id: string;
+  target_kind: TargetKind;
+  /** Set on a named target, null on a profile. The CHECK enforces the pair. */
+  player_id: string | null;
+  /** Set on a profile, null on a named target. */
+  position: GranularPosition | null;
+  /** Set on a profile, null on a named target. See TargetRole. */
+  role: TargetRole | null;
+  visibility: TargetVisibility;
+  /** I'll pay cash. Inverted from the listing field of the same name. */
+  open_to_sale: boolean;
+  /** I'll give players. */
+  open_to_trade: boolean;
+  /** I'd take him on loan. */
+  open_to_loan: boolean;
+  /** €m this club will spend. Null means unstated; 0 is treated as unstated. */
+  budget: number | null;
+  note: string | null;
+  status: TargetStatus;
+  expires_at: string;
+  created_at: string;
+  updated_at: string;
+}

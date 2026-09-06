@@ -27,6 +27,28 @@ describe('resolvePrefs', () => {
     const resolved = resolvePrefs({ mystery: { push: false, email: false } });
     expect(resolved).toEqual(DEFAULT_NOTIFICATION_PREFS);
   });
+
+  // Targets (153) shipped after managers already had a stored prefs blob.
+  // Nothing backfilled those rows, so the merge is what gives an existing
+  // user the new kind — if this breaks, everyone silently loses target push.
+  it('gives a prefs blob written before targets existed the new default', () => {
+    const preTargets = {
+      auctions: { push: true, email: true },
+      deals: { push: false, email: false },
+      matchdays: { push: true, email: true },
+      chat: { push: true, email: false },
+      club: { push: true, email: true },
+      product: { push: false, email: false },
+    };
+    const resolved = resolvePrefs(preTargets);
+    expect(resolved.targets).toEqual({ push: true, email: false });
+    expect(resolved.deals).toEqual({ push: false, email: false });
+  });
+
+  it('keeps an explicit targets opt-out', () => {
+    const resolved = resolvePrefs({ targets: { push: false, email: false } });
+    expect(resolved.targets).toEqual({ push: false, email: false });
+  });
 });
 
 describe('wantsChannel', () => {

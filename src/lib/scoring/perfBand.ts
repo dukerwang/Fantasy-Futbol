@@ -394,15 +394,36 @@ export function rankAnchor(
  * Lives beside POS_ARTICLE so the two surfaces that render the block
  * (player card, matchup breakdown) name a position identically.
  */
-const ROLE_NAME: Record<string, string> = {
-    GK: 'a goalkeeper', CB: 'a centre-back', LB: 'a left-back', RB: 'a right-back',
-    LWB: 'a left wing-back', RWB: 'a right wing-back', DM: 'a defensive midfielder',
-    CM: 'a central midfielder', AM: 'an attacking midfielder',
-    LW: 'a left winger', RW: 'a right winger', ST: 'a striker',
+const ROLE_NAME: Record<string, { bare: string; article: 'a' | 'an' }> = {
+    GK:  { bare: 'goalkeeper',            article: 'a' },
+    CB:  { bare: 'centre-back',           article: 'a' },
+    LB:  { bare: 'left-back',             article: 'a' },
+    RB:  { bare: 'right-back',            article: 'a' },
+    LWB: { bare: 'left wing-back',        article: 'a' },
+    RWB: { bare: 'right wing-back',       article: 'a' },
+    DM:  { bare: 'defensive midfielder',  article: 'a' },
+    CM:  { bare: 'central midfielder',    article: 'a' },
+    AM:  { bare: 'attacking midfielder',  article: 'an' },
+    LW:  { bare: 'left winger',           article: 'a' },
+    RW:  { bare: 'right winger',          article: 'a' },
+    ST:  { bare: 'striker',               article: 'a' },
 };
 
 export function roleArticle(pos: string | null | undefined): string {
-    return ROLE_NAME[String(pos ?? '').toUpperCase()] ?? 'this position';
+    const row = ROLE_NAME[String(pos ?? '').toUpperCase()];
+    return row ? `${row.article} ${row.bare}` : 'this position';
+}
+
+/**
+ * "left-back" — the position spelled out with no article, for copy that
+ * supplies its own determiner or prefixes a squad role ("Starting left-back").
+ *
+ * Split out of ROLE_NAME rather than duplicated into a second map: the article
+ * and the noun were one string, so any surface needing the noun alone had to
+ * either strip "a "/"an " or mint a rival list that would drift.
+ */
+export function roleName(pos: string | null | undefined): string {
+    return ROLE_NAME[String(pos ?? '').toUpperCase()]?.bare ?? 'player';
 }
 
 export interface PerfGroup {

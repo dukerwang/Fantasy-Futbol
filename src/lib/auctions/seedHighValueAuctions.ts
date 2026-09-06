@@ -132,6 +132,17 @@ export async function seedHighValueAuctions(admin: SupabaseClient): Promise<Seed
           auctionRows[0].opens_at,
           quietHours,
         );
+
+        // Targets (153). The arrival notice above goes to the whole league;
+        // this goes to the clubs who had already named the player or his
+        // position. Positions are fetched here rather than widened into
+        // findPromotedClubsAndArrivals, which the kickoff path also calls.
+        await notifyTargetsOfArrivals(
+          admin,
+          league.id,
+          candidates.map((c) => c.id),
+          auctionRows[0].expires_at,
+        );
       }
     } catch (err) {
       console.error(`[seedHighValueAuctions] League ${league.id} failed:`, err);
@@ -195,5 +206,44 @@ async function notifyLeague(
     }
   } catch (err) {
     console.error('[seedHighValueAuctions] Failed to send notifications:', err);
+  }
+}
+
+/**
+ * Tell the clubs that were looking for these arrivals.
+ *
+ * A system auction opens at zero, so there is no floor to filter budgets
+ * against — every matching target hears. There is no seller either: nobody
+ * put these players on the market, they arrived.
+ */
+async function notifyTargetsOfArrivals(
+  admin: SupabaseClient,
+  leagueId: string,
+  playerIds: string[],
+  expiresAt: string,
+): Promise<void> {
+  if (playerIds.length === 0) return;
+
+  try {
+    const { notifyTargetMatches } = await import('@/lib/transfers/notifyTargetMatches');
+
+    const { data: rows } = await admin
+      .from('players')
+      .select('id, name, primary_position, secondary_positions')
+      .in('id', playerIds);
+
+    for (const player of rows ?? []) {
+      await notifyTargetMatches(admin, {
+        leagueId,
+        player,
+        seller: null,
+        floor: null,
+        auctionOpen: true,
+        expiresAt,
+        url: `/league/${leagueId}/transfers/auctions`,
+      });
+    }
+  } catch (err) {
+    console.error('[seedHighValueAuctions] Failed to notify target matches:', err);
   }
 }

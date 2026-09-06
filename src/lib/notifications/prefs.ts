@@ -1,4 +1,4 @@
-export const NOTIFICATION_KINDS = ['auctions', 'deals', 'matchdays', 'chat', 'club', 'product'] as const;
+export const NOTIFICATION_KINDS = ['auctions', 'deals', 'targets', 'matchdays', 'chat', 'club', 'product'] as const;
 export type NotificationKind = (typeof NOTIFICATION_KINDS)[number];
 
 export const NOTIFICATION_CHANNELS = ['push', 'email'] as const;
@@ -11,6 +11,9 @@ export type NotificationPrefs = Record<NotificationKind, ChannelPrefs>;
 export const DEFAULT_NOTIFICATION_PREFS: NotificationPrefs = {
   auctions: { push: true, email: true },
   deals: { push: true, email: true },
+  // Push only: a target becoming available is time-sensitive but not rare,
+  // and the auction it opens sends its own email already.
+  targets: { push: true, email: false },
   matchdays: { push: true, email: true },
   chat: { push: true, email: false },
   club: { push: true, email: true },
@@ -25,6 +28,10 @@ export const KIND_LABELS: Record<NotificationKind, { label: string; hint: string
   deals: {
     label: 'Deals',
     hint: 'Trades and loans',
+  },
+  targets: {
+    label: 'Transfer targets',
+    hint: 'When a player you want becomes available',
   },
   matchdays: {
     label: 'Matchdays',

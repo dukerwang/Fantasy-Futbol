@@ -26,7 +26,15 @@ import {
 import { buildEffectivePpgMap } from './effectivePpg';
 import { getFplStatus } from '@/lib/fpl/api';
 import { RIGHTS_HELD_STATUSES } from '@/lib/departures/types';
-import type { Player, TradeProposal, Team } from '@/types';
+import type {
+  Player,
+  TradeProposal,
+  Team,
+  GranularPosition,
+  TargetKind,
+  TargetRole,
+  TargetVisibility,
+} from '@/types';
 
 type AdminClient = ReturnType<typeof createAdminClient>;
 
@@ -140,6 +148,34 @@ export interface TransfersListing {
   updated_at: string;
 }
 
+/**
+ * A target as the hub reads it — the demand side (153).
+ *
+ * Carries the club because a target is always somebody's statement; an
+ * unattributed one is just a position with a budget. `player` is null on a
+ * profile, which names a slot rather than a man.
+ */
+export interface TransfersTarget {
+  id: string;
+  team_id: string;
+  team_name: string | null;
+  team_abbreviation: string | null;
+  target_kind: TargetKind;
+  player_id: string | null;
+  player: EnrichedPlayer | null;
+  position: GranularPosition | null;
+  /** Set on a profile: the level of player sought. */
+  role: TargetRole | null;
+  visibility: TargetVisibility;
+  open_to_sale: boolean;
+  open_to_trade: boolean;
+  open_to_loan: boolean;
+  budget: number | null;
+  note: string | null;
+  expires_at: string;
+  created_at: string;
+}
+
 export interface TransfersLeague {
   id: string;
   name: string;
@@ -178,6 +214,9 @@ export interface TransfersTeam {
 export interface TransfersCounts {
   auctions: number;
   listings: number;
+  /** PUBLIC targets in the league. A badge counting my own private notes
+   *  would be a different number wearing the same label. */
+  targets: number;
   freeAgents: number;
   deals: number;
   /** Free agents whose pl_team_changed_at falls within the last 7 days. */
@@ -268,6 +307,8 @@ export interface TransfersModel {
   /** Settled in the last 7 days, newest first. Feeds "Gone this week". */
   recentlyResolved: ResolvedAuction[];
   listings: TransfersListing[];
+  /** Every public target in the league, plus my own private ones. */
+  targets: TransfersTarget[];
   myOffers: TradeProposalRow[];
   leagueFeed: TradeProposalRow[];
   loans: LoanRow[];
@@ -318,6 +359,7 @@ export async function buildTransfersModel(
 
   const teamIds = (allTeams ?? []).map((t) => t.id);
   const teamNameById = new Map((allTeams ?? []).map((t) => [t.id, t.team_name]));
+  const teamAbbrById = new Map((allTeams ?? []).map((t) => [t.id, t.abbreviation]));
 
   const maps = await fetchEnrichmentMaps(admin, league);
 
@@ -332,6 +374,7 @@ export async function buildTransfersModel(
     { data: rightRows },
     { data: newArrivalRows },
     { data: prevSeasonClubRows },
+    { data: targetRows },
   ] = await Promise.all([
     admin
       .from('auction_state')
@@ -404,6 +447,18 @@ export async function buildTransfersModel(
     league.previous_season
       ? admin.from('player_season_clubs').select('player_id').eq('season', league.previous_season)
       : Promise.resolve({ data: [] as { player_id: string }[] }),
+    // Targets (153) — the demand side. Public ones belong to the league; the
+    // caller's own private ones come along because the board's "mine" facet is
+    // where a manager manages them. Everyone else's private targets are never
+    // fetched at all, so they cannot leak through a client-side filter bug.
+    admin
+      .from('player_targets')
+      .select('*')
+      .eq('league_id', leagueId)
+      .eq('status', 'active')
+      .gt('expires_at', new Date().toISOString())
+      .or(`visibility.eq.public,team_id.eq.${myTeam.id}`)
+      .order('created_at', { ascending: false }),
   ]);
 
   const myClaimBy = new Map((myClaims ?? []).map((c) => [c.player_id, c]));
@@ -415,6 +470,7 @@ export async function buildTransfersModel(
     ...(listings ?? []).map((l) => l.player_id),
     ...(resolvedRows ?? []).map((a) => a.player_id),
     ...(rightRows ?? []).map((r) => r.player_id),
+    ...(targetRows ?? []).map((t) => t.player_id).filter((id): id is string => !!id),
   ]);
 
   const playerMap: Record<string, EnrichedPlayer> = {};
@@ -620,6 +676,25 @@ export async function buildTransfersModel(
       player: playerMap[l.player_id] ?? null,
       seller_team_name: teamNameById.get(l.seller_team_id) ?? null,
     })),
+    targets: (targetRows ?? []).map((t) => ({
+      id: t.id,
+      team_id: t.team_id,
+      team_name: teamNameById.get(t.team_id) ?? null,
+      team_abbreviation: teamAbbrById.get(t.team_id) ?? null,
+      target_kind: t.target_kind,
+      player_id: t.player_id,
+      player: t.player_id ? playerMap[t.player_id] ?? null : null,
+      position: t.position,
+      role: t.role,
+      visibility: t.visibility,
+      open_to_sale: t.open_to_sale,
+      open_to_trade: t.open_to_trade,
+      open_to_loan: t.open_to_loan,
+      budget: t.budget,
+      note: t.note,
+      expires_at: t.expires_at,
+      created_at: t.created_at,
+    })),
     myOffers,
     leagueFeed,
     loans,
@@ -636,6 +711,7 @@ export async function buildTransfersModel(
       // the same way), so the nav badge shouldn't count it either.
       auctions: auctions.filter((a) => a.kind !== 'listing' || a.minimum_bid != null).length,
       listings: (listings ?? []).length,
+      targets: (targetRows ?? []).filter((t) => t.visibility === 'public').length,
       freeAgents,
       deals,
       newTransfers: newTransfersAll.length,

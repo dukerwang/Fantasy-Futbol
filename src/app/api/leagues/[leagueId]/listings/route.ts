@@ -355,5 +355,46 @@ export async function POST(req: NextRequest, { params }: Props) {
     console.error('[listings] Failed to send new-listing notifications:', err);
   }
 
+  // Targets (153): the league-wide notice above tells everybody a player is
+  // available; this tells the clubs who had already SAID they wanted him,
+  // which is a different reader and a better sentence. Best-effort — the
+  // listing is created either way.
+  try {
+    const { notifyTargetMatches, notifySellerOfSuitors } = await import(
+      '@/lib/transfers/notifyTargetMatches'
+    );
+
+    const { data: targetPlayer } = await admin
+      .from('players')
+      .select('id, name, primary_position, secondary_positions')
+      .eq('id', playerId)
+      .maybeSingle();
+
+    if (targetPlayer) {
+      const { namedSuitors } = await notifyTargetMatches(admin, {
+        leagueId,
+        player: targetPlayer,
+        seller: { id: myTeam.id, team_name: myTeam.team_name, abbreviation: myTeam.abbreviation },
+        floor: hasMinBid ? (minBid as number) : null,
+        auctionOpen: hasMinBid,
+        expiresAt: hasMinBid ? Date.now() + LISTING_INITIAL_WINDOW_MS : null,
+        url: `/league/${leagueId}/transfers/listings`,
+        listingId: listing.id,
+      });
+
+      // Both sides have now said yes to talking. Worth telling the seller.
+      await notifySellerOfSuitors(admin, {
+        leagueId,
+        sellerUserId: user.id,
+        playerName: targetPlayer.name ?? 'your player',
+        suitors: namedSuitors,
+        url: `/league/${leagueId}/transfers/targets`,
+        listingId: listing.id,
+      });
+    }
+  } catch (err) {
+    console.error('[listings] Failed to notify target matches:', err);
+  }
+
   return NextResponse.json({ ok: true, listing }, { status: 201 });
 }

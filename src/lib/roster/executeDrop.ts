@@ -31,7 +31,7 @@ export async function executeDrop(
     // Get player details
     const { data: player } = await admin
         .from('players')
-        .select('id, market_value, name, is_active')
+        .select('id, market_value, name, is_active, primary_position, secondary_positions')
         .eq('id', playerId)
         .single();
 
@@ -225,6 +225,29 @@ export async function executeDrop(
             }
         } catch (err) {
             console.error('Failed to send drop notifications:', err);
+        }
+
+        // Targets (153). The league-wide release notice above is addressed to
+        // everybody; this one goes to the clubs who had already said they
+        // wanted him. Best-effort — the drop has already applied by here and
+        // must not be undone by a notification failure.
+        try {
+            const { notifyTargetMatches } = await import('@/lib/transfers/notifyTargetMatches');
+            await notifyTargetMatches(admin, {
+                leagueId: team.league_id,
+                player,
+                // The dropping club is excluded: it has just released him, and
+                // a standing target of its own is not an invitation to be told
+                // about its own decision.
+                seller: { id: teamId, team_name: team.team_name, abbreviation: team.abbreviation ?? null },
+                // A released player opens at zero, so no budget is too small.
+                floor: null,
+                auctionOpen: true,
+                expiresAt: auctionExpiry,
+                url: `/league/${team.league_id}/transfers/auctions`,
+            });
+        } catch (err) {
+            console.error('Failed to notify target matches on drop:', err);
         }
     }
 
