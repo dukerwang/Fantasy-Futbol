@@ -102,27 +102,44 @@ export async function buildEffectivePpgMap(
 
   const groups: Record<string, { curr: PpgSample[]; prev: PpgSample[] }> = {};
 
+  // Two axes of batching, and both are load-bearing.
+  //
+  // CHUNK caps the `.in()` list so the URL stays a sane length. PAGE caps the
+  // ROWS that come back: a chunk of 200 players across two seasons is up to
+  // 200 x 76 = 15,200 rows, and PostgREST silently returns only the first
+  // 1,000. Chunking alone does not save you from that — it was returning a
+  // truncated set, and because the order is season/gameweek descending, what
+  // fell off the end was the prior season, which is precisely the input the
+  // 0-9-appearance branches lean on. Page until a short page arrives.
   const CHUNK = 200;
+  const PAGE = 1000;
   for (let i = 0; i < playerIds.length; i += CHUNK) {
     const chunk = playerIds.slice(i, i + CHUNK);
-    const { data: stats } = await admin
-      .from('player_stats')
-      .select('player_id, fantasy_points, gameweek, stats, season')
-      .in('player_id', chunk)
-      .in('season', [currentSeason, prevSeason])
-      .order('season', { ascending: false })
-      .order('gameweek', { ascending: false });
 
-    for (const s of stats ?? []) {
-      const raw = (s.stats as Record<string, unknown> | null) ?? {};
-      const minutes = Number(raw.minutes_played ?? 0);
-      if (minutes <= 0) continue;
+    for (let offset = 0; ; offset += PAGE) {
+      const { data: stats } = await admin
+        .from('player_stats')
+        .select('player_id, fantasy_points, gameweek, stats, season')
+        .in('player_id', chunk)
+        .in('season', [currentSeason, prevSeason])
+        .order('season', { ascending: false })
+        .order('gameweek', { ascending: false })
+        .order('player_id', { ascending: true })
+        .range(offset, offset + PAGE - 1);
 
-      if (!groups[s.player_id]) groups[s.player_id] = { curr: [], prev: [] };
-      const sample: PpgSample = { points: Number(s.fantasy_points) || 0, minutes };
+      for (const s of stats ?? []) {
+        const raw = (s.stats as Record<string, unknown> | null) ?? {};
+        const minutes = Number(raw.minutes_played ?? 0);
+        if (minutes <= 0) continue;
 
-      if (s.season === currentSeason) groups[s.player_id].curr.push(sample);
-      else if (s.season === prevSeason) groups[s.player_id].prev.push(sample);
+        if (!groups[s.player_id]) groups[s.player_id] = { curr: [], prev: [] };
+        const sample: PpgSample = { points: Number(s.fantasy_points) || 0, minutes };
+
+        if (s.season === currentSeason) groups[s.player_id].curr.push(sample);
+        else if (s.season === prevSeason) groups[s.player_id].prev.push(sample);
+      }
+
+      if (!stats || stats.length < PAGE) break;
     }
   }
 

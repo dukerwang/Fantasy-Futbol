@@ -64,14 +64,13 @@ export default async function PlayersPage({ params, searchParams }: Props) {
   // and the scout layer is dead weight to it — load each only where used.
   // Which gameweeks the season actually has rows for — never a fixed 1..38,
   // which would offer weeks that have not been played.
-  const { data: gwRows } = await admin
-    .from('player_stats')
-    .select('gameweek')
-    .eq('season', season)
-    .order('gameweek', { ascending: true });
-  const gameweeks = [...new Set((gwRows ?? []).map((r) => r.gameweek as number))].filter(
-    (n): n is number => n != null,
-  );
+  // One row per gameweek, from the database. Selecting `gameweek` for the whole
+  // season and de-duplicating here read 14,521 rows for 2025-26 and got the
+  // first 1,000 back -- ascending, so the picker offered gameweeks 1-3 of 38.
+  const { data: gwRows } = await admin.rpc('season_gameweeks', { p_season: season });
+  const gameweeks = ((gwRows ?? []) as { gameweek: number }[])
+    .map((r) => r.gameweek)
+    .filter((n): n is number => n != null);
 
   const requestedGw = gw ? Number(gw) : null;
   const gameweek = requestedGw != null && gameweeks.includes(requestedGw) ? requestedGw : null;

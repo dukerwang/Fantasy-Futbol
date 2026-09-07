@@ -4,6 +4,7 @@ import { notFound, redirect } from 'next/navigation';
 import TradesClient from './TradesClient';
 import { getCurrentFplSeason, isFplSeasonKickedOff } from '@/lib/season/currentSeason';
 import { FULL_PLAYER_SELECT } from '@/lib/constants/queries';
+import { buildEffectivePpgMap } from '@/lib/transfers/effectivePpg';
 
 interface Props {
   params: Promise<{ leagueId: string }>;
@@ -20,111 +21,78 @@ export default async function TradesPage({ params, searchParams }: Props) {
 
   const admin = createAdminClient();
 
-  const { data: league } = await admin
-    .from('leagues')
-    .select('id, name, roster_size, status, loan_slot_buyback_fee, loan_bonus_cap_default, max_loan_outs, max_loan_ins, total_gameweeks, roster_locked, current_season, previous_season')
-    .eq('id', leagueId)
-    .single();
-
-  if (!league) notFound();
-
-
-
-  // Fetch all initial data from the trades API logic (same as GET /api/leagues/[id]/trades)
-  const { data: myTeam } = await admin
-    .from('teams')
-    .select('id, team_name, faab_budget')
-    .eq('league_id', leagueId)
-    .eq('user_id', user.id)
-    .single();
-
-  if (!myTeam) redirect('/dashboard');
-
-  const { data: trades } = await admin
-    .from('trade_proposals')
-    .select(`
-      *,
-      team_a:teams!trade_proposals_team_a_id_fkey(id, team_name),
-      team_b:teams!trade_proposals_team_b_id_fkey(id, team_name)
-    `)
-    .eq('league_id', leagueId)
-    .or(`team_a_id.eq.${myTeam.id},team_b_id.eq.${myTeam.id}`)
-    .order('created_at', { ascending: false });
-
-  const { data: allTeams } = await admin
-    .from('teams')
-    .select('id, team_name, faab_budget')
-    .eq('league_id', leagueId)
-    .neq('id', myTeam.id);
-
-  // Fetch active listings for this league
-  const { data: listings } = await (admin
-    .from('player_sale_listings')
-    .select(`
+  // ── Wave 1 ────────────────────────────────────────────────────────────────
+  // Nothing here depends on anything else on this page. It used to run as ten
+  // sequential awaits; the page waited for the sum of them.
+  const [
+    { data: league },
+    { data: myTeam },
+    { data: leagueTeams },
+    { data: listings },
+    { data: leagueTrades },
+    { data: loans },
+    currentFpl,
+    kickedOff,
+    currentGameweek,
+  ] = await Promise.all([
+    admin
+      .from('leagues')
+      .select('id, name, roster_size, status, loan_slot_buyback_fee, loan_bonus_cap_default, max_loan_outs, max_loan_ins, total_gameweeks, roster_locked, current_season, previous_season')
+      .eq('id', leagueId)
+      .single(),
+    admin
+      .from('teams')
+      .select('id, team_name, faab_budget')
+      .eq('league_id', leagueId)
+      .eq('user_id', user.id)
+      .maybeSingle(),
+    // Fetched once for the whole league. `allTeams` (everyone but me) and
+    // `allTeamsIncludingMine` were two queries returning overlapping rows.
+    admin.from('teams').select('id, team_name, faab_budget').eq('league_id', leagueId),
+    admin
+      .from('player_sale_listings')
+      .select(`
       id, seller_team_id, player_id, min_bid, buy_now_price, status,
       auction_expires_at, created_at,
       seller_team:teams!seller_team_id(id, team_name),
       player:players(${FULL_PLAYER_SELECT})
     `)
-    .eq('league_id', leagueId)
-    .in('status', ['pending', 'active'])
-    .order('created_at', { ascending: false }) as any);
+      .eq('league_id', leagueId)
+      .in('status', ['pending', 'active'])
+      .order('created_at', { ascending: false }),
+    admin
+      .from('trade_proposals')
+      .select(`
+      id, team_a_id, team_b_id,
+      offered_players, requested_players, offered_faab, requested_faab,
+      status, message, created_at, updated_at,
+      team_a:teams!trade_proposals_team_a_id_fkey(id, team_name),
+      team_b:teams!trade_proposals_team_b_id_fkey(id, team_name)
+    `)
+      .eq('league_id', leagueId)
+      .eq('status', 'accepted')
+      .order('updated_at', { ascending: false })
+      .limit(20),
+    admin
+      .from('player_loans')
+      .select(`
+      *,
+      lender_team:teams!lender_team_id(id, team_name, user_id),
+      borrower_team:teams!borrower_team_id(id, team_name, user_id),
+      player:players(${FULL_PLAYER_SELECT})
+    `)
+      .eq('league_id', leagueId)
+      .order('created_at', { ascending: false }),
+    getCurrentFplSeason(),
+    isFplSeasonKickedOff(),
+    resolveCurrentGameweek(),
+  ]);
 
-  // Fetch current highest bid for each active listing
-  const listingIds = (listings ?? []).filter((l: any) => l.status === 'active').map((l: any) => l.id);
-  const highestBids: Record<string, number> = {};
-  if (listingIds.length > 0) {
-    const { data: claims } = await admin
-      .from('waiver_claims')
-      .select('sale_listing_id, faab_bid')
-      .in('sale_listing_id', listingIds)
-      .eq('status', 'pending')
-      .eq('is_auction', true)
-      .order('faab_bid', { ascending: false });
+  if (!league) notFound();
+  if (!myTeam) redirect('/dashboard');
 
-    for (const c of claims ?? []) {
-      if (c.sale_listing_id && !(c.sale_listing_id in highestBids)) {
-        highestBids[c.sale_listing_id] = c.faab_bid;
-      }
-    }
-  }
-
-  // Build a lookup map of listing by player id
-  const playerListingsMap: Record<string, any> = {};
-  for (const l of listings ?? []) {
-    playerListingsMap[l.player_id] = l;
-  }
-
-  // Fetch rosters for all other teams (for propose UI)
-  const allTeamIds = (allTeams ?? []).map((t) => t.id);
-  const allRosters: Record<string, any[]> = {};
-  let entries: any[] = [];
-  if (allTeamIds.length > 0) {
-    const { data: dbEntries } = await (admin
-      .from('roster_entries')
-      .select(`team_id, status, on_trade_block, player:players(${FULL_PLAYER_SELECT})`)
-      .in('team_id', allTeamIds) as any);
-    entries = dbEntries ?? [];
-  }
-
-  const { data: myRosterEntries } = await (admin
-    .from('roster_entries')
-    .select(`status, on_trade_block, player:players(${FULL_PLAYER_SELECT})`)
-    .eq('team_id', myTeam.id) as any);
-
-  // Compute recent_ppg (last 10 gameweeks) for all players on the rosters
-  const playerIds = new Set<string>();
-  for (const e of entries) {
-    const p = e.player as any;
-    if (p?.id) playerIds.add(p.id);
-  }
-  for (const e of myRosterEntries ?? []) {
-    const p = e.player as any;
-    if (p?.id) playerIds.add(p.id);
-  }
-
-  const currentFpl = await getCurrentFplSeason();
-  const kickedOff = await isFplSeasonKickedOff();
+  const allTeamsIncludingMine = leagueTeams ?? [];
+  const allTeams = allTeamsIncludingMine.filter((t) => t.id !== myTeam.id);
 
   let currentSeason = league.current_season || currentFpl;
   if (currentSeason === currentFpl && !kickedOff) {
@@ -132,124 +100,109 @@ export default async function TradesPage({ params, searchParams }: Props) {
   }
   const previousSeason = league.previous_season || '2024-25';
 
-  // Build a lookup of player market values
+  // ── Wave 2 ────────────────────────────────────────────────────────────────
+  // Needs an id from wave 1, nothing more.
+  const allTeamIds = allTeams.map((t) => t.id);
+  const rosterTeamIds = [...allTeamIds, myTeam.id];
+  const listingIds = (listings ?? []).filter((l) => l.status === 'active').map((l) => l.id);
+
+  const [{ data: trades }, { data: rosterRows }, { data: claims }] = await Promise.all([
+    admin
+      .from('trade_proposals')
+      .select(`
+      *,
+      team_a:teams!trade_proposals_team_a_id_fkey(id, team_name),
+      team_b:teams!trade_proposals_team_b_id_fkey(id, team_name)
+    `)
+      .eq('league_id', leagueId)
+      .or(`team_a_id.eq.${myTeam.id},team_b_id.eq.${myTeam.id}`)
+      .order('created_at', { ascending: false }),
+    // One roster read for the whole league, split by team_id below. This was
+    // two queries against the same table — every other team, then mine.
+    admin
+      .from('roster_entries')
+      .select(`team_id, status, on_trade_block, player:players(${FULL_PLAYER_SELECT})`)
+      .in('team_id', rosterTeamIds),
+    listingIds.length > 0
+      ? admin
+          .from('waiver_claims')
+          .select('sale_listing_id, faab_bid')
+          .in('sale_listing_id', listingIds)
+          .eq('status', 'pending')
+          .eq('is_auction', true)
+          .order('faab_bid', { ascending: false })
+      : Promise.resolve({ data: [] as { sale_listing_id: string; faab_bid: number }[] }),
+  ]);
+
+  const highestBids: Record<string, number> = {};
+  for (const c of claims ?? []) {
+    if (c.sale_listing_id && !(c.sale_listing_id in highestBids)) {
+      highestBids[c.sale_listing_id] = c.faab_bid;
+    }
+  }
+
+  const playerListingsMap: Record<string, any> = {};
+  for (const l of listings ?? []) {
+    playerListingsMap[l.player_id] = l;
+  }
+
+  const allRosters: Record<string, any[]> = {};
+  const entries = (rosterRows ?? []).filter((e: any) => e.team_id !== myTeam.id);
+  const myRosterEntries = (rosterRows ?? []).filter((e: any) => e.team_id === myTeam.id);
+
+  // ── Wave 3 ────────────────────────────────────────────────────────────────
+  const playerIds = new Set<string>();
   const playerMarketValueMap: Record<string, number> = {};
-  for (const e of entries) {
-    const p = e.player as any;
-    if (p?.id) playerMarketValueMap[p.id] = Number(p.market_value) || 0;
-  }
-  for (const e of myRosterEntries ?? []) {
-    const p = e.player as any;
-    if (p?.id) playerMarketValueMap[p.id] = Number(p.market_value) || 0;
-  }
-
-  let recentPpgMap: Record<string, number> = {};
-  if (playerIds.size > 0) {
-    const { data: stats } = await admin
-      .from('player_stats')
-      .select('player_id, fantasy_points, gameweek, stats, season')
-      .in('player_id', Array.from(playerIds))
-      .in('season', [currentSeason, previousSeason])
-      .order('season', { ascending: false })
-      .order('gameweek', { ascending: false });
-
-    const playerGroups: Record<string, {
-      currentSeasonStats: { points: number; minutes: number }[];
-      previousSeasonStats: { points: number; minutes: number }[];
-    }> = {};
-
-    for (const s of stats ?? []) {
-      const rawStats = (s.stats as any) || {};
-      const minutes = Number(rawStats.minutes_played ?? 0);
-      
-      // Exclude DNPs (minutes_played <= 0)
-      if (minutes <= 0) continue;
-
-      if (!playerGroups[s.player_id]) {
-        playerGroups[s.player_id] = {
-          currentSeasonStats: [],
-          previousSeasonStats: []
-        };
-      }
-
-      const points = Number(s.fantasy_points) || 0;
-      if (s.season === currentSeason) {
-        playerGroups[s.player_id].currentSeasonStats.push({ points, minutes });
-      } else if (s.season === previousSeason) {
-        playerGroups[s.player_id].previousSeasonStats.push({ points, minutes });
-      }
+  for (const e of [...entries, ...myRosterEntries]) {
+    const p = (e as any).player;
+    if (p?.id) {
+      playerIds.add(p.id);
+      playerMarketValueMap[p.id] = Number(p.market_value) || 0;
     }
+  }
 
-    const calculateEffectivePPG = (
-      currStats: { points: number; minutes: number }[],
-      prevStats: { points: number; minutes: number }[],
-      marketValue: number
-    ): number => {
-      const N = currStats.length;
-      let effectivePPG = 3.0;
+  const allPlayerIds = new Set<string>();
+  for (const t of [...(trades ?? []), ...(leagueTrades ?? [])]) {
+    ((t as any).offered_players ?? []).forEach((id: string) => allPlayerIds.add(id));
+    ((t as any).requested_players ?? []).forEach((id: string) => allPlayerIds.add(id));
+  }
 
-      // 1. Mid-Season (N >= 10 appearances)
-      if (N >= 10) {
-        const seasonPPG = currStats.reduce((sum, m) => sum + m.points, 0) / N;
-        const recentMatches = currStats.slice(0, 10);
-        const recentPPG = recentMatches.reduce((sum, m) => sum + m.points, 0) / recentMatches.length;
-        effectivePPG = 0.6 * recentPPG + 0.4 * seasonPPG;
-      }
-      // 2. Early Season (1 <= N < 10 appearances)
-      else if (N >= 1) {
-        const seasonPPG_this_season = currStats.reduce((sum, m) => sum + m.points, 0) / N;
-        const hasHistoricalData = prevStats.length > 0;
+  // Every id whose rank/archive row this page merges in: roster players, the
+  // players named in trade proposals, and the loan players. Scoped, rather
+  // than reading the whole rankings view for a couple of hundred rows.
+  const enrichIds = new Set<string>([...playerIds, ...allPlayerIds]);
+  for (const l of loans ?? []) {
+    const pid = (l as any).player?.id;
+    if (pid) enrichIds.add(pid);
+  }
 
-        if (hasHistoricalData) {
-          const M_last = prevStats.reduce((sum, m) => sum + m.minutes, 0);
-          const PPG_last_season = prevStats.reduce((sum, m) => sum + m.points, 0) / prevStats.length;
-          const reliability = Math.min(1.0, M_last / 1500);
-          const adjustedPPG_last_season = (reliability * PPG_last_season) + ((1 - reliability) * 4.0);
+  const [recentPpgMap, { data: proposalPlayers }, { data: rankings }, { data: archives }] =
+    await Promise.all([
+      buildEffectivePpgMap(
+        admin,
+        Array.from(playerIds),
+        currentSeason,
+        previousSeason,
+        playerMarketValueMap,
+      ),
+      allPlayerIds.size > 0
+        ? admin.from('players').select(FULL_PLAYER_SELECT).in('id', Array.from(allPlayerIds))
+        : Promise.resolve({ data: [] as any[] }),
+      enrichIds.size > 0
+        ? admin.from('player_rankings').select('*').in('player_id', Array.from(enrichIds))
+        : Promise.resolve({ data: [] as any[] }),
+      enrichIds.size > 0
+        ? admin
+            .from('season_player_stats_archive')
+            .select('player_id, ppg, form_rating, overall_rank, position_ranks')
+            .eq('season', currentSeason)
+            .in('player_id', Array.from(enrichIds))
+        : Promise.resolve({ data: [] as any[] }),
+    ]);
 
-          const weight_this = N / 10;
-          const weight_last = 1 - weight_this;
-          effectivePPG = (weight_this * seasonPPG_this_season) + (weight_last * adjustedPPG_last_season);
-        } else {
-          // Brand new player
-          let proxyPPG = 3.0;
-          if (marketValue >= 80) proxyPPG = 10.0;
-          else if (marketValue >= 40) proxyPPG = 8.0;
-          else if (marketValue >= 20) proxyPPG = 6.0;
-          else if (marketValue >= 10) proxyPPG = 4.5;
-          else proxyPPG = 3.0;
-
-          const weight_actual = Math.min(1.0, N / 5);
-          effectivePPG = (weight_actual * seasonPPG_this_season) + ((1 - weight_actual) * proxyPPG);
-        }
-      }
-      // 3. Preseason / GW1 (N == 0 appearances)
-      else {
-        const hasHistoricalData = prevStats.length > 0;
-        if (hasHistoricalData) {
-          const M_last = prevStats.reduce((sum, m) => sum + m.minutes, 0);
-          const PPG_last_season = prevStats.reduce((sum, m) => sum + m.points, 0) / prevStats.length;
-          const reliability = Math.min(1.0, M_last / 1500);
-          const adjustedPPG_last_season = (reliability * PPG_last_season) + ((1 - reliability) * 4.0);
-          effectivePPG = adjustedPPG_last_season;
-        } else {
-          let proxyPPG = 3.0;
-          if (marketValue >= 80) proxyPPG = 10.0;
-          else if (marketValue >= 40) proxyPPG = 8.0;
-          else if (marketValue >= 20) proxyPPG = 6.0;
-          else if (marketValue >= 10) proxyPPG = 4.5;
-          else proxyPPG = 3.0;
-          effectivePPG = proxyPPG;
-        }
-      }
-
-      return Math.max(3.0, effectivePPG);
-    };
-
-    for (const id of playerIds) {
-      const group = playerGroups[id] || { currentSeasonStats: [], previousSeasonStats: [] };
-      const mv = playerMarketValueMap[id] ?? 0;
-      recentPpgMap[id] = calculateEffectivePPG(group.currentSeasonStats, group.previousSeasonStats, mv);
-    }
+  const playerMap: Record<string, any> = {};
+  for (const p of proposalPlayers ?? []) {
+    playerMap[(p as any).id] = p;
   }
 
   // Populate allRosters with recent_ppg
@@ -278,56 +231,6 @@ export default async function TradesPage({ params, searchParams }: Props) {
       listing: playerListingsMap[p.id] ?? null
     };
   }).filter(Boolean);
-
-  // ── League Feed — all accepted trades across the whole league ──────────────
-  const { data: leagueTrades } = await admin
-    .from('trade_proposals')
-    .select(`
-      id, team_a_id, team_b_id,
-      offered_players, requested_players, offered_faab, requested_faab,
-      status, message, created_at, updated_at,
-      team_a:teams!trade_proposals_team_a_id_fkey(id, team_name),
-      team_b:teams!trade_proposals_team_b_id_fkey(id, team_name)
-    `)
-    .eq('league_id', leagueId)
-    .eq('status', 'accepted')
-    .order('updated_at', { ascending: false })
-    .limit(20);
-
-  // All teams including user's own (needed to display league-wide feed)
-  const { data: allTeamsIncludingMine } = await admin
-    .from('teams')
-    .select('id, team_name, faab_budget')
-    .eq('league_id', leagueId);
-
-  // Build playerMap from all players in all trade proposals (own + league feed)
-  const allPlayerIds = new Set<string>();
-  for (const t of trades ?? []) {
-    (t.offered_players ?? []).forEach((id: string) => allPlayerIds.add(id));
-    (t.requested_players ?? []).forEach((id: string) => allPlayerIds.add(id));
-  }
-  // Also include players from league feed trades
-  for (const t of leagueTrades ?? []) {
-    (t.offered_players ?? []).forEach((id: string) => allPlayerIds.add(id));
-    (t.requested_players ?? []).forEach((id: string) => allPlayerIds.add(id));
-  }
-
-  const playerMap: Record<string, any> = {};
-  if (allPlayerIds.size > 0) {
-    const { data: players } = await admin
-      .from('players')
-      .select(FULL_PLAYER_SELECT)
-      .in('id', Array.from(allPlayerIds));
-    for (const p of players ?? []) {
-      playerMap[p.id] = p;
-    }
-  }
-
-  // Fetch rankings and archives in parallel
-  const [{ data: rankings }, { data: archives }] = await Promise.all([
-    admin.from('player_rankings').select('*'),
-    admin.from('season_player_stats_archive').select('player_id, ppg, form_rating, overall_rank, position_ranks').eq('season', currentSeason)
-  ]);
 
   const rankMap = new Map((rankings ?? []).map((r: any) => [r.player_id, r]));
   const archiveMap = new Map((archives ?? []).map((a: any) => [a.player_id, a]));
@@ -359,42 +262,11 @@ export default async function TradesPage({ params, searchParams }: Props) {
     mergePlayerSeasonStats(playerMap[pid]);
   }
 
-  // Fetch loans for this league
-  const { data: loans } = await (admin
-    .from('player_loans')
-    .select(`
-      *,
-      lender_team:teams!lender_team_id(id, team_name, user_id),
-      borrower_team:teams!borrower_team_id(id, team_name, user_id),
-      player:players(${FULL_PLAYER_SELECT})
-    `)
-    .eq('league_id', leagueId)
-    .order('created_at', { ascending: false }) as any);
-
-  for (const l of loans ?? []) {
+  for (const l of (loans ?? []) as any[]) {
     if (l.player) {
       mergePlayerSeasonStats(l.player);
       l.player.recent_ppg = recentPpgMap[l.player.id] ?? Math.max(3.0, l.player.ppg ?? 3.0);
     }
-  }
-
-  // Determine current FPL gameweek for the loan modal GW pickers
-  let currentGameweek = 1;
-  try {
-    const fplRes = await fetch('https://fantasy.premierleague.com/api/bootstrap-static/', {
-      next: { revalidate: 3600 },
-    });
-    if (fplRes.ok) {
-      const fplData = await fplRes.json();
-      const now = new Date();
-      for (const ev of fplData.events as any[]) {
-        if (ev.deadline_time && new Date(ev.deadline_time) <= now) {
-          currentGameweek = Math.max(currentGameweek, ev.id);
-        }
-      }
-    }
-  } catch {
-    // Silently fall back to GW1
   }
 
   // Determine initial tab from searchParam
@@ -429,4 +301,27 @@ export default async function TradesPage({ params, searchParams }: Props) {
       }}
     />
   );
+}
+
+/**
+ * The latest gameweek whose deadline has passed, for the loan modal's GW
+ * pickers. Hoisted out of the page body so it can join wave 1's Promise.all
+ * rather than blocking behind every database read before it.
+ */
+async function resolveCurrentGameweek(): Promise<number> {
+  try {
+    const res = await fetch('https://fantasy.premierleague.com/api/bootstrap-static/', {
+      next: { revalidate: 3600 },
+    });
+    if (!res.ok) return 1;
+    const data = await res.json();
+    const now = new Date();
+    let gw = 1;
+    for (const ev of data.events as { id: number; deadline_time: string }[]) {
+      if (ev.deadline_time && new Date(ev.deadline_time) <= now) gw = Math.max(gw, ev.id);
+    }
+    return gw;
+  } catch {
+    return 1; // Silently fall back to GW1.
+  }
 }
