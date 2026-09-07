@@ -46,34 +46,34 @@ export default async function MatchupDetailPage({ params }: Props) {
 
     const admin = createAdminClient();
 
-    const { data: league } = await admin
-        .from('leagues')
-        .select('id, name, commissioner_id')
-        .eq('id', leagueId)
-        .single();
-
-    if (!league) notFound();
-
-    const { data: member } = await admin
-        .from('teams')
-        .select('id')
-        .eq('league_id', leagueId)
-        .eq('user_id', user.id)
-        .single();
-
-    if (!member && league.commissioner_id !== user.id) redirect('/dashboard');
-
-    const { data: matchupData } = await admin
-        .from('matchups')
-        .select(`
+    // The league row, the viewer's membership and the matchup itself are three
+    // independent lookups; only the access check downstream needs all three.
+    const [{ data: league }, { data: member }, { data: matchupData }] = await Promise.all([
+        admin
+            .from('leagues')
+            .select('id, name, commissioner_id')
+            .eq('id', leagueId)
+            .single(),
+        admin
+            .from('teams')
+            .select('id')
+            .eq('league_id', leagueId)
+            .eq('user_id', user.id)
+            .maybeSingle(),
+        admin
+            .from('matchups')
+            .select(`
             *,
             team_a:teams!matchups_team_a_id_fkey(id, team_name, crest_config),
             team_b:teams!matchups_team_b_id_fkey(id, team_name, crest_config)
         `)
-        .eq('id', matchupId)
-        .eq('league_id', leagueId)
-        .single();
+            .eq('id', matchupId)
+            .eq('league_id', leagueId)
+            .maybeSingle(),
+    ]);
 
+    if (!league) notFound();
+    if (!member && league.commissioner_id !== user.id) redirect('/dashboard');
     if (!matchupData) notFound();
 
     const matchup = matchupData as Matchup & {
@@ -81,18 +81,21 @@ export default async function MatchupDetailPage({ params }: Props) {
         team_b: { id: string; team_name: string; crest_config: any } | null;
     };
 
-    const lineupA = await getEffectiveLineupForTeam(admin, {
-        teamId: matchup.team_a_id,
-        gameweek: matchup.gameweek,
-        currentLineup: matchup.lineup_a as MatchupLineup | null,
-    });
-    const lineupB = matchup.team_b_id
-        ? await getEffectiveLineupForTeam(admin, {
-            teamId: matchup.team_b_id,
+    // Both sides of the tie, resolved together — neither reads the other.
+    const [lineupA, lineupB] = await Promise.all([
+        getEffectiveLineupForTeam(admin, {
+            teamId: matchup.team_a_id,
             gameweek: matchup.gameweek,
-            currentLineup: matchup.lineup_b as MatchupLineup | null,
-        })
-        : null;
+            currentLineup: matchup.lineup_a as MatchupLineup | null,
+        }),
+        matchup.team_b_id
+            ? getEffectiveLineupForTeam(admin, {
+                teamId: matchup.team_b_id,
+                gameweek: matchup.gameweek,
+                currentLineup: matchup.lineup_b as MatchupLineup | null,
+            })
+            : Promise.resolve(null),
+    ]);
 
     const playerIds = new Set<string>();
     lineupA?.starters.forEach((s) => playerIds.add(s.player_id));

@@ -58,40 +58,63 @@ export default async function MyTeamPage({ params }: Props) {
   }
 
 
-  const currentFpl = await getCurrentFplSeason();
-  const kickedOff = await isFplSeasonKickedOff();
+  const [currentFpl, kickedOff] = await Promise.all([
+    getCurrentFplSeason(),
+    isFplSeasonKickedOff(),
+  ]);
 
   let season = (team.league as any).current_season ?? (team.league as any).season ?? currentFpl;
   if (season === currentFpl && !kickedOff) {
     season = await resolveDraftStatsSeason(admin, team.league as any);
   }
 
-  // Fetch all player rankings and archives in parallel
-  const [{ data: rankings }, { data: archives }, { data: listings }] = await Promise.all([
-    admin.from('player_rankings').select('*'),
-    admin.from('season_player_stats_archive').select('player_id, ppg, form_rating, overall_rank, position_ranks').eq('season', season),
+  // The roster comes first now, because the two enrichment reads below are
+  // scoped to it. They used to fetch the entire rankings view and the entire
+  // season archive — every active player in the database — to look up the
+  // twenty-odd players on one squad.
+  const [{ data: rosterData }, { data: listings }, { data: pendingActivations }] = await Promise.all([
+    admin
+      .from('roster_entries')
+      .select(
+        `
+      id, team_id, player_id, status, acquisition_type, acquisition_value, acquired_at, on_trade_block,
+      player:players(${FULL_PLAYER_SELECT})
+    `
+      )
+      .eq('team_id', team.id)
+      .order('status', { ascending: true }),
     admin
       .from('player_sale_listings')
       .select('id, player_id, status, min_bid, buy_now_price')
       .eq('league_id', leagueId)
-      .in('status', ['pending', 'active'])
+      .in('status', ['pending', 'active']),
+    admin
+      .from('player_loans')
+      .select('id, player:players(name)')
+      .eq('lender_team_id', team.id)
+      .eq('status', 'pending_activation'),
+  ]);
+
+  const rosterPlayerIds = (rosterData ?? [])
+    .map((e: any) => e.player_id)
+    .filter((id: string | null): id is string => !!id);
+
+  const [{ data: rankings }, { data: archives }] = await Promise.all([
+    rosterPlayerIds.length > 0
+      ? admin.from('player_rankings').select('*').in('player_id', rosterPlayerIds)
+      : Promise.resolve({ data: [] as any[] }),
+    rosterPlayerIds.length > 0
+      ? admin
+          .from('season_player_stats_archive')
+          .select('player_id, ppg, form_rating, overall_rank, position_ranks')
+          .eq('season', season)
+          .in('player_id', rosterPlayerIds)
+      : Promise.resolve({ data: [] as any[] }),
   ]);
 
   const archiveMap = new Map((archives ?? []).map((a: any) => [a.player_id, a]));
   const rankMap = new Map((rankings ?? []).map((r: any) => [r.player_id, r]));
   const listingsMap = new Map((listings ?? []).map((l: any) => [l.player_id, l]));
-
-  // Fetch roster entries with full player data (including rankings)
-  const { data: rosterData } = await admin
-    .from('roster_entries')
-    .select(
-      `
-      id, team_id, player_id, status, acquisition_type, acquisition_value, acquired_at, on_trade_block,
-      player:players(${FULL_PLAYER_SELECT})
-    `
-    )
-    .eq('team_id', team.id)
-    .order('status', { ascending: true });
 
   const rosterEntries = (rosterData ?? []).map((e: any) => {
     const player = e.player as any;
@@ -117,12 +140,6 @@ export default async function MyTeamPage({ params }: Props) {
   const loanInCount = rosterEntries.filter((e) => e.status === 'loan_in').length;
   const activeRosterCount = rosterEntries.filter((e) => e.status !== 'ir' && e.status !== 'taxi' && e.status !== 'loan_in').length;
 
-  const { data: pendingActivations } = await admin
-    .from('player_loans')
-    .select('id, player:players(name)')
-    .eq('lender_team_id', team.id)
-    .eq('status', 'pending_activation');
-
   // Fetch current GW player points for score overlay
   let currentFplGw = 0;
   const scoreMap: Record<string, number> = {};
@@ -146,8 +163,10 @@ export default async function MyTeamPage({ params }: Props) {
       }
       if (currentFplGw) {
         const playerIds = rosterEntries.map((e) => e.player.id);
-        const statsSeason = await getCurrentFplSeason(undefined, true);
-        const refSeason = await getLatestReferenceStatsSeason(admin);
+        const [statsSeason, refSeason] = await Promise.all([
+          getCurrentFplSeason(undefined, true),
+          getLatestReferenceStatsSeason(admin),
+        ]);
         const [{ data: statsRows }, fetchedRefStats] = await Promise.all([
           admin
             .from('player_stats')

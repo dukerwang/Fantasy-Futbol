@@ -48,21 +48,17 @@ export default async function LeaguePage({ params }: Props) {
   const { data: league } = await admin.from('leagues').select('*').eq('id', leagueId).single();
   if (!league) notFound();
 
-  const { data: membership } = await admin
-    .from('teams')
-    .select('id')
-    .eq('league_id', leagueId)
-    .eq('user_id', user.id)
-    .single();
-
-  if (!membership && league.commissioner_id !== user.id) redirect('/dashboard');
-
+  // Membership and "my team" were two identical queries against `teams` --
+  // same league, same user -- differing only in whether `abbreviation` was
+  // selected. One row answers both questions.
   const { data: myTeam } = await admin
     .from('teams')
     .select('id, abbreviation')
     .eq('league_id', leagueId)
     .eq('user_id', user.id)
-    .single();
+    .maybeSingle();
+
+  if (!myTeam && league.commissioner_id !== user.id) redirect('/dashboard');
 
   if (myTeam && !myTeam.abbreviation) {
     redirect(`/league/${leagueId}/team-setup`);
