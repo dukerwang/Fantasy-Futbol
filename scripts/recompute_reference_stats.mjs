@@ -36,6 +36,10 @@ const dryRun = args.includes('--dry-run');
 const force = args.includes('--force');
 const clonePrior = args.includes('--clone-prior');
 const seasonArg = args.find((a) => a.startsWith('--season='))?.split('=')[1]
+  ?? (() => {
+    const idx = args.indexOf('--season');
+    return idx >= 0 ? args[idx + 1] : null;
+  })();
 
 function getPreviousSeason(curr) {
   const match = curr.match(/^(\d{4})-(\d{2})$/);
@@ -43,10 +47,6 @@ function getPreviousSeason(curr) {
   const startYear = parseInt(match[1], 10) - 1;
   return `${startYear}-${String(startYear + 1).slice(-2)}`;
 }
-  ?? (() => {
-    const idx = args.indexOf('--season');
-    return idx >= 0 ? args[idx + 1] : null;
-  })();
 
 // ── env loading (.env.local fallback) ─────────────────────────────────
 if (existsSync('.env.local')) {
