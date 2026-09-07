@@ -497,19 +497,19 @@
   .segmented { flex: 1 1 100%; }
   .segment { flex: 1; justify-content: center; }
 
-  /* GP, Goals, Assists and Avg Rating go first on a phone — points, PPG and
-     value are what a manager scans for, and the card behind the name carries
-     the rest. */
+  /* GP, PPG, Avg Rating and Form drop first on a phone — Goals and Assists
+     stay, since they're what a manager scans a table for, and the card
+     behind the name carries the rest. */
   .table th:nth-child(3),
   .table td:nth-child(3),
-  .table th:nth-child(4),
-  .table td:nth-child(4),
-  .table th:nth-child(5),
-  .table td:nth-child(5),
+  .table th:nth-child(7),
+  .table td:nth-child(7),
   .table th:nth-child(8),
-  .table td:nth-child(8) { display: none; }
+  .table td:nth-child(8),
+  .table th:nth-child(9),
+  .table td:nth-child(9) { display: none; }
 
-  /* Six columns remain (Player, Owner, Pts, PPG, Form, Value). Their percentage
+  /* Six columns remain (Player, Owner, G, A, Pts, Value). Their percentage
      widths were tuned against all ten — after the four above drop out of the
      fixed layout, those percentages need to be re-tuned against the smaller
      column count, or the numeric cells fall back below their own content

@@ -11,7 +11,7 @@ import { getPlayerDisplayName } from '@/lib/players/displayName';
 import { SPINE, POS_COLOR } from '@/lib/positions/spine';
 import { Icon } from '@/components/ui/Icon';
 import { isPlayerMapped } from '@/lib/players/playerMapping';
-import { POS_FILTER_OPTIONS, groupContains, type PosFilter } from '@/lib/players/positionFilter';
+import { POS_FILTER_OPTIONS, resolveActivePosition, type PosFilter } from '@/lib/players/positionFilter';
 import styles from './stats.module.css';
 import { fold } from '@/lib/text/fold';
 
@@ -51,41 +51,12 @@ type SortKey =
 
 type SortDir = 'desc' | 'asc';
 
-function resolveActivePosition(
-  player: StatPlayer,
-  posFilter: PosFilter,
-  posType: 'primary' | 'secondary' | 'both'
-): GranularPosition | 'N/A' | null {
-  const primary = player.primary_position;
-  const secondaries = player.secondary_positions ?? [];
-
-  if (!primary) {
-    if (posFilter === 'ALL') return 'N/A';
-    return null;
-  }
-
-  if (posType === 'primary') {
-    if (groupContains(posFilter, primary)) {
-      return primary;
-    }
-  } else if (posType === 'secondary') {
-    const match = secondaries.find((pos) => groupContains(posFilter, pos as GranularPosition));
-    if (match) return match as GranularPosition;
-  } else if (posType === 'both') {
-    if (groupContains(posFilter, primary)) {
-      return primary;
-    }
-    const match = secondaries.find((pos) => groupContains(posFilter, pos as GranularPosition));
-    if (match) return match as GranularPosition;
-  }
-  return null;
-}
-
 export default function GlobalStatsTable({ leagueId, leagueName, players, season, shadowMaps, isSiteAdmin }: Props) {
   const { openPlayer, prefetchPlayer, primePlayers } = usePlayerCard();
   const [search, setSearch] = useState('');
   const [posFilter, setPosFilter] = useState<PosFilter>('ALL');
   const [clubFilter, setClubFilter] = useState<string>('ALL');
+  const [teamFilter, setTeamFilter] = useState<string>('ALL');
   const [syncFilter, setSyncFilter] = useState<'all' | 'synced' | 'unsynced'>('all');
   const [minMins, setMinMins] = useState<'played' | 'all' | 'gt45'>('all');
   const [minGames, setMinGames] = useState<number>(0);
@@ -141,6 +112,14 @@ export default function GlobalStatsTable({ leagueId, leagueName, players, season
     return Array.from(set).sort((a, b) => a.localeCompare(b));
   }, [players]);
 
+  const teamOptions = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const p of players) {
+      if (p.owner_team_id && p.owner_team_name) map.set(p.owner_team_id, p.owner_team_name);
+    }
+    return Array.from(map.entries()).sort((a, b) => a[1].localeCompare(b[1]));
+  }, [players]);
+
   function handleSort(key: SortKey) {
     let nextDir: SortDir = 'desc';
     if (sortKey === key) {
@@ -177,6 +156,10 @@ export default function GlobalStatsTable({ leagueId, leagueName, players, season
 
         if (clubFilter !== 'ALL' && p.pl_team !== clubFilter) return false;
 
+        if (teamFilter !== 'ALL') {
+          if (teamFilter === 'FREE' ? p.owner_team_id !== null : p.owner_team_id !== teamFilter) return false;
+        }
+
         if (q) {
           const full = fold(getPlayerDisplayName(p, 'full'));
           if (!full.includes(q) && !fold(p.name).includes(q)) return false;
@@ -192,7 +175,7 @@ export default function GlobalStatsTable({ leagueId, leagueName, players, season
 
         return true;
       });
-  }, [players, search, posFilter, posType, clubFilter, syncFilter, isSiteAdmin, shadowByPlayer, minGames]);
+  }, [players, search, posFilter, posType, clubFilter, teamFilter, syncFilter, isSiteAdmin, shadowByPlayer, minGames]);
 
   const sorted = useMemo(() => {
     return [...filtered].sort((aObj, bObj) => {
@@ -331,6 +314,20 @@ export default function GlobalStatsTable({ leagueId, leagueName, players, season
           {clubOptions.map((club) => (
             <option key={club} value={club}>
               {club}
+            </option>
+          ))}
+        </select>
+        <select
+          className={styles.select}
+          value={teamFilter}
+          onChange={(e) => setTeamFilter(e.target.value)}
+          aria-label="Gaffa club"
+        >
+          <option value="ALL">All Gaffa clubs</option>
+          <option value="FREE">Free agents</option>
+          {teamOptions.map(([id, name]) => (
+            <option key={id} value={id}>
+              {name}
             </option>
           ))}
         </select>

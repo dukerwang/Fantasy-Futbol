@@ -14,7 +14,7 @@ import type { OutlookStyle } from '@futbolpedia/engine';
 import type { ExplorerRow, IndexScout } from '@/lib/players/indexData';
 import type { IndexRowPlayer } from './page';
 import { isPlayerMapped } from '@/lib/players/playerMapping';
-import { POS_FILTER_OPTIONS, groupContains, type PosFilter } from '@/lib/players/positionFilter';
+import { POS_FILTER_OPTIONS, resolveActivePosition, type PosFilter, type PosType } from '@/lib/players/positionFilter';
 import styles from './playersIndex.module.css';
 import { fold } from '@/lib/text/fold';
 
@@ -95,12 +95,42 @@ export default function PlayersIndex({
   const [currentView, setCurrentView] = useState<'cards' | 'table' | 'explorer'>(initialView ?? 'cards');
   const [search, setSearch] = useState('');
   const [posFilter, setPosFilter] = useState<PosFilter>('ALL');
+  const [posType, setPosType] = useState<PosType>('both');
   const [clubFilter, setClubFilter] = useState<string>('ALL');
+  const [teamFilter, setTeamFilter] = useState<string>('ALL');
+  const [minMins, setMinMins] = useState<'played' | 'all' | 'gt45'>('all');
+  const [minGames, setMinGames] = useState<number>(0);
   const [quality, setQuality] = useState<string | null>(null);
   const [minutes, setMinutes] = useState<string | null>(null);
   const [watch, setWatch] = useState<string | null>(null);
   const [syncFilter, setSyncFilter] = useState<'all' | 'synced' | 'unsynced'>('all');
   const [shown, setShown] = useState(CARD_PAGE);
+
+  // Shared with the table view (same localStorage keys) so a preference set
+  // in one carries over to the other.
+  useEffect(() => {
+    try {
+      const savedMinMins = localStorage.getItem('gaffa:stats-min-mins') as 'played' | 'all' | 'gt45' | null;
+      if (savedMinMins && ['played', 'all', 'gt45'].includes(savedMinMins)) setMinMins(savedMinMins);
+
+      const savedPosType = localStorage.getItem('gaffa:stats-pos-type') as PosType | null;
+      if (savedPosType && ['primary', 'secondary', 'both'].includes(savedPosType)) setPosType(savedPosType);
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  function handleSetMinMins(val: 'played' | 'all' | 'gt45') {
+    setMinMins(val);
+    setShown(CARD_PAGE);
+    try { localStorage.setItem('gaffa:stats-min-mins', val); } catch { /* ignore */ }
+  }
+
+  function handleSetPosType(val: PosType) {
+    setPosType(val);
+    setShown(CARD_PAGE);
+    try { localStorage.setItem('gaffa:stats-pos-type', val); } catch { /* ignore */ }
+  }
 
   const clubOptions = useMemo(() => {
     const set = new Set<string>();
@@ -109,6 +139,17 @@ export default function PlayersIndex({
     }
     return Array.from(set).sort((a, b) => a.localeCompare(b));
   }, [players]);
+
+  const teamOptions = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const p of players) {
+      if (p.owner_team_id && p.owner_team_name) map.set(p.owner_team_id, p.owner_team_name);
+    }
+    return Array.from(map.entries()).sort((a, b) => a[1].localeCompare(b[1]));
+  }, [players]);
+
+  const shadowByPlayer =
+    minMins === 'played' ? (shadowMaps.played ?? shadowMaps.all) : minMins === 'all' ? shadowMaps.all : shadowMaps.gt45;
 
   // Restore preferred view from localStorage if not explicitly requested in URL
   useEffect(() => {
@@ -148,26 +189,40 @@ export default function PlayersIndex({
       if (q && !fold(getPlayerDisplayName(p, 'full')).includes(q)
             && !fold(p.pl_team).includes(q)) return false;
       if (clubFilter !== 'ALL' && p.pl_team !== clubFilter) return false;
-      if (posFilter !== 'ALL') {
-        if (!p.primary_position || !groupContains(posFilter, p.primary_position as GranularPosition)) return false;
+      if (teamFilter !== 'ALL') {
+        if (teamFilter === 'FREE' ? p.owner_team_id !== null : p.owner_team_id !== teamFilter) return false;
       }
-      const s = scout[p.id];
-      if (quality && (!s || s.fromFallback || s.quality !== quality)) return false;
-      if (minutes && (!s || s.minutes_role !== minutes)) return false;
+
+      const activePos = resolveActivePosition(p, posFilter, posType);
+      if (!activePos) return false;
+      if (activePos !== 'N/A') {
+        const s = shadowByPlayer[p.id]?.[activePos];
+        if ((s?.gp ?? 0) < minGames) return false;
+      } else if (minGames > 0) {
+        return false;
+      }
+
+      const sc = scout[p.id];
+      if (quality && (!sc || sc.fromFallback || sc.quality !== quality)) return false;
+      if (minutes && (!sc || sc.minutes_role !== minutes)) return false;
       if (watch) {
-        if (!s) return false;
+        if (!sc) return false;
         const flagged =
-          s.risk_flags.includes(watch as never) ||
-          (watch === 'exit' && (s.pl_mobility === 'linked_exit' || s.pl_mobility === 'confirmed_exit'));
+          sc.risk_flags.includes(watch as never) ||
+          (watch === 'exit' && (sc.pl_mobility === 'linked_exit' || sc.pl_mobility === 'confirmed_exit'));
         if (!flagged) return false;
       }
       return true;
     });
-  }, [players, scout, search, posFilter, clubFilter, quality, minutes, watch, syncFilter, isSiteAdmin]);
+  }, [players, scout, search, posFilter, posType, clubFilter, teamFilter, quality, minutes, watch, syncFilter, isSiteAdmin, shadowByPlayer, minGames]);
 
   const activeFilters = [
     posFilter !== 'ALL' ? posFilter : null,
+    posType !== 'both' ? posType : null,
     clubFilter !== 'ALL' ? clubFilter : null,
+    teamFilter !== 'ALL' ? teamFilter : null,
+    minMins !== 'all' ? minMins : null,
+    minGames > 0 ? minGames : null,
     quality,
     minutes,
     watch,
@@ -319,11 +374,64 @@ export default function PlayersIndex({
             <option key={club} value={club}>{club}</option>
           ))}
         </select>
+        <select
+          className={styles.select}
+          value={teamFilter}
+          onChange={(e) => { setTeamFilter(e.target.value); setShown(CARD_PAGE); }}
+          aria-label="Gaffa club"
+        >
+          <option value="ALL">All Gaffa clubs</option>
+          <option value="FREE">Free agents</option>
+          {teamOptions.map(([id, name]) => (
+            <option key={id} value={id}>{name}</option>
+          ))}
+        </select>
+        <select
+          className={styles.select}
+          value={minMins}
+          onChange={(e) => handleSetMinMins(e.target.value as 'played' | 'all' | 'gt45')}
+          aria-label="Minutes filter"
+        >
+          <option value="played">Played (&gt;0 mins)</option>
+          <option value="all">Meaningful (&ge;15 mins)</option>
+          <option value="gt45">Starters (&gt;45 mins)</option>
+        </select>
+
+        <div className={styles.slider}>
+          <label className={styles.sliderLabel} htmlFor="cardsMinGames">Min games</label>
+          <input
+            id="cardsMinGames"
+            type="range"
+            min="0"
+            max="38"
+            value={minGames}
+            onChange={(e) => { setMinGames(parseInt(e.target.value)); setShown(CARD_PAGE); }}
+            className={styles.sliderInput}
+          />
+          <span className={styles.sliderValue}>{minGames}</span>
+        </div>
+
+        <div className={styles.segmented} role="group" aria-label="Which positions count">
+          {(['primary', 'secondary', 'both'] as const).map((t) => (
+            <button
+              key={t}
+              type="button"
+              className={`${styles.segment} ${posType === t ? styles.segmentOn : ''}`}
+              aria-pressed={posType === t}
+              onClick={() => handleSetPosType(t)}
+            >
+              {t}
+            </button>
+          ))}
+        </div>
+
         {activeFilters > 0 && (
           <button
             className={styles.clear}
             onClick={() => {
-              setPosFilter('ALL'); setClubFilter('ALL');
+              setPosFilter('ALL'); handleSetPosType('both');
+              setClubFilter('ALL'); setTeamFilter('ALL');
+              handleSetMinMins('all'); setMinGames(0);
               setQuality(null); setMinutes(null); setWatch(null); setSyncFilter('all');
             }}
           >

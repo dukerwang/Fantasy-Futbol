@@ -38,3 +38,45 @@ export function groupContains(group: PosFilter, pos: GranularPosition): boolean 
   if (group === 'WING') return WING_POSITIONS.includes(pos);
   return pos === group;
 }
+
+export type PosType = 'primary' | 'secondary' | 'both';
+
+interface PositionLike {
+  primary_position: GranularPosition | null;
+  secondary_positions: GranularPosition[];
+}
+
+/**
+ * Resolves which of a player's positions counts as the "active" one under a
+ * filter — the position his row's stats get shadow-mapped against. Shared by
+ * every players-pool view so table and card filtering can't drift apart.
+ */
+export function resolveActivePosition(
+  player: PositionLike,
+  posFilter: PosFilter,
+  posType: PosType
+): GranularPosition | 'N/A' | null {
+  const primary = player.primary_position;
+  const secondaries = player.secondary_positions ?? [];
+
+  if (!primary) {
+    if (posFilter === 'ALL') return 'N/A';
+    return null;
+  }
+
+  if (posType === 'primary') {
+    if (groupContains(posFilter, primary)) {
+      return primary;
+    }
+  } else if (posType === 'secondary') {
+    const match = secondaries.find((pos) => groupContains(posFilter, pos));
+    if (match) return match;
+  } else if (posType === 'both') {
+    if (groupContains(posFilter, primary)) {
+      return primary;
+    }
+    const match = secondaries.find((pos) => groupContains(posFilter, pos));
+    if (match) return match;
+  }
+  return null;
+}

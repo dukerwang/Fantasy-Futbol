@@ -140,6 +140,103 @@
 
 .clear:hover { background: var(--color-bg-inset); color: var(--color-text-primary); }
 
+.slider {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  padding: var(--s2) var(--s3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--r-control);
+  background: var(--color-bg-card);
+}
+
+.sliderLabel {
+  font-size: var(--t-12);
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+.sliderValue {
+  font-family: var(--font-serif);
+  font-weight: 700;
+  font-size: var(--t-13);
+  font-variant-numeric: tabular-nums lining-nums;
+  color: var(--color-text-primary);
+  min-width: 14px;
+  display: inline-block;
+  text-align: right;
+}
+
+.sliderInput {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 76px;
+  flex-shrink: 0;
+  height: 4px;
+  background: var(--color-bg-inset);
+  outline: none;
+  margin: 0;
+}
+
+.sliderInput::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 13px;
+  height: 13px;
+  background: var(--color-accent);
+  border: 2px solid var(--color-bg-card);
+  border-radius: var(--r-round);
+}
+
+.sliderInput::-moz-range-thumb {
+  width: 13px;
+  height: 13px;
+  background: var(--color-accent);
+  border: 2px solid var(--color-bg-card);
+  border-radius: var(--r-round);
+  cursor: pointer;
+}
+
+.segmented {
+  display: inline-flex;
+  border: 1px solid var(--color-border);
+  border-radius: var(--r-control);
+  overflow: hidden;
+  background: var(--color-bg-card);
+}
+
+.segment {
+  background: transparent;
+  border: none;
+  border-right: 1px solid var(--color-border);
+  padding: var(--s2) var(--s3);
+  font-family: var(--font-condensed);
+  font-size: var(--t-12);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+}
+
+.segment:last-child { border-right: none; }
+@media (hover: hover) and (pointer: fine) {
+  .segment:hover { background: var(--color-bg-card-hover); }
+}
+
+.segmentOn {
+  background: var(--color-text-primary);
+  border-color: var(--color-text-primary);
+  color: var(--color-bg-primary);
+}
+@media (hover: hover) and (pointer: fine) {
+  .segmentOn:hover {
+    background: var(--color-text-primary);
+    border-color: var(--color-text-primary);
+    color: var(--color-bg-primary);
+  }
+}
+
 /* --- facets --- */
 .gwBar {
   display: flex;
