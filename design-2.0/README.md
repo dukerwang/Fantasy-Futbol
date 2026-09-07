@@ -1079,6 +1079,15 @@ meanings, one section apart.
 
 ### Capitalisation: sentence case, and the exceptions are a list
 
+> **SUPERSEDED 2026-08-19, and again 2026-09-04. Do not follow this section.**
+> Headings and section titles are **title case** — see `docs/UI_RULES.md` rule 1,
+> `f2552ff2`, and Duke's reaffirmation in `docs/DECISIONS.md` ("what is going on
+> with these headers not being capitalized??? i'm tired of it").
+> `scripts/check-ui-rules.mjs` enforces title case on write. Buttons stay
+> sentence case. What follows is the record of the August sweep, kept for its
+> method — resolving `text-transform` before judging a string, and treating the
+> product's defined vocabulary as exceptions — not for its conclusion.
+
 **Swept 2026-08-12**, app-wide, in one pass. The house style was asserted before it was
 measured, so it got measured: on the ported 2.0 surfaces, counting only multi-word labels
 that render *as written*, it was **93 sentence case against 14 Title Case** — 87%. Sentence

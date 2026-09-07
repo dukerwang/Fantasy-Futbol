@@ -1,36 +1,27 @@
-# Cursor Rules for Gaffa
+# Cursor rules for Gaffa
 
-## Project Overview
-Gaffa is a dynasty fantasy football platform for the Premier League, live at gaffa.live.
-- Core spec: Read `CLAUDE.md`, `README.md`, `AGENTS.md`.
-- Game mechanics & intent: `docs/USER_GUIDE.md`.
-- Decisions: Check `docs/DECISIONS.md` before making design decisions.
+Gaffa is a dynasty fantasy football platform for the Premier League, live at
+gaffa.live.
+
+**`AGENTS.md` is the operating contract.** Read it. It covers the definition of
+done, what to ask before doing, writing style, the skills policy, and the free-tier
+cost limits. This file does not restate those rules, so they cannot drift apart.
+
+Deeper references, read when the task calls for them rather than up front:
+
+- `docs/UI_RULES.md` — the binding UI rules. Read before any UI, CSS, or copy work.
+- `DESIGN.md` — tokens, typography, mobile standards, banned patterns.
+- `docs/DECISIONS.md` — what Duke actually decided. Check before asserting policy.
+- `CLAUDE.md`, `README.md` — architecture, scoring engine, data pipeline.
+- `docs/USER_GUIDE.md` — league mechanics and the reasoning behind them.
 
 ## Verification
-- Always run `npm run build` and `npm test` before declaring work complete.
 
-## Resource Limits, Server Efficiency, and Cost Awareness
-All AI agents must actively balance server optimization (efficiency, speed, quality) with limits and cost:
+`npm run build` must pass before you call work done or push. `npm test` and
+`npm run check:ui` are safe to run unprompted.
 
-1. **Vercel (Compute & Invocations)**:
-   - Limits: 1M Function Invocations per 30-day rolling window, 4 Fluid Active CPU hours/month.
-   - **Prefer local compute for batch work**: When generating outlooks, backfilling data, or running heavy syncs, run them as local Node/TS CLI scripts (`scripts/...` or `tsx ...`) directly against Postgres instead of routing heavy batch jobs through Vercel serverless functions.
-   - **Avoid unthrottled remote loops**: Do not repeatedly hammer remote Vercel API routes in loops if a direct database query or local script achieves the same result. Only invoke remote routes when testing them or when no local equivalent exists.
-   - **No client-side polling**: Use Supabase Realtime WebSockets directly instead of `setInterval` polling Next.js API routes.
+## The one rule agents keep breaking
 
-2. **Supabase (Postgres & Realtime)**:
-   - Batch queries and avoid N+1 queries (`.in('id', ids)`).
-   - PostgREST truncates queries at 1,000 rows — paginate (`.range()`) on large tables.
-   - Use Postgres stored procedures (RPCs) for complex transactions.
-   - Always clean up Realtime channels on component unmount.
-
-3. **Google Gemini / AI Studio**:
-   - Respect project monthly spend cap. Cache search queries (head-coach/club) across players.
-
-4. **External Data Sources**:
-   - API-Football has a 100 req/day limit.
-   - SoFIFA and Transfermarkt block cloud/CI IPs — run only via local scrapers (`playwright-sofifa.js`, `scripts/sync_transfermarkt_gaps.ts`).
-
-## Style & Design Requirements
-- Follow `DESIGN.md` (tokens, serif display font, Archivo Narrow labels, mobile dvh, safe-area insets, no eyebrows/kickers).
-- Follow Google Developer Documentation Style Guide (active voice, direct tone, no throat-clearing, sentence case, Oxford comma).
+Headings and section titles are **title case** ("Record Book", "Title-Winning
+XI"). Buttons are sentence case ("Submit proposal"), never uppercase.
+`scripts/check-ui-rules.mjs` enforces this on write.

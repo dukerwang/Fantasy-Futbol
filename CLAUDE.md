@@ -145,7 +145,6 @@ All frontend UI copy, microcopy, error messages, documentation, and agent respon
   - `emil-design-eng`: Implements §4.A of `DESIGN.md` (button press physics, modal/drawer transitions, origin-aware popovers, snappy <250ms threshold).
   - `apple-design`: Implements §4.B of `DESIGN.md` (mobile touch ergonomics, dynamic viewport `dvh`, safe-area insets, bottom sheets).
   - `google-dev-style`: Guides all UI copy, error messages, docs, and communication.
-  - `modern-web-guidance`: Provides modern CSS APIs (`:has()`, container queries, modern dialog/popover) instead of JS workarounds.
   - `impeccable` (in `Operate` mode): High-density dashboard, data table, and app shell refinement.
   - `full-output-enforcement`: Prevents code truncation and placeholder comments.
   - `animate`: Targeted CSS and Framer Motion transitions calibrated to Gaffa's tokens.

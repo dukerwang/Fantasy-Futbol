@@ -59,16 +59,46 @@ const COY = [/^How\b/, /\bThat\b/, /\bIt\b/];
 // ── 1. Docs must not contradict the decisions log ──────────────────────────
 // This is the exact failure that produced eleven months of lowercase headings:
 // CLAUDE.md instructed sentence case long after f2552ff2 changed the code.
+//
+// The first version of this check watched CLAUDE.md only, and the drift simply
+// moved into the files it was not watching: AGENTS.md, .cursorrules and the
+// Cursor rule all still said "sentence case" months after CLAUDE.md was fixed,
+// so Codex, Antigravity and Cursor kept writing the headings Duke had already
+// rejected. Every file an agent auto-loads is watched now. Add new ones here.
+const AGENT_DOCS = [
+  'CLAUDE.md',
+  'AGENTS.md',
+  'CODEX.md',
+  'DESIGN.md',
+  '.cursorrules',
+  '.cursor/rules/project-context.mdc',
+  'docs/UI_RULES.md',
+];
+
+/**
+ * Two shapes of the same mistake. The first is the explicit instruction; the
+ * second is "sentence case" listed as a bare style bullet, which is how it hid
+ * in .cursorrules. A line is exempt if it scopes itself to buttons, prose,
+ * empty states or tooltips, which genuinely are sentence case.
+ */
+const SENTENCE_CASE_RULES = [
+  /sentence case for (?:headings|section titles|titles)/i,
+  /\bsentence case\b/i,
+];
+const SENTENCE_CASE_OK = /button|prose|tooltip|empty[- ]state|placeholder|aria|description|sentence case \(|stay sentence|stays sentence|are sentence|is sentence/i;
+
 function checkDocs() {
-  for (const f of ['CLAUDE.md', 'DESIGN.md', 'docs/UI_RULES.md']) {
+  for (const f of AGENT_DOCS) {
     const p = path.join(ROOT, f);
     if (!fs.existsSync(p)) continue;
     const src = fs.readFileSync(p, 'utf8');
-    const m = src.match(/sentence case for (headings|section titles)/i);
-    if (m) {
-      err(p, lineOf(src, m.index), 'doc-contradiction',
-        `"${m[0]}" contradicts docs/UI_RULES.md rule 1 (headings are title case).`);
-    }
+    src.split('\n').forEach((line, i) => {
+      if (SENTENCE_CASE_OK.test(line)) return;
+      const hit = SENTENCE_CASE_RULES.find((re) => re.test(line));
+      if (!hit) return;
+      err(p, i + 1, 'doc-contradiction',
+        `"${line.trim().slice(0, 90)}" contradicts docs/UI_RULES.md rule 1 (headings are title case).`);
+    });
   }
 }
 
@@ -111,8 +141,8 @@ function checkCss(f, src) {
   while ((m = ruleRe.exec(src))) {
     const [, selector, body] = m;
     if (selector.trim().startsWith('@')) continue;
-    const hasBorder = /(^|\s|;)border\s*:\s*(?!none|0)/.test(body);
-    const hasShadow = /(^|\s|;)box-shadow\s*:\s*(?!none)/.test(body);
+    const hasBorder = /(^|\s|;)border\s*:\s*(?!\s*(?:none|0)\b)/.test(body);
+    const hasShadow = /(^|\s|;)box-shadow\s*:\s*(?!\s*none\b)/.test(body);
     if (hasBorder && hasShadow) {
       err(f, lineOf(src, m.index), 'ghost-card',
         `${selector.trim().split('\n').pop().trim()} declares both border and box-shadow. Elevation is border XOR shadow (UI_RULES rule 7).`, body.trim());
