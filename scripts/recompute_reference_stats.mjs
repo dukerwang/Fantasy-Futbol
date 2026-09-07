@@ -88,7 +88,7 @@ function positionGroup(pos) {
 // Keep in step with src/lib/scoring/matchRating.ts. Duplicated rather than
 // imported because this script runs as plain .mjs outside the Next build.
 const GK_CLEAN_SHEET = 20;
-const GK_CLEAN_SHEET_SAVE_CAP = 10;
+const GK_CLEAN_SHEET_SAVE_CAP = 16;
 const GK_GOAL_CONCEDED = 3.4;
 const GK_XGC_DIFF = 2.5;
 
