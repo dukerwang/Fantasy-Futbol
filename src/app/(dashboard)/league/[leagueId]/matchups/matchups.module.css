@@ -483,13 +483,101 @@
     }
 }
 
+@media (max-width: 640px) {
+    /* `.g-score` stacks its two sides below 640px (globals.css § 4). The club
+       identity is the half of the cell this page owns, so it unmirrors here:
+       the away crest leads its name the way the home crest does, and the record
+       sits under the name on the same edge. */
+    .scoreClub {
+        flex: 1;
+        margin-bottom: 0;
+    }
+
+    .scoreClubAway { flex-direction: row; }
+
+    /* `stretch`, not `flex-start`. In a column flex box a `flex-start` child is
+       sized to its content, so `.scoreName`'s ellipsis had no width to work
+       against and the club name ran straight through its own figure. Stretch
+       binds the name to the column, `text-align` does the unmirroring. */
+    .scoreClubAway .scoreId {
+        align-items: stretch;
+        text-align: left;
+    }
+
+    .scoreName { font-size: var(--t-17); }
+
+    /* A club name wraps rather than truncates. Stacked, the figure and the
+       crest take a fixed 145px of the 311px measure, which leaves the longest
+       club names a character or two short — and an ellipsis that eats the last
+       word is worse than a second line. Clamped at two so a pathological name
+       cannot push the axis off the card. */
+    .scoreName {
+        white-space: normal;
+        overflow-wrap: anywhere;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
+    }
+}
+
+/* THE FIXTURE ROW STOPS BEING A ROW.
+
+   Three columns need a crest, a name and a figure in each outer track plus an
+   88px axis between them. Measured at 375px that left the club name 20.9px —
+   "W…", "St…", every fixture in the round reduced to a first letter. A name
+   truncated past two characters is not a shortened name, it is a missing one.
+
+   So each club takes its own line at full measure, and the axis moves under
+   both with the state beside it. Same three things, same order, stacked: the
+   figures still align on a common right edge, and the axis still reads as the
+   state of the tie under the pair it describes.
+
+   600px rather than the ~520px where the three columns actually break: between
+   the two the name survives only as an ellipsis, and a fixture list whose clubs
+   all end in "…" is the same failure one size smaller. */
 @media (max-width: 600px) {
-    .masthead { padding: var(--s5) var(--s4) var(--s3); }
+    .fixture {
+        display: flex;
+        flex-direction: column;
+        gap: var(--s2);
+        padding: var(--s3);
+    }
+
+    .fixtureSide { width: 100%; }
+
+    .fixtureSideAway { flex-direction: row; }
+    .fixtureSideAway .fixtureName { text-align: left; }
+
+    /* Last, not between. Stacked, the two clubs read as the pair they are only
+       while they are adjacent; the axis describes the pair, so it goes under
+       both rather than splitting them. */
+    .fixtureCentre {
+        order: 3;
+        flex-direction: row;
+        align-items: center;
+        gap: var(--s3);
+        width: 100%;
+        padding-top: var(--s1);
+    }
+
+    .fixtureCentre :global(.g-axis) {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .fixtureState { flex-shrink: 0; }
+}
+
+@media (max-width: 600px) {
+    .masthead {
+        padding: var(--s5) var(--s4) var(--s3);
+        gap: var(--s3);
+    }
     .lead { padding: 0 var(--s4) var(--s4); }
     .round, .emptyPanel { margin: 0 var(--s4) var(--s6); }
     .title { font-size: var(--t-25); }
     .fixturesHead, .fixture { padding-left: var(--s3); padding-right: var(--s3); }
-    .fixtureName { font-size: var(--t-12); }
-    .fixtureScore { font-size: var(--t-15); min-width: 4.5ch; }
+    .fixtureName { font-size: var(--t-13); }
     .fixtureScore { font-size: var(--t-15); min-width: 4.5ch; }
 }

@@ -242,10 +242,40 @@
     .reportGrid { grid-template-columns: 1fr; gap: var(--s4); }
 }
 
+/* `.g-score` stacks its two sides below 640px (globals.css § 4), because side
+   by side neither half can hold a crest, a club name and a 40px figure at phone
+   width — the away half overflowed the panel and overlapped the home club's
+   name. The club identity is the half of the cell this page owns, so it
+   unmirrors here: the away crest leads its name the way the home crest does. */
+@media (max-width: 640px) {
+    .scoreClub {
+        flex: 1;
+        margin-bottom: 0;
+    }
+
+    .scoreClubAway { flex-direction: row; }
+
+    /* A club name wraps rather than truncates. Stacked, the figure and the
+       crest take a fixed 145px of the 311px measure, which leaves the longest
+       club names a character or two short — and an ellipsis that eats the last
+       word is worse than a second line. Clamped at two so a pathological name
+       cannot push the axis off the card. */
+    .clubLink {
+        flex: 1;
+        min-width: 0;
+        font-size: var(--t-17);
+        white-space: normal;
+        overflow-wrap: anywhere;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
+    }
+}
+
 @media (max-width: 600px) {
     .backLink { margin: var(--s4) var(--s4) 0; }
     .headPanel, .report { margin: 0 var(--s4); }
     .report { padding: var(--s4); }
-    .clubLink { font-size: var(--t-15); }
     .reportHeadline { font-size: var(--t-20); }
 }

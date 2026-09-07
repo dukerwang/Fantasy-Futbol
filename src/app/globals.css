@@ -957,7 +957,7 @@ svg {
    the accent, because accent means "yours". */
 .g-score {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   row-gap: var(--s3);
   align-items: end;
   padding: var(--s5) var(--s4) var(--s4);
@@ -977,6 +977,44 @@ svg {
 }
 .g-score-away { text-align: right; }
 .g-score-axis { grid-column: 1 / -1; display: flex; flex-direction: column; gap: 5px; }
+
+/* NARROW: the two sides stack into rows.
+
+   Side by side, each half has to hold a crest, a club name and a 40px figure.
+   At 375px a half is ~150px, which is not enough for any one of them — and
+   `1fr` floors at max-content, so the figure set a width the column could not
+   go below. The away half was pushed 199px past the panel, clipped by its
+   radius, and what remained of it overlapped the home club's name. Capping the
+   tracks at `minmax(0, 1fr)` above stops the overflow; below 640px the halves
+   stop competing for the measure at all.
+
+   Stacked, the club takes the full width and the figure sits at the end of its
+   own row, so the two numbers still align on a common right edge — which is the
+   only reason a scoreline puts them near each other. */
+@media (max-width: 640px) {
+  .g-score {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: var(--s4);
+    padding: var(--s4);
+  }
+
+  /* Each side becomes club-then-figure. The axis keeps its own row. */
+  .g-score > :not(.g-score-axis) {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--s3);
+    min-width: 0;
+  }
+
+  /* The away side no longer mirrors: at one column there is no centre to face
+     across, and a right-aligned name under a left-aligned one reads as two
+     different lists. */
+  .g-score-away { text-align: left; }
+
+  .g-score-v { font-size: var(--t-32); flex-shrink: 0; }
+  .g-score-mine .g-score-v { padding-bottom: 4px; }
+}
 
 /* --- 4a. The margin axis ---
    Added 2026-08-12, by port 5, which is the scoreline's first consumer. The

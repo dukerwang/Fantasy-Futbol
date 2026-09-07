@@ -892,7 +892,12 @@
 }
 
 @media (max-width: 600px) {
-    .board { margin: 0; }
+    /* The page's own mobile gutter, not full bleed. The scoreline and the match
+       report above sit at --s4; a board running to the viewport edge under them
+       read as the pitch having slipped its column rather than as the pitch being
+       given more room. The 32px it costs changes nothing downstream — the field
+       and bench container queries land in the same tier either side of it. */
+    .board { margin: 0 var(--s4); }
     .half { padding: var(--s2) var(--s1); }
     .zoneRow {
         min-height: 80px;
