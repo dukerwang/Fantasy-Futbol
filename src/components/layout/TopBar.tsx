@@ -773,7 +773,10 @@ export default function TopBar() {
       {currentLeagueId && mobileMenuOpen && (
         <div className={styles.mobileDrawer}>
           <div className={styles.mobileDrawerContent}>
-            {/* Primary Hub Links */}
+            {/* Primary Hub Link — mirrors the desktop bar, where Home leads
+                alone and Transfers/Activity/Draft trail after Squad, League
+                and Fixtures. They used to sit here instead, right under Home,
+                which put them ahead of every dropdown group on mobile only. */}
             <div className={styles.mobileDrawerGroup}>
               <div className={styles.mobileDrawerGroupLabel}>Overview</div>
               <div className={styles.mobileDrawerGroupItems}>
@@ -787,38 +790,6 @@ export default function TopBar() {
                 >
                   Home
                 </Link>
-                <Link
-                  href={`/league/${currentLeagueId}/transfers`}
-                  className={`${styles.mobileDrawerSubLink} ${isTransfersActive() ? styles.mobileDrawerSubLinkActive : ''}`}
-                  onClick={() => {
-                    setIsNavigating(true);
-                    setMobileMenuOpen(false);
-                  }}
-                >
-                  Transfers
-                </Link>
-                <Link
-                  href={`/league/${currentLeagueId}/activity`}
-                  className={`${styles.mobileDrawerSubLink} ${isActivityActive() ? styles.mobileDrawerSubLinkActive : ''}`}
-                  onClick={() => {
-                    setIsNavigating(true);
-                    setMobileMenuOpen(false);
-                  }}
-                >
-                  Activity
-                </Link>
-                {isDraftVisible && (
-                  <Link
-                    href={`/league/${currentLeagueId}`}
-                    className={`${styles.mobileDrawerSubLink} ${isDraftActive() ? styles.mobileDrawerSubLinkActive : ''}`}
-                    onClick={() => {
-                      setIsNavigating(true);
-                      setMobileMenuOpen(false);
-                    }}
-                  >
-                    Draft
-                  </Link>
-                )}
               </div>
             </div>
 
@@ -853,6 +824,45 @@ export default function TopBar() {
                 </div>
               </div>
             ))}
+
+            {/* Trailing standalone links — same order as the desktop bar */}
+            <div className={styles.mobileDrawerGroup}>
+              <div className={styles.mobileDrawerGroupLabel}>More</div>
+              <div className={styles.mobileDrawerGroupItems}>
+                <Link
+                  href={`/league/${currentLeagueId}/transfers`}
+                  className={`${styles.mobileDrawerSubLink} ${isTransfersActive() ? styles.mobileDrawerSubLinkActive : ''}`}
+                  onClick={() => {
+                    setIsNavigating(true);
+                    setMobileMenuOpen(false);
+                  }}
+                >
+                  Transfers
+                </Link>
+                <Link
+                  href={`/league/${currentLeagueId}/activity`}
+                  className={`${styles.mobileDrawerSubLink} ${isActivityActive() ? styles.mobileDrawerSubLinkActive : ''}`}
+                  onClick={() => {
+                    setIsNavigating(true);
+                    setMobileMenuOpen(false);
+                  }}
+                >
+                  Activity
+                </Link>
+                {isDraftVisible && (
+                  <Link
+                    href={`/league/${currentLeagueId}`}
+                    className={`${styles.mobileDrawerSubLink} ${isDraftActive() ? styles.mobileDrawerSubLinkActive : ''}`}
+                    onClick={() => {
+                      setIsNavigating(true);
+                      setMobileMenuOpen(false);
+                    }}
+                  >
+                    Draft
+                  </Link>
+                )}
+              </div>
+            </div>
           </div>
         </div>
       )}

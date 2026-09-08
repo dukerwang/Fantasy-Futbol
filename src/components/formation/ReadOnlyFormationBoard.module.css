@@ -532,8 +532,16 @@
     width: clamp(66px, 22vw, 84px);
   }
   .portraitWrap :global(.g-portrait-md) {
+    /* `transform: scale()` shrinks the picture without shrinking the 78px box
+       it sits in — `transform-origin: center top` (set on the base rule above,
+       still in force here) keeps the top edge fixed, so every pixel the scale
+       removes piles up as dead air at the BOTTOM of that box. At the desktop
+       scale (0.88) that's a 9px gap nobody tightened; dropping to 0.72 here
+       for the smaller mobile node triples it to ~22px. margin-bottom cancels
+       exactly the height the scale removes (78 * (1 - 0.72) ≈ 22px), so the
+       chip sits right under the visible portrait instead of floating below it. */
     transform: scale(0.72);
-    margin-bottom: -6px;
+    margin-bottom: -22px;
   }
   .nodeChip {
     padding: 2px 2px;
