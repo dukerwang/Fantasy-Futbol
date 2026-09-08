@@ -112,7 +112,15 @@ export const valueOf = (e: SquadEntry): number => Number(e.player.market_value ?
 
 // ── Squad-level derivations ──────────────────────────────────────────────────
 const LINEUP_STATUSES = new Set(['active', 'bench', 'loan_in']);
-const lineupPool = (entries: SquadEntry[]) => entries.filter((e) => LINEUP_STATUSES.has(e.status));
+// IR and Academy can't actually be slotted into a real matchday lineup — the
+// editable `/team` pitch enforces that, and the Depth Chart's own "Fieldable
+// formations" note says so. The read-only Pitch tab on Clubs is different: its
+// whole point is a squad-strength view, "if everyone were fit and eligible",
+// so it offers the choice (default on) to fold the sidelined pool back in
+// rather than excluding it outright.
+const SIDELINED_STATUSES = new Set(['ir', 'taxi']);
+const lineupPool = (entries: SquadEntry[], includeSidelined = false) =>
+  entries.filter((e) => LINEUP_STATUSES.has(e.status) || (includeSidelined && SIDELINED_STATUSES.has(e.status)));
 
 export function squadTotals(entries: SquadEntry[]) {
   const value = entries.reduce((a, e) => a + valueOf(e), 0);
@@ -214,8 +222,8 @@ export function projectedScores(entries: SquadEntry[]): Record<string, number> {
   return scores;
 }
 
-export function projectedLineup(entries: SquadEntry[], preferredFormation?: Formation | null) {
-  const eligible = lineupPool(entries).filter((entry) => entry.player.primary_position);
+export function projectedLineup(entries: SquadEntry[], preferredFormation?: Formation | null, includeSidelined = false) {
+  const eligible = lineupPool(entries, includeSidelined).filter((entry) => entry.player.primary_position);
   const scores = projectedScores(eligible);
   const candidates = eligible.map((entry) => ({
     id: entry.player.id,
@@ -257,8 +265,8 @@ function matchFormation(slots: GranularPosition[], players: Player[]): boolean {
   return Object.keys(slotOf).length >= slots.length;
 }
 
-export function formationReport(entries: SquadEntry[]) {
-  const players = lineupPool(entries).map((e) => e.player);
+export function formationReport(entries: SquadEntry[], includeSidelined = false) {
+  const players = lineupPool(entries, includeSidelined).map((e) => e.player);
   return ALL_FORMATIONS.map((name) => ({ name, ok: matchFormation(FORMATION_SLOTS[name], players) }));
 }
 

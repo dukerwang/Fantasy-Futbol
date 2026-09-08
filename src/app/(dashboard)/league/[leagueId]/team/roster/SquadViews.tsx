@@ -222,15 +222,20 @@ function matchesSlot(entry: SquadEntry, slot: GranularPosition): boolean {
   return entry.player.primary_position === slot || (entry.player.secondary_positions ?? []).includes(slot);
 }
 
+const DEPTH_STATUSES = ['active', 'bench', 'loan_in'];
+const SIDELINED_DEPTH_STATUSES = [...DEPTH_STATUSES, 'ir', 'taxi'];
+
 function pitchDepth(
   starters: { playerId: string; slot: GranularPosition }[],
   entries: SquadEntry[],
   byPlayerId: Map<string, SquadEntry>,
   scores: Record<string, number>,
+  includeSidelined: boolean,
 ): FormationBoardSlot[] {
+  const eligibleStatuses = includeSidelined ? SIDELINED_DEPTH_STATUSES : DEPTH_STATUSES;
   const starterIds = new Set(starters.map((starter) => starter.playerId));
   const available = entries
-    .filter((entry) => ['active', 'bench', 'loan_in'].includes(entry.status) && !starterIds.has(entry.player.id))
+    .filter((entry) => eligibleStatuses.includes(entry.status) && !starterIds.has(entry.player.id))
     .sort((a, b) => (scores[b.id] ?? 0) - (scores[a.id] ?? 0));
 
   // 1. Calculate candidate scarcity per unique position in formation
@@ -297,15 +302,20 @@ export function ClubPitch({
 }) {
   const [mode, setMode] = useState<'projected' | 'saved'>('projected');
   const [selectedFormation, setSelectedFormation] = useState<Formation | null>(null);
+  // The whole point of this tab is squad strength, not this week's paperwork
+  // — so IR and Academy default INTO the projected XI and bench cover, as if
+  // everyone were fit and eligible. Off strips it back to the same "actually
+  // fieldable" pool the Depth Chart and the real `/team` pitch use.
+  const [includeSidelined, setIncludeSidelined] = useState(true);
 
   const availableFormations = useMemo(() => {
-    const list = formationReport(entries);
+    const list = formationReport(entries, includeSidelined);
     return new Map<Formation, boolean>(list.map((f: { name: Formation; ok: boolean }) => [f.name, f.ok]));
-  }, [entries]);
+  }, [entries, includeSidelined]);
 
   const projected = useMemo(
-    () => projectedLineup(entries, selectedFormation),
-    [entries, selectedFormation],
+    () => projectedLineup(entries, selectedFormation, includeSidelined),
+    [entries, selectedFormation, includeSidelined],
   );
   const scores = useMemo(() => projectedScores(entries), [entries]);
   const byPlayerId = useMemo(() => new Map(entries.map((entry) => [entry.player.id, entry])), [entries]);
@@ -322,21 +332,14 @@ export function ClubPitch({
   );
 
   const boardSlots = useMemo(
-    () => pitchDepth(starters, entries, byPlayerId, scores),
-    [starters, entries, byPlayerId, scores],
+    () => pitchDepth(starters, entries, byPlayerId, scores, includeSidelined),
+    [starters, entries, byPlayerId, scores, includeSidelined],
   );
 
   const activeFormation = mode === 'saved' ? saved?.formation : (selectedFormation ?? projected?.formation);
   const modeLabel = mode === 'saved'
     ? saved ? `Saved Lineup · GW${savedLineup?.gameweek}` : 'No Saved Lineup'
     : projected ? 'Projected XI · matchday outlook' : 'No legal XI';
-
-  // Neither can be slotted into a lineup (see the Depth Chart's own note), so
-  // they never reach `pitchDepth`'s bench pool — but a squad view that never
-  // shows them at all makes a manager leave the tab to find out who's hurt or
-  // who's coming through the Academy. Visible, not fieldable.
-  const academyEntries = useMemo(() => entries.filter((e) => e.status === 'taxi'), [entries]);
-  const irEntries = useMemo(() => entries.filter((e) => e.status === 'ir'), [entries]);
 
   return (
     <section className={`${styles.panel} ${styles.clubPitch} g-panel`} aria-label="Squad Pitch">
@@ -411,36 +414,23 @@ export function ClubPitch({
         />
       </div>
 
-      {(academyEntries.length > 0 || irEntries.length > 0) && (
-        <div className={styles.pitchSidelined}>
-          {academyEntries.length > 0 && (
-            <div className={styles.zone}>
-              <div className={styles.zoneHead}>
-                <span className={styles.zoneLabel}>Academy</span>
-                <span className={styles.zoneCount}>{academyEntries.length}</span>
-              </div>
-              <div className={styles.strip}>
-                {academyEntries.map((e) => (
-                  <TileCompact key={e.id} e={e} sel={e.id === selId} onClick={() => onSelect(e.id)} />
-                ))}
-              </div>
-            </div>
-          )}
-          {irEntries.length > 0 && (
-            <div className={styles.zone}>
-              <div className={styles.zoneHead}>
-                <span className={styles.zoneLabel}>Injured Reserve</span>
-                <span className={styles.zoneCount}>{irEntries.length}</span>
-              </div>
-              <div className={styles.strip}>
-                {irEntries.map((e) => (
-                  <TileCompact key={e.id} e={e} sel={e.id === selId} onClick={() => onSelect(e.id)} />
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-      )}
+      <div className={styles.pitchFoot}>
+        <button
+          type="button"
+          className={styles.sidelinedToggle}
+          role="switch"
+          aria-checked={includeSidelined}
+          onClick={() => setIncludeSidelined((v) => !v)}
+        >
+          <span className={styles.sidelinedToggleTrack} aria-hidden />
+          Include Academy &amp; IR
+        </button>
+        <span className={styles.pitchFootNote}>
+          {includeSidelined
+            ? 'Showing squad strength as if everyone were fit and eligible.'
+            : 'Showing only players who can actually be fielded this week.'}
+        </span>
+      </div>
     </section>
   );
 }
