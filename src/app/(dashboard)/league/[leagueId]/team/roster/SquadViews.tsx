@@ -331,6 +331,13 @@ export function ClubPitch({
     ? saved ? `Saved Lineup · GW${savedLineup?.gameweek}` : 'No Saved Lineup'
     : projected ? 'Projected XI · matchday outlook' : 'No legal XI';
 
+  // Neither can be slotted into a lineup (see the Depth Chart's own note), so
+  // they never reach `pitchDepth`'s bench pool — but a squad view that never
+  // shows them at all makes a manager leave the tab to find out who's hurt or
+  // who's coming through the Academy. Visible, not fieldable.
+  const academyEntries = useMemo(() => entries.filter((e) => e.status === 'taxi'), [entries]);
+  const irEntries = useMemo(() => entries.filter((e) => e.status === 'ir'), [entries]);
+
   return (
     <section className={`${styles.panel} ${styles.clubPitch} g-panel`} aria-label="Squad Pitch">
       <div className={styles.pitchHead}>
@@ -403,6 +410,37 @@ export function ClubPitch({
           variant="deck"
         />
       </div>
+
+      {(academyEntries.length > 0 || irEntries.length > 0) && (
+        <div className={styles.pitchSidelined}>
+          {academyEntries.length > 0 && (
+            <div className={styles.zone}>
+              <div className={styles.zoneHead}>
+                <span className={styles.zoneLabel}>Academy</span>
+                <span className={styles.zoneCount}>{academyEntries.length}</span>
+              </div>
+              <div className={styles.strip}>
+                {academyEntries.map((e) => (
+                  <TileCompact key={e.id} e={e} sel={e.id === selId} onClick={() => onSelect(e.id)} />
+                ))}
+              </div>
+            </div>
+          )}
+          {irEntries.length > 0 && (
+            <div className={styles.zone}>
+              <div className={styles.zoneHead}>
+                <span className={styles.zoneLabel}>Injured Reserve</span>
+                <span className={styles.zoneCount}>{irEntries.length}</span>
+              </div>
+              <div className={styles.strip}>
+                {irEntries.map((e) => (
+                  <TileCompact key={e.id} e={e} sel={e.id === selId} onClick={() => onSelect(e.id)} />
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
     </section>
   );
 }

@@ -284,6 +284,11 @@
 
 .clubPitchField { padding: var(--s4); background: var(--color-bg-card-alt); }
 
+/* Academy and IR sit here rather than only on the Depth Chart / Table filters
+   because the Pitch view hides that toolbar entirely — without this, neither
+   group is visible anywhere on the tab a manager lands on by default. */
+.pitchSidelined { border-top: 1px solid var(--color-border-subtle); }
+
 .formationBar {
   display: flex;
   align-items: center;
@@ -596,7 +601,42 @@
 /* ---- Responsive ------------------------------------------ */
 @media (max-width: 1080px) {
   .layout { grid-template-columns: minmax(0, 1fr); }
-  .rail { position: static; max-height: none; }
+  /* Below this width the Inspector is no longer a sidebar sitting beside the
+     squad — it was still IN FLOW here, though, which put it after the pitch,
+     the Retained List and Intelligence, at the very bottom of a long stacked
+     page. Picking a card scrolled you to a rail you couldn't see. It's a
+     bottom sheet now: fixed to the viewport, off-screen until a card is
+     tapped (`.railOpen`, toggled by `inspectorOpen` in ClubClient), so the
+     detail appears right where you tapped instead of wherever it fell in the
+     page. */
+  .rail {
+    position: fixed;
+    inset: auto 0 0 0;
+    z-index: var(--z-modal);
+    max-height: 85vh;
+    max-height: 85dvh;
+    padding: var(--s2) var(--s4) calc(var(--s4) + env(safe-area-inset-bottom));
+    background: var(--color-bg-card);
+    border-radius: var(--r-shell) var(--r-shell) 0 0;
+    box-shadow: var(--shadow-xl);
+    transform: translateY(100%);
+    transition: transform var(--dur-base) var(--ease-standard);
+  }
+  .railOpen { transform: translateY(0); }
+  .railScrim {
+    position: fixed;
+    inset: 0;
+    z-index: var(--z-modal);
+    background: rgba(28, 28, 28, 0.28);
+  }
+  :global([data-theme='dark']) .railScrim { background: rgba(10, 13, 20, 0.6); }
+  .railClose {
+    display: flex; align-items: center; justify-content: center;
+    width: 32px; height: 32px; margin: var(--s2) 0 var(--s1) auto;
+    border-radius: var(--r-round); border: 1px solid var(--color-border-subtle);
+    background: var(--color-bg-elevated); color: var(--color-text-secondary);
+    font-size: var(--t-13); cursor: pointer;
+  }
   .figs { grid-template-columns: repeat(2, 1fr); }
   .fig:nth-child(3) { border-left: 0; }
   .fig:nth-child(n+3) { border-top: 1px solid var(--color-border-subtle); }

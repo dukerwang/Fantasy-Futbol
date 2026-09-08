@@ -228,6 +228,37 @@ export default function ClubClient({
   );
   const [decision, setDecision] = useState<DecisionRequest | null>(null);
 
+  // Below the layout's single-column breakpoint, the Inspector rail isn't a
+  // sidebar any more — it's a sheet, so picking a card has to open it instead
+  // of leaving it wherever it landed at the bottom of a long stacked page.
+  const [narrow, setNarrow] = useState(false);
+  const [inspectorOpen, setInspectorOpen] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 1080px)');
+    const sync = () => setNarrow(mq.matches);
+    sync();
+    mq.addEventListener('change', sync);
+    return () => mq.removeEventListener('change', sync);
+  }, []);
+
+  useEffect(() => {
+    if (!narrow || !inspectorOpen) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setInspectorOpen(false); };
+    document.addEventListener('keydown', onKey);
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.removeEventListener('keydown', onKey);
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [narrow, inspectorOpen]);
+
+  function selectEntry(id: string) {
+    setSelectedId(id);
+    setInspectorOpen(true);
+  }
+
   useEffect(() => {
     try {
       const v = localStorage.getItem('gaffa:club-view') ?? localStorage.getItem('club-view');
@@ -304,7 +335,7 @@ export default function ClubClient({
 
   function handleTodo(n: TodoItem) {
     if (n.decision) setDecision(n.decision);
-    else if (n.entryId) setSelectedId(n.entryId);
+    else if (n.entryId) selectEntry(n.entryId);
   }
 
   return (
@@ -455,9 +486,9 @@ export default function ClubClient({
       {/* ── Layout ── */}
       <div className={styles.layout}>
         <main>
-          {view === 'pitch' && <ClubPitch entries={entries} savedLineup={savedLineup} selId={selectedId} onSelect={setSelectedId} />}
-          {view === 'depth' && <DepthChart entries={shown} allEntries={entries} selId={selectedId} onSelect={setSelectedId} />}
-          {view === 'table' && <SquadTable entries={shown} selId={selectedId} onSelect={setSelectedId} />}
+          {view === 'pitch' && <ClubPitch entries={entries} savedLineup={savedLineup} selId={selectedId} onSelect={selectEntry} />}
+          {view === 'depth' && <DepthChart entries={shown} allEntries={entries} selId={selectedId} onSelect={selectEntry} />}
+          {view === 'table' && <SquadTable entries={shown} selId={selectedId} onSelect={selectEntry} />}
           <RetainedList
             leagueId={leagueId}
             teamId={teamId}
@@ -469,7 +500,24 @@ export default function ClubClient({
           <Intel entries={entries} totals={totals} />
         </main>
 
-        <div className={styles.rail}>
+        {/* Below 1080px this is a bottom sheet, not a sidebar — see the
+            `narrow`/`inspectorOpen` state above. Tapping a card opens it right
+            there instead of leaving the detail wherever the rail happens to
+            fall in a stacked single-column page. */}
+        {narrow && inspectorOpen && (
+          <div className={styles.railScrim} onClick={() => setInspectorOpen(false)} />
+        )}
+        <div className={`${styles.rail} ${narrow && inspectorOpen ? styles.railOpen : ''}`}>
+          {narrow && (
+            <button
+              type="button"
+              className={styles.railClose}
+              onClick={() => setInspectorOpen(false)}
+              aria-label="Close player details"
+            >
+              ✕
+            </button>
+          )}
           <Inspector
             entry={selected}
             teamId={teamId}
