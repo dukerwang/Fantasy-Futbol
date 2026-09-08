@@ -494,21 +494,39 @@
 @media (max-width: 640px) {
   .pitchField {
     height: auto;
-    min-height: 540px;
+    min-height: 0;
     max-height: none;
   }
   .pitchZones {
-    min-height: 540px;
+    min-height: 0;
     height: auto;
     padding: var(--s4) 2px var(--s4);
-    gap: 2px;
+    gap: var(--s3);
   }
   .pitchZone {
-    min-height: 76px;
+    /* Equal-share flex growth over a fixed pitch height (the desktop layout)
+       squeezes every zone to the same slice regardless of content — fine when
+       the field has a fixed 850px height to fill, but on mobile the field's
+       height is already content-driven (`height: auto`), so forcing an equal
+       share here let a zone's real content (badge + portrait + name + cover)
+       overflow its slice and bleed into the zone above or below it. Sizing to
+       content instead means the pitch just grows as tall as it needs to. */
+    flex: 0 0 auto;
+    min-height: 0;
+  }
+  .emptyZoneSpacer {
+    flex: 0 0 var(--s5);
   }
   .pitchRow {
     padding: 0 1px;
     gap: 2px;
+  }
+  /* The formation name is already in the pitch's own caption above the field
+     (`ClubPitch` header); repeating it as a watermark just gives the RW/RWB
+     slot's badge something to collide with in the corner that's left on
+     mobile. */
+  .formationWatermark {
+    display: none;
   }
   .nodeWrap {
     width: clamp(66px, 22vw, 84px);
